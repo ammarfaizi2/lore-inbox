@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVL2Am3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVL2Aou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932565AbVL2Am3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 19:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbVL2AjV
+	id S964944AbVL2Aou (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 19:44:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbVL2Aok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 19:39:21 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:51432 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932573AbVL2AjJ (ORCPT
+	Wed, 28 Dec 2005 19:44:40 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:50664 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932572AbVL2AjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 19:39:09 -0500
+	Wed, 28 Dec 2005 19:39:10 -0500
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 10 of 20] ipath - core driver, part 3 of 4
-X-Mercurial-Node: c37b118ef80698acc4eb1cbec223e28dd8b5eeab
-Message-Id: <c37b118ef80698acc4eb.1135816289@eng-12.pathscale.com>
+Subject: [PATCH 5 of 20] ipath - driver core header files
+X-Mercurial-Node: 2d9a3f27a10c8f11df92fdcc55b0beb2d9e21135
+Message-Id: <2d9a3f27a10c8f11df92.1135816284@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1135816279@eng-12.pathscale.com>
-Date: Wed, 28 Dec 2005 16:31:29 -0800
+Date: Wed, 28 Dec 2005 16:31:24 -0800
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,1540 +24,2162 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r dad2e87e21f4 -r c37b118ef806 drivers/infiniband/hw/ipath/ipath_driver.c
---- a/drivers/infiniband/hw/ipath/ipath_driver.c	Wed Dec 28 14:19:42 2005 -0800
-+++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Wed Dec 28 14:19:42 2005 -0800
-@@ -3878,3 +3878,1533 @@
- 		/* process possible error packets in hdrq */
- 		ipath_kreceive(t);
- }
-+
-+/* must only be called if ipath_pd[port] is known to be allocated */
-+static inline void *ipath_get_egrbuf(const ipath_type t, uint32_t bufnum,
-+					 int err)
-+{
-+	return devdata[t].ipath_port0_skbs ?
-+	    (void *)devdata[t].ipath_port0_skbs[bufnum]->data : NULL;
-+
-+#ifdef _USE_FOR_DEBUGGING_ONLY
-+	/*
-+	 * want routine to be inlined and fast this is here so if we do ports
-+	 * other than 0, I don't have to rewrite the code, since it's slightly
-+	 * complicated
-+	 */
-+	if (port != 1) {
-+		void *chunkbase;
-+		/*
-+		 * This calculation takes about 50 cycles.  Could do
-+		 * what I did for protocol code, and have an array of
-+		 * addresses, getting it down to just a few cycles per
-+		 * lookup, at the cost of 16KB of memory.
-+		 */
-+		if (!devdata[t].ipath_pd[port]->port_rcvegrbuf_virt)
-+			return NULL;
-+		chunkbase = devdata[t].ipath_pd[port]->port_rcvegrbuf_virt
-+		    [bufnum /
-+		     devdata[t].ipath_pd[port]->port_rcvegrbufs_perchunk];
-+		return (void *)(chunkbase +
-+				(bufnum %
-+				 devdata[t].ipath_pd[port]->
-+				 port_rcvegrbufs_perchunk)
-+				* devdata[t].ipath_rcvegrbufsize);
-+	}
-+#endif
-+}
-+
-+/* receive an sma packet.  Separate for better overall optimization */
-+static void ipath_rcv_sma(const ipath_type t, uint32_t tlen,
-+			  uint64_t * rc, void *ebuf)
-+{
-+	int sindex, slen, elen;
-+	void *smbuf;
-+	uint8_t pad, *bthbytes;
-+
-+	ipath_stats.sps_sma_rpkts++;	/* another SMA packet received */
-+
-+	bthbytes = (uint8_t *)((struct ips_message_header_typ *) &rc[1])->bth;
-+
-+	pad = (bthbytes[1] >> 4) & 3;
-+	elen = tlen - (IPATH_SMA_HDRSZ + pad + (uint32_t) sizeof(uint32_t));
-+	if (elen > (SMA_MAX_PKTSZ - IPATH_SMA_HDRSZ))
-+		elen = SMA_MAX_PKTSZ - IPATH_SMA_HDRSZ;
-+
-+	spin_lock_irq(&ipath_sma_lock);
-+	sindex = ipath_sma_next;
-+	smbuf = ipath_sma_data[sindex].buf;
-+	ipath_sma_data[sindex].unit = t;
-+	slen = ipath_sma_data[ipath_sma_next].len;
-+	memcpy(smbuf, &rc[1], IPATH_SMA_HDRSZ);
-+	memcpy(smbuf + IPATH_SMA_HDRSZ, ebuf, elen);
-+	if (slen) {
-+		/*
-+		 * overwriting a yet unread old one (buffer wrap), have to
-+		 * advance ipath_sma_first to next oldest
-+		 */
-+
-+		/* count OK packets that we drop */
-+		ipath_stats.sps_krdrops++;
-+		if (++ipath_sma_first >= IPATH_NUM_SMAPKTS)
-+			ipath_sma_first = 0;
-+	}
-+	slen = ipath_sma_data[sindex].len = elen + IPATH_SMA_HDRSZ;
-+	if (++ipath_sma_next >= IPATH_NUM_SMAPKTS)
-+		ipath_sma_next = 0;
-+	spin_unlock_irq(&ipath_sma_lock);
-+}
-+
+diff -r a3a00f637da6 -r 2d9a3f27a10c drivers/infiniband/hw/ipath/ipath_common.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_common.h	Wed Dec 28 14:19:42 2005 -0800
+@@ -0,0 +1,704 @@
 +/*
-+ * receive a packet for the layered (ethernet) driver.
-+ * Separate routine for better overall optimization
-+ */
-+static void ipath_rcv_layer(const ipath_type t, uint32_t etail,
-+			    uint32_t tlen, struct ether_header_typ * hdr)
-+{
-+	uint32_t elen;
-+	uint8_t pad, *bthbytes;
-+	struct sk_buff *skb;
-+	struct sk_buff *nskb;
-+	struct ipath_devdata *dd = &devdata[t];
-+	struct ipath_portdata *pd;
-+	unsigned long pa, pent;
-+	uint64_t __iomem *egrbase;
-+	uint64_t lenvalid;	/* in words */
-+
-+	if (dd->ipath_port0_skbs && hdr->sub_opcode == OPCODE_ENCAP) {
-+		/*
-+		 * Allocate a new sk_buff to replace the one we give
-+		 * to the network stack.
-+		 */
-+		if (!(nskb = dev_alloc_skb(dd->ipath_ibmaxlen + 4))) {
-+			/* count OK packets that we drop */
-+			ipath_stats.sps_krdrops++;
-+			return;
-+		}
-+
-+		bthbytes = (uint8_t *) hdr->bth;
-+		pad = (bthbytes[1] >> 4) & 3;
-+		/* +CRC32 */
-+		elen = tlen - (sizeof(*hdr) + pad + sizeof(uint32_t));
-+
-+		skb_reserve(nskb, 4);
-+
-+		skb = dd->ipath_port0_skbs[etail];
-+		dd->ipath_port0_skbs[etail] = nskb;
-+		skb_put(skb, elen);
-+
-+		pd = dd->ipath_pd[0];
-+		lenvalid = (dd->ipath_ibmaxlen - pd->port_egrskip) >> 2;
-+		lenvalid <<= INFINIPATH_RT_BUFSIZE_SHIFT;
-+		lenvalid |= INFINIPATH_RT_VALID;
-+		pa = virt_to_phys(nskb->data);
-+		pa += pd->port_egrskip;
-+		pent = (pa & INFINIPATH_RT_ADDR_MASK) | lenvalid;
-+		/* This is simplified for port 0 */
-+		egrbase = (uint64_t __iomem *)
-+			((char __iomem *)(dd->ipath_kregbase) +
-+			 dd->ipath_rcvegrbase);
-+		ipath_kput_memq(t, &egrbase[etail], pent);
-+
-+		dd->ipath_layer.l_rcv(t, hdr, skb);
-+
-+		/* another ether packet received */
-+		ipath_stats.sps_ether_rpkts++;
-+	} else if (hdr->sub_opcode == OPCODE_LID_ARP) {
-+		if (dd->ipath_layer.l_rcv_lid)
-+			dd->ipath_layer.l_rcv_lid(t, hdr);
-+	}
-+
-+}
-+
-+/* called from interrupt handler for errors or receive interrupt */
-+void ipath_kreceive(const ipath_type t)
-+{
-+	uint64_t *rc;
-+	void *ebuf;
-+	struct ipath_devdata *dd = &devdata[t];
-+	const uint32_t rsize = dd->ipath_rcvhdrentsize;	/* words */
-+	const uint32_t maxcnt = dd->ipath_rcvhdrcnt * rsize;	/* in words */
-+	uint32_t etail = -1, l, hdrqtail, sma_this_time = 0;
-+	struct ips_message_header_typ *hdr;
-+	uint32_t eflags, i, etype, tlen, pkttot=0;
-+	static uint64_t totcalls; /* stats, may eventually remove */
-+	char emsg[128];
-+
-+	if (!dd->ipath_hdrqtailptr) {
-+		_IPATH_UNIT_ERROR(t,
-+				  "hdrqtailptr not set, can't do receives\n");
-+		return;
-+	}
-+
-+	if (test_and_set_bit(0, &dd->ipath_rcv_pending)) {
-+		/* There is already a thread processing this queue. */
-+		return;
-+	}
-+
-+	if (dd->ipath_port0head == *dd->ipath_hdrqtailptr)
-+		goto done;
-+
-+gotmore:
-+	/*
-+	 * read only once at start.  If in flood situation, this helps
-+	 * performance slightly.  If more arrive while we are processing,
-+	 * we'll come back here and do them
-+	 */
-+	hdrqtail = *dd->ipath_hdrqtailptr;
-+
-+	for (i = 0, l = dd->ipath_port0head; l != hdrqtail; i++) {
-+		uint32_t qp;
-+		uint8_t *bthbytes;
-+
-+
-+		rc = (uint64_t *) (dd->ipath_pd[0]->port_rcvhdrq + (l << 2));
-+		hdr = (struct ips_message_header_typ *) & rc[1];
-+		/*
-+		 * could make a network order version of IPATH_KD_QP, and
-+		 * do the obvious shift before masking to speed this up.
-+		 */
-+		qp = ntohl(hdr->bth[1]) & 0xffffff;
-+		bthbytes = (uint8_t *) hdr->bth;
-+
-+		eflags = ips_get_hdr_err_flags((uint32_t*)rc);
-+		etype = ips_get_rcv_type((uint32_t*)rc);
-+		tlen = ips_get_length_in_bytes((uint32_t*)rc);	/* total length */
-+		ebuf = NULL;
-+		if (etype != RCVHQ_RCV_TYPE_EXPECTED) {
-+			/*
-+			 * it turns out that the chips uses an eager buffer for
-+			 * all non-expected packets, whether it "needs"
-+			 * one or not.	So always get the index, but
-+			 * don't set ebuf (so we try to copy data)
-+			 * unless the length requires it.
-+			 */
-+			etail = ips_get_index((uint32_t*)rc);
-+			if (tlen > sizeof(*hdr)
-+			    || etype == RCVHQ_RCV_TYPE_NON_KD) {
-+				ebuf = ipath_get_egrbuf(t, etail, 0);
-+			}
-+		}
-+
-+		/*
-+		 * both tiderr and ipathhdrerr are set for all plain IB
-+		 * packets; only ipathhdrerr should be set.
-+		 */
-+
-+		if (etype != RCVHQ_RCV_TYPE_NON_KD
-+		    && etype != RCVHQ_RCV_TYPE_ERROR
-+		    && ips_get_ipath_ver(hdr->iph.ver_port_tid_offset) !=
-+		    IPS_PROTO_VERSION) {
-+			_IPATH_PDBG("Bad InfiniPath protocol version %x\n",
-+				    etype);
-+		}
-+
-+		if (eflags &
-+		    ~(INFINIPATH_RHF_H_TIDERR | INFINIPATH_RHF_H_IHDRERR)) {
-+			get_rhf_errstring(eflags, emsg, sizeof emsg);
-+			_IPATH_PDBG
-+			    ("RHFerrs %x hdrqtail=%x typ=%u tlen=%x opcode=%x egridx=%x: %s\n",
-+			     eflags, l, etype, tlen, bthbytes[0],
-+			     ips_get_index((uint32_t*)rc), emsg);
-+		} else if (etype == RCVHQ_RCV_TYPE_NON_KD) {
-+			/*
-+			 * If there is a userland SMA and this is a MAD packet,
-+			 * then pass it to the userland SMA.
-+			 */
-+			if (ipath_sma_alive && qp <= 1) {
-+				/*
-+				 * count OK packets that we drop because
-+				 * SMA isn't yet running, or because we
-+				 * are in an sma flood (no point in
-+				 * constantly acquiring the spin lock, and
-+				 * overwriting previous packets).
-+				 * Eventually things will recover.
-+				 * Similarly if the sma consumer is
-+				 * so far behind that we would overwrite
-+				 * (yes, it's outside the lock)
-+				 */
-+				if (!ipath_sma_data_spare ||
-+				    ipath_sma_data[ipath_sma_next].len ||
-+				    ++sma_this_time > IPATH_NUM_SMAPKTS) {
-+					ipath_stats.sps_krdrops++;
-+				} else if (ebuf) {
-+					ipath_rcv_sma(t, tlen, rc, ebuf);
-+				}
-+			} else if (dd->verbs_layer.l_rcv) {
-+				dd->verbs_layer.l_rcv(t, rc + 1, ebuf, tlen);
-+			} else {
-+				_IPATH_VDBG("received IB packet, not SMA (QP=%x)\n",
-+					    qp);
-+			}
-+		} else if (etype == RCVHQ_RCV_TYPE_EAGER) {
-+			if (qp == IPATH_KD_QP && bthbytes[0] ==
-+			    dd->ipath_layer.l_rcv_opcode && ebuf)
-+				ipath_rcv_layer(t, etail, tlen,
-+						(struct ether_header_typ *)hdr);
-+			else
-+				_IPATH_PDBG
-+				    ("typ %x, opcode %x (eager, qp=%x), len %x; ignored\n",
-+				     etype, bthbytes[0], qp, tlen);
-+		} else if (etype == RCVHQ_RCV_TYPE_EXPECTED) {
-+			_IPATH_DBG("Bug: Expected TID, opcode %x; ignored\n",
-+				   hdr->bth[0] & 0xff);
-+		} else if (eflags &
-+			   (INFINIPATH_RHF_H_TIDERR | INFINIPATH_RHF_H_IHDRERR))
-+		{
-+			/*
-+			 * This is a type 3 packet, only the LRH is in
-+			 * the rcvhdrq, the rest of the header is in
-+			 * the eager buffer.
-+			 */
-+			uint8_t opcode;
-+			if (ebuf) {
-+				bthbytes = (uint8_t *) ebuf;
-+				opcode = *bthbytes;
-+			} else
-+				opcode = 0;
-+			get_rhf_errstring(eflags, emsg, sizeof emsg);
-+			_IPATH_DBG
-+			    ("Err %x (%s), opcode %x, egrbuf %x, len %x\n",
-+			     eflags, emsg, opcode, etail, tlen);
-+		} else {
-+			/*
-+			 * error packet, type of error	unknown.
-+			 * Probably type 3, but we don't know, so don't
-+			 * even try to print the opcode, etc.
-+			 */
-+			_IPATH_DBG
-+			    ("Error Pkt, but no eflags! egrbuf %x, len %x\n"
-+			     "hdrq@%lx;hdrq+%x rhf: %llx; hdr %llx %llx %llx %llx %llx\n",
-+			     etail, tlen, (unsigned long)rc, l, rc[0], rc[1],
-+			     rc[2], rc[3], rc[4], rc[5]);
-+		}
-+		l += rsize;
-+		if (l >= maxcnt)
-+			l = 0;
-+		/*
-+		 * update for each packet, to help prevent overflows if we have
-+		 * lots of packets.
-+		 */
-+		(void)ipath_kput_ureg(t, ur_rcvhdrhead, l, 0);
-+		if (etype != RCVHQ_RCV_TYPE_EXPECTED)
-+			(void)ipath_kput_ureg(t, ur_rcvegrindexhead, etail, 0);
-+	}
-+
-+	pkttot += i;
-+
-+	dd->ipath_port0head = l;
-+
-+	if (hdrqtail != *dd->ipath_hdrqtailptr)
-+		goto gotmore;	/* more arrived while we handled first batch */
-+
-+	if (pkttot > ipath_stats.sps_maxpkts_call)
-+		ipath_stats.sps_maxpkts_call = pkttot;
-+	ipath_stats.sps_port0pkts += pkttot;
-+	ipath_stats.sps_avgpkts_call = ipath_stats.sps_port0pkts / ++totcalls;
-+
-+	if (sma_this_time)	/* only once at end, not each time */
-+		wake_up_interruptible(&ipath_sma_wait);
-+
-+done:
-+	clear_bit(0, &dd->ipath_rcv_pending);
-+	smp_mb__after_clear_bit();
-+}
-+
-+/*
-+ * Update our shadow copy of the PIO availability register map, called
-+ * whenever our local copy indicates we have run out of send buffers
-+ * NOTE: This can be called from interrupt context by ipath_bufavail()
-+ * and from non-interrupt context by ipath_getpiobuf().
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * Patent licenses, if any, provided herein do not apply to
++ * combinations of this program with other software, or any other
++ * product whatsoever.
 + */
 +
-+static void ipath_update_pio_bufs(const ipath_type t)
-+{
-+	unsigned long flags;
-+	int i;
-+	const unsigned piobregs = (unsigned)devdata[t].ipath_pioavregs;
-+
-+	/* If the generation (check) bits have changed, then we update the
-+	 * busy bit for the corresponding PIO buffer.  This algorithm will
-+	 * modify positions to the value they already have in some cases
-+	 * (i.e., no change), but it's faster than changing only the bits
-+	 * that have changed.
-+	 *
-+	 * We would like to do this atomicly, to avoid spinlocks in the
-+	 * critical send path, but that's not really possible, given the
-+	 * type of changes, and that this routine could be called on multiple
-+	 * cpu's simultaneously, so we lock in this routine only, to avoid
-+	 * conflicting updates; all we change is the shadow, and it's a
-+	 * single 64 bit memory location, so by definition the update is
-+	 * atomic in terms of what other cpu's can see in testing the
-+	 * bits.  The spin_lock overhead isn't too bad, since it only
-+	 * happens when all buffers are in use, so only cpu overhead,
-+	 * not latency or bandwidth is affected.
-+	 */
-+#define _IPATH_ALL_CHECKBITS 0x5555555555555555ULL
-+	if (!devdata[t].ipath_pioavailregs_dma) {
-+		_IPATH_DBG("Update shadow pioavail, but regs_dma NULL!\n");
-+		return;
-+	}
-+	if (infinipath_debug & __IPATH_VERBDBG) {
-+		/* only if packet debug and verbose */
-+		_IPATH_PDBG("Refill avail, dma0=%llx shad0=%llx, "
-+			    "d1=%llx s1=%llx, d2=%llx s2=%llx, d3=%llx s3=%llx\n",
-+			    devdata[t].ipath_pioavailregs_dma[0],
-+			    devdata[t].ipath_pioavailshadow[0],
-+			    devdata[t].ipath_pioavailregs_dma[1],
-+			    devdata[t].ipath_pioavailshadow[1],
-+			    devdata[t].ipath_pioavailregs_dma[2],
-+			    devdata[t].ipath_pioavailshadow[2],
-+			    devdata[t].ipath_pioavailregs_dma[3],
-+			    devdata[t].ipath_pioavailshadow[3]);
-+		if (piobregs > 4)
-+			_IPATH_PDBG("2nd group, dma4=%llx shad4=%llx, "
-+				    "d5=%llx s5=%llx, d6=%llx s6=%llx, d7=%llx s7=%llx\n",
-+				    devdata[t].ipath_pioavailregs_dma[4],
-+				    devdata[t].ipath_pioavailshadow[4],
-+				    devdata[t].ipath_pioavailregs_dma[5],
-+				    devdata[t].ipath_pioavailshadow[5],
-+				    devdata[t].ipath_pioavailregs_dma[6],
-+				    devdata[t].ipath_pioavailshadow[6],
-+				    devdata[t].ipath_pioavailregs_dma[7],
-+				    devdata[t].ipath_pioavailshadow[7]);
-+	}
-+	spin_lock_irqsave(&ipath_pioavail_lock, flags);
-+	for (i = 0; i < piobregs; i++) {
-+		uint64_t pchbusy, pchg, piov, pnew;
-+		/* Chip Errata: bug 6641; even and odd qwords>3 are swapped */
-+		piov = devdata[t].ipath_pioavailregs_dma[i > 3 ? i ^ 1 : i];
-+		pchg =
-+		    _IPATH_ALL_CHECKBITS & ~(devdata[t].
-+					     ipath_pioavailshadow[i] ^ piov);
-+		pchbusy = pchg << INFINIPATH_SENDPIOAVAIL_BUSY_SHIFT;
-+		if (pchg && (pchbusy & devdata[t].ipath_pioavailshadow[i])) {
-+			pnew = devdata[t].ipath_pioavailshadow[i] & ~pchbusy;
-+			pnew |= piov & pchbusy;
-+			devdata[t].ipath_pioavailshadow[i] = pnew;
-+		}
-+	}
-+	spin_unlock_irqrestore(&ipath_pioavail_lock, flags);
-+}
-+
-+static int ipath_do_user_init(struct ipath_portdata *pd,
-+			      struct ipath_user_info __user *uinfo)
-+{
-+	int ret = 0;
-+	ipath_type t = pd->port_unit;
-+	struct ipath_devdata *dd = &devdata[t];
-+	struct ipath_user_info kinfo;
-+
-+	if (copy_from_user(&kinfo, uinfo, sizeof kinfo))
-+		ret = -EFAULT;
-+	else {
-+		/* for now, if major version is different, bail */
-+		if ((kinfo.spu_userversion >> 16) != IPATH_USER_SWMAJOR) {
-+			_IPATH_INFO
-+			    ("User major version %d not same as driver major %d\n",
-+			     kinfo.spu_userversion >> 16, IPATH_USER_SWMAJOR);
-+			ret = -ENODEV;
-+		} else {
-+			if ((kinfo.spu_userversion & 0xffff) !=
-+			    IPATH_USER_SWMINOR)
-+				_IPATH_DBG
-+				    ("User minor version %d not same as driver minor %d\n",
-+				     kinfo.spu_userversion & 0xffff,
-+				     IPATH_USER_SWMINOR);
-+			if (kinfo.spu_rcvhdrsize) {
-+				if ((ret =
-+				     ipath_setrcvhdrsize(t,
-+							 kinfo.spu_rcvhdrsize)))
-+					goto done;
-+			} else if (!dd->ipath_rcvhdrsize) {
-+				/*
-+				 * first user of field, kernel or user
-+				 * code, and using default
-+				 */
-+				dd->ipath_rcvhdrsize = IPATH_DFLT_RCVHDRSIZE;
-+				ipath_kput_kreg(pd->port_unit, kr_rcvhdrsize,
-+						dd->ipath_rcvhdrsize);
-+				_IPATH_VDBG
-+				    ("Use default protocol header size %u\n",
-+				     dd->ipath_rcvhdrsize);
-+			}
-+
-+			pd->port_egrskip = kinfo.spu_egrskip;
-+			if (pd->port_egrskip) {
-+				if (pd->port_egrskip & 3) {
-+					_IPATH_DBG
-+					    ("eager skip 0x%x invalid, must be word multiple; using 0x%x\n",
-+					     pd->port_egrskip,
-+					     pd->port_egrskip & ~3);
-+					pd->port_egrskip &= ~3;
-+				}
-+				_IPATH_DBG
-+				    ("user reserves 0x%x bytes at start of eager TIDs\n",
-+				     pd->port_egrskip);
-+			}
-+
-+			/*
-+			 * for now we do nothing with rcvhdrcnt:
-+			 * kinfo.spu_rcvhdrcnt
-+			 */
-+
-+			/*
-+			 * set up for the rcvhdr Q tail register writeback
-+			 * to user memory
-+			 */
-+			if (kinfo.spu_rcvhdraddr &&
-+			    access_ok(VERIFY_WRITE,
-+				      (uint64_t __user *) kinfo.spu_rcvhdraddr,
-+				      sizeof(uint64_t))) {
-+				uint64_t physaddr, uaddr, off, atmp;
-+				struct page *pagep;
-+				off = offset_in_page(kinfo.spu_rcvhdraddr);
-+				uaddr =
-+				    PAGE_MASK & (unsigned long)kinfo.
-+				    spu_rcvhdraddr;
-+				if ((ret = ipath_get_upages_nocopy(uaddr, &pagep))) {
-+					_IPATH_INFO
-+					    ("Failed to lookup and lock address %llx for rcvhdrtail: errno %d\n",
-+					     kinfo.spu_rcvhdraddr, -ret);
-+					goto done;
-+				}
-+				ipath_stats.sps_pagelocks++;
-+				pd->port_rcvhdrtail_uaddr = uaddr;
-+				pd->port_rcvhdrtail_pagep = pagep;
-+				pd->port_rcvhdrtail_kvaddr =
-+				    page_address(pagep);
-+				pd->port_rcvhdrtail_kvaddr += off;
-+				physaddr = page_to_phys(pagep) + off;
-+				_IPATH_VDBG
-+				    ("port %d user addr %llx hdrtailaddr, %llx physical (off=%llx)\n",
-+				     pd->port_port, kinfo.spu_rcvhdraddr,
-+				     physaddr, off);
-+				ipath_kput_kreg_port(t, kr_rcvhdrtailaddr,
-+						     pd->port_port, physaddr);
-+				atmp =
-+				    ipath_kget_kreg64_port(t, kr_rcvhdrtailaddr,
-+							   pd->port_port);
-+				if (physaddr != atmp) {
-+					_IPATH_UNIT_ERROR(t,
-+							  "Catastrophic software error, RcvHdrTailAddr%u written as %llx, read back as %llx\n",
-+							  pd->port_port,
-+							  physaddr, atmp);
-+					ret = -EINVAL;
-+					goto done;
-+				}
-+			} else {
-+				_IPATH_DBG
-+				    ("Port %d rcvhdrtail addr %llx not valid\n",
-+				     pd->port_port, kinfo.spu_rcvhdraddr);
-+				ret = -EINVAL;
-+				goto done;
-+			}
-+
-+			/*
-+			 * for right now, kernel piobufs are at end,
-+			 * so port 1 is at 0
-+			 */
-+			pd->port_piobufs = dd->ipath_piobufbase +
-+			    dd->ipath_pbufsport * (pd->port_port -
-+						   1) * dd->ipath_palign;
-+			_IPATH_VDBG("Set base of piobufs for port %u to 0x%x\n",
-+				    pd->port_port, pd->port_piobufs);
-+
-+			/*
-+			 * Now allocate the rcvhdr Q and eager TIDs;
-+			 * skip the TID array for time being.
-+			 * If pd->port_port > chip-supported, we need
-+			 * to do extra stuff here to handle by handling
-+			 * overflow through port 0, someday
-+			 */
-+			if (!(ret = ipath_create_rcvhdrq(pd)))
-+				ret = ipath_create_user_egr(pd);
-+			if (!ret) {	/* enable receives now */
-+				uint64_t head;
-+				uint32_t head32;
-+				/* atomically set enable bit for this port */
-+				atomic_set_mask(1U <<
-+						(INFINIPATH_R_PORTENABLE_SHIFT +
-+						 pd->port_port),
-+						&dd->ipath_rcvctrl);
-+
-+				/*
-+				 * set the head registers for this port
-+				 * to the current values of the tail
-+				 * pointers, since we don't know if they
-+				 * were updated on last use of the port.
-+				 */
-+				head32 =
-+				    ipath_kget_ureg32(t, ur_rcvhdrtail,
-+						      pd->port_port);
-+				head = (uint64_t) head32;
-+				ipath_kput_ureg(t, ur_rcvhdrhead, head,
-+						pd->port_port);
-+				head32 =
-+				    ipath_kget_ureg32(t, ur_rcvegrindextail,
-+						      pd->port_port);
-+				ipath_kput_ureg(t, ur_rcvegrindexhead, head32,
-+						pd->port_port);
-+				dd->ipath_lastegrheads[pd->port_port] = -1;
-+				dd->ipath_lastrcvhdrqtails[pd->port_port] = -1;
-+				_IPATH_VDBG
-+				    ("Wrote port%d head %llx, egrhead %x from tail regs\n",
-+				     pd->port_port, head, head32);
-+				/* start at beginning after open */
-+				pd->port_tidcursor = 0;
-+				{
-+					/*
-+					 * now enable the port; the tail
-+					 * registers will be written to
-+					 * memory by the chip as soon
-+					 * as it sees the write to
-+					 * kr_rcvctrl.  The update only
-+					 * happens on transition from 0
-+					 * to 1, so clear it first, then
-+					 * set it as part of enabling
-+					 * the port.  This will (very
-+					 * briefly) affect any other open
-+					 * ports, but it shouldn't be long
-+					 * enough to be an issue.
-+					 */
-+					ipath_kput_kreg(t, kr_rcvctrl,
-+							dd->
-+							ipath_rcvctrl &
-+							~INFINIPATH_R_TAILUPD);
-+					ipath_kput_kreg(t, kr_rcvctrl,
-+							dd->ipath_rcvctrl);
-+				}
-+			}
-+		}
-+	}
-+
-+done:
-+	return ret;
-+}
-+
-+static int ipath_get_baseinfo(struct ipath_portdata *pd,
-+			      struct ipath_base_info __user *ubase)
-+{
-+	int ret = 0;
-+	struct ipath_base_info kbase;
-+	struct ipath_devdata *dd = &devdata[pd->port_unit];
-+
-+	/* be sure anything we don't set is 0ed */
-+	memset(&kbase, 0, sizeof kbase);
-+	kbase.spi_rcvhdr_cnt = dd->ipath_rcvhdrcnt;
-+	kbase.spi_rcvhdrent_size = dd->ipath_rcvhdrentsize;
-+	kbase.spi_tidegrcnt = dd->ipath_rcvegrcnt;
-+	kbase.spi_rcv_egrbufsize = dd->ipath_rcvegrbufsize;
-+	kbase.spi_rcv_egrbuftotlen = pd->port_rcvegrbuf_chunks * PAGE_SIZE * (1 << pd->port_rcvegrbuf_order);	/* have to mmap whole thing */
-+	kbase.spi_rcv_egrperchunk = pd->port_rcvegrbufs_perchunk;
-+	kbase.spi_rcv_egrchunksize = kbase.spi_rcv_egrbuftotlen /
-+	    pd->port_rcvegrbuf_chunks;
-+	kbase.spi_tidcnt = dd->ipath_rcvtidcnt;
-+	/*
-+	 * for this use, may be ipath_cfgports summed over all chips that
-+	 * are are configured and present
-+	 */
-+	kbase.spi_nports = dd->ipath_cfgports;
-+	kbase.spi_unit = pd->port_unit;	/* unit (chip/board) our port is on */
-+	/* for now, only a single page */
-+	kbase.spi_tid_maxsize = PAGE_SIZE;
-+
-+	/*
-+	 * doing this per port, and based on the skip value, etc.
-+	 * This has to be the actual buffer size, since the protocol
-+	 * code treats it as an array.
-+	 *
-+	 * These have to be set to user addresses in the user code via mmap
-+	 * These values are used on return to user code for the mmap target
-+	 * addresses only.  For 32 bit, same 44 bit address problem, so use
-+	 * the physical address, not virtual.  Before 2.6.11, using the
-+	 * page_address() macro worked, but in 2.6.11, even that returns
-+	 * the full 64 bit address (upper bits all 1's).
-+	 * So far, using the physical addresses (or chip offsets, for
-+	 * chip mapping) works, but no doubt some future kernel release
-+	 * will chang that, and we'll be on to yet another method of
-+	 * dealing with this
-+	 */
-+	kbase.spi_rcvhdr_base = (uint64_t) pd->port_rcvhdrq_phys;
-+	kbase.spi_rcv_egrbufs = (uint64_t) pd->port_rcvegr_phys;
-+	kbase.spi_pioavailaddr = (uint64_t) dd->ipath_pioavailregs_phys;
-+	kbase.spi_status = (uint64_t) kbase.spi_pioavailaddr +
-+	    (void *)dd->ipath_statusp - (void *)dd->ipath_pioavailregs_dma;
-+	kbase.spi_piobufbase = (uint64_t) pd->port_piobufs;
-+	kbase.__spi_uregbase =
-+	    dd->ipath_uregbase + dd->ipath_palign * pd->port_port;
-+
-+	kbase.spi_pioindex = dd->ipath_pbufsport * (pd->port_port - 1);
-+	kbase.spi_piocnt = dd->ipath_pbufsport;
-+	kbase.spi_pioalign = dd->ipath_palign;
-+
-+	kbase.spi_qpair = IPATH_KD_QP;
-+	kbase.spi_piosize = dd->ipath_ibmaxlen;
-+	kbase.spi_mtu = dd->ipath_ibmaxlen;	/* maxlen, not ibmtu */
-+	kbase.spi_port = pd->port_port;
-+	kbase.spi_sw_version = IPATH_KERN_SWVERSION;
-+	kbase.spi_hw_version = dd->ipath_revision;
-+
-+	if (copy_to_user(ubase, &kbase, sizeof kbase))
-+		ret = -EFAULT;
-+
-+	return ret;
-+}
++#ifndef _IPATH_COMMON_H
++#define _IPATH_COMMON_H
 +
 +/*
-+ * return number of units supported by driver.  This is infinipath_max,
-+ * unless there are no initted units.
++ * This file contains defines, structures, etc. that are used
++ * to communicate between kernel and user code.
 + */
-+static int ipath_get_units(void)
-+{
-+	int i;
 +
-+	for (i = 0; i < infinipath_max; i++)
-+		if (devdata[i].ipath_flags & IPATH_INITTED)
-+			return infinipath_max;
-+	return 0;
-+}
++#define IPATH_IDSTR "PathScale 1.1\n"
 +
-+/* write data to the EEPROM on the board */
-+static int ipath_wr_eeprom(struct ipath_portdata* pd,
-+			   struct ipath_eeprom_req __user *req)
-+{
-+	int ret = 0;
-+	struct ipath_eeprom_req kreq;
-+	void *buf = NULL;
++typedef uint8_t ipath_type;
 +
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EPERM;	/* not just any old user can write flash */
-+	if (copy_from_user(&kreq, req, sizeof kreq))
-+		return -EFAULT;
-+	if (!kreq.addr || (kreq.offset + kreq.len) > 128) {
-+		_IPATH_DBG
-+		    ("called with NULL addr %llx, or bad cnt %u or offset %u\n",
-+		     kreq.addr, kreq.len, kreq.offset);
-+		return -EINVAL;
-+	}
++/* This is the IEEE-assigned OUI for PathScale, Inc. */
++#define IPATH_SRC_OUI_1 0x00
++#define IPATH_SRC_OUI_2 0x11
++#define IPATH_SRC_OUI_3 0x75
 +
-+	if (!(buf = vmalloc(kreq.len))) {
-+		ret = -ENOMEM;
-+		_IPATH_UNIT_ERROR(pd->port_unit,
-+				  "Couldn't allocate memory to write %u bytes from eeprom\n",
-+				  kreq.len);
-+		goto done;
-+	}
-+	if (copy_from_user(buf, (void __user *) kreq.addr, kreq.len)) {
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+	if (ipath_eeprom_write(pd->port_unit, kreq.offset, buf, kreq.len)) {
-+		ret = -ENXIO;
-+		_IPATH_UNIT_ERROR(pd->port_unit,
-+				  "Failed write to eeprom %u bytes offset %u\n",
-+				  kreq.len, kreq.offset);
-+	}
++/* version of protocol header (known to chip also). In the long run,
++ * we should be able to generate and accept a range of version numbers;
++ * for now we only accept one, and it's compiled in.
++ */
++#define IPS_PROTO_VERSION 2
 +
-+done:
-+	if (buf)
-+		vfree(buf);
-+	return ret;
-+}
++/*
++ * These are compile time constants that you may want to enable or disable
++ * if you are trying to debug problems with code or performance.
++ * IPATH_VERBOSE_TRACING define as 1 if you want additional tracing in
++ * fastpath code
++ * IPATH_TRACE_REGWRITES define as 1 if you want register writes to be
++ * traced in faspath code
++ * _IPATH_TRACING define as 0 if you want to remove all tracing in a
++ * compilation unit
++ * _IPATH_DEBUGGING define as 0 if you want to remove debug prints
++ */
 +
-+/* read data from the EEPROM on the board */
++
++/*
++ * These tell the driver which ioctl's belong to the diags interface.
++ * As above, don't use them elsewhere.
++ */
++#define _IPATH_DIAG_IOCTL_LOW 100
++#define _IPATH_DIAG_IOCTL_HIGH 109
++
++struct ipath_eeprom_req {
++	long long addr;
++	uint16_t len;
++	uint16_t offset;
++};
++
++/*
++ * NOTE:   We use compatible ioctls, the same ioctl code for both 32 and 64
++ * bit user mode.  For that reason, all structures, etc. used in these
++ * ioctls must have the same size and offsets, in both 32 and 64 bit mode.
++ * We normally use uint64_t to  hold pointers for this reason, doing appropriate
++ * casts on both sides before using the data value.
++ */
++
++/* init;  user params to kernel  */
++#define IPATH_USERINIT      _IOW('s', 16, struct ipath_user_info)
++/* init;  kernel/chip params to user */
++#define IPATH_BASEINFO      _IOR('s', 17, struct ipath_base_info)
++/* send a packet */
++#define IPATH_SENDPKT       _IOW('s', 18, struct ipath_sendpkt)
++/*
++ * if arg is 0, disable port, used when flushing after a hdrq overflow.
++ * If arg ia 1, re-enable, and return new value of head register
++ */
++#define IPATH_RCVCTRL       _IOR('s', 19, uint32_t)
++#define IPATH_READ_EEPROM  _IOWR('s', 20, struct ipath_eeprom_req)
++/* set an accepted partition key; up to 4 pkeys can be active at once */
++#define IPATH_SET_PKEY      _IOW('s', 21, uint16_t)
++#define IPATH_WRITE_EEPROM _IOWR('s', 22, struct ipath_eeprom_req)
++/* set LID for interface (SMA) */
++#define IPATH_SET_LID       _IOW('s', 23, uint32_t)
++/* set IB MTU for interface (SMA) */
++#define IPATH_SET_MTU       _IOW('s', 24, uint32_t)
++/* set IB link state for interface (SMA) */
++#define IPATH_SET_LINKSTATE _IOW('s', 25, uint32_t)
++/* send an SMA packet, sps_flags contains "normal" SMA unit and minor number. */
++#define IPATH_SEND_SMA_PKT  _IOW('s', 26, struct ipath_sendpkt)
++/* receive an SMA packet */
++#define IPATH_RCV_SMA_PKT   _IOW('s', 27, struct ipath_sendpkt)
++/* get the portinfo data (SMA)
++ * takes array of 13, returns port info fields.  Data is in host order,
++ * not network order; SMA-only fields are not filled in
++ */
++#define IPATH_GET_PORTINFO  _IOWR('s', 28, uint32_t *)
++/*
++ * get the nodeinfo data (SMA)
++ * takes an array of 10, returns nodeinfo fields in host order
++ */
++#define IPATH_GET_NODEINFO  _IOWR('s', 29, uint32_t *)
++/* set GUID on interface (SMA; GUID given in network order) */
++#define IPATH_SET_GUID      _IOW('s', 30,  struct ipath_setguid)
++/* set MLID for interface (SMA) */
++#define IPATH_SET_MLID      _IOW('s', 31, uint32_t)
++#define IPATH_GET_MLID      _IOWR('s', 32, uint32_t *)	/* get the MLID (SMA) */
++/* update expected TID entries */
++#define IPATH_UPDM_TID      _IOWR('s', 33, struct _tidupd)
++/* free expected TID entries */
++#define IPATH_FREE_TID      _IOW('s', 34, struct _tidupd)
++/* return assigned unit:port */
++#define IPATH_GETPORT       _IOR('s', 35, uint32_t)
++/* wait for rcv pkt or pioavail */
++#define IPATH_WAIT          _IOW('s', 36, uint32_t)
++/* return LID for passed in unit */
++#define IPATH_GETLID        _IOR('s', 37, uint16_t)
++/* return # of units supported by driver */
++#define IPATH_GETUNITS      _IO('s',  38)
++/* get the device status */
++#define IPATH_GET_DEVSTATUS _IOWR('s', 39, uint64_t *)
++
++/* available for reuse ('s', 48) */
++
++/* diagnostic read */
++#define IPATH_DIAGREAD      _IOR('s', 100, struct ipath_diag_info)
++/* diagnostic write */
++#define IPATH_DIAGWRITE     _IOW('s', 101, struct ipath_diag_info)
++/* HT Config read */
++#define IPATH_DIAG_HTREAD   _IOR('s', 102, struct ipath_diag_info)
++/* HT config write */
++#define IPATH_DIAG_HTWRITE  _IOW('s', 103, struct ipath_diag_info)
++#define IPATH_DIAGENTER     _IO('s', 104)	/* Enter diagnostic mode */
++#define IPATH_DIAGLEAVE     _IO('s', 105)	/* Leave diagnostic mode */
++/* send a packet, sps_flags contains unit and minor number. */
++#define IPATH_SEND_DIAG_PKT _IOW('s', 106, struct ipath_sendpkt)
++/*
++ * read I2C FLASH
++ * NOTE: To read the I2C device, the _uaddress field should contain
++ * a pointer to struct ipath_eeprom_req, and _unit must be valid
++ */
++#define IPATH_DIAG_RD_I2C   _IOW('s', 107, struct ipath_diag_info)
++
++/*
++ * Monitoring ioctls.  All of these work with the main device
++ * (/dev/ipath), if you don't mind using a port (e.g. you already have
++ * the device open.)  IPATH_GETSTATS and IPATH_GETUNITCOUNTERS also
++ * work with the control device (/dev/ipath_ctrl), if you don't want to
++ * use a port.
++ */
++
++/* return chip counters for current unit. */
++#define IPATH_GETCOUNTERS     _IOR('s', 40, struct infinipath_counters)
++/* return chip stats */
++#define IPATH_GETSTATS        _IOR('s', 41, struct infinipath_stats)
++/* return chip counters for a particular unit. */
++#define IPATH_GETUNITCOUNTERS _IOR('s', 43, struct infinipath_getunitcounters)
++
++/*
++ * unit is incoming unit number.
++ * data is a pointer to the infinipath_counters structure.
++ */
++struct infinipath_getunitcounters {
++	uint16_t unit;
++	uint16_t fill[3]; /* required for same size struct 32/64 bit */
++	uint64_t data;
++};
++
++/*
++ * The value in the BTH QP field that InfiniPath uses to differentiate
++ * an infinipath protocol IB packet vs standard IB transport
++ */
++#define IPATH_KD_QP 0x656b79
++
++/*
++ * valid states passed to ipath_set_linkstate() user call
++ * (IPATH_SET_LINKSTATE ioctl)
++ */
++#define IPATH_IB_LINKDOWN		0
++#define IPATH_IB_LINKARM		1
++#define IPATH_IB_LINKACTIVE		2
++#define IPATH_IB_LINKINIT		3
++#define IPATH_IB_LINKDOWN_POLL		4
++#define IPATH_IB_LINKDOWN_DISABLE	5
++
++/*
++ * stats maintained by the driver.  For now, at least, this is global
++ * to all minor devices.
++ */
++struct infinipath_stats {
++	uint64_t sps_ints;	/* number of interrupts taken */
++	uint64_t sps_errints;	/* number of interrupts for errors */
++	/* number of errors from chip (not including packet errors or CRC) */
++	uint64_t sps_errs;
++	/* number of packet errors from chip other than CRC */
++	uint64_t sps_pkterrs;
++	/* number of packets with CRC errors (ICRC and VCRC) */
++	uint64_t sps_crcerrs;
++	/* number of hardware errors reported (parity, etc.) */
++	uint64_t sps_hwerrs;
++	/* number of times IB link changed state unexpectedly */
++	uint64_t sps_iblink;
++	uint64_t sps_unused3;	/* no longer used; left for compatibility */
++	uint64_t sps_port0pkts; /* number of kernel (port0) packets received */
++	/* number of "ethernet" packets sent by driver */
++	uint64_t sps_ether_spkts;
++	/* number of "ethernet" packets received by driver */
++	uint64_t sps_ether_rpkts;
++	uint64_t sps_sma_spkts;	/* number of SMA packets sent by driver */
++	uint64_t sps_sma_rpkts;	/* number of SMA packets received by driver */
++	/* number of times all ports rcvhdrq was full and packet dropped */
++	uint64_t sps_hdrqfull;
++	/* number of times all ports egrtid was full and packet dropped */
++	uint64_t sps_etidfull;
++	/*
++	 * number of times we tried to send from driver, but no pio
++	 * buffers avail
++	 */
++	uint64_t sps_nopiobufs;
++	uint64_t sps_ports;	/* number of ports currently open */
++	/* list of pkeys (other than default) accepted (0 means not set) */
++	uint16_t sps_pkeys[4];
++	/* lids for up to 4 infinipaths, indexed by infinipath # */
++	uint16_t sps_lid[4];
++	/* number of user ports per chip (not IB ports) */
++	uint32_t sps_nports;
++	uint32_t sps_nullintr;	/* not our interrupt, or already handled */
++	uint32_t sps_maxpkts_call;  /* max number of packets handled per receive call */
++	uint32_t sps_avgpkts_call;  /* avg number of packets handled per receive call */
++	uint64_t sps_pagelocks;	/* total number of pages locked */
++	uint64_t sps_pageunlocks; /* total number of pages unlocked */
++	/*
++	 * Number of packets dropped in kernel other than errors
++	 * (ether packets if ipath not configured, sma/mad, etc.)
++	 */
++	uint64_t sps_krdrops;
++	/* mlids for up to 4 infinipaths, indexed by infinipath # */
++	uint16_t sps_mlid[4];
++	uint64_t __sps_pad[45];	/* pad for future growth */
++};
++
++/*
++ * These are the status bits returned (in ascii form, 64bit value)
++ * by the IPATH_GETSTATS ioctl.
++ */
++#define IPATH_STATUS_INITTED       0x1	/* basic driver initialization done */
++#define IPATH_STATUS_DISABLED      0x2  /* hardware disabled */
++#define IPATH_STATUS_UNUSED        0x4	/* available */
++#define IPATH_STATUS_OIB_SMA       0x8	/* ipath_mad kernel SMA running */
++#define IPATH_STATUS_SMA          0x10	/* user SMA running */
++/* Chip has been found and initted */
++#define IPATH_STATUS_CHIP_PRESENT 0x20
++#define IPATH_STATUS_IB_READY     0x40	/* IB link is at ACTIVE, has LID,
++										 * usable for all VL's */
++/* after link up, LID,MTU,etc. has been configured */
++#define IPATH_STATUS_IB_CONF      0x80
++/* no link established, probably no cable */
++#define IPATH_STATUS_IB_NOCABLE  0x100
++/* A Fatal hardware error has occurred. */
++#define IPATH_STATUS_HWERROR     0x200
++
++/* The list of usermode accessible registers.  Also see Reg_* later in file */
++typedef enum _ipath_ureg {
++	ur_rcvhdrtail = 0,	/* (RO)  DMA RcvHdr to be used next. */
++	/* (RW)  RcvHdr entry to be processed next by host. */
++	ur_rcvhdrhead = 1,
++	ur_rcvegrindextail = 2,	/* (RO)  Index of next Eager index to use. */
++	ur_rcvegrindexhead = 3,	/* (RW)  Eager TID to be processed next */
++	/* For internal use only; max register number. */
++	_IPATH_UregMax
++} ipath_ureg;
++
++/* SMA minor# no portinfo, one for all instances */
++#define IPATH_SMA 128
++
++/* Control minor# no portinfo, one for all instances */
++#define IPATH_CTRL 130
++
++/*
++ * This structure is returned by ipath_userinit() immediately after open
++ * to get implementation-specific info, and info specific to this
++ * instance.
++ */
++struct ipath_base_info {
++	/* version of hardware, for feature checking. */
++	uint32_t spi_hw_version;
++	/* version of software, for feature checking. */
++	uint32_t spi_sw_version;
++	/* InfiniPath port assigned, goes into sent packets */
++	uint32_t spi_port;
++	/*
++	 * IB MTU, packets IB data must be less than this.
++	 * The MTU is in bytes, and will be a multiple of 4 bytes.
++	 */
++	uint32_t spi_mtu;
++	/*
++	 * size of a PIO buffer.  Any given packet's total
++	 * size must be less than this (in words).  Included is the
++	 * starting control word, so if 513 is returned, then total
++	 * pkt size is 512 words or less.
++	 */
++	uint32_t spi_piosize;
++	/* size of the TID cache in infinipath, in entries */
++	uint32_t spi_tidcnt;
++	/* size of the TID Eager list in infinipath, in entries */
++	uint32_t spi_tidegrcnt;
++	/* size of a single receive header queue entry. */
++	uint32_t spi_rcvhdrent_size;
++	/* Count of receive header queue entries allocated.
++	 * This may be less than the spu_rcvhdrcnt passed in!.
++	 */
++	uint32_t spi_rcvhdr_cnt;
++
++	uint32_t __32_bit_compatibility_pad;	/* DO NOT  MOVE OR REMOVE */
++
++	/* address where receive buffer queue is mapped into */
++	uint64_t spi_rcvhdr_base;
++
++	/* user program. */
++
++	/* base address of eager TID receive buffers. */
++	uint64_t spi_rcv_egrbufs;
++
++	/* Allocated by initialization code, not by protocol. */
++
++	/* size of each TID buffer in host memory,
++	 * starting at spi_rcv_egrbufs.  It includes spu_egrskip, and is
++	 * at least spi_mtu bytes, and the buffers are virtually contiguous
++	 */
++	uint32_t spi_rcv_egrbufsize;
++	/*
++	 * The special QP (queue pair) value that identifies an infinipath
++	 * protocol packet from standard IB packets.  More, probably much
++	 * more, to be added.
++	 */
++	uint32_t spi_qpair;
++
++	/*
++	 * user register base for init code, not to be used directly by
++	 * protocol or applications
++	 */
++	uint64_t __spi_uregbase;
++	/*
++	 * maximum buffer size in bytes that can be used in a
++	 * single TID entry (assuming the buffer is aligned to this boundary).
++	 * This is the minimum of what the hardware and software support
++	 * Guaranteed to be a power of 2.
++	 */
++	uint32_t spi_tid_maxsize;
++	/*
++	 * alignment of each pio send buffer (byte count
++	 * to add to spi_piobufbase to get to second buffer)
++	 */
++	uint32_t spi_pioalign;
++	/*
++	 * the index of the first pio buffer available
++	 * to this process; needed to do lookup in spi_pioavailaddr; not added
++	 * to spi_piobufbase
++	 */
++	uint32_t spi_pioindex;
++	uint32_t spi_piocnt;	/* number of buffers mapped for this process */
++
++	/*
++	 * base address of writeonly pio buffers for this process.
++	 * Each buffer has spi_piosize words, and is aligned on spi_pioalign
++	 * boundaries.  spi_piocnt buffers are mapped from this address
++	 */
++	uint64_t spi_piobufbase;
++
++	/*
++	 * base address of readonly memory copy of the pioavail registers.
++	 * There are 2 bits for each buffer.
++	 */
++	uint64_t spi_pioavailaddr;
++
++	/*
++	 * Address where driver updates a copy
++	 * of the interface and driver status (IPATH_STATUS_*) as a 64 bit value
++	 * It's followed by a string indicating hardware error, if there was one
++	 */
++	uint64_t spi_status;
++
++	/* number of chip ports available to user processes */
++	uint32_t spi_nports;
++	uint32_t spi_unit;	/* unit number of chip we are using */
++	uint32_t spi_rcv_egrperchunk;	/* num bufs in each contiguous set */
++	/* size in bytes of each contiguous set */
++	uint32_t spi_rcv_egrchunksize;
++	/* total size of mmap to cover full rcvegrbuffers */
++	uint32_t spi_rcv_egrbuftotlen;
++	/*
++	 * ioctl cmd includes struct size, so pad out, and adjust down as
++	 * new fields are added to keep size constant
++	 */
++	uint32_t __spi_pad[19];
++} __attribute__ ((aligned(8)));
++
++#define IPATH_WAIT_RCV   0x1	/* IPATH_WAIT, receive */
++#define IPATH_WAIT_PIO   0x2	/* IPATH_WAIT, PIO */
++
++/*
++ * This version number is given to the driver by the user code during
++ * initialization in the spu_userversion field of ipath_user_info, so
++ * the driver can check for compatibility with user code.
++ *
++ * The major version changes when data structures
++ * change in an incompatible way.  The driver must be the same or higher
++ * for initialization to succeed.  In some cases, a higher version
++ * driver will not interoperate with older software, and initialization
++ * will return an error.
++ */
++#define IPATH_USER_SWMAJOR 1
++
++/*
++ * Minor version differences are always compatible
++ * a within a major version, however if if user software is larger
++ * than driver software, some new features and/or structure fields
++ * may not be implemented; the user code must deal with this if it
++ * cares, or it must abort after initialization reports the difference
++ */
++#define IPATH_USER_SWMINOR 2
++
++#define IPATH_USER_SWVERSION ((IPATH_USER_SWMAJOR<<16) | IPATH_USER_SWMINOR)
++
++#define IPATH_KERN_TYPE 0
++
++/* Similarly, this is the kernel version going back to the user.  It's slightly
++ * different, in that we want to tell if the driver was built as part of a
++ * PathScale release, or from the driver from OpenIB, kernel.org, or a
++ * standard distribution, for support reasons.  The high bit is 0 for
++ * non-PathScale, and 1 for PathScale-built/supplied.
++ *
++ * It's returned by the driver to the user code during initialization
++ * in the spi_sw_version field of ipath_base_info, so the user code can
++ * in turn check for compatibility with the kernel.
++*/
++#define IPATH_KERN_SWVERSION ((IPATH_KERN_TYPE<<31) | IPATH_USER_SWVERSION)
++
++/*
++ * This structure is passed to ipath_userinit() to tell the driver where
++ * user code buffers are, sizes, etc.
++ */
++struct ipath_user_info {
++	/*
++	 * version of user software, to detect compatibility issues.
++	 * Should be set to IPATH_USER_SWVERSION.
++	 */
++	uint32_t spu_userversion;
++
++	/* desired number of receive header queue entries */
++	uint32_t spu_rcvhdrcnt;
++
++	/*
++	 * Leave this much unused space at the start of
++	 * each eager buffer for software use.  Similar in effect to
++	 * setting K_Offset to this value.  needs to be 'small', on the
++	 * order of one or two cachelines
++	 */
++	uint32_t spu_egrskip;
++
++	/*
++	 * number of words in KD protocol header
++	 * This tells InfiniPath how many words to copy to rcvhdrq.  If 0,
++	 * kernel uses a default.  Once set, attempts to set any other value
++	 * are an error (EAGAIN) until driver is reloaded.
++	 */
++	uint32_t spu_rcvhdrsize;
++
++	/*
++	 * cache line aligned (64 byte) user address to
++	 * which the rcvhdrtail register will be written by infinipath
++	 * whenever it changes, so that no chip registers are read in
++	 * the performance path.
++	 */
++	uint64_t spu_rcvhdraddr;
++
++	/*
++	 * ioctl cmd includes struct size, so pad out,
++	 * and adjust down as new fields are added to keep size constant
++	 */
++	uint32_t __spu_pad[6];
++} __attribute__ ((aligned(8)));
++
++struct ipath_iovec {
++	/* Pointer to data, but same size 32 and 64 bit */
++	uint64_t iov_base;
++
++	/*
++	 * Length of data; don't need 64 bits, but want
++	 * ipath_sendpkt to remain same size as before 32 bit changes, so...
++	 */
++	uint64_t iov_len;
++};
++
++/*
++ * Describes a single packet for send.  Each packet can have one or more
++ * buffers, but the total length (exclusive of IB headers) must be less
++ * than the MTU, and if using the PIO method, entire packet length,
++ * including IB headers, must be less than the ipath_piosize value (words).
++ * Use of this necessitates including sys/uio.h
++ */
++struct ipath_sendpkt {
++	uint32_t sps_flags;	/* flags for packet (TBD) */
++	uint32_t sps_cnt;	/* number of entries to use in sps_iov */
++	/* array of iov's describing packet. TEMPORARY */
++	struct ipath_iovec sps_iov[4];
++};
++
++struct _tidupd {		/* used only in inlined function for ioctl. */
++	uint32_t tidcnt;
++	uint32_t tid__unused;	/* make structure same size in 32 and 64 bit */
++	uint64_t tidvaddr;	/* virtual address of first page in transfer */
++	/* pointer (same size 32/64 bit) to uint16_t tid array */
++	uint64_t tidlist;
++
++	/*
++	 * pointer (same size 32/64 bit) to bitmap of TIDs used
++	 * for this call; checked for being large enough at open
++	 */
++	uint64_t tidmap;
++};
++
++struct ipath_setguid {		/* set GUID for interface */
++	uint64_t sguid;		/* in network order */
++	uint64_t sunit;		/* unit number of interface */
++};
++
++/*
++ * Structure used to send data to and receive data from a diags ioctl.
++ *
++ * NOTE: For HT reads and writes, we only support byte, word (16bits) and
++ * dword (32bits).  All other sizes for HT are invalid.
++ */
++struct ipath_diag_info {
++	uint64_t _base_offset;	/* register to start reading from */
++	uint64_t _num_bytes;	/* number of bytes to read or write */
++	/*
++	 * address in user space.
++	 * for reads, this is the address to store the read result(s).
++	 * for writes, it the address to get the write data from.
++	 * This memory better be valid in user space!
++	 */
++	uint64_t _uaddress;
++	uint64_t _unit;		/* Unit ID of chip we are accessing. */
++	uint64_t _pad[15];
++};
++
++/*
++ * Data layout in I2C flash (for GUID, etc.)
++ * All fields are little-endian binary unless otherwise stated
++ */
++#define IPATH_FLASH_VERSION 1
++struct ipath_flash {
++	uint8_t if_fversion;	/* flash layout version (IPATH_FLASH_VERSION) */
++	uint8_t if_csum;	/* checksum protecting if_length bytes */
++	/*
++	 * valid length (in use, protected by if_csum), including if_fversion
++	 * and if_sum themselves)
++	 */
++	uint8_t if_length;
++	uint8_t if_guid[8];	/* the GUID, in network order */
++	/* number of GUIDs to use, starting from if_guid */
++	uint8_t if_numguid;
++	char    if_serial[12];	/* the board serial number, in ASCII */
++	char    if_mfgdate[8];	/* board mfg date (YYYYMMDD ASCII) */
++	/* last board rework/test date (YYYYMMDD ASCII) */
++	char    if_testdate[8];
++	uint8_t if_errcntp[4];	/* logging of error counts, TBD */
++	/* powered on hours, updated at driver unload */
++	uint8_t if_powerhour[2];
++	char    if_comment[32];	/* ASCII free-form comment field */
++	uint8_t if_future[50];	/* 78 bytes used, min flash size is 128 bytes */
++};
++
++uint8_t ipath_flash_csum(struct ipath_flash *, int);
++
++/*
++ * These are the counters implemented in the chip, and are listed in order.
++ * They are returned in this order by the IPATH_GETCOUNTERS ioctl
++ */
++struct infinipath_counters {
++	unsigned long long LBIntCnt;
++	unsigned long long LBFlowStallCnt;
++	unsigned long long Reserved1;
++	unsigned long long TxUnsupVLErrCnt;
++	unsigned long long TxDataPktCnt;
++	unsigned long long TxFlowPktCnt;
++	unsigned long long TxDwordCnt;
++	unsigned long long TxLenErrCnt;
++	unsigned long long TxMaxMinLenErrCnt;
++	unsigned long long TxUnderrunCnt;
++	unsigned long long TxFlowStallCnt;
++	unsigned long long TxDroppedPktCnt;
++	unsigned long long RxDroppedPktCnt;
++	unsigned long long RxDataPktCnt;
++	unsigned long long RxFlowPktCnt;
++	unsigned long long RxDwordCnt;
++	unsigned long long RxLenErrCnt;
++	unsigned long long RxMaxMinLenErrCnt;
++	unsigned long long RxICRCErrCnt;
++	unsigned long long RxVCRCErrCnt;
++	unsigned long long RxFlowCtrlErrCnt;
++	unsigned long long RxBadFormatCnt;
++	unsigned long long RxLinkProblemCnt;
++	unsigned long long RxEBPCnt;
++	unsigned long long RxLPCRCErrCnt;
++	unsigned long long RxBufOvflCnt;
++	unsigned long long RxTIDFullErrCnt;
++	unsigned long long RxTIDValidErrCnt;
++	unsigned long long RxPKeyMismatchCnt;
++	unsigned long long RxP0HdrEgrOvflCnt;
++	unsigned long long RxP1HdrEgrOvflCnt;
++	unsigned long long RxP2HdrEgrOvflCnt;
++	unsigned long long RxP3HdrEgrOvflCnt;
++	unsigned long long RxP4HdrEgrOvflCnt;
++	unsigned long long RxP5HdrEgrOvflCnt;
++	unsigned long long RxP6HdrEgrOvflCnt;
++	unsigned long long RxP7HdrEgrOvflCnt;
++	unsigned long long RxP8HdrEgrOvflCnt;
++	unsigned long long Reserved6;
++	unsigned long long Reserved7;
++	unsigned long long IBStatusChangeCnt;
++	unsigned long long IBLinkErrRecoveryCnt;
++	unsigned long long IBLinkDownedCnt;
++	unsigned long long IBSymbolErrCnt;
++};
++
++/*
++ * The next set of defines are for packet headers, and chip register
++ * and memory bits that are visible to and/or used by user-mode software
++ * The other bits that are used only by the driver or diags are in
++ * ipath_registers.h
++ */
++
++/* RcvHdrFlags bits */
++#define INFINIPATH_RHF_LENGTH_MASK 0x7FF
++#define INFINIPATH_RHF_LENGTH_SHIFT 0
++#define INFINIPATH_RHF_RCVTYPE_MASK 0x7
++#define INFINIPATH_RHF_RCVTYPE_SHIFT 11
++#define INFINIPATH_RHF_EGRINDEX_MASK 0x7FF
++#define INFINIPATH_RHF_EGRINDEX_SHIFT 16
++#define INFINIPATH_RHF_H_ICRCERR   0x80000000
++#define INFINIPATH_RHF_H_VCRCERR   0x40000000
++#define INFINIPATH_RHF_H_PARITYERR 0x20000000
++#define INFINIPATH_RHF_H_LENERR    0x10000000
++#define INFINIPATH_RHF_H_MTUERR    0x08000000
++#define INFINIPATH_RHF_H_IHDRERR   0x04000000
++#define INFINIPATH_RHF_H_TIDERR    0x02000000
++#define INFINIPATH_RHF_H_MKERR     0x01000000
++#define INFINIPATH_RHF_H_IBERR     0x00800000
++#define INFINIPATH_RHF_L_SWA       0x00008000
++#define INFINIPATH_RHF_L_SWB       0x00004000
++
++/* infinipath header fields */
++#define INFINIPATH_I_VERS_MASK 0xF
++#define INFINIPATH_I_VERS_SHIFT 28
++#define INFINIPATH_I_PORT_MASK 0xF
++#define INFINIPATH_I_PORT_SHIFT 24
++#define INFINIPATH_I_TID_MASK 0x7FF
++#define INFINIPATH_I_TID_SHIFT 13
++#define INFINIPATH_I_OFFSET_MASK 0x1FFF
++#define INFINIPATH_I_OFFSET_SHIFT 0
++
++/* K_PktFlags bits */
++#define INFINIPATH_KPF_INTR 0x1
++
++/* SendPIO per-buffer control */
++#define INFINIPATH_SP_LENGTHP1_MASK 0x3FF
++#define INFINIPATH_SP_LENGTHP1_SHIFT 0
++#define INFINIPATH_SP_INTR    0x80000000
++#define INFINIPATH_SP_TEST    0x40000000
++#define INFINIPATH_SP_TESTEBP 0x20000000
++
++/* SendPIOAvail bits */
++#define INFINIPATH_SENDPIOAVAIL_BUSY_SHIFT 1
++#define INFINIPATH_SENDPIOAVAIL_CHECK_SHIFT 0
++
++#endif				/* _IPATH_COMMON_H */
+diff -r a3a00f637da6 -r 2d9a3f27a10c drivers/infiniband/hw/ipath/ipath_kernel.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_kernel.h	Wed Dec 28 14:19:42 2005 -0800
+@@ -0,0 +1,697 @@
++#ifndef _IPATH_KERNEL_H
++#define _IPATH_KERNEL_H
++/*
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * Patent licenses, if any, provided herein do not apply to
++ * combinations of this program with other software, or any other
++ * product whatsoever.
++ */
++
++
++
++/*
++ * This header file is the base header file for infinipath kernel code
++ * ipath_user.h serves a similar purpose for user code.
++ */
++
++#include "ipath_common.h"
++#include "ipath_kdebug.h"
++#include "ipath_registers.h"
++#include <linux/timex.h>
++#include <asm/io.h>
++
++/* only s/w major version of InfiniPath we can handle */
++#define IPATH_CHIP_VERS_MAJ 2U
++
++#define IPATH_CHIP_VERS_MIN 0U	/* don't care about this except printing */
++
++extern struct infinipath_stats ipath_stats; /* temporary, maybe always */
++
++/* only s/w version of chip we can handle for now */
++#define IPATH_CHIP_SWVERSION IPATH_CHIP_VERS_MAJ
++
++struct ipath_portdata {
++	/* minor number of devices, for ipath_type use */
++	unsigned port_unit;
++	/* array of struct page pointers */
++	struct page **port_rcvegrbuf_pages;
++	/* array of virtual addresses (from above) */
++	void **port_rcvegrbuf_virt;
++	void *port_rcvhdrq;	/* rcvhdrq base, needs mmap before useful */
++	/* kernel virtual address where hdrqtail is updated */
++	uint64_t *port_rcvhdrtail_kvaddr;
++	struct page *port_rcvhdrtail_pagep;	/* page * used for uaddr */
++	/*
++	 * temp buffer for expected send setup, allocated at open, instead
++	 * of each setup call
++	 */
++	void *port_tid_pg_list;
++	wait_queue_head_t port_wait;	/* when waiting for rcv or pioavail */
++	/*
++	 * rcvegr bufs base, physical, must fit
++	 * in 44 bits so 32 bit programs mmap64 44 bit works)
++	 */
++	unsigned long port_rcvegr_phys;
++	/* for mmap of hdrq, must fit in 44 bits */
++	unsigned long port_rcvhdrq_phys;
++	/*
++	 * the actual user address that we locked, so we can
++	 * unlock it at close
++	 */
++	unsigned long port_rcvhdrtail_uaddr;
++	/*
++	 * number of opens on this instance (0 or 1; ignoring forks, dup,
++	 * etc. for now)
++	 */
++	int port_cnt;
++	/*
++	 * how much space to leave at start of eager TID entries for protocol
++	 * use, on each TID
++	 */
++	unsigned port_egrskip;
++	unsigned port_port;	/* instead of calculating it */
++	uint32_t port_piobufs;	/* chip offset of PIO buffers for this port */
++	/* how many alloc_pages() chunks in port_rcvegrbuf_pages */
++	uint32_t port_rcvegrbuf_chunks;
++	uint32_t port_rcvegrbufs_perchunk;	/* how many egrbufs per chunk */
++	/* order used with port_rcvegrbuf_pages */
++	uint32_t port_rcvegrbuf_order;
++	uint32_t port_rcvhdrq_order;	/* rcvhdrq order (for free_pages) */
++	/* next expected TID to check when looking for free */
++	uint32_t port_tidcursor;
++	/* next expected TID to check when looking for free */
++	uint32_t port_flag;
++	/* WAIT_RCV that timed out, no interrupt */
++	uint32_t port_rcvwait_to;
++	/* WAIT_PIO that timed out, no interrupt */
++	uint32_t port_piowait_to;
++	uint32_t port_rcvnowait;	/* WAIT_RCV already happened, no wait */
++	uint32_t port_pionowait;	/* WAIT_PIO already happened, no wait */
++	uint32_t port_hdrqfull;	/* total number of rcvhdrqfull errors */
++	pid_t port_pid;		/* pid of process using this port */
++	/* same size as task_struct .comm[], but no define */
++	char port_comm[16];
++	uint16_t port_pkeys[4];	/* pkeys set by this use of this port */
++};
++
++struct sk_buff;
++
++/*
++ * control information for layered drivers
++ * This is used only as part of devdata via ipath_layer;
++ */
++struct _ipath_layer {
++	int (*l_intr) (const ipath_type, uint32_t);
++	int (*l_rcv) (const ipath_type, void *, struct sk_buff *);
++	int (*l_rcv_lid) (const ipath_type, void *);
++	uint16_t l_rcv_opcode;
++	uint16_t l_rcv_lid_opcode;
++};
++
++/* Verbs layer interface */
++struct _verbs_layer {
++	int (*l_piobufavail) (const ipath_type);
++	void (*l_rcv) (const ipath_type, void *, void *, uint32_t);
++	void (*l_timer_cb) (const ipath_type);
++	struct timer_list l_timer;
++	unsigned l_flags;
++};
++
++/*
++ * These are the fields that only exist for port 0, not per port, so
++ * they aren't in ipath_devdata
++ */
++struct ipath_devdata {
++	/* driver data structures */
++	/* mem-mapped pointer to base of chip regs; should always use read/write{lq}
++	 * when accesses are made, or via memcpy32() for PIO buffers*/
++	uint64_t __iomem *ipath_kregbase;
++	/* end of mem-mapped chip space; range checking */
++	uint64_t __iomem *ipath_kregend;
++	/* physical address of chip for io_remap, etc. */
++	unsigned long ipath_physaddr;
++	/* base of memory alloced for ipath_kregbase, for free */
++	uint64_t *ipath_kregalloc;
++	/*
++	 * version of kregbase that doesn't have high bits set (for 32 bit
++	 * programs, so mmap64 44 bit works)
++	 */
++	uint64_t __iomem *ipath_kregvirt;
++	struct ipath_portdata **ipath_pd; /* ipath_cfgports pointers */
++	/* sk_buffs used by port 0 eager receive queue */
++	struct sk_buff **ipath_port0_skbs;
++	void __iomem *ipath_piobase;	/* kvirt address of 1st pio buffer */
++
++	/*
++	 * virtual address where port0 rcvhdrqtail updated by chip via DMA
++	 * volatile because we want to be sure compiler always makes a memory
++	 * reference when we dereference it.
++	 */
++	volatile uint64_t *ipath_hdrqtailptr;
++	/*
++	 * points to area where PIOavail registers will be DMA'ed.  Has to
++	 * be on a page of it's own, because the page will be mapped into user
++	 * program space.  Updated by chip via DMA, treated as readonly by software.
++	 * volatile because we want to be sure compiler always makes a memory
++	 * reference when we dereference it.
++	 */
++	volatile uint64_t *ipath_pioavailregs_dma;
++
++	/* original address for kfree */
++	volatile uint64_t *__ipath_pioavailregs_base;
++	/* physical address where updates occur */
++	unsigned long ipath_pioavailregs_phys;
++	struct _ipath_layer ipath_layer;
++	struct _verbs_layer verbs_layer;
++	/* total dwords sent (summed from counter) */
++	uint64_t ipath_sword;
++	/* total dwords received (summed from counter) */
++	uint64_t ipath_rword;
++	/* total packets sent (summed from counter) */
++	uint64_t ipath_spkts;
++	/* total packets received (summed from counter) */
++	uint64_t ipath_rpkts;
++	/* to make the receive interrupt failsafe */
++	uint64_t ipath_lastqtail;
++	uint64_t _ipath_status;	/* ipath_statusp initially points to this. */
++	uint64_t ipath_guid;	/* GUID for this interface, in network order */
++	/*
++	 * aggregrate of error bits reported since
++	 * last cleared, for limiting of error reporting
++	 */
++	uint64_t ipath_lasterror;
++	/*
++	 * aggregrate of error bits reported
++	 * since last cleared, for limiting of hwerror reporting
++	 */
++	uint64_t ipath_lasthwerror;
++	/*
++	 * errors masked because they occur too fast,
++	 * also includes errors that are always ignored (ipath_ignorederrs)
++	 */
++	uint64_t ipath_maskederrs;
++	/* time at which to re-enable maskederrs */
++	cycles_t ipath_unmasktime;
++	/*
++	 * errors always ignored (masked), at least
++	 * for a given chip/device, because they are wrong or not useful
++	 */
++	uint64_t ipath_ignorederrs;
++	/* count of egrfull errors, combined for all ports */
++	uint64_t ipath_last_tidfull;
++	uint64_t ipath_lastport0rcv_cnt; /* for ipath_qcheck() */
++
++	uint32_t ipath_kregsize;	/* size of memory at ipath_kregbase */
++	/* number of registers used for pioavail */
++	uint32_t ipath_pioavregs;
++	uint32_t ipath_flags;	/* IPATH_POLL, etc. */
++	/* ipath_flags sma is waiting for */
++	uint32_t ipath_sma_state_wanted;
++	/* last buffer for user use, first buf for kernel use is this index. */
++	uint32_t ipath_lastport_piobuf;
++	uint32_t pci_registered;	/* driver is a registered pci device */
++	uint32_t ipath_stats_timer_active;	/* is a stats timer active */
++	/* dwords sent read from infinipath counter */
++	uint32_t ipath_lastsword;
++	/* dwords received read from infinipath counter */
++	uint32_t ipath_lastrword;
++	/* sent packets read from infinipath counter */
++	uint32_t ipath_lastspkts;
++	/* received packets read from infinipath counter */
++	uint32_t ipath_lastrpkts;
++	uint32_t ipath_pbufsport;	/* pio bufs allocated per port */
++	/*
++	 * number of ports configured as max; zero is
++	 * set to number chip supports, less gives more pio bufs/port, etc.
++	 */
++	uint32_t ipath_cfgports;
++	/* our idea of the port0 rcvhdrq head offset */
++	uint32_t ipath_port0head;
++	uint32_t ipath_p0_hdrqfull;	/* count of port 0 hdrqfull errors */
++
++	/*
++	 * (*cfgports) used to suppress multiple instances of same port
++	 * staying stuck at same point
++	 */
++	uint32_t *ipath_lastrcvhdrqtails;
++	/*
++	 * (*cfgports) used to suppress multiple instances of same port
++	 * staying stuck at same point
++	 */
++	uint32_t *ipath_lastegrheads;
++	/*
++	 * index of last piobuffer we used.  Speeds up searching, by starting
++	 * at this point.  Doesn't matter if multiple cpu's use and update,
++	 * last updater is only write that matters.  Whenever it wraps,
++	 * we update shadow copies.  Need a copy per device when we get to
++	 * multiple devices
++	 */
++	uint32_t ipath_lastpioindex;
++	uint32_t ipath_freezelen;	/* max length of freezemsg */
++	uint32_t ipath_consec_nopiobuf; /* consecutive times we wanted a PIO buffer
++		* but were unable to get one */
++	uint32_t ipath_upd_pio_shadow; /* hint that we should update
++		* ipath_pioavailshadow before looking for a PIO buffer */
++	uint32_t ipath_nosma_bufs; /* sequential tries for SMA send and no bufs */
++	uint32_t ipath_nosma_secs; /* duration (seconds) ipath_nosma_bufs set */
++	/* HT/PCI Vendor ID (here for NodeInfo) */
++	uint16_t ipath_vendorid;
++	/* HT/PCI Device ID (here for NodeInfo) */
++	uint16_t ipath_deviceid;
++	/* offset in HT config space of slave/primary interface block */
++	uint8_t ipath_ht_slave_off;
++	int ipath_mtrr;		/* registration handle for WRCOMB setting on */
++	/* ref count of how many users set each pkey */
++	atomic_t ipath_pkeyrefs[4];
++	/* shadow copy of all exptids physaddr; used only by funcsim */
++	uint64_t *ipath_tidsimshadow;
++	/* shadow copy of struct page *'s for exp tid pages */
++	struct page **ipath_pageshadow;
++	/*
++	 * IPATH_STATUS_*
++	 * this address is mapped readonly into user processes so they can
++	 * get status cheaply, whenever they want.
++	 */
++	uint64_t *ipath_statusp;
++	char *ipath_freezemsg;	/* freeze msg if hw error put chip in freeze */
++	struct pci_dev *pcidev;	/* pci access data structure */
++	/* timer used to prevent stats overflow, error throttling, etc. */
++	struct timer_list ipath_stats_timer;
++	/* only allow one interrupt at a time. */
++	unsigned long ipath_rcv_pending;
++
++	/*
++	 * shadow copies of registers; size indicates read access size
++	 * Most of them are readonly, but some are write-only register, where
++	 * we manipulate the bits in the shadow copy, and then write the shadow
++	 * copy to infinipath
++	 * We deliberately make most of these 32 bits, since they have
++	 * restricted range and for any that we read, we won't to generate
++	 * 32 bit accesses, since Opteron will generate 2 separate 32 bit
++	 * HT transactions for a 64 bit read, and we want to avoid unnecessary
++	 * HT transactions
++	 */
++
++	/* This is the 64 bit group */
++	/*
++	 * shadow of pioavail, check to be sure it's large enough at
++	 * init time.
++	 */
++	uint64_t ipath_pioavailshadow[8];
++	uint64_t ipath_gpio_out;	/* shadow of kr_gpio_out, for rmw ops */
++	/* kr_revision value (also see ipath_majrev) */
++	uint64_t ipath_revision;
++	/* shadow of ibcctrl, for interrupt handling of link changes, etc. */
++	uint64_t ipath_ibcctrl;
++	/*
++	 * last ibcstatus, to suppress "duplicate" status change messages,
++	 * mostly from 2 to 3
++	 */
++	uint64_t ipath_lastibcstat;
++	/* mask of hardware errors that are enabled */
++	uint64_t ipath_hwerrmask;
++	uint64_t ipath_extctrl;		/* shadow the gpio output contents */
++
++	/* these are the "32 bit" regs */
++	/*
++	 * number of GUIDs in the flash for this interface; may need some
++	 * rethinking for setting on other ifaces
++	 */
++	uint32_t ipath_nguid;
++	uint32_t ipath_rcvctrl;	/* shadow kr_rcvctrl */
++	uint32_t ipath_sendctrl;	/* shadow kr_sendctrl */
++	uint32_t ipath_rcvhdrcnt;	/* value we put in kr_rcvhdrcnt */
++	uint32_t ipath_rcvhdrsize;	/* value we put in kr_rcvhdrsize */
++	uint32_t ipath_rcvhdrentsize;	/* value we put in kr_rcvhdrentsize */
++	/* byte offset of last entry in rcvhdrq */
++	uint32_t ipath_hdrqlast;
++	uint32_t ipath_portcnt;	/* kr_portcnt value */
++	uint32_t ipath_palign;	/* kr_pagealign value */
++	uint32_t ipath_piobcnt;	/* kr_sendpiobufcnt value */
++	uint32_t ipath_piobufbase;	/* kr_sendpiobufbase value */
++	uint32_t ipath_piosize;	/* kr_sendpiosize */
++	uint32_t ipath_rcvegrbase;	/* kr_rcvegrbase value */
++	uint32_t ipath_rcvegrcnt;	/* kr_rcvegrcnt value */
++	uint32_t ipath_rcvtidbase;	/* kr_rcvtidbase value */
++	uint32_t ipath_rcvtidcnt;	/* kr_rcvtidcnt value */
++	uint32_t ipath_sregbase;	/* kr_sendregbase */
++	uint32_t ipath_uregbase;	/* kr_userregbase */
++	uint32_t ipath_cregbase;	/* kr_counterregbase */
++	uint32_t ipath_control;	/* shadow the control register contents */
++	uint32_t ipath_pcirev;	/* PCI revision register (HTC rev on FPGA) */
++
++	uint32_t ipath_ibmtu;	/* The MTU programmed for this unit */
++	/*
++	 * The max size IB packet, included IB headers that we can send.
++	 * Starts same as ipath_piosize, but is affected when ibmtu is
++	 * changed, or by size of eager buffers
++	 */
++	uint32_t ipath_ibmaxlen;
++	/*
++	 * ibmaxlen at init time, limited by chip and by receive buffer size.
++	 * Not changed after init.
++	 */
++	uint32_t ipath_init_ibmaxlen;
++	/* size we allocate for each rcvegrbuffer */
++	uint32_t ipath_rcvegrbufsize;
++	uint32_t ipath_htwidth;	/* width (2,4,8,16,32) from HT config reg */
++	uint32_t ipath_htspeed;	/* HT speed (200,400,800,1000) from HT config */
++	/* bitmap of ports waiting for PIO avail intr */
++	uint32_t ipath_portpiowait;
++	/*
++	 *number of sequential ibcstatus change for polling active/quiet
++	 * (i.e., link not coming up).
++	 */
++	uint32_t ipath_ibpollcnt;
++	uint16_t ipath_mlid;	/* MLID programmed for this instance */
++	uint16_t ipath_lid;	/* LID programmed for this instance */
++	/* list of pkeys programmed; 0 means not set */
++	uint16_t ipath_pkeys[4];
++	uint8_t ipath_serial[12];	/* ASCII serial number, from flash */
++	uint8_t ipath_majrev;	/* chip major rev, from ipath_revision */
++	uint8_t ipath_minrev;	/* chip minor rev, from ipath_revision */
++	uint8_t ipath_boardrev;	/* board rev, from ipath_revision */
++	uint8_t ipath_unit;	/* Unit number for this chip */
++};
++
++/*
++ * A segment is a linear region of low physical memory.
++ * XXX Maybe we should use phys addr here and kmap()/kunmap()
++ * Used by the verbs layer.
++ */
++struct ipath_seg {
++	void *vaddr;
++	size_t length;
++};
++
++/* The number of ipath_segs that fit in a page. */
++#define IPATH_SEGSZ     (PAGE_SIZE / sizeof (struct ipath_seg))
++
++struct ipath_segarray {
++	struct ipath_seg segs[IPATH_SEGSZ];
++};
++
++/*
++ * Used by the verbs layer.
++ */
++struct ipath_mregion {
++	uint64_t user_base;		/* User's address for this region */
++	uint64_t iova;		/* IB start address of this region */
++	size_t length;
++	uint32_t lkey;
++	uint32_t offset;		/* offset (bytes) to start of region */
++	int access_flags;
++	uint32_t max_segs;		/* number of ipath_segs in all the arrays */
++	uint32_t mapsz;		/* size of the map array */
++	struct ipath_segarray *map[0];	/* the segments */
++};
++
++/*
++ * These keep track of the copy progress within a memory region.
++ * Used by the verbs layer.
++ */
++struct ipath_sge {
++	struct ipath_mregion *mr;
++	void *vaddr;		/* current pointer into the segment */
++	uint32_t sge_length;		/* length of the SGE */
++	uint32_t length;		/* remaining length of the segment */
++	uint16_t m;			/* current index: mr->map[m] */
++	uint16_t n;			/* current index: mr->map[m]->segs[n] */
++};
++
++struct ipath_sge_state {
++	struct ipath_sge *sg_list;	/* next SGE to be used if any */
++	struct ipath_sge sge;	/* progress state for the current SGE */
++	uint8_t num_sge;
++};
++
++extern struct ipath_devdata devdata[];
++#define IPATH_UNIT(p) ((p)-devdata)
++extern const uint32_t infinipath_max;	/* number of units (chips) supported */
++extern const char *ipath_minor_names[];
++
++extern int ipath_diags_enabled;	/* is diags mode enabled? */
++
++/* clean up any per-chip chip-specific stuff */
++void ipath_chip_cleanup(struct ipath_devdata *);
++void ipath_chip_done(void);	/* clean up any chip type-specific stuff */
++void ipath_handle_hwerrors(const ipath_type, char *, int);
++int ipath_validate_rev(struct ipath_devdata *);
++void ipath_clear_init_hwerrs(const ipath_type);
++
++/*
++ * This is here to simplify compatibility with source that supports
++ * multiple chip types
++ */
++void ipath_ht_get_boardname(const ipath_type t, char *name, size_t namelen);
++
++/* these are primarily for SMA, but are also used by diags */
++int ipath_send_smapkt(struct ipath_sendpkt __user *);
++
++int ipath_wait_linkstate(const ipath_type, uint32_t, int);
++void ipath_down_link(const ipath_type);
++void ipath_set_ib_lstate(const ipath_type, int);
++void ipath_kreceive(const ipath_type);
++int ipath_setrcvhdrsize(const ipath_type, unsigned);
++
++/* for use in system calls, where we want to know device type, etc. */
++#define port_fp(fp) (((fp)->private_data>(void*)255UL)?((struct ipath_portdata *)fp->private_data):NULL)
++
++/*
++ * values for ipath_flags
++ */
++#define IPATH_INITTED       0x2	/* The chip is up and initted */
++#define IPATH_RCVHDRSZ_SET  0x4	/* set if any user code has set kr_rcvhdrsize */
++/* The chip is present and valid for accesses */
++#define IPATH_PRESENT       0x8
++/* HT link0 is only 8 bits wide, ignore upper byte crc errors, etc. */
++#define IPATH_8BIT_IN_HT0   0x10
++/* HT link1 is only 8 bits wide, ignore upper byte crc errors, etc. */
++#define IPATH_8BIT_IN_HT1   0x20
++/* The link is down (or not yet up 0x11 or earlier) */
++#define IPATH_LINKDOWN      0x40
++#define IPATH_LINKINIT      0x80	/* The link level is up (0x11) */
++/* The link is in the armed (0x21) state */
++#define IPATH_LINKARMED     0x100
++/* The link is in the active (0x31) state */
++#define IPATH_LINKACTIVE    0x200
++/* The link was taken down, but no interrupt yet */
++#define IPATH_LINKUNK       0x400
++/* link being moved to armed (0x21) state */
++#define IPATH_LINK_TOARMED  0x800
++/* link being moved to active (0x31) state */
++#define IPATH_LINK_TOACTIVE 0x1000
++/* linkinit cmd is SLEEP, move to POLL */
++#define IPATH_LINK_SLEEPING 0x2000
++/* no IB cable, or no device on IB cable */
++#define IPATH_NOCABLE       0x4000
++/* Supports port zero per packet receive interrupts via GPIO */
++#define IPATH_GPIO_INTR     0x8000
++
++/* portdata flag values */
++#define IPATH_PORT_WAITING_RCV   0x4	/* waiting for a packet to arrive */
++/* waiting for a PIO buffer to be available */
++#define IPATH_PORT_WAITING_PIO   0x8
++
++int ipath_init_chip(const ipath_type);
++/* free up any allocated data at closes */
++void ipath_free_data(struct ipath_portdata *dd);
++void ipath_init_picotime(void);	/* init cycles to picosecs conversion */
++int ipath_bringup_serdes(const ipath_type);
++int ipath_waitfor_mdio_cmdready(const ipath_type);
++int ipath_waitfor_complete(const ipath_type, ipath_kreg, uint64_t, uint64_t *);
++void ipath_quiet_serdes(const ipath_type);
++void ipath_get_boardname(uint8_t, char *, size_t);
++uint32_t __iomem *ipath_getpiobuf(int, uint32_t *);
++int ipath_bufavail(int);
 +int ipath_rd_eeprom(const ipath_type port_unit,
-+		    struct ipath_eeprom_req __user *req)
-+{
-+	int ret = 0;
-+	struct ipath_eeprom_req kreq;
-+	void *buf = NULL;
-+
-+	if (copy_from_user(&kreq, req, sizeof kreq))
-+		return -EFAULT;
-+	if (!kreq.addr || (kreq.offset + kreq.len) > 128) {
-+		_IPATH_DBG
-+		    ("called with NULL addr %llx, or bad cnt %u or offset %u\n",
-+		     kreq.addr, kreq.len, kreq.offset);
-+		return -EINVAL;
-+	}
-+
-+	if (!(buf = vmalloc(kreq.len))) {
-+		ret = -ENOMEM;
-+		_IPATH_UNIT_ERROR(port_unit,
-+				  "Couldn't allocate memory to read %u bytes from eeprom\n",
-+				  kreq.len);
-+		goto done;
-+	}
-+	if (ipath_eeprom_read(port_unit, kreq.offset, buf, kreq.len)) {
-+		ret = -ENXIO;
-+		_IPATH_UNIT_ERROR(port_unit,
-+				  "Failed reading %u bytes offset %u from eeprom\n",
-+				  kreq.len, kreq.offset);
-+	}
-+	if (copy_to_user((void __user *) kreq.addr, buf, kreq.len))
-+		ret = -EFAULT;
-+
-+done:
-+	if (buf)
-+		vfree(buf);
-+	return ret;
-+}
++		    struct ipath_eeprom_req __user *);
++uint64_t ipath_snap_cntr(const ipath_type, ipath_creg);
 +
 +/*
-+ * wait for something to happen on a port.  Currently this is
-+ * PIO buffer available, or a packet being received.  For now, at
-+ * least, we wait no longer than 1/2 seconds on rcv, 1 tick on PIO, so
-+ * we recover from any bugs (or, as we see in ips.c init and close, cases
-+ * where other side isn't yet ready).
-+ * NOTE: currently called only with PIO or RCV, never both, so path with both
-+ * has not been tested
++ * these should be somewhat dynamic someday, although they are fixed
++ * for all users of the device on any given load.
 + */
-+static int ipath_wait_intr(struct ipath_portdata * pd, uint32_t flag)
-+{
-+	struct ipath_devdata *dd = &devdata[pd->port_unit];
-+	/* stupid compiler can't tell it's initialized */
-+	uint32_t im = 0;
-+	uint32_t head, tail, timeo = 0, wflag = 0;
++/* (words) room for all IB headers and KD proto header */
++#define IPATH_RCVHDRENTSIZE 16
++/*
++ * 64K, which is about all you can hope to get contiguous.  API allows
++ * users to request a size, for now I'm ignoring that.
++ */
++#define IPATH_RCVHDRCNT 1024
 +
-+	if (!(flag & (IPATH_WAIT_RCV | IPATH_WAIT_PIO)))
-+		return -EINVAL;
-+	if (flag & IPATH_WAIT_RCV) {
-+		head = flag >> 16;
-+		im = (1U << pd->port_port) << INFINIPATH_R_INTRAVAIL_SHIFT;
-+		atomic_set_mask(im, &dd->ipath_rcvctrl);
-+		/*
-+		 * now, before blocking, make sure that head is still == tail,
-+		 * reading from the chip, so we can be sure the interrupt enable
-+		 * has made it to the chip.  If not equal, disable
-+		 * interrupt again and return immediately.  This avoids
-+		 * races, and the overhead of the chip read doesn't
-+		 * matter much at this point, since we are waiting for
-+		 * something anyway.
-+		 */
-+		ipath_kput_kreg(pd->port_unit, kr_rcvctrl, dd->ipath_rcvctrl);
-+		tail =
-+		    ipath_kget_ureg32(pd->port_unit, ur_rcvhdrtail,
-+				      pd->port_port);
-+		if (tail == head) {
-+			timeo = HZ / 2;
-+			wflag = IPATH_PORT_WAITING_RCV;
-+		} else {
-+			atomic_clear_mask(im, &dd->ipath_rcvctrl);
-+			ipath_kput_kreg(pd->port_unit, kr_rcvctrl,
-+					dd->ipath_rcvctrl);
-+		}
-+	}
-+	if (flag & IPATH_WAIT_PIO) {
-+		/*
-+		 * this one's a bit worse than the receive case, in that we
-+		 * can't really verify that at least one interrupt
-+		 * will happen...
-+		 * We do use a really short timeout, however
-+		 */
-+		timeo = 1;	/* if both, the short PIO timeout wins */
-+		atomic_set_mask(1U << pd->port_port, &dd->ipath_portpiowait);
-+		wflag |= IPATH_PORT_WAITING_PIO;
-+		/*
-+		 * this has a possible race with the ipath stuff, so do
-+		 * it atomicly
-+		 */
-+		atomic_set_mask(INFINIPATH_S_PIOINTBUFAVAIL,
-+				&dd->ipath_sendctrl);
-+		ipath_kput_kreg(pd->port_unit, kr_sendctrl, dd->ipath_sendctrl);
-+	}
-+	if (wflag) {
-+		pd->port_flag |= wflag;
-+		wait_event_interruptible_timeout(pd->port_wait,
-+						 (pd->port_flag & wflag) !=
-+						 wflag, timeo);
-+		if (wflag & pd->port_flag & IPATH_PORT_WAITING_PIO) {
-+			/* timed out, no PIO interrupts */
-+			atomic_clear_mask(IPATH_PORT_WAITING_PIO,
-+					  &pd->port_flag);
-+			pd->port_piowait_to++;
-+			atomic_clear_mask(1U << pd->port_port,
-+					  &dd->ipath_portpiowait);
-+			/*
-+			 * *don't* clear the pio interrupt enable;
-+			 * let that happen in the interrupt handler;
-+			 * else we have a race condition.
-+			 */
-+		}
-+		if (wflag & pd->port_flag & IPATH_PORT_WAITING_RCV) {
-+			/* timed out, no packets received */
-+			atomic_clear_mask(IPATH_PORT_WAITING_RCV,
-+					  &pd->port_flag);
-+			pd->port_rcvwait_to++;
-+			atomic_clear_mask(im, &dd->ipath_rcvctrl);
-+			ipath_kput_kreg(pd->port_unit, kr_rcvctrl,
-+					dd->ipath_rcvctrl);
-+		}
-+	} else {
-+		/* else it's already happened, don't do wait_event overhead */
-+		if (flag & IPATH_WAIT_RCV)
-+			pd->port_rcvnowait++;
-+		if (flag & IPATH_WAIT_PIO)
-+			pd->port_pionowait++;
-+	}
-+	return 0;
++/*
++ * number of words in KD protocol header if not set by ipath_userinit();
++ * this uses the full 64 bytes of rcvhdrentry
++ */
++#define IPATH_DFLT_RCVHDRSIZE 9
++
++#define IPATH_MDIO_CMD_WRITE   1
++#define IPATH_MDIO_CMD_READ    2
++#define IPATH_MDIO_CLD_DIV     25	/* to get 2.5 Mhz mdio clock */
++#define IPATH_MDIO_CMDVALID    0x40000000	/* bit 30 */
++#define IPATH_MDIO_DATAVALID   0x80000000	/* bit 31 */
++#define IPATH_MDIO_CTRL_STD    0x0
++
++#define IPATH_MDIO_REQ(cmd,dev,reg,data) ( (((uint64_t)IPATH_MDIO_CLD_DIV) << 32) | \
++        ((cmd) << 26) | ((dev)<<21) | ((reg) << 16) | ((data) & 0xFFFF))
++
++#define IPATH_MDIO_CTRL_XGXS_REG_8  0x8	/* signal and fifo status, in bank 31 */
++
++/* controls loopback, redundancy */
++#define IPATH_MDIO_CTRL_8355_REG_1  0x10
++#define IPATH_MDIO_CTRL_8355_REG_2  0x11	/* premph, encdec, etc. */
++#define IPATH_MDIO_CTRL_8355_REG_6  0x15	/* Kchars, etc. */
++#define IPATH_MDIO_CTRL_8355_REG_9  0x18
++#define IPATH_MDIO_CTRL_8355_REG_10 0x1D
++
++/*
++ * ipath_get_upages() is used to pin an address range (if not already pinned),
++ * and optionally return the list of physical addresses
++ * ipath_putpages() does the obvious, and ipath_get_upages() cleans up all
++ * private memory, used at driver unload.
++ * ipath_get_upages_nocopy() is similar to ipage_get_upages, but only 1 page,
++ * and marks the vm so the page isn't taken away on a fork.
++ */
++int ipath_get_upages(unsigned long, size_t, struct page **);
++int ipath_get_upages_nocopy(unsigned long, struct page **);
++void ipath_putpages(size_t, struct page **);
++void ipath_upages_cleanup(struct ipath_portdata *);
++int ipath_eeprom_read(const ipath_type, uint8_t, void *, int);
++int ipath_eeprom_write(const ipath_type, uint8_t, void *, int);
++
++/* these are used for the registers that vary with port */
++void ipath_kput_kreg_port(const ipath_type, ipath_kreg, unsigned, uint64_t);
++uint64_t ipath_kget_kreg64_port(const ipath_type, ipath_kreg, unsigned);
++
++/*
++ * we could have a single register get/put routine, that takes a group
++ * type, but this is somewhat clearer and cleaner.  It also gives us some
++ * error checking.  64 bit register reads should always work, but are
++ * inefficient on opteron (the northbridge always generates 2 separate
++ * HT 32 bit reads), so we use kreg32 wherever possible.
++ * User register and counter register reads are always 32 bit reads, so only
++ * one form of those routines.
++ */
++
++/*
++ * At the moment, none of the s-registers are writable, so no ipath_kput_sreg()
++ * At the moment, none of the c-registers are writable, so no ipath_kput_creg()
++ */
++
++/*
++ * return the contents of a register that is virtualized to be per port
++ * prints a debug message and returns -1 on errors (not distinguishable from
++ * valid contents at runtime; we may add a separate error variable at some
++ * point).
++ * This is normally not used by the kernel, but may be for debugging,
++ * and has a different implementation than user mode, which is why
++ * it's not in _common.h
++ */
++static inline uint32_t ipath_kget_ureg32(const ipath_type stype,
++					 ipath_ureg regno, int port)
++{
++	if (!devdata[stype].ipath_kregbase)
++		return 0;
++
++	return readl(regno + (uint64_t __iomem *)
++		     (devdata[stype].ipath_uregbase +
++		      (char __iomem *) devdata[stype].ipath_kregbase +
++		      devdata[stype].ipath_palign * port));
 +}
 +
 +/*
-+ * The new implementation as of Oct 2004 is that the driver assigns
-+ * the tid and returns it to the caller.   To make it easier to
-+ * catch bugs, and to reduce search time, we keep a cursor for
-+ * each port, walking the shadow tid array to find one that's not
-+ * in use.
++ * change the contents of a register that is virtualized to be per port
++ * prints a debug message and returns 1 on errors, 0 on success.
++ */
++static inline void ipath_kput_ureg(const ipath_type stype, ipath_ureg regno,
++				   uint64_t value, int port)
++{
++	uint64_t __iomem *ubase;
++
++	ubase = (uint64_t __iomem *)
++		(devdata[stype].ipath_uregbase +
++		 (char __iomem *) devdata[stype].ipath_kregbase +
++		 devdata[stype].ipath_palign * port);
++	if(devdata[stype].ipath_kregbase)
++		writeq(value, &ubase[regno]);
++}
++
++static inline uint32_t ipath_kget_kreg32(const ipath_type stype,
++					 ipath_kreg regno)
++{
++	if (!devdata[stype].ipath_kregbase)
++		return -1;
++	return readl((uint32_t __iomem *) &devdata[stype].ipath_kregbase[regno]);
++}
++
++static inline uint64_t ipath_kget_kreg64(const ipath_type stype,
++					 ipath_kreg regno)
++{
++	if (!devdata[stype].ipath_kregbase)
++		return -1;
++
++	return readq(&devdata[stype].ipath_kregbase[regno]);
++}
++
++static inline void ipath_kput_kreg(const ipath_type stype,
++				   ipath_kreg regno, uint64_t value)
++{
++	if (devdata[stype].ipath_kregbase)
++		writeq(value, &devdata[stype].ipath_kregbase[regno]);
++}
++
++static inline uint32_t ipath_kget_creg32(const ipath_type stype,
++					ipath_sreg regno)
++{
++	if(!devdata[stype].ipath_kregbase)
++		return 0;
++	return readl(regno + (uint64_t __iomem *)
++		     (devdata[stype].ipath_cregbase +
++		      (char __iomem *) devdata[stype].ipath_kregbase));
++}
++
++/*
++ * caddr is the destination chip address (full pointer, not offset),
++ * val is the qword to write there.  We only handle a single qword (8 bytes).
++ * This is not used for copies to the PIO buffer, just TID updates, etc.
++ * This function localizes all chip mem (as opposed to register) writes.
++ */
++static inline void ipath_kput_memq(const ipath_type stype,
++				   uint64_t __iomem *caddr, uint64_t val)
++{
++	if (devdata[stype].ipath_kregbase)
++		writeq(val, caddr);
++}
++
++
++#endif				/* _IPATH_KERNEL_H */
+diff -r a3a00f637da6 -r 2d9a3f27a10c drivers/infiniband/hw/ipath/ipath_layer.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_layer.h	Wed Dec 28 14:19:42 2005 -0800
+@@ -0,0 +1,134 @@
++/*
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
 + *
-+ * For now, if we can't allocate the full list, we fail, although
-+ * in the long run, we'll allocate as many as we can, and the
-+ * caller will deal with that by trying the remaining pages later.
-+ * That means that when we fail, we have to mark the tids as not in
-+ * use again, in our shadow copy.
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
 + *
-+ * It's up to the caller to free the tids when they are done.
-+ * We'll unlock the pages as they free them.
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
 + *
-+ * Also, right now we are locking one page at a time, but since
-+ * the intended use of this routine is for a single group of
-+ * virtually contiguous pages, that should change to improve
-+ * performance.
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * Patent licenses, if any, provided herein do not apply to
++ * combinations of this program with other software, or any other
++ * product whatsoever.
 + */
-+static int ipath_tid_update(struct ipath_portdata * pd,
-+			    struct _tidupd __user *tidu)
-+{
-+	int ret = 0, ntids;
-+	uint32_t tid, porttid, cnt, i, tidcnt;
-+	struct _tidupd tu;
-+	uint16_t *tidlist;
-+	struct ipath_devdata *dd = &devdata[pd->port_unit];
-+	uint64_t vaddr, physaddr, lenvalid;
-+	uint64_t __iomem *tidbase;
-+	uint64_t tidmap[8];
-+	struct page **pagep = NULL;
 +
-+	tu.tidcnt = 0;		/* for early errors */
-+	if (!dd->ipath_pageshadow) {
-+		ret = -ENOMEM;
-+		goto done;
-+	}
-+	if (copy_from_user(&tu, tidu, sizeof tu)) {
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+
-+	if (!(cnt = tu.tidcnt)) {
-+		_IPATH_DBG("After copyin, tidcnt 0, tidlist %llx\n",
-+			   tu.tidlist);
-+		/* or should we treat as success?  likely a bug */
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+	tidcnt = dd->ipath_rcvtidcnt;
-+	if (cnt >= tidcnt) {	/* make sure it all fits in port_tid_pg_list */
-+		_IPATH_INFO
-+		    ("Process tried to allocate %u TIDs, only trying max (%u)\n",
-+		     cnt, tidcnt);
-+		cnt = tidcnt;
-+	}
-+	pagep = (struct page **)pd->port_tid_pg_list;
-+	tidlist = (uint16_t *) (&pagep[cnt]);
-+
-+	memset(tidmap, 0, sizeof(tidmap));
-+	tid = pd->port_tidcursor;
-+	/* before decrement; chip actual # */
-+	porttid = pd->port_port * tidcnt;
-+	ntids = tidcnt;
-+	tidbase = (uint64_t __iomem *)
-+		(((char __iomem *) devdata[pd->port_unit].ipath_kregbase) +
-+		devdata[pd->port_unit].ipath_rcvtidbase +
-+		porttid * sizeof(*tidbase));
-+
-+	_IPATH_VDBG("Port%u %u tids, cursor %u, tidbase %p\n", pd->port_port,
-+		    cnt, tid, tidbase);
-+
-+	vaddr = tu.tidvaddr;	/* virtual address of first page in transfer */
-+	if (!access_ok(VERIFY_WRITE, (void __user *) vaddr, cnt * PAGE_SIZE)) {
-+		_IPATH_DBG("Fail vaddr %llx, %u pages, !access_ok\n",
-+			   vaddr, cnt);
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+	if ((ret = ipath_get_upages((unsigned long)vaddr, cnt, pagep))) {
-+		if (ret == -EBUSY) {
-+			_IPATH_DBG
-+			    ("Failed to lock addr %p, %u pages (already locked)\n",
-+			     (void *)vaddr, cnt);
-+			/*
-+			 * for now, continue, and see what happens
-+			 * but with the new implementation, this should
-+			 * never happen, unless perhaps the user has
-+			 * mpin'ed the pages themselves (something we
-+			 * need to test)
-+			 */
-+			ret = 0;
-+		} else {
-+			_IPATH_INFO
-+			    ("Failed to lock addr %p, %u pages: errno %d\n",
-+			     (void *)vaddr, cnt, -ret);
-+			goto done;
-+		}
-+	}
-+	for (i = 0; i < cnt; i++, vaddr += PAGE_SIZE) {
-+		for (; ntids--; tid++) {
-+			if (tid == tidcnt)
-+				tid = 0;
-+			if (!dd->ipath_pageshadow[porttid + tid])
-+				break;
-+		}
-+		if (ntids < 0) {
-+			/*
-+			 * oops, wrapped all the way through their TIDs,
-+			 * and didn't have enough free; see comments at
-+			 * start of routine
-+			 */
-+			_IPATH_DBG
-+			    ("Not enough free TIDs for %u pages (index %d), failing\n",
-+			     cnt, i);
-+			i--;	/* last tidlist[i] not filled in */
-+			ret = -ENOMEM;
-+			break;
-+		}
-+		tidlist[i] = tid;
-+		_IPATH_VDBG("Updating idx %u to TID %u, vaddr %llx\n",
-+			    i, tid, vaddr);
-+		/* for now we "know" system pages and TID pages are same size */
-+		/* for ipath_free_tid */
-+		dd->ipath_pageshadow[porttid + tid] = pagep[i];
-+		__set_bit(tid, tidmap);	/* don't need atomic or it's overhead */
-+		physaddr = page_to_phys(pagep[i]);
-+		ipath_stats.sps_pagelocks++;
-+		_IPATH_VDBG("TID %u, vaddr %llx, physaddr %llx pgp %p\n",
-+			    tid, vaddr, physaddr, pagep[i]);
-+		/*
-+		 * in words (fixed, full page).  could make less for very last
-+		 * page in transfer, but for now we won't worry about it.
-+		 */
-+		lenvalid = PAGE_SIZE >> 2;
-+		lenvalid <<= INFINIPATH_RT_BUFSIZE_SHIFT;
-+		physaddr |= lenvalid | INFINIPATH_RT_VALID;
-+		ipath_kput_memq(pd->port_unit, &tidbase[tid], physaddr);
-+		/*
-+		 * don't check this tid in ipath_portshadow, since we
-+		 * just filled it in; start with the next one.
-+		 */
-+		tid++;
-+	}
-+
-+	if (ret) {
-+		uint32_t limit;
-+		uint64_t tidval;
-+		/*
-+		 * chip errata bug 7358, try to work around it by
-+		 * marking invalid tids as having max length
-+		 */
-+		tidval =
-+		    (-1LL & INFINIPATH_RT_BUFSIZE_MASK) <<
-+		    INFINIPATH_RT_BUFSIZE_SHIFT;
-+	      cleanup:
-+		/* jump here if copy out of updated info failed... */
-+		_IPATH_DBG("After failure (ret=%d), undo %d of %d entries\n",
-+			   -ret, i, cnt);
-+		/* same code that's in ipath_free_tid() */
-+		if ((limit = sizeof(tidmap) * BITS_PER_BYTE) > tidcnt)
-+			/* just in case size changes in future */
-+			limit = tidcnt;
-+		tid = find_first_bit((const unsigned long *)tidmap, limit);
-+		/*
-+		 * chip errata bug 7358, try to work around it by
-+		 * marking invalid tids as having max length
-+		 */
-+		tidval =
-+		    (-1LL & INFINIPATH_RT_BUFSIZE_MASK) <<
-+		    INFINIPATH_RT_BUFSIZE_SHIFT;
-+		for (; tid < limit; tid++) {
-+			if (!test_bit(tid, tidmap))
-+				continue;
-+			if (dd->ipath_pageshadow[porttid + tid]) {
-+				_IPATH_VDBG("Freeing TID %u\n", tid);
-+				ipath_kput_memq(pd->port_unit, &tidbase[tid],
-+						tidval);
-+				dd->ipath_pageshadow[porttid + tid] = NULL;
-+				ipath_stats.sps_pageunlocks++;
-+			}
-+		}
-+		ipath_putpages(cnt, pagep);
-+	} else {
-+		/*
-+		 * copy the updated array, with ipath_tid's filled in,
-+		 * back to user.  Since we did the copy in already, this
-+		 * "should never fail"
-+		 * If it does, we have to clean up...
-+		 */
-+		int r;
-+		if ((r = copy_to_user((void __user *) tu.tidlist, tidlist,
-+				      cnt * sizeof(*tidlist)))) {
-+			_IPATH_DBG("Failed to copy out %d TIDs (%lx bytes) "
-+				   "to %llx (ret %x)\n", cnt,
-+				    cnt * sizeof(*tidlist), tu.tidlist, r);
-+			ret = -EFAULT;
-+			goto cleanup;
-+		}
-+		if (copy_to_user((void __user *) tu.tidmap, tidmap,
-+				 sizeof tidmap)) {
-+			_IPATH_DBG("Failed to copy out TID map to %llx\n",
-+				   tu.tidmap);
-+			ret = -EFAULT;
-+			goto cleanup;
-+		}
-+		if (tid == tidcnt)
-+			tid = 0;
-+		pd->port_tidcursor = tid;
-+	}
-+
-+done:
-+	if (ret)
-+		_IPATH_DBG("Failed to map %u TID pages, failing with %d, "
-+			   "tidu %p\n", tu.tidcnt, -ret, tidu);
-+	return ret;
-+}
++#ifndef _IPATH_LAYER_H
++#define _IPATH_LAYER_H
 +
 +/*
-+ * right now we are unlocking one page at a time, but since
-+ * the intended use of this routine is for a single group of
-+ * virtually contiguous pages, that should change to improve
-+ * performance.  We check that the TID is in range for this port
-+ * but otherwise don't check validity; if user has an error and
-+ * frees the wrong tid, it's only their own data that can thereby
-+ * be corrupted.  We do check that the TID was in use, for sanity
-+ * We always use our idea of the saved address, not the address that
-+ * they pass in to us.
++ * This header file is for symbols shared between the infinipath driver
++ * and drivers layered upon it (such as ipath).
 + */
 +
-+static int ipath_tid_free(struct ipath_portdata * pd,
-+			  struct _tidupd __user *tidu)
-+{
-+	int ret = 0;
-+	uint32_t tid, porttid, cnt, limit, tidcnt;
-+	struct _tidupd tu;
-+	struct ipath_devdata *dd = &devdata[pd->port_unit];
-+	uint64_t __iomem *tidbase;
-+	uint64_t tidmap[8];
-+	uint64_t tidval;
++struct sk_buff;
++struct ipath_sge_state;
 +
-+	tu.tidcnt = 0;		/* for early errors */
-+	if (!dd->ipath_pageshadow) {
-+		ret = -ENOMEM;
-+		goto done;
-+	}
++struct ipath_layer_counters {
++	uint64_t	symbol_error_counter;
++	uint64_t	link_error_recovery_counter;
++	uint64_t	link_downed_counter;
++	uint64_t	port_rcv_errors;
++	uint64_t	port_rcv_remphys_errors;
++	uint64_t	port_xmit_discards;
++	uint64_t	port_xmit_data;
++	uint64_t	port_rcv_data;
++	uint64_t	port_xmit_packets;
++	uint64_t	port_rcv_packets;
++};
 +
-+	if (copy_from_user(&tu, tidu, sizeof tu)) {
-+		_IPATH_DBG("copy of tidupd structure failed\n");
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+	if (copy_from_user(tidmap, (void __user *) tu.tidmap, sizeof tidmap)) {
-+		_IPATH_DBG("copy of tidmap failed\n");
-+		ret = -EFAULT;
-+		goto done;
-+	}
++int ipath_layer_register(const ipath_type device,
++			 int (*l_intr) (const ipath_type, uint32_t),
++			 int (*l_rcv) (const ipath_type, void *,
++				       struct sk_buff *),
++			 uint16_t rcv_opcode,
++			 int (*l_rcv_lid) (const ipath_type, void *),
++			 uint16_t rcv_lid_opcode);
++int ipath_verbs_register(const ipath_type device,
++			 int (*l_piobufavail) (const ipath_type device),
++			 void (*l_rcv) (const ipath_type device,
++					void *rhdr, void *data,
++					uint32_t tlen),
++			 void (*l_timer_cb) (const ipath_type device));
++void ipath_verbs_unregister(const ipath_type device);
++int ipath_layer_open(const ipath_type device, uint32_t * pktmax);
++uint16_t ipath_layer_get_lid(const ipath_type device);
++int ipath_layer_get_mac(const ipath_type device, uint8_t *);
++uint16_t ipath_layer_get_bcast(const ipath_type device);
++int ipath_layer_get_num_of_dev(void);
++int ipath_layer_get_cr_errpkey(const ipath_type device);
++int ipath_kset_linkstate(uint32_t arg);
++int ipath_kset_mtu(uint32_t);
++void ipath_set_sps_lid(const ipath_type, uint32_t);
++void ipath_layer_close(const ipath_type device);
++int ipath_layer_send(const ipath_type device, void *hdr, void *data,
++		     uint32_t datalen);
++int ipath_verbs_send(const ipath_type device, uint32_t hdrwords,
++		     uint32_t *hdr, uint32_t len,
++		     struct ipath_sge_state *ss);
++int ipath_layer_send_skb(struct copy_data_s *cdata);
++void ipath_layer_set_piointbufavail_int(const ipath_type device);
++void ipath_get_boardname(const ipath_type, char *name, size_t namelen);
++void ipath_layer_snapshot_counters(const ipath_type t, uint64_t * swords,
++				  uint64_t * rwords, uint64_t * spkts, uint64_t * rpkts);
++void ipath_layer_get_counters(const ipath_type device,
++			      struct ipath_layer_counters *cntrs);
++void ipath_layer_want_buffer(const ipath_type t);
++int ipath_layer_set_guid(const ipath_type t, uint64_t guid);
++uint64_t ipath_layer_get_guid(const ipath_type t);
++uint32_t ipath_layer_get_nguid(const ipath_type t);
++int ipath_layer_query_device(const ipath_type t, uint32_t * vendor,
++			     uint32_t * boardrev, uint32_t * majrev,
++			     uint32_t * minrev);
++uint32_t ipath_layer_get_flags(const ipath_type t);
++struct device *ipath_layer_get_pcidev(const ipath_type t);
++uint16_t ipath_layer_get_deviceid(const ipath_type t);
++uint64_t ipath_layer_get_lastibcstat(const ipath_type t);
++uint32_t ipath_layer_get_ibmtu(const ipath_type t);
++void ipath_layer_enable_timer(const ipath_type t);
++void ipath_layer_disable_timer(const ipath_type t);
++unsigned ipath_verbs_get_flags(const ipath_type device);
++void ipath_verbs_set_flags(const ipath_type device, unsigned flags);
++unsigned ipath_layer_get_npkeys(const ipath_type device);
++unsigned ipath_layer_get_pkey(const ipath_type device, unsigned index);
++void ipath_layer_get_pkeys(const ipath_type device, uint16_t *pkeys);
++int ipath_layer_set_pkeys(const ipath_type device, uint16_t *pkeys);
++int ipath_layer_get_linkdowndefaultstate(const ipath_type device);
++int ipath_layer_set_linkdowndefaultstate(const ipath_type device, int sleep);
++int ipath_layer_get_phyerrthreshold(const ipath_type device);
++int ipath_layer_set_phyerrthreshold(const ipath_type device, unsigned n);
++int ipath_layer_get_overrunthreshold(const ipath_type device);
++int ipath_layer_set_overrunthreshold(const ipath_type device, unsigned n);
 +
-+	porttid = pd->port_port * dd->ipath_rcvtidcnt;
-+	tidbase = (uint64_t __iomem *)
-+		((char __iomem *) (devdata[pd->port_unit].ipath_kregbase) +
-+		 devdata[pd->port_unit].ipath_rcvtidbase +
-+		 porttid * sizeof(*tidbase));
++/* ipath_ether interrupt values */
++#define IPATH_LAYER_INT_IF_UP 0x2
++#define IPATH_LAYER_INT_IF_DOWN 0x4
++#define IPATH_LAYER_INT_LID 0x8
++#define IPATH_LAYER_INT_SEND_CONTINUE 0x10
++#define IPATH_LAYER_INT_BCAST 0x40
 +
-+	tidcnt = dd->ipath_rcvtidcnt;
-+	if ((limit = sizeof(tidmap) * BITS_PER_BYTE) > tidcnt)
-+		limit = tidcnt;	/* just in case size changes in future */
-+	tid = find_first_bit((const unsigned long *)tidmap, limit);
-+	_IPATH_VDBG
-+	    ("Port%u free %u tids; first bit (max=%d) set is %d, porttid %u\n",
-+	     pd->port_port, tu.tidcnt, limit, tid, porttid);
++/* _verbs_layer.l_flags */
++#define IPATH_VERBS_KERNEL_SMA 0x1
++
++#endif				/* _IPATH_LAYER_H */
+diff -r a3a00f637da6 -r 2d9a3f27a10c drivers/infiniband/hw/ipath/ipath_registers.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_registers.h	Wed Dec 28 14:19:42 2005 -0800
+@@ -0,0 +1,355 @@
++/*
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * Patent licenses, if any, provided herein do not apply to
++ * combinations of this program with other software, or any other
++ * product whatsoever.
++ */
++
++#ifndef _IPATH_REGISTERS_H
++#define _IPATH_REGISTERS_H
++
++/*
++ * This file should only be included by kernel source, and by the diags.
++ * It defines the registers, and their contents, for the InfiniPath HT-400 chip
++ */
++
++/*
++ * These are the InfiniPath register and buffer bit definitions,
++ * that are visible to software, and needed only by the kernel
++ * and diag code.  A few, that are visible to protocol and user
++ * code are in ipath_common.h.  Some bits are specific
++ * to a given chip implementation, and have been moved to the
++ * chip-specific source file
++ */
++
++/* kr_revision bits */
++#define INFINIPATH_R_CHIPREVMINOR_MASK 0xFF
++#define INFINIPATH_R_CHIPREVMINOR_SHIFT 0
++#define INFINIPATH_R_CHIPREVMAJOR_MASK 0xFF
++#define INFINIPATH_R_CHIPREVMAJOR_SHIFT 8
++#define INFINIPATH_R_ARCH_MASK 0xFF
++#define INFINIPATH_R_ARCH_SHIFT 16
++#define INFINIPATH_R_SOFTWARE_MASK 0xFF
++#define INFINIPATH_R_SOFTWARE_SHIFT 24
++#define INFINIPATH_R_BOARDID_MASK 0xFF
++#define INFINIPATH_R_BOARDID_SHIFT 32
++
++/* kr_ontrol bits */
++#define INFINIPATH_C_FREEZEMODE 0x00000002
++#define INFINIPATH_C_LINKENABLE 0x00000004
++
++/* kr_sendctrl bits */
++#define INFINIPATH_S_DISARMPIOBUF_SHIFT 16
++#define INFINIPATH_S_ABORT          0x00000001U
++#define INFINIPATH_S_PIOINTBUFAVAIL 0x00000002U
++#define INFINIPATH_S_PIOBUFAVAILUPD 0x00000004U
++#define INFINIPATH_S_PIOENABLE      0x00000008U
++#define INFINIPATH_S_DISARM         0x80000000U
++
++/* kr_rcvctrl bits */
++#define INFINIPATH_R_PORTENABLE_SHIFT 0
++#define INFINIPATH_R_INTRAVAIL_SHIFT 16
++#define INFINIPATH_R_TAILUPD   0x80000000
++
++/* kr_intstatus, kr_intclear, kr_intmask bits */
++#define INFINIPATH_I_RCVURG_SHIFT 0
++#define INFINIPATH_I_RCVAVAIL_SHIFT 12
++#define INFINIPATH_I_ERROR        0x80000000
++#define INFINIPATH_I_SPIOSENT     0x40000000
++#define INFINIPATH_I_SPIOBUFAVAIL 0x20000000
++#define INFINIPATH_I_GPIO         0x10000000
++
++/* kr_errorstatus, kr_errorclear, kr_errormask bits */
++#define INFINIPATH_E_RFORMATERR      0x0000000000000001ULL
++#define INFINIPATH_E_RVCRC           0x0000000000000002ULL
++#define INFINIPATH_E_RICRC           0x0000000000000004ULL
++#define INFINIPATH_E_RMINPKTLEN      0x0000000000000008ULL
++#define INFINIPATH_E_RMAXPKTLEN      0x0000000000000010ULL
++#define INFINIPATH_E_RLONGPKTLEN     0x0000000000000020ULL
++#define INFINIPATH_E_RSHORTPKTLEN    0x0000000000000040ULL
++#define INFINIPATH_E_RUNEXPCHAR      0x0000000000000080ULL
++#define INFINIPATH_E_RUNSUPVL        0x0000000000000100ULL
++#define INFINIPATH_E_REBP            0x0000000000000200ULL
++#define INFINIPATH_E_RIBFLOW         0x0000000000000400ULL
++#define INFINIPATH_E_RBADVERSION     0x0000000000000800ULL
++#define INFINIPATH_E_RRCVEGRFULL     0x0000000000001000ULL
++#define INFINIPATH_E_RRCVHDRFULL     0x0000000000002000ULL
++#define INFINIPATH_E_RBADTID         0x0000000000004000ULL
++#define INFINIPATH_E_RHDRLEN         0x0000000000008000ULL
++#define INFINIPATH_E_RHDR            0x0000000000010000ULL
++#define INFINIPATH_E_RIBLOSTLINK     0x0000000000020000ULL
++#define INFINIPATH_E_SMINPKTLEN      0x0000000020000000ULL
++#define INFINIPATH_E_SMAXPKTLEN      0x0000000040000000ULL
++#define INFINIPATH_E_SUNDERRUN       0x0000000080000000ULL
++#define INFINIPATH_E_SPKTLEN         0x0000000100000000ULL
++#define INFINIPATH_E_SDROPPEDSMPPKT  0x0000000200000000ULL
++#define INFINIPATH_E_SDROPPEDDATAPKT 0x0000000400000000ULL
++#define INFINIPATH_E_SPIOARMLAUNCH   0x0000000800000000ULL
++#define INFINIPATH_E_SUNEXPERRPKTNUM 0x0000001000000000ULL
++#define INFINIPATH_E_SUNSUPVL        0x0000002000000000ULL
++#define INFINIPATH_E_IBSTATUSCHANGED 0x0001000000000000ULL
++#define INFINIPATH_E_INVALIDADDR     0x0002000000000000ULL
++#define INFINIPATH_E_RESET           0x0004000000000000ULL
++#define INFINIPATH_E_HARDWARE        0x0008000000000000ULL
++
++/* kr_hwerrclear, kr_hwerrmask, kr_hwerrstatus, bits */
++#define INFINIPATH_HWE_HTCMEMPARITYERR_SHIFT 0
++#define INFINIPATH_HWE_TXEMEMPARITYERR_MASK 0xFULL
++#define INFINIPATH_HWE_TXEMEMPARITYERR_SHIFT 40
++#define INFINIPATH_HWE_RXEMEMPARITYERR_MASK 0x7FULL
++#define INFINIPATH_HWE_RXEMEMPARITYERR_SHIFT 44
++#define INFINIPATH_HWE_HTCBUSTREQPARITYERR  0x0000000080000000ULL
++#define INFINIPATH_HWE_HTCBUSTRESPPARITYERR 0x0000000100000000ULL
++#define INFINIPATH_HWE_HTCBUSIREQPARITYERR  0x0000000200000000ULL
++#define INFINIPATH_HWE_RXDSYNCMEMPARITYERR  0x0000000400000000ULL
++#define INFINIPATH_HWE_SERDESPLLFAILED      0x2000000000000000ULL
++#define INFINIPATH_HWE_IBCBUSTOSPCPARITYERR 0x4000000000000000ULL
++#define INFINIPATH_HWE_IBCBUSFRSPCPARITYERR 0x8000000000000000ULL
++
++/* kr_hwdiagctrl bits */
++#define INFINIPATH_DC_FORCEHTCENABLE 0x20
++#define INFINIPATH_DC_FORCEHTCMEMPARITYERR_MASK 0x3FULL
++#define INFINIPATH_DC_FORCEHTCMEMPARITYERR_SHIFT 0
++#define INFINIPATH_DC_FORCETXEMEMPARITYERR_MASK 0xFULL
++#define INFINIPATH_DC_FORCETXEMEMPARITYERR_SHIFT 40
++#define INFINIPATH_DC_FORCERXEMEMPARITYERR_MASK 0x7FULL
++#define INFINIPATH_DC_FORCERXEMEMPARITYERR_SHIFT 44
++#define INFINIPATH_DC_FORCEHTCBUSTREQPARITYERR  0x0000000080000000ULL
++#define INFINIPATH_DC_FORCEHTCBUSTRESPPARITYERR 0x0000000100000000ULL
++#define INFINIPATH_DC_FORCEHTCBUSIREQPARITYERR  0x0000000200000000ULL
++#define INFINIPATH_DC_FORCERXDSYNCMEMPARITYERR  0x0000000400000000ULL
++#define INFINIPATH_DC_COUNTERDISABLE            0x1000000000000000ULL
++#define INFINIPATH_DC_COUNTERWREN               0x2000000000000000ULL
++#define INFINIPATH_DC_FORCEIBCBUSTOSPCPARITYERR 0x4000000000000000ULL
++#define INFINIPATH_DC_FORCEIBCBUSFRSPCPARITYERR 0x8000000000000000ULL
++
++/* kr_ibcctrl bits */
++#define INFINIPATH_IBCC_FLOWCTRLPERIOD_MASK 0xFFULL
++#define INFINIPATH_IBCC_FLOWCTRLPERIOD_SHIFT 0
++#define INFINIPATH_IBCC_FLOWCTRLWATERMARK_MASK 0xFFULL
++#define INFINIPATH_IBCC_FLOWCTRLWATERMARK_SHIFT 8
++#define INFINIPATH_IBCC_LINKINITCMD_MASK 0x3ULL
++#define INFINIPATH_IBCC_LINKINITCMD_DISABLE 1
++/* cycle through TS1/TS2 till OK */
++#define INFINIPATH_IBCC_LINKINITCMD_POLL 2
++#define INFINIPATH_IBCC_LINKINITCMD_SLEEP 3	/* wait for TS1, then go on */
++#define INFINIPATH_IBCC_LINKINITCMD_SHIFT 16
++#define INFINIPATH_IBCC_LINKCMD_MASK 0x3ULL
++#define INFINIPATH_IBCC_LINKCMD_INIT 1	/* move to 0x11 */
++#define INFINIPATH_IBCC_LINKCMD_ARMED 2	/* move to 0x21 */
++#define INFINIPATH_IBCC_LINKCMD_ACTIVE 3	/* move to 0x31 */
++#define INFINIPATH_IBCC_LINKCMD_SHIFT 18
++#define INFINIPATH_IBCC_MAXPKTLEN_MASK 0x7FFULL
++#define INFINIPATH_IBCC_MAXPKTLEN_SHIFT 20
++#define INFINIPATH_IBCC_PHYERRTHRESHOLD_MASK 0xFULL
++#define INFINIPATH_IBCC_PHYERRTHRESHOLD_SHIFT 32
++#define INFINIPATH_IBCC_OVERRUNTHRESHOLD_MASK 0xFULL
++#define INFINIPATH_IBCC_OVERRUNTHRESHOLD_SHIFT 36
++#define INFINIPATH_IBCC_CREDITSCALE_MASK 0x7ULL
++#define INFINIPATH_IBCC_CREDITSCALE_SHIFT 40
++#define INFINIPATH_IBCC_LOOPBACK             0x8000000000000000ULL
++#define INFINIPATH_IBCC_LINKDOWNDEFAULTSTATE 0x4000000000000000ULL
++
++/* kr_ibcstatus bits */
++#define INFINIPATH_IBCS_LINKTRAININGSTATE_MASK 0xF
++#define INFINIPATH_IBCS_LINKTRAININGSTATE_SHIFT 0
++#define INFINIPATH_IBCS_LINKSTATE_MASK 0x7
++#define INFINIPATH_IBCS_LINKSTATE_SHIFT 4
++#define INFINIPATH_IBCS_TXREADY       0x40000000
++#define INFINIPATH_IBCS_TXCREDITOK    0x80000000
++
++/* kr_extstatus bits */
++#define INFINIPATH_EXTS_SERDESPLLLOCK 0x1
++#define INFINIPATH_EXTS_GPIOIN_MASK 0xFFFFULL
++#define INFINIPATH_EXTS_GPIOIN_SHIFT 48
++
++/* kr_extctrl bits */
++#define INFINIPATH_EXTC_GPIOINVERT_MASK 0xFFFFULL
++#define INFINIPATH_EXTC_GPIOINVERT_SHIFT 32
++#define INFINIPATH_EXTC_GPIOOE_MASK 0xFFFFULL
++#define INFINIPATH_EXTC_GPIOOE_SHIFT 48
++#define INFINIPATH_EXTC_SERDESENABLE         0x80000000ULL
++#define INFINIPATH_EXTC_SERDESCONNECT        0x40000000ULL
++#define INFINIPATH_EXTC_SERDESENTRUNKING     0x20000000ULL
++#define INFINIPATH_EXTC_SERDESDISRXFIFO      0x10000000ULL
++#define INFINIPATH_EXTC_SERDESENPLPBK1       0x08000000ULL
++#define INFINIPATH_EXTC_SERDESENPLPBK2       0x04000000ULL
++#define INFINIPATH_EXTC_SERDESENENCDEC       0x02000000ULL
++#define INFINIPATH_EXTC_LEDSECPORTGREENON    0x00000020ULL
++#define INFINIPATH_EXTC_LEDSECPORTYELLOWON   0x00000010ULL
++#define INFINIPATH_EXTC_LEDPRIPORTGREENON    0x00000008ULL
++#define INFINIPATH_EXTC_LEDPRIPORTYELLOWON   0x00000004ULL
++#define INFINIPATH_EXTC_LEDGBLOKGREENON      0x00000002ULL
++#define INFINIPATH_EXTC_LEDGBLERRREDOFF      0x00000001ULL
++
++/* kr_mdio bits */
++#define INFINIPATH_MDIO_CLKDIV_MASK 0x7FULL
++#define INFINIPATH_MDIO_CLKDIV_SHIFT 32
++#define INFINIPATH_MDIO_COMMAND_MASK 0x7ULL
++#define INFINIPATH_MDIO_COMMAND_SHIFT 26
++#define INFINIPATH_MDIO_DEVADDR_MASK 0x1FULL
++#define INFINIPATH_MDIO_DEVADDR_SHIFT 21
++#define INFINIPATH_MDIO_REGADDR_MASK 0x1FULL
++#define INFINIPATH_MDIO_REGADDR_SHIFT 16
++#define INFINIPATH_MDIO_DATA_MASK 0xFFFFULL
++#define INFINIPATH_MDIO_DATA_SHIFT 0
++#define INFINIPATH_MDIO_CMDVALID    0x0000000040000000ULL
++#define INFINIPATH_MDIO_RDDATAVALID 0x0000000080000000ULL
++
++/* kr_partitionkey bits */
++#define INFINIPATH_PKEY_SIZE 16
++#define INFINIPATH_PKEY_MASK 0xFFFF
++#define INFINIPATH_PKEY_DEFAULT_PKEY 0xFFFF
++
++/* kr_serdesconfig0 bits */
++#define INFINIPATH_SERDC0_RESET_MASK  0xfULL	/* overal reset bits */
++#define INFINIPATH_SERDC0_RESET_PLL   0x10000000ULL	/* pll reset */
++#define INFINIPATH_SERDC0_TXIDLE      0xF000ULL	/* tx idle enables (per lane) */
++
++/* kr_xgxsconfig bits */
++#define INFINIPATH_XGXS_RESET          0x7ULL
++#define INFINIPATH_XGXS_MDIOADDR_MASK  0xfULL
++#define INFINIPATH_XGXS_MDIOADDR_SHIFT 4
++
++/* TID entries (memory) */
++#define INFINIPATH_RT_VALID 0x8000000000000000ULL
++#define INFINIPATH_RT_ADDR_MASK 0xFFFFFFFFFFULL
++#define INFINIPATH_RT_ADDR_SHIFT 0
++#define INFINIPATH_RT_BUFSIZE_MASK 0x3FFF
++#define INFINIPATH_RT_BUFSIZE_SHIFT 48
++
++/* mask of defined bits for various registers */
++extern const uint64_t infinipath_c_bitsextant,
++    infinipath_s_bitsextant, infinipath_r_bitsextant,
++    infinipath_i_bitsextant, infinipath_e_bitsextant,
++    infinipath_hwe_bitsextant, infinipath_dc_bitsextant,
++    infinipath_extc_bitsextant, infinipath_mdio_bitsextant,
++    infinipath_ibcs_bitsextant, infinipath_ibcc_bitsextant;
++
++/* masks that are different in different chips */
++extern const uint32_t infinipath_i_rcvavail_mask, infinipath_i_rcvurg_mask;
++extern const uint64_t infinipath_hwe_htcmemparityerr_mask;
++extern const uint64_t infinipath_hwe_spibdcmlockfailed_mask;
++extern const uint64_t infinipath_hwe_sphtdcmlockfailed_mask;
++extern const uint64_t infinipath_hwe_htcdcmlockfailed_mask;
++extern const uint64_t infinipath_hwe_htcdcmlockfailed_shift;
++extern const uint64_t infinipath_hwe_sphtdcmlockfailed_shift;
++extern const uint64_t infinipath_hwe_spibdcmlockfailed_shift;
++
++extern const uint64_t infinipath_hwe_htclnkabyte0crcerr;
++extern const uint64_t infinipath_hwe_htclnkabyte1crcerr;
++extern const uint64_t infinipath_hwe_htclnkbbyte0crcerr;
++extern const uint64_t infinipath_hwe_htclnkbbyte1crcerr;
++
++/*
++ * These are the infinipath general register numbers (not offsets).
++ * The kernel registers are used directly, those beyond the kernel
++ * registers are calculated from one of the base registers.  The use of
++ * an integer type doesn't allow type-checking as thorough as, say,
++ * an enum but allows for better hiding of chip differences.
++ */
++typedef const uint16_t
++	ipath_kreg,	/* kernel-only, infinipath general registers */
++	ipath_creg,	/* kernel-only, infinipath counter registers */
++	ipath_sreg;	/* kernel-only, infinipath send registers */
++
++/*
++ * These are all implemented such that 64 bit accesses work.
++ * Some implement no more than 32 bits.  Because 64 bit reads
++ * require 2 HT cmds on opteron, we access those with 32 bit
++ * reads for efficiency (they are written as 64 bits, since
++ * the extra 32 bits are nearly free on writes, and it slightly reduces
++ * complexity).  The rest are all accessed as 64 bits.
++ */
++extern ipath_kreg
++	/* These are the 32 bit group */
++	kr_control, kr_counterregbase, kr_intmask, kr_intstatus,
++	kr_pagealign, kr_portcnt, kr_rcvtidbase, kr_rcvtidcnt,
++	kr_rcvegrbase, kr_rcvegrcnt, kr_scratch, kr_sendctrl,
++	kr_sendpiobufbase, kr_sendpiobufcnt, kr_sendpiosize,
++	kr_sendregbase, kr_userregbase,
++	/* These are the 64 bit group */
++	kr_debugport, kr_debugportselect, kr_errorclear, kr_errormask,
++	kr_errorstatus, kr_extctrl, kr_extstatus, kr_gpio_clear, kr_gpio_mask,
++	kr_gpio_out, kr_gpio_status, kr_hwdiagctrl, kr_hwerrclear,
++	kr_hwerrmask, kr_hwerrstatus, kr_ibcctrl, kr_ibcstatus, kr_intblocked,
++	kr_intclear, kr_interruptconfig, kr_mdio, kr_partitionkey, kr_rcvbthqp,
++	kr_rcvbufbase, kr_rcvbufsize, kr_rcvctrl, kr_rcvhdrcnt,
++	kr_rcvhdrentsize, kr_rcvhdrsize, kr_rcvintmembase, kr_rcvintmemsize,
++	kr_revision, kr_sendbuffererror, kr_sendbuffererror1,
++	kr_sendbuffererror2, kr_sendbuffererror3, kr_sendpioavailaddr,
++	kr_serdesconfig0, kr_serdesconfig1, kr_serdesstatus, kr_txintmembase,
++	kr_txintmemsize, kr_xgxsconfig,
++	__kr_invalid,	/* a marker for debug, don't use them directly */
++	/* a marker for debug, don't use them directly */
++	__kr_lastvaliddirect,
++	/* use only with ipath_k*_kreg64_port(), not *kreg64() */
++	kr_rcvhdraddr,
++	/* use only with ipath_k*_kreg64_port(), not *kreg64() */
++	kr_rcvhdrtailaddr,
++	/* we define the full set for the diags, the kernel doesn't use them */
++	kr_rcvhdraddr1, kr_rcvhdraddr2, kr_rcvhdraddr3, kr_rcvhdraddr4,
++	kr_rcvhdraddr5, kr_rcvhdraddr6, kr_rcvhdraddr7, kr_rcvhdraddr8,
++	kr_rcvhdrtailaddr1, kr_rcvhdrtailaddr2, kr_rcvhdrtailaddr3,
++	kr_rcvhdrtailaddr4, kr_rcvhdrtailaddr5, kr_rcvhdrtailaddr6,
++	kr_rcvhdrtailaddr7, kr_rcvhdrtailaddr8;
++
++/*
++ * first of the pioavail registers, the total number is
++ * (kr_sendpiobufcnt / 32); each buffer uses 2 bits
++ */
++extern ipath_sreg sr_sendpioavail;
++
++extern ipath_creg cr_badformatcnt, cr_erricrccnt, cr_errlinkcnt,
++	cr_errlpcrccnt, cr_errpkey, cr_errrcvflowctrlcnt,
++	cr_err_rlencnt, cr_errslencnt, cr_errtidfull,
++	cr_errtidvalid, cr_errvcrccnt, cr_ibstatuschange,
++	cr_intcnt, cr_invalidrlencnt, cr_invalidslencnt,
++	cr_lbflowstallcnt, cr_iblinkdowncnt, cr_iblinkerrrecovcnt,
++	cr_ibsymbolerrcnt, cr_pktrcvcnt, cr_pktrcvflowctrlcnt,
++	cr_pktsendcnt, cr_pktsendflowcnt, cr_portovflcnt,
++	cr_portovflcnt1, cr_portovflcnt2, cr_portovflcnt3, cr_portovflcnt4,
++	cr_portovflcnt5, cr_portovflcnt6, cr_portovflcnt7, cr_portovflcnt8,
++	cr_rcvebpcnt, cr_rcvovflcnt, cr_rxdroppktcnt,
++	cr_senddropped, cr_sendstallcnt, cr_sendunderruncnt,
++	cr_unsupvlcnt, cr_wordrcvcnt, cr_wordsendcnt;
++
++/*
++ * register bits for selecting i2c direction and values, used for I2C serial
++ * flash
++ */
++extern const uint16_t ipath_gpio_sda_num;
++extern const uint16_t ipath_gpio_scl_num;
++extern const uint64_t ipath_gpio_sda;
++extern const uint64_t ipath_gpio_scl;
++
++#endif				/* _IPATH_REGISTERS_H */
+diff -r a3a00f637da6 -r 2d9a3f27a10c drivers/infiniband/hw/ipath/ips_common.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ips_common.h	Wed Dec 28 14:19:42 2005 -0800
+@@ -0,0 +1,249 @@
++#ifndef IPS_COMMON_H
++#define IPS_COMMON_H
++/*
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * Patent licenses, if any, provided herein do not apply to
++ * combinations of this program with other software, or any other
++ * product whatsoever.
++ */
++
++#include "ipath_common.h"
++
++struct ipath_header_typ {
 +	/*
-+	 * chip errata bug 7358, try to work around it by marking invalid
-+	 * tids as having max length
++	 * Version - 4 bits, Port - 4 bits, TID - 10 bits and Offset - 14 bits
++	 * before ECO change ~28 Dec 03.
++	 * After that, Vers 4, Port 3, TID 11, offset 14.
 +	 */
-+	tidval =
-+	    (-1LL & INFINIPATH_RT_BUFSIZE_MASK) << INFINIPATH_RT_BUFSIZE_SHIFT;
-+	for (cnt = 0; tid < limit; tid++) {
-+		/*
-+		 * small optimization; if we detect a run of 3 or so without
-+		 * any set, use find_first_bit again.  That's mainly to
-+		 * accelerate the case where we wrapped, so we have some at
-+		 * the beginning, and some at the end, and a big gap
-+		 * in the middle.
-+		 */
-+		if (!test_bit(tid, tidmap))
-+			continue;
-+		cnt++;
-+		if (dd->ipath_pageshadow[porttid + tid]) {
-+			_IPATH_VDBG("Freeing TID %u\n", tid);
-+			ipath_kput_memq(pd->port_unit, &tidbase[tid], tidval);
-+			ipath_putpages(1, &dd->ipath_pageshadow[porttid + tid]);
-+			dd->ipath_pageshadow[porttid + tid] = NULL;
-+			ipath_stats.sps_pageunlocks++;
-+		} else
-+			_IPATH_DBG("Unused tid %u, ignoring\n", tid);
-+	}
-+	if (cnt != tu.tidcnt)
-+		_IPATH_DBG("passed in tidcnt %d, only %d bits set in map\n",
-+			   tu.tidcnt, cnt);
-+done:
-+	if (ret)
-+		_IPATH_DBG("Failed to unmap %u TID pages, failing with %d\n",
-+			   tu.tidcnt, -ret);
-+	return ret;
-+}
++	uint32_t ver_port_tid_offset;
++	uint16_t chksum;
++	uint16_t pkt_flags;
++};
 +
-+/* called from user init code, and also layered driver init */
-+int ipath_setrcvhdrsize(const ipath_type mdev, unsigned rhdrsize)
-+{
-+	int ret = 0;
-+	if (devdata[mdev].ipath_flags & IPATH_RCVHDRSZ_SET) {
-+		if (devdata[mdev].ipath_rcvhdrsize != rhdrsize) {
-+			_IPATH_INFO
-+			    ("Error: can't set protocol header size %u, already %u\n",
-+			     rhdrsize, devdata[mdev].ipath_rcvhdrsize);
-+			ret = -EAGAIN;
-+		} else
-+			/* OK if set already, with same value, nothing to do */
-+			_IPATH_VDBG("Reuse same protocol header size %u\n",
-+				    devdata[mdev].ipath_rcvhdrsize);
-+	} else if (rhdrsize >
-+		   (devdata[mdev].ipath_rcvhdrentsize -
-+		    (sizeof(uint64_t) / sizeof(uint32_t)))) {
-+		_IPATH_DBG
-+		    ("Error: can't set protocol header size %u (> max %u)\n",
-+		     rhdrsize,
-+		     devdata[mdev].ipath_rcvhdrentsize -
-+		     (uint32_t) (sizeof(uint64_t) / sizeof(uint32_t)));
-+		ret = -EOVERFLOW;
-+	} else {
-+		devdata[mdev].ipath_flags |= IPATH_RCVHDRSZ_SET;
-+		devdata[mdev].ipath_rcvhdrsize = rhdrsize;
-+		ipath_kput_kreg(mdev, kr_rcvhdrsize,
-+				devdata[mdev].ipath_rcvhdrsize);
-+		_IPATH_VDBG("Set protocol header size to %u\n",
-+			    devdata[mdev].ipath_rcvhdrsize);
-+	}
-+	return ret;
-+}
++struct ips_message_header_typ {
++	uint16_t lrh[4];
++	uint32_t bth[3];
++	struct ipath_header_typ iph;
++	uint8_t sub_opcode;
++	uint8_t flags;
++	uint16_t src_rank;
++	/* 24 bits. The upper 8 bit is available for other use */
++	union {
++		struct {
++			unsigned ack_seq_num : 24;
++			unsigned port : 4;
++			unsigned unused : 4;
++		};
++		uint32_t ack_seq_num_org;
++	};
++	uint8_t expected_tid_session_id;
++	uint8_t tinylen;	/* to aid MPI */
++	uint16_t tag;		/* to aid MPI */
++	union {
++		uint32_t mpi[4];	/* to aid MPI */
++		uint32_t data[4];
++		struct {
++			uint16_t mtu;
++			uint8_t major_ver;
++			uint8_t minor_ver;
++			uint32_t not_used; //free
++			uint32_t run_id;
++			uint32_t client_ver;
++		};
++	};
++};
 +
++struct ether_header_typ {
++	uint16_t lrh[4];
++	uint32_t bth[3];
++	struct ipath_header_typ iph;
++	uint8_t sub_opcode;
++	uint8_t cmd;
++	uint16_t lid;
++	uint16_t mac[3];
++	uint8_t frag_num;
++	uint8_t seq_num;
++	uint32_t len;
++	/* MUST be of word size do to PIO write requirements */
++	uint32_t csum;
++	uint16_t csum_offset;
++	uint16_t flags;
++	uint16_t first_2_bytes;
++	uint8_t unused[2];	/* currently unused */
++};
 +
 +/*
-+ * find an available pio buffer, and do appropriate marking as busy, etc.
-+ * returns buffer number if one found (>=0), negative number is error.
-+ * Used by ipath_send_smapkt and ipath_layer_send
++ * The PIO buffer used for sending infinipath messages must only be written
++ * in 32-bit words, all the data must be written, and no writes can occur
++ * after the last word is written (which transfers "ownership" of the buffer
++ * to the chip and triggers the message to be sent).
++ * Since the Linux sk_buff structure can be recursive, non-aligned, and
++ * any number of bytes in each segment, we use the following structure
++ * to keep information about the overall state of the copy operation.
++ * This is used to save the information needed to store the checksum
++ * in the right place before sending the last word to the hardware and
++ * to buffer the last 0-3 bytes of non-word sized segments.
 + */
-+uint32_t __iomem *ipath_getpiobuf(int mdev, uint32_t *pbufnum)
-+{
-+	int i, j, starti, updated = 0;
-+	unsigned piobcnt, iter;
-+	unsigned long flags;
-+	struct ipath_devdata *dd = &devdata[mdev];
-+	uint64_t *shadow = dd->ipath_pioavailshadow;
-+	uint32_t __iomem *buf;
++struct copy_data_s {
++	struct ether_header_typ *hdr;
++	uint32_t __iomem *csum_pio;	/* addr of PIO buf to write csum to */
++	uint32_t __iomem *to;		/* addr of PIO buf to write data to */
++	uint32_t device;	/* which device to allocate PIO bufs from */
++	int error;		/* set if there is an error. */
++	int extra;		/* amount of data saved in u.buf below */
++	unsigned int len;	/* total length to send in bytes */
++	unsigned int flen;	/* frament length in words */
++	unsigned int csum;	/* partial IP checksum */
++	unsigned int pos;	/* position for partial checksum */
++	unsigned int offset;	/* offset to where data currently starts */
++    int checksum_calc;  /* set to 'true' when the checksum has been calculated */
++	struct sk_buff *skb;
++	union {
++		uint32_t w;
++		uint8_t buf[4];
++	} u;
++};
 +
-+	piobcnt = (unsigned)devdata[mdev].ipath_piobcnt;
-+	starti = devdata[mdev].ipath_lastport_piobuf;
-+	iter = piobcnt - starti;
-+	if (dd->ipath_upd_pio_shadow) {
-+		/*
-+		 * minor optimization.  If we had no buffers on last call, start out
-+		 * by doing the update; continue and do scan even if no buffers
-+		 * were updated, to be paranoid
-+		 */
-+		ipath_update_pio_bufs(mdev);
-+		updated = 1;    /* we scanned here, don't do it at end of scan */
-+		i = starti;
-+	}
-+	else
-+		i = devdata[mdev].ipath_lastpioindex;
++/* IB - LRH header consts */
++#define IPS_LRH_GRH 0x0003	/* 1. word of IB LRH - next header: GRH */
++#define IPS_LRH_BTH 0x0002	/* 1. word of IB LRH - next header: BTH */
 +
-+rescan:
-+	/*
-+	 * while test_and_set_bit() is atomic,
-+	 * we do that and then the change_bit(), and the pair is not.
-+	 * See if this is the cause of the remaining armlaunch errors.
-+	 */
-+	spin_lock_irqsave(&ipath_pioavail_lock, flags);
-+	for (j = 0; j < iter; j++, i++) {
-+		if (i >= piobcnt)
-+			i = starti;
-+		/*
-+		 * To avoid bus lock overhead, we first find a candidate
-+		 * buffer, then do the test and set, and continue if that fails.
-+		 */
-+		if (test_bit((2 * i) + 1, shadow) ||
-+		    test_and_set_bit((2 * i) + 1, shadow)) {
-+			continue;
-+		}
-+		/* flip generation bit */
-+		change_bit(2 * i, shadow);
-+		break;
-+	}
-+	spin_unlock_irqrestore(&ipath_pioavail_lock, flags);
-+
-+	if (j == iter) {
-+		/*
-+		 * first time through; shadow exhausted, but may be
-+		 * real buffers available, so go see; if any updated, rescan (once)
-+		 */
-+		if (!updated) {
-+			ipath_update_pio_bufs(mdev);
-+			updated = 1;
-+			i = starti;
-+			goto rescan;
-+		}
-+		dd->ipath_upd_pio_shadow = 1;
-+		/* not atomic, but if we lose one once in a while, that's OK */
-+		ipath_stats.sps_nopiobufs++;
-+		if (!(++dd->ipath_consec_nopiobuf % 100000)) {
-+			_IPATH_DBG
-+			    ("%u pio sends with no bufavail; dmacopy: %llx %llx %llx %llx; shadow:  %llx %llx %llx %llx\n",
-+			     dd->ipath_consec_nopiobuf,
-+			     dd->ipath_pioavailregs_dma[0],
-+			     dd->ipath_pioavailregs_dma[1],
-+			     dd->ipath_pioavailregs_dma[2],
-+			     dd->ipath_pioavailregs_dma[3],
-+			     shadow[0], shadow[1], shadow[2], shadow[3]);
-+			/*
-+			 * 4 buffers per byte, 4 registers above, cover
-+			 * rest below
-+			 */
-+			if (dd->ipath_piobcnt > (sizeof(shadow[0])
-+					* 4 * 4))
-+				_IPATH_DBG
-+				    ("2nd group: dmacopy: %llx %llx %llx %llx; shadow: %llx %llx %llx %llx\n",
-+				    devdata[mdev].ipath_pioavailregs_dma[4],
-+				    devdata[mdev].ipath_pioavailregs_dma[5],
-+				    devdata[mdev].ipath_pioavailregs_dma[6],
-+				    devdata[mdev].ipath_pioavailregs_dma[7],
-+				    shadow[4], shadow[5], shadow[6], shadow[7]);
-+		}
-+		return NULL;
-+	}
-+
-+	if (updated && devdata[mdev].ipath_layer.l_intr) {
-+		/*
-+		 * ran out of bufs, now some (at least this one we just got)
-+		 * are now available, so tell the layered driver.
-+		 */
-+		dd->ipath_layer.l_intr(mdev, IPATH_LAYER_INT_SEND_CONTINUE);
-+	}
-+
-+	/*
-+	 * set next starting place.  Since it's just an optimization,
-+	 * it doesn't matter who wins on this, so no locking
-+	 */
-+	dd->ipath_lastpioindex = i + 1;
-+	if (dd->ipath_upd_pio_shadow)
-+		dd->ipath_upd_pio_shadow = 0;
-+	if (dd->ipath_consec_nopiobuf)
-+		dd->ipath_consec_nopiobuf = 0;
-+	buf = (uint32_t __iomem *)(dd->ipath_piobase + i * dd->ipath_palign);
-+	_IPATH_VDBG("Return piobuf %u @ %p\n", i,  buf);
-+	if (pbufnum)
-+		*pbufnum = i;
-+	return buf;
-+}
++#define IPS_OFFSET  0
 +
 +/*
-+ * this is like ipath_getpiobuf(), except it just probes to see if a buffer
-+ * is available.  If it returns that there is one, it's not allocated,
-+ * and so may not be available if caller tries to send.
-+ * NOTE: This can be called from interrupt context by ipath_intr()
-+ * and from non-interrupt context by layer_send_getpiobuf().
++ * defines the cut-off point between the header queue and eager/expected
++ * TID queue
 + */
-+int ipath_bufavail(int mdev)
++#define NUM_OF_EKSTRA_WORDS_IN_HEADER_QUEUE ((sizeof(struct ips_message_header_typ) - offsetof(struct ips_message_header_typ, iph)) >> 2)
++
++/* OpCodes  */
++#define OPCODE_IPS 0xC0
++#define OPCODE_ITH4X 0xC1
++
++/* OpCode 30 is use by stand-alone test programs  */
++#define OPCODE_RAW_DATA 0xDE
++/* last OpCode (31) is reserved for test  */
++#define OPCODE_TEST 0xDF
++
++/* sub OpCodes - ips  */
++#define OPCODE_SEQ_DATA 0x01
++#define OPCODE_SEQ_CTRL 0x02
++
++#define OPCODE_ACK 0x10
++#define OPCODE_NAK 0x11
++
++#define OPCODE_ERR_CHK 0x20
++#define OPCODE_ERR_CHK_PLS 0x21
++
++#define OPCODE_STARTUP 0x30
++#define OPCODE_STARTUP_ACK 0x31
++#define OPCODE_STARTUP_NAK 0x32
++
++#define OPCODE_STARTUP_EXT 0x34
++#define OPCODE_STARTUP_ACK_EXT 0x35
++#define OPCODE_STARTUP_NAK_EXT 0x36
++
++#define OPCODE_TIDS_RELEASE 0x40
++#define OPCODE_TIDS_RELEASE_CONFIRM 0x41
++
++#define OPCODE_CLOSE 0x50
++#define OPCODE_CLOSE_ACK 0x51
++/*
++ * like OPCODE_CLOSE, but no complaint if other side has already closed.  Used
++ * when doing abort(), MPI_Abort(), etc.
++ */
++#define OPCODE_ABORT 0x52
++
++/* sub OpCodes - ith4x  */
++#define OPCODE_ENCAP 0x81
++#define OPCODE_LID_ARP 0x82
++
++/* Receive Header Queue: receive type (from infinipath) */
++#define RCVHQ_RCV_TYPE_EXPECTED  0
++#define RCVHQ_RCV_TYPE_EAGER     1
++#define RCVHQ_RCV_TYPE_NON_KD    2
++#define RCVHQ_RCV_TYPE_ERROR     3
++
++/* misc. */
++#define SIZE_OF_CRC 1
++
++#define EAGER_TID_ID INFINIPATH_I_TID_MASK
++
++#define IPS_DEFAULT_P_KEY 0xFFFF
++
++/* functions for extracting fields from rcvhdrq entries */
++static inline uint32_t ips_get_hdr_err_flags(uint32_t *rbuf)
 +{
-+	int i;
-+	unsigned piobcnt;
-+	uint64_t *shadow = devdata[mdev].ipath_pioavailshadow;
++	return rbuf[1];
++}
 +
-+	piobcnt = (unsigned)devdata[mdev].ipath_piobcnt;
++static inline uint32_t ips_get_index(uint32_t *rbuf)
++{
++	return (rbuf[0] >> INFINIPATH_RHF_EGRINDEX_SHIFT)
++		& INFINIPATH_RHF_EGRINDEX_MASK;
++}
 +
-+	for (i = devdata[mdev].ipath_lastport_piobuf; i < piobcnt; i++)
-+		if (!test_bit((2 * i) + 1, shadow))
-+			return 1;
++static inline uint32_t ips_get_rcv_type(uint32_t *rbuf)
++{
++	return (rbuf[0] >> INFINIPATH_RHF_RCVTYPE_SHIFT)
++		& INFINIPATH_RHF_RCVTYPE_MASK;
++}
 +
-+	/* if none, check for update and rescan if we updated */
-+	ipath_update_pio_bufs(mdev);
-+	for (i = devdata[mdev].ipath_lastport_piobuf; i < piobcnt; i++)
-+		if (!test_bit((2 * i) + 1, shadow))
-+			return 1;
-+	_IPATH_PDBG("No bufs avail\n");
-+	return 0;
++static inline uint32_t ips_get_length_in_bytes(uint32_t *rbuf)
++{
++	return ((rbuf[0] >> INFINIPATH_RHF_LENGTH_SHIFT)
++		& INFINIPATH_RHF_LENGTH_MASK) << 2;
++}
++
++static inline void *ips_get_first_protocol_header(uint32_t *rbuf)
++{
++	return (void *)&rbuf[2];
++}
++
++static inline struct ips_message_header_typ *ips_get_ips_header(uint32_t *rbuf)
++{
++	return (struct ips_message_header_typ *)&rbuf[2];
++}
++
++static inline uint32_t ips_get_ipath_ver(uint32_t hdrword)
++{
++	return (hdrword >> INFINIPATH_I_VERS_SHIFT)
++		& INFINIPATH_I_VERS_MASK;
 +}
 +
 +/*
-+ * This routine is no longer on any critical paths; it is used only
-+ * for sending SMA packets, and some diagnostic usage.
-+ * Because it's currently sma only, there are no checks to see if the
-+ * link is up; sma must be able to send in the not fully initialized state
++ * Copy routine that is guaranteed to work in terms of aligned 32-bit
++ * quantities.
 + */
-+int ipath_send_smapkt(struct ipath_sendpkt __user *upkt)
-+{
-+	int i, ret = 0;
-+	uint32_t __iomem *piobuf;
-+	uint32_t plen = 0, clen, pbufn;
-+	struct ipath_sendpkt kpkt;
-+	struct ipath_iovec *iov = kpkt.sps_iov;
-+	ipath_type t;
-+	uint32_t *tmpbuf = NULL;
++void ipath_dwordcpy(uint32_t *dest, uint32_t *src, uint32_t ndwords);
 +
-+	if (unlikely((copy_from_user(&kpkt, upkt, sizeof kpkt))))
-+		ret = -EFAULT;
-+	if (ret) {
-+		_IPATH_VDBG("Send failed: error %d\n", -ret);
-+		goto done;
-+	}
-+	t = kpkt.sps_flags;
-+	if (t >= infinipath_max || !(devdata[t].ipath_flags & IPATH_PRESENT) ||
-+	    !devdata[t].ipath_kregbase) {
-+		_IPATH_SMADBG("illegal unit %u for sma send\n", t);
-+		return -ENODEV;
-+	}
-+	if (!(devdata[t].ipath_flags & IPATH_INITTED)) {
-+		/* no hardware, freeze, etc. */
-+		_IPATH_SMADBG("unit %u not usable\n", t);
-+		return -ENODEV;
-+	}
-+
-+	/* need total length before first word written */
-+	plen = sizeof(uint32_t);	/* +1 word is for the qword padding */
-+	for (i = 0; i < kpkt.sps_cnt; i++)
-+		/* each must be dword multiple */
-+		plen += kpkt.sps_iov[i].iov_len;
-+
-+	if ((plen + 4) > devdata[t].ipath_ibmaxlen) {
-+		_IPATH_DBG("Pkt len 0x%x > ibmaxlen %x\n",
-+			plen - 4, devdata[t].ipath_ibmaxlen);
-+		ret = -EINVAL;
-+		goto done;	/* before writing pbc */
-+	}
-+	if (!(tmpbuf = vmalloc(plen))) {
-+		_IPATH_INFO("Unable to allocate tmp buffer, failing\n");
-+		ret = -ENOMEM;
-+		goto done;
-+	}
-+	plen >>= 2;		/* in words */
-+
-+	piobuf = ipath_getpiobuf(t, &pbufn);
-+	if (!piobuf) {
-+		ret = -EBUSY;
-+		devdata[t].ipath_nosma_bufs++;
-+		_IPATH_SMADBG("No PIO buffers available unit %u %u times\n",
-+			t, devdata[t].ipath_nosma_bufs);
-+		goto done;
-+	}
-+	if (devdata[t].ipath_nosma_bufs) {
-+		_IPATH_SMADBG(
-+			"Unit %u got SMA send buffer after %u failures, %u seconds\n",
-+			t, devdata[t].ipath_nosma_bufs, devdata[t].ipath_nosma_secs);
-+		devdata[t].ipath_nosma_bufs = 0;
-+		devdata[t].ipath_nosma_secs = 0;
-+	}
-+	if ((devdata[t].ipath_lastibcstat & 0x11) != 0x11 &&
-+		(devdata[t].ipath_lastibcstat & 0x21) != 0x21) {
-+	    /* we need to be at least at INIT for SMA packets to go out.  If we
-+	     * aren't, something has gone wrong, and SMA hasn't noticed.
-+	     * Therefore we'll try to go to INIT here, in hopes of fixing up the
-+	     * problem.  First we verify that indeed the state is still "bad"
-+	     * (that is, that lastibcstat * isn't "stale") */
-+	    uint64_t val;
-+	    val = ipath_kget_kreg64(t, kr_ibcstatus);
-+	    if ((val & 0x11) != 0x11 && (val & 0x21) != 0x21) {
-+		_IPATH_SMADBG("Invalid Link state 0x%llx unit %u for send, try INIT\n",
-+			val, t);
-+		ipath_set_ib_lstate(t, INFINIPATH_IBCC_LINKCMD_INIT);
-+		val = ipath_kget_kreg64(t, kr_ibcstatus);
-+		if ((val & 0x11) != 0x11 && (val & 0x21) != 0x21)
-+		    _IPATH_SMADBG("Link state still not OK unit %u (0x%llx) after INIT\n",
-+				t, val);
-+		else
-+		    _IPATH_SMADBG("Link state OK unit %u (0x%llx) after INIT\n",
-+				t, val);
-+	    }
-+	    /* and continue, regardless */
-+	}
-+
-+	if (infinipath_debug & __IPATH_PKTDBG) // SMA and PKT, both
-+		_IPATH_SMADBG("unit %u 0x%x+1w pio%d, (scnt %d)\n",
-+			t, plen - 1, pbufn, kpkt.sps_cnt);
-+
-+
-+	/* we have to flush after the PBC for correctness on some cpus
-+	 * or WC buffer can be written out of order */
-+	writeq(plen, piobuf);
-+	mb();
-+	ret = 0;
-+	for (clen=i=0; i < kpkt.sps_cnt; i++) {
-+		if (unlikely(copy_from_user(tmpbuf + clen,
-+					    (void __user *) iov->iov_base,
-+					    iov->iov_len)))
-+			ret = -EFAULT;	/* no break */
-+		clen += iov->iov_len >> 2;
-+		iov++;
-+	}
-+	/* copy all by the trigger word, then flush, so it's written
-+	 * to chip before trigger word, then write trigger word, then
-+	 * flush again, so packet is sent. */
-+	memcpy_toio32(piobuf+2, tmpbuf, clen-1);
-+	mb();
-+	writel(tmpbuf[clen-1], piobuf+clen+1);
-+	mb();
-+
-+	if (ret) {
-+		/*
-+		 * Packet is bad, so we need to use the PIO abort mechanism to
-+		 * abort the packet
-+		 */
-+		uint32_t sendctrl;
-+		sendctrl = devdata[t].ipath_sendctrl | INFINIPATH_S_DISARM |
-+		    (pbufn << INFINIPATH_S_DISARMPIOBUF_SHIFT);
-+		_IPATH_DBG("Doing PIO abort on buffer %u after error\n",
-+			   pbufn);
-+		ipath_kput_kreg(t, kr_sendctrl, sendctrl);
-+	}
-+
-+done:
-+	vfree(tmpbuf);
-+	return ret;
-+}
-+
-+/*
-+ * implemention of the ioctl to get the counter values from the chip
-+ * For the time being, we get all of them when asked, no shadowing.
-+ * We need to shadow the byte counters at a minimum, because otherwise
-+ * they will wrap in just a few seconds at full bandwidth
-+ * The second argument is the user address to which we do the copy_to_user()
-+ */
-+static int ipath_get_counters(ipath_type t,
-+			      struct infinipath_counters __user *ucounters)
-+{
-+	int ret = 0;
-+	uint64_t val;
-+	uint64_t __user *ucreg;
-+	uint16_t vcreg;
-+
-+	ucreg = (uint64_t __user *) ucounters;
-+	/*
-+	 * for now, let's do this one at a time.  It's not the most
-+	 * optimal method, but it is simple, and has no intermediate
-+	 * memory requirements.
-+	 */
-+	for (vcreg = 0;
-+	     vcreg < (sizeof(struct infinipath_counters) / sizeof(val));
-+	     vcreg++, ucreg++) {
-+		ipath_creg creg = vcreg;
-+		val = ipath_snap_cntr(t, creg);
-+		if ((ret = copy_to_user(ucreg, &val, sizeof(val)))) {
-+			_IPATH_DBG("copy_to_user error on counter %d\n", creg);
-+			ret = -EFAULT;
-+			break;
-+		}
-+	}
-+
-+	return ret;
-+}
++#endif /* IPS_COMMON_H */

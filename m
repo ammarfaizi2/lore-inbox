@@ -1,105 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbVL2KR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVL2KR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbVL2KR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 05:17:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVL2KR7
+	id S964903AbVL2KR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 05:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbVL2KR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 05:17:59 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:62385 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964966AbVL2KR6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 05:17:58 -0500
-Date: Thu, 29 Dec 2005 11:17:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dave Jones <davej@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] latency tracer, 2.6.15-rc7
-Message-ID: <20051229101736.GA2560@elte.hu>
-References: <1135726300.22744.25.camel@mindpipe> <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com> <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu> <20051229100233.GA12056@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Dec 2005 05:17:56 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:40111 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964903AbVL2KR4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 05:17:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MntBFC6D3rppGwWFa265aCKTyZ9T3Cf8LTKrXNutYAE2JzkMfwIG5z78h8oNFyBz465VFv3AzobnSQgfqpYPiIB7i7stwtxqiQ2S+SufgSQEO7AcNeS5FwCfZBpS9rReKilHrao/TxC40SJ0kOB1w38CmeFGBUnfejYT/IMpJHk=
+Message-ID: <2cd57c900512290217k529e0d2bn@mail.gmail.com>
+Date: Thu, 29 Dec 2005 18:17:54 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: + drop-pagecache.patch added to -mm tree
+Cc: akpm@osdl.org
+In-Reply-To: <2cd57c900512290154k12a2265cx@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051229100233.GA12056@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <200512020130.jB21UWpS019783@shell0.pdx.osdl.net>
+	 <2cd57c900512290154k12a2265cx@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2005/12/29, Coywolf Qi Hunt <coywolf@gmail.com>:
+> 2005/12/2, akpm@osdl.org <akpm@osdl.org>:
+> >
+> > The patch titled
+> >
+> >      drop-pagecache
+> >
+> > has been added to the -mm tree.  Its filename is
+> >
+> >      drop-pagecache.patch
+> >
+> >
+> > From: Andrew Morton <akpm@osdl.org>
+> >
+> > Add /proc/sys/vm/drop-pagecache.  When written to, this will cause the kernel
+> > to discard as much pagecache and reclaimable slab objects as it can.
+> >
+> > It won't drop dirty data, so the user should run `sync' first.
+> >
+> > Caveats:
+> >
+> > a) Holds inode_lock for exorbitant amounts of time.
+> >
+> > b) Needs to be taught about NUMA nodes: propagate these all the way through
+> >    so the discarding can be controlled on a per-node basis.
+> >
+> > c) The pagecache shrinking and slab shrinking should probably have separate
+> >    controls.
+>
+> Yes. Let /proc/sys/vm/drop-pagecache for pagecache shrinking only and
+> add another /proc/sys/vm/drop-slab for slab shrinking.
 
-* Dave Jones <davej@redhat.com> wrote:
+Hadn't checked the mm snapshort. ignore the above comment then.
 
->  > could test it by e.g. trying to reproduce the same VM latency as in the 
->  > -rt tree. [the two zlib patches are needed if you are using 4K stacks, 
->  > mcount increases stack footprint.]
-> 
-> kernel/latency.c: In function 'add_preempt_count_ti':
-> kernel/latency.c:1703: warning: implicit declaration of function 'preempt_count_ti'
-> kernel/latency.c:1703: error: invalid lvalue in assignment
-> kernel/latency.c: In function 'sub_preempt_count_ti':
-> kernel/latency.c:1764: error: invalid lvalue in assignment
+>
+> >
+> >
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > ---
+> >
+> >  fs/Makefile            |    2 -
+> >  fs/drop-pagecache.c    |   62 +++++++++++++++++++++++++++++++++++++++++++++++++
+>
+> I'd rather have drop-pagecache.c stay in mm/. Fix mm/Makefile and do
+> not touch fs/ at all.
+>
+> -- Coywolf
+>
+> >  include/linux/mm.h     |    5 +++
+> >  include/linux/sysctl.h |    1
+> >  kernel/sysctl.c        |    9 +++++++
+> >  mm/truncate.c          |    1
+> >  mm/vmscan.c            |    3 --
+> >  7 files changed, 79 insertions(+), 4 deletions(-)
+> >
 
-indeed - i have fixed this and have uploaded a new version to:
-
-   http://redhat.com/~mingo/latency-tracing-patches/
-
-> interesting config options ...
-> 
-> # CONFIG_PREEMPT_NONE is not set
-> CONFIG_PREEMPT_VOLUNTARY=y
-> # CONFIG_PREEMPT is not set
-> CONFIG_PREEMPT_BKL=y
-> 
-> CONFIG_WAKEUP_TIMING=y
-> CONFIG_WAKEUP_LATENCY_HIST=y
-> CONFIG_CRITICAL_IRQSOFF_TIMING=y
-> CONFIG_INTERRUPT_OFF_HIST=y
-> CONFIG_LATENCY_TRACE=y
-> CONFIG_USE_FRAME_POINTER=y
-> CONFIG_FRAME_POINTER=y
-
-these are various things one might be interested in gathering on a live 
-system. Enabling more of them means higher runtime overhead.  
-WAKEUP_TIMING only measures the worst-case wakeup cost, it's the 
-lowest-overhead option. It's activated via resetting the worst-case 
-cost:
-
-	echo 0 > /proc/sys/kernel/preempt_max_latency
-
-The histogram ones are gathering a histogram (but no traces) into 
-/proc/latency_hist/<cpu_nr>. These have some overhead as they hook into 
-every preempt-disable/enable call. Output is:
-
-  $ head -15 /proc/latency_hist/wakeup_latency/CPU0
-  #Minimum latency: 2 microseconds.
-  #Average latency: 7 microseconds.
-  #Maximum latency: 511 microseconds.
-  #Total samples: 5241
-  #There are 0 samples greater or equal than 10240 microseconds
-  #usecs           samples
-      0                  0
-      1                  0
-      2                  7
-      3               2041
-      4                921
-      5                194
-      6                 62
-      7                502
-      8                119
-  ...
-
-The LATENCY_TRACING option does full tracing of critical sections 
-[driven by e.g. WAKEUP_TIMING - but it can also be activated by 
-interrupts, or be completely user-driven via userspace calls], which 
-trace is then put into /proc/latency_trace - mcount done for every 
-function call in the kernel. This can add up to 30% of runtime overhead 
-[or worse], but is obviously very useful for debugging latencies.
-
-	Ingo
+--
+Coywolf Qi Hunt

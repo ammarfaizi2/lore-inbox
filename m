@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbVL2TmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVL2TmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbVL2TmS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 14:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbVL2TmS
+	id S1750898AbVL2TmE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 14:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbVL2TmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 14:42:18 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:41389 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750923AbVL2TmR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 14:42:17 -0500
-Date: Thu, 29 Dec 2005 20:41:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [patch] updates XFS mutex patch
-Message-ID: <20051229194153.GA27897@elte.hu>
-References: <yq0zmmktbhk.fsf@jaguar.mkp.net> <20051229144824.GC18833@infradead.org> <20051229165811.GA23502@elte.hu> <20051229171135.GA21988@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051229171135.GA21988@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 29 Dec 2005 14:42:03 -0500
+Received: from smtpauth01.mail.atl.earthlink.net ([209.86.89.61]:52623 "EHLO
+	smtpauth01.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S1750898AbVL2TmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 14:42:02 -0500
+Date: Thu, 29 Dec 2005 14:41:56 -0500 (EST)
+From: Dan Streetman <ddstreet@ieee.org>
+Reply-To: ddstreet@ieee.org
+To: David Brownell <david-b@pacbell.net>
+cc: linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>, Bodo Eggert <7eggert@gmx.de>,
+       Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: EHCI TT bandwidth (was Re: [PATCH] USB_BANDWIDTH documentation
+ change)
+In-Reply-To: <200512270857.35505.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.51.0512291433090.27091@dylan.root.cx>
+References: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
+ <200512270857.35505.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-ELNK-Trace: a4c357c9134943511aa676d7e74259b7b3291a7d08dfec79ce0894556603991693fbf654c251a500350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.148.162.106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+On Tue, 27 Dec 2005, David Brownell wrote:
 
-> > > It's say just switch XFS to the one-arg mutex_init variant.
-> > > 
-> > > And ingo. please add the mutex_t typedef, analogue to spinlock_t it's 
-> > > a totally opaqueue to the users type, so it really should be a 
-> > > typedef.  After that the XFS mutex.h can just go away.
-> > 
-> > that's not possible, due to DEFINE_MUTEX() and due to struct mutex being 
-> > embedded in other structures. I dont think we want to lose that property 
-> > of struct semaphore, and only restrict mutex usage to pointers.
-> 
-> Sorry, but I don't get this sentence at all.  Can you try to rephrase 
-> it? What does DEFINE_MUTEX have to do with declaring either a typedef 
-> or structure?
+>(*) The issues folk have mentioned with bandwidth reservation for
+>    EHCI are more "full and low speed devcies can't use all the
+>    available transaction translator bandwidth" than anything else.
 
-i think i misunderstood you. I thought you wanted a mutex_t a'la 
-kmem_cache_t (which is only fully defined in mm/slab.c) - for the 
-purpose of hiding the implementation of mutex_t. If the implementation 
-of mutex_t is still present in mutex.h, i dont see what the advantage 
-is. What's the difference between 'struct mutex' and 'mutex_t', besides 
-that first one being clearer that here we have a kernel object? (we 
-generally use the _t types for type-safe variations of integer types, 
-e.g. pte_t.)
+The patches I just sent to the linux-usb-devel list (couple days ago) take
+care of those scheduling restrictions...do you have any comments on them?  
+It would be great to get them in the kernel so EHCI can fully schedule any
+lowspeed or fullspeed buses that it manages.  I even put the changes 
+inside a kernel CONFIG option so people can test out the patches fully 
+before replacing the old model.
 
-	Ingo
+
+
+
+-- 
+Dan Streetman
+ddstreet@ieee.org
+---------------------
+186,272 miles per second:
+It isn't just a good idea, it's the law!

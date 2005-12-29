@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVL2Ah6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVL2AjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbVL2Ah6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 19:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVL2Ah6
+	id S964819AbVL2AjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 19:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbVL2AjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 19:37:58 -0500
-Received: from smtpout8.uol.com.br ([200.221.4.199]:29097 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S932564AbVL2Ah5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 19:37:57 -0500
-Date: Wed, 28 Dec 2005 22:37:50 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051229003750.GA8465@ime.usp.br>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-	Matt Mackall <mpm@selenic.com>
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu>
+	Wed, 28 Dec 2005 19:39:09 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:42984 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932566AbVL2AjI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 19:39:08 -0500
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051228212313.GA4388@elte.hu>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1 of 20] Introduce __memcpy_toio32
+X-Mercurial-Node: ef833f6712e7e5d0e9002eaeab2d0a32d06182c8
+Message-Id: <ef833f6712e7e5d0e900.1135816280@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1135816279@eng-12.pathscale.com>
+Date: Wed, 28 Dec 2005 16:31:20 -0800
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 28 2005, Ingo Molnar wrote:
-> how about giving the inlining stuff some more exposure in -mm (if it's 
-> fine with Andrew), to check for any regressions? I'd suggest the same 
-> for the unit-at-a-time thing too, in any case.
+This routine is an arch-independent building block for memcpy_toio32.
+It copies data to a memory-mapped I/O region, using 32-bit accesses.
+This style of access is required by some devices.
 
-I am willing to give a try to the patches on both ia32 and ppc (which is
-what I have at hand). I'm using Debian testing, but I can, perhaps, give
-GCC 4.1 a shot (if I happen to grab my hands on such patched tree soon
-enough).
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-I am interested in anything that could bring me memory reduction.
-Actually, I am even considering using the -tiny patches here on my
-father's computer---an old Pentium MMX 200MHz with 64MB of RAM.
-
-Also, the PowerMac 9500 that I have here was inherited from my uncle and
-it has a slow SCSI disk (only 2MB/s of transfer rates) and 192MB of RAM.
-Anything that makes it avoid hitting swap is a plus, as you can imagine.
-
-
-Thanks, Rogério.
-
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+diff -r a56fd6a8895d -r ef833f6712e7 include/asm-generic/iomap.h
+--- a/include/asm-generic/iomap.h	Wed Dec 28 14:19:42 2005 -0800
++++ b/include/asm-generic/iomap.h	Wed Dec 28 14:19:42 2005 -0800
+@@ -56,6 +56,15 @@
+ extern void fastcall iowrite16_rep(void __iomem *port, const void *buf, unsigned long count);
+ extern void fastcall iowrite32_rep(void __iomem *port, const void *buf, unsigned long count);
+ 
++/*
++ * __memcpy_toio32 - copy data to MMIO space, in 32-bit units
++ *
++ * @to: destination, in MMIO space (must be 32-bit aligned)
++ * @from: source (must be 32-bit aligned)
++ * @count: number of 32-bit quantities to copy
++ */
++void fastcall __memcpy_toio32(void __iomem *to, const void *from, size_t count);
++
+ /* Create a virtual mapping cookie for an IO port range */
+ extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
+ extern void ioport_unmap(void __iomem *);
+diff -r a56fd6a8895d -r ef833f6712e7 lib/iomap.c
+--- a/lib/iomap.c	Wed Dec 28 14:19:42 2005 -0800
++++ b/lib/iomap.c	Wed Dec 28 14:19:42 2005 -0800
+@@ -187,6 +187,17 @@
+ EXPORT_SYMBOL(iowrite16_rep);
+ EXPORT_SYMBOL(iowrite32_rep);
+ 
++void fastcall __memcpy_toio32(void __iomem *d, const void *s, size_t count)
++{
++	u32 __iomem *dst = d;
++	const u32 *src = s;
++	size_t i;
++
++	for (i = 0; i < count; i++)
++		__raw_writel(*src++, dst++);
++	wmb();
++}
++
+ /* Create a virtual mapping cookie for an IO port range */
+ void __iomem *ioport_map(unsigned long port, unsigned int nr)
+ {

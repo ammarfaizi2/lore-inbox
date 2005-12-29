@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVL2Of6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVL2Oiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVL2Of6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 09:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVL2Of6
+	id S1750731AbVL2Oiu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 09:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVL2Oiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 09:35:58 -0500
-Received: from general.keba.co.at ([193.154.24.243]:742 "EHLO helga.keba.co.at")
-	by vger.kernel.org with ESMTP id S1750708AbVL2Of5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 09:35:57 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: SLAB-related panic in 2.6.15-rc7-rt1 on ARM
-Date: Thu, 29 Dec 2005 15:35:54 +0100
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323305@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: SLAB-related panic in 2.6.15-rc7-rt1 on ARM
-Thread-Index: AcYMgYuQ6UC22iBIRVi8jsgKcB0acgAApmog
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Pekka J Enberg" <penberg@cs.Helsinki.FI>
-Cc: "Ingo Molnar" <mingo@elte.hu>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>, <clameter@sgi.com>,
-       <mpm@selenic.com>
+	Thu, 29 Dec 2005 09:38:50 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39402 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750731AbVL2Oit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 09:38:49 -0500
+Date: Thu, 29 Dec 2005 14:38:46 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20051229143846.GA18833@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+	Matt Mackall <mpm@selenic.com>
+References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051228214845.GA7859@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pekka J Enberg
-> On Thu, 29 Dec 2005, kus Kusche Klaus wrote:
-> > (note the very early BUG and two "MM: invalid domain"):
+> another thing: i wanted to decrease the size of -Os 
+> (CONFIG_CC_OPTIMIZE_FOR_SIZE) kernels, which e.g. Fedora uses too (to 
+> keep the icache footprint down).
 > 
-> I think you'll get those with slob as well. The slab 
-> allocator hasn't had 
-> the chance to initialize itself yet so they're probably not related.
+> I think gcc should arguably not be forced to inline things when doing 
+> -Os, and it's also expected to mess up much less than when optimizing 
+> for speed. So maybe forced inlining should be dependent on 
+> !CONFIG_CC_OPTIMIZE_FOR_SIZE?
 
-You're right, these two messages also show up with slob.
+I don't care too much whether we put always_inline or inline at the function
+we _really_ want to inline.  But all others shouldn't have any inline marker.
+So instead of changing the pretty useful redefinitions we have to keep the
+code a little more readable what about getting rid of all the stupid inlines
+we have over the place?  I think many things we have static inline in headers
+now should move to proper out of line functions.  This is more work, but also
+more useful than just flipping a bit.
 
-> > Unhandled fault: alignment exception (0xc0207003) at 0x00000163
-> > PC is at get_page_from_freelist+0x1c/0x400
-> > LR is at __alloc_pages+0x68/0x2c0
-> 
-> I am still betting on alloc_pages_node(). You could try the 
-> following to 
-> prove me wrong. It's not a real fix though.
-
-You're right again, this one-liner makes slab work.
-(by the way, line numbers differ by miles?)
-
-> -	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
-> +	page = alloc_pages(flags, cachep->gfporder);
-
-Thanks!
-
--- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com

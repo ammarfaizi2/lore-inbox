@@ -1,104 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbVL2UFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVL2UKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbVL2UFX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 15:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbVL2UFX
+	id S1750945AbVL2UKn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 15:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVL2UKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 15:05:23 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:14552 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750919AbVL2UFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 15:05:22 -0500
-Subject: Re: [patch] latency tracer, 2.6.15-rc7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20051229101736.GA2560@elte.hu>
-References: <1135726300.22744.25.camel@mindpipe>
-	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
-	 <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu>
-	 <20051229100233.GA12056@redhat.com>  <20051229101736.GA2560@elte.hu>
-Content-Type: text/plain
-Date: Thu, 29 Dec 2005 15:11:12 -0500
-Message-Id: <1135887072.6804.9.camel@mindpipe>
+	Thu, 29 Dec 2005 15:10:43 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:17668 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750945AbVL2UKm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 15:10:42 -0500
+Date: Thu, 29 Dec 2005 21:13:50 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Ricardo Cerqueira <v4l@cerqueira.org>, linux-kernel@vger.kernel.org,
+       video4linux-list@redhat.com
+Subject: Re: Recursive dependency for SAA7134 in 2.6.15-rc7
+Message-Id: <20051229211350.4115b799.khali@linux-fr.org>
+In-Reply-To: <200512292100.27536.zippel@linux-m68k.org>
+References: <20051227215351.3d581b13.khali@linux-fr.org>
+	<1135726855.6709.4.camel@localhost>
+	<20051228210257.16c7a647.khali@linux-fr.org>
+	<200512292100.27536.zippel@linux-m68k.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-29 at 11:17 +0100, Ingo Molnar wrote:
-> * Dave Jones <davej@redhat.com> wrote:
+Hi Roman,
+
+> On Wednesday 28 December 2005 21:02, Jean Delvare wrote:
 > 
-> >  > could test it by e.g. trying to reproduce the same VM latency as in the 
-> >  > -rt tree. [the two zlib patches are needed if you are using 4K stacks, 
-> >  > mcount increases stack footprint.]
-> > 
-> > kernel/latency.c: In function 'add_preempt_count_ti':
-> > kernel/latency.c:1703: warning: implicit declaration of function 'preempt_count_ti'
-> > kernel/latency.c:1703: error: invalid lvalue in assignment
-> > kernel/latency.c: In function 'sub_preempt_count_ti':
-> > kernel/latency.c:1764: error: invalid lvalue in assignment
+> > +	depends on VIDEO_SAA7134 && SOUND_PRIME && (!VIDEO_SAA7134_ALSA || 
+> (VIDEO_SAA7134_ALSA=m && m))
 > 
-> indeed - i have fixed this and have uploaded a new version to:
-> 
->    http://redhat.com/~mingo/latency-tracing-patches/
+> Please do it a little less uglier, simply "!VIDEO_SAA7134_ALSA" is enough.
 
-Still does not quite work for me on i386.  I applied all the patches as
-I'm using 4K stacks.
+No, it wouldn't produce the desired effect anymore.
 
-LD      .tmp_vmlinux1
-init/built-in.o: In function `start_kernel':
-: undefined reference to `preempt_max_latency'
-make: *** [.tmp_vmlinux1] Error 1
+(!VIDEO_SAA7134_ALSA || (VIDEO_SAA7134_ALSA=m && m)) makes it possible
+to compile both OSS and ALSA support as modules. Simplifying to
+!VIDEO_SAA7134_ALSA would make it impossible.
 
-.config excerpts:
-
-# CONFIG_SMP is not set
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-
-#
-# Kernel hacking
-#
-# CONFIG_PRINTK_TIME is not set
-CONFIG_DEBUG_KERNEL=y
-# CONFIG_MAGIC_SYSRQ is not set
-CONFIG_LOG_BUF_SHIFT=14
-# CONFIG_DETECT_SOFTLOCKUP is not set
-# CONFIG_SCHEDSTATS is not set
-# CONFIG_DEBUG_SLAB is not set
-CONFIG_DEBUG_PREEMPT=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-CONFIG_WAKEUP_TIMING=y
-# CONFIG_WAKEUP_LATENCY_HIST is not set
-CONFIG_PREEMPT_TRACE=y
-CONFIG_CRITICAL_PREEMPT_TIMING=y
-# CONFIG_PREEMPT_OFF_HIST is not set
-# CONFIG_CRITICAL_IRQSOFF_TIMING is not set
-CONFIG_CRITICAL_TIMING=y
-CONFIG_LATENCY_TIMING=y
-CONFIG_LATENCY_TRACE=y
-CONFIG_MCOUNT=y
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_BUGVERBOSE=y
-# CONFIG_DEBUG_INFO is not set
-# CONFIG_DEBUG_FS is not set
-# CONFIG_DEBUG_VM is not set
-CONFIG_FRAME_POINTER=y
-# CONFIG_RCU_TORTURE_TEST is not set
-CONFIG_EARLY_PRINTK=y
-# CONFIG_DEBUG_STACKOVERFLOW is not set
-# CONFIG_DEBUG_STACK_USAGE is not set
-# CONFIG_DEBUG_PAGEALLOC is not set
-CONFIG_4KSTACKS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-Lee
-
+Thanks,
+-- 
+Jean Delvare

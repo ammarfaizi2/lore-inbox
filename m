@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVL2LVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVL2LgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbVL2LVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 06:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbVL2LVx
+	id S964965AbVL2LgT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 06:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVL2LgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 06:21:53 -0500
-Received: from bay23-f27.bay23.hotmail.com ([64.4.22.77]:18208 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S932580AbVL2LVw
+	Thu, 29 Dec 2005 06:36:19 -0500
+Received: from nproxy.gmail.com ([64.233.182.206]:7287 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932591AbVL2LgT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 06:21:52 -0500
-Message-ID: <BAY23-F27F5FACE353137AF8C88F8F7290@phx.gbl>
-X-Originating-IP: [203.122.18.178]
-X-Originating-Email: [pretorious_i@hotmail.com]
-In-Reply-To: <1135854129.2935.13.camel@laptopd505.fenrus.org>
-From: "pretorious ." <pretorious_i@hotmail.com>
-To: arjan@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Redefinition error while compiling LKM
-Date: Thu, 29 Dec 2005 16:51:49 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 29 Dec 2005 11:21:50.0071 (UTC) FILETIME=[0FF97070:01C60C6A]
+	Thu, 29 Dec 2005 06:36:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oy+rng50TV1tRgf6NjtGhTtoHZrCcCnxHZEPqIj9NPkglFtC1DlAzjv5aYKmREIl2ktp+PSZm4j2lS9vZaxwVgZ6TkXLqzHnoFz09tLkXjvd4hBcTkinVG0C3uScXOAKxgIJVIC9ByWPQoeKboZjfhftP9dT5KDPs/OXVmpSSOQ=
+Message-ID: <84144f020512290336p1d46c0a9t1c63e9c8cecc7061@mail.gmail.com>
+Date: Thu, 29 Dec 2005 13:36:17 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: kus Kusche Klaus <kus@keba.com>
+Subject: Re: SLAB-related panic in 2.6.15-rc7-rt1 on ARM
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       clameter@sgi.com, mpm@selenic.com
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323302@MAILIT.keba.co.at>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <AAD6DA242BC63C488511C611BD51F367323302@MAILIT.keba.co.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->and.. why on earth would you need sys/syscall.h ?? (or sys/stat.h for
->that matter)
->
->
+Hi,
 
-Trying to override certain syscalls (mknod ...)
+On 12/29/05, kus Kusche Klaus <kus@keba.com> wrote:
+> My sa1100-based system panics while booting with 2.6.15-rc7-rt1 when the
+> SLAB allocator is configured. Everything is fine with the SLOB
+> allocator.
+>
+> Please cc me, I'm currently not subscribed.
+>
+> Memory: 62856KB available (1552K code, 381K data, 80K init)
+> Unhandled fault: alignment exception (0xc0207003) at 0x0000015b
+> Internal error: : c0207003 [#1]
+> Modules linked in:
+> CPU: 0
+> PC is at get_page_from_freelist+0x1c/0x3d8
+> LR is at __alloc_pages+0x5c/0x2ac
 
->From: Arjan van de Ven <arjan@infradead.org>
->To: "pretorious ." <pretorious_i@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: Redefinition error while compiling LKM
->Date: Thu, 29 Dec 2005 12:02:09 +0100
->
->On Thu, 2005-12-29 at 16:21 +0530, pretorious . wrote:
-> > hi!
-> >    I am facing problem in compiling an LKM. It seems Inclusion of
-> > <sys/stat.h> conflicts with definitions in time.h.
-> >
-> >
-> > My linux kernal version is 2.4.21-4.EL
-> >
-> >
-> > #include <linux/kernel.h>
-> > #include <linux/module.h>
-> >
-> > #if CONFIG_MODVERSIONS==1
-> > #define MODVERSIONS
-> > #include <linux/modversions.h>
-> > #endif
->
->this is broken btw
-> >
-> > #ifndef KERNEL_VERSION
-> > #define KERNEL_VERSION(a,b,c) ((a)*65536+(b)*256+(c))
-> > #endif
-> >
-> > #include <linux/slab.h>
-> > #include <asm/uaccess.h>
-> > #include <sys/syscall.h>
-> >
-> > #include <sys/stat.h>
->
->
->you cannot use glibc headers in kernel modules. anything in sys/ is a
->glibc header.
->
->and.. why on earth would you need sys/syscall.h ?? (or sys/stat.h for
->that matter)
->
->
+Unfortunately, I am clueless of arm (and have no idea what alignment
+exception is) but the problem is probably related to mm/slab.c using
+alloc_pages_node() whereas mm/slob.c uses get_free_page(). Do you have
+CONFIG_BUG enabled? If not, please turn it on to see if gfp_zone()
+catches an invalid GFP flag coming from the slab.
 
-_________________________________________________________________
-Spice up your IM conversations. New, colorful and animated emoticons. Get 
-chatting! http://server1.msn.co.in/SP05/emoticons/
-
+                             Pekka

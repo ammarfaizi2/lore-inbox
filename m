@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVL3BFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVL3BRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbVL3BFg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 20:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVL3BFf
+	id S1751190AbVL3BRR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 20:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVL3BRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 20:05:35 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19693 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751186AbVL3BFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 20:05:35 -0500
-Date: Thu, 29 Dec 2005 17:05:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Ryan Anderson <ryan@michonline.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: userspace breakage
-In-Reply-To: <20051230004608.GA12822@redhat.com>
-Message-ID: <Pine.LNX.4.64.0512291702140.3298@g5.osdl.org>
-References: <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
- <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
- <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
- <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com>
- <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com>
- <43B48176.3080509@michonline.com> <20051230004608.GA12822@redhat.com>
+	Thu, 29 Dec 2005 20:17:17 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:37295 "EHLO
+	mail.internal.autoweb.net") by vger.kernel.org with ESMTP
+	id S1751190AbVL3BRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 20:17:16 -0500
+Message-ID: <43B48A8C.8000708@michonline.com>
+Date: Thu, 29 Dec 2005 20:17:00 -0500
+From: Ryan Anderson <ryan@michonline.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alejandro Bonilla <alejandro.bonilla@hp.com>
+CC: Dave Jones <davej@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: git fetching
+References: <43B48516.2030701@hp.com> <20051230010151.GC12822@redhat.com>
+In-Reply-To: <20051230010151.GC12822@redhat.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF9C9155B788127E8B16E5DF0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF9C9155B788127E8B16E5DF0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-
-On Thu, 29 Dec 2005, Dave Jones wrote:
+Dave Jones wrote:
+> On Thu, Dec 29, 2005 at 06:53:42PM -0600, Alejandro Bonilla wrote:
+>  > Why is it that when I git fetch, this particular part takes a long time?
+>  > 
+>  > pack/pack-2dae6bb81ac4383926b1d6a646e3f73b130ba124.pack
+>  > 
+>  > Normally, they go pretty fast, but when a new rc or final releases comes 
+>  > up, it takes a lot.
 > 
-> There's a 2.6.15rc7 kernel that some Fedora Core 4 users could download
-> and play with right now. I thought it'd be great to get some extra testing
-> over the xmas holidays. Unfortunatly, due to the necessary udev upgrade, 
-> many users are turned off from testing by the inability to run X after
-> installing it.
+> That file is ~100MB. That'll take a while to download compared to the rest,
+> even on the fastest net connection :)
 
-Can you actually detail this thing a bit more? I'm a FC4 user myself, and 
-I'm sure as hell running X too. And that's not even a special X install 
-like I used to have, it's bog-standard FC4 afaik.
+If you're carrying around a mostly current tree, you should probably not
+use "rsync" (which is probably why you're seeing that pack line)
 
-And I'm definitely running -rc7 (well, not exactly, it's my current git 
-tree, so it's -rc7+patches).
+Run this:
+	sed -i.old -e 's/rsync/git/' .git/remotes/origin
+and your pulls should go significantly faster.
 
-So whatever breakage is there, I'd love to know more. It's not entirely 
-obvious.
+(The file named "origin" might be in .git/branches/, also.)
 
-			Linus
+You want the file to contain pretty much just this line:
+git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+Also, out of curiosity, do:
+	du -sh .git/objects/ .git/objects/pack/
+
+You shouldn't see a .git/objects/pack/ much greater than 200 meg, in
+fact, on freshly cloned tree it would only be about 100 meg:
+
+http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/objects/pack/
+
+-- 
+
+Ryan Anderson
+  sometimes Pug Majere
+
+--------------enigF9C9155B788127E8B16E5DF0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDtIqQfhVDhkBuUKURAvsrAKDZ13uyZ+1Wq22mFVzkxteRJLLF9gCfT3Dc
+ohYVEqenBz3OPxty+lRirZY=
+=MnLm
+-----END PGP SIGNATURE-----
+
+--------------enigF9C9155B788127E8B16E5DF0--

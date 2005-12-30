@@ -1,123 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVL3Vrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVL3Voa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVL3Vrj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 16:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVL3Vrj
+	id S932104AbVL3Voa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 16:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVL3Voa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 16:47:39 -0500
-Received: from [202.67.154.148] ([202.67.154.148]:46557 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S932144AbVL3Vri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 16:47:38 -0500
-Message-ID: <43B5AAF1.70503@ns666.com>
-Date: Fri, 30 Dec 2005 22:47:29 +0100
-From: Mark v Wolher <trilight@ns666.com>
-User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Folkert van Heusden <folkert@vanheusden.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: system keeps freezing once every 24 hours / random apps	crashing
-References: <43B53EAB.3070800@ns666.com>	 <9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>	 <43B557D7.6090005@ns666.com> <43B5623D.7080402@ns666.com>	 <20051230164751.GQ3105@vanheusden.com> <43B56ADD.7040300@ns666.com>	 <20051230183021.GV3105@vanheusden.com> <43B5890E.30104@ns666.com>	 <20051230202429.GD11594@vanheusden.com> <43B59F88.1030704@ns666.com>	 <43B5A371.4050905@ns666.com>  <43B5A6F7.3090708@ns666.com> <1135978501.31111.24.camel@mindpipe>
-In-Reply-To: <1135978501.31111.24.camel@mindpipe>
-X-Enigmail-Version: 0.91.0.0
+	Fri, 30 Dec 2005 16:44:30 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:7948 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932104AbVL3Vo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 16:44:29 -0500
+Date: Fri, 30 Dec 2005 22:44:02 +0100
+From: Willy TARREAU <willy@w.ods.org>
+To: Al Boldi <a1426z@gawab.com>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+Message-ID: <20051230214402.GA28683@w.ods.org>
+References: <200512302306.28667.a1426z@gawab.com> <986ed62e0512301218v30dd5d67m699bf7c29375a1fe@mail.gmail.com> <200512302351.58650.a1426z@gawab.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200512302351.58650.a1426z@gawab.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Fri, 2005-12-30 at 22:30 +0100, Mark v Wolher wrote:
+On Fri, Dec 30, 2005 at 11:51:58PM +0300, Al Boldi wrote:
+> Barry K. Nathan wrote:
+> > On 12/30/05, Al Boldi <a1426z@gawab.com> wrote:
+> > > Thanks a lot!
+> > >
+> > > > +3 - (NEW) paranoid overcommit The total address space commit
+> > > > +      for the system is not permitted to exceed swap. The machine
+> > > > +      will never kill a process accessing pages it has mapped
+> > > > +      except due to a bug (ie report it!)
+> > >
+> > > This one isn't in 2.6, which is critical for a stable system.
+> >
+> > I think you can get paranoid overcommit with either my patch or 2.6 by
+> > setting /proc/sys/vm/overcommit_mode to 2 *and*
+> > /proc/sys/vm/overcommit_ratio to 0, however.
 > 
->>Mark v Wolher wrote:
->>
->>>Mark v Wolher wrote:
->>>
->>>
->>>>Folkert van Heusden wrote:
->>>>
->>>>
->>>>
->>>>>>Hmm, i disabled MSI in the kernel, irq-balancing is on in the kernel,
->>>>>>and after a restart with irqbalance i see the cpu's show numbers !
->>>>>>I guess MSI was preventing them ? But does that means because of MSI
->>>>>>that performance was lower in some way ?
->>>>>
->>>>>
->>>>>did you also restart with only irqbalance activated?
->>>>>
->>>>>
->>>>>Folkert van Heusden
->>>>>
->>>>
->>>>
->>>>Yes, when MSI was disabled i had irq-balancing in the kernel on, i
->>>>rebooted without the irqbalance daemon and it showed no reaction on the
->>>>cpu's. When i enabled the irqbalance daemon then i got finally reaction
->>>
->>>>from the cpu's.
->>>
->>>>I'm also curious if this will solve those random freezes...which somehow
->>>>i suspect have to do with the tvcard and maybe having MSI on.
->>>>
->>>
->>>
->>>:( just got a total freeze, number 2 today. This time i noticed the
->>>mouse started to go very slow and 2 seconds later all was frozen.
->>>
->>>Maybe it's because of vmware ... i will not use vmware and see how it goes.
->>>-
->>
->>
->>Some new info, i just noticed this in the logs:
->>
->>
->>Dec 30 22:21:24 localhost kernel: bttv0: OCERR @ 1fde0000,bits: HSYNC
->>OFLOW FBUS OCERR*
->>Dec 30 22:21:24 localhost last message repeated 5 times
->>Dec 30 22:21:24 localhost kernel: bttv0: timeout: drop=0
->>irq=41296/41296, risc=1fde001c, bits: HSYNC OFLOW
->>Dec 30 22:21:24 localhost kernel: bttv0: reset, reinitialize
->>Dec 30 22:21:24 localhost kernel: bttv0: PLL: 28636363 => 35468950 . ok
->>
->>
->>But vmware is not active at this moment, i'll not use vmware and see if
->>a freeze occurs, i'll test up to 24 hours.
->>
->>I can swear it might have to do with the tvcard with tv on and vmware at
->>the same time also active. Or maybe just 1 of them. I'm even considering
->>to buy tomorrow a new tvcard and see if it makes any difference.
+> Not really in 2.6.
+> And even if this were made to work, what would it imply to a system running 
+> w/o swap?
+
+I can clearly reply on this one :
+
+root@pcw:vm# swapoff -a
+root@pcw:vm# free
+             total       used       free     shared    buffers     cached
+Mem:       1031752      84992     946760          0       3144      38564
+-/+ buffers/cache:      43284     988468
+Swap:            0          0          0
+root@pcw:vm# echo 2 > overcommit_memory
+root@pcw:vm# echo 0 > overcommit_ratio
+root@pcw:vm# uname -a
+bash: fork: Cannot allocate memory
+root@pcw:vm# echo 10 > overcommit_ratio
+root@pcw:vm# uname -a
+Linux pcw 2.4.33-pre1 #1 SMP Fri Dec 30 21:52:06 CET 2005 i686 unknown
+root@pcw:vm#
+
+So as one could expect, if you're limited to allocation of
+(swap_size)+0% of RAM, then you have a limit of 0 kB, so that
+malloc() always fails. I'll do some crash tests with mmap, shm
+and 100 ratio to see how it behaves, but at the moment it's
+clearly good. Multi-process malloc cannot allocate more than
+specified and that's good.
+
+> Thanks!
 > 
-> 
-> It does not matter whether VMWare is active at the moment.  Any bug
-> report where a binary module has been loaded, active or not, is tainted.
-> 
-> Can you reproduce with a 100% clean kernel?
-> 
-> Lee
-> 
+> --
+> Al
 
-Hi Lee,
-
-But unloading all vmware modules should be good enough ? And how about
-the binary module of nvidia ? It's active ofcourse else i'd not be able
-to use all the features i normally use.
-
-Eitherway, several kernels back also made no difference for this issue.
-
-So right now, i'm leaning on the experience i have with working with
-this system and trying to isolate things i suspect, before i go to more
-radical steps :)
-
-And again, under windows 2k server, xp pro, redhat enterprise and
-freebsd i never had these issues.
-
-
-
-
-
-
-
+Regards,
+Willy
 

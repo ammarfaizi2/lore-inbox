@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVL3IYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbVL3IZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbVL3IYj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 03:24:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVL3IYj
+	id S1751224AbVL3IZI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 03:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVL3IZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 03:24:39 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21704 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751220AbVL3IYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 03:24:38 -0500
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       mpm@selenic.com
-In-Reply-To: <20051230081536.GA30503@alpha.home.local>
-References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
-	 <1135798495.2935.29.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
-	 <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
-	 <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
-	 <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
-	 <20051229231615.GV15993@alpha.home.local>
-	 <1135929917.2941.0.camel@laptopd505.fenrus.org>
-	 <20051230081536.GA30503@alpha.home.local>
-Content-Type: text/plain
-Date: Fri, 30 Dec 2005 09:24:32 +0100
-Message-Id: <1135931072.2941.9.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 30 Dec 2005 03:25:08 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:44203 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751224AbVL3IZH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 03:25:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=md9ED6utTFuJ2aHnJG+/rTQuxf46K7aYnNqBPDqI72d5qFDOXlJdGfJxqKzg/2GLaNEhFXB9Rc7YnEYRfE88U5Y+ruF8hCPk6MdYqae13Y61LhnSpyQEG/lZvYjkcT0/+OqS8njUOT2YfxVOYx6k7Pn6gY+/8n+xpktjf56VlS0=
+Message-ID: <9a8748490512300025y67cae1d8p8d41450c5a464abb@mail.gmail.com>
+Date: Fri, 30 Dec 2005 09:25:06 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+Subject: Re: Howto set kernel makefile to use particular gcc
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3AEC1E10243A314391FE9C01CD65429B2239C2@mail.esn.co.in>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3AEC1E10243A314391FE9C01CD65429B2239C2@mail.esn.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-30 at 09:15 +0100, Willy Tarreau wrote:
-> 
-> 
-> I trust your experience on this, but wasn't the lack of testing
-> primarily due to the use of a "special" version of the compiler ?
-> For instance, if we put a short howto in Documentation/ explaining
-> how to build a kgcc toolchain describing what versions to use, there
-> are chances that most LKML users will use the exact same version.
-> Distro maintainers may want to follow the same version too. Also,
-> the fact that the kernel would be designed to work with *that*
-> compiler will limit the maintenance trouble you certainly have
-> encountered trying to keep the compiler up-to-date with more recent
-> kernel patches and updates.
+On 12/30/05, Mukund JB. <mukundjb@esntechnologies.co.in> wrote:
+>
+> Dear Alessandro,
+>
+> Thanks for the reply.
+> What does that the make CC=<path_to_your_gcc_3.3> do?
+> Will it set my gcc default build configuration to gcc 3.3?
+>
+> I mean the general procedure is make bzImage; make modules....
 
-it's not that easy. Simply put: the gcc people release an update every 6
-months; distros "jump ahead" the bugfixes on that usually. (think of it
-like -stable, where distros would ship patches accepted for -stable but
-before -stable got released). Taking an older compiler from gcc.gnu.org
-doesn't mean it's bug free. It just means you're not getting bugfixes.
+That was the common way with 2.4.x kernels. Sure, you can still do
+that, but with 2.6.x the recommended thing is to just do "make" (or in
+your case "make CC=</path/to/gcc-3.3>") which will both build the
+kernel and the modules.
 
 
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

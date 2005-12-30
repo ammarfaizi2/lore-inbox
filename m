@@ -1,47 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVL3NXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbVL3NZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbVL3NXY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 08:23:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVL3NXY
+	id S1751258AbVL3NZK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 08:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbVL3NZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 08:23:24 -0500
-Received: from fmmailgate05.web.de ([217.72.192.243]:16030 "EHLO
-	fmmailgate05.web.de") by vger.kernel.org with ESMTP
-	id S1751257AbVL3NXX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 08:23:23 -0500
-Date: Fri, 30 Dec 2005 14:23:19 +0100
-Message-Id: <397463649@web.de>
+	Fri, 30 Dec 2005 08:25:10 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18950 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751258AbVL3NZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 08:25:09 -0500
+Date: Fri, 30 Dec 2005 14:25:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: USB Key Kingston DataTraveler
+Message-ID: <20051230132507.GW3811@stusta.de>
+References: <20051108220525.M81553@linuxwireless.org>
 MIME-Version: 1.0
-From: =?iso-8859-1?Q?Burkhard=20Sch=F6lpen?= <bschoelpen@web.de>
-To: RobertHancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI DMA burst delay
-Organization: http://freemail.web.de/
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051108220525.M81553@linuxwireless.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->What kind of PCI transaction is the core using to do the reads? I think 
->that Memory Read can cause bursts to be interrupted quickly on some 
->chipsets. If you can use Memory Read Line or Memory Read Multiple this 
->may increase performance.
->
->You may also need more buffering in the FPGA, otherwise you may be 
->vulnerable to underruns if there is contention on the PCI bus. The 
->device should be able to handle normal arbitration delays.
+On Tue, Nov 08, 2005 at 05:08:12PM -0500, Alejandro Bonilla wrote:
 
-Yeah, that was it! I asked the programmer of the FPGA and he told me that he was using the normal Memory Read transaction. After changing that to MRM we get a much higher burst length. Now the buffer underruns really seem to be disappeared, that is great! He also told me that the fifo buffer on the FPGA could not be larger, because the size is somehow limited in the core (it's some special block ram I think...), so we are lucky that the burst length seems to fix our problem.
+> Hi,
 
-By the way, there is another question coming up to my mind. The pci card is to be designed for a large size copying machine (i.e. it is something like a framegrabber device which has to write out data to a printer simultaneously) which leads to really high bandwidth. For now I allocate the dma buffer in ram (a ringbuffer) using pci_alloc_consistent(), which unfortunately delimits the size to about 4 MB. However, it would be convenient to be able to allocate a larger dma buffer, because then we would be able to perform some image processing algorithms directly inside this buffer via mmapping it to user space. Is there any way to achieve this quite simple without being forced to use scatter/gather dma (our hardware is not able to do this - at least until now)?
+Hi Alejandro,
 
-Thank you very much for your help!
+> I have an IBM T42 with 2.6.14-git and this specific USB Key has never worked
+> for me. Any idea?
 
-Kind regards,
-Burkhard Schölpen
+is this problem still present in 2.6.15-rc7?
 
-__________________________________________________________________________
-Erweitern Sie FreeMail zu einem noch leistungsstarkeren E-Mail-Postfach!		
-Mehr Infos unter http://freemail.web.de/home/landingpad/?mc=021131
+> USB Key Kingston DataTraveler
+> 
+> 
+> hub 4-0:1.0: state 5 ports 6 chg 0000 evt 0010
+> ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001803 POWER sig=j CSC CONNECT
+> hub 4-0:1.0: port 4, status 0501, change 0001, 480 Mb/s
+> hub 4-0:1.0: debounce: port 4: total 100ms stable 100ms status 0x501
+> ehci_hcd 0000:00:1d.7: port 4 high speed
+> ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001005 POWER sig=se0 PE CONNECT
+> usb 4-4: new high speed USB device using ehci_hcd and address 5
+> ehci_hcd 0000:00:1d.7: port 4 high speed
+> ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001005 POWER sig=se0 PE CONNECT
+> usb 4-4: default language 0x0409
+> usb 4-4: new device strings: Mfr=1, Product=2, SerialNumber=3
+> usb 4-4: Product: DataTraveler 2.0
+> usb 4-4: Manufacturer: Kingston
+> usb 4-4: SerialNumber: 2840E64152121B80
+> usb 4-4: hotplug
+> usb 4-4: adding 4-4:1.0 (config #1, interface 0)
+> usb 4-4:1.0: hotplug
+> usb-storage 4-4:1.0: usb_probe_interface
+> usb-storage 4-4:1.0: usb_probe_interface - got id
+> scsi2 : SCSI emulation for USB Mass Storage devices
+> usb-storage: device found at 5
+> usb-storage: waiting for device to settle before scanning
+>   Vendor: Kingston  Model: DataTraveler 2.0  Rev: 4.10
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> SCSI device sdb: 251904 512-byte hdwr sectors (129 MB)
+> sdb: Write Protect is off
+> sdb: Mode Sense: 0b 00 00 08
+> sdb: assuming drive cache: write through
+> SCSI device sdb: 251904 512-byte hdwr sectors (129 MB)
+> sdb: Write Protect is off
+> sdb: Mode Sense: 0b 00 00 08
+> sdb: assuming drive cache: write through
+>  sdb: [CUMANA/ADFS] sdb1<5>sd 2:0:0:0: Attached scsi removable disk sdb
+> sd 2:0:0:0: Attached scsi generic sg1 type 0
+> usb-storage: device scan complete
+> printk: 4 messages suppressed.
+> Buffer I/O error on device sdb1, logical block 508378384
+> Buffer I/O error on device sdb1, logical block 508378384
+> Buffer I/O error on device sdb1, logical block 508378412
+> Buffer I/O error on device sdb1, logical block 508378412
+> Buffer I/O error on device sdb1, logical block 508378412
+> Buffer I/O error on device sdb1, logical block 508378412
+> Buffer I/O error on device sdb1, logical block 508378412
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVL3Xs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbVL3XuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbVL3Xs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 18:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbVL3Xs2
+	id S964934AbVL3XuS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 18:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbVL3XuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 18:48:28 -0500
-Received: from waste.org ([64.81.244.121]:20648 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S964961AbVL3Xs1 (ORCPT
+	Fri, 30 Dec 2005 18:50:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22167 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964934AbVL3XuP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 18:48:27 -0500
-Date: Fri, 30 Dec 2005 17:44:00 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Roland Dreier <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1 of 3] Introduce __memcpy_toio32
-Message-ID: <20051230234400.GM3356@waste.org>
-References: <7b7b442a4d6338ae8ca7.1135726915@eng-12.pathscale.com> <adazmmmc9hl.fsf@cisco.com> <1135780804.1527.82.camel@serpentine.pathscale.com> <20051228145114.GL3356@waste.org> <20051230234628.GB3811@stusta.de>
+	Fri, 30 Dec 2005 18:50:15 -0500
+Date: Fri, 30 Dec 2005 15:49:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, davej@redhat.com,
+       jmerkey@wolfmountaingroup.com
+Subject: Re: userspace breakage
+Message-Id: <20051230154954.47be93a3.akpm@osdl.org>
+In-Reply-To: <1135974176.6039.71.camel@localhost.localdomain>
+References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
+	<1135798495.2935.29.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
+	<20051228212313.GA4388@elte.hu>
+	<20051228214845.GA7859@elte.hu>
+	<20051228201150.b6cfca14.akpm@osdl.org>
+	<20051229073259.GA20177@elte.hu>
+	<Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
+	<20051229202852.GE12056@redhat.com>
+	<Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
+	<20051229224103.GF12056@redhat.com>
+	<43B453CA.9090005@wolfmountaingroup.com>
+	<Pine.LNX.4.64.0512291541420.3298@g5.osdl.org>
+	<43B46078.1080805@wolfmountaingroup.com>
+	<Pine.LNX.4.64.0512291603500.3298@g5.osdl.org>
+	<1135974176.6039.71.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051230234628.GB3811@stusta.de>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 31, 2005 at 12:46:28AM +0100, Adrian Bunk wrote:
-> On Wed, Dec 28, 2005 at 08:51:14AM -0600, Matt Mackall wrote:
-> > On Wed, Dec 28, 2005 at 06:40:03AM -0800, Bryan O'Sullivan wrote:
-> > > On Tue, 2005-12-27 at 17:10 -0800, Roland Dreier wrote:
-> > > 
-> > > > I think the principle of least surprise calls for memcpy_toio32 to be
-> > > > ordered the same way memcpy_toio is.  In other words there should be a
-> > > > wmb() after the loop.
-> > > 
-> > > Will do.
-> > > 
-> > > > Also, no need for the { } for the while loop.
-> > > 
-> > > Fine.  There doesn't seem to be much consistency in whether to use
-> > > curlies for single-line blocks.
-> > 
-> > We've been very consistent in discouraging it in new code. Enforcement
-> > of fine points of coding style is a post-2.5 phenomenon, so it hasn't
-> > hit all the tree yet.
-> > 
-> > > > You're adding this symbol and exporting it even if the arch will
-> > > > supply its own version.  So this is pure kernel .text bloat...
-> > > 
-> > > I don't know what you'd prefer, so let me enumerate a few alternatives,
-> > > and you can either tell me which you'd prefer, or point out something
-> > > I've missed that would be even better.  I'm entirely flexible on this.
-> > > 
-> > >       * Use the __HAVE_ARCH_* mechanism that include/asm-*/string.h
-> > >         uses.  Caveat: Linus has lately come out as hating this style.
-> > >         It makes for the smallest patch, though.
-> > >       * Define the generic code in lib/, and have each arch that really
-> > >         uses it export it.
-> > 
-> > I'd favor this, at least for this case. If it becomes more widely
-> > used, we'll relocate the export.
-> >...
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> On Thu, 2005-12-29 at 16:10 -0800, Linus Torvalds wrote:
 > 
-> I don't like this for two reasons:
-> - we are moving exports to the actual functions and steadily killing all
->   *syms* files
-> - the lib-y approach has the disadvantage of completely omitting the
->   function if it's used only in modules resulting in non-working
->   modules
+> > Stuff outside the kernel is almost always either (a) experimental stuff 
+> > that just isn't ready to be merged or (b) tries to avoid the GPL.
 > 
-> Where's the problem with the __HAVE_ARCH_* mechanism?
+> (c) So damn specialized that it's not worth even trying to merge.
 
-The head penguin peed on it last week.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+Or drivers for highly specialised/customised hardware.

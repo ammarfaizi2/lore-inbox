@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVL3D5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVL3EAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbVL3D5g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 22:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbVL3D5g
+	id S1750842AbVL3EAF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 23:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVL3EAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 22:57:36 -0500
-Received: from rtr.ca ([64.26.128.89]:37578 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750887AbVL3D5f (ORCPT
+	Thu, 29 Dec 2005 23:00:05 -0500
+Received: from main.gmane.org ([80.91.229.2]:14242 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750842AbVL3EAC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 22:57:35 -0500
-Message-ID: <43B4B034.20807@rtr.ca>
-Date: Thu, 29 Dec 2005 22:57:40 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <43B4ADD0.4040906@rtr.ca>
-In-Reply-To: <43B4ADD0.4040906@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Dec 2005 23:00:02 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
+Subject: cpufreq: powernow-k8 frequency transitions question
+Date: Fri, 30 Dec 2005 05:00:09 +0100
+Message-ID: <dp2bbc$r4n$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 212.117.85.171
+User-Agent: KNode/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
->
-> Okay, I'm complaining:  /proc/cpuinfo is no longer correct
-> for my Pentium-M notebook, as ov 2.6.15-rc7.  Now it reports
-> a cpu speed of approx 800Mhz for a 2.0Mhz Pentium-M.
+Hi!
 
-2.0GHz, not Mhz!  (blush)
+I'm currently reading and playing with the powernow-k8 cpufreq driver
+module. However so far I wasn't able to find out how frequency transitions
+are dealt with that have to be made using intermediate steps, ie.
+transitions which cannot be done in one single step.
 
-Prior to -rc7, /proc/cpuinfo would scale according to the
-current speedstep of the CPU.  Now it seems stuck at the
-lowest setting for some reason.
+(I read about this at 
+http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/26094.PDF
+p. 269f.)
 
-Cheers
+I found safety guards which return an error if an invalid frequency
+transition ("lo-lo transition") is requested. Is this the only support for
+these transitions currently implemented or did I miss something?
+Is there more advanced support simply missing, or is the current behaviour
+sufficient, and if yes, why does this suffice?
+
+How do the conservative/ondemand cpufreq governors cope with the kernel
+advertising frequencies it cannot directly transition between?
+
+I'd be really cool if someone could enlighten me, just some pointers at
+powernow-k8.c functions I should take a closer look at might already
+help. :-)
+
+Greetings,
+
+  Gunter
+
+-- 
+Due to hw failure, I'm thinking buying a new laptop.  I would like to 
+know what is the worst laptop with ACPI atm?        -- Linux ACPI 
+driver hacker Bruno Ducrot looking for a "good" laptop... ;)
+*** PGP-Verschlüsselung bei eMails erwünscht :-) *** PGP: 0x1128F25F ***
+

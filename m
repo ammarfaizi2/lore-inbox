@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVL3BAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbVL3BCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbVL3BAV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 20:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVL3BAV
+	id S1751185AbVL3BCA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 20:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVL3BCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 20:00:21 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:44928 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751185AbVL3BAU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 20:00:20 -0500
-Date: Fri, 30 Dec 2005 01:59:15 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: spinlock BUG on b44 netconsole
-Message-ID: <20051230005915.GA16587@electric-eye.fr.zoreil.com>
-References: <21d7e9970512281915q5f58e32bj456b29af52e2e8fe@mail.gmail.com> <21d7e9970512281915s29cf5ac5p33995791c716fc0f@mail.gmail.com>
+	Thu, 29 Dec 2005 20:02:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:31878 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751185AbVL3BB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 20:01:59 -0500
+Date: Thu, 29 Dec 2005 20:01:51 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alejandro Bonilla <alejandro.bonilla@hp.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: git fetching
+Message-ID: <20051230010151.GC12822@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alejandro Bonilla <alejandro.bonilla@hp.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <43B48516.2030701@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21d7e9970512281915s29cf5ac5p33995791c716fc0f@mail.gmail.com>
+In-Reply-To: <43B48516.2030701@hp.com>
 User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(netdev Cced)
+On Thu, Dec 29, 2005 at 06:53:42PM -0600, Alejandro Bonilla wrote:
+ > Why is it that when I git fetch, this particular part takes a long time?
+ > 
+ > pack/pack-2dae6bb81ac4383926b1d6a646e3f73b130ba124.pack
+ > 
+ > Normally, they go pretty fast, but when a new rc or final releases comes 
+ > up, it takes a lot.
 
-Dave Airlie <airlied@gmail.com> :
-[...]
+That file is ~100MB. That'll take a while to download compared to the rest,
+even on the fastest net connection :)
 
-Replace the spinlock in b44_start_xmit by the irq_{save/restore} version.
-Do the same around for spin_lock(&np->dev->xmit_lock); in netpoll_send_skb.
+		Dave
 
-If it helps, it's an ugly, buggy, bandaid and you should consider
-capturing the messages through a serial cable instead.
-
-If you want to read the details, see the thread "Netconsole violates
-dev->hard_start_xmit synch rules" started the 06/09/2005 on
-netdev@vger.kernel.org.
-
---
-Ueimor

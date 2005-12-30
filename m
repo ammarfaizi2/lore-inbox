@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbVL3UyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVL3U65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbVL3UyT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 15:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbVL3UyT
+	id S1750711AbVL3U65 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 15:58:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVL3U65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 15:54:19 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:6924 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750813AbVL3UyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 15:54:18 -0500
-Date: Fri, 30 Dec 2005 21:45:57 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com, alan@redhat.com
-Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
-Message-ID: <20051230204557.GA2712@w.ods.org>
-References: <20051230074401.GA7501@ip68-225-251-162.oc.oc.cox.net> <20051230174817.GW15993@alpha.home.local> <1135966666.2941.32.camel@laptopd505.fenrus.org> <20051230183308.GA2501@w.ods.org> <986ed62e0512301137o3ee36bf1yadac63784cb75dd3@mail.gmail.com>
-Mime-Version: 1.0
+	Fri, 30 Dec 2005 15:58:57 -0500
+Received: from [202.67.154.148] ([202.67.154.148]:62410 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S1750711AbVL3U64 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 15:58:56 -0500
+Message-ID: <43B59F88.1030704@ns666.com>
+Date: Fri, 30 Dec 2005 21:58:48 +0100
+From: Mark v Wolher <trilight@ns666.com>
+User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Folkert van Heusden <folkert@vanheusden.com>
+CC: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+References: <43B53EAB.3070800@ns666.com>	<9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>	<43B557D7.6090005@ns666.com> <43B5623D.7080402@ns666.com>	<20051230164751.GQ3105@vanheusden.com> <43B56ADD.7040300@ns666.com>	<20051230183021.GV3105@vanheusden.com> <43B5890E.30104@ns666.com> <20051230202429.GD11594@vanheusden.com>
+In-Reply-To: <20051230202429.GD11594@vanheusden.com>
+X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <986ed62e0512301137o3ee36bf1yadac63784cb75dd3@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 11:37:38AM -0800, Barry K. Nathan wrote:
-> On 12/30/05, Willy Tarreau <willy@w.ods.org> wrote:
-> > On Fri, Dec 30, 2005 at 07:17:46PM +0100, Arjan van de Ven wrote:
-> [snip discussion not directly related to the timing of my patch submission]
-> > > Also I think, to be honest, that this is a feature that is getting
-> > > unsuitable for the "bugfixes only" 2.4 kernel series....
-> >
-> > Agreed, it really is too late IMHO, because there's a non-null risk of
-> > introducing new bugs with it. It would have been cool a few months
-> > earlier. That won't stop me from trying it in my own tree however ;-)
+Folkert van Heusden wrote:
+>>Hmm, i disabled MSI in the kernel, irq-balancing is on in the kernel,
+>>and after a restart with irqbalance i see the cpu's show numbers !
+>>I guess MSI was preventing them ? But does that means because of MSI
+>>that performance was lower in some way ?
 > 
-> Yeah, I know it's a little bit late. I wish I had been able to get
-> this done a few months ago... :(
+> 
+> did you also restart with only irqbalance activated?
+> 
+> 
+> Folkert van Heusden
+> 
 
-And I wish I could stay awake 24 hours a day and 365 days a year...
-Seriously, this work will not be lost because 2.6 has it. However,
-if it works well, I intend to link to it from my interesting patches
-page (when I finally find time to put it online).
+Yes, when MSI was disabled i had irq-balancing in the kernel on, i
+rebooted without the irqbalance daemon and it showed no reaction on the
+cpu's. When i enabled the irqbalance daemon then i got finally reaction
+from the cpu's.
 
-> Oh well, even if it doesn't get into the tree, at least it looks like
-> I might not be the only person to benefit from this patch. :)
-
-Every patch which can enhance long term stability will interest people
-who manage remote systems and who at least start softdog to get a chance
-to reach the box after an accident.
-
-> (BTW,
-> you'll probably also want the patch I just posted, which adds
-> Committed_AS to /proc/meminfo.)
-
-I've caught it, thanks.
-
-> -Barry K. Nathan <barryn@pobox.com>
-
-Cheers,
-Willy
+I'm also curious if this will solve those random freezes...which somehow
+i suspect have to do with the tvcard and maybe having MSI on.
 

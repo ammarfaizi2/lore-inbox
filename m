@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbVL3RR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVL3RZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbVL3RR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 12:17:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbVL3RR4
+	id S964884AbVL3RZn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 12:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbVL3RZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 12:17:56 -0500
-Received: from ns.firmix.at ([62.141.48.66]:60620 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S964880AbVL3RRz (ORCPT
+	Fri, 30 Dec 2005 12:25:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37061 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964884AbVL3RZm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 12:17:55 -0500
-Subject: Re: userspace breakage
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43B549FB.1050503@wolfmountaingroup.com>
-References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
-	 <1135798495.2935.29.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
-	 <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
-	 <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
-	 <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
-	 <20051229202852.GE12056@redhat.com>
-	 <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
-	 <20051229224103.GF12056@redhat.com>
-	 <43B453CA.9090005@wolfmountaingroup.com>
-	 <Pine.LNX.4.64.0512291541420.3298@g5.osdl.org>
-	 <43B46078.1080805@wolfmountaingroup.com>
-	 <1135941548.3342.22.camel@gimli.at.home>
-	 <43B549FB.1050503@wolfmountaingroup.com>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Fri, 30 Dec 2005 18:17:04 +0100
-Message-Id: <1135963024.3342.58.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Dec 2005 12:25:42 -0500
+Date: Fri, 30 Dec 2005 09:25:35 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Yi Yang <yang.y.yi@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, gregkh@suse.de,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix user data corrupted by old value return of sysctl
+In-Reply-To: <43B4F287.6080307@gmail.com>
+Message-ID: <Pine.LNX.4.64.0512300916220.3249@g5.osdl.org>
+References: <43B4F287.6080307@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-30 at 07:53 -0700, Jeff V. Merkey wrote:
-> Bernd Petrovitsch wrote:
-> >On Thu, 2005-12-29 at 15:17 -0700, Jeff V. Merkey wrote:
-> >[...]
-> >>Start caring. People spend lots of money supporting you, and what you 
-> >>are doing. How about taking some
-> >>responsibility for that so they don't change their minds and move back 
-> >>to windows or pull their support because it's too
-> >>costly or too much of a hassle to produce something stable from these 
-> >>releases. If you export functions from the kernel,
-> >
-> >The "program a driver once, runs on every windows in the future" is
-> >actually a myth. Talk to developers with windows drivers ....
-> >It is just that the companies absolutely don't have a choice if MSFT
-> >changes something ....
-> >
-> I support and write FS drivers for windows.   The same driver works on 
-> 2002, 2002, 2003, and XP.  Longhorn have changed two IFS functions
-
-Which are basically 2 stable versions (2000 & XP).
-No 3.1, 95 and 98 support before?
-Apart from that there are other drivers as FS drivers too.
-
-> and that's it, and still loads the older fs drivers through a compat 
-> interface.
 
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+On Fri, 30 Dec 2005, Yi Yang wrote:
+>
+> If the user reads a sysctl entry which is of string type
+> by sysctl syscall, this call probably corrupts the user data
+> right after the old value buffer, the issue lies in sysctl_string
+> seting 0 to oldval[len], len is the available buffer size
+> specified by the user, obviously, this will write to the first
+> byte of the user memory place immediate after the old value buffer,
+> the correct way is that sysctl_string doesn't set 0, the user
+> should do it by self in the program.
 
+Hmm.. I think this patch is incomplete.
 
+We _should_ zero-pad the data, at least if the result fits in the buffer.
 
+So I think the correct fix is to just _copy_ the last zero if it fits in 
+the buffer, rather than do the unconditional "add NUL at the end" thing. 
+The simplest way to do that is to just make "l" be "strlen(str)+1", so 
+that we count the ending NUL in the length (and then, if the buffer isn't 
+big enough, we will truncate it).
+
+In other words, I would instead suggest a patch like the appended.
+
+But even that is questionable: one alternative is to always zero-pad (like 
+we used to), but make sure that the buffer size is sufficient for it (ie 
+instead of adding one to the length of the string, we'd subtract one from 
+the buffer length and make sure that the '\0' fits..
+
+Comments?
+
+		Linus
+---
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 9990e10..ad0425a 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -2201,14 +2201,12 @@ int sysctl_string(ctl_table *table, int 
+ 		if (get_user(len, oldlenp))
+ 			return -EFAULT;
+ 		if (len) {
+-			l = strlen(table->data);
++			l = strlen(table->data)+1;
+ 			if (len > l) len = l;
+ 			if (len >= table->maxlen)
+ 				len = table->maxlen;
+ 			if(copy_to_user(oldval, table->data, len))
+ 				return -EFAULT;
+-			if(put_user(0, ((char __user *) oldval) + len))
+-				return -EFAULT;
+ 			if(put_user(len, oldlenp))
+ 				return -EFAULT;
+ 		}

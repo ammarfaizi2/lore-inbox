@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVL3Db2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbVL3DmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbVL3Db2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 22:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVL3Db2
+	id S1750856AbVL3DmN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 22:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbVL3DmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 22:31:28 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:43597 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1750821AbVL3Db1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 22:31:27 -0500
-Date: Thu, 29 Dec 2005 22:31:22 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-In-reply-to: <1135897092.2935.81.camel@laptopd505.fenrus.org>
-X-X-Sender: nico@localhost.localdomain
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, mpm@selenic.com
-Message-id: <Pine.LNX.4.64.0512292218580.3309@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <1135798495.2935.29.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
- <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
- <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
- <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
- <20051229202852.GE12056@redhat.com>
- <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
- <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org>
- <20051229224839.GA12247@elte.hu>
- <1135897092.2935.81.camel@laptopd505.fenrus.org>
+	Thu, 29 Dec 2005 22:42:13 -0500
+Received: from waste.org ([64.81.244.121]:61418 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750850AbVL3DmN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 22:42:13 -0500
+Date: Thu, 29 Dec 2005 21:38:03 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make sysenter support optional
+Message-ID: <20051230033803.GG3356@waste.org>
+References: <20051228212402.GX3356@waste.org> <a36005b50512281407x74415958tb0fa2b52f4dd7988@mail.gmail.com> <43B30E19.6080207@redhat.com> <20051229195641.GB3356@waste.org> <a36005b50512291901l6a5acb77ha17d3552ea9c9fd9@mail.gmail.com> <43B4A3CA.4060406@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43B4A3CA.4060406@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Dec 2005, Arjan van de Ven wrote:
-
-> Some data from an x86-64 allyesconfig build.
+On Thu, Dec 29, 2005 at 07:04:42PM -0800, Ulrich Drepper wrote:
+> > It's under CONFIG_EMBEDDED. Think uclibc. Think systems without
+> > interactive shells.
 > 
-> 25573            cfi_build_cmd                   [108]   <245>
+> Interactive or not has absolutely nothing to do with this.
 
-Beware this one.  The CFI code is not realistically ever used with 
-everything set to y in real life scenarios.  In fact, when only the 
-needed buswidth and interleave option are selected then this particular 
-inlined function gets reduced to a simple constant, such as 0x00700070 
-for example.
+Ok, let me be explicit: think systems with absolutely no facility for
+recording or displaying a backtrace.
 
-However if gcc wasn't forced to always inline, then in the allyesconfig 
-this function would benefit from being uninlined automatically.
+> And other
+> libcs have the same issues wrt to backtraces.
 
+As far as I'm aware, uclibc has no vdso support, so it might as well
+not exist for systems using it.
 
-Nicolas
+-- 
+Mathematics is the supreme nostalgia of our time.

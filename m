@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbVL3F2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVL3FxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbVL3F2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 00:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVL3F2Q
+	id S1751145AbVL3FxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 00:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVL3FxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 00:28:16 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:26761 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750749AbVL3F2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 00:28:15 -0500
-Subject: Re: [PATCH] ipw2200 stack reduction
-From: Zhu Yi <yi.zhu@intel.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, jketreno@linux.intel.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051229111907.GJ2772@suse.de>
-References: <20051228212934.GA2772@suse.de>
-	 <1135847228.9670.69.camel@debian.sh.intel.com>
-	 <20051229091940.GD2772@suse.de>
-	 <84144f020512290239t6192b344g63e4a71e44e8dfaa@mail.gmail.com>
-	 <20051229111414.GI2772@suse.de>  <20051229111907.GJ2772@suse.de>
-Content-Type: text/plain
-Organization: Intel Corp.
-Date: Fri, 30 Dec 2005 13:23:05 +0800
-Message-Id: <1135920185.9670.79.camel@debian.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 30 Dec 2005 00:53:16 -0500
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:33721 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751145AbVL3FxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 00:53:15 -0500
+Message-ID: <43B4CB42.7050603@triplehelix.org>
+Date: Thu, 29 Dec 2005 21:53:06 -0800
+From: Joshua Kwan <joshk@triplehelix.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Newsgroups: gmane.linux.kernel
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [vma list corruption] Re: proc_pid_readlink oopses again on 
+  2.6.14.5
+References: <dot96e$e76$1@sea.gmane.org>	 <20051228065354.GE27946@ftp.linux.org.uk> <1135758794.2935.3.camel@laptopd505.fenrus.org>
+In-Reply-To: <1135758794.2935.3.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-29 at 12:19 +0100, Jens Axboe wrote:
-> On Thu, Dec 29 2005, Jens Axboe wrote:
-> > Applied on top of the two other patches. Zhu, let me know if you just
-> > want 1 patch instead. It is just one change, so...
+Gentlemen,
+
+On 12/28/2005 12:33 AM, Arjan van de Ven wrote:
+>>So you've got 0xb7c1fc20 as vma.  Which is not good, since that's a userland
+>>address.
 > 
-> Here it is, with updated description.
+> 
+> sounds like it may also be a good idea to check for rootkits; some of
+> those try to muck with the vma chains and stuff.... and break if the
+> kernel changes a bit.
 
-I'm fine with the one. Thank you Jens!
+I rebuilt the SAME kernel source (2.6.14.5) with gcc-3.3, and everything
+works fine.
 
--yi
+Still rootkit, GCC's problem, or what?
 
+Thanks.
+
+-- 
+Joshua Kwan

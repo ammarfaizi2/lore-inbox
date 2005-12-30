@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVL3OaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVL3OpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVL3OaM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 09:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVL3OaM
+	id S932174AbVL3OpV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 09:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVL3OpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 09:30:12 -0500
-Received: from main.gmane.org ([80.91.229.2]:32726 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932150AbVL3OaK (ORCPT
+	Fri, 30 Dec 2005 09:45:21 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:51460 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932174AbVL3OpU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 09:30:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: jared <demottjar@yahoo.com>
-Subject: Why doesn't my system have the core_setuid_ok key?
-Date: Fri, 30 Dec 2005 09:19:26 -0500
-Message-ID: <dp3fot$6df$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-11-54-76.hsd1.mi.comcast.net
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 30 Dec 2005 09:45:20 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <200512281716.43089.vda@ilport.com.ua>
+X-OriginalArrivalTime: 30 Dec 2005 14:45:17.0523 (UTC) FILETIME=[A6988A30:01C60D4F]
+Content-class: urn:content-classes:message
+Subject: Re: 4k stacks
+Date: Fri, 30 Dec 2005 09:45:01 -0500
+Message-ID: <Pine.LNX.4.61.0512300943120.32191@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 4k stacks
+Thread-Index: AcYNT6a8tt2+i4GOSJuppqohL532MQ==
+References: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com> <200512241403.38482.vda@ilport.com.ua> <Pine.LNX.4.61.0512280808290.25369@chaos.analogic.com> <200512281716.43089.vda@ilport.com.ua>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Denis Vlasenko" <vda@ilport.com.ua>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all:
 
-I'm running the postfix mailing system and made a few modifications. 
-It's dieing with signal 11 but not dumping core -- and I need a core 
-dump.  I asked on the postfix group how to deal with this but they said 
-I need to come talk to a linux group.  They said the reason is because 
-my system will not let a process that starts life as root (but than 
-drops privs) to dump core.  They said I need to check my 
-kernel.core_setuid_ok key, but my systems don't have that key.  (I have 
-redhat (2.4.20) and FC (2.6.12))
+On Wed, 28 Dec 2005, Denis Vlasenko wrote:
 
-I've also already modified the /etc/security/limits and /etc/profile to 
-allow system wide cores.
+> On Wednesday 28 December 2005 15:14, linux-os (Dick Johnson) wrote:
+>>>> Anyway, getting down to 20 bytes of stack-space available
+>>>> seems to be pretty scary.
+>>>
+>>> +       movl    %esp, %edi
+>>> +       movl    %edi, %ecx
+>>> +       andl    $~0x1000, %edi
+>>> +       subl    %edi, %ecx
+>>>
+>>> ecx will be equal to ?
+>>
+>> Whatever the stack was minus that value ANDed with NOT 0x1000,
+>> i.e. 0x1000 minus the stack already in use. The code assumes
+>> that the stack starts and ends on a 0x1000 (page) boundary.
+>> If that's not true, then all bets are off.
+>
+> Hmm. I must be thick today. (esp - (esp & 0xffffefff))
+> is always equal to (esp & 0x00001000). Which is either 0 or 0x1000.
+> --
+>
 
-Can anyone shed some light on my attempts to get cores?
+Yes it's supposed to be ~0xfff.
 
-Thanks,
-Jared DeMott
+  vda
+>
 
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5591.11 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

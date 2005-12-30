@@ -1,81 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVL3XyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbVL3X4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbVL3XyK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 18:54:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbVL3XyJ
+	id S964973AbVL3X4o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 18:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVL3X4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 18:54:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50185 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964920AbVL3XyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 18:54:08 -0500
-Date: Sat, 31 Dec 2005 00:54:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       torvalds@osdl.org, arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051230235407.GC3811@stusta.de>
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051230221222.GJ3356@waste.org>
+	Fri, 30 Dec 2005 18:56:43 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:36504 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S964973AbVL3X4n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 18:56:43 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Mark v Wolher <trilight@ns666.com>
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+Date: Fri, 30 Dec 2005 23:56:59 +0000
+User-Agent: KMail/1.9
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Folkert van Heusden <folkert@vanheusden.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <43B53EAB.3070800@ns666.com> <200512302311.27125.s0348365@sms.ed.ac.uk> <43B5C5F6.5070500@ns666.com>
+In-Reply-To: <43B5C5F6.5070500@ns666.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051230221222.GJ3356@waste.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200512302356.59749.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 04:12:22PM -0600, Matt Mackall wrote:
-> On Wed, Dec 28, 2005 at 08:11:50PM -0800, Andrew Morton wrote:
-> > If no-forced-inlining makes the kernel smaller then we probably have (yet
-> > more) incorrect inlining.  We should hunt those down and fix them.  We did
-> > quite a lot of this in 2.5.x/2.6.early.  Didn't someone have a script which
-> > would identify which functions are a candidate for uninlining?
-> 
-> It was a combination of a tool I wrote for -tiny, which added
-> deprecation warnings to inlines along with a post-processing tool to
-> count instantiations, nestings, etc., and a post-post-processing tool
-> written by Denis Vlasenko that guessed at the space usage.
-> 
-> We cleaned up most of the obvious offenders quite a while ago, but
-> there's quite a long tail on the usage distribution. It's simply not
-> worth the trouble to go through the far half of the distribution one
-> by one to figure out whether inlining makes sense.
+On Friday 30 December 2005 23:42, Mark v Wolher wrote:
+> Alistair John Strachan wrote:
+> > On Friday 30 December 2005 22:16, Mark v Wolher wrote:
+> > [snip]
+> >
+> >>>Basically you are asking for help with an unsupported configuration.  In
+> >>>general people on LKML will be more helpful if you take the time to find
+> >>>out what the bug reporting guidelines are before posting.
+> >>>
+> >>>Lee
+> >>
+> >>Thank you for your input, but sometimes thinking out of the box gives a
+> >>solution instead of hiding behind "guidelines".
+> >
+> > I'm surprised Lee fed you this long, but the cold hard fact of the matter
+> > is that you are posting to the Linux kernel mailing lists, and you will
+> > comply with these guidelines if you expect help.
+> >
+> > I'm sure the problem might not be with VMWare, but there is absolutely
+> > nothing stopping you from switching nvidia with nv, not loading
+> > nvidia/vmware modules, then running the TV card doing *something else*
+> > for a few hours. If you do not detect lockups, contact VMWare. They will
+> > probably do the exact opposite of what Lee has done and suggest
+> > non-VMWare parts of the system are at fault.
+> >
+> > However, unlike VMWare or NVIDIA, we can actually debug problems if you
+> > use source-available modules. Thinking outside of the box here is
+> > irrelevant -- a problem requires logical procedure to gain a solution.
+> > Any engineer will tell you the same thing. Ordinarily, this is test,
+> > observe, retest, and all Lee is suggesting is that you do *not* load the
+> > proprietary modules.
+> >
+> > Try it before responding to this email, so you do not have to write
+> > another.
+>
+> I already switched nvidia for the nv driver in the kernel. Also disabled
+> by unloading all modules.
 
-The "figure out" task is easy:
+As Lee already explained, "unloading" is insufficient. If you continue to 
+argue that it is sufficient, then you are only exposing your own ignorance of 
+the issues at hand. Please physically delete the modules so that they cannot 
+ever be loaded by the kernel during or after bootup, then reboot the machine 
+before testing.
 
-There has to be a _very_ good reason for not deleting an inline in a .c 
-file.
+> You're saying i should then see what happens after doing the above ...
+> This is exactly what i'm now doing, tvcard is active (tv) and i'm doing
+> some work as usual. I get the feeling some people consider everyone who
+> is a bit different in approach as either some newbie or an idiot, well
+> wake up, sometimes by looking from a different view at a problem it can
+> be solved. This doesn't mean i don't appreciate the advise of Lee or
+> yours, i only ask for some patience. It's not like the world is going
+> under if we don't solve this in an hour with traditional logic. :)
 
-inline's in header files are a different topic, but in their case an 
-explicit review would be better since the correct solution is in such 
-cases often to move the code to a .c file (this might even result in 
-additional space savings).
+Feel free to try any method you like, but the method myself and Lee have 
+stated is the only one acceptable on this list.
 
-> So I'm in favor of changing our inlining philosophy moving forward.
-> The world has changed since we started physically marking functions
-> inline. When we started, basically all arches gained advantage from
-> heavy inlining due to favorable CPU to memory speed ratios. And the
-> compiler's automatic inlining was quite primitive. Now most (but not
-> all!) arches heavily favor out of line code except in fairly critical
-> locations and the compiler has gotten (just recently) quite a bit
-> smarter with its inlining.
-> 
-> So we should really go back to using inline as a hint for 90%+ of
-> candidate functions (using always.. and no.. for the rest), and using
-> our compile-time size and arch information to fine-tune the compiler's
-> decisions as to which hints to take.
+> And at this point the system is still working, i'm increasing the load
+> by making it crush numbers, doing a full virusscan and so on.
 
-I still don't understand why gcc needs any "inline" hints at all except 
-in the cases where we want to force gcc to inline a function.
-
-cu
-Adrian
+This is good news -- you stand a better chance of achieving the stability you 
+require by eliminating variables. VMWare and NVIDIA are useful softwares, and 
+I would not deny that, but they are closed source and thus any conflicts 
+resulting from their use are not necessary LKML material (however, if the 
+interaction is generic and is as a result of a kernel bug, then the 
+maintainer would very much like to hear it).
 
 -- 
+Cheers,
+Alistair.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

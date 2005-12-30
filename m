@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVL3RZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVL3RvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbVL3RZn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 12:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbVL3RZn
+	id S1750866AbVL3RvX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 12:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbVL3RvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 12:25:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:37061 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964884AbVL3RZm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 12:25:42 -0500
-Date: Fri, 30 Dec 2005 09:25:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Yi Yang <yang.y.yi@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, gregkh@suse.de,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix user data corrupted by old value return of sysctl
-In-Reply-To: <43B4F287.6080307@gmail.com>
-Message-ID: <Pine.LNX.4.64.0512300916220.3249@g5.osdl.org>
-References: <43B4F287.6080307@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Dec 2005 12:51:23 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:4364 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750866AbVL3RvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 12:51:22 -0500
+Date: Fri, 30 Dec 2005 18:48:17 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
+       alan@redhat.com
+Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+Message-ID: <20051230174817.GW15993@alpha.home.local>
+References: <20051230074401.GA7501@ip68-225-251-162.oc.oc.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051230074401.GA7501@ip68-225-251-162.oc.oc.cox.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 29, 2005 at 11:44:01PM -0800, Barry K. Nathan wrote:
+> This patch adds strict VM overcommit accounting to the mainline 2.4
+> kernel, thus allowing overcommit to be truly disabled. This feature
+> has been in 2.4-ac, Red Hat Enterprise Linux 3 (RHEL 3) vendor kernels,
+> and 2.6 for a long while.
 
+Many thanks, I'm impatient to try it ! I tried to backport it in the
+past but miserably failed as I don't understand those areas well. I'm
+interested in checking that a buggy service cannot eat all the RAM an
+bring the machine to death.
 
-On Fri, 30 Dec 2005, Yi Yang wrote:
->
-> If the user reads a sysctl entry which is of string type
-> by sysctl syscall, this call probably corrupts the user data
-> right after the old value buffer, the issue lies in sysctl_string
-> seting 0 to oldval[len], len is the available buffer size
-> specified by the user, obviously, this will write to the first
-> byte of the user memory place immediate after the old value buffer,
-> the correct way is that sysctl_string doesn't set 0, the user
-> should do it by self in the program.
+Cheers,
+Willy
 
-Hmm.. I think this patch is incomplete.
-
-We _should_ zero-pad the data, at least if the result fits in the buffer.
-
-So I think the correct fix is to just _copy_ the last zero if it fits in 
-the buffer, rather than do the unconditional "add NUL at the end" thing. 
-The simplest way to do that is to just make "l" be "strlen(str)+1", so 
-that we count the ending NUL in the length (and then, if the buffer isn't 
-big enough, we will truncate it).
-
-In other words, I would instead suggest a patch like the appended.
-
-But even that is questionable: one alternative is to always zero-pad (like 
-we used to), but make sure that the buffer size is sufficient for it (ie 
-instead of adding one to the length of the string, we'd subtract one from 
-the buffer length and make sure that the '\0' fits..
-
-Comments?
-
-		Linus
----
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 9990e10..ad0425a 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -2201,14 +2201,12 @@ int sysctl_string(ctl_table *table, int 
- 		if (get_user(len, oldlenp))
- 			return -EFAULT;
- 		if (len) {
--			l = strlen(table->data);
-+			l = strlen(table->data)+1;
- 			if (len > l) len = l;
- 			if (len >= table->maxlen)
- 				len = table->maxlen;
- 			if(copy_to_user(oldval, table->data, len))
- 				return -EFAULT;
--			if(put_user(0, ((char __user *) oldval) + len))
--				return -EFAULT;
- 			if(put_user(len, oldlenp))
- 				return -EFAULT;
- 		}

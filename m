@@ -1,84 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVL3Va3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVL3Ved@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbVL3Va3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 16:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVL3Va3
+	id S932080AbVL3Ved (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 16:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVL3Ved
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 16:30:29 -0500
-Received: from [202.67.154.148] ([202.67.154.148]:5515 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S932071AbVL3Va2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 16:30:28 -0500
-Message-ID: <43B5A6F7.3090708@ns666.com>
-Date: Fri, 30 Dec 2005 22:30:31 +0100
-From: Mark v Wolher <trilight@ns666.com>
-User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Mark v Wolher <trilight@ns666.com>
-CC: Folkert van Heusden <folkert@vanheusden.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: system keeps freezing once every 24 hours / random apps crashing
-References: <43B53EAB.3070800@ns666.com>	<9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>	<43B557D7.6090005@ns666.com> <43B5623D.7080402@ns666.com>	<20051230164751.GQ3105@vanheusden.com> <43B56ADD.7040300@ns666.com>	<20051230183021.GV3105@vanheusden.com> <43B5890E.30104@ns666.com> <20051230202429.GD11594@vanheusden.com> <43B59F88.1030704@ns666.com> <43B5A371.4050905@ns666.com>
-In-Reply-To: <43B5A371.4050905@ns666.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Dec 2005 16:34:33 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24819 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932080AbVL3Vec
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 16:34:32 -0500
+Subject: Re: [PATCH] protect remove_proc_entry
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1135978110.6039.81.camel@localhost.localdomain>
+References: <1135973075.6039.63.camel@localhost.localdomain>
+	 <1135978110.6039.81.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 30 Dec 2005 13:34:26 -0800
+Message-Id: <1135978466.32431.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark v Wolher wrote:
-> Mark v Wolher wrote:
-> 
->>Folkert van Heusden wrote:
->>
->>
->>>>Hmm, i disabled MSI in the kernel, irq-balancing is on in the kernel,
->>>>and after a restart with irqbalance i see the cpu's show numbers !
->>>>I guess MSI was preventing them ? But does that means because of MSI
->>>>that performance was lower in some way ?
->>>
->>>
->>>did you also restart with only irqbalance activated?
->>>
->>>
->>>Folkert van Heusden
->>>
->>
->>
->>Yes, when MSI was disabled i had irq-balancing in the kernel on, i
->>rebooted without the irqbalance daemon and it showed no reaction on the
->>cpu's. When i enabled the irqbalance daemon then i got finally reaction
->>from the cpu's.
->>
->>I'm also curious if this will solve those random freezes...which somehow
->>i suspect have to do with the tvcard and maybe having MSI on.
->>
-> 
-> 
-> :( just got a total freeze, number 2 today. This time i noticed the
-> mouse started to go very slow and 2 seconds later all was frozen.
-> 
-> Maybe it's because of vmware ... i will not use vmware and see how it goes.
-> -
+On Fri, 2005-12-30 at 16:28 -0500, Steven Rostedt wrote:
 
+> +	spin_lock_irqsave(&remove_proc_lock, flags);
+...
+> +	spin_unlock_irqrestore(&remove_proc_lock, flags);
 
-Some new info, i just noticed this in the logs:
+Why do an irqsave here? Are you not sure what context it gets called
+from?
 
+Daniel
 
-Dec 30 22:21:24 localhost kernel: bttv0: OCERR @ 1fde0000,bits: HSYNC
-OFLOW FBUS OCERR*
-Dec 30 22:21:24 localhost last message repeated 5 times
-Dec 30 22:21:24 localhost kernel: bttv0: timeout: drop=0
-irq=41296/41296, risc=1fde001c, bits: HSYNC OFLOW
-Dec 30 22:21:24 localhost kernel: bttv0: reset, reinitialize
-Dec 30 22:21:24 localhost kernel: bttv0: PLL: 28636363 => 35468950 . ok
-
-
-But vmware is not active at this moment, i'll not use vmware and see if
-a freeze occurs, i'll test up to 24 hours.
-
-I can swear it might have to do with the tvcard with tv on and vmware at
-the same time also active. Or maybe just 1 of them. I'm even considering
-to buy tomorrow a new tvcard and see if it makes any difference.

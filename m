@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVL3UEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVL3USc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbVL3UEr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 15:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVL3UEr
+	id S932271AbVL3USc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 15:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVL3USc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 15:04:47 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:62391 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932264AbVL3UEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 15:04:47 -0500
-Subject: [Question] race condition with remove_proc_entry
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Fri, 30 Dec 2005 15:04:35 -0500
-Message-Id: <1135973075.6039.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Dec 2005 15:18:32 -0500
+Received: from xproxy.gmail.com ([66.249.82.195]:63679 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932271AbVL3USb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 15:18:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KaZ7tsUX/cFUORswCvvkssD/yWy2RV+7nZB8L7akREdRaeWO+bZXgSwQhopNzlO2yfkAOHLf8sY/dM21g0xKhqz5hbaqFZCwstEROmxsMG7k4zZTvM9lDUzXZfYCxVe8gP0GXXNsQwg+lHUyxJjA7xKeD0NOeDtaGAw6L/W5PZU=
+Message-ID: <986ed62e0512301218v30dd5d67m699bf7c29375a1fe@mail.gmail.com>
+Date: Fri, 30 Dec 2005 12:18:29 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200512302306.28667.a1426z@gawab.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200512302306.28667.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm just curious if it is know that remove_proc_entry has an inherit
-race condition?  I have a modified kernel that would add and remove
-stuff from the proc system and it would every so often crash.  I traced
-the bug to remove_proc_entry.
+On 12/30/05, Al Boldi <a1426z@gawab.com> wrote:
+> Thanks a lot!
+>
+> > +3 - (NEW) paranoid overcommit The total address space commit
+> > +      for the system is not permitted to exceed swap. The machine
+> > +      will never kill a process accessing pages it has mapped
+> > +      except due to a bug (ie report it!)
+>
+> This one isn't in 2.6, which is critical for a stable system.
 
-	for (p = &parent->subdir; *p; p=&(*p)->next ) {
-		if (!proc_match(len, fn, *p))
-			continue;
+I mentioned in my original post (maybe I wasn't clear enough) that
+this is only in the documentation and not in the actual code (i.e. the
+code has no advantage over 2.6 in this regard). This error comes from
+the 2.4-ac/pac kernels from which this documentation originally comes.
+Yes, I need to fix the documentation, I didn't get to do that yet.
 
-Looking at proc_match
+I think you can get paranoid overcommit with either my patch or 2.6 by
+setting /proc/sys/vm/overcommit_mode to 2 *and*
+/proc/sys/vm/overcommit_ratio to 0, however.
 
-int proc_match(int len, const char *name, struct proc_dir_entry *de)
-{
-	if (de->namelen != len)
-		return 0;
-	return !memcmp(name, de->name, len);
-}
-
-
-The bug would happen either at de->namelen in proc_match or in the loop
-of p=&(*p)->next.
-
-
-The race is if two threads remove two entries that are siblings.  Since
-p = &(*p)->next,  and this is then dereferenced, the race is with *p
-becoming NULL.
-
-The way I'm fixing this is to put a lock around the call to
-remove_proc_entry.  But is this race already known and the solution is
-to have the callers perform their own locking?  Or is this an actual
-bug?  If it is not a bug, where's the documentation on having callers
-protect it?
-
-Thanks,
-
--- Steve
-
+--
+-Barry K. Nathan <barryn@pobox.com>

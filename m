@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVL3NcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVL3Nce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbVL3NcB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 08:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVL3NcB
+	id S1750817AbVL3Nce (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 08:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbVL3Nce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 08:32:01 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22022 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751262AbVL3NcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 08:32:00 -0500
-Date: Fri, 30 Dec 2005 14:31:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Jakub Jelinek <jakub@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051230133159.GX3811@stusta.de>
-References: <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051229143846.GA18833@infradead.org> <1135868049.2935.49.camel@laptopd505.fenrus.org> <20051229153529.GH3811@stusta.de> <20051229154241.GY22293@devserv.devel.redhat.com> <p73oe2zexx9.fsf@verdi.suse.de> <20051230094045.GA5799@elte.hu> <20051230101443.GA13072@elte.hu>
+	Fri, 30 Dec 2005 08:32:34 -0500
+Received: from cmu-24-35-112-99.mivlmd.cablespeed.com ([24.35.112.99]:33684
+	"EHLO dad.localdomain") by vger.kernel.org with ESMTP
+	id S1750817AbVL3Ncd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 08:32:33 -0500
+Date: Fri, 30 Dec 2005 08:32:26 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@dad.localdomain
+To: Ochal Christophe <ochal@kefren.be>
+cc: no To-header on input <""@mail.cablespeed.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: cannot boot 2.6.15-rc6 on Opteron machine
+In-Reply-To: <43B52F27.20903@kefren.be>
+Message-ID: <Pine.LNX.4.63.0512300817290.5860@dad.localdomain>
+References: <43B3CA9E.7000804@voltaire.com>  <Pine.LNX.4.63.0512300725300.5860@dad.localdomain>
+ <1135946670.2941.21.camel@laptopd505.fenrus.org> <43B52F27.20903@kefren.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051230101443.GA13072@elte.hu>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 11:14:43AM +0100, Ingo Molnar wrote:
->...
-> note: my focus is still mostly on CC_OPTIMIZE_FOR_SIZE (which is only 
-> offered if CONFIG_EMBEDDED is enabled) - if you want a larger kernel 
-> optimized for speed, do not enable it.
+> >there is no such procedure, because the disk labels are... ON THE DISK.
+> >And the initrd reads them from all the disks at boot time to find the
+> >one needed. This means that if your disk changes name (for example
+> >because of a scsi bus order change or because of a different order you
+> >load the device drivers... or even if you forget to compile the sata
+> >drivers and suddenly the disk goes from /dev/sda to /dev/hda).... things
+> >just remain working
+> >
 
-Since 2.6.15-rc6, CC_OPTIMIZE_FOR_SIZE only depends on EXPERIMENTAL.
+Interesting.  I've been compiling my own kernels for quite some time and 
+have never had a boot device end up anywhere except where I thought it 
+should.  This includes during the 2.5 craziness when parts of ide support 
+was rewritten at least twice.  
 
-> 	Ingo
+> >
+> Compile the kernel with support for your hardware built in, i'm assuming you
+> eighter build the controller as a module or didn't built it at all
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Certainly this is the best advice.  Not only support for the hardware, but 
+also ext3 journalling as well as ext2 support.  I think it may be possible 
+to end up with ext2 builtin but ext3 journalling as modular.

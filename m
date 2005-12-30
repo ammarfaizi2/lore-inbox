@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVL3LFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVL3LMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVL3LFT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 06:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVL3LFS
+	id S1751247AbVL3LMG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 06:12:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVL3LMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 06:05:18 -0500
-Received: from ms-smtp-05-smtplb.tampabay.rr.com ([65.32.5.135]:32424 "EHLO
-	ms-smtp-05.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1751246AbVL3LFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 06:05:17 -0500
-Message-ID: <43B5146B.9090609@cfl.rr.com>
-Date: Fri, 30 Dec 2005 06:05:15 -0500
-From: Mark Hounschell <dmarkh@cfl.rr.com>
-Reply-To: dmarkh@cfl.rr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921
-X-Accept-Language: en-us, en
+	Fri, 30 Dec 2005 06:12:06 -0500
+Received: from web54105.mail.yahoo.com ([206.190.37.240]:24753 "HELO
+	web54105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751247AbVL3LMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 06:12:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=W8nc4OGsW7VN6VJS3I7xfOl8eQSEBlx63QykVKAi7C2I1AuSX0oz4jqIzH2NtUdqkOmvLnlBrt5dkaOxhmFj9NpDxFpUfE9Fnm+KbYRAksCAr1MNzrTxMvZJPBnbKHJ2TqDho5OjZi8QfRje9lSlcijQtC/8XCYtfzkb3873YXA=  ;
+Message-ID: <20051230111204.11157.qmail@web54105.mail.yahoo.com>
+Date: Fri, 30 Dec 2005 03:12:04 -0800 (PST)
+From: sundar <sundar_draj@yahoo.com>
+Subject: [pci driver model] communication from user application
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: find_vma_intersection
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone enlighten me as to what it really means when  a user land
-shmat call, in which the virtual address is provided, fails in the
-kernel find_vma_intersection function because
+Hello All,
 
-  end_addr(of my SHM) is <= vma->vm_start?
+I plan to write the PCI driver based on “PCI driver
+model”.  
 
-static inline struct vm_area_struct * find_vma_intersection(struct
-mm_struct * mm, unsigned long start_addr, unsigned long end_addr)
-{
-        struct vm_area_struct * vma = find_vma(mm,start_addr);
+I understand that I have to populate the pci_driver
+and pci_device_id structures with the required driver
+routines and device information for dyanamic loading
+of device. 
 
-        if (vma && end_addr <= vma->vm_start)
-                vma = NULL;
-        return vma;
-}
+But I could not understand how the user level
+application can open the device and communicate with
+the driver through ioctls.  I dont   know how I can
+populate the ioctl routine in pci driver like
+file_operations structure in char driver.
 
-Thanks in advance
-Mark
+Please le me know the pointers regarding this. 
+
+Thanks,
+Sundar Raj
+
+
+
+
+	
+		
+__________________________________ 
+Yahoo! for Good - Make a difference this year. 
+http://brand.yahoo.com/cybergivingweek2005/

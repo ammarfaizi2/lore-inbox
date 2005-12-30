@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVL3Wby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVL3WhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVL3Wby (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 17:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbVL3Wby
+	id S1751142AbVL3WhX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 17:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVL3WhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 17:31:54 -0500
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:53726 "EHLO
-	taverner.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S1751133AbVL3Wbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 17:31:53 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] Fix user data corrupted by old value return of sysctl
-Date: Fri, 30 Dec 2005 22:31:41 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <dp4cgd$lvq$1@taverner.CS.Berkeley.EDU>
-References: <43B4F287.6080307@gmail.com>
-Reply-To: daw-usenet@taverner.CS.Berkeley.EDU (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.CS.Berkeley.EDU 1135981901 22522 128.32.168.222 (30 Dec 2005 22:31:41 GMT)
-X-Complaints-To: news@taverner.CS.Berkeley.EDU
-NNTP-Posting-Date: Fri, 30 Dec 2005 22:31:41 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Fri, 30 Dec 2005 17:37:23 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29449 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751142AbVL3WhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 17:37:23 -0500
+Date: Fri, 30 Dec 2005 23:37:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mathias Klein <ma_klein@gmx.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: oops in kernel 2.6.15-rc6
+Message-ID: <20051230223721.GA3811@stusta.de>
+References: <20051228135021.GA9777@sidney>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051228135021.GA9777@sidney>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yi Yang  wrote:
->If the user reads a sysctl entry which is of string type
->  by sysctl syscall, this call probably corrupts the user data
->  right after the old value buffer, the issue lies in sysctl_string
->  seting 0 to oldval[len], len is the available buffer size
->  specified by the user, obviously, this will write to the first
->  byte of the user memory place immediate after the old value buffer
->, the correct way is that sysctl_string doesn't set 0, the user
->should do it by self in the program.
+On Wed, Dec 28, 2005 at 02:50:22PM +0100, Mathias Klein wrote:
 
-That's not just data corruption -- it's also a buffer overrun.
-Granted, it's "only" a one-byte overrun, but I have seen one-byte
-overruns be exploitable occasionally in the past.  So this sounds
-to me like a potential security issue, too.
+> Hello all,
+
+Hi Mathias,
+
+> [please CC me on replies, I'm not subscribed to this list]
+> 
+> I had this following kernel oops while compiling a new kernel. 
+>...
+> please let me know if you need more informations/how I can help you solve
+> this problem.
+
+older kernels (e.g. 2.6.14.x) are working without problems?
+
+> Mathias Klein
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

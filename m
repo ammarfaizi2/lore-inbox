@@ -1,41 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVL3V4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVL3V5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVL3V4D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 16:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVL3V4D
+	id S964811AbVL3V5U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 16:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbVL3V5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 16:56:03 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:54481 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S964789AbVL3V4B (ORCPT
+	Fri, 30 Dec 2005 16:57:20 -0500
+Received: from [202.67.154.148] ([202.67.154.148]:50858 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S964811AbVL3V5T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 16:56:01 -0500
-Date: Fri, 30 Dec 2005 13:55:44 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] protect remove_proc_entry
-Message-ID: <20051230215544.GI27284@gaz.sfgoth.com>
-References: <1135973075.6039.63.camel@localhost.localdomain> <1135978110.6039.81.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Fri, 30 Dec 2005 16:57:19 -0500
+Message-ID: <43B5AD40.2070101@ns666.com>
+Date: Fri, 30 Dec 2005 22:57:20 +0100
+From: Mark v Wolher <trilight@ns666.com>
+User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Folkert van Heusden <folkert@vanheusden.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: system keeps freezing once every 24 hours / random	apps	crashing
+References: <43B53EAB.3070800@ns666.com>	 <9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>	 <43B557D7.6090005@ns666.com> <43B5623D.7080402@ns666.com>	 <20051230164751.GQ3105@vanheusden.com> <43B56ADD.7040300@ns666.com>	 <20051230183021.GV3105@vanheusden.com> <43B5890E.30104@ns666.com>	 <20051230202429.GD11594@vanheusden.com> <43B59F88.1030704@ns666.com>	 <43B5A371.4050905@ns666.com>  <43B5A6F7.3090708@ns666.com>	 <1135978501.31111.24.camel@mindpipe>  <43B5AAF1.70503@ns666.com> <1135979488.31111.28.camel@mindpipe>
+In-Reply-To: <1135979488.31111.28.camel@mindpipe>
+X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135978110.6039.81.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Fri, 30 Dec 2005 13:55:44 -0800 (PST)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> I've added a global remove_proc_lock to protect this section of code.  I
-> was going to add a lock to proc_dir_entry so that the locking is only
-> cut down to the same parent, but since this function is called so
-> infrequently, why waste more memory then is needed.  One global lock
-> should not cause too much of a headache here.
+Lee Revell wrote:
+> On Fri, 2005-12-30 at 22:47 +0100, Mark v Wolher wrote:
+> 
+>>Lee Revell wrote:
+>>
+>>>On Fri, 2005-12-30 at 22:30 +0100, Mark v Wolher wrote:
+>>>
+>>>
+>>>>Mark v Wolher wrote:
+>>>>
+>>>>
+>>>>>Mark v Wolher wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>>>>Folkert van Heusden wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>>>Hmm, i disabled MSI in the kernel, irq-balancing is on in the kernel,
+>>>>>>>>and after a restart with irqbalance i see the cpu's show numbers !
+>>>>>>>>I guess MSI was preventing them ? But does that means because of MSI
+>>>>>>>>that performance was lower in some way ?
+>>>>>>>
+>>>>>>>
+>>>>>>>did you also restart with only irqbalance activated?
+>>>>>>>
+>>>>>>>
+>>>>>>>Folkert van Heusden
+>>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>Yes, when MSI was disabled i had irq-balancing in the kernel on, i
+>>>>>>rebooted without the irqbalance daemon and it showed no reaction on the
+>>>>>>cpu's. When i enabled the irqbalance daemon then i got finally reaction
+>>>>>
+>>>>>>from the cpu's.
+>>>>>
+>>>>>
+>>>>>>I'm also curious if this will solve those random freezes...which somehow
+>>>>>>i suspect have to do with the tvcard and maybe having MSI on.
+>>>>>>
+>>>>>
+>>>>>
+>>>>>:( just got a total freeze, number 2 today. This time i noticed the
+>>>>>mouse started to go very slow and 2 seconds later all was frozen.
+>>>>>
+>>>>>Maybe it's because of vmware ... i will not use vmware and see how it goes.
+>>>>>-
+>>>>
+>>>>
+>>>>Some new info, i just noticed this in the logs:
+>>>>
+>>>>
+>>>>Dec 30 22:21:24 localhost kernel: bttv0: OCERR @ 1fde0000,bits: HSYNC
+>>>>OFLOW FBUS OCERR*
+>>>>Dec 30 22:21:24 localhost last message repeated 5 times
+>>>>Dec 30 22:21:24 localhost kernel: bttv0: timeout: drop=0
+>>>>irq=41296/41296, risc=1fde001c, bits: HSYNC OFLOW
+>>>>Dec 30 22:21:24 localhost kernel: bttv0: reset, reinitialize
+>>>>Dec 30 22:21:24 localhost kernel: bttv0: PLL: 28636363 => 35468950 . ok
+>>>>
+>>>>
+>>>>But vmware is not active at this moment, i'll not use vmware and see if
+>>>>a freeze occurs, i'll test up to 24 hours.
+>>>>
+>>>>I can swear it might have to do with the tvcard with tv on and vmware at
+>>>>the same time also active. Or maybe just 1 of them. I'm even considering
+>>>>to buy tomorrow a new tvcard and see if it makes any difference.
+>>>
+>>>
+>>>It does not matter whether VMWare is active at the moment.  Any bug
+>>>report where a binary module has been loaded, active or not, is tainted.
+>>>
+>>>Can you reproduce with a 100% clean kernel?
+>>>
+>>>Lee
+>>>
+>>
+>>Hi Lee,
+>>
+>>But unloading all vmware modules should be good enough ? And how about
+>>the binary module of nvidia ? It's active ofcourse else i'd not be able
+>>to use all the features i normally use.
+>>
+>>Eitherway, several kernels back also made no difference for this issue.
+>>
+>>So right now, i'm leaning on the experience i have with working with
+>>this system and trying to isolate things i suspect, before i go to more
+>>radical steps :)
+>>
+>>And again, under windows 2k server, xp pro, redhat enterprise and
+>>freebsd i never had these issues.
+>>
+> 
+> 
+> No, it's not good enough to unload them and no, the nvidia module
+> absolutely cannot have been loaded.  Binary modules can do ANYTHING and
+> we have NO IDEA what they are up to, how could you possibly think such a
+> system would be debuggable?
+> 
+> Please, search the LKML archives, this has come up again and again and
+> again and still people post bug reports with binary only modules and
+> expect them to be debuggable.
+> 
+> Lee
+> 
+> 
+> 
+> 
+> 
 
-Are you sure that it's the only place where we need guard ->subdir?  It
-looks like proc_lookup() and proc_readdir() use the BLK when walking that
-list, so probably the best fix would be to use that lock everywhere else
-->subdir is touched
+Well Lee, you might be right indeed, but i see only some one who has
+something against binary modules and assuming they're always to blame.
+I do not agree with this and i will proceed from simple to advanced in
+solving this problem, not start thinking difficult while the problem
+might be solved by a simple move. :)
 
--Mitch
+
+

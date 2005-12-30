@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVL3Hmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVL3Hoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbVL3Hmm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 02:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVL3Hmm
+	id S1751205AbVL3Hoi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 02:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVL3Hoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 02:42:42 -0500
-Received: from webmail-outgoing2.us4.outblaze.com ([205.158.62.67]:39333 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S1750803AbVL3Hml convert rfc822-to-8bit (ORCPT
+	Fri, 30 Dec 2005 02:44:38 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48547 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751205AbVL3Hoh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 02:42:41 -0500
-X-OB-Received: from unknown (205.158.62.232)
-  by wfilter.us4.outblaze.com; 30 Dec 2005 07:42:41 -0000
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-From: "Kai Geek" <kaigeek@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 30 Dec 2005 15:42:41 +0800
+	Fri, 30 Dec 2005 02:44:37 -0500
+Date: Fri, 30 Dec 2005 08:44:24 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: kus Kusche Klaus <kus@keba.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-X-Originating-Ip: 194.125.232.2
-X-Originating-Server: ws5-11.us4.outblaze.com
-Message-Id: <20051230074241.41333CA0A3@ws5-11.us4.outblaze.com>
+Message-ID: <20051230074424.GB25637@elte.hu>
+References: <AAD6DA242BC63C488511C611BD51F367323307@MAILIT.keba.co.at> <1135927789.12146.1.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1135927789.12146.1.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-i am inframed trace for irq14 bugging points. 
 
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+there seem to be leaked preempt counts:
 
-> > It seems that either some code path really is forgetting to 
-> > re-enable interrupts, or there's a bug in the latency tracer. 
-> one question is, what do the kernel addresses visible in the first
-> argument of asm_do_IRQ() correspond to:
->   trace1:MyThread-153   0D..1 5977us+: asm_do_IRQ (c030c170 1a 0)
->   trace1:MyThread-153   0D..1 15191us+: asm_do_IRQ (c030c1bc 1a 0)
->   trace2:  <idle>-0     0D..2 8822us+: asm_do_IRQ (c021da24 1a 0)
->   trace2:  <idle>-0     0Dn.2 8920us+: asm_do_IRQ (c021da24 b 0)
->   trace3:     top-169   0D..1 8802us+: asm_do_IRQ (c024e5fc 1a 0)
->   trace4:  insmod-185   0D..1 8794us+: asm_do_IRQ (c030c174 1a 0)
->   trace5:      dd-197   0D..1 8812us+: asm_do_IRQ (c02e4938 1a 0)
->   trace6: kthread-11    0d..3 2670us+: asm_do_IRQ (c02fe2d0 1a 0)
->   trace7:MyThread-95    0D..1  542us+: asm_do_IRQ (c02fe2d0 1a 0)
->   trace7:MyThread-95    0D..1 9755us+: asm_do_IRQ (c02fe2d0 1a 0)
-> i.e. what is c02fe2d0, c021da24, c02e4938, etc.?
-> but it seems most of the latencies are printk related: one possibility
-> is that something is doing a costly printk with preemption disabled.
-> 	Ingo
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  <idle>-0     0.n.1 8974us : touch_critical_timing (cpu_idle)
 
-+-+-+-+ BEGIN PGP SIGNATURE +-+-+-+
-Version: GnuPG v1.4.2 (GNU/Linux)
-   .-.      .-.    _              
-   : :      : :   :_;             
- .-' : .--. : `-. .-. .--.  ,-.,-.
-' .; :' '_.'' .; :: :' .; ; : ,. :
-`.__.'`.__.'`.__.':_;`.__,_;:_;:_;
+we should never have preemption disabled in cpu_idle(). To debug leaked 
+preemption counts, enable CONFIG_DEBUG_PREEMPT.
 
-Kai "Ozgur" Geek
-Network Engineer
-PGP ID: B1B63B6E
-+-+-+-+ END PGP SIGNATURE +-+-+-+
-
-
--- 
-_______________________________________________
-Check out the latest SMS services @ http://www.linuxmail.org
-This allows you to send and receive SMS through your mailbox.
-
-Powered by Outblaze
+	Ingo

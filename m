@@ -1,124 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVL3Nfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbVL3NiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbVL3Nfl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 08:35:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVL3Nfl
+	id S1751262AbVL3NiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 08:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVL3NiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 08:35:41 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26606 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751261AbVL3Nfk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 08:35:40 -0500
-Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-From: Daniel Walker <dwalker@mvista.com>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F36732330D@MAILIT.keba.co.at>
-References: <AAD6DA242BC63C488511C611BD51F36732330D@MAILIT.keba.co.at>
-Content-Type: multipart/mixed; boundary="=-E3jCdCW09dCqTRwCrDQq"
-Date: Fri, 30 Dec 2005 05:35:38 -0800
-Message-Id: <1135949739.32431.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 30 Dec 2005 08:38:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:26630 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751262AbVL3NiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 08:38:24 -0500
+Date: Fri, 30 Dec 2005 14:38:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20051230133823.GY3811@stusta.de>
+References: <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229231615.GV15993@alpha.home.local> <1135929917.2941.0.camel@laptopd505.fenrus.org> <20051230081536.GA30503@alpha.home.local> <1135931072.2941.9.camel@laptopd505.fenrus.org> <20051230092015.GA30681@w.ods.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051230092015.GA30681@w.ods.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-E3jCdCW09dCqTRwCrDQq
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-
-It looks like in ARM the cpu_idle() (and default_idle) get traced . So
-for instance you'll get a situation when preemption is off, interrupts
-are off, and then the cpu runs something like halt on x86. Then an
-interrupt wakes up the cpu. 
-
-I attached a patch that might fix the tracing. I tried to prevent the
-tracing around when the cpu halts.
-
-Daniel
-
-
-On Fri, 2005-12-30 at 13:40 +0100, kus Kusche Klaus wrote:
-> > From: Ingo Molnar
-> > there seem to be leaked preempt counts:
+On Fri, Dec 30, 2005 at 10:20:15AM +0100, Willy Tarreau wrote:
+> On Fri, Dec 30, 2005 at 09:24:32AM +0100, Arjan van de Ven wrote:
+> > On Fri, 2005-12-30 at 09:15 +0100, Willy Tarreau wrote:
+> > > 
+> > > 
+> > > I trust your experience on this, but wasn't the lack of testing
+> > > primarily due to the use of a "special" version of the compiler ?
+> > > For instance, if we put a short howto in Documentation/ explaining
+> > > how to build a kgcc toolchain describing what versions to use, there
+> > > are chances that most LKML users will use the exact same version.
+> > > Distro maintainers may want to follow the same version too. Also,
+> > > the fact that the kernel would be designed to work with *that*
+> > > compiler will limit the maintenance trouble you certainly have
+> > > encountered trying to keep the compiler up-to-date with more recent
+> > > kernel patches and updates.
 > > 
-> >   <idle>-0     0.n.1 8974us : touch_critical_timing (cpu_idle)
-> > 
-> > we should never have preemption disabled in cpu_idle(). To 
-> > debug leaked 
-> > preemption counts, enable CONFIG_DEBUG_PREEMPT.
+> > it's not that easy. Simply put: the gcc people release an update every 6
+> > months; distros "jump ahead" the bugfixes on that usually. (think of it
+> > like -stable, where distros would ship patches accepted for -stable but
+> > before -stable got released). Taking an older compiler from gcc.gnu.org
+> > doesn't mean it's bug free. It just means you're not getting bugfixes.
 > 
-> Something really fishy is going on here: 
-> That 9 ms latency seems to be really *idle* time!
-> 
-> * If the box is idle, I get that trace almost immediately, and
-> almost always with close to 9 ms (system clock is 100 Hz, 
-> i.e. 10 ms tick period).
-> 
-> * If the box is 100 % loaded, I don't get that trace. I get
-> different traces from different processes, mostly shorter than
-> 9 ms.
-> 
-> * If I load the box with work at regular intervals 
-> and idle time in between, I get traces
-> identical to the 9 ms idle trace, but consistently shorter.
-> If I throw a flood ping with 1000 pkt/s against my box, the idle
-> trace shows up with 800 or 900 microseconds, i.e. the idle time
-> between packets.
-> 
-> Now, is the tracer wrong, or has the idle time a wrong status?
-> 
-> By the way, I had one trace today where the cat /proc/latency_trace
-> itself showed up:
-> 
->       \   /    |||||   \   |   /           
->      cat-3129  0D...    1us!: preempt_schedule_irq (svc_preempt)
->      cat-3129  0.... 5502us+: rt_up (l_start)
->      cat-3129  0D..1 5511us+: check_raw_flags (rt_up)
->      cat-3129  0...1 5514us+: rt_up (l_start)
->      cat-3129  0...1 5518us : sub_preempt_count_ti (rt_up)
-> 
-> What's happening in those 5 ms?
-> 
+> OK, but precisely, we don't have any bug free version of gcc anyway. The
+> kernel has a long history of workaround for gcc bugs. So probably there
+> will be less work with a -possibly buggy- old gcc version than with a
+> constantly changing one. For instance, if we stick to 3.4 for 2 years,
+> we will of course encounter a lot of bugs. But they will be worked around
+> just like gcc-2.95 bugs have been, and we will be able to keep the same
+> compiler very long at virtually zero maintenance work.
+>...
 
---=-E3jCdCW09dCqTRwCrDQq
-Content-Disposition: attachment; filename=fix_tracing_arm_idle_loop.patch
-Content-Type: text/x-patch; name=fix_tracing_arm_idle_loop.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
+The changes in gcc aren't _that_ big.
 
-Index: linux-2.6.14/arch/arm/kernel/process.c
-===================================================================
---- linux-2.6.14.orig/arch/arm/kernel/process.c
-+++ linux-2.6.14/arch/arm/kernel/process.c
-@@ -89,12 +89,12 @@ void default_idle(void)
- 	if (hlt_counter)
- 		cpu_relax();
- 	else {
--		raw_local_irq_disable();
-+		__raw_local_irq_disable();
- 		if (!need_resched()) {
- 			timer_dyn_reprogram();
- 			arch_idle();
- 		}
--		raw_local_irq_enable();
-+		__raw_local_irq_enable();
- 	}
- }
- 
-@@ -121,8 +121,10 @@ void cpu_idle(void)
- 		if (!idle)
- 			idle = default_idle;
- 		leds_event(led_idle_start);
-+		__preempt_enable_no_resched();
- 		while (!need_resched())
- 			idle();
-+		preempt_disable();
- 		leds_event(led_idle_end);
- 		__preempt_enable_no_resched();
- 		__schedule();
+As an example, I tried compiling recent 2.6 kernels with gcc CVS HEAD 
+shortly before the 4.1 branch was created, and except for two or three 
+internal compiler errors (that are OK considering that I used a random 
+CVS snapshot) the kernel compiled fine.
 
---=-E3jCdCW09dCqTRwCrDQq--
+Every gcc release might have it's own issues, but compared to e.g. the 
+pains your proposal would impose on new ports, they aren't that big.
+And you shouldn't forget that it's even non-trivial to find one gcc 
+release that works fine compiling kernels on all architectures. As an 
+example, gcc 3.2 is a known bad compiler on arm.
+
+> Willy
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVL3U65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVL3U7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVL3U65 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 15:58:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVL3U65
+	id S1750772AbVL3U7P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 15:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVL3U7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 15:58:57 -0500
-Received: from [202.67.154.148] ([202.67.154.148]:62410 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S1750711AbVL3U64 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 15:58:56 -0500
-Message-ID: <43B59F88.1030704@ns666.com>
-Date: Fri, 30 Dec 2005 21:58:48 +0100
-From: Mark v Wolher <trilight@ns666.com>
-User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
-X-Accept-Language: en-us
+	Fri, 30 Dec 2005 15:59:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:6409 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750770AbVL3U7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 15:59:12 -0500
+Date: Fri, 30 Dec 2005 21:59:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20051230205911.GZ3811@stusta.de>
+References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <1135956480.28365.16.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Folkert van Heusden <folkert@vanheusden.com>
-CC: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: system keeps freezing once every 24 hours / random apps crashing
-References: <43B53EAB.3070800@ns666.com>	<9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>	<43B557D7.6090005@ns666.com> <43B5623D.7080402@ns666.com>	<20051230164751.GQ3105@vanheusden.com> <43B56ADD.7040300@ns666.com>	<20051230183021.GV3105@vanheusden.com> <43B5890E.30104@ns666.com> <20051230202429.GD11594@vanheusden.com>
-In-Reply-To: <20051230202429.GD11594@vanheusden.com>
-X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1135956480.28365.16.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folkert van Heusden wrote:
->>Hmm, i disabled MSI in the kernel, irq-balancing is on in the kernel,
->>and after a restart with irqbalance i see the cpu's show numbers !
->>I guess MSI was preventing them ? But does that means because of MSI
->>that performance was lower in some way ?
+On Fri, Dec 30, 2005 at 03:28:00PM +0000, Alan Cox wrote:
+> On Mer, 2005-12-28 at 20:11 -0800, Andrew Morton wrote:
+> > If no-forced-inlining makes the kernel smaller then we probably have (yet
+> > more) incorrect inlining.  We should hunt those down and fix them.  We did
+> > quite a lot of this in 2.5.x/2.6.early.  Didn't someone have a script which
+> > would identify which functions are a candidate for uninlining?
 > 
+> There is a tool that does this quite well. Its called "gcc" ;)
 > 
-> did you also restart with only irqbalance activated?
-> 
-> 
-> Folkert van Heusden
-> 
+> More seriously we need to seperate "things Andrew thinks are good inline
+> candidates" and "things that *must* be inlined". That allows 'build for
+> size' to do the equivalent of "-Dplease_inline" and the other build to
+> do "-Dplease_inline=inline". Gcc's inliner isn't aware of things cross
+> module so isn't going to make all the decisions right, but will make the
+> tedious local decisions.
+>...
 
-Yes, when MSI was disabled i had irq-balancing in the kernel on, i
-rebooted without the irqbalance daemon and it showed no reaction on the
-cpu's. When i enabled the irqbalance daemon then i got finally reaction
-from the cpu's.
+I'm not getting the point:
 
-I'm also curious if this will solve those random freezes...which somehow
-i suspect have to do with the tvcard and maybe having MSI on.
+Shouldn't "static" versus not "static" already give gcc everything it 
+needs for making the decision?
+
+If stuff is cross-module (more exactly: cross-objects) it's not static 
+and I doubt there are many (if any) cases of non-static code we want 
+inline'd when used inside the file it's in.
+
+> Alan
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

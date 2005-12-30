@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVL3FxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbVL3Fwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbVL3FxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 00:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVL3FxQ
+	id S1751047AbVL3Fwz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 00:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVL3Fwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 00:53:16 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:33721 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751145AbVL3FxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 00:53:15 -0500
-Message-ID: <43B4CB42.7050603@triplehelix.org>
-Date: Thu, 29 Dec 2005 21:53:06 -0800
-From: Joshua Kwan <joshk@triplehelix.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Fri, 30 Dec 2005 00:52:55 -0500
+Received: from [202.125.80.34] ([202.125.80.34]:54083 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S1751047AbVL3Fwy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 00:52:54 -0500
+Content-class: urn:content-classes:message
+Subject: Howto set kernel makefile to use particular gcc
 MIME-Version: 1.0
-Newsgroups: gmane.linux.kernel
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [vma list corruption] Re: proc_pid_readlink oopses again on 
-  2.6.14.5
-References: <dot96e$e76$1@sea.gmane.org>	 <20051228065354.GE27946@ftp.linux.org.uk> <1135758794.2935.3.camel@laptopd505.fenrus.org>
-In-Reply-To: <1135758794.2935.3.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Fri, 30 Dec 2005 11:16:14 +0530
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B223997@mail.esn.co.in>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Howto set kernel makefile to use particular gcc
+Thread-Index: AcYNBFjbu3yTZP2uRlWn2nzXYBPlJg==
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gentlemen,
 
-On 12/28/2005 12:33 AM, Arjan van de Ven wrote:
->>So you've got 0xb7c1fc20 as vma.  Which is not good, since that's a userland
->>address.
-> 
-> 
-> sounds like it may also be a good idea to check for rootkits; some of
-> those try to muck with the vma chains and stuff.... and break if the
-> kernel changes a bit.
+Dear Kernel mailers,
 
-I rebuilt the SAME kernel source (2.6.14.5) with gcc-3.3, and everything
-works fine.
+I have specific requirement of building kernel 2.6.11.12 with gcc- 3.3 over the FC4 dist. 
+I have downloaded the gcc-3.3.
+As FC4 comes with a default gcc-4.0, how do I set the kernel Makefile to use the gcc-3.3 instead of gcc-4.0.
 
-Still rootkit, GCC's problem, or what?
+How do I achieve it? I know it is a very small issue and searched google and I am unable to find it.
+Please help.
 
-Thanks.
+Regards,
+Mukund Jampala
 
--- 
-Joshua Kwan
+

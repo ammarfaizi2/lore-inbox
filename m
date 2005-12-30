@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVL3TQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVL3TW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbVL3TQl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 14:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVL3TQl
+	id S1751293AbVL3TW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 14:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVL3TW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 14:16:41 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:33668 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751290AbVL3TQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 14:16:41 -0500
-Subject: Re: [linux-usb-devel] Re: EHCI TT bandwidth (was Re: [PATCH]
-	USB_BANDWIDTH documentation change)
-From: Lee Revell <rlrevell@joe-job.com>
-To: ddstreet@ieee.org
-Cc: David Brownell <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net,
-       Alan Stern <stern@rowland.harvard.edu>, Bodo Eggert <7eggert@gmx.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.51.0512301407200.28360@dylan.root.cx>
-References: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
-	 <200512270857.35505.david-b@pacbell.net>
-	 <Pine.LNX.4.51.0512291433090.27091@dylan.root.cx>
-	 <1135886739.6804.4.camel@mindpipe>
-	 <Pine.LNX.4.51.0512301407200.28360@dylan.root.cx>
-Content-Type: text/plain
-Date: Fri, 30 Dec 2005 14:16:38 -0500
-Message-Id: <1135970198.31111.18.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.3 
+	Fri, 30 Dec 2005 14:22:59 -0500
+Received: from [202.67.154.148] ([202.67.154.148]:4495 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S1751293AbVL3TW6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 14:22:58 -0500
+Message-ID: <43B5890E.30104@ns666.com>
+Date: Fri, 30 Dec 2005 20:22:54 +0100
+From: Mark v Wolher <trilight@ns666.com>
+User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Folkert van Heusden <folkert@vanheusden.com>
+CC: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+References: <43B53EAB.3070800@ns666.com>	<9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>	<43B557D7.6090005@ns666.com> <43B5623D.7080402@ns666.com>	<20051230164751.GQ3105@vanheusden.com> <43B56ADD.7040300@ns666.com> <20051230183021.GV3105@vanheusden.com>
+In-Reply-To: <20051230183021.GV3105@vanheusden.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-30 at 14:13 -0500, Dan Streetman wrote:
-> On Thu, 29 Dec 2005, Lee Revell wrote:
+Folkert van Heusden wrote:
+>>>>>I'm not sure what to make of this, but it looks like only 1 cpu is kept
+>>>>>busy with interrupts:
+>>>>>          CPU0       CPU1       CPU2       CPU3
+>>>>> 0:    1033372          0          0          0    IO-APIC-edge  timer
+>>>
+>>>Install the 'irqbalance' package.
+>>
+>><..>
+>>Thanks ! I installed it now, it asked me something about a "one shot
+>>mode" but i chose no. Correct me if i should choose the other mode.
+>>Should i reboot for this to take effect ? Cause i still see the 0's
+>>under the other cpu's.
 > 
-> >How do I test them?  Should this make USB audio work with
-> >CONFIG_USB_BANDWIDTH?
 > 
-> It won't have any effect on CONFIG_USB_BANDWIDTH, as the EHCI transaction 
-> translator scheudling code doesn't care about that config setting.  This 
-> also won't have any effect on USB 2.0 devices (e.g. a highspeed Audio 
-> device).
+> Not one-shot
+> reboot? depends on your distribution
+> try /usr/sbin/irqbalance from bash
 > 
-> The updates will only help in the situation where there are multiple
-> lowpseed or fullspeed devices with periodic endpoints, all connected to
-> the same USB 2.0 (highspeed) hub.  In that situation it's possible to
-> "fill up" the USB 2.0 hub's transaction translator periodic schedule with
-> only a few devices.  The updates allow many more devices to fit in the
-> TT's periodic schedule.  The specific number of devices depends on how 
-> many periodic endpoints, those endpoint's poll rates, and their max packet 
-> sizes.
+> 
+> Folkert van Heusden
 > 
 
-OK.  For some reason I though that problem was fixed, I guess it was a
-different issue.  ALSA users previously reported that a full speed audio
-device didn't work at all through a high speed hub at all but that it
-was fixed a few months ago.
+Hmm, i disabled MSI in the kernel, irq-balancing is on in the kernel,
+and after a restart with irqbalance i see the cpu's show numbers !
 
-Lee
+I guess MSI was preventing them ? But does that means because of MSI
+that performance was lower in some way ?
+
+Here is the current cat:
+
+
+
+           CPU0       CPU1       CPU2       CPU3
+  0:      59805      40023      42523      38141    IO-APIC-edge  timer
+  1:        984        840        795        413    IO-APIC-edge  i8042
+  7:          0          0          0          0    IO-APIC-edge  parport0
+  8:     204851     189535     184425     184454    IO-APIC-edge  rtc
+  9:          0          0          0          0   IO-APIC-level  acpi
+ 14:         21          0          0          0    IO-APIC-edge  ide0
+ 15:         13          0          0          0    IO-APIC-edge  ide1
+ 16:       2206          0          0          0   IO-APIC-level  eth0
+ 17:       9681       4489       6747      10672   IO-APIC-level  bttv0
+ 18:         48         16          0          0   IO-APIC-level
+uhci_hcd:usb4
+ 19:       5889       9693      22604       1560   IO-APIC-level  ide2, ide3
+ 20:          5          0          0          0   IO-APIC-level
+ehci_hcd:usb1
+ 21:      16563      25276      23860      19548   IO-APIC-level
+uhci_hcd:usb2, nvidia
+ 22:      33248      15866      13468      33568   IO-APIC-level
+uhci_hcd:usb3
+ 23:          0          0          0          0   IO-APIC-level  Intel
+82801DB-ICH4
+ 24:          0          0          0          0   IO-APIC-level  EMU10K1
+NMI:          0          0          0          0
+LOC:     180380     180126     180378     180377
+ERR:          0
+MIS:          0
+
 

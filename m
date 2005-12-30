@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbVL3J2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVL3Ja2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbVL3J2r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 04:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbVL3J2r
+	id S1751231AbVL3Ja2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 04:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVL3Ja1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 04:28:47 -0500
-Received: from ns2.suse.de ([195.135.220.15]:55522 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751229AbVL3J2r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 04:28:47 -0500
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+	Fri, 30 Dec 2005 04:30:27 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:1548 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751231AbVL3Ja1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 04:30:27 -0500
+Date: Fri, 30 Dec 2005 10:28:00 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, mpm@selenic.com
 Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-References: <20051228114637.GA3003@elte.hu>
-	<Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
-	<1135798495.2935.29.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
-	<20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
-	<20051229143846.GA18833@infradead.org>
-	<1135868049.2935.49.camel@laptopd505.fenrus.org>
-	<20051229153529.GH3811@stusta.de>
-	<20051229154241.GY22293@devserv.devel.redhat.com>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Dec 2005 10:28:34 +0100
-In-Reply-To: <20051229154241.GY22293@devserv.devel.redhat.com>
-Message-ID: <p73oe2zexx9.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+Message-ID: <20051230092800.GB30681@w.ods.org>
+References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229231615.GV15993@alpha.home.local> <9a8748490512300033occeec40xab3b4f49624c08c5@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490512300033occeec40xab3b4f49624c08c5@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek <jakub@redhat.com> writes:
-> 
-> Only for static functions (and in -funit-at-a-time mode).
-> Anything else would require full IMA over the whole kernel and we aren't
-> there yet.  So inline hints are useful.  But most of the inline keywords
-> in the kernel really should be that, hints, because e.g. while it can be
-> beneficial to inline something on one arch, it may be not beneficial on
-> another arch, depending on cache sizes, number of general registers
-> available to the compiler, register preassure, speed of the call/ret
-> pair, calling convention and many other factors.
+On Fri, Dec 30, 2005 at 09:33:14AM +0100, Jesper Juhl wrote:
+> On 12/30/05, Willy Tarreau <willy@w.ods.org> wrote:
+> <!-- snip -->
+> >
+> > Can't we elect a recommended gcc version that distro makers could
+> > ship under the name kgcc as it has been the case for some time,
+> > and try to stick to that version for as long as possible ? The only
+> > real reason to upgrade it would be to support newer archs, while at
+> > the moment, we try to support compilers which are shipped as default
+> > *user-space* compilers.
+> >
+> As I see it, doing that would
+>  - put extra work on distributors.
 
-There are important exceptions like: 
+In the short term, yes. In the mid-term, I don't think so. Having one package
+which does not need to change and another one which evolves regardless of
+kernel needs is less work than ensuring that a single package is still
+compatible with everyone's needs. Think about support too : "what gcc version
+did you use ?" would simply become "did you build with kgcc ?"
 
-- Code that really wants to do compile time constant resolution
-(like the x86 copy_*_user)  and even throws linker errors when wrong.
-- Anything in a include file (otherwise it gets duplicated for
-every #include which can actually increase text size a lot) 
-- There is some code which absolutely needs inline in the x86-64 
-vsyscall code.
+>  - bloat users systems with the need to have two gcc versions installed.
 
-But arguably they should be force_inline.
+$ size /usr/lib/gcc-lib/i586-pc-linux-gnu/3.3.6/cc1
+   text    data     bss     dec     hex filename
+3430228    2680  746688 4179596  3fc68c /usr/lib/gcc-lib/i586-pc-linux-gnu/3.3.6/cc1
 
-I'm not quite sure I buy Ingo's original argument also.   If he's only
-looking at text size then with the above fixed then he ideally
-would like to not inline anything (because except these
-exceptions above .text usually near always shrinks when 
-not inlining). But that's not necessarily best for performance.
+You don't even need libgcc nor c++ to build the kernel. Anyway, it should
+not be an absolute requirement, but the *recommended* and *supported* version.
 
--Andi
+>  - decrease testing with different gcc versions, which sometimes uncover bugs.
+
+gcc testing should not consume kernel developpers' time, but gcc's users.
+How many kernel bugs have finally been attributed to a recent change in gcc ?
+A lot I think. Uncovering bugs in gcc is useful but not the primary goal of
+kernel developpers.
+
+> Jesper Juhl <jesper.juhl@gmail.com>
+
+Willy
+

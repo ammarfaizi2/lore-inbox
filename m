@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVL3Wki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVL3Wk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbVL3Wki (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 17:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVL3Wki
+	id S1751187AbVL3Wk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 17:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbVL3Wk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 17:40:38 -0500
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:11030 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751265AbVL3Wkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 17:40:36 -0500
+	Fri, 30 Dec 2005 17:40:28 -0500
+Received: from amsfep11-int.chello.nl ([213.46.243.19]:4154 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751187AbVL3Wk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 17:40:27 -0500
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
@@ -16,396 +16,254 @@ Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
        Marijn Meijles <marijn@bitpit.net>, Rik van Riel <riel@redhat.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20051230224012.765.32791.sendpatchset@twins.localnet>
+Message-Id: <20051230224002.765.28812.sendpatchset@twins.localnet>
 In-Reply-To: <20051230223952.765.21096.sendpatchset@twins.localnet>
 References: <20051230223952.765.21096.sendpatchset@twins.localnet>
-Subject: [PATCH 02/14] page-replace-try_pageout.patch
-Date: Fri, 30 Dec 2005 23:40:34 +0100
+Subject: [PATCH 01/14] page-replace-single-batch-insert.patch
+Date: Fri, 30 Dec 2005 23:40:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Move the functionality of the shrink_list() loop into its own function.
+page-replace interface function:
+  __page_replace_insert()
+
+This function inserts a page into the page replace data structure.
+
+Unify the active and inactive per cpu page lists. For now provide insertion
+hints using the LRU specific page flags.
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
- mm/vmscan.c |  324 ++++++++++++++++++++++++++++++++----------------------------
- 1 file changed, 174 insertions(+), 150 deletions(-)
+ fs/exec.c                       |    3 +-
+ include/linux/mm_page_replace.h |   12 ++++++++++
+ include/linux/swap.h            |    2 -
+ mm/Makefile                     |    2 -
+ mm/memory.c                     |    9 +++++--
+ mm/page_replace.c               |   11 +++++++++
+ mm/swap.c                       |   47 +---------------------------------------
+ mm/swap_state.c                 |    3 +-
+ 8 files changed, 36 insertions(+), 53 deletions(-)
 
-Index: linux-2.6-git/mm/vmscan.c
+Index: linux-2.6-git/fs/exec.c
 ===================================================================
---- linux-2.6-git.orig/mm/vmscan.c
-+++ linux-2.6-git/mm/vmscan.c
-@@ -51,6 +51,16 @@ typedef enum {
- 	PAGE_CLEAN,
- } pageout_t;
+--- linux-2.6-git.orig/fs/exec.c
++++ linux-2.6-git/fs/exec.c
+@@ -321,7 +321,8 @@ void install_arg_page(struct vm_area_str
+ 		goto out;
+ 	}
+ 	inc_mm_counter(mm, anon_rss);
+-	lru_cache_add_active(page);
++	SetPageActive(page);
++	lru_cache_add(page);
+ 	set_pte_at(mm, address, pte, pte_mkdirty(pte_mkwrite(mk_pte(
+ 					page, vma->vm_page_prot))));
+ 	page_add_anon_rmap(page, vma, address);
+Index: linux-2.6-git/include/linux/swap.h
+===================================================================
+--- linux-2.6-git.orig/include/linux/swap.h
++++ linux-2.6-git/include/linux/swap.h
+@@ -163,8 +163,6 @@ extern unsigned int nr_free_pagecache_pa
  
-+/* possible outcome of try_pageout() */
-+typedef enum {
-+	/* unable to perform pageout */
-+	PAGEOUT_KEEP,
-+	/* unable to perform pageout, page is in active use */
-+	PAGEOUT_ACTIVATE,
-+	/* pageout succeded, page is gone */
-+	PAGEOUT_SUCCESS,
-+} try_pageout_t;
-+
- struct scan_control {
- 	/* Ask refill_inactive_zone, or shrink_cache to scan this many pages */
- 	unsigned long nr_to_scan;
-@@ -382,189 +392,203 @@ static pageout_t pageout(struct page *pa
- 	return PAGE_CLEAN;
+ /* linux/mm/swap.c */
+ extern void FASTCALL(lru_cache_add(struct page *));
+-extern void FASTCALL(lru_cache_add_active(struct page *));
+-extern void FASTCALL(activate_page(struct page *));
+ extern void FASTCALL(mark_page_accessed(struct page *));
+ extern void lru_add_drain(void);
+ extern int rotate_reclaimable_page(struct page *page);
+Index: linux-2.6-git/mm/memory.c
+===================================================================
+--- linux-2.6-git.orig/mm/memory.c
++++ linux-2.6-git/mm/memory.c
+@@ -1497,7 +1497,8 @@ gotten:
+ 		ptep_establish(vma, address, page_table, entry);
+ 		update_mmu_cache(vma, address, entry);
+ 		lazy_mmu_prot_update(entry);
+-		lru_cache_add_active(new_page);
++		SetPageActive(new_page);
++		lru_cache_add(new_page);
+ 		page_add_anon_rmap(new_page, vma, address);
+ 
+ 		/* Free the old page.. */
+@@ -1953,7 +1954,8 @@ static int do_anonymous_page(struct mm_s
+ 		if (!pte_none(*page_table))
+ 			goto release;
+ 		inc_mm_counter(mm, anon_rss);
+-		lru_cache_add_active(page);
++		SetPageActive(page);
++		lru_cache_add(page);
+ 		SetPageReferenced(page);
+ 		page_add_anon_rmap(page, vma, address);
+ 	} else {
+@@ -2085,7 +2087,8 @@ retry:
+ 		set_pte_at(mm, address, page_table, entry);
+ 		if (anon) {
+ 			inc_mm_counter(mm, anon_rss);
+-			lru_cache_add_active(new_page);
++			SetPageActive(new_page);
++			lru_cache_add(new_page);
+ 			page_add_anon_rmap(new_page, vma, address);
+ 		} else {
+ 			inc_mm_counter(mm, file_rss);
+Index: linux-2.6-git/mm/swap.c
+===================================================================
+--- linux-2.6-git.orig/mm/swap.c
++++ linux-2.6-git/mm/swap.c
+@@ -30,6 +30,7 @@
+ #include <linux/cpu.h>
+ #include <linux/notifier.h>
+ #include <linux/init.h>
++#include <linux/mm_page_replace.h>
+ 
+ /* How many pages do we try to swap or page in/out together? */
+ int page_cluster;
+@@ -134,7 +135,6 @@ EXPORT_SYMBOL(mark_page_accessed);
+  * @page: the page to add
+  */
+ static DEFINE_PER_CPU(struct pagevec, lru_add_pvecs) = { 0, };
+-static DEFINE_PER_CPU(struct pagevec, lru_add_active_pvecs) = { 0, };
+ 
+ void fastcall lru_cache_add(struct page *page)
+ {
+@@ -146,25 +146,12 @@ void fastcall lru_cache_add(struct page 
+ 	put_cpu_var(lru_add_pvecs);
  }
  
--/*
-- * shrink_list adds the number of reclaimed pages to sc->nr_reclaimed
-- */
--static int shrink_list(struct list_head *page_list, struct scan_control *sc)
-+static try_pageout_t try_pageout(struct page *page, struct scan_control *sc)
+-void fastcall lru_cache_add_active(struct page *page)
+-{
+-	struct pagevec *pvec = &get_cpu_var(lru_add_active_pvecs);
+-
+-	page_cache_get(page);
+-	if (!pagevec_add(pvec, page))
+-		__pagevec_lru_add_active(pvec);
+-	put_cpu_var(lru_add_active_pvecs);
+-}
+-
+ void lru_add_drain(void)
  {
--	LIST_HEAD(ret_pages);
--	struct pagevec freed_pvec;
--	int pgactivate = 0;
--	int reclaimed = 0;
--
--	cond_resched();
--
--	pagevec_init(&freed_pvec, 1);
--	while (!list_empty(page_list)) {
--		struct address_space *mapping;
--		struct page *page;
--		int may_enter_fs;
--		int referenced;
--
--		cond_resched();
--
--		page = lru_to_page(page_list);
--		list_del(&page->lru);
-+	struct address_space *mapping;
-+	int may_enter_fs;
-+	int referenced;
+ 	struct pagevec *pvec = &get_cpu_var(lru_add_pvecs);
  
--		if (TestSetPageLocked(page))
--			goto keep;
-+	if (TestSetPageLocked(page))
-+		goto keep;
+ 	if (pagevec_count(pvec))
+ 		__pagevec_lru_add(pvec);
+-	pvec = &__get_cpu_var(lru_add_active_pvecs);
+-	if (pagevec_count(pvec))
+-		__pagevec_lru_add_active(pvec);
+ 	put_cpu_var(lru_add_pvecs);
+ }
  
--		BUG_ON(PageActive(page));
-+	BUG_ON(PageActive(page));
- 
-+	sc->nr_scanned++;
-+	/* Double the slab pressure for mapped and swapcache pages */
-+	if (page_mapped(page) || PageSwapCache(page))
- 		sc->nr_scanned++;
--		/* Double the slab pressure for mapped and swapcache pages */
--		if (page_mapped(page) || PageSwapCache(page))
--			sc->nr_scanned++;
- 
--		if (PageWriteback(page))
--			goto keep_locked;
-+	if (PageWriteback(page))
-+		goto keep_locked;
- 
--		referenced = page_referenced(page, 1);
--		/* In active use or really unfreeable?  Activate it. */
--		if (referenced && page_mapping_inuse(page))
--			goto activate_locked;
-+	referenced = page_referenced(page, 1);
-+	/* In active use or really unfreeable?  Activate it. */
-+	if (referenced && page_mapping_inuse(page))
-+		goto activate_locked;
- 
- #ifdef CONFIG_SWAP
--		/*
--		 * Anonymous process memory has backing store?
--		 * Try to allocate it some swap space here.
--		 */
--		if (PageAnon(page) && !PageSwapCache(page)) {
--			if (!sc->may_swap)
--				goto keep_locked;
--			if (!add_to_swap(page))
--				goto activate_locked;
--		}
-+	/*
-+	 * Anonymous process memory has backing store?
-+	 * Try to allocate it some swap space here.
-+	 */
-+	if (PageAnon(page) && !PageSwapCache(page)) {
-+		if (!sc->may_swap)
-+			goto keep_locked;
-+		if (!add_to_swap(page))
-+			goto activate_locked;
-+	}
- #endif /* CONFIG_SWAP */
- 
--		mapping = page_mapping(page);
--		may_enter_fs = (sc->gfp_mask & __GFP_FS) ||
--			(PageSwapCache(page) && (sc->gfp_mask & __GFP_IO));
-+	mapping = page_mapping(page);
-+	may_enter_fs = (sc->gfp_mask & __GFP_FS) ||
-+		(PageSwapCache(page) && (sc->gfp_mask & __GFP_IO));
- 
--		/*
--		 * The page is mapped into the page tables of one or more
--		 * processes. Try to unmap it here.
--		 */
--		if (page_mapped(page) && mapping) {
--			switch (try_to_unmap(page)) {
--			case SWAP_FAIL:
--				goto activate_locked;
--			case SWAP_AGAIN:
--				goto keep_locked;
--			case SWAP_SUCCESS:
--				; /* try to free the page below */
--			}
-+	/*
-+	 * The page is mapped into the page tables of one or more
-+	 * processes. Try to unmap it here.
-+	 */
-+	if (page_mapped(page) && mapping) {
-+		switch (try_to_unmap(page)) {
-+		case SWAP_FAIL:
-+			goto activate_locked;
-+		case SWAP_AGAIN:
-+			goto keep_locked;
-+		case SWAP_SUCCESS:
-+			; /* try to free the page below */
+@@ -301,7 +288,7 @@ void __pagevec_lru_add(struct pagevec *p
  		}
-+	}
- 
--		if (PageDirty(page)) {
--			if (referenced)
--				goto keep_locked;
--			if (!may_enter_fs)
--				goto keep_locked;
--			if (laptop_mode && !sc->may_writepage)
--				goto keep_locked;
-+	if (PageDirty(page)) {
-+		if (referenced)
-+			goto keep_locked;
-+		if (!may_enter_fs)
-+			goto keep_locked;
-+		if (laptop_mode && !sc->may_writepage)
-+			goto keep_locked;
- 
--			/* Page is dirty, try to write it out here */
--			switch(pageout(page, mapping)) {
--			case PAGE_KEEP:
--				goto keep_locked;
--			case PAGE_ACTIVATE:
--				goto activate_locked;
--			case PAGE_SUCCESS:
--				if (PageWriteback(page) || PageDirty(page))
--					goto keep;
-+		/* Page is dirty, try to write it out here */
-+		switch(pageout(page, mapping)) {
-+		case PAGE_KEEP:
-+			goto keep_locked;
-+		case PAGE_ACTIVATE:
-+			goto activate_locked;
-+		case PAGE_SUCCESS:
-+			if (PageWriteback(page) || PageDirty(page))
-+				goto keep;
- 				/*
--				 * A synchronous write - probably a ramdisk.  Go
--				 * ahead and try to reclaim the page.
--				 */
--				if (TestSetPageLocked(page))
--					goto keep;
--				if (PageDirty(page) || PageWriteback(page))
--					goto keep_locked;
--				mapping = page_mapping(page);
--			case PAGE_CLEAN:
--				; /* try to free the page below */
--			}
-+				* A synchronous write - probably a ramdisk.  Go
-+				* ahead and try to reclaim the page.
-+				*/
-+			if (TestSetPageLocked(page))
-+				goto keep;
-+			if (PageDirty(page) || PageWriteback(page))
-+				goto keep_locked;
-+			mapping = page_mapping(page);
-+		case PAGE_CLEAN:
-+			; /* try to free the page below */
- 		}
-+	}
- 
--		/*
--		 * If the page has buffers, try to free the buffer mappings
--		 * associated with this page. If we succeed we try to free
--		 * the page as well.
--		 *
--		 * We do this even if the page is PageDirty().
--		 * try_to_release_page() does not perform I/O, but it is
--		 * possible for a page to have PageDirty set, but it is actually
--		 * clean (all its buffers are clean).  This happens if the
--		 * buffers were written out directly, with submit_bh(). ext3
--		 * will do this, as well as the blockdev mapping. 
--		 * try_to_release_page() will discover that cleanness and will
--		 * drop the buffers and mark the page clean - it can be freed.
--		 *
--		 * Rarely, pages can have buffers and no ->mapping.  These are
--		 * the pages which were not successfully invalidated in
--		 * truncate_complete_page().  We try to drop those buffers here
--		 * and if that worked, and the page is no longer mapped into
--		 * process address space (page_count == 1) it can be freed.
--		 * Otherwise, leave the page on the LRU so it is swappable.
--		 */
--		if (PagePrivate(page)) {
--			if (!try_to_release_page(page, sc->gfp_mask))
--				goto activate_locked;
--			if (!mapping && page_count(page) == 1)
--				goto free_it;
--		}
-+	/*
-+	 * If the page has buffers, try to free the buffer mappings
-+	 * associated with this page. If we succeed we try to free
-+	 * the page as well.
-+	 *
-+	 * We do this even if the page is PageDirty().
-+	 * try_to_release_page() does not perform I/O, but it is
-+	 * possible for a page to have PageDirty set, but it is actually
-+	 * clean (all its buffers are clean).  This happens if the
-+	 * buffers were written out directly, with submit_bh(). ext3
-+	 * will do this, as well as the blockdev mapping.
-+	 * try_to_release_page() will discover that cleanness and will
-+	 * drop the buffers and mark the page clean - it can be freed.
-+	 *
-+	 * Rarely, pages can have buffers and no ->mapping.  These are
-+	 * the pages which were not successfully invalidated in
-+	 * truncate_complete_page().  We try to drop those buffers here
-+	 * and if that worked, and the page is no longer mapped into
-+	 * process address space (page_count == 1) it can be freed.
-+	 * Otherwise, leave the page on the LRU so it is swappable.
-+	 */
-+	if (PagePrivate(page)) {
-+		if (!try_to_release_page(page, sc->gfp_mask))
-+			goto activate_locked;
-+		if (!mapping && page_count(page) == 1)
-+			goto free_it;
-+	}
- 
--		if (!mapping)
--			goto keep_locked;	/* truncate got there first */
-+	if (!mapping)
-+		goto keep_locked;	/* truncate got there first */
- 
--		write_lock_irq(&mapping->tree_lock);
-+	write_lock_irq(&mapping->tree_lock);
- 
--		/*
--		 * The non-racy check for busy page.  It is critical to check
--		 * PageDirty _after_ making sure that the page is freeable and
--		 * not in use by anybody. 	(pagecache + us == 2)
--		 */
--		if (unlikely(page_count(page) != 2))
--			goto cannot_free;
--		smp_rmb();
--		if (unlikely(PageDirty(page)))
--			goto cannot_free;
-+	/*
-+	 * The non-racy check for busy page.  It is critical to check
-+	 * PageDirty _after_ making sure that the page is freeable and
-+	 * not in use by anybody. 	(pagecache + us == 2)
-+	 */
-+	if (unlikely(page_count(page) != 2))
-+		goto cannot_free;
-+	smp_rmb();
-+	if (unlikely(PageDirty(page)))
-+		goto cannot_free;
- 
- #ifdef CONFIG_SWAP
--		if (PageSwapCache(page)) {
--			swp_entry_t swap = { .val = page_private(page) };
--			__delete_from_swap_cache(page);
--			write_unlock_irq(&mapping->tree_lock);
--			swap_free(swap);
--			__put_page(page);	/* The pagecache ref */
--			goto free_it;
--		}
-+	if (PageSwapCache(page)) {
-+		swp_entry_t swap = { .val = page_private(page) };
-+		__delete_from_swap_cache(page);
-+		write_unlock_irq(&mapping->tree_lock);
-+		swap_free(swap);
-+		__put_page(page);	/* The pagecache ref */
-+		goto free_it;
-+	}
- #endif /* CONFIG_SWAP */
- 
--		__remove_from_page_cache(page);
--		write_unlock_irq(&mapping->tree_lock);
--		__put_page(page);
-+	__remove_from_page_cache(page);
-+	write_unlock_irq(&mapping->tree_lock);
-+	__put_page(page);
- 
- free_it:
--		unlock_page(page);
--		reclaimed++;
--		if (!pagevec_add(&freed_pvec, page))
--			__pagevec_release_nonlru(&freed_pvec);
--		continue;
-+	unlock_page(page);
-+	return PAGEOUT_SUCCESS;
- 
- cannot_free:
--		write_unlock_irq(&mapping->tree_lock);
--		goto keep_locked;
-+	write_unlock_irq(&mapping->tree_lock);
-+	goto keep_locked;
- 
- activate_locked:
--		SetPageActive(page);
--		pgactivate++;
-+	unlock_page(page);
-+	return PAGEOUT_ACTIVATE;
- keep_locked:
--		unlock_page(page);
-+	unlock_page(page);
- keep:
--		list_add(&page->lru, &ret_pages);
--		BUG_ON(PageLRU(page));
-+	return PAGEOUT_KEEP;
-+}
-+
-+static int shrink_list(struct list_head *page_list, struct scan_control *sc)
-+{
-+	LIST_HEAD(ret_pages);
-+	struct pagevec freed_pvec;
-+	int pgactivate = 0;
-+	int reclaimed = 0;
-+
-+	cond_resched();
-+
-+	pagevec_init(&freed_pvec, 1);
-+	while (!list_empty(page_list)) {
-+		struct page *page;
-+
-+		cond_resched();
-+
-+		page = lru_to_page(page_list);
-+		list_del(&page->lru);
-+
-+		switch(try_pageout(page, sc)) {
-+		case PAGEOUT_ACTIVATE:
-+			SetPageActive(page);
-+			pgactivate++;
-+			/* fall through */
-+		case PAGEOUT_KEEP:
-+			list_add(&page->lru, &ret_pages);
-+			BUG_ON(PageLRU(page));
-+			break;
-+
-+		case PAGEOUT_SUCCESS:
-+			reclaimed++;
-+			if (!pagevec_add(&freed_pvec, page))
-+				__pagevec_release_nonlru(&freed_pvec);
-+			break;
-+		}
+ 		if (TestSetPageLRU(page))
+ 			BUG();
+-		add_page_to_inactive_list(zone, page);
++		__page_replace_insert(zone, page);
  	}
- 	list_splice(&ret_pages, page_list);
- 	if (pagevec_count(&freed_pvec))
+ 	if (zone)
+ 		spin_unlock_irq(&zone->lru_lock);
+@@ -311,33 +298,6 @@ void __pagevec_lru_add(struct pagevec *p
+ 
+ EXPORT_SYMBOL(__pagevec_lru_add);
+ 
+-void __pagevec_lru_add_active(struct pagevec *pvec)
+-{
+-	int i;
+-	struct zone *zone = NULL;
+-
+-	for (i = 0; i < pagevec_count(pvec); i++) {
+-		struct page *page = pvec->pages[i];
+-		struct zone *pagezone = page_zone(page);
+-
+-		if (pagezone != zone) {
+-			if (zone)
+-				spin_unlock_irq(&zone->lru_lock);
+-			zone = pagezone;
+-			spin_lock_irq(&zone->lru_lock);
+-		}
+-		if (TestSetPageLRU(page))
+-			BUG();
+-		if (TestSetPageActive(page))
+-			BUG();
+-		add_page_to_active_list(zone, page);
+-	}
+-	if (zone)
+-		spin_unlock_irq(&zone->lru_lock);
+-	release_pages(pvec->pages, pvec->nr, pvec->cold);
+-	pagevec_reinit(pvec);
+-}
+-
+ /*
+  * Try to drop buffers from the pages in a pagevec
+  */
+@@ -419,9 +379,6 @@ static void lru_drain_cache(unsigned int
+ 	/* CPU is dead, so no locking needed. */
+ 	if (pagevec_count(pvec))
+ 		__pagevec_lru_add(pvec);
+-	pvec = &per_cpu(lru_add_active_pvecs, cpu);
+-	if (pagevec_count(pvec))
+-		__pagevec_lru_add_active(pvec);
+ }
+ 
+ /* Drop the CPU's cached committed space back into the central pool. */
+Index: linux-2.6-git/mm/swap_state.c
+===================================================================
+--- linux-2.6-git.orig/mm/swap_state.c
++++ linux-2.6-git/mm/swap_state.c
+@@ -353,7 +353,8 @@ struct page *read_swap_cache_async(swp_e
+ 			/*
+ 			 * Initiate read into locked page and return.
+ 			 */
+-			lru_cache_add_active(new_page);
++			SetPageActive(new_page);
++			lru_cache_add(new_page);
+ 			swap_readpage(NULL, new_page);
+ 			return new_page;
+ 		}
+Index: linux-2.6-git/include/linux/mm_page_replace.h
+===================================================================
+--- /dev/null
++++ linux-2.6-git/include/linux/mm_page_replace.h
+@@ -0,0 +1,12 @@
++#ifndef _LINUX_MM_PAGE_REPLACE_H
++#define _LINUX_MM_PAGE_REPLACE_H
++
++#ifdef __KERNEL__
++
++#include <linux/mmzone.h>
++#include <linux/mm.h>
++
++void __page_replace_insert(struct zone *, struct page *);
++
++#endif /* __KERNEL__ */
++#endif /* _LINUX_MM_PAGE_REPLACE_H */
+Index: linux-2.6-git/mm/page_replace.c
+===================================================================
+--- /dev/null
++++ linux-2.6-git/mm/page_replace.c
+@@ -0,0 +1,11 @@
++#include <linux/mm_page_replace.h>
++#include <linux/mm_inline.h>
++
++
++void __page_replace_insert(struct zone *zone, struct page *page)
++{
++	if (PageActive(page))
++		add_page_to_active_list(zone, page);
++	else
++		add_page_to_inactive_list(zone, page);
++}
+Index: linux-2.6-git/mm/Makefile
+===================================================================
+--- linux-2.6-git.orig/mm/Makefile
++++ linux-2.6-git/mm/Makefile
+@@ -10,7 +10,7 @@ mmu-$(CONFIG_MMU)	:= fremap.o highmem.o 
+ obj-y			:= bootmem.o filemap.o mempool.o oom_kill.o fadvise.o \
+ 			   page_alloc.o page-writeback.o pdflush.o \
+ 			   readahead.o slab.o swap.o truncate.o vmscan.o \
+-			   prio_tree.o $(mmu-y)
++			   prio_tree.o page_replace.o $(mmu-y)
+ 
+ obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
+ obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o

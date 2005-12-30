@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVL3Srn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVL3SvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbVL3Srn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 13:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbVL3Srn
+	id S1751282AbVL3SvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 13:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVL3SvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 13:47:43 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:61767 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751280AbVL3Srm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 13:47:42 -0500
-Date: Fri, 30 Dec 2005 12:45:48 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: PCI DMA burst delay
-In-reply-to: <397463649@web.de>
-To: =?ISO-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43B5805C.3060307@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-X-Accept-Language: en-us, en
-References: <397463649@web.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Fri, 30 Dec 2005 13:51:04 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:59373 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751282AbVL3SvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 13:51:03 -0500
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20051230080032.GA26152@elte.hu>
+References: <1135726300.22744.25.camel@mindpipe>
+	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
+	 <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu>
+	 <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu>
+	 <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe>
+	 <20051229202848.GC29546@elte.hu> <1135908980.4568.10.camel@mindpipe>
+	 <20051230080032.GA26152@elte.hu>
+Content-Type: text/plain
+Date: Fri, 30 Dec 2005 13:51:01 -0500
+Message-Id: <1135968661.31111.13.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burkhard Schölpen wrote:
-> By the way, there is another question coming up to my mind. The pci card is to be designed for a large size copying machine (i.e. it is something like a framegrabber device which has to write out data to a printer simultaneously) which leads to really high bandwidth. For now I allocate the dma buffer in ram (a ringbuffer) using pci_alloc_consistent(), which unfortunately delimits the size to about 4 MB. However, it would be convenient to be able to allocate a larger dma buffer, because then we would be able to perform some image processing algorithms directly inside this buffer via mmapping it to user space. Is there any way to achieve this quite simple without being forced to use scatter/gather dma (our hardware is not able to do this - at least until now)?
+On Fri, 2005-12-30 at 09:00 +0100, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > It seems that debug_smp_processor_id is being called a lot, even 
+> > though I have a UP config, which I didn't see with the -rt kernel:
+> 
+> do you have CONFIG_DEBUG_PREEMPT enabled? (if yes then disable it)
 
-Unfortunately if you need a memory buffer that is physically contiguous 
-to do DMA on, your choices are basically either pci_alloc_consistent, or 
-possibly boot-time allocation of memory by telling the kernel to use 
-less memory than is in the machine. Trying to allocate a big chunk of 
-contiguous memory after the system has come up will not be very reliable 
-since memory tends to become fragmented.
+Ah, thanks, I had assumed that the latency tracing depended on this.
 
-When dealing with this amount of data it really would be best to use 
-some form of scatter-gather DMA. Even if the hardware is not capable of 
-taking multiple addresses and doing the DMA on its own, you could sort 
-of fake it and tell it to do multiple transfers, one for each block of 
-memory - that might have some overhead though.
+Lee
+

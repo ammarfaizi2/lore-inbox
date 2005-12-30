@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVL3AKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVL3ASl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbVL3AKd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 19:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVL3AKd
+	id S1751163AbVL3ASl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 19:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVL3ASl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 19:10:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:995 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751162AbVL3AKc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 19:10:32 -0500
-Date: Thu, 29 Dec 2005 16:10:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: userspace breakage
-In-Reply-To: <43B46078.1080805@wolfmountaingroup.com>
-Message-ID: <Pine.LNX.4.64.0512291603500.3298@g5.osdl.org>
-References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
- <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
- <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
- <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
- <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com>
- <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com>
- <43B453CA.9090005@wolfmountaingroup.com> <Pine.LNX.4.64.0512291541420.3298@g5.osdl.org>
- <43B46078.1080805@wolfmountaingroup.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Dec 2005 19:18:41 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:64957 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751163AbVL3ASl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 19:18:41 -0500
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+From: Lee Revell <rlrevell@joe-job.com>
+To: gcoady@gmail.com
+Cc: Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <u8u8r1ttmtubpvd87sf9mq4fi2of0l6js4@4ax.com>
+References: <1135726300.22744.25.camel@mindpipe>
+	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
+	 <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu>
+	 <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu>
+	 <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe>
+	 <20051229202848.GC29546@elte.hu>
+	 <u8u8r1ttmtubpvd87sf9mq4fi2of0l6js4@4ax.com>
+Content-Type: text/plain
+Date: Thu, 29 Dec 2005 19:18:38 -0500
+Message-Id: <1135901918.4568.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 29 Dec 2005, Jeff V. Merkey wrote:
->
-> Linus Torvalds wrote:
-> >
-> > We're not talking about internal kernel stuff. Internal kernel stuff _does_
-> > get changed, and we dont' care about breakage of out-of-kernel stuff. That's
-> > fundamental.
+On Fri, 2005-12-30 at 11:08 +1100, Grant Coady wrote:
+> On Thu, 29 Dec 2005 21:28:48 +0100, Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Start caring. People spend lots of money supporting you, and what you are
-> doing. How about taking some responsibility for that [...]
+> >
+> >thanks, applied - new version uploaded.
+> 
+> I just booted with latency tracer, it died with (copy by hand):
+> {   40} [<c012e74a>] debug_stackoverflow+0x6a/0xc0
+> 
+> Much unusual stuff (several screenfuls) scrolled up prior to lockup.
 
-Cry me a river, Jeff.
+Can you verify that it works with CONFIG_DEBUG_STACKOVERFLOW disabled?
 
-The kernel is GPL'd. That's my responsibility. Source code. Stuff that 
-comes to me as patches. That's my job, and that's what I get paid for. In 
-fact, my contract says that I _cannot_ work on anything that isn't open 
-source.
+Lee
 
-Stuff outside the kernel is almost always either (a) experimental stuff 
-that just isn't ready to be merged or (b) tries to avoid the GPL.
-
-Neither is worth a _second_ of anybodys time trying to support, and when 
-you say "people spend lots of money supporting you", you're lying through 
-your teeth. The GPL-avoiding kind of people don't spend a dime supporting 
-me, they spend their money actively trying to debase and destroy what I 
-and thousands of others have been working our butts off for.
-
-So don't try to make it sound like something it isn't. We support outside 
-projects a hell of a lot better than we'd need to, and I can tell you that 
-it's mostly _me_ who does that. Most of the core kernel developers argue 
-that I should support less of it - and yes, they are backed up by lawyers 
-at their (sometimes quite big) companies.
-
-So be honest now. Are those projects you care about going to be GPL'd and 
-actively pushed back into the standard kernel?
-
-And if they aren't, SHUT THE HELL UP, because they are total freeloaders, 
-and claimign that they "support" me is total crap.
-
-			Linus

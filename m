@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVL3DfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbVL3Dfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbVL3DfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 22:35:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbVL3DfQ
+	id S1750859AbVL3Dfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 22:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVL3DfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 22:35:16 -0500
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:7834 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750840AbVL3DfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 22:35:14 -0500
-Message-Id: <20051230032636.560353000.dtor_core@ameritech.net>
-References: <20051230031906.503919000.dtor_core@ameritech.net>
-Date: Thu, 29 Dec 2005 22:19:08 -0500
+	Thu, 29 Dec 2005 22:35:19 -0500
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:58750 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750845AbVL3DfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 22:35:15 -0500
+Message-Id: <20051230031906.503919000.dtor_core@ameritech.net>
+Date: Thu, 29 Dec 2005 22:19:06 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch 2/3] Input: warrior - fix HAT0Y axis setup
-Content-Disposition: inline; filename=warrior-axis-fix.patch
+Subject: [patch 0/3] Input patches for 2.6.15
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a typo introduced by conversion to dynamic input_dev
-allocation.
+Hi Linus,
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+Here are 3 tiny input patches correcting typos introduced by conversion
+to dynamic input_dev allocation.
 
-Index: work/drivers/input/joystick/warrior.c
-===================================================================
---- work.orig/drivers/input/joystick/warrior.c
-+++ work/drivers/input/joystick/warrior.c
-@@ -172,7 +172,7 @@ static int warrior_connect(struct serio 
- 	input_set_abs_params(input_dev, ABS_Y, -64, 64, 0, 8);
- 	input_set_abs_params(input_dev, ABS_THROTTLE, -112, 112, 0, 0);
- 	input_set_abs_params(input_dev, ABS_HAT0X, -1, 1, 0, 0);
--	input_set_abs_params(input_dev, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(input_dev, ABS_HAT0Y, -1, 1, 0, 0);
- 
- 	serio_set_drvdata(serio, warrior);
- 
+ input/joystick/warrior.c |    2 +-
+ usb/input/kbtab.c        |    2 +-
+ usb/input/wacom.c        |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+--
+Dmitry
 

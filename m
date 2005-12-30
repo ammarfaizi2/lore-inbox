@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVL3KfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbVL3LCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbVL3KfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 05:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVL3KfZ
+	id S1751244AbVL3LCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 06:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVL3LCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 05:35:25 -0500
-Received: from general.keba.co.at ([193.154.24.243]:2605 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S1751243AbVL3KfZ convert rfc822-to-8bit
+	Fri, 30 Dec 2005 06:02:46 -0500
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:39186 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751244AbVL3LCp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 05:35:25 -0500
-Content-class: urn:content-classes:message
-Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 30 Dec 2005 11:35:22 +0100
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Message-ID: <AAD6DA242BC63C488511C611BD51F36732330A@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-Thread-Index: AcYNFOROOtTGhE/fSYar3xmaorVNlgAFbRlA
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Ingo Molnar" <mingo@elte.hu>, "Lee Revell" <rlrevell@joe-job.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+	Fri, 30 Dec 2005 06:02:45 -0500
+Date: Fri, 30 Dec 2005 12:06:07 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
+       Ricardo Cerqueira <v4l@cerqueira.org>, linux-kernel@vger.kernel.org,
+       video4linux-list@redhat.com
+Subject: Re: Recursive dependency for SAA7134 in 2.6.15-rc7
+Message-Id: <20051230120607.47951ec6.khali@linux-fr.org>
+In-Reply-To: <1135936882.7465.18.camel@localhost>
+References: <20051227215351.3d581b13.khali@linux-fr.org>
+	<200512292100.27536.zippel@linux-m68k.org>
+	<20051229211350.4115b799.khali@linux-fr.org>
+	<200512292119.10139.zippel@linux-m68k.org>
+	<20051229220730.1c22b1a4.khali@linux-fr.org>
+	<1135936882.7465.18.camel@localhost>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Ingo Molnar 
-> there seem to be leaked preempt counts:
-> 
->   <idle>-0     0.n.1 8974us : touch_critical_timing (cpu_idle)
-> 
-> we should never have preemption disabled in cpu_idle(). To 
-> debug leaked 
-> preemption counts, enable CONFIG_DEBUG_PREEMPT.
+Hi Mauro,
 
-I enabled CONFIG_DEBUG_PREEMPT.
+> > > On Thursday 29 December 2005 21:13, Jean Delvare wrote:
+> > > 
+> > > > No, it wouldn't produce the desired effect anymore.
+> > > 
+> > > Did you try it?
+>
+> 	Using choice with two tristate config options seems to provide the
+> better look and feel, while keeping the desired effect. The only
+> drawback is that Kconfig doesn't accept default values for the "config"
+> inside a choice. It would be nice if both choice and the ALSA/OSS
+> options be marked as "m" by default.
+> 	Anyway, IMHO, this is better and clearer than the previous patches.
 
-I still have that latency trace in <idle>-0 with that line at the end.
-In fact, it is the most common trace on this system: 
-I always get that trace immediately after resetting the latency 
-tracer, always close to 9 ms (until an even longer latency happens).
+Can you please rebase it on Linus' latest (2.6.15-rc7-git4)? So that I
+can give it a try...
 
-Moreover, I looked up the address shown in asm_do_IRQ in the second
-line of all those traces.
-<idle>-0     0D..1    1us!: touch_critical_timing (default_idle)
-<idle>-0     0D..2 8841us+: asm_do_IRQ (c021da44 1a 0)
-It is always the same address, and it is in "cpu_idle".
-
-However, CONFIG_DEBUG_PREEMPT remains silent: No bugs, no warns,
-just plain nothing in the syslog.
-
+Thanks,
 -- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
+Jean Delvare

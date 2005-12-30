@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbVL3QRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVL3QSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964770AbVL3QRl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 11:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVL3QRl
+	id S932257AbVL3QSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 11:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVL3QSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 11:17:41 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22747 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932257AbVL3QRl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 11:17:41 -0500
-Date: Fri, 30 Dec 2005 11:17:36 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: userspace breakage
-In-Reply-To: <43B547F1.1080501@wolfmountaingroup.com>
-Message-ID: <Pine.LNX.4.63.0512301115100.2845@cuia.boston.redhat.com>
-References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
- <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
- <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
- <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
- <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com>
- <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com>
- <43B453CA.9090005@wolfmountaingroup.com> <Pine.LNX.4.64.0512291541420.3298@g5.osdl.org>
- <43B46078.1080805@wolfmountaingroup.com> <Pine.LNX.4.64.0512291603500.3298@g5.osdl.org>
- <43B4774F.7030703@wolfmountaingroup.com> <Pine.LNX.4.64.0512291628530.3298@g5.osdl.org>
- <43B547F1.1080501@wolfmountaingroup.com>
+	Fri, 30 Dec 2005 11:18:08 -0500
+Received: from web34110.mail.mud.yahoo.com ([66.163.178.108]:38259 "HELO
+	web34110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932257AbVL3QSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 11:18:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=gB8jWJgpI2QjLZBVZmdxBqLXiOFAlf9+mFOETk/erjaCpl0vBMWCm7xOq2sNaRSC4BFujPwTnrqUvz8mNwCSsewBHmBQkNdXUDhh+rDBaeKJp8hZLpdyYq5sRrPNnhkA+rE5D2qc2JE0ZGx20+P6PRdQg74irXg9KwdST5e7ZN0=  ;
+Message-ID: <20051230161805.64631.qmail@web34110.mail.mud.yahoo.com>
+Date: Fri, 30 Dec 2005 08:18:05 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: RAID controller safety
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1135955866.28365.10.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Dec 2005, Jeff V. Merkey wrote:
-
-> 1. "When people say or write things about you, its a reflection on them, 
-> and not you."
+> >   Specificly, I am looking at the Adaptec RAID controllers and their i2o drivers.  I am told
+> the
+> > kernel's i2o driver lacks a strong guarantee on fsync, and so far am unable to determine if
+> the
+> > dpt_i2o driver also falls short in this reguard.
 > 
-> 2. (looking at me intensely) "The cure for stupidity is silence."
+> Only dpt can tell you what their firmware actually does.
 
-Your grandmother gave you very wise advise indeed.
+Yeah, I wasn't so much interrested in the firmware just yet, just interrested if the device driver
+(dpt_i2o) gave it a fighting chance of doing the right thing.
 
-You might want to consider how her comments apply to
-your own site, http://www.merkeylaw.com/ ...
+> The i2o core drivers use the following rules
 
--- 
-All Rights Reversed
+> i2o_block by default assumes the card is caching. It adopts write
+> through mode if the controller has no battery, write back if it shows
+> battery. This can be configured differently via ioctls including the
+> ability to tune write through of large I/O's (to avoid cache thrashing),
+> and to do write back with no battery backup for performance in cases
+> where losing the data on a crash doesn't matter (eg swap)
+
+That's what I read in the comments too, but looking at the code I only ever see it set to
+write-back.  I verified this with blktool - our controllers have no battery, and blktool showed
+the i2o-wcache state as write-back.
+
+However, I was also told that the i2o_block driver lacks barrier support, so even in the
+write-back case, the controller won't be told to flush/sync.
+
+I was sent a patch against 2.6.10 that implements barrier support in i2o_block, but the code base
+has shifted too much for me to make it apply.
+
+-Kenny
+
+
+
+	
+		
+__________________________________ 
+Yahoo! for Good - Make a difference this year. 
+http://brand.yahoo.com/cybergivingweek2005/

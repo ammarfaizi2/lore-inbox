@@ -1,47 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVL3Hth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbVL3ICo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVL3Hth (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 02:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVL3Hth
+	id S1751209AbVL3ICo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 03:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVL3ICo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 02:49:37 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:8603 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751206AbVL3Hth (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 02:49:37 -0500
-Date: Fri, 30 Dec 2005 08:49:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051230074916.GC25637@elte.hu>
-References: <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org> <20051229224839.GA12247@elte.hu> <1135897092.2935.81.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.9 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 30 Dec 2005 03:02:44 -0500
+Received: from general.keba.co.at ([193.154.24.243]:9259 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S1751209AbVL3ICn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 03:02:43 -0500
+Content-class: urn:content-classes:message
+Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 30 Dec 2005 09:02:39 +0100
+Message-ID: <AAD6DA242BC63C488511C611BD51F367323309@MAILIT.keba.co.at>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
+Thread-Index: AcYNEtQLK7ErQBxVQ3CJ+52XEMlTMwAADvZA
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: <mingo@elte.hu>, "linux-kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Lee Revell
+> On Thu, 2005-12-29 at 16:08 +0100, kus Kusche Klaus wrote:
+> > However, traces 1, 2, 6 and 7 are completely mysterious to me.
+> > Interrupts seem to be blocked for milliseconds, while 
+> nothing is going
+> > on on the system? Moreover, there are console-related function names
+> > in
+> > traces 6 and 7, although I've unconfigured the framebuffer 
+> console for
+> > these runs!
+> 
+> It seems that either some code path really is forgetting to re-enable
+> interrupts, or there's a bug in the latency tracer.
+> 
+> Do these correspond to observed latencies?
 
-* Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
+As far as I can tell, probably not, but I'm not yet sure, 
+because I don't really know how to measure latencies *continuously*.
 
-> What about the previous suggestion to remove inline from *all* static 
-> inline functions in .c files?
+Currently, I'm measuring clock interrupt jitter, i.e. how late 
+(compared to the theoretical clock tick interval) do events 
+triggered by the clock interrupt arrive at an usermode process. 
 
-i think this is a way too static approach. Why go from one extreme to 
-the other, when my 3 simple patches (which arguably create a more 
-flexible scenario) gives us savings of 7.7%?
+This jitter does not exceed 120 microseconds for a pri 99 RT task
+or 400-500 microseconds for a pri 1 RT task, so it is far from the
+5000-10000 microseconds observed by the latency tracer.
 
-	Ingo
+So there are two possibilities:
+* Either the latency tracer is wrong.
+* Or the latencies are perfectly synchronized with the system clock 
+(i.e. always fit nicely in between two clock interrupts).
+This could well be the case, because all my kernel modules doing 
+printk's are also clock-triggered.
+
+There seem to be very rare jitters up to 1 second (!),
+I'm still hunting those (they also seem to be related to massive 
+printk's), but they also seem to be unrelated to those observed 
+by the latency tracer.
+
+By the way, has nobody ever used the latency tracer for ARM yet?
+Initially, it gave only 0 timings.
+I hacked the following in timex.h to make it work:
+#define mach_read_cycles() (OSCR)
+#define mach_cycles_to_usecs(d) ((d)>>2)
+#define mach_usecs_to_cycles(d) ((d)<<2)
+
+OSCR should be a free-running counter register with 3.6864 MHz.
+
+
+-- 
+Klaus Kusche                 (Software Development - Control Systems)
+KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+E-Mail: kus@keba.com                                WWW: www.keba.com

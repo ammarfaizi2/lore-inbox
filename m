@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbVL3Thj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVL3Tws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbVL3Thj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 14:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVL3Thj
+	id S932214AbVL3Tws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 14:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVL3Tws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 14:37:39 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:19429 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751300AbVL3Thj convert rfc822-to-8bit
+	Fri, 30 Dec 2005 14:52:48 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:62903 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932214AbVL3Tws
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 14:37:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SLbZCmtUMLudMlwfzgsztXIYMb/lIvg31HsPqfQQIrIzqjrrVO3nHAE8rsK5GdM9CJp8CoR7ZCRf5pMuJps2UPz6+Ywt3PRe5cpsY1gvM7ieSwgTvOi1GqU3iH0cx2GKbBdDdoxo5Xc2+9cXY51I/qBKP+Bt18BPPXySrJHqJEU=
-Message-ID: <986ed62e0512301137o3ee36bf1yadac63784cb75dd3@mail.gmail.com>
-Date: Fri, 30 Dec 2005 11:37:38 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
+	Fri, 30 Dec 2005 14:52:48 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com, alan@redhat.com
-In-Reply-To: <20051230183308.GA2501@w.ods.org>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Date: Fri, 30 Dec 2005 19:53:02 +0000
+User-Agent: KMail/1.9
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, mpm@selenic.com
+References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229231615.GV15993@alpha.home.local>
+In-Reply-To: <20051229231615.GV15993@alpha.home.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20051230074401.GA7501@ip68-225-251-162.oc.oc.cox.net>
-	 <20051230174817.GW15993@alpha.home.local>
-	 <1135966666.2941.32.camel@laptopd505.fenrus.org>
-	 <20051230183308.GA2501@w.ods.org>
+Message-Id: <200512301953.02998.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/30/05, Willy Tarreau <willy@w.ods.org> wrote:
-> On Fri, Dec 30, 2005 at 07:17:46PM +0100, Arjan van de Ven wrote:
-[snip discussion not directly related to the timing of my patch submission]
-> > Also I think, to be honest, that this is a feature that is getting
-> > unsuitable for the "bugfixes only" 2.4 kernel series....
+On Thursday 29 December 2005 23:16, Willy Tarreau wrote:
+> On Thu, Dec 29, 2005 at 09:41:12AM -0800, Linus Torvalds wrote:
+> > There have been situations where documented gcc semantics changed, and
+> > instead of saying "sorry", the gcc people changed the documentation. What
+> > the hell is the point of documented semantics if you can't depend on them
+> > anyway?
 >
-> Agreed, it really is too late IMHO, because there's a non-null risk of
-> introducing new bugs with it. It would have been cool a few months
-> earlier. That won't stop me from trying it in my own tree however ;-)
+> Remember the #arg and ##arg mess in macros between gcc2 and gcc3 ?
+>
+> I fell like I start to understand where your hate for specifications
+> comes from. As much as I like to stick to specs, which is generally
+> OK for hardware and network protocols, I can say that with GCC, there
+> is clearly no rule telling you whether your program will still compile
+> with version N+1 or not.
+>
+> Can't we elect a recommended gcc version that distro makers could
+> ship under the name kgcc as it has been the case for some time,
+> and try to stick to that version for as long as possible ? The only
+> real reason to upgrade it would be to support newer archs, while at
+> the moment, we try to support compilers which are shipped as default
+> *user-space* compilers.
 
-Yeah, I know it's a little bit late. I wish I had been able to get
-this done a few months ago... :(
+Leave this decision to distributors. Ubuntu already seem to use (and require 
+you to install) gcc 3.4 if you want to recompile their kernel or any kernel 
+modules. It ships with 4.0.1, iirc.
 
-Oh well, even if it doesn't get into the tree, at least it looks like
-I might not be the only person to benefit from this patch. :) (BTW,
-you'll probably also want the patch I just posted, which adds
-Committed_AS to /proc/meminfo.)
+I see GCC improving currently. 3.0 was horrendously slow and buggy versus 
+2.95, but 3.3 was a very good compiler, and 4.1 looks like it will be even 
+better. Maybe things will continue to improve and this will become less of an 
+issue over time.
 
---
--Barry K. Nathan <barryn@pobox.com>
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

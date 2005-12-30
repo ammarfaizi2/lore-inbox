@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVL3CMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVL3COt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbVL3CMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 21:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVL3CMU
+	id S1750777AbVL3COt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 21:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVL3COt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 21:12:20 -0500
-Received: from wscnet.wsc.cz ([212.80.64.118]:46720 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1750771AbVL3CMS (ORCPT
+	Thu, 29 Dec 2005 21:14:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23972 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750777AbVL3COs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 21:12:18 -0500
-Message-ID: <43B49715.9010809@liberouter.org>
-Date: Fri, 30 Dec 2005 03:10:29 +0100
-From: Jiri Slaby <slaby@liberouter.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@michonline.com>,
+	Thu, 29 Dec 2005 21:14:48 -0500
+Date: Thu, 29 Dec 2005 21:14:32 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jiri Slaby <slaby@liberouter.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@michonline.com>,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: userspace breakage
-References: <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com> <43B48176.3080509@michonline.com> <20051230004608.GA12822@redhat.com> <Pine.LNX.4.64.0512291702140.3298@g5.osdl.org> <20051230012145.GD12822@redhat.com>
-In-Reply-To: <20051230012145.GD12822@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-ID: <20051230021432.GA20371@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jiri Slaby <slaby@liberouter.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Ryan Anderson <ryan@michonline.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com> <43B48176.3080509@michonline.com> <20051230004608.GA12822@redhat.com> <Pine.LNX.4.64.0512291702140.3298@g5.osdl.org> <20051230012145.GD12822@redhat.com> <43B49715.9010809@liberouter.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43B49715.9010809@liberouter.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones napsal(a):
+On Fri, Dec 30, 2005 at 03:10:29AM +0100, Jiri Slaby wrote:
 
->With 2.6.14 on my testbox, I get this..
->
->$ ls /dev/input/
->event0  event1  mice  mouse0
->
->With 2.6.15rc
->
->$ ls /dev/input/
->mice
->  
->
-I don't know what's wrong (or different), but
-$ uname -a
-Linux bellona 2.6.15-rc7 #1 SMP PREEMPT Fri Dec 30 02:56:57 CET 2005
-i686 i686 i386 GNU/Linux
-$ cat /etc/fedora-release
-Fedora Core release 4 (Stentz)
-$ rpm -q udev hal
-udev-077-1
-hal-0.5.5.1-1
-from SRPMS from
-http://download.fedora.redhat.com/pub/fedora/linux/core/development/SRPMS/
-[maybe this is the difference? btw. despite, rc5-mm3 sound is defunct --
-sound class is under device's class, but it's mm tree]
-and at last the point of this e-mail:
+ > http://download.fedora.redhat.com/pub/fedora/linux/core/development/SRPMS/
+ > [maybe this is the difference?
 
-$ ls /dev/input/
-event0  event1  mice  mouse0  wacom
+Of course. development branch always has latest userspace.
+The point here is that the old userspace breaks.
 
-(udev created them, I'm sure)
-
-all the best,
-
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+		Dave
 

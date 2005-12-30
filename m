@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVL3CQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVL3Ca2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbVL3CQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 21:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVL3CQW
+	id S1750767AbVL3Ca2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 21:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVL3Ca2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 21:16:22 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:1734 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750780AbVL3CQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 21:16:21 -0500
-Subject: Re: [patch] latency tracer, 2.6.15-rc7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20051229202848.GC29546@elte.hu>
-References: <1135726300.22744.25.camel@mindpipe>
-	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
-	 <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu>
-	 <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu>
-	 <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe>
-	 <20051229202848.GC29546@elte.hu>
-Content-Type: text/plain
-Date: Thu, 29 Dec 2005 21:16:19 -0500
-Message-Id: <1135908980.4568.10.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Dec 2005 21:30:28 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:54216 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1750767AbVL3Ca2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 21:30:28 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Fri, 30 Dec 2005 03:29:52 +0100
+Subject: Re: userspace breakage
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ryan Anderson <ryan@michonline.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Message-Id: <20051230022950.A858E1D3610@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-29 at 21:28 +0100, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > > Still does not quite work for me on i386.  I applied all the patches as
-> > > I'm using 4K stacks.
-> 
-> oops!
-> 
-> > > LD      .tmp_vmlinux1
-> > > init/built-in.o: In function `start_kernel':
-> > > : undefined reference to `preempt_max_latency'
-> > > make: *** [.tmp_vmlinux1] Error 1
-> > > 
-> > 
-> > This patch fixes the problem.
-> 
-> thanks, applied - new version uploaded.
+[sorry for suplicity (if any)]
 
-It seems that debug_smp_processor_id is being called a lot, even though
-I have a UP config, which I didn't see with the -rt kernel:
+Dave Jones napsal(a):
+>With 2.6.14 on my testbox, I get this..
+>
+>$ ls /dev/input/
+>event0  event1  mice  mouse0
+>
+>With 2.6.15rc
+>
+>$ ls /dev/input/
+>mice
+>
+I don't know what's wrong, but
+$ uname -a
+Linux bellona 2.6.15-rc7 #1 SMP PREEMPT Fri Dec 30 02:56:57 CET 2005 i686 i686 i386 GNU/Linux
+$ cat /etc/fedora-release
+Fedora Core release 4 (Stentz)
+$ rpm -q udev hal
+udev-077-1
+hal-0.5.5.1-1
+from SRPMS from http://download.fedora.redhat.com/pub/fedora/linux/core/development/SRPMS/
+[maybe this is the difference? btw. despite, rc5-mm3 sound is defunct -- sound class is under device's class]
+and at last the point of this e-mail:
 
-$ grep debug_smp_processor_id /proc/latency_trace | head -20
-evolutio-4568  0d.H1    3us : debug_smp_processor_id (do_IRQ)
-evolutio-4568  0d.h.   25us : debug_smp_processor_id (netif_rx)
-evolutio-4568  0d.h.   28us : debug_smp_processor_id (kmem_cache_alloc)
-evolutio-4568  0d.h.   31us+: debug_smp_processor_id (__kmalloc)
-evolutio-4568  0d.s.   46us : debug_smp_processor_id (__do_softirq)
-evolutio-4568  0d.s.   47us : debug_smp_processor_id (__do_softirq)
-evolutio-4568  0d.s1   54us+: debug_smp_processor_id (kmem_cache_alloc)
-evolutio-4568  0d.s1   65us : debug_smp_processor_id (kmem_cache_free)
-evolutio-4568  0d.s3  109us : debug_smp_processor_id (kmem_cache_alloc)
-evolutio-4568  0d.s3  111us+: debug_smp_processor_id (__kmalloc)
-evolutio-4568  0d.s3  140us : debug_smp_processor_id (kfree)
-evolutio-4568  0d.s3  141us : debug_smp_processor_id (kmem_cache_free)
-evolutio-4568  0d.s3  158us : debug_smp_processor_id (kfree)
-evolutio-4568  0d.s3  160us : debug_smp_processor_id (kmem_cache_free)
-evolutio-4568  0d.s3  192us : debug_smp_processor_id (kfree)
-evolutio-4568  0d.s3  193us : debug_smp_processor_id (kmem_cache_free)
-evolutio-4568  0d.s3  210us : debug_smp_processor_id (kfree)
-evolutio-4568  0d.s3  211us : debug_smp_processor_id (kmem_cache_free)
-evolutio-4568  0d.s3  216us : debug_smp_processor_id (kmem_cache_alloc)
-evolutio-4568  0d.s3  217us+: debug_smp_processor_id (__kmalloc)
+$ ls /dev/input/
+event0  event1  mice  mouse0  wacom
 
-etc.
+(udev created them, I'm sure)
 
-Was this optimized out on UP before?
-
-Lee
-
+all the best,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

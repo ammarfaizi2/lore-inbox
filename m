@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVL3UYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbVL3UYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbVL3UYI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 15:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVL3UYH
+	id S964849AbVL3UYe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 15:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbVL3UYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 15:24:07 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:5518 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S932281AbVL3UYH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 15:24:07 -0500
-Message-ID: <43B5975B.3000004@tlinx.org>
-Date: Fri, 30 Dec 2005 12:23:55 -0800
-From: "Linda A. Walsh" <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en, en_US
-MIME-Version: 1.0
-To: Erik Mouw <erik@harddisk-recovery.com>
-CC: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: patch for "scripts/package/buildtar" to pickup "localversion"
- on "/boot" file objects
-References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de> <43A7304B.2070103@tlinx.org> <20051219223030.GM13985@lug-owl.de> <43A762E0.5020608@tlinx.org> <43B4D4AC.5020303@tlinx.org> <20051230101527.GA18045@harddisk-recovery.com>
-In-Reply-To: <20051230101527.GA18045@harddisk-recovery.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Dec 2005 15:24:33 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:11409 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S964849AbVL3UYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 15:24:32 -0500
+Date: Fri, 30 Dec 2005 21:24:30 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Mark v Wolher <trilight@ns666.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+Message-ID: <20051230202429.GD11594@vanheusden.com>
+References: <43B53EAB.3070800@ns666.com>
+	<9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>
+	<43B557D7.6090005@ns666.com> <43B5623D.7080402@ns666.com>
+	<20051230164751.GQ3105@vanheusden.com> <43B56ADD.7040300@ns666.com>
+	<20051230183021.GV3105@vanheusden.com> <43B5890E.30104@ns666.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43B5890E.30104@ns666.com>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Sat Dec 31 20:24:05 CET 2005
+X-Message-Flag: www.vanheusden.com
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hmm, i disabled MSI in the kernel, irq-balancing is on in the kernel,
+> and after a restart with irqbalance i see the cpu's show numbers !
+> I guess MSI was preventing them ? But does that means because of MSI
+> that performance was lower in some way ?
+
+did you also restart with only irqbalance activated?
 
 
-Erik Mouw wrote:
+Folkert van Heusden
 
->A much easier way is to use:
->
->  version="${KERNELRELEASE}"
->
->A patch for this is already in -mm, I expect/hope Linus will pick it up
->after 2.6.15.
->  
->
----
-Cool!  Easier is good! :-)
--linda
-
+-- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

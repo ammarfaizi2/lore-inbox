@@ -1,165 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVL3OIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVL3O11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbVL3OIw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 09:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVL3OIw
+	id S932149AbVL3O11 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 09:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVL3O11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 09:08:52 -0500
-Received: from mail.gmx.net ([213.165.64.21]:6102 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932099AbVL3OIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 09:08:51 -0500
-X-Authenticated: #2308221
-Date: Fri, 30 Dec 2005 15:08:42 +0100
-From: Christian Trefzer <ctrefzer@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Jakub Jelinek <jakub@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051230140842.GA11169@hermes.uziel.local>
-References: <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051229143846.GA18833@infradead.org> <1135868049.2935.49.camel@laptopd505.fenrus.org> <20051229153529.GH3811@stusta.de> <20051229154241.GY22293@devserv.devel.redhat.com> <p73oe2zexx9.fsf@verdi.suse.de> <20051230094045.GA5799@elte.hu> <20051230101443.GA13072@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DBIVS5p969aUjpLe"
+	Fri, 30 Dec 2005 09:27:27 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:4308 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932149AbVL3O10 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 09:27:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rbW7Fc3sKkm3KR1jR6pLYfjmMoOj6vcn4bjsDNiguS/xpNZoazpMpVvlGhbltAhybXKNkynP/b875nk/2JzxXdvlzz49eqOEXWm1XNC9wiSQ83lZ/8Spin8+2FljG7faJaE66iwHz1vfAZ/ElB9tNmOJu59GP6tziw2yyKS3zPE=
+Message-ID: <9a8748490512300627w26569c06ndd4af05a8d6d73b6@mail.gmail.com>
+Date: Fri, 30 Dec 2005 15:27:26 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Trilight <trilight@ns666.com>
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43B53EAB.3070800@ns666.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051230101443.GA13072@elte.hu>
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+References: <43B53EAB.3070800@ns666.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/30/05, Trilight <trilight@ns666.com> wrote:
+> Hiya,
+>
+> I'm using the 2.6.14.5 kernel and i notice that the system freezes
+> sometimes, within 24 hours usually, a total freeze, no mouse/keyb
+> reaction. Also i notice that apps crash randomly sometimes.
+>
+When did this start to happen? Was it OK with a previous kernel
+version? if it was ok with a previous version, then what was that
+version?
+Was it OK before you added a particular piece of hardware? If so, what
+hardware? Have you tried removing that hardware to see if the problem
+goes away?
 
---DBIVS5p969aUjpLe
-Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
+> What can i do to investigate this ?
+>
+A few things you can try :
 
+1) Start by providing some more info. Some details on your
+hardware/software. Something like the following + whatever else you
+consider relevant :
+ - name and version of your Linux distribution
+ - output of the  scripts/ver_linux  script found in the kernel source
+ - your kernels .config file
+ - full  dmesg  output after boot
+ - Motherboard name/model
+ - output of  cat /proc/cpuinfo
+ - output of  cat /proc/meminfo
+ - output of  lspci -vv
+ - output of  lsusb
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2) Tell us what you have already tried in order to try and resolve the
+problem, including your results with the various things you've tried.
 
-Hi Ingo,
+3) Try building/running a kernel with the various debug options found
+in the kernel hacking section turned on and see if that results in
+more details in dmesg/logs etc and provide the extra info if any.
 
-On Fri, Dec 30, 2005 at 11:14:43AM +0100, Ingo Molnar wrote:
->=20
-> * Ingo Molnar <mingo@elte.hu> wrote:
->=20
-> [...] The queue is at:
->=20
->   http://redhat.com/~mingo/debloating-patches/
->=20
+4) Try building a 2.6.15-rc7-git4 kernel with the same config and see
+if that one also has problems.
 
-I was curious and applied among others the uninline-capable patch, with
-the result that modules complain about an unknown symbol "capable". The
-attached patch is a manually adapted version of yours, extended by the
-EXPORT_SYMBOL_GPL required for modules to load again.
+Make sure your hardware is OK, CPU not overheating, RAM is OK (run
+memtest86 with all tests enabled overnight) etc.
 
-The code with the EXPORT_SYMBOL_GPL line works (I am currently running
-that kernel) and the patch should apply cleanly.
+Try removing all extra hardware components in your system you don't
+need for the system to boot and see if the problem then goes away. If
+it does, try adding back hardware one piece at a time and re-test,
+find out if it's related to a certain piece of hardware or a specific
+driver.
 
-Regards,
-Chris
+That's all I can think of atm. With more info provided (as pr the list
+above) perhaps someone else can point to more (or better) things to
+try.
 
-
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline; filename="uninline-and-export-capable.patch"
-Content-Transfer-Encoding: quoted-printable
-
-Subject: uninline capable()
-
-uninline capable(). Saves 2K of kernel text on a generic .config, and 1K
-on a tiny config.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-----
-
- include/linux/sched.h |   15 ++-------------
- kernel/sys.c          |   11 +++++++++++
- 2 files changed, 13 insertions(+), 13 deletions(-)
-
-Index: linux-gcc.q/include/linux/sched.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-gcc.q.orig/include/linux/sched.h
-+++ linux-gcc.q/include/linux/sched.h
-@@ -1102,19 +1102,8 @@ static inline int sas_ss_flags(unsigned=20
- }
-=20
-=20
--#ifdef CONFIG_SECURITY
--/* code is in security.c */
--extern int capable(int cap);
--#else
--static inline int capable(int cap)
--{
--	if (cap_raised(current->cap_effective, cap)) {
--		current->flags |=3D PF_SUPERPRIV;
--		return 1;
--	}
--	return 0;
--}
--#endif
-+/* code is in security.c or kernel/sys.c if !SECURITY */
-+extern int FASTCALL(capable(int cap));
-=20
- /*
-  * Routines for handling mm_structs
-Index: linux-gcc.q/kernel/sys.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-gcc.q.orig/kernel/sys.c
-+++ linux-gcc.q/kernel/sys.c
-@@ -222,6 +222,18 @@ int unregister_reboot_notifier(struct no
-=20
- EXPORT_SYMBOL(unregister_reboot_notifier);
-=20
-+#ifndef CONFIG_SECURITY
-+int fastcall capable(int cap)
-+{
-+        if (cap_raised(current->cap_effective, cap)) {
-+	       current->flags |=3D PF_SUPERPRIV;
-+	       return 1;
-+        }
-+        return 0;
-+}
-+EXPORT_SYMBOL_GPL(capable);
-+#endif
-+
- static int set_one_prio(struct task_struct *p, int niceval, int error)
- {
- 	int no_nice;
-
---uAKRQypu60I7Lcqm--
-
---DBIVS5p969aUjpLe
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQIVAwUBQ7U/aF2m8MprmeOlAQJUzw//e5hs7zaAFHZyKV7FBJHvjG+vqxqUZ+vC
-GqN3FhepU0nWnpvMxvaUsIaWN4MbjPRPQqG+avdXZm/qXrm5/7Hq5KlzZ+hzO9b0
-HQ3um7dQwuBZOTgfzUwSW4nFthGZa0DoDSshqUglb5qVztyE9Ni/0XytVfXRShqJ
-mmmMlMnxqmr9iVZFgsr4p8fRyxc6qDNDpQjUFebMCj3Hd2uqr7qqAu6FKikRhhOv
-kjoWuQrxsespyWT2aHcVm0sCkIuLc+lBwWeQnBu5gV+B4JNOFef2i8L6r5touYC9
-rKd2fj/jZfu6FlER9fdk8zmdKGPYaxSrZcwKd3uvgFPa5hsKzlXnToeKjThcWlh+
-8ulh0+3EJ+t1Yfstq48q6KTCQjd+wCWXcGyngs8eaSpQO9Vd1u4Xrv0Rh2ebc+5N
-iiRaqY+xCvjLyCQKdfIN9kC7uZPgwjApG28N+/LGNJ0SUJsF2NBtWU/FUWiHX8V4
-XJ3F349yMy9PWIRCZBMS6nPbyh9Vnso47gvRW3y9TnNILIJ6cG3fL1EtjqALG88F
-crpgo0AQP+aGlOEZSfLBXxnxGrlMM/lrStpymvPghF0fYXzilx1Hir8kLBkHlucc
-EtWJBg+b1qWs9qLivmLVSg8/t5TGWczz/Q1tqNj7f3nzmZd2J3kWkq88zWHTZZby
-O7WEcggQf4M=
-=aRXg
------END PGP SIGNATURE-----
-
---DBIVS5p969aUjpLe--
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

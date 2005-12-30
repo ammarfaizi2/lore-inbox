@@ -1,39 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVL3JYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbVL3J2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbVL3JYw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 04:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVL3JYw
+	id S1751229AbVL3J2r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 04:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbVL3J2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 04:24:52 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:45756 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1751228AbVL3JYv (ORCPT
+	Fri, 30 Dec 2005 04:28:47 -0500
+Received: from ns2.suse.de ([195.135.220.15]:55522 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751229AbVL3J2r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 04:24:51 -0500
-Date: Fri, 30 Dec 2005 10:24:49 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/pcmcia/cistpl.c: fix endian warnings
-Message-ID: <20051230092449.GB5012@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Alexey Dobriyan <adobriyan@gmail.com>,
-	Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20051222101523.GP27946@ftp.linux.org.uk> <20051223093146.GT27946@ftp.linux.org.uk> <20051223205108.GA15271@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
+	Fri, 30 Dec 2005 04:28:47 -0500
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+References: <20051228114637.GA3003@elte.hu>
+	<Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
+	<1135798495.2935.29.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
+	<20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
+	<20051229143846.GA18833@infradead.org>
+	<1135868049.2935.49.camel@laptopd505.fenrus.org>
+	<20051229153529.GH3811@stusta.de>
+	<20051229154241.GY22293@devserv.devel.redhat.com>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Dec 2005 10:28:34 +0100
+In-Reply-To: <20051229154241.GY22293@devserv.devel.redhat.com>
+Message-ID: <p73oe2zexx9.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051223205108.GA15271@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 23, 2005 at 11:51:08PM +0300, Alexey Dobriyan wrote:
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> ---
+Jakub Jelinek <jakub@redhat.com> writes:
 > 
->  drivers/pcmcia/cistpl.c |   30 +++++++++++++++---------------
->  1 file changed, 15 insertions(+), 15 deletions(-)
+> Only for static functions (and in -funit-at-a-time mode).
+> Anything else would require full IMA over the whole kernel and we aren't
+> there yet.  So inline hints are useful.  But most of the inline keywords
+> in the kernel really should be that, hints, because e.g. while it can be
+> beneficial to inline something on one arch, it may be not beneficial on
+> another arch, depending on cache sizes, number of general registers
+> available to the compiler, register preassure, speed of the call/ret
+> pair, calling convention and many other factors.
 
-Thanks, applied to the linux-pcmcia git tree, will push it into 2.6.16.
+There are important exceptions like: 
 
-	Dominik
+- Code that really wants to do compile time constant resolution
+(like the x86 copy_*_user)  and even throws linker errors when wrong.
+- Anything in a include file (otherwise it gets duplicated for
+every #include which can actually increase text size a lot) 
+- There is some code which absolutely needs inline in the x86-64 
+vsyscall code.
+
+But arguably they should be force_inline.
+
+I'm not quite sure I buy Ingo's original argument also.   If he's only
+looking at text size then with the above fixed then he ideally
+would like to not inline anything (because except these
+exceptions above .text usually near always shrinks when 
+not inlining). But that's not necessarily best for performance.
+
+-Andi

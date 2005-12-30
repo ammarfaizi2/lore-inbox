@@ -1,32 +1,26 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965069AbVL2IzN (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 29 Dec 2005 03:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVL2IzM
+	id S1751291AbVL3TUV (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 30 Dec 2005 14:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVL3TUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 03:55:12 -0500
-Received: from [58.65.99.195] ([58.65.99.195]:5384 "HELO cieba.nl")
-	by vger.kernel.org with SMTP id S965069AbVL2IzL (ORCPT
+	Fri, 30 Dec 2005 14:20:21 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:14000 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751291AbVL3TUU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 03:55:11 -0500
-Message-ID: <97b401c60c47$36ca9bd2$4d767ca7@cieba.nl>
-From: "Wyatt Hunt" <huntpn@tvspil.dk>
+	Fri, 30 Dec 2005 14:20:20 -0500
+Message-Id: <200512301920.jBUJK1wm003780@zeus2.kernel.org>
+From: "ultimate@ima.com" <ultimate@ima.com>
+Subject: =?ISO-8859-1?Q?im=E1dod?= !
 To: linux-kernel@vger.kernel.org
-Subject: Home delivery cials-tabs
-Date: Thu, 29 Dec 2005 08:12:25 +0100
+Content-Type: text/plain;
+	charset="DEFAULT"
+Reply-To: ultimate@ima.com
+Date: Fri, 30 Dec 2005 20:20:14 +0100
 X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965069AbVL2IzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751291AbVL3TUV@vger.kernel.org>
 
 
-Be ERECT in less than 15 mins
 
-PRlCE: $ 2 / use
-
-visit our megasite --> directloqii.com
-
+http://ultimate.wc.hu/

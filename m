@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVL3Wos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVL3Wnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbVL3Wos (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 17:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVL3Wo2
+	id S964855AbVL3Wnj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 17:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbVL3Wn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 17:44:28 -0500
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:10277 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S964906AbVL3WoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 17:44:06 -0500
+	Fri, 30 Dec 2005 17:43:29 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.13]:24639 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S964855AbVL3WnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 17:43:06 -0500
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
@@ -16,124 +16,62 @@ Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
        Marijn Meijles <marijn@bitpit.net>, Rik van Riel <riel@redhat.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20051230224342.765.35375.sendpatchset@twins.localnet>
+Message-Id: <20051230224242.765.58222.sendpatchset@twins.localnet>
 In-Reply-To: <20051230223952.765.21096.sendpatchset@twins.localnet>
 References: <20051230223952.765.21096.sendpatchset@twins.localnet>
-Subject: [PATCH 9/9] clockpro-clockpro-stats.patch
-Date: Fri, 30 Dec 2005 23:44:04 +0100
+Subject: [PATCH 3/9] clockpro-PG_test.patch
+Date: Fri, 30 Dec 2005 23:43:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Adds some /proc debugging information to the clockpro patch.
-
-TODO:
- - use debugfs?
+Introduce a new PG_flag, needed for the clockpro work.
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
- fs/proc/proc_misc.c |   15 +++++++++++++
- mm/clockpro.c       |   60 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 75 insertions(+)
+ include/linux/page-flags.h |    8 ++++++++
+ mm/page_alloc.c            |    3 ++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-Index: linux-2.6-git/fs/proc/proc_misc.c
+Index: linux-2.6-git/include/linux/page-flags.h
 ===================================================================
---- linux-2.6-git.orig/fs/proc/proc_misc.c
-+++ linux-2.6-git/fs/proc/proc_misc.c
-@@ -220,6 +220,20 @@
- 	.release	= seq_release,
- };
+--- linux-2.6-git.orig/include/linux/page-flags.h
++++ linux-2.6-git/include/linux/page-flags.h
+@@ -76,6 +76,8 @@
+ #define PG_nosave_free		18	/* Free, should not be written */
+ #define PG_uncached		19	/* Page has been mapped as uncached */
  
-+extern struct seq_operations clockpro_op;
-+static int clockpro_open(struct inode *inode, struct file *file)
-+{
-+       (void)inode;
-+       return seq_open(file, &clockpro_op);
-+}
++#define PG_test			20	/* Page is in its test period */
 +
-+static struct file_operations clockpro_file_operations = {
-+       .open           = clockpro_open,
-+       .read           = seq_read,
-+       .llseek         = seq_lseek,
-+       .release        = seq_release,
-+};
-+
- extern struct seq_operations zoneinfo_op;
- static int zoneinfo_open(struct inode *inode, struct file *file)
- {
-@@ -602,6 +616,7 @@
- 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
- 	create_seq_entry("slabinfo",S_IWUSR|S_IRUGO,&proc_slabinfo_operations);
- 	create_seq_entry("buddyinfo",S_IRUGO, &fragmentation_file_operations);
-+	create_seq_entry("clockpro",S_IRUGO, &clockpro_file_operations);
- 	create_seq_entry("vmstat",S_IRUGO, &proc_vmstat_file_operations);
- 	create_seq_entry("zoneinfo",S_IRUGO, &proc_zoneinfo_file_operations);
- 	create_seq_entry("diskstats", 0, &proc_diskstats_operations);
-Index: linux-2.6-git/mm/clockpro.c
---- linux-2.6-git.orig/mm/clockpro.c
-+++ linux-2.6-git/mm/clockpro.c
-@@ -555,3 +555,62 @@
+ /*
+  * Global page accounting.  One instance per CPU.  Only unsigned longs are
+  * allowed.
+@@ -303,6 +305,12 @@ extern void __mod_page_state(unsigned lo
+ #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
+ #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
  
- 	mod_page_state(pgdeactivate, pgdeactivate);
- }
++#define PageTest(page)	test_bit(PG_test, &(page)->flags)
++#define SetPageTest(page)	set_bit(PG_test, &(page)->flags)
++#define TestSetPageTest(page) test_and_set_bit(PG_test, &(page)->flags)
++#define ClearPageTest(page)	clear_bit(PG_test, &(page)->flags)
++#define TestClearPageTest(page) test_and_clear_bit(PG_test, &(page)->flags)
 +
-+#ifdef CONFIG_PROC_FS
-+
-+#include <linux/seq_file.h>
-+
-+static void *stats_start(struct seq_file *m, loff_t *pos)
-+{
-+	if (*pos != 0)
-+		return NULL;
-+
-+	lru_add_drain();
-+
-+	return pos;
-+}
-+
-+static void *stats_next(struct seq_file *m, void *arg, loff_t *pos)
-+{
-+	return NULL;
-+}
-+
-+static void stats_stop(struct seq_file *m, void *arg)
-+{
-+}
-+
-+static int stats_show(struct seq_file *m, void *arg)
-+{
-+	struct zone *zone;
-+	for_each_zone(zone) {
-+		seq_printf(m, "\n\n======> zone: %lu <=====\n", (unsigned long)zone);
-+		seq_printf(m, "struct zone values:\n");
-+		seq_printf(m, "  zone->nr_resident: %lu\n", zone->nr_resident);
-+		seq_printf(m, "  zone->nr_cold: %lu\n", zone->nr_cold);
-+		seq_printf(m, "  zone->nr_cold_target: %lu\n", zone->nr_cold_target);
-+		seq_printf(m, "  zone->nr_nonresident_scale: %lu\n", zone->nr_nonresident_scale);
-+		seq_printf(m, "  zone->present_pages: %lu\n", zone->present_pages);
-+		seq_printf(m, "  zone->free_pages: %lu\n", zone->free_pages);
-+		seq_printf(m, "  zone->pages_min: %lu\n", zone->pages_min);
-+		seq_printf(m, "  zone->pages_low: %lu\n", zone->pages_low);
-+		seq_printf(m, "  zone->pages_high: %lu\n", zone->pages_high);
-+
-+		seq_printf(m, "\n");
-+		seq_printf(m, "nonresident values:\n");
-+		seq_printf(m, "  nonres_cycle: %lu\n", __sum_cpu_var(unsigned long, nonres_cycle));
-+		seq_printf(m, "  T3-raw: %lu\n", __sum_cpu_var(unsigned long, nonres_count[NR_b1]));
-+		seq_printf(m, "  T3-est: %u\n", nonresident_estimate());
-+
-+	}
-+
-+	return 0;
-+}
-+
-+struct seq_operations clockpro_op = {
-+	.start = stats_start,
-+	.next = stats_next,
-+	.stop = stats_stop,
-+	.show = stats_show,
-+};
-+
-+#endif /* CONFIG_PROC_FS */
+ struct page;	/* forward declaration */
+ 
+ int test_clear_page_dirty(struct page *page);
+Index: linux-2.6-git/mm/page_alloc.c
+===================================================================
+--- linux-2.6-git.orig/mm/page_alloc.c
++++ linux-2.6-git/mm/page_alloc.c
+@@ -499,7 +499,8 @@ static int prep_new_page(struct page *pa
+ 
+ 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 			1 << PG_referenced | 1 << PG_arch_1 |
+-			1 << PG_checked | 1 << PG_mappedtodisk);
++			1 << PG_checked | 1 << PG_mappedtodisk |
++			1 << PG_test);
+ 	set_page_private(page, 0);
+ 	set_page_refs(page, order);
+ 	kernel_map_pages(page, 1 << order, 1);

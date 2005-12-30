@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVL3CP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVL3CQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVL3CP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 21:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVL3CP2
+	id S1750780AbVL3CQW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 21:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVL3CQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 21:15:28 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:57 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1750821AbVL3CP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 21:15:27 -0500
-Date: Fri, 30 Dec 2005 03:15:26 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-In-Reply-To: <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.63.0512300314180.20729@gockel.physik3.uni-rostock.de>
-References: <1135798495.2935.29.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>  <20051228212313.GA4388@elte.hu>
- <20051228214845.GA7859@elte.hu>  <20051228201150.b6cfca14.akpm@osdl.org>
- <20051229073259.GA20177@elte.hu>  <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
-  <20051229202852.GE12056@redhat.com>  <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
-  <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org>  <20051229224839.GA12247@elte.hu>
- <1135897092.2935.81.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Dec 2005 21:16:22 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:1734 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750780AbVL3CQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 21:16:21 -0500
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20051229202848.GC29546@elte.hu>
+References: <1135726300.22744.25.camel@mindpipe>
+	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
+	 <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu>
+	 <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu>
+	 <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe>
+	 <20051229202848.GC29546@elte.hu>
+Content-Type: text/plain
+Date: Thu, 29 Dec 2005 21:16:19 -0500
+Message-Id: <1135908980.4568.10.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Dec 2005, Tim Schmielau wrote:
+On Thu, 2005-12-29 at 21:28 +0100, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > > Still does not quite work for me on i386.  I applied all the patches as
+> > > I'm using 4K stacks.
+> 
+> oops!
+> 
+> > > LD      .tmp_vmlinux1
+> > > init/built-in.o: In function `start_kernel':
+> > > : undefined reference to `preempt_max_latency'
+> > > make: *** [.tmp_vmlinux1] Error 1
+> > > 
+> > 
+> > This patch fixes the problem.
+> 
+> thanks, applied - new version uploaded.
 
->    > size vmlinux*
->       text    data     bss     dec     hex filename
->    2197105  386568  316840 2900513  2c4221 vmlinux
->    2144453  392100  316840 2853393  2b8a11 vmlinux.deinline
+It seems that debug_smp_processor_id is being called a lot, even though
+I have a UP config, which I didn't see with the -rt kernel:
 
-Doh! I forgot to set -Os.
-Will better go to bed now and redo the numbers tomorrow.
+$ grep debug_smp_processor_id /proc/latency_trace | head -20
+evolutio-4568  0d.H1    3us : debug_smp_processor_id (do_IRQ)
+evolutio-4568  0d.h.   25us : debug_smp_processor_id (netif_rx)
+evolutio-4568  0d.h.   28us : debug_smp_processor_id (kmem_cache_alloc)
+evolutio-4568  0d.h.   31us+: debug_smp_processor_id (__kmalloc)
+evolutio-4568  0d.s.   46us : debug_smp_processor_id (__do_softirq)
+evolutio-4568  0d.s.   47us : debug_smp_processor_id (__do_softirq)
+evolutio-4568  0d.s1   54us+: debug_smp_processor_id (kmem_cache_alloc)
+evolutio-4568  0d.s1   65us : debug_smp_processor_id (kmem_cache_free)
+evolutio-4568  0d.s3  109us : debug_smp_processor_id (kmem_cache_alloc)
+evolutio-4568  0d.s3  111us+: debug_smp_processor_id (__kmalloc)
+evolutio-4568  0d.s3  140us : debug_smp_processor_id (kfree)
+evolutio-4568  0d.s3  141us : debug_smp_processor_id (kmem_cache_free)
+evolutio-4568  0d.s3  158us : debug_smp_processor_id (kfree)
+evolutio-4568  0d.s3  160us : debug_smp_processor_id (kmem_cache_free)
+evolutio-4568  0d.s3  192us : debug_smp_processor_id (kfree)
+evolutio-4568  0d.s3  193us : debug_smp_processor_id (kmem_cache_free)
+evolutio-4568  0d.s3  210us : debug_smp_processor_id (kfree)
+evolutio-4568  0d.s3  211us : debug_smp_processor_id (kmem_cache_free)
+evolutio-4568  0d.s3  216us : debug_smp_processor_id (kmem_cache_alloc)
+evolutio-4568  0d.s3  217us+: debug_smp_processor_id (__kmalloc)
+
+etc.
+
+Was this optimized out on UP before?
+
+Lee
+

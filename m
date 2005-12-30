@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVL3KZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVL3K1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbVL3KZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 05:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVL3KZr
+	id S1751242AbVL3K1o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 05:27:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVL3K1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 05:25:47 -0500
-Received: from ns1.suse.de ([195.135.220.2]:59625 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751240AbVL3KZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 05:25:46 -0500
-Date: Fri, 30 Dec 2005 11:25:35 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Jakub Jelinek <jakub@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051230102534.GA7222@wotan.suse.de>
-References: <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051229143846.GA18833@infradead.org> <1135868049.2935.49.camel@laptopd505.fenrus.org> <20051229153529.GH3811@stusta.de> <20051229154241.GY22293@devserv.devel.redhat.com> <p73oe2zexx9.fsf@verdi.suse.de> <20051230094045.GA5799@elte.hu>
+	Fri, 30 Dec 2005 05:27:44 -0500
+Received: from [195.140.140.143] ([195.140.140.143]:10658 "EHLO
+	mail.suntechweb.com") by vger.kernel.org with ESMTP
+	id S1751242AbVL3K1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 05:27:43 -0500
+Subject: Re: Broadcom 43xx first results
+From: Rakotomandimby Mihamina 
+	<mihamina.rakotomandimby@etu.univ-orleans.fr>
+To: Jiri Benc <jbenc@suse.cz>
+Cc: linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
+In-Reply-To: <20051205201158.7cae7c86@griffin.suse.cz>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
+	 <20051205190038.04b7b7c1@griffin.suse.cz> <1133806444.4498.35.camel@gimli>
+	 <43948B13.2090509@pobox.com> <20051205194923.3b868d50@griffin.suse.cz>
+	 <43948CC8.6000107@pobox.com>  <20051205201158.7cae7c86@griffin.suse.cz>
+Content-Type: text/plain
+Date: Fri, 30 Dec 2005 11:34:56 +0100
+Message-Id: <1135938896.23934.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051230094045.GA5799@elte.hu>
+X-Mailer: Evolution 2.2.3 (2.2.3-3.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 10:40:45AM +0100, Ingo Molnar wrote:
->     text    data     bss     dec     hex filename
->  4080998  870384  387260 5338642  517612 vmlinux-orig
->  4084421  872024  387260 5343705  5189d9 vmlinux-inline
->  4010957  834048  387748 5232753  4fd871 vmlinux-inline+units
->  4010039  833112  387748 5230899  4fd133 vmlinux-inline+units+fixes
->  4007617  833120  387748 5228485  4fc7c5 vmlinux-inline+units+fixes+capable
-> 
-> or a 1.8% code size reduction.
+On Mon, 2005-12-05 at 20:11 +0100, Jiri Benc wrote:
+> That results were implemented (patches were sent
+> and not accepted).
 
-But again if you only look at text size you ideally would want
-to never inline anything, except the cases above and only called
-once functions. So just turn it off except when forced? That would
-be the logical conclusion from your strategy. I'm not sure it's a good
-one.
+May be should you submit your patches to the right persons:
+see /usr/src/linux/MAINTENERS.
 
--Andi
+I dont know where did you submit yours, but that's just a suggestion.
+-- 
+A powerfull GroupWare, CMS, CRM, ECM: CPS (Open Source & GPL).
+Opengroupware, SPIP, Plone, PhpBB, JetSpeed... are good: CPS is better.
+http://www.cps-project.org for downloads & documentation.
+Free hosting of CPS groupware: http://www.objectis.org.
+

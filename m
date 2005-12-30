@@ -1,112 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVL3THA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbVL3TNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbVL3THA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 14:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVL3THA
+	id S1751288AbVL3TNX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 14:13:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVL3TNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 14:07:00 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:60289 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1751287AbVL3TG7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 14:06:59 -0500
-Date: Fri, 30 Dec 2005 11:06:53 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Cc: alan@redhat.com, willy@w.ods.org
-Subject: [PATCH] add CommitLimit, Committed_AS to 2.4 strict VM overcommit
-Message-ID: <20051230190653.GA7548@ip68-225-251-162.oc.oc.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 30 Dec 2005 14:13:23 -0500
+Received: from elasmtp-kukur.atl.sa.earthlink.net ([209.86.89.65]:45977 "EHLO
+	elasmtp-kukur.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1751288AbVL3TNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 14:13:22 -0500
+Date: Fri, 30 Dec 2005 14:13:15 -0500 (EST)
+From: Dan Streetman <ddstreet@ieee.org>
+Reply-To: ddstreet@ieee.org
+To: Lee Revell <rlrevell@joe-job.com>
+cc: David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>, Bodo Eggert <7eggert@gmx.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: EHCI TT bandwidth (was Re: [PATCH]
+ USB_BANDWIDTH documentation change)
+In-Reply-To: <1135886739.6804.4.camel@mindpipe>
+Message-ID: <Pine.LNX.4.51.0512301407200.28360@dylan.root.cx>
+References: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
+  <200512270857.35505.david-b@pacbell.net>  <Pine.LNX.4.51.0512291433090.27091@dylan.root.cx>
+ <1135886739.6804.4.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-ELNK-Trace: a4c357c9134943511aa676d7e74259b7b3291a7d08dfec790f58622d9a310a9049cf5e0b0b276b49350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.148.162.106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds two more lines of output to /proc/meminfo, CommitLimit
-and Committed_AS. On a system running the strict VM overcommit patch,
-these are useful bits of information (especially Committed_AS, which
-lets you know how close you are to full committment).
 
-This particular patch is part of a patch from the Red Hat Enterprise
-Linux 3 kernel, rediffed against 2.4.33-pre1 + the strict VM overcommit
-patch I posted earlier. However, the 2.6 kernel contains very similar
-code that provides the same output in /proc/meminfo.
+On Thu, 29 Dec 2005, Lee Revell wrote:
 
-Signed-off-by: Barry K. Nathan <barryn@pobox.com>
+>How do I test them?  Should this make USB audio work with
+>CONFIG_USB_BANDWIDTH?
 
-diff -ruN linux-2.4.33-pre1-memA/Documentation/vm/overcommit-accounting linux-2.4.33-pre1-memB/Documentation/vm/overcommit-accounting
---- linux-2.4.33-pre1-memA/Documentation/vm/overcommit-accounting	Thu Dec 29 20:39:30 2005
-+++ linux-2.4.33-pre1-memB/Documentation/vm/overcommit-accounting	Thu Dec 29 20:41:05 2005
-@@ -22,6 +22,13 @@
- 		will never kill a process accessing pages it has mapped
- 		except due to a bug (ie report it!)
- 
-+The overcommit policy is set via the sysctl `vm.overcommit_memory'.
-+
-+The overcommit percentage is set via `vm.overcommit_ratio'.
-+
-+The current overcommit limit and amount committed are viewable in
-+/proc/meminfo as CommitLimit and Committed_AS respectively.
-+
- Gotchas
- -------
- 
-diff -ruN linux-2.4.33-pre1-memA/fs/proc/proc_misc.c linux-2.4.33-pre1-memB/fs/proc/proc_misc.c
---- linux-2.4.33-pre1-memA/fs/proc/proc_misc.c	Thu Dec 29 20:39:30 2005
-+++ linux-2.4.33-pre1-memB/fs/proc/proc_misc.c	Thu Dec 29 20:41:05 2005
-@@ -158,11 +158,9 @@
- 	struct sysinfo i;
- 	int len;
- 	int pg_size ;
--	int committed;
-+	unsigned long committed;
-+	unsigned long allowed;
- 
--	/* FIXME: needs to be in headers */
--	extern atomic_t vm_committed_space;
--	
- /*
-  * display in kilobytes.
-  */
-@@ -172,6 +170,8 @@
- 	si_swapinfo(&i);
- 	pg_size = page_cache_size - i.bufferram;
- 	committed = atomic_read(&vm_committed_space);
-+	allowed = (i.totalram * sysctl_overcommit_ratio / 100)
-+		  + total_swap_pages;
- 
- 	len = sprintf(page, "        total:    used:    free:  shared: buffers:  cached:\n"
- 		"Mem:  %8Lu %8Lu %8Lu %8Lu %8Lu %8Lu\n"
-@@ -199,7 +199,9 @@
- 		"LowTotal:     %8lu kB\n"
- 		"LowFree:      %8lu kB\n"
- 		"SwapTotal:    %8lu kB\n"
--		"SwapFree:     %8lu kB\n",
-+		"SwapFree:     %8lu kB\n"
-+		"CommitLimit:  %8lu kB\n"
-+		"Committed_AS: %8lu kB\n",
- 		K(i.totalram),
- 		K(i.freeram),
- 		K(i.sharedram),
-@@ -213,7 +215,9 @@
- 		K(i.totalram-i.totalhigh),
- 		K(i.freeram-i.freehigh),
- 		K(i.totalswap),
--		K(i.freeswap));
-+		K(i.freeswap),
-+		K(allowed),
-+		K(committed));
- 
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- #undef B
-diff -ruN linux-2.4.33-pre1-memA/include/linux/mman.h linux-2.4.33-pre1-memB/include/linux/mman.h
---- linux-2.4.33-pre1-memA/include/linux/mman.h	Thu Dec 29 20:39:30 2005
-+++ linux-2.4.33-pre1-memB/include/linux/mman.h	Thu Dec 29 20:41:05 2005
-@@ -9,5 +9,7 @@
- extern int vm_enough_memory(long pages);
- extern void vm_unacct_memory(long pages);
- extern void vm_validate_enough(char *x);
-+extern atomic_t vm_committed_space;
-+extern int sysctl_overcommit_ratio;
- 
- #endif /* _LINUX_MMAN_H */
+It won't have any effect on CONFIG_USB_BANDWIDTH, as the EHCI transaction 
+translator scheudling code doesn't care about that config setting.  This 
+also won't have any effect on USB 2.0 devices (e.g. a highspeed Audio 
+device).
+
+The updates will only help in the situation where there are multiple
+lowpseed or fullspeed devices with periodic endpoints, all connected to
+the same USB 2.0 (highspeed) hub.  In that situation it's possible to
+"fill up" the USB 2.0 hub's transaction translator periodic schedule with
+only a few devices.  The updates allow many more devices to fit in the
+TT's periodic schedule.  The specific number of devices depends on how 
+many periodic endpoints, those endpoint's poll rates, and their max packet 
+sizes.
+
+
+
+-- 
+Dan Streetman
+ddstreet@ieee.org
+---------------------
+186,272 miles per second:
+It isn't just a good idea, it's the law!

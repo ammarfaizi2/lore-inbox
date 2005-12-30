@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVL3DRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbVL3DfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbVL3DRu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 22:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVL3DRu
+	id S1750838AbVL3DfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 22:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbVL3DfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 22:17:50 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:1686 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750806AbVL3DRu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 22:17:50 -0500
-Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <200512291901.jBTJ1rOm017519@laptop11.inf.utfsm.cl>
-References: <200512291901.jBTJ1rOm017519@laptop11.inf.utfsm.cl>
-Content-Type: text/plain
-Date: Thu, 29 Dec 2005 19:17:29 -0800
-Message-Id: <1135912649.7790.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 29 Dec 2005 22:35:15 -0500
+Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:31332 "HELO
+	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750838AbVL3DfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 22:35:14 -0500
+Message-Id: <20051230032636.448212000.dtor_core@ameritech.net>
+References: <20051230031906.503919000.dtor_core@ameritech.net>
+Date: Thu, 29 Dec 2005 22:19:07 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [patch 1/3] Input: kbtab - fix Y axis setup
+Content-Disposition: inline; filename=kbtab-axis-fix.patch
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-29 at 16:01 -0300, Horst von Brand wrote:
+This patch fixes a typo introduced by conversion to dynamic input_dev
+allocation.
 
-> >   - Renamed _BITS_PER_BYTE to BITS_PER_BYTE, and moved it into
-> >     linux/types.h
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-> Haven't come across anything with this not 8 for a /long/ time now, and no
-> Linux on that in sight.
-
-The point isn't that it might change, but that it makes code clearer to
-use BITS_PER_BYTE in arithmetic than to have the magic number 8
-sprinkled around mysteriously.
-
-	<b
+Index: work/drivers/usb/input/kbtab.c
+===================================================================
+--- work.orig/drivers/usb/input/kbtab.c
++++ work/drivers/usb/input/kbtab.c
+@@ -159,7 +159,7 @@ static int kbtab_probe(struct usb_interf
+ 	input_dev->keybit[LONG(BTN_DIGI)] |= BIT(BTN_TOOL_PEN) | BIT(BTN_TOUCH);
+ 	input_dev->mscbit[0] |= BIT(MSC_SERIAL);
+ 	input_set_abs_params(input_dev, ABS_X, 0, 0x2000, 4, 0);
+-	input_set_abs_params(input_dev, ABS_X, 0, 0x1750, 4, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, 0x1750, 4, 0);
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 0xff, 0, 0);
+ 
+ 	endpoint = &intf->cur_altsetting->endpoint[0].desc;
 

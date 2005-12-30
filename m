@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVL3DTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVL3DRu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbVL3DTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 22:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVL3DTx
+	id S1750806AbVL3DRu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 22:17:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVL3DRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 22:19:53 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:14742 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750805AbVL3DTw (ORCPT
+	Thu, 29 Dec 2005 22:17:50 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:1686 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1750806AbVL3DRu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 22:19:52 -0500
-Subject: Re: [PATCH 17 of 20] ipath - infiniband verbs support, part 3 of 3
+	Thu, 29 Dec 2005 22:17:50 -0500
+Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
 From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <84144f020512291124sd895dfbp87ca9fd75552d671@mail.gmail.com>
-References: <patchbomb.1135816279@eng-12.pathscale.com>
-	 <584777b6f4dc5269fa89.1135816296@eng-12.pathscale.com>
-	 <84144f020512291124sd895dfbp87ca9fd75552d671@mail.gmail.com>
+In-Reply-To: <200512291901.jBTJ1rOm017519@laptop11.inf.utfsm.cl>
+References: <200512291901.jBTJ1rOm017519@laptop11.inf.utfsm.cl>
 Content-Type: text/plain
-Date: Thu, 29 Dec 2005 19:19:41 -0800
-Message-Id: <1135912781.7790.15.camel@localhost.localdomain>
+Date: Thu, 29 Dec 2005 19:17:29 -0800
+Message-Id: <1135912649.7790.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-29 at 21:24 +0200, Pekka Enberg wrote:
+On Thu, 2005-12-29 at 16:01 -0300, Horst von Brand wrote:
 
-> [Copy-paste reuse alert!]
+> >   - Renamed _BITS_PER_BYTE to BITS_PER_BYTE, and moved it into
+> >     linux/types.h
 
-Yep, thanks for pointing that out.  The source file in question is about
-to go on a serious diet :-)
+> Haven't come across anything with this not 8 for a /long/ time now, and no
+> Linux on that in sight.
+
+The point isn't that it might change, but that it makes code clearer to
+use BITS_PER_BYTE in arithmetic than to have the magic number 8
+sprinkled around mysteriously.
 
 	<b
 

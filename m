@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVL3AMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVL3AIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbVL3AMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 19:12:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVL3AMI
+	id S1751161AbVL3AIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 19:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVL3AIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 19:12:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21475 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751166AbVL3AMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 19:12:07 -0500
-Date: Thu, 29 Dec 2005 16:11:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: coywolf@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: + drop-pagecache.patch added to -mm tree
-Message-Id: <20051229161158.85606458.akpm@osdl.org>
-In-Reply-To: <20051229144650.GB18833@infradead.org>
-References: <200512020130.jB21UWpS019783@shell0.pdx.osdl.net>
-	<2cd57c900512290154k12a2265cx@mail.gmail.com>
-	<20051229144650.GB18833@infradead.org>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Dec 2005 19:08:09 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:65187 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751161AbVL3AII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 19:08:08 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+Date: Fri, 30 Dec 2005 11:08:19 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <u8u8r1ttmtubpvd87sf9mq4fi2of0l6js4@4ax.com>
+References: <1135726300.22744.25.camel@mindpipe> <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com> <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu> <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu> <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe> <20051229202848.GC29546@elte.hu>
+In-Reply-To: <20051229202848.GC29546@elte.hu>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+On Thu, 29 Dec 2005 21:28:48 +0100, Ingo Molnar <mingo@elte.hu> wrote:
+
 >
-> On Thu, Dec 29, 2005 at 05:54:08PM +0800, Coywolf Qi Hunt wrote:
-> > 2005/12/2, akpm@osdl.org <akpm@osdl.org>:
-> > >
-> > > The patch titled
-> > >
-> > >      drop-pagecache
-> > >
-> > > has been added to the -mm tree.  Its filename is
-> > >
-> > >      drop-pagecache.patch
-> > >
-> > >
-> > > From: Andrew Morton <akpm@osdl.org>
-> > >
-> > > Add /proc/sys/vm/drop-pagecache.  When written to, this will cause the kernel
-> > > to discard as much pagecache and reclaimable slab objects as it can.
-> > >
-> > > It won't drop dirty data, so the user should run `sync' first.
-> > >
-> > > Caveats:
-> > >
-> > > a) Holds inode_lock for exorbitant amounts of time.
-> > >
-> > > b) Needs to be taught about NUMA nodes: propagate these all the way through
-> > >    so the discarding can be controlled on a per-node basis.
-> > >
-> > > c) The pagecache shrinking and slab shrinking should probably have separate
-> > >    controls.
-> 
-> d) it is a total mess.
+>thanks, applied - new version uploaded.
 
-Rubbish.
+I just booted with latency tracer, it died with (copy by hand):
+{   40} [<c012e74a>] debug_stackoverflow+0x6a/0xc0
 
-> A lot of code
+Much unusual stuff (several screenfuls) scrolled up prior to lockup.
 
-295 bytes.
-
-> for something that you shouldn't do
-> except for benchmarking.
-
-Sure.  It's a debugging feature.
-
->  If people see problems where pagecache data isn't
-> dropped enough we should fix the VM instead of adding code that just bloats
-> the kernel more.
-
-It's useful for debugging VM problems, too.
-
-
-I'm not fussed, really - it's useful for kernel developers and testers.  If
-we're so worried about a very small amount of not-at-all-messy code then we
-can stick it under CONFIG_DEBUG_VM.  
+Grant.

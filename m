@@ -1,88 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbVL3NZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVL3NcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbVL3NZK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 08:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbVL3NZK
+	id S1751260AbVL3NcB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 08:32:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVL3NcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 08:25:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18950 "HELO
+	Fri, 30 Dec 2005 08:32:01 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22022 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751258AbVL3NZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 08:25:09 -0500
-Date: Fri, 30 Dec 2005 14:25:07 +0100
+	id S1751262AbVL3NcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 08:32:00 -0500
+Date: Fri, 30 Dec 2005 14:31:59 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net, dtor_core@ameritech.net,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: USB Key Kingston DataTraveler
-Message-ID: <20051230132507.GW3811@stusta.de>
-References: <20051108220525.M81553@linuxwireless.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, Jakub Jelinek <jakub@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20051230133159.GX3811@stusta.de>
+References: <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051229143846.GA18833@infradead.org> <1135868049.2935.49.camel@laptopd505.fenrus.org> <20051229153529.GH3811@stusta.de> <20051229154241.GY22293@devserv.devel.redhat.com> <p73oe2zexx9.fsf@verdi.suse.de> <20051230094045.GA5799@elte.hu> <20051230101443.GA13072@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051108220525.M81553@linuxwireless.org>
+In-Reply-To: <20051230101443.GA13072@elte.hu>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 05:08:12PM -0500, Alejandro Bonilla wrote:
+On Fri, Dec 30, 2005 at 11:14:43AM +0100, Ingo Molnar wrote:
+>...
+> note: my focus is still mostly on CC_OPTIMIZE_FOR_SIZE (which is only 
+> offered if CONFIG_EMBEDDED is enabled) - if you want a larger kernel 
+> optimized for speed, do not enable it.
 
-> Hi,
+Since 2.6.15-rc6, CC_OPTIMIZE_FOR_SIZE only depends on EXPERIMENTAL.
 
-Hi Alejandro,
-
-> I have an IBM T42 with 2.6.14-git and this specific USB Key has never worked
-> for me. Any idea?
-
-is this problem still present in 2.6.15-rc7?
-
-> USB Key Kingston DataTraveler
-> 
-> 
-> hub 4-0:1.0: state 5 ports 6 chg 0000 evt 0010
-> ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001803 POWER sig=j CSC CONNECT
-> hub 4-0:1.0: port 4, status 0501, change 0001, 480 Mb/s
-> hub 4-0:1.0: debounce: port 4: total 100ms stable 100ms status 0x501
-> ehci_hcd 0000:00:1d.7: port 4 high speed
-> ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001005 POWER sig=se0 PE CONNECT
-> usb 4-4: new high speed USB device using ehci_hcd and address 5
-> ehci_hcd 0000:00:1d.7: port 4 high speed
-> ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001005 POWER sig=se0 PE CONNECT
-> usb 4-4: default language 0x0409
-> usb 4-4: new device strings: Mfr=1, Product=2, SerialNumber=3
-> usb 4-4: Product: DataTraveler 2.0
-> usb 4-4: Manufacturer: Kingston
-> usb 4-4: SerialNumber: 2840E64152121B80
-> usb 4-4: hotplug
-> usb 4-4: adding 4-4:1.0 (config #1, interface 0)
-> usb 4-4:1.0: hotplug
-> usb-storage 4-4:1.0: usb_probe_interface
-> usb-storage 4-4:1.0: usb_probe_interface - got id
-> scsi2 : SCSI emulation for USB Mass Storage devices
-> usb-storage: device found at 5
-> usb-storage: waiting for device to settle before scanning
->   Vendor: Kingston  Model: DataTraveler 2.0  Rev: 4.10
->   Type:   Direct-Access                      ANSI SCSI revision: 02
-> SCSI device sdb: 251904 512-byte hdwr sectors (129 MB)
-> sdb: Write Protect is off
-> sdb: Mode Sense: 0b 00 00 08
-> sdb: assuming drive cache: write through
-> SCSI device sdb: 251904 512-byte hdwr sectors (129 MB)
-> sdb: Write Protect is off
-> sdb: Mode Sense: 0b 00 00 08
-> sdb: assuming drive cache: write through
->  sdb: [CUMANA/ADFS] sdb1<5>sd 2:0:0:0: Attached scsi removable disk sdb
-> sd 2:0:0:0: Attached scsi generic sg1 type 0
-> usb-storage: device scan complete
-> printk: 4 messages suppressed.
-> Buffer I/O error on device sdb1, logical block 508378384
-> Buffer I/O error on device sdb1, logical block 508378384
-> Buffer I/O error on device sdb1, logical block 508378412
-> Buffer I/O error on device sdb1, logical block 508378412
-> Buffer I/O error on device sdb1, logical block 508378412
-> Buffer I/O error on device sdb1, logical block 508378412
-> Buffer I/O error on device sdb1, logical block 508378412
+> 	Ingo
 
 cu
 Adrian

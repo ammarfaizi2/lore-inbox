@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVL3IFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbVL3IJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVL3IFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 03:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVL3IFZ
+	id S1751211AbVL3IJf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 03:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVL3IJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 03:05:25 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41098 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751212AbVL3IFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 03:05:24 -0500
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       mpm@selenic.com
-In-Reply-To: <20051229231615.GV15993@alpha.home.local>
-References: <20051228114637.GA3003@elte.hu>
-	 <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
-	 <1135798495.2935.29.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
-	 <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
-	 <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
-	 <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
-	 <20051229231615.GV15993@alpha.home.local>
-Content-Type: text/plain
-Date: Fri, 30 Dec 2005 09:05:17 +0100
-Message-Id: <1135929917.2941.0.camel@laptopd505.fenrus.org>
+	Fri, 30 Dec 2005 03:09:35 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57799 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751211AbVL3IJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 03:09:34 -0500
+Date: Fri, 30 Dec 2005 09:09:14 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: gcoady@gmail.com
+Cc: Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+Message-ID: <20051230080914.GA26643@elte.hu>
+References: <1135726300.22744.25.camel@mindpipe> <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com> <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu> <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu> <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe> <20051229202848.GC29546@elte.hu> <u8u8r1ttmtubpvd87sf9mq4fi2of0l6js4@4ax.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <u8u8r1ttmtubpvd87sf9mq4fi2of0l6js4@4ax.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
 	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	0.9 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Can't we elect a recommended gcc version that distro makers could
-> ship under the name kgcc as it has been the case for some time,
+* Grant Coady <grant_lkml@dodo.com.au> wrote:
 
-speaking as someone who used to work for a distro: this sucks for
-distros. Shipping 2 compilers is NOT fun. Not fun at all! It's double
-the maintenance, actually more since 1 of the 2 is only used in 1
-package, so it gets a lot less testing.
+> On Thu, 29 Dec 2005 21:28:48 +0100, Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> >
+> >thanks, applied - new version uploaded.
+> 
+> I just booted with latency tracer, it died with (copy by hand):
+> {   40} [<c012e74a>] debug_stackoverflow+0x6a/0xc0
+> 
+> Much unusual stuff (several screenfuls) scrolled up prior to lockup.
 
+have you applied the zlib patches too? In particular this one should 
+make a difference:
 
+    http://redhat.com/~mingo/latency-tracing-patches/patches/reduce-zlib-stack-hack.patch
+
+If you didnt have this applied, could you apply it and retry with 
+stack-footprint-debugging again?
+
+	Ingo

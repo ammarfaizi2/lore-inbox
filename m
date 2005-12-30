@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVL3DF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVL3DTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbVL3DF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 22:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVL3DF5
+	id S1750805AbVL3DTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 22:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVL3DTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 22:05:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20667 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750798AbVL3DF4 (ORCPT
+	Thu, 29 Dec 2005 22:19:53 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:14742 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1750805AbVL3DTw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 22:05:56 -0500
-Message-ID: <43B4A3CA.4060406@redhat.com>
-Date: Thu, 29 Dec 2005 19:04:42 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mail/News 1.5 (X11/20051129)
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make sysenter support optional
-References: <20051228212402.GX3356@waste.org>	 <a36005b50512281407x74415958tb0fa2b52f4dd7988@mail.gmail.com>	 <43B30E19.6080207@redhat.com> <20051229195641.GB3356@waste.org> <a36005b50512291901l6a5acb77ha17d3552ea9c9fd9@mail.gmail.com>
-In-Reply-To: <a36005b50512291901l6a5acb77ha17d3552ea9c9fd9@mail.gmail.com>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC3BE90920A4D78BBE6B7E39B"
+	Thu, 29 Dec 2005 22:19:52 -0500
+Subject: Re: [PATCH 17 of 20] ipath - infiniband verbs support, part 3 of 3
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <84144f020512291124sd895dfbp87ca9fd75552d671@mail.gmail.com>
+References: <patchbomb.1135816279@eng-12.pathscale.com>
+	 <584777b6f4dc5269fa89.1135816296@eng-12.pathscale.com>
+	 <84144f020512291124sd895dfbp87ca9fd75552d671@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 29 Dec 2005 19:19:41 -0800
+Message-Id: <1135912781.7790.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC3BE90920A4D78BBE6B7E39B
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Thu, 2005-12-29 at 21:24 +0200, Pekka Enberg wrote:
 
-> It's under CONFIG_EMBEDDED. Think uclibc. Think systems without
-> interactive shells.
+> [Copy-paste reuse alert!]
 
-Interactive or not has absolutely nothing to do with this.  And other
-libcs have the same issues wrt to backtraces.  And finally, there is
-unfortunately no way to prevent somebody from using glibc on an
-"embedded" kernel and I have no interest in getting "bug reports" caused
-by this kind of user error.
+Yep, thanks for pointing that out.  The source file in question is about
+to go on a serious diet :-)
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+	<b
 
-
---------------enigC3BE90920A4D78BBE6B7E39B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDtKPK2ijCOnn/RHQRAlDLAJ493rL3IjsfykMtk9EEQDDk+xREcACgqtS2
-MUBt436B99fRPAceetsQtg0=
-=eyFH
------END PGP SIGNATURE-----
-
---------------enigC3BE90920A4D78BBE6B7E39B--

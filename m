@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVL3LWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVL3LpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbVL3LWE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 06:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVL3LWE
+	id S1751104AbVL3LpU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 06:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVL3LpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 06:22:04 -0500
-Received: from ns.firmix.at ([62.141.48.66]:29644 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1751251AbVL3LWC (ORCPT
+	Fri, 30 Dec 2005 06:45:20 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:6019 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751104AbVL3LpS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 06:22:02 -0500
-Subject: Re: [PATCH] Make sysenter support optional
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Matt Mackall <mpm@selenic.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43B4B1AF.3020303@redhat.com>
-References: <20051228212402.GX3356@waste.org>
-	 <a36005b50512281407x74415958tb0fa2b52f4dd7988@mail.gmail.com>
-	 <43B30E19.6080207@redhat.com> <20051229195641.GB3356@waste.org>
-	 <a36005b50512291901l6a5acb77ha17d3552ea9c9fd9@mail.gmail.com>
-	 <43B4A3CA.4060406@redhat.com> <20051230033803.GG3356@waste.org>
-	 <43B4B1AF.3020303@redhat.com>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Fri, 30 Dec 2005 12:20:54 +0100
-Message-Id: <1135941654.3342.24.camel@gimli.at.home>
+	Fri, 30 Dec 2005 06:45:18 -0500
+Date: Fri, 30 Dec 2005 17:14:53 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>, Andi Kleen <ak@muc.de>,
+       Morton Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] x86_64 write apic id fix
+Message-ID: <20051230114453.GF11470@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20051229082709.GB1626@in.ibm.com> <43B40757.7040706@kolumbus.fi>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43B40757.7040706@kolumbus.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-29 at 20:03 -0800, Ulrich Drepper wrote:
-> Matt Mackall wrote:
-> > Ok, let me be explicit: think systems with absolutely no facility for
-> > recording or displaying a backtrace.
+On Thu, Dec 29, 2005 at 05:57:11PM +0200, Mika Penttilä wrote:
+> Vivek Goyal wrote:
 > 
-> You don't know much about unwinding, do you?  The same information is
-> needed for C++ exception handling, thread cancellation, etc.  Now go on
-> and tell me you don't need this either.
+> >o Apic id is in most significant 8 bits of APIC_ID register. Current code
+> > is trying to write apic id to least significant 8 bits. This patch fixes
+> > it.
+> >
+> >o This fix enables booting uni kdump capture kernel on a cpu with non-zero
+> > apic id.
+> >
+> >Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> >---
+> >
+> > 
+> >
+> What difference does it make in the first place? In 
+> APIC_init_uniprocessor() you write back the apic id read before from 
+> processor, not from mp table (because you wouldn't be in 
+> APIC_init_uniprocessor() otherwise).
+> 
 
-On (presumbly small) embedded devices?
-Please be serious.
+In this case APIC_init_uniprocessor() is being called from smp_init() as
+I have compiled this as a uni kernel. And smp_found_config is 1. So this
+can not be guaranteed that boot_cpu_id has been read from APIC.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+But at the same time I see two functions (detect_init_APIC() and
+init_apic_mappings()) which overwrite the boot_cpu_id unconditionally. Former
+sets it to zero by default and later always reads it from APIC. This 
+basically means that we just don't trust the MP tables in all the cases.
 
+For kdump case, this becomes further tricky, as we boot into a second
+kernel without going through the BIOS and we might be booting on a cpu
+with non-zero apic id. But ACPI and MP tables will continue to report
+boot cpu id as 0 and that's not correct. 
 
+To come back to your question, I have just fixed one problem and that is
+if you are writing boot_cpu_id to APIC_ID register, write it in a proper
+manner. Otherwise what happens in this case is that boot_cpu_id is 1 and
+if I use apic_write_around(apic, boot_cpu_id) then it writes 0 to APIC_ID
+register instead of 1 and definitely that's not the requirement.
 
+Thanks
+Vivek

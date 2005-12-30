@@ -1,108 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbVL3XKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVL3XLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbVL3XKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 18:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVL3XKQ
+	id S964935AbVL3XLN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 18:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbVL3XLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 18:10:16 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:11674 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S964929AbVL3XKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 18:10:15 -0500
-Subject: Re: [PATCH 12 of 20] ipath - misc driver support code
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20051230082505.GC7438@kroah.com>
-References: <patchbomb.1135816279@eng-12.pathscale.com>
-	 <5e9b0b7876e2d570f25e.1135816291@eng-12.pathscale.com>
-	 <20051230082505.GC7438@kroah.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Fri, 30 Dec 2005 15:10:09 -0800
-Message-Id: <1135984209.13318.47.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 30 Dec 2005 18:11:13 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:29840 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S964935AbVL3XLM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 18:11:12 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Mark v Wolher <trilight@ns666.com>
+Subject: Re: system keeps freezing once every 24 =?iso-8859-1?q?hours=09/=09random=09apps=09crashing?=
+Date: Fri, 30 Dec 2005 23:11:27 +0000
+User-Agent: KMail/1.9
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Folkert van Heusden <folkert@vanheusden.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <43B53EAB.3070800@ns666.com> <1135980690.31111.35.camel@mindpipe> <43B5B1C4.7070501@ns666.com>
+In-Reply-To: <43B5B1C4.7070501@ns666.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512302311.27125.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-30 at 00:25 -0800, Greg KH wrote:
+On Friday 30 December 2005 22:16, Mark v Wolher wrote:
+[snip]
+> >
+> > Basically you are asking for help with an unsupported configuration.  In
+> > general people on LKML will be more helpful if you take the time to find
+> > out what the bug reporting guidelines are before posting.
+> >
+> > Lee
+>
+> Thank you for your input, but sometimes thinking out of the box gives a
+> solution instead of hiding behind "guidelines".
 
-> No description of what the patch does?
+I'm surprised Lee fed you this long, but the cold hard fact of the matter is 
+that you are posting to the Linux kernel mailing lists, and you will comply 
+with these guidelines if you expect help.
 
-Ahem.  Oops.
+I'm sure the problem might not be with VMWare, but there is absolutely nothing 
+stopping you from switching nvidia with nv, not loading nvidia/vmware 
+modules, then running the TV card doing *something else* for a few hours. If 
+you do not detect lockups, contact VMWare. They will probably do the exact 
+opposite of what Lee has done and suggest non-VMWare parts of the system are 
+at fault.
 
-> > +struct _infinipath_do_not_use_kernel_regs {
-> > +	unsigned long long Revision;
-> 
-> u64?
+However, unlike VMWare or NVIDIA, we can actually debug problems if you use 
+source-available modules. Thinking outside of the box here is irrelevant -- a 
+problem requires logical procedure to gain a solution. Any engineer will tell 
+you the same thing. Ordinarily, this is test, observe, retest, and all Lee is 
+suggesting is that you do *not* load the proprietary modules.
 
-Right.
+Try it before responding to this email, so you do not have to write another.
 
-> > +	unsigned long long Control;
-> > +	unsigned long long PageAlign;
-> > +	unsigned long long PortCnt;
-> 
-> And what's with the InterCapsNamingScheme of these variables?
+-- 
+Cheers,
+Alistair.
 
-They're taken straight from the register names in our chip spec.  I can
-squish them to lowercase-only, if that seems important.
-
-> > +/*
-> > + * would prefer to not inline this, to avoid code bloat, and simplify debugging
-> > + * But when compiling against 2.6.10 kernel tree, it gets an error, so
-> > + * not for now.
-> > + */
-> > +static void ipath_i2c_delay(ipath_type, int);
-> 
-> You aren't compiling this for a 2.6.10 kernel anymore :)
-
-Yes, that hunk is redundant.  Thanks for spotting it.
-
-> > +static void ipath_i2c_delay(ipath_type dev, int dtime)
-
-> Huh?  After reading your comment, I still don't understand why you can't
-> just use udelay().  Or are you counting on calling this function with
-> only "1" being set for dtime?
-
-It's usually called with a dtime of 1, but there's an added delay in one
-place.
-
-I just rewrote that routine, so it's now a one-liner that does a read
-which waits for writes to the chip to complete.  The sole caller that
-wanted an added wait calls udelay itself now.
-
-> Ah, isn't it fun to write bit-banging functions...  And the in-kernel
-> i2c code is messier than doing this by hand?
-
->From looking at it, it will make the i2c part of the driver longer,
-rather than shorter.  There's nothing objectionable about the kernel i2c
-interfaces per se, but our bit-banging code is pretty small and
-specialised.
-
-> Odd function comment style.  Please fix this to be in kerneldoc format.
-
-Sure.
-
-> Are you _sure_ you need all of these for the one function in this file?
-
-That file will be taken out and put to sleep.
-
-> > +#include <stddef.h>
-> 
-> Where is this file being pulled in from?
-
-Ugh, braino.
-
-> Woah, um, don't you think that you should either export the main mlock
-> function itself, or fix your code to not need it?  Rolling it yourself
-> isn't a good idea...
-
-Other people have pointed out that our page-pinning code is horked.
-We'll find a saner alternative.
-
-Thanks for the comments, Greg.
-
-	<b
-
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

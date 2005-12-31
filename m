@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVLaSSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVLaS3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbVLaSSR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 13:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVLaSSR
+	id S965030AbVLaS3j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 13:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVLaS3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 13:18:17 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:1085 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932310AbVLaSSQ (ORCPT
+	Sat, 31 Dec 2005 13:29:39 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:33611 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965030AbVLaS3i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 13:18:16 -0500
+	Sat, 31 Dec 2005 13:29:38 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=CbL2JExFvbFVYzyJUZQ2sBun0vkTBpqrUcnX07aD3/kCL/BAWAHPiQ5WShmVu8lcCttxPLRcbpNXu/LZXz1z+y6Yn4nHmI0MoeIMLCfQGKemMZdq6x5nVk52vAF+jl4fmo5RQBOVM0gtCf69QTujhVO1+UArB0VBKU4y7z2TTUA=
-Date: Sat, 31 Dec 2005 20:18:08 +0200
+        b=bSqZopvuhZaPIOITp7QXrx4bJGcwbWd+u0NiRAK2F4PIN66sDoZMaC4m3R3ax0lFM6tb2aD+hS1Ev9ax1gSYmX71B01yJJw5GnGO/uoZs1Ifj4qyisYKNY05oY7kwvS+prAvAJVS0ameDSa8zGNYIzC7hF1/myEfe9bh1NeYjqI=
+Date: Sat, 31 Dec 2005 20:29:33 +0200
 From: Bradley Reed <bradreed1@gmail.com>
 To: linux-kernel@vger.kernel.org
 Subject: MPlayer broken under 2.6.15-rc7-rt1?
-Message-ID: <20051231201808.43d6c4d6@galactus.example.org>
+Message-ID: <20051231202933.4f48acab@galactus.example.org>
 X-Mailer: Sylpheed-Claws 1.9.100cvs108 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -43,21 +43,21 @@ dmesg shows:
 kernel BUG at include/linux/timer.h:83!
 invalid operand: 0000 [#5]
 PREEMPT 
-Modules linked in: snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_o    
-ss intel_agp snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd snd_page_alloc nvidia agpgart b44     
-orinoco_cs orinoco hermes
-CPU:    0
+Modules linked in: snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq
+snd_seq_device snd_pcm_oss snd_mixer_o ss intel_agp snd_intel8x0
+snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd snd_page_alloc nvidia
+agpgart b44 orinoco_cs orinoco hermes CPU:    0
 EIP:    0060:[<c031491c>]    Tainted: P      VLI
 EFLAGS: 00010286   (2.6.15-rc7-rt1) 
 EIP is at rtc_do_ioctl+0xa13/0xa44
 eax: 00000021   ebx: cf16e000   ecx: de8e8000   edx: cf16e000
 esi: 00000246   edi: 00000001   ebp: 00007005   esp: cf16fe7c
 ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process mplayer (pid: 4067, threadinfo=cf16e000 task=df315380 stack_left=7752 worst_left=-1)
-Stack: c047704e c047dff9 00000053 00000000 00000000 00000246 dffb4e00 c0500380 
-       00000087 00000000 c030809a de91e330 cb5f1b80 00000000 00000246 dffb4e00 
-       dffb4e00 00000000 c0307fc3 c016ed76 de91e330 cb5f1b80 cf16ff38 00000003 
-Call Trace:
+Process mplayer (pid: 4067, threadinfo=cf16e000 task=df315380
+stack_left=7752 worst_left=-1) Stack: c047704e c047dff9 00000053
+00000000 00000000 00000246 dffb4e00 c0500380 00000087 00000000 c030809a
+de91e330 cb5f1b80 00000000 00000246 dffb4e00 dffb4e00 00000000 c0307fc3
+c016ed76 de91e330 cb5f1b80 cf16ff38 00000003 Call Trace:
  [<c030809a>] misc_open+0xd7/0x2ee (44)
  [<c0307fc3>] misc_open+0x0/0x2ee (32)
  [<c016ed76>] chrdev_open+0xf6/0x1c8 (4)
@@ -70,8 +70,9 @@ Call Trace:
  [<c01732ac>] putname+0x2b/0x37 (20)
  [<c0178d15>] sys_ioctl+0x45/0x6c (16)
  [<c0103171>] syscall_call+0x7/0xb (36)
-Code: 73 14 00 e9 bb fd ff ff e8 d0 73 14 00 eb ae c7 44 24 08 53 00 00 00 c7 44 24 04 f9 df 47 c0 c7 04 24 4e    
- 70 47 c0 e8 25 7d e0 ff <0f> 0b 53 00 f9 df 47 c0 e9 a1 fd ff ff fb 83 6b 14 01 8b 43 08 
+Code: 73 14 00 e9 bb fd ff ff e8 d0 73 14 00 eb ae c7 44 24 08 53 00 00
+00 c7 44 24 04 f9 df 47 c0 c7 04 24 4e 70 47 c0 e8 25 7d e0 ff <0f> 0b
+53 00 f9 df 47 c0 e9 a1 fd ff ff fb 83 6b 14 01 8b 43 08 
 
 ====
 strace mplayer ends with:

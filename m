@@ -1,104 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVLaVoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVLaWB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbVLaVoh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 16:44:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVLaVoh
+	id S965046AbVLaWB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 17:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVLaWB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 16:44:37 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:63389 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750764AbVLaVog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 16:44:36 -0500
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14.5: segfault / oops with ide-scsi
-Date: Sun, 01 Jan 2006 08:44:30 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <8budr11mfchfp03ncrpqjeck6f04urom8n@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Sat, 31 Dec 2005 17:01:56 -0500
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:47854 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S965046AbVLaWB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 17:01:56 -0500
+Date: Sun, 1 Jan 2006 00:01:52 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+Message-ID: <20051231220152.GA3147@m.safari.iki.fi>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <43B5D6D0.9050601@ns666.com> <43B65DEE.906@ns666.com> <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com> <43B66E3D.2010900@ns666.com> <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com> <43B67DB6.2070201@ns666.com> <43B6A14E.1020703@ns666.com> <20051231163414.GE3214@m.safari.iki.fi> <20051231163414.GE3214@m.safari.iki.fi> <43B6B669.6020500@ns666.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <43B6B669.6020500@ns666.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Sat, Dec 31, 2005 at 07:43:43PM +0100, Jiri Slaby wrote:
+> >Hi Sami,
+> >
+> >That caused also a crash, i kept pressing the v key and within 15
+> >seconds it crashed, then i saw the crash-info appear in the log and when
+> >i clicked on mozilla then it crashed too but without crahs info and
+> >system froze totally.
+> >
+> >Below the crash info:
+> >
+> >Dec 31 17:38:32 localhost kernel: Unable to handle kernel paging request
+> >at virtual address c8111000
+> >Dec 31 17:38:32 localhost kernel:  printing eip:
+> >Dec 31 17:38:32 localhost kernel: c036037a
+> >Dec 31 17:38:32 localhost kernel: *pgd = 21063
+> >Dec 31 17:38:32 localhost kernel: *pmd = 21063
+> >Dec 31 17:38:32 localhost kernel: *pte = 8111000
+> >Dec 31 17:38:32 localhost kernel: Oops: 0002 [#4]
+> [snip]
+> Could you try the attached patch?
+> 
+> --
+> diff --git a/drivers/media/video/bttv-risc.c b/drivers/media/video/bttv-risc.c
+> --- a/drivers/media/video/bttv-risc.c
+> +++ b/drivers/media/video/bttv-risc.c
+> @@ -53,7 +53,7 @@ bttv_risc_packed(struct bttv *btv, struc
+>  	/* estimate risc mem: worst case is one write per page border +
+>  	   one write per scan line + sync + jump (all 2 dwords) */
+>  	instructions  = (bpl * lines) / PAGE_SIZE + lines;
+> -	instructions += 2;
+> +	instructions += 4;
+>  	if ((rc = btcx_riscmem_alloc(btv->c.pci,risc,instructions*8)) < 0)
+>  		return rc;
 
-Got this, trying to mount CDROM on a troublesome box I've not had 
-for long, Intel ICH 801 / 810 -- this with "hdc=ide-scsi":
+This patch has the effect that xawtv crashed system two times faster
+than earlier... now we're at two seconds.  
 
-root@niner:~# mount /dev/sr0 /mnt/cdrom/
-mount: you must specify the filesystem type
-root@niner:~# mount -t iso9660 /dev/sr0 /mnt/cdrom/
-mount: /dev/sr0 is not a valid block device
-root@niner:~# mount -t iso9660 /dev/sg0 /mnt/cdrom/
-mount: /dev/sg0 is not a block device
-root@niner:~# mount -t iso9660 /dev/hdc /mnt/cdrom/
-Segmentation fault
-
-Even if this be finger trouble, it should not oops?
-
-Jan  1 08:29:15 niner kernel: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
-Jan  1 08:30:02 niner kernel: ide-scsi: unsup command: dev hdc: flags = REQ_CMD REQ_STARTED
-Jan  1 08:30:02 niner kernel: sector 64, nr/cnr 2/2
-Jan  1 08:30:02 niner kernel: bio c9e095e0, biotail c9e095e0, buffer c7feb000, data 00000000, len 0
-Jan  1 08:30:02 niner kernel: end_request: I/O error, dev hdc, sector 64
-Jan  1 08:30:02 niner kernel: isofs_fill_super: bread failed, dev=hdc, iso_blknum=16, block=32
-Jan  1 08:30:02 niner kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Jan  1 08:30:02 niner kernel:  printing eip:
-Jan  1 08:30:02 niner kernel: c01d9206
-Jan  1 08:30:02 niner kernel: *pde = 00000000
-Jan  1 08:30:02 niner kernel: Oops: 0000 [#1]
-Jan  1 08:30:02 niner kernel: Modules linked in: isofs zlib_inflate ide_scsi e100 3c59x
-Jan  1 08:30:02 niner kernel: CPU:    0
-Jan  1 08:30:02 niner kernel: EIP:    0060:[<c01d9206>]    Not tainted VLI
-Jan  1 08:30:02 niner kernel: EFLAGS: 00010246   (2.6.14.5a)
-Jan  1 08:30:02 niner kernel: EIP is at get_kobj_path_length+0x26/0x40
-Jan  1 08:30:02 niner kernel: eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: c91a826c
-Jan  1 08:30:02 niner kernel: esi: 00000001   edi: 00000000   ebp: ffffffff   esp: c7f9fdcc
-Jan  1 08:30:02 niner kernel: ds: 007b   es: 007b   ss: 0068
-Jan  1 08:30:02 niner kernel: Process mount (pid: 547, threadinfo=c7f9f000 task=c8fe2090)
-Jan  1 08:30:02 niner kernel: Stack: c117c520 c927c200 ffffffea c91a826c c01d929f c91a826c 00000282 c7f65e14
-Jan  1 08:30:02 niner kernel:        00000000 c117c520 c927c200 ffffffea 00000000 c01d9be8 c91a826c 000000d0
-Jan  1 08:30:02 niner kernel:        00000020 00000064 fffffff4 c117c520 c927c200 ffffffea c7fd1000 c01d9cf8
-Jan  1 08:30:02 niner kernel: Call Trace:
-Jan  1 08:30:02 niner kernel:  [<c01d929f>] kobject_get_path+0x1f/0x80
-Jan  1 08:30:02 niner kernel:  [<c01d9be8>] do_kobject_uevent+0x28/0x110
-Jan  1 08:30:02 niner kernel:  [<c01d9cf8>] kobject_uevent+0x28/0x30
-Jan  1 08:30:02 niner kernel:  [<c0158f0e>] bdev_uevent+0x2e/0x50
-Jan  1 08:30:02 niner kernel:  [<c01590a6>] kill_block_super+0x26/0x50
-Jan  1 08:30:02 niner kernel:  [<c01584a6>] deactivate_super+0x56/0x70
-Jan  1 08:30:02 niner kernel:  [<c0159051>] get_sb_bdev+0x121/0x150
-Jan  1 08:30:02 niner kernel:  [<c0168cd3>] dput+0x33/0x180
-Jan  1 08:30:02 niner kernel:  [<ca926fe0>] isofs_get_sb+0x30/0x40 [isofs]
-Jan  1 08:30:02 niner kernel:  [<ca925cd0>] isofs_fill_super+0x0/0x6e0 [isofs]
-Jan  1 08:30:02 niner kernel:  [<c015928f>] do_kern_mount+0x5f/0xe0
-Jan  1 08:30:02 niner kernel:  [<c016de6c>] do_new_mount+0x9c/0xe0
-Jan  1 08:30:02 niner kernel:  [<c016e457>] do_mount+0x157/0x1b0
-Jan  1 08:30:02 niner kernel:  [<c016e2a3>] copy_mount_options+0x63/0xc0
-Jan  1 08:30:02 niner kernel:  [<c016e84a>] sys_mount+0x9a/0xe0
-Jan  1 08:30:02 niner kernel:  [<c0102fd9>] syscall_call+0x7/0xb
-Jan  1 08:30:02 niner kernel: Code: 90 8d 74 26 00 55 bd ff ff ff ff 57 56 be 01 00 00 00 53 8b 54 24 14 31 db 8d b6 00 00 00 00 8d bf 00 00 00 00 8b 3a 89 e9 89 d8 <f2> ae f7 d1 49 8b 52 24 8d 74 31 01 85 d2 75 ea 5b 89 f0 5e 5f
-
-Box info" http://bugsplatter.mine.nu/test/boxen/niner/
-
-Prior to adding the "hdc=ide-scsi" to lilo, the box is able to 
-boot from cdrom, then cannot read the cdrom.  Trying to mount it 
-results in many of these in syslog:
-
-Jan  1 08:14:12 niner kernel: hdc: attached ide-cdrom driver.
-Jan  1 08:15:25 niner kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-Jan  1 08:15:25 niner kernel: hdc: command error: error=0x52
-Jan  1 08:15:25 niner kernel: end_request: I/O error, dev 16:00 (hdc), sector 0
-Jan  1 08:15:25 niner kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-Jan  1 08:15:25 niner kernel: hdc: command error: error=0x52
-Jan  1 08:15:25 niner kernel: end_request: I/O error, dev 16:00 (hdc), sector 4
-Jan  1 08:15:25 niner kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-Jan  1 08:15:25 niner kernel: hdc: command error: error=0x52
-Jan  1 08:15:25 niner kernel: end_request: I/O error, dev 16:00 (hdc), sector 0
-
-What next?
-
-Thanks,
-Grant.
+-- 

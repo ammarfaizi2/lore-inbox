@@ -1,187 +1,244 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbVLaGme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVLaGqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbVLaGme (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 01:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbVLaGme
+	id S1751271AbVLaGqS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 01:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVLaGqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 01:42:34 -0500
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:50050 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750833AbVLaGme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 01:42:34 -0500
-Date: Sat, 31 Dec 2005 01:37:17 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 03/13] mutex subsystem, add
-  include/asm-i386/mutex.h
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Ingo Molnar <mingo@redhat.com>
-Message-ID: <200512310140_MC3-1-B501-E855@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Sat, 31 Dec 2005 01:46:18 -0500
+Received: from hera.kernel.org ([140.211.167.34]:31933 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751271AbVLaGqR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 01:46:17 -0500
+Date: Sat, 31 Dec 2005 04:46:15 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
+Message-ID: <20051231064615.GB11069@dmt.cnet>
+References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20051229210336.GD665@elte.hu>
+Hi Christoph,
 
-On Thu, 29 Dec 2005 at 22:03:36 +0100, Ingo Molnar wrote:
+On Tue, Dec 20, 2005 at 03:57:33PM -0800, Christoph Lameter wrote:
+> Light weight counter functions
+> 
+> The remaining counters in page_state after the zoned VM counter patch has been
+> applied are all just for show in /proc/vmstat. They have no essential function
+> for the VM and therefore we can make these counters lightweight by ignoring
+> races and also allow an off switch for embedded systems that allows a building
+> of a linux kernels without these counters.
+> 
+> The implementation of these counters is through inline code that typically
+> results in a simple increment of a global memory locations.
+> 
+> Also
+> - Rename page_state to event_state
+> - Make event state an array indexed by the event item.
+> 
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
+> Index: linux-2.6.15-rc5-mm3/init/Kconfig
+> ===================================================================
+> --- linux-2.6.15-rc5-mm3.orig/init/Kconfig	2005-12-16 11:44:09.000000000 -0800
+> +++ linux-2.6.15-rc5-mm3/init/Kconfig	2005-12-20 14:15:23.000000000 -0800
+> @@ -411,6 +411,15 @@ config SLAB
+>  	  SLOB is more space efficient but does not scale well and is
+>  	  more susceptible to fragmentation.
+>  
+> +config EVENT_COUNTERS
 
-> +#define __mutex_fastpath_lock(count, fn_name)                                \
-> +do {                                                                 \
-> +     /* type-check the function too: */                              \
-> +     void fastcall (*__tmp)(atomic_t *) = fn_name;                   \
-> +     unsigned int dummy;                                             \
-> +                                                                     \
-> +     (void)__tmp;                                                    \
-> +     typecheck(atomic_t *, count);                                   \
+Please rename to VM_EVENT_COUNTERS or a better name.
 
- The function type checking is ugly.  Wouldn't this be better?
+> +	default y
+> +	bool "Enable event counters for /proc/vmstat" if EMBEDDED
+> +	help
+> +	  Event counters are only needed to display statistics. They
+> +	  have no function for the kernel itself. This option allows
+> +	  the disabling of the event counters. /proc/vmstat will only
+> +	  contain essential counters.
+> +
+>  config SERIAL_PCI
+>  	depends PCI && SERIAL_8250
+>  	default y
+> Index: linux-2.6.15-rc5-mm3/include/linux/page-flags.h
+> ===================================================================
+> --- linux-2.6.15-rc5-mm3.orig/include/linux/page-flags.h	2005-12-20 13:15:45.000000000 -0800
+> +++ linux-2.6.15-rc5-mm3/include/linux/page-flags.h	2005-12-20 14:55:00.000000000 -0800
+> @@ -77,120 +77,70 @@
+>  #define PG_nosave_free		18	/* Free, should not be written */
+>  #define PG_uncached		19	/* Page has been mapped as uncached */
+>  
+> +#ifdef CONFIG_EVENT_COUNTERS
+>  /*
+> - * Global page accounting.  One instance per CPU.  Only unsigned longs are
+> - * allowed.
+> + * Light weight per cpu counter implementation.
+>   *
+> - * - Fields can be modified with xxx_page_state and xxx_page_state_zone at
+> - * any time safely (which protects the instance from modification by
+> - * interrupt.
+> - * - The __xxx_page_state variants can be used safely when interrupts are
+> - * disabled.
+> - * - The __xxx_page_state variants can be used if the field is only
+> - * modified from process context, or only modified from interrupt context.
+> - * In this case, the field should be commented here.
+> + * Note that these can race. We do not bother to enable preemption
+> + * or care about interrupt races. All we care about is to have some
+> + * approximate count of events.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+What about this addition to the documentation above, to make it a little more 
+verbose:
 
- include/asm-arm/mutex.h    |   12 +++---------
- include/asm-i386/mutex.h   |    8 ++------
- include/asm-x86_64/mutex.h |    8 ++------
- include/linux/kernel.h     |    9 +++++++++
- include/linux/mutex.h      |    4 ++++
- 5 files changed, 20 insertions(+), 21 deletions(-)
+	The possible race scenario is restricted to kernel preemption,
+	and could happen as follows:
 
---- 2.6.15-rc7b.orig/include/asm-arm/mutex.h
-+++ 2.6.15-rc7b/include/asm-arm/mutex.h
-@@ -25,11 +25,9 @@
-  */
- #define __mutex_fastpath_lock(count, fail_fn)				\
- do {									\
--	/* type-check the function too: */				\
--	void fastcall (*__tmp)(atomic_t *) = fail_fn;			\
- 	int __ex_flag, __res;						\
- 									\
--	(void)__tmp;							\
-+	typecheck_fn(mutex_void_fail_fn_t, fail_fn);			\
- 	typecheck(atomic_t *, count);					\
- 									\
- 	__asm__ (							\
-@@ -47,11 +45,9 @@ do {									\
- 
- #define __mutex_fastpath_lock_retval(count, fail_fn)			\
- ({									\
--	/* type-check the function too: */				\
--	int fastcall (*__tmp)(atomic_t *) = fail_fn;			\
- 	int __ex_flag, __res;						\
- 									\
--	(void)__tmp;							\
-+	typecheck_fn(mutex_int_fail_fn_t, fail_fn);			\
- 	typecheck(atomic_t *, count);					\
- 									\
- 	__asm__ (							\
-@@ -76,11 +72,9 @@ do {									\
-  */
- #define __mutex_fastpath_unlock(count, fail_fn)				\
- do {									\
--	/* type-check the function too: */				\
--	void fastcall (*__tmp)(atomic_t *) = fail_fn;			\
- 	int __ex_flag, __res, __orig;					\
- 									\
--	(void)__tmp;							\
-+	typecheck_fn(mutex_void_fail_fn_t, fail_fn);			\
- 	typecheck(atomic_t *, count);					\
- 									\
- 	__asm__ (							\
---- 2.6.15-rc7b.orig/include/asm-i386/mutex.h
-+++ 2.6.15-rc7b/include/asm-i386/mutex.h
-@@ -21,11 +21,9 @@
-  */
- #define __mutex_fastpath_lock(count, fn_name)				\
- do {									\
--	/* type-check the function too: */				\
--	void fastcall (*__tmp)(atomic_t *) = fn_name;			\
- 	unsigned int dummy;						\
- 									\
--	(void)__tmp;							\
-+	typecheck_fn(mutex_void_fail_fn_t, fn_name);			\
- 	typecheck(atomic_t *, count);					\
- 									\
- 	__asm__ __volatile__(						\
-@@ -79,11 +77,9 @@ __mutex_fastpath_lock_retval(atomic_t *c
-  */
- #define __mutex_fastpath_unlock(count, fn_name)				\
- do {									\
--	/* type-check the function too: */				\
--	void fastcall (*__tmp)(atomic_t *) = fn_name;			\
- 	unsigned int dummy;						\
- 									\
--	(void)__tmp;							\
-+	typecheck_fn(mutex_void_fail_fn_t, fn_name);			\
- 	typecheck(atomic_t *, count);					\
- 									\
- 	__asm__ __volatile__(						\
---- 2.6.15-rc7b.orig/include/asm-x86_64/mutex.h
-+++ 2.6.15-rc7b/include/asm-x86_64/mutex.h
-@@ -18,11 +18,9 @@
-  */
- #define __mutex_fastpath_lock(v, fn_name)				\
- do {									\
--	/* type-check the function too: */				\
--	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
- 	unsigned long dummy;						\
- 									\
--	(void)__tmp;							\
-+	typecheck_fn(mutex_void_fail_fn_t, fn_name);			\
- 	typecheck(atomic_t *, v);					\
- 									\
- 	__asm__ __volatile__(						\
-@@ -50,11 +48,9 @@ do {									\
-  */
- #define __mutex_fastpath_unlock(v, fn_name)				\
- do {									\
--	/* type-check the function too: */				\
--	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
- 	unsigned long dummy;						\
- 									\
--	(void)__tmp;							\
-+	typecheck_fn(mutex_void_fail_fn_t, fn_name);			\
- 	typecheck(atomic_t *, v);					\
- 									\
- 	__asm__ __volatile__(						\
---- 2.6.15-rc7b.orig/include/linux/mutex.h
-+++ 2.6.15-rc7b/include/linux/mutex.h
-@@ -69,6 +69,10 @@ struct mutex_waiter {
- #endif
- };
- 
-+/* mutex functions called when extra work needs to be done have these types  */
-+typedef void fastcall mutex_void_fail_fn_t(atomic_t *);
-+typedef int fastcall mutex_int_fail_fn_t(atomic_t *);
-+
- #ifdef CONFIG_DEBUG_MUTEXES
- # include <linux/mutex-debug.h>
- #else
---- 2.6.15-rc7b.orig/include/linux/kernel.h
-+++ 2.6.15-rc7b/include/linux/kernel.h
-@@ -286,6 +286,15 @@ extern void dump_stack(void);
- 	1; \
- })
- 
-+/*
-+ * Check at compile time that 'function' is a certain type, or is a pointer
-+ * to that type (needs to use typedef for the function type.)
-+ */
-+#define typecheck_fn(type,function) \
-+({	type *__dummy = function; \
-+	(void)__dummy; \
-+})
-+
- #endif /* __KERNEL__ */
- 
- #define SI_LOAD_SHIFT	16
--- 
-Chuck
+	thread A				thread B
+a)	movl    xyz(%ebp), %eax			movl    xyz(%ebp), %eax
+b)	incl    %eax				incl    %eax
+c)	movl    %eax, xyz(%ebp)			movl    %eax, xyz(%ebp)
+
+Thread A can be preempted in b), and thread B succesfully increments the
+counter, writing it back to memory. Now thread A resumes execution, with
+its stale copy of the counter, and overwrites the current counter.
+
+Resulting in increments lost.
+
+However that should be relatively rare condition.
+
+> + *
+> + * Counters should only be incremented and no critical kernel component
+> + * should rely on the counter values.
+> + *
+> + * Counters are handled completely inline. On many platforms the code
+> + * generated will simply be the increment of a global address.
+>   */
+> -struct page_state {
+> -	/*
+> -	 * The below are zeroed by get_page_state().  Use get_full_page_state()
+> -	 * to add up all these.
+> -	 */
+> -	unsigned long pgpgin;		/* Disk reads */
+> -	unsigned long pgpgout;		/* Disk writes */
+> -	unsigned long pswpin;		/* swap reads */
+> -	unsigned long pswpout;		/* swap writes */
+> -
+> -	unsigned long pgalloc_high;	/* page allocations */
+> -	unsigned long pgalloc_normal;
+> -	unsigned long pgalloc_dma32;
+> -	unsigned long pgalloc_dma;
+> -
+> -	unsigned long pgfree;		/* page freeings */
+> -	unsigned long pgactivate;	/* pages moved inactive->active */
+> -	unsigned long pgdeactivate;	/* pages moved active->inactive */
+> -
+> -	unsigned long pgfault;		/* faults (major+minor) */
+> -	unsigned long pgmajfault;	/* faults (major only) */
+> -
+> -	unsigned long pgrefill_high;	/* inspected in refill_inactive_zone */
+> -	unsigned long pgrefill_normal;
+> -	unsigned long pgrefill_dma32;
+> -	unsigned long pgrefill_dma;
+> -
+> -	unsigned long pgsteal_high;	/* total highmem pages reclaimed */
+> -	unsigned long pgsteal_normal;
+> -	unsigned long pgsteal_dma32;
+> -	unsigned long pgsteal_dma;
+> -
+> -	unsigned long pgscan_kswapd_high;/* total highmem pages scanned */
+> -	unsigned long pgscan_kswapd_normal;
+> -	unsigned long pgscan_kswapd_dma32;
+> -	unsigned long pgscan_kswapd_dma;
+> -
+> -	unsigned long pgscan_direct_high;/* total highmem pages scanned */
+> -	unsigned long pgscan_direct_normal;
+> -	unsigned long pgscan_direct_dma32;
+> -	unsigned long pgscan_direct_dma;
+> -
+> -	unsigned long pginodesteal;	/* pages reclaimed via inode freeing */
+> -	unsigned long slabs_scanned;	/* slab objects scanned */
+> -	unsigned long kswapd_steal;	/* pages reclaimed by kswapd */
+> -	unsigned long kswapd_inodesteal;/* reclaimed via kswapd inode freeing */
+> -	unsigned long pageoutrun;	/* kswapd's calls to page reclaim */
+> -	unsigned long allocstall;	/* direct reclaim calls */
+> +#define FOR_ALL_ZONES(x) x##_DMA, x##_DMA32, x##_NORMAL, x##_HIGH
+>  
+> -	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
+> +enum event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
+> +		FOR_ALL_ZONES(PGALLOC),
+> +		PGFREE, PGACTIVATE, PGDEACTIVATE,
+> +		PGFAULT, PGMAJFAULT,
+> + 		FOR_ALL_ZONES(PGREFILL),
+> + 		FOR_ALL_ZONES(PGSTEAL),
+> +		FOR_ALL_ZONES(PGSCAN_KSWAPD),
+> +		FOR_ALL_ZONES(PGSCAN_DIRECT),
+> +		PGINODESTEAL, SLABS_SCANNED, KSWAPD_STEAL, KSWAPD_INODESTEAL,
+> +		PAGEOUTRUN, ALLOCSTALL, PGROTATED,
+> +		NR_EVENT_ITEMS
+>  };
+>  
+> -extern void get_full_page_state(struct page_state *ret);
+> -extern unsigned long read_page_state_offset(unsigned long offset);
+> -extern void mod_page_state_offset(unsigned long offset, unsigned long delta);
+> -extern void __mod_page_state_offset(unsigned long offset, unsigned long delta);
+> -
+> -#define read_page_state(member) \
+> -	read_page_state_offset(offsetof(struct page_state, member))
+> -
+> -#define mod_page_state(member, delta)	\
+> -	mod_page_state_offset(offsetof(struct page_state, member), (delta))
+> -
+> -#define __mod_page_state(member, delta)	\
+> -	__mod_page_state_offset(offsetof(struct page_state, member), (delta))
+> -
+> -#define inc_page_state(member)		mod_page_state(member, 1UL)
+> -#define dec_page_state(member)		mod_page_state(member, 0UL - 1)
+> -#define add_page_state(member,delta)	mod_page_state(member, (delta))
+> -#define sub_page_state(member,delta)	mod_page_state(member, 0UL - (delta))
+> -
+> -#define __inc_page_state(member)	__mod_page_state(member, 1UL)
+> -#define __dec_page_state(member)	__mod_page_state(member, 0UL - 1)
+> -#define __add_page_state(member,delta)	__mod_page_state(member, (delta))
+> -#define __sub_page_state(member,delta)	__mod_page_state(member, 0UL - (delta))
+> -
+> -#define page_state(member) (*__page_state(offsetof(struct page_state, member)))
+> -
+> -#define state_zone_offset(zone, member)					\
+> -({									\
+> -	unsigned offset;						\
+> -	if (is_highmem(zone))						\
+> -		offset = offsetof(struct page_state, member##_high);	\
+> -	else if (is_normal(zone))					\
+> -		offset = offsetof(struct page_state, member##_normal);	\
+> -	else if (is_dma32(zone))					\
+> -		offset = offsetof(struct page_state, member##_dma32);	\
+> -	else								\
+> -		offset = offsetof(struct page_state, member##_dma);	\
+> -	offset;								\
+> -})
+> -
+> -#define __mod_page_state_zone(zone, member, delta)			\
+> - do {									\
+> -	__mod_page_state_offset(state_zone_offset(zone, member), (delta)); \
+> - } while (0)
+> -
+> -#define mod_page_state_zone(zone, member, delta)			\
+> - do {									\
+> -	mod_page_state_offset(state_zone_offset(zone, member), (delta)); \
+> - } while (0)
+> +struct event_state {
+> +	unsigned long event[NR_EVENT_ITEMS];
+> +};
+> +
+> +DECLARE_PER_CPU(struct event_state, event_states);
+
+Might be interesting to mark this structure as __cacheline_aligned_in_smp to
+avoid unrelated data sitting in the same line?
+

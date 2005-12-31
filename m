@@ -1,47 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVLaRCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbVLaRK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbVLaRCg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 12:02:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbVLaRCg
+	id S965026AbVLaRK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 12:10:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVLaRK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 12:02:36 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:20193 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S965025AbVLaRCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 12:02:35 -0500
-Date: Sat, 31 Dec 2005 19:02:31 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: system keeps freezing once every 24 hours / random apps crashing
-Message-ID: <20051231170231.GF3214@m.safari.iki.fi>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200512310051.03603.s0348365@sms.ed.ac.uk> <43B5D6D0.9050601@ns666.com> <43B65DEE.906@ns666.com> <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com> <43B66E3D.2010900@ns666.com> <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com> <43B67DB6.2070201@ns666.com> <43B6A14E.1020703@ns666.com> <20051231163414.GE3214@m.safari.iki.fi> <43B6B669.6020500@ns666.com>
+	Sat, 31 Dec 2005 12:10:56 -0500
+Received: from mail.gmx.de ([213.165.64.21]:17591 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965026AbVLaRKz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 12:10:55 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20051231180437.00be1b20@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sat, 31 Dec 2005 18:10:37 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: [2.6.15-rc7-rt1] explosions in nptl mutex tests
+Cc: Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <5.2.1.1.2.20051231171108.00bd9f40@pop.gmx.net>
+References: <1136044188.6039.102.camel@localhost.localdomain>
+ <5.2.1.1.2.20051231152916.00bd5fd0@pop.gmx.net>
+ <5.2.1.1.2.20051231152916.00bd5fd0@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43B6B669.6020500@ns666.com>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/mixed;
+	boundary="=====================_189428078==_"
+X-Antivirus: avast! (VPS 0550-0, 12/10/2005), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 31, 2005 at 05:48:41PM +0100, Mark v Wolher wrote:
-> Sami Farin wrote:
-...
-> > Can you try how many seconds it takes to get Oops/crash when you start
-> > pressing 'v' in xawtv (video capture on/off).
-> > For me, not very many.
-> > 
-> > This happens with every 2.6 kernel.  And my hardware is OK.
-...
-> Hi Sami,
-> 
-> That caused also a crash, i kept pressing the v key and within 15
-> seconds it crashed, then i saw the crash-info appear in the log and when
-> i clicked on mozilla then it crashed too but without crahs info and
-> system froze totally.
+--=====================_189428078==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-Now if someone could figure out how to find the bug in bttv.
-My opinion/guess is that's where the bug is, not in buggy PCI hardware,
-as somebody said several months ago.
+At 05:36 PM 12/31/2005 +0100, Mike Galbraith wrote:
 
--- 
+>As luck would have it, just as I was collecting the data, there was a 
+>major explosion.  Box was slogging through glibc make check, and when it 
+>hit the mutex tests in nptl, KaBOOM.  Ding-dong-dead box... [reboot] oh 
+>my, seems repeatable.  Guess I'll see if I can find my serial console 
+>cable instead of typing make install as originally planned :)
+>
+>         -Mike
+
+Oopsen attached.  First two times it exploded on tst-mutex7, this time that 
+passed, but it exploded on tst-mutex7a.
+
+         -Mike 
+--=====================_189428078==_
+Content-Type: text/plain; name="oops.txt";
+ x-mac-type="42494E41"; x-mac-creator="74747874"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops.txt"
+
+QlVHOiBsb2NrIHdhaXRfbGlzdCBub3QgaW5pdGlhbGl6ZWQ/CiBbZDBmYjgwZDhdIHs8TlVMTD46
+MH0KYC8tMTA2OTgxODQ5NVtDUFUjMF06IEJVRyBpbiBpbml0X2xpc3RzIGF0IGtlcm5lbC9ydC5j
+OjEyMTMKIFs8YzAxMDQwNjM+XSBkdW1wX3N0YWNrKzB4MjMvMHgzMCAoMjApCiBbPGMwMTFkYjFh
+Pl0gX19XQVJOX09OKzB4NmEvMHhhMCAoNDQpCiBbPGMwMTM4YmM5Pl0gX19kb3duX3RyeWxvY2sr
+MHgzMzkvMHg0YTAgKDQ0KQogWzxjMDEzOGQ3OD5dIHJ0X2Rvd25fcmVhZF90cnlsb2NrKzB4Mjgv
+MHg0MCAoMTYpCiBbPGMwMTE1ZmZjPl0gZG9fcGFnZV9mYXVsdCsweGNjLzB4NTcwICg5NikKIFs8
+YzAxMDNjN2I+XSBlcnJvcl9jb2RlKzB4NGYvMHg1NCAoMTQ4KQogPT09PT09PT09PT09PT09PT09
+PT09PT0KQlVHOiBVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVu
+Y2UgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAwMDMwCiBwcmludGluZyBlaXA6CmMwMTAzZjNhCipw
+ZGUgPSAwMDAwMDAwMApPb3BzOiAwMDAwIFsjMV0KUFJFRU1QVCAKTW9kdWxlcyBsaW5rZWQgaW46
+IG5sc19pc284ODU5XzEgbmxzX2NwNDM3CkNQVTogICAgMApFSVA6ICAgIDAwNjA6WzxjMDEwM2Yz
+YT5dICAgIE5vdCB0YWludGVkIFZMSQpFRkxBR1M6IDAwMDEwMDA3ICAgKDIuNi4xNS1yYzctcnQx
+KSAKRUlQIGlzIGF0IHNob3dfdHJhY2UrMHg4YS8weGUwCmVheDogMDAwMDBmZmQgICBlYng6IGNi
+MDRlMDcwICAgZWN4OiAwMDAwMDAwMSAgIGVkeDogMDAwMDAwMDQKZXNpOiBjYjA0ZTA3MCAgIGVk
+aTogMDAwMDAwMDAgICBlYnA6IGNiMDRkZjAwICAgZXNwOiBjYjA0ZGVlYwpkczogMDA3YiAgIGVz
+OiAwMDdiICAgc3M6IDAwNjggICBwcmVlbXB0OiAwMDAwMDAwNQpQcm9jZXNzIGAgKHBpZDogLTEw
+Njk4MTg0OTUsIHRocmVhZGluZm89Y2IwNGQwMDAgdGFzaz1kMGZiODAyMCBzdGFja19sZWZ0PTM3
+Njggd29yc3RfbGVmdD0tMSkKU3RhY2s6IGMwM2I0ODczIDAwMDAwMDk0IDAwMDAwMDgyIGNiMDRk
+MDAwIGNiMDRkMDAwIGNiMDRkZjE0IGMwMTA0MDYzIGQwZmI4MDIwIAogICAgICAgY2IwNGRmMTAg
+Y2IwNGRmMjAgY2IwNGRmNDAgYzAxMWRiMWEgYzAzYjliNGMgZDBmYjgxZDQgYzAzYmRkODEgMDAw
+MDAwMDAgCiAgICAgICBjMDNhOTE3MCBjMDNiYzEwZSAwMDAwMDRiZCAwMDAwMDAwMCBkMGZiODBk
+OCBjYjA0ZGY2YyBjMDEzOGJjOSBjMDNhOTE3MCAKQ2FsbCBUcmFjZToKIFs8YzAxMDQwMWY+XSBz
+aG93X3N0YWNrKzB4OGYvMHhiMCAoMjgpCiBbPGMwMTA0MjExPl0gc2hvd19yZWdpc3RlcnMrMHgx
+YTEvMHgyMTAgKDU2KQogWzxjMDEwNDQyNj5dIGRpZSsweGY2LzB4MTkwICg2NCkKIFs8YzAxMTYy
+YzU+XSBkb19wYWdlX2ZhdWx0KzB4Mzk1LzB4NTcwICg5NikKIFs8YzAxMDNjN2I+XSBlcnJvcl9j
+b2RlKzB4NGYvMHg1NCAoODApCiBbPGMwMTA0MDYzPl0gZHVtcF9zdGFjaysweDIzLzB4MzAgKDIw
+KQogWzxjMDExZGIxYT5dIF9fV0FSTl9PTisweDZhLzB4YTAgKDQ0KQogWzxjMDEzOGJjOT5dIF9f
+ZG93bl90cnlsb2NrKzB4MzM5LzB4NGEwICg0NCkKIFs8YzAxMzhkNzg+XSBydF9kb3duX3JlYWRf
+dHJ5bG9jaysweDI4LzB4NDAgKDE2KQogWzxjMDExNWZmYz5dIGRvX3BhZ2VfZmF1bHQrMHhjYy8w
+eDU3MCAoOTYpCiBbPGMwMTAzYzdiPl0gZXJyb3JfY29kZSsweDRmLzB4NTQgKDE0OCkKID09PT09
+PT09PT09PT09PT09PT09PT09CkJVRzogVW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgTlVMTCBwb2lu
+dGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwMDAzMAogcHJpbnRpbmcgZWlw
+OgpjMDEwM2YzYQoqcGRlID0gMDAwMDAwMDAKT29wczogMDAwMCBbIzJdClBSRUVNUFQgCk1vZHVs
+ZXMgbGlua2VkIGluOiBubHNfaXNvODg1OV8xIG5sc19jcDQzNwpDUFU6ICAgIDAKRUlQOiAgICAw
+MDYwOls8YzAxMDNmM2E+XSAgICBOb3QgdGFpbnRlZCBWTEkKRUZMQUdTOiAwMDAxMDAwNyAgICgy
+LjYuMTUtcmM3LXJ0MSkgCkVJUCBpcyBhdCBzaG93X3RyYWNlKzB4OGEvMHhlMAplYXg6IDAwMDAw
+ZmZkICAgZWJ4OiBjYjA0ZTA3MCAgIGVjeDogMDAwMDAwMDEgICBlZHg6IDAwMDAwMDA1CmVzaTog
+Y2IwNGUwNzAgICBlZGk6IDAwMDAwMDAwICAgZWJwOiBjYjA0ZGRiYyAgIGVzcDogY2IwNGRkYTgK
+ZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4ICAgcHJlZW1wdDogMDAwMDAwMDUKUHJvY2Vz
+cyBgIChwaWQ6IC0xMDY5ODE4NDk1LCB0aHJlYWRpbmZvPWNiMDRkMDAwIHRhc2s9ZDBmYjgwMjAg
+c3RhY2tfbGVmdD0zNDQ0IHdvcnN0X2xlZnQ9LTEpClN0YWNrOiBjMDNiNDg3MyAwMDAwMDA5NCBj
+YjA0ZGY0YyAwMDAwMDAxOCAwMDAwMDAwMCBjYjA0ZGRkOCBjMDEwNDAxZiBkMGZiODAyMCAKICAg
+ICAgIGNiMDRkZWVjIGNiMDRkMDAwIGNiMDRkZWI4IDAwMDAwMDAwIGNiMDRkZTEwIGMwMTA0MjEx
+IDAwMDAwMDAwIGNiMDRkZWVjIAogICAgICAgZmZmZmZmZmYgY2IwNGQwMDAgZDBmYjgwMjAgMDAw
+MTAwMDcgYzA0MDQ2YTIgMDAwMDAwNjggMDAwMDAwMDEgY2IwNGRlYjggCkNhbGwgVHJhY2U6CiBb
+PGMwMTA0MDFmPl0gc2hvd19zdGFjaysweDhmLzB4YjAgKDI4KQogWzxjMDEwNDIxMT5dIHNob3df
+cmVnaXN0ZXJzKzB4MWExLzB4MjEwICg1NikKIFs8YzAxMDQ0MjY+XSBkaWUrMHhmNi8weDE5MCAo
+NjQpCiBbPGMwMTE2MmM1Pl0gZG9fcGFnZV9mYXVsdCsweDM5NS8weDU3MCAoOTYpCiBbPGMwMTAz
+YzdiPl0gZXJyb3JfY29kZSsweDRmLzB4NTQgKDgwKQogWzxjMDEwNDAxZj5dIHNob3dfc3RhY2sr
+MHg4Zi8weGIwICgyOCkKIFs8YzAxMDQyMTE+XSBzaG93X3JlZ2lzdGVycysweDFhMS8weDIxMCAo
+NTYpCiBbPGMwMTA0NDI2Pl0gZGllKzB4ZjYvMHgxOTAgKDY0KQogWzxjMDExNjJjNT5dIGRvX3Bh
+Z2VfZmF1bHQrMHgzOTUvMHg1NzAgKDk2KQogWzxjMDEwM2M3Yj5dIGVycm9yX2NvZGUrMHg0Zi8w
+eDU0ICg4MCkKIFs8YzAxMDQwNjM+XSBkdW1wX3N0YWNrKzB4MjMvMHgzMCAoMjApCiBbPGMwMTFk
+YjFhPl0gX19XQVJOX09OKzB4NmEvMHhhMCAoNDQpCiBbPGMwMTM4YmM5Pl0gX19kb3duX3RyeWxv
+Y2srMHgzMzkvMHg0YTAgKDQ0KQogWzxjMDEzOGQ3OD5dIHJ0X2Rvd25fcmVhZF90cnlsb2NrKzB4
+MjgvMHg0MCAoMTYpCiBbPGMwMTE1ZmZjPl0gZG9fcGFnZV9mYXVsdCsweGNjLzB4NTcwICg5NikK
+IFs8YzAxMDNjN2I+XSBlcnJvcl9jb2RlKzB4NGYvMHg1NCAoMTQ4KQogPT09PT09PT09PT09PT09
+PT09PT09PT0KQlVHOiBVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZl
+cmVuY2UgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAwMDMwCiBwcmludGluZyBlaXA6CmMwMTAzZjNh
+CipwZGUgPSAwMDAwMDAwMApSZWN1cnNpdmUgZGllKCkgZmFpbHVyZSwgb3V0cHV0IHN1cHByZXNz
+ZWQKIGAvLTEwNjk4MTg0OTVbQ1BVIzBdOiBCVUcgaW4gX19zcGluX2xvY2sgYXQga2VybmVsL3J0
+LmM6MjM4NwogWzxjMDEwNDA2Mz5dIGR1bXBfc3RhY2srMHgyMy8weDMwICgyMCkKIFs8YzAxMWRi
+MWE+XSBfX1dBUk5fT04rMHg2YS8weGEwICg0NCkKIFs8YzAzYTZjODA+XSBfX2xvY2tfdGV4dF9z
+dGFydCsweDUwLzB4NjAgKDI4KQogWzxjMDI2ZjRlOD5dIGV4aXRfaW9fY29udGV4dCsweDM4LzB4
+MTAwICgzMikKIFs8YzAxMWY4NDA+XSBkb19leGl0KzB4NDMwLzB4NDgwICg0NCkKIFs8YzAxMDQ0
+YmY+XSBkaWUrMHgxOGYvMHgxOTAgKDY0KQogWzxjMDExNjJjNT5dIGRvX3BhZ2VfZmF1bHQrMHgz
+OTUvMHg1NzAgKDk2KQogWzxjMDEwM2M3Yj5dIGVycm9yX2NvZGUrMHg0Zi8weDU0ICg4MCkKIFs8
+YzAxMDQwMWY+XSBzaG93X3N0YWNrKzB4OGYvMHhiMCAoMjgpCiBbPGMwMTA0MjExPl0gc2hvd19y
+ZWdpc3RlcnMrMHgxYTEvMHgyMTAgKDU2KQogWzxjMDEwNDQyNj5dIGRpZSsweGY2LzB4MTkwICg2
+NCkKIFs8YzAxMTYyYzU+XSBkb19wYWdlX2ZhdWx0KzB4Mzk1LzB4NTcwICg5NikKIFs8YzAxMDNj
+N2I+XSBlcnJvcl9jb2RlKzB4NGYvMHg1NCAoODApCiBbPGMwMTA0MDFmPl0gc2hvd19zdGFjaysw
+eDhmLzB4YjAgKDI4KQogWzxjMDEwNDIxMT5dIHNob3dfcmVnaXN0ZXJzKzB4MWExLzB4MjEwICg1
+NikKIFs8YzAxMDQ0MjY+XSBkaWUrMHhmNi8weDE5MCAoNjQpCiBbPGMwMTE2MmM1Pl0gZG9fcGFn
+ZV9mYXVsdCsweDM5NS8weDU3MCAoOTYpCiBbPGMwMTAzYzdiPl0gZXJyb3JfY29kZSsweDRmLzB4
+NTQgKDgwKQogWzxjMDEwNDA2Mz5dIGR1bXBfc3RhY2srMHgyMy8weDMwICgyMCkKIFs8YzAxMWRi
+MWE+XSBfX1dBUk5fT04rMHg2YS8weGEwICg0NCkKIFs8YzAxMzhiYzk+XSBfX2Rvd25fdHJ5bG9j
+aysweDMzOS8weDRhMCAoNDQpCiBbPGMwMTM4ZDc4Pl0gcnRfZG93bl9yZWFkX3RyeWxvY2srMHgy
+OC8weDQwICgxNikKIFs8YzAxMTVmZmM+XSBkb19wYWdlX2ZhdWx0KzB4Y2MvMHg1NzAgKDk2KQog
+WzxjMDEwM2M3Yj5dIGVycm9yX2NvZGUrMHg0Zi8weDU0ICgxNDgpCiA9PT09PT09PT09PT09PT09
+PT09PT09PQogKHNldmVyYWwgbW9yZSBiZWZvcmUgYm94IHF1aXQgYnJlYXRoaW5nKQo=
+--=====================_189428078==_--
+

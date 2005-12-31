@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVLaHEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVLaHOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbVLaHEH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 02:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVLaHEH
+	id S1751315AbVLaHOu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 02:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVLaHOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 02:04:07 -0500
-Received: from hera.kernel.org ([140.211.167.34]:50110 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751310AbVLaHEG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 02:04:06 -0500
-Date: Sat, 31 Dec 2005 05:03:20 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
-       Marijn Meijles <marijn@bitpit.net>, Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 01/14] page-replace-single-batch-insert.patch
-Message-ID: <20051231070320.GA9997@dmt.cnet>
-References: <20051230223952.765.21096.sendpatchset@twins.localnet> <20051230224002.765.28812.sendpatchset@twins.localnet>
+	Sat, 31 Dec 2005 02:14:50 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:8716 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751315AbVLaHOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 02:14:50 -0500
+Date: Sat, 31 Dec 2005 08:12:16 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Chris Stromsoe <cbs@cts.ucla.edu>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+Message-ID: <20051231071215.GX15993@alpha.home.local>
+References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu> <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051230224002.765.28812.sendpatchset@twins.localnet>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
 
-On Fri, Dec 30, 2005 at 11:40:24PM +0100, Peter Zijlstra wrote:
-> 
-> From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> 
-> page-replace interface function:
->   __page_replace_insert()
-> 
-> This function inserts a page into the page replace data structure.
-> 
-> Unify the active and inactive per cpu page lists. For now provide insertion
-> hints using the LRU specific page flags.
+On Fri, Dec 30, 2005 at 05:48:15PM -0800, Chris Stromsoe wrote:
+> I'm starting to suspect bad hardware.  Booting is now hanging (with 
+> 2.4.27, 2.4.30 and 2.4.32) after scsi drivers load:
 
-Unification of active and inactive per cpu page lists is a requirement
-for CLOCK-Pro, right? 
+And nothing changed since previous boot, except UP ?
 
-Would be nicer to have unchanged functionality from vanilla VM
-(including the active/inactive per cpu lists).
+(...) 
+> If I wait several minutes (around 10 or 15 minutes), I get:
+> 
+> scsi0:0:0:0: Attempting to queue an ABORT message
+> CDB: 0x12 0x0 0x0 0x0 0xff 0x0
+> scsi0:0:0:0: Command already completed
+> aic7xxx_abort returns 0x2002
+> scsi0:0:0:0: Attempting to queue an ABORT message
+> CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+> scsi0:0:0:0: Command already completed
+> aic7xxx_abort returns 0x2002
+> scsi0:0:0:0: Attempting to queue a TARGET RESET message
+> CDB: 0x12 0x0 0x0 0x0 0xff 0x0
+> scsi0:0:0:0: Is not an active device
+> aic7xxx_dev_reset returns 0x2002
+> scsi0:0:0:0: Attempting to queue an ABORT message
+> CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+> scsi0:0:0:0: Command already completed
+> aic7xxx_abort returns 0x2002
+> scsi0:0:0:0: Attempting to queue an ABORT message
+> CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+> scsi0:0:0:0: Command already completed
+> aic7xxx_abort returns 0x2002
+> scsi: device set offline - not ready or command retry failed after bus 
+> reset: host 0 channel 0 id 0 lun 0
+> 
+> 
+> The messages repeated for all 15 targets on scsi0.  It's looking like it 
+> will repeat for scsi1 as well.
+(...)
 
-Happy new year! 
+it recalls me bad memories on my machine a very long time ago when the
+driver was buggy :-(
+It's not necessarily bad hardware. I also had trouble on one version
+of the 29160 bios where it hanged during device scan if there were
+too many terminations. Oh, BTW, please check that you have disabled
+"automatic" termination in the BIOS. Manually set it either to ON or
+OFF (low/high depending on your setup).
+
+> How likely is it that a failing scsi controller contribute to the other 
+> problems I was seeing?
+
+Not much. Perhaps at worst, a failing controller could corrupt memory
+by writing garbage at wrong locations, but you would not always get
+the same messages. It seems to be a different problem here. To be
+honnest, it's where I think you should try the new driver.
+
+Regards,
+Willy
+

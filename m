@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVLaO0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVLaO2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbVLaO0b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 09:26:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVLaO0b
+	id S932282AbVLaO2y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 09:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVLaO2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 09:26:31 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:44006 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932291AbVLaO0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 09:26:30 -0500
-Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       barryn@pobox.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200512311702.20525.a1426z@gawab.com>
-References: <200512302306.28667.a1426z@gawab.com>
-	 <200512310759.02962.a1426z@gawab.com>
-	 <20051231073817.GZ15993@alpha.home.local>
-	 <200512311702.20525.a1426z@gawab.com>
-Content-Type: text/plain
-Date: Sat, 31 Dec 2005 15:26:18 +0100
-Message-Id: <1136039178.2901.25.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 31 Dec 2005 09:28:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12812 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932282AbVLaO2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 09:28:54 -0500
+Date: Sat, 31 Dec 2005 15:28:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Steve Work <swork@aventail.com>, Stas Sergeev <stsp@aknet.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multi-thread corefiles broken since April
+Message-ID: <20051231142851.GH3811@stusta.de>
+References: <4397D844.8060903@aventail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4397D844.8060903@aventail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-31 at 17:02 +0300, Al Boldi wrote:
+Hi Steve,
 
-> Shouldn't it be possible to disable overcommit completely, thus giving kswapd 
-> a break from running wild trying to find something to swap/page, which is 
-> the reason why the system gets unstable going over 95% in your example.
+please open a bug at http://bugzilla.kernel.org/ for this issue so that 
+it doesn't get lost.
 
-shared mappings make this impractical. To disable overcommit completely,
-each process would need to account for all its own shared libraries, eg
-each process gets glibc added etc. You'll find that on any
-non-extremely-stripped system you then end up with much more memory
-needed than you have ram.
+@Stas:
+It was your patch that broke it, can you look into it?
+
+TIA
+Adrian
 
 
+On Wed, Dec 07, 2005 at 10:52:52PM -0800, Steve Work wrote:
+> Coredumps from programs with more than one thread show garbage 
+> information for all threads except the primary.  The problem was 
+> introduced with:
+> 
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=5df240826c90afdc7956f55a004ea6b702df9203
+> 
+> on Apr 16 ("fix crash in entry.S restore_all") and is still present in 
+> current builds.
+> 
+> "kill -SEGV" this program and "info threads" the resulting corefile to 
+> see the problem:
+> 
+> #include <pthread.h>
+> static void* thread_sleep(void* x) { while (1) sleep(30); }
+> int main(int c, char** v) {
+>     const static int tcount = 5;
+>     pthread_t thr[tcount];
+>     int i;
+>     for (i=0; i<tcount; ++i)
+>         pthread_create(&thr[i], NULL, thread_sleep, NULL);
+>     while (1)
+>         sleep(30);
+>     return 0;
+> }
+> 
+> (gdb) info threads
+>   7 process 18138  0x00000246 in ?? ()
+>   6 process 18139  0x00000246 in ?? ()
+>   5 process 18140  0x00000246 in ?? ()
+>   4 process 18141  0x00000246 in ?? ()
+>   3 process 18142  0x00000246 in ?? ()
+>   2 process 18143  0x00000246 in ?? ()
+> * 1 process 18137  0xb7e69db6 in nanosleep () from /lib/tls/libc.so.6
+> (gdb)
+> 
+> All these threads should show a legitimate location (the same spot in 
+> nanosleep) and do on kernels prior to the commit named above.  (Notice 
+> one too many threads listed here also -- is this a related problem?)
+> 
+> Commenting out this line (in asm/i386/kernel/process.c:copy_thread) 
+> fixes the corefiles:
+> 
+>   childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
+> 
+> but presumably re-introduces the crash the original patch was intended 
+> to fix.  Should this line be conditioned somehow?  Or do the corefile 
+> write routines need to know about this adjusted offset?
+> 
+> Steve Work

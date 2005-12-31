@@ -1,82 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVLaUPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbVLaUeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbVLaUPM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 15:15:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVLaUPM
+	id S965043AbVLaUeL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 15:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVLaUeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 15:15:12 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:64650 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932317AbVLaUPK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 15:15:10 -0500
-Date: Sat, 31 Dec 2005 12:14:26 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Eric Dumazet <dada1@cosmosbay.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, vatsa@in.ibm.com
-Subject: Re: [patch] latency tracer, 2.6.15-rc7
-Message-ID: <20051231201426.GD5124@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051229202848.GC29546@elte.hu> <1135908980.4568.10.camel@mindpipe> <20051230080032.GA26152@elte.hu> <1135990270.31111.46.camel@mindpipe> <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org> <1135991732.31111.57.camel@mindpipe> <Pine.LNX.4.64.0512301726190.3249@g5.osdl.org> <1136001615.3050.5.camel@mindpipe> <20051231042902.GA3428@us.ibm.com> <1136004855.3050.8.camel@mindpipe>
+	Sat, 31 Dec 2005 15:34:11 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:33423 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932318AbVLaUeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 15:34:09 -0500
+Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Bradley Reed <bradreed1@gmail.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
+In-Reply-To: <20051231220758.56b3e096@galactus.example.org>
+References: <20051231202933.4f48acab@galactus.example.org>
+	 <1136058696.6039.133.camel@localhost.localdomain>
+	 <20051231220758.56b3e096@galactus.example.org>
+Content-Type: text/plain
+Date: Sat, 31 Dec 2005 15:33:58 -0500
+Message-Id: <1136061238.6039.137.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136004855.3050.8.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 11:54:14PM -0500, Lee Revell wrote:
-> On Fri, 2005-12-30 at 20:29 -0800, Paul E. McKenney wrote:
-> > This should help in UP configurations, or in SMP configurations where
-> > all CPUs are doing call_rcu_bh() very frequently.  I would not expect
-> > it to help in cases where one of several CPUs is frequently executing
-> > call_rcu_bh(), but where the other CPUs are either CPU-bound in user
-> > space or are in a tickful idle state. 
+On Sat, 2005-12-31 at 22:07 +0200, Bradley Reed wrote:
+> Steve,
 > 
-> This and net/decnet/dn_route.c are the only two uses of call_rcu_bh in
-> the kernel.  And this one does not seem to be invoked frequently, it
-> took ~48 hours to show up in the latency tracer.  Of course a server
-> workload might call it all the time.
+> Perhaps I'm doing something wrong, but it doesn't seem to apply cleanly
+> here:
 
-Well, most old-style server workloads wouldn't notice a 10ms hit to
-latency.  I expect server workloads to become much more sensitive to
-latency over time, however.  There are several reasons for this:
-(1) as more and more workloads are spread over many machines, the
-latency of each individual machine must improve just to maintain
-the same overall latency (2) as computers continue to get less expensive
-relative to people (and this trend is most pronounced in -developing-
-countries, -not- developed countries!), it will be less and less
-acceptable to have people waiting on computers (3) the trend of which
-VOIP is part will continue, so that traditional server workloads will
-have increasingly large latency-sensitive components.
+Make sure you're in the directory of 2.6.15-rc7-rt1 (head Makefile and
+see if you see:)
 
-But back to the problem at hand.
+----
+$ head Makefile
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 15
+EXTRAVERSION =-rc7-rt1
+NAME=Sliding Snow Leopard
 
-So it seems to me that Linus's patch is part of the solution, but
-needs to also have a global component, perhaps as follows:
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+# More info can be located in ./README
+# Comments in this file are targeted only to the developer, do not
+----
 
-	if (unlikely(rdp->count > 100)) {
-		set_need_resched();
-		if (unlikely(rdp->count - rdp->last_rs_count > 1000)) {
-			int cpu;
+Then in that same directory try:
 
-			rdp->last_rs_count = rdp->count;
-			spin_lock_bh(&rcu_bh_state.lock);
-			for_each_cpu_mask(cpu, rdp->rcu_bh_state.cpumask)
-				smp_send_reschedule(cpu);
-			spin_unlock_bh(&rcu_bh_state.lock);
-		}
-	}
+patch -p1 --dry-run < my-rtc-patchfile
 
-I am sure that I am missing some interaction or another with tickless
-idle and CPU hotplug covered.
+See if it works, and if it does try it again without the --dry-run
+option.  I just tried applying it to a clean 2.6.15-rc7-rt1 and it
+worked.
 
-There also needs to be some adjustment in rcu_do_batch(), which will
-have to somehow get back to a quiescent state periodically.  Dipankar,
-Vatsa, thoughts?
+-- Steve
 
-							Thanx, Paul
+

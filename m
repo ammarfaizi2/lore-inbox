@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVLaWB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVLaWEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVLaWB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 17:01:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVLaWB4
+	id S932333AbVLaWEz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 17:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVLaWEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 17:01:56 -0500
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:47854 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S965046AbVLaWB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 17:01:56 -0500
-Date: Sun, 1 Jan 2006 00:01:52 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: system keeps freezing once every 24 hours / random apps crashing
-Message-ID: <20051231220152.GA3147@m.safari.iki.fi>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <43B5D6D0.9050601@ns666.com> <43B65DEE.906@ns666.com> <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com> <43B66E3D.2010900@ns666.com> <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com> <43B67DB6.2070201@ns666.com> <43B6A14E.1020703@ns666.com> <20051231163414.GE3214@m.safari.iki.fi> <20051231163414.GE3214@m.safari.iki.fi> <43B6B669.6020500@ns666.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43B6B669.6020500@ns666.com>
-User-Agent: Mutt/1.5.11
+	Sat, 31 Dec 2005 17:04:55 -0500
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:19132 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932333AbVLaWEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 17:04:54 -0500
+Message-ID: <43B70084.2060009@bigpond.net.au>
+Date: Sun, 01 Jan 2006 09:04:52 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paolo Ornati <ornati@fastwebnet.it>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+References: <20051227190918.65c2abac@localhost>	<20051227224846.6edcff88@localhost>	<200512281027.00252.kernel@kolivas.org>	<20051230145221.301faa40@localhost>	<43B5E78C.9000509@bigpond.net.au>	<20051231113446.3ad19dbc@localhost>	<20051231115213.4a2e01ba@localhost>	<43B68B2A.7080208@bigpond.net.au> <20051231173135.67cee547@localhost>
+In-Reply-To: <20051231173135.67cee547@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 31 Dec 2005 22:04:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 31, 2005 at 07:43:43PM +0100, Jiri Slaby wrote:
-> >Hi Sami,
-> >
-> >That caused also a crash, i kept pressing the v key and within 15
-> >seconds it crashed, then i saw the crash-info appear in the log and when
-> >i clicked on mozilla then it crashed too but without crahs info and
-> >system froze totally.
-> >
-> >Below the crash info:
-> >
-> >Dec 31 17:38:32 localhost kernel: Unable to handle kernel paging request
-> >at virtual address c8111000
-> >Dec 31 17:38:32 localhost kernel:  printing eip:
-> >Dec 31 17:38:32 localhost kernel: c036037a
-> >Dec 31 17:38:32 localhost kernel: *pgd = 21063
-> >Dec 31 17:38:32 localhost kernel: *pmd = 21063
-> >Dec 31 17:38:32 localhost kernel: *pte = 8111000
-> >Dec 31 17:38:32 localhost kernel: Oops: 0002 [#4]
-> [snip]
-> Could you try the attached patch?
+Paolo Ornati wrote:
+> On Sun, 01 Jan 2006 00:44:10 +1100
+> Peter Williams <pwil3058@bigpond.net.au> wrote:
 > 
-> --
-> diff --git a/drivers/media/video/bttv-risc.c b/drivers/media/video/bttv-risc.c
-> --- a/drivers/media/video/bttv-risc.c
-> +++ b/drivers/media/video/bttv-risc.c
-> @@ -53,7 +53,7 @@ bttv_risc_packed(struct bttv *btv, struc
->  	/* estimate risc mem: worst case is one write per page border +
->  	   one write per scan line + sync + jump (all 2 dwords) */
->  	instructions  = (bpl * lines) / PAGE_SIZE + lines;
-> -	instructions += 2;
-> +	instructions += 4;
->  	if ((rc = btcx_riscmem_alloc(btv->c.pci,risc,instructions*8)) < 0)
->  		return rc;
+> 
+>>OK.  This probably means that the parameters that control the mechanism 
+>>need tweaking.
+>>
+>>There should be a file /sys/cpusched/attrs/unacceptable_ia_latency which 
+>>contains the latency (in nanoseconds) that the scheduler considers 
+>>unacceptable for interactive programs.  Try changing that value and see 
+>>if things improve?  Making it smaller should help but if you make it too 
+>>small all the interactive tasks will end up with the same priority and 
+>>this could cause them to get in each other's way.
+> 
+> 
+> I've tried different values and sometimes I've got a good feeling BUT
+> the behaviour is too strange to say something.
+> 
+> Sometimes I get what I want (dd priority ~17 and CPU eaters prio
+> 25), sometimes I get a total disaster (dd priority 17 and CPU eaters
+> prio 15/16) and sometimes I get something like DD prio 22 and CPU
+> eaters 23/24.
+> 
+> All this is not well related to "unacceptable_ia_latency" values.
 
-This patch has the effect that xawtv crashed system two times faster
-than earlier... now we're at two seconds.  
+OK. Thanks for trying it.
 
+The feedback will be helpful in trying to improve the mechanisms.
+
+> 
+> What I think is that the priority calculation in ingosched and other
+> schedulers is in general too weak, while in other schedulers is rock
+> solid (read: nicksched).
+> 
+> Maybe is just that the smarter a scheduler want to be, the more fragile
+> it will be.
+> 
+
+Probably but this one is fairly simple.
+
+I think the remaining problems with interactive responsiveness is that 
+bonuses increase too slowly when a latency problem is detected.  I.e. a 
+task just gets one extra bonus point when an unacceptable latency is 
+detected regardless of how big the latency is.  This means that it may 
+take several cycles for the bonus to be big enough to solve the problem. 
+  I'm going to try making the bonus increment proportional to the size 
+of the latency w.r.t. the limit.
+
+Peter
 -- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

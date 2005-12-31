@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVLaXN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVLaXWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVLaXN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 18:13:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVLaXN6
+	id S1750746AbVLaXWt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 18:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVLaXWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 18:13:58 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:40720 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S1750741AbVLaXN6 (ORCPT
+	Sat, 31 Dec 2005 18:22:49 -0500
+Received: from uproxy.gmail.com ([66.249.92.194]:32913 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750746AbVLaXWs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 18:13:58 -0500
-Message-ID: <43B710B4.9000401@domdv.de>
-Date: Sun, 01 Jan 2006 00:13:56 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.15rc6: ide oops+panic
-References: <43AB20DA.2020506@domdv.de> <20051223053621.6c437cee.akpm@osdl.org>
-In-Reply-To: <20051223053621.6c437cee.akpm@osdl.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 31 Dec 2005 18:22:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=isWoIAAjmuZRSePmqFoIGexl9odbWYnQ1bp2IGqt9or9ZjNWwWp2S/CoRh6EII5QBKn7XVqKXlM5cPOKJ7XECv+cj19F7LaT6cRIbkXdB/+9u8vvyPS0kSPTwNhWSmZ12BoNvc8gSOHAH7iQhCBkK215NBu/3jaeuWnmelE9WT4=
+Date: Sun, 1 Jan 2006 01:22:43 +0200
+From: Bradley Reed <bradreed1@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
+Subject: Re: RTC broken under 2.6.15-rc7-rt1 (was: Re: MPlayer broken under
+ 2.6.15-rc7-rt1?)
+Message-ID: <20060101012243.4208efb3@galactus.example.org>
+In-Reply-To: <1136069215.6039.142.camel@localhost.localdomain>
+References: <20051231202933.4f48acab@galactus.example.org>
+	<1136058696.6039.133.camel@localhost.localdomain>
+	<Pine.LNX.4.61.0512312153480.27366@yvahk01.tjqt.qr>
+	<1136069215.6039.142.camel@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 1.9.100cvs108 (GTK+ 2.8.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Sat, 31 Dec 2005 17:46:55 -0500
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Ping
+> On Sat, 2005-12-31 at 21:58 +0100, Jan Engelhardt wrote:
+> > >Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
+> > 
+> > I seriously demand that this be changed into "RTC broekn
+> > under..."! :)
+> 
+> Done ;)
+> 
+> [...]
+> 
+> > >
+> > >Index: linux-2.6.15-rc7-rt1/drivers/char/rtc.c
+> > 
+> > This patch fixes the rtc BUG for me.
+> 
 
-<rude>
-Do you want me to track this further or shall I place my hardware in the
-waste paper bin (Welcome to the pleasure dome of the new development
-method)?
-</rude>
+And me too. I had inadvertently cut off a bit at the very top of your
+patch, when I re-cut and pasted, it applied fine. 
 
-Some more hint: It seems the system is stable as long as networking
-(tg3) is not touched. I'll switch to e1000 for a while and see what
-happens. Activating only one processor (booting with maxcpus=1) or
-mounting with "barrier=0" doesn't help.
+Shouldn't patch kernels this close to new years. (Which was an hour and
+a half ago here...)
 
-PS:
-I'm dearly in need of a four way system based on the followup revision
-of my board and two dual core Opterons which is delayed until this
-Bug/Ooops/Panic is resolved. Can't develop anymore (due to CPU power
-constraints and financial limits). Bad.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+> Yeah, attached is a program that does what mplayer does.  I run it
+> from the command line like this:
+> 
+> # for i in `seq 10000`; do ./rtc_ioctl ; done
+> 
+> And with the patch it runs perfectly fine.  Without it, it segfaults
+> several times.
+
+Without it, it segfaults 100% here:
+
+root@galactus:~[1002]# for i in `seq 10`; do ./rtc_ioctl; done
+Segmentation fault
+Segmentation fault
+Segmentation fault
+Segmentation fault
+Segmentation fault
+Segmentation fault
+Segmentation fault
+Segmentation fault
+Segmentation fault
+Segmentation fault
+
+Brad

@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbVLaNoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVLaODW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbVLaNoS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 08:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVLaNoS
+	id S932267AbVLaODW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 09:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLaODV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 08:44:18 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:57809 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751333AbVLaNoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 08:44:18 -0500
-Message-ID: <43B68B2A.7080208@bigpond.net.au>
-Date: Sun, 01 Jan 2006 00:44:10 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 31 Dec 2005 09:03:21 -0500
+Received: from [212.76.87.66] ([212.76.87.66]:45062 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932267AbVLaODV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 09:03:21 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+Date: Sat, 31 Dec 2005 17:02:20 +0300
+User-Agent: KMail/1.5
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, barryn@pobox.com,
+       linux-kernel@vger.kernel.org
+References: <200512302306.28667.a1426z@gawab.com> <200512310759.02962.a1426z@gawab.com> <20051231073817.GZ15993@alpha.home.local>
+In-Reply-To: <20051231073817.GZ15993@alpha.home.local>
 MIME-Version: 1.0
-To: Paolo Ornati <ornati@fastwebnet.it>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
-References: <20051227190918.65c2abac@localhost>	<20051227224846.6edcff88@localhost>	<200512281027.00252.kernel@kolivas.org>	<20051230145221.301faa40@localhost>	<43B5E78C.9000509@bigpond.net.au>	<20051231113446.3ad19dbc@localhost> <20051231115213.4a2e01ba@localhost>
-In-Reply-To: <20051231115213.4a2e01ba@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 31 Dec 2005 13:44:11 +0000
+Content-Disposition: inline
+Message-Id: <200512311702.20525.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ornati wrote:
-> On Sat, 31 Dec 2005 11:34:46 +0100
-> Paolo Ornati <ornati@fastwebnet.it> wrote:
-> 
-> 
->>>It is a patch against the 2.6.15-rc7 kernel and includes some other 
->>>scheduling patches from the -mm kernels.
->>
->>Yes, this fixes both my test-case (transcode & little program), they
->>get priority 25 instead of ~16.
->>
->>But the priority of DD is now ~23 and so it still suffers a bit:
-> 
-> 
-> I forgot to mention that even the others "interactive" processes
-> don't get a good priority too.
-> 
-> Xorg for example, while only moving the cursor around, gets priority
-> 23/24. And when cpu-eaters are running (at priority 25) it isn't happy
-> at all, the cursor begins to move in jerks and so on...
-> 
+Willy Tarreau wrote:
+> On Sat, Dec 31, 2005 at 07:59:02AM +0300, Al Boldi wrote:
+> > Alan Cox wrote:
+> > > On Gwe, 2005-12-30 at 23:06 +0300, Al Boldi wrote:
+> > > > > +3 - (NEW) paranoid overcommit The total address space commit
+> > > > > +      for the system is not permitted to exceed swap. The machine
+> > > > > +      will never kill a process accessing pages it has mapped
+> > > > > +      except due to a bug (ie report it!)
+> > > >
+> > > > This one isn't in 2.6, which is critical for a stable system.
+> > >
+> > > Actually it is
+> > >
+> > > In the 2.4 case we took  "50% RAM + swap" as the safe sane world
+> > > 'never OOM kill' and to all intents and purposes it works. We also had
+> > > a 100% paranoia mode.
+> > >
+> > > When it was ported to 2.6 (not by me) whoever did it very sensibly
+> > > made the percentage tunable and removed "mode 3" since its mode 2 0%
+> > > ram and can be set that way.
+> >
+> > Only, doesn't this imply that you cannot control overcommit unless
+> > backed by swap?  i.e Without swap the kernel cannot use all of ram,
+> > because it would overcommit no-matter what, thus invoking OOM-killer.
+> >
+> > Which raises an important question:  What's overcommit to do with
+> > limiting access to physical RAM?
+>
+> As shown in my previous mail, it allows malloc() to return NULL. I've
+> also successfully verified that it allows mmap() to fail if there is
+> not enough memory. I disabled swap, and set the overcommit_ratio to 95
+> and could not kill the system. Above this, it becomes tricky. At 97, I
+> see the last malloc() calls take a very long time, and at 98, the
+> system still hangs. But 95% without swap seems stable here.
 
-OK.  This probably means that the parameters that control the mechanism 
-need tweaking.
+Thanks, for confirming this!  And I agree that this patch and 2.6 offer an 
+important and necessary workaround to inhibit OOM-killer, but it's no more 
+than a workaround.
 
-There should be a file /sys/cpusched/attrs/unacceptable_ia_latency which 
-contains the latency (in nanoseconds) that the scheduler considers 
-unacceptable for interactive programs.  Try changing that value and see 
-if things improve?  Making it smaller should help but if you make it too 
-small all the interactive tasks will end up with the same priority and 
-this could cause them to get in each other's way.
+And so the question remains:  Why should overcommit come into play at all 
+when dealing with physical RAM only?
 
-Thanks,
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Shouldn't it be possible to disable overcommit completely, thus giving kswapd 
+a break from running wild trying to find something to swap/page, which is 
+the reason why the system gets unstable going over 95% in your example.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Thanks!
+
+--
+Al
+

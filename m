@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVLaGzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbVLaG64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbVLaGzF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 01:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVLaGzF
+	id S1751307AbVLaG64 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 01:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVLaG64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 01:55:05 -0500
-Received: from web34110.mail.mud.yahoo.com ([66.163.178.108]:10126 "HELO
-	web34110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751032AbVLaGzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 01:55:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=aqX2VKh3e87YKv6Mulw+85XvgmKtoRkBeOnjMpFAuN28nAC1/MQpaLeLhcOuXoA8+R+0etQgeA6wT88rUfOcgldqFDKDbFzv+eo5EBETyimt2lYt0jKArR7mhPn5f8hc4NfB2B4TeRx9EZfpVMb9hxpFNzPi28Uz7qjb4+e9SFI=  ;
-Message-ID: <20051231065503.68614.qmail@web34110.mail.mud.yahoo.com>
-Date: Fri, 30 Dec 2005 22:55:03 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: RAID controller safety
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1135990179.28365.40.camel@localhost.localdomain>
+	Sat, 31 Dec 2005 01:58:56 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:1009 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751307AbVLaG64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 01:58:56 -0500
+Date: Sat, 31 Dec 2005 01:58:45 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [PATCH] protect remove_proc_entry
+In-Reply-To: <20051230154647.5a38227e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0512310154190.5977@gandalf.stny.rr.com>
+References: <1135973075.6039.63.camel@localhost.localdomain>
+ <1135978110.6039.81.camel@localhost.localdomain> <20051230154647.5a38227e.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I finally tracked through the i2o code, and found that i2o_block_device_flush is ultimately
-called for fsync.  Sorry for being so dense.
+On Fri, 30 Dec 2005, Andrew Morton wrote:
 
-However, it does look like barriers are not directly supported.  So, are they safe to use in ext3,
-or is ext3 all fine without them?  Would barriers benefit i2o devices, or is there some reason to
-not have them?
+> Steven Rostedt <rostedt@goodmis.org> wrote:
+> >
+> > +static DEFINE_SPINLOCK(remove_proc_lock);
+> >
+>
+> I'll take a closer look at this next week.
+>
+> The official way of protecting the contents of a directory from concurrent
+> lookup or modification is to take its i_sem.  But procfs is totally weird
+> and that approach may well not be practical here.  We'd certainly prefer
+> not to rely upon lock_kernel().
+>
 
-As for the controller defaulting to write-back, I still cannot find anything that would set the
-cache mode to write-through in the non-battery-backed case.
+Yeah, I thought about using the sem (or mutex ;) but remove_proc_entry is
+used so darn much around the kernel, I wasn't sure it's not used in irq
+context.  So I'm not sure I like the idea of making a non-scheduling
+function schedule.  But it may not be a problem and it could very well be
+ok to schedule here.
 
--Kenny
+Also as Mitchell Blank pointed out, this list should probably be protected
+everywhere by the same protection used, and an analysis should be done to
+see what replacing the BKL affects.
 
+-- Steve
 
-
-	
-		
-__________________________________ 
-Yahoo! for Good - Make a difference this year. 
-http://brand.yahoo.com/cybergivingweek2005/

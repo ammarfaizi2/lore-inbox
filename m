@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVLaH2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbVLaHct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbVLaH2D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 02:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVLaH2C
+	id S1751318AbVLaHct (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 02:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVLaHcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 02:28:02 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:9740 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751317AbVLaH2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 02:28:00 -0500
-Date: Sat, 31 Dec 2005 08:25:28 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-Message-ID: <20051231072528.GY15993@alpha.home.local>
-References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu> <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301955350.22622@potato.cts.ucla.edu>
+	Sat, 31 Dec 2005 02:32:48 -0500
+Received: from hera.kernel.org ([140.211.167.34]:56000 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751318AbVLaHcs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 02:32:48 -0500
+Date: Sat, 31 Dec 2005 05:32:31 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@engr.sgi.com>, torvalds@osdl.org,
+       kravetz@us.ibm.com, raybry@mpdtxmail.amd.com, lee.schermerhorn@hp.com,
+       linux-kernel@vger.kernel.org, magnus.damm@gmail.com, pj@sgi.com,
+       haveblue@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 1/5] Swap Migration V5: LRU operations
+Message-ID: <20051231073231.GA12526@dmt.cnet>
+References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com> <20051101031244.12488.38211.sendpatchset@schroedinger.engr.sgi.com> <20051114214415.1e107c7b.akpm@osdl.org> <Pine.LNX.4.62.0511150837190.9258@schroedinger.engr.sgi.com> <20051115100248.5ba2383d.akpm@osdl.org> <Pine.LNX.4.62.0511151011150.10267@schroedinger.engr.sgi.com> <20051115104605.5020764d.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512301955350.22622@potato.cts.ucla.edu>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20051115104605.5020764d.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 08:00:34PM -0800, Chris Stromsoe wrote:
-> I couldn't get the machine to come up with 2.4.32, 2.4.30, or 2.4.27.  It 
-> was hanging and then throwing the SCSI errors below.  The machine did 
-> come up with a vanilla 2.6.14.4 and appears to be working fine.  I'm 
-> going to leave it up over the weekend and see if it oopses.  If it would 
-> help, I can mail out the .config for the 2.4.32 and 2.6.14.4 builds, or 
-> provide other information of interest.
+On Tue, Nov 15, 2005 at 10:46:05AM -0800, Andrew Morton wrote:
+> Christoph Lameter <clameter@engr.sgi.com> wrote:
+> >
+> > On Tue, 15 Nov 2005, Andrew Morton wrote:
+> > 
+> > > But lru_add_drain_per_cpu() will be called from interrupt context: the IPI
+> > > handler.
+> > 
+> > Ahh.. thought you meant the lru_add_drain run on the local processor.
+> >  
+> > > I'm asking whether it is safe for the IPI handler to reenable interupts on
+> > > all architectures.  It might be so, but I don't recall ever having seen it
+> > > discussed, nor have I seen code which does it.
+> > 
+> > smp_call_function is also used by the slab allocator to drain the 
+> > pages. All the spinlocks in there and those of the page allocator (called 
+> > for freeing pages) use spin_lock_irqsave. Why is this not used for 
+> > lru_add_drain() and friends?
+> 
+> It's a microoptimisation - lru_add_drain() is always called with local irqs
+> enabled, so no need for irqsave.
+> 
+> I don't think spin_lock_irqsave() is notably more expensive than
+> spin_lock_irq() - the cost is in the irq disabling and in the atomic
+> operation.
 
-Please do post at least the 2.4.32 .config, I'll try to boot it on my
-system right here. I find it amazing that it suddenly stopped working
-with the same kernels as before.
+Pardon me, but spin_lock_irqsave() needs to write data to the stack,
+which is likely to be cache-cold, so you have to fault the cacheline in 
+from slow memory.
 
-> -Chris
-
-Willy
-
+And thats much slower than the atomic operation, isnt it?

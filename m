@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVLaTWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVLaTuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbVLaTWe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 14:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVLaTWe
+	id S932096AbVLaTuM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 14:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLaTuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 14:22:34 -0500
-Received: from bay103-f29.bay103.hotmail.com ([65.54.174.39]:26102 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S965041AbVLaTWe
+	Sat, 31 Dec 2005 14:50:11 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:12304 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932096AbVLaTuK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 14:22:34 -0500
-Message-ID: <BAY103-F29FBDD5808DA08FBB21D39DF2B0@phx.gbl>
-X-Originating-IP: [68.75.161.216]
-X-Originating-Email: [dravet@hotmail.com]
-In-Reply-To: <Pine.LNX.4.61.0512311830030.7910@yvahk01.tjqt.qr>
-From: "Jason Dravet" <dravet@hotmail.com>
-To: jengelh@linux01.gwdg.de
-Cc: linux-kernel@vger.kernel.org, linux-parport@lists.infradead.org
-Subject: Re: RFC: add udev support to parport_pc
-Date: Sat, 31 Dec 2005 13:22:33 -0600
+	Sat, 31 Dec 2005 14:50:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=g1p2GCGCKjgyiX4s/tA7zDJPci0uXsT1xxTSc8mkiRxGDIoJOYu6HHkuFSW9n40bh4xnVpSZaioaJetju8dNUGXAG/3WaHVpFYCOqunbCBjbYphi7YOcb1zChADz5HdU0BveplJNF8L7H8AnrzZXeoxVihw8dB9pENDBfrpkn2M=
+Date: Sat, 31 Dec 2005 20:48:45 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: luca.risolia@studio.unibo.it, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, gregkh@suse.de
+Subject: Re: Oops with w9968cf
+Message-Id: <20051231204845.313ac4c9.diegocg@gmail.com>
+In-Reply-To: <20051231143229.GI3811@stusta.de>
+References: <20051212151820.5656ddd8.diegocg@gmail.com>
+	<20051231143229.GI3811@stusta.de>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 31 Dec 2005 19:22:33.0491 (UTC) FILETIME=[8CD18E30:01C60E3F]
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is version 2 of the patch.  It should address the issues pointed out so 
-far.
-
-Thanks,
-Jason
-
---- /usr/src/linux-2.6.14/drivers/parport/parport_pc.c.orig	2005-12-30 
-13:52:48.000000000 -0600
-+++ /usr/src/linux-2.6.14/drivers/parport/parport_pc.c	2005-12-31 
-13:17:42.000000000 -0600
-@@ -14,6 +14,7 @@
-  * More PCI support now conditional on CONFIG_PCI, 03/2001, Paul G.
-  * Various hacks, Fred Barnes, 04/2001
-  * Updated probing logic - Adam Belay <ambx1@neo.rr.com>
-+ * Added sysfs and udev - Jason Dravet <dravet@hotmail.com>
-  */
-
-/* This driver should work with any hardware that is broadly compatible
-@@ -55,6 +56,7 @@
-#include <linux/pci.h>
-#include <linux/pnp.h>
-#include <linux/sysctl.h>
-+#include <linux/sysfs.h>
-
-#include <asm/io.h>
-#include <asm/dma.h>
-@@ -99,6 +101,9 @@ static struct superio_struct {	/* For Su
-	int dma;
-} superios[NR_SUPERIOS] __devinitdata = { {0,},};
-
-+static struct class *parallel_class;
-+int countports = 0;
-+
-static int user_specified;
-#if defined(CONFIG_PARPORT_PC_SUPERIO) || \
-        (defined(CONFIG_PARPORT_1284) && defined(CONFIG_PARPORT_PC_FIFO))
-@@ -2232,6 +2237,11 @@ struct parport *parport_pc_probe_port (u
-                                            is mandatory (see above) */
-		p->dma = PARPORT_DMA_NONE;
-
-+	parallel_class = class_create(THIS_MODULE, "lp");
-+	class_device_create(parallel_class, NULL, MKDEV(6, countports), NULL, 
-"lp%i", countports);
-+	class_device_create(parallel_class, NULL, MKDEV(99, countports), NULL, 
-"parport%i", countports);
-+	countports++;
-+
-#ifdef CONFIG_PARPORT_PC_FIFO
-	if (parport_ECP_supported(p) &&
-	    p->dma != PARPORT_DMA_NOFIFO &&
-@@ -3406,6 +3416,13 @@ static void __exit parport_pc_exit(void)
-	if (pnp_registered_parport)
-		pnp_unregister_driver (&parport_pc_pnp_driver);
-
-+	printk (KERN_WARNING "countports = %i \n", countports);
-+	for (countports--; countports >=0; countports--) {
-+		printk (KERN_WARNING "countports loop = %i \n", countports);
-+		class_device_destroy(parallel_class, MKDEV(99, countports));
-+		class_device_destroy(parallel_class, MKDEV(6, countports));
-+	}
-+
-	spin_lock(&ports_lock);
-	while (!list_empty(&ports_list)) {
-		struct parport_pc_private *priv;
+El Sat, 31 Dec 2005 15:32:29 +0100,
+Adrian Bunk <bunk@stusta.de> escribió:
 
 
+> Hi Diego,
+> 
+> thanks for your report.
+> 
+> Is this issue still present in kernel 2.6.15-rc7?
+> Which was the last working kernel?
+
+I've found it's not easily reproducible - I tried to reproduce
+again and I couldn't. I've not used my webcam a lot and it's
+easy to use it without getting oopses so I have no idea of
+since when this bug has been there. I though it was a 
+w9968 - which is why I CC'ed luca risolia (the maintainer)
+
+I'll try to reproduce it again.

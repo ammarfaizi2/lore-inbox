@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVLaOqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVLaOqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbVLaOqG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 09:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbVLaOqG
+	id S932294AbVLaOqA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 09:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVLaOqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 09:46:06 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:48793 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964933AbVLaOqB (ORCPT
+	Sat, 31 Dec 2005 09:46:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:199 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932294AbVLaOp7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 09:46:01 -0500
-Date: Sat, 31 Dec 2005 15:45:35 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051231144534.GA5826@elte.hu>
-References: <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org> <20051229224839.GA12247@elte.hu> <1135897092.2935.81.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de> <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051231143800.GJ3811@stusta.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sat, 31 Dec 2005 09:45:59 -0500
+Date: Sat, 31 Dec 2005 09:44:07 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
+       Marijn Meijles <marijn@bitpit.net>
+Subject: Re: [PATCH 01/14] page-replace-single-batch-insert.patch
+In-Reply-To: <20051231070320.GA9997@dmt.cnet>
+Message-ID: <Pine.LNX.4.63.0512310943450.27198@cuia.boston.redhat.com>
+References: <20051230223952.765.21096.sendpatchset@twins.localnet>
+ <20051230224002.765.28812.sendpatchset@twins.localnet> <20051231070320.GA9997@dmt.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 31 Dec 2005, Marcelo Tosatti wrote:
 
-* Adrian Bunk <bunk@stusta.de> wrote:
+> Unification of active and inactive per cpu page lists is a requirement 
+> for CLOCK-Pro, right?
 
-> On Fri, Dec 30, 2005 at 08:49:16AM +0100, Ingo Molnar wrote:
-> > 
-> > * Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
-> > 
-> > > What about the previous suggestion to remove inline from *all* static 
-> > > inline functions in .c files?
-> > 
-> > i think this is a way too static approach. Why go from one extreme to 
-> > the other, when my 3 simple patches (which arguably create a more 
-> > flexible scenario) gives us savings of 7.7%?
-> 
-> This point only discusses the inline change, which were (without 
-> unit-at-a-time) in your measurements 2.9%.
-> 
-> Your patch might be simple, but it also might have side effects in 
-> cases where we _really_ want the code forced to be inlined. How simple 
-> is it to prove that your uninline patch doesn't cause a subtle 
-> breakage somewhere?
+You can approximate the functionality through use of scan
+rates.  Not quite as accurate as a unified clock, though.
 
-it's quite simple: run the latency tracer with stack-trace debugging 
-enabled, and it will measure the worst-case stack footprint that is 
-triggered on that system. Obviously any compiler version change or 
-option change can cause problems, there's nothing new about it - and 
-it's not realistic to wait one year for changes like that. If you have 
-to wait that long, you are testing it the wrong way.
-
-	Ingo
+-- 
+All Rights Reversed

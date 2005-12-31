@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWAAR4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWAASVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWAAR4V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 12:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWAAR4U
+	id S932135AbWAASVh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 13:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWAASVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 12:56:20 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:56250 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932168AbWAAR4U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 12:56:20 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "1qay beer" <1qay@beer.com>
-Subject: Re: Wish for 2006 to Alan Cox and Jeff Garzik: A functional Driver for PDC202XX
-Date: Sun, 1 Jan 2006 17:56:08 +0000
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <20060101173909.D30257B386@ws5-10.us4.outblaze.com>
-In-Reply-To: <20060101173909.D30257B386@ws5-10.us4.outblaze.com>
+	Sun, 1 Jan 2006 13:21:37 -0500
+Received: from mail.suse.de ([195.135.220.2]:39853 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932135AbWAASVh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 13:21:37 -0500
+From: Andi Kleen <ak@suse.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on x86_64 machines ?
+Date: Sat, 31 Dec 2005 21:13:53 +0100
+User-Agent: KMail/1.8.2
+Cc: Matt Mackall <mpm@selenic.com>, Denis Vlasenko <vda@ilport.com.ua>,
+       Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net> <20051228210124.GB1639@waste.org> <20051230211340.GA3672@dmt.cnet>
+In-Reply-To: <20051230211340.GA3672@dmt.cnet>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200601011756.08694.s0348365@sms.ed.ac.uk>
+Message-Id: <200512312113.53962.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 January 2006 17:39, 1qay beer wrote:
-> Hello,
-> Dear Alan Cox,
-> Dear Jeff Garzik,
->
-> Everyone a happy new year!
->
-> We are in stable Kernel 2.6.14.5, year 2006.
-> Since 1997 people asking on several list for a functional PDC202XX Driver.
-> Since some years I spend hours and hours finding a solution for a stable
-> driver. (PDC20269/Promise Ultra133 TX2)
-> There seem to be none.
->
-> There are two Solution:
-> -The IDE Driver (pdc202xx_new) has still problems with "DMA Timeout".
-> -The Libata Driver (pata_pdc2027x) seems to be still somewhat experimental.
->
-> Unfortunatly I'am not a kernel developper else there would be probably
-> already a solution ;-)
->
-> So what is the Solution for the PDC20269 Ultra ATA Controller?
-> I would mark this bold on the wishlist for 2006 ;-)
+On Friday 30 December 2005 22:13, Marcelo Tosatti wrote:
+> 
+> <snip>
+> 
+> > > Note that just looking at slabinfo is not enough for this - you need the
+> > > original
+> > > sizes as passed to kmalloc, not the rounded values reported there.
+> > > Should be probably not too hard to hack a simple monitoring script up
+> > > for that
+> > > in systemtap to generate the data.
+> > 
+> > Something like this:
+> > 
+> > http://lwn.net/Articles/124374/
+> 
+> Written with a systemtap script: 
+> http://sourceware.org/ml/systemtap/2005-q3/msg00550.html
 
-I own this controller and it's been working with the kernel driver since 
-2002.. I'm not sure what you expect people to do about clearly faulty 
-hardware. Just buy a new one?
+I had actually written a similar script on my own before,
+but I found it was near completely unusable on a 4core Opteron
+system even under moderate load because systemtap bombed out 
+when it needed more than one spin to take the lock of the 
+shared hash table.
 
--- 
-Cheers,
-Alistair.
+(it basically did if (!spin_trylock()) ... stop script; ...) 
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+The problem was that the backtraces took so long that another
+CPU very often run into the locked lock.
+
+Still with a stripped down script without backtraces had some
+interesting results. In particular my init was reading some 
+file in /proc 10 times a second, allocating 4K (wtf did it do that?) and
+some other somewhat surprising results.
+
+-Andi

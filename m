@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVLaBPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVLaBPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbVLaBPe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 20:15:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVLaBPd
+	id S932069AbVLaBPY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 20:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVLaBPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 20:15:33 -0500
-Received: from hera.kernel.org ([140.211.167.34]:43686 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932070AbVLaBPd (ORCPT
+	Fri, 30 Dec 2005 20:15:24 -0500
+Received: from hera.kernel.org ([140.211.167.34]:42406 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932069AbVLaBPX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 20:15:33 -0500
-Date: Fri, 30 Dec 2005 19:13:40 -0200
+	Fri, 30 Dec 2005 20:15:23 -0500
+Date: Fri, 30 Dec 2005 23:15:07 -0200
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andreas Kleen <ak@suse.de>, Denis Vlasenko <vda@ilport.com.ua>,
-       Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
-Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on x86_64 machines ?
-Message-ID: <20051230211340.GA3672@dmt.cnet>
-References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net> <43A91C57.20102@cosmosbay.com> <200512281032.15460.vda@ilport.com.ua> <200512281054.26703.vda@ilport.com.ua> <3186311.1135792635763.SLOX.WebMail.wwwrun@imap-dhs.suse.de> <20051228210124.GB1639@waste.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
+       Marijn Meijles <marijn@bitpit.net>, Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH 14/14] page-replace-kswapd-incmin.patch
+Message-ID: <20051231011507.GC4913@dmt.cnet>
+References: <20051230223952.765.21096.sendpatchset@twins.localnet> <20051230224212.765.38527.sendpatchset@twins.localnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051228210124.GB1639@waste.org>
+In-Reply-To: <20051230224212.765.38527.sendpatchset@twins.localnet>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-<snip>
-
-> > Note that just looking at slabinfo is not enough for this - you need the
-> > original
-> > sizes as passed to kmalloc, not the rounded values reported there.
-> > Should be probably not too hard to hack a simple monitoring script up
-> > for that
-> > in systemtap to generate the data.
+On Fri, Dec 30, 2005 at 11:42:34PM +0100, Peter Zijlstra wrote:
 > 
-> Something like this:
+> From: Nick Piggin <npiggin@suse.de>
 > 
-> http://lwn.net/Articles/124374/
+> Explicitly teach kswapd about the incremental min logic instead of just scanning
+> all zones under the first low zone. This should keep more even pressure applied
+> on the zones.
+> 
+> The new shrink_zone() logic exposes the very worst side of the current
+> balance_pgdat() function. Without this patch reclaim is limited to ZONE_DMA.
 
-Written with a systemtap script: 
-http://sourceware.org/ml/systemtap/2005-q3/msg00550.html
+Can you please describe the issue with over protection of DMA zone you experienced?
 
+I'll see if I can reproduce it with Nick's standalone patch on top of vanilla, what
+load was that?
 

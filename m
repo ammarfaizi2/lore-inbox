@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVLaBPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVLaBPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbVLaBPY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 20:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVLaBPY
+	id S932073AbVLaBPo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 20:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVLaBPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 20:15:24 -0500
-Received: from hera.kernel.org ([140.211.167.34]:42406 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932069AbVLaBPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 20:15:23 -0500
-Date: Fri, 30 Dec 2005 23:15:07 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
-       Marijn Meijles <marijn@bitpit.net>, Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 14/14] page-replace-kswapd-incmin.patch
-Message-ID: <20051231011507.GC4913@dmt.cnet>
-References: <20051230223952.765.21096.sendpatchset@twins.localnet> <20051230224212.765.38527.sendpatchset@twins.localnet>
+	Fri, 30 Dec 2005 20:15:44 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:53694 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932073AbVLaBPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 20:15:34 -0500
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org>
+References: <1135726300.22744.25.camel@mindpipe>
+	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
+	 <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu>
+	 <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu>
+	 <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe>
+	 <20051229202848.GC29546@elte.hu> <1135908980.4568.10.camel@mindpipe>
+	 <20051230080032.GA26152@elte.hu> <1135990270.31111.46.camel@mindpipe>
+	 <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org>
+Content-Type: text/plain
+Date: Fri, 30 Dec 2005 20:15:31 -0500
+Message-Id: <1135991732.31111.57.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051230224212.765.38527.sendpatchset@twins.localnet>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.5.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 11:42:34PM +0100, Peter Zijlstra wrote:
+On Fri, 2005-12-30 at 17:02 -0800, Linus Torvalds wrote:
 > 
-> From: Nick Piggin <npiggin@suse.de>
+> On Fri, 30 Dec 2005, Lee Revell wrote:
+> > 
+> > It seems that the networking code's use of RCU can cause 10ms+
+> > latencies:
 > 
-> Explicitly teach kswapd about the incremental min logic instead of just scanning
-> all zones under the first low zone. This should keep more even pressure applied
-> on the zones.
+> Hmm. Is there a big jump at the 10ms mark? Do you have a 100Hz timer 
+> source? 
 > 
-> The new shrink_zone() logic exposes the very worst side of the current
-> balance_pgdat() function. Without this patch reclaim is limited to ZONE_DMA.
+> A latency jump at 10ms would tend to indicate a missed wakeup that 
+> was "picked up" by the next timer tick.
 
-Can you please describe the issue with over protection of DMA zone you experienced?
+No there are no large jumps, it really seems that this was the network
+code causing an RCU callback to drop ~2K routes at once.  Specifically
+RCU invokes dst_rcu_free 2085 times in a single batch
+(call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free) is only called from
+rt_free() and rt_drop()).
 
-I'll see if I can reproduce it with Nick's standalone patch on top of vanilla, what
-load was that?
+I have found that many of the paths in the network stack that can cause
+high latencies can be tuned via sysctls (for example
+net.ipv4.route.gc_thresh); this one may be the same.
+
+Lee
 

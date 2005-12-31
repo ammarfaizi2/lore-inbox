@@ -1,99 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbVLaWrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVLaXN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965054AbVLaWrG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 17:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVLaWrG
+	id S1750741AbVLaXN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 18:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVLaXN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 17:47:06 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:65203 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751218AbVLaWrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 17:47:05 -0500
-Subject: RTC broken under 2.6.15-rc7-rt1 (was: Re: MPlayer broken under
-	2.6.15-rc7-rt1?)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Bradley Reed <bradreed1@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.61.0512312153480.27366@yvahk01.tjqt.qr>
-References: <20051231202933.4f48acab@galactus.example.org>
-	 <1136058696.6039.133.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0512312153480.27366@yvahk01.tjqt.qr>
-Content-Type: multipart/mixed; boundary="=-vzxLH+4YDLkr6UjL7evq"
-Date: Sat, 31 Dec 2005 17:46:55 -0500
-Message-Id: <1136069215.6039.142.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sat, 31 Dec 2005 18:13:58 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:40720 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S1750741AbVLaXN6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 18:13:58 -0500
+Message-ID: <43B710B4.9000401@domdv.de>
+Date: Sun, 01 Jan 2006 00:13:56 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.15rc6: ide oops+panic
+References: <43AB20DA.2020506@domdv.de> <20051223053621.6c437cee.akpm@osdl.org>
+In-Reply-To: <20051223053621.6c437cee.akpm@osdl.org>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
---=-vzxLH+4YDLkr6UjL7evq
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Ping
 
-On Sat, 2005-12-31 at 21:58 +0100, Jan Engelhardt wrote:
-> >Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
-> 
-> I seriously demand that this be changed into "RTC broekn under..."! :)
+<rude>
+Do you want me to track this further or shall I place my hardware in the
+waste paper bin (Welcome to the pleasure dome of the new development
+method)?
+</rude>
 
-Done ;)
+Some more hint: It seems the system is stable as long as networking
+(tg3) is not touched. I'll switch to e1000 for a while and see what
+happens. Activating only one processor (booting with maxcpus=1) or
+mounting with "barrier=0" doesn't help.
 
-[...]
-
-> >
-> >Index: linux-2.6.15-rc7-rt1/drivers/char/rtc.c
-> 
-> This patch fixes the rtc BUG for me.
-
-Yeah, attached is a program that does what mplayer does.  I run it from
-the command line like this:
-
-# for i in `seq 10000`; do ./rtc_ioctl ; done
-
-And with the patch it runs perfectly fine.  Without it, it segfaults
-several times.
-
--- Steve
-
-
---=-vzxLH+4YDLkr6UjL7evq
-Content-Disposition: attachment; filename=rtc_ioctl.c
-Content-Type: text/x-csrc; name=rtc_ioctl.c; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#include <linux/rtc.h>
-
-#define RTC "/dev/rtc"
-
-int main(int argc, char **argv)
-{
-	int fd;
-	unsigned long data;
-
-	if ((fd = open(RTC, O_RDONLY)) < 0) {
-		perror(RTC);
-		exit(0);
-	}
-	
-	ioctl(fd, RTC_IRQP_SET, 1024);
-	ioctl(fd, RTC_PIE_ON, 0);
-
-	read(fd, &data, sizeof(data));
-	printf("%08lx\n",data);
-
-	close (fd);
-	exit(0);
-}
-
---=-vzxLH+4YDLkr6UjL7evq--
-
+PS:
+I'm dearly in need of a four way system based on the followup revision
+of my board and two dual core Opterons which is delayed until this
+Bug/Ooops/Panic is resolved. Can't develop anymore (due to CPU power
+constraints and financial limits). Bad.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

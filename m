@@ -1,54 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbVLaIga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVLaInh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbVLaIga (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 03:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbVLaIga
+	id S1751316AbVLaInh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 03:43:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbVLaInh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 03:36:30 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:25792 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751312AbVLaIg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 03:36:29 -0500
-Subject: Re: [PATCH 10 of 20] ipath - core driver, part 3 of 4
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <1135986615.13318.82.camel@serpentine.pathscale.com>
-References: <c37b118ef80698acc4eb.1135816289@eng-12.pathscale.com>
-	 <Pine.LNX.4.64.0512301043290.3249@g5.osdl.org>
-	 <1135986615.13318.82.camel@serpentine.pathscale.com>
-Content-Type: text/plain
-Date: Sat, 31 Dec 2005 09:36:24 +0100
-Message-Id: <1136018184.2901.6.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 31 Dec 2005 03:43:37 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:36763 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751316AbVLaIng convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 03:43:36 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="GB2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH v2:3/3]Export cpu topology by sysfs
+Date: Sat, 31 Dec 2005 16:43:24 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E84045838F8@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH v2:3/3]Export cpu topology by sysfs
+Thread-Index: AcYL4w5N6Fm5RbHxR8q00fd/R7B+8AB7b/CQ
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: "Nathan Lynch" <ntl@pobox.com>
+Cc: "Yanmin Zhang" <ymzhang@unix-os.sc.intel.com>, <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>,
+       <linux-ia64@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+X-OriginalArrivalTime: 31 Dec 2005 08:43:25.0380 (UTC) FILETIME=[43903040:01C60DE6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-30 at 15:50 -0800, Bryan O'Sullivan wrote:
-> On Fri, 2005-12-30 at 10:46 -0800, Linus Torvalds wrote:
-> 
-> > All your user page lookup/pinning code is terminally broken.
-> 
-> Yes, this has been pointed out by a few others.
-> 
-> > Crap like this must not be merged.
-> 
-> I'm already busy decrappifying it...
+>>-----Original Message-----
+>>From: linux-ia64-owner@vger.kernel.org [mailto:linux-ia64-owner@vger.kernel.org] On Behalf Of Nathan Lynch
+>>Sent: 2005Äê12ÔÂ29ÈÕ 3:14
+>>To: Zhang, Yanmin
+>>Cc: Yanmin Zhang; greg@kroah.com; linux-kernel@vger.kernel.org; discuss@x86-64.org; linux-ia64@vger.kernel.org; Siddha, Suresh B; Shah,
+>>Rajesh; Pallipadi, Venkatesh
+>>Subject: Re: [PATCH v2:3/3]Export cpu topology by sysfs
+>>
+>>
+>>> >>What about sane default values for the *_id attributes?
+>>Not really -- inevitably we'll wind up with an interface that has
+>>slightly different semantics on each architecture.
+How about below arrangement for default values?
+1) physical_package_id: If cpu has no physical package id, the logical cpu id will be picked up.
+2) core_id: 0. If cpu doesn't support multi-core, its core id is 0. 
+3) thread_siblings: Just include itself, if the cpu doesn't support HT/multi-thread.
+4) core_siblings: Just include itself, if the cpu doesn't support multi-core and HT.
 
-the point I think also was the fact that it exists is already wrong :)
 
-makes it easier for you.. "rm" is a very powerful decrappify tool, as is
-"block delete" in just about any editor ;)
+>>
+>>> >>Hmm, why should thread_id be exported at all?  Is it useful to
+>>> >>userspace in a way that the logical cpu id is not?
+>>>
+>>> Just to make it clearer. Of course, physical_package_id /core_id/
+>>> logical cpu id could tell enough info like thread id.
+>>
+>>Then let's drop thread_id until there's a need for it.
+Ok. 
 
+
+>>> >>> +	switch (action) {
+>>> >>> +		case CPU_ONLINE:
+>>> >>> +			topology_add_dev(sys_dev);
+>>> >>> +			break;
+>>> >>> +		case CPU_DEAD:
+>>> >>> +			topology_remove_dev(sys_dev);
+>>> >>> +			break;
+>>> >>> +	}
+>>> >>> +	return NOTIFY_OK;
+>>> >>> +}
+>>> >>
+>>> >>I don't think it makes much sense to add and remove the attribute
+>>> >>group for cpu online/offline events.  The topology information for an
+>>> >>offline cpu is potentially valuable -- it could help the admin decide
+>>> >>which processor to online at runtime, for example.
+>>> >>
+>>> >>I believe the correct time to update the topology information is when
+>>> >>the topology actually changes (e.g. physical addition or removal of a
+>>> >>processor) -- this is independent of online/offline operations.
+>>>
+>>> Currently, on i386/x86_64/ia64, a cpu gets its own topology by
+>>> itself and fills into a global array. If the cpu is offline since
+>>> the machine is booted, we can't get its topology info.
+>>
+>>Hmm, is this a limitation of those architectures?  On ppc64 (where
+>>this feature would be applicable) Open Firmware provides such topology
+>>information regardless of the cpus' states; does the firmware or ACPI
+>>on these platforms not do the same?
+On I386/x86_64/IA64, MADT, an ACPI table, provides apic id for all cpus. But we can't divide it to get core id and thread id becasue we couldn't know how many bits of apic id are for core id and how many bits are for thread id. These info are got only by executing cupid (on i386/x86_64) or PAL call (on ia64) by the online cpu itself.
+
+>>
+>>> And when a cpu is offline, current kernel deletes it from the
+>>> thread_siblings and core_siblings of other cpu.
+>>
+>>That's fine -- I'm just arguing against the addition/removal of the
+>>attributes when cpus go online and offline.
+Based on above discussion, if the attributes of the cpu is not removed when the cpu is offline, the attribute values might be incorrect when the cpu is not up since machine boots.
 

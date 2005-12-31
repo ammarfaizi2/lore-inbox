@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVLaRjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVLaRhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVLaRjD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 12:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVLaRjD
+	id S932108AbVLaRhn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 12:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVLaRhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 12:39:03 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:9889 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932122AbVLaRjB (ORCPT
+	Sat, 31 Dec 2005 12:37:43 -0500
+Received: from [212.76.87.251] ([212.76.87.251]:56070 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932108AbVLaRhm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 12:39:01 -0500
-Date: Sat, 31 Dec 2005 18:38:42 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jason Dravet <dravet@hotmail.com>
-cc: linux-kernel@vger.kernel.org, linux-parport@lists.infradead.org
-Subject: Re: RFC: add udev support to parport_pc
-In-Reply-To: <BAY103-F5ABE5F52E47CC9DD71D21DF2B0@phx.gbl>
-Message-ID: <Pine.LNX.4.61.0512311830030.7910@yvahk01.tjqt.qr>
-References: <BAY103-F5ABE5F52E47CC9DD71D21DF2B0@phx.gbl>
+	Sat, 31 Dec 2005 12:37:42 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+Date: Sat, 31 Dec 2005 20:36:01 +0300
+User-Agent: KMail/1.5
+Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       barryn@pobox.com, linux-kernel@vger.kernel.org
+References: <200512302306.28667.a1426z@gawab.com> <200512311702.20525.a1426z@gawab.com> <1136039178.2901.25.camel@laptopd505.fenrus.org>
+In-Reply-To: <1136039178.2901.25.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512312036.01351.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
+> On Sat, 2005-12-31 at 17:02 +0300, Al Boldi wrote:
+> > Shouldn't it be possible to disable overcommit completely, thus giving
+> > kswapd a break from running wild trying to find something to swap/page,
+> > which is the reason why the system gets unstable going over 95% in your
+> > example.
+>
+> shared mappings make this impractical. To disable overcommit completely,
+> each process would need to account for all its own shared libraries, eg
+> each process gets glibc added etc. You'll find that on any
+> non-extremely-stripped system you then end up with much more memory
+> needed than you have ram.
 
-> +	parallel_class = class_create(THIS_MODULE, "lp");
-> +	if (p->base == 888) /* 888 is dec for 378h */
+Are you implying shared maps are implemented by way of overcommitting?
 
-I would prefer to actually see == 0x378 in the code, because the 
-hexademical number is what you see everywhere else, such as the BIOS POST 
-and /proc/ioports. This also applies to 0x278 and 0x3BC below.
+Really, overcommit is an add-on feature like swapping, only overcommit is 
+free because it's a lier.  So removing an add-on feature should not affect 
+the underlying system in any way, such as shared mappings or swapping.
 
-> +	{
-> +		class_device_create(parallel_class, NULL, MKDEV(6, 0), NULL,
-> "lp0");
-> +		class_device_create(parallel_class, NULL, MKDEV(99, 0), NULL,
-> "parport0");
-> +	}
+It should be possible to allow swapping to handle all memory requests 
+exceeding physical RAM.  OverCommit should be a tuning option for those who 
+like to live on the edge, because it really is a gamble.
 
-Background info before: Because I burnt my on-board LPT port (applying too 
-much volts or milliamps), I bought a dual-slot PCI add-in card. This card 
-provides "parport1" and "parport2" at ports at 0xC800 and 0xC00 
-(/proc/ioports).
+In the case where swap = physical RAM and overcommit_ratio = 0, the kernel is 
+in effect hiding the fact that it is overcommitting.
 
-There are a number of problems in your code:
+Can you see the overhead involved here?
 
-1- testing just for 0x378/0x278/0x3BC is not enough
+Thanks for your input!
 
-2- parport0 could be 0xC800 (address may vary) if you do not
-   have any onboard LPT ports.
-    2=> that is why I think you should not reserver "lp0"/"parport0"
-        for 0x378.
+--
+Al
 
-All this applies to the other chunks too of course...:
-
-> +	if (p->base == 632) /* 632 is dec for 278h */
-> +	{
-> +		class_device_create(parallel_class, NULL, MKDEV(6, 1), NULL,
-> "lp1");
-> +		class_device_create(parallel_class, NULL, MKDEV(99, 1), NULL,
-> "parport1");
-> +	}
-> +
-> +	if (p->base == 956) /* 956 is dec for 3BCh */
-> +	{
-> +		class_device_create(parallel_class, NULL, MKDEV(6, 2), NULL,
-> "lp2");
-> +		class_device_create(parallel_class, NULL, MKDEV(99, 2), NULL,
-> "parport2");
-> +	}
-> +
-
-
-> +	class_device_destroy(parallel_class, MKDEV(99, 2));
-> +	class_device_destroy(parallel_class, MKDEV(6, 2));
-> +	class_device_destroy(parallel_class, MKDEV(99, 1));
-> +	class_device_destroy(parallel_class, MKDEV(6, 1));
-> +	class_device_destroy(parallel_class, MKDEV(99, 0));
-> +	class_device_destroy(parallel_class, MKDEV(6, 0));
-> +
-
-
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/

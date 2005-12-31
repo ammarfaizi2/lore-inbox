@@ -1,118 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVLaAY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVLaA1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbVLaAY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 19:24:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVLaAY3
+	id S1750782AbVLaA1b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 19:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVLaA1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 19:24:29 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:12456 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1750740AbVLaAY2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 19:24:28 -0500
-Message-ID: <43B5CFB1.3080304@ens-lyon.org>
-Date: Sat, 31 Dec 2005 01:24:17 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Fri, 30 Dec 2005 19:27:31 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:16806 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1750782AbVLaA1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 19:27:30 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Mark v Wolher <trilight@ns666.com>
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+Date: Sat, 31 Dec 2005 00:27:47 +0000
+User-Agent: KMail/1.9
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Folkert van Heusden <folkert@vanheusden.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <43B53EAB.3070800@ns666.com> <200512302356.59749.s0348365@sms.ed.ac.uk> <43B5CEB8.9070801@ns666.com>
+In-Reply-To: <43B5CEB8.9070801@ns666.com>
 MIME-Version: 1.0
-To: Gerhard Mack <gmack@innerfire.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ati X300 support?
-References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net> <200512270149.24440.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512270817340.15649@innerfire.net> <200512271545.31224.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512271047260.2104@innerfire.net> <Pine.LNX.4.60.0512280103100.29982@kepler.fjfi.cvut.cz> <Pine.LNX.4.64.0512271927130.5956@innerfire.net> <Pine.LNX.4.60.0512280229530.30594@kepler.fjfi.cvut.cz> <Pine.LNX.4.64.0512272121230.11181@innerfire.net>
-In-Reply-To: <Pine.LNX.4.64.0512272121230.11181@innerfire.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512310027.47757.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerhard Mack wrote:
-
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module
->ATI module generator V 2.0
->==========================
->initializing...
->cleaning...
->patching 'highmem.h'...
->assuming new VMA API since we do have kernel 2.6.x...
->doing Makefile based build for kernel 2.6.x and higher
->make -C /lib/modules/2.6.15-rc7/build SUBDIRS=/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/2.6.x modules
->make[1]: Entering directory `/usr/src/linux-2.6.15-rc7'
->mkdir -p /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/2.6.x/.tmp_versions
->make -f scripts/Makefile.build obj=/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/2.6.x
->  Building modules, stage 2.
->make -rR -f /usr/src/linux-2.6.15-rc7/scripts/Makefile.modpost
->  scripts/mod/modpost -m -a -i /usr/src/linux-2.6.15-rc7/Module.symvers vmlinux /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/2.6.x/fglrx.o
->Warning: could not find /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd for /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/2.6.x/libfglrx_ip.a.GCC4
->make[1]: Leaving directory `/usr/src/linux-2.6.15-rc7'
->build succeeded with return value 0
->  
+On Saturday 31 December 2005 00:20, Mark v Wolher wrote:
+[snip]
+> >
+> > This is good news -- you stand a better chance of achieving the stability
+> > you require by eliminating variables. VMWare and NVIDIA are useful
+> > softwares, and I would not deny that, but they are closed source and thus
+> > any conflicts resulting from their use are not necessary LKML material
+> > (however, if the interaction is generic and is as a result of a kernel
+> > bug, then the maintainer would very much like to hear it).
 >
-fglrx.ko got build at this point, didn't it ? I am also seeing a build
-problem on my (32bits) Thinkpad T43 _after_ fglrx.ko got build
-successfully. I just don't care about the build error, only load
-fglrx.ko and it works.
-
-Brice
-
-
-
-> compiling fglrx_agp.ko module
->make -C /lib/modules/2.6.15-rc7/build SUBDIRS=/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart modules
->make[1]: Entering directory `/usr/src/linux-2.6.15-rc7'
->mkdir -p /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/.tmp_versions
->make -f scripts/Makefile.build obj=/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart
->  gcc -Wp,-MD,/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/.firegl_wrap.o.d  -nostdinc -isystem /usr/lib/gcc/x86_64-linux-gnu/4.0.3/include -D__KERNEL__ -Iinclude  -include include/linux/autoconf.h -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -ffreestanding -Os     -fomit-frame-pointer -march=k8 -mno-red-zone -mcmodel=kernel -pipe -fno-reorder-blocks	 -Wno-sign-compare -fno-asynchronous-unwind-tables -funit-at-a-time -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -Wdeclaration-after-statement -Wno-pointer-sign -I/usr/src/linux-2.6.15-rc7 -D__AGP__ -DFGL -DFGL_LINUX -DFGL_GART_RESERVED_SLOT -DFGL_LINUX253P1_VMA_API -DPAGE_ATTR_FIX=1   -DMODULE -DATI_AGP_HOOK -DATI -DFGL -DFGL_RX -DFGL_CUSTOM_MODULE -DPAGE_ATTR_FIX=1  -DMODVERSIONS -DKBUILD_BASENAME=firegl_wrap -DKBUILD_MODNAME=fglrx_agp -c -o /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/.tmp_firegl_wrap.o /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c
->In file included from /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:113:
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_agp.h:755:1: warning: "PCI_DEVICE_ID_INTEL_ICH7_1" redefined
->In file included from include/linux/pci.h:26,
->                 from /usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:74:
->include/linux/pci_ids.h:2051:1: warning: this is the location of the previous definition
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:121:25: error: asm/ioctl32.h: No such file or directory
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:171: error: static declaration of 'errno' follows non-static declaration
->include/linux/unistd.h:4: error: previous declaration of 'errno' was here
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_phys_to_virt':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:660: warning: passing argument 1 of 'phys_to_virt' makes integer from pointer without a cast
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:660: warning: return makes integer from pointer without a cast
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: At top level:
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:695: error: conflicting types for '__ke_pci_find_class'
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.h:419: error: previous declaration of '__ke_pci_find_class' was here
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_pci_find_class':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:697: warning: implicit declaration of function 'pci_find_class'
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:697: error: incompatible types in return
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function 'firegl_get_user_ptr':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:762: warning: assignment makes pointer from integer without a cast
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function 'firegl_put_user_ptr':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:794: warning: cast from pointer to integer of different size
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:794: warning: cast from pointer to integer of different size
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:794: warning: cast from pointer to integer of different size
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:794: warning: cast from pointer to integer of different size
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_verify_area':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:1123: warning: implicit declaration of function 'verify_area'
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_get_vm_phys_addr':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:1362: error: 'struct <anonymous>' has no member named 'pud'
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_register_ioctl32_conversion':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:1689: warning: implicit declaration of function 'register_ioctl32_conversion'
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_unregister_ioctl32_conversion':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:1694: warning: implicit declaration of function 'unregister_ioctl32_conversion'
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_vm_phys_addr_str':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:1818: error: 'struct <anonymous>' has no member named 'pud'
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c: In function '__ke_smp_call_function':
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.c:2252: warning: statement with no effect
->make[2]: *** [/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart/firegl_wrap.o] Error 1
->make[1]: *** [_module_/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module/build_mod/firegl_agpgart] Error 2
->make[1]: Leaving directory `/usr/src/linux-2.6.15-rc7'
->make: *** [default] Error 2
->AGPGART module build failed with return value 2
->duplication skipped - generator was not called from regular lib tree
->done.
->==============================
->/usr/local/src/fglrx64-assemble_scripts/fglrx-8.20.8-x86_64-kernel-module
->--
->Gerhard Mack
+> Okay, i have something interesting now, i only had the nvidia module
+> loaded so my x-configuration starts up as usual. (not saying the nvidia
+> module is flawless, i'm sure it still contains bugs)
+> But here is the crash info, this time it was mozilla, i think this
+> speaks more hehe :
 >
->gmack@innerfire.net
->
-><>< As a computer I find your faith in technology amusing.
->
+> Dec 31 00:55:28 localhost kernel: mm/memory.c:106: bad pgd 061f0c08.
+> Dec 31 00:55:28 localhost kernel: mm/memory.c:106: bad pgd 06b96000.
+> Dec 31 00:55:28 localhost kernel: mm/memory.c:106: bad pgd 18000bf8.
+> Dec 31 00:55:28 localhost kernel: ------------[ cut here ]------------
+> Dec 31 00:55:28 localhost kernel: kernel BUG at mm/mmap.c:2214!
+> Dec 31 00:55:28 localhost kernel: invalid operand: 0000 [#1]
+> Dec 31 00:55:28 localhost kernel: SMP
+> Dec 31 00:55:28 localhost kernel: Modules linked in: nvidia
 
+Steady and sure progress. Now, the trace below doesn't explicitly mention any 
+nvidia symbols, but this line must disappear before anybody will bother to 
+read your report.
 
+Remove the module. This does not mean unload, this means "never load in the 
+first place". Then reproduce the problem. If you are successful, send a new 
+email (not pinned to this thread) with a subject a la "kernel BUG at 
+mm/mmap.c:2214". State that the kernel is not tainted.
+
+At this point all you can do is wait. Good luck!
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

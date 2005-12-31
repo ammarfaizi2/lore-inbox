@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVLaPBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVLaPBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbVLaPBW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 10:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVLaPBW
+	id S964979AbVLaPBx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 10:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbVLaPBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 10:01:22 -0500
-Received: from mail.gmx.net ([213.165.64.21]:36007 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964976AbVLaPBV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 10:01:21 -0500
-X-Authenticated: #14349625
-Message-Id: <5.2.1.1.2.20051231152916.00bd5fd0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Sat, 31 Dec 2005 16:00:11 +0100
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: [2.6.15-rc7-rt1] check_monotonic_clock: monotonic
-  inconsistency detected!
+	Sat, 31 Dec 2005 10:01:53 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:15628 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964980AbVLaPBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 10:01:52 -0500
+Date: Sat, 31 Dec 2005 15:58:22 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Al Boldi <a1426z@gawab.com>, Willy Tarreau <willy@w.ods.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, barryn@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+Message-ID: <20051231145822.GB15993@alpha.home.local>
+References: <200512302306.28667.a1426z@gawab.com> <200512310759.02962.a1426z@gawab.com> <20051231073817.GZ15993@alpha.home.local> <200512311702.20525.a1426z@gawab.com> <1136039178.2901.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_181652593==_"
-X-Antivirus: avast! (VPS 0550-0, 12/10/2005), Outbound message
-X-Antivirus-Status: Clean
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136039178.2901.25.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_181652593==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+On Sat, Dec 31, 2005 at 03:26:18PM +0100, Arjan van de Ven wrote:
+> On Sat, 2005-12-31 at 17:02 +0300, Al Boldi wrote:
+> 
+> > Shouldn't it be possible to disable overcommit completely, thus giving kswapd 
+> > a break from running wild trying to find something to swap/page, which is 
+> > the reason why the system gets unstable going over 95% in your example.
+> 
+> shared mappings make this impractical. To disable overcommit completely,
+> each process would need to account for all its own shared libraries, eg
+> each process gets glibc added etc. You'll find that on any
+> non-extremely-stripped system you then end up with much more memory
+> needed than you have ram.
 
-Greetings,
+Arjan, is this true even for read-only mappings such as shared libs ?
+It seems to me that those ones can precisely be mapped once because
+they are areas the process cannot extend. Am I wrong ?
 
-After running just fine for most of the day, my PIII/500 coughed up 
-attached fur-ball as I tried to start my ancient (au) sound 
-server.  Subsequent repeated starting and stopping of same did not induce a 
-repeat (but then all zillion sound modules were loaded).  If any other info 
-is needed, just holler.
-
-	-Mike
---=====================_181652593==_
-Content-Type: application/octet-stream; name="xx"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="xx"
-
-Y2hlY2tfbW9ub3RvbmljX2Nsb2NrOiBtb25vdG9uaWMgaW5jb25zaXN0ZW5jeSBkZXRlY3RlZCEK
-CWZyb20gICAgIDE5MWM3ODcyZmVmNiAoMjc2MTAwNzA1ODA5ODIpIHRvICAgICAxOTFjNzg3MmRk
-MTMgKDI3NjEwMDcwNTcyMzA3KS4Kc29mdGlycS1ocnRpbWVyLzhbQ1BVIzBdOiBCVUcgaW4gY2hl
-Y2tfbW9ub3RvbmljX2Nsb2NrIGF0IGtlcm5lbC90aW1lL3RpbWVvZmRheS5jOjE2MAogWzxjMDEw
-NDA2Mz5dIGR1bXBfc3RhY2srMHgyMy8weDMwICgyMCkKIFs8YzAxMWRiMWE+XSBfX1dBUk5fT04r
-MHg2YS8weGEwICg0NCkKIFs8YzAxM2M4ZDI+XSBjaGVja19tb25vdG9uaWNfY2xvY2srMHhlMi8w
-eDEwMCAoNTIpCiBbPGMwMTNjZDg1Pl0gZ2V0X21vbm90b25pY19jbG9jaysweGU1LzB4MTIwICg4
-MCkKIFs8YzAxMzViMTY+XSBocnRpbWVyX2ZvcndhcmQrMHgzNi8weGYwICg4MCkKIFs8YzAxMjBj
-YmI+XSBpdF9yZWFsX2ZuKzB4NmIvMHg4MCAoMjgpCiBbPGMwMTM2MzQ1Pl0gcnVuX2hydGltZXJf
-c29mdGlycSsweDY1LzB4MTUwICg1MikKIFs8YzAxMjI4MjY+XSBrc29mdGlycWQrMHgxMTYvMHgx
-YzAgKDYwKQogWzxjMDEzMjViOT5dIGt0aHJlYWQrMHhhOS8weGYwICg1MikKIFs8YzAxMDEyNDU+
-XSBrZXJuZWxfdGhyZWFkX2hlbHBlcisweDUvMHgxMCAoNjcxMjkzNDY4KQotLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0KfCBzaG93aW5nIGFsbCBsb2NrcyBoZWxkIGJ5OiB8ICAoc29mdGly
-cS1ocnRpbWVyLzggW2Q3ZmNhYmIwLCAgOThdKToKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tCgo=
---=====================_181652593==_--
+Willy
 

@@ -1,80 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVLaODW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVLaOJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbVLaODW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 09:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLaODV
+	id S932256AbVLaOJg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 09:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVLaOJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 09:03:21 -0500
-Received: from [212.76.87.66] ([212.76.87.66]:45062 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932267AbVLaODV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 09:03:21 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
-Date: Sat, 31 Dec 2005 17:02:20 +0300
-User-Agent: KMail/1.5
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, barryn@pobox.com,
-       linux-kernel@vger.kernel.org
-References: <200512302306.28667.a1426z@gawab.com> <200512310759.02962.a1426z@gawab.com> <20051231073817.GZ15993@alpha.home.local>
-In-Reply-To: <20051231073817.GZ15993@alpha.home.local>
+	Sat, 31 Dec 2005 09:09:36 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:6412 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751329AbVLaOJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 09:09:35 -0500
+Date: Sat, 31 Dec 2005 15:09:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Miles Lane <miles.lane@gmail.com>, dwmw2@infradead.org
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-mtd@lists.infradead.org
+Subject: [2.6 patch] MTD_NAND_SHARPSL and MTD_NAND_NANDSIM must be tristate's
+Message-ID: <20051231140933.GG3811@stusta.de>
+References: <a44ae5cd0512272139q3f7e29enbacf94faddbd75d2@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512311702.20525.a1426z@gawab.com>
+In-Reply-To: <a44ae5cd0512272139q3f7e29enbacf94faddbd75d2@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Sat, Dec 31, 2005 at 07:59:02AM +0300, Al Boldi wrote:
-> > Alan Cox wrote:
-> > > On Gwe, 2005-12-30 at 23:06 +0300, Al Boldi wrote:
-> > > > > +3 - (NEW) paranoid overcommit The total address space commit
-> > > > > +      for the system is not permitted to exceed swap. The machine
-> > > > > +      will never kill a process accessing pages it has mapped
-> > > > > +      except due to a bug (ie report it!)
-> > > >
-> > > > This one isn't in 2.6, which is critical for a stable system.
-> > >
-> > > Actually it is
-> > >
-> > > In the 2.4 case we took  "50% RAM + swap" as the safe sane world
-> > > 'never OOM kill' and to all intents and purposes it works. We also had
-> > > a 100% paranoia mode.
-> > >
-> > > When it was ported to 2.6 (not by me) whoever did it very sensibly
-> > > made the percentage tunable and removed "mode 3" since its mode 2 0%
-> > > ram and can be set that way.
-> >
-> > Only, doesn't this imply that you cannot control overcommit unless
-> > backed by swap?  i.e Without swap the kernel cannot use all of ram,
-> > because it would overcommit no-matter what, thus invoking OOM-killer.
-> >
-> > Which raises an important question:  What's overcommit to do with
-> > limiting access to physical RAM?
->
-> As shown in my previous mail, it allows malloc() to return NULL. I've
-> also successfully verified that it allows mmap() to fail if there is
-> not enough memory. I disabled swap, and set the overcommit_ratio to 95
-> and could not kill the system. Above this, it becomes tricky. At 97, I
-> see the last malloc() calls take a very long time, and at 98, the
-> system still hangs. But 95% without swap seems stable here.
+On Wed, Dec 28, 2005 at 12:39:54AM -0500, Miles Lane wrote:
 
-Thanks, for confirming this!  And I agree that this patch and 2.6 offer an 
-important and necessary workaround to inhibit OOM-killer, but it's no more 
-than a workaround.
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o: In function
+> `init_nandsim':nandsim.c:(.text+0x88ba2): undefined reference to
+> `nand_flash_ids'
+> drivers/built-in.o: In function
+> `ns_init_module':nandsim.c:(.init.text+0x7b72): undefined reference to
+> `nand_scan'
+> :nandsim.c:(.init.text+0x7bb5): undefined reference to `nand_default_bbt'
+> drivers/built-in.o: In function
+> `ns_cleanup_module':nandsim.c:(.exit.text+0x37b): undefined reference
+> to `nand_release'
+> make: *** [.tmp_vmlinux1] Error 1
+>...
 
-And so the question remains:  Why should overcommit come into play at all 
-when dealing with physical RAM only?
+Thanks for your report, a fix is below.
 
-Shouldn't it be possible to disable overcommit completely, thus giving kswapd 
-a break from running wild trying to find something to swap/page, which is 
-the reason why the system gets unstable going over 95% in your example.
+cu
+Adrian
 
-Thanks!
 
---
-Al
+<--  snip  -->
+
+
+MTD_NAND=m and MTD_NAND_SHARPSL=y or MTD_NAND_NANDSIM=y are illegal 
+combinations that mustn't be allowed.
+
+This patch fixes this bug by making MTD_NAND_SHARPSL and 
+MTD_NAND_NANDSIM tristate's.
+
+Additionally, it fixes some whitespace damage at these options.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-git/drivers/mtd/nand/Kconfig.old	2005-12-31 12:20:12.000000000 +0100
++++ linux-git/drivers/mtd/nand/Kconfig	2005-12-31 12:21:35.000000000 +0100
+@@ -178,17 +178,16 @@
+ 	  Even if you leave this disabled, you can enable BBT writes at module
+ 	  load time (assuming you build diskonchip as a module) with the module
+ 	  parameter "inftl_bbt_write=1".
+-	  
+- config MTD_NAND_SHARPSL
+- 	bool "Support for NAND Flash on Sharp SL Series (C7xx + others)"
+- 	depends on MTD_NAND && ARCH_PXA
+- 
+- config MTD_NAND_NANDSIM
+- 	bool "Support for NAND Flash Simulator"
+- 	depends on MTD_NAND && MTD_PARTITIONS
+ 
++config MTD_NAND_SHARPSL
++	tristate "Support for NAND Flash on Sharp SL Series (C7xx + others)"
++	depends on MTD_NAND && ARCH_PXA
++
++config MTD_NAND_NANDSIM
++	tristate "Support for NAND Flash Simulator"
++	depends on MTD_NAND && MTD_PARTITIONS
+ 	help
+ 	  The simulator may simulate verious NAND flash chips for the
+ 	  MTD nand layer.
+- 
++
+ endmenu
 

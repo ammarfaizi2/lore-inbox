@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVLaKwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVLaK5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbVLaKwR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 05:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVLaKwR
+	id S932137AbVLaK5k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 05:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVLaK5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 05:52:17 -0500
-Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:31673 "EHLO
-	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932133AbVLaKwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 05:52:16 -0500
-Date: Sat, 31 Dec 2005 11:52:13 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
-Message-ID: <20051231115213.4a2e01ba@localhost>
-In-Reply-To: <20051231113446.3ad19dbc@localhost>
-References: <20051227190918.65c2abac@localhost>
-	<20051227224846.6edcff88@localhost>
-	<200512281027.00252.kernel@kolivas.org>
-	<20051230145221.301faa40@localhost>
-	<43B5E78C.9000509@bigpond.net.au>
-	<20051231113446.3ad19dbc@localhost>
-X-Mailer: Sylpheed-Claws 2.0.0-rc1 (GTK+ 2.6.10; x86_64-pc-linux-gnu)
+	Sat, 31 Dec 2005 05:57:40 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.25]:12321 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932140AbVLaK5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 05:57:39 -0500
+Subject: Re: [PATCH 6/9] clockpro-clockpro.patch
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Rik van Riel <riel@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
+       Marijn Meijles <marijn@bitpit.net>
+In-Reply-To: <Pine.LNX.4.63.0512302321420.16308@cuia.boston.redhat.com>
+References: <20051230223952.765.21096.sendpatchset@twins.localnet>
+	 <20051230224312.765.58575.sendpatchset@twins.localnet>
+	 <20051231002417.GA4913@dmt.cnet>
+	 <Pine.LNX.4.63.0512302019530.2845@cuia.boston.redhat.com>
+	 <20051231032702.GA9136@dmt.cnet>
+	 <Pine.LNX.4.63.0512302321420.16308@cuia.boston.redhat.com>
+Content-Type: text/plain
+Date: Sat, 31 Dec 2005 11:57:13 +0100
+Message-Id: <1136026633.17853.52.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Dec 2005 11:34:46 +0100
-Paolo Ornati <ornati@fastwebnet.it> wrote:
-
-> > It is a patch against the 2.6.15-rc7 kernel and includes some other 
-> > scheduling patches from the -mm kernels.
+On Sat, 2005-12-31 at 00:24 -0500, Rik van Riel wrote:
+> > > > Why do you use only two clock hands and not three (HandHot, HandCold and 
+> > > > HandTest) as in the original paper?
+> > > 
+> > > Because the non-resident pages cannot be in the clock.
+> > > This is both because of space overhead, and because the
+> > > non-resident list cannot be per zone.
+> > 
+> > I see - that is a fundamental change from the original CLOCK-Pro
+> > algorithm, right? 
+> > 
+> > Do you have a clear idea about the consequences of not having           
+> > non-resident pages in the clock? 
 > 
-> Yes, this fixes both my test-case (transcode & little program), they
-> get priority 25 instead of ~16.
-> 
-> But the priority of DD is now ~23 and so it still suffers a bit:
+> The consequence is that we could falsely consider a non-resident
+> page to be active, or not to be active.  However, this can only
+> happen if we let the scan rate in each of the memory zones get
+> way too much out of whack (which is bad regardless).
 
-I forgot to mention that even the others "interactive" processes
-don't get a good priority too.
-
-Xorg for example, while only moving the cursor around, gets priority
-23/24. And when cpu-eaters are running (at priority 25) it isn't happy
-at all, the cursor begins to move in jerks and so on...
+Yes, the uncertainty of position causes a time uncertainty wrt.
+terminating the test period (heisenberg anyone?). So individual pages
+can be terminated either too soon or too late, however statistics make
+it come out even in the end.
 
 -- 
-	Paolo Ornati
-	Linux 2.6.15-rc7-lial on x86_64
+Peter Zijlstra <a.p.zijlstra@chello.nl>
+

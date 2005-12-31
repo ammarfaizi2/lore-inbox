@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVLaK5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVLaK7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVLaK5k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 05:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVLaK5k
+	id S932134AbVLaK7h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 05:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVLaK7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 05:57:40 -0500
-Received: from amsfep16-int.chello.nl ([213.46.243.25]:12321 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932140AbVLaK5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 05:57:39 -0500
-Subject: Re: [PATCH 6/9] clockpro-clockpro.patch
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Rik van Riel <riel@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
-       Marijn Meijles <marijn@bitpit.net>
-In-Reply-To: <Pine.LNX.4.63.0512302321420.16308@cuia.boston.redhat.com>
-References: <20051230223952.765.21096.sendpatchset@twins.localnet>
-	 <20051230224312.765.58575.sendpatchset@twins.localnet>
-	 <20051231002417.GA4913@dmt.cnet>
-	 <Pine.LNX.4.63.0512302019530.2845@cuia.boston.redhat.com>
-	 <20051231032702.GA9136@dmt.cnet>
-	 <Pine.LNX.4.63.0512302321420.16308@cuia.boston.redhat.com>
-Content-Type: text/plain
-Date: Sat, 31 Dec 2005 11:57:13 +0100
-Message-Id: <1136026633.17853.52.camel@twins>
+	Sat, 31 Dec 2005 05:59:37 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:11788 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932134AbVLaK7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 05:59:36 -0500
+Date: Sat, 31 Dec 2005 11:56:59 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Chris Stromsoe <cbs@cts.ucla.edu>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+Message-ID: <20051231105659.GB5152@w.ods.org>
+References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu> <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu> <20051231071215.GX15993@alpha.home.local> <Pine.LNX.4.64.0512302326360.23044@potato.cts.ucla.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512302326360.23044@potato.cts.ucla.edu>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-31 at 00:24 -0500, Rik van Riel wrote:
-> > > > Why do you use only two clock hands and not three (HandHot, HandCold and 
-> > > > HandTest) as in the original paper?
-> > > 
-> > > Because the non-resident pages cannot be in the clock.
-> > > This is both because of space overhead, and because the
-> > > non-resident list cannot be per zone.
-> > 
-> > I see - that is a fundamental change from the original CLOCK-Pro
-> > algorithm, right? 
-> > 
-> > Do you have a clear idea about the consequences of not having           
-> > non-resident pages in the clock? 
+On Sat, Dec 31, 2005 at 02:39:43AM -0800, Chris Stromsoe wrote:
+> On Sat, 31 Dec 2005, Willy Tarreau wrote:
+> >On Fri, Dec 30, 2005 at 05:48:15PM -0800, Chris Stromsoe wrote:
+> >
+> >>I'm starting to suspect bad hardware.  Booting is now hanging (with 
+> >>2.4.27, 2.4.30 and 2.4.32) after scsi drivers load:
+> >
+> >And nothing changed since previous boot, except UP ?
 > 
-> The consequence is that we could falsely consider a non-resident
-> page to be active, or not to be active.  However, this can only
-> happen if we let the scan rate in each of the memory zones get
-> way too much out of whack (which is bad regardless).
+> All I changed was adding nosmp to the kernel boot line.
 
-Yes, the uncertainty of position causes a time uncertainty wrt.
-terminating the test period (heisenberg anyone?). So individual pages
-can be terminated either too soon or too late, however statistics make
-it come out even in the end.
+OK maybe interrupts don't get distributed to the remaining CPU, which
+would explain your timeouts.
 
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
+> >It's not necessarily bad hardware. I also had trouble on one version of 
+> >the 29160 bios where it hanged during device scan if there were too many 
+> >terminations. Oh, BTW, please check that you have disabled "automatic" 
+> >termination in the BIOS. Manually set it either to ON or OFF (low/high 
+> >depending on your setup).
+> 
+> I'll have to check it tomorrow or on Monday.
+> 
+> >>How likely is it that a failing scsi controller contribute to the other 
+> >>problems I was seeing?
+> >
+> >Not much. Perhaps at worst, a failing controller could corrupt memory by 
+> >writing garbage at wrong locations, but you would not always get the 
+> >same messages. It seems to be a different problem here. To be honnest, 
+> >it's where I think you should try the new driver.
+> 
+> The machine has been running 2.6.14.4 for the last 6 hours.  It came up 
+> fine.  I did not try booting it with nosmp.  If I have time, I will 
+> revert back to 2.4 with the newer driver to test.
+
+Thanks.
+
+> -Chris
+
+Willy
 

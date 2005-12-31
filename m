@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbVLaPWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVLaPXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbVLaPWI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 10:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbVLaPWI
+	id S964987AbVLaPXD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 10:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVLaPXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 10:22:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:36876 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964985AbVLaPWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 10:22:05 -0500
-Date: Sat, 31 Dec 2005 16:22:04 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Matt Mackall <mpm@selenic.com>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051231152204.GM3811@stusta.de>
-References: <20051228114637.GA3003@elte.hu> <20051229043835.GC4872@stusta.de> <20051229075936.GC20177@elte.hu> <20051229135250.GE3811@stusta.de> <20051229202550.GB29546@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051229202550.GB29546@elte.hu>
-User-Agent: Mutt/1.5.11
+	Sat, 31 Dec 2005 10:23:02 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42215 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964987AbVLaPXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 10:23:00 -0500
+Subject: Re: system keeps freezing once every 24 hours / random apps
+	crashing
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mark v Wolher <trilight@ns666.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Folkert van Heusden <folkert@vanheusden.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43B6A14E.1020703@ns666.com>
+References: <43B53EAB.3070800@ns666.com>
+	 <200512310027.47757.s0348365@sms.ed.ac.uk>	 <43B5D3ED.3080504@ns666.com>
+	 <200512310051.03603.s0348365@sms.ed.ac.uk>	 <43B5D6D0.9050601@ns666.com>
+	 <43B65DEE.906@ns666.com>
+	 <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com>
+	 <43B66E3D.2010900@ns666.com>
+	 <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com>
+	 <43B67DB6.2070201@ns666.com>  <43B6A14E.1020703@ns666.com>
+Content-Type: text/plain
+Date: Sat, 31 Dec 2005 16:22:50 +0100
+Message-Id: <1136042571.2901.30.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this email discusses only your unit-at-a-time patch ]
+On Sat, 2005-12-31 at 16:18 +0100, Mark v Wolher wrote:
+> Dec 31 16:11:35 localhost kernel: Modules linked in: nv
 
-On Thu, Dec 29, 2005 at 09:25:50PM +0100, Ingo Molnar wrote:
-> 
-> * Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > It won't be dropped on the floor indefinitely.
-> > 
-> > "I do plan to look at this" means that I'd currently estimate this 
-> > being 2.6.19 stuff.
-> 
-> you must be kidding ...
+I think you forged this oops... there's no "nv" module for nvidia cards.
 
-No.
 
-Both 4k stacks and unit-at-a-time are changes with negative impact on 
-the stack usage, and I want to have problems sorted out separately.
-
-We wouldn't have much discussion here if 4k stacks were only judged by 
-technical facts, but although the last known problem was fixed in -mm 
-nearly two months ago, it seems the ndiswrapper groupies have managed to 
-spread enough FUD to even persuade Andrew that 4k stacks were evil.  :-(
-
-> > Yes that's one year from now, but we need it properly analyzed and 
-> > tested before getting it into Linus' tree, and I do really want it 
-> > untangled from and therefore after 4k stacks.
-> 
-> you are really using the wrong technology for this.
-> 
-> look at the latency tracing patch i posted today: it includes a feature 
-> that prints the worst-case stack footprint _as it happens_, and thus 
-> allows the mapping of such effects in a very efficient and very 
-> practical way. As it works on a live system, and profiles live function 
-> traces, it goes through function pointers and irq entry nesting effects 
-> too. We could perhaps put that into Fedora for a while and get the 
-> worst-case footprints mapped.
-> 
-> in fact i've been running this feature in the -rt kernel for quite some 
-> time, and it enabled the fixing of a couple of bad stack abusers, and it 
-> also told us what our current worst-case stack footprint is [when 4K 
-> stacks are enabled]: it's execve of an ELF binary.
-
-That's nice.
-
-Could you try to get at least the part that checks whether more than 
-STACK_WARN stack is left (if CONFIG_DEBUG_STACKOVERFLOW is set) into
--mm (and perhaps later into Linus' tree)?
-
-> 	Ingo
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

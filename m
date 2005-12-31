@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVLaIe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbVLaIga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbVLaIe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 03:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVLaIe1
+	id S1751312AbVLaIga (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 03:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbVLaIga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 03:34:27 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:23232 "EHLO
+	Sat, 31 Dec 2005 03:36:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:25792 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751179AbVLaIe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 03:34:26 -0500
-Subject: Re: [PATCH] protect remove_proc_entry
+	id S1751312AbVLaIg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 03:36:29 -0500
+Subject: Re: [PATCH 10 of 20] ipath - core driver, part 3 of 4
 From: Arjan van de Ven <arjan@infradead.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <Pine.LNX.4.58.0512310154190.5977@gandalf.stny.rr.com>
-References: <1135973075.6039.63.camel@localhost.localdomain>
-	 <1135978110.6039.81.camel@localhost.localdomain>
-	 <20051230154647.5a38227e.akpm@osdl.org>
-	 <Pine.LNX.4.58.0512310154190.5977@gandalf.stny.rr.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <1135986615.13318.82.camel@serpentine.pathscale.com>
+References: <c37b118ef80698acc4eb.1135816289@eng-12.pathscale.com>
+	 <Pine.LNX.4.64.0512301043290.3249@g5.osdl.org>
+	 <1135986615.13318.82.camel@serpentine.pathscale.com>
 Content-Type: text/plain
-Date: Sat, 31 Dec 2005 09:34:21 +0100
-Message-Id: <1136018061.2901.4.camel@laptopd505.fenrus.org>
+Date: Sat, 31 Dec 2005 09:36:24 +0100
+Message-Id: <1136018184.2901.6.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -35,27 +35,20 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-31 at 01:58 -0500, Steven Rostedt wrote:
-> On Fri, 30 Dec 2005, Andrew Morton wrote:
+On Fri, 2005-12-30 at 15:50 -0800, Bryan O'Sullivan wrote:
+> On Fri, 2005-12-30 at 10:46 -0800, Linus Torvalds wrote:
 > 
-> > Steven Rostedt <rostedt@goodmis.org> wrote:
-> > >
-> > > +static DEFINE_SPINLOCK(remove_proc_lock);
-> > >
-> >
-> > I'll take a closer look at this next week.
-> >
-> > The official way of protecting the contents of a directory from concurrent
-> > lookup or modification is to take its i_sem.  But procfs is totally weird
-> > and that approach may well not be practical here.  We'd certainly prefer
-> > not to rely upon lock_kernel().
-> >
+> > All your user page lookup/pinning code is terminally broken.
 > 
-> Yeah, I thought about using the sem (or mutex ;) but remove_proc_entry is
-> used so darn much around the kernel, I wasn't sure it's not used in irq
-> context. 
+> Yes, this has been pointed out by a few others.
+> 
+> > Crap like this must not be merged.
+> 
+> I'm already busy decrappifying it...
 
-it can't be; "anything-VFS" like this can sleep if the file is busy etc
-etc.
+the point I think also was the fact that it exists is already wrong :)
+
+makes it easier for you.. "rm" is a very powerful decrappify tool, as is
+"block delete" in just about any editor ;)
 
 

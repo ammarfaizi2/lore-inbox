@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVLaLNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVLaLNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbVLaLNO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 06:13:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbVLaLNN
+	id S932147AbVLaLNj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 06:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLaLNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 06:13:13 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:10455 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1751327AbVLaLNM (ORCPT
+	Sat, 31 Dec 2005 06:13:20 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:17623 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1751332AbVLaLNO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 06:13:12 -0500
-Date: Sat, 31 Dec 2005 12:11:50 +0100
+	Sat, 31 Dec 2005 06:13:14 -0500
+Date: Sat, 31 Dec 2005 12:12:21 +0100
 From: Dominik Brodowski <linux@dominikbrodowski.net>
 To: Con Kolivas <kernel@kolivas.org>, len.brown@intel.com
 Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
@@ -18,8 +18,8 @@ Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Pavel Machek <pavel@ucw.cz>, Adam Belay <abelay@novell.com>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org
-Subject: [PATCH 2/4] ACPI C-States: bm_activity handling improvement
-Message-ID: <20051231111150.GC9123@dominikbrodowski.de>
+Subject: [PATCH 3/4] ACPI C-States: accounting of sleep times
+Message-ID: <20051231111221.GD9123@dominikbrodowski.de>
 Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
 	Con Kolivas <kernel@kolivas.org>, len.brown@intel.com,
 	linux kernel mailing list <linux-kernel@vger.kernel.org>,
@@ -38,12 +38,11 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only if bus master activity is going on at the present, we should
-avoid entering C3-type sleep, as it might be a faulty transition. As long
-as the bm_activity bitmask was based on the number of calls to the ACPI
-idle function, looking at previous moments made sense. Now, with it being
-based on what happened this jiffy, looking at this jiffy should be
-sufficient.
+Also track the actual time spent in C-States (C2 upwards, we can't
+determine this for C1), not only the number of invocations. This is
+especially useful for dynamic ticks / "tickless systems", but is also
+of interest on normal systems, as any interrupt activity leads to
+C-States being exited, not only the timer interrupt.
 
 Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 
@@ -51,26 +50,47 @@ Index: working-tree/drivers/acpi/processor_idle.c
 ===================================================================
 --- working-tree.orig/drivers/acpi/processor_idle.c
 +++ working-tree/drivers/acpi/processor_idle.c
-@@ -250,10 +250,10 @@ static void acpi_processor_idle(void)
- 		pr->power.bm_check_timestamp = jiffies;
+@@ -280,8 +280,6 @@ static void acpi_processor_idle(void)
+ 		cx = &pr->power.states[ACPI_STATE_C1];
+ #endif
  
- 		/*
--		 * Apply bus mastering demotion policy.  Automatically demote
-+		 * If bus mastering is or was active this jiffy, demote
- 		 * to avoid a faulty transition.  Note that the processor
- 		 * won't enter a low-power state during this call (to this
--		 * funciton) but should upon the next.
-+		 * function) but should upon the next.
- 		 *
- 		 * TBD: A better policy might be to fallback to the demotion
- 		 *      state (use it for this quantum only) istead of
-@@ -261,7 +261,8 @@ static void acpi_processor_idle(void)
- 		 *      qualification.  This may, however, introduce DMA
- 		 *      issues (e.g. floppy DMA transfer overrun/underrun).
- 		 */
--		if (pr->power.bm_activity & cx->demotion.threshold.bm) {
-+		if ((pr->power.bm_activity & 0x1) &&
-+		    cx->demotion.threshold.bm) {
- 			local_irq_enable();
- 			next_state = cx->demotion.state;
- 			goto end;
+-	cx->usage++;
+-
+ 	/*
+ 	 * Sleep:
+ 	 * ------
+@@ -379,6 +377,9 @@ static void acpi_processor_idle(void)
+ 		local_irq_enable();
+ 		return;
+ 	}
++	cx->usage++;
++	if ((cx->type != ACPI_STATE_C1) && (sleep_ticks > 0))
++		cx->time += sleep_ticks;
+ 
+ 	next_state = pr->power.state;
+ 
+@@ -993,9 +994,10 @@ static int acpi_processor_power_seq_show
+ 		else
+ 			seq_puts(seq, "demotion[--] ");
+ 
+-		seq_printf(seq, "latency[%03d] usage[%08d]\n",
++		seq_printf(seq, "latency[%03d] usage[%08d] duration[%020llu]\n",
+ 			   pr->power.states[i].latency,
+-			   pr->power.states[i].usage);
++			   pr->power.states[i].usage,
++			   pr->power.states[i].time);
+ 	}
+ 
+       end:
+Index: working-tree/include/acpi/processor.h
+===================================================================
+--- working-tree.orig/include/acpi/processor.h
++++ working-tree/include/acpi/processor.h
+@@ -51,6 +51,7 @@ struct acpi_processor_cx {
+ 	u32 latency_ticks;
+ 	u32 power;
+ 	u32 usage;
++	u64 time;
+ 	struct acpi_processor_cx_policy promotion;
+ 	struct acpi_processor_cx_policy demotion;
+ };

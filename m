@@ -1,94 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVLaVYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVLaVoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbVLaVYm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 16:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVLaVYm
+	id S1750764AbVLaVoh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 16:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVLaVoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 16:24:42 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61197 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751241AbVLaVYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 16:24:42 -0500
-Date: Sat, 31 Dec 2005 22:24:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matt Mackall <mpm@selenic.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
-       Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org
-Subject: Re: [PATCH 1 of 3] Introduce __memcpy_toio32
-Message-ID: <20051231212440.GO3811@stusta.de>
-References: <7b7b442a4d6338ae8ca7.1135726915@eng-12.pathscale.com> <adazmmmc9hl.fsf@cisco.com> <1135780804.1527.82.camel@serpentine.pathscale.com> <20051228145114.GL3356@waste.org> <20051230234628.GB3811@stusta.de> <20051230234400.GM3356@waste.org> <Pine.LNX.4.64.0512301559160.3249@g5.osdl.org>
+	Sat, 31 Dec 2005 16:44:37 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:63389 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750764AbVLaVog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 16:44:36 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.14.5: segfault / oops with ide-scsi
+Date: Sun, 01 Jan 2006 08:44:30 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <8budr11mfchfp03ncrpqjeck6f04urom8n@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512301559160.3249@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 04:23:46PM -0800, Linus Torvalds wrote:
->...
-> > > Where's the problem with the __HAVE_ARCH_* mechanism?
->...
-> And no, I don't like the __HAVE_ARCH_xxx mechanisms at all. They are 
-> pointless, and hard to follow. If an architecture wants to use a generic 
-> mechanism, it should do one of the following (or a combination):
-> 
->  - use the config file mechanism, and use
-> 
-> 	obj-$(CONFIG_GENERIC_FOO) += generic-foo.c
-> 
->    in a Makefile to link in the generic version.
-> 
->    Examples: CONFIG_RWSEM_GENERIC_SPINLOCK.
-> 
->  - just include the generic header from its own header, eg just do a
-> 
-> 	#include <asm-generic/div64.h>
-> 
->    or similar.
-> 
-> Now, the latter in particular is very easy to follow: if you look into the 
-> <asm/div64.h> file and see that it just includes <asm-generic/div64.h>, 
-> it's very obvious what is going on and where to find the real 
-> implementation. You never have to wonder what the indirection means. 
->...
-> Now, the CONFIG_GENERIC_FOO thing is a bit less obvious, and you may have 
-> to know about that config option in order to realize that a particular 
-> architecture is using a generic library routine, but at least with those 
-> Kconfig options, the language to describe them is clean these days, and 
-> it's _the_ standard way to express configuration information. So it may be 
-> a bit subtler and more indirect, but once you get used to it, it too is 
-> very clean.
->...
+Hi there,
 
-OK, this I don't have any problem with.
+Got this, trying to mount CDROM on a troublesome box I've not had 
+for long, Intel ICH 801 / 810 -- this with "hdc=ide-scsi":
 
-I'm not yet fully convinced that __HAVE_ARCH_xxx is really that bad, but 
-your proposed solution doesn't have the problems I had in mind.
+root@niner:~# mount /dev/sr0 /mnt/cdrom/
+mount: you must specify the filesystem type
+root@niner:~# mount -t iso9660 /dev/sr0 /mnt/cdrom/
+mount: /dev/sr0 is not a valid block device
+root@niner:~# mount -t iso9660 /dev/sg0 /mnt/cdrom/
+mount: /dev/sg0 is not a block device
+root@niner:~# mount -t iso9660 /dev/hdc /mnt/cdrom/
+Segmentation fault
 
-What is OK:
-  obj-$(CONFIG_GENERIC_FOO) += generic-foo.o
+Even if this be finger trouble, it should not oops?
 
-What is not OK:
-  lib-y += generic-foo.o
+Jan  1 08:29:15 niner kernel: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
+Jan  1 08:30:02 niner kernel: ide-scsi: unsup command: dev hdc: flags = REQ_CMD REQ_STARTED
+Jan  1 08:30:02 niner kernel: sector 64, nr/cnr 2/2
+Jan  1 08:30:02 niner kernel: bio c9e095e0, biotail c9e095e0, buffer c7feb000, data 00000000, len 0
+Jan  1 08:30:02 niner kernel: end_request: I/O error, dev hdc, sector 64
+Jan  1 08:30:02 niner kernel: isofs_fill_super: bread failed, dev=hdc, iso_blknum=16, block=32
+Jan  1 08:30:02 niner kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Jan  1 08:30:02 niner kernel:  printing eip:
+Jan  1 08:30:02 niner kernel: c01d9206
+Jan  1 08:30:02 niner kernel: *pde = 00000000
+Jan  1 08:30:02 niner kernel: Oops: 0000 [#1]
+Jan  1 08:30:02 niner kernel: Modules linked in: isofs zlib_inflate ide_scsi e100 3c59x
+Jan  1 08:30:02 niner kernel: CPU:    0
+Jan  1 08:30:02 niner kernel: EIP:    0060:[<c01d9206>]    Not tainted VLI
+Jan  1 08:30:02 niner kernel: EFLAGS: 00010246   (2.6.14.5a)
+Jan  1 08:30:02 niner kernel: EIP is at get_kobj_path_length+0x26/0x40
+Jan  1 08:30:02 niner kernel: eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: c91a826c
+Jan  1 08:30:02 niner kernel: esi: 00000001   edi: 00000000   ebp: ffffffff   esp: c7f9fdcc
+Jan  1 08:30:02 niner kernel: ds: 007b   es: 007b   ss: 0068
+Jan  1 08:30:02 niner kernel: Process mount (pid: 547, threadinfo=c7f9f000 task=c8fe2090)
+Jan  1 08:30:02 niner kernel: Stack: c117c520 c927c200 ffffffea c91a826c c01d929f c91a826c 00000282 c7f65e14
+Jan  1 08:30:02 niner kernel:        00000000 c117c520 c927c200 ffffffea 00000000 c01d9be8 c91a826c 000000d0
+Jan  1 08:30:02 niner kernel:        00000020 00000064 fffffff4 c117c520 c927c200 ffffffea c7fd1000 c01d9cf8
+Jan  1 08:30:02 niner kernel: Call Trace:
+Jan  1 08:30:02 niner kernel:  [<c01d929f>] kobject_get_path+0x1f/0x80
+Jan  1 08:30:02 niner kernel:  [<c01d9be8>] do_kobject_uevent+0x28/0x110
+Jan  1 08:30:02 niner kernel:  [<c01d9cf8>] kobject_uevent+0x28/0x30
+Jan  1 08:30:02 niner kernel:  [<c0158f0e>] bdev_uevent+0x2e/0x50
+Jan  1 08:30:02 niner kernel:  [<c01590a6>] kill_block_super+0x26/0x50
+Jan  1 08:30:02 niner kernel:  [<c01584a6>] deactivate_super+0x56/0x70
+Jan  1 08:30:02 niner kernel:  [<c0159051>] get_sb_bdev+0x121/0x150
+Jan  1 08:30:02 niner kernel:  [<c0168cd3>] dput+0x33/0x180
+Jan  1 08:30:02 niner kernel:  [<ca926fe0>] isofs_get_sb+0x30/0x40 [isofs]
+Jan  1 08:30:02 niner kernel:  [<ca925cd0>] isofs_fill_super+0x0/0x6e0 [isofs]
+Jan  1 08:30:02 niner kernel:  [<c015928f>] do_kern_mount+0x5f/0xe0
+Jan  1 08:30:02 niner kernel:  [<c016de6c>] do_new_mount+0x9c/0xe0
+Jan  1 08:30:02 niner kernel:  [<c016e457>] do_mount+0x157/0x1b0
+Jan  1 08:30:02 niner kernel:  [<c016e2a3>] copy_mount_options+0x63/0xc0
+Jan  1 08:30:02 niner kernel:  [<c016e84a>] sys_mount+0x9a/0xe0
+Jan  1 08:30:02 niner kernel:  [<c0102fd9>] syscall_call+0x7/0xb
+Jan  1 08:30:02 niner kernel: Code: 90 8d 74 26 00 55 bd ff ff ff ff 57 56 be 01 00 00 00 53 8b 54 24 14 31 db 8d b6 00 00 00 00 8d bf 00 00 00 00 8b 3a 89 e9 89 d8 <f2> ae f7 d1 49 8b 52 24 8d 74 31 01 85 d2 75 ea 5b 89 f0 5e 5f
 
-The latter has the following disadvantages:
-- it's non-obvious whether the object actually gets included in the 
-  kernel
-- if the contents of generic-foo.o is only used in modules, 
-  generic-foo.o is _not_ included in the kernel resulting in an
-  obvious breakage
+Box info" http://bugsplatter.mine.nu/test/boxen/niner/
 
-> 			Linus
+Prior to adding the "hdc=ide-scsi" to lilo, the box is able to 
+boot from cdrom, then cannot read the cdrom.  Trying to mount it 
+results in many of these in syslog:
 
-cu
-Adrian
+Jan  1 08:14:12 niner kernel: hdc: attached ide-cdrom driver.
+Jan  1 08:15:25 niner kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
+Jan  1 08:15:25 niner kernel: hdc: command error: error=0x52
+Jan  1 08:15:25 niner kernel: end_request: I/O error, dev 16:00 (hdc), sector 0
+Jan  1 08:15:25 niner kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
+Jan  1 08:15:25 niner kernel: hdc: command error: error=0x52
+Jan  1 08:15:25 niner kernel: end_request: I/O error, dev 16:00 (hdc), sector 4
+Jan  1 08:15:25 niner kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
+Jan  1 08:15:25 niner kernel: hdc: command error: error=0x52
+Jan  1 08:15:25 niner kernel: end_request: I/O error, dev 16:00 (hdc), sector 0
 
--- 
+What next?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks,
+Grant.

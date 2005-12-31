@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVLaEyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbVLaE7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbVLaEyR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 23:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVLaEyR
+	id S1751301AbVLaE7u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 23:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVLaE7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 23:54:17 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:32733 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751303AbVLaEyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 23:54:17 -0500
-Subject: Re: [patch] latency tracer, 2.6.15-rc7
-From: Lee Revell <rlrevell@joe-job.com>
-To: paulmck@us.ibm.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Eric Dumazet <dada1@cosmosbay.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-In-Reply-To: <20051231042902.GA3428@us.ibm.com>
-References: <1135887072.6804.9.camel@mindpipe>
-	 <1135887966.6804.11.camel@mindpipe> <20051229202848.GC29546@elte.hu>
-	 <1135908980.4568.10.camel@mindpipe> <20051230080032.GA26152@elte.hu>
-	 <1135990270.31111.46.camel@mindpipe>
-	 <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org>
-	 <1135991732.31111.57.camel@mindpipe>
-	 <Pine.LNX.4.64.0512301726190.3249@g5.osdl.org>
-	 <1136001615.3050.5.camel@mindpipe>  <20051231042902.GA3428@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 30 Dec 2005 23:54:14 -0500
-Message-Id: <1136004855.3050.8.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.3 
+	Fri, 30 Dec 2005 23:59:50 -0500
+Received: from dial169-116.awalnet.net ([213.184.169.116]:42246 "EHLO
+	raad.intranet") by vger.kernel.org with ESMTP id S1751301AbVLaE7t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 23:59:49 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+Date: Sat, 31 Dec 2005 07:59:02 +0300
+User-Agent: KMail/1.5
+Cc: barryn@pobox.com, linux-kernel@vger.kernel.org
+References: <200512302306.28667.a1426z@gawab.com> <1135990502.28365.43.camel@localhost.localdomain>
+In-Reply-To: <1135990502.28365.43.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512310759.02962.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-30 at 20:29 -0800, Paul E. McKenney wrote:
-> This should help in UP configurations, or in SMP configurations where
-> all CPUs are doing call_rcu_bh() very frequently.  I would not expect
-> it to help in cases where one of several CPUs is frequently executing
-> call_rcu_bh(), but where the other CPUs are either CPU-bound in user
-> space or are in a tickful idle state. 
+Alan Cox wrote:
+> On Gwe, 2005-12-30 at 23:06 +0300, Al Boldi wrote:
+> > > +3 - (NEW) paranoid overcommit The total address space commit
+> > > +      for the system is not permitted to exceed swap. The machine
+> > > +      will never kill a process accessing pages it has mapped
+> > > +      except due to a bug (ie report it!)
+> >
+> > This one isn't in 2.6, which is critical for a stable system.
+>
+> Actually it is
+>
+> In the 2.4 case we took  "50% RAM + swap" as the safe sane world 'never
+> OOM kill' and to all intents and purposes it works. We also had a 100%
+> paranoia mode.
+>
+> When it was ported to 2.6 (not by me) whoever did it very sensibly made
+> the percentage tunable and removed "mode 3" since its mode 2 0% ram and
+> can be set that way.
 
-This and net/decnet/dn_route.c are the only two uses of call_rcu_bh in
-the kernel.  And this one does not seem to be invoked frequently, it
-took ~48 hours to show up in the latency tracer.  Of course a server
-workload might call it all the time.
+Only, doesn't this imply that you cannot control overcommit unless backed by 
+swap?  i.e Without swap the kernel cannot use all of ram, because it would 
+overcommit no-matter what, thus invoking OOM-killer.
 
-Lee
+Which raises an important question:  What's overcommit to do with limiting 
+access to physical RAM?
+
+Thanks!
+
+--
+Al
 

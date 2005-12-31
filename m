@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVLaHyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVLaINk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVLaHyd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 02:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVLaHyd
+	id S932065AbVLaINk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 03:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbVLaINk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 02:54:33 -0500
-Received: from smtp108.plus.mail.mud.yahoo.com ([68.142.206.241]:52578 "HELO
-	smtp108.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751319AbVLaHyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 02:54:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=nIRNFHmf/LUr5T4UdcXxiUQTdUM/sNl2KQO+TDkUFHllKJsQ5vDp3rvO3HFGCpxWKmX+O6Gyn5pMUdzjC2+ByGyTk0JbHCR96UxUQdzXEjqpy7Hfu0zk8PK/ZkZGsem+B4MWOpALOT30eTTQtygtRsbpfpreNTaYA3q8YhOVxUU=  ;
-Message-ID: <43B63931.6000307@yahoo.com.au>
-Date: Sat, 31 Dec 2005 18:54:25 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
-References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com> <20051231064615.GB11069@dmt.cnet>
-In-Reply-To: <20051231064615.GB11069@dmt.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 31 Dec 2005 03:13:40 -0500
+Received: from mail.gmx.net ([213.165.64.21]:32204 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751312AbVLaINj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 03:13:39 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sat, 31 Dec 2005 09:13:24 +0100
+To: Paolo Ornati <ornati@fastwebnet.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+Cc: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+In-Reply-To: <20051230145221.301faa40@localhost>
+References: <200512281027.00252.kernel@kolivas.org>
+ <20051227190918.65c2abac@localhost>
+ <20051227224846.6edcff88@localhost>
+ <200512281027.00252.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0550-0, 12/10/2005), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+At 02:52 PM 12/30/2005 +0100, Paolo Ornati wrote:
+>WAS: [SCHED] Totally WRONG prority calculation with specific test-case
+>(since 2.6.10-bk12)
+>http://lkml.org/lkml/2005/12/27/114/index.html
+>
+>On Wed, 28 Dec 2005 10:26:58 +1100
+>Con Kolivas <kernel@kolivas.org> wrote:
+>
+> > The issue is that the scheduler interactivity estimator is a state 
+> machine and
+> > can be fooled to some degree, and a cpu intensive task that just 
+> happens to
+> > sleep a little bit gets significantly better priority than one that is 
+> fully
+> > cpu bound all the time. Reverting that change is not a solution because it
+> > can still be fooled by the same process sleeping lots for a few seconds 
+> or so
+> > at startup and then changing to the cpu mostly-sleeping slightly 
+> behaviour.
+> > This "fluctuating" behaviour is in my opinion worse which is why I removed
+> > it.
+>
+>Trying to find a "as simple as possible" test case for this problem
+>(that I consider a BUG in priority calculation) I've come up with this
+>very simple program:
+>
+>------ sched_fooler.c -------------------------------
 
-> 
-> What about this addition to the documentation above, to make it a little more 
-> verbose:
-> 
-> 	The possible race scenario is restricted to kernel preemption,
-> 	and could happen as follows:
-> 
-> 	thread A				thread B
-> a)	movl    xyz(%ebp), %eax			movl    xyz(%ebp), %eax
-> b)	incl    %eax				incl    %eax
-> c)	movl    %eax, xyz(%ebp)			movl    %eax, xyz(%ebp)
-> 
-> Thread A can be preempted in b), and thread B succesfully increments the
-> counter, writing it back to memory. Now thread A resumes execution, with
-> its stale copy of the counter, and overwrites the current counter.
-> 
-> Resulting in increments lost.
-> 
-> However that should be relatively rare condition.
-> 
+Ingo seems to have done something in 2.6.15-rc7-rt1 which defeats your 
+little proggy.  Taking a quick peek at the rt scheduler changes, nothing 
+poked me in the eye, but by golly, I can't get this kernel to act up, 
+whereas 2.6.14-virgin does.
 
-Hi Guys,
+         -Mike  (off to stare harder rt patch) 
 
-I've been waiting for some mm/ patches to clear from -mm before commenting
-too much... however I see that this patch is actually against -mm itself,
-with my __mod_page_state stuff in it... that makes the page state accounting
-much lighter weight AND is not racy.
-
-So I'm not exactly sure why such a patch as this is wanted now? Are there
-any more xxx_page_state hotspots? (I admit to only looking at page faults,
-page allocator, and page reclaim).
-
-Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

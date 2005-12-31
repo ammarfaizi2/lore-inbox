@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbVLaUeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVLaUoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbVLaUeL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 15:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVLaUeL
+	id S932118AbVLaUoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 15:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVLaUoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 15:34:11 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:33423 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932318AbVLaUeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 15:34:09 -0500
-Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Bradley Reed <bradreed1@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
-In-Reply-To: <20051231220758.56b3e096@galactus.example.org>
-References: <20051231202933.4f48acab@galactus.example.org>
-	 <1136058696.6039.133.camel@localhost.localdomain>
-	 <20051231220758.56b3e096@galactus.example.org>
-Content-Type: text/plain
-Date: Sat, 31 Dec 2005 15:33:58 -0500
-Message-Id: <1136061238.6039.137.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sat, 31 Dec 2005 15:44:09 -0500
+Received: from proxy3.nextra.sk ([195.168.1.138]:29454 "EHLO
+	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S932118AbVLaUoH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 15:44:07 -0500
+Message-ID: <43B6ED8E.9040205@rainbow-software.org>
+Date: Sat, 31 Dec 2005 21:43:58 +0100
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Thunderbird 1.5 (X11/20051025)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.14 on sparc64 - ext3: journal block not found
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-31 at 22:07 +0200, Bradley Reed wrote:
-> Steve,
-> 
-> Perhaps I'm doing something wrong, but it doesn't seem to apply cleanly
-> here:
+I've installed Splack 8.0 on Sun Ultra 5, upgraded to 10.1 and compiled 
+my own 2.6.14 kernel. It runs but I've got this problem for second time:
+-----
+journal_bmap: journal block not found at offset 3084 on hda1
+Aborting journal on device hda1
+ext3_abort called
+EXT3-fs error (device hda1): ext3_journal_start_sb: Detected aborted journal
+Remounting filesystem read-only
+-----
+hda is standard Seagate 20GB drive that came with the machine, there are 
+no HDD errors in logs and the drive just passed SMART long test without 
+any errors.
+The system was installed on ext2 partition, then after upgrading the 
+tools and the kernel, a journal was added using "tune2fs -j".
 
-Make sure you're in the directory of 2.6.15-rc7-rt1 (head Makefile and
-see if you see:)
-
-----
-$ head Makefile
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 15
-EXTRAVERSION =-rc7-rt1
-NAME=Sliding Snow Leopard
-
-# *DOCUMENTATION*
-# To see a list of typical targets execute "make help"
-# More info can be located in ./README
-# Comments in this file are targeted only to the developer, do not
-----
-
-Then in that same directory try:
-
-patch -p1 --dry-run < my-rtc-patchfile
-
-See if it works, and if it does try it again without the --dry-run
-option.  I just tried applying it to a clean 2.6.15-rc7-rt1 and it
-worked.
-
--- Steve
-
-
+-- 
+Ondrej Zary

@@ -12,30 +12,30 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbVLaU2K (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 31 Dec 2005 15:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVLaU2K
+	id S965047AbVLaWNl (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 31 Dec 2005 17:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVLaWNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 15:28:10 -0500
-Received: from eurobeton-france.rain.fr ([81.80.67.226]:53133 "EHLO
+	Sat, 31 Dec 2005 17:13:41 -0500
+Received: from eurobeton-france.rain.fr ([81.80.67.226]:1678 "EHLO
 	fwstsimeon.eurobeton.fr") by vger.kernel.org with ESMTP
-	id S932319AbVLaU2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 15:28:09 -0500
-Date: Sat, 31 Dec 2005 21:27:53 +0100
+	id S965047AbVLaWNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 17:13:40 -0500
+Date: Sat, 31 Dec 2005 23:13:39 +0100
 From: postmaster@eurobeton.fr
-Message-Id: <200512312027.jBVKRrn9026634@fwstsimeon.eurobeton.fr>
+Message-Id: <200512312213.jBVMDdfX031926@fwstsimeon.eurobeton.fr>
 subject: =?ISO-8859-1?Q?=20R=E9ception?= d'un e-mail non conforme
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965042AbVLaU2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965047AbVLaWNl@vger.kernel.org>
 
 L'e-mail suivant n'est pas conforme et =E0 =E9t=E9 supprim=E9 par le re=
 lais SMTP de l'Arkoon :
 
 Emetteur : <linux-kernel@vger.kernel.org> (62.34.238.215)
-Sujet : "Mail Delivery (failure cbellini@eurobeton.fr)"
-Destinataire(s) : <cbellini@eurobeton.fr>
+Sujet : "Mail Delivery (failure emetout@eurobeton.fr)"
+Destinataire(s) : <emetout@eurobeton.fr>
 
 
 Virus found in file message.scr (virus W32/Netsky-P in message.scr)=20

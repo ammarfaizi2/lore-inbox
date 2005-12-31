@@ -1,92 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVLaRPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbVLaRUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbVLaRPs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 12:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVLaRPs
+	id S965029AbVLaRUD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 12:20:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbVLaRUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 12:15:48 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:11726 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965027AbVLaRPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 12:15:47 -0500
-Date: Sat, 31 Dec 2005 18:15:36 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: 2.6.15-rc7-rt1
-In-Reply-To: <20051228172643.GA26741@elte.hu>
-Message-ID: <Pine.LNX.4.61.0512311808070.7910@yvahk01.tjqt.qr>
-References: <20051228172643.GA26741@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 31 Dec 2005 12:20:03 -0500
+Received: from bay103-f5.bay103.hotmail.com ([65.54.174.15]:1496 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S965029AbVLaRUB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 12:20:01 -0500
+Message-ID: <BAY103-F5ABE5F52E47CC9DD71D21DF2B0@phx.gbl>
+X-Originating-IP: [69.222.162.187]
+X-Originating-Email: [dravet@hotmail.com]
+From: "Jason Dravet" <dravet@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-parport@lists.infradead.org
+Subject: RFC: add udev support to parport_pc
+Date: Sat, 31 Dec 2005 11:20:00 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 31 Dec 2005 17:20:01.0073 (UTC) FILETIME=[6E6F9A10:01C60E2E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Here is a patch to parport_pc.c that adds udev support.  Without it sysfs 
+does not have enough information to give to udev so the lp and parport nodes 
+can be created.  The only problem I have is the kernel_oops when I do the 
+following: insmod parport, insmod parport_pc, rmmod parport_pc, rmmod 
+parport, insmod parport, insmod parport_pc, rmmod parport_pc, kernel oops.  
+>From the part of the traceback I can read the problem is in parport_pc_exit. 
+  Any help in tracking down the problem would be appreciated.  If this is 
+acceptable how can I get this added to the mainline?  This is my first patch 
+so please be gentle.
+
+Thanks,
+Jason Dravet
+
+Signed-off-by: Jason Dravet <dravet@hotmail.com>
+--- /usr/src/linux-2.6.14/drivers/parport/parport_pc.c.orig	2005-12-30 
+13:52:48.000000000 -0600
++++ /usr/src/linux-2.6.14/drivers/parport/parport_pc.c	2005-12-30 
+19:56:20.000000000 -0600
+@@ -55,6 +55,7 @@
+#include <linux/pci.h>
+#include <linux/pnp.h>
+#include <linux/sysctl.h>
++#include <linux/sysfs.h>
+
+#include <asm/io.h>
+#include <asm/dma.h>
+@@ -99,6 +100,8 @@ static struct superio_struct {	/* For Su
+	int dma;
+} superios[NR_SUPERIOS] __devinitdata = { {0,},};
+
++static struct class *parallel_class;
++
+static int user_specified;
+#if defined(CONFIG_PARPORT_PC_SUPERIO) || \
+        (defined(CONFIG_PARPORT_1284) && defined(CONFIG_PARPORT_PC_FIFO))
+@@ -2232,6 +2235,25 @@ struct parport *parport_pc_probe_port (u
+                                            is mandatory (see above) */
+		p->dma = PARPORT_DMA_NONE;
+
++	parallel_class = class_create(THIS_MODULE, "lp");
++	if (p->base == 888) /* 888 is dec for 378h */
++	{
++		class_device_create(parallel_class, NULL, MKDEV(6, 0), NULL, "lp0");
++		class_device_create(parallel_class, NULL, MKDEV(99, 0), NULL, 
+"parport0");
++	}
++
++	if (p->base == 632) /* 632 is dec for 278h */
++	{
++		class_device_create(parallel_class, NULL, MKDEV(6, 1), NULL, "lp1");
++		class_device_create(parallel_class, NULL, MKDEV(99, 1), NULL, 
+"parport1");
++	}
++
++	if (p->base == 956) /* 956 is dec for 3BCh */
++	{
++		class_device_create(parallel_class, NULL, MKDEV(6, 2), NULL, "lp2");
++		class_device_create(parallel_class, NULL, MKDEV(99, 2), NULL, 
+"parport2");
++	}
++
+#ifdef CONFIG_PARPORT_PC_FIFO
+	if (parport_ECP_supported(p) &&
+	    p->dma != PARPORT_DMA_NOFIFO &&
+@@ -3406,6 +3428,13 @@ static void __exit parport_pc_exit(void)
+	if (pnp_registered_parport)
+		pnp_unregister_driver (&parport_pc_pnp_driver);
+
++	class_device_destroy(parallel_class, MKDEV(99, 2));
++	class_device_destroy(parallel_class, MKDEV(6, 2));
++	class_device_destroy(parallel_class, MKDEV(99, 1));
++	class_device_destroy(parallel_class, MKDEV(6, 1));
++	class_device_destroy(parallel_class, MKDEV(99, 0));
++	class_device_destroy(parallel_class, MKDEV(6, 0));
++
+	spin_lock(&ports_lock);
+	while (!list_empty(&ports_list)) {
+		struct parport_pc_private *priv;
 
 
->i have released the 2.6.15-rc7-rt1 tree, which can be downloaded from 
->the usual place:
->[...]
->Please re-report any bugs that remain.
->
-This happened upon starting mplayer for the first time:
-
-BUG at include/linux/timer.h:83!
-------------[ cut here ]------------
-kernel BUG at include/linux/timer.h:83!
-invalid operand: 0000 [#1]
-PREEMPT
-Modules linked in: thermal processor fan button battery ac af_packet pcmcia
-firmware_class yenta_socket rsrc_nonstatic pcmcia_core rtc psmouse 8139too mii
-crc32
-CPU:    0
-EIP:    0060:[<df111b02>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.15-rc7-rt1)
-EIP is at rtc_do_ioctl+0x8a2/0x8e0 [rtc]
-eax: 00000024   ebx: df1125f4   ecx: ddd8e000   edx: 00000000
-esi: 00000053   edi: c038e070   ebp: dbafbf54   esp: dbafbed4
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process mplayer (pid: 1728, threadinfo=dbafa000 task=de7a1100 stack_left=7840
-worst_left=-1)
-Stack: df11260a df1125f4 00000053 00000000 dded230c dbafbef8 da98a080 dded230c
-       c0167640 00200246 c015d42a de6e7620 dd9c6264 00000000 dc7a0b2c da98a080
-       dbafbf3c dd4d9000 dbafbf30 c015d6c5 da98a080 00000000 00008000 dbafbf88
-Call Trace:
- [<c0104036>] show_stack+0xa6/0xe0 (32)
- [<c01041fe>] show_registers+0x16e/0x220 (56)
- [<c010443d>] die+0xdd/0x170 (56)
- [<c010454e>] do_trap+0x7e/0xe0 (28)
- [<c0104837>] do_invalid_op+0x97/0xb0 (180)
- [<c0103cc3>] error_code+0x4f/0x54 (188)
- [<df111b4f>] rtc_ioctl+0xf/0x20 [rtc] (8)
- [<c0170e68>] do_ioctl+0x78/0x90 (28)
- [<c0171017>] vfs_ioctl+0x57/0x1f0 (32)
- [<c01711e9>] sys_ioctl+0x39/0x60 (28)
- [<c01031b5>] syscall_call+0x7/0xb (-8116)
-Code: 00 e9 30 ff ff ff e8 fe d7 19 e1 eb 8c be 53 00 00 00 bb f4 25 11 df 89
-74 24 08 89 5c 24 04 c7 04 24 0a 26 11 df e8 de 9c 00 e1 <0f> 0b 53 00 f4 25 11
-df e9 73 ff ff ff e8 cc d7 19 e1 e9 63 f9
- Segmentation fault
-
-This looks like it's due to some timer - mplayer opens /dev/rtc if you want 
-to know. A second invocation of mplayer went fine, I guess due to 
-/dev/rtc still having a refcount of >0 and therefore not able to be opened 
-again.
-
-AFA-IIRC this did not happen with (my own portage of) 2.6.15-rc5-rt4 into 
-2.6.15-rc7 (on the very day that rc7 was released).
-If you need config.gz/.config or other info, please let me know.
-
-
-I also notice that mplayer uses approximately a lot more CPU, as shown in 
-top when CONFIG_HIGH_RES_TIMERS=y. That is, without highres timers, mplayer 
-uses less than 1%, with hrt it's somewhere between 10% and 18%.
-I practically just ran the decoding routine:
-  `mplayer -ao null sometrack.ogg`.
-
-
-
-Jan Engelhardt
--- 

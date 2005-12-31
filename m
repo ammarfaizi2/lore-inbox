@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVLaPXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbVLaPbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbVLaPXD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 10:23:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVLaPXC
+	id S964989AbVLaPbV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 10:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVLaPbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 10:23:02 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:42215 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964987AbVLaPXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 10:23:00 -0500
-Subject: Re: system keeps freezing once every 24 hours / random apps
-	crashing
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mark v Wolher <trilight@ns666.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Folkert van Heusden <folkert@vanheusden.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43B6A14E.1020703@ns666.com>
-References: <43B53EAB.3070800@ns666.com>
-	 <200512310027.47757.s0348365@sms.ed.ac.uk>	 <43B5D3ED.3080504@ns666.com>
-	 <200512310051.03603.s0348365@sms.ed.ac.uk>	 <43B5D6D0.9050601@ns666.com>
-	 <43B65DEE.906@ns666.com>
-	 <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com>
-	 <43B66E3D.2010900@ns666.com>
-	 <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com>
-	 <43B67DB6.2070201@ns666.com>  <43B6A14E.1020703@ns666.com>
+	Sat, 31 Dec 2005 10:31:21 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:49116 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964989AbVLaPbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 10:31:21 -0500
+Subject: Re: userspace breakage
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, davej@redhat.com,
+       jmerkey@wolfmountaingroup.com
+In-Reply-To: <1136018010.2901.2.camel@laptopd505.fenrus.org>
+References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
+	 <1135798495.2935.29.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
+	 <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
+	 <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
+	 <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
+	 <20051229202852.GE12056@redhat.com>
+	 <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
+	 <20051229224103.GF12056@redhat.com>
+	 <43B453CA.9090005@wolfmountaingroup.com>
+	 <Pine.LNX.4.64.0512291541420.3298@g5.osdl.org>
+	 <43B46078.1080805@wolfmountaingroup.com>
+	 <Pine.LNX.4.64.0512291603500.3298@g5.osdl.org>
+	 <1135974176.6039.71.camel@localhost.localdomain>
+	 <20051230154954.47be93a3.akpm@osdl.org>
+	 <1136018010.2901.2.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
-Date: Sat, 31 Dec 2005 16:22:50 +0100
-Message-Id: <1136042571.2901.30.camel@laptopd505.fenrus.org>
+Date: Sat, 31 Dec 2005 10:30:30 -0500
+Message-Id: <1136043030.6039.97.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-31 at 16:18 +0100, Mark v Wolher wrote:
-> Dec 31 16:11:35 localhost kernel: Modules linked in: nv
+On Sat, 2005-12-31 at 09:33 +0100, Arjan van de Ven wrote:
+> On Fri, 2005-12-30 at 15:49 -0800, Andrew Morton wrote:
+> > Steven Rostedt <rostedt@goodmis.org> wrote:
+> > >
+> > > On Thu, 2005-12-29 at 16:10 -0800, Linus Torvalds wrote:
+> > > 
+> > > > Stuff outside the kernel is almost always either (a) experimental stuff 
+> > > > that just isn't ready to be merged or (b) tries to avoid the GPL.
+> > > 
+> > > (c) So damn specialized that it's not worth even trying to merge.
+> > 
+> > Or drivers for highly specialised/customised hardware.
+> 
+> that's not really an excuse.. there's drivers in the tree for which only
+> 4 boards ever existed. There still is value in having those in the tree,
+> if only for the "other side" of the API to be able to see usage
+> patterns...
 
-I think you forged this oops... there's no "nv" module for nvidia cards.
+Yeah, but maybe Andrew isn't even talking about those boards.  I know
+when I worked for Lockheed, they had a bunch of custom boards that were
+for one specific project.  There would really be no point in pushing a
+driver into the mainline that is used by one board for one project.
 
+But then again, I'm not Andrew, and maybe he _is_ talking about the
+drivers used by only four boards.
+
+-- Steve
 
 

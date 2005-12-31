@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVLaBXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVLaBam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbVLaBXL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Dec 2005 20:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVLaBXL
+	id S932079AbVLaBam (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Dec 2005 20:30:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVLaBam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Dec 2005 20:23:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54764 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932078AbVLaBXJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Dec 2005 20:23:09 -0500
-Date: Fri, 30 Dec 2005 20:22:12 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
-       Marijn Meijles <marijn@bitpit.net>
-Subject: Re: [PATCH 6/9] clockpro-clockpro.patch
-In-Reply-To: <20051231002417.GA4913@dmt.cnet>
-Message-ID: <Pine.LNX.4.63.0512302019530.2845@cuia.boston.redhat.com>
-References: <20051230223952.765.21096.sendpatchset@twins.localnet>
- <20051230224312.765.58575.sendpatchset@twins.localnet> <20051231002417.GA4913@dmt.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Dec 2005 20:30:42 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:59328 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932079AbVLaBal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Dec 2005 20:30:41 -0500
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <5bdc1c8b0512301659m5d4431bu6915dbe10d9aaa79@mail.gmail.com>
+References: <1135726300.22744.25.camel@mindpipe>
+	 <20051229082217.GA23052@elte.hu> <20051229100233.GA12056@redhat.com>
+	 <20051229101736.GA2560@elte.hu> <1135887072.6804.9.camel@mindpipe>
+	 <1135887966.6804.11.camel@mindpipe> <20051229202848.GC29546@elte.hu>
+	 <1135908980.4568.10.camel@mindpipe> <20051230080032.GA26152@elte.hu>
+	 <1135990270.31111.46.camel@mindpipe>
+	 <5bdc1c8b0512301659m5d4431bu6915dbe10d9aaa79@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 30 Dec 2005 20:30:38 -0500
+Message-Id: <1135992638.31111.64.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Dec 2005, Marcelo Tosatti wrote:
+On Fri, 2005-12-30 at 16:59 -0800, Mark Knecht wrote:
+> I've noted for awhile that on my AMD64 machine that has xrun issues
+> that at least annecdotally it has always seemed that the network
+> interface was somehow involved. I wonder if this may turn out to be
+> true? 
 
-> I think that final objective should be to abstract it away completly,
-> making it possible to select between different policies, allowing
-> further experimentation and implementations such as energy efficient
-> algorithms.
+Yes, it probably is.  Since at least 2.6.14 almost all of the 1ms+
+latencies left in the kernel are due to long running network softirqs -
+thanks to lots of work by Ingo and others there are almost no long-held
+spinlocks left.  So I would certainly expect audio underruns to
+correspond to heavy network activity.
 
-I'm not convinced.  That might just make vmscan.c harder to read ;)
+I believe that softirqs usually run on the processor that they were
+raised on so if you have an SMP system you could test this by locking
+all interrupt handling to one processor and running JACK on the other
+and see if your xruns decrease.
 
-> About CLOCK-Pro itself, I think that a small document with a short
-> introduction would be very useful...
+Lee
 
-http://linux-mm.org/AdvancedPageReplacement
-
-> > The HandCold rotation is driven by page reclaim needs. HandCold in turn
-> > drives HandHot, for every page HandCold promotes to hot HandHot needs to
-> > degrade one hot page to cold.
-> 
-> Why do you use only two clock hands and not three (HandHot, HandCold and 
-> HandTest) as in the original paper?
-
-Because the non-resident pages cannot be in the clock.
-This is both because of space overhead, and because the
-non-resident list cannot be per zone.
-
-I agree though, Peter's patch could use a lot more
-documentation.
-
--- 
-All Rights Reversed

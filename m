@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWAAWBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWAAWXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWAAWBd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 17:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWAAWBd
+	id S932276AbWAAWXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 17:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWAAWXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 17:01:33 -0500
-Received: from [202.67.154.148] ([202.67.154.148]:33945 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S932273AbWAAWBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 17:01:32 -0500
-Message-ID: <43B85123.9080501@ns666.com>
-Date: Sun, 01 Jan 2006 23:01:07 +0100
-From: Mark v Wolher <trilight@ns666.com>
-User-Agent: Night Owl 3.12V
-X-Accept-Language: en-us
+	Sun, 1 Jan 2006 17:23:16 -0500
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:51608 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932276AbWAAWXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 17:23:15 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Steven J. Hathaway" <shathawa@e-z.net>, andre@linux-ide.org,
+       axobe@suse.de, linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
+Subject: Re: PROBLEM: Linux ATAPI CDROM ->FIX: SAMSUNG CD-ROM SC-140
+Date: Mon, 02 Jan 2006 09:23:03 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <8mkgr1p00i4c6jf3ej9t77rbd3kpo7s001@4ax.com>
+References: <43B6146C.60E044FF@e-z.net> <1136030788.28365.49.camel@localhost.localdomain>
+In-Reply-To: <1136030788.28365.49.camel@localhost.localdomain>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Folkert van Heusden <folkert@vanheusden.com>,
-       Jiri Slaby <xslaby@fi.muni.cz>, Sami Farin <7atbggg02@sneakemail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org,
-       jesper.juhl@gmail.com, s0348365@sms.ed.ac.uk, mchehab@brturbo.com.br,
-       video4linux-list@redhat.com
-Subject: Re: system keeps freezing once every 24 hours / random apps	crashing
-References: <20051231163414.GE3214@m.safari.iki.fi>	 <20051231163414.GE3214@m.safari.iki.fi>	<43B6B669.6020500@ns666.com>	 <43B73DEB.4070604@ns666.com>	<43B7D3BE.60003@ns666.com>	 <43B7EB99.8010604@ns666.com>	<43B7EB99.8010604@ns666.com>	 <20060101183832.2BE0222AEE7@anxur.fi.muni.cz>	 <20060101184916.GE27444@vanheusden.com>	<43B8256C.2060407@ns666.com>	 <20060101204958.GG27444@vanheusden.com>  <43B84BC4.6020502@ns666.com> <1136151696.13079.83.camel@mindpipe>
-In-Reply-To: <1136151696.13079.83.camel@mindpipe>
-X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Sun, 2006-01-01 at 22:38 +0100, Mark v Wolher wrote:
-> 
->>I hope some one can comment on these issue's and especially if the
->>bttv code has to do with all this ?
->>
-> 
-> 
-> I think you've established that the bttv driver is almost certainly the
-> problem.
-> 
-> Lee
-> 
+On Sat, 31 Dec 2005 12:06:28 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-sounds like some progress hehe I'm glad with this since there is nothing
-more annoying then a box which can crash randomly. If any one would like
-to test things or code and i can be of any help just let me know.
+>On Gwe, 2005-12-30 at 21:17 -0800, Steven J. Hathaway wrote:
+>> The fix is to add the following record to the drive_blacklist[] table.
+>> 
+>>      { "SAMSUNG CD-ROM SC-140",  "ALL" },
+>
+>This is not a fix since you said before the drive worked back in 2.4.20.
+>You need to find out what in 2.4.20-21 broke the support rather than
+>just turning it off.
+>
+>You could equally just use hdparm -d0 until you fix it.
 
+I have a similar issue with a 'SAMSUNG SC-140B' CDROM in 2.4.latest 
+and also 2.6.latest.  
+
+hdparm -d0 /dev/hdc + hdparm -X8 /dev/hdc fixes it :(  
+
+I updated the CDROM firmware, no change.  With 2.4.33-pre1:
+syslog:
+Jan  2 09:02:33 niner kernel: hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+Jan  2 09:02:33 niner kernel: hdc: drive_cmd: error=0x04Aborted Command
+Jan  2 09:02:52 niner kernel: hdc: CHECK for good STATUS
+Jan  2 09:03:26 niner kernel: hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+
+CDROM is stuck at the moment:
+root       279  0.0  0.3   1688   612 ttyp1    D+   09:03   0:00 mount /dev/hdc /mnt/cdrom/
+
+Should I ignore this and replace the CDROM or blacklist the thing?
+
+The box here is a s/h thing I've had for only a month, no history 
+for you.  What other testing you suggest to narrow the thing down?
+
+Hmm, while I wrote this, the driver recovered, syslog:
+Jan  2 09:18:28 niner kernel: hdc: media error (bad sector): error=0x34
+Jan  2 09:18:28 niner kernel: end_request: I/O error, dev 16:00 (hdc), sector 60
+Jan  2 09:18:43 niner kernel: hdc: DMA interrupt recovery
+Jan  2 09:18:43 niner kernel: hdc: lost interrupt
+Jan  2 09:18:43 niner kernel: hdc: status timeout: status=0xd0 { Busy }
+Jan  2 09:18:43 niner kernel: hdc: status timeout: error=0x00
+Jan  2 09:18:43 niner kernel: hdc: drive not ready for command
+Jan  2 09:18:43 niner kernel: hdc: ATAPI reset complete
+
+Box info: http://bugsplatter.mine.nu/test/boxen/niner/ this is same 
+box I tickled an oops out of under 2.6.14.5 playing with the CDROM.
+
+Thanks,
+Grant.

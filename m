@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWAAMMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWAAMMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWAAMMK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 07:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWAAMMK
+	id S1751340AbWAAMMs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 07:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWAAMMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 07:12:10 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:6683 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751337AbWAAMMJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 07:12:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mjnvL4f0ocdkMBWXX44nciRwZFPZNDZ2M3oPfchbHozlJfiIpd6XfH7xO2ufLeLn768NvH8HkTa591eM6l0G4EVuxOL2bmtey9lyqw8phPjs6zxkKfqcgGyb1LKtqNJPs8tombw5JBwpLAgXoxFNYV/hj6LtwdsRpsjXybjjh4s=
-Message-ID: <5a2cf1f60601010412r3ec10855s5ad6ed8e0a6f2ef1@mail.gmail.com>
-Date: Sun, 1 Jan 2006 13:12:08 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
-Cc: Bradley Reed <bradreed1@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1136114772.17830.20.camel@laptopd505.fenrus.org>
+	Sun, 1 Jan 2006 07:12:48 -0500
+Received: from mail-ale01.alestra.net.mx ([207.248.224.149]:40415 "EHLO
+	mail-ale01.alestra.net.mx") by vger.kernel.org with ESMTP
+	id S1751340AbWAAMMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 07:12:48 -0500
+Message-ID: <43B7C739.9080308@att.net.mx>
+Date: Sun, 01 Jan 2006 06:12:41 -0600
+From: Hugo Vanwoerkom <rociobarroso@att.net.mx>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051231202933.4f48acab@galactus.example.org>
-	 <1136106861.17830.6.camel@laptopd505.fenrus.org>
-	 <20060101115121.034e6bb7@galactus.example.org>
-	 <1136114772.17830.20.camel@laptopd505.fenrus.org>
+To: Con Kolivas <kernel@kolivas.org>
+CC: ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [ck] 2.6.14-ck8
+References: <200601011918.11619.kernel@kolivas.org>
+In-Reply-To: <200601011918.11619.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/1/06, Arjan van de Ven <arjan@infradead.org> wrote:
+Con Kolivas wrote:
+> Happy New Year!
 >
-> >
-> > DO YOU REALLY PREFER USERS NOT REPORT BUGS?
+>   
+<snip>
 
-[...]
+Linux debian 2.6.14-ck8 #1 PREEMPT Sun Jan 1 05:20:13 CST 2006 i686 
+GNU/Linux
 
-> So getting back to your question:
-> I would say that I think it's generally better that bugs that cannot be
-> reproduced on an untainted kernel are not reported on lkml, but reported
-> to the vendor of the tainting module instead, simply because it's very
-> likely that it'll waste precious debug time.
+Nice new year's gift Con! Thanks! And the same to you, the [ck] list and 
+all kernel teams!
+H
 
-Although I like the idea of making the vendors of binary modules
-really aware of the costs they introduce with regard to debug issues
-on tainted system, if I was them, the first thing I would say is
-"contact the vendor of the part of the system that changed", i.e. the
-kernel.
-
-J

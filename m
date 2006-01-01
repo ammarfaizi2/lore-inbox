@@ -1,27 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWAAJMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWAAJOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWAAJMr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 04:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWAAJMr
+	id S932194AbWAAJOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 04:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWAAJOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 04:12:47 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:734 "EHLO
+	Sun, 1 Jan 2006 04:14:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:12699 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932189AbWAAJMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 04:12:46 -0500
-Subject: Re: [PATCH] strict VM overcommit accounting for 2.4.32/2.4.33-pre1
+	id S932194AbWAAJOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 04:14:24 -0500
+Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
 From: Arjan van de Ven <arjan@infradead.org>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       barryn@pobox.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200512312036.01351.a1426z@gawab.com>
-References: <200512302306.28667.a1426z@gawab.com>
-	 <200512311702.20525.a1426z@gawab.com>
-	 <1136039178.2901.25.camel@laptopd505.fenrus.org>
-	 <200512312036.01351.a1426z@gawab.com>
+To: Bradley Reed <bradreed1@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051231202933.4f48acab@galactus.example.org>
+References: <20051231202933.4f48acab@galactus.example.org>
 Content-Type: text/plain
-Date: Sun, 01 Jan 2006 10:12:33 +0100
-Message-Id: <1136106754.17830.4.camel@laptopd505.fenrus.org>
+Date: Sun, 01 Jan 2006 10:14:21 +0100
+Message-Id: <1136106861.17830.6.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -36,47 +32,17 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-31 at 20:36 +0300, Al Boldi wrote:
-> Arjan van de Ven wrote:
-> > On Sat, 2005-12-31 at 17:02 +0300, Al Boldi wrote:
-> > > Shouldn't it be possible to disable overcommit completely, thus giving
-> > > kswapd a break from running wild trying to find something to swap/page,
-> > > which is the reason why the system gets unstable going over 95% in your
-> > > example.
-> >
-> > shared mappings make this impractical. To disable overcommit completely,
-> > each process would need to account for all its own shared libraries, eg
-> > each process gets glibc added etc. You'll find that on any
-> > non-extremely-stripped system you then end up with much more memory
-> > needed than you have ram.
+On Sat, 2005-12-31 at 20:29 +0200, Bradley Reed wrote:
+> I have tried MPlayer versions 1.0pre6, 1.0pre7, and cvs from today and
+> they all work fine under 2.6.14 and 2.6.14-rt21/22.
 > 
-> Are you implying shared maps are implemented by way of overcommitting?
-
-yes. Using only 1 page shared is already overcommitting because in
-principle each user can cause a COW on that page and cause a memory
-allocation for it in the future. (just like "traditional" overcommit can
-cause a pagefault with an allocation)
+> I booted into 2.6.15-rc7-rt1 and the same MPlayer binaries segfault on
+> every video I try and play. Yes, I have nvidia modules loaded, so won't
+> get much help, but thought someone might like to know. 
 
 
-> Really, overcommit is an add-on feature like swapping, only overcommit is 
-> free because it's a lier.  So removing an add-on feature should not affect 
-> the underlying system in any way, such as shared mappings or swapping.
-
-then I think you're misunderstanding how the linux VM works
-
-
-> It should be possible to allow swapping to handle all memory requests 
-> exceeding physical RAM.  OverCommit should be a tuning option for those who 
-> like to live on the edge, because it really is a gamble.
-
-but it's a worthwhile gamble to not need GOBBLES of memory you're not
-using 99.9999999999999% of the time
-
-> 
-> In the case where swap = physical RAM and overcommit_ratio = 0, the kernel is 
-> in effect hiding the fact that it is overcommitting.
-
-swap==ram is not really relevant; you'll need a LOT more to cover the
-shared maps...
-
+you know, you could have done a little bit more effort and reproduced
+this without the binary crud... it's not that hard you know and it shows
+that you actually care about the problem enough that you want to make it
+worthwhile for people to look into it.
 

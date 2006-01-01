@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWAANZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWAAN2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWAANZK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 08:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWAANZK
+	id S932166AbWAAN2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 08:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWAAN2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 08:25:10 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:46811 "EHLO
+	Sun, 1 Jan 2006 08:28:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50139 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751345AbWAANZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 08:25:09 -0500
+	id S932166AbWAAN2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 08:28:53 -0500
 Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
 From: Arjan van de Ven <arjan@infradead.org>
-To: Bradley Reed <bradreed1@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060101131615.GT3811@stusta.de>
+To: jerome lacoste <jerome.lacoste@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5a2cf1f60601010412r3ec10855s5ad6ed8e0a6f2ef1@mail.gmail.com>
 References: <20051231202933.4f48acab@galactus.example.org>
 	 <1136106861.17830.6.camel@laptopd505.fenrus.org>
 	 <20060101115121.034e6bb7@galactus.example.org>
-	 <20060101115038.GR3811@stusta.de>
-	 <20060101145402.0c6292bb@galactus.example.org>
-	 <20060101131615.GT3811@stusta.de>
+	 <1136114772.17830.20.camel@laptopd505.fenrus.org>
+	 <5a2cf1f60601010412r3ec10855s5ad6ed8e0a6f2ef1@mail.gmail.com>
 Content-Type: text/plain
-Date: Sun, 01 Jan 2006 14:25:05 +0100
-Message-Id: <1136121906.17830.26.camel@laptopd505.fenrus.org>
+Date: Sun, 01 Jan 2006 14:28:49 +0100
+Message-Id: <1136122129.17830.31.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -37,34 +36,39 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-01-01 at 13:12 +0100, jerome lacoste wrote:
+> On 1/1/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> >
+> > >
+> > > DO YOU REALLY PREFER USERS NOT REPORT BUGS?
+> 
+> [...]
+> 
+> > So getting back to your question:
+> > I would say that I think it's generally better that bugs that cannot be
+> > reproduced on an untainted kernel are not reported on lkml, but reported
+> > to the vendor of the tainting module instead, simply because it's very
+> > likely that it'll waste precious debug time.
+> 
+> Although I like the idea of making the vendors of binary modules
+> really aware of the costs they introduce with regard to debug issues
+> on tainted system, if I was them, the first thing I would say is
+> "contact the vendor of the part of the system that changed", i.e. the
+> kernel.
 
-On Sun, Jan 01, 2006 at 02:54:02PM +0200, Bradley Reed wrote:
-> > On Sun, 1 Jan 2006 12:50:38 +0100
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > > MPlayer has more than enough output drivers including some that work 
-> > > without the nvidia module.
-> > > 
-> > > If your problem was an RTC one, it might have even trigger using the 
-> > > AAlib output driver.
-> > 
-> > True, I can reproduce this kernel bug by running mplayer with AAlib
-> > output without nvidia's module loaded. I never run mplayer under usual
-> > use with the aalib library and never thought to test with it. If I had
-> > been asked to try that, I would have.
-> > 
->  Yes, I understand that GPL fanatics like Arjan refuse to look at bugs
->  from tainted kernels, regardless of whether the tainted kernel module
->  is at fault. That is his right. So be it. 
-> ...
+btw you do have a point; should nvidia care if someone patches their
+kernel with the -rt patchkit, something which changes many rules inside
+the kernel. I'm actually surprised such binary modules work *at all*
+given how many of the rules have changed. (For source-compiled modules
+it's a bit less of a surprise since the api changes get compiled
+through, eg most of the cases the API stayed the same the ABI didn't ,
+for binary ones.. that only works if you're lucky I guess. Even for
+source modules several needed changes (just look at the -rt patchkit) ).
 
-I wonder what made you describe me as a fanatic based on my posting? My
-posting was not about license at all, it was about the non-debugability
-and the wasting of time (compared to spending time on bugs where the
-developer does have a chance). Maybe you're one of those nvidia fanatics
-who wants to demand that all kernel developers spent all their time on
-your toy without you having to pay anything, even if it's not a useful
-way for these people to spend their time in general. 
-(see how easy it is to name someone a fanatic? :)
+To some degree, if you use binary modules and experimental patches, you
+are on your own; the module vendor is unlikely to care, but so are most
+of the developers of the patchkits.. (after all.. there is a good reason
+-rt has different rules, that is the whole POINT of the -rt patches,
+different rules to achieve the goal of extremely low latencies)
 
 

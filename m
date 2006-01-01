@@ -1,34 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWAAPYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWAAP0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbWAAPYn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 10:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWAAPYn
+	id S1751346AbWAAP0g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 10:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWAAP0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 10:24:43 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:16567 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751040AbWAAPYm (ORCPT
+	Sun, 1 Jan 2006 10:26:35 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:35732 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751346AbWAAP0f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 10:24:42 -0500
-Date: Sun, 1 Jan 2006 16:24:39 +0100 (MET)
+	Sun, 1 Jan 2006 10:26:35 -0500
+Date: Sun, 1 Jan 2006 16:26:32 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Bradley Reed <bradreed1@gmail.com>
-cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
-In-Reply-To: <Pine.LNX.4.61.0601011619400.11226@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0601011623570.11226@yvahk01.tjqt.qr>
-References: <20051231202933.4f48acab@galactus.example.org>
- <1136106861.17830.6.camel@laptopd505.fenrus.org> <20060101115121.034e6bb7@galactus.example.org>
- <Pine.LNX.4.61.0601011619400.11226@yvahk01.tjqt.qr>
+To: David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why can setuid programs regain root after dropping it when using
+ capabilities?
+In-Reply-To: <dp6rea$kdh$1@taverner.CS.Berkeley.EDU>
+Message-ID: <Pine.LNX.4.61.0601011626270.11226@yvahk01.tjqt.qr>
+References: <20051129213545.6154ce37@TANG-FOUR-EIGHTY-ONE.MIT.EDU>
+ <dp6rea$kdh$1@taverner.CS.Berkeley.EDU>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>Yes, I was very fortunate in that someone else with a non-tainted
->>kernel noticed a similar bug with /dev/rtc, and even more fortunate
->
->Oh did not notice *I* actually ran a tainted one *too* :p
+>>While debugging some code, I found that a setuid program could regain
+>>root after dropping root if the program used capabilities. (I tested
+>>this on 2.6.14 and 2.6.9.) Is this the expected behavior? Here's a
+>>short test case:
+>>
+>>/* chown root this program, suid it, and run it as non-root */
+>>#include <sys/types.h>
+>>#include <sys/capability.h>
+>>#include <unistd.h>
+>>#include <stdio.h>
+>>int main() {
+>>   cap_set_proc(cap_from_text("all-eip")); /* drop all caps */
+>>   setuid(getuid());                       /* drop root. this call succeeds */
+>>   setuid(0);                              /* this should fail! but doesn't */
 
-Forget that ^ what I said; the testing box does not even have an nvidia one...
+uid != euid. You would probably have to use
 
+  seteuid(getuid());
+
+Plus there is also the feature of saved ids, see sys_setresuid().
+
+
+
+Jan Engelhardt
+-- 

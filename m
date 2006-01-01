@@ -1,57 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWAAGIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWAAIST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWAAGIk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 01:08:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWAAGIk
+	id S932139AbWAAIST (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 03:18:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWAAIST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 01:08:40 -0500
-Received: from gate.crashing.org ([63.228.1.57]:7583 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751096AbWAAGIj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 01:08:39 -0500
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple
-	PowerBooks
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
-       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <20060101030331.GA26559@hansmi.ch>
-References: <20051225212041.GA6094@hansmi.ch>
-	 <200512252304.32830.dtor_core@ameritech.net>
-	 <20051231235124.GA18506@hansmi.ch>
-	 <1136084207.4635.86.camel@localhost.localdomain>
-	 <20060101030331.GA26559@hansmi.ch>
-Content-Type: text/plain
-Date: Sun, 01 Jan 2006 17:09:02 +1100
-Message-Id: <1136095742.24205.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Sun, 1 Jan 2006 03:18:19 -0500
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:54156 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932139AbWAAISS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 03:18:18 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: ck list <ck@vds.kolivas.org>
+Subject: 2.6.14-ck8
+Date: Sun, 1 Jan 2006 19:18:08 +1100
+User-Agent: KMail/1.8.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <200601011918.11619.kernel@kolivas.org>
+X-Length: 2647
+Content-Type: multipart/signed;
+  boundary="nextPart1739839.2bOeYg93KO";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-01 at 04:03 +0100, Michael Hanselmann wrote:
-> On Sun, Jan 01, 2006 at 01:56:47PM +1100, Benjamin Herrenschmidt wrote:
-> > I've been using the other patch for some time now and while it's a
-> > life-saver, it does have one annoying little issue: If you press a key
-> > with the Fn key down and release that key with the Fn key up, your key
-> > is stuck.
-> 
-> I noticed something like that with the numlock key as well but didn't
-> have time to fix it yet.
-> 
-> Other than that, have you found any keys that aren't mapped or are
-> mapped incorrectly?
+--nextPart1739839.2bOeYg93KO
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I haven't but then I haven't tested in depth neither. Such little bugs
-if any can always be fixed later anyway.
+Happy New Year!
 
-> The new patch adds quite some code to hid-input.c, should it be
-> configuratible via .config?
-
-Possibly yes, since it's only useful for mac laptops...
-
-Ben.
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck patch is aimed at the=
+=20
+desktop and cks is available with more emphasis on serverspace.
 
 
+THIS INCLUDES ALL PATCHES FROM 2.6.14.5 SO START WITH 2.6.14
+
+Apply to 2.6.14
+http://ck.kolivas.org/patches/2.6/2.6.14/2.6.14-ck8/patch-2.6.14-ck8.bz2
+
+or server version
+http://ck.kolivas.org/patches/cks/patch-2.6.14-cks8.bz2
+
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
+
+
+Changes:
+
+Modified:
+ -patch-2.6.14.4.bz2
+ +patch-2.6.14.5.bz2
+
+Resync with stable tree
+
+=2D2614ck7-version.diff
++2614ck8-version.diff
+
+Version
+
+
+=46ull patchlist:
+
+2.6.14_to_staircase12.1.diff
+schedrange.diff
+schedbatch2.9.diff
+sched-iso3.2.patch
+smp-nice-support7.diff
+1g_lowmem1_i386.diff
+defaultcfq.diff
+isobatch_ionice2.diff
+rt_ionice.diff
+pdflush-tweaks.patch
+hz-default_values.patch
+hz-no_default_250.patch
+mm-swap_prefetch-19.patch
+vm-mapped.diff
+vm-lots_watermark.diff
+vm-background_scan-1.diff
+sched-staircase12.1_12.2.patch
+mm-kswapd_inherit_prio.patch
+mm-prio_dependant_scan.patch
+mm-batch_prio.patch
+sched-staircase12.2_13.patch
+patch-2.6.14.5.bz2
+2614ck8-version.diff
+
+
+Cheers,
+Con
+
+--nextPart1739839.2bOeYg93KO
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDt5BDZUg7+tp6mRURApMsAJ9nk/CHcGOXloI4wMFXQJIfc63wbACfdp/+
+jus827CzH03blY25RZLiwnw=
+=kbaD
+-----END PGP SIGNATURE-----
+
+--nextPart1739839.2bOeYg93KO--

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWAATBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWAATCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWAATBq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 14:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWAATBq
+	id S932239AbWAATCM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 14:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWAATCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 14:01:46 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:39428 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932238AbWAATBp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 14:01:45 -0500
-Date: Sun, 1 Jan 2006 20:01:31 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linda Walsh <lkml@tlinx.org>
-Subject: Re: tar-pkg with out-out-tree building
-Message-ID: <20060101190131.GA15200@mars.ravnborg.org>
-References: <20060101132347.GB1298@lug-owl.de>
+	Sun, 1 Jan 2006 14:02:12 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:10430 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932239AbWAATCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 14:02:10 -0500
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Eric Dumazet <dada1@cosmosbay.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, vatsa@in.ibm.com
+In-Reply-To: <Pine.LNX.4.64.0601011047320.3668@g5.osdl.org>
+References: <20051229202848.GC29546@elte.hu>
+	 <1135908980.4568.10.camel@mindpipe> <20051230080032.GA26152@elte.hu>
+	 <1135990270.31111.46.camel@mindpipe>
+	 <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org>
+	 <1135991732.31111.57.camel@mindpipe>
+	 <Pine.LNX.4.64.0512301726190.3249@g5.osdl.org>
+	 <1136001615.3050.5.camel@mindpipe> <20051231042902.GA3428@us.ibm.com>
+	 <1136004855.3050.8.camel@mindpipe>  <20051231201426.GD5124@us.ibm.com>
+	 <1136094372.7005.19.camel@mindpipe>
+	 <Pine.LNX.4.64.0601011047320.3668@g5.osdl.org>
+Content-Type: text/plain
+Date: Sun, 01 Jan 2006 14:02:07 -0500
+Message-Id: <1136142127.13079.51.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060101132347.GB1298@lug-owl.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.5.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 01, 2006 at 02:23:47PM +0100, Jan-Benedict Glaw wrote:
-> Fix out-of-tree builds for the tar-pkg targets
+On Sun, 2006-01-01 at 10:56 -0800, Linus Torvalds wrote:
+> The thing is, "maxbatch" doesn't actually _work_ because what happens
+> is that the tasklet will continually re-schedule itself, and the
+> caller will keep calling it. So maxbatch is actually broken.
 > 
-> When I wrote the buildtar script, I didn't even think about
-> out-of-tree builds because I didn't use these back then. This patch
-> throughoutly uses ${objtree} instead of `pwd`.
-> 
-> Also, the kernel version is no longer manually built. Instead, it will
-> properly use $KERNELRELEASE .  Installing modules is only done if
-> CONFIG_MODULES is set.
+> However, what happens is that after kernel/softirq.c has called the 
+> tasklet ten times, and it is still pending, it will do the softirq in
+> a thread (see the "max_restart" logic). 
 
-Hi Jan.
-I've applied this to my kbuild tree.
+Ah OK thanks for the explanation.  I'll try Paul's patch (yours did not
+seem to help).
 
-Thanks,
+Lee
 
-	Sam

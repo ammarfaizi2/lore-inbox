@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWAAMA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWAAMMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWAAMA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 07:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWAAMA5
+	id S1751337AbWAAMMK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 07:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWAAMMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 07:00:57 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60687 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751317AbWAAMA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 07:00:56 -0500
-Date: Sun, 1 Jan 2006 13:00:57 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Howto set kernel makefile to use particular gcc
-Message-ID: <20060101120057.GS3811@stusta.de>
-References: <3AEC1E10243A314391FE9C01CD65429B2239C2@mail.esn.co.in> <200512301624.24229.chriswhite@gentoo.org> <dp89d4$u0i$1@sea.gmane.org>
+	Sun, 1 Jan 2006 07:12:10 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:6683 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751337AbWAAMMJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 07:12:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mjnvL4f0ocdkMBWXX44nciRwZFPZNDZ2M3oPfchbHozlJfiIpd6XfH7xO2ufLeLn768NvH8HkTa591eM6l0G4EVuxOL2bmtey9lyqw8phPjs6zxkKfqcgGyb1LKtqNJPs8tombw5JBwpLAgXoxFNYV/hj6LtwdsRpsjXybjjh4s=
+Message-ID: <5a2cf1f60601010412r3ec10855s5ad6ed8e0a6f2ef1@mail.gmail.com>
+Date: Sun, 1 Jan 2006 13:12:08 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
+Cc: Bradley Reed <bradreed1@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1136114772.17830.20.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <dp89d4$u0i$1@sea.gmane.org>
-User-Agent: Mutt/1.5.11
+References: <20051231202933.4f48acab@galactus.example.org>
+	 <1136106861.17830.6.camel@laptopd505.fenrus.org>
+	 <20060101115121.034e6bb7@galactus.example.org>
+	 <1136114772.17830.20.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 01, 2006 at 07:03:15PM +0900, Kalin KOZHUHAROV wrote:
-> 
-> As I just stumbeled into a similar problem, I am going to ask here.
-> 
-> I know the "trick" of `make -j8 CC=distcc` and I always use it. But is there a way to hardwire
-> "CC=distcc" insie the Makefile? Just setting it there does not help it seems.
+On 1/1/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> >
+> > DO YOU REALLY PREFER USERS NOT REPORT BUGS?
 
-Setting it somewhere at the top of the Makefile doesn't help since the 
-Makefile sets it itself later overriding your setting.
+[...]
 
-The Makefile contains the line
-  CC              = $(CROSS_COMPILE)gcc
+> So getting back to your question:
+> I would say that I think it's generally better that bugs that cannot be
+> reproduced on an untainted kernel are not reported on lkml, but reported
+> to the vendor of the tainting module instead, simply because it's very
+> likely that it'll waste precious debug time.
 
-Change this line to
-  CC              = $(CROSS_COMPILE)distcc
+Although I like the idea of making the vendors of binary modules
+really aware of the costs they introduce with regard to debug issues
+on tainted system, if I was them, the first thing I would say is
+"contact the vendor of the part of the system that changed", i.e. the
+kernel.
 
-> Kalin.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+J

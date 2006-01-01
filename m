@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWAATa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWAATiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWAATa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 14:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWAATa2
+	id S932249AbWAATiI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 14:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWAATiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 14:30:28 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:24288 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932246AbWAATa2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 14:30:28 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Kasper Sandberg <lkml@metanurb.dk>
-Subject: Re: ati X300 support?
-Date: Sun, 1 Jan 2006 19:28:37 +0000
-User-Agent: KMail/1.9
-Cc: chris@pcburn.com, Gerhard Mack <gmack@innerfire.net>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net> <200512272320.45378.s0348365@sms.ed.ac.uk> <1135798330.16657.1.camel@localhost>
-In-Reply-To: <1135798330.16657.1.camel@localhost>
+	Sun, 1 Jan 2006 14:38:08 -0500
+Received: from [202.67.154.148] ([202.67.154.148]:20438 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S932249AbWAATiG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 14:38:06 -0500
+Message-ID: <43B82F87.5010804@ns666.com>
+Date: Sun, 01 Jan 2006 20:37:43 +0100
+From: Mark v Wolher <trilight@ns666.com>
+User-Agent: Night Owl 3.12V
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601011928.37152.s0348365@sms.ed.ac.uk>
+To: Jiri Slaby <xslaby@fi.muni.cz>
+CC: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Sami Farin <7atbggg02@sneakemail.com>, jesper.juhl@gmail.com,
+       s0348365@sms.ed.ac.uk, Linux Kernel <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, arjan@infradead.org,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: Re: 
+References: <200512310027.47757.s0348365@sms.ed.ac.uk>	 <43B5D3ED.3080504@ns666.com> <200512310051.03603.s0348365@sms.ed.ac.uk>	 <43B5D6D0.9050601@ns666.com> <43B65DEE.906@ns666.com>	 <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com>	 <43B66E3D.2010900@ns666.com>	 <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com>	 <43B67DB6.2070201@ns666.com> <43B6A14E.1020703@ns666.com>	 <20051231163414.GE3214@m.safari.iki.fi>	 <20051231163414.GE3214@m.safari.iki.fi> <43B6B669.6020500@ns666.com>	 <43B73DEB.4070604@ns666.com> <43B7D3BE.60003@ns666.com>	 <43B7EB99.8010604@ns666.com> <43B7EB99.8010604@ns666.com>	 <20060101183832.2BE0222AEE7@anxur.fi.muni.cz>  <43B8241C.2020305@ns666.com> <20060101191221.7E34322AEAC@anxur.fi.muni.cz>
+In-Reply-To: <20060101191221.7E34322AEAC@anxur.fi.muni.cz>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 December 2005 19:32, Kasper Sandberg wrote:
-[snip]
-> >
-> > Yes, you and this link are both out of date. The r300 driver provides
-> > basic support for many newer video cards based on the r300 core and is
-> > shipped with Xorg 7.0.0.
->
-> is this only 7.0.0? i just built 6.9 and i dont have the 'r300' x
-> driver, or... is it merged into the 'ati' or 'radeon' xorg driver
-> module?
->
+Jiri Slaby wrote:
+> Mauro Carvalho Chehab wrote:
+> 
+>>Em Dom, 2006-01-01 Ã s 19:49 +0100, Mark v Wolher escreveu:
+>>
+>>>So, Mauro (or somebody from list), have you any idea, what could be
+>>>wrong?  
+>>
+>>	hmm.. have you sent the patch to the list?
+> 
+> Yes, it was only a (bad) try to solve the problem. The point is, that there is
+> some weird problem in the estimating, or something (number of loops?).
+> 
+> The oops and the patch are on lkml site in this thread, I would give you a
+> link, but lkml seems to be down for me.
+> [the patch helps in some way, but didn't solve the problem]
+> 
+> all the best,
 
-Sorry for the delay Kasper, the driver is still "ati"; if you have DRI 
-compiled and enabled, the "ati" driver will attempt to set up DRI via the 
-r300_dri.so that should exist in either /usr/X11R7/lib/modules/dri, 
-or /usr/X11R7/lib/xorg/modules/dri.
+But i wonder, can you think of something why grabdisplay causes crashes
+and overlay doesn't ? This needed patch, would it solve this problem too ?
 
-You'll need a fairly recently kernel with drm support for r300/r400, but it 
-seems to work OOTB.
+Thanks
 
-If you do NOT have the dri drivers, it is trivial to install them. Download 
-MesaLib-6.4.1, then issue:
-
-make linux-dri
-
-When this finishes, point the installer to the right directory. I initially 
-made the mistake of pointing it directly to /usr/X11R7/lib, but it copies the 
-XXX_dri.so's to this directory, so it should actually 
-be /usr/X11R7/lib/modules/dri (create this directory prior to installation)..
-
-..and that should be it.
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

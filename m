@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWAAKD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWAAKiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWAAKD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 05:03:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWAAKD3
+	id S932202AbWAAKiI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 05:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWAAKiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 05:03:29 -0500
-Received: from main.gmane.org ([80.91.229.2]:46499 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932197AbWAAKD2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 05:03:28 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Howto set kernel makefile to use particular gcc
-Date: Sun, 01 Jan 2006 19:03:15 +0900
-Message-ID: <dp89d4$u0i$1@sea.gmane.org>
-References: <3AEC1E10243A314391FE9C01CD65429B2239C2@mail.esn.co.in> <200512301624.24229.chriswhite@gentoo.org>
+	Sun, 1 Jan 2006 05:38:08 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.21]:54806 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932202AbWAAKiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 05:38:07 -0500
+Subject: Re: [PATCH 6/9] clockpro-clockpro.patch
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
+       Marijn Meijles <marijn@bitpit.net>, Rik van Riel <riel@redhat.com>
+In-Reply-To: <20051231224021.GA5184@dmt.cnet>
+References: <20051230223952.765.21096.sendpatchset@twins.localnet>
+	 <20051230224312.765.58575.sendpatchset@twins.localnet>
+	 <20051231224021.GA5184@dmt.cnet>
+Content-Type: text/plain
+Date: Sun, 01 Jan 2006 11:37:34 +0100
+Message-Id: <1136111854.17853.77.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051023)
-X-Accept-Language: en-us, en
-In-Reply-To: <200512301624.24229.chriswhite@gentoo.org>
-X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris White wrote:
-> On Friday 30 December 2005 16:04, Mukund JB. wrote:
+On Sat, 2005-12-31 at 20:40 -0200, Marcelo Tosatti wrote:
+> On Fri, Dec 30, 2005 at 11:43:34PM +0100, Peter Zijlstra wrote:
+> > 
+> > From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 > 
->>Dear Alessandro,
->>
->>Thanks for the reply.
->>What does that the make CC=<path_to_your_gcc_3.3> do?
->>Will it set my gcc default build configuration to gcc 3.3?
+> Peter,
 > 
+> I tried your "scan-shared.c" proggy which loops over 140M of a file
+> using mmap (on a 128MB box). The number of loops was configured to "5".
 > 
-> Not Alessandro but,
-> 
-> CC sets the CC makefile variable.  When the kernel build system goes to 
-> compile something, it doesn't call on gcc directly, but rather what the 
-> variable CC is set to.  By setting it to your gcc 3.3 compiler, it will use 
-> that instead.
-> 
-> 
->>I mean the general procedure is make bzImage; make modules....
->>How do I do these:
->>
->>Will I have to do it like:
->>	make bzImage cc=<gcc path>
-> 
-> 
-> make CC=<gcc path> bzImage
-> 
-> note the case sensitivity, which tends to be somewhat of a pain for new *nix 
-> users.
+> The amount of major/minor pagefaults was exactly the same between
+> vanilla and clockpro, isnt the clockpro algorithm supposed to be
+> superior than LRU in such "sequential scan of MEMSIZE+1" cases?
 
-As I just stumbeled into a similar problem, I am going to ask here.
+yes it should, hmm, have to look at that then.
 
-I know the "trick" of `make -j8 CC=distcc` and I always use it. But is there a way to hardwire
-"CC=distcc" insie the Makefile? Just setting it there does not help it seems.
+What should happen is that nr_cold_target should drop to the bare
+minimum, which effectivly pins all hot pages and only rotates the few
+cold pages.
 
-Kalin.
+> Oh well, to be sincere, I still haven't understood what makes CLOCK-Pro
+> use inter reference distance instead of recency, given that its a simple
+> CLOCK using reference bits (but with three clocks instead of one).
+> 
+> But thats probably just my ignorance, need to study more.
+
+The reuse distance is in PG_test. Please see the clockpro-documentation
+patch, which should explain this. If its still not clear after that let
+me know, I'll be more verbose then.
 
 -- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+Peter Zijlstra <a.p.zijlstra@chello.nl>
 

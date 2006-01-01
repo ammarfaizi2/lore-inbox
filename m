@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWAAQMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWAAQnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbWAAQMj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 11:12:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWAAQMj
+	id S1750875AbWAAQnt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 11:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWAAQnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 11:12:39 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60569 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750895AbWAAQMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 11:12:38 -0500
-Subject: Re: Arjan's noinline Patch
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kurt Wall <kwallnator@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060101155710.GA5213@kurtwerks.com>
-References: <20060101155710.GA5213@kurtwerks.com>
-Content-Type: text/plain
-Date: Sun, 01 Jan 2006 17:12:33 +0100
-Message-Id: <1136131954.17830.40.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 1 Jan 2006 11:43:49 -0500
+Received: from tower.bj-ig.de ([194.127.182.2]:64657 "EHLO fs.bj-ig.de")
+	by vger.kernel.org with ESMTP id S1750724AbWAAQnt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 11:43:49 -0500
+Message-ID: <43B806C7.5000607@bj-ig.de>
+Date: Sun, 01 Jan 2006 17:43:51 +0100
+From: =?ISO-8859-1?Q?Ralf_M=FCller?= <ralf@bj-ig.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
+Subject: Re: Kernel panic with 2.6.15-rc7 + libata1 patch
+References: <43B724BA.90405@bj-ig.de> <43B7EA0A.7040805@bj-ig.de>
+	<20060101145702.GV3811@stusta.de>
+In-Reply-To: <20060101145702.GV3811@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Delivered-For: jgarzik@pobox.com
+X-Spambayes-Classification: ham; 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-01 at 10:57 -0500, Kurt Wall wrote:
-> After applying Arjan's noline patch (http://www.fenrus.org/noinline), I
-> see almost a 10% reduction in the size of .text (against 2.6.15-rc6)
+Adrian Bunk schrieb:
 
-wow that's a lot, more than I expected actually.... 
+> Is this problem present with older kernel (e.g. 2.6.14.x) or is it a 
+> newly introduced bug?
+
+It is a newly installed system - 2.6.15-rc6 has been the first kernel at 
+all on this machine - this kernel crashed too. After that I upgraded to 
+2.6.15-rc7 - it crashed as written in the initial mail. Next was to 
+apply the libata1 patch. It did not give a kernel panic but shut down 
+the SATA subsystem (the hardware is a Promise SATA II 300 TX4 PDC 20718 
+and an onboard Promise SATA II 150 PDC20579) - non of the six attached 
+disks has been accessible anymore after calling hddtemp on one of the 
+disks which have been in standby. Calling hddtemp on a spinning disk 
+works without a problem.
+
+A further problem is that calling "hdparm -C" _always_ give "drive state 
+is:  standby" - even when the disks are clearly active. Maybe this 
+indicates something to you.
+
+I can try to downgrade to 2.6.14 if you like. I started with 2.6.15 
+because I have been told it is the first kernel which is able to deal 
+with "hdparm -S x" / "hdparm -y" for SATA devices.
+
+> I've put Jeff into the Cc of this email since he is the SATA maintainer.
+
+Thanks.
+
+Regards
+Ralf
 

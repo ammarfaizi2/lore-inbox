@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWAAPxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWAAQMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWAAPxx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 10:53:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWAAPxx
+	id S1750904AbWAAQMj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 11:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWAAQMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 10:53:53 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:49816 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750904AbWAAPxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 10:53:53 -0500
-Date: Sun, 1 Jan 2006 10:57:10 -0500
-From: Kurt Wall <kwallnator@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Arjan's noinline Patch
-Message-ID: <20060101155710.GA5213@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sun, 1 Jan 2006 11:12:39 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60569 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750895AbWAAQMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 11:12:38 -0500
+Subject: Re: Arjan's noinline Patch
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kurt Wall <kwallnator@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060101155710.GA5213@kurtwerks.com>
+References: <20060101155710.GA5213@kurtwerks.com>
+Content-Type: text/plain
+Date: Sun, 01 Jan 2006 17:12:33 +0100
+Message-Id: <1136131954.17830.40.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.15-rc6krw
-X-Woot: Woot!
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After applying Arjan's noline patch (http://www.fenrus.org/noinlin), I
-see almost a 10% reduction in the size of .text (against 2.6.15-rc6)
-with no apparent errors and no reduction in functionality:
+On Sun, 2006-01-01 at 10:57 -0500, Kurt Wall wrote:
+> After applying Arjan's noline patch (http://www.fenrus.org/noinline), I
+> see almost a 10% reduction in the size of .text (against 2.6.15-rc6)
 
-$ size vmlinux.*
-   text    data     bss     dec     hex filename
-2578246  462000  479920 3520166  35b6a6 vmlinux.inline
-2327319  462000  479920 3269239  31e277 vmlinux.noinline
+wow that's a lot, more than I expected actually.... 
 
-So, from where I sit, it seems like a reasonable patch to field test in
--mm.
-
-Kurt
--- 
-Blood is thicker than water, and much tastier.

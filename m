@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWAABSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWAAB2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWAABSU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Dec 2005 20:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWAABST
+	id S932153AbWAAB2M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Dec 2005 20:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWAAB2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Dec 2005 20:18:19 -0500
-Received: from mail.aknet.ru ([82.179.72.26]:12305 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S932074AbWAABST (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Dec 2005 20:18:19 -0500
-Message-ID: <43B72DFC.4070707@aknet.ru>
-Date: Sun, 01 Jan 2006 04:18:52 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Sat, 31 Dec 2005 20:28:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:32014 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932153AbWAAB2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Dec 2005 20:28:12 -0500
+Date: Sun, 1 Jan 2006 02:28:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Lawrence Walton <lawrence@the-penguin.otak.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unkillable process dselect 2.6.15-rc1 and 2.6.15-rc1-mm1
+Message-ID: <20060101012811.GP3811@stusta.de>
+References: <20051118063734.GA1769@the-penguin.otak.com> <20051231145457.GK3811@stusta.de> <20051231191049.GA30681@the-penguin.otak.com>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Steve Work <swork@aventail.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Multi-thread corefiles broken since April
-References: <4397D844.8060903@aventail.com> <20051231142851.GH3811@stusta.de>
-In-Reply-To: <20051231142851.GH3811@stusta.de>
-Content-Type: multipart/mixed;
- boundary="------------010607080004080001010103"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051231191049.GA30681@the-penguin.otak.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010607080004080001010103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, Dec 31, 2005 at 11:10:49AM -0800, Lawrence Walton wrote:
 
-Hi.
+> Thank you very much about replying!
+> 
+> This issue was resolved November 27Th. :) 
+> 
+> <snip>
+> > 
+> > Is this issue still present in 2.6.15-rc7?
+> > 2.6.14 was OK?
+> 
+> It's fixed. 2.6.14 was OK.
 
-Adrian Bunk wrote:
-> On Wed, Dec 07, 2005 at 10:52:52PM -0800, Steve Work wrote:
->> Or do the corefile 
->> write routines need to know about this adjusted offset?
-I think so, the attached patch seem to help.
+OK, thanks for this information.
 
-Happy new year and happy hacking!
+> > Unfortunately, our bug handling is worse than it should be.
+> > 
+> > The Bugzilla is still a good place to prevent a bug from being 
+> > completely forgotten.
+> > 
+> 
+> *shrug* 
+> 
+> Seems to me LK's mailing list is better then bugzilla for single issue
+> bugs.
+> 
+> It's the more generic / systemic bugs that don't get resolved as quickly
+> that bug tracking system should be good at.
 
+That's true.
 
------
-teach dump_task_regs() about the -8 offset.
+cu
+Adrian
 
-Signed-off-by: stsp@aknet.ru
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---------------010607080004080001010103
-Content-Type: text/x-patch;
- name="stkfix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="stkfix.diff"
-
---- linux/arch/i386/kernel/process.c.old	2005-08-07 21:58:25.000000000 +0400
-+++ linux/arch/i386/kernel/process.c	2006-01-01 03:03:10.000000000 +0300
-@@ -573,7 +573,9 @@
- 	struct pt_regs ptregs;
- 	
- 	ptregs = *(struct pt_regs *)
--		((unsigned long)tsk->thread_info+THREAD_SIZE - sizeof(ptregs));
-+		((unsigned long)tsk->thread_info +
-+		/* see comments in copy_thread() about -8 */
-+		THREAD_SIZE - sizeof(ptregs) - 8);
- 	ptregs.xcs &= 0xffff;
- 	ptregs.xds &= 0xffff;
- 	ptregs.xes &= 0xffff;
-
---------------010607080004080001010103--

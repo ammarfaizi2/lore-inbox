@@ -1,110 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWAAO5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWAAPMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWAAO5E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 09:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWAAO5E
+	id S932225AbWAAPMW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 10:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAAPMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 09:57:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39952 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932224AbWAAO5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 09:57:02 -0500
-Date: Sun, 1 Jan 2006 15:57:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ralf =?iso-8859-1?Q?M=FCller?= <ralf@bj-ig.de>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Re: Kernel panic with 2.6.15-rc7 + libata1 patch
-Message-ID: <20060101145702.GV3811@stusta.de>
-References: <43B724BA.90405@bj-ig.de> <43B7EA0A.7040805@bj-ig.de>
+	Sun, 1 Jan 2006 10:12:22 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:29396 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932225AbWAAPMV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 10:12:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=SmkVnDqeaiTHuxDRoRGjPpaGAzxdYeo5q/DFCT2iRY/OK7cVyGhtb7rFM92GM84LGwhzrjVN1OlWwk7n1/V71BP8YzPHuKboRv7x8YkSTVIsqWAznYPQgiV7a5moOacjejNcqDJbhDNT+1nfIjxqSgsVxk8ChyL1v6dCzg0VcCI=
+Message-ID: <221e0ff70601010712l3ee799c0n@mail.gmail.com>
+Date: Sun, 1 Jan 2006 16:12:21 +0100
+From: Gyorgy Jeney <nog.lkml@gmail.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: [patch][rfc] 8250_early: Too early for ioremap
+Cc: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk,
+       linux-serial@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43B7EA0A.7040805@bj-ig.de>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 01, 2006 at 03:41:14PM +0100, Ralf Müller wrote:
-> Ralf Müller schrieb:
-> >Had the following kernel panic with 2.6.15-rc7 + libata1 2.6.15-rc6 
-> >patch (http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/).
-> >Ocurred when calling "hddtemp" on a SATA device which has been in 
-> >standby. Maybe someone is interesed:
-> >
-> >Dec 31 12:45:08 DatenGrab kernel: ATA: abnormal status 0xFF on port 
-> >0xE02A821CDec 31 12:45:11 DatenGrab kernel: ata3: unknown timeout, cmd 
-> >0xb0 stat 0xffDec 31 12:45:11 DatenGrab kernel: ata3: translated ATA 
-> >stat/err 0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00Dec 31 12:45:11 DatenGrab 
-> >kernel: ata3: status=0xff { Busy }Dec 31 12:45:11 DatenGrab kernel: 
-> >Assertion failed! qc != 
-> >NULL,drivers/scsi/libata-core.c,ata_pio_block,line=3216Dec 31 12:45:11 
-> >DatenGrab kernel: e02d9a3e
-> >Dec 31 12:45:11 DatenGrab kernel: Modules linked in: iptable_filter 
-> >ip_tables w83627hf hwmon_vid hwmon eeprom i2c_isa nfsd edd ipv6 button 
-> >battery ac af_packet xfs exportfs reiserfs ohci1394 ieee1394 sk98lin 
-> >generic i2c_i801 i2c_core i8xx_tco shpchp pci_hotplug intel_agp agpgart 
-> >uhci_hcd raid5 xor parport_pc lp parport sata_promise libata dm_mod sg 
-> >skge ohci_hcd ehci_hcd usb_storage usbcore fan thermal processor piix 
-> >sd_mod scsi_mod ide_disk ide_core
-> >Dec 31 12:45:11 DatenGrab kernel: CPU:    0Dec 31 12:45:11 DatenGrab 
-> >kernel: EIP:    0060:[<e02d9a3e>]    Not tainted VLI
-> >Dec 31 12:45:11 DatenGrab kernel: EFLAGS: 00010292 (2.6.15-rc6-default) 
-> >Dec 31 12:45:11 DatenGrab kernel: EIP is at ata_pio_block+0xb9/0xfd 
-> >[libata]
-> >Dec 31 12:45:11 DatenGrab kernel: eax: 00000056   ebx: c14b5284   ecx: 
-> >00000000   edx: 00000000
-> >Dec 31 12:45:11 DatenGrab kernel: esi: 58894f50   edi: 00000000   ebp: 
-> >c14b5284   esp: de3a7f70
-> >Dec 31 12:45:11 DatenGrab kernel: ds: 007b   es: 007b   ss: 0068
-> >Dec 31 12:45:11 DatenGrab kernel: Process ata/0 (pid: 2181, 
-> >threadinfo=de3a6000 task=de371a90)
-> >Dec 31 12:45:11 DatenGrab kernel: Stack: c14b5284 def063c0 00000287 
-> >e02d9b00 c14b583c c01230a6 e02d9ae3 00000001
-> >Dec 31 12:45:11 DatenGrab kernel:        00000000 00000000 00010000 
-> >00000000 00000000 de371a90 c01150bc 00100100
-> >Dec 31 12:45:11 DatenGrab kernel:        00200200 ffffffff ffffffff 
-> >de3a6000 de0dbf54 def063c0 c0122f67 c0125c8f
-> >Dec 31 12:45:11 DatenGrab kernel: Call Trace:
-> >Dec 31 12:45:11 DatenGrab kernel:  [<e02d9b00>] ata_pio_task+0x1d/0x54 
-> >[libata]
-> >Dec 31 12:45:11 DatenGrab kernel:  [<c01230a6>] worker_thread+0x13f/0x19d
-> >Dec 31 12:45:11 DatenGrab kernel:  [<e02d9ae3>] ata_pio_task+0x0/0x54 
-> >[libata]
-> >Dec 31 12:45:11 DatenGrab kernel:  [<c01150bc>] 
-> >default_wake_function+0x0/0xc
-> >Dec 31 12:45:11 DatenGrab kernel:  [<c0122f67>] worker_thread+0x0/0x19d
-> >Dec 31 12:45:11 DatenGrab kernel:  [<c0125c8f>] kthread+0x63/0x8f
-> >Dec 31 12:45:11 DatenGrab kernel:  [<c0125c2c>] kthread+0x0/0x8f
-> >Dec 31 12:45:11 DatenGrab kernel:  [<c0101281>] 
-> >kernel_thread_helper+0x5/0xb
-> >Dec 31 12:45:11 DatenGrab kernel: Code: 89 df 81 c7 d4 04 00 00 75 21 68 
-> >90 0c 00 00 68 fb cd 2d e0 68 ef cf 2d e0 68 b0 d5 2d e0 68 61 d0 2d e0 
-> >e8 19 e1 e3 df 83 c4 14 <8a> 47 14 83 e8 05 3c 02 77 1b 83 e6 08 75 0c 
-> >c7 83 e4 05 00 00
-> >Dec 31 12:45:14 DatenGrab kernel:  <3>ata5: unknown timeout, cmd 0xb0 
-> >stat 0x58
-> 
-> Sorry - the above oops has been with plain 2.6.15-rc7 - the libata1
-> patch has been applied but not yet installed at the time of this kernel
-> panic. With the libata1 patch installed the sata controller is still
-> going completly offline when calling hddtemp on a disk in standby but
-> there is no kernel panic anymore.
+From: Gyorgy Jeney
 
-Is this problem present with older kernel (e.g. 2.6.14.x) or is it a 
-newly introduced bug?
+Let the individual architectures define the function to use to remap the mmio-
+range that will be used by the 8250_early driver.  This is needed because, the
+default, ioremap() is non-functional when the 8250_early driver initialises.
 
-I've put Jeff into the Cc of this email since he is the SATA maintainer.
+Signed-off-by: Gyorgy Jeney <nog.lkml@gmail.com>
 
-> Ralf
+---
 
-cu
-Adrian
+The 8250_early driver gets used early in the boot process, when the full-blown
+ioremap() function is still unavailible.  The logical looking solution would be
+to simply s/ioremap/bt_ioremap/, s/iounmap/bt_iounmap/ but the only port in the
+2.6.14 kernel that has that function is i386.  Those functions look pretty
+generic so perhaps they could be moved to mm/bootmem.c or something but they
+rely on fixmap to be availibe which is only availible on 9 out of 25 archs.
+The best I could come up with is the attached "hack".
 
--- 
+Since the mmio code does appear in 8250_early I'm guessing that it works for
+someone out there, which means this change is wrong..  How do I get 8250_early
+to use MMIO cleanly?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+nog.
 
+--- drivers/serial/8250_early.c	2005-10-28 02:02:08.000000000 +0200
++++ ../../linux-2.6.14/drivers/serial/8250_early.c	2006-01-01
+14:40:28.000000000 +0100
+@@ -34,6 +34,7 @@
+ #include <linux/serial.h>
+ #include <asm/io.h>
+ #include <asm/serial.h>
++#include <linux/serial_8250.h>
+
+ struct early_uart_device {
+ 	struct uart_port port;
+@@ -148,7 +149,7 @@ static int __init parse_options(struct e
+ 	if (!strncmp(options, "mmio,", 5)) {
+ 		port->iotype = UPIO_MEM;
+ 		port->mapbase = simple_strtoul(options + 5, &options, 0);
+-		port->membase = ioremap(port->mapbase, mapsize);
++		port->membase = early_8250_ioremap(port->mapbase, mapsize);
+ 		if (!port->membase) {
+ 			printk(KERN_ERR "%s: Couldn't ioremap 0x%lx\n",
+ 				__FUNCTION__, port->mapbase);
+@@ -248,7 +249,7 @@ static int __init early_uart_console_swi
+
+ 	unregister_console(&early_uart_console);
+ 	if (mmio)
+-		iounmap(port->membase);
++		early_8250_iounmap(port->membase, 64);
+
+ 	return 0;
+ }
+--- include/linux/serial_8250.h	2005-10-28 02:02:08.000000000 +0200
++++ ../../linux-2.6.14/include/linux/serial_8250.h	2006-01-01
+14:42:39.000000000 +0100
+@@ -57,4 +57,16 @@ void serial8250_unregister_port(int line
+ void serial8250_suspend_port(int line);
+ void serial8250_resume_port(int line);
+
++/*
++ * Default ioremapping functions to use in the 8250_early driver.  Individual
++ * architechtures may override these in include/asm/serial.h (to something more
++ * sane like bt_io{re,un}map).
++ */
++#ifndef early_8250_ioremap
++#define early_8250_ioremap(addr, len)	ioremap(addr, len)
++#endif
++#ifndef early_8250_iounmap
++#define early_8250_iounmap(addr, len)	iounmap(addr)
++#endif
++
+ #endif

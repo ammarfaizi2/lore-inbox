@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWAAMMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWAAMOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbWAAMMs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 07:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWAAMMs
+	id S1751344AbWAAMOY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 07:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWAAMOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 07:12:48 -0500
-Received: from mail-ale01.alestra.net.mx ([207.248.224.149]:40415 "EHLO
-	mail-ale01.alestra.net.mx") by vger.kernel.org with ESMTP
-	id S1751340AbWAAMMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 07:12:48 -0500
-Message-ID: <43B7C739.9080308@att.net.mx>
-Date: Sun, 01 Jan 2006 06:12:41 -0600
-From: Hugo Vanwoerkom <rociobarroso@att.net.mx>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Sun, 1 Jan 2006 07:14:24 -0500
+Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:18110 "EHLO
+	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751342AbWAAMOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 07:14:23 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: [PATCH 0/4] ACPI C-States policy update [Was: [PATCH] i386 No Idle HZ aka dynticks 051228]
+Date: Sun, 1 Jan 2006 23:13:20 +1100
+User-Agent: KMail/1.9
+Cc: len.brown@intel.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Daniel Petrini <d.pensator@gmail.com>, Tony Lindgren <tony@atomide.com>,
+       vatsa@in.ibm.com, ck list <ck@vds.kolivas.org>,
+       Pavel Machek <pavel@ucw.cz>, Adam Belay <abelay@novell.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org
+References: <200512281718.14897.kernel@kolivas.org> <20051231110955.GA9123@dominikbrodowski.de>
+In-Reply-To: <20051231110955.GA9123@dominikbrodowski.de>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [ck] 2.6.14-ck8
-References: <200601011918.11619.kernel@kolivas.org>
-In-Reply-To: <200601011918.11619.kernel@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601012313.21704.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Happy New Year!
->
->   
-<snip>
+On Saturday 31 December 2005 22:09, Dominik Brodowski wrote:
+> Con, regarding your dyn-tick patches: please remove the two patches from
+> your patchset which touch drivers/acpi/processor_idle.c and
+> include/acpi/processor.h, and replace them with these updated versions.
 
-Linux debian 2.6.14-ck8 #1 PREEMPT Sun Jan 1 05:20:13 CST 2006 i686 
-GNU/Linux
+Done; uploaded v060101 dynticks with just this change.
 
-Nice new year's gift Con! Thanks! And the same to you, the [ck] list and 
-all kernel teams!
-H
-
+Cheers,
+Con

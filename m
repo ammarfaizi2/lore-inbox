@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWAAQnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWAARJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWAAQnt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 11:43:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWAAQnt
+	id S1751100AbWAARJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 12:09:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWAARJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 11:43:49 -0500
-Received: from tower.bj-ig.de ([194.127.182.2]:64657 "EHLO fs.bj-ig.de")
-	by vger.kernel.org with ESMTP id S1750724AbWAAQnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 11:43:49 -0500
-Message-ID: <43B806C7.5000607@bj-ig.de>
-Date: Sun, 01 Jan 2006 17:43:51 +0100
-From: =?ISO-8859-1?Q?Ralf_M=FCller?= <ralf@bj-ig.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
-X-Accept-Language: de-DE, de, en-us, en
+	Sun, 1 Jan 2006 12:09:16 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:61387 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751100AbWAARJP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 12:09:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e7Ryis/iSto6tTQZDUvZeKqtx2UrjCKvoqd3WVioQA5kEtRpCM/KocDurijl7ySKOe0xz1UMYVdhP3I3dTm2qr9S70HBGjUKQKHQI7MzJmh3WsyDmb9AWNjwMwmic+6UldqygFUQhmGaqx7n7VU0nCtL95SQMQoZtKAfJ/Sa03o=
+Message-ID: <84144f020601010909n3b59f006n23c214dfd2d81062@mail.gmail.com>
+Date: Sun, 1 Jan 2006 19:09:13 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Integer types
+Cc: Jeff Sipek <jeffpc@optonline.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1136044043.3516.155.camel@pmac.infradead.org>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Re: Kernel panic with 2.6.15-rc7 + libata1 patch
-References: <43B724BA.90405@bj-ig.de> <43B7EA0A.7040805@bj-ig.de>
-	<20060101145702.GV3811@stusta.de>
-In-Reply-To: <20060101145702.GV3811@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Delivered-For: jgarzik@pobox.com
-X-Spambayes-Classification: ham; 0.00
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051231084719.GA6702@optonline.net>
+	 <84144f020512310155r4e99006cn21c5d622b544baa1@mail.gmail.com>
+	 <1136044043.3516.155.camel@pmac.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk schrieb:
+Hi,
 
-> Is this problem present with older kernel (e.g. 2.6.14.x) or is it a 
-> newly introduced bug?
+On Sat, 2005-12-31 at 11:55 +0200, Pekka Enberg wrote:
+> > > * u8, u16, ...
+> > > * uint8_t, uint16_t, ...
+> > > * u_int8_t, t_int16_t, ...
+> >
+> > From the above list, the first ones. See
+> > http://article.gmane.org/gmane.linux.kernel/259313. Please note that
+> > there's also __le32 and __be32 for variables that have fixed byte
+> > ordering.
 
-It is a newly installed system - 2.6.15-rc6 has been the first kernel at 
-all on this machine - this kernel crashed too. After that I upgraded to 
-2.6.15-rc7 - it crashed as written in the initial mail. Next was to 
-apply the libata1 patch. It did not give a kernel panic but shut down 
-the SATA subsystem (the hardware is a Promise SATA II 300 TX4 PDC 20718 
-and an onboard Promise SATA II 150 PDC20579) - non of the six attached 
-disks has been accessible anymore after calling hddtemp on one of the 
-disks which have been in standby. Calling hddtemp on a spinning disk 
-works without a problem.
+On 12/31/05, David Woodhouse <dwmw2@infradead.org> wrote:
+> As ever, however, be aware that our esteemed leader is fickle.
+> Especially when he's wrong, as he was on that occasion.
 
-A further problem is that calling "hdparm -C" _always_ give "drive state 
-is:  standby" - even when the disks are clearly active. Maybe this 
-indicates something to you.
+Maybe so but some maintainers do require them. So as for the original
+question, I would still recommend the u8 ones as they are most likely
+merged as is.
 
-I can try to downgrade to 2.6.14 if you like. I started with 2.6.15 
-because I have been told it is the first kernel which is able to deal 
-with "hdparm -S x" / "hdparm -y" for SATA devices.
-
-> I've put Jeff into the Cc of this email since he is the SATA maintainer.
-
-Thanks.
-
-Regards
-Ralf
-
+                                   Pekka

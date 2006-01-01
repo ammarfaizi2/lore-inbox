@@ -1,94 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWAALuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWAALuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWAALuj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 06:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWAALuj
+	id S1750730AbWAALuN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 06:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWAALuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 06:50:39 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58639 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751338AbWAALui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 06:50:38 -0500
-Date: Sun, 1 Jan 2006 12:50:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Bradley Reed <bradreed1@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: MPlayer broken under 2.6.15-rc7-rt1?
-Message-ID: <20060101115038.GR3811@stusta.de>
-References: <20051231202933.4f48acab@galactus.example.org> <1136106861.17830.6.camel@laptopd505.fenrus.org> <20060101115121.034e6bb7@galactus.example.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060101115121.034e6bb7@galactus.example.org>
-User-Agent: Mutt/1.5.11
+	Sun, 1 Jan 2006 06:50:13 -0500
+Received: from main.gmane.org ([80.91.229.2]:16814 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750730AbWAALuL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jan 2006 06:50:11 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: Howto set kernel makefile to use particular gcc
+Date: Sun, 01 Jan 2006 20:49:50 +0900
+Message-ID: <dp8fku$bdr$1@sea.gmane.org>
+References: <20060101121303.488e634b@vaio.gigerstyle.ch>	<23377.1136114307@ocs3.ocs.com.au> <20060101123729.09c5d76c@vaio.gigerstyle.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051023)
+X-Accept-Language: en-us, en
+In-Reply-To: <20060101123729.09c5d76c@vaio.gigerstyle.ch>
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 01, 2006 at 11:51:21AM +0200, Bradley Reed wrote:
-> On Sun, 01 Jan 2006 10:14:21 +0100
-> Arjan van de Ven <arjan@infradead.org> wrote:
+You never know where you'll get most response:-)
+
+Marc Giger wrote:
+> Keith, your domain seems not to be resolvable...
+Yup... very strange. Not proper delegation to zoneedit.com?
+
+kalin@kpc ~ $ whois ocs.com.au |grep ^Name
+Name Server:             ns2.zoneedit.com
+Name Server:             ns3.zoneedit.com
+Name Server:             ns1.ocs.com.au
+Name Server IP:          202.147.117.210
+
+kalin@kpc ~ $ dnsq any ocs.com.au ns2.zoneedit.com
+255 ocs.com.au:
+167 bytes, 1+4+2+0 records, response, authoritative, noerror
+query: 255 ocs.com.au
+answer: ocs.com.au 7200 A 0.0.0.0
+#                     --> H E R E <--
+answer: ocs.com.au 7200 NS ns2.zoneedit.com
+answer: ocs.com.au 7200 NS ns3.zoneedit.com
+answer: ocs.com.au 7200 SOA ns2.zoneedit.com soacontact.zoneedit.com 1135991510
+14400 7200 950400 7200
+authority: ocs.com.au 7200 NS ns2.zoneedit.com
+authority: ocs.com.au 7200 NS ns3.zoneedit.com
+
+kalin@kpc ~ $ dnsq any ocs.com.au 202.147.117.210
+255 ocs.com.au:
+221 bytes, 1+5+0+4 records, response, authoritative, noerror
+query: 255 ocs.com.au
+answer: ocs.com.au 172800 SOA mail.ocs.com.au admin.mail.ocs.com.au 2005123101 1
+0800 3600 604800 86400
+answer: ocs.com.au 172800 MX 0 mail.ocs.com.au
+answer: ocs.com.au 172800 NS ns1.ocs.com.au
+answer: ocs.com.au 172800 NS ns2.zoneedit.com
+answer: ocs.com.au 172800 NS ns3.zoneedit.com
+additional: mail.ocs.com.au 172800 A 202.147.117.210
+additional: ns1.ocs.com.au 172800 A 202.147.117.210
+additional: ns2.zoneedit.com 158763 A 69.72.158.226
+additional: ns3.zoneedit.com 158763 A 66.180.174.61
+
+kalin@kpc ~ $ dnsname 202.147.117.210
+mail.ocs.com.au
+
+> On Sun, 01 Jan 2006 22:18:27 +1100
+> Keith Owens <kaos@ocs.com.au> wrote:
 > 
-> > On Sat, 2005-12-31 at 20:29 +0200, Bradley Reed wrote:
-> > > I have tried MPlayer versions 1.0pre6, 1.0pre7, and cvs from today
-> > > and they all work fine under 2.6.14 and 2.6.14-rt21/22.
-> > > 
-> > > I booted into 2.6.15-rc7-rt1 and the same MPlayer binaries segfault
-> > > on every video I try and play. Yes, I have nvidia modules loaded,
-> > > so won't get much help, but thought someone might like to know. 
-> > 
-> > 
-> > you know, you could have done a little bit more effort and reproduced
-> > this without the binary crud... it's not that hard you know and it
-> > shows that you actually care about the problem enough that you want
-> > to make it worthwhile for people to look into it.
-> > 
 > 
-> And you could have saved the time and effort of replying, as you had
-> nothing useful to say. Why do you expect kernel users (non-developers) 
-> to jump through hoops and cripple their systems in order to provide bug
-> reports? Exactly how could I have tested MPLayer realistically without
-> Xv support? It isn't that easy to swap video cards in a laptop.
->...
+>>Marc Giger (on Sun, 1 Jan 2006 12:13:03 +0100) wrote:
+>>
+>>>Why would you "hardwire" it?
+>>>#export CC="distcc"
+>>>should do it.
+>>
+>>Doubt it.  From 'info make', Node: Environment.
+>>
+>>   Variables in `make' can come from the environment in which `make'
+>>   is
+>>  run.  Every environment variable that `make' sees when it starts up
+>>  is transformed into a `make' variable with the same name and value.
+>>  But an explicit assignment in the makefile, or with a command
+>>  argument, overrides the environment.  (If the `-e' flag is
+>>  specified, then values from the environment override assignments in
+>>  the makefile.  *Note Summary of Options: Options Summary.  But this
+>>  is not recommended practice.)
+>>
+>>The kernel Makefile explicitly sets CC which overrides the environment
+>>value, but does not override a command line definition of CC.  IOW, do
+>>not reply on environment variables always working with make.
+> 
+> 
+> You are absolutely right. Because I never used it in this way, I wrote
+> "should":-) I specify it always on the make command line.
+> 
+> So if Kalin would like to hardwire it, he has to change the CC variable
+> in the Makefile...
+My point was that changing it in the Makefile does not work.
 
-MPlayer has more than enough output drivers including some that work 
-without the nvidia module.
+kpc ~ # grep CC= /usr/src/linux/Makefile
+CC=distcc
+# echo $CC
 
-If your problem was an RTC one, it might have even trigger using the 
-AAlib output driver.
+kpc ~ # uname -a
+Linux kpc 2.6.14.4-K01_P4_desktop #1 Sun Dec 18 22:46:08 JST 2005 i686 Intel(R) Pentium(R) 4 CPU
+2.40GHz GenuineIntel GNU/Linux
 
-> DO YOU REALLY PREFER USERS NOT REPORT BUGS?
+What I want is making a bunch of kernels in NFS exported /var/kernels/out/`uname -r` and then be
+able to `make modules` on other machines without having to recompile the whole thing. All (or
+almost?) boxes use gcc-3.4.4 and distcc to share the load.
 
-There are _many_ new bug reports every day and too few developers with 
-too few spare time to go through all of them.
-
-A binary-only module can do _anything_ even at module load time, and 
-_noone_ except people with access to the source code can debug such 
-problems.
-
-Many developers know how it feels if after spending hours on debugging a 
-problem someone reported it turned out "oh, it goes away if I remove the 
-nvidia/vmware/... module".
-
-It usually takes two parties to get a bug found:
-
-A developer willing to look into it and a user willing to provide any 
-assistance for the developer.
-
-The latter might include 10 reboots with different kernel patches 
-applied, and compared to that it's not a big issue to boot in these 
-cases without binary-only modules ever loaded. Your system might be 
-crippled, but only for the time you are helping the developer to 
-identify your problem.
-
-> Brad
-
-cu
-Adrian
-
+Kalin.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 

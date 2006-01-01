@@ -1,35 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWAANJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWAANGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWAANJi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jan 2006 08:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWAANJh
+	id S1751102AbWAANGf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jan 2006 08:06:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWAANGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jan 2006 08:09:37 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:57542 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751341AbWAANJh (ORCPT
+	Sun, 1 Jan 2006 08:06:34 -0500
+Received: from [202.67.154.148] ([202.67.154.148]:45459 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S1751102AbWAANGe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jan 2006 08:09:37 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Marc Giger <gigerstyle@gmx.ch>
-cc: Kalin KOZHUHAROV <kalin@thinrope.net>, linux-kernel@vger.kernel.org
-Subject: Re: Howto set kernel makefile to use particular gcc 
-In-reply-to: Your message of "Sun, 01 Jan 2006 12:37:29 BST."
-             <20060101123729.09c5d76c@vaio.gigerstyle.ch> 
-Mime-Version: 1.0
+	Sun, 1 Jan 2006 08:06:34 -0500
+Message-ID: <43B7D3BE.60003@ns666.com>
+Date: Sun, 01 Jan 2006 14:06:06 +0100
+From: Mark v Wolher <trilight@ns666.com>
+User-Agent: Night Owl 3.12V
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Mark v Wolher <trilight@ns666.com>
+CC: Jiri Slaby <xslaby@fi.muni.cz>, Sami Farin <7atbggg02@sneakemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org,
+       jesper.juhl@gmail.com, s0348365@sms.ed.ac.uk, rlrevell@joe-job.com
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+References: <200512310027.47757.s0348365@sms.ed.ac.uk> <43B5D3ED.3080504@ns666.com> <200512310051.03603.s0348365@sms.ed.ac.uk> <43B5D6D0.9050601@ns666.com> <43B65DEE.906@ns666.com> <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com> <43B66E3D.2010900@ns666.com> <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com> <43B67DB6.2070201@ns666.com> <43B6A14E.1020703@ns666.com> <20051231163414.GE3214@m.safari.iki.fi> <20051231163414.GE3214@m.safari.iki.fi> <43B6B669.6020500@ns666.com> <43B73DEB.4070604@ns666.com>
+In-Reply-To: <43B73DEB.4070604@ns666.com>
+X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Jan 2006 00:09:31 +1100
-Message-ID: <25426.1136120971@ocs3.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Giger (on Sun, 1 Jan 2006 12:37:29 +0100) wrote:
->Keith, your domain seems not to be resolvable...
+Mark v Wolher wrote:
+> Jiri Slaby wrote:
+> 
+>>>Hi Sami,
+>>>
+>>>That caused also a crash, i kept pressing the v key and within 15
+>>>seconds it crashed, then i saw the crash-info appear in the log and when
+>>>i clicked on mozilla then it crashed too but without crahs info and
+>>>system froze totally.
+>>>
+>>>Below the crash info:
+>>>
+>>>Dec 31 17:38:32 localhost kernel: Unable to handle kernel paging request
+>>>at virtual address c8111000
+>>>Dec 31 17:38:32 localhost kernel:  printing eip:
+>>>Dec 31 17:38:32 localhost kernel: c036037a
+>>>Dec 31 17:38:32 localhost kernel: *pgd = 21063
+>>>Dec 31 17:38:32 localhost kernel: *pmd = 21063
+>>>Dec 31 17:38:32 localhost kernel: *pte = 8111000
+>>>Dec 31 17:38:32 localhost kernel: Oops: 0002 [#4]
+>>
+>>[snip]
+>>Could you try the attached patch?
+>>
+>>--
+>>diff --git a/drivers/media/video/bttv-risc.c b/drivers/media/video/bttv-risc.c
+>>--- a/drivers/media/video/bttv-risc.c
+>>+++ b/drivers/media/video/bttv-risc.c
+>>@@ -53,7 +53,7 @@ bttv_risc_packed(struct bttv *btv, struc
+>> 	/* estimate risc mem: worst case is one write per page border +
+>> 	   one write per scan line + sync + jump (all 2 dwords) */
+>> 	instructions  = (bpl * lines) / PAGE_SIZE + lines;
+>>-	instructions += 2;
+>>+	instructions += 4;
+>> 	if ((rc = btcx_riscmem_alloc(btv->c.pci,risc,instructions*8)) < 0)
+>> 		return rc;
+>> 
+>>
+>>
+> 
+> 
+> 
+> Hi Jiri,
+> 
+> Tried it but it seems to crash indeed faster, and this time it didn't
+> leave traces in the log.
+> 
+> Appreciate your help eitherway !
+> -
 
-Thanks for that.  For some reason my secondary zones at zonedit.com
-were refusing to accept my recent DNS updates.  So I dropped zonedit
-and switched to twisted4life.com as a secondary.  As a bonus,
-twisted4life also provide a DNS checker which I could never find on
-zoneedit.  It should all be resolving now, or as soon as the refresh
-interval expires.
+
+Hiya all,
+
+First of all happy new year ! :-)
+
+
+I might have discovered something interesting which might be responsible
+for all those lockups/freezes/crashes !
+
+Right now, i'm putting a huge load on the system, disk i/o, swapping
+high, virusscan, number crushing with ssh-keygen moduli etc ...
+
+5 hours passed with this load and no single crash/freeze/lockup happened
+! Normally with all this load sooner or later something would have
+happened.
+
+What did i do ?
+
+I disabled bttv support in the kernel, so no tv for me at this moment.
+I'm planning to let this run for at least another 5 hours with heavy
+load and see if still nothing happens...
+
+Keeping you informed.
+
+Mark
+
+
+
+
+
 

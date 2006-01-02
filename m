@@ -1,82 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWABQAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWABQHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWABQAc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 11:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWABQAc
+	id S1750797AbWABQHV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 11:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWABQHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 11:00:32 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10247 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750787AbWABQAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 11:00:32 -0500
-Date: Mon, 2 Jan 2006 17:00:31 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Gottfried Haider <gohai@gmx.net>
-Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-Message-ID: <20060102160031.GF17398@stusta.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051222011320.GL3917@stusta.de> <20051222005209.0b1b25ca.akpm@osdl.org> <20051222135718.GA27525@stusta.de> <941ACB1D5BFA46A7A2F170BB3C48C9B0@Fibonacci>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <941ACB1D5BFA46A7A2F170BB3C48C9B0@Fibonacci>
-User-Agent: Mutt/1.5.11
+	Mon, 2 Jan 2006 11:07:21 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62460 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750797AbWABQHU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 11:07:20 -0500
+Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
+From: Daniel Walker <dwalker@mvista.com>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323310@MAILIT.keba.co.at>
+References: <AAD6DA242BC63C488511C611BD51F367323310@MAILIT.keba.co.at>
+Content-Type: multipart/mixed; boundary="=-f7HqTKMO5GxdSQalXnXE"
+Date: Mon, 02 Jan 2006 08:07:18 -0800
+Message-Id: <1136218038.22548.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 23, 2005 at 12:50:22PM +0100, Gottfried Haider wrote:
-> >>From: "Gottfried Haider" <gohai@gmx.net>
-> >>Subject: [2.6.15-rc2] 8139too probe fails (pci related?)
-> >According to the report perhaps not a post-2.6.14 regression.
-> >But anyways, this should be better debugged.
-> >
-> >@Gottfried:
-> >Does it work with kernel 2.6.14.4?
-> >Does it work with kernel 2.6.15-rc6?
-> >If it stil fails, can you send a complete dmesg for 2.6.15-rc6?
-> I recently played around with this particular system, and it turned out 
-> that moving the 8139b-card to another PCI slot fixed it. (works now in both 
-> 2.6.15-rc2 and rc6-git2)
-> So I guess it's just a particular oddity of this system, as noone else 
-> seems to hit this?
+
+--=-f7HqTKMO5GxdSQalXnXE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+
+Here's a more updated patch, the should replace the other patch I sent.
+I think the tracing error is the result of a missed interrupt enable in
+the ARM assembly code. I've only compile tested this.  
+
+Daniel
+
+On Mon, 2006-01-02 at 15:55 +0100, kus Kusche Klaus wrote:
+> > From: Daniel Walker
+> > Right .. I'm still looking into it. ARM is just missing some vital
+> > tracing bits I think .
+> 
+> As I wrote in some earlier mail, I'm probably the first one ever
+> who tried it on ARM: When I tried first, tracing didn't work at all,
+> because the trace timing macro's were not defined (at least for
+> sa1100). I quick-hacked the three missing macros (this caused the
+> tracer to produce at least some output) without checking if 
+> anything else is missing.
 > 
 > 
-> the original lines in kern.log were
-> -- snip --
-> PCI quirk: region e400-e47f claimed by ICH4 ACPI/GPIO/TCO
-> PCI quirk: region ec00-ec3f claimed by ICH4 GPIO
-> PCI: Unable to handle 64-bit address for device 0000:01:0c.0
-> PCI: Transparent bridge - 0000:00:1e.0
-> (..)
-> PCI: Cannot allocate resource region 0 of device 0000:01:0c.0
-> PCI: Cannot allocate resource region 3 of device 0000:01:0c.0
-> pnp: 00:03: ioport range 0xe400-0xe47f could not be reserved
-> pnp: 00:03: ioport range 0xec00-0xec3f has been reserved
-> PCI: Ignore bogus resource 6 [0:0] of 0000:00:02.0
-> PCI: Error while updating region 0000:01:0c.0/3 (fa800800 != 00000810)
-> PCI: Error while updating region 0000:01:0c.0/0 (0000d001 != 813910fc)
-> PCI: Bridge: 0000:00:1e.0
-> (..)
-> 8139too Fast Ethernet driver 0.9.27
-> PCI: Device 0000:01:0c.0 not available because of resource collisions
-> Trying to free nonexistent resource <0000d000-0000d003>
-> Trying to free nonexistent resource <fa800800-fa80080f>
-> 8139too: probe of 0000:01:0c.0 failed with error -22
-> -- snip --
-> .. on a ASUS CUSL2 (i815E) motherboard that was, no change when using 
-> pci=routeirq or pci=noacpi.
 
-Greg, can you comment on this issue?
+--=-f7HqTKMO5GxdSQalXnXE
+Content-Disposition: attachment; filename=fix_tracing_arm_idle_loop.patch
+Content-Type: text/x-patch; name=fix_tracing_arm_idle_loop.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-> Gottfried Haider 
+Index: linux-2.6.14/arch/arm/kernel/process.c
+===================================================================
+--- linux-2.6.14.orig/arch/arm/kernel/process.c
++++ linux-2.6.14/arch/arm/kernel/process.c
+@@ -89,12 +89,12 @@ void default_idle(void)
+ 	if (hlt_counter)
+ 		cpu_relax();
+ 	else {
+-		raw_local_irq_disable();
++		__raw_local_irq_disable();
+ 		if (!need_resched()) {
+ 			timer_dyn_reprogram();
+ 			arch_idle();
+ 		}
+-		raw_local_irq_enable();
++		__raw_local_irq_enable();
+ 	}
+ }
+ 
+@@ -121,8 +121,10 @@ void cpu_idle(void)
+ 		if (!idle)
+ 			idle = default_idle;
+ 		leds_event(led_idle_start);
++		__preempt_enable_no_resched();
+ 		while (!need_resched())
+ 			idle();
++		preempt_disable();
+ 		leds_event(led_idle_end);
+ 		__preempt_enable_no_resched();
+ 		__schedule();
+Index: linux-2.6.14/arch/arm/kernel/entry-header.S
+===================================================================
+--- linux-2.6.14.orig/arch/arm/kernel/entry-header.S
++++ linux-2.6.14/arch/arm/kernel/entry-header.S
+@@ -38,18 +38,30 @@
+ 
+ #if __LINUX_ARM_ARCH__ >= 6
+ 	.macro	disable_irq
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_off
++#endif
+ 	cpsid	i
+ 	.endm
+ 
+ 	.macro	enable_irq
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_on
++#endif
+ 	cpsie	i
+ 	.endm
+ #else
+ 	.macro	disable_irq
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_off
++#endif
+ 	msr	cpsr_c, #PSR_I_BIT | SVC_MODE
+ 	.endm
+ 
+ 	.macro	enable_irq
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_on
++#endif
+ 	msr	cpsr_c, #SVC_MODE
+ 	.endm
+ #endif
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--=-f7HqTKMO5GxdSQalXnXE--
 

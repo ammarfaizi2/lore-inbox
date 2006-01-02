@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWABTyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWABTyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWABTyN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 14:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWABTyN
+	id S1750992AbWABTyP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 14:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWABTyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 14:54:13 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16022 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750992AbWABTyM (ORCPT
+	Mon, 2 Jan 2006 14:54:15 -0500
+Received: from ns.suse.de ([195.135.220.2]:20685 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750992AbWABTyO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 14:54:12 -0500
-Date: Mon, 2 Jan 2006 20:53:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jakub Jelinek <jakub@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Krzysztof Halasa <khc@pm.waw.pl>, bunk@stusta.de, arjan@infradead.org,
-       tim@physik3.uni-rostock.de, davej@redhat.com,
-       linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20060102195348.GA28691@elte.hu>
-References: <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <20060102110341.03636720.akpm@osdl.org> <20060102191720.GI22293@devserv.devel.redhat.com> <Pine.LNX.4.64.0601021130300.3668@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Jan 2006 14:54:14 -0500
+From: Andi Kleen <ak@suse.de>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: X86_64 + VIA + 4g problems
+Date: Mon, 2 Jan 2006 20:53:31 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <5qvTv-8f-17@gated-at.bofh.it> <5qAKf-7n4-19@gated-at.bofh.it> <43B97C6D.7010902@shaw.ca>
+In-Reply-To: <43B97C6D.7010902@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601021130300.3668@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.9 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200601022053.31534.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 02 January 2006 20:18, Robert Hancock wrote:
+> Andi Kleen wrote:
+> > When you not compile in the SKGE network driver does everything else work?
+> > skge supports 64bit DMA, so it shouldn't use any IOMMU.
+> 
+> Are you sure this is skge? 
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+I grepped for the output in that badly truncated logfile and skge hit.
 
-> And people are nervous about it, exactly because the gcc people have 
-> historically just changed what "inline" means, with little regard for 
-> real-life code that uses it. [...]
+> Anyway, even if the driver does support  
+> 64-bit DMA, I would be surprised if a desktop motherboard had the 
+> Ethernet chip connected via a 64-bit PCI bus.
 
-i think whatever gcc does, we probably cannot get hurt more than we are 
-hurting right now: everything is inlined, which bloats stuff to the 
-maximum level. Stating that doesnt in any way excuse gcc 3.1's 
-unilateral change of what 'inline' means, it doesnt reduce the distrust 
-that might exist towards gcc, it's simply a statement of the situation 
-we have right now. We can continue to distrust gcc (and probably 
-rightfully so), but we probably cannot continue to hurt users as 
-collateral damage of whatever tool-level fight. (and i'm not suggesting 
-that this collateral damage is intentional in any way, it slowly evolved 
-into the mess we have now.)
+I meant 64bit DMA, aka double address cycle, not a 64bit wide PCI-X bus.
+That works on a 32bit PCI bus too. On modern boards it's likely PCI
+Express anyways for on board devices.
 
-	Ingo
+> 
+> This brings up something I've been wondering. It's possible to run most 
+> 64-bit capable PCI devices in a 32-bit slot (i.e. with the 64-bit part 
+> hanging out of the slot). In this configuration the device will not be 
+> able to use 64-bit DMA (unless it supports dual address cycle). However, 
+> who is supposed to detect this and know to not try to use DMA addresses 
+> above 4GB on that device? 
+
+64bit PCI-X bus has nothing to do with the addressing capability. It
+just gives you more bandwidth.
+
+-Andi

@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWABScY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWABSh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWABScY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 13:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWABScY
+	id S1750940AbWABSh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 13:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWABSh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 13:32:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59881 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750933AbWABScX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 13:32:23 -0500
-Date: Mon, 2 Jan 2006 10:28:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: mingo@elte.hu, tim@physik3.uni-rostock.de, arjan@infradead.org,
-       torvalds@osdl.org, davej@redhat.com, linux-kernel@vger.kernel.org,
-       mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-Id: <20060102102824.4c7ff9ad.akpm@osdl.org>
-In-Reply-To: <20060102134228.GC17398@stusta.de>
-References: <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
-	<Pine.LNX.4.64.0512291322560.3298@g5.osdl.org>
-	<20051229224839.GA12247@elte.hu>
-	<1135897092.2935.81.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-	<20051230074916.GC25637@elte.hu>
-	<20051231143800.GJ3811@stusta.de>
-	<20051231144534.GA5826@elte.hu>
-	<20051231150831.GL3811@stusta.de>
-	<20060102103721.GA8701@elte.hu>
-	<20060102134228.GC17398@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 2 Jan 2006 13:37:58 -0500
+Received: from exo3753.pck.nerim.net ([213.41.240.142]:41915 "EHLO
+	mail-out1.exosec.net") by vger.kernel.org with ESMTP
+	id S1750933AbWABSh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 13:37:58 -0500
+Date: Mon, 2 Jan 2006 19:37:40 +0100
+From: Willy Tarreau <wtarreau@exosec.fr>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Grant Coady <grant_lkml@dodo.com.au>
+Subject: [ANNOUNCE] Linux 2.4.32-hf32.1
+Message-ID: <20060102183740.GB5332@exosec.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> On Mon, Jan 02, 2006 at 11:37:21AM +0100, Ingo Molnar wrote:
-> >...
-> > to say it loud and clear again: our current way of handling inlines is 
-> > _FUNDAMENTALLY BROKEN_. To me this means that fundamental changes are 
-> > needed for the _mechanics_ and meaning of inlines. We default to 'always 
-> > inline' which has a current information to noise ratio of 1:10 perhaps.  
-> > My patch changes the mechanics and meaning of inlines, and pretty much 
-> > anything else but a change to the meaning of inlines will still result 
-> > in the same scenario occuring over and over again.
-> 
-> Let's emphasize what we both agree on:
-> It is _FUNDAMENTALLY BROKEN_ that too much code is marked as
-> 'always inline'.
-> 
-> We only disagree on how to achieve an improvement.
-> 
+Hi all,
 
-The best approach is to manually review and fix up all the inline statements.
+first I wish you a Happy New Year !
 
-We cannot just delete them all, because that would cause performance loss
-for well-chosen inlinings when using gcc-3.
+I spent the day updating the 2.4-hf branch (in fact, mostly the scripts
+themselves), because there have been several important fixes since last
+release (2005/11/04). I counted 7 security fixes, 3 major fixes and 6
+minor fixes. This update will bring you to the same level as 2.4.33-pre1.
+Please check the changelog appended to this mail for more details.
 
-I'd be reluctant to trust gcc-4 to do the right thing in all cases.  If the
-compiler fails to inline functions in certain critical cases we'll suffer
-some performance loss and the source of that performance loss will be
-utterly obscure.
+As I previously stated it, the numbering scheme has changed so that all
+versions now share the same -hf suffix. For instance, this new version
+is numbered '-hf32.1', which means that the fixes are up-to-date with
+the first hotfix for mainline 2.4.32. Eventhough the name is ugly, it
+will then become obvious for anyone that 2.4.29-hf32.1 is late when
+2.4.33-hf is out. As a side effect, I will only announce the lastest
+release, as everyone can understand that older ones are available too.
 
-If someone types `inline' into a piece of code then we want to inline the
-function, dammit.  The fact that lots of people typed `inline' when they
-shouldn't have is not a good argument for defeating (or adding uncertainty
-to) manual inlining in well-developed and well-maintained code.
+As nearly two months have elapsed since last -hf (2.4.31-hf8), a lot
+of things have been merged. In fact, I had even made a 2.4.31-hf9 which
+was never released due to a lack of time. So you'll find references to
+it in the changelog but it will not be available for download as it is
+already obsolete (except upon request, but I doubt anyone will be
+interested). I intend to be able to release more often as I found how
+to make my scripts benefit from git to grab the patches that I consider
+useful.
 
-All those squillions of bogus inlines which you've identified are probably
-mainly in code we just don't care about much.  We shouldn't penalise
-well-maintained code because of legacy problems in less well-maintained
-code.
+I've built the kernel for i686 with all modules enabled to ensure
+everything was OK, but did not boot it. I've not built incremental
+diffs, but I can make them upon request if anyone needs them. Right
+now, patches for kernels 2.4.29 to 2.4.32, both split up and as a
+whole patch, with and without extraversion are provided.
+
+As usual, I'm sure that Grant will be glad to do a full rebuild for all
+of his machines and post the results online (Thanks Grant ;-)).
+
+ URLs of interest :
+
+    hotfixes home : http://linux.exosec.net/kernel/2.4-hf/
+     last version : http://linux.exosec.net/kernel/2.4-hf/LATEST/LATEST/
+         RSS feed : http://linux.exosec.net/kernel/hf.xml
+    build results : http://bugsplatter.mine.nu/test/linux-2.4/ (Grant's site)
+
+
+If anything's wrong, please bug me.
+
+Happy kernel hacking for 2006,
+Willy
+

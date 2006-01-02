@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWABQWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWABQWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWABQWh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 11:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWABQWh
+	id S1750801AbWABQWT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 11:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWABQWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 11:22:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:18920 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750805AbWABQWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 11:22:36 -0500
-Date: Mon, 2 Jan 2006 16:22:29 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Lee Revell <rlrevell@joe-job.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
-Message-ID: <20060102162229.GB13904@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Bryan O'Sullivan <bos@pathscale.com>, linux-kernel@vger.kernel.org,
-	openib-general@openib.org
-References: <rlrevell@joe-job.com> <1135884385.6804.0.camel@mindpipe> <200601021605.k02G5iN9010252@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601021605.k02G5iN9010252@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 2 Jan 2006 11:22:19 -0500
+Received: from mx2.suse.de ([195.135.220.15]:31198 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750801AbWABQWS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 11:22:18 -0500
+To: =?iso-8859-1?q?Dieter_St=FCken?= <stueken@conterra.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: X86_64 + VIA + 4g problems
+References: <43B90A04.2090403@conterra.de>
+From: Andi Kleen <ak@suse.de>
+Date: 02 Jan 2006 17:22:12 +0100
+In-Reply-To: <43B90A04.2090403@conterra.de>
+Message-ID: <p73k6difvm3.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 02, 2006 at 01:05:43PM -0300, Horst von Brand wrote:
-> > > Problem with that is that if everybody and Aunt Tillie does the same,
-> > > the kernel as a whole gets to be a mess. 
-> 
-> > ALSA does the exact same thing for the exact same reason.  Maybe an
-> > indication that the kernel's i2c layer is too heavy?
-> 
-> That would mean that the respective teams should put their heads together
-> and (re)design it to their needs...
+Dieter Stüken <stueken@conterra.de> writes:
 
-Exactly.  We got quite a few developers to help adjusting the i2c stack
-for their needs and improve it.  The i2c stack started out beeing used only
-for hardware monitoring chips and then later multimedia devices.  Help to
-make it more useful for other users is always appreciated.
+> just gave 2.6.15-rc7 a try, but still fail when plugging 4g into the board :-(
+> Its an Asus sk8v (VIA chipset), thus I get:
+
+Can you please post the full boot log? 
+
+> ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 19
+> ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 19
+> eth0: 3Com Gigabit LOM (3C940)
+>        PrefPort:A  RlmtMode:Check Link State
+> 
+> don't know, if it's related to that, but with 2G it runs stable since about a year.
+> 
+> The problem arises as soon as my network (3C940) gets enabled, the following
+> message is continuously repeated and nothing else works any more, not even
+> console switching.
+
+When you not compile in the SKGE network driver does everything else work?
+skge supports 64bit DMA, so it shouldn't use any IOMMU.  But I'm somewhat
+suspicious of the >4GB support in the VIA chipset. We had problems with
+that before. It's possible that it's just not supported in the hardware
+or that the BIOS sets up the MTRRs wrong.
+
+-Andi

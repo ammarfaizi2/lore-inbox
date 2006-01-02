@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWABKso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWABK5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWABKso (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 05:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWABKso
+	id S932270AbWABK5a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 05:57:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWABK5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 05:48:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55489 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932266AbWABKsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 05:48:43 -0500
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Adrian Bunk <bunk@stusta.de>, Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       mpm@selenic.com
-In-Reply-To: <20060102103721.GA8701@elte.hu>
-References: <20051229202852.GE12056@redhat.com>
-	 <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
-	 <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org>
-	 <20051229224839.GA12247@elte.hu>
-	 <1135897092.2935.81.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-	 <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
-	 <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de>
-	 <20060102103721.GA8701@elte.hu>
-Content-Type: text/plain
-Date: Mon, 02 Jan 2006 11:48:22 +0100
-Message-Id: <1136198902.2936.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 2 Jan 2006 05:57:30 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:18635 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932270AbWABK5a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 05:57:30 -0500
+Date: Mon, 2 Jan 2006 12:01:45 +0100
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client on	interactive response
+Message-ID: <20060102110145.GA25624@aitel.hist.no>
+References: <43A8EF87.1080108@bigpond.net.au> <1135145341.7910.17.camel@lade.trondhjem.org> <43A8F714.4020406@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A8F714.4020406@bigpond.net.au>
+User-Agent: Mutt/1.5.11
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Your uninline patch might be simple, but the safe way would be Arjan's 
-> > approach to start removing all the buggy inline's from .c files.
+On Wed, Dec 21, 2005 at 05:32:52PM +1100, Peter Williams wrote:
+> Trond Myklebust wrote:
+[...]
+> >
+> >Sorry. That theory is just plain wrong. ALL of those case _ARE_
+> >interactive sleeps.
 > 
-> sure, that's another thing to do, but it's also clear that there's no 
-> reason to force inlines in the -Os case.
+> It's not a theory.  It's a result of observing a -j 16 build with the 
+> sources on an NFS mounted file system with top with and without the 
+> patches and comparing that with the same builds with the sources on a 
+> local file system.  Without the patches the tasks in the kernel build 
+> all get the same dynamic priority as the X server and other interactive 
+> programs when the sources are on an NFS mounted file system.  With the 
+> patches they generally have dynamic priorities between 6 to 10 higher 
+> than the X server and other interactive programs.
 > 
-> There are 22,000+ inline functions in the kernel right now (inlined 
-> about a 100,000 times), and we'd have to change _thousands_ of them. 
-> They are causing an unjustified code bloat of somewhere around 20-30%. 
-> (some of them are very much justified, especially in core kernel code)
+A process waiting for NFS data looses cpu time, which is spent on running 
+something else.  Therefore, it gains some priority so it won't be
+forever behind when it wakes up.  Same as for any other io waiting.
 
-my patch attacks the top bloaters, and gains about 30k to 40k (depending
-on compiler). Gaining the other 300k is going to be a LOT of churn, not
-just in amount of work... so to some degree my patch shows that it's a
-bit of a hopeless battle.
+Perhaps expecting a 16-way parallel make to have "no impact" is
+a bit optimistic.  How about nicing the make, explicitly telling
+linux that it isn't important?  Or how about giving important
+tasks extra priority?
 
-
+Helge Hafting

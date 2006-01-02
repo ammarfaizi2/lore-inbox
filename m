@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWABRjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWABRqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWABRjO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 12:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWABRjO
+	id S1750919AbWABRqL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 12:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWABRqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 12:39:14 -0500
-Received: from cantor.suse.de ([195.135.220.2]:10941 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750841AbWABRjO (ORCPT
+	Mon, 2 Jan 2006 12:46:11 -0500
+Received: from mail.gmx.de ([213.165.64.21]:13748 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750918AbWABRqK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 12:39:14 -0500
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.15-rc7: known regressions
-Date: Mon, 2 Jan 2006 18:38:37 +0100
-User-Agent: KMail/1.8.2
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org> <200601021807.52533.ak@suse.de> <20060102172340.GI17398@stusta.de>
-In-Reply-To: <20060102172340.GI17398@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Jan 2006 12:46:10 -0500
+X-Authenticated: #5082238
+Date: Mon, 2 Jan 2006 18:46:16 +0100
+From: Carsten Otto <c-otto@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: X86_64 + VIA + 4g problems
+Message-ID: <20060102174616.GA2622@carsten-otto.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de> <20060102165231.GA23834@carsten-otto.halifax.rwth-aachen.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
 Content-Disposition: inline
-Message-Id: <200601021838.38310.ak@suse.de>
+In-Reply-To: <20060102165231.GA23834@carsten-otto.halifax.rwth-aachen.de>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 January 2006 18:23, Adrian Bunk wrote:
 
-> Would you veto against a section "known regressions" in the final 2.6.15
-> announcement listing this issue with a link to the Bugzilla bug?
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes for this case. The original was likely so fragile that it might
-break only with minor changes in the hardware configuration.
+On Mon, Jan 02, 2006 at 05:52:31PM +0100, Carsten Otto wrote:
+> How can I find that out? Can I provide any useful material? VIA KT800Pro
+> and 4GB RAM here..
 
-In general listing known regressions is a good idea though.
+VIA K8T800 Pro is correct.
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
 
-It might be a good idea to give them different priorities though - e.g.
-a broken BIOS with a missing workaround is less priority than
-a pure Linux bug.
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--Andi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
+iD8DBQFDuWbojUF4jpCSQBQRAuFbAKCjmGXyhkYGMVP6j+BL+Bgr8+U2ngCgweGo
+0NFFa1sEMBLWjZisezK4Upc=
+=Zq6j
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--

@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWABS0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbWABSat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWABS0p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 13:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWABS0p
+	id S1750931AbWABSat (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 13:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWABSat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 13:26:45 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:46000 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S1750921AbWABS0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 13:26:44 -0500
-Subject: Re: Need help with mtrr & agpgart
+	Mon, 2 Jan 2006 13:30:49 -0500
+Received: from europa.telenet-ops.be ([195.130.137.75]:33254 "EHLO
+	europa.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1750928AbWABSas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 13:30:48 -0500
+Subject: Re: 2.6.15-rc7: known regressions
 From: Ochal Christophe <ochal@kefren.be>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060102011431.GC5213@kurtwerks.com>
-References: <1136163121.8522.10.camel@localhost.localdomain>
-	 <20060102011431.GC5213@kurtwerks.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200601021838.38310.ak@suse.de>
+References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
+	 <200601021807.52533.ak@suse.de> <20060102172340.GI17398@stusta.de>
+	 <200601021838.38310.ak@suse.de>
 Content-Type: text/plain
-Date: Mon, 02 Jan 2006 19:26:37 +0100
-Message-Id: <1136226398.7602.5.camel@localhost.localdomain>
+Date: Mon, 02 Jan 2006 19:30:36 +0100
+Message-Id: <1136226637.7602.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-01 at 20:14 -0500, Kurt Wall wrote:
-> On Mon, Jan 02, 2006 at 01:52:01AM +0100, Ochal Christophe took 0 lines to write:
-> > I've been doing a little digging in my system since i was unable to get
-> > DRI running on my current motherboard (see my prior posts regarding a
-> > possible bug in agpgart), and i noticed that i don't get any lines
-> > in /proc/mtrr expect for my main memory.
-> > 
-> > The entry seems correct, the size specified is also correct, however, i
-> > don't get any write-combining lines.
-> > 
-> > This is what i get:
-> > 
-> > eg00: base=0x00000000 ( 0MB), size=1024MB: write-back, count=1
-> > 
-> > This is what i should get:
-> > eg00: base=0x00000000 ( 0MB), size=1024MB: write-back, count=1
-> > reg01: base=0xd0000000 (3328MB), size= 128MB: write-combining, count=1
-> > reg02: base=0xf0000000 (3840MB), size= 128MB: write-combining, count=1
+On Mon, 2006-01-02 at 18:38 +0100, Andi Kleen wrote:
+> On Monday 02 January 2006 18:23, Adrian Bunk wrote:
 > 
-> I don't get much better on my AMD64 system:
+> > Would you veto against a section "known regressions" in the final 2.6.15
+> > announcement listing this issue with a link to the Bugzilla bug?
 > 
-> $ cat /proc/mtrr
-> reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
-> reg01: base=0x1ff00000 ( 511MB), size=   1MB: uncachable, count=1
+> Yes for this case. The original was likely so fragile that it might
+> break only with minor changes in the hardware configuration.
+> 
+> In general listing known regressions is a good idea though.
+> 
+> It might be a good idea to give them different priorities though - e.g.
+> a broken BIOS with a missing workaround is less priority than
+> a pure Linux bug.
 
-I did some more tests, i replaced my Radeon card with an older R128 one,
-and enabling DRI makes it crawl, it's worse then windows95 on a 386 :(
-
-It seems there's an incompability with my hardware somewhere, but i
-can't put my finger to the exact cause of the system, the only known
-recurrence is that agpgart incorrectly specifies the agp aperture size
-regardless of AGP card i use, and regardless of my BIOS settings.
-
-With this R128 i *can* enable DRI, but it only sees 8MB of video ram,
-the mtrr entry has a write-combining line of 32MB (the incorrect size of
-my AGP aperture) and any disk access seems to halt the X server.
-
-I've never had any problem like this before with linux, and i'm stumped
-as to how to solve it, hopefully, someone here can provide me with some
-more hints & tricks
+I'm currently struggling with a probable case of broken BIOS without
+workaround, is there a central repository of known simular problems? Is
+there a way to pinpoint such problems to prevent people from tossing
+these into bugzilla?
 

@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWABMp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWABMxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWABMp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 07:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWABMp7
+	id S1750709AbWABMxM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 07:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWABMxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 07:45:59 -0500
-Received: from mx2.suse.de ([195.135.220.15]:50120 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750705AbWABMp7 (ORCPT
+	Mon, 2 Jan 2006 07:53:12 -0500
+Received: from smtp3.netcabo.pt ([212.113.174.30]:5707 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1750709AbWABMxL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 07:45:59 -0500
-From: Andi Kleen <ak@suse.de>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on x86_64 machines ?
-Date: Mon, 2 Jan 2006 13:45:44 +0100
+	Mon, 2 Jan 2006 07:53:11 -0500
+From: =?iso-8859-1?q?Jo=E3o_Esteves?= <joao.m.esteves@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Via VT 6410 Raid Controller
+Date: Mon, 2 Jan 2006 12:53:10 +0000
 User-Agent: KMail/1.8.2
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Eric Dumazet <dada1@cosmosbay.com>,
-       linux-kernel@vger.kernel.org
-References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net> <3186311.1135792635763.SLOX.WebMail.wwwrun@imap-dhs.suse.de> <84144f020601020037n7af7ac54l74cdbe602372c7f@mail.gmail.com>
-In-Reply-To: <84144f020601020037n7af7ac54l74cdbe602372c7f@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200601021345.44843.ak@suse.de>
+Message-Id: <200601021253.10738.joao.m.esteves@netcabo.pt>
+X-OriginalArrivalTime: 02 Jan 2006 12:53:00.0603 (UTC) FILETIME=[765160B0:01C60F9B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 January 2006 09:37, Pekka Enberg wrote:
-> On 12/28/05, Andreas Kleen <ak@suse.de> wrote:
-> > I remember the original slab paper from Bonwick actually mentioned that
-> > power of two slabs are the worst choice for a malloc - but for some reason Linux
-> > chose them anyways.
-> 
-> Power of two sizes are bad because memory accesses tend to concentrate
-> on the same cache lines but slab coloring should take care of that. So
-> I don't think there's a problem with using power of twos for kmalloc()
-> caches.
+Hi:
 
-There is - who tells you it's the best possible distribution of memory? 
+Does anyone knows of a patch to configure VIA VT 6410 Raid controller? I'm 
+using Mandriva 2006 with kernel 2.6.12-12mdksmp and I'm not beeing able to 
+use the PATA Hdd that is connected to VT 6410.
 
--Andi
-
-
+Thanks
+-- 
+João Esteves
+joao.m.esteves@netcabo.pt

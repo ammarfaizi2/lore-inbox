@@ -1,98 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWABWX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWABWdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWABWX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 17:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWABWX5
+	id S1751109AbWABWdw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 17:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWABWdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 17:23:57 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11537 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751103AbWABWX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 17:23:56 -0500
-Date: Mon, 2 Jan 2006 22:23:35 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
-       Adrian Bunk <bunk@stusta.de>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20060102222335.GB5412@flint.arm.linux.org.uk>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
-	Adrian Bunk <bunk@stusta.de>,
-	Tim Schmielau <tim@physik3.uni-rostock.de>,
-	Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-	mpm@selenic.com
-References: <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <1136227893.2936.51.camel@laptopd505.fenrus.org>
+	Mon, 2 Jan 2006 17:33:52 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:61127 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751109AbWABWdv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 17:33:51 -0500
+Subject: Re: Wish for 2006 to Alan Cox and Jeff Garzik: A functional Driver
+	for PDC202XX
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: 1qay beer <1qay@beer.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060101173909.D30257B386@ws5-10.us4.outblaze.com>
+References: <20060101173909.D30257B386@ws5-10.us4.outblaze.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Jan 2006 22:35:51 +0000
+Message-Id: <1136241351.8570.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136227893.2936.51.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 02, 2006 at 07:51:32PM +0100, Arjan van de Ven wrote:
-> On Mon, 2006-01-02 at 19:44 +0100, Krzysztof Halasa wrote:
-> > Ingo Molnar <mingo@elte.hu> writes:
-> > 
-> > > what is the 'deeper problem'? I believe it is a combination of two 
-> > > (well-known) things:
-> > >
-> > >   1) people add 'inline' too easily
-> > >   2) we default to 'always inline'
-> > 
-> > For example, I add "inline" for static functions which are only called
-> > from one place.
+On Sul, 2006-01-01 at 13:39 -0400, 1qay beer wrote:
+> Hello,
+> Dear Alan Cox,
+> Dear Jeff Garzik,
 > 
-> you know what? gcc inlines those automatic even without you typing
-> "inline". (esp if you have unit-at-a-time enabled)
+> Everyone a happy new year!
 
-Rubbish it will.
+Ditto
 
-static void fn1(void *f)
-{
-}
+> -The IDE Driver (pdc202xx_new) has still problems with "DMA Timeout".
 
-void fn2(void *f)
-{
-        fn1(f);
-}
+The legacy IDE layer is handled by Bartlomiej so you should direct your
+enquiries and requests to him and the linux-ide list.
 
-on ARM produces:
+> -The Libata Driver (pata_pdc2027x) seems to be still somewhat experimental.
 
-        .text
-        .align  2
-        .type   fn1, %function
-fn1:
-        @ args = 0, pretend = 0, frame = 0
-        @ frame_needed = 0, uses_anonymous_args = 0
-        @ link register save eliminated.
-        @ lr needed for prologue
-        mov     pc, lr
-        .size   fn1, .-fn1
-        .align  2
-        .global fn2
-        .type   fn2, %function
-fn2:
-        @ args = 0, pretend = 0, frame = 0
-        @ frame_needed = 0, uses_anonymous_args = 0
-        @ link register save eliminated.
-        @ lr needed for prologue
-        b       fn1
-        .size   fn2, .-fn2
-        .ident  "GCC: (GNU) 3.3 20030728 (Red Hat Linux 3.3-16)"
+and while I'm working on libata pata a fair bit the pdc202xx driver is
+the excellent work of Albert Lee.
 
-You can't get a simpler function than fn1 to automatically inline.
+The 20269 has always shown up as a problem for some users but not for
+most. Nobody ever really got to the bottom of it to be honest. Please
+send Albert your reports about which hardware works and which fails
+(<albertcc@tw.ibm.com>) as it may be very useful. In particular the
+drive that works appears to be UDMA 100 and the failing one UDMA 133
 
-GCC will only automatically inline using -O3.  We don't use -O3 with
-the kernel - only -O2 and -Os.
+Alan
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

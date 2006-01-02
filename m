@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWABPpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWABPrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWABPpw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 10:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWABPpw
+	id S1750773AbWABPrE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 10:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWABPrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 10:45:52 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:43882 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750755AbWABPpv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 10:45:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=OcNkM6HNYL6zC5ab4C7JJKdnTjvPJpp425841aYTxoQ2SMIjVLo7GhkVci5284jP6rXq3Oex7Z+haXyNJbYz82i+B5F8HLCIj/J1v26BON0skSiesOF8iMnJwP83t+iY9l2kTLjTyuGiDonPgO7U97cosbKFSXxkCX645ZBZHjw=
-Message-ID: <6ec4247d0601020745s2b6a486dg@mail.gmail.com>
-Date: Tue, 3 Jan 2006 02:15:50 +1030
-From: Graham Gower <graham.gower@gmail.com>
-To: linux-kernel@vger.kernel.org, prism54-devel@prism54.org
-Subject: [PATCH] [TRIVIAL] prism54/islpci_eth.c: dev_kfree_skb in irq context
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 2 Jan 2006 10:47:04 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:24801 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750773AbWABPrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 10:47:02 -0500
+Date: Mon, 2 Jan 2006 16:46:48 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>,
+       Denis Vlasenko <vda@ilport.com.ua>, Eric Dumazet <dada1@cosmosbay.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on x86_64 machines ?
+Message-ID: <20060102154648.GB673@wohnheim.fh-wedel.de>
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net> <200601021345.44843.ak@suse.de> <Pine.LNX.4.58.0601021447440.22227@sbz-30.cs.Helsinki.FI> <200601021456.23253.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200601021456.23253.ak@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dev_kfree_skb shouldn't be used in an IRQ context.
+On Mon, 2 January 2006 14:56:22 +0100, Andi Kleen wrote:
+> 
+> I wasn't proposing fully dynamic slabs, just a better default set
+> of slabs based on real measurements instead of handwaving (like
+> the power of two slabs seemed to have been generated). With separate
+> sets for 32bit and 64bit. 
+> 
+> Also the goal wouldn't be better performance, but just less waste of memory.
 
-Signed-off-by: Graham Gower <graham.gower@gmail.com>
+My fear would be that this leads to something like the gperf: a
+perfect distribution of slab caches - until any tiny detail changes.
+But maybe there is a different distribution that is "pretty good" for
+all configurations and better than powers of two.
 
+> I suspect such a move could save much more memory on small systems 
+> than any of these "make fundamental debugging tools a CONFIG" patches ever.
 
---- linux/drivers/net/wireless/prism54/islpci_eth.c.orig	2006-01-03
-01:23:27.000000000 +1030
-+++ linux/drivers/net/wireless/prism54/islpci_eth.c	2006-01-03
-00:38:46.000000000 +1030
-@@ -178,7 +178,7 @@
- #endif
+Unlikely.  SLOB should be better than SLAB for those purposes, no
+matter how you arrange the slab caches.
 
- 			newskb->dev = skb->dev;
--			dev_kfree_skb(skb);
-+			dev_kfree_skb_irq(skb);
- 			skb = newskb;
- 		}
- 	}
-@@ -242,7 +242,7 @@
+Jörn
 
-       drop_free:
- 	/* free the skbuf structure before aborting */
--	dev_kfree_skb(skb);
-+	dev_kfree_skb_irq(skb);
- 	skb = NULL;
-
- 	priv->statistics.tx_dropped++;
+-- 
+Fancy algorithms are slow when n is small, and n is usually small.
+Fancy algorithms have big constants. Until you know that n is
+frequently going to be big, don't get fancy.
+-- Rob Pike

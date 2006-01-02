@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWABTSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWABTS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWABTSS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 14:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWABTSS
+	id S1750974AbWABTS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 14:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbWABTS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 14:18:18 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:38214 "EHLO
-	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750971AbWABTSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 14:18:17 -0500
-Date: Mon, 02 Jan 2006 13:18:05 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: X86_64 + VIA + 4g problems
-In-reply-to: <5qAKf-7n4-19@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: ak@suse.de
-Message-id: <43B97C6D.7010902@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <5qvTv-8f-17@gated-at.bofh.it> <5qAKf-7n4-19@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Mon, 2 Jan 2006 14:18:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48564 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750973AbWABTS4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 14:18:56 -0500
+Date: Mon, 2 Jan 2006 14:17:20 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, mingo@elte.hu, bunk@stusta.de,
+       arjan@infradead.org, tim@physik3.uni-rostock.de, torvalds@osdl.org,
+       davej@redhat.com, linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20060102191720.GI22293@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <20060102110341.03636720.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060102110341.03636720.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> When you not compile in the SKGE network driver does everything else work?
-> skge supports 64bit DMA, so it shouldn't use any IOMMU.
+On Mon, Jan 02, 2006 at 11:03:41AM -0800, Andrew Morton wrote:
+> > But what _is_ the best idea?
+> 
+> Just use `inline'.  With gcc-3 it'll be inlined.
 
-Are you sure this is skge? Anyway, even if the driver does support 
-64-bit DMA, I would be surprised if a desktop motherboard had the 
-Ethernet chip connected via a 64-bit PCI bus.
+Where does this certainity come from?  gcc-3.x (as well as 2.x) each had
+its own heuristics which functions should be inlined and which should not.
+inline keyword has always been a hint.
 
-This brings up something I've been wondering. It's possible to run most 
-64-bit capable PCI devices in a 32-bit slot (i.e. with the 64-bit part 
-hanging out of the slot). In this configuration the device will not be 
-able to use 64-bit DMA (unless it supports dual address cycle). However, 
-who is supposed to detect this and know to not try to use DMA addresses 
-above 4GB on that device? Is the driver supposed to know this and use a 
-32-bit DMA mask, or is the PCI subsystem able to figure this out 
-somehow? What if the driver has no way to detect this? I don't think 
-I've seen any code in the kernel that would figure out if the current 
-configuration of the card is actually capable of 64-bit DMA or not.
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+	Jakub

@@ -1,111 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWABXyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWABX6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWABXyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 18:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWABXyE
+	id S1751135AbWABX6j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 18:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWABX6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 18:54:04 -0500
-Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:23944 "EHLO
-	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751126AbWABXyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 18:54:03 -0500
-Message-ID: <43B9BD19.5050408@bigpond.net.au>
-Date: Tue, 03 Jan 2006 10:54:01 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: Fix adverse effects of NFS client on	interactive
- response
-References: <43A8EF87.1080108@bigpond.net.au> <1135145341.7910.17.camel@lade.trondhjem.org> <43A8F714.4020406@bigpond.net.au> <20060102110145.GA25624@aitel.hist.no>
-In-Reply-To: <20060102110145.GA25624@aitel.hist.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 2 Jan 2006 18:58:39 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:28594 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751135AbWABX6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 18:58:38 -0500
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Arjan van de Ven <arjan@infradead.org>, Krzysztof Halasa <khc@pm.waw.pl>,
+       Ingo Molnar <mingo@elte.hu>, Adrian Bunk <bunk@stusta.de>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       mpm@selenic.com
+In-Reply-To: <20060102222335.GB5412@flint.arm.linux.org.uk>
+References: <20051230074916.GC25637@elte.hu>
+	 <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu>
+	 <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu>
+	 <1136198902.2936.20.camel@laptopd505.fenrus.org>
+	 <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu>
+	 <m3ek3qcvwt.fsf@defiant.localdomain>
+	 <1136227893.2936.51.camel@laptopd505.fenrus.org>
+	 <20060102222335.GB5412@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 2 Jan 2006 23:54:01 +0000
+Date: Mon, 02 Jan 2006 23:55:41 +0000
+Message-Id: <1136246141.8570.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> On Wed, Dec 21, 2005 at 05:32:52PM +1100, Peter Williams wrote:
-> 
->>Trond Myklebust wrote:
-> 
-> [...]
-> 
->>>Sorry. That theory is just plain wrong. ALL of those case _ARE_
->>>interactive sleeps.
->>
->>It's not a theory.  It's a result of observing a -j 16 build with the 
->>sources on an NFS mounted file system with top with and without the 
->>patches and comparing that with the same builds with the sources on a 
->>local file system.  Without the patches the tasks in the kernel build 
->>all get the same dynamic priority as the X server and other interactive 
->>programs when the sources are on an NFS mounted file system.  With the 
->>patches they generally have dynamic priorities between 6 to 10 higher 
->>than the X server and other interactive programs.
->>
-> 
-> A process waiting for NFS data looses cpu time, which is spent on running 
-> something else.  Therefore, it gains some priority so it won't be
-> forever behind when it wakes up.  Same as for any other io waiting.
+On Llu, 2006-01-02 at 22:23 +0000, Russell King wrote:
+> > you know what? gcc inlines those automatic even without you typing
+> > "inline". (esp if you have unit-at-a-time enabled)
 
-That's more or less independent of this issue as the distribution of CPU 
-to tasks is largely determined by the time slice mechanism and the 
-dynamic priority is primarily about latency.  (This distinction is a 
-little distorted by the fact that, under some circumstances, 
-"interactive" tasks don't get moved to the expired list at the end of 
-their time slice but this usually won't matter as genuine interactive 
-tasks aren't generally CPU hogs.)  In other words, the issue that you 
-raised is largely solved by the time tasks spend on the active queue 
-before moving to the expired queue rather than the order in which they 
-run when on the active queue.
+> GCC will only automatically inline using -O3.  We don't use -O3 with
+> the kernel - only -O2 and -Os.
 
-This problem is all about those tasks getting an inappropriate boost to 
-improve their latency because they are mistakenly believed to be 
-interactive.  Having had a closer think about the way the scheduler 
-works I'm now of the opinion that completely ignoring sleeps labelled as 
-TASK_NONINTERACTIVE may be a mistake and that it might be more 
-appropriate to treat them the same as TASK_UNITERRUPTIBLE but I'll bow 
-to Ingo on this as he would have a better understanding of the issues 
-involved.
+Or using -finline-functions which is a good idea. -O3 has some other
+undesirable side effects. Both -O2 -finline-functions and -Os
+-finline-functions will do what looks to be the right thing.
 
-> 
-> Perhaps expecting a 16-way parallel make to have "no impact" is
-> a bit optimistic.  How about nicing the make, explicitly telling
-> linux that it isn't important?
+Mind you anything more than a few instructions is questionable with
+current processors.
 
-Yes, but that shouldn't be necessary.  If I do the same build on a local 
-file system everything works OK and the tasks in the build have dynamic 
-priorities 8 to 10 slots higher than the X server and other interactive 
-programs.
+Alan
 
->  Or how about giving important
-> tasks extra priority?
-
-Only root can do that.  But some operating systems do just that e.g. 
-Solaris has an IA scheduling class (which all X based programs are run 
-in) that takes precedence over programs in the TS class (which is the 
-equivalent of Linus's SCHED_NORMAL).  I'm not sure how they handle the 
-privileges issues related to stopping inappropriate programs misusing 
-the IA class.  IA is really just TS with a boost which is effectively 
-just the reverse implementation of what the new SCHED_BATCH achieves. 
-Arguably, SCHED_BATCH is the superior way of doing this as it doesn't 
-cause any privilege issues as shifting to SCHED_BATCH can be done by the 
-owner of the task.
-
-The main drawback to the SCHED_BATCH approach is that it (currently) 
-requires the user to explicitly set it on the relevant tasks.  It's long 
-term success would be greatly enhanced if programmers could be convinced 
-to have their programs switch themselves to SCHED_BATCH unless they are 
-genuine interactive processes.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

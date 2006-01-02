@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWABQiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWABQhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWABQiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 11:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWABQhn
+	id S1750887AbWABQhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 11:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWABQgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 11:37:43 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:14546 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750836AbWABQgC (ORCPT
+	Mon, 2 Jan 2006 11:36:00 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1749 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750841AbWABQfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 11:36:02 -0500
-Date: Mon, 2 Jan 2006 17:35:48 +0100
+	Mon, 2 Jan 2006 11:35:55 -0500
+Date: Mon, 2 Jan 2006 17:35:41 +0100
 From: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,76 +19,79 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 17/19] mutex subsystem, semaphore to completion: CPU3WDT
-Message-ID: <20060102163548.GR31501@elte.hu>
+Subject: [patch 16/19] mutex subsystem, semaphore to completion: SX8
+Message-ID: <20060102163541.GQ31501@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -1.9
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-change CPU3WDT semaphores to completions.
+change SX8 semaphores to completions.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
 ----
 
- drivers/char/watchdog/cpu5wdt.c |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/block/sx8.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
 
-Index: linux/drivers/char/watchdog/cpu5wdt.c
+Index: linux/drivers/block/sx8.c
 ===================================================================
---- linux.orig/drivers/char/watchdog/cpu5wdt.c
-+++ linux/drivers/char/watchdog/cpu5wdt.c
-@@ -28,6 +28,7 @@
- #include <linux/init.h>
- #include <linux/ioport.h>
- #include <linux/timer.h>
+--- linux.orig/drivers/block/sx8.c
++++ linux/drivers/block/sx8.c
+@@ -27,6 +27,7 @@
+ #include <linux/time.h>
+ #include <linux/hdreg.h>
+ #include <linux/dma-mapping.h>
 +#include <linux/completion.h>
- #include <linux/jiffies.h>
  #include <asm/io.h>
+ #include <asm/semaphore.h>
  #include <asm/uaccess.h>
-@@ -57,7 +58,7 @@ static int ticks = 10000;
- /* some device data */
+@@ -303,7 +304,7 @@ struct carm_host {
  
- static struct {
--	struct semaphore stop;
-+	struct completion stop;
- 	volatile int running;
- 	struct timer_list timer;
- 	volatile int queue;
-@@ -85,7 +86,7 @@ static void cpu5wdt_trigger(unsigned lon
- 	}
- 	else {
- 		/* ticks doesn't matter anyway */
--		up(&cpu5wdt_device.stop);
-+		complete(&cpu5wdt_device.stop);
+ 	struct work_struct		fsm_task;
+ 
+-	struct semaphore		probe_sem;
++	struct completion		probe_comp;
+ };
+ 
+ struct carm_response {
+@@ -1365,7 +1366,7 @@ static void carm_fsm_task (void *_data)
  	}
  
- }
-@@ -239,7 +240,7 @@ static int __devinit cpu5wdt_init(void)
- 	if ( !val )
- 		printk(KERN_INFO PFX "sorry, was my fault\n");
+ 	case HST_PROBE_FINISHED:
+-		up(&host->probe_sem);
++		complete(&host->probe_comp);
+ 		break;
  
--	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
-+	init_completion(&cpu5wdt_device.stop);
- 	cpu5wdt_device.queue = 0;
+ 	case HST_ERROR:
+@@ -1641,7 +1642,7 @@ static int carm_init_one (struct pci_dev
+ 	host->flags = pci_dac ? FL_DAC : 0;
+ 	spin_lock_init(&host->lock);
+ 	INIT_WORK(&host->fsm_task, carm_fsm_task, host);
+-	init_MUTEX_LOCKED(&host->probe_sem);
++	init_completion(&host->probe_comp);
  
- 	clear_bit(0, &cpu5wdt_device.inuse);
-@@ -269,7 +270,7 @@ static void __devexit cpu5wdt_exit(void)
- {
- 	if ( cpu5wdt_device.queue ) {
- 		cpu5wdt_device.queue = 0;
--		down(&cpu5wdt_device.stop);
-+		wait_for_completion(&cpu5wdt_device.stop);
- 	}
+ 	for (i = 0; i < ARRAY_SIZE(host->req); i++)
+ 		host->req[i].tag = i;
+@@ -1710,8 +1711,8 @@ static int carm_init_one (struct pci_dev
+ 	if (rc)
+ 		goto err_out_free_irq;
  
- 	misc_deregister(&cpu5wdt_misc);
+-	DPRINTK("waiting for probe_sem\n");
+-	down(&host->probe_sem);
++	DPRINTK("waiting for probe_comp\n");
++	wait_for_completion(&host->probe_comp);
+ 
+ 	printk(KERN_INFO "%s: pci %s, ports %d, io %lx, irq %u, major %d\n",
+ 	       host->name, pci_name(pdev), (int) CARM_MAX_PORTS,

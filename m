@@ -1,125 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWABQHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWABQGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWABQHV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 11:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWABQHV
+	id S1750789AbWABQGV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 11:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWABQGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 11:07:21 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:62460 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750797AbWABQHU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 11:07:20 -0500
-Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-From: Daniel Walker <dwalker@mvista.com>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323310@MAILIT.keba.co.at>
-References: <AAD6DA242BC63C488511C611BD51F367323310@MAILIT.keba.co.at>
-Content-Type: multipart/mixed; boundary="=-f7HqTKMO5GxdSQalXnXE"
-Date: Mon, 02 Jan 2006 08:07:18 -0800
-Message-Id: <1136218038.22548.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 2 Jan 2006 11:06:21 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:21659 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1750789AbWABQGU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 11:06:20 -0500
+Message-Id: <200601021605.k02G5iN9010252@laptop11.inf.utfsm.cl>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       "Bryan O'Sullivan" <bos@pathscale.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver 
+In-Reply-To: Message from Lee Revell <rlrevell@joe-job.com> 
+   of "Thu, 29 Dec 2005 14:26:24 CDT." <1135884385.6804.0.camel@mindpipe> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Mon, 02 Jan 2006 13:05:43 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 02 Jan 2006 13:05:56 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lee Revell <rlrevell@joe-job.com> wrote:
+> On Thu, 2005-12-29 at 16:01 -0300, Horst von Brand wrote:
+> > >   - Someone asked for the kernel's i2c infrastructure to be used,but
+> > >     our i2c usage is very specialised, and it would be more of a mess
+> > >     to use the kernel's
 
---=-f7HqTKMO5GxdSQalXnXE
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> > Problem with that is that if everybody and Aunt Tillie does the same,
+> > the kernel as a whole gets to be a mess. 
 
+> ALSA does the exact same thing for the exact same reason.  Maybe an
+> indication that the kernel's i2c layer is too heavy?
 
-Here's a more updated patch, the should replace the other patch I sent.
-I think the tracing error is the result of a missed interrupt enable in
-the ARM assembly code. I've only compile tested this.  
-
-Daniel
-
-On Mon, 2006-01-02 at 15:55 +0100, kus Kusche Klaus wrote:
-> > From: Daniel Walker
-> > Right .. I'm still looking into it. ARM is just missing some vital
-> > tracing bits I think .
-> 
-> As I wrote in some earlier mail, I'm probably the first one ever
-> who tried it on ARM: When I tried first, tracing didn't work at all,
-> because the trace timing macro's were not defined (at least for
-> sa1100). I quick-hacked the three missing macros (this caused the
-> tracer to produce at least some output) without checking if 
-> anything else is missing.
-> 
-> 
-
---=-f7HqTKMO5GxdSQalXnXE
-Content-Disposition: attachment; filename=fix_tracing_arm_idle_loop.patch
-Content-Type: text/x-patch; name=fix_tracing_arm_idle_loop.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Index: linux-2.6.14/arch/arm/kernel/process.c
-===================================================================
---- linux-2.6.14.orig/arch/arm/kernel/process.c
-+++ linux-2.6.14/arch/arm/kernel/process.c
-@@ -89,12 +89,12 @@ void default_idle(void)
- 	if (hlt_counter)
- 		cpu_relax();
- 	else {
--		raw_local_irq_disable();
-+		__raw_local_irq_disable();
- 		if (!need_resched()) {
- 			timer_dyn_reprogram();
- 			arch_idle();
- 		}
--		raw_local_irq_enable();
-+		__raw_local_irq_enable();
- 	}
- }
- 
-@@ -121,8 +121,10 @@ void cpu_idle(void)
- 		if (!idle)
- 			idle = default_idle;
- 		leds_event(led_idle_start);
-+		__preempt_enable_no_resched();
- 		while (!need_resched())
- 			idle();
-+		preempt_disable();
- 		leds_event(led_idle_end);
- 		__preempt_enable_no_resched();
- 		__schedule();
-Index: linux-2.6.14/arch/arm/kernel/entry-header.S
-===================================================================
---- linux-2.6.14.orig/arch/arm/kernel/entry-header.S
-+++ linux-2.6.14/arch/arm/kernel/entry-header.S
-@@ -38,18 +38,30 @@
- 
- #if __LINUX_ARM_ARCH__ >= 6
- 	.macro	disable_irq
-+#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
-+	b	trace_irqs_off
-+#endif
- 	cpsid	i
- 	.endm
- 
- 	.macro	enable_irq
-+#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
-+	b	trace_irqs_on
-+#endif
- 	cpsie	i
- 	.endm
- #else
- 	.macro	disable_irq
-+#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
-+	b	trace_irqs_off
-+#endif
- 	msr	cpsr_c, #PSR_I_BIT | SVC_MODE
- 	.endm
- 
- 	.macro	enable_irq
-+#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
-+	b	trace_irqs_on
-+#endif
- 	msr	cpsr_c, #SVC_MODE
- 	.endm
- #endif
-
---=-f7HqTKMO5GxdSQalXnXE--
+That would mean that the respective teams should put their heads together
+and (re)design it to their needs...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 

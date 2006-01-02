@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWABNCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWABNDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWABNCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 08:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWABNCL
+	id S1750713AbWABNDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 08:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWABNDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 08:02:11 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42492 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750712AbWABNCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 08:02:10 -0500
-Subject: Re: [PATCH] protect remove_proc_entry
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <20051230154647.5a38227e.akpm@osdl.org>
-References: <1135973075.6039.63.camel@localhost.localdomain>
-	 <1135978110.6039.81.camel@localhost.localdomain>
-	 <20051230154647.5a38227e.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 02 Jan 2006 08:02:01 -0500
-Message-Id: <1136206921.6039.159.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Jan 2006 08:03:16 -0500
+Received: from mail.gmx.net ([213.165.64.21]:50613 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750713AbWABNDP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 08:03:15 -0500
+X-Authenticated: #5339386
+Date: Mon, 2 Jan 2006 14:00:45 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: oops in kernel 2.6.15-rc7
+Message-ID: <20060102130042.GC21933@sidney>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20051230194435.GA7088@sidney> <43B5E191.3030705@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="48TaNjbzBVislYPb"
+Content-Disposition: inline
+In-Reply-To: <43B5E191.3030705@gmail.com>
+User-Agent: Mutt/1.5.11
+From: Mathias Klein <ma_klein@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-30 at 15:46 -0800, Andrew Morton wrote:
-> Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > +static DEFINE_SPINLOCK(remove_proc_lock);
-> >
-> 
-> I'll take a closer look at this next week.
-> 
-> The official way of protecting the contents of a directory from concurrent
-> lookup or modification is to take its i_sem.  But procfs is totally weird
-> and that approach may well not be practical here.  We'd certainly prefer
-> not to rely upon lock_kernel().
 
-FWIW,
+--48TaNjbzBVislYPb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My test that would crash within two days has been running for three days
-now with the lock_kernel patch.  So, at least this fixes the problem,
-whether we use another locking or not, it's good to know what to fix.
+On Sat, Dec 31, 2005 at 02:40:33AM +0100, Jiri Slaby wrote:
+> Mathias Klein napsal(a):
+> > Hello,
+> >=20
+> > i recently got another oops. As suggested by Pekka Enberg I've enabled
+> > CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC.
+> [snip]
+> > Dec 30 20:12:11 sidney kernel: [31895.553014] Oops: 0000 [#1]
+> > Dec 30 20:12:11 sidney kernel: [31895.553065] PREEMPT=20
+> btw. this is not kernel with CONFIG_DEBUG_PAGEALLOC.
 
--- Steve
+Ehmm. Yes, Sorry. Will be included in my next build.
+Thank you for notify.
 
+> regards,
+> --=20
+> Jiri Slaby         www.fi.muni.cz/~xslaby
+> \_.-^-._   jirislaby@gmail.com   _.-^-._/
+> B67499670407CE62ACC8 22A032CC55C339D47A7E
 
+Mathias
+=20
+
+--48TaNjbzBVislYPb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDuSP6PtJqRGqEpd8RAumzAJ9EIqsu8iSkxwE92NA3bGoCuFA72wCfVwX2
+7xQhr4V/wtkDRiChlD9mW2U=
+=bAnS
+-----END PGP SIGNATURE-----
+
+--48TaNjbzBVislYPb--

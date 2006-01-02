@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWABTuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWABTyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWABTuM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 14:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWABTuM
+	id S1750993AbWABTyN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 14:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWABTyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 14:50:12 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:24713 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750988AbWABTuK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 14:50:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n3luEZDUAq+cAV1bGZC/Q1j1OMaDyU+nBUdhzkCR8VIO+0sXAEe6hX48SAWjv1lSviIq9sYX9UU/xItMdGkf3D/4S7Org5KVjaKf3z5/VPCBft7ZjoivgepYHPTltWK/UraUnOantUXNrvfwwJXaK5ogFOiIZY1ls7+TwMRg7L4=
-Message-ID: <9cfa10eb0601021150y646fe728s@mail.gmail.com>
-Date: Mon, 2 Jan 2006 21:50:08 +0200
-From: Marko Kohtala <marko.kohtala@gmail.com>
-To: Jason Dravet <dravet@hotmail.com>
-Subject: Re: [Linux-parport] [RFC]: add sysfs support to parport_pc, v3
-Cc: linux-kernel@vger.kernel.org, linux-parport@lists.infradead.org
-In-Reply-To: <BAY103-F835CFFD193D6F76C5527FDF2D0@phx.gbl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 2 Jan 2006 14:54:13 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16022 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750992AbWABTyM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 14:54:12 -0500
+Date: Mon, 2 Jan 2006 20:53:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jakub Jelinek <jakub@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Krzysztof Halasa <khc@pm.waw.pl>, bunk@stusta.de, arjan@infradead.org,
+       tim@physik3.uni-rostock.de, davej@redhat.com,
+       linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20060102195348.GA28691@elte.hu>
+References: <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <20060102110341.03636720.akpm@osdl.org> <20060102191720.GI22293@devserv.devel.redhat.com> <Pine.LNX.4.64.0601021130300.3668@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <BAY103-F835CFFD193D6F76C5527FDF2D0@phx.gbl>
+In-Reply-To: <Pine.LNX.4.64.0601021130300.3668@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/1/2, Jason Dravet <dravet@hotmail.com>:
-> Here is a new patch to parport_pc that adds sysfs and thus udev support to
-> parport_pc.  I fixed my earilier problem of the kernel oops (I forgot the
-> class_destory) and I can insmod and rmmod this module all day long with no
-> side effects.  I do have one question why do both lp and parport nodes have
-> to be created?
->
-> What do you think of this patch?  What would be the next step to get this
-> into the kernel?
 
-If your problem is that you do not get /dev/lp0 created automatically,
-I think a better way to get that solved is to find out a way that the
-module lp is loaded automatically when a printer is found on the
-parport.
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-Maybe you should look into drivers/parport/probe.c and have it do
-request_module("lp") when it finds a printer attached to the parport.
+> And people are nervous about it, exactly because the gcc people have 
+> historically just changed what "inline" means, with little regard for 
+> real-life code that uses it. [...]
 
-Some paride (or SCSI) devices could also be probed for using a
-pre-IEEE1284 daisy chain command that gives a 16 bit device ID, and
-proper drivers loaded with some module aliases including the device
-ID. If something unidentifiable is found on the parport then maybe the
-ppdev could be loaded so that userspace drivers will have an interface
-to work with.
+i think whatever gcc does, we probably cannot get hurt more than we are 
+hurting right now: everything is inlined, which bloats stuff to the 
+maximum level. Stating that doesnt in any way excuse gcc 3.1's 
+unilateral change of what 'inline' means, it doesnt reduce the distrust 
+that might exist towards gcc, it's simply a statement of the situation 
+we have right now. We can continue to distrust gcc (and probably 
+rightfully so), but we probably cannot continue to hurt users as 
+collateral damage of whatever tool-level fight. (and i'm not suggesting 
+that this collateral damage is intentional in any way, it slowly evolved 
+into the mess we have now.)
 
-I fear that some people would find this too smart to be useful. I'd
-expect them to request at least a module option to parport to disable
-it.
-
-Most people are happy with just "lp" in /etc/modules.
+	Ingo

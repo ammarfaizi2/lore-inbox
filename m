@@ -1,215 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWABXPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWABXVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWABXPy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 18:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWABXPy
+	id S1751125AbWABXVS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 18:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWABXVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 18:15:54 -0500
-Received: from mail.gmx.net ([213.165.64.21]:31369 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751124AbWABXPx (ORCPT
+	Mon, 2 Jan 2006 18:21:18 -0500
+Received: from triton.atia.com ([193.16.246.115]:24096 "EHLO triton.atia.com")
+	by vger.kernel.org with ESMTP id S1751125AbWABXVR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 18:15:53 -0500
-X-Authenticated: #4399952
-Date: Tue, 3 Jan 2006 00:15:50 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
+	Mon, 2 Jan 2006 18:21:17 -0500
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Nedko Arnaudov <nedko@arnaudov.name>, linux-kernel@vger.kernel.org
-Subject: Re: patch-2.6.15-rc7-rt2 (realtime-preempt) report
-Message-ID: <20060103001550.43e525ce@mango.fruits.de>
-In-Reply-To: <20060102214516.GA12850@elte.hu>
-References: <87ek3ug314.fsf@arnaudov.name>
-	<87mzie2tzu.fsf@arnaudov.name>
+Cc: linux-kernel@vger.kernel.org
+Subject: patch-2.6.15-rc7-rt3 (realtime-preempt) report
+References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
 	<20060102214516.GA12850@elte.hu>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+From: Nedko Arnaudov <nedko@arnaudov.name>
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAM1BMVEX///8HBgUeFhGwUjwr
+ NDF5RjOgVz2UVTxxTz9pNSXCiW2OUjhNIxi6bE6ROChWammgrK7+pa2IAAAAAXRSTlMAQObYZgAA
+ AkxJREFUeAGtlAuTgyAMhK9gIGl4+P9/7W2wVbBo52YOZ2of+djdBPtT/7h+/lhf/wNYXFtLu38Y
+ OCss7jEut4zMCTiXGzwiA7CMm78+XQPzemC9q15hun/7sovRAZcCg8QBfPRnF3QPd0jswHW9gUeK
+ rwC2nwPTCRyudk9vhXtHXYgT4FxKOEn7zu83R+o3ULefUipKxjTn73LcPyzVbdck0YdAclJxE8C2
+ hKHiM5ZKGm1NLFn9IyUNBoQzMZsDjCKxD89sl6dBYwJYCFgi/8TKGfWWYzPmDkfdM40nEgRSWIYE
+ NREkQcdMem9SBzAStJJiCaxcpOAy4HDUARWbJyyRAKKwzbBoKQmAzBSqw/7iOJaYC+mTSYtiJs3d
+ FFjggTkGKr54r6gPwRoMZboASonB+wJA2/wQ32tysfAU4MWr97kBuLdx4FNy5QKoCfVYprCdEAhE
+ tFY7gb5LlcnqMwIgBASaI3S4S1AHoO7ASwH+bCTdFE4AmxP4wcIJMQFPaN01YBI5F7QT9wagq5KO
+ FuHd/sS1b8VCUMTeofUV07gH4Cno1iuo2BQY079RqKSK49MWYcyBSOgWEMWk2iCsUV4RQW6BNopN
+ wYJYBB7GcAqN2UXLbc3Cssyk9wpiw7NimwPqkemLArVZGBKIhWP8qkCExyaHHBn+Y4iR+rP3mQH1
+ zKpMuDjmZ8DHfhDjpCsyYkUsxqsZy3EcxAgsDUCl/TnZYcJLgLVOogPWKkIB/rHzVm9QyGzE+mZ2
+ YF1XHAQcPPy51kOhecI06vpCfgFqlF1IG9UTLgAAAABJRU5ErkJggg==
+Date: Tue, 03 Jan 2006 01:21:05 +0200
+In-Reply-To: <20060102214516.GA12850@elte.hu> (Ingo Molnar's message of
+ "Mon, 2 Jan 2006 22:45:16 +0100")
+Message-ID: <87lkxyrzby.fsf_-_@arnaudov.name>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="==-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Jan 2006 22:45:16 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+--==-=-=
+Content-Type: multipart/mixed; boundary="=-=-="
+
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+
+Ingo Molnar <mingo@elte.hu> writes:
 
 > could you try -rt3?
 
--rt3 gives me this BUG, when running rosegarden (btw: i forgot to
-mention, that i use debian unstable and thus gcc 4.0.3):
+-rt3 seems to fix rtc issue for me.
 
-==========================================
-[ BUG: lock recursion deadlock detected! |
-------------------------------------------
-already locked:  [c0331b20] {rtc_task_lock}
-.. held by:             IRQ 8:   18 [efd1ce90,   1]
-... acquired at:               rtc_interrupt+0x79/0x130
--{current task's backtrace}----------------->
- [<c0130cf7>] check_deadlock+0x307/0x340 (8)
- [<c02377d9>] rtc_interrupt+0x79/0x130 (8)
- [<c02d9b52>] __schedule+0x392/0x710 (4)
- [<c0238854>] rtc_control+0x24/0x80 (16)
- [<c0131ae1>] task_blocks_on_lock+0x41/0x130 (12)
- [<c0238854>] rtc_control+0x24/0x80 (16)
- [<c02db2a8>] __down_mutex+0x498/0x910 (24)
- [<c0238854>] rtc_control+0x24/0x80 (16)
- [<c0238854>] rtc_control+0x24/0x80 (80)
- [<c0142370>] do_irqd+0x0/0xa0 (8)
- [<c02dd9c3>] _spin_lock_irq+0x23/0x50 (4)
- [<c0238854>] rtc_control+0x24/0x80 (8)
- [<c0238854>] rtc_control+0x24/0x80 (16)
- [<f09f70f9>] rtctimer_stop+0x29/0x60 [snd_rtctimer] (16)
- [<f081e20e>] snd_timer_interrupt+0x2ae/0x2f0 [snd_timer] (16)
- [<c0142370>] do_irqd+0x0/0xa0 (56)
- [<f09f7147>] rtctimer_interrupt+0x17/0x20 [snd_rtctimer] (4)
- [<c02377ec>] rtc_interrupt+0x8c/0x130 (12)
- [<c0141126>] handle_IRQ_event+0x76/0xf0 (20)
- [<c0142370>] do_irqd+0x0/0xa0 (44)
- [<c0142215>] thread_edge_irq+0x85/0x130 (4)
- [<c01422f7>] do_hardirq+0x37/0xb0 (32)
- [<c01423d7>] do_irqd+0x67/0xa0 (16)
- [<c012c3d6>] kthread+0xb6/0xc0 (28)
- [<c012c320>] kthread+0x0/0xc0 (24)
- [<c0100ded>] kernel_thread_helper+0x5/0x18 (16)
----------------------------
-| preempt count: 00000002 ]
-| 2-level deep critical section nesting:
-----------------------------------------
-.. [<c013948a>] .... add_preempt_count+0x1a/0x20
-.....[<00000000>] ..   ( <= _stext+0x3feffde0/0x60)
-.. [<c013948a>] .... add_preempt_count+0x1a/0x20
-.....[<00000000>] ..   ( <= _stext+0x3feffde0/0x60)
+cdrecord issue is still there however. I got new screenshot (attached)
+for it. In the new one, some stack was dumped before freeze.
+
+LKML receivers, please CC me when replying. I'm currently not subscribed
+to LKML.
+
+--=-=-=
+Content-Type: image/jpeg
+Content-Disposition: attachment; filename=rc7-rt3-cdrecord-bug.jpg
+Content-Transfer-Encoding: base64
+
+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
+RERERERERERERERERERERERERERERERERERERERP/9k=
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
 
-showing all tasks:
-S            init:    1 [c16fb500, 116] (not blocked)
-S  softirq-high/0:    2 [c16fae10,   0] (not blocked)
-S softirq-timer/0:    3 [c16fa720,   0] (not blocked)
-S softirq-net-tx/:    4 [c16fa030,  98] (not blocked)
-S softirq-net-rx/:    5 [c1709520,  98] (not blocked)
-S  softirq-scsi/0:    6 [c1708e30,  98] (not blocked)
-S softirq-tasklet:    7 [c1708740,  98] (not blocked)
-S      watchdog/0:    8 [c1708050,   0] (not blocked)
-S       desched/0:    9 [c1715540, 105] (not blocked)
-S        events/0:   10 [c1714e50,   0] (not blocked)
-S         khelper:   11 [c1714760, 110] (not blocked)
-S         kthread:   12 [c1714070, 111] (not blocked)
-S       kblockd/0:   13 [efcf9560, 110] (not blocked)
-S         pdflush:   14 [efcf8e70, 125] (not blocked)
-S         pdflush:   15 [efcf8780, 115] (not blocked)
-S           aio/0:   17 [efd1d580, 120] (not blocked)
-S         kswapd0:   16 [efcf8090, 125] (not blocked)
-S           IRQ 8:   18 [efd1ce90,   1] (not blocked)
-S         kseriod:   19 [efd1c7a0, 110] (not blocked)
-S          IRQ 12:   20 [efd1c0b0,  51] (not blocked)
-S          IRQ 14:   21 [efe235a0,  44] (not blocked)
-S          IRQ 15:   22 [efe22eb0,  44] (not blocked)
-S           IRQ 1:   23 [efe227c0,   0] (not blocked)
-S       kjournald:   24 [efe220d0, 115] (not blocked)
-S      kgameportd:  186 [ef062800, 111] (not blocked)
-S           IRQ 4:  189 [ee8e9600,  17] (not blocked)
-S           khubd:  209 [ef062110, 110] (not blocked)
-S           IRQ 5:  210 [ef65c0f0,  56] (not blocked)
-S          IRQ 10:  211 [ee8e8f10,  89] (not blocked)
-S       kjournald:  284 [ef062ef0, 115] (not blocked)
-S       kjournald:  287 [ef201620, 119] (not blocked)
-S       kjournald:  288 [ef65c7e0, 120] (not blocked)
-S       kjournald:  289 [ef200f30, 119] (not blocked)
-S       kjournald:  290 [ef200840, 119] (not blocked)
-S         portmap:  413 [ee8e8130, 116] (not blocked)
-S         syslogd:  531 [ef65ced0, 116] (not blocked)
-S           klogd:  537 [edc69640, 116] (not blocked)
-S            pppd:  547 [ee8e8820, 116] (not blocked)
-S           pppoe:  551 [edc68f50, 116] (not blocked)
-S           IRQ 3:  557 [edc68170,  58] (not blocked)
-S       automount:  649 [edc68860, 116] (not blocked)
-S   dbus-daemon-1:  655 [ed8ccf90, 115] (not blocked)
-S            hald:  660 [ed9856a0, 116] (not blocked)
-S           exim4:  733 [ed8b6880, 121] (not blocked)
-S             gpm:  741 [ed8b6f70, 115] (not blocked)
-S            sshd:  753 [ef200150, 118] (not blocked)
-S             xfs:  762 [ed984fb0, 116] (not blocked)
-S            cron:  798 [ed8cc1b0, 116] (not blocked)
-S     rt_watchdog:  854 [ef0635e0,   1] (not blocked)
-S     rt_watchdog:  855 [ed9848c0,  98] (not blocked)
-S             gdm:  864 [ed8cc8a0, 115] (not blocked)
-R             gdm:  865 [ed8cd680, 115] (not blocked)
-S            Xorg:  874 [eca096c0, 115] (not blocked)
-S           getty:  886 [ed8b7660, 117] (not blocked)
-S           getty:  887 [ed8b6190, 117] (not blocked)
-S           getty:  888 [eca08fd0, 117] (not blocked)
-S           getty:  889 [ef65d5c0, 117] (not blocked)
-S           getty:  890 [ed9841d0, 117] (not blocked)
-S           getty:  891 [eca088e0, 117] (not blocked)
-S              sh:  924 [ebfacff0, 122] (not blocked)
-S       ssh-agent:  994 [ebfad6e0, 116] (not blocked)
-S       ssh-agent:  995 [ebae7700, 116] (not blocked)
-S              sh:  999 [ebfac210, 121] (not blocked)
-S   xfce4-session: 1004 [eca081f0, 116] (not blocked)
-S    xscreensaver: 1002 [ebfac900, 115] (not blocked)
-S xfce-mcs-manage: 1009 [ebae6920, 115] (not blocked)
-S           xfwm4: 1012 [ebae6230, 115] (not blocked)
-S      xftaskbar4: 1014 [e8a1b720, 116] (not blocked)
-S       xfdesktop: 1016 [e8a1b030, 115] (not blocked)
-S     xfce4-panel: 1019 [e8a1a940, 115] (not blocked)
-S         gkrellm: 1022 [e8a1a250, 115] (not blocked)
-S       evolution: 1024 [e7fe1740, 116] (not blocked)
-S       evolution: 1077 [e3fa49c0, 115] (not blocked)
-S  sylpheed-claws: 1026 [e7fe1050, 115] (not blocked)
-S        qjackctl: 1028 [e7fe0960, 115] (not blocked)
-S            gaim: 1030 [e7fe0270, 116] (not blocked)
-R            xmms: 1032 [e7a0b760, 115] (not blocked)
-S            xmms: 1039 [e7a0b070, 115] (not blocked)
-S            xmms: 1060 [ebae7010, 115] (not blocked)
-S        gconfd-2: 1043 [e7a0a980, 116] (not blocked)
-S bonobo-activati: 1058 [e3d809a0, 115] (not blocked)
-S evolution-data-: 1065 [e3d81780, 115] (not blocked)
-S evolution-data-: 1071 [e3fa50b0, 115] (not blocked)
-S evolution-data-: 1104 [e18c5800, 116] (not blocked)
-S evolution-alarm: 1089 [e3fa57a0, 116] (not blocked)
-S evolution-alarm: 1091 [e23502f0, 117] (not blocked)
-S evolution-alarm: 1108 [e3fa42d0, 118] (not blocked)
-S           xterm: 1116 [e18cf7e0, 116] (not blocked)
-S            bash: 1117 [e18c4a20, 117] (not blocked)
-S           xterm: 1489 [e18c5110, 116] (not blocked)
-S            bash: 1490 [e23510d0, 115] (not blocked)
-S           xterm: 1520 [e23509e0, 116] (not blocked)
-S            bash: 1521 [e18cea00, 116] (not blocked)
-S            htop: 1614 [e18ce310, 117] (not blocked)
-R     rosegarden4: 1635 [e3d81090, 116] (not blocked)
-S         kdeinit: 1637 [e23517c0, 116] (not blocked)
-R      dcopserver: 1641 [e18c4330, 116] (not blocked)
-S       klauncher: 1643 [dd98b130, 115] (not blocked)
-S            kded: 1645 [e18cf0f0, 115] (not blocked)
-R rosegardenseque: 1651 [dd98b820, 115] (not blocked)
-S           jackd: 1653 [e3d802b0, 119] (not blocked)
-S           jackd: 1656 [dd98aa40, 119] (not blocked)
-S           jackd: 1657 [e7a0a290, 120] (not blocked)
-S           jackd: 1658 [dd98a350,  19] (not blocked)
-S           jackd: 1659 [d7381840,  29] (not blocked)
+=2D-=20
+Nedko Arnaudov <GnuPG KeyID: DE1716B0>
 
-=============================================
+--=-=-=--
 
-[ turning off deadlock detection. Please report this trace. ]
+--==-=-=
+Content-Type: application/pgp-signature
 
-The bootup swapper BUG also persists:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-BUG: swapper:0 task might have lost a preemption check!
- [<c0100b3b>] cpu_idle+0x6b/0xb0 (8)
- [<c010026b>] _stext+0x4b/0x60 (4)
- [<c0364831>] start_kernel+0x191/0x210 (16)
- [<c0364350>] unknown_bootoption+0x0/0x200 (20)
----------------------------
-| preempt count: 00000000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
+iD8DBQBDubVn6bb4v94XFrARAiMtAJ4ywtesfeRoipetlaiy+PLeONlUngCdGytg
+qW2k9ubo4AoOXyPJeZBlCKE=
+=8S43
+-----END PGP SIGNATURE-----
+--==-=-=--
 
-------------------------------
-| showing all locks held by: |  (swapper/0 [c0319d20, 140]):
-------------------------------
-
-.config identical to -rt2
-
-Flo
-
--- 
-Palimm Palimm!
-http://tapas.affenbande.org

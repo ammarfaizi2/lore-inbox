@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWABTyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWABT4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbWABTyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 14:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWABTyf
+	id S1750995AbWABT4R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 14:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWABT4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 14:54:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:31682 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750994AbWABTy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 14:54:27 -0500
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Ingo Molnar <mingo@elte.hu>, Adrian Bunk <bunk@stusta.de>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       mpm@selenic.com
-In-Reply-To: <m34q4mpfz9.fsf@defiant.localdomain>
-References: <20051229224839.GA12247@elte.hu>
-	 <1135897092.2935.81.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-	 <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
-	 <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de>
-	 <20060102103721.GA8701@elte.hu>
-	 <1136198902.2936.20.camel@laptopd505.fenrus.org>
-	 <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu>
-	 <m3ek3qcvwt.fsf@defiant.localdomain>
-	 <1136227893.2936.51.camel@laptopd505.fenrus.org>
-	 <m34q4mpfz9.fsf@defiant.localdomain>
-Content-Type: text/plain
-Date: Mon, 02 Jan 2006 20:54:16 +0100
-Message-Id: <1136231656.2936.57.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 2 Jan 2006 14:56:17 -0500
+Received: from mxsf10.cluster1.charter.net ([209.225.28.210]:60634 "EHLO
+	mxsf10.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1750994AbWABT4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 14:56:16 -0500
+X-IronPort-AV: i="3.99,322,1131339600"; 
+   d="scan'208"; a="1977235543:sNHT30422494"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <17337.34143.675341.20808@smtp.charter.net>
+Date: Mon, 2 Jan 2006 14:56:15 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: "Puvvada, Vijay B." <vijay.b.puvvada@saic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Make system and linking static libraries on kernel version
+	s2.6.14+
+In-Reply-To: <1136213489.3483.18.camel@hadji>
+References: <1136213489.3483.18.camel@hadji>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-02 at 20:49 +0100, Krzysztof Halasa wrote:
-> Arjan van de Ven <arjan@infradead.org> writes:
-> 
-> > you know what? gcc inlines those automatic even without you typing
-> > "inline". (esp if you have unit-at-a-time enabled)
-> 
-> And if it's not or if it's an older gcc?
 
-older than 3.0? that's not possible much longer
+Vijay> In a nutshell, I am trying to compile the Nortel VPN client
+Vijay> (which is written as part driver and part app) against the
+Vijay> 2.6.14 kernel and I am getting the following warning.
 
-> > well.. gcc is not stupid, especially if you give it visibility by
-> > enabling unit-at-a-time.
-> 
-> A *.c author can't do that. Who knows what flags will be used?
-> 
+This software is from a company called 'Apani Networks' and they are
+slow to update their code to reflect kernel changes.  I too am stuck
+with Nortal VPN boxes at work and it's a pain to get them working.
+What's worse, is their NetLock software is also a pain to get working
+as well...
 
-the author should assume sane flags ;)
+Try dropping back to the latest kernel they have supported in their
+library and compile that.  I was certainly able to make it compile
+against 2.6.12 as I recall... but since I was running 2.6.13+ at the
+time, it didn't do me much good...
 
-> > you save about 1 cycle by inlining unless there is a trick for the
-> > optimizer.
-> 
-> There probably is but even without further optimizations I still save
-> at least that 1 cycle (and probably it caches better and have less stack
-> impact etc).
+Again, double check the README that came with the software and try to
+do all the compile work by hand, and not using their canned solutions
+for Redhat, etc.  I was able to get it to compile, but never managed
+to get it working on my main home machine unfortunately.  
 
-actually that's no so sure. especially with the current regparm
-callingconvention. Inlining will cause more spills, which causes more
-stack usage. It's doubtful the extra space you use with "call" will
-outweigh that.
+Can you post the log of all the steps you took to compile the code,
+the kernel version you're using, and any output of the make commands?
+That would help.
 
-> > Especially in the case you mention where gcc will dtrt...
-> > it's not worth typing "inline", what if you change the code later to use
-> > the function twice... most people at least forget to remove the
-> > redundant inline, turning it into a bloater...
-> 
-> I'd probably not forget that. BTW: most people don't write Linux.
-> Still, in cases where there are only gains and nothing to lose, why
-> not use some form of "inline"?
-
-it's by far not only gains. And maintenance costs too.
-
-
+John

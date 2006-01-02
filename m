@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWABSh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWABSoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWABSh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 13:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWABSh6
+	id S1750933AbWABSoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 13:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWABSoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 13:37:58 -0500
-Received: from exo3753.pck.nerim.net ([213.41.240.142]:41915 "EHLO
-	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S1750933AbWABSh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 13:37:58 -0500
-Date: Mon, 2 Jan 2006 19:37:40 +0100
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <grant_lkml@dodo.com.au>
-Subject: [ANNOUNCE] Linux 2.4.32-hf32.1
-Message-ID: <20060102183740.GB5332@exosec.fr>
-Mime-Version: 1.0
+	Mon, 2 Jan 2006 13:44:08 -0500
+Received: from khc.piap.pl ([195.187.100.11]:11268 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1750933AbWABSoH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 13:44:07 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+References: <20051229224839.GA12247@elte.hu>
+	<1135897092.2935.81.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
+	<20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
+	<20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de>
+	<20060102103721.GA8701@elte.hu>
+	<1136198902.2936.20.camel@laptopd505.fenrus.org>
+	<20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 02 Jan 2006 19:44:02 +0100
+In-Reply-To: <20060102140511.GA2968@elte.hu> (Ingo Molnar's message of "Mon, 2 Jan 2006 15:05:11 +0100")
+Message-ID: <m3ek3qcvwt.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Ingo Molnar <mingo@elte.hu> writes:
 
-first I wish you a Happy New Year !
+> what is the 'deeper problem'? I believe it is a combination of two 
+> (well-known) things:
+>
+>   1) people add 'inline' too easily
+>   2) we default to 'always inline'
 
-I spent the day updating the 2.4-hf branch (in fact, mostly the scripts
-themselves), because there have been several important fixes since last
-release (2005/11/04). I counted 7 security fixes, 3 major fixes and 6
-minor fixes. This update will bring you to the same level as 2.4.33-pre1.
-Please check the changelog appended to this mail for more details.
+For example, I add "inline" for static functions which are only called
+from one place.
 
-As I previously stated it, the numbering scheme has changed so that all
-versions now share the same -hf suffix. For instance, this new version
-is numbered '-hf32.1', which means that the fixes are up-to-date with
-the first hotfix for mainline 2.4.32. Eventhough the name is ugly, it
-will then become obvious for anyone that 2.4.29-hf32.1 is late when
-2.4.33-hf is out. As a side effect, I will only announce the lastest
-release, as everyone can understand that older ones are available too.
+If I'm able to say "this is static function which is called from one
+place" I'd do so instead of saying "inline". But omitting the "inline"
+with hope that some new gcc probably will inline it anyway (on some
+platform?) doesn't seem like a best idea.
 
-As nearly two months have elapsed since last -hf (2.4.31-hf8), a lot
-of things have been merged. In fact, I had even made a 2.4.31-hf9 which
-was never released due to a lack of time. So you'll find references to
-it in the changelog but it will not be available for download as it is
-already obsolete (except upon request, but I doubt anyone will be
-interested). I intend to be able to release more often as I found how
-to make my scripts benefit from git to grab the patches that I consider
-useful.
-
-I've built the kernel for i686 with all modules enabled to ensure
-everything was OK, but did not boot it. I've not built incremental
-diffs, but I can make them upon request if anyone needs them. Right
-now, patches for kernels 2.4.29 to 2.4.32, both split up and as a
-whole patch, with and without extraversion are provided.
-
-As usual, I'm sure that Grant will be glad to do a full rebuild for all
-of his machines and post the results online (Thanks Grant ;-)).
-
- URLs of interest :
-
-    hotfixes home : http://linux.exosec.net/kernel/2.4-hf/
-     last version : http://linux.exosec.net/kernel/2.4-hf/LATEST/LATEST/
-         RSS feed : http://linux.exosec.net/kernel/hf.xml
-    build results : http://bugsplatter.mine.nu/test/linux-2.4/ (Grant's site)
-
-
-If anything's wrong, please bug me.
-
-Happy kernel hacking for 2006,
-Willy
-
+But what _is_ the best idea?
+-- 
+Krzysztof Halasa

@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWABNno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWABN4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWABNno (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 08:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWABNno
+	id S1750728AbWABN4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 08:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWABN4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 08:43:44 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24070 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750726AbWABNno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 08:43:44 -0500
-Date: Mon, 2 Jan 2006 14:43:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20060102134345.GD17398@stusta.de>
-References: <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org> <20051229224839.GA12247@elte.hu> <1135897092.2935.81.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de> <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org>
+	Mon, 2 Jan 2006 08:56:33 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:49870 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750728AbWABN4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 08:56:32 -0500
+From: Andi Kleen <ak@suse.de>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on x86_64 machines ?
+Date: Mon, 2 Jan 2006 14:56:22 +0100
+User-Agent: KMail/1.8.2
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Eric Dumazet <dada1@cosmosbay.com>,
+       linux-kernel@vger.kernel.org
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net> <200601021345.44843.ak@suse.de> <Pine.LNX.4.58.0601021447440.22227@sbz-30.cs.Helsinki.FI>
+In-Reply-To: <Pine.LNX.4.58.0601021447440.22227@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1136198902.2936.20.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601021456.23253.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 02, 2006 at 11:48:22AM +0100, Arjan van de Ven wrote:
-> 
-> > > Your uninline patch might be simple, but the safe way would be Arjan's 
-> > > approach to start removing all the buggy inline's from .c files.
-> > 
-> > sure, that's another thing to do, but it's also clear that there's no 
-> > reason to force inlines in the -Os case.
-> > 
-> > There are 22,000+ inline functions in the kernel right now (inlined 
-> > about a 100,000 times), and we'd have to change _thousands_ of them. 
-> > They are causing an unjustified code bloat of somewhere around 20-30%. 
-> > (some of them are very much justified, especially in core kernel code)
-> 
-> my patch attacks the top bloaters, and gains about 30k to 40k (depending
-> on compiler). Gaining the other 300k is going to be a LOT of churn, not
-> just in amount of work... so to some degree my patch shows that it's a
-> bit of a hopeless battle.
+On Monday 02 January 2006 14:04, Pekka J Enberg wrote:
 
-A quick grep shows at about 10.000 inline's in .c files, and nearly all 
-of them should be removed.
+> Maybe it's not. But that's besides the point. 
 
-Yes this is a serious amount of work, but it's an ideal janitorial task.
+It was my point. I don't know what your point was.
 
-cu
-Adrian
+> The specific problem Bonwick  
+> mentioned is related to cache line distribution and should be taken care 
+> of by slab coloring. Internal fragmentation is painful but the worst 
+> offenders can be fixed with kmem_cache_alloc(). So I really don't see the 
+> problem. On the other hand, I am not opposed to dynamic generic slabs if 
+> you can show a clear performance benefit from it. I just doubt you will.
 
--- 
+I wasn't proposing fully dynamic slabs, just a better default set
+of slabs based on real measurements instead of handwaving (like
+the power of two slabs seemed to have been generated). With separate
+sets for 32bit and 64bit. 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Also the goal wouldn't be better performance, but just less waste of memory.
 
+I suspect such a move could save much more memory on small systems 
+than any of these "make fundamental debugging tools a CONFIG" patches ever.
+
+-Andi

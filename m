@@ -1,59 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWABWWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWABWX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWABWWo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 17:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWABWWo
+	id S1751103AbWABWX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 17:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWABWX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 17:22:44 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:51898 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751077AbWABWWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 17:22:43 -0500
-Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <m1irt25pxg.fsf@ebiederm.dsl.xmission.com>
-References: <patchbomb.1135816279@eng-12.pathscale.com>
-	 <20051230080002.GA7438@kroah.com>
-	 <1135984304.13318.50.camel@serpentine.pathscale.com>
-	 <20051231001051.GB20314@kroah.com>
-	 <1135993250.13318.94.camel@serpentine.pathscale.com>
-	 <m1irt25pxg.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Mon, 02 Jan 2006 14:22:38 -0800
-Message-Id: <1136240558.20330.57.camel@serpentine.pathscale.com>
+	Mon, 2 Jan 2006 17:23:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11537 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751103AbWABWX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 17:23:56 -0500
+Date: Mon, 2 Jan 2006 22:23:35 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
+       Adrian Bunk <bunk@stusta.de>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20060102222335.GB5412@flint.arm.linux.org.uk>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
+	Adrian Bunk <bunk@stusta.de>,
+	Tim Schmielau <tim@physik3.uni-rostock.de>,
+	Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+	mpm@selenic.com
+References: <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <1136227893.2936.51.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136227893.2936.51.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-02 at 13:35 -0700, Eric W. Biederman wrote:
+On Mon, Jan 02, 2006 at 07:51:32PM +0100, Arjan van de Ven wrote:
+> On Mon, 2006-01-02 at 19:44 +0100, Krzysztof Halasa wrote:
+> > Ingo Molnar <mingo@elte.hu> writes:
+> > 
+> > > what is the 'deeper problem'? I believe it is a combination of two 
+> > > (well-known) things:
+> > >
+> > >   1) people add 'inline' too easily
+> > >   2) we default to 'always inline'
+> > 
+> > For example, I add "inline" for static functions which are only called
+> > from one place.
+> 
+> you know what? gcc inlines those automatic even without you typing
+> "inline". (esp if you have unit-at-a-time enabled)
 
-> I haven't looked closely enough at the state of the openib tree but
-> you should not need an additional interface to send/receive standard
-> IB subnet management packets.  That is something that should be provided
-> the same way by all infiniband drivers.
+Rubbish it will.
 
-We provide the standard OpenIB mechanisms for doing that, of course.
-However, our driver is layered.  The OpenIB layer uses facilities
-provided by the main driver (via ipath_layer.c).  The main driver can
-stand alone, without the OpenIB code compiled into the kernel or
-available as a module at all.  In that case, a userland subnet
-management agent must still be able to send and receive management
-packets.
+static void fn1(void *f)
+{
+}
 
-> Given Linus's comments and looking at where you are getting stuck I
-> would recommend you split out support for the nonstandard ipath
-> protocol from the rest of the driver.
+void fn2(void *f)
+{
+        fn1(f);
+}
 
-While we can split the main driver source file up along those lines, we
-are not planning to make the ipath protocol optional.  We are planning
-to submit another non-OpenIB network driver that depends on the ipath
-protocol support.
+on ARM produces:
 
-	<b
+        .text
+        .align  2
+        .type   fn1, %function
+fn1:
+        @ args = 0, pretend = 0, frame = 0
+        @ frame_needed = 0, uses_anonymous_args = 0
+        @ link register save eliminated.
+        @ lr needed for prologue
+        mov     pc, lr
+        .size   fn1, .-fn1
+        .align  2
+        .global fn2
+        .type   fn2, %function
+fn2:
+        @ args = 0, pretend = 0, frame = 0
+        @ frame_needed = 0, uses_anonymous_args = 0
+        @ link register save eliminated.
+        @ lr needed for prologue
+        b       fn1
+        .size   fn2, .-fn2
+        .ident  "GCC: (GNU) 3.3 20030728 (Red Hat Linux 3.3-16)"
 
+You can't get a simpler function than fn1 to automatically inline.
+
+GCC will only automatically inline using -O3.  We don't use -O3 with
+the kernel - only -O2 and -Os.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWABNDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWABNE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWABNDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 08:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWABNDQ
+	id S1750716AbWABNE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 08:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWABNE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 08:03:16 -0500
-Received: from mail.gmx.net ([213.165.64.21]:50613 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750713AbWABNDP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 08:03:15 -0500
-X-Authenticated: #5339386
-Date: Mon, 2 Jan 2006 14:00:45 +0100
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: oops in kernel 2.6.15-rc7
-Message-ID: <20060102130042.GC21933@sidney>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20051230194435.GA7088@sidney> <43B5E191.3030705@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="48TaNjbzBVislYPb"
-Content-Disposition: inline
-In-Reply-To: <43B5E191.3030705@gmail.com>
-User-Agent: Mutt/1.5.11
-From: Mathias Klein <ma_klein@gmx.de>
-X-Y-GMX-Trusted: 0
+	Mon, 2 Jan 2006 08:04:29 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:25733 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750716AbWABNE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 08:04:28 -0500
+Date: Mon, 2 Jan 2006 15:04:17 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Andi Kleen <ak@suse.de>
+cc: Denis Vlasenko <vda@ilport.com.ua>, Eric Dumazet <dada1@cosmosbay.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on
+ x86_64 machines ?
+In-Reply-To: <200601021345.44843.ak@suse.de>
+Message-ID: <Pine.LNX.4.58.0601021447440.22227@sbz-30.cs.Helsinki.FI>
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net>
+ <3186311.1135792635763.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+ <84144f020601020037n7af7ac54l74cdbe602372c7f@mail.gmail.com>
+ <200601021345.44843.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/28/05, Andreas Kleen <ak@suse.de> wrote:
+> > > I remember the original slab paper from Bonwick actually mentioned that
+> > > power of two slabs are the worst choice for a malloc - but for some reason Linux
+> > > chose them anyways.
 
---48TaNjbzBVislYPb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Monday 02 January 2006 09:37, Pekka Enberg wrote:
+> > Power of two sizes are bad because memory accesses tend to concentrate
+> > on the same cache lines but slab coloring should take care of that. So
+> > I don't think there's a problem with using power of twos for kmalloc()
+> > caches.
+ 
+On Mon, 2 Jan 2006, Andi Kleen wrote:
+> There is - who tells you it's the best possible distribution of memory?
 
-On Sat, Dec 31, 2005 at 02:40:33AM +0100, Jiri Slaby wrote:
-> Mathias Klein napsal(a):
-> > Hello,
-> >=20
-> > i recently got another oops. As suggested by Pekka Enberg I've enabled
-> > CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC.
-> [snip]
-> > Dec 30 20:12:11 sidney kernel: [31895.553014] Oops: 0000 [#1]
-> > Dec 30 20:12:11 sidney kernel: [31895.553065] PREEMPT=20
-> btw. this is not kernel with CONFIG_DEBUG_PAGEALLOC.
+Maybe it's not. But that's besides the point. The specific problem Bonwick 
+mentioned is related to cache line distribution and should be taken care 
+of by slab coloring. Internal fragmentation is painful but the worst 
+offenders can be fixed with kmem_cache_alloc(). So I really don't see the 
+problem. On the other hand, I am not opposed to dynamic generic slabs if 
+you can show a clear performance benefit from it. I just doubt you will.
 
-Ehmm. Yes, Sorry. Will be included in my next build.
-Thank you for notify.
-
-> regards,
-> --=20
-> Jiri Slaby         www.fi.muni.cz/~xslaby
-> \_.-^-._   jirislaby@gmail.com   _.-^-._/
-> B67499670407CE62ACC8 22A032CC55C339D47A7E
-
-Mathias
-=20
-
---48TaNjbzBVislYPb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDuSP6PtJqRGqEpd8RAumzAJ9EIqsu8iSkxwE92NA3bGoCuFA72wCfVwX2
-7xQhr4V/wtkDRiChlD9mW2U=
-=bAnS
------END PGP SIGNATURE-----
-
---48TaNjbzBVislYPb--
+			Pekka

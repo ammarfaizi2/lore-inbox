@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWABUQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWABUTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbWABUQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 15:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWABUQ2
+	id S1751019AbWABUTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 15:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWABUTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 15:16:28 -0500
-Received: from mail.gmx.net ([213.165.64.21]:30882 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751015AbWABUQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 15:16:27 -0500
-X-Authenticated: #527675
-Message-ID: <43B98A19.8070002@gmx.de>
-Date: Mon, 02 Jan 2006 21:16:25 +0100
-From: Reinhard Nissl <rnissl@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: SysReq & serial console
-References: <43B8696B.2070303@gmx.de> <dpakp2$tip$3@sea.gmane.org> <20060102091808.GA11673@flint.arm.linux.org.uk>
-In-Reply-To: <20060102091808.GA11673@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 2 Jan 2006 15:19:09 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:11394 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751019AbWABUTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 15:19:08 -0500
+Date: Mon, 2 Jan 2006 21:18:47 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Adrian Bunk <bunk@stusta.de>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-ID: <20060102201847.GB9935@wohnheim.fh-wedel.de>
+References: <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <1136227893.2936.51.camel@laptopd505.fenrus.org> <m34q4mpfz9.fsf@defiant.localdomain> <1136231656.2936.57.camel@laptopd505.fenrus.org> <m3sls6o0ok.fsf@defiant.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m3sls6o0ok.fsf@defiant.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Russell King wrote:
-
->>Another wild guess: the syslog is still running and writes the output to
->>the log.
+On Mon, 2 January 2006 21:05:31 +0100, Krzysztof Halasa wrote:
+> Arjan van de Ven <arjan@infradead.org> writes:
 > 
-> I don't think syslog can influence whether you see sysrq output via the
-> console.  Nevertheless, try sysrq-8 before other sysrq functions.
+> > it's by far not only gains. And maintenance costs too.
+> 
+> Anyway, distinctive "inlines" could help here, right?
 
-On my SuSE 10 system, I find the following lines in /etc/syslog.conf:
+Not really.  Your example, as Linus already explained, is a great
+example of how _not_ to inline stuff.  If in doubt, don't inline.  If
+a function is called just once, don't inline unless there are other
+good reasons for it.  If you get a minimal gain (10 bytes) in text
+size, don't inline.  The maintenance issue is more important.
 
-# print most on tty10 and on the xconsole pipe
-#
-kern.warning;*.err;authpriv.none         /dev/tty10
-kern.warning;*.err;authpriv.none        |/dev/xconsole
+Jörn
 
-Changing tty10 to ttyS0 and restarting rcsyslog has no influence on the
-output of SysReq commands, but obviously they now nolonger appear on
-tty10. So what's the correct way to delegate the output to serial console?
-
-PS: kernel command line: ... console=ttyS0,115200 console=tty0
-
-BTW: a short update of my freeze issue:
-- memtest86 revealed a bad memory location
-- accidentially beeing at tty10 when the freeze happend and sysrq-p
-showed that the atheros module got stuck
-- exchanging RAM and disabling ath0 seems to cure the system for 39
-minutes so far ;-)
-
-Bye.
 -- 
-Dipl.-Inform. (FH) Reinhard Nissl
-mailto:rnissl@gmx.de
-
+A defeated army first battles and then seeks victory.
+-- Sun Tzu

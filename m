@@ -1,36 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWABUNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWABUOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWABUNe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 15:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWABUNe
+	id S1751011AbWABUOn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 15:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWABUOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 15:13:34 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:25571 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751012AbWABUNe (ORCPT
+	Mon, 2 Jan 2006 15:14:43 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16034 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751009AbWABUOm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 15:13:34 -0500
-Date: Mon, 2 Jan 2006 21:13:25 +0100
+	Mon, 2 Jan 2006 15:14:42 -0500
+Date: Mon, 2 Jan 2006 21:14:29 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Adrian Bunk <bunk@stusta.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20060102201325.GA32464@elte.hu>
-References: <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <Pine.LNX.4.64.0601021105000.3668@g5.osdl.org>
+Cc: gcoady@gmail.com, Lee Revell <rlrevell@joe-job.com>,
+       Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+Message-ID: <20060102201429.GB32464@elte.hu>
+References: <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu> <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu> <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe> <20051229202848.GC29546@elte.hu> <u8u8r1ttmtubpvd87sf9mq4fi2of0l6js4@4ax.com> <20051230080914.GA26643@elte.hu> <Pine.LNX.4.64.0512300849590.3298@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601021105000.3668@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0512300849590.3298@g5.osdl.org>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -1.9
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -38,24 +37,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Linus Torvalds <torvalds@osdl.org> wrote:
 
-> > For example, I add "inline" for static functions which are only called
-> > from one place.
+> > have you applied the zlib patches too? In particular this one should 
+> > make a difference:
+> > 
+> >     http://redhat.com/~mingo/latency-tracing-patches/patches/reduce-zlib-stack-hack.patch
+> > 
+> > If you didnt have this applied, could you apply it and retry with 
+> > stack-footprint-debugging again?
 > 
-> That's actually not a good practice. Two reasons:
+> Ingo, instead of having a static work area and using locking, why not 
+> just move those fields into the "z_stream" structure, and thus make 
+> them be per-stream? The z_stream structure should already be allocated 
+> with kmalloc() or similar by the caller, so that also gets it off the 
+> stack without the locking thing.
 > 
->  - debuggability goes way down. Oops reports give a much nicer call-chain 
->    and better locality for uninlined code.
+> Hmm?
 
-yes, and to improve debuggability, i often do this at the top of 
-debugged .c modules:
-
-	#undef inline
-	#define inline
-
-to get good stacktraces. So debuggability is i think another argument to 
-further decouple 'inline' from 'always inline' - so a global .config 
-DEBUG_ option could turn all inlines into real function calls. (we 
-already have CONFIG_FRAME_POINTERS to improve stack-trace output, at the 
-price of slightly slower code.)
+yeah, i'll implement that. The above one was just a quick hack that 
+somehow survived. (and i am definitely a wimp when it comes to changing 
+zlib internals :-)
 
 	Ingo

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWABNhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWABNkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWABNhk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 08:37:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWABNhk
+	id S1750722AbWABNkX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 08:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWABNkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 08:37:40 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15511 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750721AbWABNhj (ORCPT
+	Mon, 2 Jan 2006 08:40:23 -0500
+Received: from smtp.rdslink.ro ([193.231.236.97]:19607 "EHLO smtp.rdslink.ro")
+	by vger.kernel.org with ESMTP id S1750722AbWABNkW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 08:37:39 -0500
-Date: Mon, 2 Jan 2006 14:37:21 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Ingo Molnar <mingo@redhat.com>
-Subject: Re: [patch 03/13] mutex subsystem, add include/asm-i386/mutex.h
-Message-ID: <20060102133721.GA2494@elte.hu>
-References: <200512310140_MC3-1-B501-E855@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512310140_MC3-1-B501-E855@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.9 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 2 Jan 2006 08:40:22 -0500
+X-Mail-Scanner: Scanned by qSheff 1.0 (http://www.enderunix.org/qsheff/)
+Date: Mon, 2 Jan 2006 15:40:08 +0200 (EET)
+From: caszonyi@rdslink.ro
+X-X-Sender: sony@grinch.ro
+Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mtrr: 0xe4000000,0x4000000 overlaps existing 0xe4000000,0x800000
+In-Reply-To: <43B929C5.6050602@rainbow-software.org>
+Message-ID: <Pine.LNX.4.62.0601021539550.1829@grinch.ro>
+References: <1136173074.6553.2.camel@mindpipe> <43B929C5.6050602@rainbow-software.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2 Jan 2006, Ondrej Zary wrote:
 
-* Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> Lee Revell wrote:
+>> I got this in dmesg with 2.6.14-rc7 when I restarted X with
+>> ctrl-alt-backspace due to a lockup.  Is it a kernel bug or an X problem?
+>> 
+> I see that always when starting X:
+> mtrr: 0xe1000000,0x800000 overlaps existing 0xe1000000,0x400000
+>
 
-> +/* mutex functions called when extra work needs to be done have these types */
-> +typedef void fastcall mutex_void_fail_fn_t(atomic_t *);
-> +typedef int fastcall mutex_int_fail_fn_t(atomic_t *);
+Same here
+mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x2000000
 
-i didnt apply this bit: there's not much to be won and readability 
-suffers.
+It appeared around kernel 2.6.14
 
-	Ingo
+
+--
+
+

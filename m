@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWABLKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWABMHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWABLKF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 06:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWABLKF
+	id S1751067AbWABMHF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 07:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWABMHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 06:10:05 -0500
-Received: from vvv.conterra.de ([212.124.44.162]:13535 "EHLO conterra.de")
-	by vger.kernel.org with ESMTP id S932251AbWABLKE (ORCPT
+	Mon, 2 Jan 2006 07:07:04 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:50955 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S1751098AbWABMHB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 06:10:04 -0500
-Message-ID: <43B90A04.2090403@conterra.de>
-Date: Mon, 02 Jan 2006 12:09:56 +0100
-From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: X86_64 + VIA + 4g problems
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 2 Jan 2006 07:07:01 -0500
+Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple
+	PowerBooks
+From: Stelian Pop <stelian@popies.net>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-kernel@killerfox.forkbomb.ch, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-input@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20051231235124.GA18506@hansmi.ch>
+References: <20051225212041.GA6094@hansmi.ch>
+	 <200512252304.32830.dtor_core@ameritech.net>
+	 <20051231235124.GA18506@hansmi.ch>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Mon, 02 Jan 2006 13:06:40 +0100
+Message-Id: <1136203601.5803.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just gave 2.6.15-rc7 a try, but still fail when plugging 4g into the board :-(
-Its an Asus sk8v (VIA chipset), thus I get:
+Le dimanche 01 janvier 2006 à 00:51 +0100, Michael Hanselmann a écrit :
+> On Sun, Dec 25, 2005 at 11:04:30PM -0500, Dmitry Torokhov wrote:
+> > Well, we have used 11 out of 32 available bits so there still some
+> > reserves. My concern is that your implementation allows only one
+> > hook to be installed while with quirks you can have several of them
+> > active per device.
+> 
+> Below you find an implementation using quirks:
+> 
+> ---
+> diff -rNup linux-2.6.15-rc7.orig/drivers/usb/input/hid-core.c linux-2.6.15-rc7/drivers/usb/input/hid-core.c
+> --- linux-2.6.15-rc7.orig/drivers/usb/input/hid-core.c	2006-01-01 00:41:15.000000000 +0100
+> +++ linux-2.6.15-rc7/drivers/usb/input/hid-core.c	2005-12-31 22:39:53.000000000 +0100
+> @@ -1580,6 +1580,10 @@ static struct hid_blacklist {
+>  	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+>  	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
+>  
+> +	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
+> +	{ USB_VENDOR_ID_APPLE, 0x0215, HID_QUIRK_POWERBOOK_HAS_FN },
+> +	{ USB_VENDOR_ID_APPLE, 0x0216, HID_QUIRK_POWERBOOK_HAS_FN },
+> +
 
-  Linux version 2.6.15-rc7 (root@linux2) (gcc version 3.3.5 20050117 (prerelease) (SUSE Linux)) #9 Sun Jan 1 19:54:26 CET 2006
-BIOS-provided physical RAM map:
-  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-  BIOS-e820: 00000000000e4000 - 0000000000100000 (reserved)
-  BIOS-e820: 0000000000100000 - 00000000bff30000 (usable)
-  BIOS-e820: 00000000bff30000 - 00000000bff40000 (ACPI data)
-  BIOS-e820: 00000000bff40000 - 00000000bfff0000 (ACPI NVS)
-  BIOS-e820: 00000000bfff0000 - 00000000c0000000 (reserved)
-  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-  BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
-ACPI: RSDP (v002 ACPIAM                                ) @ 0x00000000000fa850
-ACPI: XSDT (v001 A M I  OEMXSDT  0x06000517 MSFT 0x00000097) @ 0x00000000bff30100
-ACPI: FADT (v003 A M I  OEMFACP  0x06000517 MSFT 0x00000097) @ 0x00000000bff30290
-ACPI: MADT (v001 A M I  OEMAPIC  0x06000517 MSFT 0x00000097) @ 0x00000000bff30390
-ACPI: OEMB (v001 A M I  OEMBIOS  0x06000517 MSFT 0x00000097) @ 0x00000000bff40040
-ACPI: DSDT (v001  SK8V_ SK8V_033 0x00000033 MSFT 0x0100000d) @ 0x0000000000000000
-On node 0 totalpages: 1029568
-   DMA zone: 3160 pages, LIFO batch:0
-   DMA32 zone: 767848 pages, LIFO batch:31
-   Normal zone: 258560 pages, LIFO batch:31
-   HighMem zone: 0 pages, LIFO batch:0
-Looks like a VIA chipset. Disabling IOMMU. Overwrite with "iommu=allowed"
-.....
-GSI 19 sharing vector 0xC1 and IRQ 19
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 19
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 19
-eth0: 3Com Gigabit LOM (3C940)
-       PrefPort:A  RlmtMode:Check Link State
+Works fine for me on a slightly older (jul '05) Powerbook after adding
+the following USB identifiers:
 
-don't know, if it's related to that, but with 2G it runs stable since about a year.
++       { USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_POWERBOOK_HAS_FN },
++       { USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_POWERBOOK_HAS_FN },
++       { USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_POWERBOOK_HAS_FN },
++       { USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_POWERBOOK_HAS_FN },
 
-The problem arises as soon as my network (3C940) gets enabled, the following
-message is continuously repeated and nothing else works any more, not even
-console switching.
+Mine is a 020F but the other three ones should be fine too (those are
+taken from the appletouch trackpad driver).
 
-eth0: -- ERROR --
-Class: Hardware failure
-Nr: 0x264
-Msg: unexpected IRQ Status error
-eth0: Adapter failed.
-
-Any suggestion? Try different boot options acpi= pci= iommu= ... ?
-
-Dieter.
+Stelian.
 -- 
-Dieter Stüken, con terra GmbH, Münster
-     stueken@conterra.de
-     http://www.conterra.de/
-     (0)251-7474-501
+Stelian Pop <stelian@popies.net>
+

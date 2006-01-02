@@ -1,253 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWABVfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWABVpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbWABVfu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 16:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWABVfu
+	id S1751074AbWABVpY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 16:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWABVpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 16:35:50 -0500
-Received: from triton.atia.com ([193.16.246.115]:13346 "EHLO triton.atia.com")
-	by vger.kernel.org with ESMTP id S1751069AbWABVft (ORCPT
+	Mon, 2 Jan 2006 16:45:24 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10688 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751073AbWABVpX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 16:35:49 -0500
-To: Ingo Molnar <mingo@elte.hu>
+	Mon, 2 Jan 2006 16:45:23 -0500
+Date: Mon, 2 Jan 2006 22:45:16 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nedko Arnaudov <nedko@arnaudov.name>
 Cc: linux-kernel@vger.kernel.org
-Subject: patch-2.6.15-rc7-rt2 (realtime-preempt) report
-References: <87ek3ug314.fsf@arnaudov.name>
-From: Nedko Arnaudov <nedko@arnaudov.name>
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAM1BMVEX///8HBgUeFhGwUjwr
- NDF5RjOgVz2UVTxxTz9pNSXCiW2OUjhNIxi6bE6ROChWammgrK7+pa2IAAAAAXRSTlMAQObYZgAA
- AkxJREFUeAGtlAuTgyAMhK9gIGl4+P9/7W2wVbBo52YOZ2of+djdBPtT/7h+/lhf/wNYXFtLu38Y
- OCss7jEut4zMCTiXGzwiA7CMm78+XQPzemC9q15hun/7sovRAZcCg8QBfPRnF3QPd0jswHW9gUeK
- rwC2nwPTCRyudk9vhXtHXYgT4FxKOEn7zu83R+o3ULefUipKxjTn73LcPyzVbdck0YdAclJxE8C2
- hKHiM5ZKGm1NLFn9IyUNBoQzMZsDjCKxD89sl6dBYwJYCFgi/8TKGfWWYzPmDkfdM40nEgRSWIYE
- NREkQcdMem9SBzAStJJiCaxcpOAy4HDUARWbJyyRAKKwzbBoKQmAzBSqw/7iOJaYC+mTSYtiJs3d
- FFjggTkGKr54r6gPwRoMZboASonB+wJA2/wQ32tysfAU4MWr97kBuLdx4FNy5QKoCfVYprCdEAhE
- tFY7gb5LlcnqMwIgBASaI3S4S1AHoO7ASwH+bCTdFE4AmxP4wcIJMQFPaN01YBI5F7QT9wagq5KO
- FuHd/sS1b8VCUMTeofUV07gH4Cno1iuo2BQY079RqKSK49MWYcyBSOgWEMWk2iCsUV4RQW6BNopN
- wYJYBB7GcAqN2UXLbc3Cssyk9wpiw7NimwPqkemLArVZGBKIhWP8qkCExyaHHBn+Y4iR+rP3mQH1
- zKpMuDjmZ8DHfhDjpCsyYkUsxqsZy3EcxAgsDUCl/TnZYcJLgLVOogPWKkIB/rHzVm9QyGzE+mZ2
- YF1XHAQcPPy51kOhecI06vpCfgFqlF1IG9UTLgAAAABJRU5ErkJggg==
-Date: Mon, 02 Jan 2006 23:35:33 +0200
-In-Reply-To: <87ek3ug314.fsf@arnaudov.name> (Nedko Arnaudov's message of
- "Fri, 30 Dec 2005 14:52:55 +0200")
-Message-ID: <87mzie2tzu.fsf@arnaudov.name>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="==-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Subject: Re: patch-2.6.15-rc7-rt2 (realtime-preempt) report
+Message-ID: <20060102214516.GA12850@elte.hu>
+References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87mzie2tzu.fsf@arnaudov.name>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==-=-=
-Content-Type: multipart/mixed; boundary="=-=-="
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
+* Nedko Arnaudov <nedko@arnaudov.name> wrote:
 
-Hi, just got rc7-rt2 tested. cdrecord test still freezes my machine but
-this time I got screenshot(attached). Again I'm hiting this BUG only
-when doing actual burn, not when I erase.
+> Hi, just got rc7-rt2 tested. cdrecord test still freezes my machine 
+> but this time I got screenshot(attached). Again I'm hiting this BUG 
+> only when doing actual burn, not when I erase.
+>
+> With rt2 my machine does not freeze with pmidi 1.6 anymore. But I get 
+> this, when running pmidi 1.6 or tse3play (both using rtc I think):
 
-With rt2 my machine does not freeze with pmidi 1.6 anymore. But I get
-this, when running pmidi 1.6 or tse3play (both using rtc I think):
+could you try -rt3?
 
-BUG: scheduling while atomic: IRQ 8/0x00000001/777
-caller is schedule+0x3a/0xf0
- [<c03d2434>] __schedule+0x5b4/0x870 (8)
- [<c01389f0>] task_blocks_on_lock+0xb0/0xd0 (44)
- [<c03d272a>] schedule+0x3a/0xf0 (28)
- [<c03d3627>] __down_mutex+0x177/0x220 (12)
- [<c0129568>] lock_timer_base+0x18/0x40 (88)
- [<c01295aa>] __mod_timer+0x1a/0xc0 (20)
- [<c02931e0>] rtc_dropped_irq+0x0/0xe0 (12)
- [<c0292392>] rtc_interrupt+0xf2/0x130 (16)
- [<c0143e94>] handle_IRQ_event+0x64/0xe0 (16)
- [<c0144c3d>] thread_edge_irq+0x4d/0xe0 (48)
- [<c0144cff>] do_hardirq+0x2f/0x70 (20)
- [<c0144e2f>] do_irqd+0xef/0x1a0 (16)
- [<c0144d40>] do_irqd+0x0/0x1a0 (24)
- [<c0134a53>] kthread+0x93/0xc0 (4)
- [<c01349c0>] kthread+0x0/0xc0 (20)
- [<c01011bd>] kernel_thread_helper+0x5/0x18 (16)
-
-I've not observed nothing bad except that dump however.
-
-LKML receivers, please CC me when replying. I'm currently not subscribed
-to LKML.
-
-
---=-=-=
-Content-Type: image/jpeg
-Content-Disposition: attachment; filename=rc7-rt2-cdrecord-bug.jpg
-Content-Transfer-Encoding: base64
-
-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
-YVDa+Utz838XcLAgT66+c1VcsUorqFYIU73uWLzbi97Cg0w113M2fyH4sKq1hAPoSdz1Vynp
-4LYxqVgfmSZTZyFj4a4w0qD3185Vi3ii5XK9gPlsib8jmXsoNVdS1gnyQSf7z2Ob8Iz46PYg
-0GJMrx+YakWn0lay33YkweZs60KqKvpf1k5XMevUy+gqs3+rsZ6x+bamqtWpRzX+VifaZrOQ
-754yvSQEHfXzoxmclZl5KXFVQoPGppPON29QY9Xrddep53MOLmNj5YyCA7b35mh+XtbPGWFV
-WA11Htqe7+Yeyh6q6q6vU/MV3sya+aZUr70V2NWPhZt7E8Vcxcl9tjhbPU91PtPGbylmXUlQ
-RK61O+q/Mznk7kREmREREREREREREREREREREREREREREiIkyIkyIiIiIiIiIiIiRESZERER
-EREiXXSqXY2PZk2iuobYzof5Bnf7F/8AmJgvqfGuaqzXZffRlZO4iRJjcbiNxG4iIiIjcSIi
-IiIkSZEmRJkREmRJkRJiIiJERERERERERERERERERERERERERERIiIiIiIiIiREtulUtpuel
-+yHR+omv/NcvX/eaY7LGscs5JY+5M8yYiIiIiIiIiIiIiRERERERERERERERERERERERERER
-EREREREREREREREiIiIiIiIiIiIiRES26VRJ3EmIiIiIkyIiJMRERIiIiIiIiIiIiIiIiIiI
-iIiIiIiIiIiIiREmJEmREREkxuRuI3G43G43G43G5G43G5O5G43G43G43G43G43ES22VRERE
-RERERG43G43G43G5OzI3JJjZkbjcbjcbjZjZjcbjcbjZjZk7kbjcbjcncjcncjZjZk7iNxuR
-uNmNxuNxuNmNxuNxuNxsxuNxsxvxERERERAiIiIiIiIiIkRJiIkSYiIiIif/2Q==
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-=2D-=20
-Nedko Arnaudov <GnuPG KeyID: DE1716B0>
-
---=-=-=--
-
---==-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDuZyo6bb4v94XFrARAmFlAJ43jgywdQGfDWfxQ3DJPs0gTeoIPgCfW+jn
-lJG5xZ0Es+6jcQ7+AMY4UEg=
-=Xhq2
------END PGP SIGNATURE-----
---==-=-=--
-
+	Ingo

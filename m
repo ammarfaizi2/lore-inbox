@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWABOFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWABOGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWABOFU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 09:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWABOFU
+	id S1750742AbWABOGu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 09:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWABOGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 09:05:20 -0500
-Received: from proxy3.nextra.sk ([195.168.1.138]:30980 "EHLO
-	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S1750732AbWABOFT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 09:05:19 -0500
-Message-ID: <43B9331A.8000802@rainbow-software.org>
-Date: Mon, 02 Jan 2006 15:05:14 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Mon, 2 Jan 2006 09:06:50 -0500
+Received: from rtr.ca ([64.26.128.89]:37811 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750736AbWABOGt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 09:06:49 -0500
+Message-ID: <43B93375.1020701@rtr.ca>
+Date: Mon, 02 Jan 2006 09:06:45 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Calin Szonyi <caszonyi@rdslink.ro>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mtrr: 0xe4000000,0x4000000 overlaps existing 0xe4000000,0x800000
-References: <1136173074.6553.2.camel@mindpipe> <43B929C5.6050602@rainbow-software.org> <Pine.LNX.4.62.0601021539550.1829@grinch.ro>
-In-Reply-To: <Pine.LNX.4.62.0601021539550.1829@grinch.ro>
+To: =?ISO-8859-1?Q?Ralf_M=FCller?= <ralf@bj-ig.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org
+Subject: Re: Kernel panic with 2.6.15-rc7 + libata1 patch
+References: <43B724BA.90405@bj-ig.de> <43B7EA0A.7040805@bj-ig.de>	<20060101145702.GV3811@stusta.de> <43B806C7.5000607@bj-ig.de>
+In-Reply-To: <43B806C7.5000607@bj-ig.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-caszonyi@rdslink.ro wrote:
-> On Mon, 2 Jan 2006, Ondrej Zary wrote:
-> 
->> Lee Revell wrote:
->>> I got this in dmesg with 2.6.14-rc7 when I restarted X with
->>> ctrl-alt-backspace due to a lockup.  Is it a kernel bug or an X problem?
->>>
->> I see that always when starting X:
->> mtrr: 0xe1000000,0x800000 overlaps existing 0xe1000000,0x400000
->>
-> 
-> Same here
-> mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x2000000
-> 
-> It appeared around kernel 2.6.14
+Ralf Müller wrote:
+>
+> A further problem is that calling "hdparm -C" _always_ give "drive state 
+> is:  standby" - even when the disks are clearly active. Maybe this 
+> indicates something to you.
 
-I've just tried 2.6.8.1 and it's there too. Nothing in 2.6.0.
+MMmm.. yes, it does that here, too.
+This is probably a bug somewhere in the libata passthru code,
+or in the HDIO_* translation code.
 
--- 
-Ondrej Zary
+Cheers

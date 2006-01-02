@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWABOz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWABO6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWABOz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 09:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWABOz5
+	id S1750768AbWABO6O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 09:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWABO6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 09:55:57 -0500
-Received: from general.keba.co.at ([193.154.24.243]:21625 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S1750714AbWABOz4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 09:55:56 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-Date: Mon, 2 Jan 2006 15:55:52 +0100
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323310@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-Thread-Index: AcYPqv7J65v/H/e8Q16WbYfW4nzTDgAAKgXw
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Daniel Walker" <dwalker@mvista.com>
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Lee Revell" <rlrevell@joe-job.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
+	Mon, 2 Jan 2006 09:58:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:27875 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750768AbWABO6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 09:58:13 -0500
+Subject: Re: Kernel Make system and linking static libraries on kernel
+	version s2.6.14+
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Puvvada, Vijay B." <vijay.b.puvvada@saic.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1136213489.3483.18.camel@hadji>
+References: <1136213489.3483.18.camel@hadji>
+Content-Type: text/plain
+Date: Mon, 02 Jan 2006 15:58:09 +0100
+Message-Id: <1136213889.2936.31.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Daniel Walker
-> Right .. I'm still looking into it. ARM is just missing some vital
-> tracing bits I think .
+On Mon, 2006-01-02 at 09:51 -0500, Puvvada, Vijay B. wrote:
+> Hello, 
+> 
+> This is a "I'm stumped kind of problem" and desperately need some
+> guidance with regards to the kernel make system..
+> 
+> I had also started a thread at 
+> http://forums.fedoraforum.org/showthread.php?p=428551#post428551 with
+> regards to this, where I describe the context of the problem.  
+> 
+> In a nutshell, I am trying to compile the Nortel VPN client (which is
+> written as part driver and part app) against the 2.6.14 kernel and I am
+> getting the following warning. 
+> 
+> Warning: could not
+> find /usr/local/cvc_linux-rh-gcc3-3.3/src/k2.6/../.libmishim-2.6.a.cmd
+> for /usr/local/cvc_linux-rh-gcc3-3.3/src/k2.6/../libmishim-2.6.a
 
-As I wrote in some earlier mail, I'm probably the first one ever
-who tried it on ARM: When I tried first, tracing didn't work at all,
-because the trace timing macro's were not defined (at least for
-sa1100). I quick-hacked the three missing macros (this caused the
-tracer to produce at least some output) without checking if 
-anything else is missing.
 
+it'll be a LOT easier for you to rewrite the Makefile such that you
+don't get .a files but a .o file similar to how the rest of kbuild
+operates.... while we do use .a files for linking into the vmlinux.. for
+modules it's probably not the best of ideas
+(and there's not really an advantage do doing so either anyway)
 
--- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com

@@ -1,75 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWABOoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWABOxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWABOoK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 09:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWABOoK
+	id S1750700AbWABOxP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 09:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWABOxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 09:44:10 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:15605 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750766AbWABOoJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 09:44:09 -0500
-Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-From: Daniel Walker <dwalker@mvista.com>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F36732330F@MAILIT.keba.co.at>
-References: <AAD6DA242BC63C488511C611BD51F36732330F@MAILIT.keba.co.at>
-Content-Type: text/plain
-Date: Mon, 02 Jan 2006 06:44:07 -0800
-Message-Id: <1136213048.22548.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Jan 2006 09:53:15 -0500
+Received: from mclmx.mail.saic.com ([149.8.64.10]:59049 "EHLO
+	mclmx.mail.saic.com") by vger.kernel.org with ESMTP
+	id S1750700AbWABOxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 09:53:14 -0500
+Message-Id: <1136213489.3483.18.camel@hadji>
+From: "Puvvada, Vijay B." <VIJAY.B.PUVVADA@saic.com>
+Reply-To: "Puvvada, Vijay B." <vijay.b.puvvada@saic.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Make system and linking static libraries on kernel version
+	s2.6.14+
+Date: Mon, 2 Jan 2006 09:51:29 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-02 at 15:39 +0100, kus Kusche Klaus wrote:
-> > From: Daniel Walker
-> > On Mon, 2006-01-02 at 08:57 +0100, kus Kusche Klaus wrote:
-> > >   <idle>-0     0D...    1us+: preempt_schedule_irq (svc_preempt)
-> > >   <idle>-0     0....    5us!: default_idle (cpu_idle)
-> > >   <idle>-0     0D..1 8700us+: asm_do_IRQ (c021da48 1a 0)
-> > 
-> > Your trace appears to be showing an actual latency of 300us . 
-> > The trace
-> > starts at 8700us . The default_idle line above is showing 
-> > interrupts are
-> > enable, and preemption is enabled . So the tracing code 
-> > really should be
-> > ignoring the default_idle line since there is no reason to be 
-> > tracing. 
-> 
-> Ok, thanks, fine.
-> 
-> I always thought that the output of the tracer always represents a 
-> single block of latency (either interrupts or preemption disabled),
-> from its beginning to its end.
-> 
-> Does that mean that any line with status "0...." is not dangerous
-> at all w.r.t. latency?
+Hello, 
 
-The tracing isn't correct on ARM . It shouldn't show a max latency of
-8700us when it's only 300us . I'm not saying there isn't a problem.
+This is a "I'm stumped kind of problem" and desperately need some
+guidance with regards to the kernel make system..
 
-> If this is the case, then it should not only be excluded from the
-> trace listing, but also from the total timings! The trace header says
-> that this is a latency of 8964 us, and this also means that any
-> latency shorter than that is not recorded by the tracer.
-> 
-> However, if the "real" latency of this trace is only 300 us, there
-> are quite likely longer "real" latencies (at least, my own test
-> programs strongly indicate that), and I'd like to see their traces
-> and get the maximum "real" latency duration in the statistics (the
-> interrupt latency histogram is also based on the values in the trace
-> and not on the "real" latencies: It has a significant peak around
-> 8800 us, and I certainly don't have that many int-off periods of
-> 8800 us on my system!).
+I had also started a thread at 
+http://forums.fedoraforum.org/showthread.php?p=428551#post428551 with
+regards to this, where I describe the context of the problem.  
 
-Right .. I'm still looking into it. ARM is just missing some vital
-tracing bits I think .
+In a nutshell, I am trying to compile the Nortel VPN client (which is
+written as part driver and part app) against the 2.6.14 kernel and I am
+getting the following warning. 
 
-Daniel
+Warning: could not
+find /usr/local/cvc_linux-rh-gcc3-3.3/src/k2.6/../.libmishim-2.6.a.cmd
+for /usr/local/cvc_linux-rh-gcc3-3.3/src/k2.6/../libmishim-2.6.a
+
+For some reason, the kernel make system does not seem to know what to do
+with static libraries.  It doesn't seem to create a .cmd for these
+files.
+
+1.  Is this a normal warning when trying to link in static libraries
+with the kernel make system?  ie, the kernel make system does not create
+a .cmd file for static libraries/archives.
+
+2.  Do they all still get linked in or is this a real problem?  It seems
+to warn on the first static library so I am assuming the rest of the
+line is just abandoned.  Is this a correct interpretation?
+
+3.  How can I clean up the warning?  Is there a proper way to specify
+static libraries to the kernel make system?
+
+So far as I can tell, this is an interaction between the kernel make
+system and the application I have and not distro-specific.  
+
+If you require any information, please do not hesitate to ask.
+
+Vij
+
+The full makefile for the kernel driver portion is below:
 
 
+Makefile:
+obj-m         += mishim.o nlvcard.o
+mishim-libs   += ../libmishim-2.6.a ../libnlcmp.a ../libz.a ../liblzs.a
+mishim-c-objs += linux_wrapper.o
+mishim-objs   += $(mishim-c-objs) $(mishim-libs)
+
+EXTRA_CFLAGS += -fno-common -w
+
+ifeq ($(KERNELRELEASE),)
+
+KVER            = $(shell uname -r)
+
+ifeq (1,1)
+KDIR            = /lib/modules/$(KVER)/build
+else
+KDIR            = /usr/src/linux-$(KVER)
+endif
+
+PWD             = $(shell pwd)
+
+mishim-cfiles = ${mishim-c-objs:.o=.c}
+
+
+kmod_build:: $(mishim-libs) $(mishim-cfiles)
+        $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+        @cp mishim.ko ../mishim.o
+        @cp nlvcard.ko ../nlvcard.o
+
+%.c:
+        @ln -s ../linux_wrapper.c
+
+clean:
+        -rm -rf *.o *.ko *.mod.* .??*
+
+install: all
+        @echo "Installing VPN agent."
+        cd .. &&  ./install.sh
+
+uninstall: 
+        @echo "Uninstalling VPN agent."
+        cd .. && ./uninstall.sh
+
+endif

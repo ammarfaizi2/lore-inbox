@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWABQwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWABRDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWABQwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 11:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWABQwZ
+	id S1750890AbWABRDo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 12:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWABRDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 11:52:25 -0500
-Received: from mail.gmx.net ([213.165.64.21]:35996 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750869AbWABQwY (ORCPT
+	Mon, 2 Jan 2006 12:03:44 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:64745 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750888AbWABRDn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 11:52:24 -0500
-X-Authenticated: #5082238
-Date: Mon, 2 Jan 2006 17:52:31 +0100
-From: Carsten Otto <c-otto@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: X86_64 + VIA + 4g problems
-Message-ID: <20060102165231.GA23834@carsten-otto.halifax.rwth-aachen.de>
-Reply-To: c-otto@gmx.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>
+	Mon, 2 Jan 2006 12:03:43 -0500
+Date: Mon, 2 Jan 2006 18:03:26 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 05/19] mutex subsystem, add include/asm-x86_64/mutex.h
+Message-ID: <20060102170326.GA5593@elte.hu>
+References: <20060102163354.GF31501@elte.hu> <20060102164605.GB7222@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73k6difvm3.fsf@verdi.suse.de>
-X-GnuGP-Key: http://c-otto.de/pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20060102164605.GB7222@wotan.suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Andi Kleen <ak@suse.de> wrote:
 
-On Mon, Jan 02, 2006 at 05:22:12PM +0100, Andi Kleen wrote:
-> When you not compile in the SKGE network driver does everything else work?
-> skge supports 64bit DMA, so it shouldn't use any IOMMU.  But I'm somewhat
-> suspicious of the >4GB support in the VIA chipset. We had problems with
-> that before. It's possible that it's just not supported in the hardware
-> or that the BIOS sets up the MTRRs wrong.
+> > +		: "rax", "rsi", "rdx", "rcx",				\
+> > +		  "r8", "r9", "r10", "r11", "memory");			\
+> 
+> I think it would be still better if you used the stubs in 
+> arch/x86_64/lib/thunk.S and not clobber all the registers. While it 
+> won't make that much difference for the out of line mutexes it will 
+> generate better code for inline mutexes, and if someone ever decides 
+> they're a good idea the code will be ready.
 
-How can I find that out? Can I provide any useful material? VIA KT800Pro
-and 4GB RAM here..
+i didnt want to add it to thunk.S because right now it would cause an 
+unnecessary slowdown for the slowpath, by quite a number of 
+instructions: due to the indiscriminate register-saving/restoring done 
+in thunk.S.
 
-PS: I am not the original poster, but have a similar problem.
+even though it's a "slow path" relative to the fastpath, we shouldnt 
+slow it down unnecessarily. So if someone wants to play with more 
+inlining later on, this has to be done in context of that effort.
 
-Thanks,
---=20
-Carsten Otto
-c-otto@gmx.de
-www.c-otto.de
-
---liOOAslEiF7prFVr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDuVpPjUF4jpCSQBQRAtSYAKCe4Xg0yUeb4OQSRNI4UHFCfactfgCfWKcH
-MF3MzQQSswwlSR7YDnFahHg=
-=P843
------END PGP SIGNATURE-----
-
---liOOAslEiF7prFVr--
+	Ingo

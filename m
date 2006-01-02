@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWABJ5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWABKDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWABJ5y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 04:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWABJ5x
+	id S932345AbWABKDq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 05:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWABKDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 04:57:53 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:52424 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932342AbWABJ5x convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 04:57:53 -0500
+	Mon, 2 Jan 2006 05:03:46 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:4900 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932345AbWABKDp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 05:03:45 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RQRcXUEKlUH1FIyd93AzPeCdo52NlhI7XDnFQdXr/VsPaemgtKtXQ3vei2K8usaO71P7V1crzkGxoMcDSpuq8fqCkRNugbYR2HuRSNIUw8Xi4TbaRHQQdH4tGzjRDshbkbIivhro7RTKyG6JPMChBFtF0xak8wQkYpkVvql1I8o=
-Message-ID: <5a2cf1f60601020157w1ca252e0s1fe8fa3e839e54d4@mail.gmail.com>
-Date: Mon, 2 Jan 2006 10:57:52 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: [OT] Re: MPlayer broken under 2.6.15-rc7-rt1?
-Cc: Bradley Reed <bradreed1@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1136118354.17830.21.camel@laptopd505.fenrus.org>
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=qBM+ZeaTs7JIo5ZUDl/wddsHxkKTZW9/u/Ghdx2ixHqdl4Wmax0sQb4SE/05jAouHVZ1ZarvRKlh1dxxpv6qOZtbzeokg6E1mphmEFAt0mwETZ7akQYkYk5FA0hPuKXjOHdLZdogpVPBEwB+dNh6UqlHV+4PBoWGBTaz2hVISzg=
+Message-ID: <43B8FA70.2090408@gmail.com>
+Date: Mon, 02 Jan 2006 12:03:28 +0200
+From: Matan Peled <chaosite@gmail.com>
+Reply-To: chaosite@gmail.com
+Organization: Chaosite Destruction, inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051231202933.4f48acab@galactus.example.org>
-	 <1136106861.17830.6.camel@laptopd505.fenrus.org>
-	 <20060101115121.034e6bb7@galactus.example.org>
-	 <1136114772.17830.20.camel@laptopd505.fenrus.org>
-	 <5a2cf1f60601010412r3ec10855s5ad6ed8e0a6f2ef1@mail.gmail.com>
-	 <1136118354.17830.21.camel@laptopd505.fenrus.org>
+To: linux-kernel@vger.kernel.org
+CC: kwall@kurtwerks.com
+Subject: Re: Arjan's noinline Patch
+References: <20060101155710.GA5213@kurtwerks.com> <20060102034350.GD5213@kurtwerks.com>
+In-Reply-To: <20060102034350.GD5213@kurtwerks.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/1/06, Arjan van de Ven <arjan@infradead.org> wrote:
->
-> > Although I like the idea of making the vendors of binary modules
-> > really aware of the costs they introduce with regard to debug issues
-> > on tainted system, if I was them, the first thing I would say is
-> > "contact the vendor of the part of the system that changed", i.e. the
-> > kernel.
->
-> the good ones don't, and investigate. The bad ones... do you really want
-> their code in your kernel??
+Kurt Wall wrote:
+> the "noinline" cases were built with Arjan's patch and
+> CONFIG_CC_OPTIMIZE_FOR_SIZE; the "inline" kernels were built,
+> obviously, without the patch and without CONFIG_CC_OPTIMIZE_FOR_SIZE.
 
-I should have emphasized the "system that changed" part over the
-"contact the vendor" one.
+Wait, so how do we know if its GCC's -Os that caused the reduction in .text 
+size, or the noinline patch ... ?
 
-I believe most of us have to deal with time as a limited constraint.
-And the issue investigation heuristic that considers that an issue
-most likely results from the latest change in your configuration gives
-a good result most of the time. Software, hardware, we all do it.
+To get actual results, you should either take OPTIMIZE_FOR_SIZE out the equation 
+or use it on the other kernel as well...
 
-So maybe it's a bad vendor practise to *redirect* people somewhere
-else, but it's I think a good engineering practise to work by
-*isolating changes*. Kernel people work by isolating binary from
-non-binary code. Vendor probably work by isolating unknown
-configurations from preferred known working configurations. Everyone
-just tries to do what best suit their development environment and
-constraints.
+-- 
+[Name      ]   ::  [Matan I. Peled    ]
+[Location  ]   ::  [Israel            ]
+[Public Key]   ::  [0xD6F42CA5        ]
+[Keyserver ]   ::  [keyserver.kjsl.com]
+encrypted/signed  plain text  preferred
 
-Cheers,
-
-Jerome
-
-(and Happy Linux Year 2006)

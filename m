@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWABMHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWABMJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWABMHF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 07:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWABMHE
+	id S932120AbWABMJc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 07:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWABMJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 07:07:04 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:50955 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1751098AbWABMHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 07:07:01 -0500
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple
-	PowerBooks
-From: Stelian Pop <stelian@popies.net>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel@killerfox.forkbomb.ch, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-input@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20051231235124.GA18506@hansmi.ch>
-References: <20051225212041.GA6094@hansmi.ch>
-	 <200512252304.32830.dtor_core@ameritech.net>
-	 <20051231235124.GA18506@hansmi.ch>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 02 Jan 2006 13:06:40 +0100
-Message-Id: <1136203601.5803.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Jan 2006 07:09:32 -0500
+Received: from nproxy.gmail.com ([64.233.182.192]:8140 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932120AbWABMJb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 07:09:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j/AzEhZjTXHNx0HlEA7+7bKxScDpnPjYZE0oV3kGFGD8T8iyoS8RwzT85eqgjRB+soSiTknvZ5MScyOIRaAwra4zpFUcVTfr3kY0PdOKLBXlvU30vXgHu8U3SDJL7aTdzS9TBva5kcueRhctS6mjLFV2pdOiwoeH28IUd8r+41o=
+Message-ID: <84144f020601020409j3013f7e7w8c242bbb488f013@mail.gmail.com>
+Date: Mon, 2 Jan 2006 14:09:29 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client on interactive response
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <43ABFD47.3080000@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43A8EF87.1080108@bigpond.net.au> <43AB29B8.7050204@bigpond.net.au>
+	 <1135292364.9769.58.camel@lade.trondhjem.org>
+	 <AAF94E06-ACB9-4ABE-AC15-49C6B3BE21A0@mac.com>
+	 <1135297525.3685.57.camel@lade.trondhjem.org>
+	 <43AB69B8.4080707@bigpond.net.au>
+	 <1135330757.8167.44.camel@lade.trondhjem.org>
+	 <43ABD639.2060200@bigpond.net.au>
+	 <1135342262.8167.143.camel@lade.trondhjem.org>
+	 <43ABFD47.3080000@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le dimanche 01 janvier 2006 à 00:51 +0100, Michael Hanselmann a écrit :
-> On Sun, Dec 25, 2005 at 11:04:30PM -0500, Dmitry Torokhov wrote:
-> > Well, we have used 11 out of 32 available bits so there still some
-> > reserves. My concern is that your implementation allows only one
-> > hook to be installed while with quirks you can have several of them
-> > active per device.
-> 
-> Below you find an implementation using quirks:
-> 
-> ---
-> diff -rNup linux-2.6.15-rc7.orig/drivers/usb/input/hid-core.c linux-2.6.15-rc7/drivers/usb/input/hid-core.c
-> --- linux-2.6.15-rc7.orig/drivers/usb/input/hid-core.c	2006-01-01 00:41:15.000000000 +0100
-> +++ linux-2.6.15-rc7/drivers/usb/input/hid-core.c	2005-12-31 22:39:53.000000000 +0100
-> @@ -1580,6 +1580,10 @@ static struct hid_blacklist {
->  	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
->  	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
->  
-> +	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
-> +	{ USB_VENDOR_ID_APPLE, 0x0215, HID_QUIRK_POWERBOOK_HAS_FN },
-> +	{ USB_VENDOR_ID_APPLE, 0x0216, HID_QUIRK_POWERBOOK_HAS_FN },
-> +
+Hi,
 
-Works fine for me on a slightly older (jul '05) Powerbook after adding
-the following USB identifiers:
+Trond Myklebust wrote:
+> >         /*
+> >          * Tasks that have marked their sleep as noninteractive get
+> >          * woken up without updating their sleep average. (i.e. their
+> >          * sleep is handled in a priority-neutral manner, no priority
+> >          * boost and no penalty.)
+> >          */
+> >
+> > This appears to be the only documentation for the TASK_NONINTERACTIVE
+> > flag,
 
-+       { USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_POWERBOOK_HAS_FN },
-+       { USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_POWERBOOK_HAS_FN },
-+       { USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_POWERBOOK_HAS_FN },
-+       { USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_POWERBOOK_HAS_FN },
+On 12/23/05, Peter Williams <pwil3058@bigpond.net.au> wrote:
+> I guess it makes to many assumptions about the reader's prior knowledge
+> of the scheduler internals.  I'll try to make it clearer.
 
-Mine is a 020F but the other three ones should be fine too (those are
-taken from the appletouch trackpad driver).
+FWIW, Ingo invented TASK_NONINTERACTIVE to fix a problem I had with
+Wine. See the following threads for further discussion:
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+http://marc.theaimsgroup.com/?t=111729237700002&r=1&w=2
+http://marc.theaimsgroup.com/?t=111761183900001&r=1&w=2
 
+                                 Pekka

@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWABTtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWABTuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWABTtu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 14:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWABTtu
+	id S1750987AbWABTuM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 14:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWABTuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 14:49:50 -0500
-Received: from khc.piap.pl ([195.187.100.11]:14596 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1750986AbWABTtu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 14:49:50 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Adrian Bunk <bunk@stusta.de>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-References: <20051229224839.GA12247@elte.hu>
-	<1135897092.2935.81.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-	<20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
-	<20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de>
-	<20060102103721.GA8701@elte.hu>
-	<1136198902.2936.20.camel@laptopd505.fenrus.org>
-	<20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu>
-	<m3ek3qcvwt.fsf@defiant.localdomain>
-	<1136227893.2936.51.camel@laptopd505.fenrus.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 02 Jan 2006 20:49:46 +0100
-In-Reply-To: <1136227893.2936.51.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Mon, 02 Jan 2006 19:51:32 +0100")
-Message-ID: <m34q4mpfz9.fsf@defiant.localdomain>
+	Mon, 2 Jan 2006 14:50:12 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:24713 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750988AbWABTuK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 14:50:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n3luEZDUAq+cAV1bGZC/Q1j1OMaDyU+nBUdhzkCR8VIO+0sXAEe6hX48SAWjv1lSviIq9sYX9UU/xItMdGkf3D/4S7Org5KVjaKf3z5/VPCBft7ZjoivgepYHPTltWK/UraUnOantUXNrvfwwJXaK5ogFOiIZY1ls7+TwMRg7L4=
+Message-ID: <9cfa10eb0601021150y646fe728s@mail.gmail.com>
+Date: Mon, 2 Jan 2006 21:50:08 +0200
+From: Marko Kohtala <marko.kohtala@gmail.com>
+To: Jason Dravet <dravet@hotmail.com>
+Subject: Re: [Linux-parport] [RFC]: add sysfs support to parport_pc, v3
+Cc: linux-kernel@vger.kernel.org, linux-parport@lists.infradead.org
+In-Reply-To: <BAY103-F835CFFD193D6F76C5527FDF2D0@phx.gbl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <BAY103-F835CFFD193D6F76C5527FDF2D0@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> writes:
+2006/1/2, Jason Dravet <dravet@hotmail.com>:
+> Here is a new patch to parport_pc that adds sysfs and thus udev support to
+> parport_pc.  I fixed my earilier problem of the kernel oops (I forgot the
+> class_destory) and I can insmod and rmmod this module all day long with no
+> side effects.  I do have one question why do both lp and parport nodes have
+> to be created?
+>
+> What do you think of this patch?  What would be the next step to get this
+> into the kernel?
 
-> you know what? gcc inlines those automatic even without you typing
-> "inline". (esp if you have unit-at-a-time enabled)
+If your problem is that you do not get /dev/lp0 created automatically,
+I think a better way to get that solved is to find out a way that the
+module lp is loaded automatically when a printer is found on the
+parport.
 
-And if it's not or if it's an older gcc?
-Such functions should always be inlined, except maybe while debugging.
+Maybe you should look into drivers/parport/probe.c and have it do
+request_module("lp") when it finds a printer attached to the parport.
 
-> well.. gcc is not stupid, especially if you give it visibility by
-> enabling unit-at-a-time.
+Some paride (or SCSI) devices could also be probed for using a
+pre-IEEE1284 daisy chain command that gives a 16 bit device ID, and
+proper drivers loaded with some module aliases including the device
+ID. If something unidentifiable is found on the parport then maybe the
+ppdev could be loaded so that userspace drivers will have an interface
+to work with.
 
-A *.c author can't do that. Who knows what flags will be used?
+I fear that some people would find this too smart to be useful. I'd
+expect them to request at least a module option to parport to disable
+it.
 
-> you save about 1 cycle by inlining unless there is a trick for the
-> optimizer.
-
-There probably is but even without further optimizations I still save
-at least that 1 cycle (and probably it caches better and have less stack
-impact etc).
-
-> Especially in the case you mention where gcc will dtrt...
-> it's not worth typing "inline", what if you change the code later to use
-> the function twice... most people at least forget to remove the
-> redundant inline, turning it into a bloater...
-
-I'd probably not forget that. BTW: most people don't write Linux.
-Still, in cases where there are only gains and nothing to lose, why
-not use some form of "inline"?
-
-We could be more descriptive, though. An average reader should probably
-be able to _read_ why is a particular function inlined, without guessing.
-That would also help WRT different gcc options and versions, and it would
-help checking if the "inline" is indeed correct (a public function with
-callers all over the place marked as "one caller static" would be
-obviously incorrect).
--- 
-Krzysztof Halasa
+Most people are happy with just "lp" in /etc/modules.

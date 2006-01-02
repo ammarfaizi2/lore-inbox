@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWABUal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWABUfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWABUal (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 15:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWABUal
+	id S1751054AbWABUfe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 15:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWABUfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 15:30:41 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:45019 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750753AbWABUak (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 15:30:40 -0500
-Date: Mon, 2 Jan 2006 21:30:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, bunk@stusta.de, arjan@infradead.org,
-       tim@physik3.uni-rostock.de, torvalds@osdl.org, davej@redhat.com,
-       linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20060102203028.GA1131@elte.hu>
-References: <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org> <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu> <m3ek3qcvwt.fsf@defiant.localdomain> <20060102110341.03636720.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 2 Jan 2006 15:35:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4496 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751037AbWABUfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 15:35:33 -0500
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
+References: <patchbomb.1135816279@eng-12.pathscale.com>
+	<20051230080002.GA7438@kroah.com>
+	<1135984304.13318.50.camel@serpentine.pathscale.com>
+	<20051231001051.GB20314@kroah.com>
+	<1135993250.13318.94.camel@serpentine.pathscale.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 02 Jan 2006 13:35:07 -0700
+In-Reply-To: <1135993250.13318.94.camel@serpentine.pathscale.com> (Bryan
+ O'Sullivan's message of "Fri, 30 Dec 2005 17:40:50 -0800")
+Message-ID: <m1irt25pxg.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060102110341.03636720.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Bryan O'Sullivan" <bos@pathscale.com> writes:
 
-* Andrew Morton <akpm@osdl.org> wrote:
+> On Fri, 2005-12-30 at 16:10 -0800, Greg KH wrote:
+>
+>> But we (the kernel community), don't really accept that as a valid
+>> reason to accept this kind of code, sorry.
+>
+> Fair enough.  I'd like some guidance in that case.  Some of our ioctls
+> access the hardware more or less directly, while others do things like
+> read or reset counters.
 
-> Either way, we need to go all over the tree.  In practice, we'll only 
-> bother going over the bits which we most care about (core kernel, core 
-> networking, a handful of net and block drivers).  I suspect many of 
-> the bad inlining decisions are in poorly-maintained code - we've been 
-> pretty careful about this for several years.
+As a general rule a driver should push as much functionality to
+libraries and the infrastructure code as possible. 
 
-i've gone over quite many inlining decisions, and i have to say that 
-even for my _own code_, most of the historic inlining decisions were 
-wrong. What seems simple on the C level, can be quite bloaty on the 
-assembly level - even if you are well aware of how C maps to assembly!
+> Which of these kinds of operations are appropriate to retain as ioctls,
+> in your eyes, and which are best converted to sysfs or configfs
+> alternatives?
+>
+> As an example, take a look at ipath_sma_ioctl.  It seems to me that
+> receiving or sending subnet management packets ought to remain as
+> ioctls, while getting port or node data could be turned into sysfs
+> attributes.  Lane identification could live in configfs.  If you think
+> otherwise, please let me know what's more appropriate.
 
-furthermore, there's also a new CPU-architecture argument: the cost of 
-icache misses has gone up disproportionally over the past couple of 
-years, because on the first hand lots of instruction-scheduling 
-'metadata' got embedded into the L1 cache (like what used to be the BTB 
-cache), and secondly because the (physical) latency gap between L1 cache 
-and L2 cache has increased. Thirdly, CPUs are much better at untangling 
-data dependencies, hence more compact but also more complex code can 
-still perform well. So the L1 icache is more important than it used to 
-be, and small code size is more important than raw cycle count - _and_ 
-small code has less of a speed hit than it used to have. x86 CPUs have 
-become simple JIT compilers, and code size reductions tend to become the 
-best way to inform the CPU of what operations we want to compute.
+I haven't looked closely enough at the state of the openib tree but
+you should not need an additional interface to send/receive standard
+IB subnet management packets.  That is something that should be provided
+the same way by all infiniband drivers.
 
-So as an end-result, most of the historic inlining decisions _even in 
-well-maintained core code_ are mostly incorrect these days. We really 
-only want to inline things where the inlining results in _smaller_ code 
-(due to less clobbering of function-call related caller-saved 
-registers). That pretty much only leaves the truly trivial 1-2 
-instructions code sequences like get_current() and the __always_inline 
-stuff like kmalloc() or memset(). All the rest wants to be a function 
-call these days.
+The only case I can think of where this might not already exist
+is the code that responds to the subnet manager.  If the current
+interfaces are not sufficient then the infiniband layer needs
+more work.
 
-	Ingo
+> The less blind I am in doing these conversions, the fewer rounds we'll
+> have to go in reviewing humongous driver submission patches :-)
+
+Given Linus's comments and looking at where you are getting stuck I
+would recommend you split out support for the nonstandard ipath
+protocol from the rest of the driver.  If the standard infiniband
+interfaces for kernel bypass are not sufficient for flinging packets
+then we need to re-examine them.
+
+Eric

@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWABU1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWABU2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWABU1f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 15:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWABU1f
+	id S1751027AbWABU2h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 15:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWABU2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 15:27:35 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:760 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751022AbWABU1f (ORCPT
+	Mon, 2 Jan 2006 15:28:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28304 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751026AbWABU2g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 15:27:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Gf/IL0gLWWnZsoOdajShFhgAn59x8e939oIdGPJ49tC8J64fKr0OIrx3G6KMqpBFcC0weLt0XI8i9t6mFBgyYe9yUQrQOvaSNsxZb3dygjKyUlSijPbkO/pj1OuPX05Jj3uz9ZsZMhyQTdQAVvnBCFPmCw+/bNlvjfBVyuYyhMo=
-Message-ID: <43B98CAC.6060801@gmail.com>
-Date: Mon, 02 Jan 2006 22:27:24 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org, kwall@kurtwerks.com
-Subject: Re: Arjan's noinline Patch
-References: <20060101155710.GA5213@kurtwerks.com> <20060102034350.GD5213@kurtwerks.com> <43B8FA70.2090408@gmail.com> <Pine.LNX.4.61.0601021949240.29938@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601021949240.29938@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 2 Jan 2006 15:28:36 -0500
+Date: Mon, 2 Jan 2006 12:24:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: khc@pm.waw.pl, bunk@stusta.de, arjan@infradead.org,
+       tim@physik3.uni-rostock.de, torvalds@osdl.org, davej@redhat.com,
+       linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+Message-Id: <20060102122441.54139453.akpm@osdl.org>
+In-Reply-To: <20060102200934.GA30093@elte.hu>
+References: <20051230074916.GC25637@elte.hu>
+	<20051231143800.GJ3811@stusta.de>
+	<20051231144534.GA5826@elte.hu>
+	<20051231150831.GL3811@stusta.de>
+	<20060102103721.GA8701@elte.hu>
+	<1136198902.2936.20.camel@laptopd505.fenrus.org>
+	<20060102134345.GD17398@stusta.de>
+	<20060102140511.GA2968@elte.hu>
+	<m3ek3qcvwt.fsf@defiant.localdomain>
+	<20060102110341.03636720.akpm@osdl.org>
+	<20060102200934.GA30093@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> Hi,
-> size:
->     text    data     bss      dec     hex filename
-> 17188479 5984442 1738248 24911169 17c1d41 rc7-noinl-Os/vmlinux
-> 17313751 5980978 1738248 25032977 17df911 rc7-Os/vmlinux
-> 20174873 5991726 1738248 27904847 1a9cb4f rc7-noinl/vmlinux
-> 20222221 5992278 1738248 27952747 1aa866b rc7-NFI/vmlinux
-> 20321527 5988706 1738248 28048481 1abfc61 rc7-std/vmlinux
-> 
-> 
-> Jan Engelhardt
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> i marked all things __always_inline that allyesconfig 
+>  needs inlined.
 
-Just out of pure curiosity... Where would NFI-Os stand?
+I hope you fixed __always_inline too.  It's currently a no-op on all but
+alpha.
 
-one would expect it to be around 17225???...
-
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
 

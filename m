@@ -1,112 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWABQqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWABQwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWABQqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 11:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWABQqi
+	id S1750869AbWABQwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 11:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWABQwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 11:46:38 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34823 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750831AbWABQqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 11:46:37 -0500
-Date: Mon, 2 Jan 2006 17:46:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Kirill Korotaev <dev@sw.ru>, Ismail Donmez <ismail@uludag.org.tr>,
-       Michael Madore <michael.madore@gmail.com>,
-       David Brownell <david-b@pacbell.net>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Mathias Klein <ma_klein@gmx.de>,
-       Christian Casteyde <casteyde.christian@free.fr>,
-       "P. Christeas" <p_christ@hol.gr>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>,
-       Torsten Seeboth <Torsten.Seeboth@t-online.de>, pj@sgi.com,
-       simon.derr@bull.net, jt@hpl.hp.com, netdev@vger.kernel.org,
-       Andrey Borzenkov <arvidjaar@mail.ru>, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
-       oprofile-list@lists.sourceforge.net, perex@suse.cz,
-       alsa-devel@alsa-project.org
-Subject: 2.6.15-rc7: known regressions
-Message-ID: <20060102164636.GH17398@stusta.de>
-References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Jan 2006 11:52:25 -0500
+Received: from mail.gmx.net ([213.165.64.21]:35996 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750869AbWABQwY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 11:52:24 -0500
+X-Authenticated: #5082238
+Date: Mon, 2 Jan 2006 17:52:31 +0100
+From: Carsten Otto <c-otto@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: X86_64 + VIA + 4g problems
+Message-ID: <20060102165231.GA23834@carsten-otto.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
+In-Reply-To: <p73k6difvm3.fsf@verdi.suse.de>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
 User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.15-rc7 compared to 2.6.14.
 
-If you find your name in the Cc header, you are either submitter of one 
-of the bugs, maintainer of an affectected subsystem or driver, a patch 
-of you was declared guilty for a breakage or in any other way involved 
-with one or more of these issues.
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Jan 02, 2006 at 05:22:12PM +0100, Andi Kleen wrote:
+> When you not compile in the SKGE network driver does everything else work?
+> skge supports 64bit DMA, so it shouldn't use any IOMMU.  But I'm somewhat
+> suspicious of the >4GB support in the VIA chipset. We had problems with
+> that before. It's possible that it's just not supported in the hardware
+> or that the BIOS sets up the MTRRs wrong.
 
-Subject    : cpuset_excl_nodes_overlap() may sleep under tasklist_lock
-References : http://lkml.org/lkml/2005/12/28/63
-Submitter  : Kirill Korotaev <dev@sw.ru>
-Status     : unknown
+How can I find that out? Can I provide any useful material? VIA KT800Pro
+and 4GB RAM here..
 
-Subject    : /sys/class/net/<device name>/wireless directory is gone
-References : http://bugzilla.kernel.org/show_bug.cgi?id=5800
-             http://marc.theaimsgroup.com/?l=linux-netdev&m=113619905529636&w=2
-Submitter  : Ismail Donmez <ismail@uludag.org.tr>
-Handled-By : Andrey Borzenkov <arvidjaar@mail.ru>
-Status     : patch available
+PS: I am not the original poster, but have a similar problem.
 
-Subject    : USB handoff, irq 193: nobody cared!
-References : http://lkml.org/lkml/2005/11/14/274
-Submitter  : Michael Madore <michael.madore@gmail.com>
-Status     : unknown, caused by a patch by David Brownell
+Thanks,
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
 
-Subject    : BUG: spinlock recursion on 2.6.14-mm2 when oprofiling
-References : http://lkml.org/lkml/2005/11/18/95
-Submitter  : Wu Fengguang <wfg@mail.ustc.edu.cn>
-Handled-By : "Paul E. McKenney" <paulmck@us.ibm.com>
-Status     : unknown, reported against -mm, already fixed in -mm
-             (make-rcu-task_struct-safe-for-oprofile.patch)
-             Is this bug present in Linus' tree?
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Subject    : oops in kernel 2.6.15-rc{6,7}
-References : http://lkml.org/lkml/2005/12/28/75
-             http://lkml.org/lkml/2005/12/30/119
-Submitter  : Mathias Klein <ma_klein@gmx.de>
-Status     : unknown
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-Subject    : No sound with snd_intel8x0 & ALi M5455 chipset
-             (kobject_register failed)
-References : http://bugzilla.kernel.org/show_bug.cgi?id=5760
-Submitter  : Christian Casteyde <casteyde.christian@free.fr>
-Status     : submitter was asked to do a binary search for
-             the guilty patch
+iD8DBQFDuVpPjUF4jpCSQBQRAtSYAKCe4Xg0yUeb4OQSRNI4UHFCfactfgCfWKcH
+MF3MzQQSswwlSR7YDnFahHg=
+=P843
+-----END PGP SIGNATURE-----
 
-Subject    : No sound from CX23880 tuner w. 2.6.15-rc5
-References : http://lkml.org/lkml/2005/12/12/190
-             http://www.spinics.net/lists/vfl/msg22791.html
-Submitter  : "P. Christeas" <p_christ@hol.gr>
-Handled-By : Mauro Carvalho Chehab <mchehab@infradead.org>
-             Torsten Seeboth <Torsten.Seeboth@t-online.de>
-Status     : regression in cx88-tvaudio.c, no patch known
-
-Subject    : x86_64: PANIC: early exception
-References : http://bugzilla.kernel.org/show_bug.cgi?id=5758
-Status     : Andi considers his patch too risky for 2.6.15,
-             workaround available, should be noted in the
-             final 2.6.15 announcement
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--liOOAslEiF7prFVr--

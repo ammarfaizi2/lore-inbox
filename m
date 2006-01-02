@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWABRDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWABRF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWABRDo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 12:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWABRDo
+	id S1750903AbWABRF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 12:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWABRF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 12:03:44 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:64745 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750888AbWABRDn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 12:03:43 -0500
-Date: Mon, 2 Jan 2006 18:03:26 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 05/19] mutex subsystem, add include/asm-x86_64/mutex.h
-Message-ID: <20060102170326.GA5593@elte.hu>
-References: <20060102163354.GF31501@elte.hu> <20060102164605.GB7222@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060102164605.GB7222@wotan.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 2 Jan 2006 12:05:28 -0500
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:42764 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750902AbWABRF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 12:05:26 -0500
+Message-ID: <43B95D20.3060401@gentoo.org>
+Date: Mon, 02 Jan 2006 17:04:32 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051223)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-15?Q?Jo=E3o_Esteves?= <joao.m.esteves@netcabo.pt>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Via VT 6410 Raid Controller
+References: <200601021253.10738.joao.m.esteves@netcabo.pt> <43B92706.8010402@gentoo.org> <200601021647.27453.joao.m.esteves@netcabo.pt>
+In-Reply-To: <200601021647.27453.joao.m.esteves@netcabo.pt>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please use Reply-to-all.
 
-* Andi Kleen <ak@suse.de> wrote:
-
-> > +		: "rax", "rsi", "rdx", "rcx",				\
-> > +		  "r8", "r9", "r10", "r11", "memory");			\
+João Esteves wrote:
+> Thank you Daniel:
 > 
-> I think it would be still better if you used the stubs in 
-> arch/x86_64/lib/thunk.S and not clobber all the registers. While it 
-> won't make that much difference for the out of line mutexes it will 
-> generate better code for inline mutexes, and if someone ever decides 
-> they're a good idea the code will be ready.
+> I inserted the patch, compiled the Kernel and it works fine (it appears in 
+> Lilo as custom kernel), except that I still do not see the Pata HDD.
 
-i didnt want to add it to thunk.S because right now it would cause an 
-unnecessary slowdown for the slowpath, by quite a number of 
-instructions: due to the indiscriminate register-saving/restoring done 
-in thunk.S.
+Can you explain what you mean by you don't "see" it? Where are you looking?
 
-even though it's a "slow path" relative to the fastpath, we shouldnt 
-slow it down unnecessarily. So if someone wants to play with more 
-inlining later on, this has to be done in context of that effort.
+You could also post the output of:
+	dmesg
+	lspci
+	lspci -n
 
-	Ingo
+> Is there any modification I must do to the patch source code to make it 
+> specific to VT 6410?
+
+No.
+
+Daniel

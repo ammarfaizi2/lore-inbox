@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWABTHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWABTQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750968AbWABTHd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 14:07:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWABTHd
+	id S1750969AbWABTQE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 14:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWABTQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 14:07:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13699 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750967AbWABTHc (ORCPT
+	Mon, 2 Jan 2006 14:16:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:36484 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750969AbWABTQB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 14:07:32 -0500
-Date: Mon, 2 Jan 2006 11:03:41 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Mon, 2 Jan 2006 14:16:01 -0500
+Date: Mon, 2 Jan 2006 11:12:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: mingo@elte.hu, bunk@stusta.de, arjan@infradead.org,
-       tim@physik3.uni-rostock.de, torvalds@osdl.org, davej@redhat.com,
-       linux-kernel@vger.kernel.org, mpm@selenic.com
+cc: Ingo Molnar <mingo@elte.hu>, Adrian Bunk <bunk@stusta.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, mpm@selenic.com
 Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-Id: <20060102110341.03636720.akpm@osdl.org>
 In-Reply-To: <m3ek3qcvwt.fsf@defiant.localdomain>
-References: <20051229224839.GA12247@elte.hu>
-	<1135897092.2935.81.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
-	<20051230074916.GC25637@elte.hu>
-	<20051231143800.GJ3811@stusta.de>
-	<20051231144534.GA5826@elte.hu>
-	<20051231150831.GL3811@stusta.de>
-	<20060102103721.GA8701@elte.hu>
-	<1136198902.2936.20.camel@laptopd505.fenrus.org>
-	<20060102134345.GD17398@stusta.de>
-	<20060102140511.GA2968@elte.hu>
-	<m3ek3qcvwt.fsf@defiant.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.64.0601021105000.3668@g5.osdl.org>
+References: <20051229224839.GA12247@elte.hu> <1135897092.2935.81.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
+ <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
+ <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de>
+ <20060102103721.GA8701@elte.hu> <1136198902.2936.20.camel@laptopd505.fenrus.org>
+ <20060102134345.GD17398@stusta.de> <20060102140511.GA2968@elte.hu>
+ <m3ek3qcvwt.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@pm.waw.pl> wrote:
->
-> Ingo Molnar <mingo@elte.hu> writes:
-> 
-> > what is the 'deeper problem'? I believe it is a combination of two 
-> > (well-known) things:
-> >
-> >   1) people add 'inline' too easily
-> >   2) we default to 'always inline'
+
+
+On Mon, 2 Jan 2006, Krzysztof Halasa wrote:
 > 
 > For example, I add "inline" for static functions which are only called
 > from one place.
-> 
-> If I'm able to say "this is static function which is called from one
-> place" I'd do so instead of saying "inline". But omitting the "inline"
-> with hope that some new gcc probably will inline it anyway (on some
-> platform?) doesn't seem like a best idea.
-> 
-> But what _is_ the best idea?
 
-Just use `inline'.  With gcc-3 it'll be inlined.
+That's actually not a good practice. Two reasons:
 
-With gcc-4 and Ingo's patch it _might_ be inlined.  And it _might_ be
-uninlined by the compiler if someone adds a second callsite later on. 
-Maybe.  We just don't know.  That's a problem.  Use of __always_inline will
-remove this uncertainty.
+ - debuggability goes way down. Oops reports give a much nicer call-chain 
+   and better locality for uninlined code.
 
-So our options appear to be:
+ - Gcc can suck at big functions with lots of local variables. A 
+   function call can be _cheaper_ than trying to inline a function, 
+   regardless of whether it's called once or many times. I've seen 
+   functions that had several silly (and unnecessary) spills suddenly 
+   become quite readable when they were separate functions.
 
-a) Go fix up stupid inlinings (again) or
+   More importantly, the "inline" sticks around. Later on, the function is 
+   used for some other place too, and the inline doesn't get removed.
 
-b) Apply Ingo's patch, then go add __always_inline to places which we
-   care about.
+The second "the inline sticks around" case is something that happens to 
+helper functions too. They started out as trivial macros in a header file, 
+but then they get converted to an inline function because they get more 
+complex, and eventually it grows a new hook. Suddenly what used to 
+generate two instructions generates ten instructions and a call, and would 
+have been much better off being uninlined in a .c file.
 
-Either way, we need to go all over the tree.  In practice, we'll only
-bother going over the bits which we most care about (core kernel, core
-networking, a handful of net and block drivers).  I suspect many of the bad
-inlining decisions are in poorly-maintained code - we've been pretty
-careful about this for several years.
+So inlines that make sense at one point have a tendency to _not_ make 
+sense a year or two later. 
+
+I suspect we'd be best off removing almost all inlines, both from C files 
+and headers. There are a few cases where inlining really helps: the 
+function really ends up being just a few instructions, and it's really 
+just a wrapper around a simpler calling convention or an inline assembly, 
+or it's called with constant arguments that are better left off simplified 
+at compile-time. Those are the cases where inlining really helps.
+
+(Of course, then there's ia64. Which wants inlining just because..)
+
+		Linus

@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWABPLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWABPSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWABPLI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 10:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWABPLI
+	id S1750745AbWABPSP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 10:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWABPSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 10:11:08 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:58299 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750771AbWABPLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 10:11:06 -0500
-Date: Mon, 2 Jan 2006 10:14:29 -0500
-From: Kurt Wall <kwallinator@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Matan Peled <chaosite@gmail.com>
+	Mon, 2 Jan 2006 10:18:15 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:10680 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1750745AbWABPSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 10:18:14 -0500
+Date: Mon, 2 Jan 2006 10:21:37 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Arjan's noinline Patch
-Message-ID: <20060102151429.GH5213@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Matan Peled <chaosite@gmail.com>
-References: <20060101155710.GA5213@kurtwerks.com> <20060102034350.GD5213@kurtwerks.com> <43B8FA70.2090408@gmail.com>
+Message-ID: <20060102152137.GI5213@kurtwerks.com>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20060101155710.GA5213@kurtwerks.com> <20060102110404.GA10996@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43B8FA70.2090408@gmail.com>
+In-Reply-To: <20060102110404.GA10996@elte.hu>
 User-Agent: Mutt/1.4.2.1i
 X-Operating-System: Linux 2.6.15-rc6krw
 X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 02, 2006 at 12:03:28PM +0200, Matan Peled took 0 lines to write:
-> Kurt Wall wrote:
-> >the "noinline" cases were built with Arjan's patch and
-> >CONFIG_CC_OPTIMIZE_FOR_SIZE; the "inline" kernels were built,
-> >obviously, without the patch and without CONFIG_CC_OPTIMIZE_FOR_SIZE.
+On Mon, Jan 02, 2006 at 12:04:04PM +0100, Ingo Molnar took 0 lines to write:
 > 
-> Wait, so how do we know if its GCC's -Os that caused the reduction in .text 
-> size, or the noinline patch ... ?
+> * Kurt Wall <kwallnator@gmail.com> wrote:
+> 
+> > After applying Arjan's noline patch (http://www.fenrus.org/noinlin), I 
+> > see almost a 10% reduction in the size of .text (against 2.6.15-rc6) 
+> > with no apparent errors and no reduction in functionality:
+> 
+> just to make sure: this was with -Os _also_ turned on, right? So what 
+> you measured was the effect of Arjan's patch plus -Os, combined, 
+> correct?
 
-Right, I need to isolate the effects of each variable. Results for gcc 
-3.4.4 and 4.0.2, built with CONFIG_CC_OPTIMIZE_FOR_SIZE enabled, appear
-below. Pardon the bad methodology.
+Yes. And it was a faulty approach. I've posted new results with the 
+effects of Arjan's patch. CONFIG_CC_OPTIMIZE_FOR_SIZE was enabled for
+all kernels.
 
-$ size vmlinux.*
-   text    data     bss     dec     hex filename
-2333474  461848  479920 3275242  31f9ea vmlinux.344.inline
-2327319  462000  479920 3269239  31e277 vmlinux.344.noinline
-2319085  461608  479984 3260677  31c105 vmlinux.402.inline
-2313578  461800  479984 3255362  31ac42 vmlinux.402.noinline
+> if yes you should measure the two effects in isolation, like the vmlinux 
+> numbers i posted. Every patch applied and every change to .config 
+> options must be measured separately, to get valid results. This doesnt 
+> invalidate your raw vmlinux measurements - you simply need to add a 
+> "Arjan's patch applied but no -Os turned on" number - but it does 
+> invalidate your conclusion quoted above.
+
+Quite so. I'm working on the "no -Os" case now.
 
 Kurt
 -- 
-Those who do not understand Unix are condemned to reinvent it, poorly.
-		-- Henry Spencer
+Alden's Laws:
+	(1) Giving away baby clothes and furniture is the major cause
+	    of pregnancy.
+	(2) Always be backlit.
+	(3) Sit down whenever possible.

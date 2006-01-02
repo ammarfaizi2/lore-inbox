@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWABOGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWABOO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWABOGu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 09:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWABOGu
+	id S1750739AbWABOO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 09:14:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWABOO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 09:06:50 -0500
-Received: from rtr.ca ([64.26.128.89]:37811 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750736AbWABOGt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 09:06:49 -0500
-Message-ID: <43B93375.1020701@rtr.ca>
-Date: Mon, 02 Jan 2006 09:06:45 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Ralf_M=FCller?= <ralf@bj-ig.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Re: Kernel panic with 2.6.15-rc7 + libata1 patch
-References: <43B724BA.90405@bj-ig.de> <43B7EA0A.7040805@bj-ig.de>	<20060101145702.GV3811@stusta.de> <43B806C7.5000607@bj-ig.de>
-In-Reply-To: <43B806C7.5000607@bj-ig.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Jan 2006 09:14:59 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31218 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750739AbWABOO6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 09:14:58 -0500
+Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
+From: Daniel Walker <dwalker@mvista.com>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F36732330E@MAILIT.keba.co.at>
+References: <AAD6DA242BC63C488511C611BD51F36732330E@MAILIT.keba.co.at>
+Content-Type: text/plain
+Date: Mon, 02 Jan 2006 06:14:55 -0800
+Message-Id: <1136211295.22548.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Müller wrote:
->
-> A further problem is that calling "hdparm -C" _always_ give "drive state 
-> is:  standby" - even when the disks are clearly active. Maybe this 
-> indicates something to you.
+On Mon, 2006-01-02 at 08:57 +0100, kus Kusche Klaus wrote:
+>          
+>   <idle>-0     0D...    1us+: preempt_schedule_irq (svc_preempt)
+>   <idle>-0     0....    5us!: default_idle (cpu_idle)
+>   <idle>-0     0D..1 8700us+: asm_do_IRQ (c021da48 1a 0)
 
-MMmm.. yes, it does that here, too.
-This is probably a bug somewhere in the libata passthru code,
-or in the HDIO_* translation code.
+Your trace appears to be showing an actual latency of 300us . The trace
+starts at 8700us . The default_idle line above is showing interrupts are
+enable, and preemption is enabled . So the tracing code really should be
+ignoring the default_idle line since there is no reason to be tracing. 
 
-Cheers
+Daniel
+

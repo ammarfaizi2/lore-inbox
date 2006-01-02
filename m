@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWABMal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWABMcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWABMal (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 07:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWABMal
+	id S1750703AbWABMcH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 07:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWABMcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 07:30:41 -0500
-Received: from mail.gmx.net ([213.165.64.21]:1921 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750743AbWABMal (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 07:30:41 -0500
-X-Authenticated: #5339386
-Date: Mon, 2 Jan 2006 13:28:19 +0100
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: oops in kernel 2.6.15-rc6
-Message-ID: <20060102122819.GA21933@sidney>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20051228135021.GA9777@sidney> <20051230223721.GA3811@stusta.de>
+	Mon, 2 Jan 2006 07:32:07 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:59635 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750703AbWABMcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 07:32:06 -0500
+Date: Mon, 2 Jan 2006 07:31:24 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       Eric Dumazet <dada1@cosmosbay.com>, Denis Vlasenko <vda@ilport.com.ua>,
+       Andreas Kleen <ak@suse.de>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on
+ x86_64 machines ?
+In-Reply-To: <84144f020601020046t3176cde2k7d9ec900cafd6d2f@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0601020724120.9621@gandalf.stny.rr.com>
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net>  <43A91C57.20102@cosmosbay.com>
+ <200512281032.15460.vda@ilport.com.ua>  <200512281054.26703.vda@ilport.com.ua>
+  <3186311.1135792635763.SLOX.WebMail.wwwrun@imap-dhs.suse.de> 
+ <20051228210124.GB1639@waste.org> <20051229012616.GA3286@redhat.com> 
+ <1135915609.6039.39.camel@localhost.localdomain>
+ <84144f020601020046t3176cde2k7d9ec900cafd6d2f@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-In-Reply-To: <20051230223721.GA3811@stusta.de>
-User-Agent: Mutt/1.5.11
-From: Mathias Klein <ma_klein@gmx.de>
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2 Jan 2006, Pekka Enberg wrote:
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Hi,
+>
+> On 12/30/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> > Attached is a variant that was refreshed against 2.6.15-rc7 and fixes
+> > the logical bug that your compile error fix made ;)
+> >
+> > It should be cachep->objsize not csizep->cs_size.
+>
+> Isn't there any other way to do this patch other than making kzalloc()
+> and kstrdup() inline? I would like to see something like this in the
+> mainline but making them inline is not acceptable because they
+> increase kernel text a lot.
 
-On Fri, Dec 30, 2005 at 11:37:21PM +0100, Adrian Bunk wrote:
-> On Wed, Dec 28, 2005 at 02:50:22PM +0100, Mathias Klein wrote:
->=20
-> > Hello all,
->=20
-> Hi Mathias,
->=20
-> > [please CC me on replies, I'm not subscribed to this list]
-> >=20
-> > I had this following kernel oops while compiling a new kernel.=20
-> >...
-> > please let me know if you need more informations/how I can help you sol=
-ve
-> > this problem.
->=20
-> older kernels (e.g. 2.6.14.x) are working without problems?
+Actually, yes. I was adding to this patch something to be more specific,
+and to either pass the EIP through the parameter or a __FILE__, __LINE__.
 
-Before there was running version 2.6.12.3 and 2.6.13.4 whithout problems.
+Using the following:
 
->=20
-> > Mathias Klein
->=20
-> cu
-> Adrian
+#ifdef CONFIG_KMALLOC_ACCOUNTING
+# define __EIP__ , __builtin_return_address(0)
+# define __DECLARE_EIP__ , void *eip
+#else
+# define __EIP__
+# define __DECLARE_EIP__
+#endif
 
-Mathias
+#define kstrdup(s,g) __kstrdup(s, g __EIP__)
+extern char *__kstrdup(const char *s, gfp_t g __DECLARE_EIP__);
 
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Or a file line can be used:
 
-iD8DBQFDuRxiPtJqRGqEpd8RAmw1AJ4tTLK94QOIkuqXDw+cy1eoIp1bwQCcDnUW
-tZUrB2efDxXH9UhDliKcdQE=
-=Jn8D
------END PGP SIGNATURE-----
+# define __EIP__ , __FILE__, __LINE__
+# define __DECLARE_EIP__ , char *file, int line
 
---LZvS9be/3tNcYl/X--
+
+
+-- Steve
+
+

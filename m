@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWABQWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWABQXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWABQWT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 11:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWABQWT
+	id S1750806AbWABQXd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 11:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWABQXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 11:22:19 -0500
-Received: from mx2.suse.de ([195.135.220.15]:31198 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750801AbWABQWS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 11:22:18 -0500
-To: =?iso-8859-1?q?Dieter_St=FCken?= <stueken@conterra.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: X86_64 + VIA + 4g problems
-References: <43B90A04.2090403@conterra.de>
-From: Andi Kleen <ak@suse.de>
-Date: 02 Jan 2006 17:22:12 +0100
-In-Reply-To: <43B90A04.2090403@conterra.de>
-Message-ID: <p73k6difvm3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 2 Jan 2006 11:23:33 -0500
+Received: from sccrmhc14.comcast.net ([63.240.77.84]:13289 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1750806AbWABQXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 11:23:33 -0500
+Date: Mon, 2 Jan 2006 11:26:55 -0500
+From: Kurt Wall <kwallinator@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Arjan's noinline Patch
+Message-ID: <20060102162655.GJ5213@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060101155710.GA5213@kurtwerks.com> <20060102034350.GD5213@kurtwerks.com> <43B8FA70.2090408@gmail.com> <20060102151429.GH5213@kurtwerks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060102151429.GH5213@kurtwerks.com>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.15-rc6krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Stüken <stueken@conterra.de> writes:
-
-> just gave 2.6.15-rc7 a try, but still fail when plugging 4g into the board :-(
-> Its an Asus sk8v (VIA chipset), thus I get:
-
-Can you please post the full boot log? 
-
-> ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 19
-> ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 19
-> eth0: 3Com Gigabit LOM (3C940)
->        PrefPort:A  RlmtMode:Check Link State
+On Mon, Jan 02, 2006 at 10:14:29AM -0500, Kurt Wall took 0 lines to write:
 > 
-> don't know, if it's related to that, but with 2G it runs stable since about a year.
+> Right, I need to isolate the effects of each variable. Results for gcc 
+> 3.4.4 and 4.0.2, built with CONFIG_CC_OPTIMIZE_FOR_SIZE enabled, appear
+> below. Pardon the bad methodology.
 > 
-> The problem arises as soon as my network (3C940) gets enabled, the following
-> message is continuously repeated and nothing else works any more, not even
-> console switching.
+> $ size vmlinux.*
+>    text    data     bss     dec     hex filename
+> 2333474  461848  479920 3275242  31f9ea vmlinux.344.inline
+> 2327319  462000  479920 3269239  31e277 vmlinux.344.noinline
+> 2319085  461608  479984 3260677  31c105 vmlinux.402.inline
+> 2313578  461800  479984 3255362  31ac42 vmlinux.402.noinline
 
-When you not compile in the SKGE network driver does everything else work?
-skge supports 64bit DMA, so it shouldn't use any IOMMU.  But I'm somewhat
-suspicious of the >4GB support in the VIA chipset. We had problems with
-that before. It's possible that it's just not supported in the hardware
-or that the BIOS sets up the MTRRs wrong.
+Here are the results for gcc 3.4.4 and 4.0.2, built _without_
+-Os:
 
--Andi
+$ size vmlinux*noopt
+   text    data     bss     dec     hex filename
+2584202  461848  479920 3525970  35cd52 vmlinux.344.inline.noopt
+2578246  462000  479920 3520166  35b6a6 vmlinux.344.noinline.noopt
+2626475  461856  479984 3568315  3672bb vmlinux.402.inline.noopt
+2620807  462016  479984 3562807  365d37 vmlinux.402.noinline.noopt
+
+Kurt
+-- 
+There are really not many jobs that actually require a penis or a
+vagina, and all other occupations should be open to everyone.
+		-- Gloria Steinem

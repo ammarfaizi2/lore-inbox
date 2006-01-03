@@ -1,51 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWACOKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWACOQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWACOKS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 09:10:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWACOKR
+	id S1751430AbWACOQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWACOQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 09:10:17 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:5573 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751429AbWACOKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 09:10:16 -0500
-Date: Tue, 3 Jan 2006 19:41:01 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, vatsa@in.ibm.com
-Subject: Re: [patch] latency tracer, 2.6.15-rc7
-Message-ID: <20060103141101.GC5075@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <1135991732.31111.57.camel@mindpipe> <Pine.LNX.4.64.0512301726190.3249@g5.osdl.org> <1136001615.3050.5.camel@mindpipe> <20051231042902.GA3428@us.ibm.com> <1136004855.3050.8.camel@mindpipe> <20051231201426.GD5124@us.ibm.com> <1136094372.7005.19.camel@mindpipe> <Pine.LNX.4.64.0601011047320.3668@g5.osdl.org> <20060103111211.GA5075@in.ibm.com> <Pine.LNX.4.62.0601030524570.30559@qynat.qvtvafvgr.pbz>
+	Tue, 3 Jan 2006 09:16:58 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59635 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751430AbWACOQ5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 09:16:57 -0500
+Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
+From: Daniel Walker <dwalker@mvista.com>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323312@MAILIT.keba.co.at>
+References: <AAD6DA242BC63C488511C611BD51F367323312@MAILIT.keba.co.at>
+Content-Type: multipart/mixed; boundary="=-jPXxYfBdFMMJZDjnvnGK"
+Date: Tue, 03 Jan 2006 06:16:55 -0800
+Message-Id: <1136297815.5915.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0601030524570.30559@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03, 2006 at 05:28:15AM -0800, David Lang wrote:
-> On Tue, 3 Jan 2006, Dipankar Sarma wrote:
-> 
-> >I do agree that the two layers of batching really makes things
-> >subtle. I think the best we can do is to figure out some way of
-> >automatic throttling in RCU and forced quiescent state under extreme
-> >conditions. That way we will have less dependency on softirq
-> >throttling.
-> 
-> would it make sense to have the RCU subsystems with a threshold so that 
-> when more then X items are outstanding they trigger a premption of all 
-> other CPU's ASAP (forceing the scheduling break needed to make progress on 
-> clearing RCU)? This wouldn't work in all cases, but it could significantly 
-> reduce the problem situations.
 
-Yes, I think it would make sense to try something like that. See Paul's earlier
-mail in this thread for an example code snippet.
+--=-jPXxYfBdFMMJZDjnvnGK
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thanks
-Dipankar
+On Tue, 2006-01-03 at 09:00 +0100, kus Kusche Klaus wrote:
+> > From: Daniel Walker
+> > Here's a more updated patch, the should replace the other 
+> > patch I sent.
+> > I think the tracing error is the result of a missed interrupt 
+> > enable in
+> > the ARM assembly code. I've only compile tested this.  
+> 
+> Compiles, but BUGs immediately after uncompressing (second line of
+> console output) and then runs into an infinite Oops loop...
+> Reproducible.
+
+Ok, yet another patch. This one uses the correct lowlevel calls, and I
+fixed the call ordering.
+
+Daniel
+
+--=-jPXxYfBdFMMJZDjnvnGK
+Content-Disposition: attachment; filename=fix_tracing_arm_idle_loop.patch
+Content-Type: text/x-patch; name=fix_tracing_arm_idle_loop.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Index: linux-2.6.14/arch/arm/kernel/process.c
+===================================================================
+--- linux-2.6.14.orig/arch/arm/kernel/process.c
++++ linux-2.6.14/arch/arm/kernel/process.c
+@@ -89,12 +89,12 @@ void default_idle(void)
+ 	if (hlt_counter)
+ 		cpu_relax();
+ 	else {
+-		raw_local_irq_disable();
++		__raw_local_irq_disable();
+ 		if (!need_resched()) {
+ 			timer_dyn_reprogram();
+ 			arch_idle();
+ 		}
+-		raw_local_irq_enable();
++		__raw_local_irq_enable();
+ 	}
+ }
+ 
+@@ -121,8 +121,10 @@ void cpu_idle(void)
+ 		if (!idle)
+ 			idle = default_idle;
+ 		leds_event(led_idle_start);
++		__preempt_enable_no_resched();
+ 		while (!need_resched())
+ 			idle();
++		preempt_disable();
+ 		leds_event(led_idle_end);
+ 		__preempt_enable_no_resched();
+ 		__schedule();
+Index: linux-2.6.14/arch/arm/kernel/entry-header.S
+===================================================================
+--- linux-2.6.14.orig/arch/arm/kernel/entry-header.S
++++ linux-2.6.14/arch/arm/kernel/entry-header.S
+@@ -39,17 +39,29 @@
+ #if __LINUX_ARM_ARCH__ >= 6
+ 	.macro	disable_irq
+ 	cpsid	i
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_off_lowlevel
++#endif
+ 	.endm
+ 
+ 	.macro	enable_irq
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_on
++#endif
+ 	cpsie	i
+ 	.endm
+ #else
+ 	.macro	disable_irq
+ 	msr	cpsr_c, #PSR_I_BIT | SVC_MODE
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_off_lowlevel
++#endif
+ 	.endm
+ 
+ 	.macro	enable_irq
++#ifdef CONFIG_CRITICAL_IRQSOFF_TIMING
++	b	trace_irqs_on
++#endif
+ 	msr	cpsr_c, #SVC_MODE
+ 	.endm
+ #endif
+
+--=-jPXxYfBdFMMJZDjnvnGK--
+

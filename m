@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWACRJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWACRJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWACRJi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 12:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWACRJi
+	id S1751473AbWACRJg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 12:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWACRJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 12:09:38 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:45454 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932437AbWACRJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 12:09:37 -0500
-Date: Tue, 03 Jan 2006 11:09:38 -0600
-From: Wes Newell <w.newell@verizon.net>
-Subject: Re: PATCH: Small fixes backported to old IDE SiS driver
-In-reply-to: <1136301581.22598.5.camel@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org
-Message-id: <43BAAFD2.7020702@verizon.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <1136301581.22598.5.camel@localhost.localdomain>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+	Tue, 3 Jan 2006 12:09:36 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:34459 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751473AbWACRJf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 12:09:35 -0500
+Date: Tue, 3 Jan 2006 18:09:14 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <200601031522.06898.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.61.0601031807260.11201@yvahk01.tjqt.qr>
+References: <20050726150837.GT3160@stusta.de> <200601031441.27519.s0348365@sms.ed.ac.uk>
+ <Pine.LNX.4.61.0601031548210.436@yvahk01.tjqt.qr> <200601031522.06898.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+>> Well, I am able to open /dev/dsp multiple times here without problems.
+>> (Is /dev/dsp soft- or hardmixing?)
+>
+>As far as I'm aware, it depends on your hardware. For example, software mixing 
+>kicks in with zero configuration on most hardware that won't mix in hardware, 
+>e.g. my laptop's i810 audio.
+>
+>ogg123 -q --device=oss 01\ -\ Good\ Times\ Bad\ Times.ogg
+>
+>Works, but then:
+>
+>ogg123 -q --device=oss 01\ -\ Good\ Times\ Bad\ Times.ogg
+>Error: Cannot open device oss
 
->Some quick backport bits from the libata PATA work to fix things found
->in the sis driver. The piix driver needs some fixes too but those are
->way to large and need someone working on old IDE with time to do them.
->
->This patch fixes the case where random bits get loaded into SIS timing
->registers according to the description of the correct behaviour from
->Vojtech Pavlik. It also adds the SiS5517 ATA16 chipset which is not
->currently supported by the driver. Thanks to Conrad Harriss for loaning
->me the machine with the 5517 chipset.
->
->Alan
->  
->
-Did you guys ever get pata working for the real SIS180 chipset? And I 
-don't mean the one that's reported as one in the 964 chipset, but a real 
-SIS180 like is on the Jetway S755MAX that has 2 serial and 1 pata channels.
+Oh well this does work for me.
+
+>This is all a little OT for this thread, but it's certainly the case with 
+>alsa-lib-1.0.10 on 2.6.15-rc7. My card isn't capable of hardware mixing, 
+>yours might be (SBLive!/Audigy or something).
+
+CS46XX. According to alsamixer info, it has 31 playback and 1 record channel.
+Looks like I'm in favor of hardware mixing.
+
+But hey, you have not lost anything using the OSS emulation. With OSS, I could
+not even have hardware mixing on cs46xx!
+
+
+Jan Engelhardt
+-- 

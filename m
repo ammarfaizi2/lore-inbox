@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWACNNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWACNOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWACNNh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWACNNh
+	id S1751399AbWACNOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 08:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWACNOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:13:37 -0500
-Received: from hera.kernel.org ([140.211.167.34]:28645 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751390AbWACNNg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 08:13:36 -0500
-Date: Tue, 3 Jan 2006 08:11:06 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
-Message-ID: <20060103101106.GA3435@dmt.cnet>
-References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com> <20051231064615.GB11069@dmt.cnet> <43B63931.6000307@yahoo.com.au> <20051231202602.GC3903@dmt.cnet> <20060102214016.GA13905@dmt.cnet> <1136265106.5261.34.camel@npiggin-nld.site>
-Mime-Version: 1.0
+	Tue, 3 Jan 2006 08:14:09 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8717 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751397AbWACNOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 08:14:08 -0500
+Date: Tue, 3 Jan 2006 14:14:06 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060103131406.GC3831@stusta.de>
+References: <20050726150837.GT3160@stusta.de> <1122393073.18884.29.camel@mindpipe> <42E65D50.3040808@pobox.com> <20050727182427.GH3160@stusta.de> <20050727203150.GF22686@tuxdriver.com> <42E7F1F9.2050105@pobox.com> <1122559208.32126.8.camel@localhost.localdomain> <Pine.LNX.4.61.0507281542420.8458@tm8103.perex-int.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136265106.5261.34.camel@npiggin-nld.site>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.61.0507281542420.8458@tm8103.perex-int.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03, 2006 at 04:11:46PM +1100, Nick Piggin wrote:
-> On Mon, 2006-01-02 at 19:40 -0200, Marcelo Tosatti wrote:
+On Thu, Jul 28, 2005 at 03:43:49PM +0200, Jaroslav Kysela wrote:
+> On Thu, 28 Jul 2005, Alan Cox wrote:
 > 
-> > Nick, 
+> > On Mer, 2005-07-27 at 16:43 -0400, Jeff Garzik wrote:
+> > > ISTR Alan saying there was some ALi hardware that either wasn't in ALSA, 
+> > > or most likely didn't work in ALSA.  If Alan says I'm smoking crack, 
+> > > then you all can ignore me :)
 > > 
-> > The following patch:
-> > 
-> > - Moves the lightweight "inc/dec" versions of mod_page_state variants
-> > to three underscores, making those the default for locations where enough
-> > locks are held.
-> > 
+> > The only big thing I know that still needed OSS (and may still do so) is
+> > the support for AC97 wired touchscreens and the like. Has that been
+> > ported to ALSA ?
 > 
-> I guess I was hoping to try to keep it simple, and just have two
-> variants, the __ version would require the caller to do the locking.
+> We're working on this issue right now.
 
-I see - one point is that the two/three underscore versions make
-it clear that preempt is required, though, but it might be a bit
-over-complicated as you say.
+What's the current status of this issue?
 
-Well, its up to you - please rearrange the patch as you wish and merge
-up?
+> 						Jaroslav
 
-> In cases like eg. allocstall, they should happen infrequently enough
-> that the extra complexity is probably not worth worrying about.
+cu
+Adrian
 
-True, but it reduces kernel code, which is always good.
+-- 
 
-> I don't think I commented about the preempt race though (and requirement
-> to have preempt off from process context), which obviously can be a
-> problem as you say (though I think things are currently safe?).
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-"I think it should not be racy because the function should always be
-called with the page table lock held, which disables preempt. I guess
-the comment should be explicit about that as well."
-
-Yes, you're right! My bad.
-
-> > - Make the two-underscore version disable and enable preemption, which 
-> > is required to avoid preempt-related races which can result in missed
-> > updates.
-> > 
-> > - Extends the lightweight version usage in page reclaim, 
-> > pte allocation, and a few other codepaths.
-> > 
-> 
-> I guess nr_dirty looks OK in the places it can be put under tree_lock.
-> 
-> nr_page_table_pages is OK because ptl should be held to prevent preempt.
-> 
-> pgrotated and pgactivate should be good because of lru_lock.
-> 
-> Thanks for going through these!
-
-There's still probably a few more counters but the ones covered till now 
-should be the most significant ones performance-wise.

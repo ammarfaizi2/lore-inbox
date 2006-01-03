@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWACATS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWACAzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWACATS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 19:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWACATS
+	id S1751144AbWACAzp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 19:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWACAzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 19:19:18 -0500
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:50329 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1751140AbWACATR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 19:19:17 -0500
-Subject: Re: Re; system keeps freezing once every 24 hours / random apps
-	crashing
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Peter Missel <peter.missel@onlinehome.de>, video4linux-list@redhat.com,
-       Mark v Wolher <trilight@ns666.com>, Jiri Slaby <xslaby@fi.muni.cz>,
-       Sami Farin <7atbggg02@sneakemail.com>, jesper.juhl@gmail.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>, s0348365@sms.ed.ac.uk,
-       rlrevell@joe-job.com, arjan@infradead.org
-In-Reply-To: <1136240983.8570.4.camel@localhost.localdomain>
-References: <200512310027.47757.s0348365@sms.ed.ac.uk>
-	 <20060101191221.7E34322AEAC@anxur.fi.muni.cz> <43B82F87.5010804@ns666.com>
-	 <200601020020.12190.peter.missel@onlinehome.de>
-	 <1136240983.8570.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 02 Jan 2006 22:19:00 -0200
-Message-Id: <1136247540.19197.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Jan 2006 19:55:45 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:27310 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751144AbWACAzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 19:55:45 -0500
+Message-ID: <43B9CB8E.7050405@bigpond.net.au>
+Date: Tue, 03 Jan 2006 11:55:42 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] CPU scheduler: Simplified interactive bonus mechanism
+References: <43B22FBA.5040008@bigpond.net.au> <20051228080029.GA5641@elte.hu> <20051228083615.GA12180@elte.hu>
+In-Reply-To: <20051228083615.GA12180@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 3 Jan 2006 00:55:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Seg, 2006-01-02 às 22:29 +0000, Alan Cox escreveu:
-> On Llu, 2006-01-02 at 00:20 +0100, Peter Missel wrote:
+Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> 
+>>* Peter Williams <pwil3058@bigpond.net.au> wrote:
+>>
+>>
+>>>This patch implements a prototype version of a simplified interactive 
+>>>bonus mechanism.  The mechanism does not attempt to identify 
+>>>interactive tasks and give them a bonus (like the current mechanism 
+>>>does) but instead attacks the problem that the bonuses are supposed to 
+>>>fix, unacceptable interactive latency, directly.
+>>
+>>i think we could give this one a workout in -mm, to see the actual 
+>>effects. Would you mind to merge this to -mm's scheduler queue, to right 
+>>after sched-add-sched_batch-policy.patch?
+> 
+> 
+> i have done this for latest -mm, see the patch below (i also merged your 
+> patch to the SCHED_BATCH patch's effects), but the resulting kernel has 
+> really bad interactivity: e.g. simply starting 4 CPU hogs on a 2-CPU 
+> system slows down shell commands like 'ls' noticeably. So NACK for the 
+> time being.
 
-> Grab display also stresses the main memory bus and bus arbitration logic
-> which caused problems on some older chipsets many of which handled
-> overlay mode fine. 
+I've just realized a more serious reason why this scheduler modification 
+needs to be postponed as unsuitable for general use.  It essentially 
+relies on sched_clock() having at least microsecond resolution and it 
+has been pointed out to me that on some systems this isn't true and, 
+even though its units are always nanoseconds, the resolution of 
+sched_clock() can be large as 1/HZ.  This scheduler would not work very 
+well on these systems so its time has not yet come regardless of 
+successful resolution of the other problems.
 
-	One common pci quirk is to increase latency timer. You may try to
-increase it using an userspace tool (like powertweak or sysctl). 
-	Please try to increase latency and give us some feedback. BTTV driver
-is capable of using linux/drivers/pci/quirks.c info and honor it.
+Nevertheless, I'll add a scheduler based on ingosched with this 
+modification (and fixes) to PlugSched so that progress can be made on 
+improving it for those systems where it is feasible.
 
-Cheers, 
-Mauro.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

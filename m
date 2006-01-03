@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWACN6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWACOBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWACN6X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWACN6X
+	id S1751411AbWACOBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWACOBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:58:23 -0500
-Received: from ns.suse.de ([195.135.220.2]:43205 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751407AbWACN6W convert rfc822-to-8bit
+	Tue, 3 Jan 2006 09:01:23 -0500
+Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:19617 "EHLO
+	kotiaho.net") by vger.kernel.org with ESMTP id S1751411AbWACOBX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 08:58:22 -0500
-To: =?iso-8859-1?q?Dieter_St=FCken?= <stueken@conterra.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X86_64 + VIA + 4g problems
-References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>
-	<43BA4C3D.4060206@conterra.de>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Jan 2006 14:58:21 +0100
-In-Reply-To: <43BA4C3D.4060206@conterra.de>
-Message-ID: <p731wzpjtvm.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 3 Jan 2006 09:01:23 -0500
+Date: Tue, 3 Jan 2006 15:01:09 +0100 (CET)
+From: "J.O. Aho" <trizt@iname.com>
+X-X-Sender: trizt@lai.local.lan
+To: "David S. Miller" <davem@davemloft.net>
+cc: mark@mtfhpc.demon.co.uk,
+       linux-kernel maillist <linux-kernel@vger.kernel.org>,
+       sparclinux@vger.kernel.org
+Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
+In-Reply-To: <20051212.142654.62759069.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0601031456240.25341@lai.local.lan>
+References: <DGEKIABPPPEBAOMKAJCEKEAKCBAA.mark@mtfhpc.demon.co.uk>
+ <Pine.LNX.4.64.0512121127240.12856@lai.local.lan> <20051212.142654.62759069.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Stüken <stueken@conterra.de> writes:
+On Mon, 12 Dec 2005, David S. Miller wrote:
 
-> Andi Kleen wrote:
-> > Can you please post the full boot log? ...
-> > When you not compile in the SKGE network driver does everything else work?
-> > skge supports 64bit DMA, so it shouldn't use any IOMMU.  But I'm somewhat
-> > suspicious of the >4GB support in the VIA chipset. We had problems with
-> > that before. It's possible that it's just not supported in the hardware
-> > or that the BIOS sets up the MTRRs wrong.
-> 
-> sorry for the delay, we are a few hors off here...
+> From: "J.O. Aho" <trizt@iname.com>
+> Date: Mon, 12 Dec 2005 11:38:32 +0100 (CET)
+>
+>> I have been using gcc-3.3.5 (64bits) when building the kernel, today
+>> I did upgrade to gcc-3.3.6 (64bits), but still have the same problem
+>> with the X11.  For build normal system applications and tools I have
+>> gcc-3.3.6 (32bit).
+>
+> I use gcc-4.0.2 and gcc-3.4.5 for all of my kernel builds.
 
-Does everything work (including the SKGE) driver
-when you boot with swiotlb=force ? 
+After a small chat at #Gentoo-Sparc at freenode, I thought that I should 
+just say that the problem with X locking up is still there (15-rc7), 
+regardless of gcc version, and that the problem has to do with the UPA 
+code according those who know a lot more than I do.
 
--Andi
+Thanks again for all help.
+
+-- 
+      //Aho
+
+  ------------------------------------------------------------------------
+   E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
+      ICQ: 13696780
+   System: Linux System                        (PPC7447/1000 AMD K7A/2000)
+  ------------------------------------------------------------------------
+             EU forbids you to send spam without my permission
+  ------------------------------------------------------------------------

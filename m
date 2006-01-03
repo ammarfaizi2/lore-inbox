@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWACXNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWACXNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbWACXNe (ORCPT <rfc822;willy@w.ods.org>);
+	id S964830AbWACXNe (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 3 Jan 2006 18:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWACXNI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWACXNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:13:08 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:52573 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964865AbWACXMv convert rfc822-to-8bit
+	Tue, 3 Jan 2006 18:13:06 -0500
+Received: from mail.suse.de ([195.135.220.2]:36518 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964871AbWACXNA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:12:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dPe1K+gU+vJlH/WNwf037nahVvUB47p1RvbDSEcdVVlRn9QtUuDY8aPuLuhUHISAZ7XY+Di50iQcJCoU6wq9sgB7h/GeFgb62YjA6IOqr8UNd7EkPASwxB1y/nzdjx4sJXTVIfklqgD8My6J3TmTTnykpXxp2QG0Po+MY4AaERo=
-Message-ID: <9c21eeae0601031512m44c4a269ua2214528eaf90914@mail.gmail.com>
-Date: Tue, 3 Jan 2006 15:12:50 -0800
-From: David Brown <dmlb2000@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-rt1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060103094720.GA16497@elte.hu>
+	Tue, 3 Jan 2006 18:13:00 -0500
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [PATCH] [RFC] Optimize select/poll by putting small data sets on the stack
+Date: Wed, 4 Jan 2006 00:13:44 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200601032158.14057.ak@suse.de> <43BAF72C.2030608@cosmosbay.com> <43BB03A7.3090604@cosmosbay.com>
+In-Reply-To: <43BB03A7.3090604@cosmosbay.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <20060103094720.GA16497@elte.hu>
+Message-Id: <200601040013.44249.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/3/06, Ingo Molnar <mingo@elte.hu> wrote:
-> i have released the 2.6.15-rt1 tree, which can be downloaded from the
-> usual place:
+On Wednesday 04 January 2006 00:07, Eric Dumazet wrote:
+> Eric Dumazet a écrit :
+> > Andi Kleen a écrit :
+> >> This is a RFC for now. I would be interested in testing
+> >> feedback. Patch is for 2.6.15.
+> >>
+> >> Optimize select and poll by a using stack space for small fd sets
+> >>
+> >> This brings back an old optimization from Linux 2.0. Using
+> >> the stack is faster than kmalloc. On a Intel P4 system
+> >> it speeds up a select of a single pty fd by about 13%
+> >> (~4000 cycles -> ~3500)
+> >
+> > Was this result on UP or SMP kernel ? Preempt or not ?
+> >
+> > I think we might play in do_pollfd() and use fget_light()/fput_light()
+> > instead of fget()/fput() that are somewhat expensive because of atomic
+> > inc/dec on SMP.
 >
->    http://redhat.com/~mingo/realtime-preempt/
->
-> no big changes, this release is mainly a merge to v2.6.15, and should
-> fix some of the RTC driver problems reported for 2.6.15-rc7-rt3.
->
-> to build a 2.6.15-rt1 tree, the following patches should be applied:
->
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
->   http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt1
->
->         Ingo
+> Just for completeness I include this patch against 2.6.15
 
+Looks like a good idea.
 
-hmm compile problem with this one....
-since this is the first time I've tried this patch I don't know how
-far back this goes.
-
-  CC [M]  net/ipv6/icmp.o
-  CC [M]  net/ipv6/mcast.o
-net/ipv6/mcast.c: In function `ipv6_sock_mc_join':
-net/ipv6/mcast.c:227: error: `RW_LOCK_UNLOCKED' undeclared (first use
-in this function)
-net/ipv6/mcast.c:227: error: (Each undeclared identifier is reported only once
-net/ipv6/mcast.c:227: error: for each function it appears in.)
-make[2]: *** [net/ipv6/mcast.o] Error 1
-make[1]: *** [net/ipv6] Error 2
-make: *** [net] Error 2
-
-- David Brown
+-Andi

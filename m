@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWACTyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWACT4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWACTyA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWACTyA
+	id S932514AbWACT4p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWACT4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:54:00 -0500
-Received: from styx.suse.cz ([82.119.242.94]:26339 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932485AbWACTx7 (ORCPT
+	Tue, 3 Jan 2006 14:56:45 -0500
+Received: from vvv.conterra.de ([212.124.44.162]:20668 "EHLO conterra.de")
+	by vger.kernel.org with ESMTP id S932514AbWACT4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:53:59 -0500
-Date: Tue, 3 Jan 2006 20:53:44 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/1] usb/input: Add missing keys to hid-debug.h
-Message-ID: <20060103195344.GC6443@corona.home.nbox.cz>
-References: <20060102233730.GA29826@hansmi.ch> <200601030142.32623.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601030142.32623.dtor_core@ameritech.net>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+	Tue, 3 Jan 2006 14:56:44 -0500
+Message-ID: <43BAD6F4.6080605@conterra.de>
+Date: Tue, 03 Jan 2006 20:56:36 +0100
+From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: X86_64 + VIA + 4g problems
+References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>	<43BA4C3D.4060206@conterra.de> <p731wzpjtvm.fsf@verdi.suse.de>
+In-Reply-To: <p731wzpjtvm.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03, 2006 at 01:42:31AM -0500, Dmitry Torokhov wrote:
-> On Monday 02 January 2006 18:37, Michael Hanselmann wrote:
-> > This patch adds the missing keys from input.h to hid-debug.h.
-> > 
-> > Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
-> 
-> Thank you Michael, I will add it to my tree. I still ponder your other
-> patch and whether we should employ something like hooks for HID.
- 
-We should split HID in two parts - transport and decoding. This would
-help in many places:
+Andi Kleen wrote:
+> Does everything work (including the SKGE) driver
+> when you boot with swiotlb=force ? 
 
-	Bluetooth would be happy, because it uses the same HID protocol
-	on top of a different transport layer (completely non-USB).
+Yes, it seems to work so far! I'm just reading some GB via NFS (while writing this
+mail on the same host). I already performed some other test: without initializing the
+network (and still without swiotlb=force) all my SATA controller seem to work properly.
+I did a "dd bs=400M" on each in parallel. So I'm sure that each of my 4G was involved.
+(also I'm not sure, if EACH of my 3 controllers really used something above 3G)
 
-	Wacom and many other blacklisted devices would be happy, because
-	they could use the USB HID transport - no blacklist would be
-	needed.
+All this was still with an unpatched 2.6.15-rc7 and with IOMMU disabled.
+So I could either try "iommu=allowed", as suggested by dmesg from
+check_ioapic() or I may apply the suggested patch for pci-gart.c,
+or both with and without network....
 
-	Would allow for /dev/usb/rawhid0 style devices, which would give
-	access to raw HID reports without any parsing done.
+May be I report about soon, else tomorrow.
 
-	Would allow userspace drivers for broken UPS devices (like APC)
-	without the need for special handling of their bugs in the kernel.
-
-It seems to me it could be almost its own layer, like serio or gameport.
-Windows has an API like that.
-
-I don't have the time to do the split myself, but it shouldn't be too
-hard.
-
-It would not be the perfect solution for Apple keyboards, because the
-patch is simplifies by doing the processing after parsing the reports,
-but still, since it would allow for device-specific parsers, it'd be a
-reasonable solution for devices that need more special handling than
-just a simple quirk.
-
+Dieter.
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Dieter Stüken, con terra GmbH, Münster
+     stueken@conterra.de
+     http://www.conterra.de/
+     (0)251-7474-501

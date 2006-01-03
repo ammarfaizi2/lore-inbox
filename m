@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWACUEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWACUGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWACUEP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWACUEO
+	id S932515AbWACUGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWACUGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:04:14 -0500
-Received: from bno-84-242-95-19.nat.karneval.cz ([84.242.95.19]:56784 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932406AbWACUEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:04:14 -0500
-Message-ID: <43BAD8AE.2070709@liberouter.org>
-Date: Tue, 03 Jan 2006 21:03:58 +0100
-From: Jiri Slaby <slaby@liberouter.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: cs, en-us, en
+	Tue, 3 Jan 2006 15:06:09 -0500
+Received: from gate.perex.cz ([85.132.177.35]:5532 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932515AbWACUGI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 15:06:08 -0500
+Date: Tue, 3 Jan 2006 21:06:06 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
+Cc: Lee Revell <rlrevell@joe-job.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <1136318187.4106.32.camel@unreal>
+Message-ID: <Pine.LNX.4.61.0601032101570.9362@tm8103.perex-int.cz>
+References: <20050726150837.GT3160@stusta.de>  <200601031522.06898.s0348365@sms.ed.ac.uk>
+ <20060103160502.GB5262@irc.pl>  <200601031629.21765.s0348365@sms.ed.ac.uk>
+  <20060103170316.GA12249@dspnet.fr.eu.org>  <1136312901.24703.59.camel@mindpipe>
+ <1136316640.4106.26.camel@unreal>  <Pine.LNX.4.61.0601032036250.9362@tm8103.perex-int.cz>
+ <1136318187.4106.32.camel@unreal>
 MIME-Version: 1.0
-To: Avishay Traeger <atraeger@cs.sunysb.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_page_count
-References: <1136317294.21485.5.camel@rockstar.fsl.cs.sunysb.edu>
-In-Reply-To: <1136317294.21485.5.camel@rockstar.fsl.cs.sunysb.edu>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avishay Traeger napsal(a):
-> Hello all,
-> 
-> I sent this to linux-mm, but haven't gotten a response - hope it's OK to
-> send here.  I believe the set_page_count() macro is broken, and should
-> have parentheses around the 'v' in the second argument (otherwise more
-> complex arguments will break).  Here is a patch to 2.6.15 - I haven't
-> really tested it, but it looks simple enough.  Any objections?  Anything
-> else I need to do?
-You should cc somebody (maybe Andrew Morton) and add signed-off-by line if you
-want it to be merged. For both, see SubmittingPatches in Documentation.
-Also read the whole document, not only those 2 parts...
-> 
-> Thanks,
-> Avishay Traeger
-> http://www.fsl.cs.sunysb.edu/~avishay/
-> 
-> 
-> diff -Naur linux-2.6.15/include/linux/mm.h
-> linux-2.6.15-mod/include/linux/mm.h
-> --- linux-2.6.15/include/linux/mm.h     2006-01-02 22:21:10.000000000
-> -0500
-> +++ linux-2.6.15-mod/include/linux/mm.h 2006-01-03 11:28:19.000000000
-> -0500
-> @@ -308,7 +308,7 @@
->   */
->  #define get_page_testone(p)    atomic_inc_and_test(&(p)->_count)
-> 
-> -#define set_page_count(p,v)    atomic_set(&(p)->_count, v - 1)
-> +#define set_page_count(p,v)    atomic_set(&(p)->_count, (v) - 1)
->  #define __put_page(p)          atomic_dec(&(p)->_count)
-> 
->  extern void FASTCALL(__page_cache_release(struct page *));
-> 
+On Tue, 3 Jan 2006, Thomas Sailer wrote:
 
-regards,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+> On Tue, 2006-01-03 at 20:37 +0100, Jaroslav Kysela wrote:
+> 
+> > Anyone reported that? Also what's the exact bug symptom?
+> 
+> Many people reported this on various mailing lists, but I'm not aware of
+> any bugzilla/whatever ticket.
+> 
+> Problem seems to be that ALSA/OSS does not report the true HW sampling
+> rate, but tries to do the sample rate conversion by itself, but
+> apparently not doing it good enough for modem type applications.
+
+The "plugin" (or rather conversion, routing and resampling) system in the 
+OSS emulation can be turned off using the proc interface:
+
+echo "soundmodem 0 0 direct" > /proc/asound/card0/pcm0p/oss
+echo "soundmodem 0 0 direct" > /proc/asound/card0/pcm0c/oss
+
+Full documentation is available at:
+
+linux/Documentation/sound/alsa/OSS-Emulation.txt
+
+It's easy to remove the "additional" functionality, but I bet that we
+find some users requesting it. Also, in time when the OSS emulation was 
+designed, not all OSS applications had own resapling code.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

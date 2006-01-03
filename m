@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWACVEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWACVIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWACVEN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWACVEM
+	id S964835AbWACVIX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWACVH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:04:12 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:55203 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964796AbWACVEK convert rfc822-to-8bit
+	Tue, 3 Jan 2006 16:07:58 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:31887 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932547AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:04:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=li5Nf5R1Ih7sfmFHsgSJDiMzjGo1+vmdZrJY+Eco4xcdWZc1CPZgCBfBUlXh0K227fC33IAL0vJqEAh0+MUC1Fk+SFLNN0EgPpb6woTRibWYvwwAvAQGDKSd8DTUZT3Qavu8ebf5hbu/N8TASAeXjeDoCsW0B/ky9KIvQWboEnc=
-Message-ID: <d120d5000601031304n25ca5645g7c3231a9ef6140e8@mail.gmail.com>
-Date: Tue, 3 Jan 2006 16:04:07 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Re: usb: replace __setup("nousb") with __module_param_call
-Cc: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.44L0.0601031549130.18243-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <d120d5000601031238x4db9999eyc6358d2a010ad9dd@mail.gmail.com>
-	 <Pine.LNX.4.44L0.0601031549130.18243-100000@iolanthe.rowland.org>
+	Tue, 3 Jan 2006 16:07:41 -0500
+To: torvalds@osdl.org
+Subject: [PATCH 18/50] sparc: task_stack_page()
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Message-Id: <E1EttNa-0008Pt-JB@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/3/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> On Tue, 3 Jan 2006, Dmitry Torokhov wrote:
->
-> > On 1/3/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> > >
-> > > usb-handoff no longer exists.  The kernel now takes USB host controllers
-> > > away from the BIOS as soon as they are discovered.
-> > >
-> >
-> > Yes! YES! YEEEEES!
-> >
-> > *Dmitry dances and rejoices*
->
-> It may not be totally advantageous.  Sometimes people have trouble with
-> system installs, when for some reason the USB HID driver doesn't work.
-> If you've got a USB keyboard now you're pretty well stuck, whereas in the
-> past you could specify "nousb" and the BIOS would continue to drive the
-> keyboard.
->
+References: <20060103210515.5135@ftp.linux.org.uk>
+In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
 
-Ok, I'd settle with having "usb-handoff" option that defaults to 1. I
-think if you look at number of problem reports that go away with
-"usb-handoff" it is sensible default.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
---
-Dmitry
+---
+
+ arch/sparc/kernel/process.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+0015df0826bdd6f2aad29b05149ea3f9475d204a
+diff --git a/arch/sparc/kernel/process.c b/arch/sparc/kernel/process.c
+index 7eebb08..fbb05a4 100644
+--- a/arch/sparc/kernel/process.c
++++ b/arch/sparc/kernel/process.c
+@@ -302,7 +302,7 @@ void show_stack(struct task_struct *tsk,
+ 	int count = 0;
+ 
+ 	if (tsk != NULL)
+-		task_base = (unsigned long) tsk->thread_info;
++		task_base = (unsigned long) task_stack_page(tsk);
+ 	else
+ 		task_base = (unsigned long) current_thread_info();
+ 
+@@ -392,7 +392,7 @@ void flush_thread(void)
+ 		/* We must fixup kregs as well. */
+ 		/* XXX This was not fixed for ti for a while, worked. Unused? */
+ 		current->thread.kregs = (struct pt_regs *)
+-		    ((char *)current->thread_info + (THREAD_SIZE - TRACEREG_SZ));
++		    (task_stack_page(current) + (THREAD_SIZE - TRACEREG_SZ));
+ 	}
+ }
+ 
+@@ -459,7 +459,7 @@ int copy_thread(int nr, unsigned long cl
+ 		unsigned long unused,
+ 		struct task_struct *p, struct pt_regs *regs)
+ {
+-	struct thread_info *ti = p->thread_info;
++	struct thread_info *ti = task_thread_info(p);
+ 	struct pt_regs *childregs;
+ 	char *new_stack;
+ 
+@@ -482,7 +482,7 @@ int copy_thread(int nr, unsigned long cl
+ 	 *  V                      V (stk.fr.) V  (pt_regs)  { (stk.fr.) }
+ 	 *  +----- - - - - - ------+===========+============={+==========}+
+ 	 */
+-	new_stack = (char*)ti + THREAD_SIZE;
++	new_stack = task_stack_page(p) + THREAD_SIZE;
+ 	if (regs->psr & PSR_PS)
+ 		new_stack -= STACKFRAME_SZ;
+ 	new_stack -= STACKFRAME_SZ + TRACEREG_SZ;
+-- 
+0.99.9.GIT
+

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWACN03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWACN1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWACN03 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWACNZ6
+	id S932366AbWACN1P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 08:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWACNZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:25:58 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:46597 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932354AbWACNZi convert rfc822-to-8bit
+	Tue, 3 Jan 2006 08:25:53 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:42501 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932366AbWACNZi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 08:25:38 -0500
-Subject: [PATCH 17/26] kbuild: Fix genksyms handling of DEFINE_PER_CPU(struct foo_s *, bar);
+Subject: [PATCH 22/26] gitignore: asm-offsets.h
 In-Reply-To: <20060103132035.GA17485@mars.ravnborg.org>
 X-Mailer: gregkh_patchbomb-sam
 Date: Tue, 3 Jan 2006 14:25:26 +0100
-Message-Id: <11362947262643@foobar.com>
+Message-Id: <11362947263768@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -23,52 +23,41 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Robin Holt <holt@sgi.com>
-Date: 1135129550 -0600
+From: Brian Gerst <bgerst@didntduck.org>
+Date: 1135743544 -0500
 
-This is a one-line change to parse.y.
-To take advantage of this the scripts/genksyms/*_shipped files needs to
-be rebuild - this is the next patch.
+Ignore asm-offsets.h for all arches.
 
-When a .c file contains:
-DEFINE_PER_CPU(struct foo_s *, bar);
-
-the .cpp output looks like:
-__attribute__((__section__(".data.percpu"))) __typeof__(struct foo_s *) per_cpu__bar;
-
-With the existing parse.y, the value inside the paranthesis of
-__typeof__() does not evaluate as a type_specifier and therefore
-per_cpu__bar does not get assigned a type for genksyms which results in
-the EXPORT_PER_CPU_SYMBOL() not generating a CRC value.
-
-I have compared the Modules.symvers with and without this
-patch and for ia64's defconfig, the only change is:
-Before 0x00000000    per_cpu____sn_nodepda   vmlinux
-After  0x9d3f3faa    per_cpu____sn_nodepda   vmlinux
-
-per_cpu____sn_nodepda was the original source of my problems.
-
-Signed-off-by: Robin Holt <holt@sgi.com>
+Signed-off-by: Brian Gerst <bgerst@didntduck.org>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- scripts/genksyms/parse.y |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ .gitignore                  |    1 +
+ include/asm-mips/.gitignore |    1 -
+ 2 files changed, 1 insertions(+), 1 deletions(-)
+ delete mode 100644 include/asm-mips/.gitignore
 
-a89a0a2354ae666612968e254d650bfd04f11eb6
-diff --git a/scripts/genksyms/parse.y b/scripts/genksyms/parse.y
-index 0990437..ca04c94 100644
---- a/scripts/genksyms/parse.y
-+++ b/scripts/genksyms/parse.y
-@@ -197,6 +197,7 @@ storage_class_specifier:
- type_specifier:
- 	simple_type_specifier
- 	| cvar_qualifier
-+	| TYPEOF_KEYW '(' decl_specifier_seq '*' ')'
- 	| TYPEOF_KEYW '(' decl_specifier_seq ')'
- 
- 	/* References to s/u/e's defined elsewhere.  Rearrange things
+42f122c8f7e7134c824907358a5df94cfa38946d
+diff --git a/.gitignore b/.gitignore
+index 5014bfa..a4b576e 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -23,6 +23,7 @@ Module.symvers
+ # Generated include files
+ #
+ include/asm
++include/asm-*/asm-offsets.h
+ include/config
+ include/linux/autoconf.h
+ include/linux/compile.h
+diff --git a/include/asm-mips/.gitignore b/include/asm-mips/.gitignore
+deleted file mode 100644
+index 4ec57ad..0000000
+--- a/include/asm-mips/.gitignore
++++ /dev/null
+@@ -1 +0,0 @@
+-asm_offsets.h
 -- 
 1.0.6
 

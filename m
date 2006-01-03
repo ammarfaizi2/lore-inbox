@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWACVlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWACVom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbWACVlL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWACVlL
+	id S964950AbWACVom (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:44:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWACVom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:41:11 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:18918 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964955AbWACVlJ
+	Tue, 3 Jan 2006 16:44:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:15469 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964950AbWACVol convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:41:09 -0500
-Message-ID: <43BAEF69.3020006@austin.ibm.com>
-Date: Tue, 03 Jan 2006 15:40:57 -0600
-From: Joel Schopp <jschopp@austin.ibm.com>
-Reply-To: jschopp@austin.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
+	Tue, 3 Jan 2006 16:44:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OAVIdosEtEAxrynSBVSPg+pGvZ1+sEL1/k1VY/PeqUg34SwnpbgKr+gYLFMHhjneNMTccfsZ0HrqnuykEjUviI/nJzAtzCDT7vhFU2c3K9LbEJZz0OuhGcii2QhVFc1yZdlHZfJPoBE5RxbSkaYw50QAFWaAtLo4zbdfOq84Qhg=
+Message-ID: <9a8748490601031344n5b2066e4y7b989e0ace1e71a7@mail.gmail.com>
+Date: Tue, 3 Jan 2006 22:44:39 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Avishay Traeger <atraeger@cs.sunysb.edu>
+Subject: Re: Benchmarks
+Cc: Sharma Sushant <sushant@cs.unm.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1136324365.21485.19.camel@rockstar.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-Subject: Re: [Patch] New zone ZONE_EASY_RECLAIM take 4. (Change PageHighMem())[8/8]
-References: <20051220173217.1B18.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20051220173217.1B18.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060103213244.M41864@webmail.cs.unm.edu>
+	 <1136324365.21485.19.camel@rockstar.fsl.cs.sunysb.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch is change PageHighMem()'s definition for i386.
-> Easy reclaim zone is treated like highmem on i386.
+On 1/3/06, Avishay Traeger <atraeger@cs.sunysb.edu> wrote:
+> Well that would very much depend on what you're changing.  For example,
+> if it is a file system modification, then use file system benchmarks.
+> However, those same benchmarks would not be appropriate for changes in
+> the network stack.  A pre-written benchmark may not even exist.  You
+> should use your knowledge of what you are changing to choose an
+> appropriate benchmark that will stress that part of the kernel.
+>
+Or, as is often the case, write a benchmark app yourself to test the
+specific thing you've changed.
 
-This doesn't look like an i386 file, it looks like you are changing it 
-for all architectures that have HIGHMEM (do any other archs use 
-highmeme?). This may be fine, just wanted you to be aware.
-
-> 
-> This is new patch at take 4.
-> 
-> Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-> 
-> Index: zone_reclaim/include/linux/page-flags.h
-> ===================================================================
-> --- zone_reclaim.orig/include/linux/page-flags.h	2005-12-15 21:01:09.000000000 +0900
-> +++ zone_reclaim/include/linux/page-flags.h	2005-12-15 21:24:07.000000000 +0900
-> @@ -265,7 +265,7 @@ extern void __mod_page_state_offset(unsi
->  #define TestSetPageSlab(page)	test_and_set_bit(PG_slab, &(page)->flags)
->  
->  #ifdef CONFIG_HIGHMEM
-> -#define PageHighMem(page)	is_highmem(page_zone(page))
-> +#define PageHighMem(page)	is_higher_zone(page_zone(page))
->  #else
->  #define PageHighMem(page)	0 /* needed to optimize away at compile time */
->  #endif
-> 
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

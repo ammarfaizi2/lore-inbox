@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWACMKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWACMTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbWACMKE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 07:10:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWACMKE
+	id S1751387AbWACMTf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 07:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWACMTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 07:10:04 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:23852 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1751378AbWACMKD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 07:10:03 -0500
-From: =?iso-8859-1?q?Jo=E3o_Esteves?= <joao.m.esteves@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Via VT 6410 Raid Controller
-Date: Tue, 3 Jan 2006 12:10:01 +0000
-User-Agent: KMail/1.8.2
-References: <200601021253.10738.joao.m.esteves@netcabo.pt> <200601031055.02257.joao.m.esteves@netcabo.pt> <58cb370e0601030340jbad02f0m6073dae957384c9b@mail.gmail.com>
-In-Reply-To: <58cb370e0601030340jbad02f0m6073dae957384c9b@mail.gmail.com>
+	Tue, 3 Jan 2006 07:19:35 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:39222 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751386AbWACMTe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 07:19:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KHgwbWG58CvvDJohKqdczt6/SA8I4WliDZdJt4e8/GcyijRrjFctdv/rxzNzasS8eEBoGeCwn2ZnnPzszFv7El9Y1Y8rmEqIovACdv5aKbqdq5EcIkhm0hhdo0B/n3hT7LxWSy9nHhN8QB7ELZ2s3z+RQLYz5Xi4CLX5jB1zYfQ=
+Message-ID: <6ec4247d0601030419w377fd396x@mail.gmail.com>
+Date: Tue, 3 Jan 2006 22:49:33 +1030
+From: Graham Gower <graham.gower@gmail.com>
+To: Roger While <simrw@sim-basis.de>
+Subject: Re: [PATCH] [TRIVIAL] prism54/islpci_eth.c: dev_kfree_skb in irq context
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <6.1.1.1.2.20060103105620.02c523e0@192.168.6.12>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200601031210.01594.joao.m.esteves@netcabo.pt>
-X-OriginalArrivalTime: 03 Jan 2006 12:10:02.0380 (UTC) FILETIME=[9FFD84C0:01C6105E]
+References: <6.1.1.1.2.20060103105620.02c523e0@192.168.6.12>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+012345678901234567890123456789012345678901234567890123456789
 
-> You don't seem to have VIA IDE driver compiled in et all.
+On 03/01/06, Roger While <simrw@sim-basis.de> wrote:
+> What makes you think this is in IRQ context ?
 >
-> Could you retry with Daniel's patch applied and "VIA82CXXX chipset
-> support" (CONFIG_BLK_DEV_VIA82CXXX config option) compiled-in?
-> Yes, help entry should be updated. :-)
 
-I believe this option is inserted after "make xconfig", when "qconf" window 
-appears. Sorry for this, it is my first time compiling the kernel. Perhaps it 
-is not bad ideia to say what I'm doing:
+Er... yeah. I must have been off my nut when I wrote that comment.
+A more apt comment should perhaps have been "dev_kfree_skb shouldn't be
+used with interrupts disabled". Forgive my noobness, I'm a kernel patch virgin.
 
-In /usr/src/linux:
+My logs were starting to fill with messages exatcly like that mentioned here:
+http://patchwork.netfilter.org/netfilter-devel/patch.pl?id=2840
 
- 1. Ataching the patch: 
-# cat /root/via6410.patch | patch -p1
-(I renamed the patch file to via6410.patch)
+In any event, the patch at the end of that link was never applied (it doesn't
+fix the other call to dev_kfree_skb). After applying my patch, I've not had any
+more messages in the logs.
 
-2.# make xconfig
-
-3. # make 
-    # sudo modules_install install
-
-4. Reboot.
-
-All this went with no error messages and the system reboots OK, with the new 
-kernel in the Lillo boot options.
-
-Regards and thanks for your help.
-
-João
+Graham

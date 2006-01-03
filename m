@@ -1,86 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbWACX3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWACX26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbWACX3r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWACX3n
+	id S965082AbWACX26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbWACX2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:29:43 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:35480 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965099AbWACX3b
+	Tue, 3 Jan 2006 18:28:55 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:2012 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965080AbWACX2l
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:29:31 -0500
+	Tue, 3 Jan 2006 18:28:41 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 37/41] m68k: fix use of void foo(void) asm("bar") in traps.c
+Subject: [PATCH 27/41] m68k: ataflop __user annotations, NULL noise removal
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1Etvas-0003Pg-Q0@ZenIV.linux.org.uk>
+Message-Id: <E1Etva4-0003OE-Mi@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 23:29:30 +0000
+Date: Tue, 03 Jan 2006 23:28:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1135320468 -0500
-
-with gcc4 these have file scope, so having them different in different
-blocks doesn't work anymore
+Date: 1135011711 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/m68k/kernel/traps.c |   38 +++++++++++++++++++-------------------
- 1 files changed, 19 insertions(+), 19 deletions(-)
+ drivers/block/ataflop.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-ba18f4ce0d3a21f7e8e4137c4073a3b9ef15b87a
-diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
-index deb36e8..cdf58fb 100644
---- a/arch/m68k/kernel/traps.c
-+++ b/arch/m68k/kernel/traps.c
-@@ -169,25 +169,25 @@ void __init trap_init (void)
- 
- 	if (CPU_IS_060 && !FPU_IS_EMU) {
- 		/* set up IFPSP entry points */
--		asmlinkage void snan_vec(void) asm ("_060_fpsp_snan");
--		asmlinkage void operr_vec(void) asm ("_060_fpsp_operr");
--		asmlinkage void ovfl_vec(void) asm ("_060_fpsp_ovfl");
--		asmlinkage void unfl_vec(void) asm ("_060_fpsp_unfl");
--		asmlinkage void dz_vec(void) asm ("_060_fpsp_dz");
--		asmlinkage void inex_vec(void) asm ("_060_fpsp_inex");
--		asmlinkage void fline_vec(void) asm ("_060_fpsp_fline");
--		asmlinkage void unsupp_vec(void) asm ("_060_fpsp_unsupp");
--		asmlinkage void effadd_vec(void) asm ("_060_fpsp_effadd");
--
--		vectors[VEC_FPNAN] = snan_vec;
--		vectors[VEC_FPOE] = operr_vec;
--		vectors[VEC_FPOVER] = ovfl_vec;
--		vectors[VEC_FPUNDER] = unfl_vec;
--		vectors[VEC_FPDIVZ] = dz_vec;
--		vectors[VEC_FPIR] = inex_vec;
--		vectors[VEC_LINE11] = fline_vec;
--		vectors[VEC_FPUNSUP] = unsupp_vec;
--		vectors[VEC_UNIMPEA] = effadd_vec;
-+		asmlinkage void snan_vec6(void) asm ("_060_fpsp_snan");
-+		asmlinkage void operr_vec6(void) asm ("_060_fpsp_operr");
-+		asmlinkage void ovfl_vec6(void) asm ("_060_fpsp_ovfl");
-+		asmlinkage void unfl_vec6(void) asm ("_060_fpsp_unfl");
-+		asmlinkage void dz_vec6(void) asm ("_060_fpsp_dz");
-+		asmlinkage void inex_vec6(void) asm ("_060_fpsp_inex");
-+		asmlinkage void fline_vec6(void) asm ("_060_fpsp_fline");
-+		asmlinkage void unsupp_vec6(void) asm ("_060_fpsp_unsupp");
-+		asmlinkage void effadd_vec6(void) asm ("_060_fpsp_effadd");
-+
-+		vectors[VEC_FPNAN] = snan_vec6;
-+		vectors[VEC_FPOE] = operr_vec6;
-+		vectors[VEC_FPOVER] = ovfl_vec6;
-+		vectors[VEC_FPUNDER] = unfl_vec6;
-+		vectors[VEC_FPDIVZ] = dz_vec6;
-+		vectors[VEC_FPIR] = inex_vec6;
-+		vectors[VEC_LINE11] = fline_vec6;
-+		vectors[VEC_FPUNSUP] = unsupp_vec6;
-+		vectors[VEC_UNIMPEA] = effadd_vec6;
+1366eba39dfa2b807068d3ec49da87bcfd3aae7c
+diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
+index 22bda05..577698d 100644
+--- a/drivers/block/ataflop.c
++++ b/drivers/block/ataflop.c
+@@ -1361,7 +1361,7 @@ static int floppy_revalidate(struct gend
+ 		   formats, for 'permanent user-defined' parameter:
+ 		   restore default_params[] here if flagged valid! */
+ 		if (default_params[drive].blocks == 0)
+-			UDT = 0;
++			UDT = NULL;
+ 		else
+ 			UDT = &default_params[drive];
  	}
+@@ -1495,6 +1495,7 @@ static int fd_ioctl(struct inode *inode,
+ 	struct floppy_struct getprm;
+ 	int settype;
+ 	struct floppy_struct setprm;
++	void __user *argp = (void __user *)param;
  
-         /* if running on an amiga, make the NMI interrupt do nothing */
+ 	switch (cmd) {
+ 	case FDGETPRM:
+@@ -1521,7 +1522,7 @@ static int fd_ioctl(struct inode *inode,
+ 		getprm.head = 2;
+ 		getprm.track = dtp->blocks/dtp->spt/2;
+ 		getprm.stretch = dtp->stretch;
+-		if (copy_to_user((void *)param, &getprm, sizeof(getprm)))
++		if (copy_to_user(argp, &getprm, sizeof(getprm)))
+ 			return -EFAULT;
+ 		return 0;
+ 	}
+@@ -1540,7 +1541,7 @@ static int fd_ioctl(struct inode *inode,
+ 		/* get the parameters from user space */
+ 		if (floppy->ref != 1 && floppy->ref != -1)
+ 			return -EBUSY;
+-		if (copy_from_user(&setprm, (void *) param, sizeof(setprm)))
++		if (copy_from_user(&setprm, argp, sizeof(setprm)))
+ 			return -EFAULT;
+ 		/* 
+ 		 * first of all: check for floppy change and revalidate, 
+@@ -1647,7 +1648,7 @@ static int fd_ioctl(struct inode *inode,
+ 	case FDFMTTRK:
+ 		if (floppy->ref != 1 && floppy->ref != -1)
+ 			return -EBUSY;
+-		if (copy_from_user(&fmt_desc, (void *) param, sizeof(fmt_desc)))
++		if (copy_from_user(&fmt_desc, argp, sizeof(fmt_desc)))
+ 			return -EFAULT;
+ 		return do_format(drive, type, &fmt_desc);
+ 	case FDCLRPRM:
 -- 
 0.99.9.GIT
 

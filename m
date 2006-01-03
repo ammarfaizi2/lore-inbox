@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWACVOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWACVOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWACVOH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWACVN1
+	id S964858AbWACVOA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:14:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWACVN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:13:27 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:48783 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932541AbWACVHm
+	Tue, 3 Jan 2006 16:13:29 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:24463 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932571AbWACVHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:42 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 47/50] mips: task_pt_regs()
+Subject: [PATCH 05/50] amd64: task_thread_info()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNb-0008Se-Dn@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008PM-6N@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 21:07:39 +0000
+Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -25,130 +25,123 @@ Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/mips/kernel/process.c   |    4 +---
- arch/mips/kernel/ptrace.c    |   12 ++++--------
- arch/mips/kernel/ptrace32.c  |    6 ++----
- include/asm-mips/processor.h |    8 ++++----
- include/asm-mips/system.h    |    2 +-
- 5 files changed, 12 insertions(+), 20 deletions(-)
+ arch/x86_64/kernel/i387.c    |    2 +-
+ arch/x86_64/kernel/i8259.c   |    2 +-
+ arch/x86_64/kernel/process.c |    2 +-
+ arch/x86_64/kernel/smpboot.c |    2 +-
+ arch/x86_64/kernel/traps.c   |    4 ++--
+ include/asm-x86_64/i387.h    |    8 ++++----
+ 6 files changed, 10 insertions(+), 10 deletions(-)
 
-e99ce9bd9ac8e3f78fd46fbbede5d803c073f9c5
-diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-index 0476a4d..aca56f4 100644
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -229,9 +229,7 @@ void elf_dump_regs(elf_greg_t *gp, struc
- 
- int dump_task_regs (struct task_struct *tsk, elf_gregset_t *regs)
+76a5747f473913b4f63206d46410dda234b2d8b9
+diff --git a/arch/x86_64/kernel/i387.c b/arch/x86_64/kernel/i387.c
+index d9b22b6..a5d7e16 100644
+--- a/arch/x86_64/kernel/i387.c
++++ b/arch/x86_64/kernel/i387.c
+@@ -95,7 +95,7 @@ int save_i387(struct _fpstate __user *bu
+ 	if (!used_math())
+ 		return 0;
+ 	clear_used_math(); /* trigger finit */
+-	if (tsk->thread_info->status & TS_USEDFPU) {
++	if (task_thread_info(tsk)->status & TS_USEDFPU) {
+ 		err = save_i387_checking((struct i387_fxsave_struct __user *)buf);
+ 		if (err) return err;
+ 		stts();
+diff --git a/arch/x86_64/kernel/i8259.c b/arch/x86_64/kernel/i8259.c
+index 6e5101a..d7123b0 100644
+--- a/arch/x86_64/kernel/i8259.c
++++ b/arch/x86_64/kernel/i8259.c
+@@ -133,7 +133,7 @@ static void end_8259A_irq (unsigned int 
  {
--	struct thread_info *ti = tsk->thread_info;
--	long ksp = (unsigned long)ti + THREAD_SIZE - 32;
--	elf_dump_regs(&(*regs)[0], (struct pt_regs *) ksp - 1);
-+	elf_dump_regs(*regs, task_pt_regs(tsk));
- 	return 1;
+ 	if (irq > 256) { 
+ 		char var;
+-		printk("return %p stack %p ti %p\n", __builtin_return_address(0), &var, current->thread_info); 
++		printk("return %p stack %p ti %p\n", __builtin_return_address(0), &var, task_thread_info(current)); 
+ 
+ 		BUG(); 
+ 	}
+diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
+index 7519fc5..d0cfcc2 100644
+--- a/arch/x86_64/kernel/process.c
++++ b/arch/x86_64/kernel/process.c
+@@ -435,7 +435,7 @@ int copy_thread(int nr, unsigned long cl
+ 	p->thread.rsp0 = (unsigned long) (childregs+1);
+ 	p->thread.userrsp = me->thread.userrsp; 
+ 
+-	set_ti_thread_flag(p->thread_info, TIF_FORK);
++	set_tsk_thread_flag(p, TIF_FORK);
+ 
+ 	p->thread.fs = me->thread.fs;
+ 	p->thread.gs = me->thread.gs;
+diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
+index ecbd7b8..e92eec2 100644
+--- a/arch/x86_64/kernel/smpboot.c
++++ b/arch/x86_64/kernel/smpboot.c
+@@ -785,7 +785,7 @@ do_rest:
+ 	init_rsp = c_idle.idle->thread.rsp;
+ 	per_cpu(init_tss,cpu).rsp0 = init_rsp;
+ 	initial_code = start_secondary;
+-	clear_ti_thread_flag(c_idle.idle->thread_info, TIF_FORK);
++	clear_tsk_thread_flag(c_idle.idle, TIF_FORK);
+ 
+ 	printk(KERN_INFO "Booting processor %d/%d APIC 0x%x\n", cpu,
+ 		cpus_weight(cpu_present_map),
+diff --git a/arch/x86_64/kernel/traps.c b/arch/x86_64/kernel/traps.c
+index bf337f4..96a56c0 100644
+--- a/arch/x86_64/kernel/traps.c
++++ b/arch/x86_64/kernel/traps.c
+@@ -282,7 +282,7 @@ void show_registers(struct pt_regs *regs
+ 	printk("CPU %d ", cpu);
+ 	__show_regs(regs);
+ 	printk("Process %s (pid: %d, threadinfo %p, task %p)\n",
+-		cur->comm, cur->pid, cur->thread_info, cur);
++		cur->comm, cur->pid, task_thread_info(cur), cur);
+ 
+ 	/*
+ 	 * When in-kernel, we also print out the stack and code at the
+@@ -867,7 +867,7 @@ asmlinkage void math_state_restore(void)
+ 	if (!used_math())
+ 		init_fpu(me);
+ 	restore_fpu_checking(&me->thread.i387.fxsave);
+-	me->thread_info->status |= TS_USEDFPU;
++	task_thread_info(me)->status |= TS_USEDFPU;
  }
  
-diff --git a/arch/mips/kernel/ptrace.c b/arch/mips/kernel/ptrace.c
-index 510da5f..506fef3 100644
---- a/arch/mips/kernel/ptrace.c
-+++ b/arch/mips/kernel/ptrace.c
-@@ -64,8 +64,7 @@ int ptrace_getregs (struct task_struct *
- 	if (!access_ok(VERIFY_WRITE, data, 38 * 8))
- 		return -EIO;
+ void do_call_debug(struct pt_regs *regs) 
+diff --git a/include/asm-x86_64/i387.h b/include/asm-x86_64/i387.h
+index aa39cfd..2cd852e 100644
+--- a/include/asm-x86_64/i387.h
++++ b/include/asm-x86_64/i387.h
+@@ -30,7 +30,7 @@ extern int save_i387(struct _fpstate __u
+  */
  
--	regs = (struct pt_regs *) ((unsigned long) child->thread_info +
--	       THREAD_SIZE - 32 - sizeof(struct pt_regs));
-+	regs = task_pt_regs(child);
+ #define unlazy_fpu(tsk) do { \
+-	if ((tsk)->thread_info->status & TS_USEDFPU) \
++	if (task_thread_info(tsk)->status & TS_USEDFPU) \
+ 		save_init_fpu(tsk); \
+ } while (0)
  
- 	for (i = 0; i < 32; i++)
- 		__put_user (regs->regs[i], data + i);
-@@ -92,8 +91,7 @@ int ptrace_setregs (struct task_struct *
- 	if (!access_ok(VERIFY_READ, data, 38 * 8))
- 		return -EIO;
+@@ -46,9 +46,9 @@ static inline void tolerant_fwait(void)
+ }
  
--	regs = (struct pt_regs *) ((unsigned long) child->thread_info +
--	       THREAD_SIZE - 32 - sizeof(struct pt_regs));
-+	regs = task_pt_regs(child);
+ #define clear_fpu(tsk) do { \
+-	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
++	if (task_thread_info(tsk)->status & TS_USEDFPU) {	\
+ 		tolerant_fwait();				\
+-		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
++		task_thread_info(tsk)->status &= ~TS_USEDFPU;	\
+ 		stts();						\
+ 	}							\
+ } while (0)
+@@ -135,7 +135,7 @@ static inline void save_init_fpu( struct
+ {
+ 	asm volatile( "rex64 ; fxsave %0 ; fnclex"
+ 		      : "=m" (tsk->thread.i387.fxsave));
+-	tsk->thread_info->status &= ~TS_USEDFPU;
++	task_thread_info(tsk)->status &= ~TS_USEDFPU;
+ 	stts();
+ }
  
- 	for (i = 0; i < 32; i++)
- 		__get_user (regs->regs[i], data + i);
-@@ -198,8 +196,7 @@ long arch_ptrace(struct task_struct *chi
- 		struct pt_regs *regs;
- 		unsigned long tmp = 0;
- 
--		regs = (struct pt_regs *) ((unsigned long) child->thread_info +
--		       THREAD_SIZE - 32 - sizeof(struct pt_regs));
-+		regs = task_pt_regs(child);
- 		ret = 0;  /* Default return value. */
- 
- 		switch (addr) {
-@@ -318,8 +315,7 @@ long arch_ptrace(struct task_struct *chi
- 	case PTRACE_POKEUSR: {
- 		struct pt_regs *regs;
- 		ret = 0;
--		regs = (struct pt_regs *) ((unsigned long) child->thread_info +
--		       THREAD_SIZE - 32 - sizeof(struct pt_regs));
-+		regs = task_pt_regs(child);
- 
- 		switch (addr) {
- 		case 0 ... 31:
-diff --git a/arch/mips/kernel/ptrace32.c b/arch/mips/kernel/ptrace32.c
-index 9a9b049..5d022b0 100644
---- a/arch/mips/kernel/ptrace32.c
-+++ b/arch/mips/kernel/ptrace32.c
-@@ -140,8 +140,7 @@ asmlinkage int sys32_ptrace(int request,
- 		struct pt_regs *regs;
- 		unsigned int tmp;
- 
--		regs = (struct pt_regs *) ((unsigned long) child->thread_info +
--		       THREAD_SIZE - 32 - sizeof(struct pt_regs));
-+		regs = task_pt_regs(child);
- 		ret = 0;  /* Default return value. */
- 
- 		switch (addr) {
-@@ -277,8 +276,7 @@ asmlinkage int sys32_ptrace(int request,
- 	case PTRACE_POKEUSR: {
- 		struct pt_regs *regs;
- 		ret = 0;
--		regs = (struct pt_regs *) ((unsigned long) child->thread_info +
--		       THREAD_SIZE - 32 - sizeof(struct pt_regs));
-+		regs = task_pt_regs(child);
- 
- 		switch (addr) {
- 		case 0 ... 31:
-diff --git a/include/asm-mips/processor.h b/include/asm-mips/processor.h
-index f1980c6..2bbbf87 100644
---- a/include/asm-mips/processor.h
-+++ b/include/asm-mips/processor.h
-@@ -201,11 +201,11 @@ extern void start_thread(struct pt_regs 
- 
- unsigned long get_wchan(struct task_struct *p);
- 
--#define __PT_REG(reg) ((long)&((struct pt_regs *)0)->reg - sizeof(struct pt_regs))
- #define __KSTK_TOS(tsk) ((unsigned long)(tsk->thread_info) + THREAD_SIZE - 32)
--#define KSTK_EIP(tsk) (*(unsigned long *)(__KSTK_TOS(tsk) + __PT_REG(cp0_epc)))
--#define KSTK_ESP(tsk) (*(unsigned long *)(__KSTK_TOS(tsk) + __PT_REG(regs[29])))
--#define KSTK_STATUS(tsk) (*(unsigned long *)(__KSTK_TOS(tsk) + __PT_REG(cp0_status)))
-+#define task_pt_regs(tsk) ((struct pt_regs *)__KSTK_TOS(tsk) - 1)
-+#define KSTK_EIP(tsk) (task_pt_regs(tsk)->cp0_epc)
-+#define KSTK_ESP(tsk) (task_pt_regs(tsk)->regs[29])
-+#define KSTK_STATUS(tsk) (task_pt_regs(tsk)->cp0_status)
- 
- #define cpu_relax()	barrier()
- 
-diff --git a/include/asm-mips/system.h b/include/asm-mips/system.h
-index 330c4e4..f78af75 100644
---- a/include/asm-mips/system.h
-+++ b/include/asm-mips/system.h
-@@ -159,7 +159,7 @@ struct task_struct;
- do {									\
- 	if (cpu_has_dsp)						\
- 		__save_dsp(prev);					\
--	(last) = resume(prev, next, next->thread_info);			\
-+	(last) = resume(prev, next, task_thread_info(next));		\
- 	if (cpu_has_dsp)						\
- 		__restore_dsp(current);					\
- } while(0)
 -- 
 0.99.9.GIT
 

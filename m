@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWACVSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWACVTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWACVSG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWACVRq
+	id S932526AbWACVTW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWACVRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:17:46 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:41871 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932552AbWACVHm
+	Tue, 3 Jan 2006 16:17:40 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:44687 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932574AbWACVHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:42 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 34/50] arm: task_stack_page()
+Subject: [PATCH 35/50] arm26: task_thread_info()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNb-0008RS-0S@ZenIV.linux.org.uk>
+Message-Id: <E1EttNb-0008Ra-0r@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,74 +25,77 @@ Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/arm/kernel/process.c   |    2 +-
- arch/arm/kernel/smp.c       |    4 ++--
- arch/arm/kernel/traps.c     |    2 +-
- include/asm-arm/processor.h |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ arch/arm26/kernel/process.c     |    2 +-
+ arch/arm26/kernel/ptrace.c      |    4 ++--
+ include/asm-arm26/system.h      |    2 +-
+ include/asm-arm26/thread_info.h |    4 ++--
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-00591c95d853894b7020b5d4a67a7a0e2e83eb00
-diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
-index 8c62909..1be78b0 100644
---- a/arch/arm/kernel/process.c
-+++ b/arch/arm/kernel/process.c
-@@ -461,7 +461,7 @@ unsigned long get_wchan(struct task_stru
- 		return 0;
+2063057940198f124b138337a48a6a0b87406eb6
+diff --git a/arch/arm26/kernel/process.c b/arch/arm26/kernel/process.c
+index 15833a0..159f84a 100644
+--- a/arch/arm26/kernel/process.c
++++ b/arch/arm26/kernel/process.c
+@@ -277,7 +277,7 @@ int
+ copy_thread(int nr, unsigned long clone_flags, unsigned long stack_start,
+ 	    unsigned long unused, struct task_struct *p, struct pt_regs *regs)
+ {
+-	struct thread_info *thread = p->thread_info;
++	struct thread_info *thread = task_thread_info(p);
+ 	struct pt_regs *childregs;
  
- 	stack_start = (unsigned long)end_of_stack(p);
--	stack_end = ((unsigned long)p->thread_info) + THREAD_SIZE;
-+	stack_end = (unsigned long)task_stack_page(p) + THREAD_SIZE;
- 
- 	fp = thread_saved_fp(p);
- 	do {
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 373c095..7338948 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -114,7 +114,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
- 	 * We need to tell the secondary core where to find
- 	 * its stack and the page tables.
- 	 */
--	secondary_data.stack = (void *)idle->thread_info + THREAD_START_SP;
-+	secondary_data.stack = task_stack_page(idle) + THREAD_START_SP;
- 	secondary_data.pgdir = virt_to_phys(pgd);
- 	wmb();
- 
-@@ -245,7 +245,7 @@ void __cpuexit cpu_die(void)
- 	__asm__("mov	sp, %0\n"
- 	"	b	secondary_start_kernel"
- 		:
--		: "r" ((void *)current->thread_info + THREAD_SIZE - 8));
-+		: "r" (task_stack_page(current) + THREAD_SIZE - 8));
+ 	childregs = __get_user_regs(thread);
+diff --git a/arch/arm26/kernel/ptrace.c b/arch/arm26/kernel/ptrace.c
+index 4e6b735..56afe1f 100644
+--- a/arch/arm26/kernel/ptrace.c
++++ b/arch/arm26/kernel/ptrace.c
+@@ -532,7 +532,7 @@ static int ptrace_setregs(struct task_st
+  */
+ static int ptrace_getfpregs(struct task_struct *tsk, void *ufp)
+ {
+-	return copy_to_user(ufp, &tsk->thread_info->fpstate,
++	return copy_to_user(ufp, &task_thread_info(tsk)->fpstate,
+ 			    sizeof(struct user_fp)) ? -EFAULT : 0;
  }
- #endif /* CONFIG_HOTPLUG_CPU */
  
-diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-index f7e733c..496bf7c 100644
---- a/arch/arm/kernel/traps.c
-+++ b/arch/arm/kernel/traps.c
-@@ -211,7 +211,7 @@ static void __die(const char *str, int e
+@@ -542,7 +542,7 @@ static int ptrace_getfpregs(struct task_
+ static int ptrace_setfpregs(struct task_struct *tsk, void *ufp)
+ {
+ 	set_stopped_child_used_math(tsk);
+-	return copy_from_user(&tsk->thread_info->fpstate, ufp,
++	return copy_from_user(&task_threas_info(tsk)->fpstate, ufp,
+ 			      sizeof(struct user_fp)) ? -EFAULT : 0;
+ }
  
- 	if (!user_mode(regs) || in_interrupt()) {
- 		dump_mem("Stack: ", regs->ARM_sp,
--			 THREAD_SIZE + (unsigned long)tsk->thread_info);
-+			 THREAD_SIZE + (unsigned long)task_stack_page(tsk));
- 		dump_backtrace(regs, tsk);
- 		dump_instr(regs);
- 	}
-diff --git a/include/asm-arm/processor.h b/include/asm-arm/processor.h
-index fb5877e..3129069 100644
---- a/include/asm-arm/processor.h
-+++ b/include/asm-arm/processor.h
-@@ -86,7 +86,7 @@ unsigned long get_wchan(struct task_stru
- extern int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+diff --git a/include/asm-arm26/system.h b/include/asm-arm26/system.h
+index f23fac1..ada34eb 100644
+--- a/include/asm-arm26/system.h
++++ b/include/asm-arm26/system.h
+@@ -111,7 +111,7 @@ extern struct task_struct *__switch_to(s
  
- #define task_pt_regs(p) \
--	((struct pt_regs *)(THREAD_START_SP + (void *)(p)->thread_info) - 1)
-+	((struct pt_regs *)(THREAD_START_SP + task_stack_page(p)) - 1)
+ #define switch_to(prev,next,last)					\
+ do {									\
+-	last = __switch_to(prev,prev->thread_info,next->thread_info);	\
++	last = __switch_to(prev,task_thread_info(prev),task_thread_info(next));	\
+ } while (0)
  
- #define KSTK_EIP(tsk)	task_pt_regs(tsk)->ARM_pc
- #define KSTK_ESP(tsk)	task_pt_regs(tsk)->ARM_sp
+ /*
+diff --git a/include/asm-arm26/thread_info.h b/include/asm-arm26/thread_info.h
+index aff3e56..909c88d 100644
+--- a/include/asm-arm26/thread_info.h
++++ b/include/asm-arm26/thread_info.h
+@@ -91,9 +91,9 @@ extern void free_thread_info(struct thre
+ #define put_thread_info(ti)	put_task_struct((ti)->task)
+ 
+ #define thread_saved_pc(tsk)	\
+-	((unsigned long)(pc_pointer((tsk)->thread_info->cpu_context.pc)))
++	((unsigned long)(pc_pointer(task_thread_info(tsk)->cpu_context.pc)))
+ #define thread_saved_fp(tsk)	\
+-	((unsigned long)((tsk)->thread_info->cpu_context.fp))
++	((unsigned long)(task_thread_info(tsk)->cpu_context.fp))
+ 
+ #else /* !__ASSEMBLY__ */
+ 
 -- 
 0.99.9.GIT
 

@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWACTfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWACTf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWACTfG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWACTfG
+	id S932498AbWACTf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWACTf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:35:06 -0500
-Received: from xenotime.net ([66.160.160.81]:23218 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932454AbWACTfE (ORCPT
+	Tue, 3 Jan 2006 14:35:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22409 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932498AbWACTf4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:35:04 -0500
-Date: Tue, 3 Jan 2006 11:35:03 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Happy New Year, libata hackers
-In-Reply-To: <43BAB977.3010203@pobox.com>
-Message-ID: <Pine.LNX.4.58.0601031132230.16308@shark.he.net>
-References: <43BAB977.3010203@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Jan 2006 14:35:56 -0500
+Date: Tue, 3 Jan 2006 11:35:33 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb: replace __setup("nousb") with __module_param_call
+Message-Id: <20060103113533.6ac3e351.zaitcev@redhat.com>
+In-Reply-To: <d120d5000601030646u4dfe2951ka26586050cac5f0b@mail.gmail.com>
+References: <20051220141504.31441a41.zaitcev@redhat.com>
+	<200512220110.52466.dtor_core@ameritech.net>
+	<20051222002423.1791d38b.zaitcev@redhat.com>
+	<200601030147.46504.dtor_core@ameritech.net>
+	<20060102230714.3aa4f85b.zaitcev@redhat.com>
+	<d120d5000601030646u4dfe2951ka26586050cac5f0b@mail.gmail.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jan 2006, Jeff Garzik wrote:
+On Tue, 3 Jan 2006 09:46:26 -0500, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
->
-> Well, another year has passed, and somehow the duct tape that keeps our
-> hard drives together has remained intact.  After a nice and refreshing
-> holiday, I have a bunch of patches pending, that will probably take a
-> week or two to sort through.
->
-> For 2.6.16, my main goals are getting irq-pio upstream and supporting
-> iomap -- which will kill all those annoying warnings finally.  And
-> probably some EH work from Tejun will go in too.  The suspend/resume
-> stuff is shaping up nicely, and device hotplug work suddenly reappeared.
->   Fun for all.
+> > But even if it does, my patch saved reading, so I think it should be
+> > applied as well.
+> 
+> What you mean by "saved reading"?
 
-+ selectable debugging macros etc.
-  (used in ACPI suspend/resume patches, but can be used in all of libata)
+The diffstat was almost all dashes: 13 deletions, 1 addition.
 
-> Port multiplier and NCQ (queueing) support are the two other big to-do
-> items on the list.
->
-> I updated the hardware status report at
-> 	http://linux.yyz.us/sata/
->
-> and will update the software status report in a week or two.
->
-> Everybody wants to play in the same sandbox, so please be patient as we
-> sort it all out.
->
-> Cheers and happy new year,
+> Btw, do we really need to export "nousb" in sysfs?
 
-Likewise.
+Nobody would die if we didn't, but there's nothing wrong with the idea
+in general. At least you'd know that the parameter was actually parsed.
+I wish usb-handoff was exported similarly, because there's absolutely
+no way to tell if it worked or was quietly ignored. And I abhor printks
+in normal or success cases, so I do not want such indication.
 
--- 
-~Randy
+-- Pete

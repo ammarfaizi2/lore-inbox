@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWACVXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWACVYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWACVXM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWACVWk
+	id S964925AbWACVYG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWACVYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:22:40 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:33935 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932564AbWACVHl
+	Tue, 3 Jan 2006 16:24:05 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:38031 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932536AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:41 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 15/50] sh: task_thread_info()
+Subject: [PATCH 28/50] m68knommu: task_stack_page()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008Pk-B5@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008Qt-SB@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,37 +25,27 @@ Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/sh/kernel/process.c |    2 +-
- arch/sh/kernel/smp.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/m68knommu/kernel/process.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-c19a555413fb82ae8f64754ae294bd32446c1677
-diff --git a/arch/sh/kernel/process.c b/arch/sh/kernel/process.c
-index 6a86fe3..830e842 100644
---- a/arch/sh/kernel/process.c
-+++ b/arch/sh/kernel/process.c
-@@ -362,7 +362,7 @@ struct task_struct *__switch_to(struct t
- 	 */
- 	asm volatile("ldc	%0, r7_bank"
- 		     : /* no output */
--		     : "r" (next->thread_info));
-+		     : "r" (task_thread_info(next)));
+3effaa23eea55b0ba8c19896de3e37524146860a
+diff --git a/arch/m68knommu/kernel/process.c b/arch/m68knommu/kernel/process.c
+index 82e7ec8..9b0fd04 100644
+--- a/arch/m68knommu/kernel/process.c
++++ b/arch/m68knommu/kernel/process.c
+@@ -198,10 +198,9 @@ int copy_thread(int nr, unsigned long cl
+ {
+ 	struct pt_regs * childregs;
+ 	struct switch_stack * childstack, *stack;
+-	unsigned long stack_offset, *retp;
++	unsigned long *retp;
  
- #ifdef CONFIG_MMU
- 	/* If no tasks are using the UBC, we're done */
-diff --git a/arch/sh/kernel/smp.c b/arch/sh/kernel/smp.c
-index 59e49b1..62c7d1c 100644
---- a/arch/sh/kernel/smp.c
-+++ b/arch/sh/kernel/smp.c
-@@ -103,7 +103,7 @@ int __cpu_up(unsigned int cpu)
- 	if (IS_ERR(tsk))
- 		panic("Failed forking idle task for cpu %d\n", cpu);
- 	
--	tsk->thread_info->cpu = cpu;
-+	task_thread_info(tsk)->cpu = cpu;
+-	stack_offset = THREAD_SIZE - sizeof(struct pt_regs);
+-	childregs = (struct pt_regs *) ((unsigned long) p->thread_info + stack_offset);
++	childregs = (struct pt_regs *) (task_stack_page(p) + THREAD_SIZE) - 1;
  
- 	cpu_set(cpu, cpu_online_map);
- 
+ 	*childregs = *regs;
+ 	childregs->d0 = 0;
 -- 
 0.99.9.GIT
 

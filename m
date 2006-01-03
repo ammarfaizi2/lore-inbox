@@ -1,154 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWACXKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWACXKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWACXKB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWACXJm
+	id S964841AbWACXKz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWACXKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:09:42 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:19104 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964899AbWACXIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:08:51 -0500
-Date: Wed, 4 Jan 2006 00:08:37 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 19/20] mutex subsystem, semaphore to completion: IDE ->gendev_rel_sem
-Message-ID: <20060103230837.GT13511@elte.hu>
-Mime-Version: 1.0
+	Tue, 3 Jan 2006 18:10:33 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44305 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964892AbWACXKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:10:11 -0500
+Date: Wed, 4 Jan 2006 00:10:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060103231009.GI3831@stusta.de>
+References: <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060103221314.GB23175@irc.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Aleksey Makarov <amakarov@ru.mvista.com>
+On Tue, Jan 03, 2006 at 11:13:14PM +0100, Tomasz Torcz wrote:
+> On Tue, Jan 03, 2006 at 10:56:54PM +0100, Adrian Bunk wrote:
+> > > > > > Well, we keep the compatibility exactly -- OSS drivers don't support
+> > > > > > software mixing in the kernel, too :)
+> > > > >
+> > > > >  OSS will support software mixing. In kernel. On NetBSD.
+> > > > > http://kerneltrap.org/node/4388
+> > > >
+> > > > Why do we need to keep the compatibility with NetBSD?
+> > > >
+> > > Software mixing is a really nice feature for people with soundscards
+> > > that can't do hardware mixing, so if the OSS compatibility could
+> > > transparently do software mixing for apps using OSS api that would be
+> > > a very nice extension for a lot of people - I'd say that if NetBSD do
+> > > that they've got the right idea.
+> > 
+> > The OSS compatibility in ALSA is only a legacy API for applications not 
+> > yet converted to use the ALSA API.
+> 
+>   OSS is universal cross-unix API. ALSA is Linux-only.
 
-The patch changes semaphores that are initialized as 
-locked to complete().
+How "universal cross-unix" is the OSS API really?
 
-Source: MontaVista Software, Inc.
+Which operating systems besides Linux have a native sound system 
+supporting the OSS API [1]?
 
-Modified-by: Steven Rostedt <rostedt@goodmis.org>
+I know about FreeBSD and partial support in NetBSD.
 
-The following patch is from Montavista.  I modified it slightly.
-Semaphores are currently being used where it makes more sense for
-completions.  This patch corrects that.
+Are there any other [2]?
 
-Signed-off-by: Aleksey Makarov <amakarov@ru.mvista.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+cu
+Adrian
 
-----
+[1] I'm not talking about a port of the commercial OSS to the operating
+    system which has little value for application developers.
+[2] This is not a rhetorical question, I simply don't know about any 
+    other.
 
- drivers/ide/ide-probe.c |    4 ++--
- drivers/ide/ide.c       |    8 ++++----
- include/linux/ide.h     |    5 +++--
- 3 files changed, 9 insertions(+), 8 deletions(-)
+-- 
 
-Index: linux/drivers/ide/ide-probe.c
-===================================================================
---- linux.orig/drivers/ide/ide-probe.c
-+++ linux/drivers/ide/ide-probe.c
-@@ -655,7 +655,7 @@ static void hwif_release_dev (struct dev
- {
- 	ide_hwif_t *hwif = container_of(dev, ide_hwif_t, gendev);
- 
--	up(&hwif->gendev_rel_sem);
-+	complete(&hwif->gendev_rel_comp);
- }
- 
- static void hwif_register (ide_hwif_t *hwif)
-@@ -1325,7 +1325,7 @@ static void drive_release_dev (struct de
- 	drive->queue = NULL;
- 	spin_unlock_irq(&ide_lock);
- 
--	up(&drive->gendev_rel_sem);
-+	complete(&drive->gendev_rel_comp);
- }
- 
- /*
-Index: linux/drivers/ide/ide.c
-===================================================================
---- linux.orig/drivers/ide/ide.c
-+++ linux/drivers/ide/ide.c
-@@ -222,7 +222,7 @@ static void init_hwif_data(ide_hwif_t *h
- 	hwif->mwdma_mask = 0x80;	/* disable all mwdma */
- 	hwif->swdma_mask = 0x80;	/* disable all swdma */
- 
--	sema_init(&hwif->gendev_rel_sem, 0);
-+	init_completion(&hwif->gendev_rel_comp);
- 
- 	default_hwif_iops(hwif);
- 	default_hwif_transport(hwif);
-@@ -245,7 +245,7 @@ static void init_hwif_data(ide_hwif_t *h
- 		drive->is_flash			= 0;
- 		drive->vdma			= 0;
- 		INIT_LIST_HEAD(&drive->list);
--		sema_init(&drive->gendev_rel_sem, 0);
-+		init_completion(&drive->gendev_rel_comp);
- 	}
- }
- 
-@@ -602,7 +602,7 @@ void ide_unregister(unsigned int index)
- 		}
- 		spin_unlock_irq(&ide_lock);
- 		device_unregister(&drive->gendev);
--		down(&drive->gendev_rel_sem);
-+		wait_for_completion(&drive->gendev_rel_comp);
- 		spin_lock_irq(&ide_lock);
- 	}
- 	hwif->present = 0;
-@@ -662,7 +662,7 @@ void ide_unregister(unsigned int index)
- 	/* More messed up locking ... */
- 	spin_unlock_irq(&ide_lock);
- 	device_unregister(&hwif->gendev);
--	down(&hwif->gendev_rel_sem);
-+	wait_for_completion(&hwif->gendev_rel_comp);
- 
- 	/*
- 	 * Remove us from the kernel's knowledge
-Index: linux/include/linux/ide.h
-===================================================================
---- linux.orig/include/linux/ide.h
-+++ linux/include/linux/ide.h
-@@ -18,6 +18,7 @@
- #include <linux/bio.h>
- #include <linux/device.h>
- #include <linux/pci.h>
-+#include <linux/completion.h>
- #include <asm/byteorder.h>
- #include <asm/system.h>
- #include <asm/io.h>
-@@ -638,7 +639,7 @@ typedef struct ide_drive_s {
- 	int		crc_count;	/* crc counter to reduce drive speed */
- 	struct list_head list;
- 	struct device	gendev;
--	struct semaphore gendev_rel_sem;	/* to deal with device release() */
-+	struct completion gendev_rel_comp;	/* to deal with device release() */
- } ide_drive_t;
- 
- #define to_ide_device(dev)container_of(dev, ide_drive_t, gendev)
-@@ -794,7 +795,7 @@ typedef struct hwif_s {
- 	unsigned	sg_mapped  : 1;	/* sg_table and sg_nents are ready */
- 
- 	struct device	gendev;
--	struct semaphore gendev_rel_sem; /* To deal with device release() */
-+	struct completion gendev_rel_comp; /* To deal with device release() */
- 
- 	void		*hwif_data;	/* extra hwif data */
- 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

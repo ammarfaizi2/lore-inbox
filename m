@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWACR4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWACSFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWACR4W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 12:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWACR4W
+	id S932350AbWACSFh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 13:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWACSFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 12:56:22 -0500
-Received: from c-67-174-241-67.hsd1.ca.comcast.net ([67.174.241.67]:54699 "EHLO
-	plato.virtuousgeek.org") by vger.kernel.org with ESMTP
-	id S932478AbWACR4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 12:56:21 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Subject: Re: Using Intel ICH5 IDE+SATA Under 2.6.15-rc6 - Cannot find DVD-RW?
-Date: Thu, 29 Dec 2005 14:38:14 -0800
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, apiszcz@lucidpixels.com
-References: <Pine.LNX.4.64.0512241837120.2700@p34> <Pine.LNX.4.64.0512241937230.5009@p34> <Pine.LNX.4.64.0512242017100.2335@p34>
-In-Reply-To: <Pine.LNX.4.64.0512242017100.2335@p34>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 3 Jan 2006 13:05:37 -0500
+Received: from mail1.rx30.com ([63.168.173.10]:50626 "EHLO hermes.rx30.com")
+	by vger.kernel.org with ESMTP id S932350AbWACSFg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 13:05:36 -0500
+Subject: Boot hang on 2.6.14
+From: Peter Lauda <plauda@rx30.com>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512291438.14810.jbarnes@virtuousgeek.org>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 03 Jan 2006 13:13:04 -0500
+Message-Id: <1136311996.10020.21.camel@plauda5.rx30.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, December 24, 2005 5:18 pm, Justin Piszcz wrote:
-> SUMMARY:
->
-> The libata=1 option is if you use "AUTO" in the bios, then it sees it
-> but you can't (or I couldn't do anything with it anyway)
->
-> scsi1 : ata_piix
->    Vendor: _NEC      Model: DVD_RW ND-3520A   Rev: 1.04
->    Type:   CD-ROM                             ANSI SCSI revision: 05
->
-> I googled around and then found setting it to Enhanced Mode worked!
-> It sees all the devices properly now.
->
-> hdc: _NEC DVD_RW ND-3520A, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
+Hello,
 
-If you want to get decent throughput from your DVD drive, you may also 
-want my combined_mode= patch.  Boot with combined_mode=libata and 
-libata.atapi=1 and I think you'll get good behavoir.  Last I checked 
-the patch was sitting in one of Jeff's libata trees.
+I've been looking all day for any FAQ or answer to this question/problem
+and finally have to post here because I am out of options.
 
-Jesse
+I have setup a system (Dell Precision 380 w/sata HD's on separate
+channels) in a RAID1 software config. I added the SATA/SCSI/RAID drivers
+to the kernel. I want to boot from /dev/md1 as the root FS /dev/md0 as
+boot. 
 
-Jesse
+When the system is coming up, I see it load the md parts and then the
+SCSI (I think sg) parts. Then it seems to be loading the next
+module/driver as a mouse driver but after echoing the line to the
+console, the system hangs indefinitely with no further messages or
+output.
+
+I did this easily in 2.5.29 by creating a custom initrd that loaded all
+the modules, crafted the arrays, and then let the system use it for root
+mount.
+
+I'm confident I'm close to getting this going since I've been beating on
+it a while now but without any other message to go on, I don't know what
+to look for next.
+
+Can anyone here give me some tips on how to enable boot time debugging
+or any other tricks/tips that may shed light on where things are
+failing?
+
+Any input greatly appreciated.
+
+--p
+

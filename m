@@ -1,49 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWACVaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWACVdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWACVaW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWACVaL
+	id S964809AbWACVdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWACVdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:30:11 -0500
-Received: from ns1.coraid.com ([65.14.39.133]:60617 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1751485AbWACV3q (ORCPT
+	Tue, 3 Jan 2006 16:33:16 -0500
+Received: from mail.cs.unm.edu ([64.106.20.33]:3992 "EHLO mail.cs.unm.edu")
+	by vger.kernel.org with ESMTP id S964809AbWACVdN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:29:46 -0500
+	Tue, 3 Jan 2006 16:33:13 -0500
+From: "Sharma Sushant" <sushant@cs.unm.edu>
 To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-Subject: [PATCH 2.6.15-rc7] aoe [6/7]: update device information on last
- close
-From: "Ed L. Cashin" <ecashin@coraid.com>
-References: <87hd8l2fb4.fsf@coraid.com>
-Date: Tue, 03 Jan 2006 16:08:25 -0500
-Message-ID: <87k6dhyq7q.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Subject: Benchmarks
+Date: Tue, 3 Jan 2006 16:34:31 -0500
+Message-Id: <20060103213244.M41864@webmail.cs.unm.edu>
+X-Mailer: Open WebMail 2.50 20050106
+X-OriginatingIP: 128.165.17.254 (sushant)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+Hello everyone,
+If someone make some modifications to kernel code and want to know how much
+overead those modifications has caused, what are the benchmarks that one
+should use to calculate the overhead of the added code. 
+please cc the reply to me.
+Thanks a lot.
 
-Instead of making the user wait or do it manually, refresh
-device information on its last close by issuing a config
-query to the device.
-
-Index: 2.6.15-rc7-aoe/drivers/block/aoe/aoeblk.c
-===================================================================
---- 2.6.15-rc7-aoe.orig/drivers/block/aoe/aoeblk.c	2006-01-02 13:35:13.000000000 -0500
-+++ 2.6.15-rc7-aoe/drivers/block/aoe/aoeblk.c	2006-01-02 13:35:15.000000000 -0500
-@@ -109,7 +109,7 @@
- 
- 	spin_lock_irqsave(&d->lock, flags);
- 
--	if (--d->nopen == 0 && !(d->flags & DEVFL_UP)) {
-+	if (--d->nopen == 0) {
- 		spin_unlock_irqrestore(&d->lock, flags);
- 		aoecmd_cfg(d->aoemajor, d->aoeminor);
- 		return 0;
-
-
--- 
-  Ed L. Cashin <ecashin@coraid.com>
-
+--
+Sushant Sharma
+http://cs.unm.edu/~sushant

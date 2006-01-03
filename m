@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWACKrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWACLLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbWACKrT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 05:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWACKrT
+	id S1751153AbWACLLb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 06:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWACLLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 05:47:19 -0500
-Received: from cat.linpro.no ([80.232.36.160]:42701 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751332AbWACKrS convert rfc822-to-8bit (ORCPT
+	Tue, 3 Jan 2006 06:11:31 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:43958 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751370AbWACLLa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 05:47:18 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Avoid namespace pollution in <asm/param.h>
-References: <200601021702.k02H2mLh015729@hera.kernel.org>
-	<20060102181355.GA16324@mars.ravnborg.org>
-From: des@linpro.no (Dag-Erling =?iso-8859-1?q?Sm=F8rgrav?=)
-Date: Tue, 03 Jan 2006 11:47:17 +0100
-In-Reply-To: <20060102181355.GA16324@mars.ravnborg.org> (Sam Ravnborg's
- message of "Mon, 2 Jan 2006 19:13:55 +0100")
-Message-ID: <ujrhd8ly4ei.fsf@cat.linpro.no>
-User-Agent: Gnus/5.090024 (Oort Gnus v0.24) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 3 Jan 2006 06:11:30 -0500
+Date: Tue, 3 Jan 2006 16:42:11 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, paulmck@us.ibm.com,
+       Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Eric Dumazet <dada1@cosmosbay.com>, vatsa@in.ibm.com
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+Message-ID: <20060103111211.GA5075@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <1135990270.31111.46.camel@mindpipe> <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org> <1135991732.31111.57.camel@mindpipe> <Pine.LNX.4.64.0512301726190.3249@g5.osdl.org> <1136001615.3050.5.camel@mindpipe> <20051231042902.GA3428@us.ibm.com> <1136004855.3050.8.camel@mindpipe> <20051231201426.GD5124@us.ibm.com> <1136094372.7005.19.camel@mindpipe> <Pine.LNX.4.64.0601011047320.3668@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601011047320.3668@g5.osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> writes:
-> config.h is always implicit included using -include option to gcc,
-> so the #include <linux/config.h> is redundant and the correct patch
-> would be to get rid of it.
+On Sun, Jan 01, 2006 at 10:56:25AM -0800, Linus Torvalds wrote:
+> 
+> > Linus, would you accept CONFIG_PREEMPT_SOFTIRQS to always run softirqs
+> > in threads (default N of course, it certainly has a slight throughput
+> > cost) for mainline if Ingo were to submit it?
+> 
+> Actually, I think there's a better solution.
+> 
+> Try just setting maxbatch back to 10 in kernel/rcupdate.c.
+> 
+> The thing is, "maxbatch" doesn't actually _work_ because what happens is 
+> that the tasklet will continually re-schedule itself, and the caller will 
+> keep calling it. So maxbatch is actually broken.
 
-In that case, you have your work cut out for you:
+Not really. maxbatch limits the number of RCU callbacks in a
+batch inside RCU subsystem, it doesn't assure that total number
+of RCU callbacks invoked in that instance of softirq would
+be maxbatch. The idea was to give the control back to softirq
+subsystem after maxbatch RCUs are processed and let the softirq
+latency logic take over.
 
-des@xps ~/src/linux-2.6.14.5% grep -r linux/config.h . | wc -l
-    3777
+> However, what happens is that after kernel/softirq.c has called the 
+> tasklet ten times, and it is still pending, it will do the softirq in a 
+> thread (see the "max_restart" logic).
+> 
+> Which happens to do the right thing, although I'm pretty convinced that it 
+> was by mistake (or if on purpose, it depends way too closely on silly 
+> magic implementation issues).
 
-This is likely to have a significant impact on compilation time...
+It was intentional. I wanted to keep the RCU throttling separate
+and let softirq handling do its own thing. Softirqs, once delegated
+to ksoftirqd were managable from the latency perspective, but
+not a very long RCU batch.
 
-DES
--- 
-Dag-Erling Smørgrav - des@linpro.no
+I do agree that the two layers of batching really makes things
+subtle. I think the best we can do is to figure out some way of
+automatic throttling in RCU and forced quiescent state under extreme
+conditions. That way we will have less dependency on softirq
+throttling.
+
+Thanks
+Dipankar

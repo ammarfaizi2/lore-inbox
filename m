@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWACU4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWACU5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbWACU4t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWACU4t
+	id S932523AbWACU5i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWACU5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:56:49 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:32228 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932523AbWACU4s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:56:48 -0500
-Date: Tue, 3 Jan 2006 21:56:43 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Cal Peake <cp@absolutedigital.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 00/19] mutex subsystem, -V12
-Message-ID: <20060103205642.GA28472@elte.hu>
-References: <20060103164547.GA25802@elte.hu> <Pine.LNX.4.61.0601031509140.22141@lancer.cnet.absolutedigital.net>
+	Tue, 3 Jan 2006 15:57:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33674 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932523AbWACU5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 15:57:37 -0500
+Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <1136321691.10862.61.camel@localhost.localdomain>
+References: <patchbomb.1135816279@eng-12.pathscale.com>
+	 <20051230080002.GA7438@kroah.com>
+	 <1135984304.13318.50.camel@serpentine.pathscale.com>
+	 <20051231001051.GB20314@kroah.com>
+	 <1135993250.13318.94.camel@serpentine.pathscale.com>
+	 <20060103172732.GA9170@kroah.com>
+	 <1136321691.10862.61.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 21:57:31 +0100
+Message-Id: <1136321851.2869.18.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601031509140.22141@lancer.cnet.absolutedigital.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
 	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Cal Peake <cp@absolutedigital.net> wrote:
-
-> On Tue, 3 Jan 2006, Ingo Molnar wrote:
+On Tue, 2006-01-03 at 12:54 -0800, Bryan O'Sullivan wrote:
+> On Tue, 2006-01-03 at 09:27 -0800, Greg KH wrote:
 > 
-> > this is version -V12 of the generic mutex subsystem, against v2.6.15.
-> > It consists of the following 19 patches:
+> > Idealy, nothing should be new ioctls.  But in the end, it all depends on
+> > exactly what you are trying to do with each different one.
 > 
-> Ingo,
+> Fair enough.
 > 
-> Patches 13 and 15 seem to be getting lost in the ether (atleast for 
-> the last two postings). Any ideas?
+> > I really don't know what the subnet management stuff involves, sorry.
+> > But doesn't the open-ib layer handle that all for you already?
+> 
+> It does when our OpenIB driver is being used.  But our lower level
+> driver is independent of OpenIB (and is often used without the
+> infiniband stuff even configured into the kernel), and needs to provide
+> some way for a userspace subnet management agent to send and receive
+> packets.
 
-they are "too big" for lkml and hence eaten. You can find them at the 
-URL in the announcement.
+that sounds like your driver should mimic the openIB userspace ABI for
+this *exactly* so that you can use the same management tools for either
+scenario...
 
-	Ingo
+

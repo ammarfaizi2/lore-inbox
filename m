@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWACOdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWACOdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWACOdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 09:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWACOdN
+	id S932378AbWACOdg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWACOdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 09:33:13 -0500
-Received: from alpha.uhasselt.be ([193.190.2.30]:56080 "EHLO alpha.uhasselt.be")
-	by vger.kernel.org with ESMTP id S932356AbWACOdM (ORCPT
+	Tue, 3 Jan 2006 09:33:36 -0500
+Received: from mail.gmx.net ([213.165.64.21]:9874 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932351AbWACOdT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 09:33:12 -0500
-To: torvalds@osdl.org
-Subject: [PATCH] cs53l32a: kzalloc conversion
+	Tue, 3 Jan 2006 09:33:19 -0500
+X-Authenticated: #4399952
+Date: Tue, 3 Jan 2006 15:33:17 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org
-Reply-To: takis@issaris.org
-Message-Id: <20060103143301.0D98E5BC3@localhost.localdomain>
-Date: Tue,  3 Jan 2006 15:33:01 +0100 (CET)
-From: takis@issaris.org (Panagiotis Issaris)
+Subject: Re: 2.6.15-rt1
+Message-ID: <20060103153317.26a512fa@mango.fruits.de>
+In-Reply-To: <20060103094720.GA16497@elte.hu>
+References: <20060103094720.GA16497@elte.hu>
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Panagiotis Issaris <takis@issaris.org>
+On Tue, 3 Jan 2006 10:47:20 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Conversion of kmalloc+memset to kzalloc.
+> i have released the 2.6.15-rt1 tree, which can be downloaded from the 
+> usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
+> no big changes, this release is mainly a merge to v2.6.15, and should 
+> fix some of the RTC driver problems reported for 2.6.15-rc7-rt3.
 
-Signed-off-by: Panagiotis Issaris <takis@issaris.org>
+And indeed it does so for me. Thanks. The swapper BUG is still there,
+but i suppose that was expected?
 
----
+BUG: swapper:0 task might have lost a preemption check!
+ [<c0100b3b>] cpu_idle+0x6b/0xb0 (8)
+ [<c010026b>] _stext+0x4b/0x60 (4)
+ [<c0364831>] start_kernel+0x191/0x210 (16)
+ [<c0364350>] unknown_bootoption+0x0/0x200 (20)
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
 
- drivers/media/video/cs53l32a.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+------------------------------
+| showing all locks held by: |  (swapper/0 [c0319d20, 140]):
+------------------------------
 
-d27ad6f2f4c46ed0b29034c413cc8f948506fdc6
-diff --git a/drivers/media/video/cs53l32a.c b/drivers/media/video/cs53l32a.c
-index 780b352..f9e3b8b 100644
---- a/drivers/media/video/cs53l32a.c
-+++ b/drivers/media/video/cs53l32a.c
-@@ -146,11 +146,10 @@ static int cs53l32a_attach(struct i2c_ad
- 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
- 		return 0;
- 
--	client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
-+	client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL);
- 	if (client == 0)
- 		return -ENOMEM;
- 
--	memset(client, 0, sizeof(struct i2c_client));
- 	client->addr = address;
- 	client->adapter = adapter;
- 	client->driver = &i2c_driver;
+Flo
+
 -- 
-0.99.9.GIT
+Palimm Palimm!
+http://tapas.affenbande.org

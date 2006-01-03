@@ -1,135 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWACGrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWACGv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWACGrs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 01:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWACGrs
+	id S1751180AbWACGv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 01:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWACGv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 01:47:48 -0500
-Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:48036 "HELO
-	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751182AbWACGrs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 01:47:48 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: usb: replace __setup("nousb") with __module_param_call
-Date: Tue, 3 Jan 2006 01:47:46 -0500
-User-Agent: KMail/1.8.3
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <20051220141504.31441a41.zaitcev@redhat.com> <200512220110.52466.dtor_core@ameritech.net> <20051222002423.1791d38b.zaitcev@redhat.com>
-In-Reply-To: <20051222002423.1791d38b.zaitcev@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 01:51:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:59589 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751180AbWACGv2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 01:51:28 -0500
+Date: Mon, 2 Jan 2006 22:07:19 -0800
+From: Greg KH <gregkh@suse.de>
+To: Mark Maule <maule@sgi.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 0/3] msi abstractions and support for altix
+Message-ID: <20060103060719.GA1845@suse.de>
+References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com> <20051222205023.GK2361@parisc-linux.org> <20060103032249.GA4957@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601030147.46504.dtor_core@ameritech.net>
+In-Reply-To: <20060103032249.GA4957@sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 December 2005 03:24, Pete Zaitcev wrote:
-> On Thu, 22 Dec 2005 01:10:52 -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > On Tuesday 20 December 2005 17:15, Pete Zaitcev wrote:
-> 
-> > > Fedora users complain that passing "nousbstorage" to the installer causes
-> > > the rest of the USB support to disappear. The installer uses kernel command
-> > > line as a way to pass options through Syslinux. The problem stems from the
-> > > use of strncmp() in obsolete_checksetup().
-> 
-> > I wonder if that strncmp() should be changed into something like
-> > this (untested):
+On Mon, Jan 02, 2006 at 09:22:49PM -0600, Mark Maule wrote:
+> On Thu, Dec 22, 2005 at 01:50:23PM -0700, Matthew Wilcox wrote:
+> > On Thu, Dec 22, 2005 at 02:38:24PM -0600, Mark Maule wrote:
+> > > Because on ia64 IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR
+> > > (from which MSI FIRST_DEVICE_VECTOR/LAST_DEVICE_VECTOR are derived) are not
+> > > constants.  The are now global variables (see change to asm-ia64/hw_irq.h)
+> > > to allow the platform to override them.  Altix uses a reduced range of
+> > > vectors for devices, and this change was necessary to make assign_irq_vector()
+> > > to work on altix.
 > > 
-> > --- work.orig/init/main.c
-> > +++ work/init/main.c
-> > @@ -167,7 +167,7 @@ static int __init obsolete_checksetup(ch
-> >  	p = __setup_start;
-> >  	do {
-> >  		int n = strlen(p->str);
-> > -		if (!strncmp(line, p->str, n)) {
-> > +		if (!strncmp(line, p->str, n) && !isalnum(line[n])) {
-> >  			if (p->early) {
+> > To be honest, I think this is just adding a third layer of paper over
+> > the crack in the wall.  The original code assumed x86; the ia64 port
+> > added enough emulation to make it look like x86 and now altix fixes a
+> > couple of assumptions.  I say: bleh.
+> > 
+> > What we actually need is an interface provided by the architecture that
+> > allocates a new irq.  I have a hankering to implement MSI on PA-RISC but
+> > haven't found the time ... 
 > 
-> Are you sure that your fix works well in case of __setup("foo=")?
-> It probably breaks all of those.
+> Matt, Greg, et. al:
 > 
+> Did you guys have something in mind for a vector allocation interface?  It
+> seems to me that assign_irq_vector() more or less does what we want,
+> but what is missing is a way for the platform to prime which vectors
+> are available to choose from.
+> 
+> One possibly better solution would be to call something in the init_IRQ path
+> that would set up the vector pool available to assign_irq_vector().
+> 
+> Any opinions on this?  I would maintain that this effort should be done
+> independently of this patchset.
 
-Yes, of course you are right. What do you think about the patch below?
-I think it shoudl handle the case of one option being a prefix for
-another.
+Care to write a patch showing how this would work?
 
--- 
-Dmitry
+And why would this be independant of your other changes?
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+thanks,
 
- init/main.c |   30 ++++++++++++++++--------------
- 1 files changed, 16 insertions(+), 14 deletions(-)
-
-Index: work/init/main.c
-===================================================================
---- work.orig/init/main.c
-+++ work/init/main.c
-@@ -160,24 +160,22 @@ static const char *panic_later, *panic_p
- 
- extern struct obs_kernel_param __setup_start[], __setup_end[];
- 
--static int __init obsolete_checksetup(char *line)
-+static int __init obsolete_checksetup(char *line, int len)
- {
- 	struct obs_kernel_param *p;
- 
- 	p = __setup_start;
- 	do {
--		int n = strlen(p->str);
--		if (!strncmp(line, p->str, n)) {
-+		if (!strncmp(line, p->str, len) && len == strlen(p->str)) {
- 			if (p->early) {
--				/* Already done in parse_early_param?  (Needs
--				 * exact match on param part) */
--				if (line[n] == '\0' || line[n] == '=')
--					return 1;
-+				/* Already done in parse_early_param? */
-+				return 1;
- 			} else if (!p->setup_func) {
--				printk(KERN_WARNING "Parameter %s is obsolete,"
--				       " ignored\n", p->str);
-+				printk(KERN_WARNING
-+					"Parameter %s is obsolete, ignored\n",
-+					p->str);
- 				return 1;
--			} else if (p->setup_func(line + n))
-+			} else if (p->setup_func(line + len))
- 				return 1;
- 		}
- 		p++;
-@@ -226,21 +224,25 @@ __setup("loglevel=", loglevel);
-  */
- static int __init unknown_bootoption(char *param, char *val)
- {
-+	int len = strlen(param);
-+
- 	/* Change NUL term back to "=", to make "param" the whole string. */
- 	if (val) {
- 		/* param=val or param="val"? */
--		if (val == param+strlen(param)+1)
-+		if (val == param + len + 1) {
- 			val[-1] = '=';
--		else if (val == param+strlen(param)+2) {
-+			len++;
-+		} else if (val == param + len + 2) {
- 			val[-2] = '=';
--			memmove(val-1, val, strlen(val)+1);
-+			memmove(val - 1, val, strlen(val) + 1);
- 			val--;
-+			len++;
- 		} else
- 			BUG();
- 	}
- 
- 	/* Handle obsolete-style parameters */
--	if (obsolete_checksetup(param))
-+	if (obsolete_checksetup(param, len))
- 		return 0;
- 
- 	/*
+greg k-h

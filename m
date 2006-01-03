@@ -1,61 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWACEqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWACE6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWACEqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 23:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWACEqr
+	id S1751119AbWACE6w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 23:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWACE6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 23:46:47 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:707 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751114AbWACEqq (ORCPT
+	Mon, 2 Jan 2006 23:58:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14556 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751119AbWACE6v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 23:46:46 -0500
-Date: Tue, 3 Jan 2006 10:16:32 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>
-Subject: Inclusion of x86_64 memorize ioapic at bootup patch
-Message-ID: <20060103044632.GA4969@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 2 Jan 2006 23:58:51 -0500
+Date: Mon, 2 Jan 2006 20:58:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.15
+Message-ID: <Pine.LNX.4.64.0601022055310.3668@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-1447360119-1136264328=:3668"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Can you please include the following patch. This patch has already been pushed
-by Andrew.
+--21872808-1447360119-1136264328=:3668
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 
-http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/broken-out/x86_64-io_apicc-memorize-at-bootup-where-the-i8259-is.patch
 
-This patch is regarding remembering at boot up time where i8259 is connected
-and restore the APIC settings back during kexec boot or kdump boot. This
-enables getting timer interrupts in new kernel in legacy mode.
+Ok, very small/few changes in the last week, it seems everybody is off on 
+vacation. All the better.
 
-This patch is needed to make kexec and kdump work on some systems,
-especially opteron boxes. Otherwise the second kernel does not receive
-timer interrupts during early boot hence hangs.
+The shortlog/diffstat tell the story: a few one-liners, another ipv6 
+deadlock fixed, some sysctl and /proc fixes. 
 
-I understand, that you are inclined towards remembering all the APIC states
-and simply restore it back instead of putting hooks. This will work 
-well for kexec but not for kdump because in kdump system can crash on 
-non-boot cpu.
+Have fun,
 
-Restoring BIOS APIC state can make sure that BIOS designated boot cpu will 
-always be able to see timer interrupts in legacy mode but same does not 
-hold good if new kernel boots on some other cpu as is the case with kdump.
+		Linus
 
-In case of kexec boot, we relocate to boot cpu but in case of kdump we
-don't because it was suggested that in some extreme cases of crash, boot cpu
-might not respond even to NMI and relocation to boot cpu will not be
-possible.
+---
+Andi Kleen:
+      Make sure interleave masks have at least one node set
 
-Can you please re-consider this patch for inclusion.
+Anton Blanchard:
+      ppc64: htab_initialize_secondary cannot be marked __init
 
-Thanks
-Vivek
+Benjamin Herrenschmidt:
+      Fix more radeon GART start calculation cases
+      powerpc: more g5 overtemp problem fix
+
+Chris Elmquist:
+      [TG3]: ethtool -d hangs PCIe systems
+
+Dag-Erling Smørgrav:
+      Avoid namespace pollution in <asm/param.h>
+
+Dave Jones:
+      fix ia64 compile failure with gcc4.1
+
+David Kimdon:
+      [BR_NETFILTER]: Fix leak if skb traverses > 1 bridge
+
+David L Stevens:
+      [IPV6]: Increase default MLD_MAX_MSF to 64.
+      [IPV6] mcast: Fix multiple issues in MLDv2 reports.
+
+David S. Miller:
+      [NET]: Validate socket filters against BPF_MAXINSNS in one spot.
+      [TG3]: Update driver version and reldate.
+      [SPARC]: Use STABS_DEBUG and DWARF_DEBUG macros in vmlinux.lds.S
+      [SERMOUSE]: Sun mice speak 5-byte protocol too.
+
+Denny Priebe:
+      Input: wacom - fix X axis setup
+
+Dmitry Torokhov:
+      Input: kbtab - fix Y axis setup
+      Input: warrior - fix HAT0Y axis setup
+
+Erik Hovland:
+      [ARM] 3216/1: indent and typo in drivers/serial/pxa.c
+
+James Bottomley:
+      Fix Fibre Channel boot oops
+
+Jean Delvare:
+      Fix recursive config dependency for SAA7134
+      Simplify the VIDEO_SAA7134_OSS Kconfig dependency line
+
+Linus Torvalds:
+      Revert radeon AGP aperture offset changes
+      Insanity avoidance in /proc
+      sysctl: don't overflow the user-supplied buffer with '\0'
+      sysctl: make sure to terminate strings with a NUL
+      Linux v2.6.15
+
+Paolo 'Blaisorblade' Giarrusso:
+      uml: fix random segfaults at bootup
+      Hostfs: remove unused var
+      uml: hostfs - fix possible PAGE_CACHE_SHIFT overflows
+      Hostfs: update for new glibc - add missing symbol exports
+      uml: fix compilation with CONFIG_MODE_TT disabled
+
+Ravikiran G Thirumalai:
+      x86_64: Fix incorrect node_present_pages on NUMA
+
+Riccardo Magliocchetti:
+      Input: aiptek - fix Y axis setup
+
+Russell King:
+      [MMC] Set correct capacity for 1024-byte block cards
+      [SERIAL] Fix AMBA PL011 sysrq character handling
+
+Stas Sergeev:
+      x86: teach dump_task_regs() about the -8 offset.
+
+Yi Yang:
+      Fix false old value return of sysctl
+
+YOSHIFUJI Hideaki:
+      [IPV6]: Fix addrconf dead lock.
+
+ Makefile                            |    2 
+ arch/i386/kernel/process.c          |    4 +
+ arch/powerpc/mm/hash_utils_64.c     |    2 
+ arch/sparc/kernel/vmlinux.lds.S     |   18 +---
+ arch/sparc64/kernel/vmlinux.lds.S   |   18 +---
+ arch/um/os-Linux/start_up.c         |   22 +++--
+ arch/um/os-Linux/user_syms.c        |    5 +
+ arch/um/sys-i386/Makefile           |    8 +-
+ arch/um/sys-x86_64/Makefile         |    5 +
+ arch/x86_64/mm/init.c               |    2 
+ drivers/char/drm/radeon_cp.c        |    9 --
+ drivers/char/vc_screen.c            |    2 
+ drivers/input/joystick/warrior.c    |    2 
+ drivers/input/mouse/sermouse.c      |    2 
+ drivers/macintosh/therm_pm72.c      |    6 +
+ drivers/media/video/saa7134/Kconfig |    4 -
+ drivers/mmc/mmc_block.c             |   14 ++-
+ drivers/net/ppp_generic.c           |    3 -
+ drivers/net/tg3.c                   |   13 ++-
+ drivers/net/tg3.h                   |    7 ++
+ drivers/scsi/scsi_scan.c            |    3 -
+ drivers/serial/amba-pl011.c         |    2 
+ drivers/serial/pxa.c                |    4 -
+ drivers/usb/input/aiptek.c          |    2 
+ drivers/usb/input/kbtab.c           |    2 
+ drivers/usb/input/wacom.c           |    2 
+ fs/hostfs/hostfs_kern.c             |    9 +-
+ fs/proc/generic.c                   |   47 ++++++------
+ include/asm-i386/param.h            |    3 -
+ include/asm-x86_64/param.h          |    3 -
+ include/net/if_inet6.h              |    1 
+ kernel/sysctl.c                     |   29 ++++---
+ mm/mempolicy.c                      |    4 +
+ net/bridge/br_netfilter.c           |    2 
+ net/core/filter.c                   |    4 -
+ net/ipv6/addrconf.c                 |    9 +-
+ net/ipv6/mcast.c                    |  142 +++++++++++++++++++++++++++--------
+ 37 files changed, 254 insertions(+), 162 deletions(-)
+--21872808-1447360119-1136264328=:3668--

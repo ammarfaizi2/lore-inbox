@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbWACVja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbWACVkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbWACVja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWACVja
+	id S964949AbWACVkX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWACVkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:39:30 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:195 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964946AbWACVj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:39:29 -0500
-Subject: Re: Benchmarks
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
-To: Sharma Sushant <sushant@cs.unm.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060103213244.M41864@webmail.cs.unm.edu>
-References: <20060103213244.M41864@webmail.cs.unm.edu>
-Content-Type: text/plain
-Date: Tue, 03 Jan 2006 16:39:24 -0500
-Message-Id: <1136324365.21485.19.camel@rockstar.fsl.cs.sunysb.edu>
+	Tue, 3 Jan 2006 16:40:22 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:14346 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S964948AbWACVkV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:40:21 -0500
+Date: Tue, 3 Jan 2006 22:40:18 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andi Kleen <ak@suse.de>, perex@suse.cz, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060103214018.GA41446@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Adrian Bunk <bunk@stusta.de>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Tomasz Torcz <zdzichu@irc.pl>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+	perex@suse.cz, alsa-devel@alsa-project.org,
+	James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+	linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+	parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+	Thorsten Knabe <linux@thorsten-knabe.de>,
+	zwane@commfireservices.com, zaitcev@yahoo.com,
+	linux-kernel@vger.kernel.org
+References: <20050726150837.GT3160@stusta.de> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <200601031716.13409.s0348365@sms.ed.ac.uk> <20060103192449.GA26030@dspnet.fr.eu.org> <20060103193736.GG3831@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060103193736.GG3831@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well that would very much depend on what you're changing.  For example,
-if it is a file system modification, then use file system benchmarks.
-However, those same benchmarks would not be appropriate for changes in
-the network stack.  A pre-written benchmark may not even exist.  You
-should use your knowledge of what you are changing to choose an
-appropriate benchmark that will stress that part of the kernel.
-
-Avishay Traeger
-http://www.fsl.cs.sunysb.edu/~avishay/
-
-On Tue, 2006-01-03 at 16:34 -0500, Sharma Sushant wrote:
-> Hello everyone,
-> If someone make some modifications to kernel code and want to know how much
-> overead those modifications has caused, what are the benchmarks that one
-> should use to calculate the overhead of the added code. 
-> please cc the reply to me.
-> Thanks a lot.
+On Tue, Jan 03, 2006 at 08:37:36PM +0100, Adrian Bunk wrote:
+> The udev breakages might not have been nice, but OSS/ALSA is a 
+> completely different issue:
 > 
-> --
-> Sushant Sharma
-> http://cs.unm.edu/~sushant
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> OSS has been deprecated since ALSA was merged into the Linux kernel 
+> _four years ago_.
 
+OSS _drivers_ yes, OSS _api_ no.
+
+
+> And I'm only talking about removing drivers _with ALSA drivers for the 
+> same hardware available_.
+
+Sure, and I have no problem with that.  OTOH you'll notice that this
+particular subthread was specifically about the OSS api, not the
+drivers.
+
+
+> For a general OSS<->ALSA discussion, you are five years too late.
+
+I couldn't predict 5 years ago that the ALSA API quality would be
+somewhat lacking.
+
+  OG.

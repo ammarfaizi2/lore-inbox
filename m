@@ -1,42 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbWACUfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWACUgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbWACUfW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbWACUfW
+	id S932518AbWACUgm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWACUgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:35:22 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:63408 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S932476AbWACUfT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:35:19 -0500
-Message-ID: <43BADFB3.5050908@colorfullife.com>
-Date: Tue, 03 Jan 2006 21:33:55 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ayaz Abdulla <aabdulla@nvidia.com>
-CC: "David S. Miller" <davem@davemloft.net>, manfred@dbl.q-ag.de,
-       jgarzik@pobox.com, afu@fugmann.net, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] forcedeth: TSO fix for large buffers
-References: <200512251451.jBPEpgNe018712@dbl.q-ag.de> <20051225.125742.65007619.davem@davemloft.net> <3E346722.7070304@nvidia.com>
-In-Reply-To: <3E346722.7070304@nvidia.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 15:36:42 -0500
+Received: from 6.143.111.62.revers.nsm.pl ([62.111.143.6]:47765 "HELO
+	matthew.ogrody.nsm.pl") by vger.kernel.org with SMTP
+	id S932518AbWACUgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 15:36:41 -0500
+Date: Tue, 3 Jan 2006 21:37:32 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060103203732.GF5262@irc.pl>
+Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
+	Olivier Galibert <galibert@pobox.com>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+	Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
+	alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+	sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+	kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+	jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+	zwane@commfireservices.com, zaitcev@yahoo.com,
+	linux-kernel@vger.kernel.org
+References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zGQnqpIoxlsbsOfg"
+Content-Disposition: inline
+In-Reply-To: <s5h1wzpnjrx.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ayaz Abdulla wrote:
 
-> If you look at the code, I do not set the NV_TX2_VALID bit (stored in 
-> np->tx_flags) in the first tx descriptor
+--zGQnqpIoxlsbsOfg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You are right: tx_flags starts as 0 and is only set to np->tx_flags 
-after the first tx descriptor was set up.
-I overlooked that point, sorry.
+On Tue, Jan 03, 2006 at 09:22:58PM +0100, Takashi Iwai wrote:
+> At Tue, 3 Jan 2006 18:03:16 +0100,
+> Olivier Galibert wrote:
+> >=20
+> > > This is exactly why the OSS emulation option in ALSA is really a last=
+ resort=20
+> > > and should not be an excuse for people to ignore implementing ALSA su=
+pport=20
+> > > directly. More so, it is very good justification for ditching "everyt=
+hing=20
+> > > OSS" as soon as possible, at least in new software.
+> >=20
+> > Actually the crappy state of OSS emulation is a good reason to ditch
+> > ALSA in its current implementation.  As Linus reminded not so long
+> > ago, backwards compatibility is extremely important.
+>=20
+> Well, we keep the compatibility exactly -- OSS drivers don't support
+> software mixing in the kernel, too :)
 
-Jeff: Could you add the patch to your tree?
+ OSS will support software mixing. In kernel. On NetBSD.
+http://kerneltrap.org/node/4388
 
---
-    Manfred
+--=20
+Tomasz Torcz            There exists no separation between gods and men:
+zdzichu@irc.-nie.spam-.pl   one blends softly casual into the other.
+
+
+--zGQnqpIoxlsbsOfg
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFDuuCMThhlKowQALQRArEuAKDZGR44MESsWO2j2dgexAY00l4rOwCg6mmj
+ibATWhDjfL4MCZgCXI59rSA=
+=RmBW
+-----END PGP SIGNATURE-----
+
+--zGQnqpIoxlsbsOfg--

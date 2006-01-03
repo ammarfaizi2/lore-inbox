@@ -1,32 +1,31 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWACNyq (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 3 Jan 2006 08:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWACNyq
+	id S1751444AbWACPpI (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 3 Jan 2006 10:45:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWACPpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:54:46 -0500
-Received: from [212.81.92.109] ([212.81.92.109]:54277 "HELO tvtravelshop.de")
-	by vger.kernel.org with SMTP id S1751408AbWACNyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 08:54:45 -0500
-Message-ID: <c04e01c6105e$60cf0efb$11d39493@tvtravelshop.de>
-From: "Millie Villanueva" <mvillanueva_ag@1-mannheimer-judo-club.de>
-To: linux-kernel@vger.kernel.org
-Subject: Home delivery cials-tabs
-Date: Tue, 03 Jan 2006 13:11:25 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
+	Tue, 3 Jan 2006 10:45:08 -0500
+Received: from c3eea36c1.cable.wanadoo.nl ([62.234.54.193]:57357 "HELO
+	c3eea36c1.cable.wanadoo.nl") by vger.kernel.org with SMTP
+	id S1751444AbWACPpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 10:45:06 -0500
+Message-ID: <LAW14.OE649yfB4mvo440453d5@motmail.com>
+Date: Tue, 03 Jan 2006 21:40:53 +0600
+From: "Brad Cunningham" <YUSNHCXT@msn.com>
+To: <linux-hams@vger.kernel.org>
+Subject: Quality Medicine Available af9I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751408AbWACNyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751444AbWACPpI@vger.kernel.org>
 
 
-Be ERECT in only 15 mins
+The most complete Phar macy Online
+We carry all major medds at bargain price
+Coodeinne, Viggra, Ci ialis, VaIium, Xa naax
+Phantermiine, Ulltraam and etc...
+SatiisfactIon Gua ranteeed
 
-PRlCE: $ 2 / use
+http://cssc2006.com
 
-check our site --> directloqii.com
+
+aou
 

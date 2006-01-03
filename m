@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWACU0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWACU3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWACU0H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWACUZy
+	id S964778AbWACU3v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWACU3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:25:54 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:38311 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964776AbWACUZm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:25:42 -0500
-Subject: [patch 2/9] slab: minor cleanup to kmem_cache_alloc_node
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
-       colpatch@us.ibm.com, rostedt@goodmis.org, clameter@sgi.com,
-       penberg@cs.helsinki.fi
-Date: Tue, 03 Jan 2006 22:25:40 +0200
-Message-Id: <1136319940.8629.17.camel@localhost>
+	Tue, 3 Jan 2006 15:29:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:43140 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964778AbWACU3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 15:29:49 -0500
+Date: Tue, 3 Jan 2006 12:28:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: userspace breakage
+Message-ID: <20060103202800.GE12617@kroah.com>
+References: <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com> <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christoph Lameter <clameter@engr.sgi.com>
+On Thu, Dec 29, 2005 at 02:56:16PM -0800, Linus Torvalds wrote:
+> 
+> On Thu, 29 Dec 2005, Dave Jones wrote:
+> > At some point in time it became defacto that certain things like udev, hotplug,
+> > alsa-lib, wireless-tools and a bunch of others have to have kept in lockstep
+> > with the kernel, and if it breaks, it's your fault for not upgrading
+> > your userspace.
+> 
+> Hmm.. Time for some re-indoctrination?
+> 
+> We really shouldn't allow that. I know who to blame for udev, who else 
+> should I complain to?
 
-This patch cleans up kmem_cache_alloc_node a bit.
+Yes, blame me for udev.  Again, a kernel change caused a udev bug to
+surface.  This is the problem with 2.6.15 and input devices that are not
+the aggregated mice or keyboards.  A one-line fix to udev solved this.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-Acked-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+Again, the fault was in udev, not the kernel, I'm not going to prevent
+kernel changes from going in, when it is stupid userspace bugs, not the
+kernel's fault.
 
- mm/slab.c |   13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+And yes, this is the second time this has happened, it seems that I suck
+at userspace programming :)
 
-Index: 2.6/mm/slab.c
-===================================================================
---- 2.6.orig/mm/slab.c
-+++ 2.6/mm/slab.c
-@@ -2872,21 +2872,14 @@ void *kmem_cache_alloc_node(kmem_cache_t
- 	unsigned long save_flags;
- 	void *ptr;
- 
--	if (nodeid == -1)
--		return __cache_alloc(cachep, flags);
--
--	if (unlikely(!cachep->nodelists[nodeid])) {
--		/* Fall back to __cache_alloc if we run into trouble */
--		printk(KERN_WARNING "slab: not allocating in inactive node %d for cache %s\n", nodeid, cachep->name);
--		return __cache_alloc(cachep,flags);
--	}
--
- 	cache_alloc_debugcheck_before(cachep, flags);
- 	local_irq_save(save_flags);
--	if (nodeid == numa_node_id())
-+
-+	if (nodeid == -1 || nodeid == numa_node_id() || !cachep->nodelists[nodeid])
- 		ptr = ____cache_alloc(cachep, flags);
- 	else
- 		ptr = __cache_alloc_node(cachep, flags, nodeid);
-+
- 	local_irq_restore(save_flags);
- 	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr, __builtin_return_address(0));
- 
+sorry,
 
---
-
-
+greg k-h

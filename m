@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWACPjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWACPkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWACPjv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 10:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWACPjv
+	id S1751440AbWACPkc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 10:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWACPkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 10:39:51 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:12684 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751435AbWACPju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 10:39:50 -0500
-Date: Tue, 3 Jan 2006 07:38:41 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 08/19] mutex subsystem, core
-In-Reply-To: <20060103150554.GA1211@elte.hu>
-Message-ID: <Pine.LNX.4.64.0601030736531.3668@g5.osdl.org>
-References: <20060103100807.GH23289@elte.hu> <43BA78EC.7050603@yahoo.com.au>
- <20060103150554.GA1211@elte.hu>
+	Tue, 3 Jan 2006 10:40:32 -0500
+Received: from general.keba.co.at ([193.154.24.243]:64147 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S1751440AbWACPkb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 10:40:31 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
+Date: Tue, 3 Jan 2006 16:40:28 +0100
+Message-ID: <AAD6DA242BC63C488511C611BD51F367323315@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
+Thread-Index: AcYQdqJYlvJlg2CoTbGUyf1yPSATIwAA5gNQ
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "Daniel Walker" <dwalker@mvista.com>, "kus Kusche Klaus" <kus@keba.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Lee Revell" <rlrevell@joe-job.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Daniel Walker
+> Most likely . It's hard to create a global solution in the entry-*.S
+> files cause the code in there is called so early.  
 
+One more problem: 
+There seem to be more irq enable/disable than in entry-header.S:
+entry-armv.S contains an open-coded enable, 
+asm-arm/assembler.h defines irq save/restore macros, ...
 
-On Tue, 3 Jan 2006, Ingo Molnar wrote:
-> > 
-> > Is this an interrupt deadlock, or do you not allow interrupt contexts 
-> > to even trylock a mutex?
-> 
-> correct, no irq contexts are allowed. This is also checked for if 
-> CONFIG_DEBUG_MUTEXES is enabled.
+And they all do not trace.
 
-Note that semaphores are definitely used from interrupt context, and as 
-such you can't replace them with mutexes if you do this.
-
-The prime example is the console semaphore. See kernel/printk.c, look for 
-"down_trylock()", and realize that they are all about interrupts.
-
-			Linus
+-- 
+Klaus Kusche                 (Software Development - Control Systems)
+KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+E-Mail: kus@keba.com                                WWW: www.keba.com

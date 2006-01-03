@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWACXYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWACX0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWACXYS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWACXYS
+	id S964988AbWACX0d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:26:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWACX0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:24:18 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:62167 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964865AbWACXYR
+	Tue, 3 Jan 2006 18:26:32 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:52443 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964988AbWACX0b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:24:17 -0500
-Message-ID: <43BB078F.2060304@watson.ibm.com>
-Date: Tue, 03 Jan 2006 23:23:59 +0000
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       LSE <lse-tech@lists.sourceforge.net>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: [Patch 1/6] Delay accounting: timespec diff 
-References: <43BB05D8.6070101@watson.ibm.com>
-In-Reply-To: <43BB05D8.6070101@watson.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 18:26:31 -0500
+To: torvalds@osdl.org
+Subject: [PATCH 01/41] m68k: compile fix - hardirq checks were in wrong place
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Message-Id: <E1EtvXy-0003Ks-E9@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 03 Jan 2006 23:26:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nstimestamp_diff.patch
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: 1133435630 -0500
 
-Add kernel utility function for measuring the
-interval (diff) between two timespec values, adjusting for overflow
+move the sanity check for NR_IRQS being no more than 1<<HARDIRQ_BITS
+from asm-m68k/hardirq.h to asm-m68k/irq.h; needed since NR_IRQS is
+not necessary know at the points of inclusion of asm/hardirq.h due
+to the rather ugly header dependencies on m68k.  Fix is by far simpler
+than trying to massage those dependencies...
 
-Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
- include/linux/time.h |   15 +++++++++++++++
- 1 files changed, 15 insertions(+)
+---
 
-Index: linux-2.6.15-rc7/include/linux/time.h
-===================================================================
---- linux-2.6.15-rc7.orig/include/linux/time.h
-+++ linux-2.6.15-rc7/include/linux/time.h
-@@ -114,6 +114,21 @@ set_normalized_timespec (struct timespec
- 	ts->tv_nsec = nsec;
- }
+ include/asm-m68k/hardirq.h |    9 ---------
+ include/asm-m68k/irq.h     |    9 +++++++++
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-+/*
-+ * timespec_diff_ns - Return difference of two timestamps in nanoseconds
-+ * In the rare case of @end being earlier than @start, return zero
+f272efd87cbac37d0a113753175a499ea0bbfa30
+diff --git a/include/asm-m68k/hardirq.h b/include/asm-m68k/hardirq.h
+index 728318b..5e1c582 100644
+--- a/include/asm-m68k/hardirq.h
++++ b/include/asm-m68k/hardirq.h
+@@ -14,13 +14,4 @@ typedef struct {
+ 
+ #define HARDIRQ_BITS	8
+ 
+-/*
+- * The hardirq mask has to be large enough to have
+- * space for potentially all IRQ sources in the system
+- * nesting on a single CPU:
+- */
+-#if (1 << HARDIRQ_BITS) < NR_IRQS
+-# error HARDIRQ_BITS is too low!
+-#endif
+-
+ #endif
+diff --git a/include/asm-m68k/irq.h b/include/asm-m68k/irq.h
+index 1f56990..d312674 100644
+--- a/include/asm-m68k/irq.h
++++ b/include/asm-m68k/irq.h
+@@ -23,6 +23,15 @@
+ #endif
+ 
+ /*
++ * The hardirq mask has to be large enough to have
++ * space for potentially all IRQ sources in the system
++ * nesting on a single CPU:
 + */
-+static inline unsigned long long
-+timespec_diff_ns(struct timespec *start, struct timespec *end)
-+{
-+	long long ret;
++#if (1 << HARDIRQ_BITS) < NR_IRQS
++# error HARDIRQ_BITS is too low!
++#endif
 +
-+	ret = end->tv_sec*(1000000000) + end->tv_nsec;
-+	ret -= start->tv_sec*(1000000000) + start->tv_nsec;
-+	if (ret < 0)
-+		return 0;
-+	return ret;
-+}
- #endif /* __KERNEL__ */
++/*
+  * Interrupt source definitions
+  * General interrupt sources are the level 1-7.
+  * Adding an interrupt service routine for one of these sources
+-- 
+0.99.9.GIT
 
- #define NFDBITS			__NFDBITS

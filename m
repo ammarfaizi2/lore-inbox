@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWACRxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWACRxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWACRxm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 12:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWACRxm
+	id S1751146AbWACRxd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 12:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWACRxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 12:53:42 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42485 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932295AbWACRxl
+	Tue, 3 Jan 2006 12:53:33 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:30709 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750913AbWACRxd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 12:53:41 -0500
-Subject: [PATCH 02/02] Plist name space cleanup
+	Tue, 3 Jan 2006 12:53:33 -0500
+Subject: [PATCH 01/02] Add back plist docs
 From: Daniel Walker <dwalker@mvista.com>
 To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, oleg@tv-sign.ru
+Cc: linux-kernel@vger.kernel.org, oleg@tv-sign.ru, tglx@linutronix.de,
+       inaky.perez-gonzalez@intel.com
 Content-Type: text/plain
-Date: Tue, 03 Jan 2006 09:53:38 -0800
-Message-Id: <1136310819.5915.23.camel@localhost.localdomain>
+Date: Tue, 03 Jan 2006 09:53:30 -0800
+Message-Id: <1136310811.5915.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -23,10 +24,8 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Gives the structs, and plist_empty more consistent names. 
-Also updates with Oleg's comments. 
-
-This patch goes on top of the docs patch .
+	Add back copyrights, documentation, and function descriptions.
+Updated with Oleg's comments .
 
 Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
@@ -34,492 +33,269 @@ Index: linux-2.6.15/include/linux/plist.h
 ===================================================================
 --- linux-2.6.15.orig/include/linux/plist.h
 +++ linux-2.6.15/include/linux/plist.h
-@@ -77,64 +77,64 @@
+@@ -1,3 +1,77 @@
++/*
++ * Descending-priority-sorted double-linked list
++ *
++ * (C) 2002-2003 Intel Corp
++ * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
++ *
++ * 2001-2005 (c) MontaVista Software, Inc.
++ * Daniel Walker <dwalker@mvista.com>
++ *
++ * (C) 2005 Thomas Gleixner <tglx@linutronix.de>
++ * Tested and made it functional.
++ *
++ * Licensed under the FSF's GNU Public License v2 or later.
++ *
++ * Based on simple lists (include/linux/list.h).
++ *
++ *
++ * This is a priority-sorted list of nodes; each node has a 
++ * priority from INT_MIN (highest) to INT_MAX (lowest). 
++ *
++ * Addition is O(K), removal is O(1), change of priority of a node is
++ * O(K) and K is the number of RT priority levels used in the system.
++ * (1 <= K <= 99)
++ *
++ * This list is really a list of lists:
++ *
++ *  - The tier 1 list is the prio_list, different priority nodes.
++ *
++ *  - The tier 2 list is the node_list, serialized nodes.
++ *
++ * Simple ASCII art explanation:
++ *
++ * |HEAD          |
++ * |              |
++ * |prio_list.prev|<------------------------------------|
++ * |prio_list.next|<->|pl|<->|pl|<--------------->|pl|<-|
++ * |10            |   |10|   |21|   |21|   |21|   |40|   (prio)
++ * |              |   |  |   |  |   |  |   |  |   |  |
++ * |              |   |  |   |  |   |  |   |  |   |  |
++ * |node_list.next|<->|nl|<->|nl|<->|nl|<->|nl|<->|nl|<-|
++ * |node_list.prev|<------------------------------------|
++ *
++ * The nodes on the prio_list list are sorted by priority to simplify
++ * the insertion of new nodes. There are no nodes with duplicate
++ * priorites on the list.
++ *
++ * The nodes on the node_list is ordered by priority and can contain
++ * entries which have the same priority. Those entries are ordered
++ * FIFO
++ *
++ * Addition means: look for the prio_list node in the prio_list 
++ * for the priority of the node and insert it before the node_list 
++ * entry of the next prio_list node. If it is the first node of 
++ * that priority, add it to the prio_list in the right position and 
++ * insert it into the serialized node_list list
++ *
++ * Removal means remove it from the node_list and remove it from 
++ * the prio_list if the node_list list_head is non empty. In case 
++ * of removal from the prio_list it must be checked whether other 
++ * entries of the same priority are on the list or not. If there 
++ * is another entry of the same priority then this entry has to 
++ * replace the removed entry on the prio_list. If the entry which 
++ * is removed is the only entry of this priority then a simple 
++ * remove from both list is sufficient.
++ *
++ * INT_MIN is the highest priority, 0 is the medium highest, INT_MAX
++ * is lowest priority.
++ *
++ * No locking is done, up to the caller.
++ *
++ * NOTE: This implementation does not offer as many interfaces as
++ *       linux/list.h does -- it is lazily minimal. You are welcome to
++ *       add them.
++ */
+ #ifndef _LINUX_PLIST_H_
+ #define _LINUX_PLIST_H_
  
- #include <linux/list.h>
- 
--struct pl_head {
-+struct plist_head {
- 	struct list_head prio_list;
- 	struct list_head node_list;
+@@ -13,24 +87,46 @@ struct pl_node {
+ 	struct pl_head	plist;
  };
  
--struct pl_node {
--	int		prio;
--	struct pl_head	plist;
-+struct plist_node {
-+	int			prio;
-+	struct plist_head	plist;
- };
- 
- /** 
-- * #PL_HEAD_INIT - static struct pl_head initializer
-+ * #PLIST_HEAD_INIT - static struct plist_head initializer
-  *
-- * @head:	struct pl_head variable name
-+ * @head:	struct plist_head variable name
-  */
--#define PL_HEAD_INIT(head)	\
-+#define PLIST_HEAD_INIT(head)	\
++/** 
++ * #PL_HEAD_INIT - static struct pl_head initializer
++ *
++ * @head:	struct pl_head variable name
++ */
+ #define PL_HEAD_INIT(head)	\
  {							\
  	.prio_list = LIST_HEAD_INIT((head).prio_list),	\
  	.node_list = LIST_HEAD_INIT((head).node_list),	\
  }
  
- /** 
-- * #PL_NODE_INIT - static struct pl_node initializer
-+ * #PLIST_NODE_INIT - static struct plist_node initializer
-  *
-- * @node:	struct pl_node variable name
-+ * @node:	struct plist_node variable name
-  * @__prio:	initial node priority	
-  */
--#define PL_NODE_INIT(node, __prio)	\
-+#define PLIST_NODE_INIT(node, __prio)	\
++/** 
++ * #PL_NODE_INIT - static struct pl_node initializer
++ *
++ * @node:	struct pl_node variable name
++ * @__prio:	initial node priority	
++ */
+ #define PL_NODE_INIT(node, __prio)	\
  {							\
  	.prio  = (__prio),				\
--	.plist = PL_HEAD_INIT((node).plist),		\
-+	.plist = PLIST_HEAD_INIT((node).plist),		\
+ 	.plist = PL_HEAD_INIT((node).plist),		\
  }
  
- /**
-- * pl_head_init - dynamic struct pl_head initializer
-+ * plist_head_init - dynamic struct plist_head initializer
-  *
-- * @head:	&struct pl_head pointer
-+ * @head:	&struct plist_head pointer
-  */ 
--static inline void pl_head_init(struct pl_head *head)
-+static inline void plist_head_init(struct plist_head *head)
++/**
++ * pl_head_init - dynamic struct pl_head initializer
++ *
++ * @head:	&struct pl_head pointer
++ */ 
+ static inline void pl_head_init(struct pl_head *head)
  {
  	INIT_LIST_HEAD(&head->prio_list);
  	INIT_LIST_HEAD(&head->node_list);
  }
  
- /**
-- * pl_node_init - Dynamic struct pl_node initializer
-+ * plist_node_init - Dynamic struct plist_node initializer
-  *
-- * @node:	&struct pl_node pointer
-+ * @node:	&struct plist_node pointer
-  * @prio:	initial node priority
-  */
--static inline void pl_node_init(struct pl_node *node, int prio)
-+static inline void plist_node_init(struct plist_node *node, int prio)
++/**
++ * pl_node_init - Dynamic struct pl_node initializer
++ *
++ * @node:	&struct pl_node pointer
++ * @prio:	initial node priority
++ */
+ static inline void pl_node_init(struct pl_node *node, int prio)
  {
  	node->prio = prio;
--	pl_head_init(&node->plist);
-+	plist_head_init(&node->plist);
- }
+@@ -40,23 +136,63 @@ static inline void pl_node_init(struct p
+ extern void plist_add(struct pl_node *node, struct pl_head *head);
+ extern void plist_del(struct pl_node *node);
  
--extern void plist_add(struct pl_node *node, struct pl_head *head);
--extern void plist_del(struct pl_node *node);
-+extern void plist_add(struct plist_node *node, struct plist_head *head);
-+extern void plist_del(struct plist_node *node);
++/**
++ * plist_for_each - iterate over the plist
++ *
++ * @pos1:	the type * to use as a loop counter.
++ * @head:	the head for your list.
++ */
+ #define plist_for_each(pos, head)	\
+ 	 list_for_each_entry(pos, &(head)->node_list, plist.node_list)
  
- /**
-  * plist_for_each - iterate over the plist
-@@ -179,31 +179,31 @@ extern void plist_del(struct pl_node *no
++/**
++ * plist_for_each_entry_safe - iterate over a plist of given type safe 
++ * against removal of list entry
++ *
++ * @pos1:	the type * to use as a loop counter.
++ * @n1:	another type * to use as temporary storage
++ * @head:	the head for your list.
++ */
+ #define plist_for_each_safe(pos, n, head)	\
+ 	 list_for_each_entry_safe(pos, n, &(head)->node_list, plist.node_list)
+ 
++/**
++ * plist_for_each_entry	- iterate over list of given type
++ *
++ * @pos:	the type * to use as a loop counter.
++ * @head:	the head for your list.
++ * @member:	the name of the list_struct within the struct.
++ */
+ #define plist_for_each_entry(pos, head, mem)	\
+ 	 list_for_each_entry(pos, &(head)->node_list, mem.plist.node_list)
+ 
++/**
++ * plist_for_each_entry_safe - iterate over list of given type safe against 
++ * removal of list entry
++ *
++ * @pos:	the type * to use as a loop counter.
++ * @n:		another type * to use as temporary storage
++ * @head:	the head for your list.
++ * @member:	the name of the list_struct within the struct.
++ */
+ #define plist_for_each_entry_safe(pos, n, head, mem)	\
  	 list_for_each_entry_safe(pos, n, &(head)->node_list, mem.plist.node_list)
  
- /** 
-- * plist_empty - return !0 if a plist_head is empty
-+ * plist_head_empty - return !0 if a plist_head is empty
-  *
-- * @head:	&struct pl_head pointer 
-+ * @head:	&struct plist_head pointer 
-  */
--static inline int plist_empty(const struct pl_head *head)
-+static inline int plist_head_empty(const struct plist_head *head)
++/** 
++ * plist_empty - return !0 if a plist_head is empty
++ *
++ * @head:	&struct pl_head pointer 
++ */
+ static inline int plist_empty(const struct pl_head *head)
  {
  	return list_empty(&head->node_list);
  }
  
- /** 
-- * plist_unhashed - return !0 if plist_node is not on a list
-+ * plist_node_empty - return !0 if plist_node is not on a list
-  *
-- * @node:	&struct pl_node pointer 
-+ * @node:	&struct plist_node pointer 
-  */
--static inline int plist_unhashed(const struct pl_node *node)
-+static inline int plist_node_empty(const struct plist_node *node)
++/** 
++ * plist_unhashed - return !0 if plist_node is not on a list
++ *
++ * @node:	&struct pl_node pointer 
++ */
+ static inline int plist_unhashed(const struct pl_node *node)
  {
  	return list_empty(&node->plist.node_list);
- }
+@@ -64,9 +200,23 @@ static inline int plist_unhashed(const s
  
--/* All functions below assume the pl_head is not empty. */
-+/* All functions below assume the plist_head is not empty. */
+ /* All functions below assume the pl_head is not empty. */
  
- /**
-  * plist_first_entry - get the struct for the first entry
-  *
-- * @ptr:        the &struct pl_head pointer.
-+ * @ptr:        the &struct plist_head pointer.
-  * @type:       the type of the struct this is embedded in.
-  * @member:     the name of the list_struct within the struct.
-  */
-@@ -213,13 +213,13 @@ static inline int plist_unhashed(const s
- /** 
-  * plist_first - return the first node (and thus, highest priority)
-  *
-- * @head:	the &struct pl_head pointer
-+ * @head:	the &struct plist_head pointer
-  *
-  * Assumes the plist is _not_ empty.
-  */
--static inline struct pl_node* plist_first(const struct pl_head *head)
-+static inline struct plist_node* plist_first(const struct plist_head *head)
++/**
++ * plist_first_entry - get the struct for the first entry
++ *
++ * @ptr:        the &struct pl_head pointer.
++ * @type:       the type of the struct this is embedded in.
++ * @member:     the name of the list_struct within the struct.
++ */
+ #define plist_first_entry(head, type, member)	\
+ 	container_of(plist_first(head), type, member)
+ 
++/** 
++ * plist_first - return the first node (and thus, highest priority)
++ *
++ * @head:	the &struct pl_head pointer
++ *
++ * Assumes the plist is _not_ empty.
++ */
+ static inline struct pl_node* plist_first(const struct pl_head *head)
  {
--	return list_entry(head->node_list.next, struct pl_node, plist.node_list);
-+	return list_entry(head->node_list.next, struct plist_node, plist.node_list);
- }
- 
- #endif
-Index: linux-2.6.15/include/linux/sched.h
-===================================================================
---- linux-2.6.15.orig/include/linux/sched.h
-+++ linux-2.6.15/include/linux/sched.h
-@@ -1026,7 +1026,7 @@ struct task_struct {
- #endif
- 	/* realtime bits */
- 	struct list_head delayed_put;
--	struct pl_head pi_waiters;
-+	struct plist_head pi_waiters;
- 
- 	/* RT deadlock detection and priority inheritance handling */
- 	struct rt_mutex_waiter *blocked_on;
-Index: linux-2.6.15/kernel/fork.c
-===================================================================
---- linux-2.6.15.orig/kernel/fork.c
-+++ linux-2.6.15/kernel/fork.c
-@@ -1027,7 +1027,7 @@ static task_t *copy_process(unsigned lon
- #endif
- 	INIT_LIST_HEAD(&p->delayed_put);
- 	preempt_disable();
--	pl_head_init(&p->pi_waiters);
-+	plist_head_init(&p->pi_waiters);
- 	preempt_enable();
- 	p->blocked_on = NULL; /* not blocked yet */
- 	spin_lock_init(&p->pi_lock);
+ 	return list_entry(head->node_list.next, struct pl_node, plist.node_list);
 Index: linux-2.6.15/lib/plist.c
 ===================================================================
 --- linux-2.6.15.orig/lib/plist.c
 +++ linux-2.6.15/lib/plist.c
-@@ -24,12 +24,12 @@
-  * plist_add - add @node to @head returns !0 if the plist prio changed, 0
-  * otherwise. XXX: Fix return code.
-  *
-- * @node:	&struct pl_node pointer
-- * @head:	&struct pl_head pointer
-+ * @node:	&struct plist_node pointer
-+ * @head:	&struct plist_head pointer
+@@ -1,9 +1,32 @@
++
+ /*
+- * lib/plist.c - Priority List implementation.
++ * lib/plist.c
++ *
++ * Descending-priority-sorted double-linked list
++ *
++ * (C) 2002-2003 Intel Corp
++ * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
++ *
++ * 2001-2005 (c) MontaVista Software, Inc.
++ * Daniel Walker <dwalker@mvista.com>
++ *
++ * (C) 2005 Thomas Gleixner <tglx@linutronix.de>
++ * Tested and made it functional.
++ *
++ * Licensed under the FSF's GNU Public License v2 or later.
++ *
++ * Based on simple lists (include/linux/list.h).
   */
--void plist_add(struct pl_node *node, struct pl_head *head)
-+void plist_add(struct plist_node *node, struct plist_head *head)
+ 
+ #include <linux/plist.h>
+ 
++/**
++ * plist_add - add @node to @head returns !0 if the plist prio changed, 0
++ * otherwise. XXX: Fix return code.
++ *
++ * @node:	&struct pl_node pointer
++ * @head:	&struct pl_head pointer
++ */
+ void plist_add(struct pl_node *node, struct pl_head *head)
  {
--	struct pl_node *iter;
-+	struct plist_node *iter;
+ 	struct pl_node *iter;
+@@ -25,6 +48,12 @@ eq_prio:
+ 	list_add_tail(&node->plist.node_list, &iter->plist.node_list);
+ }
  
- 	INIT_LIST_HEAD(&node->plist.prio_list);
- 
-@@ -38,7 +38,7 @@ void plist_add(struct pl_node *node, str
- 			goto lt_prio;
- 		else if (node->prio == iter->prio) {
- 			iter = list_entry(iter->plist.prio_list.next,
--					struct pl_node, plist.prio_list);
-+					struct plist_node, plist.prio_list);
- 			goto eq_prio;
- 		}
- 
-@@ -52,12 +52,12 @@ eq_prio:
-  * plist_del - Remove a @node from plist. returns !0 if the plist prio
-  * changed, 0 otherwise. XXX: Fix return code.
-  *
-- * @node:	&struct pl_node pointer
-+ * @node:	&struct plist_node pointer
-  */
--void plist_del(struct pl_node *node)
-+void plist_del(struct plist_node *node)
++/**
++ * plist_del - Remove a @node from plist. returns !0 if the plist prio
++ * changed, 0 otherwise. XXX: Fix return code.
++ *
++ * @node:	&struct pl_node pointer
++ */
+ void plist_del(struct pl_node *node)
  {
  	if (!list_empty(&node->plist.prio_list)) {
--		struct pl_node *next = plist_first(&node->plist);
-+		struct plist_node *next = plist_first(&node->plist);
- 		list_move_tail(&next->plist.prio_list, &node->plist.prio_list);
- 		list_del_init(&node->plist.prio_list);
- 	}
-Index: linux-2.6.15/include/linux/init_task.h
-===================================================================
---- linux-2.6.15.orig/include/linux/init_task.h
-+++ linux-2.6.15/include/linux/init_task.h
-@@ -121,7 +121,7 @@ extern struct group_info init_groups;
- 	.alloc_lock	= SPIN_LOCK_UNLOCKED(tsk.alloc_lock),		\
- 	.proc_lock	= SPIN_LOCK_UNLOCKED(tsk.proc_lock),		\
- 	.delayed_put	= LIST_HEAD_INIT(tsk.delayed_put),		\
--	.pi_waiters	= PL_HEAD_INIT(tsk.pi_waiters),			\
-+	.pi_waiters	= PLIST_HEAD_INIT(tsk.pi_waiters),		\
- 	.pi_lock	= RAW_SPIN_LOCK_UNLOCKED,			\
- 	.journal_info	= NULL,						\
- 	.cpu_timers	= INIT_CPU_TIMERS(tsk.cpu_timers),		\
-Index: linux-2.6.15/kernel/rt.c
-===================================================================
---- linux-2.6.15.orig/kernel/rt.c
-+++ linux-2.6.15/kernel/rt.c
-@@ -735,7 +735,7 @@ check_pi_list_present(struct rt_mutex *l
- 	struct rt_mutex_waiter *w;
- 
- 	_raw_spin_lock(&old_owner->task->pi_lock);
--	TRACE_WARN_ON_LOCKED(plist_unhashed(&waiter->pi_list));
-+	TRACE_WARN_ON_LOCKED(plist_node_empty(&waiter->pi_list));
- 
- 	plist_for_each_entry(w, &old_owner->task->pi_waiters, pi_list) {
- 		if (w == waiter)
-@@ -910,7 +910,7 @@ static void pi_setprio(struct rt_mutex *
- 
- 		TRACE_BUG_ON_LOCKED(!lock_owner(l));
- 
--		if (!plist_unhashed(&w->pi_list)) {
-+		if (!plist_node_empty(&w->pi_list)) {
- 			TRACE_BUG_ON_LOCKED(!was_rt && !ALL_TASKS_PI && !rt_task(p));
- 			/*
- 			 * If the task is blocked on a lock, and we just restored
-@@ -980,7 +980,7 @@ void pi_changeprio(struct task_struct *p
- 	p->normal_prio = prio;
- 
- 	/* Check, if we can safely lower the priority */
--	if (prio > p->prio && !plist_empty(&p->pi_waiters)) {
-+	if (prio > p->prio && !plist_head_empty(&p->pi_waiters)) {
- 		struct rt_mutex_waiter *w;
- 		w = plist_first_entry(&p->pi_waiters,
- 				      struct rt_mutex_waiter, pi_list);
-@@ -1021,7 +1021,7 @@ task_blocks_on_lock(struct rt_mutex_wait
- 	task->blocked_on = waiter;
- 	waiter->lock = lock;
- 	waiter->ti = ti;
--	pl_node_init(&waiter->pi_list, task->prio);
-+	plist_node_init(&waiter->pi_list, task->prio);
- 	/*
- 	 * Add SCHED_NORMAL tasks to the end of the waitqueue (FIFO):
- 	 */
-@@ -1060,7 +1060,7 @@ static void __init_rt_mutex(struct rt_mu
- 	lock->owner = NULL;
- 	spin_lock_init(&lock->wait_lock);
- 	preempt_disable();
--	pl_head_init(&lock->wait_list);
-+	plist_head_init(&lock->wait_list);
- 	preempt_enable();
- #ifdef CONFIG_DEBUG_DEADLOCKS
- 	lock->save_state = save_state;
-@@ -1097,7 +1097,7 @@ void set_new_owner(struct rt_mutex *lock
- 	if (unlikely(old_owner))
- 		change_owner(lock, old_owner, new_owner);
- 	lock->owner = new_owner;
--	if (!plist_empty(&lock->wait_list))
-+	if (!plist_head_empty(&lock->wait_list))
- 		set_lock_owner_pending(lock);
- #ifdef CONFIG_DEBUG_DEADLOCKS
- 	if (trace_on) {
-@@ -1199,7 +1199,7 @@ static inline void init_lists(struct rt_
- #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_DEADLOCKS)
- 	// we have to do this until the static initializers get fixed:
- 	if (unlikely(!lock->wait_list.prio_list.prev)) {
--		pl_head_init(&lock->wait_list);
-+		plist_head_init(&lock->wait_list);
- #ifdef CONFIG_DEBUG_DEADLOCKS
- 		pi_initialized++;
- #endif
-@@ -1331,8 +1331,8 @@ capture_lock(struct rt_mutex_waiter *wai
- 			ret = 0;
- 		} else {
- 			/* Add ourselves back to the list */
--			TRACE_BUG_ON_LOCKED(!plist_unhashed(&waiter->list));
--			pl_node_init(&waiter->list, task->prio);
-+			TRACE_BUG_ON_LOCKED(!plist_node_empty(&waiter->list));
-+			plist_node_init(&waiter->list, task->prio);
- 			task_blocks_on_lock(waiter, ti, lock __W_EIP__(waiter));
- 			ret = 1;
- 		}
-@@ -1352,16 +1352,16 @@ static inline void INIT_WAITER(struct rt
- {
- #ifdef CONFIG_DEBUG_DEADLOCKS
- 	memset(waiter, 0x11, sizeof(*waiter));
--	pl_node_init(&waiter->list, MAX_PRIO);
--	pl_node_init(&waiter->pi_list, MAX_PRIO);
-+	plist_node_init(&waiter->list, MAX_PRIO);
-+	plist_node_init(&waiter->pi_list, MAX_PRIO);
- #endif
- }
- 
- static inline void FREE_WAITER(struct rt_mutex_waiter *waiter)
- {
- #ifdef CONFIG_DEBUG_DEADLOCKS
--	TRACE_WARN_ON(!plist_unhashed(&waiter->list));
--	TRACE_WARN_ON(!plist_unhashed(&waiter->pi_list));
-+	TRACE_WARN_ON(!plist_node_empty(&waiter->list));
-+	TRACE_WARN_ON(!plist_node_empty(&waiter->pi_list));
- 	memset(waiter, 0x22, sizeof(*waiter));
- #endif
- }
-@@ -1388,7 +1388,7 @@ ____down(struct rt_mutex *lock __EIP_DEC
- 
- 	if (likely(!old_owner) || __grab_lock(lock, task, old_owner->task)) {
- 		/* granted */
--		TRACE_WARN_ON_LOCKED(!plist_empty(&lock->wait_list) && !old_owner);
-+		TRACE_WARN_ON_LOCKED(!plist_head_empty(&lock->wait_list) && !old_owner);
- 		if (old_owner) {
- 			_raw_spin_lock(&old_owner->task->pi_lock);
- 			set_new_owner(lock, old_owner, ti __EIP__);
-@@ -1405,7 +1405,7 @@ ____down(struct rt_mutex *lock __EIP_DEC
- 
- 	set_task_state(task, TASK_UNINTERRUPTIBLE);
- 
--	pl_node_init(&waiter.list, task->prio);
-+	plist_node_init(&waiter.list, task->prio);
- 	task_blocks_on_lock(&waiter, ti, lock __EIP__);
- 
- 	TRACE_BUG_ON_LOCKED(!raw_irqs_disabled());
-@@ -1471,7 +1471,7 @@ ____down_mutex(struct rt_mutex *lock __E
- 
- 	if (likely(!old_owner) || __grab_lock(lock, task, old_owner->task)) {
- 		/* granted */
--		TRACE_WARN_ON_LOCKED(!plist_empty(&lock->wait_list) && !old_owner);
-+		TRACE_WARN_ON_LOCKED(!plist_head_empty(&lock->wait_list) && !old_owner);
- 		if (old_owner) {
- 			_raw_spin_lock(&old_owner->task->pi_lock);
- 			set_new_owner(lock, old_owner, ti __EIP__);
-@@ -1486,7 +1486,7 @@ ____down_mutex(struct rt_mutex *lock __E
- 		return;
- 	}
- 
--	pl_node_init(&waiter.list, task->prio);
-+	plist_node_init(&waiter.list, task->prio);
- 	task_blocks_on_lock(&waiter, ti, lock __EIP__);
- 
- 	TRACE_BUG_ON_LOCKED(!raw_irqs_disabled());
-@@ -1596,10 +1596,10 @@ ____up_mutex(struct rt_mutex *lock, int 
- #endif
- 
- #if ALL_TASKS_PI
--	if (plist_empty(&lock->wait_list))
-+	if (plist_head_empty(&lock->wait_list))
- 		check_pi_list_empty(lock, lock_owner(lock));
- #endif
--	if (unlikely(!plist_empty(&lock->wait_list))) {
-+	if (unlikely(!plist_head_empty(&lock->wait_list))) {
- 		if (save_state)
- 			__up_mutex_waiter_savestate(lock __EIP__);
- 		else
-@@ -1854,7 +1854,7 @@ static int __sched __down_interruptible(
- 
- 	if (likely(!old_owner) || __grab_lock(lock, task, old_owner->task)) {
- 		/* granted */
--		TRACE_WARN_ON_LOCKED(!plist_empty(&lock->wait_list) && !old_owner);
-+		TRACE_WARN_ON_LOCKED(!plist_head_empty(&lock->wait_list) && !old_owner);
- 		if (old_owner) {
- 			_raw_spin_lock(&old_owner->task->pi_lock);
- 			set_new_owner(lock, old_owner, ti __EIP__);
-@@ -1871,7 +1871,7 @@ static int __sched __down_interruptible(
- 
- 	set_task_state(task, TASK_INTERRUPTIBLE);
- 
--	pl_node_init(&waiter.list, task->prio);
-+	plist_node_init(&waiter.list, task->prio);
- 	task_blocks_on_lock(&waiter, ti, lock __EIP__);
- 
- 	TRACE_BUG_ON_LOCKED(!raw_irqs_disabled());
-@@ -1911,7 +1911,7 @@ wait_again:
- 				 * If we were the last waiter then clear
- 				 * the pending bit:
- 				 */
--				if (plist_empty(&lock->wait_list))
-+				if (plist_head_empty(&lock->wait_list))
- 					lock->owner = lock_owner(lock);
- 				/*
- 				 * Just remove ourselves from the PI list.
-@@ -1988,7 +1988,7 @@ static int __down_trylock(struct rt_mute
- 
- 	if (likely(!old_owner) || __grab_lock(lock, task, old_owner->task)) {
- 		/* granted */
--		TRACE_WARN_ON_LOCKED(!plist_empty(&lock->wait_list) && !old_owner);
-+		TRACE_WARN_ON_LOCKED(!plist_head_empty(&lock->wait_list) && !old_owner);
- 		if (old_owner) {
- 			_raw_spin_lock(&old_owner->task->pi_lock);
- 			set_new_owner(lock, old_owner, ti __EIP__);
-@@ -2065,7 +2065,7 @@ static void __up_mutex_waiter_nosavestat
- 	 */
- 	_raw_spin_lock(&old_owner->pi_lock);
- 	prio = old_owner->normal_prio;
--	if (unlikely(!plist_empty(&old_owner->pi_waiters))) {
-+	if (unlikely(!plist_head_empty(&old_owner->pi_waiters))) {
- 		w = plist_first_entry(&old_owner->pi_waiters, struct rt_mutex_waiter, pi_list);
- 		if (w->ti->task->prio < prio)
- 			prio = w->ti->task->prio;
-@@ -2105,7 +2105,7 @@ static void __up_mutex_waiter_savestate(
- 	 */
- 	_raw_spin_lock(&old_owner->pi_lock);
- 	prio = old_owner->normal_prio;
--	if (unlikely(!plist_empty(&old_owner->pi_waiters))) {
-+	if (unlikely(!plist_head_empty(&old_owner->pi_waiters))) {
- 		w = plist_first_entry(&old_owner->pi_waiters, struct rt_mutex_waiter, pi_list);
- 		if (w->ti->task->prio < prio)
- 			prio = w->ti->task->prio;
-@@ -2925,13 +2925,13 @@ EXPORT_SYMBOL_GPL(rt_mutex_owner);
- 
- int fastcall rt_mutex_has_waiters(struct rt_mutex *lock)
- {
--	return !plist_empty(&lock->wait_list);
-+	return !plist_head_empty(&lock->wait_list);
- }
- EXPORT_SYMBOL_GPL(rt_mutex_has_waiters);
- 
- int fastcall rt_mutex_free(struct rt_mutex *lock)
- {
--	return plist_empty(&lock->wait_list) && !lock->owner;
-+	return plist_head_empty(&lock->wait_list) && !lock->owner;
- }
- 
- int fastcall rt_mutex_owned_by(struct rt_mutex *lock, struct thread_info *t)
-@@ -2958,7 +2958,7 @@ down_try_futex(struct rt_mutex *lock, st
- 
- 	if (likely(!old_owner) || __grab_lock(lock, task, old_owner->task)) {
- 		/* granted */
--		TRACE_WARN_ON_LOCKED(!plist_empty(&lock->wait_list) && !old_owner);
-+		TRACE_WARN_ON_LOCKED(!plist_head_empty(&lock->wait_list) && !old_owner);
- 		if (old_owner) {
- 			_raw_spin_lock(&old_owner->task->pi_lock);
- 			set_new_owner(lock, old_owner, proxy_owner __EIP__);
-Index: linux-2.6.15/include/linux/rt_lock.h
-===================================================================
---- linux-2.6.15.orig/include/linux/rt_lock.h
-+++ linux-2.6.15/include/linux/rt_lock.h
-@@ -24,7 +24,7 @@
-  */
- struct rt_mutex {
- 	raw_spinlock_t		wait_lock;
--	struct pl_head		wait_list;
-+	struct plist_head	wait_list;
- 	struct thread_info	*owner;
- # ifdef CONFIG_DEBUG_RT_LOCKING_MODE
- 	raw_spinlock_t		debug_slock;
-@@ -49,8 +49,8 @@ struct rt_mutex {
-  */
- struct rt_mutex_waiter {
- 	struct rt_mutex		*lock;
--	struct pl_node		list;
--	struct pl_node		pi_list;
-+	struct plist_node	list;
-+	struct plist_node	pi_list;
- 	struct thread_info	*ti;
- #ifdef CONFIG_DEBUG_DEADLOCKS
- 	unsigned long eip;
-@@ -87,7 +87,7 @@ struct rt_mutex_waiter {
- # define __PLIST_INIT(lockname)
- #else
- # define __PLIST_INIT(lockname) \
--	, .wait_list = PL_HEAD_INIT((lockname).wait_list)
-+	, .wait_list = PLIST_HEAD_INIT((lockname).wait_list)
- #endif
- 
- #define __RT_MUTEX_INITIALIZER(lockname) \
 
 

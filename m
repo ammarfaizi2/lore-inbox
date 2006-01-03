@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWACXdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWACXdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbWACXdN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbWACXdM
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S965099AbWACXdM (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 3 Jan 2006 18:33:12 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37016 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965099AbWACX3q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:29:46 -0500
-To: torvalds@osdl.org
-Subject: [PATCH 40/41] m68k: fix PIO case in esp
-Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1Etvb7-0003Q2-Qg@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 23:29:45 +0000
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWACXdJ
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 3 Jan 2006 18:33:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58036 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965108AbWACX3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:29:49 -0500
+Date: Tue, 3 Jan 2006 15:29:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] Fix the zone reclaim code in 2.6.15
+Message-Id: <20060103152923.2f5bbfe9.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0601031457300.22676@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0601031457300.22676@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1135537383 -0500
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> Some bits for zone reclaim exists in 2.6.15 but they are not usable.
+>  This patch fixes them up, removes unused code and makes zone reclaim usable.
+>
 
-we always set ->SCp.ptr to physical address of buffer; for DMA that's
-just what we need, but we end up using it as virtual address in PIO
-case of esp_do_data(), with obvious breakage as soon as memory mapping
-becomes non-trivial.  The fix is obvious.
+You know that there are over 100 mm/ patches in -mm.  If Linus applies this
+patch, it will cause extensive wreckage.  And this patch doesn't vaguely
+apply to the mm/ patches which I have queued.  So it's basically useless.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Please try to play along.
 
----
-
- drivers/scsi/NCR53C9x.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-7f89e0aea371b83e79fb3752b7dd6deeb21f01d9
-diff --git a/drivers/scsi/NCR53C9x.c b/drivers/scsi/NCR53C9x.c
-index 640590b..c7dd015 100644
---- a/drivers/scsi/NCR53C9x.c
-+++ b/drivers/scsi/NCR53C9x.c
-@@ -1799,6 +1799,7 @@ static int esp_do_data(struct NCR_ESP *e
- 		 */
- 		int oldphase, i = 0; /* or where we left off last time ?? esp->current_data ?? */
- 		int fifocnt = 0;
-+		unsigned char *p = phys_to_virt((unsigned long)SCptr->SCp.ptr);
- 
- 		oldphase = esp_read(eregs->esp_status) & ESP_STAT_PMASK;
- 
-@@ -1860,7 +1861,7 @@ static int esp_do_data(struct NCR_ESP *e
- 
- 				/* read fifo */
- 				for(j=0;j<fifocnt;j++)
--					SCptr->SCp.ptr[i++] = esp_read(eregs->esp_fdata);
-+					p[i++] = esp_read(eregs->esp_fdata);
- 
- 				ESPDATA(("(%d) ", i));
- 
-@@ -1882,7 +1883,7 @@ static int esp_do_data(struct NCR_ESP *e
- 
- 				/* fill fifo */
- 				for(j=0;j<this_count;j++)
--					esp_write(eregs->esp_fdata, SCptr->SCp.ptr[i++]);
-+					esp_write(eregs->esp_fdata, p[i++]);
- 
- 				/* how many left if this goes out ?? */
- 				hmuch -= this_count;
--- 
-0.99.9.GIT
-
+yes, it's awkward that there's such a large backlog in that area.  We just
+need to be patient and extra careful.

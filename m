@@ -1,74 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWACVIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWACVHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWACVIX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWACVH6
+	id S932540AbWACVHo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:07:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWACVHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:07:58 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31887 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932547AbWACVHl
+	Tue, 3 Jan 2006 16:07:43 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:49295 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932540AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:41 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 18/50] sparc: task_stack_page()
+Subject: [PATCH 46/50] mips: namespace pollution: dump_regs() -> elf_dump_regs()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008Pt-JB@ZenIV.linux.org.uk>
+Message-Id: <E1EttNb-0008Sc-DN@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 21:07:38 +0000
+Date: Tue, 03 Jan 2006 21:07:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 References: <20060103210515.5135@ftp.linux.org.uk>
 In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
 
+dump_regs() is used by a bunch of drivers for their internal stuff;
+renamed mips instance (one that is seen in system-wide headers)
+to elf_dump_regs()
+
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/sparc/kernel/process.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ arch/mips/kernel/process.c |    4 ++--
+ include/asm-mips/elf.h     |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-0015df0826bdd6f2aad29b05149ea3f9475d204a
-diff --git a/arch/sparc/kernel/process.c b/arch/sparc/kernel/process.c
-index 7eebb08..fbb05a4 100644
---- a/arch/sparc/kernel/process.c
-+++ b/arch/sparc/kernel/process.c
-@@ -302,7 +302,7 @@ void show_stack(struct task_struct *tsk,
- 	int count = 0;
- 
- 	if (tsk != NULL)
--		task_base = (unsigned long) tsk->thread_info;
-+		task_base = (unsigned long) task_stack_page(tsk);
- 	else
- 		task_base = (unsigned long) current_thread_info();
- 
-@@ -392,7 +392,7 @@ void flush_thread(void)
- 		/* We must fixup kregs as well. */
- 		/* XXX This was not fixed for ti for a while, worked. Unused? */
- 		current->thread.kregs = (struct pt_regs *)
--		    ((char *)current->thread_info + (THREAD_SIZE - TRACEREG_SZ));
-+		    (task_stack_page(current) + (THREAD_SIZE - TRACEREG_SZ));
- 	}
+36918d02f947b9ed2c4f209ff6ee3d9d02e1ac22
+diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
+index dd72577..0476a4d 100644
+--- a/arch/mips/kernel/process.c
++++ b/arch/mips/kernel/process.c
+@@ -205,7 +205,7 @@ int dump_fpu(struct pt_regs *regs, elf_f
+ 	return 1;
  }
  
-@@ -459,7 +459,7 @@ int copy_thread(int nr, unsigned long cl
- 		unsigned long unused,
- 		struct task_struct *p, struct pt_regs *regs)
+-void dump_regs(elf_greg_t *gp, struct pt_regs *regs)
++void elf_dump_regs(elf_greg_t *gp, struct pt_regs *regs)
  {
--	struct thread_info *ti = p->thread_info;
-+	struct thread_info *ti = task_thread_info(p);
- 	struct pt_regs *childregs;
- 	char *new_stack;
+ 	int i;
  
-@@ -482,7 +482,7 @@ int copy_thread(int nr, unsigned long cl
- 	 *  V                      V (stk.fr.) V  (pt_regs)  { (stk.fr.) }
- 	 *  +----- - - - - - ------+===========+============={+==========}+
- 	 */
--	new_stack = (char*)ti + THREAD_SIZE;
-+	new_stack = task_stack_page(p) + THREAD_SIZE;
- 	if (regs->psr & PSR_PS)
- 		new_stack -= STACKFRAME_SZ;
- 	new_stack -= STACKFRAME_SZ + TRACEREG_SZ;
+@@ -231,7 +231,7 @@ int dump_task_regs (struct task_struct *
+ {
+ 	struct thread_info *ti = tsk->thread_info;
+ 	long ksp = (unsigned long)ti + THREAD_SIZE - 32;
+-	dump_regs(&(*regs)[0], (struct pt_regs *) ksp - 1);
++	elf_dump_regs(&(*regs)[0], (struct pt_regs *) ksp - 1);
+ 	return 1;
+ }
+ 
+diff --git a/include/asm-mips/elf.h b/include/asm-mips/elf.h
+index d2c9a25..851f013 100644
+--- a/include/asm-mips/elf.h
++++ b/include/asm-mips/elf.h
+@@ -277,12 +277,12 @@ do {									\
+ 
+ struct task_struct;
+ 
+-extern void dump_regs(elf_greg_t *, struct pt_regs *regs);
++extern void elf_dump_regs(elf_greg_t *, struct pt_regs *regs);
+ extern int dump_task_regs (struct task_struct *, elf_gregset_t *);
+ extern int dump_task_fpu(struct task_struct *, elf_fpregset_t *);
+ 
+ #define ELF_CORE_COPY_REGS(elf_regs, regs)			\
+-	dump_regs((elf_greg_t *)&(elf_regs), regs);
++	elf_dump_regs((elf_greg_t *)&(elf_regs), regs);
+ #define ELF_CORE_COPY_TASK_REGS(tsk, elf_regs) dump_task_regs(tsk, elf_regs)
+ #define ELF_CORE_COPY_FPREGS(tsk, elf_fpregs)			\
+ 	dump_task_fpu(tsk, elf_fpregs)
 -- 
 0.99.9.GIT
 

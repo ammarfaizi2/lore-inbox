@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWACTf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWACThU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbWACTf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWACTf4
+	id S932410AbWACThU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWACThT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:35:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22409 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932498AbWACTf4 (ORCPT
+	Tue, 3 Jan 2006 14:37:19 -0500
+Received: from gate.perex.cz ([85.132.177.35]:48283 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932501AbWACThS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:35:56 -0500
-Date: Tue, 3 Jan 2006 11:35:33 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: dtor_core@ameritech.net
-Cc: dmitry.torokhov@gmail.com, greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb: replace __setup("nousb") with __module_param_call
-Message-Id: <20060103113533.6ac3e351.zaitcev@redhat.com>
-In-Reply-To: <d120d5000601030646u4dfe2951ka26586050cac5f0b@mail.gmail.com>
-References: <20051220141504.31441a41.zaitcev@redhat.com>
-	<200512220110.52466.dtor_core@ameritech.net>
-	<20051222002423.1791d38b.zaitcev@redhat.com>
-	<200601030147.46504.dtor_core@ameritech.net>
-	<20060102230714.3aa4f85b.zaitcev@redhat.com>
-	<d120d5000601030646u4dfe2951ka26586050cac5f0b@mail.gmail.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 14:37:18 -0500
+Date: Tue, 3 Jan 2006 20:37:16 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <1136316640.4106.26.camel@unreal>
+Message-ID: <Pine.LNX.4.61.0601032036250.9362@tm8103.perex-int.cz>
+References: <20050726150837.GT3160@stusta.de>  <200601031522.06898.s0348365@sms.ed.ac.uk>
+ <20060103160502.GB5262@irc.pl>  <200601031629.21765.s0348365@sms.ed.ac.uk>
+  <20060103170316.GA12249@dspnet.fr.eu.org>  <1136312901.24703.59.camel@mindpipe>
+ <1136316640.4106.26.camel@unreal>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jan 2006 09:46:26 -0500, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Tue, 3 Jan 2006, Thomas Sailer wrote:
 
-> > But even if it does, my patch saved reading, so I think it should be
-> > applied as well.
+> On Tue, 2006-01-03 at 13:28 -0500, Lee Revell wrote:
 > 
-> What you mean by "saved reading"?
+> > Please provide a reproducible test case where an app *that we have the
+> > source code for* works with native OSS or the in kernel /dev/dsp OSS
+> > emulation and fails with the aoss/alsa-lib/userspace OSS emulation and
+> > it will be fixed ASAP.
+> 
+> I didn't know AOSS, but http://www.baycom.org/~tom/ham/soundmodem/ fails
+> with ALSA's kernel OSS emulation.
 
-The diffstat was almost all dashes: 13 deletions, 1 addition.
+Anyone reported that? Also what's the exact bug symptom?
 
-> Btw, do we really need to export "nousb" in sysfs?
+						Jaroslav
 
-Nobody would die if we didn't, but there's nothing wrong with the idea
-in general. At least you'd know that the parameter was actually parsed.
-I wish usb-handoff was exported similarly, because there's absolutely
-no way to tell if it worked or was quietly ignored. And I abhor printks
-in normal or success cases, so I do not want such indication.
-
--- Pete
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWACUee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbWACUfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbWACUee (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWACUed
+	id S932520AbWACUfW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbWACUfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:34:33 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:144 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932328AbWACUed
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:34:33 -0500
-Date: Tue, 3 Jan 2006 15:34:27 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: dtor_core@ameritech.net, <dmitry.torokhov@gmail.com>, <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: usb: replace __setup("nousb") with
- __module_param_call
-In-Reply-To: <20060103113533.6ac3e351.zaitcev@redhat.com>
-Message-ID: <Pine.LNX.4.44L0.0601031530490.18243-100000@iolanthe.rowland.org>
+	Tue, 3 Jan 2006 15:35:22 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:63408 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S932476AbWACUfT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 15:35:19 -0500
+Message-ID: <43BADFB3.5050908@colorfullife.com>
+Date: Tue, 03 Jan 2006 21:33:55 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ayaz Abdulla <aabdulla@nvidia.com>
+CC: "David S. Miller" <davem@davemloft.net>, manfred@dbl.q-ag.de,
+       jgarzik@pobox.com, afu@fugmann.net, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] forcedeth: TSO fix for large buffers
+References: <200512251451.jBPEpgNe018712@dbl.q-ag.de> <20051225.125742.65007619.davem@davemloft.net> <3E346722.7070304@nvidia.com>
+In-Reply-To: <3E346722.7070304@nvidia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jan 2006, Pete Zaitcev wrote:
+Ayaz Abdulla wrote:
 
-> On Tue, 3 Jan 2006 09:46:26 -0500, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > > But even if it does, my patch saved reading, so I think it should be
-> > > applied as well.
-> > 
-> > What you mean by "saved reading"?
-> 
-> The diffstat was almost all dashes: 13 deletions, 1 addition.
-> 
-> > Btw, do we really need to export "nousb" in sysfs?
-> 
-> Nobody would die if we didn't, but there's nothing wrong with the idea
-> in general. At least you'd know that the parameter was actually parsed.
-> I wish usb-handoff was exported similarly, because there's absolutely
-> no way to tell if it worked or was quietly ignored. And I abhor printks
-> in normal or success cases, so I do not want such indication.
+> If you look at the code, I do not set the NV_TX2_VALID bit (stored in 
+> np->tx_flags) in the first tx descriptor
 
-usb-handoff no longer exists.  The kernel now takes USB host controllers
-away from the BIOS as soon as they are discovered.
+You are right: tx_flags starts as 0 and is only set to np->tx_flags 
+after the first tx descriptor was set up.
+I overlooked that point, sorry.
 
-Alan Stern
+Jeff: Could you add the patch to your tree?
 
+--
+    Manfred

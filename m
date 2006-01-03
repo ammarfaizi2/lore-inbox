@@ -1,118 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWACN3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWACN3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWACN3z (ORCPT <rfc822;willy@w.ods.org>);
+	id S932376AbWACN3z (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 3 Jan 2006 08:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWACN2P
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWACN2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:28:15 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:44293 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932359AbWACNZi convert rfc822-to-8bit
+	Tue, 3 Jan 2006 08:28:18 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:43269 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932357AbWACNZi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 08:25:38 -0500
-Subject: [PATCH 16/26] kbuild: set correct KBUILD_MODNAME when using well known kernel symbols as module names
+Subject: [PATCH 11/26] kbuild: patch to Documentation/kbuild/modules.txt
 In-Reply-To: <20060103132035.GA17485@mars.ravnborg.org>
 X-Mailer: gregkh_patchbomb-sam
-Date: Tue, 3 Jan 2006 14:25:26 +0100
-Message-Id: <11362947263806@foobar.com>
+Date: Tue, 3 Jan 2006 14:25:25 +0100
+Message-Id: <11362947251455@foobar.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8BIT
 From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ustyugov Roman <dr_unique@ymg.ru>
-Date: 1127450531 +0400
+From: Brian Strand <bstrand@switchmanagement.com>
+Date: 1132622588 +0000
 
-This patch fixes a problem when we use well known kernel symbols as module
-names.
-
-For example, if module source name is current.c, idle_stack.c or etc.,
-we have a bad KBUILD_MODNAME value.
-For example, KBUILD_MODNAME will be "get_current()" instead of "current", or
-"(init_thread_union.stack)" instead of "idle_task".
-
-The trick is to define a stringify macro on the commandline - named
-KBUILD_STR for namespace reasons - and then to stringify the module
-name.
-
-There are a few uses of KBUILD_MODNAME throughout the tree but the usage
-is for debug and will not be harmed by this change so left untouched for now.
-
-While at it KBUILD_BASENAME was changed too. Any spinlock usage in the
-unix module would have created wrong section names without it.
-Usage in spinlock.h fixed so it no longer stringify KBUILD_BASENAME.
-
-Original patch from Ustyogov Roman - all bugs introduced by me.
+First off, thanks for the kbuild docs, they are very useful!  Second,
+I've attached a patch to modules.txt (from 2.6.14.2) with a "compile"
+fix to a Makefile example, and some trivial spelling/grammar nits.
+Please let me know if you want the patch in some other format (eg not
+MIME), or if I should go bother someone else about it.
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- include/linux/spinlock.h |    3 +--
- scripts/Makefile.lib     |    8 +++++---
- scripts/mod/modpost.c    |    3 +--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ Documentation/kbuild/modules.txt |   24 ++++++++++++------------
+ 1 files changed, 12 insertions(+), 12 deletions(-)
 
-f83b5e323f57d6e1f35a839d663e91cebe985e54
-diff --git a/include/linux/spinlock.h b/include/linux/spinlock.h
-index 0e9682c..799be67 100644
---- a/include/linux/spinlock.h
-+++ b/include/linux/spinlock.h
-@@ -59,8 +59,7 @@
- /*
-  * Must define these before including other files, inline functions need them
-  */
--#define LOCK_SECTION_NAME                       \
--        ".text.lock." __stringify(KBUILD_BASENAME)
-+#define LOCK_SECTION_NAME ".text.lock."KBUILD_BASENAME
+98a1e444111c9fd3f7a2b55225f7febf4209c020
+diff --git a/Documentation/kbuild/modules.txt b/Documentation/kbuild/modules.txt
+index c91caf7..1c0db65 100644
+--- a/Documentation/kbuild/modules.txt
++++ b/Documentation/kbuild/modules.txt
+@@ -38,7 +38,7 @@ included in the kernel tree.
+ What is covered within this file is mainly information to authors
+ of modules. The author of an external modules should supply
+ a makefile that hides most of the complexity so one only has to type
+-'make' to buld the module. A complete example will be present in
++'make' to build the module. A complete example will be present in
+ chapter ¤. Creating a kbuild file for an external module".
  
- #define LOCK_SECTION_START(extra)               \
-         ".subsection 1\n\t"                     \
-diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index 0f81dcf..550798f 100644
---- a/scripts/Makefile.lib
-+++ b/scripts/Makefile.lib
-@@ -81,8 +81,10 @@ obj-dirs	:= $(addprefix $(obj)/,$(obj-di
- # Note: It's possible that one object gets potentially linked into more
- #       than one module. In that case KBUILD_MODNAME will be set to foo_bar,
- #       where foo and bar are the name of the modules.
--basename_flags = -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F)))
--modname_flags  = $(if $(filter 1,$(words $(modname))),-DKBUILD_MODNAME=$(subst $(comma),_,$(subst -,_,$(modname))))
-+name-fix = $(subst $(comma),_,$(subst -,_,$1))
-+basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(*F)))"
-+modname_flags  = $(if $(filter 1,$(words $(modname))),\
-+                 -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
  
- _c_flags       = $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o)
- _a_flags       = $(AFLAGS) $(EXTRA_AFLAGS) $(AFLAGS_$(*F).o)
-@@ -113,7 +115,7 @@ endif
+@@ -69,7 +69,7 @@ when building an external module.
  
- c_flags        = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(CPPFLAGS) \
- 		 $(__c_flags) $(modkern_cflags) \
--		 $(basename_flags) $(modname_flags)
-+		 -D"KBUILD_STR(s)=\#s" $(basename_flags) $(modname_flags)
+ --- 2.2 Available targets
  
- a_flags        = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(CPPFLAGS) \
- 		 $(__a_flags) $(modkern_aflags)
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index 8ce5a63..f70ff13 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -539,10 +539,9 @@ add_header(struct buffer *b, struct modu
- 	buf_printf(b, "\n");
- 	buf_printf(b, "MODULE_INFO(vermagic, VERMAGIC_STRING);\n");
- 	buf_printf(b, "\n");
--	buf_printf(b, "#undef unix\n"); /* We have a module called "unix" */
- 	buf_printf(b, "struct module __this_module\n");
- 	buf_printf(b, "__attribute__((section(\".gnu.linkonce.this_module\"))) = {\n");
--	buf_printf(b, " .name = __stringify(KBUILD_MODNAME),\n");
-+	buf_printf(b, " .name = KBUILD_MODNAME,\n");
- 	if (mod->has_init)
- 		buf_printf(b, " .init = init_module,\n");
- 	if (mod->has_cleanup)
+-	$KDIR refers to path to kernel source top-level directory
++	$KDIR refers to the path to the kernel source top-level directory
+ 
+ 	make -C $KDIR M=`pwd`
+ 		Will build the module(s) located in current directory.
+@@ -87,11 +87,11 @@ when building an external module.
+ 	make -C $KDIR M=$PWD modules_install
+ 		Install the external module(s).
+ 		Installation default is in /lib/modules/<kernel-version>/extra,
+-		but may be prefixed with INSTALL_MOD_PATH - see separate chater.
++		but may be prefixed with INSTALL_MOD_PATH - see separate chapter.
+ 
+ 	make -C $KDIR M=$PWD clean
+ 		Remove all generated files for the module - the kernel
+-		source directory is not moddified.
++		source directory is not modified.
+ 
+ 	make -C $KDIR M=`pwd` help
+ 		help will list the available target when building external
+@@ -99,7 +99,7 @@ when building an external module.
+ 
+ --- 2.3 Available options:
+ 
+-	$KDIR refer to path to kernel src
++	$KDIR refers to the path to the kernel source top-level directory
+ 
+ 	make -C $KDIR
+ 		Used to specify where to find the kernel source.
+@@ -206,11 +206,11 @@ following files:
+ 
+ 		KERNELDIR := /lib/modules/`uname -r`/build
+ 		all::
+-			$(MAKE) -C $KERNELDIR M=`pwd` $@
++			$(MAKE) -C $(KERNELDIR) M=`pwd` $@
+ 
+ 		# Module specific targets
+ 		genbin:
+-			echo "X" > 8123_bini.o_shipped
++			echo "X" > 8123_bin.o_shipped
+ 
+ 		endif
+ 
+@@ -341,13 +341,13 @@ directory and therefore needs to deal wi
+ 		EXTRA_CFLAGS := -Iinclude
+ 		8123-y := 8123_if.o 8123_pci.o 8123_bin.o
+ 
+-	Note that in the assingment there is no space between -I and the path.
+-	This is a kbuild limitation and no space must be present.
++	Note that in the assignment there is no space between -I and the path.
++	This is a kbuild limitation:  there must be no space present.
+ 
+ 
+ === 6. Module installation
+ 
+-Modules which are included in the kernel is installed in the directory:
++Modules which are included in the kernel are installed in the directory:
+ 
+ 	/lib/modules/$(KERNELRELEASE)/kernel
+ 
+@@ -365,7 +365,7 @@ External modules are installed in the di
+ 		=> Install dir: /frodo/lib/modules/$(KERNELRELEASE)/kernel
+ 
+ 	INSTALL_MOD_PATH may be set as an ordinary shell variable or as in the
+-	example above be specified on the commandline when calling make.
++	example above be specified on the command line when calling make.
+ 	INSTALL_MOD_PATH has effect both when installing modules included in
+ 	the kernel as well as when installing external modules.
+ 
+@@ -384,7 +384,7 @@ External modules are installed in the di
+ 
+ === 7. Module versioning
+ 
+-Module versioning are enabled by the CONFIG_MODVERSIONS tag.
++Module versioning is enabled by the CONFIG_MODVERSIONS tag.
+ 
+ Module versioning is used as a simple ABI consistency check. The Module
+ versioning creates a CRC value of the full prototype for an exported symbol and
 -- 
 1.0.6
 

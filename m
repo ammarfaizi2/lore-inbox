@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWACNIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWACNMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWACNIE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWACNID
+	id S1751398AbWACNMU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 08:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWACNMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:08:03 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:9658 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750708AbWACNID convert rfc822-to-8bit
+	Tue, 3 Jan 2006 08:12:20 -0500
+Received: from stinky.trash.net ([213.144.137.162]:65442 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1751395AbWACNMT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 08:08:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LpynRKmOvjqEtDYQ7t+tsq6YfTItGiDIdriD8WbyQ6o9q4ifs+EboZgGxd4cu2MgjuvRF4r4/Qi5df6wONXfLEtLruV1I/3sQw3cdZIrLWyOlhCTOne2aAw6vFjvoKcZwvogx2sEepSncsZ67/8mvwhq/45tV0i3lsyh3SJmveU=
-Message-ID: <6bffcb0e0601030508u3a26750m@mail.gmail.com>
-Date: Tue, 3 Jan 2006 14:08:01 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [2.6 patch] the scheduled removal of obsolete OSS drivers
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0601031344480.32658@yvahk01.tjqt.qr>
+	Tue, 3 Jan 2006 08:12:19 -0500
+Message-ID: <43BA7810.6010308@trash.net>
+Date: Tue, 03 Jan 2006 14:11:44 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060103114900.GA3831@stusta.de>
-	 <6bffcb0e0601030401n97997a0n@mail.gmail.com>
-	 <Pine.LNX.4.61.0601031344480.32658@yvahk01.tjqt.qr>
+To: Graham Gower <graham.gower@gmail.com>
+CC: Roger While <simrw@sim-basis.de>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] [TRIVIAL] prism54/islpci_eth.c: dev_kfree_skb in irq
+ context
+References: <6.1.1.1.2.20060103105620.02c523e0@192.168.6.12> <6ec4247d0601030419w377fd396x@mail.gmail.com>
+In-Reply-To: <6ec4247d0601030419w377fd396x@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Graham Gower wrote:
+> My logs were starting to fill with messages exatcly like that mentioned here:
+> http://patchwork.netfilter.org/netfilter-devel/patch.pl?id=2840
+> 
+> In any event, the patch at the end of that link was never applied (it doesn't
+> fix the other call to dev_kfree_skb). After applying my patch, I've not had any
+> more messages in the logs.
 
-On 03/01/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> >[snip]
-> >>  124 files changed, 11 insertions(+), 90412 deletions(-)
-> >                                                        ^^^^^^^
-> >                                                        Cool :)
->
-> Since when is "-)" cool?
->
-
-...gmail web interface doesn't use fixed size fonts - it's not cool ;).
-
-Regards,
-Michal Piotrowski
+The patch has been applied to 2.6.15-rc. Only the first hunk of your
+patch is still required, but it doesn't apply anymore. Can you send
+a new patch against 2.6.15 please?

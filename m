@@ -1,31 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWACQt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWACQtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWACQt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 11:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWACQtZ
+	id S932422AbWACQtY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 11:49:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWACQtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 11:49:25 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:4520 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932446AbWACQtP (ORCPT
+	Tue, 3 Jan 2006 11:49:03 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1447 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932422AbWACQr6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 11:49:15 -0500
-Date: Tue, 3 Jan 2006 17:49:01 +0100
+	Tue, 3 Jan 2006 11:47:58 -0500
+Date: Tue, 3 Jan 2006 17:47:46 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Al Viro <viro@ftp.linux.org.uk>, David Howells <dhowells@redhat.com>,
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 08/19] mutex subsystem, core
-Message-ID: <20060103164901.GA26773@elte.hu>
-References: <20060103100807.GH23289@elte.hu> <43BABBB8.402E96A3@tv-sign.ru>
+Subject: [patch 17/19] mutex subsystem, semaphore to completion: CPU3WDT
+Message-ID: <20060103164746.GR25802@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43BABBB8.402E96A3@tv-sign.ru>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -2.0
 X-ELTE-SpamLevel: 
@@ -38,17 +36,62 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Steven Rostedt <rostedt@goodmis.org>
 
-* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+change CPU3WDT semaphores to completions.
 
-> > mutex implementation, core files: just the basic subsystem, no users of it.
-> 
-> (on top of this patch)
-> 
-> 'add_to_head' always declared and used along with 'struct waiter'. I 
-> think it is better to hide 'add_to_head' in that struct.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-please check -V13, there i got rid of add_to_head altogether, by 
-changing the queueing logic.
+----
 
-	Ingo
+ drivers/char/watchdog/cpu5wdt.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+Index: linux/drivers/char/watchdog/cpu5wdt.c
+===================================================================
+--- linux.orig/drivers/char/watchdog/cpu5wdt.c
++++ linux/drivers/char/watchdog/cpu5wdt.c
+@@ -28,6 +28,7 @@
+ #include <linux/init.h>
+ #include <linux/ioport.h>
+ #include <linux/timer.h>
++#include <linux/completion.h>
+ #include <linux/jiffies.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -57,7 +58,7 @@ static int ticks = 10000;
+ /* some device data */
+ 
+ static struct {
+-	struct semaphore stop;
++	struct completion stop;
+ 	volatile int running;
+ 	struct timer_list timer;
+ 	volatile int queue;
+@@ -85,7 +86,7 @@ static void cpu5wdt_trigger(unsigned lon
+ 	}
+ 	else {
+ 		/* ticks doesn't matter anyway */
+-		up(&cpu5wdt_device.stop);
++		complete(&cpu5wdt_device.stop);
+ 	}
+ 
+ }
+@@ -239,7 +240,7 @@ static int __devinit cpu5wdt_init(void)
+ 	if ( !val )
+ 		printk(KERN_INFO PFX "sorry, was my fault\n");
+ 
+-	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
++	init_completion(&cpu5wdt_device.stop);
+ 	cpu5wdt_device.queue = 0;
+ 
+ 	clear_bit(0, &cpu5wdt_device.inuse);
+@@ -269,7 +270,7 @@ static void __devexit cpu5wdt_exit(void)
+ {
+ 	if ( cpu5wdt_device.queue ) {
+ 		cpu5wdt_device.queue = 0;
+-		down(&cpu5wdt_device.stop);
++		wait_for_completion(&cpu5wdt_device.stop);
+ 	}
+ 
+ 	misc_deregister(&cpu5wdt_misc);

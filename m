@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWACNcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWACNeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWACNcV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWACNcP
+	id S932349AbWACNeN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 08:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWACNdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:32:15 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:38405 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932350AbWACNZg convert rfc822-to-8bit
+	Tue, 3 Jan 2006 08:33:44 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:25349 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932328AbWACNZe convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 08:25:36 -0500
-Subject: [PATCH 06/26] kconfig: Fix indention when using menuconfig in text-onle consoles
+	Tue, 3 Jan 2006 08:25:34 -0500
+Subject: [PATCH 05/26] kconfig: Left aling menu items in menuconfig
 In-Reply-To: <20060103132035.GA17485@mars.ravnborg.org>
 X-Mailer: gregkh_patchbomb-sam
 Date: Tue, 3 Jan 2006 14:25:25 +0100
-Message-Id: <11362947253568@foobar.com>
+Message-Id: <11362947252201@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,130 +24,103 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Sam Ravnborg <sam@mars.ravnborg.org>
-Date: 1132524229 +0100
+Date: 1132522881 +0100
 
-When using menuconfig in a text-only console (no X started)
-the indention was often two spaces wrong. This proved to be a ncurses
-issue which are worked around by calling wrefresh more often.
+Keeping menu lines on a fixed position creates less visual
+noise when navigating the menus.
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- scripts/lxdialog/menubox.c |   37 ++++++++++++++++++-------------------
- 1 files changed, 18 insertions(+), 19 deletions(-)
+ scripts/lxdialog/menubox.c |   30 +++++++++++-------------------
+ 1 files changed, 11 insertions(+), 19 deletions(-)
 
-7c3badf96e0dc8aa89ebf8919653339a5ee8e035
+0e175d05a4e72f85918da3ea4bd9f5d3d78face4
 diff --git a/scripts/lxdialog/menubox.c b/scripts/lxdialog/menubox.c
-index 89fcf41..461ee08 100644
+index ebfe6a3..89fcf41 100644
 --- a/scripts/lxdialog/menubox.c
 +++ b/scripts/lxdialog/menubox.c
-@@ -94,9 +94,9 @@ static void print_item(WINDOW * win, con
+@@ -58,7 +58,8 @@
+ 
+ #include "dialog.h"
+ 
+-static int menu_width, item_x;
++#define ITEM_IDENT 4   /* Indent of menu entries. Fixed for all menus */
++static int menu_width;
+ 
+ /*
+  * Print menu item
+@@ -86,13 +87,13 @@ static void print_item(WINDOW * win, con
+ 	wclrtoeol(win);
+ #endif
+ 	wattrset(win, selected ? item_selected_attr : item_attr);
+-	mvwaddstr(win, choice, item_x, menu_item);
++	mvwaddstr(win, choice, ITEM_IDENT, menu_item);
+ 	if (hotkey) {
+ 		wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
+-		mvwaddch(win, choice, item_x + j, menu_item[j]);
++		mvwaddch(win, choice, ITEM_IDENT + j, menu_item[j]);
  	}
  	if (selected) {
- 		wmove(win, choice, ITEM_IDENT + 1);
--		wrefresh(win);
+-		wmove(win, choice, item_x + 1);
++		wmove(win, choice, ITEM_IDENT + 1);
+ 		wrefresh(win);
  	}
  	free(menu_item);
-+	wrefresh(win);
- }
+@@ -207,19 +208,10 @@ int dialog_menu(const char *title, const
+ 	draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
+ 		 menubox_border_attr, menubox_attr);
  
- /*
-@@ -125,6 +125,7 @@ static void print_arrows(WINDOW * win, i
- 
- 	y = y + height + 1;
- 	wmove(win, y, x);
-+	wrefresh(win);
- 
- 	if ((height < item_no) && (scroll + height < item_no)) {
- 		wattrset(win, darrow_attr);
-@@ -139,6 +140,7 @@ static void print_arrows(WINDOW * win, i
- 	}
- 
- 	wmove(win, cur_y, cur_x);
-+	wrefresh(win);
- }
- 
- /*
-@@ -157,6 +159,17 @@ static void print_buttons(WINDOW * win, 
- 	wrefresh(win);
- }
- 
-+/* scroll up n lines (n may be negative) */
-+static void do_scroll(WINDOW *win, int *scroll, int n)
-+{
-+	/* Scroll menu up */
-+	scrollok(win, TRUE);
-+	wscrl(win, n);
-+	scrollok(win, FALSE);
-+	*scroll = *scroll + n;
-+	wrefresh(win);
-+}
-+
- /*
-  * Display a menu for choosing among a number of options
-  */
-@@ -286,11 +299,7 @@ int dialog_menu(const char *title, const
- 			if (key == KEY_UP || key == '-') {
- 				if (choice < 2 && scroll) {
- 					/* Scroll menu down */
--					scrollok(menu, TRUE);
--					wscrl(menu, -1);
--					scrollok(menu, FALSE);
+-	/*
+-	 * Find length of longest item in order to center menu.
+-	 * Set 'choice' to default item.
+-	 */
+-	item_x = 0;
+-	for (i = 0; i < item_no; i++) {
+-		item_x =
+-		    MAX(item_x, MIN(menu_width, strlen(items[i * 2 + 1]) + 2));
++	/* Set choice to default item */
++	for (i = 0; i < item_no; i++)
+ 		if (strcmp(current, items[i * 2]) == 0)
+ 			choice = i;
+-	}
 -
--					scroll--;
-+					do_scroll(menu, &scroll, -1);
+-	item_x = (menu_width - item_x) / 2;
  
- 					print_item(menu, items[scroll * 2 + 1], 0, FALSE,
- 						   (items[scroll * 2][0] != ':'));
-@@ -306,11 +315,7 @@ int dialog_menu(const char *title, const
- 				if ((choice > max_choice - 3) &&
- 				    (scroll + max_choice < item_no)) {
- 					/* Scroll menu up */
--					scrollok(menu, TRUE);
--					wscrl(menu, 1);
--					scrollok(menu, FALSE);
+ 	/* get the scroll info from the temp file */
+ 	if ((f = fopen("lxdialog.scrltmp", "r")) != NULL) {
+@@ -254,10 +246,10 @@ int dialog_menu(const char *title, const
+ 	wnoutrefresh(menu);
+ 
+ 	print_arrows(dialog, item_no, scroll,
+-		     box_y, box_x + item_x + 1, menu_height);
++		     box_y, box_x + ITEM_IDENT + 1, menu_height);
+ 
+ 	print_buttons(dialog, height, width, 0);
+-	wmove(menu, choice, item_x + 1);
++	wmove(menu, choice, ITEM_IDENT + 1);
+ 	wrefresh(menu);
+ 
+ 	while (key != ESC) {
+@@ -286,7 +278,7 @@ int dialog_menu(const char *title, const
+ 		    key == KEY_UP || key == KEY_DOWN ||
+ 		    key == '-' || key == '+' ||
+ 		    key == KEY_PPAGE || key == KEY_NPAGE) {
 -
--					scroll++;
-+					do_scroll(menu, &scroll, 1);
++			/* Remove highligt of current item */
+ 			print_item(menu, items[(scroll + choice) * 2 + 1],
+ 				   choice, FALSE,
+ 				   (items[(scroll + choice) * 2][0] != ':'));
+@@ -364,7 +356,7 @@ int dialog_menu(const char *title, const
+ 				   choice, TRUE, (items[(scroll + choice) * 2][0] != ':'));
  
- 					print_item(menu, items[(scroll + max_choice - 1) * 2 + 1],
- 						   max_choice - 1, FALSE,
-@@ -322,8 +327,7 @@ int dialog_menu(const char *title, const
- 				scrollok(menu, TRUE);
- 				for (i = 0; (i < max_choice); i++) {
- 					if (scroll > 0) {
--						wscrl(menu, -1);
--						scroll--;
-+						do_scroll(menu, &scroll, -1);
- 						print_item(menu, items[scroll * 2 + 1], 0, FALSE,
- 							   (items[scroll * 2][0] != ':'));
- 					} else {
-@@ -331,15 +335,11 @@ int dialog_menu(const char *title, const
- 							choice--;
- 					}
- 				}
--				scrollok(menu, FALSE);
+ 			print_arrows(dialog, item_no, scroll,
+-				     box_y, box_x + item_x + 1, menu_height);
++				     box_y, box_x + ITEM_IDENT + 1, menu_height);
  
- 			} else if (key == KEY_NPAGE) {
- 				for (i = 0; (i < max_choice); i++) {
- 					if (scroll + max_choice < item_no) {
--						scrollok(menu, TRUE);
--						wscrl(menu, 1);
--						scrollok(menu, FALSE);
--						scroll++;
-+						do_scroll(menu, &scroll, 1);
- 						print_item(menu, items[(scroll + max_choice - 1) * 2 + 1],
- 							   max_choice - 1, FALSE,
- 							   (items [(scroll + max_choice - 1) * 2][0] != ':'));
-@@ -348,7 +348,6 @@ int dialog_menu(const char *title, const
- 							choice++;
- 					}
- 				}
--
- 			} else
- 				choice = i;
- 
+ 			wnoutrefresh(dialog);
+ 			wrefresh(menu);
 -- 
 1.0.6
 

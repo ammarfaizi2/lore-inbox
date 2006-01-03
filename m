@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWACLRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWACLUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWACLRe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 06:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWACLRe
+	id S1751226AbWACLUv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 06:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWACLUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 06:17:34 -0500
-Received: from mx5.mailserveren.com ([213.236.237.251]:20136 "EHLO
-	mx5.mailserveren.com") by vger.kernel.org with ESMTP
-	id S1751367AbWACLRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 06:17:34 -0500
-Subject: Re: New squawk in logwatch report?
-From: Hans Kristian Rosbach <hk@isphuset.no>
-To: gene.heskett@verizononline.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200601022154.23484.gene.heskett@verizon.net>
-References: <200601022154.23484.gene.heskett@verizon.net>
-Content-Type: text/plain
-Organization: ISPHuset Nordic AS
-Date: Tue, 03 Jan 2006 12:17:29 +0100
-Message-Id: <1136287049.28634.70.camel@linux>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 06:20:51 -0500
+Received: from web32902.mail.mud.yahoo.com ([68.142.206.49]:9378 "HELO
+	web32902.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751226AbWACLUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 06:20:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=GjRJ5pE/QUtvIh/HdwYNw7pTwPN52AGu5SD4HDGR6T0uS6mpdL7KyseoyNZ3BwLvQE6WIM6prH3ysGjK1RNrNUgIV7a1J7epW3MzlCvNXAy9GLn83G9tg1rEFFYWz58Upvp0x0sI2X6H7Fr/n/QC+e/tKDfDexP6/nl8vRCGjxg=  ;
+Message-ID: <20060103112047.33558.qmail@web32902.mail.mud.yahoo.com>
+Date: Tue, 3 Jan 2006 03:20:47 -0800 (PST)
+From: Komal Shah <komal_shah802003@yahoo.com>
+Subject: Re: [spi-devel-general] [patch 2.6.14-rc6-git 2/6] SPI ads7846 protocol driver
+To: David Brownell <david-b@pacbell.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: spi-devel-general@lists.sourceforge.net
+In-Reply-To: <200512221538.33673.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-02 at 21:54 -0500, Gene Heskett wrote:
-> Greetings;
+--- David Brownell <david-b@pacbell.net> wrote:
+
+> For touchscreen plus sensors.  Lots of Linux-capable boards have
+> these chips
+> or one of their close siblings.
+> > This is a driver for the ADS7846 touchscreen sensor, derived from
+> the corgi_ts and omap_ts drivers.  Key differences from those two:
 > 
-> Running 2.6.15-rc7, uptime 6d 23:43 atm.
-> Going thru the systems email output, I note this in the logwatch file, 
-> something I don't recall seeing previously:
->  --------------------- Kernel Begin ------------------------ 
-> 
-> WARNING:  Kernel Errors Present
->    smb_lookup: find contrib/ircstats2 failed, error=-5...:  1 Time(s)
->    smb_proc_readdir_long: error=-2, breaking...:  2 Time(s)
->    smb_proc_readdir_long: error=-5, breaking...:  1 Time(s)
->    smb_proc_readdir_long: error=-512, breaking...:  1 Time(s)
-> 
->  ---------------------- Kernel End -------------------------
-> 
-> Does anyone have a clue?  Other than its samba related, I have no clue.
+>   - Uses the new SPI framework (minimalist version)
+>   - <linux/spi/ads7846.h> abstracts board-specific touchscreen info
+>   - Sysfs attributes for the temperature and voltage sensors
+>   - Uses fewer ARM-specific IRQ primitives
+
+How do you test this driver on OSK? Don't we need controller driver /
+bitbanging interface atleast?
+
+Also use input_allocate_device() instead of init_input_dev(). Thanx.
+
+I have started writing OMAP2 SPI master controller driver for and
+tsc2101 driver based on ads7846 driver for H4 board.
+
+---Komal Shah
+http://komalshah.blogspot.com/
 
 
-I have no idea really, but I think samba is having problems finding
-the ircstats2 file/dir. Seems like that comes in contrib with mrtg.
-
-Other than that some googling suggests it might also be due to an
-incorrect/unreachable wins server specified in smb.conf.
-
--HK
-
+	
+		
+__________________________________ 
+Yahoo! for Good - Make a difference this year. 
+http://brand.yahoo.com/cybergivingweek2005/

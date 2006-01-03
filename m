@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWACRyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWACRyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWACRyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 12:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWACRyZ
+	id S932356AbWACRyv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 12:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWACRyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 12:54:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:18359 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932351AbWACRyY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 12:54:24 -0500
-Date: Tue, 3 Jan 2006 09:27:32 -0800
-From: Greg KH <greg@kroah.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
-Message-ID: <20060103172732.GA9170@kroah.com>
-References: <patchbomb.1135816279@eng-12.pathscale.com> <20051230080002.GA7438@kroah.com> <1135984304.13318.50.camel@serpentine.pathscale.com> <20051231001051.GB20314@kroah.com> <1135993250.13318.94.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Jan 2006 12:54:51 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:23608 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932356AbWACRys convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 12:54:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hRkzpsy8TjG4KXkD6Q2DN6vNoqQpMw8CH1h/c5fSq+SmCxNazWgaNBORB+8066GwP1J2hXU8G8n6/pq0jhTBYkTaoScGNgRlMjzA/dlS+646E/mGYa49VkDItxKEPHWFCAHg0NE+KFAVlkex5vu0znadtRba/aRClNWdynlDoMs=
+Message-ID: <2ff216280601030954o3d2af726y6f564e7ae6d38a@mail.gmail.com>
+Date: Tue, 3 Jan 2006 23:24:47 +0530
+From: Abhijit Bhopatkar <bainonline@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Cc: Nicolas Pitre <nico@cam.org>, hch@infradead.org, alan@lxorguk.ukuu.org.uk,
+       arjan@infradead.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, arjanv@infradead.org, jes@trained-monkey.org,
+       zwane@arm.linux.org.uk, oleg@tv-sign.ru, dhowells@redhat.com,
+       bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de,
+       rmk+lkml@arm.linux.org.uk
+In-Reply-To: <20051223065118.95738acc.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1135993250.13318.94.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.5.11
+References: <20051222114147.GA18878@elte.hu>
+	 <20051222050701.41b308f9.akpm@osdl.org>
+	 <1135257829.2940.19.camel@laptopd505.fenrus.org>
+	 <20051222054413.c1789c43.akpm@osdl.org>
+	 <1135260709.10383.42.camel@localhost.localdomain>
+	 <20051222153014.22f07e60.akpm@osdl.org>
+	 <20051222233416.GA14182@infradead.org>
+	 <20051222221311.2f6056ec.akpm@osdl.org>
+	 <Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
+	 <20051223065118.95738acc.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 30, 2005 at 05:40:50PM -0800, Bryan O'Sullivan wrote:
-> On Fri, 2005-12-30 at 16:10 -0800, Greg KH wrote:
-> 
-> > But we (the kernel community), don't really accept that as a valid
-> > reason to accept this kind of code, sorry.
-> 
-> Fair enough.  I'd like some guidance in that case.  Some of our ioctls
-> access the hardware more or less directly, while others do things like
-> read or reset counters.
-> 
-> Which of these kinds of operations are appropriate to retain as ioctls,
-> in your eyes, and which are best converted to sysfs or configfs
-> alternatives?
+> > How can't you get the fact that semaphores could _never_ be as simple as
+> > mutexes?  This is a theoritical impossibility, which maybe turns out not
+> > to be so true on x86, but which is damn true on ARM where the fast path
+> > (the common case of a mutex) is significantly more efficient.
+> >
+>
+> I did notice your comments.  I'll grant that mutexes will save some tens  of
+> fastpath cycles on one minor architecture.  Sorry, but that doesn't seem
+> very important.
 
-Idealy, nothing should be new ioctls.  But in the end, it all depends on
-exactly what you are trying to do with each different one.
-
-> As an example, take a look at ipath_sma_ioctl.  It seems to me that
-> receiving or sending subnet management packets ought to remain as
-> ioctls, while getting port or node data could be turned into sysfs
-> attributes.  Lane identification could live in configfs.  If you think
-> otherwise, please let me know what's more appropriate.
-
-I really don't know what the subnet management stuff involves, sorry.
-But doesn't the open-ib layer handle that all for you already?
-
-thanks,
-
-greg k-h
+Heh !! i can't find words so i will just spell the emotion....
+COMPLAIN HARD

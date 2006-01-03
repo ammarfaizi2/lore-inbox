@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWACSsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWACSx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbWACSsr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 13:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWACSsr
+	id S932487AbWACSx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 13:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWACSx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 13:48:47 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:31676 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932476AbWACSsq (ORCPT
+	Tue, 3 Jan 2006 13:53:29 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:7570 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932478AbWACSx2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 13:48:46 -0500
-Subject: Re: [git patches] 2.6.x libata updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e0601031035x89bd6cbw1e1efb3f7a93bb41@mail.gmail.com>
-References: <20060103164319.GA402@havoc.gtf.org>
-	 <58cb370e0601030851w62fc917bibe0fd5069b2f3e44@mail.gmail.com>
-	 <1136309555.22598.10.camel@localhost.localdomain>
-	 <43BAB7D4.4050204@pobox.com>
-	 <58cb370e0601031035x89bd6cbw1e1efb3f7a93bb41@mail.gmail.com>
-Content-Type: text/plain
+	Tue, 3 Jan 2006 13:53:28 -0500
+Message-ID: <43BAC822.6090501@pobox.com>
+Date: Tue, 03 Jan 2006 13:53:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Happy New Year, libata hackers
+References: <43BAB977.3010203@pobox.com> <20060103183328.GW2772@suse.de>
+In-Reply-To: <20060103183328.GW2772@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Jan 2006 18:50:29 +0000
-Message-Id: <1136314229.22598.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Jens Axboe wrote: > On Tue, Jan 03 2006, Jeff Garzik
+	wrote: > >>Port multiplier and NCQ (queueing) support are the two other
+	big to-do >>items on the list. > > > I'll get NCQ updated and tested
+	again in the not-so-distant future. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-03 at 19:35 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > Not really.  If there's no support in mainline, I'm ok with pushing them
-> > upstream...  provided that they have been tested and verified to work on
-> > at least one machine?  :)
+Jens Axboe wrote:
+> On Tue, Jan 03 2006, Jeff Garzik wrote:
 > 
-> All chipsets are supported by piix.c driver but:
+>>Port multiplier and NCQ (queueing) support are the two other big to-do 
+>>items on the list.
+> 
+> 
+> I'll get NCQ updated and tested again in the not-so-distant future.
 
-No they are not. The drivers claim the PCI identifiers but that is not
-the same thing as working.
+FWIW I've kept it moderately up-to-date in the 'ncq' branch.  It's 
+definitely moldy, with a few FIXMEs in libata-scsi's read/write 
+translation, for example, which is missing the NCQ portion of that code.
 
-> * we depend on BIOS to program correct PIO timings and set drives
->   (mpiix chipset)
+	Jeff
 
-It doesn't work except for PIO0. I've tested it on a thinkpad.
 
-> * PIO tuning code is buggy and needs fixing (oldpiix chipsets)
-
-It crashes. I've tested it.
-
-> I don't think that this alone justify adding new drivers instead of fixing
-> old one as both issues can be fixed quite easily by almost cut'n'pasting
-> new tuning code from Alan's drivers and adding it to piix.c.
-
-Hardly. The existing PIIX drivers in drivers/ide/pci are *very* buggy.
-Some of the bugs are careless but alarming like scribbles to wrong PCI
-registers and easily fixed. Others like the mishandling of fifos are
-corruptors that thankfully aren't biting writable media. The handling of
-pre SITRE capable chipsets in the current driver is broken to the point
-it needs a rewrite that quite frankly I don't think can be done without
-fixing the locking in the core code.
-
-Please spend your effort improving the ide/pci drivers rather than
-trying to block their future replacement with better technology. I've
-posted detailed summaries of flaws in several chipsets but no fixes have
-appeared.
-
-Alan
 

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWACKL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWACKMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWACKL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 05:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWACKKh
+	id S1751357AbWACKMK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 05:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWACKJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 05:10:37 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:9443 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751366AbWACKKM (ORCPT
+	Tue, 3 Jan 2006 05:09:00 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:15329 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751357AbWACKIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 05:10:12 -0500
-Date: Tue, 3 Jan 2006 11:09:59 +0100
+	Tue, 3 Jan 2006 05:08:40 -0500
+Date: Tue, 3 Jan 2006 11:08:26 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,8 +19,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 18/19] mutex subsystem, semaphore to completion: IDE ->gendev_rel_sem
-Message-ID: <20060103100959.GR23289@elte.hu>
+Subject: [patch 11/19] mutex subsystem, more debugging code
+Message-ID: <20060103100826.GK23289@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -35,119 +35,157 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Aleksey Makarov <amakarov@ru.mvista.com>
 
-The patch changes semaphores that are initialized as 
-locked to complete().
+more mutex debugging: check for held locks during memory freeing,
+task exit, enable sysrq printouts, etc.
 
-Source: MontaVista Software, Inc.
-
-Modified-by: Steven Rostedt <rostedt@goodmis.org>
-
-The following patch is from Montavista.  I modified it slightly.
-Semaphores are currently being used where it makes more sense for
-completions.  This patch corrects that.
-
-Signed-off-by: Aleksey Makarov <amakarov@ru.mvista.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- drivers/ide/ide-probe.c |    4 ++--
- drivers/ide/ide.c       |    8 ++++----
- include/linux/ide.h     |    5 +++--
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ arch/i386/mm/pageattr.c |    4 ++++
+ drivers/char/sysrq.c    |   19 +++++++++++++++++++
+ include/linux/mm.h      |    4 ++++
+ kernel/exit.c           |    5 +++++
+ kernel/sched.c          |    1 +
+ mm/page_alloc.c         |    3 +++
+ mm/slab.c               |    1 +
+ 7 files changed, 37 insertions(+)
 
-Index: linux/drivers/ide/ide-probe.c
+Index: linux/arch/i386/mm/pageattr.c
 ===================================================================
---- linux.orig/drivers/ide/ide-probe.c
-+++ linux/drivers/ide/ide-probe.c
-@@ -655,7 +655,7 @@ static void hwif_release_dev (struct dev
+--- linux.orig/arch/i386/mm/pageattr.c
++++ linux/arch/i386/mm/pageattr.c
+@@ -207,6 +207,10 @@ void kernel_map_pages(struct page *page,
  {
- 	ide_hwif_t *hwif = container_of(dev, ide_hwif_t, gendev);
- 
--	up(&hwif->gendev_rel_sem);
-+	complete(&hwif->gendev_rel_comp);
- }
- 
- static void hwif_register (ide_hwif_t *hwif)
-@@ -1325,7 +1325,7 @@ static void drive_release_dev (struct de
- 	drive->queue = NULL;
- 	spin_unlock_irq(&ide_lock);
- 
--	up(&drive->gendev_rel_sem);
-+	complete(&drive->gendev_rel_comp);
- }
- 
- /*
-Index: linux/drivers/ide/ide.c
+ 	if (PageHighMem(page))
+ 		return;
++	if (!enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page+numpages));
++
+ 	/* the return value is ignored - the calls cannot fail,
+ 	 * large pages are disabled at boot time.
+ 	 */
+Index: linux/drivers/char/sysrq.c
 ===================================================================
---- linux.orig/drivers/ide/ide.c
-+++ linux/drivers/ide/ide.c
-@@ -222,7 +222,7 @@ static void init_hwif_data(ide_hwif_t *h
- 	hwif->mwdma_mask = 0x80;	/* disable all mwdma */
- 	hwif->swdma_mask = 0x80;	/* disable all swdma */
+--- linux.orig/drivers/char/sysrq.c
++++ linux/drivers/char/sysrq.c
+@@ -153,6 +153,21 @@ static struct sysrq_key_op sysrq_mountro
  
--	sema_init(&hwif->gendev_rel_sem, 0);
-+	init_completion(&hwif->gendev_rel_comp);
+ /* END SYNC SYSRQ HANDLERS BLOCK */
  
- 	default_hwif_iops(hwif);
- 	default_hwif_transport(hwif);
-@@ -245,7 +245,7 @@ static void init_hwif_data(ide_hwif_t *h
- 		drive->is_flash			= 0;
- 		drive->vdma			= 0;
- 		INIT_LIST_HEAD(&drive->list);
--		sema_init(&drive->gendev_rel_sem, 0);
-+		init_completion(&drive->gendev_rel_comp);
- 	}
++#ifdef CONFIG_DEBUG_MUTEXES
++
++static void
++sysrq_handle_showlocks(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
++{
++	mutex_debug_show_all_locks();
++}
++
++static struct sysrq_key_op sysrq_showlocks_op = {
++	.handler	= sysrq_handle_showlocks,
++	.help_msg	= "show-all-locks(D)",
++	.action_msg	= "Show Locks Held",
++};
++
++#endif
+ 
+ /* SHOW SYSRQ HANDLERS BLOCK */
+ 
+@@ -294,7 +309,11 @@ static struct sysrq_key_op *sysrq_key_ta
+ #else
+ /* c */	NULL,
+ #endif
++#ifdef CONFIG_DEBUG_MUTEXES
++/* d */ &sysrq_showlocks_op,
++#else
+ /* d */ NULL,
++#endif
+ /* e */	&sysrq_term_op,
+ /* f */	&sysrq_moom_op,
+ /* g */	NULL,
+Index: linux/include/linux/mm.h
+===================================================================
+--- linux.orig/include/linux/mm.h
++++ linux/include/linux/mm.h
+@@ -13,6 +13,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/prio_tree.h>
+ #include <linux/fs.h>
++#include <linux/mutex.h>
+ 
+ struct mempolicy;
+ struct anon_vma;
+@@ -978,6 +979,9 @@ static inline void vm_stat_account(struc
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable)
+ {
++	if (!PageHighMem(page) && !enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page + numpages));
+ }
+ #endif
+ 
+Index: linux/kernel/exit.c
+===================================================================
+--- linux.orig/kernel/exit.c
++++ linux/kernel/exit.c
+@@ -29,6 +29,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
++#include <linux/mutex.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -870,6 +871,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 	mpol_free(tsk->mempolicy);
+ 	tsk->mempolicy = NULL;
+ #endif
++	/*
++	 * If DEBUG_MUTEXES is on, make sure we are holding no locks:
++	 */
++	mutex_debug_check_no_locks_held(tsk);
+ 
+ 	/* PF_DEAD causes final put_task_struct after we schedule. */
+ 	preempt_disable();
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -4379,6 +4379,7 @@ void show_state(void)
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
++	mutex_debug_show_all_locks();
  }
  
-@@ -602,7 +602,7 @@ void ide_unregister(unsigned int index)
- 		}
- 		spin_unlock_irq(&ide_lock);
- 		device_unregister(&drive->gendev);
--		down(&drive->gendev_rel_sem);
-+		wait_for_completion(&drive->gendev_rel_comp);
- 		spin_lock_irq(&ide_lock);
- 	}
- 	hwif->present = 0;
-@@ -662,7 +662,7 @@ void ide_unregister(unsigned int index)
- 	/* More messed up locking ... */
- 	spin_unlock_irq(&ide_lock);
- 	device_unregister(&hwif->gendev);
--	down(&hwif->gendev_rel_sem);
-+	wait_for_completion(&hwif->gendev_rel_comp);
- 
- 	/*
- 	 * Remove us from the kernel's knowledge
-Index: linux/include/linux/ide.h
+ /**
+Index: linux/mm/page_alloc.c
 ===================================================================
---- linux.orig/include/linux/ide.h
-+++ linux/include/linux/ide.h
-@@ -18,6 +18,7 @@
- #include <linux/bio.h>
- #include <linux/device.h>
- #include <linux/pci.h>
-+#include <linux/completion.h>
- #include <asm/byteorder.h>
- #include <asm/system.h>
- #include <asm/io.h>
-@@ -638,7 +639,7 @@ typedef struct ide_drive_s {
- 	int		crc_count;	/* crc counter to reduce drive speed */
- 	struct list_head list;
- 	struct device	gendev;
--	struct semaphore gendev_rel_sem;	/* to deal with device release() */
-+	struct completion gendev_rel_comp;	/* to deal with device release() */
- } ide_drive_t;
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -400,6 +400,9 @@ void __free_pages_ok(struct page *page, 
+ 	int reserved = 0;
  
- #define to_ide_device(dev)container_of(dev, ide_drive_t, gendev)
-@@ -794,7 +795,7 @@ typedef struct hwif_s {
- 	unsigned	sg_mapped  : 1;	/* sg_table and sg_nents are ready */
+ 	arch_free_page(page, order);
++	if (!PageHighMem(page))
++		mutex_debug_check_no_locks_freed(page_address(page),
++			page_address(page+(1<<order)));
  
- 	struct device	gendev;
--	struct semaphore gendev_rel_sem; /* To deal with device release() */
-+	struct completion gendev_rel_comp; /* To deal with device release() */
- 
- 	void		*hwif_data;	/* extra hwif data */
- 
+ #ifndef CONFIG_MMU
+ 	if (order > 0)
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -3038,6 +3038,7 @@ void kfree(const void *objp)
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+ 	c = page_get_cache(virt_to_page(objp));
++	mutex_debug_check_no_locks_freed(objp, objp+obj_reallen(c));
+ 	__cache_free(c, (void*)objp);
+ 	local_irq_restore(flags);
+ }

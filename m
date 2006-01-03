@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWACTtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWACTyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWACTtk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:49:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWACTtk
+	id S932485AbWACTyA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWACTyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:49:40 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54722 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932508AbWACTtk (ORCPT
+	Tue, 3 Jan 2006 14:54:00 -0500
+Received: from styx.suse.cz ([82.119.242.94]:26339 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932485AbWACTx7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:49:40 -0500
-Date: Tue, 3 Jan 2006 20:49:33 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matan Peled <chaosite@gmail.com>
-cc: linux-kernel@vger.kernel.org, kwall@kurtwerks.com
-Subject: Re: Arjan's noinline Patch
-In-Reply-To: <43B98CAC.6060801@gmail.com>
-Message-ID: <Pine.LNX.4.61.0601032036090.11129@yvahk01.tjqt.qr>
-References: <20060101155710.GA5213@kurtwerks.com> <20060102034350.GD5213@kurtwerks.com>
- <43B8FA70.2090408@gmail.com> <Pine.LNX.4.61.0601021949240.29938@yvahk01.tjqt.qr>
- <43B98CAC.6060801@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Jan 2006 14:53:59 -0500
+Date: Tue, 3 Jan 2006 20:53:44 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/1] usb/input: Add missing keys to hid-debug.h
+Message-ID: <20060103195344.GC6443@corona.home.nbox.cz>
+References: <20060102233730.GA29826@hansmi.ch> <200601030142.32623.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601030142.32623.dtor_core@ameritech.net>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> size:
->>    text    data     bss      dec     hex filename
->> 17188479 5984442 1738248 24911169 17c1d41 rc7-noinl-Os/vmlinux
->> 17313751 5980978 1738248 25032977 17df911 rc7-Os/vmlinux
->> 20174873 5991726 1738248 27904847 1a9cb4f rc7-noinl/vmlinux
->> 20222221 5992278 1738248 27952747 1aa866b rc7-NFI/vmlinux
->> 20321527 5988706 1738248 28048481 1abfc61 rc7-std/vmlinux
->
-> Just out of pure curiosity... Where would NFI-Os stand?
->
-> one would expect it to be around 17225???...
+On Tue, Jan 03, 2006 at 01:42:31AM -0500, Dmitry Torokhov wrote:
+> On Monday 02 January 2006 18:37, Michael Hanselmann wrote:
+> > This patch adds the missing keys from input.h to hid-debug.h.
+> > 
+> > Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
+> 
+> Thank you Michael, I will add it to my tree. I still ponder your other
+> patch and whether we should employ something like hooks for HID.
+ 
+We should split HID in two parts - transport and decoding. This would
+help in many places:
 
-  LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o: In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/i386/kernel/built-in.o: In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/i386/kernel/built-in.o: In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/i386/kernel/built-in.o: In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/i386/kernel/built-in.o: In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/i386/kernel/built-in.o:: more undefined references to 
-`__this_fixmap_does_not_exist' follow
-make: *** [.tmp_vmlinux1] Error 1
+	Bluetooth would be happy, because it uses the same HID protocol
+	on top of a different transport layer (completely non-USB).
 
-I hacked it up a little to get a result so...
-   text    data     bss     dec     hex filename
-17286376        4281178 1738248 23305802        1639e4a .tmp_vmlinux1
+	Wacom and many other blacklisted devices would be happy, because
+	they could use the USB HID transport - no blacklist would be
+	needed.
 
+	Would allow for /dev/usb/rawhid0 style devices, which would give
+	access to raw HID reports without any parsing done.
 
+	Would allow userspace drivers for broken UPS devices (like APC)
+	without the need for special handling of their bugs in the kernel.
 
-Jan Engelhardt
+It seems to me it could be almost its own layer, like serio or gameport.
+Windows has an API like that.
+
+I don't have the time to do the split myself, but it shouldn't be too
+hard.
+
+It would not be the perfect solution for Apple keyboards, because the
+patch is simplifies by doing the processing after parsing the reports,
+but still, since it would allow for device-specific parsers, it'd be a
+reasonable solution for devices that need more special handling than
+just a simple quirk.
+
 -- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

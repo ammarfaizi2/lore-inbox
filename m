@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWACV16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWACV2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWACV16 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWACV15
+	id S1751415AbWACV2p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWACV2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:27:57 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:38543 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932535AbWACVHl
+	Tue, 3 Jan 2006 16:28:21 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:39311 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932534AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:41 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 29/50] parisc: task_stack_page(), task_thread_info()
+Subject: [PATCH 33/50] arm: end_of_stack()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008Qv-Sf@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008RI-Tf@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,55 +25,37 @@ Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/parisc/kernel/process.c |    6 +++---
- arch/parisc/kernel/smp.c     |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/kernel/process.c |    2 +-
+ arch/arm/kernel/traps.c   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-4822bcc5fa9991be25482b67fb351f7c3c81ba8c
-diff --git a/arch/parisc/kernel/process.c b/arch/parisc/kernel/process.c
-index fee4f1f..1273272 100644
---- a/arch/parisc/kernel/process.c
-+++ b/arch/parisc/kernel/process.c
-@@ -295,7 +295,7 @@ copy_thread(int nr, unsigned long clone_
- 	    struct task_struct * p, struct pt_regs * pregs)
- {
- 	struct pt_regs * cregs = &(p->thread.regs);
--	struct thread_info *ti = p->thread_info;
-+	void *stack = task_stack_page(p);
- 	
- 	/* We have to use void * instead of a function pointer, because
- 	 * function pointers aren't a pointer to the function on 64-bit.
-@@ -322,7 +322,7 @@ copy_thread(int nr, unsigned long clone_
- 	 */
- 	if (usp == 1) {
- 		/* kernel thread */
--		cregs->ksp = (((unsigned long)(ti)) + THREAD_SZ_ALGN);
-+		cregs->ksp = (unsigned long)stack + THREAD_SZ_ALGN;
- 		/* Must exit via ret_from_kernel_thread in order
- 		 * to call schedule_tail()
- 		 */
-@@ -344,7 +344,7 @@ copy_thread(int nr, unsigned long clone_
- 		 */
+886253feedc3c113e137755e8d9c9052eaea6376
+diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
+index 6c82d6b..8c62909 100644
+--- a/arch/arm/kernel/process.c
++++ b/arch/arm/kernel/process.c
+@@ -460,7 +460,7 @@ unsigned long get_wchan(struct task_stru
+ 	if (!p || p == current || p->state == TASK_RUNNING)
+ 		return 0;
  
- 		/* Use same stack depth as parent */
--		cregs->ksp = ((unsigned long)(ti))
-+		cregs->ksp = (unsigned long)stack
- 			+ (pregs->gr[21] & (THREAD_SIZE - 1));
- 		cregs->gr[30] = usp;
- 		if (p->personality == PER_HPUX) {
-diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
-index ce89da0..471efad 100644
---- a/arch/parisc/kernel/smp.c
-+++ b/arch/parisc/kernel/smp.c
-@@ -519,7 +519,7 @@ int __init smp_boot_one_cpu(int cpuid)
- 	if (IS_ERR(idle))
- 		panic("SMP: fork failed for CPU:%d", cpuid);
+-	stack_start = (unsigned long)(p->thread_info + 1);
++	stack_start = (unsigned long)end_of_stack(p);
+ 	stack_end = ((unsigned long)p->thread_info) + THREAD_SIZE;
  
--	idle->thread_info->cpu = cpuid;
-+	task_thread_info(idle)->cpu = cpuid;
+ 	fp = thread_saved_fp(p);
+diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
+index 45e9ea6..f7e733c 100644
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -165,7 +165,7 @@ static void dump_backtrace(struct pt_reg
+ 	} else if (verify_stack(fp)) {
+ 		printk("invalid frame pointer 0x%08x", fp);
+ 		ok = 0;
+-	} else if (fp < (unsigned long)(tsk->thread_info + 1))
++	} else if (fp < (unsigned long)end_of_stack(tsk))
+ 		printk("frame pointer underflow");
+ 	printk("\n");
  
- 	/* Let _start know what logical CPU we're booting
- 	** (offset into init_tasks[],cpu_data[])
 -- 
 0.99.9.GIT
 

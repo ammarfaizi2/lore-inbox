@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWACVe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWACVfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWACVe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWACVe3
+	id S964942AbWACVfE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWACVfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:34:29 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:39893 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964928AbWACVe1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:34:27 -0500
-Message-ID: <43BAEDDD.8080805@austin.ibm.com>
-Date: Tue, 03 Jan 2006 15:34:21 -0600
-From: Joel Schopp <jschopp@austin.ibm.com>
-Reply-To: jschopp@austin.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-Subject: Re: [Patch] New zone ZONE_EASY_RECLAIM take 4. (disable gfp_easy_reclaim
- bit)[5/8]
-References: <20051220173013.1B10.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20051220173013.1B10.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 3 Jan 2006 16:35:01 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.25]:36548 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964940AbWACVe7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:34:59 -0500
+Date: Tue, 3 Jan 2006 13:34:48 -0800
+From: Paul Jackson <pj@sgi.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oom-killer causes lockups in cpuset_excl_nodes_overlap()
+Message-Id: <20060103133448.7530f879.pj@sgi.com>
+In-Reply-To: <20051228004026.72F3474005@sv1.valinux.co.jp>
+References: <20051228004026.72F3474005@sv1.valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+KUROSAWA Takahiro wrote:
+>
+> The oom-killer causes lockups because it calls
+> cpuset_excl_nodes_overlap() with tasklist_lock read-locked.
+> cpuset_excl_nodes_overlap() gets cpuset_sem (or callback_sem in
+> later linux versions) semaphore, which might_sleep even if the
+> semaphore could be down without sleeping.
 
-> ===================================================================
-> --- zone_reclaim.orig/fs/pipe.c	2005-12-16 18:36:20.000000000 +0900
-> +++ zone_reclaim/fs/pipe.c	2005-12-16 19:15:35.000000000 +0900
-> @@ -284,7 +284,7 @@ pipe_writev(struct file *filp, const str
->  			int error;
->  
->  			if (!page) {
-> -				page = alloc_page(GFP_HIGHUSER);
-> +				page = alloc_page(GFP_HIGHUSER & ~__GFP_EASY_RECLAIM);
->  				if (unlikely(!page)) {
->  					ret = ret ? : -ENOMEM;
->  					break;
+Thank-you for catching this.  My apologies for not responding sooner.
+I was off the air for a week.  I will look at this now.
 
-That is a bit hard to understand.  How about a new GFP_HIGHUSER_HARD or 
-somesuch define back in patch 1, then use it here?
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

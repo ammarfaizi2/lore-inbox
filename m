@@ -1,87 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWACXus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWACXta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbWACXus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWACXur
+	id S964994AbWACXta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWACXtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:50:47 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:36785 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965133AbWACXun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:50:43 -0500
-Date: Tue, 3 Jan 2006 17:50:24 -0600
-From: Mark Maule <maule@sgi.com>
-To: Grant Grundler <iod00d@hp.com>
-Cc: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Tony Luck <tony.luck@intel.com>, gregkh@suse.de
-Subject: Re: [PATCH 1/3] msi vector targeting abstractions
-Message-ID: <20060103235024.GC16827@sgi.com>
-References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222201657.2019.69251.48815@lnx-maule.americas.sgi.com> <20060103223918.GB13841@esmail.cup.hp.com>
+	Tue, 3 Jan 2006 18:49:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46520 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964994AbWACXsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:48:52 -0500
+Date: Tue, 3 Jan 2006 15:48:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Sesterhenn / snakebyte <snakebyte@gmx.de>
+Cc: linux-kernel@vger.kernel.org,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Subject: Re: [Patch] es7000 broken without acpi
+Message-Id: <20060103154808.5ca0d1a4.akpm@osdl.org>
+In-Reply-To: <1134427819.18385.2.camel@alice>
+References: <1134427819.18385.2.camel@alice>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060103223918.GB13841@esmail.cup.hp.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03, 2006 at 02:39:18PM -0800, Grant Grundler wrote:
-> On Thu, Dec 22, 2005 at 02:15:49PM -0600, Mark Maule wrote:
-> > Abstract portions of the MSI core for platforms that do not use standard
-> > APIC interrupt controllers.  This is implemented through a new arch-specific
-> > msi setup routine, and a set of msi ops which can be set on a per platform
-> > basis.
+Eric Sesterhenn / snakebyte <snakebyte@gmx.de> wrote:
+>
+> hi,
 > 
-> ...
-> > +
-> > +		msi_ops->target(vector, dest_cpu, &address_hi, &address_lo);
-> > +
-> > +		pci_write_config_dword(entry->dev, msi_upper_address_reg(pos),
-> > +			address_hi);
-> >  		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
-> > -			address.lo_address.value);
-> > +			address_lo);
-> >  		set_native_irq_info(irq, cpu_mask);
-> >  		break;
-> >  	}
-> ...
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ msi/drivers/pci/msi-apic.c	2005-12-22 11:09:37.022232088 -0600
-> ...
-> > +struct msi_ops msi_apic_ops = {
-> > +	.setup = msi_setup_apic,
-> > +	.teardown = msi_teardown_apic,
-> > +#ifdef CONFIG_SMP
-> > +	.target = msi_target_apic,
-> > +#endif
+> a make randconfig gave me a situation where es7000 was enabled, but acpi wasnt 
+> ( dont know if this makes sense ), gcc gave me some compiling errors, which the
+> following patch fixes. Please cc me as i am not on the list. Thanks.
 > 
-> Mark,
-> msi_target_apic() initializes address_lo parameter.
-> Even on a UP machine, we need inialize this value.
+> 
 
-Not sure what you mean here.  target is used to retarget an existing MSI vector
-to a different processor.  In the case of apic, this appears to be accomplished
-by swizzling the cpu in the low 32 bits of the msi address.  Nothing needs to
-change in the upper 32 bits.
+I believe that es7000 requires ACPI, so a better fix would be to enforce
+that within Kconfig.
+
+Natalie, can you please comment?
 
 > 
-> If target is called unconditionally, wouldn't it be better
-> for msi_target_apic() always be called?
-
-target is called through the msi_ops->target vector.  SN does not use
-msi_target_apic(), it uses sn_msi_target().  Other platforms can implement
-target however they need to.
-
 > 
-> It would also be good for msi_target_apic to validate the 'dest_cpu' is online.
-> Maybe a BUG_ON or something like that.
-
-That wasn't a check in the original code flow ... the main protection appears
-to be in the upper levels in irq_affinity_write_proc().
-
+> diff -up linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000.h linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000.h
+> --- linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000.h	2005-12-12 23:44:39.000000000 +0100
+> +++ linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000.h	2005-12-12 23:43:51.000000000 +0100
+> @@ -83,6 +83,7 @@ struct es7000_oem_table {
+>  	struct psai psai;
+>  };
+>  
+> +#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
+>  struct acpi_table_sdt {
+>  	unsigned long pa;
+>  	unsigned long count;
+> @@ -98,6 +99,7 @@ struct oem_table {
+>  	u32 OEMTableAddr;
+>  	u32 OEMTableSize;
+>  };
+> +#endif
+>  
+>  struct mip_reg {
+>  	unsigned long long off_0;
+> diff -up linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000plat.c linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000plat.c
+> --- linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000plat.c	2005-12-12 23:44:39.000000000 +0100
+> +++ linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000plat.c	2005-12-12 23:43:20.000000000 +0100
+> @@ -92,7 +92,9 @@ setup_unisys(void)
+>  		es7000_plat = ES7000_ZORRO;
+>  	else
+>  		es7000_plat = ES7000_CLASSIC;
+> +#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
+>  	ioapic_renumber_irq = es7000_rename_gsi;
+> +#endif
+>  }
+>  
+>  /*
+> @@ -160,6 +162,7 @@ parse_unisys_oem (char *oemptr)
+>  	return es7000_plat;
+>  }
+>  
+> +#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
+>  int __init
+>  find_unisys_acpi_oem_table(unsigned long *oem_addr)
+>  {
+> @@ -212,6 +215,7 @@ find_unisys_acpi_oem_table(unsigned long
+>  	}
+>  	return -1;
+>  }
+> +#endif
+>  
+>  static void
+>  es7000_spin(int n)
 > 
-> grant
 > 
-> ps. not done looking through this...and still curious to see where
->     other discussion about generic vector assignment leads.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

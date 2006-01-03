@@ -1,92 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWACVIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWACVJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWACVIP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWACVH7
+	id S964828AbWACVJf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWACVJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:07:59 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:27791 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932575AbWACVHl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:07:41 -0500
-To: torvalds@osdl.org
-Subject: [PATCH 08/50] i386: task_thread_info()
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008PS-6y@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 21:07:38 +0000
+	Tue, 3 Jan 2006 16:09:33 -0500
+Received: from vvv.conterra.de ([212.124.44.162]:61119 "EHLO conterra.de")
+	by vger.kernel.org with ESMTP id S964830AbWACVJD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:09:03 -0500
+Message-ID: <43BAE7E3.6070504@conterra.de>
+Date: Tue, 03 Jan 2006 22:08:51 +0100
+From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: X86_64 + VIA + 4g problems
+References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>	<43BA4C3D.4060206@conterra.de> <p731wzpjtvm.fsf@verdi.suse.de>
+In-Reply-To: <p731wzpjtvm.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-References: <20060103210515.5135@ftp.linux.org.uk>
-In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
+OK, here are my last results for today:
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+using "iommu=allowed" did not work. System freezes during initialization
+of the PDC20318, which is on the external PCI bus.
 
----
+But swiotlb=force works well!
 
- arch/i386/kernel/process.c |    4 ++--
- arch/i386/kernel/vm86.c    |    2 +-
- include/asm-i386/i387.h    |    8 ++++----
- 3 files changed, 7 insertions(+), 7 deletions(-)
+Using the patch for pci-gart.c currently works while reading data
+on all 8 disks in parallel, reading data via NFS and writing this mail.
 
-d0cf455569f14bd2720d57b724aa1a8b0a2fd212
-diff --git a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
-index 2333aea..b48cfe1 100644
---- a/arch/i386/kernel/process.c
-+++ b/arch/i386/kernel/process.c
-@@ -612,8 +612,8 @@ static inline void disable_tsc(struct ta
- 	 * gcc should eliminate the ->thread_info dereference if
- 	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
- 	 */
--	prev = prev_p->thread_info;
--	next = next_p->thread_info;
-+	prev = task_thread_info(prev_p);
-+	next = task_thread_info(next_p);
- 
- 	if (has_secure_computing(prev) || has_secure_computing(next)) {
- 		/* slow path here */
-diff --git a/arch/i386/kernel/vm86.c b/arch/i386/kernel/vm86.c
-index fc19935..312ee0b 100644
---- a/arch/i386/kernel/vm86.c
-+++ b/arch/i386/kernel/vm86.c
-@@ -310,7 +310,7 @@ static void do_sys_vm86(struct kernel_vm
- 		"movl %1,%%ebp\n\t"
- 		"jmp resume_userspace"
- 		: /* no outputs */
--		:"r" (&info->regs), "r" (tsk->thread_info) : "ax");
-+		:"r" (&info->regs), "r" (task_thread_info(tsk)) : "ax");
- 	/* we never return here */
- }
- 
-diff --git a/include/asm-i386/i387.h b/include/asm-i386/i387.h
-index 6747006..152d0ba 100644
---- a/include/asm-i386/i387.h
-+++ b/include/asm-i386/i387.h
-@@ -49,19 +49,19 @@ static inline void __save_init_fpu( stru
- 		X86_FEATURE_FXSR,
- 		"m" (tsk->thread.i387.fxsave)
- 		:"memory");
--	tsk->thread_info->status &= ~TS_USEDFPU;
-+	task_thread_info(tsk)->status &= ~TS_USEDFPU;
- }
- 
- #define __unlazy_fpu( tsk ) do { \
--	if ((tsk)->thread_info->status & TS_USEDFPU) \
-+	if (task_thread_info(tsk)->status & TS_USEDFPU) \
- 		save_init_fpu( tsk ); \
- } while (0)
- 
- #define __clear_fpu( tsk )					\
- do {								\
--	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
-+	if (task_thread_info(tsk)->status & TS_USEDFPU) {		\
- 		asm volatile("fnclex ; fwait");				\
--		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
-+		task_thread_info(tsk)->status &= ~TS_USEDFPU;	\
- 		stts();						\
- 	}							\
- } while (0)
+The pci-gart.c patch seems to disable dma. Is this the DMA my PCI devices
+perform them self? As I learned, they may perform DMA even above 4g if all
+works well. Thus I may be happy without any IOMMU. As I saw my system working
+even without this patch, I will turn back to the original 2.6.15-rc7 an continue
+running this torture test during this night.
+
+Dieter.
 -- 
-0.99.9.GIT
-
+Dieter Stüken, con terra GmbH, Münster
+     stueken@conterra.de
+     http://www.conterra.de/
+     (0)251-7474-501

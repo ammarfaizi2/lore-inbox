@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWACV3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWACVbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWACV3E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWACV2T
+	id S964926AbWACVbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWACVaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:28:19 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:24207 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932522AbWACVHl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:07:41 -0500
-To: torvalds@osdl.org
-Subject: [PATCH 01/50] missing helper - task_stack_page()
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008PC-3o@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 21:07:38 +0000
+	Tue, 3 Jan 2006 16:30:24 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:60105 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1751483AbWACV3n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:29:43 -0500
+To: linux-kernel@vger.kernel.org
+CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.15-rc7] aoe [5/7]: allow network interface migration on
+ packet retransmit
+From: "Ed L. Cashin" <ecashin@coraid.com>
+References: <87hd8l2fb4.fsf@coraid.com>
+Date: Tue, 03 Jan 2006 16:08:17 -0500
+Message-ID: <87sls5yq7y.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-References: <20060103210515.5135@ftp.linux.org.uk>
-In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 
-new helper - task_stack_page(task).  Returns pointer to the memory object
-containing task stack; usually thread_info of task sits in the beginning
-of that object.
+Retransmit to the current network interface for an AoE device.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-
----
-
- include/asm-m68k/thread_info.h |    1 +
- include/linux/sched.h          |    1 +
- 2 files changed, 2 insertions(+), 0 deletions(-)
-
-51a180569d2190fe1d57d2ff077b3a832a408782
-diff --git a/include/asm-m68k/thread_info.h b/include/asm-m68k/thread_info.h
-index 9532ca3..c4d622a 100644
---- a/include/asm-m68k/thread_info.h
-+++ b/include/asm-m68k/thread_info.h
-@@ -37,6 +37,7 @@ struct thread_info {
- #define init_stack		(init_thread_union.stack)
+Index: 2.6.15-rc7-aoe/drivers/block/aoe/aoecmd.c
+===================================================================
+--- 2.6.15-rc7-aoe.orig/drivers/block/aoe/aoecmd.c	2006-01-02 13:35:14.000000000 -0500
++++ 2.6.15-rc7-aoe/drivers/block/aoe/aoecmd.c	2006-01-02 13:35:14.000000000 -0500
+@@ -239,6 +239,8 @@
+ 	h = (struct aoe_hdr *) f->data;
+ 	f->tag = n;
+ 	h->tag = cpu_to_be32(n);
++	memcpy(h->dst, d->addr, sizeof h->dst);
++	memcpy(h->src, d->ifp->dev_addr, sizeof h->src);
  
- #define task_thread_info(tsk)	(&(tsk)->thread.info)
-+#define task_stack_page(tsk)	((void *)(tsk)->thread_info)
- #define current_thread_info()	task_thread_info(current)
- 
- #define __HAVE_THREAD_FUNCTIONS
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index b0ad6f3..0d303f8 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1234,6 +1234,7 @@ static inline void task_unlock(struct ta
- #ifndef __HAVE_THREAD_FUNCTIONS
- 
- #define task_thread_info(task) (task)->thread_info
-+#define task_stack_page(task) ((void*)((task)->thread_info))
- 
- static inline void setup_thread_stack(struct task_struct *p, struct task_struct *org)
- {
+ 	skb = skb_prepare(d, f);
+ 	if (skb) {
+
+
 -- 
-0.99.9.GIT
+  Ed L. Cashin <ecashin@coraid.com>
 

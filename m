@@ -1,44 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWACVR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWACVSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWACVR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:17:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWACVR0
+	id S932538AbWACVSu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWACVRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:17:26 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:10434 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964868AbWACVQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:16:50 -0500
-Subject: [PATCH] set_page_count complex args
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 03 Jan 2006 16:16:45 -0500
-Message-Id: <1136323005.21485.15.camel@rockstar.fsl.cs.sunysb.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 16:17:42 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:31375 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932560AbWACVHm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:07:42 -0500
+To: torvalds@osdl.org
+Subject: [PATCH 20/50] uml: task_stack_page()
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Message-Id: <E1EttNa-0008Px-Jj@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
+References: <20060103210515.5135@ftp.linux.org.uk>
+In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
 
-Fix set_page_count() macro to handle complex arguments.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-Signed-off-by: Avishay Traeger <atraeger@cs.sunysb.edu>
 ---
 
---- linux-2.6.15/include/linux/mm.h.orig	2006-01-03 15:47:32.000000000 -0500
-+++ linux-2.6.15/include/linux/mm.h	2006-01-03 15:47:51.000000000 -0500
-@@ -308,7 +308,7 @@ struct page {
-  */
- #define get_page_testone(p)	atomic_inc_and_test(&(p)->_count)
- 
--#define set_page_count(p,v) 	atomic_set(&(p)->_count, v - 1)
-+#define set_page_count(p,v) 	atomic_set(&(p)->_count, (v) - 1)
- #define __put_page(p)		atomic_dec(&(p)->_count)
- 
- extern void FASTCALL(__page_cache_release(struct page *));
+ arch/um/kernel/skas/process_kern.c |    4 ++--
+ arch/um/kernel/tt/exec_kern.c      |    2 +-
+ arch/um/kernel/tt/process_kern.c   |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
+b55d7bb2f55e737c280bd0a8fb369b3bc91a8dbb
+diff --git a/arch/um/kernel/skas/process_kern.c b/arch/um/kernel/skas/process_kern.c
+index 9c99025..648dd55 100644
+--- a/arch/um/kernel/skas/process_kern.c
++++ b/arch/um/kernel/skas/process_kern.c
+@@ -119,7 +119,7 @@ int copy_thread_skas(int nr, unsigned lo
+ 		handler = new_thread_handler;
+ 	}
+ 
+-	new_thread(p->thread_info, &p->thread.mode.skas.switch_buf,
++	new_thread(task_stack_page(p), &p->thread.mode.skas.switch_buf,
+ 		   &p->thread.mode.skas.fork_buf, handler);
+ 	return(0);
+ }
+@@ -186,7 +186,7 @@ int start_uml_skas(void)
+ 
+ 	init_task.thread.request.u.thread.proc = start_kernel_proc;
+ 	init_task.thread.request.u.thread.arg = NULL;
+-	return(start_idle_thread(init_task.thread_info,
++	return(start_idle_thread(task_stack_page(&init_task),
+ 				 &init_task.thread.mode.skas.switch_buf,
+ 				 &init_task.thread.mode.skas.fork_buf));
+ }
+diff --git a/arch/um/kernel/tt/exec_kern.c b/arch/um/kernel/tt/exec_kern.c
+index 065b504..1b98330 100644
+--- a/arch/um/kernel/tt/exec_kern.c
++++ b/arch/um/kernel/tt/exec_kern.c
+@@ -40,7 +40,7 @@ void flush_thread_tt(void)
+ 		do_exit(SIGKILL);
+ 	}
+ 		
+-	new_pid = start_fork_tramp(current->thread_info, stack, 0, exec_tramp);
++	new_pid = start_fork_tramp(task_stack_page(current), stack, 0, exec_tramp);
+ 	if(new_pid < 0){
+ 		printk(KERN_ERR 
+ 		       "flush_thread : new thread failed, errno = %d\n",
+diff --git a/arch/um/kernel/tt/process_kern.c b/arch/um/kernel/tt/process_kern.c
+index 857f355..6f21c1f 100644
+--- a/arch/um/kernel/tt/process_kern.c
++++ b/arch/um/kernel/tt/process_kern.c
+@@ -254,7 +254,7 @@ int copy_thread_tt(int nr, unsigned long
+ 
+ 	clone_flags &= CLONE_VM;
+ 	p->thread.temp_stack = stack;
+-	new_pid = start_fork_tramp(p->thread_info, stack, clone_flags, tramp);
++	new_pid = start_fork_tramp(task_stack_page(p), stack, clone_flags, tramp);
+ 	if(new_pid < 0){
+ 		printk(KERN_ERR "copy_thread : clone failed - errno = %d\n", 
+ 		       -new_pid);
+@@ -426,7 +426,7 @@ int start_uml_tt(void)
+ 	int pages;
+ 
+ 	pages = (1 << CONFIG_KERNEL_STACK_ORDER);
+-	sp = (void *) ((unsigned long) init_task.thread_info) +
++	sp = task_stack_page(&init_task) +
+ 		pages * PAGE_SIZE - sizeof(unsigned long);
+ 	return(tracer(start_kernel_proc, sp));
+ }
+-- 
+0.99.9.GIT
 

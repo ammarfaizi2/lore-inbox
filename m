@@ -1,47 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWACRP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWACRSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWACRP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 12:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWACRP2
+	id S932461AbWACRSN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 12:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWACRSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 12:15:28 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:60171 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932453AbWACRP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 12:15:28 -0500
-Date: Tue, 3 Jan 2006 18:15:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 23/26] gitignore: x86_64 files
-Message-ID: <20060103171517.GB20001@mars.ravnborg.org>
-References: <20060103132035.GA17485@mars.ravnborg.org> <11362947263966@foobar.com> <p73wthhi7v9.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Jan 2006 12:18:13 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:19635 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932458AbWACRSM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 12:18:12 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Tue, 3 Jan 2006 17:16:13 +0000
+User-Agent: KMail/1.9
+Cc: Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+References: <20050726150837.GT3160@stusta.de> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org>
+In-Reply-To: <20060103170316.GA12249@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <p73wthhi7v9.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601031716.13409.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03, 2006 at 05:39:06PM +0100, Andi Kleen wrote:
-> Sam Ravnborg <sam@ravnborg.org> writes:
-> 
-> > From: Brian Gerst <bgerst@didntduck.org>
-> > Date: 1135744791 -0500
-> > 
-> > Add filters for x86_64 generated files.
-> 
-> Please don't submit this patch. If anything such ignore lists
-> for specific SVMs should be in a central place, but not spread
-> everywhere.
+On Tuesday 03 January 2006 17:03, Olivier Galibert wrote:
+> On Tue, Jan 03, 2006 at 04:29:21PM +0000, Alistair John Strachan wrote:
+> > This has nothing to do with the kernel option CONFIG_SND_OSSEMUL which
+> > Jan referred to, and to which I was responding. "aoss" is also not
+> > compatible with every conceivable program.
+>
+> Especially not with plugins.  Flashplayer anybody?
 
-If we go for a central '.gitignore' then we will most probarly see a
-file that is only added entries to, not removed. We saw that in the bk
-days.
-Today there are 23 .gitignores in the kernel - including the ones
-from this patchset.
-In may other cases we avoid this central point of information disaster
-and we shall avoid it for .gitignore too.
+Konqueror manages to "wrap" plugins quite happily.. complain to whoever makes 
+your browser.
 
-	Sam
+> > This is exactly why the OSS emulation option in ALSA is really a last
+> > resort and should not be an excuse for people to ignore implementing ALSA
+> > support directly. More so, it is very good justification for ditching
+> > "everything OSS" as soon as possible, at least in new software.
+>
+> Actually the crappy state of OSS emulation is a good reason to ditch
+> ALSA in its current implementation.  As Linus reminded not so long
+> ago, backwards compatibility is extremely important.
+
+This argument is basically watered down with devfs, udev, sysfs, etc. which 
+all have exactly the same issues. Should a crippled OSS API be the way 
+forward for Linux? I think not.
+ 
+> Also, not everybody wants to depend on a shared library.  I find this
+> "the alsa lib must be kept in lockstep with the kernel version" quite
+> annoying.  I'd rather not have the windows dll hell on linux, TYVM.
+> Or in other words, the public API of a kernel interface should _NEVER_
+> be a library only.  At least OSS, with all its issues, had that right.
+
+Okay, I agree it's not ideal. But if you want software mixing, and it's a 
+genuinely useful feature, you either have to go down the road of running some 
+crappy daemon like arts or esound, or just link against libasound and get it 
+for free. I know I'd rather not have mixing routines in my kernel, thanks.
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

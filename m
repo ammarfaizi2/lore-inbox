@@ -1,161 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWACE6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWACFBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWACE6w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 23:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWACE6w
+	id S1751152AbWACFBT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 00:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWACFBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 23:58:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14556 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751119AbWACE6v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 23:58:51 -0500
-Date: Mon, 2 Jan 2006 20:58:48 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.6.15
-Message-ID: <Pine.LNX.4.64.0601022055310.3668@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-1447360119-1136264328=:3668"
+	Tue, 3 Jan 2006 00:01:19 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:2934 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751152AbWACFBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 00:01:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=kyrRCcNJ0JGEDhdD9bpODjPyJJB8WmEykJDqpC9ewllvsvZzuNq1bjXrMgI3UxazQX0Z85GCom0M7FR3LujMgFHlhdQgsjkpd5cdj8IJ5VusLfAk1Y5HrexPJTRHSfn925LxSTLhVzYp80cbdTYKDzpXSkn70nzfqGr+nySM2KU=  ;
+Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
+In-Reply-To: <20051231202602.GC3903@dmt.cnet>
+References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com>
+	 <20051231064615.GB11069@dmt.cnet> <43B63931.6000307@yahoo.com.au>
+	 <20051231202602.GC3903@dmt.cnet>
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 16:01:04 +1100
+Message-Id: <1136264464.5261.23.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, 2005-12-31 at 18:26 -0200, Marcelo Tosatti wrote:
+> Hi Nick!
+> 
 
---21872808-1447360119-1136264328=:3668
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Hey Marcelo!
+
+> On Sat, Dec 31, 2005 at 06:54:25PM +1100, Nick Piggin wrote:
+> > 
+> > Hi Guys,
+> > 
+> > I've been waiting for some mm/ patches to clear from -mm before commenting
+> > too much... however I see that this patch is actually against -mm itself,
+> > with my __mod_page_state stuff in it... that makes the page state accounting
+> > much lighter weight AND is not racy.
+> 
+> It is racy with reference to preempt (please refer to the race condition
+> described above):
+> 
+> diff -puN mm/rmap.c~mm-page_state-opt mm/rmap.c
+> --- devel/mm/rmap.c~mm-page_state-opt   2005-12-13 22:25:01.000000000 -0800
+> +++ devel-akpm/mm/rmap.c        2005-12-13 22:25:01.000000000 -0800
+> @@ -451,7 +451,11 @@ static void __page_set_anon_rmap(struct 
+> 
+>         page->index = linear_page_index(vma, address);
+>  
+> -       inc_page_state(nr_mapped);
+> +       /*
+> +        * nr_mapped state can be updated without turning off
+> +        * interrupts because it is not modified via interrupt.
+> +        */
+> +       __inc_page_state(nr_mapped);
+>  }
+> 
+> And since "nr_mapped" is not a counter for debugging purposes only, you 
+> can't be lazy with reference to its consistency.
+> 
+> I would argue that you need a preempt save version for this important
+> counters, surrounded by preempt_disable/preempt_enable (which vanish 
+> if one selects !CONFIG_PREEMPT).
+> 
+
+I think it should not be racy because the function should always be
+called with the page table lock held, which disables preempt. I guess
+the comment should be explicit about that as well.
+
+There were some runtime warnings that come up when this patch first
+went into -mm because of a silly typo, however that should now be
+resolved too.
+
+> As Christoph notes, debugging counter consistency can be lazy, not even
+> requiring correct preempt locking (hum, this is debatable, needs careful
+> verification).
+>  
+> > So I'm not exactly sure why such a patch as this is wanted now? Are there
+> > any more xxx_page_state hotspots? (I admit to only looking at page faults,
+> > page allocator, and page reclaim).
+> 
+> A consolidation of the good parts of both would be interesting.
+> 
+> I don't see much point in Christoph's naming change to "event_counter", 
+> why are you doing that?
+> 
+> And follows an addition to your's mm-page_state-opt-docs.patch. Still
+> need to verify "nr_dirty" and "nr_unstable".
+> 
+> Happy new year!
+> 
+
+Thanks, happy new year to you too!
+
+-- 
+SUSE Labs, Novell Inc.
 
 
-Ok, very small/few changes in the last week, it seems everybody is off on 
-vacation. All the better.
 
-The shortlog/diffstat tell the story: a few one-liners, another ipv6 
-deadlock fixed, some sysctl and /proc fixes. 
-
-Have fun,
-
-		Linus
-
----
-Andi Kleen:
-      Make sure interleave masks have at least one node set
-
-Anton Blanchard:
-      ppc64: htab_initialize_secondary cannot be marked __init
-
-Benjamin Herrenschmidt:
-      Fix more radeon GART start calculation cases
-      powerpc: more g5 overtemp problem fix
-
-Chris Elmquist:
-      [TG3]: ethtool -d hangs PCIe systems
-
-Dag-Erling Smørgrav:
-      Avoid namespace pollution in <asm/param.h>
-
-Dave Jones:
-      fix ia64 compile failure with gcc4.1
-
-David Kimdon:
-      [BR_NETFILTER]: Fix leak if skb traverses > 1 bridge
-
-David L Stevens:
-      [IPV6]: Increase default MLD_MAX_MSF to 64.
-      [IPV6] mcast: Fix multiple issues in MLDv2 reports.
-
-David S. Miller:
-      [NET]: Validate socket filters against BPF_MAXINSNS in one spot.
-      [TG3]: Update driver version and reldate.
-      [SPARC]: Use STABS_DEBUG and DWARF_DEBUG macros in vmlinux.lds.S
-      [SERMOUSE]: Sun mice speak 5-byte protocol too.
-
-Denny Priebe:
-      Input: wacom - fix X axis setup
-
-Dmitry Torokhov:
-      Input: kbtab - fix Y axis setup
-      Input: warrior - fix HAT0Y axis setup
-
-Erik Hovland:
-      [ARM] 3216/1: indent and typo in drivers/serial/pxa.c
-
-James Bottomley:
-      Fix Fibre Channel boot oops
-
-Jean Delvare:
-      Fix recursive config dependency for SAA7134
-      Simplify the VIDEO_SAA7134_OSS Kconfig dependency line
-
-Linus Torvalds:
-      Revert radeon AGP aperture offset changes
-      Insanity avoidance in /proc
-      sysctl: don't overflow the user-supplied buffer with '\0'
-      sysctl: make sure to terminate strings with a NUL
-      Linux v2.6.15
-
-Paolo 'Blaisorblade' Giarrusso:
-      uml: fix random segfaults at bootup
-      Hostfs: remove unused var
-      uml: hostfs - fix possible PAGE_CACHE_SHIFT overflows
-      Hostfs: update for new glibc - add missing symbol exports
-      uml: fix compilation with CONFIG_MODE_TT disabled
-
-Ravikiran G Thirumalai:
-      x86_64: Fix incorrect node_present_pages on NUMA
-
-Riccardo Magliocchetti:
-      Input: aiptek - fix Y axis setup
-
-Russell King:
-      [MMC] Set correct capacity for 1024-byte block cards
-      [SERIAL] Fix AMBA PL011 sysrq character handling
-
-Stas Sergeev:
-      x86: teach dump_task_regs() about the -8 offset.
-
-Yi Yang:
-      Fix false old value return of sysctl
-
-YOSHIFUJI Hideaki:
-      [IPV6]: Fix addrconf dead lock.
-
- Makefile                            |    2 
- arch/i386/kernel/process.c          |    4 +
- arch/powerpc/mm/hash_utils_64.c     |    2 
- arch/sparc/kernel/vmlinux.lds.S     |   18 +---
- arch/sparc64/kernel/vmlinux.lds.S   |   18 +---
- arch/um/os-Linux/start_up.c         |   22 +++--
- arch/um/os-Linux/user_syms.c        |    5 +
- arch/um/sys-i386/Makefile           |    8 +-
- arch/um/sys-x86_64/Makefile         |    5 +
- arch/x86_64/mm/init.c               |    2 
- drivers/char/drm/radeon_cp.c        |    9 --
- drivers/char/vc_screen.c            |    2 
- drivers/input/joystick/warrior.c    |    2 
- drivers/input/mouse/sermouse.c      |    2 
- drivers/macintosh/therm_pm72.c      |    6 +
- drivers/media/video/saa7134/Kconfig |    4 -
- drivers/mmc/mmc_block.c             |   14 ++-
- drivers/net/ppp_generic.c           |    3 -
- drivers/net/tg3.c                   |   13 ++-
- drivers/net/tg3.h                   |    7 ++
- drivers/scsi/scsi_scan.c            |    3 -
- drivers/serial/amba-pl011.c         |    2 
- drivers/serial/pxa.c                |    4 -
- drivers/usb/input/aiptek.c          |    2 
- drivers/usb/input/kbtab.c           |    2 
- drivers/usb/input/wacom.c           |    2 
- fs/hostfs/hostfs_kern.c             |    9 +-
- fs/proc/generic.c                   |   47 ++++++------
- include/asm-i386/param.h            |    3 -
- include/asm-x86_64/param.h          |    3 -
- include/net/if_inet6.h              |    1 
- kernel/sysctl.c                     |   29 ++++---
- mm/mempolicy.c                      |    4 +
- net/bridge/br_netfilter.c           |    2 
- net/core/filter.c                   |    4 -
- net/ipv6/addrconf.c                 |    9 +-
- net/ipv6/mcast.c                    |  142 +++++++++++++++++++++++++++--------
- 37 files changed, 254 insertions(+), 162 deletions(-)
---21872808-1447360119-1136264328=:3668--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

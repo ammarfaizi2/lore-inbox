@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWACNV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWACNWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWACNV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWACNV7
+	id S932314AbWACNWB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 08:22:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWACNWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 3 Jan 2006 08:22:00 -0500
+Received: from mx1.suse.de ([195.135.220.2]:34497 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932295AbWACNV7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 08:21:59 -0500
-Received: from smtp105.plus.mail.mud.yahoo.com ([68.142.206.238]:38768 "HELO
-	smtp105.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932278AbWACNV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 08:21:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ACicSMEqUIchs3IpiL96NvW8wfvoO4veUWCIDVahdqSz0oeFnNJes4sTAj05luc3sLLeNC6HusH6aBq6nLkupOAQdcAuxRl4B26qBh8QI/r2Z+Ls/ImZzVI8nHit4+G4Okj/MM7t1lSLqvtmAPeNrZwJ0tM/fdzV+tUhnn+LxuM=  ;
-Message-ID: <43BA7A73.6070407@yahoo.com.au>
-Date: Wed, 04 Jan 2006 00:21:55 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+To: Adrian Bunk <bunk@stusta.de>
+Cc: perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+References: <20050726150837.GT3160@stusta.de>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Jan 2006 14:21:34 +0100
+In-Reply-To: <20050726150837.GT3160@stusta.de>
+Message-ID: <p7364p1jvkx.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
-References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com> <20051231064615.GB11069@dmt.cnet> <43B63931.6000307@yahoo.com.au> <20051231202602.GC3903@dmt.cnet> <20060102214016.GA13905@dmt.cnet> <1136265106.5261.34.camel@npiggin-nld.site> <20060103101106.GA3435@dmt.cnet>
-In-Reply-To: <20060103101106.GA3435@dmt.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Tue, Jan 03, 2006 at 04:11:46PM +1100, Nick Piggin wrote:
+Adrian Bunk <bunk@stusta.de> writes:
 > 
-
->>I guess I was hoping to try to keep it simple, and just have two
->>variants, the __ version would require the caller to do the locking.
+>  Documentation/feature-removal-schedule.txt |    7 +
+>  sound/oss/Kconfig                          |   79 ++++++++++++---------
+>  2 files changed, 54 insertions(+), 32 deletions(-)
 > 
-> 
-> I see - one point is that the two/three underscore versions make
-> it clear that preempt is required, though, but it might be a bit
-> over-complicated as you say.
-> 
-> Well, its up to you - please rearrange the patch as you wish and merge
-> up?
-> 
+> --- linux-2.6.13-rc3-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-07-26 16:50:05.000000000 +0200
+> +++ linux-2.6.13-rc3-mm1-full/Documentation/feature-removal-schedule.txt	2005-07-26 16:51:24.000000000 +0200
+> @@ -44,0 +45,7 @@
+> +What:	drivers depending on OBSOLETE_OSS_DRIVER
+> +When:	October 2005
+> +Why:	OSS drivers with ALSA replacements
+> +Who:	Adrian Bunk <bunk@stusta.de>
 
-OK I will push it upstream - thanks!
+I object to the ICH driver being scheduler for removal. It works
+fine and is a significantly less bloated than the equivalent ALSA setup.
 
-We can revisit details again when some smoke clears from the
-coming 2.6.16 merge cycle?
+This means ac97_codec.c also has to stay.
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-Andi

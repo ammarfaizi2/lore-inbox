@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWACOBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWACOGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWACOBo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 09:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWACOBn
+	id S1751424AbWACOGv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:06:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWACOGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 09:01:43 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:44989 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1751419AbWACOBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 09:01:42 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Tue, 3 Jan 2006 14:01:40 +0000
-User-Agent: KMail/1.9
-Cc: Adrian Bunk <bunk@stusta.de>, perex@suse.cz, alsa-devel@alsa-project.org,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-References: <20050726150837.GT3160@stusta.de> <200601031347.19328.s0348365@sms.ed.ac.uk> <200601031452.10855.ak@suse.de>
-In-Reply-To: <200601031452.10855.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 09:06:50 -0500
+Received: from hera.kernel.org ([140.211.167.34]:5354 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751424AbWACOGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 09:06:50 -0500
+Date: Tue, 3 Jan 2006 10:06:52 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
+Message-ID: <20060103120652.GB5288@dmt.cnet>
+References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com> <20051231064615.GB11069@dmt.cnet> <43B63931.6000307@yahoo.com.au> <20051231202602.GC3903@dmt.cnet> <20060102214016.GA13905@dmt.cnet> <1136265106.5261.34.camel@npiggin-nld.site> <20060103101106.GA3435@dmt.cnet> <43BA7A73.6070407@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601031401.40509.s0348365@sms.ed.ac.uk>
+In-Reply-To: <43BA7A73.6070407@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 January 2006 13:52, Andi Kleen wrote:
-> On Tuesday 03 January 2006 14:47, Alistair John Strachan wrote:
-> > It strikes me that it's a bit of a chicken and egg problem. Vendors are
-> > still releasing applications on Linux that support only OSS, partly due
-> > to ignorance, but mostly because ALSA's OSS compatibility layer allows
-> > them to lazily ignore the ALSA API and target all cards, old and new.
->
-> As long as it works why is that a bad thing? OSS API works just fine
-> for most sound needs. If you want to do high end sound you can still
-> use ALSA.
+On Wed, Jan 04, 2006 at 12:21:55AM +1100, Nick Piggin wrote:
+> Marcelo Tosatti wrote:
+> >On Tue, Jan 03, 2006 at 04:11:46PM +1100, Nick Piggin wrote:
+> >
+> 
+> >>I guess I was hoping to try to keep it simple, and just have two
+> >>variants, the __ version would require the caller to do the locking.
+> >
+> >
+> >I see - one point is that the two/three underscore versions make
+> >it clear that preempt is required, though, but it might be a bit
+> >over-complicated as you say.
+> >
+> >Well, its up to you - please rearrange the patch as you wish and merge
+> >up?
+> >
+> 
+> OK I will push it upstream - thanks!
+> 
+> We can revisit details again when some smoke clears from the
+> coming 2.6.16 merge cycle?
 
-Is multiple-source mixing really a "high end" requirement? When I last 
-checked, the OSS driver didn't support multiple applications claiming it at 
-once, thus requiring you to use "more bloat" like esound, arts, or some other 
-crap to access your soundcard more than once at any given time.
-
-I think when you consider other modern sound architectures across many 
-operating systems have supported this fundamentally basic feature for a long 
-time, it's important to the majority of end users.
-
-> > Additionally, we can't get rid of OSS compatibility until pretty much all
-> > hardware has an ALSA driver, and (inferred from your comment) we can't
-> > get rid of OSS drivers until nothing supports OSS, because the whole of
-> > the ALSA stuff is a bit larger...
->
-> We can never get rid of it.
-> Linux doesn't break widely used application interfaces.
-
-Okay, fair point.
-
-> > Even if Adrian's not trying to make this point (he's just removing
-> > duplicate drivers, and opting for the newer ones), we accepted ALSA into
-> > the kernel. It's probably about time we let OSS die properly, for sanity
-> > purposes.
->
-> Avoiding bloat is more important.
-
-I can't agree with that.
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Sure - we can also go further and the optimize operations on the
+remaining counters.

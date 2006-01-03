@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWACRbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWACRmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWACRbF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 12:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWACRbE
+	id S1751420AbWACRmc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 12:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWACRmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 12:31:04 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:41375 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932463AbWACRbD (ORCPT
+	Tue, 3 Jan 2006 12:42:32 -0500
+Received: from ns.suse.de ([195.135.220.2]:41445 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751420AbWACRmb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 12:31:03 -0500
-Subject: Re: [git patches] 2.6.x libata updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e0601030851w62fc917bibe0fd5069b2f3e44@mail.gmail.com>
-References: <20060103164319.GA402@havoc.gtf.org>
-	 <58cb370e0601030851w62fc917bibe0fd5069b2f3e44@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Jan 2006 17:32:35 +0000
-Message-Id: <1136309555.22598.10.camel@localhost.localdomain>
+	Tue, 3 Jan 2006 12:42:31 -0500
+Date: Tue, 3 Jan 2006 18:42:30 +0100
+From: Olaf Hering <olh@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 23/26] gitignore: x86_64 files
+Message-ID: <20060103174229.GA31981@suse.de>
+References: <20060103132035.GA17485@mars.ravnborg.org> <p73wthhi7v9.fsf@verdi.suse.de> <20060103171517.GB20001@mars.ravnborg.org> <200601031826.42028.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <200601031826.42028.ak@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-03 at 17:51 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > + * with SITRE and the 0x44 timing register). See pata_oldpiix and pata_mpiix
-> > + * for the early chip drivers.
+ On Tue, Jan 03, Andi Kleen wrote:
+
+> > Today there are 23 .gitignores in the kernel - including the ones
+> > from this patchset.
 > 
-> pata_oldpiix and pata_mpiix are not in the mainline
+> And next year .cvsignores and .svnignores and .hgignores and 
+> .whateveriscurrentlyenvoguesvmignores ?
 
-They are probably ready for mainline and since Linux currently has no
-support for either it might be nice to get them in. Anything specific
-they need polishing for Jeff ?
+The correct fix would be:
+Make 'O=$somedir' mandatory.
 
-Alan
-
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

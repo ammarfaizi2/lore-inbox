@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWACPIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWACPLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWACPIa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 10:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWACPI3
+	id S932347AbWACPLB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 10:11:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWACPLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 10:08:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28329 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751437AbWACPI3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 10:08:29 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060103100632.GA23154@elte.hu> 
-References: <20060103100632.GA23154@elte.hu> 
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 00/19] mutex subsystem, -V11 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Tue, 03 Jan 2006 15:07:17 +0000
-Message-ID: <16604.1136300837@warthog.cambridge.redhat.com>
+	Tue, 3 Jan 2006 10:11:00 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:52862 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932347AbWACPLA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 10:11:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mQEow3SYIQcR9FgT+/jSQdEA/72dsCldn/AdpSU0PZdaWYC4Sx2sgkvYqgd+lbDCfyn0BI/iaXEJ2CTfqJ6tYXQfZxWv3Loa4RlMnSn9WkFVbuRSStuzcU7RMYSNKADvS9sk/ncBSKyHgTZbOxZzDlcb/J8CGWdq8EDVgChjA0I=
+Message-ID: <728201270601030710u3fda171ft87067bb814f1f0ce@mail.gmail.com>
+Date: Tue, 3 Jan 2006 09:10:57 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Query] regarding sock_ioctl in linux kernel
+Cc: Satinder <jeet_sat12@yahoo.co.in>
+In-Reply-To: <20051228101528.50347.qmail@web8318.mail.in.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051228101528.50347.qmail@web8318.mail.in.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+It seems that whenever socket is allocated it is also mapped with its
+operations also as it calls sock_map_fd after sock_alloc or assigns
+the sock->ops when duplicating it. Currently does not look like there
+is need for the check but may be better to check to make sure there is
+no ommission in new type of socket allocations in future.
 
-> this is version -V11 of the generic mutex subsystem, against v2.6.15.
+regards
+Ram Gupta
 
-When compiling for x86 with no mutex debugging, I see:
-
-	(gdb) disas mutex_lock
-	Dump of assembler code for function mutex_lock:
-	0xc02950d0 <mutex_lock+0>:      lock decl (%eax)
-	0xc02950d3 <mutex_lock+3>:      js     0xc02950ef <.text.lock.mutex>
-	0xc02950d5 <mutex_lock+5>:      ret    
-	End of assembler dump.
-	(gdb) disas 0xc02950ef
-	Dump of assembler code for function .text.lock.mutex:
-	0xc02950ef <.text.lock.mutex+0>:        call   0xc0294ffb <__mutex_lock_noinline>
-	0xc02950f4 <.text.lock.mutex+5>:        jmp    0xc02950d5 <mutex_lock+5>
-	0xc02950f6 <.text.lock.mutex+7>:        call   0xc029509f <__mutex_unlock_noinline>
-	0xc02950fb <.text.lock.mutex+12>:       jmp    0xc02950db <mutex_unlock+5>
-	End of assembler dump.
-
-Can you arrange .text.lock.mutex+0 here to just jump directly to
-__mutex_lock_noinline? Otherwise we have an unnecessarily extended return
-path.
-
-You may not want to make the JS go directly there, but you could have that go
-to a JMP to __mutex_lock_noinline rather than having a CALL followed by a JMP
-back to a return instruction.
-
-
-Admittedly, this may not be possible, as you're mixing up C and ASM, but it
-would speed things up a little.
-
-David
+On 12/28/05, Satinder <jeet_sat12@yahoo.co.in> wrote:
+>  Hi everybody,
+>
+>
+> I was viewing the linux source code (version 2.6.9 )
+> for socket APIs.
+>
+> in function sock_ioctl() [file net/socket.c.]
+> I found that the kernel is handling the socket pointer
+> without any check.
+> Even in 'default' case it is calling
+> sock->ops->ioctl() without checking whether the
+> sock->ops having value or not.
+>
+> Is this assumed that the kernel will call the
+> sock_ioctl only when the socket data structure/ file
+> structure/socket substructure  exists, or there is
+> some other reason for not putting checks before
+> calling file operations in sock_ioctl
+>
+> There may be case when someone may alloc socket in
+> init module and map it to file descriptor using
+> sock_map_fd() and increament its reference count using
+> fget().
+>
+> And at cleanup time it releases the socket using
+> sock_release() without unmaping file descriptor and
+> decreamenting the referenece count.
+>
+> and  socket->file would be NULL without freeing the
+> inode number when sock_release returns. So at reboot
+> time many network process may try to use this socket
+> beacause inode is not being  released. In this case
+> kernel may crash.?
+>
+> If anyone could explain this that would be very nice.
+> Please keep me in cc.
+> TIA
+>
+> Regards,
+> Satinder
+>
+> Send instant messages to your online friends http://in.messenger.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWACBGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWACBRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWACBGg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 20:06:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWACBGg
+	id S1751147AbWACBRF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 20:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWACBRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 20:06:36 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:6028 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751148AbWACBGf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 20:06:35 -0500
-Subject: Re: Ping-Pong Compatible DMA buffer chaining
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Deven Balani <devenbalani@gmail.com>
+	Mon, 2 Jan 2006 20:17:05 -0500
+Received: from sccrmhc14.comcast.net ([63.240.77.84]:59361 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751147AbWACBRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 20:17:04 -0500
+Date: Mon, 2 Jan 2006 20:20:26 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Matan Peled <chaosite@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7a37e95e0512252205t68c6b6f6sfeedf3a75880fda9@mail.gmail.com>
-References: <7a37e95e0512252205t68c6b6f6sfeedf3a75880fda9@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Jan 2006 01:08:40 +0000
-Message-Id: <1136250520.13968.5.camel@localhost.localdomain>
+Subject: Re: Arjan's noinline Patch
+Message-ID: <20060103012026.GK5213@kurtwerks.com>
+Mail-Followup-To: Matan Peled <chaosite@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20060101155710.GA5213@kurtwerks.com> <20060102034350.GD5213@kurtwerks.com> <43B8FA70.2090408@gmail.com> <20060102151429.GH5213@kurtwerks.com> <43B953BF.50602@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43B953BF.50602@gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.15-rc6krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-12-26 at 11:35 +0530, Deven Balani wrote:
-> 1) The SATA Host Controller supports a DMA Logic which has Ping Pong Buffers.
-> How Can I allocate a linear contiguous buffer and give it to the
-> Buffer Descriptors of the Host Controller. I believe consistent alloc
-> would help me in this regard. But How could I do a chaining of Buffers
-> in a Ping Pong Scenario which has Buffer Descriptors.
+On Mon, Jan 02, 2006 at 06:24:31PM +0200, Matan Peled took 0 lines to write:
+> Kurt Wall wrote:
+> >Right, I need to isolate the effects of each variable. Results for gcc 
+> >3.4.4 and 4.0.2, built with CONFIG_CC_OPTIMIZE_FOR_SIZE enabled, appear
+> >below. Pardon the bad methodology.
+> >
+> >$ size vmlinux.*
+> >   text    data     bss     dec     hex filename
+> >2333474  461848  479920 3275242  31f9ea vmlinux.344.inline
+> >2327319  462000  479920 3269239  31e277 vmlinux.344.noinline
+> >2319085  461608  479984 3260677  31c105 vmlinux.402.inline
+> >2313578  461800  479984 3255362  31ac42 vmlinux.402.noinline
+> 
+> Yes, thats more like the rest of the results I seen... BTW, what is the 
+> .config?
 
-Depends entirely on your hardware.
+The .config is relatively plain vanilla, but customized for my own
+desktop system, naturally. Mostly modular save for boot filesystems
+and a few other odds and ends. Available as
+http://www.kurtwerks.com/linux/config-2.6.15-rc6.
+ 
+> allyesconfig made a huge kernel, so I manually 'fixed' the formatting.
 
-> 2) The libata is using Scatter-Gather List to send Device Identify
-> Command. Is it necessary to have a Scatter-Gather List for non-PCI ARM
-> platforms. Can I bypass this mechanism.
+I'll say. I tried it here -- it took a long time to link a 20MB file.
 
-It is neccessary as the user space virtual memory will be fragmented in
-physical space (unless you are using MMUless Linux when it will be far
-less fragmented).
-
-If the platform is an MMUless one then you can fill in the host
-structure and indicate that you support a maximum scatter gather list
-size of one. This will break up I/O's when neccessary to keep within
-that limit but this will hurt your performance by causing a lot more
-requests on a non MMUless system.
-
-Alan
-
+Kurt
+-- 
+Is it possible that software is not like anything else, that it is
+meant to be discarded: that the whole point is to always see it as a
+soap bubble?

@@ -1,160 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWACX26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWACXhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbWACX26 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:28:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWACX25
+	id S965125AbWACXhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbWACXhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:28:57 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:3036 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965082AbWACX2v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:28:51 -0500
+	Tue, 3 Jan 2006 18:37:16 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:988 "EHLO ZenIV.linux.org.uk")
+	by vger.kernel.org with ESMTP id S965072AbWACX2b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:28:31 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 29/41] m68k: dsp56k __user annotations
+Subject: [PATCH 25/41] m68k: checksum __user annotations
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1EtvaE-0003OR-N9@ZenIV.linux.org.uk>
+Message-Id: <E1EtvZu-0003O2-M5@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 23:28:50 +0000
+Date: Tue, 03 Jan 2006 23:28:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1135011826 -0500
+Date: 1135011600 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- drivers/char/dsp56k.c     |   29 +++++++++++++++--------------
- include/asm-m68k/dsp56k.h |    2 +-
- 2 files changed, 16 insertions(+), 15 deletions(-)
+ arch/m68k/lib/checksum.c    |    2 +-
+ include/asm-m68k/checksum.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-d2229f1ac119e91216162d7ab3e7d17368ea85a9
-diff --git a/drivers/char/dsp56k.c b/drivers/char/dsp56k.c
-index 8693835..e233cf2 100644
---- a/drivers/char/dsp56k.c
-+++ b/drivers/char/dsp56k.c
-@@ -165,7 +165,7 @@ static int dsp56k_reset(void)
- 	return 0;
- }
+0a0fad177c47eb2423f74d9c01906be15d701624
+diff --git a/arch/m68k/lib/checksum.c b/arch/m68k/lib/checksum.c
+index 4a5c544..cb13c6e 100644
+--- a/arch/m68k/lib/checksum.c
++++ b/arch/m68k/lib/checksum.c
+@@ -134,7 +134,7 @@ EXPORT_SYMBOL(csum_partial);
+  */
  
--static int dsp56k_upload(u_char *bin, int len)
-+static int dsp56k_upload(u_char __user *bin, int len)
+ unsigned int
+-csum_partial_copy_from_user(const unsigned char *src, unsigned char *dst,
++csum_partial_copy_from_user(const unsigned char __user *src, unsigned char *dst,
+ 			    int len, int sum, int *csum_err)
  {
- 	int i;
- 	u_char *p;
-@@ -199,7 +199,7 @@ static int dsp56k_upload(u_char *bin, in
- 	return 0;
- }
+ 	/*
+diff --git a/include/asm-m68k/checksum.h b/include/asm-m68k/checksum.h
+index 78860c2..17280ef 100644
+--- a/include/asm-m68k/checksum.h
++++ b/include/asm-m68k/checksum.h
+@@ -25,7 +25,7 @@ unsigned int csum_partial(const unsigned
+  * better 64-bit) boundary
+  */
  
--static ssize_t dsp56k_read(struct file *file, char *buf, size_t count,
-+static ssize_t dsp56k_read(struct file *file, char __user *buf, size_t count,
- 			   loff_t *ppos)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
-@@ -225,10 +225,10 @@ static ssize_t dsp56k_read(struct file *
- 		}
- 		case 2:  /* 16 bit */
- 		{
--			short *data;
-+			short __user *data;
- 
- 			count /= 2;
--			data = (short*) buf;
-+			data = (short __user *) buf;
- 			handshake(count, dsp56k.maxio, dsp56k.timeout, DSP56K_RECEIVE,
- 				  put_user(dsp56k_host_interface.data.w[1], data+n++));
- 			return 2*n;
-@@ -244,10 +244,10 @@ static ssize_t dsp56k_read(struct file *
- 		}
- 		case 4:  /* 32 bit */
- 		{
--			long *data;
-+			long __user *data;
- 
- 			count /= 4;
--			data = (long*) buf;
-+			data = (long __user *) buf;
- 			handshake(count, dsp56k.maxio, dsp56k.timeout, DSP56K_RECEIVE,
- 				  put_user(dsp56k_host_interface.data.l, data+n++));
- 			return 4*n;
-@@ -262,7 +262,7 @@ static ssize_t dsp56k_read(struct file *
- 	}
- }
- 
--static ssize_t dsp56k_write(struct file *file, const char *buf, size_t count,
-+static ssize_t dsp56k_write(struct file *file, const char __user *buf, size_t count,
- 			    loff_t *ppos)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
-@@ -287,10 +287,10 @@ static ssize_t dsp56k_write(struct file 
- 		}
- 		case 2:  /* 16 bit */
- 		{
--			const short *data;
-+			const short __user *data;
- 
- 			count /= 2;
--			data = (const short *)buf;
-+			data = (const short __user *)buf;
- 			handshake(count, dsp56k.maxio, dsp56k.timeout, DSP56K_TRANSMIT,
- 				  get_user(dsp56k_host_interface.data.w[1], data+n++));
- 			return 2*n;
-@@ -306,10 +306,10 @@ static ssize_t dsp56k_write(struct file 
- 		}
- 		case 4:  /* 32 bit */
- 		{
--			const long *data;
-+			const long __user *data;
- 
- 			count /= 4;
--			data = (const long *)buf;
-+			data = (const long __user *)buf;
- 			handshake(count, dsp56k.maxio, dsp56k.timeout, DSP56K_TRANSMIT,
- 				  get_user(dsp56k_host_interface.data.l, data+n++));
- 			return 4*n;
-@@ -328,6 +328,7 @@ static int dsp56k_ioctl(struct inode *in
- 			unsigned int cmd, unsigned long arg)
- {
- 	int dev = iminor(inode) & 0x0f;
-+	void __user *argp = (void __user *)arg;
- 
- 	switch(dev)
- 	{
-@@ -336,9 +337,9 @@ static int dsp56k_ioctl(struct inode *in
- 		switch(cmd) {
- 		case DSP56K_UPLOAD:
- 		{
--			char *bin;
-+			char __user *bin;
- 			int r, len;
--			struct dsp56k_upload *binary = (struct dsp56k_upload *) arg;
-+			struct dsp56k_upload __user *binary = argp;
-     
- 			if(get_user(len, &binary->len) < 0)
- 				return -EFAULT;
-@@ -372,7 +373,7 @@ static int dsp56k_ioctl(struct inode *in
- 		case DSP56K_HOST_FLAGS:
- 		{
- 			int dir, out, status;
--			struct dsp56k_host_flags *hf = (struct dsp56k_host_flags*) arg;
-+			struct dsp56k_host_flags __user *hf = argp;
-     
- 			if(get_user(dir, &hf->dir) < 0)
- 				return -EFAULT;
-diff --git a/include/asm-m68k/dsp56k.h b/include/asm-m68k/dsp56k.h
-index ab3dd33..2d8c0c9 100644
---- a/include/asm-m68k/dsp56k.h
-+++ b/include/asm-m68k/dsp56k.h
-@@ -13,7 +13,7 @@
- /* Used for uploading DSP binary code */
- struct dsp56k_upload {
- 	int len;
--	char *bin;
-+	char __user *bin;
- };
- 
- /* For the DSP host flags */
+-extern unsigned int csum_partial_copy_from_user(const unsigned char *src,
++extern unsigned int csum_partial_copy_from_user(const unsigned char __user *src,
+ 						unsigned char *dst,
+ 						int len, int sum,
+ 						int *csum_err);
 -- 
 0.99.9.GIT
 

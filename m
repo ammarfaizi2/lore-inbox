@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWACVOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWACVO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWACVOm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWACVOJ
+	id S964866AbWACVO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:14:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWACVOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:14:09 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:25231 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932562AbWACVHm
+	Tue, 3 Jan 2006 16:14:55 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:35983 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932551AbWACVHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:42 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 04/50] alpha: task_pt_regs()
+Subject: [PATCH 23/50] xtensa: task_pt_regs(), task_stack_page()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008PK-53@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008Qc-MG@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,114 +21,132 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 References: <20060103210515.5135@ftp.linux.org.uk>
 In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
 
-rename alpha_task_regs() to task_pt_regs(), switch open-coded instances
-to use of the helper.
-
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/alpha/kernel/process.c   |   19 ++-----------------
- arch/alpha/kernel/ptrace.c    |    7 +++++++
- include/asm-alpha/processor.h |   11 +----------
- include/asm-alpha/ptrace.h    |    4 ++--
- 4 files changed, 12 insertions(+), 29 deletions(-)
+ arch/xtensa/kernel/process.c   |    4 ++--
+ arch/xtensa/kernel/ptrace.c    |   12 ++++++------
+ include/asm-xtensa/processor.h |    6 +++---
+ include/asm-xtensa/ptrace.h    |    4 ++--
+ 4 files changed, 13 insertions(+), 13 deletions(-)
 
-1e0e86cf54c28396e85a85bab125822292264ce3
-diff --git a/arch/alpha/kernel/process.c b/arch/alpha/kernel/process.c
-index 04c5342..3b967de 100644
---- a/arch/alpha/kernel/process.c
-+++ b/arch/alpha/kernel/process.c
-@@ -423,30 +423,15 @@ dump_elf_thread(elf_greg_t *dest, struct
- int
- dump_elf_task(elf_greg_t *dest, struct task_struct *task)
- {
--	struct thread_info *ti;
--	struct pt_regs *pt;
--
--	ti = task->thread_info;
--	pt = (struct pt_regs *)((unsigned long)ti + 2*PAGE_SIZE) - 1;
--
--	dump_elf_thread(dest, pt, ti);
--
-+	dump_elf_thread(dest, task_pt_regs(task), task_thread_info(task));
- 	return 1;
- }
+05742756efda39221d12ca3923470becfc4cf860
+diff --git a/arch/xtensa/kernel/process.c b/arch/xtensa/kernel/process.c
+index 6a44b54..f1f5966 100644
+--- a/arch/xtensa/kernel/process.c
++++ b/arch/xtensa/kernel/process.c
+@@ -145,7 +145,7 @@ int copy_thread(int nr, unsigned long cl
+ 	int user_mode = user_mode(regs);
  
- int
- dump_elf_task_fp(elf_fpreg_t *dest, struct task_struct *task)
+ 	/* Set up new TSS. */
+-	tos = (unsigned long)p->thread_info + THREAD_SIZE;
++	tos = (unsigned long)task_stack_page(p) + THREAD_SIZE;
+ 	if (user_mode)
+ 		childregs = (struct pt_regs*)(tos - PT_USER_SIZE);
+ 	else
+@@ -217,7 +217,7 @@ int kernel_thread(int (*fn)(void *), voi
+ unsigned long get_wchan(struct task_struct *p)
  {
--	struct thread_info *ti;
--	struct pt_regs *pt;
--	struct switch_stack *sw;
--
--	ti = task->thread_info;
--	pt = (struct pt_regs *)((unsigned long)ti + 2*PAGE_SIZE) - 1;
--	sw = (struct switch_stack *)pt - 1;
--
-+	struct switch_stack *sw = (struct switch_stack *)task_pt_regs(task) - 1;
- 	memcpy(dest, sw->fp, 32 * 8);
--
- 	return 1;
- }
+ 	unsigned long sp, pc;
+-	unsigned long stack_page = (unsigned long) p->thread_info;
++	unsigned long stack_page = (unsigned long) task_stack_page(p);
+ 	int count = 0;
  
-diff --git a/arch/alpha/kernel/ptrace.c b/arch/alpha/kernel/ptrace.c
-index 67c0cb6..0f9753f 100644
---- a/arch/alpha/kernel/ptrace.c
-+++ b/arch/alpha/kernel/ptrace.c
-@@ -72,6 +72,13 @@ enum {
- 	REG_R0 = 0, REG_F0 = 32, REG_FPCR = 63, REG_PC = 64
+ 	if (!p || p == current || p->state == TASK_RUNNING)
+diff --git a/arch/xtensa/kernel/ptrace.c b/arch/xtensa/kernel/ptrace.c
+index ab5c4c6..4cc8528 100644
+--- a/arch/xtensa/kernel/ptrace.c
++++ b/arch/xtensa/kernel/ptrace.c
+@@ -72,7 +72,7 @@ long arch_ptrace(struct task_struct *chi
+ 		struct pt_regs *regs;
+ 		unsigned long tmp;
+ 
+-		regs = xtensa_pt_regs(child);
++		regs = task_pt_regs(child);
+ 		tmp = 0;  /* Default return value. */
+ 
+ 		switch(addr) {
+@@ -149,7 +149,7 @@ long arch_ptrace(struct task_struct *chi
+ 	case PTRACE_POKEUSR:
+ 		{
+ 		struct pt_regs *regs;
+-		regs = xtensa_pt_regs(child);
++		regs = task_pt_regs(child);
+ 
+ 		switch (addr) {
+ 		case REG_AR_BASE ... REG_AR_BASE + XCHAL_NUM_AREGS - 1:
+@@ -240,7 +240,7 @@ long arch_ptrace(struct task_struct *chi
+ 		 * elf_gregset_t format. */
+ 
+ 		xtensa_gregset_t format;
+-		struct pt_regs *regs = xtensa_pt_regs(child);
++		struct pt_regs *regs = task_pt_regs(child);
+ 
+ 		do_copy_regs (&format, regs, child);
+ 
+@@ -257,7 +257,7 @@ long arch_ptrace(struct task_struct *chi
+ 		 * values in the elf_gregset_t format. */
+ 
+ 		xtensa_gregset_t format;
+-		struct pt_regs *regs = xtensa_pt_regs(child);
++		struct pt_regs *regs = task_pt_regs(child);
+ 
+ 		if (copy_from_user(&format,(void *)data,sizeof(elf_gregset_t))){
+ 			ret = -EFAULT;
+@@ -281,7 +281,7 @@ long arch_ptrace(struct task_struct *chi
+ 		 * elf_fpregset_t format. */
+ 
+ 		elf_fpregset_t fpregs;
+-		struct pt_regs *regs = xtensa_pt_regs(child);
++		struct pt_regs *regs = task_pt_regs(child);
+ 
+ 		do_save_fpregs (&fpregs, regs, child);
+ 
+@@ -299,7 +299,7 @@ long arch_ptrace(struct task_struct *chi
+ 		 * values in the elf_fpregset_t format.
+ 		 */
+ 		elf_fpregset_t fpregs;
+-		struct pt_regs *regs = xtensa_pt_regs(child);
++		struct pt_regs *regs = task_pt_regs(child);
+ 
+ 		ret = 0;
+ 		if (copy_from_user(&fpregs, (void *)data, sizeof(elf_fpregset_t))) {
+diff --git a/include/asm-xtensa/processor.h b/include/asm-xtensa/processor.h
+index 9cab5e4..d1d72ad 100644
+--- a/include/asm-xtensa/processor.h
++++ b/include/asm-xtensa/processor.h
+@@ -184,12 +184,12 @@ extern int kernel_thread(int (*fn)(void 
+ #define release_segments(mm)	do { } while(0)
+ #define forget_segments()	do { } while (0)
+ 
+-#define thread_saved_pc(tsk)	(xtensa_pt_regs(tsk)->pc)
++#define thread_saved_pc(tsk)	(task_pt_regs(tsk)->pc)
+ 
+ extern unsigned long get_wchan(struct task_struct *p);
+ 
+-#define KSTK_EIP(tsk)		(xtensa_pt_regs(tsk)->pc)
+-#define KSTK_ESP(tsk)		(xtensa_pt_regs(tsk)->areg[1])
++#define KSTK_EIP(tsk)		(task_pt_regs(tsk)->pc)
++#define KSTK_ESP(tsk)		(task_pt_regs(tsk)->areg[1])
+ 
+ #define cpu_relax()  do { } while (0)
+ 
+diff --git a/include/asm-xtensa/ptrace.h b/include/asm-xtensa/ptrace.h
+index aa4fd7f..a5ac71a 100644
+--- a/include/asm-xtensa/ptrace.h
++++ b/include/asm-xtensa/ptrace.h
+@@ -113,8 +113,8 @@ struct pt_regs {
  };
  
-+#define PT_REG(reg) \
-+  (PAGE_SIZE*2 - sizeof(struct pt_regs) + offsetof(struct pt_regs, reg))
-+
-+#define SW_REG(reg) \
-+ (PAGE_SIZE*2 - sizeof(struct pt_regs) - sizeof(struct switch_stack) \
-+  + offsetof(struct switch_stack, reg))
-+
- static int regoff[] = {
- 	PT_REG(	   r0), PT_REG(	   r1), PT_REG(	   r2), PT_REG(	  r3),
- 	PT_REG(	   r4), PT_REG(	   r5), PT_REG(	   r6), PT_REG(	  r7),
-diff --git a/include/asm-alpha/processor.h b/include/asm-alpha/processor.h
-index e59a6ec..f414fd0 100644
---- a/include/asm-alpha/processor.h
-+++ b/include/asm-alpha/processor.h
-@@ -52,16 +52,7 @@ extern long kernel_thread(int (*fn)(void
- 
- unsigned long get_wchan(struct task_struct *p);
- 
--/* See arch/alpha/kernel/ptrace.c for details.  */
--#define PT_REG(reg) \
--  (PAGE_SIZE*2 - sizeof(struct pt_regs) + offsetof(struct pt_regs, reg))
--
--#define SW_REG(reg) \
-- (PAGE_SIZE*2 - sizeof(struct pt_regs) - sizeof(struct switch_stack) \
--  + offsetof(struct switch_stack, reg))
--
--#define KSTK_EIP(tsk) \
--  (*(unsigned long *)(PT_REG(pc) + (unsigned long) ((tsk)->thread_info)))
-+#define KSTK_EIP(tsk) (task_pt_regs(tsk)->pc)
- 
- #define KSTK_ESP(tsk) \
-   ((tsk) == current ? rdusp() : task_thread_info(tsk)->pcb.usp)
-diff --git a/include/asm-alpha/ptrace.h b/include/asm-alpha/ptrace.h
-index 994680b..9933b8b 100644
---- a/include/asm-alpha/ptrace.h
-+++ b/include/asm-alpha/ptrace.h
-@@ -75,10 +75,10 @@ struct switch_stack {
- #define profile_pc(regs) instruction_pointer(regs)
+ #ifdef __KERNEL__
+-# define xtensa_pt_regs(tsk) ((struct pt_regs*) \
+-  (((long)(tsk)->thread_info + KERNEL_STACK_SIZE - (XCHAL_NUM_AREGS-16)*4)) - 1)
++# define task_pt_regs(tsk) ((struct pt_regs*) \
++  (task_stack_page(tsk) + KERNEL_STACK_SIZE - (XCHAL_NUM_AREGS-16)*4) - 1)
+ # define user_mode(regs) (((regs)->ps & 0x00000020)!=0)
+ # define instruction_pointer(regs) ((regs)->pc)
  extern void show_regs(struct pt_regs *);
- 
--#define alpha_task_regs(task) \
-+#define task_pt_regs(task) \
-   ((struct pt_regs *) (task_stack_page(task) + 2*PAGE_SIZE) - 1)
- 
--#define force_successful_syscall_return() (alpha_task_regs(current)->r0 = 0)
-+#define force_successful_syscall_return() (task_pt_regs(current)->r0 = 0)
- 
- #endif
- 
 -- 
 0.99.9.GIT
 

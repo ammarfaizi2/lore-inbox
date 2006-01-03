@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWACLeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWACLk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWACLeN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 06:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWACLeN
+	id S1751379AbWACLk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 06:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWACLk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 06:34:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:63131 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751375AbWACLeN convert rfc822-to-8bit
+	Tue, 3 Jan 2006 06:40:57 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:17890 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751379AbWACLk4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 06:34:13 -0500
+	Tue, 3 Jan 2006 06:40:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KbnW3jpADoKUGgOUo5BRRtZMLHwy1e1IX2C42pKPFKH/68jdQqMaZTBAz0eNv4oKORinoRlvs1S2apgPPQ1KzRy/88457lIQNEOTjxEIHAjJRnWgyMGvjfn8eHuhYOM7PHGdqPuCJ68aYVkFvctwT0DRg168xPz8G4UFMVoNsjU=
-Message-ID: <6bffcb0e0601030334oae6f730x@mail.gmail.com>
-Date: Tue, 3 Jan 2006 12:34:11 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-rt1
+        b=Wgp9OQSev+jB1AIS8mlR1g2vwP0KGvjrmRLU6JUeBKHFs4jJ3t/ApGN7FfaQpTISmwFeyVIOaKB1DYyxExYB9rvOTfJf34LvC3XVwKrU6TZq+Y3Yb895uzIaXVdpD8BiJSZoKvXSHUm9abAbtbs66MXkwntWQ5tTSakd/1Y+s+w=
+Message-ID: <58cb370e0601030340jbad02f0m6073dae957384c9b@mail.gmail.com>
+Date: Tue, 3 Jan 2006 12:40:55 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: =?ISO-8859-1?Q?Jo=E3o_Esteves?= <joao.m.esteves@netcabo.pt>
+Subject: Re: Via VT 6410 Raid Controller
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060103112716.GA2612@elte.hu>
+In-Reply-To: <200601031055.02257.joao.m.esteves@netcabo.pt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <20060103094720.GA16497@elte.hu>
-	 <6bffcb0e0601030321h62aab08bi@mail.gmail.com>
-	 <20060103112716.GA2612@elte.hu>
+References: <200601021253.10738.joao.m.esteves@netcabo.pt>
+	 <200601021647.27453.joao.m.esteves@netcabo.pt>
+	 <43B95D20.3060401@gentoo.org>
+	 <200601031055.02257.joao.m.esteves@netcabo.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/01/06, Ingo Molnar <mingo@elte.hu> wrote:
-> ok, that's the lost-preemption-check still triggering. Does the system
-> otherwise work as expected? The message should be harmless - unless you
-> are also seeing other problems.
->
->         Ingo
->
+Hi,
 
-So...
-Networking doesn't work at all (I disabled it, for now - I have got
-oops flood, probably while loading ipv6 module).
-Xorg doesn't work.
+On 1/3/06, João Esteves <joao.m.esteves@netcabo.pt> wrote:
+> Thank you, Daniel.
+> > >
+> >
+> > Can you explain what you mean by you don't "see" it? Where are you looking?
+> >
+> > You could also post the output of:
+> >       dmesg
+> >       lspci
+> >       lspci -n
+>
+> I'm looking in the "Devices" Desktop shortcut (Mandriva2006). It appears sda1,
+> hda (DVD), hdb (DVD-Recorder) and floppy, but no reference to the Pata HDD.
+> This is the same as "device:/" in konqueror.
+> The output of the commands are attached.
 
-Regards,
-Michal Piotrowski
+You don't seem to have VIA IDE driver compiled in et all.
+
+Could you retry with Daniel's patch applied and "VIA82CXXX chipset
+support" (CONFIG_BLK_DEV_VIA82CXXX config option) compiled-in?
+Yes, help entry should be updated. :-)
+
+Thanks,
+Bartlomiej

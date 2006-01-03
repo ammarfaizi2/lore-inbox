@@ -1,297 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWACXIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWACXIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWACXIf (ORCPT <rfc822;willy@w.ods.org>);
+	id S964859AbWACXIf (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 3 Jan 2006 18:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWACXII
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbWACXIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:08:08 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:59295 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964841AbWACXH6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:07:58 -0500
-Date: Wed, 4 Jan 2006 00:07:46 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 13/20] mutex subsystem, semaphore to mutex: XFS
-Message-ID: <20060103230746.GN13511@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 3 Jan 2006 18:08:05 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:24470 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S964859AbWACXHU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:07:20 -0500
+Message-ID: <43BB03A7.3090604@cosmosbay.com>
+Date: Wed, 04 Jan 2006 00:07:19 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [RFC] Optimize select/poll by putting small data sets
+ on the stack
+References: <200601032158.14057.ak@suse.de> <43BAF72C.2030608@cosmosbay.com>
+In-Reply-To: <43BAF72C.2030608@cosmosbay.com>
+Content-Type: multipart/mixed;
+ boundary="------------090603000108000005080004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jes Sorensen <jes@trained-monkey.org>
+This is a multi-part message in MIME format.
+--------------090603000108000005080004
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-This patch switches XFS over to use the new mutex code directly as
-opposed to the previous workaround patch I posted earlier that avoided
-the namespace clash by forcing it back to semaphores. This falls in the
-'works for me<tm>' category.
+Eric Dumazet a écrit :
+> Andi Kleen a écrit :
+>> This is a RFC for now. I would be interested in testing
+>> feedback. Patch is for 2.6.15.
+>>
+>> Optimize select and poll by a using stack space for small fd sets
+>>
+>> This brings back an old optimization from Linux 2.0. Using
+>> the stack is faster than kmalloc. On a Intel P4 system
+>> it speeds up a select of a single pty fd by about 13%
+>> (~4000 cycles -> ~3500)
+> 
+> Was this result on UP or SMP kernel ? Preempt or not ?
+> 
+> I think we might play in do_pollfd() and use fget_light()/fput_light() 
+> instead of fget()/fput() that are somewhat expensive because of atomic 
+> inc/dec on SMP.
+> 
 
-Signed-off-by: Jes Sorensen <jes@trained-monkey.org>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Just for completeness I include this patch against 2.6.15
 
-----
 
- fs/xfs/linux-2.6/mutex.h       |   10 +++-------
- fs/xfs/quota/xfs_dquot.c       |    4 ++--
- fs/xfs/quota/xfs_qm.c          |   10 +++++-----
- fs/xfs/quota/xfs_qm.h          |    2 +-
- fs/xfs/quota/xfs_qm_bhv.c      |    2 +-
- fs/xfs/quota/xfs_qm_syscalls.c |    8 ++++----
- fs/xfs/quota/xfs_quota_priv.h  |    2 +-
- fs/xfs/support/uuid.c          |    6 +++---
- fs/xfs/xfs_mount.c             |    2 +-
- fs/xfs/xfs_mount.h             |    2 +-
- 10 files changed, 22 insertions(+), 26 deletions(-)
 
-Index: linux/fs/xfs/linux-2.6/mutex.h
-===================================================================
---- linux.orig/fs/xfs/linux-2.6/mutex.h
-+++ linux/fs/xfs/linux-2.6/mutex.h
-@@ -19,7 +19,7 @@
- #define __XFS_SUPPORT_MUTEX_H__
+--------------090603000108000005080004
+Content-Type: text/plain;
+ name="select_fget_light.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="select_fget_light.patch"
+
+--- linux-2.6.15/fs/select.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.15-ed/fs/select.c	2006-01-04 00:04:10.000000000 +0100
+@@ -221,17 +221,18 @@
+ 			}
  
- #include <linux/spinlock.h>
--#include <asm/semaphore.h>
-+#include <linux/mutex.h>
- 
- /*
-  * Map the mutex'es from IRIX to Linux semaphores.
-@@ -28,12 +28,8 @@
-  * callers.
-  */
- #define MUTEX_DEFAULT		0x0
--typedef struct semaphore	mutex_t;
- 
--#define mutex_init(lock, type, name)		sema_init(lock, 1)
--#define mutex_destroy(lock)			sema_init(lock, -99)
--#define mutex_lock(lock, num)			down(lock)
--#define mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
--#define mutex_unlock(lock)			up(lock)
-+typedef struct mutex		mutex_t;
-+//#define mutex_destroy(lock)			do{}while(0)
- 
- #endif /* __XFS_SUPPORT_MUTEX_H__ */
-Index: linux/fs/xfs/quota/xfs_dquot.c
-===================================================================
---- linux.orig/fs/xfs/quota/xfs_dquot.c
-+++ linux/fs/xfs/quota/xfs_dquot.c
-@@ -104,7 +104,7 @@ xfs_qm_dqinit(
- 	 */
- 	if (brandnewdquot) {
- 		dqp->dq_flnext = dqp->dq_flprev = dqp;
--		mutex_init(&dqp->q_qlock,  MUTEX_DEFAULT, "xdq");
-+		mutex_init(&dqp->q_qlock);
- 		initnsema(&dqp->q_flock, 1, "fdq");
- 		sv_init(&dqp->q_pinwait, SV_DEFAULT, "pdq");
- 
-@@ -1382,7 +1382,7 @@ void
- xfs_dqlock(
- 	xfs_dquot_t *dqp)
- {
--	mutex_lock(&(dqp->q_qlock), PINOD);
-+	mutex_lock(&(dqp->q_qlock));
- }
- 
- void
-Index: linux/fs/xfs/quota/xfs_qm.c
-===================================================================
---- linux.orig/fs/xfs/quota/xfs_qm.c
-+++ linux/fs/xfs/quota/xfs_qm.c
-@@ -167,7 +167,7 @@ xfs_Gqm_init(void)
- 	xqm->qm_dqfree_ratio = XFS_QM_DQFREE_RATIO;
- 	xqm->qm_nrefs = 0;
- #ifdef DEBUG
--	mutex_init(&qcheck_lock, MUTEX_DEFAULT, "qchk");
-+	xfs_mutex_init(&qcheck_lock, MUTEX_DEFAULT, "qchk");
- #endif
- 	return xqm;
- }
-@@ -1166,7 +1166,7 @@ xfs_qm_init_quotainfo(
- 	qinf->qi_dqreclaims = 0;
- 
- 	/* mutex used to serialize quotaoffs */
--	mutex_init(&qinf->qi_quotaofflock, MUTEX_DEFAULT, "qoff");
-+	mutex_init(&qinf->qi_quotaofflock);
- 
- 	/* Precalc some constants */
- 	qinf->qi_dqchunklen = XFS_FSB_TO_BB(mp, XFS_DQUOT_CLUSTER_SIZE_FSB);
-@@ -1285,7 +1285,7 @@ xfs_qm_list_init(
- 	char		*str,
- 	int		n)
- {
--	mutex_init(&list->qh_lock, MUTEX_DEFAULT, str);
-+	mutex_init(&list->qh_lock);
- 	list->qh_next = NULL;
- 	list->qh_version = 0;
- 	list->qh_nelems = 0;
-@@ -2762,7 +2762,7 @@ STATIC void
- xfs_qm_freelist_init(xfs_frlist_t *ql)
- {
- 	ql->qh_next = ql->qh_prev = (xfs_dquot_t *) ql;
--	mutex_init(&ql->qh_lock, MUTEX_DEFAULT, "dqf");
-+	mutex_init(&ql->qh_lock);
- 	ql->qh_version = 0;
- 	ql->qh_nelems = 0;
- }
-@@ -2772,7 +2772,7 @@ xfs_qm_freelist_destroy(xfs_frlist_t *ql
- {
- 	xfs_dquot_t	*dqp, *nextdqp;
- 
--	mutex_lock(&ql->qh_lock, PINOD);
-+	mutex_lock(&ql->qh_lock);
- 	for (dqp = ql->qh_next;
- 	     dqp != (xfs_dquot_t *)ql; ) {
- 		xfs_dqlock(dqp);
-Index: linux/fs/xfs/quota/xfs_qm.h
-===================================================================
---- linux.orig/fs/xfs/quota/xfs_qm.h
-+++ linux/fs/xfs/quota/xfs_qm.h
-@@ -165,7 +165,7 @@ typedef struct xfs_dquot_acct {
- #define XFS_QM_IWARNLIMIT	5
- #define XFS_QM_RTBWARNLIMIT	5
- 
--#define XFS_QM_LOCK(xqm)	(mutex_lock(&xqm##_lock, PINOD))
-+#define XFS_QM_LOCK(xqm)	(mutex_lock(&xqm##_lock))
- #define XFS_QM_UNLOCK(xqm)	(mutex_unlock(&xqm##_lock))
- #define XFS_QM_HOLD(xqm)	((xqm)->qm_nrefs++)
- #define XFS_QM_RELE(xqm)	((xqm)->qm_nrefs--)
-Index: linux/fs/xfs/quota/xfs_qm_bhv.c
-===================================================================
---- linux.orig/fs/xfs/quota/xfs_qm_bhv.c
-+++ linux/fs/xfs/quota/xfs_qm_bhv.c
-@@ -363,7 +363,7 @@ xfs_qm_init(void)
- 		KERN_INFO "SGI XFS Quota Management subsystem\n";
- 
- 	printk(message);
--	mutex_init(&xfs_Gqm_lock, MUTEX_DEFAULT, "xfs_qmlock");
-+	mutex_init(&xfs_Gqm_lock);
- 	vfs_bhv_set_custom(&xfs_qmops, &xfs_qmcore_xfs);
- 	xfs_qm_init_procfs();
- }
-Index: linux/fs/xfs/quota/xfs_qm_syscalls.c
-===================================================================
---- linux.orig/fs/xfs/quota/xfs_qm_syscalls.c
-+++ linux/fs/xfs/quota/xfs_qm_syscalls.c
-@@ -233,7 +233,7 @@ xfs_qm_scall_quotaoff(
- 	 */
- 	ASSERT(mp->m_quotainfo);
- 	if (mp->m_quotainfo)
--		mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
-+		mutex_lock(&(XFS_QI_QOFFLOCK(mp)));
- 
- 	ASSERT(mp->m_quotainfo);
- 
-@@ -508,7 +508,7 @@ xfs_qm_scall_quotaon(
- 	/*
- 	 * Switch on quota enforcement in core.
- 	 */
--	mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
-+	mutex_lock(&(XFS_QI_QOFFLOCK(mp)));
- 	mp->m_qflags |= (flags & XFS_ALL_QUOTA_ENFD);
- 	mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
- 
-@@ -617,7 +617,7 @@ xfs_qm_scall_setqlim(
- 	 * a quotaoff from happening). (XXXThis doesn't currently happen
- 	 * because we take the vfslock before calling xfs_qm_sysent).
- 	 */
--	mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
-+	mutex_lock(&(XFS_QI_QOFFLOCK(mp)));
- 
- 	/*
- 	 * Get the dquot (locked), and join it to the transaction.
-@@ -1426,7 +1426,7 @@ xfs_qm_internalqcheck(
- 	xfs_log_force(mp, (xfs_lsn_t)0, XFS_LOG_FORCE | XFS_LOG_SYNC);
- 	XFS_bflush(mp->m_ddev_targp);
- 
--	mutex_lock(&qcheck_lock, PINOD);
-+	mutex_lock(&qcheck_lock);
- 	/* There should be absolutely no quota activity while this
- 	   is going on. */
- 	qmtest_udqtab = kmem_zalloc(qmtest_hashmask *
-Index: linux/fs/xfs/quota/xfs_quota_priv.h
-===================================================================
---- linux.orig/fs/xfs/quota/xfs_quota_priv.h
-+++ linux/fs/xfs/quota/xfs_quota_priv.h
-@@ -51,7 +51,7 @@
- #define XFS_QI_MPLNEXT(mp)	((mp)->m_quotainfo->qi_dqlist.qh_next)
- #define XFS_QI_MPLNDQUOTS(mp)	((mp)->m_quotainfo->qi_dqlist.qh_nelems)
- 
--#define XQMLCK(h)			(mutex_lock(&((h)->qh_lock), PINOD))
-+#define XQMLCK(h)			(mutex_lock(&((h)->qh_lock)))
- #define XQMUNLCK(h)			(mutex_unlock(&((h)->qh_lock)))
- #ifdef DEBUG
- struct xfs_dqhash;
-Index: linux/fs/xfs/support/uuid.c
-===================================================================
---- linux.orig/fs/xfs/support/uuid.c
-+++ linux/fs/xfs/support/uuid.c
-@@ -24,7 +24,7 @@ static uuid_t	*uuid_table;
- void
- uuid_init(void)
- {
--	mutex_init(&uuid_monitor, MUTEX_DEFAULT, "uuid_monitor");
-+	mutex_init(&uuid_monitor);
- }
- 
- /*
-@@ -94,7 +94,7 @@ uuid_table_insert(uuid_t *uuid)
- {
- 	int	i, hole;
- 
--	mutex_lock(&uuid_monitor, PVFS);
-+	mutex_lock(&uuid_monitor);
- 	for (i = 0, hole = -1; i < uuid_table_size; i++) {
- 		if (uuid_is_nil(&uuid_table[i])) {
- 			hole = i;
-@@ -122,7 +122,7 @@ uuid_table_remove(uuid_t *uuid)
- {
- 	int	i;
- 
--	mutex_lock(&uuid_monitor, PVFS);
-+	mutex_lock(&uuid_monitor);
- 	for (i = 0; i < uuid_table_size; i++) {
- 		if (uuid_is_nil(&uuid_table[i]))
- 			continue;
-Index: linux/fs/xfs/xfs_mount.c
-===================================================================
---- linux.orig/fs/xfs/xfs_mount.c
-+++ linux/fs/xfs/xfs_mount.c
-@@ -117,7 +117,7 @@ xfs_mount_init(void)
- 
- 	AIL_LOCKINIT(&mp->m_ail_lock, "xfs_ail");
- 	spinlock_init(&mp->m_sb_lock, "xfs_sb");
--	mutex_init(&mp->m_ilock, MUTEX_DEFAULT, "xfs_ilock");
-+	mutex_init(&mp->m_ilock);
- 	initnsema(&mp->m_growlock, 1, "xfs_grow");
- 	/*
- 	 * Initialize the AIL.
-Index: linux/fs/xfs/xfs_mount.h
-===================================================================
---- linux.orig/fs/xfs/xfs_mount.h
-+++ linux/fs/xfs/xfs_mount.h
-@@ -533,7 +533,7 @@ typedef struct xfs_mod_sb {
- 	int		msb_delta;	/* Change to make to specified field */
- } xfs_mod_sb_t;
- 
--#define	XFS_MOUNT_ILOCK(mp)	mutex_lock(&((mp)->m_ilock), PINOD)
-+#define	XFS_MOUNT_ILOCK(mp)	mutex_lock(&((mp)->m_ilock))
- #define	XFS_MOUNT_IUNLOCK(mp)	mutex_unlock(&((mp)->m_ilock))
- #define	XFS_SB_LOCK(mp)		mutex_spinlock(&(mp)->m_sb_lock)
- #define	XFS_SB_UNLOCK(mp,s)	mutex_spinunlock(&(mp)->m_sb_lock,(s))
+ 			for (j = 0; j < __NFDBITS; ++j, ++i, bit <<= 1) {
++				int fput_needed;
+ 				if (i >= n)
+ 					break;
+ 				if (!(bit & all_bits))
+ 					continue;
+-				file = fget(i);
++				file = fget_light(i, &fput_needed);
+ 				if (file) {
+ 					f_op = file->f_op;
+ 					mask = DEFAULT_POLLMASK;
+ 					if (f_op && f_op->poll)
+ 						mask = (*f_op->poll)(file, retval ? NULL : wait);
+-					fput(file);
++					fput_light(file, fput_needed);
+ 					if ((mask & POLLIN_SET) && (in & bit)) {
+ 						res_in |= bit;
+ 						retval++;
+@@ -417,14 +418,15 @@
+ 		fdp = fdpage+i;
+ 		fd = fdp->fd;
+ 		if (fd >= 0) {
+-			struct file * file = fget(fd);
++			int fput_needed;
++			struct file * file = fget_light(fd, &fput_needed);
+ 			mask = POLLNVAL;
+ 			if (file != NULL) {
+ 				mask = DEFAULT_POLLMASK;
+ 				if (file->f_op && file->f_op->poll)
+ 					mask = file->f_op->poll(file, *pwait);
+ 				mask &= fdp->events | POLLERR | POLLHUP;
+-				fput(file);
++				fput_light(file, fput_needed);
+ 			}
+ 			if (mask) {
+ 				*pwait = NULL;
+
+--------------090603000108000005080004--

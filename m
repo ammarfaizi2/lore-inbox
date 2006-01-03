@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWACV1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWACV2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964959AbWACV1O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWACV0Y
+	id S1750908AbWACV2T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:28:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWACV2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:26:24 -0500
-Received: from mx1.suse.de ([195.135.220.2]:43414 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964883AbWACV0J convert rfc822-to-8bit
+	Tue, 3 Jan 2006 16:28:17 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:40591 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932531AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:26:09 -0500
-To: "=?iso-8859-1?q?Dieter_St=FCken?= <stueken"@conterra.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X86_64 + VIA + 4g problems
-References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>
-	<43BA4C3D.4060206@conterra.de> <p731wzpjtvm.fsf@verdi.suse.de>
-	<43BAE7E3.6070504@conterra.de>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Jan 2006 22:26:06 +0100
-In-Reply-To: <43BAE7E3.6070504@conterra.de>
-Message-ID: <p737j9hype9.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 3 Jan 2006 16:07:41 -0500
+To: torvalds@osdl.org
+Subject: [PATCH 30/50] h8300: task_stack_page()
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Message-Id: <E1EttNa-0008Qx-Ss@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Stüken <stueken@conterra.de> writes:
-[can you please not always drop me from cc with each reply?]
+References: <20060103210515.5135@ftp.linux.org.uk>
+In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
 
-Dieter StÃ¼ken <stueken@conterra.de> writes:
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-> OK, here are my last results for today:
->
-> using "iommu=allowed" did not work. System freezes during initialization
-> of the PDC20318, which is on the external PCI bus.
->
-> But swiotlb=force works well!
+---
 
-This means your PCI bridge doesn't support addresses >4GB.
+ arch/h8300/kernel/process.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> The pci-gart.c patch seems to disable dma. 
+ffc2e31ff9f23d041b8de15f5083ab4e986438dd
+diff --git a/arch/h8300/kernel/process.c b/arch/h8300/kernel/process.c
+index fe21adf..f053b14 100644
+--- a/arch/h8300/kernel/process.c
++++ b/arch/h8300/kernel/process.c
+@@ -195,7 +195,7 @@ int copy_thread(int nr, unsigned long cl
+ {
+ 	struct pt_regs * childregs;
+ 
+-	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
++	childregs = (struct pt_regs *) (THREAD_SIZE + task_stack_page(p)) - 1;
+ 
+ 	*childregs = *regs;
+ 	childregs->retpc = (unsigned long) ret_from_fork;
+-- 
+0.99.9.GIT
 
-Only DMA for addresses >4GB.
-
-> Is this the DMA my PCI devices
-> perform them self? As I learned, they may perform DMA even above 4g if all
-> works well. Thus I may be happy without any IOMMU. As I saw my system working
-> even without this patch, I will turn back to the original 2.6.15-rc7 an continue
-> running this torture test during this night.
-
-The patch should perform slightly better than swiotlb=force
-because it will only force bounce buffering for addresses >4GB.
-
-If your torture test involves more than 64MB of IO in flight
-you might also need to increase the bounce buffer area
-with swiotlb=128M or somesuch.
-
--Andi

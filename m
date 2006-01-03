@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWACByq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWACC3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWACByq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jan 2006 20:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWACByp
+	id S1750798AbWACC3k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jan 2006 21:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWACC3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jan 2006 20:54:45 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44797 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750777AbWACByp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jan 2006 20:54:45 -0500
-In-Reply-To: <20051220155004.GA3906@in.ibm.com>
-References: <20051214223912.GA4716@in.ibm.com> <43A1BD61.5070409@mvista.com> <20051220131956.GA24408@elte.hu> <20051220155004.GA3906@in.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <E8B90C30-7BFB-11DA-8CAD-000A959BB91E@mvista.com>
-Content-Transfer-Encoding: 7bit
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       robustmutexes@lists.osdl.org
-From: david singleton <dsingleton@mvista.com>
-Subject: Re: Recursion bug in -rt
-Date: Mon, 2 Jan 2006 17:54:43 -0800
-To: dino@in.ibm.com
-X-Mailer: Apple Mail (2.619)
+	Mon, 2 Jan 2006 21:29:40 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:34500 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1750798AbWACC3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jan 2006 21:29:39 -0500
+Date: Mon, 02 Jan 2006 21:29:13 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple	PowerBooks
+In-reply-to: <20060102224640.GB27317@hansmi.ch>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
+       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>,
+       stelian@popies.net
+Message-id: <1136255354.27583.77.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20051225212041.GA6094@hansmi.ch>
+ <200512252304.32830.dtor_core@ameritech.net>
+ <20051231235124.GA18506@hansmi.ch>
+ <1136084207.4635.86.camel@localhost.localdomain>
+ <20060102224640.GB27317@hansmi.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar,
-	can you try patch-2.6.15-rc7-rt3-rf1  on  
-http://source.mvista.com/~dsingleton/ and see if it works for your 
-tests?
+On Mon, 2006-01-02 at 23:46 +0100, Michael Hanselmann wrote:
 
-	This new patch creates a 'futex_deadlock' semaphore that we hang 
-applications that
-are deadlocking themselves.    This method will only hang the 
-application, not the system,
-as no other locks are held, like the mmap_sem,  just the futex_deadlock 
-semaphore.
+> +static int powerbook_fkeysfirst = 1;
+> +module_param_named(pb_fkeysfirst, powerbook_fkeysfirst, bool, 0644);
+> +MODULE_PARM_DESC(powerbook_fkeysfirst, "Use fn special keys only while pressing fn");
+> +
+> +static int powerbook_enablefnkeys = 1;
+> +module_param_named(pb_enablefnkeys, powerbook_enablefnkeys, bool, 0644);
+> +MODULE_PARM_DESC(powerbook_enablefnkeys, "Enable fn special keys");
+> +
+> +static int powerbook_enablekeypad = 1;
+> +module_param_named(pb_enablekeypad, powerbook_enablekeypad, bool, 0644);
+> +MODULE_PARM_DESC(powerbook_enablekeypad, "Enable keypad keys");
+> +#endif
 
-	NOTE: for pthread_mutexes  that are robust but NOT POSIX priority 
-inheriting I return -EWOULDDEADLOCK,
-since there is no POSIX specfication for robust pthread_mutexes yet.    
-POSIX PI pthread_mutexes will hang
-on the futex_deadlock semaphore.
+I think these should be inverted to, something like
+pbook_disable_keypad, pbook_disable_fnkeys and pbook_fnfirst.
 
-	Let me know how it works.
+Two reasons. First, it just makes more sense to pass a module param to
+turn something on (doing powerbook_enablekeypad=0 isn't as intuitive as
+pbook_disable_keypad=1). Second reason is that since these are static
+vars, defaulting them to uninitialized (leaving them in the bss, as 0)
+reduces binary size.
 
-David
-
-
-
-
-On Dec 20, 2005, at 7:50 AM, Dinakar Guniguntala wrote:
-
-> On Tue, Dec 20, 2005 at 02:19:56PM +0100, Ingo Molnar wrote:
->>
->> hm, i'm looking at -rf4 - these changes look fishy:
->>
->> -       _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
->> +       if (current != lock_owner(lock)->task)
->> +               _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
->>
->> why is this done?
->>
->
-> Ingo, this is to prevent a kernel hang due to application error.
->
-> Basically when an application does a pthread_mutex_lock twice on a
-> _nonrecursive_ mutex with robust/PI attributes the whole system hangs.
-> Ofcourse the application clearly should not be doing anything like
-> that, but it should not end up hanging the system either
->
-> 	-Dinakar
->
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 

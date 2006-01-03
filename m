@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWACSzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWACS4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbWACSzP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 13:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWACSzO
+	id S932486AbWACS4r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 13:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWACS4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 13:55:14 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22309 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932484AbWACSzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 13:55:13 -0500
-Date: Tue, 3 Jan 2006 19:57:03 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Happy New Year, libata hackers
-Message-ID: <20060103185702.GX2772@suse.de>
-References: <43BAB977.3010203@pobox.com> <20060103183328.GW2772@suse.de> <43BAC822.6090501@pobox.com>
+	Tue, 3 Jan 2006 13:56:47 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:24315 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932486AbWACS4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 13:56:46 -0500
+Subject: Re: 2.6.15-rt1
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1136313652.6039.171.camel@localhost.localdomain>
+References: <20060103094720.GA16497@elte.hu>
+	 <20060103153317.26a512fa@mango.fruits.de>
+	 <20060103161356.4e1b47e0@mango.fruits.de>
+	 <1136313652.6039.171.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 13:56:40 -0500
+Message-Id: <1136314600.6039.174.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BAC822.6090501@pobox.com>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03 2006, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >On Tue, Jan 03 2006, Jeff Garzik wrote:
-> >
-> >>Port multiplier and NCQ (queueing) support are the two other big to-do 
-> >>items on the list.
-> >
-> >
-> >I'll get NCQ updated and tested again in the not-so-distant future.
-> 
-> FWIW I've kept it moderately up-to-date in the 'ncq' branch.  It's 
-> definitely moldy, with a few FIXMEs in libata-scsi's read/write 
-> translation, for example, which is missing the NCQ portion of that code.
-> 
-> 	Jeff
+On Tue, 2006-01-03 at 13:40 -0500, Steven Rostedt wrote:
 
-Yeah that, and Tejun had some good updates for it as well. I'll take a
-look as soon as I get some time to do so.
+[...]
 
--- 
-Jens Axboe
+> Ingo,  I guess we have a problem.  There must be a reason not to hold
+> the rtc_lock and call the {add,mod,del}_timer functions, but your change
+> only makes the race condition less likely to happen, and not prevent it.
+> The attached program run on an SMP machine will eventually trigger the
+> race. 
+> 
+> $ gcc -o rtc_ioctl rtc_ioctl.c -lpthread
+> $ while : ; do ./rtc_ioctl ; done
+
+[...]
+
+> Should we create another lock to protect only the {add,mod,del}_timer?
+> Like the following patch?
+
+Well, with the patch, the above program has been running for over ten
+minutes without the race occurring.  Without the patch, the race happens
+in about one minute or less.
+
+-- Steve
+
+
 

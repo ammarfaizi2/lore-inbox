@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWACUZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWACU0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWACUZw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWACUZw
+	id S964786AbWACU0G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:26:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWACU0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:25:52 -0500
+	Tue, 3 Jan 2006 15:26:05 -0500
 Received: from courier.cs.helsinki.fi ([128.214.9.1]:38311 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964780AbWACUZu
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964786AbWACU0A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:25:50 -0500
-Subject: [patch 4/9] slab: cache_estimate cleanup
+	Tue, 3 Jan 2006 15:26:00 -0500
+Subject: [patch 8/9] slab: extract virt_to_{cache|slab}
 From: Pekka Enberg <penberg@cs.helsinki.fi>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
        colpatch@us.ibm.com, rostedt@goodmis.org, clameter@sgi.com,
        penberg@cs.helsinki.fi
-Date: Tue, 03 Jan 2006 22:25:48 +0200
-Message-Id: <1136319948.8629.19.camel@localhost>
+Date: Tue, 03 Jan 2006 22:25:58 +0200
+Message-Id: <1136319959.8629.23.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
@@ -24,122 +24,88 @@ X-Mailer: Evolution 2.4.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-This patch cleans up cache_estimate in mm/slab.c and improves the algorithm
-by taking an initial guess before executing the while loop. The optimization
-was originally made by Balbir Singh with further improvements from Steven
-Rostedt. Manfred Spraul provider further modifications: no loop at all for
-the off-slab case and explain the background.
+This patch introduces virt_to_cache() and virt_to_slab() functions
+to reduce duplicate code and introduce a proper abstraction should
+we want to support other kind of mapping for address to slab and
+cache (eg. for vmalloc() or I/O memory).
 
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Acked-by: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- mm/slab.c |   89 ++++++++++++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 64 insertions(+), 25 deletions(-)
+ mm/slab.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
 Index: 2.6/mm/slab.c
 ===================================================================
 --- 2.6.orig/mm/slab.c
 +++ 2.6/mm/slab.c
-@@ -700,32 +700,71 @@ kmem_cache_t *kmem_find_general_cachep(s
+@@ -594,6 +594,18 @@ static inline struct slab *page_get_slab
+ 	return (struct slab *)page->lru.prev;
  }
- EXPORT_SYMBOL(kmem_find_general_cachep);
  
--/* Cal the num objs, wastage, and bytes left over for a given slab size. */
--static void cache_estimate(unsigned long gfporder, size_t size, size_t align,
--		 int flags, size_t *left_over, unsigned int *num)
-+static size_t slab_mgmt_size(size_t nr_objs, size_t align)
- {
--	int i;
--	size_t wastage = PAGE_SIZE<<gfporder;
--	size_t extra = 0;
--	size_t base = 0;
--
--	if (!(flags & CFLGS_OFF_SLAB)) {
--		base = sizeof(struct slab);
--		extra = sizeof(kmem_bufctl_t);
--	}
--	i = 0;
--	while (i*size + ALIGN(base+i*extra, align) <= wastage)
--		i++;
--	if (i > 0)
--		i--;
--
--	if (i > SLAB_LIMIT)
--		i = SLAB_LIMIT;
--
--	*num = i;
--	wastage -= i*size;
--	wastage -= ALIGN(base+i*extra, align);
--	*left_over = wastage;
-+	return ALIGN(sizeof(struct slab)+nr_objs*sizeof(kmem_bufctl_t), align);
++static inline struct kmem_cache *virt_to_cache(const void *obj)
++{
++	struct page *page = virt_to_page(obj);
++	return page_get_cache(page);
 +}
 +
-+/* Calculate the number of objects and left-over bytes for a given
-+   object size. */
-+static void cache_estimate(unsigned long gfporder, size_t obj_size,
-+			   size_t align, int flags, size_t *left_over,
-+			   unsigned int *num)
++static inline struct slab *virt_to_slab(const void *obj)
 +{
-+	int nr_objs;
-+	size_t mgmt_size;
-+	size_t slab_size = PAGE_SIZE << gfporder;
++	struct page *page = virt_to_page(obj);
++	return page_get_slab(page);
++}
 +
-+	/*
-+	 * The slab management structure can be either off the slab or
-+	 * on it. For the latter case, the memory allocated for a
-+	 * slab is used for:
-+	 *
-+	 * - The struct slab
-+	 * - One kmem_bufctl_t for each object
-+	 * - Padding, to achieve alignment of @align
-+	 * - @obj_size bytes for each object
-+	 */
-+	if (flags & CFLGS_OFF_SLAB) {
-+		mgmt_size = 0;
-+		nr_objs = slab_size / obj_size;
-+
-+		if (nr_objs > SLAB_LIMIT)
-+			nr_objs = SLAB_LIMIT;
-+	} else {
-+		/* Ignore padding for the initial guess.  The padding
-+		 * is at most @align-1 bytes, and @size is at least
-+		 * @align. In the worst case, this result will be one
-+		 * greater than the number of objects that fit into
-+		 * the memory allocation when taking the padding into
-+		 * account.
-+		 */
-+		nr_objs = (slab_size - sizeof(struct slab)) /
-+			  (obj_size + sizeof(kmem_bufctl_t));
-+
-+		/*
-+		 * Now take the padding into account and increase the
-+		 * number of objects/slab until it doesn't fit
-+		 * anymore.
-+		 */
-+		while (slab_mgmt_size(nr_objs, align) + nr_objs*obj_size
-+		       <= slab_size)
-+			nr_objs++;
-+
-+		/*
-+		 * Reduce it by one which the maximum number of objects that
-+		 * fit in the slab.
-+		 */
-+		if (nr_objs > 0)
-+			nr_objs--;
-+
-+		if (nr_objs > SLAB_LIMIT)
-+			nr_objs = SLAB_LIMIT;
-+
-+		mgmt_size = slab_mgmt_size(nr_objs, align);
-+	}
-+	*num = nr_objs;
-+	*left_over = slab_size - nr_objs*obj_size - mgmt_size;
+ /* These are the default caches for kmalloc. Custom caches can have other sizes. */
+ struct cache_sizes malloc_sizes[] = {
+ #define CACHE(x) { .cs_size = (x) },
+@@ -1423,7 +1435,7 @@ static void check_poison_obj(kmem_cache_
+ 		/* Print some data about the neighboring objects, if they
+ 		 * exist:
+ 		 */
+-		struct slab *slabp = page_get_slab(virt_to_page(objp));
++		struct slab *slabp = virt_to_slab(objp);
+ 		int objnr;
+ 
+ 		objnr = (objp-slabp->s_mem)/cachep->buffer_size;
+@@ -2712,7 +2724,7 @@ static void free_block(kmem_cache_t *cac
+ 		void *objp = objpp[i];
+ 		struct slab *slabp;
+ 
+-		slabp = page_get_slab(virt_to_page(objp));
++		slabp = virt_to_slab(objp);
+ 		l3 = cachep->nodelists[node];
+ 		list_del(&slabp->list);
+ 		check_spinlock_acquired_node(cachep, node);
+@@ -2814,7 +2826,7 @@ static inline void __cache_free(kmem_cac
+ #ifdef CONFIG_NUMA
+ 	{
+ 		struct slab *slabp;
+-		slabp = page_get_slab(virt_to_page(objp));
++		slabp = virt_to_slab(objp);
+ 		if (unlikely(slabp->nodeid != numa_node_id())) {
+ 			struct array_cache *alien = NULL;
+ 			int nodeid = slabp->nodeid;
+@@ -3089,7 +3101,7 @@ void kfree(const void *objp)
+ 		return;
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+-	c = page_get_cache(virt_to_page(objp));
++	c = virt_to_cache(objp);
+ 	__cache_free(c, (void*)objp);
+ 	local_irq_restore(flags);
+ }
+@@ -3659,7 +3671,7 @@ unsigned int ksize(const void *objp)
+ 	if (unlikely(objp == NULL))
+ 		return 0;
+ 
+-	return obj_size(page_get_cache(virt_to_page(objp)));
++	return obj_size(virt_to_cache(objp));
  }
  
- #define slab_error(cachep, msg) __slab_error(__FUNCTION__, cachep, msg)
+
 
 --
 

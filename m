@@ -1,105 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWACF3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWACFrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWACF3B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 00:29:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWACF3B
+	id S1751166AbWACFrv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 00:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWACFrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 00:29:01 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:42893 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1751160AbWACF3A (ORCPT
+	Tue, 3 Jan 2006 00:47:51 -0500
+Received: from [203.2.177.25] ([203.2.177.25]:57674 "EHLO pfeiffer.tusc.com.au")
+	by vger.kernel.org with ESMTP id S1751166AbWACFru (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 00:29:00 -0500
-Date: Mon, 2 Jan 2006 23:28:53 -0600
-From: Rodney Gordon II <meff@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: P-D x86_64: "trap invalid operand" kernel messages
-Message-ID: <20060103052853.GA9159@spherenet.spherevision.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="1yeeQ81UyVL57Vl7"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 3 Jan 2006 00:47:50 -0500
+Subject: [PATCH - 2.6.14.5]x25: fix for broken x25 module
+From: Shaun Pereira <spereira@tusc.com.au>
+Reply-To: spereira@tusc.com.au
+To: linux-kenel <linux-kernel@vger.kernel.org>
+Cc: linux-x25 <linux-x25@vger.kernel.org>, x25 maintainer <eis@baty.hanse.de>,
+       Andrew Morton <akpm@osdl.org>, linux netdev <netdev@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 16:48:27 +1100
+Message-Id: <1136267307.11486.44.camel@spereira05.tusc.com.au>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
+Have included a patch fix for the x25 module in the latest stable
+version of the kernel. 
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Problem:
+When a user-space server application calls bind on a socket, then
+in kernel space this bound socket is considered 'x25-linked' and the 
+SOCK_ZAPPED flag is unset.(As in x25_bind()/af_x25.c).
 
-I can reproduce consistantly a kernel trap message when using
-the app "transcode".
+Now when a user-space client application attempts to connect to the
+server on the listening socket, if the kernel accepts this in-coming
+call, then it returns a new socket to userland and attempts to reply to
+the caller.  
 
-They all look similar to this:
-transcode[27576] trap invalid operand rip:2aaaae2c5990
-rsp:7fffff8e7548 error:0
+The reply/x25_sendmsg() will fail, because the new socket created on
+call-accept has its SOCK_ZAPPED flag set by x25_make_new().
+(sock_init_data() called by x25_alloc_socket() called by x25_make_new()
+sets the flag to SOCK_ZAPPED)).
+Fix:
+Using the sock_copy_flag() routine available in sock.h fixes this. 
 
-Is this kernel related, or a bug in the application?
+Tested on 32 and 64 bit kernels with x25 over tcp. 
 
-Information:
-Debian sid, amd64 port w/ marillat debs
-2.6.14.5 compiled SMP x86_64 w/ EM64T specified
-Pentium D (Dualcore) 3GHz - 1536MB RAM
-Asus P5LD2 Mobo - BIOS Rev. 0815 (latest)
+I hope this fix can be applied to the next release of the kernel.
+Many Thanks
+Shaun
 
-Attached is a /proc/cpuinfo output.
+Signed-off-by:Shaun Pereira <pereira.shaun@gmail.com>
 
-Any help is appreciated, please Cc me directly.
+diff -uprN -X dontdiff linux-2.6.14.5-vanilla/net/x25/af_x25.c
+linux-2.6.14.5/net/x25/af_x25.c
+--- linux-2.6.14.5-vanilla/net/x25/af_x25.c 2005-12-27
+11:26:33.000000000 +1100
++++ linux-2.6.14.5/net/x25/af_x25.c 2006-01-03 10:25:39.000000000 +1100
+@@ -540,12 +540,7 @@ static struct sock *x25_make_new(struct 
+sk->sk_state       = TCP_ESTABLISHED;
+sk->sk_sleep       = osk->sk_sleep;
+sk->sk_backlog_rcv = osk->sk_backlog_rcv;
+-
+- if (sock_flag(osk, SOCK_ZAPPED))
+- sock_set_flag(sk, SOCK_ZAPPED);
+- 
+- if (sock_flag(osk, SOCK_DBG))
+- sock_set_flag(sk, SOCK_DBG);
++ sock_copy_flags(sk, osk);
 
--r
+ox25 = x25_sk(osk);
+x25->t21        = ox25->t21;
 
--- 
-Rodney Gordon II (meff)             |         meff <at> pobox <dot> com
-GPG Key ID: 7FF4B2BC                |                   AIM ID: mefforz
-
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cpuinfo
-
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 15
-model		: 4
-model name	:               Intel(R) Pentium(R) D CPU 3.00GHz
-stepping	: 4
-cpu MHz		: 3010.825
-cache size	: 1024 KB
-physical id	: 0
-siblings	: 2
-core id		: 0
-cpu cores	: 2
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 5
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm constant_tsc pni monitor ds_cpl est cid cx16 xtpr
-bogomips	: 6027.74
-clflush size	: 64
-cache_alignment	: 128
-address sizes	: 36 bits physical, 48 bits virtual
-power management:
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 15
-model		: 4
-model name	:               Intel(R) Pentium(R) D CPU 3.00GHz
-stepping	: 4
-cpu MHz		: 3010.825
-cache size	: 1024 KB
-physical id	: 0
-siblings	: 2
-core id		: 1
-cpu cores	: 2
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 5
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm constant_tsc pni monitor ds_cpl est cid cx16 xtpr
-bogomips	: 6020.49
-clflush size	: 64
-cache_alignment	: 128
-address sizes	: 36 bits physical, 48 bits virtual
-power management:
-
-
---1yeeQ81UyVL57Vl7--

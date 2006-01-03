@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWACFME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWACFbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWACFME (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 00:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWACFMA
+	id S1751163AbWACFbk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 00:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWACFbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 00:12:00 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:26008 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751160AbWACFL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 00:11:59 -0500
+	Tue, 3 Jan 2006 00:31:40 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:59035 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751163AbWACFbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 00:31:39 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=Dyan7z71L2vIOqu/U7SKysLkwCu/wE+iQBfw5hglC2/yONp7joCF0LmHHVA79zBHZ1ku11AQmxq7fkuDHOkmMosg/f9tm5rGSTDkNo3M7q7esWxou43hfng7nfzEozgE+wMSXiq2PAVt235hkQaVIz4Gf/5ocFN10jYIKhnRtis=  ;
-Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
+  b=COyWGglb7LUAChbyrd/UxZaOZur01DmsRnL3HO9NXFUioVTph/letnr0dAePoWjJL0kfZlbsLPtL3dgQCvPTXHwOvZtXNoKCGsEteJ6ZYwG3ESaLOK6I8OPmyJ7qwwcRwxf0ZydExdkO7FceHOVky39kQZqDliXW2dW8bvBJryM=  ;
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
 From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <20060102214016.GA13905@dmt.cnet>
-References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com>
-	 <20051231064615.GB11069@dmt.cnet> <43B63931.6000307@yahoo.com.au>
-	 <20051231202602.GC3903@dmt.cnet>  <20060102214016.GA13905@dmt.cnet>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@elte.hu>,
+       tim@physik3.uni-rostock.de, arjan@infradead.org, torvalds@osdl.org,
+       davej@redhat.com, lkml <linux-kernel@vger.kernel.org>, mpm@selenic.com
+In-Reply-To: <20060102102824.4c7ff9ad.akpm@osdl.org>
+References: <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
+	 <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org>
+	 <20051229224839.GA12247@elte.hu>
+	 <1135897092.2935.81.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
+	 <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
+	 <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de>
+	 <20060102103721.GA8701@elte.hu> <20060102134228.GC17398@stusta.de>
+	 <20060102102824.4c7ff9ad.akpm@osdl.org>
 Content-Type: text/plain
-Date: Tue, 03 Jan 2006 16:11:46 +1100
-Message-Id: <1136265106.5261.34.camel@npiggin-nld.site>
+Date: Tue, 03 Jan 2006 16:31:02 +1100
+Message-Id: <1136266262.5261.45.camel@npiggin-nld.site>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-02 at 19:40 -0200, Marcelo Tosatti wrote:
+On Mon, 2006-01-02 at 10:28 -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
 
-> Nick, 
+> > We only disagree on how to achieve an improvement.
+> > 
 > 
-> The following patch:
-> 
-> - Moves the lightweight "inc/dec" versions of mod_page_state variants
-> to three underscores, making those the default for locations where enough
-> locks are held.
+> The best approach is to manually review and fix up all the inline statements.
 > 
 
-I guess I was hoping to try to keep it simple, and just have two
-variants, the __ version would require the caller to do the locking.
-In cases like eg. allocstall, they should happen infrequently enough
-that the extra complexity is probably not worth worrying about.
+I agree with this. Turning off inlining in one big hit can punish
+correct users of inline and may cause regressions.
 
-I don't think I commented about the preempt race though (and requirement
-to have preempt off from process context), which obviously can be a
-problem as you say (though I think things are currently safe?).
-
-> - Make the two-underscore version disable and enable preemption, which 
-> is required to avoid preempt-related races which can result in missed
-> updates.
-> 
-> - Extends the lightweight version usage in page reclaim, 
-> pte allocation, and a few other codepaths.
-> 
-
-I guess nr_dirty looks OK in the places it can be put under tree_lock.
-
-nr_page_table_pages is OK because ptl should be held to prevent preempt.
-
-pgrotated and pgactivate should be good because of lru_lock.
-
-Thanks for going through these!
+Reducing inline abuse seems to be the easist possible case for
+incremental patches, which is how we've always tried to do things.
+Andrew (and others) have been reducing inlines for years and things
+are going along in the right direction.
 
 -- 
 SUSE Labs, Novell Inc.

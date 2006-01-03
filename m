@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbWACWjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWACWje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932535AbWACWjH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 17:39:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWACWjH
+	id S932537AbWACWje (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 17:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWACWje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 17:39:07 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:48136 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932535AbWACWjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 17:39:06 -0500
-Message-ID: <43BAFD07.3030906@superbug.demon.co.uk>
-Date: Tue, 03 Jan 2006 22:39:03 +0000
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051218)
-X-Accept-Language: en-us, en
+	Tue, 3 Jan 2006 17:39:34 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:27569 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S932537AbWACWjU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 17:39:20 -0500
+Date: Tue, 3 Jan 2006 14:39:18 -0800
+From: Grant Grundler <iod00d@hp.com>
+To: Mark Maule <maule@sgi.com>
+Cc: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Tony Luck <tony.luck@intel.com>, gregkh@suse.de
+Subject: Re: [PATCH 1/3] msi vector targeting abstractions
+Message-ID: <20060103223918.GB13841@esmail.cup.hp.com>
+References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222201657.2019.69251.48815@lnx-maule.americas.sgi.com>
 MIME-Version: 1.0
-To: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
-CC: Jaroslav Kysela <perex@suse.cz>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-References: <20050726150837.GT3160@stusta.de>	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>	 <200601031629.21765.s0348365@sms.ed.ac.uk>	 <20060103170316.GA12249@dspnet.fr.eu.org>	 <1136312901.24703.59.camel@mindpipe> <1136316640.4106.26.camel@unreal>	 <Pine.LNX.4.61.0601032036250.9362@tm8103.perex-int.cz> <1136318187.4106.32.camel@unreal>
-In-Reply-To: <1136318187.4106.32.camel@unreal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222201657.2019.69251.48815@lnx-maule.americas.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Sailer wrote:
-> On Tue, 2006-01-03 at 20:37 +0100, Jaroslav Kysela wrote:
-> 
-> 
->>Anyone reported that? Also what's the exact bug symptom?
-> 
-> 
-> Many people reported this on various mailing lists, but I'm not aware of
-> any bugzilla/whatever ticket.
-> 
-> Problem seems to be that ALSA/OSS does not report the true HW sampling
-> rate, but tries to do the sample rate conversion by itself, but
-> apparently not doing it good enough for modem type applications.
-> 
-> Anyway I find it not a good idea of alsa to try to do sample rate
-> conversion in kernel for OSS, as the native OSS drivers never did this,
-> and it is useless for software (like soundmodem) that tries to find out
-> the hardware rates in order to adapt to them. Kernel resampling badly
-> interferes with this.
-> 
-> Tom
-> 
-> PS: I was too lazy to investigate this in depth, it was easier to just
-> add a native ALSA driver to soundmodem.
-> 
+On Thu, Dec 22, 2005 at 02:15:49PM -0600, Mark Maule wrote:
+> Abstract portions of the MSI core for platforms that do not use standard
+> APIC interrupt controllers.  This is implemented through a new arch-specific
+> msi setup routine, and a set of msi ops which can be set on a per platform
+> basis.
 
-You can switch off ALSA's sample rate converter with a line like the 
-following:
-err = snd_pcm_hw_params_set_rate_resample(this->audio_fd, params, 0);
+...
+> +
+> +		msi_ops->target(vector, dest_cpu, &address_hi, &address_lo);
+> +
+> +		pci_write_config_dword(entry->dev, msi_upper_address_reg(pos),
+> +			address_hi);
+>  		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
+> -			address.lo_address.value);
+> +			address_lo);
+>  		set_native_irq_info(irq, cpu_mask);
+>  		break;
+>  	}
+...
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ msi/drivers/pci/msi-apic.c	2005-12-22 11:09:37.022232088 -0600
+...
+> +struct msi_ops msi_apic_ops = {
+> +	.setup = msi_setup_apic,
+> +	.teardown = msi_teardown_apic,
+> +#ifdef CONFIG_SMP
+> +	.target = msi_target_apic,
+> +#endif
 
-The zero switches off the alsa-lib resampler.
+Mark,
+msi_target_apic() initializes address_lo parameter.
+Even on a UP machine, we need inialize this value.
 
-James
+If target is called unconditionally, wouldn't it be better
+for msi_target_apic() always be called?
 
+It would also be good for msi_target_apic to validate the 'dest_cpu' is online.
+Maybe a BUG_ON or something like that.
+
+grant
+
+ps. not done looking through this...and still curious to see where
+    other discussion about generic vector assignment leads.

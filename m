@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWACVfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWACVgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbWACVfE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWACVfB
+	id S964940AbWACVgk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWACVgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:35:01 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:36548 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964940AbWACVe7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:34:59 -0500
-Date: Tue, 3 Jan 2006 13:34:48 -0800
-From: Paul Jackson <pj@sgi.com>
-To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+	Tue, 3 Jan 2006 16:36:39 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15302 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964940AbWACVgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:36:38 -0500
+Subject: Re: Benchmarks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Sharma Sushant <sushant@cs.unm.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: oom-killer causes lockups in cpuset_excl_nodes_overlap()
-Message-Id: <20060103133448.7530f879.pj@sgi.com>
-In-Reply-To: <20051228004026.72F3474005@sv1.valinux.co.jp>
-References: <20051228004026.72F3474005@sv1.valinux.co.jp>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+In-Reply-To: <20060103213244.M41864@webmail.cs.unm.edu>
+References: <20060103213244.M41864@webmail.cs.unm.edu>
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 22:36:34 +0100
+Message-Id: <1136324194.2869.22.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KUROSAWA Takahiro wrote:
->
-> The oom-killer causes lockups because it calls
-> cpuset_excl_nodes_overlap() with tasklist_lock read-locked.
-> cpuset_excl_nodes_overlap() gets cpuset_sem (or callback_sem in
-> later linux versions) semaphore, which might_sleep even if the
-> semaphore could be down without sleeping.
+On Tue, 2006-01-03 at 16:34 -0500, Sharma Sushant wrote:
+> Hello everyone,
+> If someone make some modifications to kernel code and want to know how much
+> overead those modifications has caused, what are the benchmarks that one
+> should use to calculate the overhead of the added code. 
+> please cc the reply to me.
 
-Thank-you for catching this.  My apologies for not responding sooner.
-I was off the air for a week.  I will look at this now.
+it really depends on what area of the kernel you're changing.. there's
+no "golden" benchmark that tests the entire kernel and gives one nice
+answer... there are however a lot of smaller benchmarks that test a
+portion of the kernel....
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

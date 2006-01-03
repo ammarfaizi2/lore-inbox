@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWACOq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWACOqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWACOq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 09:46:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWACOq2
+	id S932377AbWACOqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWACOqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 09:46:28 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:5136 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932388AbWACOq1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 09:46:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pzbCLcQmwsQT/l03FOfXbB7isGziQcjAkipGV/+1xMVfBkH4Y95GAam6mi3UJgkYX6mX/jUkwqeJxaHsrX5/PNKos9+MM/5nrSuvTxAHyE/lrnT5otvG/uoQCnF7NQ9P+CZxGnAV1lDCewYSAWPRfCWofTQ5fqJ3DyHTFuXHJ9k=
-Message-ID: <d120d5000601030646u4dfe2951ka26586050cac5f0b@mail.gmail.com>
-Date: Tue, 3 Jan 2006 09:46:26 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: usb: replace __setup("nousb") with __module_param_call
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20060102230714.3aa4f85b.zaitcev@redhat.com>
+	Tue, 3 Jan 2006 09:46:25 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:49807 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932377AbWACOqY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 09:46:24 -0500
+Message-ID: <43BA8E38.3010603@pobox.com>
+Date: Tue, 03 Jan 2006 09:46:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051220141504.31441a41.zaitcev@redhat.com>
-	 <200512220110.52466.dtor_core@ameritech.net>
-	 <20051222002423.1791d38b.zaitcev@redhat.com>
-	 <200601030147.46504.dtor_core@ameritech.net>
-	 <20060102230714.3aa4f85b.zaitcev@redhat.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix readw/writew warning in sata_vsc
+References: <200601031005.23885.vda@ilport.com.ua>
+In-Reply-To: <200601031005.23885.vda@ilport.com.ua>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Please check the archives, this patch is NAK'd every
+	month. Jeff [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/3/06, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> On Tue, 3 Jan 2006 01:47:46 -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
->
-> > +static int __init obsolete_checksetup(char *line, int len)
-> > -             int n = strlen(p->str);
-> > -             if (!strncmp(line, p->str, n)) {
-> > +             if (!strncmp(line, p->str, len) && len == strlen(p->str)) {
->
-> This looks like it should work, with the disclaimer that I am not
-> infallible.
->
+Please check the archives, this patch is NAK'd every month.
 
-;)
+	Jeff
 
-> But even if it does, my patch saved reading, so I think it should be
-> applied as well.
 
-What you mean by "saved reading"?
-
-Btw, do we really need to export "nousb" in sysfs?
-
---
-Dmitry

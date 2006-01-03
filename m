@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWACQvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWACQvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWACQvA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 11:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWACQql
+	id S1751450AbWACQvo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 11:51:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWACQvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 11:46:41 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51365 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932424AbWACQqU (ORCPT
+	Tue, 3 Jan 2006 11:51:04 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:8614 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932428AbWACQqk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 11:46:20 -0500
-Date: Tue, 3 Jan 2006 17:45:52 +0100
+	Tue, 3 Jan 2006 11:46:40 -0500
+Date: Tue, 3 Jan 2006 17:46:26 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,8 +19,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 01/19] mutex subsystem, add atomic_xchg() to all arches
-Message-ID: <20060103164552.GB25802@elte.hu>
+Subject: [patch 07/19] mutex subsystem, add default include/asm-*/mutex.h files
+Message-ID: <20060103164626.GH25802@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -36,306 +36,305 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Arjan van de Ven <arjan@infradead.org>
 
-add atomic_xchg() to all the architectures. Needed by the new mutex code.
+add the per-arch mutex.h files for the remaining architectures.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+We default to asm-generic/mutex-dec.h, because that performs
+quite well on most arches. Arches that do not have atomic
+decrement/increment instructions should switch to mutex-xchg.h
+instead. Arches can also provide their own implementation for
+the mutex fastpath primitives.
+
 Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
 ----
 
- include/asm-alpha/atomic.h     |    1 +
- include/asm-arm/atomic.h       |    2 ++
- include/asm-arm26/atomic.h     |    2 ++
- include/asm-cris/atomic.h      |    2 ++
- include/asm-frv/atomic.h       |    1 +
- include/asm-h8300/atomic.h     |    2 ++
- include/asm-i386/atomic.h      |    1 +
- include/asm-ia64/atomic.h      |    1 +
- include/asm-m32r/atomic.h      |    1 +
- include/asm-m68k/atomic.h      |    1 +
- include/asm-m68knommu/atomic.h |    1 +
- include/asm-mips/atomic.h      |    1 +
- include/asm-parisc/atomic.h    |    1 +
- include/asm-powerpc/atomic.h   |    1 +
- include/asm-s390/atomic.h      |    1 +
- include/asm-sh/atomic.h        |    2 ++
- include/asm-sh64/atomic.h      |    2 ++
- include/asm-sparc/atomic.h     |    1 +
- include/asm-sparc64/atomic.h   |    1 +
- include/asm-v850/atomic.h      |    2 ++
- include/asm-x86_64/atomic.h    |    1 +
- include/asm-xtensa/atomic.h    |    1 +
- 22 files changed, 29 insertions(+)
+ include/asm-alpha/mutex.h     |    9 +++++++++
+ include/asm-cris/mutex.h      |    9 +++++++++
+ include/asm-frv/mutex.h       |    9 +++++++++
+ include/asm-h8300/mutex.h     |    9 +++++++++
+ include/asm-ia64/mutex.h      |    9 +++++++++
+ include/asm-m32r/mutex.h      |    9 +++++++++
+ include/asm-m68k/mutex.h      |    9 +++++++++
+ include/asm-m68knommu/mutex.h |    9 +++++++++
+ include/asm-mips/mutex.h      |    9 +++++++++
+ include/asm-parisc/mutex.h    |    9 +++++++++
+ include/asm-powerpc/mutex.h   |    9 +++++++++
+ include/asm-s390/mutex.h      |    9 +++++++++
+ include/asm-sh/mutex.h        |    9 +++++++++
+ include/asm-sh64/mutex.h      |    9 +++++++++
+ include/asm-sparc/mutex.h     |    9 +++++++++
+ include/asm-sparc64/mutex.h   |    9 +++++++++
+ include/asm-um/mutex.h        |    9 +++++++++
+ include/asm-v850/mutex.h      |    9 +++++++++
+ include/asm-xtensa/mutex.h    |    9 +++++++++
+ 19 files changed, 171 insertions(+)
 
-Index: linux/include/asm-alpha/atomic.h
+Index: linux/include/asm-alpha/mutex.h
 ===================================================================
---- linux.orig/include/asm-alpha/atomic.h
-+++ linux/include/asm-alpha/atomic.h
-@@ -176,6 +176,7 @@ static __inline__ long atomic64_sub_retu
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-arm/atomic.h
-===================================================================
---- linux.orig/include/asm-arm/atomic.h
-+++ linux/include/asm-arm/atomic.h
-@@ -175,6 +175,8 @@ static inline void atomic_clear_mask(uns
- 
- #endif /* __LINUX_ARM_ARCH__ */
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-alpha/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int c, old;
-Index: linux/include/asm-arm26/atomic.h
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-cris/mutex.h
 ===================================================================
---- linux.orig/include/asm-arm26/atomic.h
-+++ linux/include/asm-arm26/atomic.h
-@@ -76,6 +76,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-cris/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-cris/atomic.h
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-frv/mutex.h
 ===================================================================
---- linux.orig/include/asm-cris/atomic.h
-+++ linux/include/asm-cris/atomic.h
-@@ -136,6 +136,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-frv/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-frv/atomic.h
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-h8300/mutex.h
 ===================================================================
---- linux.orig/include/asm-frv/atomic.h
-+++ linux/include/asm-frv/atomic.h
-@@ -415,6 +415,7 @@ extern uint32_t __cmpxchg_32(uint32_t *v
- #endif
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-h8300/atomic.h
-===================================================================
---- linux.orig/include/asm-h8300/atomic.h
-+++ linux/include/asm-h8300/atomic.h
-@@ -95,6 +95,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-h8300/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-i386/atomic.h
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-ia64/mutex.h
 ===================================================================
---- linux.orig/include/asm-i386/atomic.h
-+++ linux/include/asm-i386/atomic.h
-@@ -216,6 +216,7 @@ static __inline__ int atomic_sub_return(
- }
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-ia64/atomic.h
-===================================================================
---- linux.orig/include/asm-ia64/atomic.h
-+++ linux/include/asm-ia64/atomic.h
-@@ -89,6 +89,7 @@ ia64_atomic64_sub (__s64 i, atomic64_t *
- }
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-m32r/atomic.h
-===================================================================
---- linux.orig/include/asm-m32r/atomic.h
-+++ linux/include/asm-m32r/atomic.h
-@@ -243,6 +243,7 @@ static __inline__ int atomic_dec_return(
- #define atomic_add_negative(i,v) (atomic_add_return((i), (v)) < 0)
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-m68k/atomic.h
-===================================================================
---- linux.orig/include/asm-m68k/atomic.h
-+++ linux/include/asm-m68k/atomic.h
-@@ -140,6 +140,7 @@ static inline void atomic_set_mask(unsig
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-m68knommu/atomic.h
-===================================================================
---- linux.orig/include/asm-m68knommu/atomic.h
-+++ linux/include/asm-m68knommu/atomic.h
-@@ -129,6 +129,7 @@ static inline int atomic_sub_return(int 
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-mips/atomic.h
-===================================================================
---- linux.orig/include/asm-mips/atomic.h
-+++ linux/include/asm-mips/atomic.h
-@@ -289,6 +289,7 @@ static __inline__ int atomic_sub_if_posi
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-parisc/atomic.h
-===================================================================
---- linux.orig/include/asm-parisc/atomic.h
-+++ linux/include/asm-parisc/atomic.h
-@@ -165,6 +165,7 @@ static __inline__ int atomic_read(const 
- 
- /* exported interface */
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-powerpc/atomic.h
-===================================================================
---- linux.orig/include/asm-powerpc/atomic.h
-+++ linux/include/asm-powerpc/atomic.h
-@@ -165,6 +165,7 @@ static __inline__ int atomic_dec_return(
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-s390/atomic.h
-===================================================================
---- linux.orig/include/asm-s390/atomic.h
-+++ linux/include/asm-s390/atomic.h
-@@ -199,6 +199,7 @@ atomic_compare_and_swap(int expected_old
- }
- 
- #define atomic_cmpxchg(v, o, n) (atomic_compare_and_swap((o), (n), &((v)->counter)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-sh/atomic.h
-===================================================================
---- linux.orig/include/asm-sh/atomic.h
-+++ linux/include/asm-sh/atomic.h
-@@ -101,6 +101,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-ia64/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-sh64/atomic.h
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-m32r/mutex.h
 ===================================================================
---- linux.orig/include/asm-sh64/atomic.h
-+++ linux/include/asm-sh64/atomic.h
-@@ -113,6 +113,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-m32r/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-sparc/atomic.h
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-m68k/mutex.h
 ===================================================================
---- linux.orig/include/asm-sparc/atomic.h
-+++ linux/include/asm-sparc/atomic.h
-@@ -20,6 +20,7 @@ typedef struct { volatile int counter; }
- 
- extern int __atomic_add_return(int, atomic_t *);
- extern int atomic_cmpxchg(atomic_t *, int, int);
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- extern int atomic_add_unless(atomic_t *, int, int);
- extern void atomic_set(atomic_t *, int);
- 
-Index: linux/include/asm-sparc64/atomic.h
-===================================================================
---- linux.orig/include/asm-sparc64/atomic.h
-+++ linux/include/asm-sparc64/atomic.h
-@@ -72,6 +72,7 @@ extern int atomic64_sub_ret(int, atomic6
- #define atomic64_add_negative(i, v) (atomic64_add_ret(i, v) < 0)
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-v850/atomic.h
-===================================================================
---- linux.orig/include/asm-v850/atomic.h
-+++ linux/include/asm-v850/atomic.h
-@@ -104,6 +104,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-m68k/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-x86_64/atomic.h
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-m68knommu/mutex.h
 ===================================================================
---- linux.orig/include/asm-x86_64/atomic.h
-+++ linux/include/asm-x86_64/atomic.h
-@@ -389,6 +389,7 @@ static __inline__ long atomic64_sub_retu
- #define atomic64_dec_return(v)  (atomic64_sub_return(1,v))
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-xtensa/atomic.h
+--- /dev/null
++++ linux/include/asm-m68knommu/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-mips/mutex.h
 ===================================================================
---- linux.orig/include/asm-xtensa/atomic.h
-+++ linux/include/asm-xtensa/atomic.h
-@@ -224,6 +224,7 @@ static inline int atomic_sub_return(int 
- #define atomic_add_negative(i,v) (atomic_add_return((i),(v)) < 0)
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
+--- /dev/null
++++ linux/include/asm-mips/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-parisc/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-parisc/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-powerpc/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-powerpc/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-s390/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-s390/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-sh/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-sh/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-sh64/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-sh64/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-sparc/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-sparc/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-sparc64/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-sparc64/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-um/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-um/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-v850/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-v850/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>
+Index: linux/include/asm-xtensa/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-xtensa/mutex.h
+@@ -0,0 +1,9 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++
++#include <asm-generic/mutex-dec.h>

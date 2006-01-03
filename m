@@ -1,80 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWACVHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWACVHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbWACVHo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWACVHn
+	id S932577AbWACVHn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWACVHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 3 Jan 2006 16:07:43 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:49295 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932540AbWACVHl
+Received: from zeniv.linux.org.uk ([195.92.253.2]:27279 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932529AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:41 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 46/50] mips: namespace pollution: dump_regs() -> elf_dump_regs()
+Subject: [PATCH 07/50] amd64: task_stack_page()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNb-0008Sc-DN@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008PQ-6k@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 21:07:39 +0000
+Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 References: <20060103210515.5135@ftp.linux.org.uk>
 In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
 
-dump_regs() is used by a bunch of drivers for their internal stuff;
-renamed mips instance (one that is seen in system-wide headers)
-to elf_dump_regs()
-
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/mips/kernel/process.c |    4 ++--
- include/asm-mips/elf.h     |    4 ++--
+ arch/x86_64/kernel/process.c |    6 +++---
+ arch/x86_64/kernel/smpboot.c |    2 +-
  2 files changed, 4 insertions(+), 4 deletions(-)
 
-36918d02f947b9ed2c4f209ff6ee3d9d02e1ac22
-diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-index dd72577..0476a4d 100644
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -205,7 +205,7 @@ int dump_fpu(struct pt_regs *regs, elf_f
- 	return 1;
- }
+c93c0d97f1334d04b0f0ac98acc40e8b6ffc2ff1
+diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
+index 08e578f..334cecc 100644
+--- a/arch/x86_64/kernel/process.c
++++ b/arch/x86_64/kernel/process.c
+@@ -423,7 +423,7 @@ int copy_thread(int nr, unsigned long cl
+ 	struct task_struct *me = current;
  
--void dump_regs(elf_greg_t *gp, struct pt_regs *regs)
-+void elf_dump_regs(elf_greg_t *gp, struct pt_regs *regs)
- {
- 	int i;
+ 	childregs = ((struct pt_regs *)
+-			(THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
++			(THREAD_SIZE + task_stack_page(p))) - 1;
+ 	*childregs = *regs;
  
-@@ -231,7 +231,7 @@ int dump_task_regs (struct task_struct *
- {
- 	struct thread_info *ti = tsk->thread_info;
- 	long ksp = (unsigned long)ti + THREAD_SIZE - 32;
--	dump_regs(&(*regs)[0], (struct pt_regs *) ksp - 1);
-+	elf_dump_regs(&(*regs)[0], (struct pt_regs *) ksp - 1);
- 	return 1;
- }
+ 	childregs->rax = 0;
+@@ -562,7 +562,7 @@ __switch_to(struct task_struct *prev_p, 
+ 	write_pda(oldrsp, next->userrsp); 
+ 	write_pda(pcurrent, next_p); 
+ 	write_pda(kernelstack,
+-	    (unsigned long)next_p->thread_info + THREAD_SIZE - PDA_STACKOFFSET);
++		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
  
-diff --git a/include/asm-mips/elf.h b/include/asm-mips/elf.h
-index d2c9a25..851f013 100644
---- a/include/asm-mips/elf.h
-+++ b/include/asm-mips/elf.h
-@@ -277,12 +277,12 @@ do {									\
+ 	/*
+ 	 * Now maybe reload the debug registers
+@@ -676,7 +676,7 @@ unsigned long get_wchan(struct task_stru
  
- struct task_struct;
+ 	if (!p || p == current || p->state==TASK_RUNNING)
+ 		return 0; 
+-	stack = (unsigned long)p->thread_info; 
++	stack = (unsigned long)task_stack_page(p);
+ 	if (p->thread.rsp < stack || p->thread.rsp > stack+THREAD_SIZE)
+ 		return 0;
+ 	fp = *(u64 *)(p->thread.rsp);
+diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
+index e92eec2..fe94a69 100644
+--- a/arch/x86_64/kernel/smpboot.c
++++ b/arch/x86_64/kernel/smpboot.c
+@@ -747,7 +747,7 @@ static int __cpuinit do_boot_cpu(int cpu
  
--extern void dump_regs(elf_greg_t *, struct pt_regs *regs);
-+extern void elf_dump_regs(elf_greg_t *, struct pt_regs *regs);
- extern int dump_task_regs (struct task_struct *, elf_gregset_t *);
- extern int dump_task_fpu(struct task_struct *, elf_fpregset_t *);
- 
- #define ELF_CORE_COPY_REGS(elf_regs, regs)			\
--	dump_regs((elf_greg_t *)&(elf_regs), regs);
-+	elf_dump_regs((elf_greg_t *)&(elf_regs), regs);
- #define ELF_CORE_COPY_TASK_REGS(tsk, elf_regs) dump_task_regs(tsk, elf_regs)
- #define ELF_CORE_COPY_FPREGS(tsk, elf_fpregs)			\
- 	dump_task_fpu(tsk, elf_fpregs)
+ 	if (c_idle.idle) {
+ 		c_idle.idle->thread.rsp = (unsigned long) (((struct pt_regs *)
+-			(THREAD_SIZE + (unsigned long) c_idle.idle->thread_info)) - 1);
++			(THREAD_SIZE +  task_stack_page(c_idle.idle))) - 1);
+ 		init_idle(c_idle.idle, cpu);
+ 		goto do_rest;
+ 	}
 -- 
 0.99.9.GIT
 

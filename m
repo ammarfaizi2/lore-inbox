@@ -1,97 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWACXiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbWACXhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbWACXiL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbWACXiK
+	id S965081AbWACXhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWACXhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:38:10 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:65499 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965076AbWACX2V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:28:21 -0500
+	Tue, 3 Jan 2006 18:37:19 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:476 "EHLO ZenIV.linux.org.uk")
+	by vger.kernel.org with ESMTP id S965078AbWACX20 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:28:26 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 23/41] m68k: rtc __user annotations
+Subject: [PATCH 24/41] m68k: syscalls __user annotation
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1EtvZk-0003Nn-LG@ZenIV.linux.org.uk>
+Message-Id: <E1EtvZp-0003Nw-Lf@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 23:28:20 +0000
+Date: Tue, 03 Jan 2006 23:28:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1135011480 -0500
+Date: 1135011534 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/m68k/bvme6000/rtc.c |    6 +++---
- arch/m68k/mvme16x/rtc.c  |    6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/m68k/kernel/sys_m68k.c |   39 ++++++++++++++++-----------------------
+ 1 files changed, 16 insertions(+), 23 deletions(-)
 
-3013c155d1172a80453eabfd0bdc784e59921ef9
-diff --git a/arch/m68k/bvme6000/rtc.c b/arch/m68k/bvme6000/rtc.c
-index eb63ca6..ab222c6 100644
---- a/arch/m68k/bvme6000/rtc.c
-+++ b/arch/m68k/bvme6000/rtc.c
-@@ -46,6 +46,7 @@ static int rtc_ioctl(struct inode *inode
- 	unsigned char msr;
- 	unsigned long flags;
- 	struct rtc_time wtime;
-+	void __user *argp = (void __user *)arg;
+4679c5ee619298c33b104afed12d12bd877a9c36
+diff --git a/arch/m68k/kernel/sys_m68k.c b/arch/m68k/kernel/sys_m68k.c
+index 2ed7b78..7a107d0 100644
+--- a/arch/m68k/kernel/sys_m68k.c
++++ b/arch/m68k/kernel/sys_m68k.c
+@@ -31,7 +31,7 @@
+  * sys_pipe() is the normal C calling standard for creating
+  * a pipe. It's not the way unix traditionally does this, though.
+  */
+-asmlinkage int sys_pipe(unsigned long * fildes)
++asmlinkage int sys_pipe(unsigned long __user * fildes)
+ {
+ 	int fd[2];
+ 	int error;
+@@ -93,7 +93,7 @@ struct mmap_arg_struct {
+ 	unsigned long offset;
+ };
  
- 	switch (cmd) {
- 	case RTC_RD_TIME:	/* Read the time/date from RTC	*/
-@@ -68,7 +69,7 @@ static int rtc_ioctl(struct inode *inode
- 		} while (wtime.tm_sec != BCD2BIN(rtc->bcd_sec));
- 		rtc->msr = msr;
- 		local_irq_restore(flags);
--		return copy_to_user((void *)arg, &wtime, sizeof wtime) ?
-+		return copy_to_user(argp, &wtime, sizeof wtime) ?
- 								-EFAULT : 0;
- 	}
- 	case RTC_SET_TIME:	/* Set the RTC */
-@@ -80,8 +81,7 @@ static int rtc_ioctl(struct inode *inode
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EACCES;
+-asmlinkage int old_mmap(struct mmap_arg_struct *arg)
++asmlinkage int old_mmap(struct mmap_arg_struct __user *arg)
+ {
+ 	struct mmap_arg_struct a;
+ 	int error = -EFAULT;
+@@ -159,11 +159,11 @@ out:
  
--		if (copy_from_user(&rtc_tm, (struct rtc_time*)arg,
--				   sizeof(struct rtc_time)))
-+		if (copy_from_user(&rtc_tm, argp, sizeof(struct rtc_time)))
- 			return -EFAULT;
+ struct sel_arg_struct {
+ 	unsigned long n;
+-	fd_set *inp, *outp, *exp;
+-	struct timeval *tvp;
++	fd_set __user *inp, *outp, *exp;
++	struct timeval __user *tvp;
+ };
  
- 		yrs = rtc_tm.tm_year;
-diff --git a/arch/m68k/mvme16x/rtc.c b/arch/m68k/mvme16x/rtc.c
-index 7977eae..ee18309 100644
---- a/arch/m68k/mvme16x/rtc.c
-+++ b/arch/m68k/mvme16x/rtc.c
-@@ -44,6 +44,7 @@ static int rtc_ioctl(struct inode *inode
- 	volatile MK48T08ptr_t rtc = (MK48T08ptr_t)MVME_RTC_BASE;
- 	unsigned long flags;
- 	struct rtc_time wtime;
-+	void __user *argp = (void __user *)arg;
+-asmlinkage int old_select(struct sel_arg_struct *arg)
++asmlinkage int old_select(struct sel_arg_struct __user *arg)
+ {
+ 	struct sel_arg_struct a;
  
- 	switch (cmd) {
- 	case RTC_RD_TIME:	/* Read the time/date from RTC	*/
-@@ -63,7 +64,7 @@ static int rtc_ioctl(struct inode *inode
- 		wtime.tm_wday = BCD2BIN(rtc->bcd_dow)-1;
- 		rtc->ctrl = 0;
- 		local_irq_restore(flags);
--		return copy_to_user((void *)arg, &wtime, sizeof wtime) ?
-+		return copy_to_user(argp, &wtime, sizeof wtime) ?
- 								-EFAULT : 0;
- 	}
- 	case RTC_SET_TIME:	/* Set the RTC */
-@@ -75,8 +76,7 @@ static int rtc_ioctl(struct inode *inode
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EACCES;
+@@ -179,7 +179,7 @@ asmlinkage int old_select(struct sel_arg
+  * This is really horribly ugly.
+  */
+ asmlinkage int sys_ipc (uint call, int first, int second,
+-			int third, void *ptr, long fifth)
++			int third, void __user *ptr, long fifth)
+ {
+ 	int version, ret;
  
--		if (copy_from_user(&rtc_tm, (struct rtc_time*)arg,
--				   sizeof(struct rtc_time)))
-+		if (copy_from_user(&rtc_tm, argp, sizeof(struct rtc_time)))
- 			return -EFAULT;
- 
- 		yrs = rtc_tm.tm_year;
+@@ -189,14 +189,14 @@ asmlinkage int sys_ipc (uint call, int f
+ 	if (call <= SEMCTL)
+ 		switch (call) {
+ 		case SEMOP:
+-			return sys_semop (first, (struct sembuf *)ptr, second);
++			return sys_semop (first, ptr, second);
+ 		case SEMGET:
+ 			return sys_semget (first, second, third);
+ 		case SEMCTL: {
+ 			union semun fourth;
+ 			if (!ptr)
+ 				return -EINVAL;
+-			if (get_user(fourth.__pad, (void **) ptr))
++			if (get_user(fourth.__pad, (void __user *__user *) ptr))
+ 				return -EFAULT;
+ 			return sys_semctl (first, second, third, fourth);
+ 			}
+@@ -206,31 +206,26 @@ asmlinkage int sys_ipc (uint call, int f
+ 	if (call <= MSGCTL)
+ 		switch (call) {
+ 		case MSGSND:
+-			return sys_msgsnd (first, (struct msgbuf *) ptr,
+-					  second, third);
++			return sys_msgsnd (first, ptr, second, third);
+ 		case MSGRCV:
+ 			switch (version) {
+ 			case 0: {
+ 				struct ipc_kludge tmp;
+ 				if (!ptr)
+ 					return -EINVAL;
+-				if (copy_from_user (&tmp,
+-						    (struct ipc_kludge *)ptr,
+-						    sizeof (tmp)))
++				if (copy_from_user (&tmp, ptr, sizeof (tmp)))
+ 					return -EFAULT;
+ 				return sys_msgrcv (first, tmp.msgp, second,
+ 						   tmp.msgtyp, third);
+ 				}
+ 			default:
+-				return sys_msgrcv (first,
+-						   (struct msgbuf *) ptr,
++				return sys_msgrcv (first, ptr,
+ 						   second, fifth, third);
+ 			}
+ 		case MSGGET:
+ 			return sys_msgget ((key_t) first, second);
+ 		case MSGCTL:
+-			return sys_msgctl (first, second,
+-					   (struct msqid_ds *) ptr);
++			return sys_msgctl (first, second, ptr);
+ 		default:
+ 			return -ENOSYS;
+ 		}
+@@ -240,20 +235,18 @@ asmlinkage int sys_ipc (uint call, int f
+ 			switch (version) {
+ 			default: {
+ 				ulong raddr;
+-				ret = do_shmat (first, (char *) ptr,
+-						 second, &raddr);
++				ret = do_shmat (first, ptr, second, &raddr);
+ 				if (ret)
+ 					return ret;
+-				return put_user (raddr, (ulong *) third);
++				return put_user (raddr, (ulong __user *) third);
+ 			}
+ 			}
+ 		case SHMDT:
+-			return sys_shmdt ((char *)ptr);
++			return sys_shmdt (ptr);
+ 		case SHMGET:
+ 			return sys_shmget (first, second, third);
+ 		case SHMCTL:
+-			return sys_shmctl (first, second,
+-					   (struct shmid_ds *) ptr);
++			return sys_shmctl (first, second, ptr);
+ 		default:
+ 			return -ENOSYS;
+ 		}
 -- 
 0.99.9.GIT
 

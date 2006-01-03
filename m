@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWACT4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWACT5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbWACT4p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWACT4p
+	id S932516AbWACT5m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWACT5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:56:45 -0500
-Received: from vvv.conterra.de ([212.124.44.162]:20668 "EHLO conterra.de")
-	by vger.kernel.org with ESMTP id S932514AbWACT4o (ORCPT
+	Tue, 3 Jan 2006 14:57:42 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:35754 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S932511AbWACT5l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:56:44 -0500
-Message-ID: <43BAD6F4.6080605@conterra.de>
-Date: Tue, 03 Jan 2006 20:56:36 +0100
-From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: X86_64 + VIA + 4g problems
-References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>	<43BA4C3D.4060206@conterra.de> <p731wzpjtvm.fsf@verdi.suse.de>
-In-Reply-To: <p731wzpjtvm.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 3 Jan 2006 14:57:41 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0601032036250.9362@tm8103.perex-int.cz>
+References: <20050726150837.GT3160@stusta.de>
+	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
+	 <200601031629.21765.s0348365@sms.ed.ac.uk>
+	 <20060103170316.GA12249@dspnet.fr.eu.org>
+	 <1136312901.24703.59.camel@mindpipe> <1136316640.4106.26.camel@unreal>
+	 <Pine.LNX.4.61.0601032036250.9362@tm8103.perex-int.cz>
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 20:56:26 +0100
+Message-Id: <1136318187.4106.32.camel@unreal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-08.tornado.cablecom.ch 32700; Body=3
+	Fuz1=3 Fuz2=3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Does everything work (including the SKGE) driver
-> when you boot with swiotlb=force ? 
+On Tue, 2006-01-03 at 20:37 +0100, Jaroslav Kysela wrote:
 
-Yes, it seems to work so far! I'm just reading some GB via NFS (while writing this
-mail on the same host). I already performed some other test: without initializing the
-network (and still without swiotlb=force) all my SATA controller seem to work properly.
-I did a "dd bs=400M" on each in parallel. So I'm sure that each of my 4G was involved.
-(also I'm not sure, if EACH of my 3 controllers really used something above 3G)
+> Anyone reported that? Also what's the exact bug symptom?
 
-All this was still with an unpatched 2.6.15-rc7 and with IOMMU disabled.
-So I could either try "iommu=allowed", as suggested by dmesg from
-check_ioapic() or I may apply the suggested patch for pci-gart.c,
-or both with and without network....
+Many people reported this on various mailing lists, but I'm not aware of
+any bugzilla/whatever ticket.
 
-May be I report about soon, else tomorrow.
+Problem seems to be that ALSA/OSS does not report the true HW sampling
+rate, but tries to do the sample rate conversion by itself, but
+apparently not doing it good enough for modem type applications.
 
-Dieter.
--- 
-Dieter Stüken, con terra GmbH, Münster
-     stueken@conterra.de
-     http://www.conterra.de/
-     (0)251-7474-501
+Anyway I find it not a good idea of alsa to try to do sample rate
+conversion in kernel for OSS, as the native OSS drivers never did this,
+and it is useless for software (like soundmodem) that tries to find out
+the hardware rates in order to adapt to them. Kernel resampling badly
+interferes with this.
+
+Tom
+
+PS: I was too lazy to investigate this in depth, it was easier to just
+add a native ALSA driver to soundmodem.
+
+

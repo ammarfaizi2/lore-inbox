@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWACRoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWACRtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbWACRoG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 12:44:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWACRoF
+	id S932468AbWACRtd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 12:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWACRtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 12:44:05 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:64656 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932385AbWACRoE (ORCPT
+	Tue, 3 Jan 2006 12:49:33 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:16081 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932468AbWACRtd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 12:44:04 -0500
-Message-ID: <43BAB7D4.4050204@pobox.com>
-Date: Tue, 03 Jan 2006 12:43:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patches] 2.6.x libata updates
-References: <20060103164319.GA402@havoc.gtf.org>	 <58cb370e0601030851w62fc917bibe0fd5069b2f3e44@mail.gmail.com> <1136309555.22598.10.camel@localhost.localdomain>
-In-Reply-To: <1136309555.22598.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Jan 2006 12:49:33 -0500
+Subject: Re: HPT372N   Re: hpt366 driver oops or panic with HighPoint
+	RocketRAID 1520SATA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mitchell Laks <mlaks@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200512270219.56956.mlaks@verizon.net>
+References: <200512270219.56956.mlaks@verizon.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Alan Cox wrote: > On Maw, 2006-01-03 at 17:51 +0100,
-	Bartlomiej Zolnierkiewicz wrote: > >>>+ * with SITRE and the 0x44
-	timing register). See pata_oldpiix and pata_mpiix >>>+ * for the early
-	chip drivers. >> >>pata_oldpiix and pata_mpiix are not in the mainline
-	> > > They are probably ready for mainline and since Linux currently
-	has no > support for either it might be nice to get them in. Anything
-	specific > they need polishing for Jeff ? [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Date: Tue, 03 Jan 2006 17:51:44 +0000
+Message-Id: <1136310704.22598.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2006-01-03 at 17:51 +0100, Bartlomiej Zolnierkiewicz wrote:
-> 
->>>+ * with SITRE and the 0x44 timing register). See pata_oldpiix and pata_mpiix
->>>+ * for the early chip drivers.
->>
->>pata_oldpiix and pata_mpiix are not in the mainline
-> 
-> 
-> They are probably ready for mainline and since Linux currently has no
-> support for either it might be nice to get them in. Anything specific
-> they need polishing for Jeff ?
+On Maw, 2005-12-27 at 02:19 -0500, Mitchell Laks wrote:
+> to use as simple block devices for linux software raid purposes.   I thought 
+> they were supported on Linux, because of highpoint web site and my previous 
+> experience with highpoint pata controllers was ok.
 
-Not really.  If there's no support in mainline, I'm ok with pushing them 
-upstream...  provided that they have been tested and verified to work on 
-at least one machine?  :)
+Some are, although there are problems remaining in things like clock
+timing and PLL stabilization. In addition the ide/pci/hpt366.c driver
+never supported the SATA bridge variants of the chipsets at all. These
+require certain modes are used.
 
-	Jeff
+What may work if the HPT card has the onboard BIOS enabled and fitted is
+to compile in the generic IDE PCI driver, say N to the HPT driver and
+boot with the option "all-generic-ide".
 
+I've been working on a new HPT372N/302N driver for libata/SATA but it
+isn't yet production ready and it also does not know about the SATA
+bridge rules for that chip.
 
+>  I tried to compile the hpt3xx-opensource-v2.0.tgz against latest stable 
+> kernel 2.6.14.4. After minor corrections   I have failure to compile their 
+> driver due to  scsi_cmnd structure "has no member abort_reason".  Has their 
+> been a change in scsi subsystem? 
+
+Several
+ 
+Alan
 

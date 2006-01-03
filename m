@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWACUGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWACUJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWACUGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWACUGJ
+	id S1750932AbWACUJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWACUJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:06:09 -0500
-Received: from gate.perex.cz ([85.132.177.35]:5532 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S932515AbWACUGI (ORCPT
+	Tue, 3 Jan 2006 15:09:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8607 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750932AbWACUJ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:06:08 -0500
-Date: Tue, 3 Jan 2006 21:06:06 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
-Cc: Lee Revell <rlrevell@joe-job.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-In-Reply-To: <1136318187.4106.32.camel@unreal>
-Message-ID: <Pine.LNX.4.61.0601032101570.9362@tm8103.perex-int.cz>
-References: <20050726150837.GT3160@stusta.de>  <200601031522.06898.s0348365@sms.ed.ac.uk>
- <20060103160502.GB5262@irc.pl>  <200601031629.21765.s0348365@sms.ed.ac.uk>
-  <20060103170316.GA12249@dspnet.fr.eu.org>  <1136312901.24703.59.camel@mindpipe>
- <1136316640.4106.26.camel@unreal>  <Pine.LNX.4.61.0601032036250.9362@tm8103.perex-int.cz>
- <1136318187.4106.32.camel@unreal>
+	Tue, 3 Jan 2006 15:09:28 -0500
+Message-ID: <43BAD9DF.4090401@redhat.com>
+Date: Tue, 03 Jan 2006 15:09:03 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthew Wilcox <matthew@wil.cx>
+CC: ASANO Masahiro <masano@tnes.nec.co.jp>, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] fix posix lock on NFS
+References: <20051222.132454.1025208517.masano@tnes.nec.co.jp> <43BAD2EC.2030807@redhat.com> <20060103194630.GL19769@parisc-linux.org>
+In-Reply-To: <20060103194630.GL19769@parisc-linux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jan 2006, Thomas Sailer wrote:
+Matthew Wilcox wrote:
 
-> On Tue, 2006-01-03 at 20:37 +0100, Jaroslav Kysela wrote:
-> 
-> > Anyone reported that? Also what's the exact bug symptom?
-> 
-> Many people reported this on various mailing lists, but I'm not aware of
-> any bugzilla/whatever ticket.
-> 
-> Problem seems to be that ALSA/OSS does not report the true HW sampling
-> rate, but tries to do the sample rate conversion by itself, but
-> apparently not doing it good enough for modem type applications.
+>On Tue, Jan 03, 2006 at 02:39:24PM -0500, Peter Staubach wrote:
+>  
+>
+>>>	/* No mandatory locks over NFS */
+>>>-	if ((inode->i_mode & (S_ISGID | S_IXGRP)) == S_ISGID)
+>>>+	if ((inode->i_mode & (S_ISGID | S_IXGRP)) == S_ISGID &&
+>>>+	    fl->fl_type != F_UNLCK)
+>>>      
+>>>
+>>Just out of curiosity, what is this if() statement intended to protect?
+>>For locking purposes, why would the client care if the file has the
+>>mandatory lock bits set?
+>>    
+>>
+>
+>Mandatory locks aren't mandatory for other clients.
+>  
+>
 
-The "plugin" (or rather conversion, routing and resampling) system in the 
-OSS emulation can be turned off using the proc interface:
+So?
 
-echo "soundmodem 0 0 direct" > /proc/asound/card0/pcm0p/oss
-echo "soundmodem 0 0 direct" > /proc/asound/card0/pcm0c/oss
+I guess that I don't understand this response.
 
-Full documentation is available at:
+The server is responsible for keeping itself from attempting to access
+a mandatory lock file.  The client is not responsible for doing so and
+trying to help the server is kind of a waste of time, mostly.
 
-linux/Documentation/sound/alsa/OSS-Emulation.txt
+The mandatory lock mode bits really only come into play when attempting
+to read or write the file.  In this case, the system will automatically
+try to take a lock for the process, if that process does not already
+have a lock.  The server should prevent itself from trying to access
+files like this in order to avoid DoS attacks.
 
-It's easy to remove the "additional" functionality, but I bet that we
-find some users requesting it. Also, in time when the OSS emulation was 
-designed, not all OSS applications had own resapling code.
+The NFS client does not support mandatory locking, mostly due to the
+possibility of DoS attacks and also due to the locking and NFS protocols
+not being sufficiently aware of each other.  NFSv4 can be used to address
+this latter problem, but probably not the former.
 
-						Jaroslav
+So, why deny lock requests for such files?  Especially on the client?
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+    Thanx...
+
+       ps

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWACXJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWACXJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWACXJk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWACXJj
+	id S964889AbWACXJO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWACXIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:09:39 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:51637 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964882AbWACXI5 (ORCPT
+	Tue, 3 Jan 2006 18:08:49 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:38069 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964899AbWACXIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:08:57 -0500
-Date: Wed, 4 Jan 2006 00:08:49 +0100
+	Tue, 3 Jan 2006 18:08:40 -0500
+Date: Wed, 4 Jan 2006 00:08:26 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,8 +19,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 20/20] mutex subsystem, semaphore to completion: drivers/block/loop.c
-Message-ID: <20060103230849.GU13511@elte.hu>
+Subject: [patch 17/20] mutex subsystem, semaphore to completion: SX8
+Message-ID: <20060103230826.GR13511@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -35,119 +35,66 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Steven Rostedt <rostedt@goodmis.org>
 
-convert the block loop device from semaphores to completions.
+change SX8 semaphores to completions.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
 ----
 
- drivers/block/loop.c |   27 ++++++++++++---------------
- include/linux/loop.h |    4 ++--
- 2 files changed, 14 insertions(+), 17 deletions(-)
+ drivers/block/sx8.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-Index: linux/drivers/block/loop.c
+Index: linux/drivers/block/sx8.c
 ===================================================================
---- linux.orig/drivers/block/loop.c
-+++ linux/drivers/block/loop.c
-@@ -514,12 +514,12 @@ static int loop_make_request(request_que
- 	lo->lo_pending++;
- 	loop_add_bio(lo, old_bio);
- 	spin_unlock_irq(&lo->lo_lock);
--	up(&lo->lo_bh_mutex);
-+	complete(&lo->lo_bh_done);
- 	return 0;
+--- linux.orig/drivers/block/sx8.c
++++ linux/drivers/block/sx8.c
+@@ -27,8 +27,8 @@
+ #include <linux/time.h>
+ #include <linux/hdreg.h>
+ #include <linux/dma-mapping.h>
++#include <linux/completion.h>
+ #include <asm/io.h>
+-#include <asm/semaphore.h>
+ #include <asm/uaccess.h>
  
- out:
- 	if (lo->lo_pending == 0)
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- 	spin_unlock_irq(&lo->lo_lock);
- 	bio_io_error(old_bio, old_bio->bi_size);
- 	return 0;
-@@ -580,23 +580,20 @@ static int loop_thread(void *data)
- 	lo->lo_pending = 1;
+ #if 0
+@@ -303,7 +303,7 @@ struct carm_host {
  
- 	/*
--	 * up sem, we are running
-+	 * complete it, we are running
- 	 */
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
+ 	struct work_struct		fsm_task;
  
- 	for (;;) {
- 		int pending;
+-	struct semaphore		probe_sem;
++	struct completion		probe_comp;
+ };
  
--		/*
--		 * interruptible just to not contribute to load avg
--		 */
--		if (down_interruptible(&lo->lo_bh_mutex))
-+		if (wait_for_completion_interruptible(&lo->lo_bh_done))
- 			continue;
- 
- 		spin_lock_irq(&lo->lo_lock);
- 
- 		/*
--		 * could be upped because of tear-down, not pending work
-+		 * could be completed because of tear-down, not pending work
- 		 */
- 		if (unlikely(!lo->lo_pending)) {
- 			spin_unlock_irq(&lo->lo_lock);
-@@ -619,7 +616,7 @@ static int loop_thread(void *data)
- 			break;
+ struct carm_response {
+@@ -1365,7 +1365,7 @@ static void carm_fsm_task (void *_data)
  	}
  
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
- 	return 0;
- }
+ 	case HST_PROBE_FINISHED:
+-		up(&host->probe_sem);
++		complete(&host->probe_comp);
+ 		break;
  
-@@ -830,7 +827,7 @@ static int loop_set_fd(struct loop_devic
- 	set_blocksize(bdev, lo_blocksize);
+ 	case HST_ERROR:
+@@ -1641,7 +1641,7 @@ static int carm_init_one (struct pci_dev
+ 	host->flags = pci_dac ? FL_DAC : 0;
+ 	spin_lock_init(&host->lock);
+ 	INIT_WORK(&host->fsm_task, carm_fsm_task, host);
+-	init_MUTEX_LOCKED(&host->probe_sem);
++	init_completion(&host->probe_comp);
  
- 	kernel_thread(loop_thread, lo, CLONE_KERNEL);
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 	return 0;
+ 	for (i = 0; i < ARRAY_SIZE(host->req); i++)
+ 		host->req[i].tag = i;
+@@ -1710,8 +1710,8 @@ static int carm_init_one (struct pci_dev
+ 	if (rc)
+ 		goto err_out_free_irq;
  
-  out_putf:
-@@ -896,10 +893,10 @@ static int loop_clr_fd(struct loop_devic
- 	lo->lo_state = Lo_rundown;
- 	lo->lo_pending--;
- 	if (!lo->lo_pending)
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- 	spin_unlock_irq(&lo->lo_lock);
+-	DPRINTK("waiting for probe_sem\n");
+-	down(&host->probe_sem);
++	DPRINTK("waiting for probe_comp\n");
++	wait_for_completion(&host->probe_comp);
  
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 
- 	lo->lo_backing_file = NULL;
- 
-@@ -1276,8 +1273,8 @@ static int __init loop_init(void)
- 		if (!lo->lo_queue)
- 			goto out_mem4;
- 		init_MUTEX(&lo->lo_ctl_mutex);
--		init_MUTEX_LOCKED(&lo->lo_sem);
--		init_MUTEX_LOCKED(&lo->lo_bh_mutex);
-+		init_completion(&lo->lo_done);
-+		init_completion(&lo->lo_bh_done);
- 		lo->lo_number = i;
- 		spin_lock_init(&lo->lo_lock);
- 		disk->major = LOOP_MAJOR;
-Index: linux/include/linux/loop.h
-===================================================================
---- linux.orig/include/linux/loop.h
-+++ linux/include/linux/loop.h
-@@ -58,9 +58,9 @@ struct loop_device {
- 	struct bio 		*lo_bio;
- 	struct bio		*lo_biotail;
- 	int			lo_state;
--	struct semaphore	lo_sem;
-+	struct completion	lo_done;
-+	struct completion	lo_bh_done;
- 	struct semaphore	lo_ctl_mutex;
--	struct semaphore	lo_bh_mutex;
- 	int			lo_pending;
- 
- 	request_queue_t		*lo_queue;
+ 	printk(KERN_INFO "%s: pci %s, ports %d, io %lx, irq %u, major %d\n",
+ 	       host->name, pci_name(pdev), (int) CARM_MAX_PORTS,

@@ -1,63 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWACXnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWACXnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965129AbWACXnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWACX1K
+	id S964852AbWACXnr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWACXnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:27:10 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55515 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964971AbWACX04
+	Tue, 3 Jan 2006 18:43:25 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:57307 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965017AbWACX1L
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:26:56 -0500
+	Tue, 3 Jan 2006 18:27:11 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 06/41] m68k: oktagon makefile fix
+Subject: [PATCH 09/41] m68k: more workarounds for recent binutils idiocy
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1EtvYN-0003LY-Fz@ZenIV.linux.org.uk>
+Message-Id: <E1EtvYc-0003Lu-Gy@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 23:26:55 +0000
+Date: Tue, 03 Jan 2006 23:27:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1133440277 -0500
+Date: 1134435322 -0500
 
-oktagon_esp is described as modular.  However, drivers/scsi/Makefile doesn't
-handle it right - it's multi-object module, with one of the parts being
-built from .S.  Current makefile tries to declare each part a module of
-its own; that not only wouldn't work (oktagon_io.o doesn't have the right
-parts for that), it actually doesn't even build since kbuild doesn't believe
-in single-object modules built from .S.  Turned into proper multi-object
-module...
+cretinous thing doesn't believe that (%a0)+ is one macro argument and
+splits it in two; worked around by quoting the argument...
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- drivers/scsi/Makefile |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ arch/m68k/math-emu/fp_move.S  |    4 ++--
+ arch/m68k/math-emu/fp_movem.S |   12 ++++++------
+ arch/m68k/math-emu/fp_scan.S  |    6 +++---
+ arch/m68k/math-emu/fp_util.S  |    6 +++---
+ 4 files changed, 14 insertions(+), 14 deletions(-)
 
-1c3f2c3e5fb1c3851ae70bd0d25fc3fc161ac52b
-diff --git a/drivers/scsi/Makefile b/drivers/scsi/Makefile
-index f062ea0..6e0c059 100644
---- a/drivers/scsi/Makefile
-+++ b/drivers/scsi/Makefile
-@@ -45,7 +45,7 @@ obj-$(CONFIG_CYBERSTORMII_SCSI)	+= NCR53
- obj-$(CONFIG_BLZ2060_SCSI)	+= NCR53C9x.o	blz2060.o
- obj-$(CONFIG_BLZ1230_SCSI)	+= NCR53C9x.o	blz1230.o
- obj-$(CONFIG_FASTLANE_SCSI)	+= NCR53C9x.o	fastlane.o
--obj-$(CONFIG_OKTAGON_SCSI)	+= NCR53C9x.o	oktagon_esp.o	oktagon_io.o
-+obj-$(CONFIG_OKTAGON_SCSI)	+= NCR53C9x.o	oktagon_esp_mod.o
- obj-$(CONFIG_ATARI_SCSI)	+= atari_scsi.o
- obj-$(CONFIG_MAC_SCSI)		+= mac_scsi.o
- obj-$(CONFIG_SCSI_MAC_ESP)	+= mac_esp.o	NCR53C9x.o
-@@ -164,6 +164,7 @@ CFLAGS_ncr53c8xx.o	:= $(ncr53c8xx-flags-
- zalon7xx-objs	:= zalon.o ncr53c8xx.o
- NCR_Q720_mod-objs	:= NCR_Q720.o ncr53c8xx.o
- libata-objs	:= libata-core.o libata-scsi.o
-+oktagon_esp_mod-objs	:= oktagon_esp.o oktagon_io.o
+5ea87cc472a0aebf479e94ac287c50e1c070f741
+diff --git a/arch/m68k/math-emu/fp_move.S b/arch/m68k/math-emu/fp_move.S
+index 9bd0334..19363b3 100644
+--- a/arch/m68k/math-emu/fp_move.S
++++ b/arch/m68k/math-emu/fp_move.S
+@@ -213,9 +213,9 @@ fp_format_extended:
+ 	lsl.w	#1,%d0
+ 	lsl.l	#7,%d0
+ 	lsl.l	#8,%d0
+-	putuser .l,%d0,(%a1)+,fp_err_ua1,%a1
++	putuser .l,%d0,"(%a1)+",fp_err_ua1,%a1
+ 	move.l	(%a0)+,%d0
+-	putuser .l,%d0,(%a1)+,fp_err_ua1,%a1
++	putuser .l,%d0,"(%a1)+",fp_err_ua1,%a1
+ 	move.l	(%a0),%d0
+ 	putuser .l,%d0,(%a1),fp_err_ua1,%a1
+ 	jra	fp_finish_move
+diff --git a/arch/m68k/math-emu/fp_movem.S b/arch/m68k/math-emu/fp_movem.S
+index 9c74134..4173655 100644
+--- a/arch/m68k/math-emu/fp_movem.S
++++ b/arch/m68k/math-emu/fp_movem.S
+@@ -141,12 +141,12 @@ fpr_do_movem:
+ 	| move register from memory into fpu
+ 	jra	3f
+ 1:	printf	PMOVEM,"(%p>%p)",2,%a0,%a1
+-	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
++	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
+ 	lsr.l	#8,%d2
+ 	lsr.l	#7,%d2
+ 	lsr.w	#1,%d2
+ 	move.l	%d2,(%a1)+
+-	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
++	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
+ 	move.l	%d2,(%a1)+
+ 	getuser .l,(%a0),%d2,fp_err_ua1,%a0
+ 	move.l	%d2,(%a1)
+@@ -164,9 +164,9 @@ fpr_do_movem:
+ 	lsl.w	#1,%d2
+ 	lsl.l	#7,%d2
+ 	lsl.l	#8,%d2
+-	putuser .l,%d2,(%a0)+,fp_err_ua1,%a0
++	putuser .l,%d2,"(%a0)+",fp_err_ua1,%a0
+ 	move.l	(%a1)+,%d2
+-	putuser .l,%d2,(%a0)+,fp_err_ua1,%a0
++	putuser .l,%d2,"(%a0)+",fp_err_ua1,%a0
+ 	move.l	(%a1),%d2
+ 	putuser .l,%d2,(%a0),fp_err_ua1,%a0
+ 	subq.l	#8,%a1
+@@ -325,7 +325,7 @@ fpc_do_movem:
+ 	| move register from memory into fpu
+ 	jra	3f
+ 1:	printf	PMOVEM,"(%p>%p)",2,%a0,%a1
+-	getuser .l,(%a0)+,%d0,fp_err_ua1,%a0
++	getuser .l,"(%a0)+",%d0,fp_err_ua1,%a0
+ 	move.l	%d0,(%a1)
+ 2:	addq.l	#4,%a1
+ 3:	lsl.b	#1,%d1
+@@ -336,7 +336,7 @@ fpc_do_movem:
+ 	| move register from fpu into memory
+ 1:	printf	PMOVEM,"(%p>%p)",2,%a1,%a0
+ 	move.l	(%a1),%d0
+-	putuser .l,%d0,(%a0)+,fp_err_ua1,%a0
++	putuser .l,%d0,"(%a0)+",fp_err_ua1,%a0
+ 2:	addq.l	#4,%a1
+ 4:	lsl.b	#1,%d1
+ 	jcs	1b
+diff --git a/arch/m68k/math-emu/fp_scan.S b/arch/m68k/math-emu/fp_scan.S
+index 5f49b93..6a71ed1 100644
+--- a/arch/m68k/math-emu/fp_scan.S
++++ b/arch/m68k/math-emu/fp_scan.S
+@@ -72,7 +72,7 @@ fp_scan:
+ #endif
+ 	jne	fp_nonstd
+ | first two instruction words are kept in %d2
+-	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
++	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
+ 	fp_put_pc %a0
+ fp_decode_cond:				| separate conditional instr
+ 	fp_decode_cond_instr_type
+@@ -262,12 +262,12 @@ fp_single:
+ 	jra	fp_getdest
  
- # Files generated that shall be removed upon make clean
- clean-files :=	53c7xx_d.h 53c700_d.h	\
+ fp_ext:
+-	getuser .l,(%a1)+,%d0,fp_err_ua1,%a1
++	getuser .l,"(%a1)+",%d0,fp_err_ua1,%a1
+ 	lsr.l	#8,%d0
+ 	lsr.l	#7,%d0
+ 	lsr.w	#1,%d0
+ 	move.l	%d0,(%a0)+
+-	getuser .l,(%a1)+,%d0,fp_err_ua1,%a1
++	getuser .l,"(%a1)+",%d0,fp_err_ua1,%a1
+ 	move.l	%d0,(%a0)+
+ 	getuser .l,(%a1),%d0,fp_err_ua1,%a1
+ 	move.l	%d0,(%a0)
+diff --git a/arch/m68k/math-emu/fp_util.S b/arch/m68k/math-emu/fp_util.S
+index f9f24d5..170110a 100644
+--- a/arch/m68k/math-emu/fp_util.S
++++ b/arch/m68k/math-emu/fp_util.S
+@@ -164,7 +164,7 @@ fp_conv_double2ext:
+ 	getuser .l,%a1@(4),%d1,fp_err_ua2,%a1
+ 	printf	PCONV,"d2e: %p%p -> %p(",3,%d0,%d1,%a0
+ #endif
+-	getuser .l,(%a1)+,%d0,fp_err_ua2,%a1
++	getuser .l,"(%a1)+",%d0,fp_err_ua2,%a1
+ 	move.l	%d0,%d1
+ 	lsl.l	#8,%d0			| shift high mantissa
+ 	lsl.l	#3,%d0
+@@ -178,7 +178,7 @@ fp_conv_double2ext:
+ 	add.w	#0x3fff-0x3ff,%d1	| re-bias the exponent.
+ 9:	move.l	%d1,(%a0)+		| fp_ext.sign, fp_ext.exp
+ 	move.l	%d0,(%a0)+
+-	getuser .l,(%a1)+,%d0,fp_err_ua2,%a1
++	getuser .l,"(%a1)+",%d0,fp_err_ua2,%a1
+ 	move.l	%d0,%d1
+ 	lsl.l	#8,%d0
+ 	lsl.l	#3,%d0
+@@ -1287,7 +1287,7 @@ fp_conv_ext2double:
+ 	lsr.l	#4,%d0
+ 	lsr.l	#8,%d0
+ 	or.l	%d2,%d0
+-	putuser .l,%d0,(%a1)+,fp_err_ua2,%a1
++	putuser .l,%d0,"(%a1)+",fp_err_ua2,%a1
+ 	moveq	#21,%d0
+ 	lsl.l	%d0,%d1
+ 	move.l	(%a0),%d0
 -- 
 0.99.9.GIT
 

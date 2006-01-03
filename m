@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWACXNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWACXMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWACXNF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWACXMx
+	id S964870AbWACXMt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWACXHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:12:53 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:65463 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964871AbWACXHy (ORCPT
+	Tue, 3 Jan 2006 18:07:55 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:60599 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964870AbWACXHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:07:54 -0500
-Date: Wed, 4 Jan 2006 00:07:39 +0100
+	Tue, 3 Jan 2006 18:07:43 -0500
+Date: Wed, 4 Jan 2006 00:07:23 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,8 +19,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 12/20] mutex subsystem, synchro-test module
-Message-ID: <20060103230739.GM13511@elte.hu>
+Subject: [patch 10/20] mutex subsystem, debugging code
+Message-ID: <20060103230723.GK13511@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -35,686 +35,716 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
 
-The attached patch adds a module for testing and benchmarking mutexes,
-semaphores and R/W semaphores.
+mutex implementation - add debugging code.
 
-Using it is simple:
-
-	insmod synchro-test.ko <args>
-
-It will exit with error ENOANO after running the tests and printing the
-results to the kernel console log.
-
-The available arguments are:
-
- (*) mx=N
-
-	Start up to N mutex thrashing threads, where N is at most 20. All will
-	try and thrash the same mutex.
-
- (*) sm=N
-
-	Start up to N counting semaphore thrashing threads, where N is at most
-	20. All will try and thrash the same semaphore.
-
- (*) ism=M
-
-	Initialise the counting semaphore with M, where M is any positive
-	integer greater than zero. The default is 4.
-
- (*) rd=N
- (*) wr=O
- (*) dg=P
-
-	Start up to N reader thrashing threads, O writer thrashing threads and
-	P downgrader thrashing threads, where N, O and P are at most 20
-	apiece. All will try and thrash the same read/write semaphore.
-
- (*) elapse=N
-
-	Run the tests for N seconds. The default is 5.
-
- (*) load=N
-
-	Each thread delays for N uS whilst holding the lock. The dfault is 0.
-
- (*) interval=N
-
-	Each thread delays for N uS whilst not holding the lock. The default
-	is 0.
-
- (*) do_sched=1
-
-	Each thread will call schedule if required after each iteration.
-
- (*) v=1
-
-	Print more verbose information, including a thread iteration
-	distribution list.
-
-The module should be enabled by turning on CONFIG_DEBUG_SYNCHRO_TEST to "m".
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- Documentation/synchro-test.txt |   59 ++++
- kernel/Makefile                |    1 
- kernel/synchro-test.c          |  508 +++++++++++++++++++++++++++++++++++++++++
- lib/Kconfig.debug              |   14 +
- 4 files changed, 582 insertions(+)
+ include/linux/mutex-debug.h |   21 +
+ include/linux/sched.h       |    5 
+ kernel/Makefile             |    1 
+ kernel/fork.c               |    4 
+ kernel/mutex-debug.c        |  464 ++++++++++++++++++++++++++++++++++++++++++++
+ kernel/mutex-debug.h        |  134 ++++++++++++
+ lib/Kconfig.debug           |    8 
+ 7 files changed, 637 insertions(+)
 
-Index: linux/Documentation/synchro-test.txt
+Index: linux/include/linux/mutex-debug.h
 ===================================================================
 --- /dev/null
-+++ linux/Documentation/synchro-test.txt
-@@ -0,0 +1,59 @@
-+The synchro-test.ko module can be used for testing and benchmarking mutexes,
-+semaphores and R/W semaphores.
++++ linux/include/linux/mutex-debug.h
+@@ -0,0 +1,21 @@
++#ifndef __LINUX_MUTEX_DEBUG_H
++#define __LINUX_MUTEX_DEBUG_H
 +
-+The module is compiled by setting CONFIG_DEBUG_SYNCHRO_TEST to "m" when
-+configuring the kernel.
++/*
++ * Mutexes - debugging helpers:
++ */
 +
-+Using it is simple:
++#define __DEBUG_MUTEX_INITIALIZER(lockname) \
++	, .held_list = LIST_HEAD_INIT(lockname.held_list), \
++	  .name = #lockname , .magic = &lockname
 +
-+	insmod synchro-test.ko <args>
++#define mutex_init(sem)		__mutex_init(sem, __FUNCTION__)
 +
-+It will exit with error ENOANO after running the tests and printing the
-+results to the kernel console log.
++extern void FASTCALL(mutex_destroy(struct mutex *lock));
 +
-+The available arguments are:
++extern void mutex_debug_show_all_locks(void);
++extern void mutex_debug_show_held_locks(struct task_struct *filter);
++extern void mutex_debug_check_no_locks_held(struct task_struct *task);
++extern void mutex_debug_check_no_locks_freed(const void *from, const void *to);
 +
-+ (*) mx=N
++#endif
+Index: linux/include/linux/sched.h
+===================================================================
+--- linux.orig/include/linux/sched.h
++++ linux/include/linux/sched.h
+@@ -820,6 +820,11 @@ struct task_struct {
+ /* Protection of proc_dentry: nesting proc_lock, dcache_lock, write_lock_irq(&tasklist_lock); */
+ 	spinlock_t proc_lock;
+ 
++#ifdef CONFIG_DEBUG_MUTEXES
++	/* mutex deadlock detection */
++	struct mutex_waiter *blocked_on;
++#endif
 +
-+	Start up to N mutex thrashing threads, where N is at most 20. All will
-+	try and thrash the same mutex.
-+
-+ (*) sm=N
-+
-+	Start up to N counting semaphore thrashing threads, where N is at most
-+	20. All will try and thrash the same semaphore.
-+
-+ (*) ism=M
-+
-+	Initialise the counting semaphore with M, where M is any positive
-+	integer greater than zero. The default is 4.
-+
-+ (*) rd=N
-+ (*) wr=O
-+ (*) dg=P
-+
-+	Start up to N reader thrashing threads, O writer thrashing threads and
-+	P downgrader thrashing threads, where N, O and P are at most 20
-+	apiece. All will try and thrash the same read/write semaphore.
-+
-+ (*) elapse=N
-+
-+	Run the tests for N seconds. The default is 5.
-+
-+ (*) load=N
-+
-+	Each thread delays for N uS whilst holding the lock. The default is 0.
-+
-+ (*) interval=N
-+
-+	Each thread delays for N uS whilst not holding the lock. The default
-+	is 0.
-+
-+ (*) do_sched=1
-+
-+	Each thread will call schedule if required after each iteration.
-+
-+ (*) v=1
-+
-+	Print more verbose information, including a thread iteration
-+	distribution list.
+ /* journalling filesystem info */
+ 	void *journal_info;
+ 
 Index: linux/kernel/Makefile
 ===================================================================
 --- linux.orig/kernel/Makefile
 +++ linux/kernel/Makefile
-@@ -33,6 +33,7 @@ obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
- obj-$(CONFIG_CRASH_DUMP) += crash_dump.o
- obj-$(CONFIG_SECCOMP) += seccomp.o
- obj-$(CONFIG_RCU_TORTURE_TEST) += rcutorture.o
-+obj-$(CONFIG_DEBUG_SYNCHRO_TEST) += synchro-test.o
+@@ -9,6 +9,7 @@ obj-y     = sched.o fork.o exec_domain.o
+ 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
+ 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o
  
- ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-Index: linux/kernel/synchro-test.c
++obj-$(CONFIG_DEBUG_MUTEXES) += mutex-debug.o
+ obj-$(CONFIG_FUTEX) += futex.o
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o spinlock.o
+Index: linux/kernel/fork.c
+===================================================================
+--- linux.orig/kernel/fork.c
++++ linux/kernel/fork.c
+@@ -973,6 +973,10 @@ static task_t *copy_process(unsigned lon
+  	}
+ #endif
+ 
++#ifdef CONFIG_DEBUG_MUTEXES
++	p->blocked_on = NULL; /* not blocked yet */
++#endif
++
+ 	p->tgid = p->pid;
+ 	if (clone_flags & CLONE_THREAD)
+ 		p->tgid = current->tgid;
+Index: linux/kernel/mutex-debug.c
 ===================================================================
 --- /dev/null
-+++ linux/kernel/synchro-test.c
-@@ -0,0 +1,508 @@
-+/* synchro-test.c: run some threads to test the synchronisation primitives
++++ linux/kernel/mutex-debug.c
+@@ -0,0 +1,464 @@
++/*
++ * kernel/mutex-debug.c
 + *
-+ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
++ * Debugging code for mutexes
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ * Started by Ingo Molnar:
 + *
-+ * The module should be run as something like:
++ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
 + *
-+ *	insmod synchro-test.ko rd=2 wr=2
-+ *	insmod synchro-test.ko mx=1
-+ *	insmod synchro-test.ko sm=2 ism=1
-+ *	insmod synchro-test.ko sm=2 ism=2
++ * lock debugging, locking tree, deadlock detection started by:
 + *
-+ * See Documentation/synchro-test.txt for more information.
++ *  Copyright (C) 2004, LynuxWorks, Inc., Igor Manyilov, Bill Huey
++ *  Released under the General Public License (GPL).
 + */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/poll.h>
-+#include <linux/moduleparam.h>
-+#include <linux/stat.h>
-+#include <linux/init.h>
-+#include <asm/atomic.h>
-+#include <linux/personality.h>
-+#include <linux/smp_lock.h>
-+#include <linux/delay.h>
-+#include <linux/timer.h>
-+#include <linux/completion.h>
 +#include <linux/mutex.h>
++#include <linux/sched.h>
++#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/spinlock.h>
++#include <linux/kallsyms.h>
++#include <linux/interrupt.h>
 +
-+#define VALIDATE_OPERATORS 1
++#include <asm/mutex.h>
 +
-+static int nummx = NR_CPUS;
-+static int numsm = NR_CPUS, seminit = 4;
-+static int numrd = NR_CPUS, numwr = NR_CPUS, numdg = NR_CPUS;
-+static int elapse = 5, load = 1, do_sched = 1, interval = 1;
-+static int verbose = 0;
++#include "mutex-debug.h"
 +
-+MODULE_AUTHOR("David Howells");
-+MODULE_DESCRIPTION("Synchronisation primitive test demo");
-+MODULE_LICENSE("GPL");
++/*
++ * We need a global lock when we walk through the multi-process
++ * lock tree. Only used in the deadlock-debugging case.
++ */
++DEFINE_SPINLOCK(debug_mutex_lock);
 +
-+module_param_named(v, verbose, int, 0);
-+MODULE_PARM_DESC(verbose, "Verbosity");
++/*
++ * All locks held by all tasks, in a single global list:
++ */
++LIST_HEAD(debug_mutex_held_locks);
 +
-+module_param_named(mx, nummx, int, 0);
-+MODULE_PARM_DESC(nummx, "Number of mutex threads");
++/*
++ * In the debug case we carry the caller's instruction pointer into
++ * other functions, but we dont want the function argument overhead
++ * in the nondebug case - hence these macros:
++ */
++#define __IP_DECL__		, unsigned long ip
++#define __IP__			, ip
++#define __RET_IP__		, (unsigned long)__builtin_return_address(0)
 +
-+module_param_named(sm, numsm, int, 0);
-+MODULE_PARM_DESC(numsm, "Number of semaphore threads");
++/*
++ * "mutex debugging enabled" flag. We turn it off when we detect
++ * the first problem because we dont want to recurse back
++ * into the tracing code when doing error printk or
++ * executing a BUG():
++ */
++int debug_mutex_on = 1;
 +
-+module_param_named(ism, seminit, int, 0);
-+MODULE_PARM_DESC(seminit, "Initial semaphore value");
-+
-+module_param_named(rd, numrd, int, 0);
-+MODULE_PARM_DESC(numrd, "Number of reader threads");
-+
-+module_param_named(wr, numwr, int, 0);
-+MODULE_PARM_DESC(numwr, "Number of writer threads");
-+
-+module_param_named(dg, numdg, int, 0);
-+MODULE_PARM_DESC(numdg, "Number of downgrader threads");
-+
-+module_param(elapse, int, 0);
-+MODULE_PARM_DESC(elapse, "Number of seconds to run for");
-+
-+module_param(load, int, 0);
-+MODULE_PARM_DESC(load, "Length of load in uS");
-+
-+module_param(interval, int, 0);
-+MODULE_PARM_DESC(interval, "Length of interval in uS before re-getting lock");
-+
-+module_param(do_sched, int, 0);
-+MODULE_PARM_DESC(do_sched, "True if each thread should schedule regularly");
-+
-+/* the semaphores under test */
-+static struct mutex ____cacheline_aligned mutex;
-+static struct semaphore ____cacheline_aligned sem;
-+static struct rw_semaphore ____cacheline_aligned rwsem;
-+
-+static atomic_t ____cacheline_aligned do_stuff		= ATOMIC_INIT(0);
-+
-+#if VALIDATE_OPERATORS
-+static atomic_t ____cacheline_aligned mutexes		= ATOMIC_INIT(0);
-+static atomic_t ____cacheline_aligned semaphores	= ATOMIC_INIT(0);
-+static atomic_t ____cacheline_aligned readers		= ATOMIC_INIT(0);
-+static atomic_t ____cacheline_aligned writers		= ATOMIC_INIT(0);
-+#endif
-+
-+static unsigned int ____cacheline_aligned mutexes_taken[20];
-+static unsigned int ____cacheline_aligned semaphores_taken[20];
-+static unsigned int ____cacheline_aligned reads_taken[20];
-+static unsigned int ____cacheline_aligned writes_taken[20];
-+static unsigned int ____cacheline_aligned downgrades_taken[20];
-+
-+static struct completion ____cacheline_aligned mx_comp[20];
-+static struct completion ____cacheline_aligned sm_comp[20];
-+static struct completion ____cacheline_aligned rd_comp[20];
-+static struct completion ____cacheline_aligned wr_comp[20];
-+static struct completion ____cacheline_aligned dg_comp[20];
-+
-+static struct timer_list ____cacheline_aligned timer;
-+
-+#define ACCOUNT(var, N) var##_taken[N]++;
-+
-+#if VALIDATE_OPERATORS
-+#define TRACK(var, dir) atomic_##dir(&(var))
-+
-+#define CHECK(var, cond, val)						\
-+do {									\
-+	int x = atomic_read(&(var));					\
-+	if (unlikely(!(x cond (val))))					\
-+		printk("check [%s %s %d, == %d] failed in %s\n",	\
-+		       #var, #cond, (val), x, __func__);		\
-+} while (0)
-+
-+#else
-+#define TRACK(var, dir)		do {} while(0)
-+#define CHECK(var, cond, val)	do {} while(0)
-+#endif
-+
-+static inline void do_mutex_lock(unsigned int N)
++static void printk_task(struct task_struct *p)
 +{
-+	mutex_lock(&mutex);
-+
-+	ACCOUNT(mutexes, N);
-+	TRACK(mutexes, inc);
-+	CHECK(mutexes, ==, 1);
++	if (p)
++		printk("%16s:%5d [%p, %3d]", p->comm, p->pid, p, p->prio);
++	else
++		printk("<none>");
 +}
 +
-+static inline void do_mutex_unlock(unsigned int N)
++static void printk_ti(struct thread_info *ti)
 +{
-+	CHECK(mutexes, ==, 1);
-+	TRACK(mutexes, dec);
-+
-+	mutex_unlock(&mutex);
++	if (ti)
++		printk_task(ti->task);
++	else
++		printk("<none>");
 +}
 +
-+static inline void do_down(unsigned int N)
++static void printk_task_short(struct task_struct *p)
 +{
-+	CHECK(mutexes, <, seminit);
-+
-+	down(&sem);
-+
-+	ACCOUNT(semaphores, N);
-+	TRACK(semaphores, inc);
++	if (p)
++		printk("%s/%d [%p, %3d]", p->comm, p->pid, p, p->prio);
++	else
++		printk("<none>");
 +}
 +
-+static inline void do_up(unsigned int N)
++static void printk_lock(struct mutex *lock, int print_owner)
 +{
-+	CHECK(semaphores, >, 0);
-+	TRACK(semaphores, dec);
++	printk(" [%p] {%s}\n", lock, lock->name);
 +
-+	up(&sem);
-+}
-+
-+static inline void do_down_read(unsigned int N)
-+{
-+	down_read(&rwsem);
-+
-+	ACCOUNT(reads, N);
-+	TRACK(readers, inc);
-+	CHECK(readers, >, 0);
-+	CHECK(writers, ==, 0);
-+}
-+
-+static inline void do_up_read(unsigned int N)
-+{
-+	CHECK(readers, >, 0);
-+	CHECK(writers, ==, 0);
-+	TRACK(readers, dec);
-+
-+	up_read(&rwsem);
-+}
-+
-+static inline void do_down_write(unsigned int N)
-+{
-+	down_write(&rwsem);
-+
-+	ACCOUNT(writes, N);
-+	TRACK(writers, inc);
-+	CHECK(writers, ==, 1);
-+	CHECK(readers, ==, 0);
-+}
-+
-+static inline void do_up_write(unsigned int N)
-+{
-+	CHECK(writers, ==, 1);
-+	CHECK(readers, ==, 0);
-+	TRACK(writers, dec);
-+
-+	up_write(&rwsem);
-+}
-+
-+static inline void do_downgrade_write(unsigned int N)
-+{
-+	CHECK(writers, ==, 1);
-+	CHECK(readers, ==, 0);
-+	TRACK(writers, dec);
-+	TRACK(readers, inc);
-+
-+	downgrade_write(&rwsem);
-+
-+	ACCOUNT(downgrades, N);
-+}
-+
-+static inline void sched(void)
-+{
-+	if (do_sched)
-+		schedule();
-+}
-+
-+int mutexer(void *arg)
-+{
-+	unsigned int N = (unsigned long) arg;
-+
-+	daemonize("Mutex%u", N);
-+	set_user_nice(current, 19);
-+
-+	while (atomic_read(&do_stuff)) {
-+		do_mutex_lock(N);
-+		if (load)
-+			udelay(load);
-+		do_mutex_unlock(N);
-+		sched();
-+		if (interval)
-+			udelay(interval);
-+	}
-+
-+	if (verbose >= 2)
-+		printk("%s: done\n", current->comm);
-+	complete_and_exit(&mx_comp[N], 0);
-+}
-+
-+int semaphorer(void *arg)
-+{
-+	unsigned int N = (unsigned long) arg;
-+
-+	daemonize("Sem%u", N);
-+	set_user_nice(current, 19);
-+
-+	while (atomic_read(&do_stuff)) {
-+		do_down(N);
-+		if (load)
-+			udelay(load);
-+		do_up(N);
-+		sched();
-+		if (interval)
-+			udelay(interval);
-+	}
-+
-+	if (verbose >= 2)
-+		printk("%s: done\n", current->comm);
-+	complete_and_exit(&sm_comp[N], 0);
-+}
-+
-+int reader(void *arg)
-+{
-+	unsigned int N = (unsigned long) arg;
-+
-+	daemonize("Read%u", N);
-+	set_user_nice(current, 19);
-+
-+	while (atomic_read(&do_stuff)) {
-+		do_down_read(N);
-+#ifdef LOAD_TEST
-+		if (load)
-+			udelay(load);
-+#endif
-+		do_up_read(N);
-+		sched();
-+		if (interval)
-+			udelay(interval);
-+	}
-+
-+	if (verbose >= 2)
-+		printk("%s: done\n", current->comm);
-+	complete_and_exit(&rd_comp[N], 0);
-+}
-+
-+int writer(void *arg)
-+{
-+	unsigned int N = (unsigned long) arg;
-+
-+	daemonize("Write%u", N);
-+	set_user_nice(current, 19);
-+
-+	while (atomic_read(&do_stuff)) {
-+		do_down_write(N);
-+#ifdef LOAD_TEST
-+		if (load)
-+			udelay(load);
-+#endif
-+		do_up_write(N);
-+		sched();
-+		if (interval)
-+			udelay(interval);
-+	}
-+
-+	if (verbose >= 2)
-+		printk("%s: done\n", current->comm);
-+	complete_and_exit(&wr_comp[N], 0);
-+}
-+
-+int downgrader(void *arg)
-+{
-+	unsigned int N = (unsigned long) arg;
-+
-+	daemonize("Down%u", N);
-+	set_user_nice(current, 19);
-+
-+	while (atomic_read(&do_stuff)) {
-+		do_down_write(N);
-+#ifdef LOAD_TEST
-+		if (load)
-+			udelay(load);
-+#endif
-+		do_downgrade_write(N);
-+#ifdef LOAD_TEST
-+		if (load)
-+			udelay(load);
-+#endif
-+		do_up_read(N);
-+		sched();
-+		if (interval)
-+			udelay(interval);
-+	}
-+
-+	if (verbose >= 2)
-+		printk("%s: done\n", current->comm);
-+	complete_and_exit(&dg_comp[N], 0);
-+}
-+
-+static void stop_test(unsigned long dummy)
-+{
-+	atomic_set(&do_stuff, 0);
-+}
-+
-+static unsigned int total(const char *what, unsigned int counts[], int num)
-+{
-+	unsigned int tot = 0, max = 0, min = UINT_MAX, zeros = 0, cnt;
-+	int loop;
-+
-+	for (loop = 0; loop < num; loop++) {
-+		cnt = counts[loop];
-+
-+		if (cnt == 0) {
-+			zeros++;
-+			min = 0;
-+			continue;
-+		}
-+
-+		tot += cnt;
-+		if (tot > max)
-+			max = tot;
-+		if (tot < min)
-+			min = tot;
-+	}
-+
-+	if (verbose && tot > 0) {
-+		printk("%s:", what);
-+
-+		for (loop = 0; loop < num; loop++) {
-+			cnt = counts[loop];
-+
-+			if (cnt == 0)
-+				printk(" zzz");
-+			else
-+				printk(" %d%%", cnt * 100 / tot);
-+		}
-+
++	if (print_owner && lock->owner) {
++		printk(".. held by:  ");
++		printk_ti(lock->owner);
 +		printk("\n");
 +	}
-+
-+	return tot;
++	if (lock->owner) {
++		printk("... acquired at:               ");
++		print_symbol("%s\n", lock->acquire_ip);
++	}
 +}
 +
-+/*****************************************************************************/
 +/*
-+ *
++ * printk locks held by a task:
 + */
-+static int __init do_tests(void)
++static void show_task_locks(struct task_struct *p)
 +{
-+	unsigned long loop;
-+	unsigned int mutex_total, sem_total, rd_total, wr_total, dg_total;
++	switch (p->state) {
++	case TASK_RUNNING:		printk("R"); break;
++	case TASK_INTERRUPTIBLE:	printk("S"); break;
++	case TASK_UNINTERRUPTIBLE:	printk("D"); break;
++	case TASK_STOPPED:		printk("T"); break;
++	case EXIT_ZOMBIE:		printk("Z"); break;
++	case EXIT_DEAD:			printk("X"); break;
++	default:			printk("?"); break;
++	}
++	printk_task(p);
++	if (p->blocked_on) {
++		struct mutex *lock = p->blocked_on->lock;
 +
-+	if (nummx < 0 || nummx > 20 ||
-+	    numsm < 0 || numsm > 20 ||
-+	    numrd < 0 || numrd > 20 ||
-+	    numwr < 0 || numwr > 20 ||
-+	    numdg < 0 || numdg > 20 ||
-+	    seminit < 1 ||
-+	    elapse < 1 ||
-+	    load < 0 || load > 999 ||
-+	    interval < 0 || interval > 999
-+	    ) {
-+		printk("Parameter out of range\n");
-+		return -ERANGE;
++		printk(" blocked on mutex:");
++		printk_lock(lock, 1);
++	} else
++		printk(" (not blocked on mutex)\n");
++}
++
++/*
++ * printk all locks held in the system (if filter == NULL),
++ * or all locks belonging to a single task (if filter != NULL):
++ */
++void show_held_locks(struct task_struct *filter)
++{
++	struct list_head *curr, *cursor = NULL;
++	struct mutex *lock;
++	struct thread_info *t;
++	unsigned long flags;
++	int count = 0;
++
++	if (filter) {
++		printk("------------------------------\n");
++		printk("| showing all locks held by: |  (");
++		printk_task_short(filter);
++		printk("):\n");
++		printk("------------------------------\n");
++	} else {
++		printk("---------------------------\n");
++		printk("| showing all locks held: |\n");
++		printk("---------------------------\n");
 +	}
 +
-+	if ((nummx | numsm | numrd | numwr | numdg) == 0) {
-+		printk("Nothing to do\n");
-+		return -EINVAL;
++	/*
++	 * Play safe and acquire the global trace lock. We
++	 * cannot printk with that lock held so we iterate
++	 * very carefully:
++	 */
++next:
++	debug_spin_lock_save(&debug_mutex_lock, flags);
++	list_for_each(curr, &debug_mutex_held_locks) {
++		if (cursor && curr != cursor)
++			continue;
++		lock = list_entry(curr, struct mutex, held_list);
++		t = lock->owner;
++		if (filter && (t != filter->thread_info))
++			continue;
++		count++;
++		cursor = curr->next;
++		debug_spin_lock_restore(&debug_mutex_lock, flags);
++
++		printk("\n#%03d:            ", count);
++		printk_lock(lock, filter ? 0 : 1);
++		goto next;
++	}
++	debug_spin_lock_restore(&debug_mutex_lock, flags);
++	printk("\n");
++}
++
++void mutex_debug_show_all_locks(void)
++{
++	struct task_struct *g, *p;
++	int count = 10;
++	int unlock = 1;
++
++	printk("\nShowing all blocking locks in the system:\n");
++
++	/*
++	 * Here we try to get the tasklist_lock as hard as possible,
++	 * if not successful after 2 seconds we ignore it (but keep
++	 * trying). This is to enable a debug printout even if a
++	 * tasklist_lock-holding task deadlocks or crashes.
++	 */
++retry:
++	if (!read_trylock(&tasklist_lock)) {
++		if (count == 10)
++			printk("hm, tasklist_lock locked, retrying... ");
++		if (count) {
++			count--;
++			printk(" #%d", 10-count);
++			mdelay(200);
++			goto retry;
++		}
++		printk(" ignoring it.\n");
++		unlock = 0;
++	}
++	if (count != 10)
++		printk(" locked it.\n");
++
++	do_each_thread(g, p) {
++		show_task_locks(p);
++		if (!unlock)
++			if (read_trylock(&tasklist_lock))
++				unlock = 1;
++	} while_each_thread(g, p);
++
++	printk("\n");
++	show_held_locks(NULL);
++	printk("=============================================\n\n");
++
++	if (unlock)
++		read_unlock(&tasklist_lock);
++}
++
++static void report_deadlock(struct task_struct *task, struct mutex *lock,
++			    struct mutex *lockblk, unsigned long ip)
++{
++	printk("\n%s/%d is trying to acquire this lock:\n",
++		current->comm, current->pid);
++	printk_lock(lock, 1);
++	printk("... trying at:                 ");
++	print_symbol("%s\n", ip);
++	show_held_locks(current);
++
++	if (lockblk) {
++		printk("but %s/%d is deadlocking current task %s/%d!\n\n",
++			task->comm, task->pid, current->comm, current->pid);
++		printk("\n%s/%d is blocked on this lock:\n",
++			task->comm, task->pid);
++		printk_lock(lockblk, 1);
++
++		show_held_locks(task);
++
++		printk("\n%s/%d's [blocked] stackdump:\n\n",
++			task->comm, task->pid);
++		show_stack(task, NULL);
 +	}
 +
-+	if (verbose)
-+		printk("\nStarting synchronisation primitive tests...\n");
++	printk("\n%s/%d's [current] stackdump:\n\n",
++		current->comm, current->pid);
++	dump_stack();
++	mutex_debug_show_all_locks();
++	printk("[ turning off deadlock detection. Please report this. ]\n\n");
++	local_irq_disable();
++}
 +
-+	mutex_init(&mutex);
-+	sema_init(&sem, seminit);
-+	init_rwsem(&rwsem);
-+	atomic_set(&do_stuff, 1);
++/*
++ * Recursively check for mutex deadlocks:
++ */
++static int check_deadlock(struct mutex *lock, int depth,
++			  struct thread_info *ti, unsigned long ip)
++{
++	struct mutex *lockblk;
++	struct task_struct *task;
 +
-+	/* kick off all the children */
-+	for (loop = 0; loop < 20; loop++) {
-+		if (loop < nummx) {
-+			init_completion(&mx_comp[loop]);
-+			kernel_thread(mutexer, (void *) loop, 0);
-+		}
++	if (!debug_mutex_on)
++		return 0;
 +
-+		if (loop < numsm) {
-+			init_completion(&sm_comp[loop]);
-+			kernel_thread(semaphorer, (void *) loop, 0);
-+		}
++	ti = lock->owner;
++	if (!ti)
++		return 0;
 +
-+		if (loop < numrd) {
-+			init_completion(&rd_comp[loop]);
-+			kernel_thread(reader, (void *) loop, 0);
-+		}
++	task = ti->task;
++	lockblk = NULL;
++	if (task->blocked_on)
++		lockblk = task->blocked_on->lock;
 +
-+		if (loop < numwr) {
-+			init_completion(&wr_comp[loop]);
-+			kernel_thread(writer, (void *) loop, 0);
-+		}
-+
-+		if (loop < numdg) {
-+			init_completion(&dg_comp[loop]);
-+			kernel_thread(downgrader, (void *) loop, 0);
-+		}
++	/* Self-deadlock: */
++	if (current == task) {
++		DEBUG_OFF();
++		if (depth)
++			return 1;
++		printk("\n==========================================\n");
++		printk(  "[ BUG: lock recursion deadlock detected! |\n");
++		printk(  "------------------------------------------\n");
++		report_deadlock(task, lock, NULL, ip);
++		return 0;
 +	}
 +
-+	/* set a stop timer */
-+	init_timer(&timer);
-+	timer.function = stop_test;
-+	timer.expires = jiffies + elapse * HZ;
-+	add_timer(&timer);
-+
-+	/* now wait until it's all done */
-+	for (loop = 0; loop < nummx; loop++)
-+		wait_for_completion(&mx_comp[loop]);
-+
-+	for (loop = 0; loop < numsm; loop++)
-+		wait_for_completion(&sm_comp[loop]);
-+
-+	for (loop = 0; loop < numrd; loop++)
-+		wait_for_completion(&rd_comp[loop]);
-+
-+	for (loop = 0; loop < numwr; loop++)
-+		wait_for_completion(&wr_comp[loop]);
-+
-+	for (loop = 0; loop < numdg; loop++)
-+		wait_for_completion(&dg_comp[loop]);
-+
-+	atomic_set(&do_stuff, 0);
-+	del_timer(&timer);
-+
-+	if (mutex_is_locked(&mutex))
-+		printk(KERN_ERR "Mutex is still locked!\n");
-+
-+	/* count up */
-+	mutex_total	= total("MTX", mutexes_taken, nummx);
-+	sem_total	= total("SEM", semaphores_taken, numsm);
-+	rd_total	= total("RD ", reads_taken, numrd);
-+	wr_total	= total("WR ", writes_taken, numwr);
-+	dg_total	= total("DG ", downgrades_taken, numdg);
-+
-+	/* print the results */
-+	if (verbose) {
-+		printk("mutexes taken: %u\n", mutex_total);
-+		printk("semaphores taken: %u\n", sem_total);
-+		printk("reads taken: %u\n", rd_total);
-+		printk("writes taken: %u\n", wr_total);
-+		printk("downgrades taken: %u\n", dg_total);
-+	}
-+	else {
-+		printk("%3d %3d %3d %3d %3d %c %3d %9u %9u %9u %9u %9u\n",
-+		       nummx, numsm, numrd, numwr, numdg,
-+		       do_sched ? 's' : '-',
-+		       load,
-+		       mutex_total,
-+		       sem_total,
-+		       rd_total,
-+		       wr_total,
-+		       dg_total);
++	/* Ugh, something corrupted the lock data structure? */
++	if (depth > 20) {
++		DEBUG_OFF();
++		printk("\n===========================================\n");
++		printk(  "[ BUG: infinite lock dependency detected!? |\n");
++		printk(  "-------------------------------------------\n");
++		report_deadlock(task, lock, lockblk, ip);
++		return 0;
 +	}
 +
-+	/* tell insmod to discard the module */
-+	if (verbose)
-+		printk("Tests complete\n");
-+	return -ENOANO;
++	/* Recursively check for dependencies: */
++	if (lockblk && check_deadlock(lockblk, depth+1, ti, ip)) {
++		printk("\n============================================\n");
++		printk(  "[ BUG: circular locking deadlock detected! ]\n");
++		printk(  "--------------------------------------------\n");
++		report_deadlock(task, lock, lockblk, ip);
++		return 0;
++	}
++	return 0;
++}
 +
-+} /* end do_tests() */
++/*
++ * Called when a task exits, this function checks whether the
++ * task is holding any locks, and reports the first one if so:
++ */
++void mutex_debug_check_no_locks_held(struct task_struct *task)
++{
++	struct list_head *curr, *next;
++	struct thread_info *t;
++	unsigned long flags;
++	struct mutex *lock;
 +
-+module_init(do_tests);
++	if (!debug_mutex_on)
++		return;
++
++	debug_spin_lock_save(&debug_mutex_lock, flags);
++	list_for_each_safe(curr, next, &debug_mutex_held_locks) {
++		lock = list_entry(curr, struct mutex, held_list);
++		t = lock->owner;
++		if (t != task->thread_info)
++			continue;
++		list_del_init(curr);
++		DEBUG_OFF();
++		debug_spin_lock_restore(&debug_mutex_lock, flags);
++
++		printk("BUG: %s/%d, lock held at task exit time!\n",
++			task->comm, task->pid);
++		printk_lock(lock, 1);
++		if (lock->owner != task->thread_info)
++			printk("exiting task is not even the owner??\n");
++		return;
++	}
++	debug_spin_lock_restore(&debug_mutex_lock, flags);
++}
++
++/*
++ * Called when kernel memory is freed (or unmapped), or if a mutex
++ * is destroyed or reinitialized - this code checks whether there is
++ * any held lock in the memory range of <from> to <to>:
++ */
++void mutex_debug_check_no_locks_freed(const void *from, const void *to)
++{
++	struct list_head *curr, *next;
++	unsigned long flags;
++	struct mutex *lock;
++	void *lock_addr;
++
++	if (!debug_mutex_on)
++		return;
++
++	debug_spin_lock_save(&debug_mutex_lock, flags);
++	list_for_each_safe(curr, next, &debug_mutex_held_locks) {
++		lock = list_entry(curr, struct mutex, held_list);
++		lock_addr = lock;
++		if (lock_addr < from || lock_addr >= to)
++			continue;
++		list_del_init(curr);
++		DEBUG_OFF();
++		debug_spin_lock_restore(&debug_mutex_lock, flags);
++
++		printk("BUG: %s/%d, active lock [%p(%p-%p)] freed!\n",
++			current->comm, current->pid, lock, from, to);
++		dump_stack();
++		printk_lock(lock, 1);
++		if (lock->owner != current_thread_info())
++			printk("freeing task is not even the owner??\n");
++		return;
++	}
++	debug_spin_lock_restore(&debug_mutex_lock, flags);
++}
++
++/*
++ * Must be called with lock->wait_lock held.
++ */
++void debug_mutex_set_owner(struct mutex *lock,
++			   struct thread_info *new_owner __IP_DECL__)
++{
++	lock->owner = new_owner;
++	DEBUG_WARN_ON(!list_empty(&lock->held_list));
++	if (debug_mutex_on) {
++		list_add_tail(&lock->held_list, &debug_mutex_held_locks);
++		lock->acquire_ip = ip;
++	}
++}
++
++void debug_mutex_init_waiter(struct mutex_waiter *waiter)
++{
++	memset(waiter, 0x11, sizeof(*waiter));
++	waiter->magic = waiter;
++	INIT_LIST_HEAD(&waiter->list);
++}
++
++void debug_mutex_wake_waiter(struct mutex *lock, struct mutex_waiter *waiter)
++{
++	SMP_DEBUG_WARN_ON(!spin_is_locked(&lock->wait_lock));
++	DEBUG_WARN_ON(list_empty(&lock->wait_list));
++	DEBUG_WARN_ON(waiter->magic != waiter);
++	DEBUG_WARN_ON(list_empty(&waiter->list));
++}
++
++void debug_mutex_free_waiter(struct mutex_waiter *waiter)
++{
++	DEBUG_WARN_ON(!list_empty(&waiter->list));
++	memset(waiter, 0x22, sizeof(*waiter));
++}
++
++void debug_mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++			    struct thread_info *ti __IP_DECL__)
++{
++	SMP_DEBUG_WARN_ON(!spin_is_locked(&lock->wait_lock));
++	check_deadlock(lock, 0, ti, ip);
++	/* Mark the current thread as blocked on the lock: */
++	ti->task->blocked_on = waiter;
++	waiter->lock = lock;
++}
++
++void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++			 struct thread_info *ti)
++{
++	DEBUG_WARN_ON(list_empty(&waiter->list));
++	DEBUG_WARN_ON(waiter->ti != ti);
++	DEBUG_WARN_ON(ti->task->blocked_on != waiter);
++	ti->task->blocked_on = NULL;
++
++	list_del_init(&waiter->list);
++	waiter->ti = NULL;
++}
++
++void debug_mutex_unlock(struct mutex *lock)
++{
++	DEBUG_WARN_ON(lock->magic != lock);
++	DEBUG_WARN_ON(!lock->wait_list.prev && !lock->wait_list.next);
++	DEBUG_WARN_ON(lock->owner != current_thread_info());
++	if (debug_mutex_on) {
++		DEBUG_WARN_ON(list_empty(&lock->held_list));
++		list_del_init(&lock->held_list);
++	}
++}
++
++void debug_mutex_init(struct mutex *lock, const char *name)
++{
++	/*
++	 * Make sure we are not reinitializing a held lock:
++	 */
++	mutex_debug_check_no_locks_freed((void *)lock, (void *)(lock + 1));
++	lock->owner = NULL;
++	INIT_LIST_HEAD(&lock->held_list);
++	lock->name = name;
++	lock->magic = lock;
++}
++
++/***
++ * mutex_destroy - mark a mutex unusable
++ * @lock: the mutex to be destroyed
++ *
++ * This function marks the mutex uninitialized, and any subsequent
++ * use of the mutex is forbidden. The mutex must not be locked when
++ * this function is called.
++ */
++void fastcall mutex_destroy(struct mutex *lock)
++{
++	DEBUG_WARN_ON(mutex_is_locked(lock));
++	lock->magic = NULL;
++}
++
++EXPORT_SYMBOL_GPL(mutex_destroy);
++
+Index: linux/kernel/mutex-debug.h
+===================================================================
+--- /dev/null
++++ linux/kernel/mutex-debug.h
+@@ -0,0 +1,134 @@
++/*
++ * Mutexes: blocking mutual exclusion locks
++ *
++ * started by Ingo Molnar:
++ *
++ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
++ *
++ * This file contains mutex debugging related internal declarations,
++ * prototypes and inline functions, for the CONFIG_DEBUG_MUTEXES case.
++ * More details are in kernel/mutex-debug.c.
++ */
++
++extern spinlock_t debug_mutex_lock;
++extern struct list_head debug_mutex_held_locks;
++extern int debug_mutex_on;
++
++/*
++ * In the debug case we carry the caller's instruction pointer into
++ * other functions, but we dont want the function argument overhead
++ * in the nondebug case - hence these macros:
++ */
++#define __IP_DECL__		, unsigned long ip
++#define __IP__			, ip
++#define __RET_IP__		, (unsigned long)__builtin_return_address(0)
++
++/*
++ * This must be called with lock->wait_lock held.
++ */
++extern void debug_mutex_set_owner(struct mutex *lock,
++				  struct thread_info *new_owner __IP_DECL__);
++
++static inline void debug_mutex_clear_owner(struct mutex *lock)
++{
++	lock->owner = NULL;
++}
++
++extern void debug_mutex_init_waiter(struct mutex_waiter *waiter);
++extern void debug_mutex_wake_waiter(struct mutex *lock,
++				    struct mutex_waiter *waiter);
++extern void debug_mutex_free_waiter(struct mutex_waiter *waiter);
++extern void debug_mutex_add_waiter(struct mutex *lock,
++				   struct mutex_waiter *waiter,
++				   struct thread_info *ti __IP_DECL__);
++extern void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++				struct thread_info *ti);
++extern void debug_mutex_unlock(struct mutex *lock);
++extern void debug_mutex_init(struct mutex *lock, const char *name);
++
++#define debug_spin_lock(lock)				\
++	do {						\
++		local_irq_disable();			\
++		if (debug_mutex_on)			\
++			spin_lock(lock);		\
++	} while (0)
++
++#define debug_spin_unlock(lock)				\
++	do {						\
++		if (debug_mutex_on)			\
++			spin_unlock(lock);		\
++		local_irq_enable();			\
++		preempt_check_resched();		\
++	} while (0)
++
++#define debug_spin_lock_save(lock, flags)		\
++	do {						\
++		local_irq_save(flags);			\
++		if (debug_mutex_on)			\
++			spin_lock(lock);		\
++	} while (0)
++
++#define debug_spin_lock_restore(lock, flags)		\
++	do {						\
++		if (debug_mutex_on)			\
++			spin_unlock(lock);		\
++		local_irq_restore(flags);		\
++		preempt_check_resched();		\
++	} while (0)
++
++#define spin_lock_mutex(lock)				\
++	do {						\
++		struct mutex *l = container_of(lock, struct mutex, wait_lock); \
++							\
++		DEBUG_WARN_ON(in_interrupt());		\
++		debug_spin_lock(&debug_mutex_lock);	\
++		spin_lock(lock);			\
++		DEBUG_WARN_ON(l->magic != l);		\
++	} while (0)
++
++#define spin_unlock_mutex(lock)				\
++	do {						\
++		spin_unlock(lock);			\
++		debug_spin_unlock(&debug_mutex_lock);	\
++	} while (0)
++
++#define DEBUG_OFF()					\
++do {							\
++	if (debug_mutex_on) {				\
++		debug_mutex_on = 0;			\
++		console_verbose();			\
++		if (spin_is_locked(&debug_mutex_lock))	\
++			spin_unlock(&debug_mutex_lock);	\
++	}						\
++} while (0)
++
++#define DEBUG_BUG()					\
++do {							\
++	if (debug_mutex_on) {				\
++		DEBUG_OFF();				\
++		BUG();					\
++	}						\
++} while (0)
++
++#define DEBUG_WARN_ON(c)				\
++do {							\
++	if (unlikely(c && debug_mutex_on)) {		\
++		DEBUG_OFF();				\
++		WARN_ON(1);				\
++	}						\
++} while (0)
++
++# define DEBUG_BUG_ON(c)				\
++do {							\
++	if (unlikely(c))				\
++		DEBUG_BUG();				\
++} while (0)
++
++#ifdef CONFIG_SMP
++# define SMP_DEBUG_WARN_ON(c)			DEBUG_WARN_ON(c)
++# define SMP_DEBUG_BUG_ON(c)			DEBUG_BUG_ON(c)
++#else
++# define SMP_DEBUG_WARN_ON(c)			do { } while (0)
++# define SMP_DEBUG_BUG_ON(c)			do { } while (0)
++#endif
++
 Index: linux/lib/Kconfig.debug
 ===================================================================
 --- linux.orig/lib/Kconfig.debug
 +++ linux/lib/Kconfig.debug
-@@ -207,3 +207,17 @@ config RCU_TORTURE_TEST
- 	  at boot time (you probably don't).
- 	  Say M if you want the RCU torture tests to build as a module.
- 	  Say N if you are unsure.
-+
-+config DEBUG_SYNCHRO_TEST
-+	tristate "Synchronisation primitive testing module"
+@@ -95,6 +95,14 @@ config DEBUG_PREEMPT
+ 	  if kernel code uses it in a preemption-unsafe way. Also, the kernel
+ 	  will detect preemption count underflows.
+ 
++config DEBUG_MUTEXES
++	bool "Mutex debugging, deadlock detection"
++	default y
 +	depends on DEBUG_KERNEL
-+	default n
 +	help
-+	  This option provides a kernel module that can thrash the sleepable
-+	  synchronisation primitives (mutexes and semaphores).
++	 This allows mutex semantics violations and mutex related deadlocks
++	 (lockups) to be detected and reported automatically.
 +
-+	  You should say N or M here. Whilst the module can be built in, it's
-+	  not recommended as it requires module parameters supplying to get it
-+	  to do anything.
-+
-+	  See Documentation/synchro-test.txt.
+ config DEBUG_SPINLOCK
+ 	bool "Spinlock debugging"
+ 	depends on DEBUG_KERNEL

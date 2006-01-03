@@ -1,55 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWACSFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWACSIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWACSFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 13:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWACSFh
+	id S1751384AbWACSIe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 13:08:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWACSId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 13:05:37 -0500
-Received: from mail1.rx30.com ([63.168.173.10]:50626 "EHLO hermes.rx30.com")
-	by vger.kernel.org with ESMTP id S932350AbWACSFg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 13:05:36 -0500
-Subject: Boot hang on 2.6.14
-From: Peter Lauda <plauda@rx30.com>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 03 Jan 2006 13:13:04 -0500
-Message-Id: <1136311996.10020.21.camel@plauda5.rx30.com>
-Mime-Version: 1.0
+	Tue, 3 Jan 2006 13:08:33 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:56543 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750795AbWACSId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 13:08:33 -0500
+Date: Tue, 3 Jan 2006 19:08:31 +0100
+From: Tino Keitel <tino.keitel@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: No Coax digital out with SB Live! and 2.6.15
+Message-ID: <20060103180831.GA5265@localhost.localdomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi folks,
 
-I've been looking all day for any FAQ or answer to this question/problem
-and finally have to post here because I am out of options.
+since I upgraded to 2.6.15, the Coax digital output of my SB Live!
+stays silent. Analog output works. After reverting to 2.6.14.3 the
+digital output works again. Does anyone have a solution for this or at
+least the same problem?
 
-I have setup a system (Dell Precision 380 w/sata HD's on separate
-channels) in a RAID1 software config. I added the SATA/SCSI/RAID drivers
-to the kernel. I want to boot from /dev/md1 as the root FS /dev/md0 as
-boot. 
-
-When the system is coming up, I see it load the md parts and then the
-SCSI (I think sg) parts. Then it seems to be loading the next
-module/driver as a mouse driver but after echoing the line to the
-console, the system hangs indefinitely with no further messages or
-output.
-
-I did this easily in 2.5.29 by creating a custom initrd that loaded all
-the modules, crafted the arrays, and then let the system use it for root
-mount.
-
-I'm confident I'm close to getting this going since I've been beating on
-it a while now but without any other message to go on, I don't know what
-to look for next.
-
-Can anyone here give me some tips on how to enable boot time debugging
-or any other tricks/tips that may shed light on where things are
-failing?
-
-Any input greatly appreciated.
-
---p
-
+Regards,
+Tino

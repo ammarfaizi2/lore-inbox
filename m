@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWACVHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWACVIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbWACVHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWACVHn
+	id S964837AbWACVIP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWACVH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:07:43 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:27279 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932529AbWACVHl
+	Tue, 3 Jan 2006 16:07:59 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:27791 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932575AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:41 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 07/50] amd64: task_stack_page()
+Subject: [PATCH 08/50] i386: task_thread_info()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008PQ-6k@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008PS-6y@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,55 +25,68 @@ Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/x86_64/kernel/process.c |    6 +++---
- arch/x86_64/kernel/smpboot.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/i386/kernel/process.c |    4 ++--
+ arch/i386/kernel/vm86.c    |    2 +-
+ include/asm-i386/i387.h    |    8 ++++----
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-c93c0d97f1334d04b0f0ac98acc40e8b6ffc2ff1
-diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
-index 08e578f..334cecc 100644
---- a/arch/x86_64/kernel/process.c
-+++ b/arch/x86_64/kernel/process.c
-@@ -423,7 +423,7 @@ int copy_thread(int nr, unsigned long cl
- 	struct task_struct *me = current;
+d0cf455569f14bd2720d57b724aa1a8b0a2fd212
+diff --git a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
+index 2333aea..b48cfe1 100644
+--- a/arch/i386/kernel/process.c
++++ b/arch/i386/kernel/process.c
+@@ -612,8 +612,8 @@ static inline void disable_tsc(struct ta
+ 	 * gcc should eliminate the ->thread_info dereference if
+ 	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
+ 	 */
+-	prev = prev_p->thread_info;
+-	next = next_p->thread_info;
++	prev = task_thread_info(prev_p);
++	next = task_thread_info(next_p);
  
- 	childregs = ((struct pt_regs *)
--			(THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
-+			(THREAD_SIZE + task_stack_page(p))) - 1;
- 	*childregs = *regs;
+ 	if (has_secure_computing(prev) || has_secure_computing(next)) {
+ 		/* slow path here */
+diff --git a/arch/i386/kernel/vm86.c b/arch/i386/kernel/vm86.c
+index fc19935..312ee0b 100644
+--- a/arch/i386/kernel/vm86.c
++++ b/arch/i386/kernel/vm86.c
+@@ -310,7 +310,7 @@ static void do_sys_vm86(struct kernel_vm
+ 		"movl %1,%%ebp\n\t"
+ 		"jmp resume_userspace"
+ 		: /* no outputs */
+-		:"r" (&info->regs), "r" (tsk->thread_info) : "ax");
++		:"r" (&info->regs), "r" (task_thread_info(tsk)) : "ax");
+ 	/* we never return here */
+ }
  
- 	childregs->rax = 0;
-@@ -562,7 +562,7 @@ __switch_to(struct task_struct *prev_p, 
- 	write_pda(oldrsp, next->userrsp); 
- 	write_pda(pcurrent, next_p); 
- 	write_pda(kernelstack,
--	    (unsigned long)next_p->thread_info + THREAD_SIZE - PDA_STACKOFFSET);
-+		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
+diff --git a/include/asm-i386/i387.h b/include/asm-i386/i387.h
+index 6747006..152d0ba 100644
+--- a/include/asm-i386/i387.h
++++ b/include/asm-i386/i387.h
+@@ -49,19 +49,19 @@ static inline void __save_init_fpu( stru
+ 		X86_FEATURE_FXSR,
+ 		"m" (tsk->thread.i387.fxsave)
+ 		:"memory");
+-	tsk->thread_info->status &= ~TS_USEDFPU;
++	task_thread_info(tsk)->status &= ~TS_USEDFPU;
+ }
  
- 	/*
- 	 * Now maybe reload the debug registers
-@@ -676,7 +676,7 @@ unsigned long get_wchan(struct task_stru
+ #define __unlazy_fpu( tsk ) do { \
+-	if ((tsk)->thread_info->status & TS_USEDFPU) \
++	if (task_thread_info(tsk)->status & TS_USEDFPU) \
+ 		save_init_fpu( tsk ); \
+ } while (0)
  
- 	if (!p || p == current || p->state==TASK_RUNNING)
- 		return 0; 
--	stack = (unsigned long)p->thread_info; 
-+	stack = (unsigned long)task_stack_page(p);
- 	if (p->thread.rsp < stack || p->thread.rsp > stack+THREAD_SIZE)
- 		return 0;
- 	fp = *(u64 *)(p->thread.rsp);
-diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
-index e92eec2..fe94a69 100644
---- a/arch/x86_64/kernel/smpboot.c
-+++ b/arch/x86_64/kernel/smpboot.c
-@@ -747,7 +747,7 @@ static int __cpuinit do_boot_cpu(int cpu
- 
- 	if (c_idle.idle) {
- 		c_idle.idle->thread.rsp = (unsigned long) (((struct pt_regs *)
--			(THREAD_SIZE + (unsigned long) c_idle.idle->thread_info)) - 1);
-+			(THREAD_SIZE +  task_stack_page(c_idle.idle))) - 1);
- 		init_idle(c_idle.idle, cpu);
- 		goto do_rest;
- 	}
+ #define __clear_fpu( tsk )					\
+ do {								\
+-	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
++	if (task_thread_info(tsk)->status & TS_USEDFPU) {		\
+ 		asm volatile("fnclex ; fwait");				\
+-		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
++		task_thread_info(tsk)->status &= ~TS_USEDFPU;	\
+ 		stts();						\
+ 	}							\
+ } while (0)
 -- 
 0.99.9.GIT
 

@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWACIJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWACINt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWACIJR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 03:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWACIJR
+	id S1751221AbWACINt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 03:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWACINs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 03:09:17 -0500
-Received: from nproxy.gmail.com ([64.233.182.200]:54383 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751177AbWACIJQ convert rfc822-to-8bit
+	Tue, 3 Jan 2006 03:13:48 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:2959 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1751221AbWACINs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 03:09:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e1Vb/BI8sE5/kO1jM1qGL1G+9BE/S5X7KaF9WdoV5qdVEtv88JKxmRHNa+wjxE/UnsEgN6ag0l13lCwOTZGEh/FOndAOLAiht+sP1vAWTYFryQoKDvirERDyNQtmUrGfmbACJ6LozfQShULqejxfk9T3/J/9D12QsW2iCTgqDDo=
-Message-ID: <2cd57c900601030009g47d92a5bs@mail.gmail.com>
-Date: Tue, 3 Jan 2006 08:09:14 +0000
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Tyndall Erick S SSgt 35 CS/SCMG <Erick.Tyndall@misawa.af.mil>
-Subject: Re: flow chart tool?
-Cc: liudj@digitalchina.com, linux-arch@vger.kernel.org, linux-tiny@selenic.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <B3B901035D23C34B99736534A74BF6D7059C11@MIMLMB01.misawa.pacaf.ds.af.mil>
+	Tue, 3 Jan 2006 03:13:48 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: rmk+serial@arm.linux.org.uk
+Subject: [PATCH] fix warning in 8250.c
+Date: Tue, 3 Jan 2006 10:12:48 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <B3B901035D23C34B99736534A74BF6D7059C11@MIMLMB01.misawa.pacaf.ds.af.mil>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_BIjuD6MvX1MDQUp"
+Message-Id: <200601031012.49068.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/1/2, Tyndall Erick S SSgt 35 CS/SCMG <Erick.Tyndall@misawa.af.mil>:
-> Wow, coywolf. Unnecessary and unhelpful...
->
-> As for the question liudj... you can try OpenOffice's 'Draw' program.
-> It's not specialized for flowcharts like Visio, but should do the trick.
+--Boundary-00=_BIjuD6MvX1MDQUp
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I use dia often.
+  CC      drivers/serial/8250.o
+/.1/usr/srcdevel/kernel/linux-2.6.15-rc7.src/drivers/serial/8250.c:1085: warning: 'transmit_chars' declared inline after being called
+/.1/usr/srcdevel/kernel/linux-2.6.15-rc7.src/drivers/serial/8250.c:1085: warning: previous declaration of 'transmit_chars' was here
+
+Since this function is not small, inlining effect is way below noise floor.
+Let's just remove _INLINE_.
 --
-Coywolf Qi Hunt
+vda
+
+--Boundary-00=_BIjuD6MvX1MDQUp
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-2.6.15-rc7.inline.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="linux-2.6.15-rc7.inline.patch"
+
+  CC      drivers/serial/8250.o
+/.1/usr/srcdevel/kernel/linux-2.6.15-rc7.src/drivers/serial/8250.c:1085: warning: 'transmit_chars' declared inline after being called
+/.1/usr/srcdevel/kernel/linux-2.6.15-rc7.src/drivers/serial/8250.c:1085: warning: previous declaration of 'transmit_chars' was here
+
+
+diff -urpN linux-2.6.15-rc7.src/drivers/serial/8250.c linux-2.6.15-rc7.fix/drivers/serial/8250.c
+--- linux-2.6.15-rc7.src/drivers/serial/8250.c	Fri Dec 30 14:18:03 2005
++++ linux-2.6.15-rc7.fix/drivers/serial/8250.c	Sun Jan  1 16:56:17 2006
+@@ -1217,7 +1217,7 @@ receive_chars(struct uart_8250_port *up,
+ 	*status = lsr;
+ }
+ 
+-static _INLINE_ void transmit_chars(struct uart_8250_port *up)
++static void transmit_chars(struct uart_8250_port *up)
+ {
+ 	struct circ_buf *xmit = &up->port.info->xmit;
+ 	int count;
+
+--Boundary-00=_BIjuD6MvX1MDQUp--

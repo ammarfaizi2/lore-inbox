@@ -1,106 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbWACX2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbWACX3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbWACX2x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWACX2w
+	id S965106AbWACX3r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWACX3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:28:52 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:2524 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965081AbWACX2q
+	Tue, 3 Jan 2006 18:29:43 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:35480 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965099AbWACX3b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:28:46 -0500
+	Tue, 3 Jan 2006 18:29:31 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 28/41] m68k: amiserial __user annotations
+Subject: [PATCH 37/41] m68k: fix use of void foo(void) asm("bar") in traps.c
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1Etva9-0003OL-Mx@ZenIV.linux.org.uk>
+Message-Id: <E1Etvas-0003Pg-Q0@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 23:28:45 +0000
+Date: Tue, 03 Jan 2006 23:29:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1135011762 -0500
+Date: 1135320468 -0500
+
+with gcc4 these have file scope, so having them different in different
+blocks doesn't work anymore
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- drivers/char/amiserial.c |   19 +++++++++----------
- 1 files changed, 9 insertions(+), 10 deletions(-)
+ arch/m68k/kernel/traps.c |   38 +++++++++++++++++++-------------------
+ 1 files changed, 19 insertions(+), 19 deletions(-)
 
-e7f76760412b4d29dcb742d6080918bf2fd6d711
-diff --git a/drivers/char/amiserial.c b/drivers/char/amiserial.c
-index 2bf4fe3..ccc1ca8 100644
---- a/drivers/char/amiserial.c
-+++ b/drivers/char/amiserial.c
-@@ -1096,7 +1096,7 @@ static void rs_unthrottle(struct tty_str
-  */
+ba18f4ce0d3a21f7e8e4137c4073a3b9ef15b87a
+diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
+index deb36e8..cdf58fb 100644
+--- a/arch/m68k/kernel/traps.c
++++ b/arch/m68k/kernel/traps.c
+@@ -169,25 +169,25 @@ void __init trap_init (void)
  
- static int get_serial_info(struct async_struct * info,
--			   struct serial_struct * retinfo)
-+			   struct serial_struct __user * retinfo)
- {
- 	struct serial_struct tmp;
- 	struct serial_state *state = info->state;
-@@ -1120,7 +1120,7 @@ static int get_serial_info(struct async_
- }
+ 	if (CPU_IS_060 && !FPU_IS_EMU) {
+ 		/* set up IFPSP entry points */
+-		asmlinkage void snan_vec(void) asm ("_060_fpsp_snan");
+-		asmlinkage void operr_vec(void) asm ("_060_fpsp_operr");
+-		asmlinkage void ovfl_vec(void) asm ("_060_fpsp_ovfl");
+-		asmlinkage void unfl_vec(void) asm ("_060_fpsp_unfl");
+-		asmlinkage void dz_vec(void) asm ("_060_fpsp_dz");
+-		asmlinkage void inex_vec(void) asm ("_060_fpsp_inex");
+-		asmlinkage void fline_vec(void) asm ("_060_fpsp_fline");
+-		asmlinkage void unsupp_vec(void) asm ("_060_fpsp_unsupp");
+-		asmlinkage void effadd_vec(void) asm ("_060_fpsp_effadd");
+-
+-		vectors[VEC_FPNAN] = snan_vec;
+-		vectors[VEC_FPOE] = operr_vec;
+-		vectors[VEC_FPOVER] = ovfl_vec;
+-		vectors[VEC_FPUNDER] = unfl_vec;
+-		vectors[VEC_FPDIVZ] = dz_vec;
+-		vectors[VEC_FPIR] = inex_vec;
+-		vectors[VEC_LINE11] = fline_vec;
+-		vectors[VEC_FPUNSUP] = unsupp_vec;
+-		vectors[VEC_UNIMPEA] = effadd_vec;
++		asmlinkage void snan_vec6(void) asm ("_060_fpsp_snan");
++		asmlinkage void operr_vec6(void) asm ("_060_fpsp_operr");
++		asmlinkage void ovfl_vec6(void) asm ("_060_fpsp_ovfl");
++		asmlinkage void unfl_vec6(void) asm ("_060_fpsp_unfl");
++		asmlinkage void dz_vec6(void) asm ("_060_fpsp_dz");
++		asmlinkage void inex_vec6(void) asm ("_060_fpsp_inex");
++		asmlinkage void fline_vec6(void) asm ("_060_fpsp_fline");
++		asmlinkage void unsupp_vec6(void) asm ("_060_fpsp_unsupp");
++		asmlinkage void effadd_vec6(void) asm ("_060_fpsp_effadd");
++
++		vectors[VEC_FPNAN] = snan_vec6;
++		vectors[VEC_FPOE] = operr_vec6;
++		vectors[VEC_FPOVER] = ovfl_vec6;
++		vectors[VEC_FPUNDER] = unfl_vec6;
++		vectors[VEC_FPDIVZ] = dz_vec6;
++		vectors[VEC_FPIR] = inex_vec6;
++		vectors[VEC_LINE11] = fline_vec6;
++		vectors[VEC_FPUNSUP] = unsupp_vec6;
++		vectors[VEC_UNIMPEA] = effadd_vec6;
+ 	}
  
- static int set_serial_info(struct async_struct * info,
--			   struct serial_struct * new_info)
-+			   struct serial_struct __user * new_info)
- {
- 	struct serial_struct new_serial;
-  	struct serial_state old_state, *state;
-@@ -1201,7 +1201,7 @@ check_and_exit:
-  * 	    transmit holding register is empty.  This functionality
-  * 	    allows an RS485 driver to be written in user space. 
-  */
--static int get_lsr_info(struct async_struct * info, unsigned int *value)
-+static int get_lsr_info(struct async_struct * info, unsigned int __user *value)
- {
- 	unsigned char status;
- 	unsigned int result;
-@@ -1292,6 +1292,7 @@ static int rs_ioctl(struct tty_struct *t
- 	struct async_struct * info = (struct async_struct *)tty->driver_data;
- 	struct async_icount cprev, cnow;	/* kernel counter temps */
- 	struct serial_icounter_struct icount;
-+	void __user *argp = (void __user *)arg;
- 	unsigned long flags;
- 
- 	if (serial_paranoia_check(info, tty->name, "rs_ioctl"))
-@@ -1306,19 +1307,17 @@ static int rs_ioctl(struct tty_struct *t
- 
- 	switch (cmd) {
- 		case TIOCGSERIAL:
--			return get_serial_info(info,
--					       (struct serial_struct *) arg);
-+			return get_serial_info(info, argp);
- 		case TIOCSSERIAL:
--			return set_serial_info(info,
--					       (struct serial_struct *) arg);
-+			return set_serial_info(info, argp);
- 		case TIOCSERCONFIG:
- 			return 0;
- 
- 		case TIOCSERGETLSR: /* Get line status register */
--			return get_lsr_info(info, (unsigned int *) arg);
-+			return get_lsr_info(info, argp);
- 
- 		case TIOCSERGSTRUCT:
--			if (copy_to_user((struct async_struct *) arg,
-+			if (copy_to_user(argp,
- 					 info, sizeof(struct async_struct)))
- 				return -EFAULT;
- 			return 0;
-@@ -1377,7 +1376,7 @@ static int rs_ioctl(struct tty_struct *t
- 			icount.brk = cnow.brk;
- 			icount.buf_overrun = cnow.buf_overrun;
- 
--			if (copy_to_user((void *)arg, &icount, sizeof(icount)))
-+			if (copy_to_user(argp, &icount, sizeof(icount)))
- 				return -EFAULT;
- 			return 0;
- 		case TIOCSERGWILD:
+         /* if running on an amiga, make the NMI interrupt do nothing */
 -- 
 0.99.9.GIT
 

@@ -1,164 +1,502 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWACXnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWACXml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWACXnr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWACXnZ
+	id S965123AbWACXml (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWACX1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:43:25 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:57307 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965017AbWACX1L
+	Tue, 3 Jan 2006 18:27:13 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53979 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965002AbWACX0q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:27:11 -0500
+	Tue, 3 Jan 2006 18:26:46 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 09/41] m68k: more workarounds for recent binutils idiocy
+Subject: [PATCH 04/41] m68k: switch mac/misc.c to direct use of appropriate cuda/pmu/maciisi requests
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1EtvYc-0003Lu-Gy@ZenIV.linux.org.uk>
+Message-Id: <E1EtvYD-0003LG-FD@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 23:27:10 +0000
+Date: Tue, 03 Jan 2006 23:26:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1134435322 -0500
+Date: 1134918770 -0500
 
-cretinous thing doesn't believe that (%a0)+ is one macro argument and
-splits it in two; worked around by quoting the argument...
+kill ADBREQ_RAW use, replace adb_read_time(), etc. with per-type variants,
+eliminated remapping from pmu ones, fix the ifdefs (PMU->PMU68K)
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/m68k/math-emu/fp_move.S  |    4 ++--
- arch/m68k/math-emu/fp_movem.S |   12 ++++++------
- arch/m68k/math-emu/fp_scan.S  |    6 +++---
- arch/m68k/math-emu/fp_util.S  |    6 +++---
- 4 files changed, 14 insertions(+), 14 deletions(-)
+ arch/m68k/mac/misc.c            |  323 ++++++++++++++++++++++++++-------------
+ drivers/macintosh/via-maciisi.c |   18 ++
+ 2 files changed, 236 insertions(+), 105 deletions(-)
 
-5ea87cc472a0aebf479e94ac287c50e1c070f741
-diff --git a/arch/m68k/math-emu/fp_move.S b/arch/m68k/math-emu/fp_move.S
-index 9bd0334..19363b3 100644
---- a/arch/m68k/math-emu/fp_move.S
-+++ b/arch/m68k/math-emu/fp_move.S
-@@ -213,9 +213,9 @@ fp_format_extended:
- 	lsl.w	#1,%d0
- 	lsl.l	#7,%d0
- 	lsl.l	#8,%d0
--	putuser .l,%d0,(%a1)+,fp_err_ua1,%a1
-+	putuser .l,%d0,"(%a1)+",fp_err_ua1,%a1
- 	move.l	(%a0)+,%d0
--	putuser .l,%d0,(%a1)+,fp_err_ua1,%a1
-+	putuser .l,%d0,"(%a1)+",fp_err_ua1,%a1
- 	move.l	(%a0),%d0
- 	putuser .l,%d0,(%a1),fp_err_ua1,%a1
- 	jra	fp_finish_move
-diff --git a/arch/m68k/math-emu/fp_movem.S b/arch/m68k/math-emu/fp_movem.S
-index 9c74134..4173655 100644
---- a/arch/m68k/math-emu/fp_movem.S
-+++ b/arch/m68k/math-emu/fp_movem.S
-@@ -141,12 +141,12 @@ fpr_do_movem:
- 	| move register from memory into fpu
- 	jra	3f
- 1:	printf	PMOVEM,"(%p>%p)",2,%a0,%a1
--	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
- 	lsr.l	#8,%d2
- 	lsr.l	#7,%d2
- 	lsr.w	#1,%d2
- 	move.l	%d2,(%a1)+
--	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
- 	move.l	%d2,(%a1)+
- 	getuser .l,(%a0),%d2,fp_err_ua1,%a0
- 	move.l	%d2,(%a1)
-@@ -164,9 +164,9 @@ fpr_do_movem:
- 	lsl.w	#1,%d2
- 	lsl.l	#7,%d2
- 	lsl.l	#8,%d2
--	putuser .l,%d2,(%a0)+,fp_err_ua1,%a0
-+	putuser .l,%d2,"(%a0)+",fp_err_ua1,%a0
- 	move.l	(%a1)+,%d2
--	putuser .l,%d2,(%a0)+,fp_err_ua1,%a0
-+	putuser .l,%d2,"(%a0)+",fp_err_ua1,%a0
- 	move.l	(%a1),%d2
- 	putuser .l,%d2,(%a0),fp_err_ua1,%a0
- 	subq.l	#8,%a1
-@@ -325,7 +325,7 @@ fpc_do_movem:
- 	| move register from memory into fpu
- 	jra	3f
- 1:	printf	PMOVEM,"(%p>%p)",2,%a0,%a1
--	getuser .l,(%a0)+,%d0,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d0,fp_err_ua1,%a0
- 	move.l	%d0,(%a1)
- 2:	addq.l	#4,%a1
- 3:	lsl.b	#1,%d1
-@@ -336,7 +336,7 @@ fpc_do_movem:
- 	| move register from fpu into memory
- 1:	printf	PMOVEM,"(%p>%p)",2,%a1,%a0
- 	move.l	(%a1),%d0
--	putuser .l,%d0,(%a0)+,fp_err_ua1,%a0
-+	putuser .l,%d0,"(%a0)+",fp_err_ua1,%a0
- 2:	addq.l	#4,%a1
- 4:	lsl.b	#1,%d1
- 	jcs	1b
-diff --git a/arch/m68k/math-emu/fp_scan.S b/arch/m68k/math-emu/fp_scan.S
-index 5f49b93..6a71ed1 100644
---- a/arch/m68k/math-emu/fp_scan.S
-+++ b/arch/m68k/math-emu/fp_scan.S
-@@ -72,7 +72,7 @@ fp_scan:
- #endif
- 	jne	fp_nonstd
- | first two instruction words are kept in %d2
--	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
- 	fp_put_pc %a0
- fp_decode_cond:				| separate conditional instr
- 	fp_decode_cond_instr_type
-@@ -262,12 +262,12 @@ fp_single:
- 	jra	fp_getdest
+a1af5aa28d8577b3ab163279881244a88d35691b
+diff --git a/arch/m68k/mac/misc.c b/arch/m68k/mac/misc.c
+index 5b80d7c..99dd2c1 100644
+--- a/arch/m68k/mac/misc.c
++++ b/arch/m68k/mac/misc.c
+@@ -39,72 +39,163 @@
+ extern struct mac_booter_data mac_bi_data;
+ static void (*rom_reset)(void);
  
- fp_ext:
--	getuser .l,(%a1)+,%d0,fp_err_ua1,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua1,%a1
- 	lsr.l	#8,%d0
- 	lsr.l	#7,%d0
- 	lsr.w	#1,%d0
- 	move.l	%d0,(%a0)+
--	getuser .l,(%a1)+,%d0,fp_err_ua1,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua1,%a1
- 	move.l	%d0,(%a0)+
- 	getuser .l,(%a1),%d0,fp_err_ua1,%a1
- 	move.l	%d0,(%a0)
-diff --git a/arch/m68k/math-emu/fp_util.S b/arch/m68k/math-emu/fp_util.S
-index f9f24d5..170110a 100644
---- a/arch/m68k/math-emu/fp_util.S
-+++ b/arch/m68k/math-emu/fp_util.S
-@@ -164,7 +164,7 @@ fp_conv_double2ext:
- 	getuser .l,%a1@(4),%d1,fp_err_ua2,%a1
- 	printf	PCONV,"d2e: %p%p -> %p(",3,%d0,%d1,%a0
+-#ifdef CONFIG_ADB
+-/*
+- * Return the current time as the number of seconds since January 1, 1904.
+- */
+-
+-static long adb_read_time(void)
++#ifdef CONFIG_ADB_CUDA
++static long cuda_read_time(void)
+ {
+-	volatile struct adb_request req;
++	struct adb_request req;
+ 	long time;
+ 
+-	adb_request((struct adb_request *) &req, NULL,
+-			ADBREQ_RAW|ADBREQ_SYNC,
+-			2, CUDA_PACKET, CUDA_GET_TIME);
++	if (cuda_request(&req, NULL, 2, CUDA_PACKET, CUDA_GET_TIME) < 0)
++		return 0;
++	while (!req.complete)
++		cuda_poll();
+ 
+ 	time = (req.reply[3] << 24) | (req.reply[4] << 16)
+ 		| (req.reply[5] << 8) | req.reply[6];
+ 	return time - RTC_OFFSET;
+ }
+ 
+-/*
+- * Set the current system time
+- */
++static void cuda_write_time(long data)
++{
++	struct adb_request req;
++	data += RTC_OFFSET;
++	if (cuda_request(&req, NULL, 6, CUDA_PACKET, CUDA_SET_TIME,
++			(data >> 24) & 0xFF, (data >> 16) & 0xFF,
++			(data >> 8) & 0xFF, data & 0xFF) < 0)
++		return;
++	while (!req.complete)
++		cuda_poll();
++}
+ 
+-static void adb_write_time(long data)
++static __u8 cuda_read_pram(int offset)
+ {
+-	volatile struct adb_request req;
++	struct adb_request req;
++	if (cuda_request(&req, NULL, 4, CUDA_PACKET, CUDA_GET_PRAM,
++			(offset >> 8) & 0xFF, offset & 0xFF) < 0)
++		return 0;
++	while (!req.complete)
++		cuda_poll();
++	return req.reply[3];
++}
+ 
+-	data += RTC_OFFSET;
++static void cuda_write_pram(int offset, __u8 data)
++{
++	struct adb_request req;
++	if (cuda_request(&req, NULL, 5, CUDA_PACKET, CUDA_SET_PRAM,
++			(offset >> 8) & 0xFF, offset & 0xFF, data) < 0)
++		return;
++	while (!req.complete)
++		cuda_poll();
++}
++#else
++#define cuda_read_time() 0
++#define cuda_write_time(n)
++#define cuda_read_pram NULL
++#define cuda_write_pram NULL
++#endif
++
++#ifdef CONFIG_ADB_PMU68K
++static long pmu_read_time(void)
++{
++	struct adb_request req;
++	long time;
++
++	if (pmu_request(&req, NULL, 1, PMU_READ_RTC) < 0)
++		return 0;
++	while (!req.complete)
++		pmu_poll();
+ 
+-	adb_request((struct adb_request *) &req, NULL,
+-			ADBREQ_RAW|ADBREQ_SYNC,
+-			6, CUDA_PACKET, CUDA_SET_TIME,
++	time = (req.reply[0] << 24) | (req.reply[1] << 16)
++		| (req.reply[2] << 8) | req.reply[3];
++	return time - RTC_OFFSET;
++}
++
++static void pmu_write_time(long data)
++{
++	struct adb_request req;
++	data += RTC_OFFSET;
++	if (pmu_request(&req, NULL, 5, PMU_SET_RTC,
+ 			(data >> 24) & 0xFF, (data >> 16) & 0xFF,
+-			(data >> 8) & 0xFF, data & 0xFF);
++			(data >> 8) & 0xFF, data & 0xFF) < 0)
++		return;
++	while (!req.complete)
++		pmu_poll();
+ }
+ 
+-/*
+- * Get a byte from the NVRAM
+- */
++static __u8 pmu_read_pram(int offset)
++{
++	struct adb_request req;
++	if (pmu_request(&req, NULL, 3, PMU_READ_NVRAM,
++			(offset >> 8) & 0xFF, offset & 0xFF) < 0)
++		return 0;
++	while (!req.complete)
++		pmu_poll();
++	return req.reply[3];
++}
+ 
+-static __u8 adb_read_pram(int offset)
++static void pmu_write_pram(int offset, __u8 data)
+ {
+-	volatile struct adb_request req;
++	struct adb_request req;
++	if (pmu_request(&req, NULL, 4, PMU_WRITE_NVRAM,
++			(offset >> 8) & 0xFF, offset & 0xFF, data) < 0)
++		return;
++	while (!req.complete)
++		pmu_poll();
++}
++#else
++#define pmu_read_time() 0
++#define pmu_write_time(n)
++#define pmu_read_pram NULL
++#define pmu_write_pram NULL
++#endif
+ 
+-	adb_request((struct adb_request *) &req, NULL,
+-			ADBREQ_RAW|ADBREQ_SYNC,
+-			4, CUDA_PACKET, CUDA_GET_PRAM,
+-			(offset >> 8) & 0xFF, offset & 0xFF);
+-	return req.reply[3];
++#ifdef CONFIG_ADB_MACIISI
++extern int maciisi_request(struct adb_request *req,
++			void (*done)(struct adb_request *), int nbytes, ...);
++
++static long maciisi_read_time(void)
++{
++	struct adb_request req;
++	long time;
++
++	if (maciisi_request(&req, NULL, 2, CUDA_PACKET, CUDA_GET_TIME))
++		return 0;
++
++	time = (req.reply[3] << 24) | (req.reply[4] << 16)
++		| (req.reply[5] << 8) | req.reply[6];
++	return time - RTC_OFFSET;
+ }
+ 
+-/*
+- * Write a byte to the NVRAM
+- */
++static void maciisi_write_time(long data)
++{
++	struct adb_request req;
++	data += RTC_OFFSET;
++	maciisi_request(&req, NULL, 6, CUDA_PACKET, CUDA_SET_TIME,
++			(data >> 24) & 0xFF, (data >> 16) & 0xFF,
++			(data >> 8) & 0xFF, data & 0xFF);
++}
+ 
+-static void adb_write_pram(int offset, __u8 data)
++static __u8 maciisi_read_pram(int offset)
+ {
+-	volatile struct adb_request req;
++	struct adb_request req;
++	if (maciisi_request(&req, NULL, 4, CUDA_PACKET, CUDA_GET_PRAM,
++			(offset >> 8) & 0xFF, offset & 0xFF))
++		return 0;
++	return req.reply[3];
++}
+ 
+-	adb_request((struct adb_request *) &req, NULL,
+-			ADBREQ_RAW|ADBREQ_SYNC,
+-			5, CUDA_PACKET, CUDA_SET_PRAM,
+-			(offset >> 8) & 0xFF, offset & 0xFF,
+-			data);
++static void maciisi_write_pram(int offset, __u8 data)
++{
++	struct adb_request req;
++	maciisi_request(&req, NULL, 5, CUDA_PACKET, CUDA_SET_PRAM,
++			(offset >> 8) & 0xFF, offset & 0xFF, data);
+ }
+-#endif /* CONFIG_ADB */
++#else
++#define maciisi_read_time() 0
++#define maciisi_write_time(n)
++#define maciisi_read_pram NULL
++#define maciisi_write_pram NULL
++#endif
+ 
+ /*
+  * VIA PRAM/RTC access routines
+@@ -305,42 +396,55 @@ static void oss_shutdown(void)
+ 
+ static void cuda_restart(void)
+ {
+-	adb_request(NULL, NULL, ADBREQ_RAW|ADBREQ_SYNC,
+-			2, CUDA_PACKET, CUDA_RESET_SYSTEM);
++	struct adb_request req;
++	if (cuda_request(&req, NULL, 2, CUDA_PACKET, CUDA_RESET_SYSTEM) < 0)
++		return;
++	while (!req.complete)
++		cuda_poll();
+ }
+ 
+ static void cuda_shutdown(void)
+ {
+-	adb_request(NULL, NULL, ADBREQ_RAW|ADBREQ_SYNC,
+-			2, CUDA_PACKET, CUDA_POWERDOWN);
++	struct adb_request req;
++	if (cuda_request(&req, NULL, 2, CUDA_PACKET, CUDA_POWERDOWN) < 0)
++		return;
++	while (!req.complete)
++		cuda_poll();
+ }
+ 
+ #endif /* CONFIG_ADB_CUDA */
+ 
+-#ifdef CONFIG_ADB_PMU
++#ifdef CONFIG_ADB_PMU68K
+ 
+ void pmu_restart(void)
+ {
+-	adb_request(NULL, NULL, ADBREQ_RAW|ADBREQ_SYNC,
+-			3, PMU_PACKET, PMU_SET_INTR_MASK,
+-			PMU_INT_ADB|PMU_INT_TICK);
+-
+-	adb_request(NULL, NULL, ADBREQ_RAW|ADBREQ_SYNC,
+-			2, PMU_PACKET, PMU_RESET);
++	struct adb_request req;
++	if (pmu_request(&req, NULL,
++			2, PMU_SET_INTR_MASK, PMU_INT_ADB|PMU_INT_TICK) < 0)
++		return;
++	while (!req.complete)
++		pmu_poll();
++	if (pmu_request(&req, NULL, 1, PMU_RESET) < 0)
++		return;
++	while (!req.complete)
++		pmu_poll();
+ }
+ 
+ void pmu_shutdown(void)
+ {
+-	adb_request(NULL, NULL, ADBREQ_RAW|ADBREQ_SYNC,
+-			3, PMU_PACKET, PMU_SET_INTR_MASK,
+-			PMU_INT_ADB|PMU_INT_TICK);
+-
+-	adb_request(NULL, NULL, ADBREQ_RAW|ADBREQ_SYNC,
+-			6, PMU_PACKET, PMU_SHUTDOWN,
+-			'M', 'A', 'T', 'T');
++	struct adb_request req;
++	if (pmu_request(&req, NULL,
++			2, PMU_SET_INTR_MASK, PMU_INT_ADB|PMU_INT_TICK) < 0)
++		return;
++	while (!req.complete)
++		pmu_poll();
++	if (pmu_request(&req, NULL, 5, PMU_SHUTDOWN, 'M', 'A', 'T', 'T') < 0)
++		return;
++	while (!req.complete)
++		pmu_poll();
+ }
+ 
+-#endif /* CONFIG_ADB_PMU */
++#endif
+ 
+ /*
+  *-------------------------------------------------------------------
+@@ -351,21 +455,22 @@ void pmu_shutdown(void)
+ 
+ void mac_pram_read(int offset, __u8 *buffer, int len)
+ {
+-	__u8 (*func)(int) = NULL;
++	__u8 (*func)(int);
+ 	int i;
+ 
+-	if (macintosh_config->adb_type == MAC_ADB_IISI ||
+-	    macintosh_config->adb_type == MAC_ADB_PB1 ||
+-	    macintosh_config->adb_type == MAC_ADB_PB2 ||
+-	    macintosh_config->adb_type == MAC_ADB_CUDA) {
+-#ifdef CONFIG_ADB
+-		func = adb_read_pram;
+-#else
+-		return;
+-#endif
+-	} else {
++	switch(macintosh_config->adb_type) {
++	case MAC_ADB_IISI:
++		func = maciisi_read_pram; break;
++	case MAC_ADB_PB1:
++	case MAC_ADB_PB2:
++		func = pmu_read_pram; break;
++	case MAC_ADB_CUDA:
++		func = cuda_read_pram; break;
++	default:
+ 		func = via_read_pram;
+ 	}
++	if (!func)
++		return;
+ 	for (i = 0 ; i < len ; i++) {
+ 		buffer[i] = (*func)(offset++);
+ 	}
+@@ -373,21 +478,22 @@ void mac_pram_read(int offset, __u8 *buf
+ 
+ void mac_pram_write(int offset, __u8 *buffer, int len)
+ {
+-	void (*func)(int, __u8) = NULL;
++	void (*func)(int, __u8);
+ 	int i;
+ 
+-	if (macintosh_config->adb_type == MAC_ADB_IISI ||
+-	    macintosh_config->adb_type == MAC_ADB_PB1 ||
+-	    macintosh_config->adb_type == MAC_ADB_PB2 ||
+-	    macintosh_config->adb_type == MAC_ADB_CUDA) {
+-#ifdef CONFIG_ADB
+-		func = adb_write_pram;
+-#else
+-		return;
+-#endif
+-	} else {
++	switch(macintosh_config->adb_type) {
++	case MAC_ADB_IISI:
++		func = maciisi_write_pram; break;
++	case MAC_ADB_PB1:
++	case MAC_ADB_PB2:
++		func = pmu_write_pram; break;
++	case MAC_ADB_CUDA:
++		func = cuda_write_pram; break;
++	default:
+ 		func = via_write_pram;
+ 	}
++	if (!func)
++		return;
+ 	for (i = 0 ; i < len ; i++) {
+ 		(*func)(offset++, buffer[i]);
+ 	}
+@@ -408,7 +514,7 @@ void mac_poweroff(void)
+ 	} else if (macintosh_config->adb_type == MAC_ADB_CUDA) {
+ 		cuda_shutdown();
  #endif
--	getuser .l,(%a1)+,%d0,fp_err_ua2,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua2,%a1
- 	move.l	%d0,%d1
- 	lsl.l	#8,%d0			| shift high mantissa
- 	lsl.l	#3,%d0
-@@ -178,7 +178,7 @@ fp_conv_double2ext:
- 	add.w	#0x3fff-0x3ff,%d1	| re-bias the exponent.
- 9:	move.l	%d1,(%a0)+		| fp_ext.sign, fp_ext.exp
- 	move.l	%d0,(%a0)+
--	getuser .l,(%a1)+,%d0,fp_err_ua2,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua2,%a1
- 	move.l	%d0,%d1
- 	lsl.l	#8,%d0
- 	lsl.l	#3,%d0
-@@ -1287,7 +1287,7 @@ fp_conv_ext2double:
- 	lsr.l	#4,%d0
- 	lsr.l	#8,%d0
- 	or.l	%d2,%d0
--	putuser .l,%d0,(%a1)+,fp_err_ua2,%a1
-+	putuser .l,%d0,"(%a1)+",fp_err_ua2,%a1
- 	moveq	#21,%d0
- 	lsl.l	%d0,%d1
- 	move.l	(%a0),%d0
+-#ifdef CONFIG_ADB_PMU
++#ifdef CONFIG_ADB_PMU68K
+ 	} else if (macintosh_config->adb_type == MAC_ADB_PB1
+ 		|| macintosh_config->adb_type == MAC_ADB_PB2) {
+ 		pmu_shutdown();
+@@ -448,7 +554,7 @@ void mac_reset(void)
+ 	} else if (macintosh_config->adb_type == MAC_ADB_CUDA) {
+ 		cuda_restart();
+ #endif
+-#ifdef CONFIG_ADB_PMU
++#ifdef CONFIG_ADB_PMU68K
+ 	} else if (macintosh_config->adb_type == MAC_ADB_PB1
+ 		|| macintosh_config->adb_type == MAC_ADB_PB2) {
+ 		pmu_restart();
+@@ -588,20 +694,22 @@ int mac_hwclk(int op, struct rtc_time *t
+ 	unsigned long now;
+ 
+ 	if (!op) { /* read */
+-		if (macintosh_config->adb_type == MAC_ADB_II) {
++		switch (macintosh_config->adb_type) {
++		case MAC_ADB_II:
++		case MAC_ADB_IOP:
+ 			now = via_read_time();
+-		} else
+-#ifdef CONFIG_ADB
+-		if ((macintosh_config->adb_type == MAC_ADB_IISI) ||
+-			   (macintosh_config->adb_type == MAC_ADB_PB1) ||
+-			   (macintosh_config->adb_type == MAC_ADB_PB2) ||
+-			   (macintosh_config->adb_type == MAC_ADB_CUDA)) {
+-			now = adb_read_time();
+-		} else
+-#endif
+-		if (macintosh_config->adb_type == MAC_ADB_IOP) {
+-			now = via_read_time();
+-		} else {
++			break;
++		case MAC_ADB_IISI:
++			now = maciisi_read_time();
++			break;
++		case MAC_ADB_PB1:
++		case MAC_ADB_PB2:
++			now = pmu_read_time();
++			break;
++		case MAC_ADB_CUDA:
++			now = cuda_read_time();
++			break;
++		default:
+ 			now = 0;
+ 		}
+ 
+@@ -619,15 +727,20 @@ int mac_hwclk(int op, struct rtc_time *t
+ 		now = mktime(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+ 			     t->tm_hour, t->tm_min, t->tm_sec);
+ 
+-		if (macintosh_config->adb_type == MAC_ADB_II) {
+-			via_write_time(now);
+-		} else if ((macintosh_config->adb_type == MAC_ADB_IISI) ||
+-			   (macintosh_config->adb_type == MAC_ADB_PB1) ||
+-			   (macintosh_config->adb_type == MAC_ADB_PB2) ||
+-			   (macintosh_config->adb_type == MAC_ADB_CUDA)) {
+-			adb_write_time(now);
+-		} else if (macintosh_config->adb_type == MAC_ADB_IOP) {
++		switch (macintosh_config->adb_type) {
++		case MAC_ADB_II:
++		case MAC_ADB_IOP:
+ 			via_write_time(now);
++			break;
++		case MAC_ADB_CUDA:
++			cuda_write_time(now);
++			break;
++		case MAC_ADB_PB1:
++		case MAC_ADB_PB2:
++			pmu_write_time(now);
++			break;
++		case MAC_ADB_IISI:
++			maciisi_write_time(now);
+ 		}
+ #endif
+ 	}
+diff --git a/drivers/macintosh/via-maciisi.c b/drivers/macintosh/via-maciisi.c
+index a196697..ad271e7 100644
+--- a/drivers/macintosh/via-maciisi.c
++++ b/drivers/macintosh/via-maciisi.c
+@@ -294,6 +294,24 @@ static void maciisi_sync(struct adb_requ
+ 		printk(KERN_ERR "maciisi_send_request: poll timed out!\n");
+ }
+ 
++int
++maciisi_request(struct adb_request *req, void (*done)(struct adb_request *),
++	    int nbytes, ...)
++{
++	va_list list;
++	int i;
++
++	req->nbytes = nbytes;
++	req->done = done;
++	req->reply_expected = 0;
++	va_start(list, nbytes);
++	for (i = 0; i < nbytes; i++)
++		req->data[i++] = va_arg(list, int);
++	va_end(list);
++
++	return maciisi_send_request(req, 1);
++}
++
+ /* Enqueue a request, and run the queue if possible */
+ static int
+ maciisi_write(struct adb_request* req)
 -- 
 0.99.9.GIT
 

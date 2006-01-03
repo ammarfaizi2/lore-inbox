@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWACVLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWACVMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWACVLx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWACVHt
+	id S964813AbWACVMf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWACVHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:07:49 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:33167 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932563AbWACVHm
+	Tue, 3 Jan 2006 16:07:48 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:39567 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932553AbWACVHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:42 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 14/50] sh: task_pt_regs()
+Subject: [PATCH 31/50] arm: task_thread_info()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008Pi-Ai@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008Qz-TC@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,154 +25,108 @@ Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/sh/kernel/process.c |   42 ++++++------------------------------------
- arch/sh/kernel/ptrace.c  |   14 ++------------
- include/asm-sh/ptrace.h  |   10 ++++++++++
- 3 files changed, 18 insertions(+), 48 deletions(-)
+ arch/arm/kernel/process.c     |    4 ++--
+ arch/arm/kernel/ptrace.c      |   10 +++++-----
+ include/asm-arm/system.h      |    2 +-
+ include/asm-arm/thread_info.h |    4 ++--
+ 4 files changed, 10 insertions(+), 10 deletions(-)
 
-dbd2b9937d425d621ab6eba3c3db67638090d0b9
-diff --git a/arch/sh/kernel/process.c b/arch/sh/kernel/process.c
-index fd4f240..6a86fe3 100644
---- a/arch/sh/kernel/process.c
-+++ b/arch/sh/kernel/process.c
-@@ -191,13 +191,8 @@ void flush_thread(void)
+c7ac2c8f297bf79b4e036bd41a7d3152065c6d28
+diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
+index 30494aa..ca0febd 100644
+--- a/arch/arm/kernel/process.c
++++ b/arch/arm/kernel/process.c
+@@ -343,10 +343,10 @@ void flush_thread(void)
+ void release_thread(struct task_struct *dead_task)
  {
- #if defined(CONFIG_SH_FPU)
- 	struct task_struct *tsk = current;
--	struct pt_regs *regs = (struct pt_regs *)
--				((unsigned long)tsk->thread_info
--				 + THREAD_SIZE - sizeof(struct pt_regs)
--				 - sizeof(unsigned long));
--
- 	/* Forget lazy FPU state */
--	clear_fpu(tsk, regs);
-+	clear_fpu(tsk, task_pt_regs(tsk));
- 	clear_used_math();
+ #if defined(CONFIG_VFP)
+-	vfp_release_thread(&dead_task->thread_info->vfpstate);
++	vfp_release_thread(&task_thread_info(dead_task)->vfpstate);
+ #endif
+ #if defined(CONFIG_IWMMXT)
+-	iwmmxt_task_release(dead_task->thread_info);
++	iwmmxt_task_release(task_thread_info(dead_task));
  #endif
  }
-@@ -232,13 +227,7 @@ int dump_task_regs(struct task_struct *t
+ 
+diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
+index 2b84f78..f003062 100644
+--- a/arch/arm/kernel/ptrace.c
++++ b/arch/arm/kernel/ptrace.c
+@@ -604,7 +604,7 @@ static int ptrace_setregs(struct task_st
+  */
+ static int ptrace_getfpregs(struct task_struct *tsk, void __user *ufp)
  {
- 	struct pt_regs ptregs;
- 	
--	ptregs = *(struct pt_regs *)
--		((unsigned long)tsk->thread_info + THREAD_SIZE
--		 - sizeof(struct pt_regs)
--#ifdef CONFIG_SH_DSP
--		 - sizeof(struct pt_dspregs)
--#endif
--		 - sizeof(unsigned long));
-+	ptregs = *task_pt_regs(tsk);
- 	elf_core_copy_regs(regs, &ptregs);
- 
- 	return 1;
-@@ -252,11 +241,7 @@ dump_task_fpu (struct task_struct *tsk, 
- #if defined(CONFIG_SH_FPU)
- 	fpvalid = !!tsk_used_math(tsk);
- 	if (fpvalid) {
--		struct pt_regs *regs = (struct pt_regs *)
--					((unsigned long)tsk->thread_info
--					 + THREAD_SIZE - sizeof(struct pt_regs)
--					 - sizeof(unsigned long));
--		unlazy_fpu(tsk, regs);
-+		unlazy_fpu(tsk, task_pt_regs(tsk));
- 		memcpy(fpu, &tsk->thread.fpu.hard, sizeof(*fpu));
- 	}
- #endif
-@@ -279,12 +264,7 @@ int copy_thread(int nr, unsigned long cl
- 	copy_to_stopped_child_used_math(p);
- #endif
- 
--	childregs = ((struct pt_regs *)
--		(THREAD_SIZE + (unsigned long) p->thread_info)
--#ifdef CONFIG_SH_DSP
--		- sizeof(struct pt_dspregs)
--#endif
--		- sizeof(unsigned long)) - 1;
-+	childregs = task_pt_regs(p);
- 	*childregs = *regs;
- 
- 	if (user_mode(regs)) {
-@@ -353,11 +333,7 @@ ubc_set_tracing(int asid, unsigned long 
- struct task_struct *__switch_to(struct task_struct *prev, struct task_struct *next)
- {
- #if defined(CONFIG_SH_FPU)
--	struct pt_regs *regs = (struct pt_regs *)
--				((unsigned long)prev->thread_info
--				 + THREAD_SIZE - sizeof(struct pt_regs)
--				 - sizeof(unsigned long));
--	unlazy_fpu(prev, regs);
-+	unlazy_fpu(prev, task_pt_regs(prev));
- #endif
- 
- #ifdef CONFIG_PREEMPT
-@@ -366,13 +342,7 @@ struct task_struct *__switch_to(struct t
- 		struct pt_regs *regs;
- 
- 		local_irq_save(flags);
--		regs = (struct pt_regs *)
--			((unsigned long)prev->thread_info
--			 + THREAD_SIZE - sizeof(struct pt_regs)
--#ifdef CONFIG_SH_DSP
--			 - sizeof(struct pt_dspregs)
--#endif
--			 - sizeof(unsigned long));
-+		regs = task_pt_regs(prev);
- 		if (user_mode(regs) && regs->regs[15] >= 0xc0000000) {
- 			int offset = (int)regs->regs[15];
- 
-diff --git a/arch/sh/kernel/ptrace.c b/arch/sh/kernel/ptrace.c
-index 1a8be06..3887b4f 100644
---- a/arch/sh/kernel/ptrace.c
-+++ b/arch/sh/kernel/ptrace.c
-@@ -41,12 +41,7 @@ static inline int get_stack_long(struct 
- {
- 	unsigned char *stack;
- 
--	stack = (unsigned char *)
--		task->thread_info + THREAD_SIZE	- sizeof(struct pt_regs)
--#ifdef CONFIG_SH_DSP
--		- sizeof(struct pt_dspregs)
--#endif
--		- sizeof(unsigned long);
-+	stack = (unsigned char *)task_pt_regs(task);
- 	stack += offset;
- 	return (*((int *)stack));
+-	return copy_to_user(ufp, &tsk->thread_info->fpstate,
++	return copy_to_user(ufp, &task_thread_info(tsk)->fpstate,
+ 			    sizeof(struct user_fp)) ? -EFAULT : 0;
  }
-@@ -59,12 +54,7 @@ static inline int put_stack_long(struct 
- {
- 	unsigned char *stack;
  
--	stack = (unsigned char *)
--		task->thread_info + THREAD_SIZE - sizeof(struct pt_regs)
--#ifdef CONFIG_SH_DSP
--		- sizeof(struct pt_dspregs)
--#endif
--		- sizeof(unsigned long);
-+	stack = (unsigned char *)task_pt_regs(task);
- 	stack += offset;
- 	*(unsigned long *) stack = data;
- 	return 0;
-diff --git a/include/asm-sh/ptrace.h b/include/asm-sh/ptrace.h
-index 0f75e16..85aa0f4 100644
---- a/include/asm-sh/ptrace.h
-+++ b/include/asm-sh/ptrace.h
-@@ -91,6 +91,16 @@ struct pt_dspregs {
- #define instruction_pointer(regs) ((regs)->pc)
- extern void show_regs(struct pt_regs *);
- 
-+#ifdef CONFIG_SH_DSP
-+#define task_pt_regs(task) \
-+	((struct pt_regs *) ((unsigned long)(task)->thread_info + THREAD_SIZE \
-+		 - sizeof(struct pt_dspregs) - sizeof(unsigned long)) - 1)
-+#else
-+#define task_pt_regs(task) \
-+	((struct pt_regs *) ((unsigned long)(task)->thread_info + THREAD_SIZE \
-+		 - sizeof(unsigned long)) - 1)
-+#endif
-+
- static inline unsigned long profile_pc(struct pt_regs *regs)
+@@ -613,7 +613,7 @@ static int ptrace_getfpregs(struct task_
+  */
+ static int ptrace_setfpregs(struct task_struct *tsk, void __user *ufp)
  {
- 	unsigned long pc = instruction_pointer(regs);
+-	struct thread_info *thread = tsk->thread_info;
++	struct thread_info *thread = task_thread_info(tsk);
+ 	thread->used_cp[1] = thread->used_cp[2] = 1;
+ 	return copy_from_user(&thread->fpstate, ufp,
+ 			      sizeof(struct user_fp)) ? -EFAULT : 0;
+@@ -626,7 +626,7 @@ static int ptrace_setfpregs(struct task_
+  */
+ static int ptrace_getwmmxregs(struct task_struct *tsk, void __user *ufp)
+ {
+-	struct thread_info *thread = tsk->thread_info;
++	struct thread_info *thread = task_thread_info(tsk);
+ 	void *ptr = &thread->fpstate;
+ 
+ 	if (!test_ti_thread_flag(thread, TIF_USING_IWMMXT))
+@@ -643,7 +643,7 @@ static int ptrace_getwmmxregs(struct tas
+  */
+ static int ptrace_setwmmxregs(struct task_struct *tsk, void __user *ufp)
+ {
+-	struct thread_info *thread = tsk->thread_info;
++	struct thread_info *thread = task_thread_info(tsk);
+ 	void *ptr = &thread->fpstate;
+ 
+ 	if (!test_ti_thread_flag(thread, TIF_USING_IWMMXT))
+@@ -779,7 +779,7 @@ long arch_ptrace(struct task_struct *chi
+ #endif
+ 
+ 		case PTRACE_GET_THREAD_AREA:
+-			ret = put_user(child->thread_info->tp_value,
++			ret = put_user(task_thread_info(child)->tp_value,
+ 				       (unsigned long __user *) data);
+ 			break;
+ 
+diff --git a/include/asm-arm/system.h b/include/asm-arm/system.h
+index 5621d61..a7da094 100644
+--- a/include/asm-arm/system.h
++++ b/include/asm-arm/system.h
+@@ -168,7 +168,7 @@ extern struct task_struct *__switch_to(s
+ 
+ #define switch_to(prev,next,last)					\
+ do {									\
+-	last = __switch_to(prev,prev->thread_info,next->thread_info);	\
++	last = __switch_to(prev,task_thread_info(prev), task_thread_info(next));	\
+ } while (0)
+ 
+ /*
+diff --git a/include/asm-arm/thread_info.h b/include/asm-arm/thread_info.h
+index 7c98557..46a4e98 100644
+--- a/include/asm-arm/thread_info.h
++++ b/include/asm-arm/thread_info.h
+@@ -100,9 +100,9 @@ extern void free_thread_info(struct thre
+ #define put_thread_info(ti)	put_task_struct((ti)->task)
+ 
+ #define thread_saved_pc(tsk)	\
+-	((unsigned long)(pc_pointer((tsk)->thread_info->cpu_context.pc)))
++	((unsigned long)(pc_pointer(task_thread_info(tsk)->cpu_context.pc)))
+ #define thread_saved_fp(tsk)	\
+-	((unsigned long)((tsk)->thread_info->cpu_context.fp))
++	((unsigned long)(task_thread_info(tsk)->cpu_context.fp))
+ 
+ extern void iwmmxt_task_disable(struct thread_info *);
+ extern void iwmmxt_task_copy(struct thread_info *, void *);
 -- 
 0.99.9.GIT
 

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWACTJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWACTOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbWACTJY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWACTJY
+	id S1751467AbWACTOw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWACTOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:09:24 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:29371 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751406AbWACTJY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:09:24 -0500
-Date: Tue, 3 Jan 2006 11:08:14 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [RFC] Event counters [1/3]: Basic counter functionality
-In-Reply-To: <43B63931.6000307@yahoo.com.au>
-Message-ID: <Pine.LNX.4.62.0601031102560.20946@schroedinger.engr.sgi.com>
-References: <20051220235733.30925.55642.sendpatchset@schroedinger.engr.sgi.com>
- <20051231064615.GB11069@dmt.cnet> <43B63931.6000307@yahoo.com.au>
+	Tue, 3 Jan 2006 14:14:52 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:11970 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1751459AbWACTOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 14:14:51 -0500
+Message-ID: <43BACD20.8050601@didntduck.org>
+Date: Tue, 03 Jan 2006 14:14:40 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 23/26] gitignore: x86_64 files
+References: <20060103132035.GA17485@mars.ravnborg.org>	<11362947263966@foobar.com> <p73wthhi7v9.fsf@verdi.suse.de>
+In-Reply-To: <p73wthhi7v9.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Dec 2005, Nick Piggin wrote:
+Andi Kleen wrote:
+> Sam Ravnborg <sam@ravnborg.org> writes:
+> 
+> 
+>>From: Brian Gerst <bgerst@didntduck.org>
+>>Date: 1135744791 -0500
+>>
+>>Add filters for x86_64 generated files.
+> 
+> 
+> Please don't submit this patch. If anything such ignore lists
+> for specific SVMs should be in a central place, but not spread
+> everywhere.
+> 
 
-> So I'm not exactly sure why such a patch as this is wanted now? Are there
-> any more xxx_page_state hotspots? (I admit to only looking at page faults,
-> page allocator, and page reclaim).
+It makes good sense to have .*ignore files in the same directory as the 
+Makefile that produces the ignored files.  They are more likely to be 
+maintained when they are in the same location.
 
-The proposed patchset is based on the zoned counter patchset. This means 
-that critical counters have been converted to use different macros. The 
-following discussion of Marcelo and Nick on nr_mapped etc is not relevant 
-to this patch since nr_mapped etc are not event counters but are handled 
-by the zoned counters.
+Git is the SCM du jour for kernel work.  If you chose to use another SCM 
+then these files don't hinder you at all.
 
-The event counters are the leftover vanity counters that are referenced 
-only for display in /proc and the proposed approach is to only allow 
-increments and allow racy updates.
-
-Then these lightweight counters are also used to optimize away the numa 
-specific counters in the per cpu structures.
+--
+				Brian Gerst

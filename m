@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWACVXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWACVXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWACVXL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWACVWo
+	id S964903AbWACVXN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:23:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWACVXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:22:44 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:48527 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932542AbWACVHl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:07:41 -0500
-To: torvalds@osdl.org
-Subject: [PATCH 49/50] mips: task_stack_page()
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNb-0008Sn-Hv@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 03 Jan 2006 21:07:39 +0000
+	Tue, 3 Jan 2006 16:23:11 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.25]:48571 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964898AbWACVWq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:22:46 -0500
+Date: Tue, 3 Jan 2006 13:22:38 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Avishay Traeger <atraeger@cs.sunysb.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: page refcounts?
+In-Reply-To: <1135868372.28155.4.camel@rockstar.fsl.cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.62.0601031321260.21392@schroedinger.engr.sgi.com>
+References: <1135868372.28155.4.camel@rockstar.fsl.cs.sunysb.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-References: <20060103210515.5135@ftp.linux.org.uk>
-In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
+On Thu, 29 Dec 2005, Avishay Traeger wrote:
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> How does the kernel determine when a page is unused?  I see that
+> __get_free_pages() returns pages that have no refcount and no flags
+> indicating that they should not be reclaimed.
+> 
+> The first page that is returned looks like:
+> flags:0x80000000 mapping:00000000 mapcount:0 count:1
+> 
+> And the subsequent pages look like:
+> flags:0x80000000 mapping:00000000 mapcount:0 count:0
+> 
+> I am printing this out exactly the way bad_page() does.  How does the
+> kernel know not to mess around with pages that have no refcount or any
+> flags to indicate that they are in use?  I've already searched google
+> and checked a couple books, and couldn't find an answer.
 
----
-
- arch/mips/kernel/process.c   |    6 +++---
- include/asm-mips/processor.h |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-339018b3d533fd4f589eca296752154f82ecfa8d
-diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-index aca56f4..fa98f10 100644
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -140,12 +140,12 @@ void flush_thread(void)
- int copy_thread(int nr, unsigned long clone_flags, unsigned long usp,
- 	unsigned long unused, struct task_struct *p, struct pt_regs *regs)
- {
--	struct thread_info *ti = p->thread_info;
-+	struct thread_info *ti = task_thread_info(p);
- 	struct pt_regs *childregs;
- 	long childksp;
- 	p->set_child_tid = p->clear_child_tid = NULL;
- 
--	childksp = (unsigned long)ti + THREAD_SIZE - 32;
-+	childksp = (unsigned long)task_stack_page(p) + THREAD_SIZE - 32;
- 
- 	preempt_disable();
- 
-@@ -407,7 +407,7 @@ unsigned long get_wchan(struct task_stru
- 	if (!p || p == current || p->state == TASK_RUNNING)
- 		return 0;
- 
--	stack_page = (unsigned long)p->thread_info;
-+	stack_page = (unsigned long)task_stack_page(p);
- 	if (!stack_page || !mips_frame_info_initialized)
- 		return 0;
- 
-diff --git a/include/asm-mips/processor.h b/include/asm-mips/processor.h
-index 2bbbf87..90370a4 100644
---- a/include/asm-mips/processor.h
-+++ b/include/asm-mips/processor.h
-@@ -201,7 +201,7 @@ extern void start_thread(struct pt_regs 
- 
- unsigned long get_wchan(struct task_struct *p);
- 
--#define __KSTK_TOS(tsk) ((unsigned long)(tsk->thread_info) + THREAD_SIZE - 32)
-+#define __KSTK_TOS(tsk) ((unsigned long)task_stack_page(tsk) + THREAD_SIZE - 32)
- #define task_pt_regs(tsk) ((struct pt_regs *)__KSTK_TOS(tsk) - 1)
- #define KSTK_EIP(tsk) (task_pt_regs(tsk)->cp0_epc)
- #define KSTK_ESP(tsk) (task_pt_regs(tsk)->regs[29])
--- 
-0.99.9.GIT
-
+The kernel knows that a page is free if count == 0 in the first page.
+All pages of a higher order allocation are managed through the status of 
+the first page.

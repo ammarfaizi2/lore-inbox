@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWACNbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWACNaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWACNbh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWACN35
+	id S932362AbWACNaw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 08:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWACNar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:29:57 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:43013 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932355AbWACNZi convert rfc822-to-8bit
+	Tue, 3 Jan 2006 08:30:47 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:38399 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932367AbWACNaW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 08:25:38 -0500
-Subject: [PATCH 13/26] kbuild: Fix crc-error warning on modules
-In-Reply-To: <20060103132035.GA17485@mars.ravnborg.org>
-X-Mailer: gregkh_patchbomb-sam
-Date: Tue, 3 Jan 2006 14:25:25 +0100
-Message-Id: <11362947252019@foobar.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Sam Ravnborg <sam@ravnborg.org>
+	Tue, 3 Jan 2006 08:30:22 -0500
+Date: Tue, 3 Jan 2006 05:28:15 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Dipankar Sarma <dipankar@in.ibm.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Eric Dumazet <dada1@cosmosbay.com>, vatsa@in.ibm.com
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+In-Reply-To: <20060103111211.GA5075@in.ibm.com>
+Message-ID: <Pine.LNX.4.62.0601030524570.30559@qynat.qvtvafvgr.pbz>
+References: <1135990270.31111.46.camel@mindpipe> <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org>
+ <1135991732.31111.57.camel@mindpipe> <Pine.LNX.4.64.0512301726190.3249@g5.osdl.org>
+ <1136001615.3050.5.camel@mindpipe> <20051231042902.GA3428@us.ibm.com>
+ <1136004855.3050.8.camel@mindpipe> <20051231201426.GD5124@us.ibm.com>
+ <1136094372.7005.19.camel@mindpipe> <Pine.LNX.4.64.0601011047320.3668@g5.osdl.org>
+ <20060103111211.GA5075@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Luke Yang <luke.adi@gmail.com>
-Date: 1135132043 +0800
+On Tue, 3 Jan 2006, Dipankar Sarma wrote:
 
-   This is the patch for the following issue:
+> I do agree that the two layers of batching really makes things
+> subtle. I think the best we can do is to figure out some way of
+> automatic throttling in RCU and forced quiescent state under extreme
+> conditions. That way we will have less dependency on softirq
+> throttling.
 
- In include/linux/module.h, "__crc_" and "__ksymtab_" are hard
-coded to be the   prefix for some kinds of symbols (CRC symbol and
-ksymtab section). But in script /mod/modpost.c,
-MODULE_SYMBOL_PREFIX##"__crc_" is used as the prefix to search CRC
-symbols. So if an architecture (such as h8300 or Blackfin) defines
-MODULE_SYMBOL_PREFIX as not NULL ("_"), modpost will always warn about
-"no invalid crc".
-  And it is the same with KSYMTAB_PFX.
+would it make sense to have the RCU subsystems with a threshold so that 
+when more then X items are outstanding they trigger a premption of all 
+other CPU's ASAP (forceing the scheduling break needed to make progress on 
+clearing RCU)? This wouldn't work in all cases, but it could significantly 
+reduce the problem situations.
 
-Signed-off-by: Luke Yang <luke.adi@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+David Lang
 
----
-
- scripts/mod/modpost.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-9572b28faf72859c6b91891c627870cfa282d19d
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index 3bed09e..8ce5a63 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -326,8 +326,8 @@ parse_elf_finish(struct elf_info *info)
- 	release_file(info->hdr, info->size);
- }
- 
--#define CRC_PFX     MODULE_SYMBOL_PREFIX "__crc_"
--#define KSYMTAB_PFX MODULE_SYMBOL_PREFIX "__ksymtab_"
-+#define CRC_PFX     "__crc_"
-+#define KSYMTAB_PFX "__ksymtab_"
- 
- void
- handle_modversions(struct module *mod, struct elf_info *info,
 -- 
-1.0.6
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 

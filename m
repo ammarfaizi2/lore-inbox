@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWACJrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWACJti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWACJrd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 04:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWACJrd
+	id S1750882AbWACJti (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 04:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWACJti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 04:47:33 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:15525 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750831AbWACJrc (ORCPT
+	Tue, 3 Jan 2006 04:49:38 -0500
+Received: from [202.67.154.148] ([202.67.154.148]:37827 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S1750868AbWACJth (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 04:47:32 -0500
-Date: Tue, 3 Jan 2006 10:47:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.15-rt1
-Message-ID: <20060103094720.GA16497@elte.hu>
-Mime-Version: 1.0
+	Tue, 3 Jan 2006 04:49:37 -0500
+Message-ID: <43BA48B2.6080402@ns666.com>
+Date: Tue, 03 Jan 2006 10:49:38 +0100
+From: Mark v Wolher <trilight@ns666.com>
+User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hangcheck: hangcheck value past margin!
+References: <43BA43E9.2090106@ns666.com> <1136280694.2942.19.camel@laptopd505.fenrus.org>
+In-Reply-To: <1136280694.2942.19.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have released the 2.6.15-rt1 tree, which can be downloaded from the 
-usual place:
+Arjan van de Ven wrote:
+> On Tue, 2006-01-03 at 10:29 +0100, Mark v Wolher wrote:
+> 
+>>Hiya guys,
+>>
+>>
+>>I'm getting the msg "hangcheck: hangcheck value past margin!" every few
+>>minutes in the logs. It started all of a sudden. The kernel is a vanilla
+>>2.6.14.5 on a remote box.
+>>
+>>What could this mean ?
+> 
+> 
+> it means you enabled the hangcheck timer watchdog, and it seems to think
+> the kernel is too busy or losing time ;)
+> Did you mean to enable that watchdog?
+> 
 
-   http://redhat.com/~mingo/realtime-preempt/
+Yes, it's indeed enabled, i just remembered when you mentioned the word
+"timer" hehe
 
-no big changes, this release is mainly a merge to v2.6.15, and should 
-fix some of the RTC driver problems reported for 2.6.15-rc7-rt3.
+But the system is not processing a heavy load. Here is a capture with top:
 
-to build a 2.6.15-rt1 tree, the following patches should be applied:
+top - 17:47:47 up 4 days, 18:58,  1 user,  load average: 0.35, 0.16, 0.05
+Tasks:  88 total,   3 running,  85 sleeping,   0 stopped,   0 zombie
+Cpu(s): 20.8% us,  0.0% sy,  0.0% ni, 78.9% id,  0.0% wa,  0.0% hi,  0.3% si
+Mem:    513484k total,   498216k used,    15268k free,   140744k buffers
+Swap:  1461872k total,        0k used,  1461872k free,   153608k cached
 
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt1
+the "idle" percentage goes from 65 % to 95 %
 
-	Ingo

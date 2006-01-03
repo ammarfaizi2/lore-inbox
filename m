@@ -1,73 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWACUJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWACUL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWACUJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWACUJ3
+	id S964782AbWACUL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWACUL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:09:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8607 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750932AbWACUJ2 (ORCPT
+	Tue, 3 Jan 2006 15:11:57 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:49812 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S964782AbWACULy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:09:28 -0500
-Message-ID: <43BAD9DF.4090401@redhat.com>
-Date: Tue, 03 Jan 2006 15:09:03 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: ASANO Masahiro <masano@tnes.nec.co.jp>, trond.myklebust@fys.uio.no,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] fix posix lock on NFS
-References: <20051222.132454.1025208517.masano@tnes.nec.co.jp> <43BAD2EC.2030807@redhat.com> <20060103194630.GL19769@parisc-linux.org>
-In-Reply-To: <20060103194630.GL19769@parisc-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 15:11:54 -0500
+Date: Tue, 3 Jan 2006 12:11:53 -0800
+Message-Id: <200601032011.k03KBp9E022738@zeus1.kernel.org>
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
+>From penberg@localhost Tue Jan  3 22:10:07 2006
+Message-Id: <20060103201006.596588000@localhost>
+References: <20060103200922.395307000@localhost>
+Date: Tue, 03 Jan 2006 22:09:26 +0200
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org,
+ manfred@colorfullife.com,
+ colpatch@us.ibm.com,
+ rostedt@goodmis.org,
+ clameter@sgi.com,
+ penberg@cs.helsinki.fi
+Subject: [patch 4/9] slab: cache_estimate cleanup
+Content-Disposition: inline; filename=slab/slab-cache_estimate-cleanup.patch
 
->On Tue, Jan 03, 2006 at 02:39:24PM -0500, Peter Staubach wrote:
->  
->
->>>	/* No mandatory locks over NFS */
->>>-	if ((inode->i_mode & (S_ISGID | S_IXGRP)) == S_ISGID)
->>>+	if ((inode->i_mode & (S_ISGID | S_IXGRP)) == S_ISGID &&
->>>+	    fl->fl_type != F_UNLCK)
->>>      
->>>
->>Just out of curiosity, what is this if() statement intended to protect?
->>For locking purposes, why would the client care if the file has the
->>mandatory lock bits set?
->>    
->>
->
->Mandatory locks aren't mandatory for other clients.
->  
->
+From: Steven Rostedt <rostedt@goodmis.org>
 
-So?
+This patch cleans up cache_estimate in mm/slab.c and improves the algorithm
+by taking an initial guess before executing the while loop. The optimization
+was originally made by Balbir Singh with further improvements from Steven
+Rostedt. Manfred Spraul provider further modifications: no loop at all for
+the off-slab case and explain the background.
 
-I guess that I don't understand this response.
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-The server is responsible for keeping itself from attempting to access
-a mandatory lock file.  The client is not responsible for doing so and
-trying to help the server is kind of a waste of time, mostly.
+ mm/slab.c |   89 ++++++++++++++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 64 insertions(+), 25 deletions(-)
 
-The mandatory lock mode bits really only come into play when attempting
-to read or write the file.  In this case, the system will automatically
-try to take a lock for the process, if that process does not already
-have a lock.  The server should prevent itself from trying to access
-files like this in order to avoid DoS attacks.
+Index: 2.6/mm/slab.c
+===================================================================
+--- 2.6.orig/mm/slab.c
++++ 2.6/mm/slab.c
+@@ -700,32 +700,71 @@ kmem_cache_t *kmem_find_general_cachep(s
+ }
+ EXPORT_SYMBOL(kmem_find_general_cachep);
+ 
+-/* Cal the num objs, wastage, and bytes left over for a given slab size. */
+-static void cache_estimate(unsigned long gfporder, size_t size, size_t align,
+-		 int flags, size_t *left_over, unsigned int *num)
++static size_t slab_mgmt_size(size_t nr_objs, size_t align)
+ {
+-	int i;
+-	size_t wastage = PAGE_SIZE<<gfporder;
+-	size_t extra = 0;
+-	size_t base = 0;
+-
+-	if (!(flags & CFLGS_OFF_SLAB)) {
+-		base = sizeof(struct slab);
+-		extra = sizeof(kmem_bufctl_t);
+-	}
+-	i = 0;
+-	while (i*size + ALIGN(base+i*extra, align) <= wastage)
+-		i++;
+-	if (i > 0)
+-		i--;
+-
+-	if (i > SLAB_LIMIT)
+-		i = SLAB_LIMIT;
+-
+-	*num = i;
+-	wastage -= i*size;
+-	wastage -= ALIGN(base+i*extra, align);
+-	*left_over = wastage;
++	return ALIGN(sizeof(struct slab)+nr_objs*sizeof(kmem_bufctl_t), align);
++}
++
++/* Calculate the number of objects and left-over bytes for a given
++   object size. */
++static void cache_estimate(unsigned long gfporder, size_t obj_size,
++			   size_t align, int flags, size_t *left_over,
++			   unsigned int *num)
++{
++	int nr_objs;
++	size_t mgmt_size;
++	size_t slab_size = PAGE_SIZE << gfporder;
++
++	/*
++	 * The slab management structure can be either off the slab or
++	 * on it. For the latter case, the memory allocated for a
++	 * slab is used for:
++	 *
++	 * - The struct slab
++	 * - One kmem_bufctl_t for each object
++	 * - Padding, to achieve alignment of @align
++	 * - @obj_size bytes for each object
++	 */
++	if (flags & CFLGS_OFF_SLAB) {
++		mgmt_size = 0;
++		nr_objs = slab_size / obj_size;
++
++		if (nr_objs > SLAB_LIMIT)
++			nr_objs = SLAB_LIMIT;
++	} else {
++		/* Ignore padding for the initial guess.  The padding
++		 * is at most @align-1 bytes, and @size is at least
++		 * @align. In the worst case, this result will be one
++		 * greater than the number of objects that fit into
++		 * the memory allocation when taking the padding into
++		 * account.
++		 */
++		nr_objs = (slab_size - sizeof(struct slab)) /
++			  (obj_size + sizeof(kmem_bufctl_t));
++
++		/*
++		 * Now take the padding into account and increase the
++		 * number of objects/slab until it doesn't fit
++		 * anymore.
++		 */
++		while (slab_mgmt_size(nr_objs, align) + nr_objs*obj_size
++		       <= slab_size)
++			nr_objs++;
++
++		/*
++		 * Reduce it by one which the maximum number of objects that
++		 * fit in the slab.
++		 */
++		if (nr_objs > 0)
++			nr_objs--;
++
++		if (nr_objs > SLAB_LIMIT)
++			nr_objs = SLAB_LIMIT;
++
++		mgmt_size = slab_mgmt_size(nr_objs, align);
++	}
++	*num = nr_objs;
++	*left_over = slab_size - nr_objs*obj_size - mgmt_size;
+ }
+ 
+ #define slab_error(cachep, msg) __slab_error(__FUNCTION__, cachep, msg)
 
-The NFS client does not support mandatory locking, mostly due to the
-possibility of DoS attacks and also due to the locking and NFS protocols
-not being sufficiently aware of each other.  NFSv4 can be used to address
-this latter problem, but probably not the former.
+--
 
-So, why deny lock requests for such files?  Especially on the client?
-
-    Thanx...
-
-       ps

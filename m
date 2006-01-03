@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWACOdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWACOdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWACOdH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 09:33:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWACOdH
+	id S932364AbWACOdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWACOdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 09:33:07 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:60878 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932350AbWACOdG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 09:33:06 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: David Lang <dlang@digitalinsight.com>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Tue, 3 Jan 2006 14:33:03 +0000
-User-Agent: KMail/1.9
-Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-References: <20050726150837.GT3160@stusta.de> <200601031452.10855.ak@suse.de> <Pine.LNX.4.62.0601030556370.30559@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0601030556370.30559@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601031433.04131.s0348365@sms.ed.ac.uk>
+	Tue, 3 Jan 2006 09:33:13 -0500
+Received: from alpha.uhasselt.be ([193.190.2.30]:56080 "EHLO alpha.uhasselt.be")
+	by vger.kernel.org with ESMTP id S932356AbWACOdM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 09:33:12 -0500
+To: torvalds@osdl.org
+Subject: [PATCH] cs53l32a: kzalloc conversion
+Cc: linux-kernel@vger.kernel.org
+Reply-To: takis@issaris.org
+Message-Id: <20060103143301.0D98E5BC3@localhost.localdomain>
+Date: Tue,  3 Jan 2006 15:33:01 +0100 (CET)
+From: takis@issaris.org (Panagiotis Issaris)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 January 2006 13:58, David Lang wrote:
-> On Tue, 3 Jan 2006, Andi Kleen wrote:
-> >> Even if Adrian's not trying to make this point (he's just removing
-> >> duplicate drivers, and opting for the newer ones), we accepted ALSA into
-> >> the kernel. It's probably about time we let OSS die properly, for sanity
-> >> purposes.
-> >
-> > Avoiding bloat is more important.
->
-> given that the ALSA drivers are not going to be removed, isn't it bloat to
-> have two drivers for the same card?
+From: Panagiotis Issaris <takis@issaris.org>
 
-Normally this isn't too big a deal in Linux; eventually one gets removed, but 
-not until it is substantially inferior than the other (or broken, or not 
-compiling, or unmaintained..).
+Conversion of kmalloc+memset to kzalloc.
 
-> yes, an individual compiled kernel may be slightly smaller by continueing
-> to support the OSS driver, but the source (and the maintinance) are
-> significantly worse by haveing two drivers instead of just one.
+Signed-off-by: Panagiotis Issaris <takis@issaris.org>
 
-If there are two separate maintainers it's probably not a lot worse. I think 
-the argument pretty much has to remain "ALSA drivers are technically 
-superior, OSS drivers have unfixable limitations", and that should be a good 
-enough reason to see them removed.
+---
 
-Perhaps Andi's concerns about ALSA bloat could also be concerned. I don't know 
-enough about the "high end" features of ALSA to comment on whether they could 
-become optional (currently there are few driver-generic options in the 
-Kconfig file).
+ drivers/media/video/cs53l32a.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
+d27ad6f2f4c46ed0b29034c413cc8f948506fdc6
+diff --git a/drivers/media/video/cs53l32a.c b/drivers/media/video/cs53l32a.c
+index 780b352..f9e3b8b 100644
+--- a/drivers/media/video/cs53l32a.c
++++ b/drivers/media/video/cs53l32a.c
+@@ -146,11 +146,10 @@ static int cs53l32a_attach(struct i2c_ad
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+ 		return 0;
+ 
+-	client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
++	client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL);
+ 	if (client == 0)
+ 		return -ENOMEM;
+ 
+-	memset(client, 0, sizeof(struct i2c_client));
+ 	client->addr = address;
+ 	client->adapter = adapter;
+ 	client->driver = &i2c_driver;
 -- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+0.99.9.GIT

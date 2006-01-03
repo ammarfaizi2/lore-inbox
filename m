@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWACKHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWACKI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWACKHu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 05:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWACKHu
+	id S1751362AbWACKI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 05:08:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWACKI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 05:07:50 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:60633 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751219AbWACKHs (ORCPT
+	Tue, 3 Jan 2006 05:08:29 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:23514 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751347AbWACKIB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 05:07:48 -0500
-Date: Tue, 3 Jan 2006 11:07:31 +0100
+	Tue, 3 Jan 2006 05:08:01 -0500
+Date: Tue, 3 Jan 2006 11:07:47 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,8 +19,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 03/19] mutex subsystem, add asm-generic/mutex-[dec|xchg|null].h implementations
-Message-ID: <20060103100731.GC23289@elte.hu>
+Subject: [patch 05/19] mutex subsystem, add include/asm-x86_64/mutex.h
+Message-ID: <20060103100747.GE23289@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -37,57 +37,60 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Add three (generic) mutex fastpath implementations.
-
-The mutex-xchg.h implementation is atomic_xchg() based, and should
-work fine on every architecture.
-
-The mutex-dec.h implementation is atomic_dec_return() based - this
-one too should work on every architecture, but might not perform the
-most optimally on architectures that have no atomic-dec/inc instructions.
-
-The mutex-null.h implementation forces all calls into the slowpath. This
-is used for mutex debugging, but it can also be used on platforms that do
-not want (or need) a fastpath at all.
+add the x86_64 version of mutex.h, optimized in assembly.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- include/asm-generic/mutex-dec.h  |  103 ++++++++++++++++++++++++++++++++++++
- include/asm-generic/mutex-null.h |   24 ++++++++
- include/asm-generic/mutex-xchg.h |  111 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 238 insertions(+)
+ include/asm-x86_64/mutex.h |  113 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 113 insertions(+)
 
-Index: linux/include/asm-generic/mutex-dec.h
+Index: linux/include/asm-x86_64/mutex.h
 ===================================================================
 --- /dev/null
-+++ linux/include/asm-generic/mutex-dec.h
-@@ -0,0 +1,103 @@
++++ linux/include/asm-x86_64/mutex.h
+@@ -0,0 +1,113 @@
 +/*
-+ * asm-generic/mutex-dec.h
-+ *
-+ * Generic implementation of the mutex fastpath, based on atomic
++ * Assembly implementation of the mutex fastpath, based on atomic
 + * decrement/increment.
++ *
++ * started by Ingo Molnar:
++ *
++ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
 + */
-+#ifndef _ASM_GENERIC_MUTEX_DEC_H
-+#define _ASM_GENERIC_MUTEX_DEC_H
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
 +
 +/**
-+ *  __mutex_fastpath_lock - try to take the lock by moving the count
-+ *                          from 1 to a 0 value
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: function to call if the original value was not 1
++ * __mutex_fastpath_lock - decrement and call function if negative
++ * @v: pointer of type atomic_t
++ * @fail_fn: function to call if the result is negative
 + *
-+ * Change the count from 1 to a value lower than 1, and call <fail_fn> if
-+ * it wasn't 1 originally. This function MUST leave the value lower than
-+ * 1 even when the "1" assertion wasn't true.
++ * Atomically decrements @v and calls <fail_fn> if the result is negative.
 + */
-+#define __mutex_fastpath_lock(count, fail_fn)				\
++#define __mutex_fastpath_lock(v, fail_fn)				\
 +do {									\
-+	if (unlikely(atomic_dec_return(count) < 0))			\
-+		fail_fn(count);						\
++	unsigned long dummy;						\
++									\
++	typecheck(atomic_t *, v);					\
++	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ __volatile__(						\
++		LOCK	"   decl (%%rdi)	\n"			\
++			"   js 2f		\n"			\
++			"1:			\n"			\
++									\
++		LOCK_SECTION_START("")					\
++			"2: call "#fail_fn"	\n"			\
++			"   jmp 1b		\n"			\
++		LOCK_SECTION_END					\
++									\
++		:"=D" (dummy)						\
++		: "D" (v)						\
++		: "rax", "rsi", "rdx", "rcx",				\
++		  "r8", "r9", "r10", "r11", "memory");			\
 +} while (0)
 +
 +/**
@@ -98,10 +101,11 @@ Index: linux/include/asm-generic/mutex-dec.h
 + *
 + * Change the count from 1 to a value lower than 1, and call <fail_fn> if
 + * it wasn't 1 originally. This function returns 0 if the fastpath succeeds,
-+ * or anything the slow path function returns.
++ * or anything the slow path function returns
 + */
 +static inline int
-+__mutex_fastpath_lock_retval(atomic_t *count, int (*fail_fn)(atomic_t *))
++__mutex_fastpath_lock_retval(atomic_t *count,
++			     int fastcall (*fail_fn)(atomic_t *))
 +{
 +	if (unlikely(atomic_dec_return(count) < 0))
 +		return fail_fn(count);
@@ -110,25 +114,36 @@ Index: linux/include/asm-generic/mutex-dec.h
 +}
 +
 +/**
-+ *  __mutex_fastpath_unlock - try to promote the count from 0 to 1
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: function to call if the original value was not 0
++ * __mutex_fastpath_unlock - increment and call function if nonpositive
++ * @v: pointer of type atomic_t
++ * @fail_fn: function to call if the result is nonpositive
 + *
-+ * Try to promote the count from 0 to 1. If it wasn't 0, call <fail_fn>.
-+ * In the failure case, this function is allowed to either set the value to
-+ * 1, or to set it to a value lower than 1.
-+ *
-+ * If the implementation sets it to a value of lower than 1, then the
-+ * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
-+ * to return 0 otherwise.
++ * Atomically increments @v and calls <fail_fn> if the result is nonpositive.
 + */
-+#define __mutex_fastpath_unlock(count, fail_fn)				\
++#define __mutex_fastpath_unlock(v, fail_fn)				\
 +do {									\
-+	if (unlikely(atomic_inc_return(count) <= 0))			\
-+		fail_fn(count);						\
++	unsigned long dummy;						\
++									\
++	typecheck(atomic_t *, v);					\
++	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ __volatile__(						\
++		LOCK	"   incl (%%rdi)	\n"			\
++			"   jle 2f		\n"			\
++			"1:			\n"			\
++									\
++		LOCK_SECTION_START("")					\
++			"2: call "#fail_fn"	\n"			\
++			"   jmp 1b		\n"			\
++		LOCK_SECTION_END					\
++									\
++		:"=D" (dummy)						\
++		: "D" (v)						\
++		: "rax", "rsi", "rdx", "rcx",				\
++		  "r8", "r9", "r10", "r11", "memory");			\
 +} while (0)
 +
-+#define __mutex_slowpath_needs_to_unlock()		1
++#define __mutex_slowpath_needs_to_unlock()	1
 +
 +/**
 + * __mutex_fastpath_trylock - try to acquire the mutex, without waiting
@@ -136,180 +151,17 @@ Index: linux/include/asm-generic/mutex-dec.h
 + *  @count: pointer of type atomic_t
 + *  @fail_fn: fallback function
 + *
-+ * Change the count from 1 to a value lower than 1, and return 0 (failure)
-+ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
-+ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
-+ * Additionally, if the value was < 0 originally, this function must not leave
-+ * it to 0 on failure.
-+ *
-+ * If the architecture has no effective trylock variant, it should call the
-+ * <fail_fn> spinlock-based trylock variant unconditionally.
++ * Change the count from 1 to 0 and return 1 (success), or return 0 (failure)
++ * if it wasn't 1 originally. [the fallback function is never used on
++ * x86_64, because all x86_64 CPUs have a CMPXCHG instruction.]
 + */
 +static inline int
 +__mutex_fastpath_trylock(atomic_t *count, int (*fail_fn)(atomic_t *))
 +{
-+	/*
-+	 * We have two variants here. The cmpxchg based one is the best one
-+	 * because it never induce a false contention state.  It is included
-+	 * here because architectures using the inc/dec algorithms over the
-+	 * xchg ones are much more likely to support cmpxchg natively.
-+	 *
-+	 * If not we fall back to the spinlock based variant - that is
-+	 * just as efficient (and simpler) as a 'destructive' probing of
-+	 * the mutex state would be.
-+	 */
-+#ifdef __HAVE_ARCH_CMPXCHG
 +	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
 +		return 1;
-+	return 0;
-+#else
-+	return fail_fn(count);
-+#endif
-+}
-+
-+#endif
-Index: linux/include/asm-generic/mutex-null.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-generic/mutex-null.h
-@@ -0,0 +1,24 @@
-+/*
-+ * asm-generic/mutex-null.h
-+ *
-+ * Generic implementation of the mutex fastpath, based on NOP :-)
-+ *
-+ * This is used by the mutex-debugging infrastructure, but it can also
-+ * be used by architectures that (for whatever reason) want to use the
-+ * spinlock based slowpath.
-+ */
-+#ifndef _ASM_GENERIC_MUTEX_NULL_H
-+#define _ASM_GENERIC_MUTEX_NULL_H
-+
-+/* extra parameter only needed for mutex debugging: */
-+#ifndef __IP__
-+# define __IP__
-+#endif
-+
-+#define __mutex_fastpath_lock(count, fail_fn)		fail_fn(count __IP__)
-+#define __mutex_fastpath_lock_retval(count, fail_fn)	fail_fn(count __IP__)
-+#define __mutex_fastpath_unlock(count, fail_fn)		fail_fn(count __IP__)
-+#define __mutex_fastpath_trylock(count, fail_fn)	fail_fn(count)
-+#define __mutex_slowpath_needs_to_unlock()		1
-+
-+#endif
-Index: linux/include/asm-generic/mutex-xchg.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-generic/mutex-xchg.h
-@@ -0,0 +1,111 @@
-+/*
-+ * asm-generic/mutex-xchg.h
-+ *
-+ * Generic implementation of the mutex fastpath, based on xchg().
-+ *
-+ * NOTE: An xchg based implementation is less optimal than an atomic
-+ *       decrement/increment based implementation. If your architecture
-+ *       has a reasonable atomic dec/inc then you should probably use
-+ *	 asm-generic/mutex-dec.h instead, or you could open-code an
-+ *	 optimized version in asm/mutex.h.
-+ */
-+#ifndef _ASM_GENERIC_MUTEX_XCHG_H
-+#define _ASM_GENERIC_MUTEX_XCHG_H
-+
-+/**
-+ *  __mutex_fastpath_lock - try to take the lock by moving the count
-+ *                          from 1 to a 0 value
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: function to call if the original value was not 1
-+ *
-+ * Change the count from 1 to a value lower than 1, and call <fail_fn> if it
-+ * wasn't 1 originally. This function MUST leave the value lower than 1
-+ * even when the "1" assertion wasn't true.
-+ */
-+#define __mutex_fastpath_lock(count, fail_fn)				\
-+do {									\
-+	if (unlikely(atomic_xchg(count, 0) != 1))			\
-+		fail_fn(count);						\
-+} while (0)
-+
-+
-+/**
-+ *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
-+ *                                 from 1 to a 0 value
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: function to call if the original value was not 1
-+ *
-+ * Change the count from 1 to a value lower than 1, and call <fail_fn> if it
-+ * wasn't 1 originally. This function returns 0 if the fastpath succeeds,
-+ * or anything the slow path function returns
-+ */
-+static inline int
-+__mutex_fastpath_lock_retval(atomic_t *count, int (*fail_fn)(atomic_t *))
-+{
-+	if (unlikely(atomic_xchg(count, 0) != 1))
-+		return fail_fn(count);
 +	else
 +		return 0;
-+}
-+
-+/**
-+ *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: function to call if the original value was not 0
-+ *
-+ * try to promote the mutex from 0 to 1. if it wasn't 0, call <function>
-+ * In the failure case, this function is allowed to either set the value to
-+ * 1, or to set it to a value lower than one.
-+ * If the implementation sets it to a value of lower than one, the
-+ * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
-+ * to return 0 otherwise.
-+ */
-+#define __mutex_fastpath_unlock(count, fail_fn)				\
-+do {									\
-+	if (unlikely(atomic_xchg(count, 1) != 0))			\
-+		fail_fn(count);						\
-+} while (0)
-+
-+#define __mutex_slowpath_needs_to_unlock()		0
-+
-+/**
-+ * __mutex_fastpath_trylock - try to acquire the mutex, without waiting
-+ *
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: spinlock based trylock implementation
-+ *
-+ * Change the count from 1 to a value lower than 1, and return 0 (failure)
-+ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
-+ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
-+ * Additionally, if the value was < 0 originally, this function must not leave
-+ * it to 0 on failure.
-+ *
-+ * If the architecture has no effective trylock variant, it should call the
-+ * <fail_fn> spinlock-based trylock variant unconditionally.
-+ */
-+static inline int
-+__mutex_fastpath_trylock(atomic_t *count, int (*fail_fn)(atomic_t *))
-+{
-+	int prev = atomic_xchg(count, 0);
-+
-+	if (unlikely(prev < 0)) {
-+		/*
-+		 * The lock was marked contended so we must restore that
-+		 * state. If while doing so we get back a prev value of 1
-+		 * then we just own it.
-+		 *
-+		 * [ In the rare case of the mutex going to 1, to 0, to -1
-+		 *   and then back to 0 in this few-instructions window,
-+		 *   this has the potential to trigger the slowpath for the
-+		 *   owner's unlock path needlessly, but that's not a problem
-+		 *   in practice. ]
-+		 */
-+		prev = atomic_xchg(count, prev);
-+		if (prev < 0)
-+			prev = 0;
-+	}
-+
-+	return prev;
 +}
 +
 +#endif

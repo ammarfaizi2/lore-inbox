@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWACTqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWACTtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbWACTqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWACTqb
+	id S932508AbWACTtk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWACTtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:46:31 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:22710 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932507AbWACTqa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:46:30 -0500
-Date: Tue, 3 Jan 2006 12:46:30 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Peter Staubach <staubach@redhat.com>
-Cc: ASANO Masahiro <masano@tnes.nec.co.jp>, trond.myklebust@fys.uio.no,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] fix posix lock on NFS
-Message-ID: <20060103194630.GL19769@parisc-linux.org>
-References: <20051222.132454.1025208517.masano@tnes.nec.co.jp> <43BAD2EC.2030807@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BAD2EC.2030807@redhat.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 3 Jan 2006 14:49:40 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:54722 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932508AbWACTtk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 14:49:40 -0500
+Date: Tue, 3 Jan 2006 20:49:33 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matan Peled <chaosite@gmail.com>
+cc: linux-kernel@vger.kernel.org, kwall@kurtwerks.com
+Subject: Re: Arjan's noinline Patch
+In-Reply-To: <43B98CAC.6060801@gmail.com>
+Message-ID: <Pine.LNX.4.61.0601032036090.11129@yvahk01.tjqt.qr>
+References: <20060101155710.GA5213@kurtwerks.com> <20060102034350.GD5213@kurtwerks.com>
+ <43B8FA70.2090408@gmail.com> <Pine.LNX.4.61.0601021949240.29938@yvahk01.tjqt.qr>
+ <43B98CAC.6060801@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03, 2006 at 02:39:24PM -0500, Peter Staubach wrote:
-> >	/* No mandatory locks over NFS */
-> >-	if ((inode->i_mode & (S_ISGID | S_IXGRP)) == S_ISGID)
-> >+	if ((inode->i_mode & (S_ISGID | S_IXGRP)) == S_ISGID &&
-> >+	    fl->fl_type != F_UNLCK)
-> 
-> Just out of curiosity, what is this if() statement intended to protect?
-> For locking purposes, why would the client care if the file has the
-> mandatory lock bits set?
+>> size:
+>>    text    data     bss      dec     hex filename
+>> 17188479 5984442 1738248 24911169 17c1d41 rc7-noinl-Os/vmlinux
+>> 17313751 5980978 1738248 25032977 17df911 rc7-Os/vmlinux
+>> 20174873 5991726 1738248 27904847 1a9cb4f rc7-noinl/vmlinux
+>> 20222221 5992278 1738248 27952747 1aa866b rc7-NFI/vmlinux
+>> 20321527 5988706 1738248 28048481 1abfc61 rc7-std/vmlinux
+>
+> Just out of pure curiosity... Where would NFI-Os stand?
+>
+> one would expect it to be around 17225???...
 
-Mandatory locks aren't mandatory for other clients.
+  LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o: In function `fix_to_virt':
+: undefined reference to `__this_fixmap_does_not_exist'
+arch/i386/kernel/built-in.o: In function `fix_to_virt':
+: undefined reference to `__this_fixmap_does_not_exist'
+arch/i386/kernel/built-in.o: In function `fix_to_virt':
+: undefined reference to `__this_fixmap_does_not_exist'
+arch/i386/kernel/built-in.o: In function `fix_to_virt':
+: undefined reference to `__this_fixmap_does_not_exist'
+arch/i386/kernel/built-in.o: In function `fix_to_virt':
+: undefined reference to `__this_fixmap_does_not_exist'
+arch/i386/kernel/built-in.o:: more undefined references to 
+`__this_fixmap_does_not_exist' follow
+make: *** [.tmp_vmlinux1] Error 1
+
+I hacked it up a little to get a result so...
+   text    data     bss     dec     hex filename
+17286376        4281178 1738248 23305802        1639e4a .tmp_vmlinux1
+
+
+
+Jan Engelhardt
+-- 

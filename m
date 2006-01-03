@@ -1,52 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWACXNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWACXNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWACXNe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWACXNG
+	id S964936AbWACXNF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWACXHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:13:06 -0500
-Received: from mail.suse.de ([195.135.220.2]:36518 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964871AbWACXNA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:13:00 -0500
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] [RFC] Optimize select/poll by putting small data sets on the stack
-Date: Wed, 4 Jan 2006 00:13:44 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <200601032158.14057.ak@suse.de> <43BAF72C.2030608@cosmosbay.com> <43BB03A7.3090604@cosmosbay.com>
-In-Reply-To: <43BB03A7.3090604@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Tue, 3 Jan 2006 18:07:20 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:27039 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964838AbWACXG6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:06:58 -0500
+Date: Wed, 4 Jan 2006 00:06:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 04/20] mutex subsystem, add include/asm-i386/mutex.h
+Message-ID: <20060103230647.GE13511@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601040013.44249.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 00:07, Eric Dumazet wrote:
-> Eric Dumazet a écrit :
-> > Andi Kleen a écrit :
-> >> This is a RFC for now. I would be interested in testing
-> >> feedback. Patch is for 2.6.15.
-> >>
-> >> Optimize select and poll by a using stack space for small fd sets
-> >>
-> >> This brings back an old optimization from Linux 2.0. Using
-> >> the stack is faster than kmalloc. On a Intel P4 system
-> >> it speeds up a select of a single pty fd by about 13%
-> >> (~4000 cycles -> ~3500)
-> >
-> > Was this result on UP or SMP kernel ? Preempt or not ?
-> >
-> > I think we might play in do_pollfd() and use fget_light()/fput_light()
-> > instead of fget()/fput() that are somewhat expensive because of atomic
-> > inc/dec on SMP.
->
-> Just for completeness I include this patch against 2.6.15
+From: Arjan van de Ven <arjan@infradead.org>
 
-Looks like a good idea.
+add the i386 version of mutex.h, optimized in assembly.
 
--Andi
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+----
+
+ include/asm-i386/mutex.h |  136 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 136 insertions(+)
+
+Index: linux/include/asm-i386/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-i386/mutex.h
+@@ -0,0 +1,136 @@
++/*
++ * Assembly implementation of the mutex fastpath, based on atomic
++ * decrement/increment.
++ *
++ * started by Ingo Molnar:
++ *
++ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
++ */
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
++
++/**
++ *  __mutex_fastpath_lock - try to take the lock by moving the count
++ *                          from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fn> if it
++ * wasn't 1 originally. This function MUST leave the value lower than 1
++ * even when the "1" assertion wasn't true.
++ */
++#define __mutex_fastpath_lock(count, fail_fn)				\
++do {									\
++	unsigned int dummy;						\
++									\
++	typecheck(atomic_t *, count);					\
++	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ __volatile__(						\
++		LOCK	"   decl (%%eax)	\n"			\
++			"   js 2f		\n"			\
++			"1:			\n"			\
++									\
++		LOCK_SECTION_START("")					\
++			"2: call "#fail_fn"	\n"			\
++			"   jmp 1b		\n"			\
++		LOCK_SECTION_END					\
++									\
++		:"=a" (dummy)						\
++		: "a" (count)						\
++		: "memory", "ecx", "edx");				\
++} while (0)
++
++
++/**
++ *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
++ *                                 from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fail_fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fail_fn> if it
++ * wasn't 1 originally. This function returns 0 if the fastpath succeeds,
++ * or anything the slow path function returns
++ */
++static inline int
++__mutex_fastpath_lock_retval(atomic_t *count,
++			     int fastcall (*fail_fn)(atomic_t *))
++{
++	if (unlikely(atomic_dec_return(count) < 0))
++		return fail_fn(count);
++	else
++		return 0;
++}
++
++/**
++ *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
++ *  @count: pointer of type atomic_t
++ *  @fail_fn: function to call if the original value was not 0
++ *
++ * try to promote the mutex from 0 to 1. if it wasn't 0, call <fail_fn>.
++ * In the failure case, this function is allowed to either set the value
++ * to 1, or to set it to a value lower than 1.
++ *
++ * If the implementation sets it to a value of lower than 1, the
++ * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
++ * to return 0 otherwise.
++ */
++#define __mutex_fastpath_unlock(count, fail_fn)				\
++do {									\
++	unsigned int dummy;						\
++									\
++	typecheck(atomic_t *, count);					\
++	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ __volatile__(						\
++		LOCK	"   incl (%%eax)	\n"			\
++			"   jle 2f		\n"			\
++			"1:			\n"			\
++									\
++		LOCK_SECTION_START("")					\
++			"2: call "#fail_fn"	\n"			\
++			"   jmp 1b		\n"			\
++		LOCK_SECTION_END					\
++									\
++		:"=a" (dummy)						\
++		: "a" (count)						\
++		: "memory", "ecx", "edx");				\
++} while (0)
++
++#define __mutex_slowpath_needs_to_unlock()	1
++
++/**
++ * __mutex_fastpath_trylock - try to acquire the mutex, without waiting
++ *
++ *  @count: pointer of type atomic_t
++ *  @fail_fn: fallback function
++ *
++ * Change the count from 1 to a value lower than 1, and return 0 (failure)
++ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
++ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
++ * Additionally, if the value was < 0 originally, this function must not leave
++ * it to 0 on failure.
++ */
++static inline int
++__mutex_fastpath_trylock(atomic_t *count, int (*fail_fn)(atomic_t *))
++{
++	/*
++	 * We have two variants here. The cmpxchg based one is the best one
++	 * because it never induce a false contention state.  It is included
++	 * here because architectures using the inc/dec algorithms over the
++	 * xchg ones are much more likely to support cmpxchg natively.
++	 *
++	 * If not we fall back to the spinlock based variant - that is
++	 * just as efficient (and simpler) as a 'destructive' probing of
++	 * the mutex state would be.
++	 */
++#ifdef __HAVE_ARCH_CMPXCHG
++	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
++		return 1;
++	return 0;
++#else
++	return fail_fn(count);
++#endif
++}
++
++#endif

@@ -1,54 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbWACXgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbWACXfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbWACXgU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbWACXgT
+	id S965092AbWACXfo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbWACXeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:36:19 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38625 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965093AbWACXfv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 18:35:51 -0500
-Date: Tue, 3 Jan 2006 15:35:45 -0800
-From: Jason Uhlenkott <jasonuhl@sgi.com>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] x86_64: fix IRQ vector reservations
-Message-ID: <20060103233544.GA393161@dragonfly.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 3 Jan 2006 18:34:01 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32408 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965094AbWACX3L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 18:29:11 -0500
+To: torvalds@osdl.org
+Subject: [PATCH 33/41] m68k: NULL noise removal
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Message-Id: <E1EtvaY-0003P0-Oa@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 03 Jan 2006 23:29:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like the new scalable TLB flush code for x86_64 is claiming
-one more IRQ vector than it actually uses.
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: 1135012281 -0500
 
-Signed-off-by: Jason Uhlenkott <jasonuhl@sgi.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
+---
 
-Index: linux/include/asm-x86_64/hw_irq.h
-===================================================================
---- linux.orig/include/asm-x86_64/hw_irq.h	2006-01-02 19:21:10.000000000 -0800
-+++ linux/include/asm-x86_64/hw_irq.h	2006-01-03 15:18:36.923399691 -0800
-@@ -46,8 +46,6 @@
-  *  some of the following vectors are 'rare', they are merged
-  *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
-  *  TLB, reschedule and local APIC vectors are performance-critical.
-- *
-- *  Vectors 0xf0-0xf9 are free (reserved for future Linux use).
+ arch/m68k/mac/iop.c             |    4 ++--
+ drivers/macintosh/adb-iop.c     |    2 +-
+ drivers/macintosh/via-macii.c   |    4 ++--
+ drivers/macintosh/via-maciisi.c |    4 ++--
+ drivers/macintosh/via-pmu68k.c  |    4 ++--
+ drivers/net/hplance.c           |    2 +-
+ drivers/net/sun3lance.c         |    2 +-
+ drivers/scsi/wd33c93.c          |    4 ++--
+ include/asm-m68k/floppy.h       |    2 +-
+ include/asm-m68k/sun3xflop.h    |    4 ++--
+ 10 files changed, 16 insertions(+), 16 deletions(-)
+
+26c9991dce4fdbcd61df858297bce975b032d7f0
+diff --git a/arch/m68k/mac/iop.c b/arch/m68k/mac/iop.c
+index d889ba8..9179a37 100644
+--- a/arch/m68k/mac/iop.c
++++ b/arch/m68k/mac/iop.c
+@@ -293,8 +293,8 @@ void __init iop_init(void)
+ 	}
+ 
+ 	for (i = 0 ; i < NUM_IOP_CHAN ; i++) {
+-		iop_send_queue[IOP_NUM_SCC][i] = 0;
+-		iop_send_queue[IOP_NUM_ISM][i] = 0;
++		iop_send_queue[IOP_NUM_SCC][i] = NULL;
++		iop_send_queue[IOP_NUM_ISM][i] = NULL;
+ 		iop_listeners[IOP_NUM_SCC][i].devname = NULL;
+ 		iop_listeners[IOP_NUM_SCC][i].handler = NULL;
+ 		iop_listeners[IOP_NUM_ISM][i].devname = NULL;
+diff --git a/drivers/macintosh/adb-iop.c b/drivers/macintosh/adb-iop.c
+index 71aeb91..d56d400 100644
+--- a/drivers/macintosh/adb-iop.c
++++ b/drivers/macintosh/adb-iop.c
+@@ -239,7 +239,7 @@ static int adb_iop_write(struct adb_requ
+ 
+ 	local_irq_save(flags);
+ 
+-	req->next = 0;
++	req->next = NULL;
+ 	req->sent = 0;
+ 	req->complete = 0;
+ 	req->reply_len = 0;
+diff --git a/drivers/macintosh/via-macii.c b/drivers/macintosh/via-macii.c
+index e9a159a..2a2ffe0 100644
+--- a/drivers/macintosh/via-macii.c
++++ b/drivers/macintosh/via-macii.c
+@@ -260,7 +260,7 @@ static int macii_write(struct adb_reques
+ 		return -EINVAL;
+ 	}
+ 	
+-	req->next = 0;
++	req->next = NULL;
+ 	req->sent = 0;
+ 	req->complete = 0;
+ 	req->reply_len = 0;
+@@ -295,7 +295,7 @@ static void macii_poll(void)
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+-	if (via[IFR] & SR_INT) macii_interrupt(0, 0, 0);
++	if (via[IFR] & SR_INT) macii_interrupt(0, NULL, NULL);
+ 	local_irq_restore(flags);
+ }
+ 
+diff --git a/drivers/macintosh/via-maciisi.c b/drivers/macintosh/via-maciisi.c
+index ad271e7..0129fcc 100644
+--- a/drivers/macintosh/via-maciisi.c
++++ b/drivers/macintosh/via-maciisi.c
+@@ -326,7 +326,7 @@ maciisi_write(struct adb_request* req)
+ 		req->complete = 1;
+ 		return -EINVAL;
+ 	}
+-	req->next = 0;
++	req->next = NULL;
+ 	req->sent = 0;
+ 	req->complete = 0;
+ 	req->reply_len = 0;
+@@ -421,7 +421,7 @@ maciisi_poll(void)
+ 
+ 	local_irq_save(flags);
+ 	if (via[IFR] & SR_INT) {
+-		maciisi_interrupt(0, 0, 0);
++		maciisi_interrupt(0, NULL, NULL);
+ 	}
+ 	else /* avoid calling this function too quickly in a loop */
+ 		udelay(ADB_DELAY);
+diff --git a/drivers/macintosh/via-pmu68k.c b/drivers/macintosh/via-pmu68k.c
+index 6f80d76..f08e52f 100644
+--- a/drivers/macintosh/via-pmu68k.c
++++ b/drivers/macintosh/via-pmu68k.c
+@@ -493,7 +493,7 @@ pmu_queue_request(struct adb_request *re
+ 		return -EINVAL;
+ 	}
+ 
+-	req->next = 0;
++	req->next = NULL;
+ 	req->sent = 0;
+ 	req->complete = 0;
+ 	local_irq_save(flags);
+@@ -717,7 +717,7 @@ pmu_handle_data(unsigned char *data, int
+ 				printk(KERN_ERR "PMU: extra ADB reply\n");
+ 				return;
+ 			}
+-			req_awaiting_reply = 0;
++			req_awaiting_reply = NULL;
+ 			if (len <= 2)
+ 				req->reply_len = 0;
+ 			else {
+diff --git a/drivers/net/hplance.c b/drivers/net/hplance.c
+index 08703d6..d841063 100644
+--- a/drivers/net/hplance.c
++++ b/drivers/net/hplance.c
+@@ -150,7 +150,7 @@ static void __init hplance_init(struct n
+         lp->lance.name = (char*)d->name;                /* discards const, shut up gcc */
+         lp->lance.base = va;
+         lp->lance.init_block = (struct lance_init_block *)(va + HPLANCE_MEMOFF); /* CPU addr */
+-        lp->lance.lance_init_block = 0;                 /* LANCE addr of same RAM */
++        lp->lance.lance_init_block = NULL;              /* LANCE addr of same RAM */
+         lp->lance.busmaster_regval = LE_C3_BSWP;        /* we're bigendian */
+         lp->lance.irq = d->ipl;
+         lp->lance.writerap = hplance_writerap;
+diff --git a/drivers/net/sun3lance.c b/drivers/net/sun3lance.c
+index 5c8fcd4..01bdb23 100644
+--- a/drivers/net/sun3lance.c
++++ b/drivers/net/sun3lance.c
+@@ -389,7 +389,7 @@ static int __init lance_probe( struct ne
+ 	dev->stop = &lance_close;
+ 	dev->get_stats = &lance_get_stats;
+ 	dev->set_multicast_list = &set_multicast_list;
+-	dev->set_mac_address = 0;
++	dev->set_mac_address = NULL;
+ //	KLUDGE -- REMOVE ME
+ 	set_bit(__LINK_STATE_PRESENT, &dev->state);
+ 
+diff --git a/drivers/scsi/wd33c93.c b/drivers/scsi/wd33c93.c
+index fd63add..fb53eea 100644
+--- a/drivers/scsi/wd33c93.c
++++ b/drivers/scsi/wd33c93.c
+@@ -465,7 +465,7 @@ wd33c93_execute(struct Scsi_Host *instan
+ 	 */
+ 
+ 	cmd = (struct scsi_cmnd *) hostdata->input_Q;
+-	prev = 0;
++	prev = NULL;
+ 	while (cmd) {
+ 		if (!(hostdata->busy[cmd->device->id] & (1 << cmd->device->lun)))
+ 			break;
+@@ -1569,7 +1569,7 @@ wd33c93_abort(struct scsi_cmnd * cmd)
   */
- #define SPURIOUS_APIC_VECTOR	0xff
- #define ERROR_APIC_VECTOR	0xfe
-@@ -56,8 +54,8 @@
- #define KDB_VECTOR		0xfb	/* reserved for KDB */
- #define THERMAL_APIC_VECTOR	0xfa
- #define THRESHOLD_APIC_VECTOR   0xf9
--#define INVALIDATE_TLB_VECTOR_END	0xf8
--#define INVALIDATE_TLB_VECTOR_START	0xf0	/* f0-f8 used for TLB flush */
-+#define INVALIDATE_TLB_VECTOR_END	0xf7
-+#define INVALIDATE_TLB_VECTOR_START	0xf0	/* f0-f7 used for TLB flush */
  
- #define NUM_INVALIDATE_TLB_VECTORS	8
+ 	tmp = (struct scsi_cmnd *) hostdata->input_Q;
+-	prev = 0;
++	prev = NULL;
+ 	while (tmp) {
+ 		if (tmp == cmd) {
+ 			if (prev)
+diff --git a/include/asm-m68k/floppy.h b/include/asm-m68k/floppy.h
+index c6e708d..63a05ed 100644
+--- a/include/asm-m68k/floppy.h
++++ b/include/asm-m68k/floppy.h
+@@ -46,7 +46,7 @@ asmlinkage irqreturn_t floppy_hardint(in
  
+ static int virtual_dma_count=0;
+ static int virtual_dma_residue=0;
+-static char *virtual_dma_addr=0;
++static char *virtual_dma_addr=NULL;
+ static int virtual_dma_mode=0;
+ static int doing_pdma=0;
+ 
+diff --git a/include/asm-m68k/sun3xflop.h b/include/asm-m68k/sun3xflop.h
+index fda1ecc..98a9f79 100644
+--- a/include/asm-m68k/sun3xflop.h
++++ b/include/asm-m68k/sun3xflop.h
+@@ -208,7 +208,7 @@ static int sun3xflop_request_irq(void)
+ 
+ 	if(!once) {
+ 		once = 1;
+-		error = request_irq(FLOPPY_IRQ, sun3xflop_hardint, SA_INTERRUPT, "floppy", 0);
++		error = request_irq(FLOPPY_IRQ, sun3xflop_hardint, SA_INTERRUPT, "floppy", NULL);
+ 		return ((error == 0) ? 0 : -1);
+ 	} else return 0;
+ }
+@@ -238,7 +238,7 @@ static int sun3xflop_init(void)
+ 	*sun3x_fdc.fcr_r = 0;
+ 
+ 	/* Success... */
+-	floppy_set_flags(0, 1, FD_BROKEN_DCL); // I don't know how to detect this.
++	floppy_set_flags(NULL, 1, FD_BROKEN_DCL); // I don't know how to detect this.
+ 	allowed_drive_mask = 0x01;
+ 	return (int) SUN3X_FDC;
+ }
+-- 
+0.99.9.GIT
+

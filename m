@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWACOH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWACOJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWACOH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 09:07:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWACOH1
+	id S1751427AbWACOJI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWACOJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 09:07:27 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:52693 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751422AbWACOH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 09:07:26 -0500
-Date: Tue, 3 Jan 2006 05:58:23 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Andi Kleen <ak@suse.de>
-cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-In-Reply-To: <200601031452.10855.ak@suse.de>
-Message-ID: <Pine.LNX.4.62.0601030556370.30559@qynat.qvtvafvgr.pbz>
-References: <20050726150837.GT3160@stusta.de> <p7364p1jvkx.fsf@verdi.suse.de>
- <200601031347.19328.s0348365@sms.ed.ac.uk> <200601031452.10855.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 3 Jan 2006 09:09:07 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:63402 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751425AbWACOJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 09:09:06 -0500
+Date: Tue, 3 Jan 2006 19:39:42 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Eric Dumazet <dada1@cosmosbay.com>, vatsa@in.ibm.com
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+Message-ID: <20060103140942.GB5075@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <1135908980.4568.10.camel@mindpipe> <20051230080032.GA26152@elte.hu> <1135990270.31111.46.camel@mindpipe> <Pine.LNX.4.64.0512301701320.3249@g5.osdl.org> <1135991732.31111.57.camel@mindpipe> <Pine.LNX.4.64.0512301726190.3249@g5.osdl.org> <1136001615.3050.5.camel@mindpipe> <20051231042902.GA3428@us.ibm.com> <1136004855.3050.8.camel@mindpipe> <20051231201426.GD5124@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051231201426.GD5124@us.ibm.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jan 2006, Andi Kleen wrote:
+On Sat, Dec 31, 2005 at 12:14:26PM -0800, Paul E. McKenney wrote:
+> So it seems to me that Linus's patch is part of the solution, but
+> needs to also have a global component, perhaps as follows:
+> 
+> 	if (unlikely(rdp->count > 100)) {
+> 		set_need_resched();
+> 		if (unlikely(rdp->count - rdp->last_rs_count > 1000)) {
+> 			int cpu;
+> 
+> 			rdp->last_rs_count = rdp->count;
+> 			spin_lock_bh(&rcu_bh_state.lock);
+> 			for_each_cpu_mask(cpu, rdp->rcu_bh_state.cpumask)
+> 				smp_send_reschedule(cpu);
+> 			spin_unlock_bh(&rcu_bh_state.lock);
+> 		}
+> 	}
 
->> Even if Adrian's not trying to make this point (he's just removing duplicate
->> drivers, and opting for the newer ones), we accepted ALSA into the kernel.
->> It's probably about time we let OSS die properly, for sanity purposes.
->
-> Avoiding bloat is more important.
+Yes, something like this that covers corner cases and forces
+queiscent state in all cpus, would be ideal.
 
-given that the ALSA drivers are not going to be removed, isn't it bloat to 
-have two drivers for the same card?
+> I am sure that I am missing some interaction or another with tickless
+> idle and CPU hotplug covered.
 
-yes, an individual compiled kernel may be slightly smaller by continueing 
-to support the OSS driver, but the source (and the maintinance) are 
-significantly worse by haveing two drivers instead of just one.
+It would be safe to miss a cpu or two while sending the resched
+interrupt. So, I don't think we need to worry about tickless
+idle and cpu hotplug.
 
-David Lang
+> There also needs to be some adjustment in rcu_do_batch(), which will
+> have to somehow get back to a quiescent state periodically.  Dipankar,
+> Vatsa, thoughts?
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+My original thought was to make maxbatch dynamic and automatically
+adjust it depending on the situation. I can try that approach.
 
+Thanks
+Dipankar

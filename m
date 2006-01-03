@@ -1,17 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWACPGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWACPIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWACPGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 10:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWACPGW
+	id S1751437AbWACPIa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 10:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWACPI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 10:06:22 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37064 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751417AbWACPGW (ORCPT
+	Tue, 3 Jan 2006 10:08:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28329 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751437AbWACPI3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 10:06:22 -0500
-Date: Tue, 3 Jan 2006 16:05:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
+	Tue, 3 Jan 2006 10:08:29 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060103100632.GA23154@elte.hu> 
+References: <20060103100632.GA23154@elte.hu> 
+To: Ingo Molnar <mingo@elte.hu>
 Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
        Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
        Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
@@ -20,35 +21,43 @@ Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 08/19] mutex subsystem, core
-Message-ID: <20060103150554.GA1211@elte.hu>
-References: <20060103100807.GH23289@elte.hu> <43BA78EC.7050603@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BA78EC.7050603@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.9 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Subject: Re: [patch 00/19] mutex subsystem, -V11 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 03 Jan 2006 15:07:17 +0000
+Message-ID: <16604.1136300837@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> wrote:
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> this is version -V11 of the generic mutex subsystem, against v2.6.15.
 
-> >+#define spin_lock_mutex(lock)			spin_lock(lock)
-> >+#define spin_unlock_mutex(lock)			spin_unlock(lock)
-> 
-> Is this an interrupt deadlock, or do you not allow interrupt contexts 
-> to even trylock a mutex?
+When compiling for x86 with no mutex debugging, I see:
 
-correct, no irq contexts are allowed. This is also checked for if 
-CONFIG_DEBUG_MUTEXES is enabled.
+	(gdb) disas mutex_lock
+	Dump of assembler code for function mutex_lock:
+	0xc02950d0 <mutex_lock+0>:      lock decl (%eax)
+	0xc02950d3 <mutex_lock+3>:      js     0xc02950ef <.text.lock.mutex>
+	0xc02950d5 <mutex_lock+5>:      ret    
+	End of assembler dump.
+	(gdb) disas 0xc02950ef
+	Dump of assembler code for function .text.lock.mutex:
+	0xc02950ef <.text.lock.mutex+0>:        call   0xc0294ffb <__mutex_lock_noinline>
+	0xc02950f4 <.text.lock.mutex+5>:        jmp    0xc02950d5 <mutex_lock+5>
+	0xc02950f6 <.text.lock.mutex+7>:        call   0xc029509f <__mutex_unlock_noinline>
+	0xc02950fb <.text.lock.mutex+12>:       jmp    0xc02950db <mutex_unlock+5>
+	End of assembler dump.
 
-	Ingo
+Can you arrange .text.lock.mutex+0 here to just jump directly to
+__mutex_lock_noinline? Otherwise we have an unnecessarily extended return
+path.
+
+You may not want to make the JS go directly there, but you could have that go
+to a JMP to __mutex_lock_noinline rather than having a CALL followed by a JMP
+back to a return instruction.
+
+
+Admittedly, this may not be possible, as you're mixing up C and ASM, but it
+would speed things up a little.
+
+David

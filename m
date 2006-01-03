@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWACPR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWACPVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWACPR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 10:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWACPR6
+	id S932400AbWACPVd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 10:21:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWACPVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 10:17:58 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:43712 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932398AbWACPR5 (ORCPT
+	Tue, 3 Jan 2006 10:21:33 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:24712 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932400AbWACPVc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 10:17:57 -0500
-Subject: PATCH: Small fixes backported to old IDE SiS driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Jan 2006 15:19:41 +0000
-Message-Id: <1136301581.22598.5.camel@localhost.localdomain>
+	Tue, 3 Jan 2006 10:21:32 -0500
+Date: Tue, 3 Jan 2006 16:21:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 04/19] mutex subsystem, add include/asm-i386/mutex.h
+Message-ID: <20060103152117.GA2445@elte.hu>
+References: <20060103100737.GD23289@elte.hu> <43BA7B2E.4070101@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43BA7B2E.4070101@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some quick backport bits from the libata PATA work to fix things found
-in the sis driver. The piix driver needs some fixes too but those are
-way to large and need someone working on old IDE with time to do them.
 
-This patch fixes the case where random bits get loaded into SIS timing
-registers according to the description of the correct behaviour from
-Vojtech Pavlik. It also adds the SiS5517 ATA16 chipset which is not
-currently supported by the driver. Thanks to Conrad Harriss for loaning
-me the machine with the 5517 chipset.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Alan
+> >+#ifdef __HAVE_ARCH_CMPXCHG
+> >+	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
+> >+		return 1;
+> >+	return 0;
+> >+#else
+> >+	return fail_fn(count);
+> >+#endif
+> >+}
+> 
+> asm-i386 version I think really should just use atomic_cmpxchg 
+> unconditionally, because otherwise an i386 compatible kernel will not 
+> use cmpxchg even when running on 486+ (not sure how important that is 
+> these days, but still...).
 
+yeah. This code predates the generic-atomic-cmpxchg code. (Feel free to 
+review all __HAVE_ARCH_CMPXCHG users after this goes in, and remove 
+__HAVE_ARCH_CMPXCHG altogether with a CONFIG_ flag.)
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+but ... the spinlock based variant is quite likely faster (on i386) than 
+generic-cmpxchg. Couldnt we introduce a new API, something along the 
+lines of:
 
---- drivers/ide/pci/sis5513.c~	2006-01-03 15:01:24.753952872 +0000
-+++ drivers/ide/pci/sis5513.c	2006-01-03 15:01:24.753952872 +0000
-@@ -111,6 +111,7 @@
- 
- 	{ "SiS5596",	PCI_DEVICE_ID_SI_5596,	ATA_16   },
- 	{ "SiS5571",	PCI_DEVICE_ID_SI_5571,	ATA_16   },
-+	{ "SiS5517",	PCI_DEVICE_ID_SI_5517,	ATA_16   },
- 	{ "SiS551x",	PCI_DEVICE_ID_SI_5511,	ATA_16   },
- };
- 
-@@ -523,6 +524,7 @@
- 			case 3:		test1 = 0x30|0x03; break;
- 			case 2:		test1 = 0x40|0x04; break;
- 			case 1:		test1 = 0x60|0x07; break;
-+			case 0:		test1 = 0x00; break;
- 			default:	break;
- 		}
- 		pci_write_config_byte(dev, drive_pci, test1);
---- include/linux/pci_ids.h~	2006-01-03 15:00:52.835805168 +0000
-+++ include/linux/pci_ids.h	2006-01-03 15:00:52.836805016 +0000
-@@ -632,6 +632,7 @@
- #define PCI_DEVICE_ID_SI_963		0x0963
- #define PCI_DEVICE_ID_SI_5511		0x5511
- #define PCI_DEVICE_ID_SI_5513		0x5513
-+#define PCI_DEVICE_ID_SI_5517		0x5517
- #define PCI_DEVICE_ID_SI_5518		0x5518
- #define PCI_DEVICE_ID_SI_5571		0x5571
- #define PCI_DEVICE_ID_SI_5581		0x5581
+	atomic_cmpxchg_lock(&count, &lock->wait_lock);
 
+and if the cmpxchg fails, it would hold the spinlock? The cmpxchg 
+semantics could be guaranteed by the spinlock. (because it is 'global' 
+for that particular critical section)
+
+	Ingo

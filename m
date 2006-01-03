@@ -1,337 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWACU6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWACVD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbWACU6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWACU6Y
+	id S932467AbWACVD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWACVD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:58:24 -0500
-Received: from mx1.suse.de ([195.135.220.2]:14225 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932467AbWACU6X (ORCPT
+	Tue, 3 Jan 2006 16:03:26 -0500
+Received: from ns1.suse.de ([195.135.220.2]:7570 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932467AbWACVDZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:58:23 -0500
-From: Andi Kleen <ak@suse.de>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] [RFC] Optimize select/poll by putting small data sets on the stack
-Date: Tue, 3 Jan 2006 21:58:13 +0100
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 16:03:25 -0500
+Date: Tue, 3 Jan 2006 22:03:23 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: blk_cleanup_queue, sleep in invalid context
+Message-ID: <20060103210323.GA5227@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200601032158.14057.ak@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a RFC for now. I would be interested in testing
-feedback. Patch is for 2.6.15.
+I got this with 2.6.15 on a ppc64 JS20, while debugging something else:
 
-Optimize select and poll by a using stack space for small fd sets
 
-This brings back an old optimization from Linux 2.0. Using
-the stack is faster than kmalloc. On a Intel P4 system
-it speeds up a select of a single pty fd by about 13%
-(~4000 cycles -> ~3500)
+.....
+proc on /proc type proc (rw)
+sysfs on /sys type sysfs (rw)
+udev on /dev type tmpfs (rw)
+devpts on /dev/pts type devpts (rw,mode=0620,gid=5)
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hda3, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+/dev/hda3 on /test type ext3 (rw,acl,user_xattr)                      done
+Loading required kernel modules                                       done
+/usr/sbin/855resolution not installed
+Retry device configuration                                            done
+Setting up the CMOS clock                                             done
+Creating /var/log/boot.msg                                            done
+Initialising lsvpd database  Vendor: TEAC      Model: FD-05PUB          Rev: 2000
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: LG        Model: CD-ROM CRN-8245B  Rev: 1.16
+  Type:   CD-ROM                             ANSI SCSI revision: 00
+Debug: sleeping function called from invalid context at kernel/workqueue.c:266
+in_atomic():1, irqs_disabled():0
+Call Trace:
+[C00000000FFFF3F0] [C000000002027FB4] .show_stack+0x68/0x1b0 (unreliable)
+[C00000000FFFF490] [C000000002053FEC] .__might_sleep+0xd8/0xf4
+[C00000000FFFF510] [C0000000020747C8] .flush_workqueue+0x2c/0x15c
+[C00000000FFFF5A0] [C0000000021AA134] .kblockd_flush+0x24/0x3c
+[C00000000FFFF620] [C0000000021B4694] .as_exit_queue+0x2c/0xac
+[C00000000FFFF6B0] [C0000000021A7D44] .elevator_exit+0x44/0x78
+[C00000000FFFF730] [C0000000021ABF14] .blk_cleanup_queue+0x60/0x15c
+[C00000000FFFF7D0] [D0000000002595C4] .scsi_free_queue+0x10/0x24 [scsi_mod]
+[C00000000FFFF850] [D00000000025F2B8] .scsi_device_dev_release+0xf8/0x160 [scsi_mod]
+[C00000000FFFF8F0] [C000000002241E9C] .device_release+0x4c/0x7c
+[C00000000FFFF970] [C0000000021BB820] .kobject_cleanup+0x90/0xf0
+[C00000000FFFFA10] [C0000000021BCA40] .kref_put+0x74/0x94
+[C00000000FFFFA90] [C0000000021BB6FC] .kobject_put+0x28/0x40
+[C00000000FFFFB10] [C000000002241FD8] .put_device+0x1c/0x30
+[C00000000FFFFB90] [D00000000025988C] .scsi_next_command+0x50/0x70 [scsi_mod]
+[C00000000FFFFC30] [D000000000259C44] .scsi_end_request+0x108/0x130 [scsi_mod]
+[C00000000FFFFCD0] [D00000000025A11C] <7>usb-storage: device scan complete
+sd 0:0:0:0: Attached scsi removable disk sda
+.scsi_io_completion+0x4b0/0x4f0 [scsi_mod]
+[C00000000FFFFDB0] [D000000000252934] .scsi_finish_command+0x104/0x128 [scsi_mod]
+[C00000000FFFFE40] [D000000000253990] .scsi_softirq+0x1c0/0x214 [scsi_mod]
+[C00000000FFFFEF0] [C000000002065560] .__do_softirq+0x98/0x170
+[C00000000FFFFF90] [C00000000202D0B8] .call_do_softirq+0x14/0x24
+[C00000000F1CF880] [C00000000200BD90] .do_softirq+0x70/0x98
+[C00000000F1CF910] [C000000002065430] .local_bh_enable+0x58/0x8c
+[C00000000F1CF990] [C00000000235F3C0] ._spin_unlock_bh+0x18/0x2c
+[C00000000F1CFA10] [C0000000022CC900] .lock_sock+0x110/0x138
+[C00000000F1CFB10] [C0000000022CA254] .sock_fasync+0xa0/0x1b4
+[C00000000F1CFBD0] [C0000000022CA3A4] .sock_close+0x3c/0x60
+[C00000000F1CFC50] [C0000000020C255C] .__fput+0x114/0x26c
+[C00000000F1CFD00] [C0000000020BE8D4] .filp_close+0xac/0xd4
+[C00000000F1CFD90] [C0000000020BE9E0] .sys_close+0xe4/0x114
+[C00000000F1CFE30] [C000000002008700] syscall_exit+0x0/0x18
+Debug: sleeping function called from invalid context at include/asm/semaphore.h:62
+in_atomic():1, irqs_disabled():0
+Call Trace:
+[C00000000FFFF370] [C000000002027FB4] .show_stack+0x68/0x1b0 (unreliable)
+[C00000000FFFF410] [C000000002053FEC] .__might_sleep+0xd8/0xf4
+[C00000000FFFF490] [C00000000207F714] .__lock_cpu_hotplug+0x90/0x118
+[C00000000FFFF510] [C00000000207487C] .flush_workqueue+0xe0/0x15c
+[C00000000FFFF5A0] [C0000000021AA134] .kblockd_flush+0x24/0x3c
+[C00000000FFFF620] [C0000000021B4694] .as_exit_queue+0x2c/0xac
+[C00000000FFFF6B0] [C0000000021A7D44] .elevator_exit+0x44/0x78
+[C00000000FFFF730] [C0000000021ABF14] .blk_cleanup_queue+0x60/0x15c
+[C00000000FFFF7D0] [D0000000002595C4] .scsi_free_queue+0x10/0x24 [scsi_mod]
+[C00000000FFFF850] [D00000000025F2B8] .scsi_device_dev_release+0xf8/0x160 [scsi_mod]
+[C00000000FFFF8F0] [C000000002241E9C] .device_release+0x4c/0x7c
+[C00000000FFFF970] [C0000000021BB820] .kobject_cleanup+0x90/0xf0
+[C00000000FFFFA10] [C0000000021BCA40] .kref_put+0x74/0x94
+[C00000000FFFFA90] [C0000000021BB6FC] .kobject_put+0x28/0x40
+[C00000000FFFFB10] [C000000002241FD8] .put_device+0x1c/0x30
+[C00000000FFFFB90] [D00000000025988C] .scsi_next_command+0x50/0x70 [scsi_mod]
+[C00000000FFFFC30] [D000000000259C44] .scsi_end_request+0x108/0x130 [scsi_mod]
+[C00000000FFFFCD0] [D00000000025A11C] .scsi_io_completion+0x4b0/0x4f0 [scsi_mod]
+[C00000000FFFFDB0] [D000000000252934] .scsi_finish_command+0x104/0x128 [scsi_mod]
+[C00000000FFFFE40] [D000000000253990] .scsi_softirq+0x1c0/0x214 [scsi_mod]
+[C00000000FFFFEF0] [C000000002065560] .__do_softirq+0x98/0x170
+[C00000000FFFFF90] [C00000000202D0B8] .call_do_softirq+0x14/0x24
+[C00000000F1CF880] [C00000000200BD90] .do_softirq+0x70/0x98
+[C00000000F1CF910] [C000000002065430] .local_bh_enable+0x58/0x8c
+[C00000000F1CF990] [C00000000235F3C0] ._spin_unlock_bh+0x18/0x2c
+[C00000000F1CFA10] [C0000000022CC900] .lock_sock+0x110/0x138
+[C00000000F1CFB10] [C0000000022CA254] .sock_fasync+0xa0/0x1b4
+[C00000000F1CFBD0] [C0000000022CA3A4] .sock_close+0x3c/0x60
+[C00000000F1CFC50] [C0000000020C255C] .__fput+0x114/0x26c
+[C00000000F1CFD00] [C0000000020BE8D4] .filp_close+0xac/0xd4
+[C00000000F1CFD90] [C0000000020BE9E0] .sys_close+0xe4/0x114
+[C00000000F1CFE30] [C000000002008700] syscall_exit+0x0/0x18
+scheduling while atomic: udevd/0x00000200/1426
+Call Trace:
+[C00000000FFFF1F0] [C000000002027FB4] .show_stack+0x68/0x1b0 (unreliable)
+[C00000000FFFF290] [C00000000235CDD4] .schedule+0x98/0xdc0
+[C00000000FFFF3A0] [C00000000235CA88] .__down+0x78/0xf8
+[C00000000FFFF490] [C00000000207F748] .__lock_cpu_hotplug+0xc4/0x118
+[C00000000FFFF510] [C00000000207487C] .flush_workqueue+0xe0/0x15c
+[C00000000FFFF5A0] [C0000000021AA134] .kblockd_flush+0x24/0x3c
+[C00000000FFFF620] [C0000000021B4694] .as_exit_queue+0x2c/0xac
+[C00000000FFFF6B0] [C0000000021A7D44] .elevator_exit+0x44/0x78
+[C00000000FFFF730] [C0000000021ABF14] .blk_cleanup_queue+0x60/0x15c
+[C00000000FFFF7D0] [D0000000002595C4] .scsi_free_queue+0x10/0x24 [scsi_mod]
+[C00000000FFFF850] [D00000000025F2B8] .scsi_device_dev_release+0xf8/0x160 [scsi_mod]
+[C00000000FFFF8F0] [C000000002241E9C] .device_release+0x4c/0x7c
+[C00000000FFFF970] [C0000000021BB820] .kobject_cleanup+0x90/0xf0
+[C00000000FFFFA10] [C0000000021BCA40] .kref_put+0x74/0x94
+[C00000000FFFFA90] [C0000000021BB6FC] .kobject_put+0x28/0x40
+[C00000000FFFFB10] [C000000002241FD8] .put_device+0x1c/0x30
+[C00000000FFFFB90] [D00000000025988C] .scsi_next_command+0x50/0x70 [scsi_mod]
+[C00000000FFFFC30] [D000000000259C44] .scsi_end_request+0x108/0x130 [scsi_mod]
+[C00000000FFFFCD0] [D00000000025A11C] .scsi_io_completion+0x4b0/0x4f0 [scsi_mod]
+[C00000000FFFFDB0] [D000000000252934] .scsi_finish_command+0x104/0x128 [scsi_mod]
+[C00000000FFFFE40] [D000000000253990] .scsi_softirq+0x1c0/0x214 [scsi_mod]
+[C00000000FFFFEF0] [C000000002065560] .__do_softirq+0x98/0x170
+[C00000000FFFFF90] [C00000000202D0B8] .call_do_softirq+0x14/0x24
+[C00000000F1CF880] [C00000000200BD90] .do_softirq+0x70/0x98
+[C00000000F1CF910] [C000000002065430] .local_bh_enable+0x58/0x8c
+[C00000000F1CF990] [C00000000235F3C0] ._spin_unlock_bh+0x18/0x2c
+[C00000000F1CFA10] [C0000000022CC900] .lock_sock+0x110/0x138
+[C00000000F1CFB10] [C0000000022CA254] .sock_fasync+0xa0/0x1b4
+[C00000000F1CFBD0] [C0000000022CA3A4] .sock_close+0x3c/0x60
+[C00000000F1CFC50] [C0000000020C255C] .__fput+0x114/0x26c
+[C00000000F1CFD00] [C0000000020BE8D4] .filp_close+0xac/0xd4
+[C00000000F1CFD90] [C0000000020BE9E0] .sys_close+0xe4/0x114
+[C00000000F1CFE30] [C000000002008700] syscall_exit+0x0/0x18
+sd 0:0:0:0: Attached scsi generic sg0 type 0
+cpu 0x1: Vector: 800 (FPU Unavailable) at [c00000000ffff790]
+    pc: c0000000024d80f0: iosched_deadline+0x28/0xb8
+    lr: c0000000024d80f0: iosched_deadline+0x28/0xb8
+    sp: c00000000ffffa10
+   msr: 8000000000009032
+  current = 0xc000000000fec040
+  paca    = 0xc000000002456400
+    pid   = 1426, comm = udevd
+ 1:0:0:0: Attached scsi generic sg1 type 5
 
-It also saves memory because a daemon hanging in select or poll
-will usually save one or two less pages. This can add up - 
-e.g. if you have 10 daemons blocking in poll/select you
-save 40KB of memory.
 
-I did a patch for this long ago, but it was never applied.
-This version is a reimplementation of the old patch that
-tries to be less intrusive. I only did the minimal changes
-needed for the stack allocation.
+(it finally jumped to some invalid code which happend to be a FP instruction)
 
-The cut off point before external memory is allocated 
-is currently at 832bytes.  The system calls always allocate
-this much memory on the stack.
+I found no related block patches in our CVS, so a plain 2.6.15 may have the same bug.
 
-These 832 bytes are divided into 256 bytes frontend data (for the select
-bitmaps of the pollfds) and the rest of the space for the wait queues used
-by the low level drivers. There are some extreme 
-cases where this won't work out for select and it falls back 
-to allocating memory too early - especially with very sparse 
-large select bitmaps -  but the majority of processes who only have a small
-number of file descriptors should be ok.
-[TBD: 832/256 might not be the best split for select or poll] 
-
-I suspect more optimizations might be possible, but they would 
-be more complicated. One way would be to cache the select/poll
-context over multiple system calls because typically the
-input values should be similar. Problem is when to flush
-the file descriptors out though.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux-2.6.15rc7-work/fs/select.c
-===================================================================
---- linux-2.6.15rc7-work.orig/fs/select.c
-+++ linux-2.6.15rc7-work/fs/select.c
-@@ -29,12 +29,6 @@
- #define ROUND_UP(x,y) (((x)+(y)-1)/(y))
- #define DEFAULT_POLLMASK (POLLIN | POLLOUT | POLLRDNORM | POLLWRNORM)
- 
--struct poll_table_entry {
--	struct file * filp;
--	wait_queue_t wait;
--	wait_queue_head_t * wait_address;
--};
--
- struct poll_table_page {
- 	struct poll_table_page * next;
- 	struct poll_table_entry * entry;
-@@ -64,13 +58,23 @@ void poll_initwait(struct poll_wqueues *
- 	init_poll_funcptr(&pwq->pt, __pollwait);
- 	pwq->error = 0;
- 	pwq->table = NULL;
-+	pwq->inline_index = 0;
- }
- 
- EXPORT_SYMBOL(poll_initwait);
- 
-+static void free_poll_entry(struct poll_table_entry *entry)
-+{
-+	remove_wait_queue(entry->wait_address,&entry->wait);
-+	fput(entry->filp);
-+}
-+
- void poll_freewait(struct poll_wqueues *pwq)
- {
- 	struct poll_table_page * p = pwq->table;
-+	int i;
-+	for (i = 0; i < pwq->inline_index; i++)
-+		free_poll_entry(pwq->inline_entries + i); 
- 	while (p) {
- 		struct poll_table_entry * entry;
- 		struct poll_table_page *old;
-@@ -78,8 +82,7 @@ void poll_freewait(struct poll_wqueues *
- 		entry = p->entry;
- 		do {
- 			entry--;
--			remove_wait_queue(entry->wait_address,&entry->wait);
--			fput(entry->filp);
-+			free_poll_entry(entry);
- 		} while (entry > p->entries);
- 		old = p;
- 		p = p->next;
-@@ -89,12 +92,14 @@ void poll_freewait(struct poll_wqueues *
- 
- EXPORT_SYMBOL(poll_freewait);
- 
--static void __pollwait(struct file *filp, wait_queue_head_t *wait_address,
--		       poll_table *_p)
--{
-+static struct poll_table_entry *poll_get_entry(poll_table *_p) 
-+{ 
- 	struct poll_wqueues *p = container_of(_p, struct poll_wqueues, pt);
- 	struct poll_table_page *table = p->table;
- 
-+	if (p->inline_index < N_INLINE_POLL_ENTRIES)
-+		return p->inline_entries + p->inline_index++; 
-+
- 	if (!table || POLL_TABLE_FULL(table)) {
- 		struct poll_table_page *new_table;
- 
-@@ -102,7 +107,7 @@ static void __pollwait(struct file *filp
- 		if (!new_table) {
- 			p->error = -ENOMEM;
- 			__set_current_state(TASK_RUNNING);
--			return;
-+			return NULL;
- 		}
- 		new_table->entry = new_table->entries;
- 		new_table->next = table;
-@@ -110,16 +115,21 @@ static void __pollwait(struct file *filp
- 		table = new_table;
- 	}
- 
--	/* Add a new entry */
--	{
--		struct poll_table_entry * entry = table->entry;
--		table->entry = entry+1;
--	 	get_file(filp);
--	 	entry->filp = filp;
--		entry->wait_address = wait_address;
--		init_waitqueue_entry(&entry->wait, current);
--		add_wait_queue(wait_address,&entry->wait);
--	}
-+	return table->entry++; 
-+} 
-+
-+/* Add a new entry */
-+static void __pollwait(struct file *filp, wait_queue_head_t *wait_address,
-+		       poll_table *p)
-+{
-+	struct poll_table_entry *entry = poll_get_entry(p);
-+	if (!entry) 
-+		return;
-+	get_file(filp);
-+	entry->filp = filp;
-+	entry->wait_address = wait_address;
-+	init_waitqueue_entry(&entry->wait, current);
-+	add_wait_queue(wait_address,&entry->wait);
- }
- 
- #define FDS_IN(fds, n)		(fds->in + n)
-@@ -274,16 +284,6 @@ int do_select(int n, fd_set_bits *fds, l
- 	return retval;
- }
- 
--static void *select_bits_alloc(int size)
--{
--	return kmalloc(6 * size, GFP_KERNEL);
--}
--
--static void select_bits_free(void *bits, int size)
--{
--	kfree(bits);
--}
--
- /*
-  * We can actually return ERESTARTSYS instead of EINTR, but I'd
-  * like to be certain this leads to no problems. So I return
-@@ -303,6 +303,8 @@ sys_select(int n, fd_set __user *inp, fd
- 	long timeout;
- 	int ret, size, max_fdset;
- 	struct fdtable *fdt;
-+	/* Allocate small arguments on the stack to save memory and be faster */
-+	char stack_fds[SELECT_STACK_ALLOC];
- 
- 	timeout = MAX_SCHEDULE_TIMEOUT;
- 	if (tvp) {
-@@ -344,7 +346,10 @@ sys_select(int n, fd_set __user *inp, fd
- 	 */
- 	ret = -ENOMEM;
- 	size = FDS_BYTES(n);
--	bits = select_bits_alloc(size);
-+	if (6*size < SELECT_STACK_ALLOC)
-+		bits = stack_fds;
-+	else
-+		bits = kmalloc(6 * size, GFP_KERNEL);
- 	if (!bits)
- 		goto out_nofds;
- 	fds.in      = (unsigned long *)  bits;
-@@ -390,7 +395,8 @@ sys_select(int n, fd_set __user *inp, fd
- 		ret = -EFAULT;
- 
- out:
--	select_bits_free(bits, size);
-+	if (bits != stack_fds)
-+		kfree(bits);
- out_nofds:
- 	return ret;
- }
-@@ -464,6 +470,8 @@ static int do_poll(unsigned int nfds,  s
- 	return count;
- }
- 
-+#define N_STACK_PPS ((sizeof(stack_pps) - sizeof(struct poll_list))  / sizeof(struct pollfd))
-+
- asmlinkage long sys_poll(struct pollfd __user * ufds, unsigned int nfds, long timeout)
- {
- 	struct poll_wqueues table;
-@@ -473,6 +481,9 @@ asmlinkage long sys_poll(struct pollfd _
-  	struct poll_list *walk;
- 	struct fdtable *fdt;
- 	int max_fdset;
-+	/* Allocate small arguments on the stack to save memory and be faster */
-+	char stack_pps[POLL_STACK_ALLOC];
-+	struct poll_list *stack_pp = NULL;
- 
- 	/* Do a sanity check on nfds ... */
- 	rcu_read_lock();
-@@ -498,14 +509,23 @@ asmlinkage long sys_poll(struct pollfd _
- 	err = -ENOMEM;
- 	while(i!=0) {
- 		struct poll_list *pp;
--		pp = kmalloc(sizeof(struct poll_list)+
--				sizeof(struct pollfd)*
--				(i>POLLFD_PER_PAGE?POLLFD_PER_PAGE:i),
--					GFP_KERNEL);
--		if(pp==NULL)
--			goto out_fds;
-+		int num, size; 
-+		if (stack_pp == NULL)
-+			num = N_STACK_PPS;
-+		else 
-+			num = POLLFD_PER_PAGE;
-+		if (num > i) 
-+			num = i;
-+		size = sizeof(struct poll_list) + sizeof(struct pollfd)*num;
-+		if (!stack_pp)
-+			stack_pp = pp = (struct poll_list *)stack_pps;
-+		else {
-+			pp = kmalloc(size, GFP_KERNEL);
-+			if (!pp)
-+				goto out_fds;
-+		}
- 		pp->next=NULL;
--		pp->len = (i>POLLFD_PER_PAGE?POLLFD_PER_PAGE:i);
-+		pp->len = num;
- 		if (head == NULL)
- 			head = pp;
- 		else
-@@ -513,7 +533,7 @@ asmlinkage long sys_poll(struct pollfd _
- 
- 		walk = pp;
- 		if (copy_from_user(pp->entries, ufds + nfds-i, 
--				sizeof(struct pollfd)*pp->len)) {
-+				sizeof(struct pollfd)*num)) {
- 			err = -EFAULT;
- 			goto out_fds;
- 		}
-@@ -541,7 +561,8 @@ out_fds:
- 	walk = head;
- 	while(walk!=NULL) {
- 		struct poll_list *pp = walk->next;
--		kfree(walk);
-+		if (walk != stack_pp)
-+			kfree(walk);
- 		walk = pp;
- 	}
- 	poll_freewait(&table);
-Index: linux-2.6.15rc7-work/include/linux/poll.h
-===================================================================
---- linux-2.6.15rc7-work.orig/include/linux/poll.h
-+++ linux-2.6.15rc7-work/include/linux/poll.h
-@@ -11,6 +11,15 @@
- #include <linux/mm.h>
- #include <asm/uaccess.h>
- 
-+/* ~832 bytes of stack space used max in sys_select/sys_poll before allocating 
-+   additional memory. */
-+#define MAX_STACK_ALLOC 832
-+#define FRONTEND_STACK_ALLOC  256
-+#define SELECT_STACK_ALLOC    FRONTEND_STACK_ALLOC
-+#define POLL_STACK_ALLOC      FRONTEND_STACK_ALLOC
-+#define WQUEUES_STACK_ALLOC   (MAX_STACK_ALLOC - FRONTEND_STACK_ALLOC)
-+#define N_INLINE_POLL_ENTRIES (WQUEUES_STACK_ALLOC / sizeof(struct poll_table_entry))
-+
- struct poll_table_struct;
- 
- /* 
-@@ -33,13 +42,21 @@ static inline void init_poll_funcptr(pol
- 	pt->qproc = qproc;
- }
- 
-+struct poll_table_entry {
-+	struct file * filp;
-+	wait_queue_t wait;
-+	wait_queue_head_t * wait_address;
-+};
-+
- /*
-  * Structures and helpers for sys_poll/sys_poll
-  */
--struct poll_wqueues {
--	poll_table pt;
-+struct poll_wqueues {	
-+	poll_table pt;	
- 	struct poll_table_page * table;
- 	int error;
-+	int inline_index; 
-+	struct poll_table_entry inline_entries[N_INLINE_POLL_ENTRIES];
- };
- 
- extern void poll_initwait(struct poll_wqueues *pwq);
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

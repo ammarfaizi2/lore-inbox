@@ -1,94 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWACUgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWACUhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbWACUgm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWACUgm
+	id S932492AbWACUhs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWACUhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:36:42 -0500
-Received: from 6.143.111.62.revers.nsm.pl ([62.111.143.6]:47765 "HELO
-	matthew.ogrody.nsm.pl") by vger.kernel.org with SMTP
-	id S932518AbWACUgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:36:41 -0500
-Date: Tue, 3 Jan 2006 21:37:32 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20060103203732.GF5262@irc.pl>
-Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
-	Olivier Galibert <galibert@pobox.com>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
-	Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
-	alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-	sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-	kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-	jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-	zwane@commfireservices.com, zaitcev@yahoo.com,
-	linux-kernel@vger.kernel.org
-References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
+	Tue, 3 Jan 2006 15:37:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18098 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932492AbWACUhr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 15:37:47 -0500
+Date: Tue, 3 Jan 2006 15:37:24 -0500
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: userspace breakage
+Message-ID: <20060103203724.GG5819@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com> <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org> <20051229230307.GB24452@redhat.com> <20060103202853.GF12617@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zGQnqpIoxlsbsOfg"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5h1wzpnjrx.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20060103202853.GF12617@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 03, 2006 at 12:28:53PM -0800, Greg Kroah-Hartman wrote:
 
---zGQnqpIoxlsbsOfg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ > > I'm glad you agree.  I've decided to try something different once 2.6.16
+ > > is out.  Every day, I'm going to push the -git snapshot of the day into
+ > > a testing branch for Fedora users. (Normally, only rawhide[1] users 
+ > > get to test kernel-de-jour, and this always has the latest userspace, so
+ > > we don't notice problems until a kernel point release and the stable
+ > > distro gets an update).
+ > 
+ > Ah, nice idea, I'll try to set up the same thing for Gentoo's kernels.
+ > Hopefully the expanded coverage will help...
 
-On Tue, Jan 03, 2006 at 09:22:58PM +0100, Takashi Iwai wrote:
-> At Tue, 3 Jan 2006 18:03:16 +0100,
-> Olivier Galibert wrote:
-> >=20
-> > > This is exactly why the OSS emulation option in ALSA is really a last=
- resort=20
-> > > and should not be an excuse for people to ignore implementing ALSA su=
-pport=20
-> > > directly. More so, it is very good justification for ditching "everyt=
-hing=20
-> > > OSS" as soon as possible, at least in new software.
-> >=20
-> > Actually the crappy state of OSS emulation is a good reason to ditch
-> > ALSA in its current implementation.  As Linus reminded not so long
-> > ago, backwards compatibility is extremely important.
->=20
-> Well, we keep the compatibility exactly -- OSS drivers don't support
-> software mixing in the kernel, too :)
+Cool, lets see which distro has the largest suicide-squad :-P
 
- OSS will support software mixing. In kernel. On NetBSD.
-http://kerneltrap.org/node/4388
+		Dave
 
---=20
-Tomasz Torcz            There exists no separation between gods and men:
-zdzichu@irc.-nie.spam-.pl   one blends softly casual into the other.
-
-
---zGQnqpIoxlsbsOfg
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFDuuCMThhlKowQALQRArEuAKDZGR44MESsWO2j2dgexAY00l4rOwCg6mmj
-ibATWhDjfL4MCZgCXI59rSA=
-=RmBW
------END PGP SIGNATURE-----
-
---zGQnqpIoxlsbsOfg--

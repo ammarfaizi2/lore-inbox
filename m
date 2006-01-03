@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWACV2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWACV1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbWACV2T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWACV2R
+	id S964960AbWACV1O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWACV0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:28:17 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:40591 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932531AbWACVHl
+	Tue, 3 Jan 2006 16:26:07 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32655 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932537AbWACVHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:41 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 30/50] h8300: task_stack_page()
+Subject: [PATCH 19/50] uml: task_thread_info()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008Qx-Ss@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008Pv-JQ@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,23 +25,46 @@ Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/h8300/kernel/process.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/um/kernel/process_kern.c    |    2 +-
+ arch/um/kernel/tt/process_kern.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-ffc2e31ff9f23d041b8de15f5083ab4e986438dd
-diff --git a/arch/h8300/kernel/process.c b/arch/h8300/kernel/process.c
-index fe21adf..f053b14 100644
---- a/arch/h8300/kernel/process.c
-+++ b/arch/h8300/kernel/process.c
-@@ -195,7 +195,7 @@ int copy_thread(int nr, unsigned long cl
+515b909dadbe1dcd9253970a711bf7a54ee78bd8
+diff --git a/arch/um/kernel/process_kern.c b/arch/um/kernel/process_kern.c
+index 34b54a3..791ea3f 100644
+--- a/arch/um/kernel/process_kern.c
++++ b/arch/um/kernel/process_kern.c
+@@ -108,7 +108,7 @@ void set_current(void *t)
  {
- 	struct pt_regs * childregs;
+ 	struct task_struct *task = t;
  
--	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
-+	childregs = (struct pt_regs *) (THREAD_SIZE + task_stack_page(p)) - 1;
+-	cpu_tasks[task->thread_info->cpu] = ((struct cpu_task) 
++	cpu_tasks[task_thread_info(task)->cpu] = ((struct cpu_task) 
+ 		{ external_pid(task), task });
+ }
  
- 	*childregs = *regs;
- 	childregs->retpc = (unsigned long) ret_from_fork;
+diff --git a/arch/um/kernel/tt/process_kern.c b/arch/um/kernel/tt/process_kern.c
+index cfaa373..857f355 100644
+--- a/arch/um/kernel/tt/process_kern.c
++++ b/arch/um/kernel/tt/process_kern.c
+@@ -37,7 +37,7 @@ void switch_to_tt(void *prev, void *next
+ 	from = prev;
+ 	to = next;
+ 
+-	cpu = from->thread_info->cpu;
++	cpu = task_thread_info(from)->cpu;
+ 	if(cpu == 0)
+ 		forward_interrupts(to->thread.mode.tt.extern_pid);
+ #ifdef CONFIG_SMP
+@@ -344,7 +344,7 @@ int do_proc_op(void *t, int proc_id)
+ 		pid = thread->request.u.exec.pid;
+ 		do_exec(thread->mode.tt.extern_pid, pid);
+ 		thread->mode.tt.extern_pid = pid;
+-		cpu_tasks[task->thread_info->cpu].pid = pid;
++		cpu_tasks[task_thread_info(task)->cpu].pid = pid;
+ 		break;
+ 	case OP_FORK:
+ 		attach_process(thread->request.u.fork.pid);
 -- 
 0.99.9.GIT
 

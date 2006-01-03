@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWACTYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWACTY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWACTYn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 14:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWACTYn
+	id S1751477AbWACTY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 14:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWACTY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 14:24:43 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:27919 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751476AbWACTYn (ORCPT
+	Tue, 3 Jan 2006 14:24:58 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:2319 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1751471AbWACTYz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 14:24:43 -0500
-Date: Tue, 3 Jan 2006 20:24:27 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 23/26] gitignore: x86_64 files
-Message-ID: <20060103192427.GA20336@mars.ravnborg.org>
-References: <20060103132035.GA17485@mars.ravnborg.org> <p73wthhi7v9.fsf@verdi.suse.de> <20060103171517.GB20001@mars.ravnborg.org> <200601031826.42028.ak@suse.de>
+	Tue, 3 Jan 2006 14:24:55 -0500
+Date: Tue, 3 Jan 2006 20:24:49 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060103192449.GA26030@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Tomasz Torcz <zdzichu@irc.pl>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+	Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
+	alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+	sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+	kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+	jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+	zwane@commfireservices.com, zaitcev@yahoo.com,
+	linux-kernel@vger.kernel.org
+References: <20050726150837.GT3160@stusta.de> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <200601031716.13409.s0348365@sms.ed.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601031826.42028.ak@suse.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200601031716.13409.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 03, 2006 at 06:26:41PM +0100, Andi Kleen wrote:
- 
-> > Today there are 23 .gitignores in the kernel - including the ones
-> > from this patchset.
+On Tue, Jan 03, 2006 at 05:16:13PM +0000, Alistair John Strachan wrote:
+> This argument is basically watered down with devfs, udev, sysfs, etc. which 
+> all have exactly the same issues. Should a crippled OSS API be the way 
+> forward for Linux? I think not.
+
+And they're getting some real backlash because of that now.  Hell,
+Linus' message was about udev in the first place.
+
+As for the OSS API being crippled, I'd take the 3 ioctl calls you need
+to setup a simple stereo 16bits output with OSS than the 13 ALSA
+library calls anyday.  Especially with the impressive lack of
+documentation you get about what the hell is a period, or what you can
+do except aborting when you get an error.
+
+
+> > Also, not everybody wants to depend on a shared library.  I find this
+> > "the alsa lib must be kept in lockstep with the kernel version" quite
+> > annoying.  I'd rather not have the windows dll hell on linux, TYVM.
+> > Or in other words, the public API of a kernel interface should _NEVER_
+> > be a library only.  At least OSS, with all its issues, had that right.
 > 
-> And next year .cvsignores and .svnignores and .hgignores and 
-> .whateveriscurrentlyenvoguesvmignores ?
+> Okay, I agree it's not ideal. But if you want software mixing, and it's a 
+> genuinely useful feature, you either have to go down the road of running some 
+> crappy daemon like arts or esound, or just link against libasound and get it 
+> for free. I know I'd rather not have mixing routines in my kernel, thanks.
 
-The kernel will contain files relevant for the main SCM used for kernel
-development. If people prefer bk, cvs, hg or whatever they will most
-likely have similar info in a branch that never hits mainline.
+Duh, then don't put the mixing in the kernel, put the data routing
+there.  That's a large part of what the kernel is about, moving data
+around, and Linus' new magic pipes are perfect for that kind of use.
 
-Not maintaining a set of .gitignore files for x86_64 will hit all
-users of git for x86_64.
-Having a file in arch/ containing a list of generated files for each and
-every arch does confilt with the distributed nature of how SW is
-developed for the kernel.
+Then at system startup and through udev you can start whatever mixers,
+sequencers, virtual interfaces and stuff you want.  Applications don't
+need to care, and you don't have the amusing security issues around
+what happens when different users want to use the sound card at the
+same time.
 
-The files are hidden for all normal cases so they should not
-hurt - or?
-
-Added Linus to this thread - he was the one that wrote this in top-level
-.gitignore:
-
-# NOTE! Don't add files that are generated in specific
-# subdirectories here. Add them in the ".gitignore" file
-# in that subdirectory instead.
-
-	Sam
+  OG.

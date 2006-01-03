@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWACN1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWACN1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWACN1P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 08:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWACNZx
+	id S932393AbWACN1O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 08:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWACNZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 08:25:53 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:42501 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932366AbWACNZi convert rfc822-to-8bit
+	Tue, 3 Jan 2006 08:25:54 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:45061 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932368AbWACNZi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 08:25:38 -0500
-Subject: [PATCH 22/26] gitignore: asm-offsets.h
+Subject: [PATCH 20/26] kbuild: tags file generation fixup
 In-Reply-To: <20060103132035.GA17485@mars.ravnborg.org>
 X-Mailer: gregkh_patchbomb-sam
 Date: Tue, 3 Jan 2006 14:25:26 +0100
-Message-Id: <11362947263768@foobar.com>
+Message-Id: <11362947261422@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -23,41 +23,53 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Brian Gerst <bgerst@didntduck.org>
-Date: 1135743544 -0500
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Date: 1135561638 +0100
 
-Ignore asm-offsets.h for all arches.
+Here is a fixup for tags file generation, for proper tags of
+__releases/__acquires functions.
 
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+Signed-off-by: samuel.thibault@ens-lyon.org
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- .gitignore                  |    1 +
- include/asm-mips/.gitignore |    1 -
- 2 files changed, 1 insertions(+), 1 deletions(-)
- delete mode 100644 include/asm-mips/.gitignore
+ Makefile |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
-42f122c8f7e7134c824907358a5df94cfa38946d
-diff --git a/.gitignore b/.gitignore
-index 5014bfa..a4b576e 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -23,6 +23,7 @@ Module.symvers
- # Generated include files
- #
- include/asm
-+include/asm-*/asm-offsets.h
- include/config
- include/linux/autoconf.h
- include/linux/compile.h
-diff --git a/include/asm-mips/.gitignore b/include/asm-mips/.gitignore
-deleted file mode 100644
-index 4ec57ad..0000000
---- a/include/asm-mips/.gitignore
-+++ /dev/null
-@@ -1 +0,0 @@
--asm_offsets.h
+54e08a2392e99ba9e48ce1060e0b52a39118419c
+diff --git a/Makefile b/Makefile
+index ced0346..922c763 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1236,9 +1236,10 @@ cscope: FORCE
+ quiet_cmd_TAGS = MAKE   $@
+ define cmd_TAGS
+ 	rm -f $@; \
+-	ETAGSF=`etags --version | grep -i exuberant >/dev/null && \
+-                echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL \
+-                --extra=+f --c-kinds=+px"`; \
++	ETAGSF=`etags --version | grep -i exuberant >/dev/null &&     \
++                echo "-I __initdata,__exitdata,__acquires,__releases  \
++                      -I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \
++                      --extra=+f --c-kinds=+px"`;                     \
+                 $(all-sources) | xargs etags $$ETAGSF -a
+ endef
+ 
+@@ -1249,9 +1250,10 @@ TAGS: FORCE
+ quiet_cmd_tags = MAKE   $@
+ define cmd_tags
+ 	rm -f $@; \
+-	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && \
+-                echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL \
+-                --extra=+f --c-kinds=+px"`; \
++	CTAGSF=`ctags --version | grep -i exuberant >/dev/null &&     \
++                echo "-I __initdata,__exitdata,__acquires,__releases  \
++                      -I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \
++                      --extra=+f --c-kinds=+px"`;                     \
+                 $(all-sources) | xargs ctags $$CTAGSF -a
+ endef
+ 
 -- 
 1.0.6
 

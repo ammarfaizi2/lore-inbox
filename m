@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWACVSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWACVSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWACVSG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWACVRr
+	id S932517AbWACVSr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWACVRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:17:47 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:28303 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932558AbWACVHm
+	Tue, 3 Jan 2006 16:17:44 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:24719 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932561AbWACVHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 16:07:42 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 09/50] i386: fix task_pt_regs()
+Subject: [PATCH 03/50] alpha: task_stack_page()
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Message-Id: <E1EttNa-0008PU-7F@ZenIV.linux.org.uk>
+Message-Id: <E1EttNa-0008PI-4d@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 03 Jan 2006 21:07:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,95 +21,75 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 References: <20060103210515.5135@ftp.linux.org.uk>
 In-Reply-To: <20060103210515.5135@ftp.linux.org.uk>
 
-task_pt_regs() needs the same offset-by-8 to match copy_thread()
+use task_stack_page() for accesses to stack page of task in alpha-specific
+parts of tree
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/i386/kernel/process.c   |   20 ++------------------
- arch/i386/kernel/smpboot.c   |    3 +--
- include/asm-i386/processor.h |   12 +++++++++++-
- 3 files changed, 14 insertions(+), 21 deletions(-)
+ arch/alpha/kernel/process.c |    6 +++---
+ arch/alpha/kernel/ptrace.c  |    2 +-
+ include/asm-alpha/ptrace.h  |    2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-a363a5cdd3f6e20f7166e4b18f9e3b2d0f043461
-diff --git a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
-index b48cfe1..7765f3a 100644
---- a/arch/i386/kernel/process.c
-+++ b/arch/i386/kernel/process.c
-@@ -435,18 +435,7 @@ int copy_thread(int nr, unsigned long cl
- 	struct task_struct *tsk;
- 	int err;
- 
--	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
--	/*
--	 * The below -8 is to reserve 8 bytes on top of the ring0 stack.
--	 * This is necessary to guarantee that the entire "struct pt_regs"
--	 * is accessable even if the CPU haven't stored the SS/ESP registers
--	 * on the stack (interrupt gate does not save these registers
--	 * when switching to the same priv ring).
--	 * Therefore beware: accessing the xss/esp fields of the
--	 * "struct pt_regs" is possible, but they may contain the
--	 * completely wrong values.
--	 */
--	childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
-+	childregs = task_pt_regs(p);
- 	*childregs = *regs;
- 	childregs->eax = 0;
- 	childregs->esp = esp;
-@@ -551,12 +540,7 @@ EXPORT_SYMBOL(dump_thread);
-  */
- int dump_task_regs(struct task_struct *tsk, elf_gregset_t *regs)
+87f43fe7d9b15cb3f6533391a249adcdab8effea
+diff --git a/arch/alpha/kernel/process.c b/arch/alpha/kernel/process.c
+index f15a456..04c5342 100644
+--- a/arch/alpha/kernel/process.c
++++ b/arch/alpha/kernel/process.c
+@@ -271,7 +271,7 @@ copy_thread(int nr, unsigned long clone_
  {
--	struct pt_regs ptregs;
--	
--	ptregs = *(struct pt_regs *)
--		((unsigned long)tsk->thread_info +
--		/* see comments in copy_thread() about -8 */
--		THREAD_SIZE - sizeof(ptregs) - 8);
-+	struct pt_regs ptregs = *task_pt_regs(tsk);
- 	ptregs.xcs &= 0xffff;
- 	ptregs.xds &= 0xffff;
- 	ptregs.xes &= 0xffff;
-diff --git a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
-index 9ed449a..b96b29f 100644
---- a/arch/i386/kernel/smpboot.c
-+++ b/arch/i386/kernel/smpboot.c
-@@ -875,8 +875,7 @@ static inline struct task_struct * alloc
- 		/* initialize thread_struct.  we really want to avoid destroy
- 		 * idle tread
- 		 */
--		idle->thread.esp = (unsigned long)(((struct pt_regs *)
--			(THREAD_SIZE + (unsigned long) idle->thread_info)) - 1);
-+		idle->thread.esp = (unsigned long)task_pt_regs(idle);
- 		init_idle(idle, cpu);
- 		return idle;
- 	}
-diff --git a/include/asm-i386/processor.h b/include/asm-i386/processor.h
-index 5c96cf6..84f2fd1 100644
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -557,10 +557,20 @@ unsigned long get_wchan(struct task_stru
-        (unsigned long)(&__ptr[THREAD_SIZE_LONGS]);                     \
- })
+ 	extern void ret_from_fork(void);
  
-+/*
-+ * The below -8 is to reserve 8 bytes on top of the ring0 stack.
-+ * This is necessary to guarantee that the entire "struct pt_regs"
-+ * is accessable even if the CPU haven't stored the SS/ESP registers
-+ * on the stack (interrupt gate does not save these registers
-+ * when switching to the same priv ring).
-+ * Therefore beware: accessing the xss/esp fields of the
-+ * "struct pt_regs" is possible, but they may contain the
-+ * completely wrong values.
-+ */
- #define task_pt_regs(task)                                             \
- ({                                                                     \
-        struct pt_regs *__regs__;                                       \
--       __regs__ = (struct pt_regs *)KSTK_TOP((task)->thread_info);     \
-+       __regs__ = (struct pt_regs *)(KSTK_TOP((task)->thread_info)-8); \
-        __regs__ - 1;                                                   \
- })
+-	struct thread_info *childti = p->thread_info;
++	struct thread_info *childti = task_thread_info(p);
+ 	struct pt_regs * childregs;
+ 	struct switch_stack * childstack, *stack;
+ 	unsigned long stack_offset, settls;
+@@ -280,7 +280,7 @@ copy_thread(int nr, unsigned long clone_
+ 	if (!(regs->ps & 8))
+ 		stack_offset = (PAGE_SIZE-1) & (unsigned long) regs;
+ 	childregs = (struct pt_regs *)
+-	  (stack_offset + PAGE_SIZE + (long) childti);
++	  (stack_offset + PAGE_SIZE + task_stack_page(p));
+ 		
+ 	*childregs = *regs;
+ 	settls = regs->r20;
+@@ -487,7 +487,7 @@ out:
+ unsigned long
+ thread_saved_pc(task_t *t)
+ {
+-	unsigned long base = (unsigned long)t->thread_info;
++	unsigned long base = (unsigned long)task_stack_page(t);
+ 	unsigned long fp, sp = task_thread_info(t)->pcb.ksp;
+ 
+ 	if (sp > base && sp+6*8 < base + 16*1024) {
+diff --git a/arch/alpha/kernel/ptrace.c b/arch/alpha/kernel/ptrace.c
+index c83ce5d..67c0cb6 100644
+--- a/arch/alpha/kernel/ptrace.c
++++ b/arch/alpha/kernel/ptrace.c
+@@ -110,7 +110,7 @@ get_reg_addr(struct task_struct * task, 
+ 		zero = 0;
+ 		addr = &zero;
+ 	} else {
+-		addr = (void *)task->thread_info + regoff[regno];
++		addr = task_stack_page(task) + regoff[regno];
+ 	}
+ 	return addr;
+ }
+diff --git a/include/asm-alpha/ptrace.h b/include/asm-alpha/ptrace.h
+index 072375c..994680b 100644
+--- a/include/asm-alpha/ptrace.h
++++ b/include/asm-alpha/ptrace.h
+@@ -76,7 +76,7 @@ struct switch_stack {
+ extern void show_regs(struct pt_regs *);
+ 
+ #define alpha_task_regs(task) \
+-  ((struct pt_regs *) ((long) (task)->thread_info + 2*PAGE_SIZE) - 1)
++  ((struct pt_regs *) (task_stack_page(task) + 2*PAGE_SIZE) - 1)
+ 
+ #define force_successful_syscall_return() (alpha_task_regs(current)->r0 = 0)
  
 -- 
 0.99.9.GIT

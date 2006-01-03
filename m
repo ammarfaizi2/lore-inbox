@@ -1,34 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWACVdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWACVe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWACVdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 16:33:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWACVdQ
+	id S964928AbWACVe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 16:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWACVe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 16:33:16 -0500
-Received: from mail.cs.unm.edu ([64.106.20.33]:3992 "EHLO mail.cs.unm.edu")
-	by vger.kernel.org with ESMTP id S964809AbWACVdN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 16:33:13 -0500
-From: "Sharma Sushant" <sushant@cs.unm.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Benchmarks
-Date: Tue, 3 Jan 2006 16:34:31 -0500
-Message-Id: <20060103213244.M41864@webmail.cs.unm.edu>
-X-Mailer: Open WebMail 2.50 20050106
-X-OriginatingIP: 128.165.17.254 (sushant)
+	Tue, 3 Jan 2006 16:34:29 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:39893 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964928AbWACVe1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 16:34:27 -0500
+Message-ID: <43BAEDDD.8080805@austin.ibm.com>
+Date: Tue, 03 Jan 2006 15:34:21 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+Reply-To: jschopp@austin.ibm.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+Subject: Re: [Patch] New zone ZONE_EASY_RECLAIM take 4. (disable gfp_easy_reclaim
+ bit)[5/8]
+References: <20051220173013.1B10.Y-GOTO@jp.fujitsu.com>
+In-Reply-To: <20051220173013.1B10.Y-GOTO@jp.fujitsu.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
-If someone make some modifications to kernel code and want to know how much
-overead those modifications has caused, what are the benchmarks that one
-should use to calculate the overhead of the added code. 
-please cc the reply to me.
-Thanks a lot.
 
---
-Sushant Sharma
-http://cs.unm.edu/~sushant
+> ===================================================================
+> --- zone_reclaim.orig/fs/pipe.c	2005-12-16 18:36:20.000000000 +0900
+> +++ zone_reclaim/fs/pipe.c	2005-12-16 19:15:35.000000000 +0900
+> @@ -284,7 +284,7 @@ pipe_writev(struct file *filp, const str
+>  			int error;
+>  
+>  			if (!page) {
+> -				page = alloc_page(GFP_HIGHUSER);
+> +				page = alloc_page(GFP_HIGHUSER & ~__GFP_EASY_RECLAIM);
+>  				if (unlikely(!page)) {
+>  					ret = ret ? : -ENOMEM;
+>  					break;
+
+That is a bit hard to understand.  How about a new GFP_HIGHUSER_HARD or 
+somesuch define back in patch 1, then use it here?
+
+

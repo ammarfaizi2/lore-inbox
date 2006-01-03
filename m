@@ -1,49 +1,451 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWACUuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWACUw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWACUuV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 15:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWACUuV
+	id S932479AbWACUw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 15:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWACUwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 15:50:21 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:60885 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750850AbWACUuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 15:50:20 -0500
-Date: Tue, 3 Jan 2006 12:50:30 -0800
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>
+	Tue, 3 Jan 2006 15:52:55 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:57268 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S932479AbWACUwy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 15:52:54 -0500
+Subject: [patch] ethtool.h: don't leak kernel types
+From: Robert Love <rml@novell.com>
+To: davem@redhat.com, jgarzik@pobox.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix IXP4xx watchdog errata workaround
-Message-ID: <20060103205030.GA17709@plexity.net>
-Reply-To: dsaxena@plexity.net
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 15:50:41 -0500
+Message-Id: <1136321441.6106.3.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The IXP4xx driver bails out on all A0 CPUs, but it should only do
-so on IXP42x as IXP46x has functioning HW.
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+Hey,
 
----
+The header <linux/ethtool.h> leaks the kernel types u32, et al types to
+user-space.  These types are defined in <asm/types.h> but only under
+__KERNEL__.
+
+Attached patch switches to the __u32, et al types.
+
+	Robert Love
 
 
-Index: linux-2.6-git/drivers/char/watchdog/ixp4xx_wdt.c
-===================================================================
---- linux-2.6-git.orig/drivers/char/watchdog/ixp4xx_wdt.c
-+++ linux-2.6-git/drivers/char/watchdog/ixp4xx_wdt.c
-@@ -186,8 +186,8 @@ static int __init ixp4xx_wdt_init(void)
- 	unsigned long processor_id;
+don't leak the kernel uX types to user-space, use __uX in lieu
+
+Signed-off-by: Robert Love <rml@novell.com>
+
+ include/linux/ethtool.h |  228 ++++++++++++++++++++++++------------------------
+ 1 files changed, 114 insertions(+), 114 deletions(-)
+
+diff -urN linux-2.6.15/include/linux/ethtool.h linux/include/linux/ethtool.h
+--- linux-2.6.15/include/linux/ethtool.h	2006-01-02 22:21:10.000000000 -0500
++++ linux/include/linux/ethtool.h	2006-01-03 15:46:38.000000000 -0500
+@@ -15,24 +15,24 @@
  
- 	asm("mrc p15, 0, %0, cr0, cr0, 0;" : "=r"(processor_id) :);
--	if (!(processor_id & 0xf)) {
--		printk("IXP4XXX Watchdog: Rev. A0 CPU detected - "
-+	if (!(processor_id & 0xf) && !cpu_is_ixp46x()) {
-+		printk("IXP4XXX Watchdog: Rev. A0 IXP42x CPU detected - "
- 			"watchdog disabled\n");
+ /* This should work for both 32 and 64 bit userland. */
+ struct ethtool_cmd {
+-	u32	cmd;
+-	u32	supported;	/* Features this interface supports */
+-	u32	advertising;	/* Features this interface advertises */
+-	u16	speed;		/* The forced speed, 10Mb, 100Mb, gigabit */
+-	u8	duplex;		/* Duplex, half or full */
+-	u8	port;		/* Which connector port */
+-	u8	phy_address;
+-	u8	transceiver;	/* Which transceiver to use */
+-	u8	autoneg;	/* Enable or disable autonegotiation */
+-	u32	maxtxpkt;	/* Tx pkts before generating tx int */
+-	u32	maxrxpkt;	/* Rx pkts before generating rx int */
+-	u32	reserved[4];
++	__u32	cmd;
++	__u32	supported;	/* Features this interface supports */
++	__u32	advertising;	/* Features this interface advertises */
++	__u16	speed;		/* The forced speed, 10Mb, 100Mb, gigabit */
++	__u8	duplex;		/* Duplex, half or full */
++	__u8	port;		/* Which connector port */
++	__u8	phy_address;
++	__u8	transceiver;	/* Which transceiver to use */
++	__u8	autoneg;	/* Enable or disable autonegotiation */
++	__u32	maxtxpkt;	/* Tx pkts before generating tx int */
++	__u32	maxrxpkt;	/* Rx pkts before generating rx int */
++	__u32	reserved[4];
+ };
  
- 		return -ENODEV;
+ #define ETHTOOL_BUSINFO_LEN	32
+ /* these strings are set to whatever the driver author decides... */
+ struct ethtool_drvinfo {
+-	u32	cmd;
++	__u32	cmd;
+ 	char	driver[32];	/* driver short name, "tulip", "eepro100" */
+ 	char	version[32];	/* driver version string */
+ 	char	fw_version[32];	/* firmware version string, if applicable */
+@@ -40,53 +40,53 @@
+ 				/* For PCI devices, use pci_name(pci_dev). */
+ 	char	reserved1[32];
+ 	char	reserved2[16];
+-	u32	n_stats;	/* number of u64's from ETHTOOL_GSTATS */
+-	u32	testinfo_len;
+-	u32	eedump_len;	/* Size of data from ETHTOOL_GEEPROM (bytes) */
+-	u32	regdump_len;	/* Size of data from ETHTOOL_GREGS (bytes) */
++	__u32	n_stats;	/* number of __u64's from ETHTOOL_GSTATS */
++	__u32	testinfo_len;
++	__u32	eedump_len;	/* Size of data from ETHTOOL_GEEPROM (bytes) */
++	__u32	regdump_len;	/* Size of data from ETHTOOL_GREGS (bytes) */
+ };
+ 
+ #define SOPASS_MAX	6
+ /* wake-on-lan settings */
+ struct ethtool_wolinfo {
+-	u32	cmd;
+-	u32	supported;
+-	u32	wolopts;
+-	u8	sopass[SOPASS_MAX]; /* SecureOn(tm) password */
++	__u32	cmd;
++	__u32	supported;
++	__u32	wolopts;
++	__u8	sopass[SOPASS_MAX]; /* SecureOn(tm) password */
+ };
+ 
+ /* for passing single values */
+ struct ethtool_value {
+-	u32	cmd;
+-	u32	data;
++	__u32	cmd;
++	__u32	data;
+ };
+ 
+ /* for passing big chunks of data */
+ struct ethtool_regs {
+-	u32	cmd;
+-	u32	version; /* driver-specific, indicates different chips/revs */
+-	u32	len; /* bytes */
+-	u8	data[0];
++	__u32	cmd;
++	__u32	version; /* driver-specific, indicates different chips/revs */
++	__u32	len; /* bytes */
++	__u8	data[0];
+ };
+ 
+ /* for passing EEPROM chunks */
+ struct ethtool_eeprom {
+-	u32	cmd;
+-	u32	magic;
+-	u32	offset; /* in bytes */
+-	u32	len; /* in bytes */
+-	u8	data[0];
++	__u32	cmd;
++	__u32	magic;
++	__u32	offset; /* in bytes */
++	__u32	len; /* in bytes */
++	__u8	data[0];
+ };
+ 
+ /* for configuring coalescing parameters of chip */
+ struct ethtool_coalesce {
+-	u32	cmd;	/* ETHTOOL_{G,S}COALESCE */
++	__u32	cmd;	/* ETHTOOL_{G,S}COALESCE */
+ 
+ 	/* How many usecs to delay an RX interrupt after
+ 	 * a packet arrives.  If 0, only rx_max_coalesced_frames
+ 	 * is used.
+ 	 */
+-	u32	rx_coalesce_usecs;
++	__u32	rx_coalesce_usecs;
+ 
+ 	/* How many packets to delay an RX interrupt after
+ 	 * a packet arrives.  If 0, only rx_coalesce_usecs is
+@@ -94,21 +94,21 @@
+ 	 * to zero as this would cause RX interrupts to never be
+ 	 * generated.
+ 	 */
+-	u32	rx_max_coalesced_frames;
++	__u32	rx_max_coalesced_frames;
+ 
+ 	/* Same as above two parameters, except that these values
+ 	 * apply while an IRQ is being serviced by the host.  Not
+ 	 * all cards support this feature and the values are ignored
+ 	 * in that case.
+ 	 */
+-	u32	rx_coalesce_usecs_irq;
+-	u32	rx_max_coalesced_frames_irq;
++	__u32	rx_coalesce_usecs_irq;
++	__u32	rx_max_coalesced_frames_irq;
+ 
+ 	/* How many usecs to delay a TX interrupt after
+ 	 * a packet is sent.  If 0, only tx_max_coalesced_frames
+ 	 * is used.
+ 	 */
+-	u32	tx_coalesce_usecs;
++	__u32	tx_coalesce_usecs;
+ 
+ 	/* How many packets to delay a TX interrupt after
+ 	 * a packet is sent.  If 0, only tx_coalesce_usecs is
+@@ -116,22 +116,22 @@
+ 	 * to zero as this would cause TX interrupts to never be
+ 	 * generated.
+ 	 */
+-	u32	tx_max_coalesced_frames;
++	__u32	tx_max_coalesced_frames;
+ 
+ 	/* Same as above two parameters, except that these values
+ 	 * apply while an IRQ is being serviced by the host.  Not
+ 	 * all cards support this feature and the values are ignored
+ 	 * in that case.
+ 	 */
+-	u32	tx_coalesce_usecs_irq;
+-	u32	tx_max_coalesced_frames_irq;
++	__u32	tx_coalesce_usecs_irq;
++	__u32	tx_max_coalesced_frames_irq;
+ 
+ 	/* How many usecs to delay in-memory statistics
+ 	 * block updates.  Some drivers do not have an in-memory
+ 	 * statistic block, and in such cases this value is ignored.
+ 	 * This value must not be zero.
+ 	 */
+-	u32	stats_block_coalesce_usecs;
++	__u32	stats_block_coalesce_usecs;
+ 
+ 	/* Adaptive RX/TX coalescing is an algorithm implemented by
+ 	 * some drivers to improve latency under low packet rates and
+@@ -140,18 +140,18 @@
+ 	 * not implemented by the driver causes these values to be
+ 	 * silently ignored.
+ 	 */
+-	u32	use_adaptive_rx_coalesce;
+-	u32	use_adaptive_tx_coalesce;
++	__u32	use_adaptive_rx_coalesce;
++	__u32	use_adaptive_tx_coalesce;
+ 
+ 	/* When the packet rate (measured in packets per second)
+ 	 * is below pkt_rate_low, the {rx,tx}_*_low parameters are
+ 	 * used.
+ 	 */
+-	u32	pkt_rate_low;
+-	u32	rx_coalesce_usecs_low;
+-	u32	rx_max_coalesced_frames_low;
+-	u32	tx_coalesce_usecs_low;
+-	u32	tx_max_coalesced_frames_low;
++	__u32	pkt_rate_low;
++	__u32	rx_coalesce_usecs_low;
++	__u32	rx_max_coalesced_frames_low;
++	__u32	tx_coalesce_usecs_low;
++	__u32	tx_max_coalesced_frames_low;
+ 
+ 	/* When the packet rate is below pkt_rate_high but above
+ 	 * pkt_rate_low (both measured in packets per second) the
+@@ -162,43 +162,43 @@
+ 	 * is above pkt_rate_high, the {rx,tx}_*_high parameters are
+ 	 * used.
+ 	 */
+-	u32	pkt_rate_high;
+-	u32	rx_coalesce_usecs_high;
+-	u32	rx_max_coalesced_frames_high;
+-	u32	tx_coalesce_usecs_high;
+-	u32	tx_max_coalesced_frames_high;
++	__u32	pkt_rate_high;
++	__u32	rx_coalesce_usecs_high;
++	__u32	rx_max_coalesced_frames_high;
++	__u32	tx_coalesce_usecs_high;
++	__u32	tx_max_coalesced_frames_high;
+ 
+ 	/* How often to do adaptive coalescing packet rate sampling,
+ 	 * measured in seconds.  Must not be zero.
+ 	 */
+-	u32	rate_sample_interval;
++	__u32	rate_sample_interval;
+ };
+ 
+ /* for configuring RX/TX ring parameters */
+ struct ethtool_ringparam {
+-	u32	cmd;	/* ETHTOOL_{G,S}RINGPARAM */
++	__u32	cmd;	/* ETHTOOL_{G,S}RINGPARAM */
+ 
+ 	/* Read only attributes.  These indicate the maximum number
+ 	 * of pending RX/TX ring entries the driver will allow the
+ 	 * user to set.
+ 	 */
+-	u32	rx_max_pending;
+-	u32	rx_mini_max_pending;
+-	u32	rx_jumbo_max_pending;
+-	u32	tx_max_pending;
++	__u32	rx_max_pending;
++	__u32	rx_mini_max_pending;
++	__u32	rx_jumbo_max_pending;
++	__u32	tx_max_pending;
+ 
+ 	/* Values changeable by the user.  The valid values are
+ 	 * in the range 1 to the "*_max_pending" counterpart above.
+ 	 */
+-	u32	rx_pending;
+-	u32	rx_mini_pending;
+-	u32	rx_jumbo_pending;
+-	u32	tx_pending;
++	__u32	rx_pending;
++	__u32	rx_mini_pending;
++	__u32	rx_jumbo_pending;
++	__u32	tx_pending;
+ };
+ 
+ /* for configuring link flow control parameters */
+ struct ethtool_pauseparam {
+-	u32	cmd;	/* ETHTOOL_{G,S}PAUSEPARAM */
++	__u32	cmd;	/* ETHTOOL_{G,S}PAUSEPARAM */
+ 
+ 	/* If the link is being auto-negotiated (via ethtool_cmd.autoneg
+ 	 * being true) the user may set 'autonet' here non-zero to have the
+@@ -210,9 +210,9 @@
+ 	 * then {rx,tx}_pause force the driver to use/not-use pause
+ 	 * flow control.
+ 	 */
+-	u32	autoneg;
+-	u32	rx_pause;
+-	u32	tx_pause;
++	__u32	autoneg;
++	__u32	rx_pause;
++	__u32	tx_pause;
+ };
+ 
+ #define ETH_GSTRING_LEN		32
+@@ -223,10 +223,10 @@
+ 
+ /* for passing string sets for data tagging */
+ struct ethtool_gstrings {
+-	u32	cmd;		/* ETHTOOL_GSTRINGS */
+-	u32	string_set;	/* string set id e.c. ETH_SS_TEST, etc*/
+-	u32	len;		/* number of strings in the string set */
+-	u8	data[0];
++	__u32	cmd;		/* ETHTOOL_GSTRINGS */
++	__u32	string_set;	/* string set id e.c. ETH_SS_TEST, etc*/
++	__u32	len;		/* number of strings in the string set */
++	__u8	data[0];
+ };
+ 
+ enum ethtool_test_flags {
+@@ -236,41 +236,41 @@
+ 
+ /* for requesting NIC test and getting results*/
+ struct ethtool_test {
+-	u32	cmd;		/* ETHTOOL_TEST */
+-	u32	flags;		/* ETH_TEST_FL_xxx */
+-	u32	reserved;
+-	u32	len;		/* result length, in number of u64 elements */
+-	u64	data[0];
++	__u32	cmd;		/* ETHTOOL_TEST */
++	__u32	flags;		/* ETH_TEST_FL_xxx */
++	__u32	reserved;
++	__u32	len;		/* result length, in number of __u64 elements */
++	__u64	data[0];
+ };
+ 
+ /* for dumping NIC-specific statistics */
+ struct ethtool_stats {
+-	u32	cmd;		/* ETHTOOL_GSTATS */
+-	u32	n_stats;	/* number of u64's being returned */
+-	u64	data[0];
++	__u32	cmd;		/* ETHTOOL_GSTATS */
++	__u32	n_stats;	/* number of __u64's being returned */
++	__u64	data[0];
+ };
+ 
+ struct ethtool_perm_addr {
+-	u32	cmd;		/* ETHTOOL_GPERMADDR */
+-	u32	size;
+-	u8	data[0];
++	__u32	cmd;		/* ETHTOOL_GPERMADDR */
++	__u32	size;
++	__u8	data[0];
+ };
+ 
+ struct net_device;
+ 
+ /* Some generic methods drivers may use in their ethtool_ops */
+-u32 ethtool_op_get_link(struct net_device *dev);
+-u32 ethtool_op_get_tx_csum(struct net_device *dev);
+-int ethtool_op_set_tx_csum(struct net_device *dev, u32 data);
+-int ethtool_op_set_tx_hw_csum(struct net_device *dev, u32 data);
+-u32 ethtool_op_get_sg(struct net_device *dev);
+-int ethtool_op_set_sg(struct net_device *dev, u32 data);
+-u32 ethtool_op_get_tso(struct net_device *dev);
+-int ethtool_op_set_tso(struct net_device *dev, u32 data);
++__u32 ethtool_op_get_link(struct net_device *dev);
++__u32 ethtool_op_get_tx_csum(struct net_device *dev);
++int ethtool_op_set_tx_csum(struct net_device *dev, __u32 data);
++int ethtool_op_set_tx_hw_csum(struct net_device *dev, __u32 data);
++__u32 ethtool_op_get_sg(struct net_device *dev);
++int ethtool_op_set_sg(struct net_device *dev, __u32 data);
++__u32 ethtool_op_get_tso(struct net_device *dev);
++int ethtool_op_set_tso(struct net_device *dev, __u32 data);
+ int ethtool_op_get_perm_addr(struct net_device *dev, 
+-			     struct ethtool_perm_addr *addr, u8 *data);
+-u32 ethtool_op_get_ufo(struct net_device *dev);
+-int ethtool_op_set_ufo(struct net_device *dev, u32 data);
++			     struct ethtool_perm_addr *addr, __u8 *data);
++__u32 ethtool_op_get_ufo(struct net_device *dev);
++int ethtool_op_set_ufo(struct net_device *dev, __u32 data);
+ 
+ /**
+  * &ethtool_ops - Alter and report network device settings
+@@ -338,38 +338,38 @@
+ 	void	(*get_regs)(struct net_device *, struct ethtool_regs *, void *);
+ 	void	(*get_wol)(struct net_device *, struct ethtool_wolinfo *);
+ 	int	(*set_wol)(struct net_device *, struct ethtool_wolinfo *);
+-	u32	(*get_msglevel)(struct net_device *);
+-	void	(*set_msglevel)(struct net_device *, u32);
++	__u32	(*get_msglevel)(struct net_device *);
++	void	(*set_msglevel)(struct net_device *, __u32);
+ 	int	(*nway_reset)(struct net_device *);
+-	u32	(*get_link)(struct net_device *);
++	__u32	(*get_link)(struct net_device *);
+ 	int	(*get_eeprom_len)(struct net_device *);
+-	int	(*get_eeprom)(struct net_device *, struct ethtool_eeprom *, u8 *);
+-	int	(*set_eeprom)(struct net_device *, struct ethtool_eeprom *, u8 *);
++	int	(*get_eeprom)(struct net_device *, struct ethtool_eeprom *, __u8 *);
++	int	(*set_eeprom)(struct net_device *, struct ethtool_eeprom *, __u8 *);
+ 	int	(*get_coalesce)(struct net_device *, struct ethtool_coalesce *);
+ 	int	(*set_coalesce)(struct net_device *, struct ethtool_coalesce *);
+ 	void	(*get_ringparam)(struct net_device *, struct ethtool_ringparam *);
+ 	int	(*set_ringparam)(struct net_device *, struct ethtool_ringparam *);
+ 	void	(*get_pauseparam)(struct net_device *, struct ethtool_pauseparam*);
+ 	int	(*set_pauseparam)(struct net_device *, struct ethtool_pauseparam*);
+-	u32	(*get_rx_csum)(struct net_device *);
+-	int	(*set_rx_csum)(struct net_device *, u32);
+-	u32	(*get_tx_csum)(struct net_device *);
+-	int	(*set_tx_csum)(struct net_device *, u32);
+-	u32	(*get_sg)(struct net_device *);
+-	int	(*set_sg)(struct net_device *, u32);
+-	u32	(*get_tso)(struct net_device *);
+-	int	(*set_tso)(struct net_device *, u32);
++	__u32	(*get_rx_csum)(struct net_device *);
++	int	(*set_rx_csum)(struct net_device *, __u32);
++	__u32	(*get_tx_csum)(struct net_device *);
++	int	(*set_tx_csum)(struct net_device *, __u32);
++	__u32	(*get_sg)(struct net_device *);
++	int	(*set_sg)(struct net_device *, __u32);
++	__u32	(*get_tso)(struct net_device *);
++	int	(*set_tso)(struct net_device *, __u32);
+ 	int	(*self_test_count)(struct net_device *);
+-	void	(*self_test)(struct net_device *, struct ethtool_test *, u64 *);
+-	void	(*get_strings)(struct net_device *, u32 stringset, u8 *);
+-	int	(*phys_id)(struct net_device *, u32);
++	void	(*self_test)(struct net_device *, struct ethtool_test *, __u64 *);
++	void	(*get_strings)(struct net_device *, __u32 stringset, __u8 *);
++	int	(*phys_id)(struct net_device *, __u32);
+ 	int	(*get_stats_count)(struct net_device *);
+-	void	(*get_ethtool_stats)(struct net_device *, struct ethtool_stats *, u64 *);
+-	int	(*get_perm_addr)(struct net_device *, struct ethtool_perm_addr *, u8 *);
++	void	(*get_ethtool_stats)(struct net_device *, struct ethtool_stats *, __u64 *);
++	int	(*get_perm_addr)(struct net_device *, struct ethtool_perm_addr *, __u8 *);
+ 	int	(*begin)(struct net_device *);
+ 	void	(*complete)(struct net_device *);
+-	u32     (*get_ufo)(struct net_device *);
+-	int     (*set_ufo)(struct net_device *, u32);
++	__u32     (*get_ufo)(struct net_device *);
++	int     (*set_ufo)(struct net_device *, __u32);
+ };
+ 
+ /* CMDs currently supported */
+
+

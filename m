@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWACOBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWACOBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWACOBY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 09:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWACOBX
+	id S1751419AbWACOBo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 09:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWACOBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 09:01:23 -0500
-Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:19617 "EHLO
-	kotiaho.net") by vger.kernel.org with ESMTP id S1751411AbWACOBX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 09:01:23 -0500
-Date: Tue, 3 Jan 2006 15:01:09 +0100 (CET)
-From: "J.O. Aho" <trizt@iname.com>
-X-X-Sender: trizt@lai.local.lan
-To: "David S. Miller" <davem@davemloft.net>
-cc: mark@mtfhpc.demon.co.uk,
-       linux-kernel maillist <linux-kernel@vger.kernel.org>,
-       sparclinux@vger.kernel.org
-Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
-In-Reply-To: <20051212.142654.62759069.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0601031456240.25341@lai.local.lan>
-References: <DGEKIABPPPEBAOMKAJCEKEAKCBAA.mark@mtfhpc.demon.co.uk>
- <Pine.LNX.4.64.0512121127240.12856@lai.local.lan> <20051212.142654.62759069.davem@davemloft.net>
+	Tue, 3 Jan 2006 09:01:43 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:44989 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751419AbWACOBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 09:01:42 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Tue, 3 Jan 2006 14:01:40 +0000
+User-Agent: KMail/1.9
+Cc: Adrian Bunk <bunk@stusta.de>, perex@suse.cz, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+References: <20050726150837.GT3160@stusta.de> <200601031347.19328.s0348365@sms.ed.ac.uk> <200601031452.10855.ak@suse.de>
+In-Reply-To: <200601031452.10855.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601031401.40509.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Dec 2005, David S. Miller wrote:
-
-> From: "J.O. Aho" <trizt@iname.com>
-> Date: Mon, 12 Dec 2005 11:38:32 +0100 (CET)
+On Tuesday 03 January 2006 13:52, Andi Kleen wrote:
+> On Tuesday 03 January 2006 14:47, Alistair John Strachan wrote:
+> > It strikes me that it's a bit of a chicken and egg problem. Vendors are
+> > still releasing applications on Linux that support only OSS, partly due
+> > to ignorance, but mostly because ALSA's OSS compatibility layer allows
+> > them to lazily ignore the ALSA API and target all cards, old and new.
 >
->> I have been using gcc-3.3.5 (64bits) when building the kernel, today
->> I did upgrade to gcc-3.3.6 (64bits), but still have the same problem
->> with the X11.  For build normal system applications and tools I have
->> gcc-3.3.6 (32bit).
+> As long as it works why is that a bad thing? OSS API works just fine
+> for most sound needs. If you want to do high end sound you can still
+> use ALSA.
+
+Is multiple-source mixing really a "high end" requirement? When I last 
+checked, the OSS driver didn't support multiple applications claiming it at 
+once, thus requiring you to use "more bloat" like esound, arts, or some other 
+crap to access your soundcard more than once at any given time.
+
+I think when you consider other modern sound architectures across many 
+operating systems have supported this fundamentally basic feature for a long 
+time, it's important to the majority of end users.
+
+> > Additionally, we can't get rid of OSS compatibility until pretty much all
+> > hardware has an ALSA driver, and (inferred from your comment) we can't
+> > get rid of OSS drivers until nothing supports OSS, because the whole of
+> > the ALSA stuff is a bit larger...
 >
-> I use gcc-4.0.2 and gcc-3.4.5 for all of my kernel builds.
+> We can never get rid of it.
+> Linux doesn't break widely used application interfaces.
 
-After a small chat at #Gentoo-Sparc at freenode, I thought that I should 
-just say that the problem with X locking up is still there (15-rc7), 
-regardless of gcc version, and that the problem has to do with the UPA 
-code according those who know a lot more than I do.
+Okay, fair point.
 
-Thanks again for all help.
+> > Even if Adrian's not trying to make this point (he's just removing
+> > duplicate drivers, and opting for the newer ones), we accepted ALSA into
+> > the kernel. It's probably about time we let OSS die properly, for sanity
+> > purposes.
+>
+> Avoiding bloat is more important.
+
+I can't agree with that.
 
 -- 
-      //Aho
+Cheers,
+Alistair.
 
-  ------------------------------------------------------------------------
-   E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
-      ICQ: 13696780
-   System: Linux System                        (PPC7447/1000 AMD K7A/2000)
-  ------------------------------------------------------------------------
-             EU forbids you to send spam without my permission
-  ------------------------------------------------------------------------
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

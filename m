@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWADXBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWADXAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWADXBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWADXBD
+	id S1751052AbWADXAp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWADXAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:01:03 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40899 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751142AbWADXA7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:00:59 -0500
-Date: Wed, 4 Jan 2006 15:01:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: [patch 2.6.15] i386: Optimize local APIC timer interrupt code
-Message-Id: <20060104150139.34829833.akpm@osdl.org>
-In-Reply-To: <200601041352_MC3-1-B550-4606@compuserve.com>
-References: <200601041352_MC3-1-B550-4606@compuserve.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Jan 2006 18:00:44 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:7881 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751052AbWADXAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:00:44 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Date: Wed, 4 Jan 2006 22:58:24 +0000
+User-Agent: KMail/1.9
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Nick Warne <nick@linicks.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+References: <200601041710.37648.nick@linicks.net> <Pine.LNX.4.58.0601041415510.19134@shark.he.net> <20060104223101.GB13799@kroah.com>
+In-Reply-To: <20060104223101.GB13799@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601042258.24888.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
+On Wednesday 04 January 2006 22:31, Greg KH wrote:
+[snip]
+> > >
+> > > The issue I hit was we have a 'latest stable kernel release 2.6.14.5'
+> > > and under it a 'the latest stable kernel' (or words to that effect) on
+> > > kernel.org.
+> > >
+> > > Then when 2.6.15 came out, that was it!  No patch for the 'latest
+> > > stable kernel release 2.6.14.5'.  It was GONE!
+> >
+> > Yes, I brought this up a couple of weeks ago, but I was told
+> > that I was wrong (in some such words).
+> > I agree that it needs to be fixed.
 >
-> Local APIC timer interrupt happens HZ times per second on each CPU.
-> 
-> Optimize it for the case where profile multiplier equals one and does
-> not change (99+% of cases); this saves about 20 CPU cycles on Pentium II.
-> 
-> Also update the old multiplier immediately after noticing it changed,
-> while values are register-hot, saving eight bytes of stack depth.
+> How would you suggest that it be fixed?
 
-The code which you're patching is cheerfully nuked by a patch in Andi's
-tree:
-ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/no-subjiffy-profile
+It's difficult, but perhaps providing a link to the latest "stable team" 
+release in addition to Linus's release would solve the problem.
 
-I don't immediately understand that patch and I don't recall seeing it
-discussed - maybe I was asleep.
+At least then you can do what Nick wanted (assuming the kernel.org FAQ gets 
+fixed) and download the "patch" for 2.6.14.5, say, revert it, then apply 
+Linus's latest and greatest (one or more times as required).
 
-It removes the profile multiplier (readprofile -M).  I've used that
-occasionally, but can't say that I noticed much benefit from it.
+Bloats the front page though. I think as long as something is documented 
+properly it doesn't really matter. Currently it isn't.
 
-What's the thinking here?
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

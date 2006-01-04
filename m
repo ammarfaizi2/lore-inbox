@@ -1,92 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbWADL4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751766AbWADL6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751761AbWADL4S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 06:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbWADL4S
+	id S1751766AbWADL6r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 06:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751767AbWADL6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 06:56:18 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:49493 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751761AbWADL4R (ORCPT
+	Wed, 4 Jan 2006 06:58:47 -0500
+Received: from ns.suse.de ([195.135.220.2]:27534 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751766AbWADL6q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 06:56:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=MJBV1CXCwcjHgA6E8WgRcmgYVXABY9Z44jOGADGXAn2pghr+JgWowZe4ACQaW4FV1Xvv794fKtQ8mGaxiwSv63Rb835UluWvaP0nGWa8Kn8XX7fYuYMeNZEeDYCs4ik2LUtNKRWbjJhqD/+diFR5lRvH3PBnVpXomHlb/TxOFWA=
-Message-ID: <43BBB7DC.2060303@gmail.com>
-Date: Wed, 04 Jan 2006 12:56:12 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051210)
-X-Accept-Language: it, it-it, en-us, en
+	Wed, 4 Jan 2006 06:58:46 -0500
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [PATCH] Shrinks sizeof(files_struct) and better layout
+Date: Wed, 4 Jan 2006 12:58:38 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20051108185349.6e86cec3.akpm@osdl.org> <200601041222.09304.ak@suse.de> <43BBB487.8030704@cosmosbay.com>
+In-Reply-To: <43BBB487.8030704@cosmosbay.com>
 MIME-Version: 1.0
-To: Jaroslav Kysela <perex@suse.cz>, "Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-References: <4uzow-1g5-13@gated-at.bofh.it> <5r0aY-2If-41@gated-at.bofh.it> <5r3Ca-88G-81@gated-at.bofh.it> <5reGV-6YD-23@gated-at.bofh.it> <5reGV-6YD-21@gated-at.bofh.it> <5rf9X-7yf-25@gated-at.bofh.it>
-In-Reply-To: <5rf9X-7yf-25@gated-at.bofh.it>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601041258.38408.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaroslav Kysela ha scritto:
-> On Wed, 4 Jan 2006, Pete Zaitcev wrote:
-> 
-> 
->>On Wed, 4 Jan 2006 09:37:55 +0000, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
->>
->>
->>>>2) ALSA API is to complicated: most applications opens single sound
->>>>   stream.
->>>
->>>FUD and nonsense. []
->>>http://devzero.co.uk/~alistair/alsa/
->>
->>That's the kicker, isn't it? Once you get used to it, it's a workable
->>API, if kinky and verbose. I have a real life example, too:
->> http://people.redhat.com/zaitcev/linux/mpg123-0.59r-p3.diff
->>But arriving on the solution costed a lot of torn hair. Look at this
->>bald head here! And who is going to pay my medical bills when ALSA
->>causes me ulcers, Jaroslav?
-> 
-> 
-> Well, the ALSA primary goal is to be the complete HAL not hidding the 
-> extra hardware capabilities to applications. So API might look a bit 
-> complicated for the first glance, but the ALSA interface code for simple 
-> applications is not so big, isn't?
-> 
-> Also, note that app developers are not forced to use ALSA directly - there 
-> is a lot of "portable" sound API libraries having an ALSA backend doing
-> this job quite effectively. We can add a simple (like OSS) API layer 
-> into alsa-lib, but I'm not sure, if it's worth to do it. Perhaps, adding
-> some support functions for the easy PCM device initialization might be
-> a good idea.
-> 
-> 						Jaroslav
-> 
+On Wednesday 04 January 2006 12:41, Eric Dumazet wrote:
 
-considering that alsa API and drivers is pretty stable i see no problem
-in OSS removal.
-When writing a program adding oss compatibility seems faster, but,
-creates lots of problems.
-check the skype example (yes i know it's closed-source). 99% of sound
-problems users have is due to OSS driver usage.
+> > The overhead of the kmem_cache_t by itself is negligible.
+> 
+> This seems a common misconception among kernel devs (even the best ones Andi :) )
 
-that's a big problem. Needs a radical solution. Considering aoss works
-in 50% of cases i suggest aoss improvement and not OSS keeping in kernel.
+It used to be true at least at some point :/
 
-A good idea could be an OSS API layer over Alsa-lib...but i personally
-don't know how much can that costs, considering you should link against
-alsa-lib too.
+> 
+> On SMP (and/or NUMA) machines : overhead of kmem_cache_t is *big*
+> 
+> See enable_cpucache in mm/slab.c for 'limit' determination :
+> 
+>          if (cachep->objsize > 131072)
+>                  limit = 1;
+>          else if (cachep->objsize > PAGE_SIZE)
+>                  limit = 8;
+>          else if (cachep->objsize > 1024)
+>                  limit = 24;
+>          else if (cachep->objsize > 256)
+>                  limit = 54;
+>          else
+>                  limit = 120;
+> 
+> On a 64 bits machines, 120*sizeof(void*) = 120*8 = 960
+> 
+> So for small objects (<= 256 bytes), you end with a sizeof(array_cache) = 1024 
+> bytes per cpu
 
-This discussion seems a no-sense.
-Kernel API continues to change every -rc and noone cares that.
-OSS has been deprecated for a lot, and it's as old as moon.
+Hmm - in theory it could be tuned down for SMT siblings which really don't
+care about sharing because they have shared caches. But I don't know
+how many complications that would add to the slab code.
 
-	Patrizio
+> 
+> If 16 CPUS : 16*1024 = 16 Kbytes + all other kmem_cache structures : (If you 
+> have a lot of Memory Nodes, then it can be *very* big too).
+> 
+> If you know that no more than 100 objects are used in 99% of setups, then a 
+> dedicated cache is overkill, even locking 100 pages because of extreme 
+> fragmentation is better.
 
---
-Patrizio Bassi
-www.patriziobassi.it
+A system with 16 memory nodes should have more than 100 processes, but ok.
+
+> 
+> Maybe we can introduce an ultra basic memory allocator for such objects 
+> (without CPU caches, node caches), so that the memory overhead is small. 
+> Hitting a spinlock at thread creation/deletion time is not that time critical.
+
+Might be a good idea yes. There used to a "simp" allocator long ago for this,
+but it was removed because it had other issues. But this was before even slab
+got the per cpu/node support.
+
+-Andi
+ 

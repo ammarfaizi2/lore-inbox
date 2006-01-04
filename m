@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWADKfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWADKk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWADKfL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 05:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWADKfL
+	id S1751662AbWADKk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 05:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWADKk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 05:35:11 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:41688 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751236AbWADKfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 05:35:09 -0500
-Date: Wed, 4 Jan 2006 05:35:03 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __getname vs kmalloc
-Message-ID: <20060104103503.GA8708@filer.fsl.cs.sunysb.edu>
-References: <20060104063251.GA4263@filer.fsl.cs.sunysb.edu> <1136369969.28640.24.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jan 2006 05:40:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:25798 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751237AbWADKkz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 05:40:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=GLyLayl3EN9lvsZ1SNAQ0dX2dXq5+tslg7UjXBhs8EE9L9+//izWAoDojtmEGYuJ/cvYSHpdi0K1Rt5M5Va5Xmxx+8DfjslLrDLqN7DR5bXRc+1m98EPc4Amp4rk8OMXzWMLMhpmgJoGogkh4QiCu4hFvIkXsdyb+rj+uqMsA6o=
+Message-ID: <7cd5d4b40601040240n79b2d654t33424e91059988a9@mail.gmail.com>
+Date: Wed, 4 Jan 2006 18:40:54 +0800
+From: jeff shia <tshxiayu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: what is the state of current after an mm_fault occurs?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1136369969.28640.24.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 11:19:29AM +0100, Trond Myklebust wrote:
-> On Wed, 2006-01-04 at 01:32 -0500, Josef Sipek wrote:
-> > Which is the prefered method of allocating memory __getname or kmalloc?
-> 
-> Depends entirely on the purpose. __getname uses the "names_cache" slab
-> and allocates PATH_MAX sized chunks. It is mainly supposed to be used
-> for temporary storage of an entire path.
->
-> Most callers use getname(), which also does the string length sanity
-> checks and then copies the path from userland memory.
+Hello,
+       In my opinion, the state of current should be TASK_RUNNING
+after an mm_fault occurs.But I donot know why the function of
+handle_mm_fault() set the state of current TASK_RUNNING.
+/*
+ * By the time we get here, we already hold the mm semaphore
+ */
+int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
+	unsigned long address, int write_access)
+{
+	pgd_t *pgd;
+	pmd_t *pmd;
 
-Ah, so since I am working with path components that'll get most of the
-time passed to lookup_one_len & friends, kmalloc is the better way to
-get memory, correct?
+	__set_current_state(TASK_RUNNING);
+	pgd = pgd_offset(mm, address);
 
-Thanks,
-Jeff Sipek
+	inc_page_state(pgfault);
+
+	if (is_vm_hugetlb_page(vma))
+		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
+
+	/*
+	 * We need the page table lock to synchronize with kswapd
+	 * and the SMP-safe atomic PTE updates.
+	 */
+	spin_lock(&mm->page_table_lock);
+	pmd = pmd_alloc(mm, pgd, address);
+
+	if (pmd) {
+		pte_t * pte = pte_alloc_map(mm, pmd, address);
+		if (pte)
+			return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
+	}
+	spin_unlock(&mm->page_table_lock);
+	return VM_FAULT_OOM;
+}
+
+any help will be preferred.
+Thank you!!
+
+Jeff

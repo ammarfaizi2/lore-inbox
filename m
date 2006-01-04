@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWADWMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965274AbWADWMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWADWMD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:12:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965274AbWADWMD
+	id S965274AbWADWMi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:12:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWADWMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:12:03 -0500
-Received: from mail.linicks.net ([217.204.244.146]:21184 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S964789AbWADWL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:11:57 -0500
-From: Nick Warne <nick@linicks.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Date: Wed, 4 Jan 2006 22:10:47 +0000
-User-Agent: KMail/1.9
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-References: <200601041710.37648.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk> <20060104220157.GB12778@kroah.com>
-In-Reply-To: <20060104220157.GB12778@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 4 Jan 2006 17:12:37 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:15767 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965270AbWADWMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:12:36 -0500
+Subject: Re: RT : 2.6.15-rt1 and net/ipv6/mcast.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Serge Noiraud <serge.noiraud@bull.net>
+In-Reply-To: <Pine.LNX.4.64.0601041234130.22025@dhcp153.mvista.com>
+References: <200601041832.39089.Serge.Noiraud@bull.net>
+	 <Pine.LNX.4.64.0601041234130.22025@dhcp153.mvista.com>
+Content-Type: text/plain
+Date: Wed, 04 Jan 2006 17:12:17 -0500
+Message-Id: <1136412737.12468.92.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601042210.47152.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 22:01, Greg KH wrote:
+On Wed, 2006-01-04 at 12:34 -0800, Daniel Walker wrote:
+> I thought I submitted an identical patch, but maybe I forgot to CC LKML .
 
-> > > > Nick's right, both are provided automatically by kernel.org.
-> > >
-> > > Anyway, I started from scratch - 2.6.14, patched to 2.6.15 and then
-> > > make oldconfig etc.
-> > >
-> > > I think there needs to be a way out of this that is easily discernible
-> > > - it does get confusing sometimes with all the patches flying around on
-> > > a 'stable release'.
-> >
-> > It's documented in the kernel.
-> >
-> > There's something in the kernel.org FAQ there about -rc kernels, but it
-> > might be better to generalise this for stable releases. Added hpa to CC.
->
-> What do you mean, "generalize" this?  Where else could we document it
-> better?
+Nope, you CC'd LKML:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113630942301200&w=2
 
-The issue I hit was we have a 'latest stable kernel release 2.6.14.5' and 
-under it a 'the latest stable kernel' (or words to that effect) on 
-kernel.org.
+Ingo has been really busy with getting the mutex stuff into mainline, so
+he hasn't had time to update RT or even work on it very much.  Maybe,
+I'll start up a patch website to hold patches to Ingo's -rt code until
+he has time to work on it again.
 
-Then when 2.6.15 came out, that was it!  No patch for the 'latest stable 
-kernel release 2.6.14.5'.  It was GONE!
+-- Steve
 
-OK, I suppose we are all capable of getting back to where we are on rebuilding 
-to latest 'stable', but there _is_ a missing link for somebody that doesn't 
-know - and I think backtracking patches isn't really the way to go if the 
-'latest stable release' isn't catered for.
 
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/

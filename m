@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWADQ2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWADQiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751590AbWADQ2e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 11:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWADQ2e
+	id S932257AbWADQiW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 11:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbWADQiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 11:28:34 -0500
-Received: from host-84-9-200-140.bulldogdsl.com ([84.9.200.140]:7303 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1751245AbWADQ2e
+	Wed, 4 Jan 2006 11:38:22 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:1245 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751589AbWADQiV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 11:28:34 -0500
-Date: Wed, 4 Jan 2006 16:27:43 +0000
-From: Ben Dooks <ben-linux@fluff.org>
-To: Marc Haber <mh+linux-kernel@zugschlus.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15 EHCI hang on boot
-Message-ID: <20060104162743.GA11794@home.fluff.org>
-References: <20060104161844.GA28839@torres.l21.ma.zugschlus.de>
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 11:38:21 -0500
+Date: Wed, 4 Jan 2006 08:38:44 -0800
+From: Greg KH <gregkh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Gottfried Haider <gohai@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
+Message-ID: <20060104163844.GA1328@suse.de>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051222011320.GL3917@stusta.de> <20051222005209.0b1b25ca.akpm@osdl.org> <20051222135718.GA27525@stusta.de> <941ACB1D5BFA46A7A2F170BB3C48C9B0@Fibonacci> <20060102160031.GF17398@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060104161844.GA28839@torres.l21.ma.zugschlus.de>
-X-Disclaimer: I speak for me, myself, and the other one of me.
+In-Reply-To: <20060102160031.GF17398@stusta.de>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 05:18:44PM +0100, Marc Haber wrote:
-> Hi,
+On Mon, Jan 02, 2006 at 05:00:31PM +0100, Adrian Bunk wrote:
+> On Fri, Dec 23, 2005 at 12:50:22PM +0100, Gottfried Haider wrote:
+> > >>From: "Gottfried Haider" <gohai@gmx.net>
+> > >>Subject: [2.6.15-rc2] 8139too probe fails (pci related?)
+> > >According to the report perhaps not a post-2.6.14 regression.
+> > >But anyways, this should be better debugged.
+> > >
+> > >@Gottfried:
+> > >Does it work with kernel 2.6.14.4?
+> > >Does it work with kernel 2.6.15-rc6?
+> > >If it stil fails, can you send a complete dmesg for 2.6.15-rc6?
+> > I recently played around with this particular system, and it turned out 
+> > that moving the 8139b-card to another PCI slot fixed it. (works now in both 
+> > 2.6.15-rc2 and rc6-git2)
+> > So I guess it's just a particular oddity of this system, as noone else 
+> > seems to hit this?
+> > 
+> > 
+> > the original lines in kern.log were
+> > -- snip --
+> > PCI quirk: region e400-e47f claimed by ICH4 ACPI/GPIO/TCO
+> > PCI quirk: region ec00-ec3f claimed by ICH4 GPIO
+> > PCI: Unable to handle 64-bit address for device 0000:01:0c.0
+> > PCI: Transparent bridge - 0000:00:1e.0
+> > (..)
+> > PCI: Cannot allocate resource region 0 of device 0000:01:0c.0
+> > PCI: Cannot allocate resource region 3 of device 0000:01:0c.0
+> > pnp: 00:03: ioport range 0xe400-0xe47f could not be reserved
+> > pnp: 00:03: ioport range 0xec00-0xec3f has been reserved
+> > PCI: Ignore bogus resource 6 [0:0] of 0000:00:02.0
+> > PCI: Error while updating region 0000:01:0c.0/3 (fa800800 != 00000810)
+> > PCI: Error while updating region 0000:01:0c.0/0 (0000d001 != 813910fc)
+> > PCI: Bridge: 0000:00:1e.0
+> > (..)
+> > 8139too Fast Ethernet driver 0.9.27
+> > PCI: Device 0000:01:0c.0 not available because of resource collisions
+> > Trying to free nonexistent resource <0000d000-0000d003>
+> > Trying to free nonexistent resource <fa800800-fa80080f>
+> > 8139too: probe of 0000:01:0c.0 failed with error -22
+> > -- snip --
+> > .. on a ASUS CUSL2 (i815E) motherboard that was, no change when using 
+> > pci=routeirq or pci=noacpi.
 > 
-> I have rolled out 2.6.15 on a number of test hosts. On one of my
-> boxes, which is by far the most recent one, has an i865 chipset, hangs
-> on boot when the EHCI driver is loaded. USB is not compiled as module,
-> so the system doesn't come up at all:
-> 
-> ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 18
-> ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> ehci_hcd 0000:00:1d.7: debug port 1
-> 
-> These are the last lines of the boot log (which I have completely
-> captured via serial console and can submit on request).
-> 
-> The EHCI controller's lspci output (obtained with 2.6.14.3):
-> 0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI
->  Controller (rev 02) (prog-if 20 [EHCI])
->         Subsystem: Micro-Star International Co., Ltd. 865PE Neo2 (MS-6728)
->         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort - <MAbort- >SERR- <PERR-
->         Latency: 0
->         Interrupt: pin D routed to IRQ 18
->         Region 0: Memory at febffc00 (32-bit, non-prefetchable) [size=1K]
->         Capabilities: [50] Power Management version 2
->                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
->         Capabilities: [58] #0a [20a0]
-> (complete lspci output available on request)
-> 
-> The 2.6.14.3 kernel which was installed on that box before works fine.
-> The 2.6.15 configuration is the result of make oldconfig over that
-> 2.6.14.3 kernel, so I suspect that the configurations are sufficiently
-> similiar, and the same 2.6.15 binary works fine on other systems which
-> have their EHCI as PCI cards.
-> 
-> I suspect an incompatibility with the i865 chipset. Is there anything
-> I can do to help debugging?
+> Greg, can you comment on this issue?
 
-I have the same (but only intermittently) on an Intel i875 based
-board by MSI. In about 25% of the cases it manages to boot past
-these lines, and initialise the mouse connected. 
+I have no idea, sorry.  Glad it's working for you now :)
 
-The usb bus has a low-speed Microsoft mouse on it, and a
-USB 1.1 Hub, with a card reader and serial dongle connected.
-
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+greg k-h

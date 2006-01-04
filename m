@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWADUZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030273AbWADUY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbWADUZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:25:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965281AbWADUZ1
+	id S1030273AbWADUY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965279AbWADUY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:25:27 -0500
-Received: from imo-m21.mx.aol.com ([64.12.137.2]:53901 "EHLO
-	imo-m21.mx.aol.com") by vger.kernel.org with ESMTP id S965279AbWADUZ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:25:26 -0500
-Message-ID: <43BC2F1A.9030200@aol.com>
-Date: Wed, 04 Jan 2006 15:24:58 -0500
-From: andy liebman <andyliebman@aol.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: chaosite@gmail.com
-CC: linux-kernel@vger.kernel.org
+	Wed, 4 Jan 2006 15:24:57 -0500
+Received: from xenotime.net ([66.160.160.81]:18845 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965252AbWADUY5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:24:57 -0500
+Date: Wed, 4 Jan 2006 12:24:54 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: andyliebman@aol.com
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Atapi CDROM, SATA OS drive, and 2.6.14+ kernel
-References: <8C7DF7FCD8430A9-C8C-4BB2@MBLK-M38.sysops.aol.com> <43BC2C75.70202@gmail.com>
-In-Reply-To: <43BC2C75.70202@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AOL-IP: 146.115.27.35
-X-Mailer: Unknown (No Version)
-X-Spam-Flag: NO
+In-Reply-To: <8C7DF7FCD8430A9-C8C-4BB2@MBLK-M38.sysops.aol.com>
+Message-ID: <Pine.LNX.4.58.0601041224180.19134@shark.he.net>
+References: <8C7DF7FCD8430A9-C8C-4BB2@MBLK-M38.sysops.aol.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Says "no such file or directory" for ANY /dev/hd*.  And Mandrake's 
-hardware detection doesn't show any other hard drive device other than 
-the OS drive.
+On Wed, 4 Jan 2006 andyliebman@aol.com wrote:
 
+> Can somebody tell me what changed in the 2.6.14 kernel that doesn't
+> allow me to access my CDROM drive when my OS drive is SATA?
+>
+> I have an image of a working 2.6.14 system that was installed on an IDE
+> drive. I restored the image to a SATA drive, changed a few lines in
+> /etc/fstab and /etc/lilo.conf so that they refer to /dev/sd* devices
+> instead of /dev/hd* devices.
+>
+> I also modified /etc/modprobe.conf so that it is identical to the file
+> that Mandriva 2006 produces when installed directly to a SATA drive
+> (but Mandriva 2006 has the 2.6.12.x kernel).
+>
+> I can't mount my CDROM when running 2.6.14.x
+>
+> I have googled this for several days. I have seen posts about passing
+> options to the kernel and including extra lines in modprobe.conf like:
+>
+> libata atapi_enabled=1
 
-chaosite@gmail.com wrote:
-> andyliebman@aol.com wrote:
->> I have an image of a working 2.6.14 system that was installed on an 
->> IDE drive. I restored the image to a SATA drive, changed a few lines 
->> in /etc/fstab and /etc/lilo.conf so that they refer to /dev/sd* 
->> devices instead of /dev/hd* devices.
-> 
-> If all your drives are S/ATA, your CDROM should be the only /dev/hd? 
-> device.
-> 
-> if you try 'ls /dev/hd?', doesn't it show anything?
-> 
+should be:
+  libata.atapi_enabled=1
+if libata is built into the kernel image.
 
+> Can't find the magic formula. Help would be appreciated.
+
+-- 
+~Randy

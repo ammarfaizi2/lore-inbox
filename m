@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWADTaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWADTgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbWADTaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 14:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWADTaQ
+	id S1751269AbWADTgE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 14:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWADTgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 14:30:16 -0500
-Received: from outgoing.tpinternet.pl ([193.110.120.20]:20231 "EHLO
-	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
-	id S1751274AbWADTaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 14:30:14 -0500
-In-Reply-To: <20060104191750.798af1da@mango.fruits.de>
-References: <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl> <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl> <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <20060104113726.3bd7a649@mango.fruits.de> <s5hsls398uv.wl%tiwai@suse.de> <20060104191750.798af1da@mango.fruits.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <74F7C515-831F-42E4-9A6F-70A9C11E8BB3@neostrada.pl>
-Cc: Takashi Iwai <tiwai@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
+	Wed, 4 Jan 2006 14:36:03 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:12003 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751269AbWADTgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 14:36:01 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Sebastian <sebastian_ml@gmx.net>
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+Date: Wed, 4 Jan 2006 19:36:03 +0000
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <20060104092443.GO3472@suse.de> <20060104155036.GA5542@section_eight.mops.rwth-aachen.de>
+In-Reply-To: <20060104155036.GA5542@section_eight.mops.rwth-aachen.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Wed, 4 Jan 2006 20:28:59 +0100
-To: Florian Schmidt <tapas@affenbande.org>
-X-Mailer: Apple Mail (2.746.2)
+Content-Disposition: inline
+Message-Id: <200601041936.03223.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 04 January 2006 15:50, Sebastian wrote:
+> Hello all! Hi Jens!
+>
+> I'd be kind if you would cc me in case you reply as I'm not (yet)
+> subscribed to this list.
+>
+> On Mi, Jan 04, 2006 at 10:24:44 +0100, Jens Axboe wrote:
+> > On Wed, Jan 04 2006, Jens Axboe wrote:
+> > > Can you try and see how, say, track01 differ? Is it single bytes,
+> > > chunks of 2352 bytes, or?
+> >
+> > Oh, and try and disable DMA on the cd driver and repeat your results
+> > with ide-cd. It uses DMA, where ide-scsi does not. Dunno what Windows
+> > does. It could just be a problem with your drive and DMA enabled rips.
+>
+> Hi Jens,
+>
+> I did as you said and disabled dma:
 
-On 2006-01-04, at 19:17, Florian Schmidt wrote:
-> Maybe create a /proc control, so users can revert
-> to the olde behaviour if there really is any need.
+Just a thought, but could you try ripping to something without a header, like 
+RAW? In your case you seem to have been lucky and it'll make no difference, 
+but WAV headers can vary slightly even if the PCM contained within is 
+identical.
 
-YES YES! After all who doesn't use his system logged in as root?
+-- 
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

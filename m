@@ -1,27 +1,25 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751802AbWADPfn (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 4 Jan 2006 10:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751691AbWADPfn
+	id S1751199AbWADPyl (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 4 Jan 2006 10:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWADPyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 10:35:43 -0500
-Received: from [222.136.55.53] ([222.136.55.53]:45836 "HELO 13656E00")
-	by vger.kernel.org with SMTP id S932176AbWADPfn (ORCPT
+	Wed, 4 Jan 2006 10:54:40 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:62654 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751199AbWADPyk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 10:35:43 -0500
-Message-ID: <612l351q.9221754@209.132.176.167>
-Date: Wed, 04 Jan 2006 07:37:38 -0800
-From: "Bonnie Stanley" <2006_isa@ggg.net>
-X-Mailer: MIME-tools 5.438 (Entity 5.681)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	Wed, 4 Jan 2006 10:54:40 -0500
+Message-Id: <8.9.1.2.5.62514027379036.595a2264@204.152.191.36>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.4
+Date: Wed, 04 Jan 2006 07:54:23 -0800
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Recipient: <linux-kernel@vger.kernel.org>
-Subject: About your file..
+To: linux-kernel@vger.kernel.org
+From: "Alison Henderson" <2006_kkqpj@ezweb.ne.jp>
+Subject: RE: Marian
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751802AbWADPfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751199AbWADPyl@vger.kernel.org>
 
 ALERT:
 
@@ -46,7 +44,7 @@ http://dottytimes.net/mtg.asp
 
 With kind salutations,
 
-Manager - Bonnie Stanley
+Manager - Alison Henderson
 
 --
 

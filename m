@@ -1,117 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965313AbWADWnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965314AbWADWnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965313AbWADWnp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965311AbWADWnp
+	id S965314AbWADWnf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:43:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbWADWne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:43:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4028 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965312AbWADWno (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:43:44 -0500
-Date: Wed, 4 Jan 2006 14:37:19 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       Adrian Bunk <bunk@stusta.de>, mingo@elte.hu, tim@physik3.uni-rostock.de,
-       arjan@infradead.org, davej@redhat.com, linux-kernel@vger.kernel.org,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-In-Reply-To: <43BB6255.2030903@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0601041356200.3668@g5.osdl.org>
-References: <1135897092.2935.81.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de>
- <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de>
- <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de>
- <20060102103721.GA8701@elte.hu> <20060102134228.GC17398@stusta.de>
- <20060102102824.4c7ff9ad.akpm@osdl.org> <43BB0B8B.1000703@mbligh.org>
- <20060104042822.GA3356@waste.org> <43BB6255.2030903@mbligh.org>
+	Wed, 4 Jan 2006 17:43:34 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:29415 "EHLO
+	mail.internal.autoweb.net") by vger.kernel.org with ESMTP
+	id S965311AbWADWnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:43:33 -0500
+Message-ID: <43BC4F86.1050401@michonline.com>
+Date: Wed, 04 Jan 2006 17:43:18 -0500
+From: Ryan Anderson <ryan@michonline.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+CC: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Use git in scripts/setlocalversion
+References: <20060104194203.GA2359@lsrfire.ath.cx>
+In-Reply-To: <20060104194203.GA2359@lsrfire.ath.cx>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig828D01C4FC003D8F6960B38B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig828D01C4FC003D8F6960B38B
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Rene Scharfe wrote:
+> Currently scripts/setlocalversion is a Perl script that tries to figure
+> out the current git commit ID of a repo without using git.  It also
+> imports Digest::MD5 without using it and generally is too big for the
+> small task it does. :]  And it always reports a git ID, even when the
+> HEAD is tagged -- this is a bug.
+
+Yes.  I'm pretty sure I sent Sam a patch for that at one point ages ago,
+but I've been distracted and haven't updated it recently.
+
+I think using git-name-rev --tags as this change does is a lot simpler
+than what I was trying to do.
+
+So, Sam, if you'd prefer this version, feel free, or let me know and
+I'll resend the one or two patches I have hanging around to you.
+
+> This patch replaces it with a Bourne Shell script that uses git
+> commands to do the same.  I can't come up with a scenario where someone
+> would use a git repo and refuse to install git core at the same time,
+> so I think it's reasonable to assume git is available.
+> 
+> The new script also reports uncommitted changes by adding -git_dirty to
+> the version string.  Obviously you can't see from that _what_ has been
+> changed from the last commit, so it's more of a reminder that you
+> forgot to commit something.
+
+And this is a decent feature, too. I like it.
+
+The only reservation I have about converting from Perl to Bourne shell
+is that if adding support for, say, Mercurial (or maybe CVS, etc) wants
+to mangle it somehow, via say MD5, that becomes a little bit more
+difficult to do, or at worst, introduces an additional dependency on
+something like md5sum.
+
+So, I like it:
+
+Signed-off-by: Ryan Anderson <ryan@michonline.com>
 
 
-On Tue, 3 Jan 2006, Martin J. Bligh wrote:
->
-> Well, it's not just one function, is it? It'd seem that if you unlined
-> a whole bunch of stuff (according to this theory) then normal
-> macro-benchmarks would go faster? Otherwise it's all just rather
-> theoretical, is it not?
+--------------enig828D01C4FC003D8F6960B38B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-One of the problems with code size optimizations is that they 
-fundamentally show much less impact under pretty much any traditional 
-benchmark.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-In user space, for example, the biggest impact of size optimization tends 
-to be in things like load time and low-memory situations. Yet, that's 
-never what is benchmarked (yeah, people will benchmark some low-memory 
-kernel situations by compating different swap-out algorithms etc against 
-each other - but they'll almost never compare the perceived speed of your 
-desktop when you start swapping).
+iD8DBQFDvE+MfhVDhkBuUKURAqqXAKCRswNubgNO6OqgQe7udl6png0MEACgqoi4
+o1SVF22JYMg1mfB8fbmXgug=
+=CJOC
+-----END PGP SIGNATURE-----
 
-Now, I'll happily also admit that code and data _layout_ is often a lot 
-more effective than just code size optimizations. That's especially true 
-with low-memory situations where the page size being larger than many of 
-the code sequences, you can make a bigger impact by changing utilization 
-than by changing absolute size.
-
-But even then it's actually really hard to measure. Cache effects tend to 
-be hard _anyway_ to measure, it's really hard when the interesting case is 
-the cold-cache case and can't even do simple microbenchmarks that repeat a 
-million times to get stable results.
-
-So the best we can usually do is "microbenchmarks don't show any 
-noticeable _worse_ behaviour, and code size went down by 10%".
-
-Just as an example: there's an old paper on the impact of the OS design on 
-the memory subsystem, and one of the tables is about how many cycles per 
-instruction is spent on cache effects (this was Ultrix vs Mach, the load 
-was the average of a workload that was either specint or looked a lot 
-like it).
-
-			I$	D$
-
-	Ultrix user:	0.07	0.08
-	Mach user:	0.07	0.08
-	Ultrix system:	0.43	0.23
-	Mach system:	0.57	0.29
-
-Now, that's an oldish paper, and we really don't care about Ultrix vs Mach 
-nor about the particular hw (Decstation), but the same kind of basic 
-numbers have been repeated over an over. Namely that system code tends to 
-have very different behaviour from user code wrt caches. Caches may have 
-gotten better, but code has gotten bigger, and cores have gotten faster.
-
-And in particular, they tend to be _much_ worse. Something you'll seldom 
-see as clearly in micro-benchmarks, if only because under those benchmarks 
-things will generally be more cached - especially on the I$ side.
-
-So I should probably try to find something slightly more modern, but what 
-it boils down to is that at least one well-cited paper that is fairly easy 
-to find claims that about _half_a_cycle_ for each instruction was spent on 
-I$ misses in system code on a perfectly regular mix of programs. And that 
-the cost of I$ was actually higher than the cost of D$ misses.
-
-Now, most of the _time_ tends to be spent in user mode. That is probably 
-part of the reason for why system mode gets higher cache misses (another 
-is that obviously you'd hope that the user program can optimize for its 
-particular memory usage, while the kernel can't). But the result remains: 
-I$ miss time is a noticeable portion of system time.
-
-Now, I claim that I$ miss overhead on a system would probably tend to have 
-a pretty linear relationship with the size of the static code. There 
-aren't that many big hot loops or small code that fits in the I$ to skew 
-that trivial rule.
-
-So at a total guess, and taking the above numbers (that are questionable, 
-but hey, they should be ok as a starting point for WAGging), reducing code 
-size by 10% should give about 0.007 cycles per instruction in user space. 
-Whee. Not very noticeable. But on system code (the only thing the kernel 
-can help), it's actually a much more visible 0.05 CPI.
-
-Yeah, the math is bogus, the numbers may be irrelevant, but it does show 
-why I$ should matter, even though it's much harder to measure.
-
-			Linus
+--------------enig828D01C4FC003D8F6960B38B--

@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWADSEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWADSHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWADSEh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 13:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWADSEh
+	id S1030251AbWADSHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:07:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWADSHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 13:04:37 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32777 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750866AbWADSEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 13:04:36 -0500
-Date: Wed, 4 Jan 2006 18:04:25 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Gyorgy Jeney <nog.lkml@gmail.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Subject: Re: [patch][rfc] 8250_early: Too early for ioremap
-Message-ID: <20060104180425.GB3119@flint.arm.linux.org.uk>
-Mail-Followup-To: Gyorgy Jeney <nog.lkml@gmail.com>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-	linux-serial@vger.kernel.org
-References: <221e0ff70601010712l3ee799c0n@mail.gmail.com>
+	Wed, 4 Jan 2006 13:07:09 -0500
+Received: from mail.gmx.de ([213.165.64.21]:31376 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030251AbWADSHI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 13:07:08 -0500
+X-Authenticated: #4399952
+Date: Wed, 4 Jan 2006 19:07:05 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: patrizio.bassi@gmail.com
+Cc: Jaroslav Kysela <perex@suse.cz>, "Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+Message-ID: <20060104190705.36488cb5@mango.fruits.de>
+In-Reply-To: <43BBB7DC.2060303@gmail.com>
+References: <4uzow-1g5-13@gated-at.bofh.it>
+	<5r0aY-2If-41@gated-at.bofh.it>
+	<5r3Ca-88G-81@gated-at.bofh.it>
+	<5reGV-6YD-23@gated-at.bofh.it>
+	<5reGV-6YD-21@gated-at.bofh.it>
+	<5rf9X-7yf-25@gated-at.bofh.it>
+	<43BBB7DC.2060303@gmail.com>
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <221e0ff70601010712l3ee799c0n@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 01, 2006 at 04:12:21PM +0100, Gyorgy Jeney wrote:
-> Let the individual architectures define the function to use to remap the
-> mmio-range that will be used by the 8250_early driver.  This is needed
-> because, the default, ioremap() is non-functional when the 8250_early
-> driver initialises.
+On Wed, 04 Jan 2006 12:56:12 +0100
+Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
 
-Isn't there some other way this can be handled?  Can't this be hidden
-in the architectures ioremap where it's a problem?
+> that's a big problem. Needs a radical solution. Considering aoss works
+> in 50% of cases i suggest aoss improvement and not OSS keeping in kernel.
+
+aoss works _much_ less often than the OSS emulation kernel modules. I'd
+rather see (if not just for ease of setup), sw mixing in the OSS
+emulation kernel modules. aoss should still continue to exist as it has
+some advanced functionality like being able to use any alsa defined pcm
+device, but for the vast majority of cases it would be the best if the
+OSS emulation kernel module simply finally provided sw mixing.
+
+It might also be worth taking a look at FUSE and stuff like oss2jack
+instead, as it would be (imho) the cleaner approach for getting OSS
+emulation to userspace as opposed to aoss (device file interface vs.
+ugly LD_PRELOAD hack (which has its share of problems. Especially with
+apps/libs that resolved the linux system call symbols at compile time -
+this is where aoss/LD_PRELOAD won't work, but a FUSE based approach
+would)).
+
+Actually i suppose a FUSE based oss2alsa would probably make the old OSS
+emulation modules unnecessary if implemented right :) As the relevant
+code then lives in userspace it can make trivial use of stuff like ALSA
+sw mixing and all other ALSA userspace goodies (which aoss can, too, but
+at the cost of being an ugly LD_PRELOAD hack).
+
+Have fun,
+Flo
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Palimm Palimm!
+http://tapas.affenbande.org

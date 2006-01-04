@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWADKk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWADKl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751662AbWADKk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 05:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWADKk4
+	id S1751665AbWADKl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 05:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWADKl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 05:40:56 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:25798 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751237AbWADKkz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 05:40:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=GLyLayl3EN9lvsZ1SNAQ0dX2dXq5+tslg7UjXBhs8EE9L9+//izWAoDojtmEGYuJ/cvYSHpdi0K1Rt5M5Va5Xmxx+8DfjslLrDLqN7DR5bXRc+1m98EPc4Amp4rk8OMXzWMLMhpmgJoGogkh4QiCu4hFvIkXsdyb+rj+uqMsA6o=
-Message-ID: <7cd5d4b40601040240n79b2d654t33424e91059988a9@mail.gmail.com>
-Date: Wed, 4 Jan 2006 18:40:54 +0800
-From: jeff shia <tshxiayu@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: what is the state of current after an mm_fault occurs?
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 05:41:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:13017 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751237AbWADKl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 05:41:57 -0500
+Date: Wed, 4 Jan 2006 02:41:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, george@mvista.com,
+       zippel@linux-m68k.org, ulrich.windl@rz.uni-regensburg.de,
+       tglx@linutronix.de
+Subject: Re: [PATCH 8/11] Time: i386 Conversion - part 4: ACPI PM variable
+ renaming and config change.
+Message-Id: <20060104024113.73fe4266.akpm@osdl.org>
+In-Reply-To: <1136370805.3788.19.camel@leatherman>
+References: <20051216010700.19280.66934.sendpatchset@cog.beaverton.ibm.com>
+	<20051216010802.19280.46938.sendpatchset@cog.beaverton.ibm.com>
+	<20060103163554.48ce31a0.akpm@osdl.org>
+	<1136370805.3788.19.camel@leatherman>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-       In my opinion, the state of current should be TASK_RUNNING
-after an mm_fault occurs.But I donot know why the function of
-handle_mm_fault() set the state of current TASK_RUNNING.
-/*
- * By the time we get here, we already hold the mm semaphore
- */
-int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
-	unsigned long address, int write_access)
-{
-	pgd_t *pgd;
-	pmd_t *pmd;
+john stultz <johnstul@us.ibm.com> wrote:
+>
+> > Anyway, I'll tenatively merge these patches into next -mm so they can get a
+> > bit of testing.  Which causes a problem, because you don't then have a tree
+> > against which to raise a new patch series.
+> 
+> I greatly appreciate the inclusion! I'm hoping a bit of time in -mm will
+> shake out any remaining bugs. 
+> 
+> Although I'm not sure I understand what you mean about me not having a
+> tree? Do you mean a public git tree? 
+> 
 
-	__set_current_state(TASK_RUNNING);
-	pgd = pgd_offset(mm, address);
+Sorry.  I meant that once I've merged this series into -mm, you can no
+longer generate a new patch series against -mm!  If I were to leave this
+patch series out of next -mm, you'd have a clean tree to raise patches
+against.
 
-	inc_page_state(pgfault);
+>
+> > So perhaps it would be best if you were to
+> > 
+> > a) Tell me which patches to fold into which other patches to generate a
+> >    series which compiles at every stage and
+> > 
+> > b) Send me a new set of changelogs for the resulting patch series.
+> 
+> I've got a set of chained git trees that store each patch, so its very
+> easy to re-generate the changelog + patches after I've re-arranged them
+> as you suggested.
+> 
+> Would a new patch-set to replace the current patchset be preferred here
+> or do you just want the above?  
 
-	if (is_vm_hugetlb_page(vma))
-		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
+Replacement would be best.  If you can regenerate the diffs against
+whatever tree you generated the last batch, that would work.
 
-	/*
-	 * We need the page table lock to synchronize with kswapd
-	 * and the SMP-safe atomic PTE updates.
-	 */
-	spin_lock(&mm->page_table_lock);
-	pmd = pmd_alloc(mm, pgd, address);
+> Similarly, if we do run into bugs, would you prefer incremental fixup
+> patches or cumulative replacement patches when a new release of the
+> patchset is generated?
 
-	if (pmd) {
-		pte_t * pte = pte_alloc_map(mm, pmd, address);
-		if (pte)
-			return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
-	}
-	spin_unlock(&mm->page_table_lock);
-	return VM_FAULT_OOM;
-}
+minimally-sized incremental fixes are preferred, please.
 
-any help will be preferred.
-Thank you!!
+> I'm just getting back from vacation tonight, so I'll send whatever you
+> prefer sometime tomorrow.
 
-Jeff
+That would be good, thanks.
+

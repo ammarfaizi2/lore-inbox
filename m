@@ -1,137 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWACXqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWACXsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965023AbWACXqm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 18:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWACXqU
+	id S965132AbWACXsF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 18:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWACXqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 18:46:20 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:41621 "EHLO
+	Tue, 3 Jan 2006 18:46:12 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:40853 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S965093AbWACXpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S965049AbWACXpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Jan 2006 18:45:54 -0500
-Message-Id: <200601040037.k040bbBX012545@ccure.user-mode-linux.org>
+Message-Id: <200601040037.k040bZAa012540@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 5/12] UML - Remove unneeded structure field
+Subject: [PATCH 4/12] UML - use ARRAY_SIZE
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 03 Jan 2006 19:37:37 -0500
+Date: Tue, 03 Jan 2006 19:37:35 -0500
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes a structure field which turned out to be pointless, and references
-to it.
+This patch replaces instances of "sizeof(foo)/sizeof(foo[0])" with 
+ARRAY_SIZE(foo), which expands to the same thing.
 
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.15/arch/um/drivers/chan_kern.c
+Index: linux-2.6.15/arch/um/drivers/ssl.c
 ===================================================================
---- linux-2.6.15.orig/arch/um/drivers/chan_kern.c	2006-01-03 17:20:06.000000000 -0500
-+++ linux-2.6.15/arch/um/drivers/chan_kern.c	2006-01-03 17:26:38.000000000 -0500
-@@ -315,7 +315,7 @@ int console_open_chan(struct line *line,
- 		return 0;
+--- linux-2.6.15.orig/arch/um/drivers/ssl.c	2005-12-20 17:31:37.000000000 -0500
++++ linux-2.6.15/arch/um/drivers/ssl.c	2005-12-20 17:31:38.000000000 -0500
+@@ -84,21 +84,18 @@ static struct lines lines = LINES_INIT(N
  
- 	if (0 != parse_chan_pair(line->init_str, &line->chan_list,
--				 line->init_pri, co->index, opts))
-+				 co->index, opts))
- 		return -1;
- 	if (0 != open_chan(&line->chan_list))
- 		return -1;
-@@ -468,8 +468,7 @@ struct chan_type chan_table[] = {
- #endif
- };
- 
--static struct chan *parse_chan(char *str, int pri, int device,
--			       struct chan_opts *opts)
-+static struct chan *parse_chan(char *str, int device, struct chan_opts *opts)
+ static int ssl_config(char *str)
  {
- 	struct chan_type *entry;
- 	struct chan_ops *ops;
-@@ -507,13 +506,12 @@ static struct chan *parse_chan(char *str
- 				 .output 	= 0,
- 				 .opened  	= 0,
- 				 .fd 		= -1,
--				 .pri 		= pri,
- 				 .ops 		= ops,
- 				 .data 		= data });
- 	return chan;
+-	return line_config(serial_lines,
+-			   sizeof(serial_lines)/sizeof(serial_lines[0]), str);
++	return line_config(serial_lines, ARRAY_SIZE(serial_lines), str);
  }
  
--int parse_chan_pair(char *str, struct list_head *chans, int pri, int device,
-+int parse_chan_pair(char *str, struct list_head *chans, int device,
- 		    struct chan_opts *opts)
+ static int ssl_get_config(char *dev, char *str, int size, char **error_out)
  {
- 	struct chan *new, *chan;
-@@ -521,8 +519,6 @@ int parse_chan_pair(char *str, struct li
+-	return line_get_config(dev, serial_lines,
+-			       sizeof(serial_lines)/sizeof(serial_lines[0]),
+-			       str, size, error_out);
++	return line_get_config(dev, serial_lines, ARRAY_SIZE(serial_lines), str,
++			       size, error_out);
+ }
  
- 	if(!list_empty(chans)){
- 		chan = list_entry(chans->next, struct chan, list);
--		if(chan->pri >= pri)
--			return 0;
- 		free_chan(chans);
- 		INIT_LIST_HEAD(chans);
- 	}
-@@ -532,14 +528,14 @@ int parse_chan_pair(char *str, struct li
- 		in = str;
- 		*out = '\0';
- 		out++;
--		new = parse_chan(in, pri, device, opts);
-+		new = parse_chan(in, device, opts);
- 		if(new == NULL)
- 			return -1;
+ static int ssl_remove(int n)
+ {
+-	return line_remove(serial_lines,
+-			   sizeof(serial_lines)/sizeof(serial_lines[0]), n);
++	return line_remove(serial_lines, ARRAY_SIZE(serial_lines), n);
+ }
  
- 		new->input = 1;
- 		list_add(&new->list, chans);
+ int ssl_open(struct tty_struct *tty, struct file *filp)
+@@ -205,7 +202,7 @@ int ssl_init(void)
+ 					 serial_lines,
+ 					 ARRAY_SIZE(serial_lines));
  
--		new = parse_chan(out, pri, device, opts);
-+		new = parse_chan(out, device, opts);
- 		if(new == NULL)
- 			return -1;
+-	lines_init(serial_lines, sizeof(serial_lines)/sizeof(serial_lines[0]));
++	lines_init(serial_lines, ARRAY_SIZE(serial_lines));
  
-@@ -547,7 +543,7 @@ int parse_chan_pair(char *str, struct li
- 		new->output = 1;
- 	}
- 	else {
--		new = parse_chan(str, pri, device, opts);
-+		new = parse_chan(str, device, opts);
- 		if(new == NULL)
- 			return -1;
+ 	new_title = add_xterm_umid(opts.xterm_title);
+ 	if (new_title != NULL)
+@@ -221,16 +218,13 @@ static void ssl_exit(void)
+ {
+ 	if (!ssl_init_done)
+ 		return;
+-	close_lines(serial_lines,
+-		    sizeof(serial_lines)/sizeof(serial_lines[0]));
++	close_lines(serial_lines, ARRAY_SIZE(serial_lines));
+ }
+ __uml_exitcall(ssl_exit);
  
-Index: linux-2.6.15/arch/um/include/chan_kern.h
+ static int ssl_chan_setup(char *str)
+ {
+-	return line_setup(serial_lines,
+-			  sizeof(serial_lines)/sizeof(serial_lines[0]),
+-			  str, 1);
++	return line_setup(serial_lines, ARRAY_SIZE(serial_lines), str, 1);
+ }
+ 
+ __setup("ssl", ssl_chan_setup);
+Index: linux-2.6.15/arch/um/drivers/stdio_console.c
 ===================================================================
---- linux-2.6.15.orig/arch/um/include/chan_kern.h	2006-01-03 17:20:06.000000000 -0500
-+++ linux-2.6.15/arch/um/include/chan_kern.h	2006-01-03 17:26:38.000000000 -0500
-@@ -20,15 +20,14 @@ struct chan {
- 	unsigned int output:1;
- 	unsigned int opened:1;
- 	int fd;
--	enum chan_init_pri pri;
- 	struct chan_ops *ops;
- 	void *data;
- };
+--- linux-2.6.15.orig/arch/um/drivers/stdio_console.c	2005-12-20 17:31:37.000000000 -0500
++++ linux-2.6.15/arch/um/drivers/stdio_console.c	2005-12-20 17:31:38.000000000 -0500
+@@ -91,18 +91,17 @@ struct line vts[MAX_TTYS] = { LINE_INIT(
  
- extern void chan_interrupt(struct list_head *chans, struct work_struct *task,
- 			   struct tty_struct *tty, int irq);
--extern int parse_chan_pair(char *str, struct list_head *chans, int pri, 
--			   int device, struct chan_opts *opts);
-+extern int parse_chan_pair(char *str, struct list_head *chans, int device,
-+			   struct chan_opts *opts);
- extern int open_chan(struct list_head *chans);
- extern int write_chan(struct list_head *chans, const char *buf, int len,
- 			     int write_irq);
-Index: linux-2.6.15/arch/um/drivers/line.c
-===================================================================
---- linux-2.6.15.orig/arch/um/drivers/line.c	2006-01-03 17:21:49.000000000 -0500
-+++ linux-2.6.15/arch/um/drivers/line.c	2006-01-03 17:26:38.000000000 -0500
-@@ -438,7 +438,7 @@ int line_open(struct line *lines, struct
- 		}
- 		if (list_empty(&line->chan_list)) {
- 			err = parse_chan_pair(line->init_str, &line->chan_list,
--					      line->init_pri, tty->index, opts);
-+					      tty->index, opts);
- 			if(err) goto out;
- 			err = open_chan(&line->chan_list);
- 			if(err) goto out;
+ static int con_config(char *str)
+ {
+-	return line_config(vts, sizeof(vts)/sizeof(vts[0]), str);
++	return line_config(vts, ARRAY_SIZE(vts), str);
+ }
+ 
+ static int con_get_config(char *dev, char *str, int size, char **error_out)
+ {
+-	return line_get_config(dev, vts, sizeof(vts)/sizeof(vts[0]), str,
+-			       size, error_out);
++	return line_get_config(dev, vts, ARRAY_SIZE(vts), str, size, error_out);
+ }
+ 
+ static int con_remove(int n)
+ {
+-	return line_remove(vts, sizeof(vts)/sizeof(vts[0]), n);
++	return line_remove(vts, ARRAY_SIZE(vts), n);
+ }
+ 
+ static int con_open(struct tty_struct *tty, struct file *filp)
+@@ -170,7 +169,7 @@ int stdio_init(void)
+ 		return -1;
+ 	printk(KERN_INFO "Initialized stdio console driver\n");
+ 
+-	lines_init(vts, sizeof(vts)/sizeof(vts[0]));
++	lines_init(vts, ARRAY_SIZE(vts));
+ 
+ 	new_title = add_xterm_umid(opts.xterm_title);
+ 	if(new_title != NULL)
+@@ -186,13 +185,13 @@ static void console_exit(void)
+ {
+ 	if (!con_init_done)
+ 		return;
+-	close_lines(vts, sizeof(vts)/sizeof(vts[0]));
++	close_lines(vts, ARRAY_SIZE(vts));
+ }
+ __uml_exitcall(console_exit);
+ 
+ static int console_chan_setup(char *str)
+ {
+-	return line_setup(vts, sizeof(vts)/sizeof(vts[0]), str, 1);
++	return line_setup(vts, ARRAY_SIZE(vts), str, 1);
+ }
+ __setup("con", console_chan_setup);
+ __channel_help(console_chan_setup, "con");
 

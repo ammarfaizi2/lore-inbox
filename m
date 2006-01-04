@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWADK1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbWADK2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751663AbWADK1S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 05:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWADK1S
+	id S965226AbWADK2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 05:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbWADK2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 05:27:18 -0500
-Received: from vvv.conterra.de ([212.124.44.162]:49055 "EHLO conterra.de")
-	by vger.kernel.org with ESMTP id S1751655AbWADK1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 05:27:18 -0500
-Message-ID: <43BBA2FE.5060006@conterra.de>
-Date: Wed, 04 Jan 2006 11:27:10 +0100
-From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X86_64 + VIA + 4g problems
-References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>	<43BA4C3D.4060206@conterra.de> <p731wzpjtvm.fsf@verdi.suse.de>
-In-Reply-To: <p731wzpjtvm.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 4 Jan 2006 05:28:17 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:61837 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S965226AbWADK2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 05:28:15 -0500
+Date: Wed, 4 Jan 2006 11:28:13 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Shrinks sizeof(files_struct) and better layout
+Message-ID: <20060104102813.GA1515@vanheusden.com>
+References: <20051108185349.6e86cec3.akpm@osdl.org>
+	<437226B1.4040901@cosmosbay.com>
+	<20051109220742.067c5f3a.akpm@osdl.org>
+	<4373698F.9010608@cosmosbay.com> <43BB1178.7020409@cosmosbay.com>
+	<Pine.LNX.4.61.0601041010180.29257@yvahk01.tjqt.qr>
+	<43BB9F71.60909@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43BB9F71.60909@cosmosbay.com>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Thu Jan  5 11:07:47 CET 2006
+X-Message-Flag: MultiTail - tail on steroids
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> [can you please not always drop me from cc with each reply?] 
+> >>2) Reduces the size of (files_struct), using a special 32 bits (or 64bits)
+> >>embedded_fd_set, instead of a 1024 bits fd_set for the close_on_exec_init 
+> >>and
+> >>open_fds_init fields. This save some ram (248 bytes per task)
+> >>as most tasks dont open more than 32 files.
+> >How do you know, have you done some empirical testing?
+> 20 years working on Unix/linux machines yes :)
+> Just try this script on your linux machines :
+> for f in /proc/*/fd; do ls $f|wc -l;done
+> more than 95% of tasks have less than 32 concurrent files opened.
 
-sorry, I thought the other way around: it would be annoying
-to get each mail twice...
+0 root@muur:/home/folkert# for f in /proc/*/fd; do ls $f|wc -l;done | awk '{TOT+=$1; N++;} END{ print TOT / N, N; }'
+13.7079 291
 
-I just found a mailing list "discuss@x86-64.org". Would it be
-better to turn over there, instead of polluting linux.kernel
-by this?
+So on my system (running 291 processes (postfix, mysql, apache,
+asterisk, spamassassin, clamav) it is on average 13.7 filehandles.
+On an idle veritas netbackup server (130 processes): 4
+On a system running 4 vmware systems (137 processes): 16
+On a heavily used mailserver (130 processes, sendmail and MailScanner
+package): 6,6
 
->> But swiotlb=force works well! 
->
-> This means your PCI bridge doesn't support addresses >4GB. 
->
->> The pci-gart.c patch seems to disable dma.
-> 
-> Only DMA for addresses >4GB.
-> 
-> If your torture test involves more than 64MB of IO in flight
-> you might also need to increase the bounce buffer area
-> with swiotlb=128M or somesuch. 
 
-I'm about to understand whats going on. So should I use the
-dma patch INSTEAD of "swiotlb=force"? I'll try that tonight.
+Folkert van Heusden
 
-> When you not compile in the SKGE network driver does everything else work? 
-
-I may test it again, but all seemed to work without any patch or
-swiotlb settings when running without the SKGE network driver.
-
-So, how does this work, if my PCI bridge generally fails above 4G?
-
-Problems arise not until I enable/use the network driver.
-Does the dma-patch disable DMA for all PCI devices or only
-for those which cause problems (like my SKGE)?
-
-Dieter.
 -- 
-Dieter Stüken, con terra GmbH, Münster
-     stueken@conterra.de
-     http://www.conterra.de/
-     (0)251-7474-501
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

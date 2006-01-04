@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWADXYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWADXZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751837AbWADXYn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWADXYn
+	id S1750949AbWADXZg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWADXZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:24:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23564 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751837AbWADXYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:24:43 -0500
-Date: Thu, 5 Jan 2006 00:24:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
-       "Bryan O'Sullivan" <bos@pathscale.com>
-Subject: [2.6 patch] Define BITS_PER_BYTE
-Message-ID: <20060104232442.GX3831@stusta.de>
-References: <20051108185349.6e86cec3.akpm@osdl.org> <437226B1.4040901@cosmosbay.com> <20051109220742.067c5f3a.akpm@osdl.org> <4373698F.9010608@cosmosbay.com> <43BB1178.7020409@cosmosbay.com> <20060104034534.45d9c18a.akpm@osdl.org>
+	Wed, 4 Jan 2006 18:25:36 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:9185 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750949AbWADXZf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:25:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=X6J8/esE2FlFkTwUVvNZ5IgPDjc+DoxILfnUBhgBJtmJm82PFBJq6Ut8hLBCLgIYpUJotnQtTgElctgvphps3F7cinCfeuXKMD/r9XoyFly+rclAfoDVogeBA+FBvMj9k4GtjOuEkCLM7+h0kLPWywxPok6LYDEIheu5cwKgMho=
+Message-ID: <4d8e3fd30601041525i4e23e3bbl26ad3590c2dd80ac@mail.gmail.com>
+Date: Thu, 5 Jan 2006 00:25:34 +0100
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] MAINTAINERS file: Fix missing colon
+Cc: "John L. Villalovos" <john.l.villalovos@intel.com>,
+       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
+       torvalds@osdl.org
+In-Reply-To: <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060104034534.45d9c18a.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+References: <43BC45DE.5060303@intel.com>
+	 <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 03:45:34AM -0800, Andrew Morton wrote:
->...
-> +/*
-> + * More than this number of fds: we use a separately allocated fd_set
-> + */
-> +#define EMBEDDED_FD_SET_SIZE	(8 * sizeof(struct embedded_fd_set))
-> +
->...
+On 1/4/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> On Wed, 4 Jan 2006, John L. Villalovos wrote:
+>
+> > From: John L. Villalovos <john.l.villalovos@intel.com>
+> >
+> > While parsing the MAINTAINERS file I disovered one entry was missing a colon.
+> > This patch adds the one missing colon.
+> >
+> > ---
+> > diff -r 8441517e7e79 MAINTAINERS
+> > --- a/MAINTAINERS       Thu Jan  5 04:00:05 2006
+> > +++ b/MAINTAINERS       Wed Jan  4 13:49:27 2006
+> > @@ -681,7 +681,7 @@
+> >
+> >   DAC960 RAID CONTROLLER DRIVER
+> >   P:     Dave Olien
+> > -M      dmo@osdl.org
+> > +M:     dmo@osdl.org
+> >   W:     http://www.osdl.org/archive/dmo/DAC960
+> >   L:     linux-kernel@vger.kernel.org
+> >   S:     Maintained
+>
+> That would be helpful except that Dave is no longer at OSDL
+> and is no longer maintaining that driver...
 
-What about applying and using the patch below?
+I don't know who I should CC to this email but it seems it's time to
+update http://developer.osdl.org/dev/people/ since Dave is still
+listed as an OSDL developer.
 
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-This can make some arithmetic expressions clearer.
-
-
-Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- a/include/linux/types.h	Wed Dec 28 14:19:42 2005 -0800
-+++ b/include/linux/types.h	Wed Dec 28 14:19:42 2005 -0800
-@@ -8,6 +8,8 @@
- 	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
- #define DECLARE_BITMAP(name,bits) \
- 	unsigned long name[BITS_TO_LONGS(bits)]
-+
-+#define BITS_PER_BYTE 8
- #endif
- 
- #include <linux/posix_types.h>
+--
+Paolo

@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWADWHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWADWMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932554AbWADWHs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:07:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWADV7z
+	id S964789AbWADWMD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965274AbWADWMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:59:55 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:51954 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S1030296AbWADV7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 16:59:53 -0500
-Date: Wed, 04 Jan 2006 16:59:31 -0500
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: [PATCH 03/15] powernow-k7: Work when kernel is compiled for SMP
-To: linux-kernel@vger.kernel.org
-Message-id: <0ISL00NU693O1L@a34-mta01.direcway.com>
-Content-transfer-encoding: 7BIT
+	Wed, 4 Jan 2006 17:12:03 -0500
+Received: from mail.linicks.net ([217.204.244.146]:21184 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S964789AbWADWL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:11:57 -0500
+From: Nick Warne <nick@linicks.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Date: Wed, 4 Jan 2006 22:10:47 +0000
+User-Agent: KMail/1.9
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+References: <200601041710.37648.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk> <20060104220157.GB12778@kroah.com>
+In-Reply-To: <20060104220157.GB12778@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601042210.47152.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a UP system with SMP compiled kernel, the powernow-k7 module would not
-initialize (returned -ENODEV). Not sure why policy->cpu != 0 for UP
-systems, but since policy->cpu isn't used anywhere, just check for
-num_cpus in the system, and fail of it's > 1.
+On Wednesday 04 January 2006 22:01, Greg KH wrote:
 
-Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> > > > Nick's right, both are provided automatically by kernel.org.
+> > >
+> > > Anyway, I started from scratch - 2.6.14, patched to 2.6.15 and then
+> > > make oldconfig etc.
+> > >
+> > > I think there needs to be a way out of this that is easily discernible
+> > > - it does get confusing sometimes with all the patches flying around on
+> > > a 'stable release'.
+> >
+> > It's documented in the kernel.
+> >
+> > There's something in the kernel.org FAQ there about -rc kernels, but it
+> > might be better to generalise this for stable releases. Added hpa to CC.
+>
+> What do you mean, "generalize" this?  Where else could we document it
+> better?
 
----
+The issue I hit was we have a 'latest stable kernel release 2.6.14.5' and 
+under it a 'the latest stable kernel' (or words to that effect) on 
+kernel.org.
 
- arch/i386/kernel/cpu/cpufreq/powernow-k7.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+Then when 2.6.15 came out, that was it!  No patch for the 'latest stable 
+kernel release 2.6.14.5'.  It was GONE!
 
-a1418b50daac86ff02e0d7a4cba6185a452ca393
-diff --git a/arch/i386/kernel/cpu/cpufreq/powernow-k7.c b/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
-index edcd626..a9c4970 100644
---- a/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
-+++ b/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
-@@ -576,9 +576,6 @@ static int __init powernow_cpu_init (str
- 	union msr_fidvidstatus fidvidstatus;
- 	int result;
- 
--	if (policy->cpu != 0)
--		return -ENODEV;
--
- 	rdmsrl (MSR_K7_FID_VID_STATUS, fidvidstatus.val);
- 
- 	/* recalibrate cpu_khz */
-@@ -664,8 +661,13 @@ static struct cpufreq_driver powernow_dr
- 
- static int __init powernow_init (void)
- {
--	if (check_powernow()==0)
-+	/* Does not support multi-cpu systems */
-+	if (num_online_cpus() != 1 || num_possible_cpus() != 1)
- 		return -ENODEV;
-+
-+	if (check_powernow() == 0)
-+		return -ENODEV;
-+
- 	return cpufreq_register_driver(&powernow_driver);
- }
- 
+OK, I suppose we are all capable of getting back to where we are on rebuilding 
+to latest 'stable', but there _is_ a missing link for somebody that doesn't 
+know - and I think backtracking patches isn't really the way to go if the 
+'latest stable release' isn't catered for.
+
+Nick
 -- 
-1.0.5
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb
+My quake2 project:
+http://sourceforge.net/projects/quake2plus/

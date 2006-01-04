@@ -1,48 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWADVBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWADVAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751791AbWADVBO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 16:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWADVBF
+	id S932221AbWADVAd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWADVAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:01:05 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1035 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750772AbWADVAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 16:00:46 -0500
-Date: Wed, 4 Jan 2006 22:00:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: gcoady@gmail.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] i386: enable 4k stacks by default
-Message-ID: <20060104210045.GV3831@stusta.de>
-References: <20060104145138.GN3831@stusta.de> <35dor152f8ehril7qh22oi8sgkjdohd9jv@4ax.com>
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 16:00:06 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:51870 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751286AbWADU7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:59:55 -0500
+Message-Id: <200601042152.k04Lq2fS009247@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 6/9] UML - capture printk output for mconsole stack
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <35dor152f8ehril7qh22oi8sgkjdohd9jv@4ax.com>
-User-Agent: Mutt/1.5.11
+Date: Wed, 04 Jan 2006 16:52:02 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 07:53:00AM +1100, Grant Coady wrote:
-> On Wed, 4 Jan 2006 15:51:38 +0100, Adrian Bunk <bunk@stusta.de> wrote:
->...
-> > 	  If you say Y here the kernel will use a 4Kb stacksize for the
-> > 	  kernel stack attached to each process/thread. This facilitates
-> 
-> Perhaps mention 4k + 4k stacks, the separate irq stacks used with 4k option?  
+The stack command now sends the printk output back to the mconsole
+client.  This is done by registering a special console for the
+mconsole driver.  This receives all printk output.  Normally, it is
+ignored, but when a stack command is issued, any printk output will
+be sent back to the client.  
+This will capture any printk output, whether it is stack output or
+not, since we can't tell the difference.
 
-Feel free to submit a patch.  ;-)
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-> Grant.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Index: linux-2.6.15/arch/um/drivers/mconsole_kern.c
+===================================================================
+--- linux-2.6.15.orig/arch/um/drivers/mconsole_kern.c	2006-01-04 14:08:25.000000000 -0500
++++ linux-2.6.15/arch/um/drivers/mconsole_kern.c	2006-01-04 14:52:11.000000000 -0500
+@@ -20,6 +20,7 @@
+ #include "linux/namei.h"
+ #include "linux/proc_fs.h"
+ #include "linux/syscalls.h"
++#include "linux/console.h"
+ #include "asm/irq.h"
+ #include "asm/uaccess.h"
+ #include "user_util.h"
+@@ -480,6 +481,82 @@ void mconsole_sysrq(struct mc_request *r
+ }
+ #endif
+ 
++static DEFINE_SPINLOCK(console_lock);
++static LIST_HEAD(clients);
++static char console_buf[MCONSOLE_MAX_DATA];
++static int console_index = 0;
++
++static void console_write(struct console *console, const char *string,
++			  unsigned len)
++{
++	struct list_head *ele;
++	int n;
++
++	if(list_empty(&clients))
++		return;
++
++	while(1){
++		n = min(len, ARRAY_SIZE(console_buf) - console_index);
++		strncpy(&console_buf[console_index], string, n);
++		console_index += n;
++		string += n;
++		len -= n;
++		if(len == 0)
++			return;
++
++		list_for_each(ele, &clients){
++			struct mconsole_entry *entry;
++
++			entry = list_entry(ele, struct mconsole_entry, list);
++			mconsole_reply_len(&entry->request, console_buf,
++					   console_index, 0, 1);
++		}
++
++		console_index = 0;
++	}
++}
++
++static struct console mc_console = { .name	= "mc",
++				     .write	= console_write,
++				     .flags	= CON_PRINTBUFFER | CON_ENABLED,
++				     .index	= -1 };
++
++static int mc_add_console(void)
++{
++	register_console(&mc_console);
++	return 0;
++}
++
++late_initcall(mc_add_console);
++
++static void with_console(struct mc_request *req, void (*proc)(void *),
++			 void *arg)
++{
++	struct mconsole_entry entry;
++	unsigned long flags;
++
++	INIT_LIST_HEAD(&entry.list);
++	entry.request = *req;
++	list_add(&entry.list, &clients);
++	spin_lock_irqsave(&console_lock, flags);
++
++	(*proc)(arg);
++
++	mconsole_reply_len(req, console_buf, console_index, 0, 0);
++	console_index = 0;
++
++	spin_unlock_irqrestore(&console_lock, flags);
++	list_del(&entry.list);
++}
++
++static void stack_proc(void *arg)
++{
++	struct task_struct *from = current, *to = arg;
++
++	to->thread.saved_task = from;
++	switch_to(from, to, from);
++}
++
+ /* Mconsole stack trace
+  *  Added by Allan Graves, Jeff Dike
+  *  Dumps a stacks registers to the linux console.
+@@ -489,7 +566,7 @@ void do_stack(struct mc_request *req)
+ {
+         char *ptr = req->request.data;
+         int pid_requested= -1;
+-        struct task_struct *from = NULL;
++	struct task_struct *from = NULL;
+ 	struct task_struct *to = NULL;
+ 
+         /* Would be nice:
+@@ -507,17 +584,15 @@ void do_stack(struct mc_request *req)
+                 return;
+         }
+ 
+-        from = current;
+-        to = find_task_by_pid(pid_requested);
++	from = current;
+ 
++	to = find_task_by_pid(pid_requested);
+         if((to == NULL) || (pid_requested == 0)) {
+                 mconsole_reply(req, "Couldn't find that pid", 1, 0);
+                 return;
+         }
+-        to->thread.saved_task = current;
+ 
+-        switch_to(from, to, from);
+-        mconsole_reply(req, "Stack Dumped to console and message log", 0, 0);
++	with_console(req, stack_proc, to);
+ }
+ 
+ void mconsole_stack(struct mc_request *req)
 

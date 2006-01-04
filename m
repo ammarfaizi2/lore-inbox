@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965263AbWADSm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965264AbWADSqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965263AbWADSm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 13:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965264AbWADSm2
+	id S965264AbWADSqz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:46:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbWADSqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 13:42:28 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:45533 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965263AbWADSm1
+	Wed, 4 Jan 2006 13:46:54 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:64715 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965264AbWADSqx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 13:42:27 -0500
-Message-ID: <43BC16EF.50107@zytor.com>
-Date: Wed, 04 Jan 2006 10:41:51 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 4 Jan 2006 13:46:53 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [OT] ALSA userspace API complexity
+Date: Wed, 4 Jan 2006 18:46:54 +0000
+User-Agent: KMail/1.9
+Cc: patrizio.bassi@gmail.com, Jaroslav Kysela <perex@suse.cz>,
+       "Kernel, " <linux-kernel@vger.kernel.org>
+References: <4uzow-1g5-13@gated-at.bofh.it> <43BBB7DC.2060303@gmail.com> <20060104190705.36488cb5@mango.fruits.de>
+In-Reply-To: <20060104190705.36488cb5@mango.fruits.de>
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       "Viro, Al" <viro@ftp.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Limit sendfile() to 2^31-PAGE_CACHE_SIZE bytes without
- error
-References: <43BB348F.3070108@zytor.com> <200601040451.20411.ak@suse.de> <Pine.LNX.4.64.0601032051300.3668@g5.osdl.org> <43BB5646.2040504@zytor.com> <43BB5E22.2010306@zytor.com> <Pine.LNX.4.64.0601040900311.3668@g5.osdl.org> <43BC030A.1060208@redhat.com>
-In-Reply-To: <43BC030A.1060208@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601041846.54689.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> Linus Torvalds wrote:
-> 
->>Ok, this patch looks ok, if it's confirmed to unbreak apache.
-> 
-> Yes, sounds reasonable.  But I don't think that, as Peter suggested in
-> another mail, that glibc should automatically wrap the syscall to
-> provide support for  larger sizes.  The caller probably should know when
-> a transfer was cut short.
-> 
+On Wednesday 04 January 2006 18:07, Florian Schmidt wrote:
+> On Wed, 04 Jan 2006 12:56:12 +0100
+>
+> Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
+> > that's a big problem. Needs a radical solution. Considering aoss works
+> > in 50% of cases i suggest aoss improvement and not OSS keeping in kernel.
+>
+> aoss works _much_ less often than the OSS emulation kernel modules. I'd
+> rather see (if not just for ease of setup), sw mixing in the OSS
+> emulation kernel modules. aoss should still continue to exist as it has
+> some advanced functionality like being able to use any alsa defined pcm
+> device, but for the vast majority of cases it would be the best if the
+> OSS emulation kernel module simply finally provided sw mixing.
+>
+> It might also be worth taking a look at FUSE and stuff like oss2jack
+> instead, as it would be (imho) the cleaner approach for getting OSS
+> emulation to userspace as opposed to aoss (device file interface vs.
+> ugly LD_PRELOAD hack (which has its share of problems. Especially with
+> apps/libs that resolved the linux system call symbols at compile time -
+> this is where aoss/LD_PRELOAD won't work, but a FUSE based approach
+> would)).
+>
+> Actually i suppose a FUSE based oss2alsa would probably make the old OSS
+> emulation modules unnecessary if implemented right :) As the relevant
+> code then lives in userspace it can make trivial use of stuff like ALSA
+> sw mixing and all other ALSA userspace goodies (which aoss can, too, but
+> at the cost of being an ugly LD_PRELOAD hack).
 
-Agreed; that's exactly what a short return in supposed to do.  Since a 
-short return is compatible with the defined API, that's not a problem.
+Not to disrespect Miklos's work, but relying on FUSE for such a fundamental 
+problem is probably not a good idea. Most people probably do not compile FUSE 
+into their kernel.
 
-However, this patch only addresses sendfile(), and this is apparently a 
-much more pervasive problem.  We need something similar for all the I/O 
-system calls that are affected by this particular issue.
+I do agree with other posters here that OSS compatibility a) needs to be 
+improved and b) should not be limited to the features of the soundcard (i.e. 
+it must software mix). As Andi has pointed out, wholly removing OSS is not in 
+the spirit of Linux and will not happen for many years.
 
-	-hpa
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

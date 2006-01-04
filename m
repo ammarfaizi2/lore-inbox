@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbWADR3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbWADR3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965233AbWADR3G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:29:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbWADR3G
+	id S965229AbWADR3w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:29:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbWADR3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:29:06 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:10430 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965235AbWADR3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:29:04 -0500
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Marc Haber <mh+linux-kernel@zugschlus.de>
+	Wed, 4 Jan 2006 12:29:52 -0500
+Received: from xproxy.gmail.com ([66.249.82.198]:58065 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965229AbWADR3v convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:29:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sYMNnUVaxH5c5g1tnkRPz1t5ciqS9sHZ0ZAO7QKus7ZUTX3u+V5BWRZsfPUMrf3ZpYSq3CdY9ccc3+6teRTuBp8VfedSGcBk9NUZObf3uNKnO0gQeeqRakqfUY3dpw5XsngtQnqie9+a6eb8ygZZMwhMcol9oaw5AO1a+RutWeE=
+Message-ID: <b6c5339f0601040929jcbf2aadheec806fb453e58dd@mail.gmail.com>
+Date: Wed, 4 Jan 2006 12:29:50 -0500
+From: Bob Copeland <email@bobcopeland.com>
+To: x-lists@cqsat.com
+Subject: Re: kernel programming donts
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060104171905.GM8079@torres.l21.ma.zugschlus.de>
-References: <200601041710.37648.nick@linicks.net>
-	 <20060104171905.GM8079@torres.l21.ma.zugschlus.de>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 12:29:01 -0500
-Message-Id: <1136395741.12468.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <BAY7-F20B9964B2E040C06705307C52F0@phx.gbl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <BAY7-F20B9964B2E040C06705307C52F0@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 18:19 +0100, Marc Haber wrote:
-> On Wed, Jan 04, 2006 at 05:10:37PM +0000, Nick Warne wrote:
-> > A stupid question - buggered if I can find a kernel patch from 2.6.14.5 to 
-> > 2.6.15?
-> 
-> You can try backing out the 2.6.14 -> 2.6.14.5 patch to generate a
-> "pristine" 2.6.14 to which you can apply 2.6.14 -> 2.6.15.
-> 
-> This mess is one reason while I usually keep old kernel tarballs
-> around for a while.
+On 1/4/06, J R <x-list-subscriptions@hotmail.com> wrote:
+>
+> Is there a list of kernel / driver development "donts" documented in 1
+> place. I'm looking for examples of coding errors that would lead to
+> leaks,  crashes or vulnerabilities - like using tainted data from
+> copy_from_user() in an unsafe way. Have these things been collected in 1
+> place?
 
-This mess is why I use ketchup:
+There are some documents on kerneljanitors.org, for example:
 
-http://www.selenic.com/ketchup/
-
--- Steve
-
-
+http://kerneljanitors.org/drivers-dosdonts/index.html

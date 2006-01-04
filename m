@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWADUJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751774AbWADUKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWADUJq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWADUJq
+	id S1751774AbWADUKq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:10:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWADUKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:09:46 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48512 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751293AbWADUJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:09:45 -0500
-Subject: Re: [Patch 2.6] dm-crypt: zero key before freeing it
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stefan Rompf <stefan@loplof.de>
-Cc: Andrew Morton <akpm@osdl.org>, Clemens Fruhwirth <clemens@endorphin.org>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-In-Reply-To: <200601042108.04544.stefan@loplof.de>
-References: <200601042108.04544.stefan@loplof.de>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 21:09:39 +0100
-Message-Id: <1136405379.2839.46.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 4 Jan 2006 15:10:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:59324 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751771AbWADUKo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:10:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=cN23o7dU4y20XssUaxGJtdifwrrU8R1j/GSm2nntAcKX/xWDgCDHRWcc8zQGvnq0OxhkTv9Rj+wWZ/NFR3geFZoPIVFs0yITueslXFRDUPAqM1cTfrjfD0HHW9feaeZXZDjksiMthQHWy7JshXEsUq/mizFtfoHnIcq+qv8mNSk=
+Message-ID: <43BC2BBC.6040709@gmail.com>
+Date: Wed, 04 Jan 2006 22:10:36 +0200
+From: Matan Peled <chaosite@gmail.com>
+Reply-To: chaosite@gmail.com
+Organization: Chaosite Destruction, inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
+MIME-Version: 1.0
+To: Nick Warne <nick@linicks.net>
+CC: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+References: <200601041710.37648.nick@linicks.net> <200601041739.59982.nick@linicks.net> <200601041834.23722.s0348365@sms.ed.ac.uk> <200601041953.15735.nick@linicks.net>
+In-Reply-To: <200601041953.15735.nick@linicks.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 21:08 +0100, Stefan Rompf wrote:
-> Hi Andrew,
+Nick Warne wrote:
+> Anyway, I started from scratch - 2.6.14, patched to 2.6.15 and then make 
+> oldconfig etc.
 > 
-> dm-crypt does not clear struct crypt_config before freeing it. Thus, 
-> information on the key could leak f.e. to a swsusp image even after the 
-> encrypted device has been removed. The attached patch against 2.6.14 / 2.6.15 
-> fixes it.
+> I think there needs to be a way out of this that is easily discernible - it 
+> does get confusing sometimes with all the patches flying around on a 'stable 
+> release'.
+> 
+> Nick
 
-since a memset right before a free is a very unusual code pattern in the
-kernel it may well be worth putting a short comment around it to prevent
-someone later removing it as "optimization"
+Whats wrong with ketchup?
 
+
+-- 
+[Name      ]   ::  [Matan I. Peled    ]
+[Location  ]   ::  [Israel            ]
+[Public Key]   ::  [0xD6F42CA5        ]
+[Keyserver ]   ::  [keyserver.kjsl.com]
+encrypted/signed  plain text  preferred
 

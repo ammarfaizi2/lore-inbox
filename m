@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWADVNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWADVPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751621AbWADVNc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 16:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWADVNc
+	id S1751591AbWADVPn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWADVPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:13:32 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:27605 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750711AbWADVNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 16:13:31 -0500
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Mark Lord <lkml@rtr.ca>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Date: Thu, 05 Jan 2006 08:13:27 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <g5eor1tp6jr24u0gej4a2puc954kq59ug5@4ax.com>
-References: <200601041710.37648.nick@linicks.net> <200601041728.52081.nick@linicks.net> <9a8748490601040940peb15b75n454e02a622f795e1@mail.gmail.com> <200601041745.39180.nick@linicks.net> <9a8748490601040950q2b2691f5l7577b52417b4c50b@mail.gmail.com> <Pine.LNX.4.58.0601040950530.19134@shark.he.net> <9a8748490601040956qa427366n3daea86e531763e8@mail.gmail.com> <43BC0F0A.2060605@rtr.ca> <9a8748490601041013j61eb992eucd5abe9dcaf8d2ce@mail.gmail.com>
-In-Reply-To: <9a8748490601041013j61eb992eucd5abe9dcaf8d2ce@mail.gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 16:15:43 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:42219 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751591AbWADVPm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 16:15:42 -0500
+Date: Wed, 4 Jan 2006 13:15:26 -0800
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>, linux-kernel@vger.kernel.org,
+       Stefan Rompf <stefan@loplof.de>,
+       Clemens Fruhwirth <clemens@endorphin.org>, stable@kernel.org,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [stable] Re: [Patch 2.6] dm-crypt: zero key before freeing it
+Message-ID: <20060104211526.GA12042@kroah.com>
+References: <200601042108.04544.stefan@loplof.de> <1136405379.2839.46.camel@laptopd505.fenrus.org> <200601042126.47081.stefan@loplof.de> <Pine.LNX.4.58.0601041228170.19134@shark.he.net> <20060104204129.GA12339@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0601041242270.19134@shark.he.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0601041242270.19134@shark.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006 19:13:08 +0100, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+On Wed, Jan 04, 2006 at 12:43:21PM -0800, Randy.Dunlap wrote:
+> On Wed, 4 Jan 2006, J?rn Engel wrote:
+> 
+> > On Wed, 4 January 2006 12:28:59 -0800, Randy.Dunlap wrote:
+> > > On Wed, 4 Jan 2006, Stefan Rompf wrote:
+> > > > Am Mittwoch 04 Januar 2006 21:09 schrieb Arjan van de Ven:
+> > > >
+> > > > > since a memset right before a free is a very unusual code pattern in the
+> > > > > kernel it may well be worth putting a short comment around it to prevent
+> > > > > someone later removing it as "optimization"
+> > > >
+> > > > Valid objection, here is an update (and see, I'm running 2.6.15 now ;-)
+> > >
+> > > A reason "why" would be more helpful that a "what".
+> >
+> > "prevent information leak"
+> >
+> > This is still a "what", but at least not a "how".
+> 
+> OK, that's a much better changelog entry or source code comment...
+> if it could be put in one of those places.
 
->On 1/4/06, Mark Lord <lkml@rtr.ca> wrote:
->> Jesper Juhl wrote:
->> >
->> >>but the incremental patches do appear to be in
->> >>  http://www.kernel.org/pub/linux/kernel/v2.6/incr/
->> ..
->> >
->> > Hmm, yes, you are right. I was not aware of those. When did those
->> > start to apear?
->> > Guess I need to update applying-patches.txt if those are automated...
->>
->> That's how Greg posts them to LKML also -- as incremental patches.
->>
->Yes, I know that's what he posts them on LKML, I just never knew that
->they got archived on kernel.org in incr. form as well.  Now I know :-)
+Yes, Stefan, care to redo this with an updated changelog command?
 
-Easy to revert 2.6.14.5 to 2.6.14 then patch to 2.6.15 if you follow 
-the stable series.  Still saves ~30MB downloading source.
+thanks,
 
-Because I'm also compiling the -rc? and -mm? I keep 2.6.14 tree and use 
-hardlink trees, when 2.6.15 came out I patched the 2.6.14 to 2.6.15 
-and deleted the development trees -- works for me ;)
-
-And no, I'll not automate this, it's enough dealing with finger trouble 
-let alone scripts doing things behind my back!  I have vim trained to 
-break hardlink files on write, I don't get myself in trouble so much.
-
-Grant.
+greg k-h

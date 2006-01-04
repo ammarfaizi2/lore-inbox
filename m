@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWADKSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWADKTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751656AbWADKSs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 05:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWADKSs
+	id S964972AbWADKTi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 05:19:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWADKTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 05:18:48 -0500
-Received: from prosun.first.fraunhofer.de ([194.95.168.2]:46492 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751448AbWADKSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 05:18:47 -0500
-Subject: ata2: translated ATA stat/err 0x51/0c to SCSI SK/ASC/ASCQ
-	0xb/00/00 status=0x51 { DriveReady SeekComplete Error }
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: linux-kernel@vger.kernel.org
+	Wed, 4 Jan 2006 05:19:38 -0500
+Received: from pat.uio.no ([129.240.130.16]:37793 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S964972AbWADKTi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 05:19:38 -0500
+Subject: Re: __getname vs kmalloc
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060104063251.GA4263@filer.fsl.cs.sunysb.edu>
+References: <20060104063251.GA4263@filer.fsl.cs.sunysb.edu>
 Content-Type: text/plain
-Date: Wed, 04 Jan 2006 11:18:40 +0100
-Message-Id: <1136369920.18235.10.camel@localhost>
+Date: Wed, 04 Jan 2006 11:19:29 +0100
+Message-Id: <1136369969.28640.24.camel@lade.trondhjem.org>
 Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.951, required 12,
+	autolearn=disabled, AWL 1.00, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, 2006-01-04 at 01:32 -0500, Josef Sipek wrote:
+> Which is the prefered method of allocating memory __getname or kmalloc?
 
-does anyone know what this could sata error message could mean ?
+Depends entirely on the purpose. __getname uses the "names_cache" slab
+and allocates PATH_MAX sized chunks. It is mainly supposed to be used
+for temporary storage of an entire path.
 
-ata2: translated ATA stat/err 0x51/0c to SCSI SK/ASC/ASCQ 0xb/00/00
-ata2: status=0x51 { DriveReady SeekComplete Error }
-ata2: error=0x0c { DriveStatusError }
+> I looked at the source, and it appears to be used by 9p, smbfs, parts
+> of VFS. In total there are only 10 calls to it.
 
-I get *lots* of this when I copy files from the sata disk to some
-ieee1394 device and it seems they are sharing interrupt 16:
+Most callers use getname(), which also does the string length sanity
+checks and then copies the path from userland memory.
 
- 16:     430796   IO-APIC-level  ide2, ide3, libata, ohci1394
-
-Happens with kernel 2.6.15, asus a7v8x, sata_promise tx2/4 ...
-
->From time to time I can trigger a cold freeze, but it is not exactly
-easy...
-
-
-Any ideas ?
-Soeren
--- 
-When you live in a sick society, just about everything you do is wrong.
+Cheers,
+  Trond
 

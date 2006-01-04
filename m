@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751904AbWAEDcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751903AbWAEDeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751904AbWAEDcE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 22:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751903AbWAEDcE
+	id S1751903AbWAEDeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 22:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751905AbWAEDeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 22:32:04 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:57763 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751904AbWAEDcD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 22:32:03 -0500
-Date: Wed, 4 Jan 2006 19:31:52 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Driver Core patches for 2.6.15
-Message-ID: <20060105033152.GA23380@suse.de>
-References: <20060105004826.GA17328@kroah.com> <Pine.LNX.4.64.0601041724560.3279@g5.osdl.org> <20060105020742.GA18815@suse.de> <Pine.LNX.4.64.0601041836370.3279@g5.osdl.org>
+	Wed, 4 Jan 2006 22:34:24 -0500
+Received: from 62.4.70.142.eliott-ness.com ([62.4.70.142]:38790 "HELO mput.de")
+	by vger.kernel.org with SMTP id S1751903AbWAEDeY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 22:34:24 -0500
+Subject: Re: [PATCH 12/15] via-pmu: Wrap some uses of sleep_in_progress
+	with proper ifdef's
+From: Kristian Mueller <kernel@mput.de>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0ISL00EOC96O6A@a34-mta01.direcway.com>
+References: <0ISL00EOC96O6A@a34-mta01.direcway.com>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 03:34:19 +0800
+Message-Id: <1136403259.14273.17.camel@pismo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601041836370.3279@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 06:40:33PM -0800, Linus Torvalds wrote:
+Hi Ben
+
+On Mi, 2006-01-04 at 17:01 -0500, Ben Collins wrote:
+> Basically completes what's already in the rest of the driver.
+> sleep_in_progress is only defined for pm+ppc32.
 > 
-> 
-> On Wed, 4 Jan 2006, Greg KH wrote:
-> > > 
-> > > I can do the trivial manual fixup, but when I do, I have two copies of 
-> > > "usb_match_id()": one in drivers/usb/core/driver.c and one in 
-> > > drivers/usb/core/usb.c.
-> > > 
-> > > I've pushed out my tree, so that you can see for yourself (it seems to 
-> > > have mirrored out too).
-> > 
-> > Yeah, I was wondering how that would merge together, I'll take a look at
-> > the tree after dinner and fix up the problem (there should only be one
-> > copy of that function.)
-> 
-> Actually, looking closer, my first trivial merge was wrong (it took the 
-> code from both branches), and doing it right seems to get the proper 
-> results (with just one usb_match_id() function).
-> 
-> I'll push out my _proper_ trivial merge fixup, please just verify that the 
-> end result looks sane and matches what you have.
+> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-The end result looks sane, thanks for fixing it up.
+We've already found a different solution to this in the Linuxppc-dev
+list.
 
-But it looks like you forgot to pull from my "remove devfs" git tree at:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/devfs-2.6.git/
+See:
+ http://patchwork.ozlabs.org/linuxppc/patch?id=3737
 
-so you still are missing some patches :)
 
-thanks,
+Fix compilation of via-pmu.c without Power Management support.
 
-greg k-h
+Signed-off-by: Kristian Mueller <Kristian-M@Kristian-M.de>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+
+---
+
+--- linux/drivers/macintosh/via-pmu.c.orig2005-12-15 11:28:28.000000000
++0800
++++ linux/drivers/macintosh/via-pmu.c2005-12-15 12:20:43.000000000 +0800
+@@ -157,8 +157,8 @@ static int pmu_version;
+ static int drop_interrupts;
+ #if defined(CONFIG_PM) && defined(CONFIG_PPC32)
+ static int option_lid_wakeup = 1;
+-static int sleep_in_progress;
+ #endif /* CONFIG_PM && CONFIG_PPC32 */
++static int sleep_in_progress;
+ static unsigned long async_req_locks;
+ static unsigned int pmu_irq_stats[11];
+
+

@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWADAtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWADAvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWADAtd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 19:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWADAtc
+	id S1751509AbWADAvm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 19:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWADAvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 19:49:32 -0500
-Received: from mail.suse.de ([195.135.220.2]:62130 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751498AbWADAtb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 19:49:31 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix the zone reclaim code in 2.6.15
-Date: Wed, 4 Jan 2006 01:50:15 +0100
-User-Agent: KMail/1.8
-Cc: Christoph Lameter <clameter@engr.sgi.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0601031457300.22676@schroedinger.engr.sgi.com> <Pine.LNX.4.62.0601031556120.23039@schroedinger.engr.sgi.com> <20060103164351.658a75c7.akpm@osdl.org>
-In-Reply-To: <20060103164351.658a75c7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 19:51:42 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:29855 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751509AbWADAvl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 19:51:41 -0500
+Date: Tue, 3 Jan 2006 16:51:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       LSE <lse-tech@lists.sourceforge.net>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [Patch 6/6] Delay accounting: Connector interface
+Message-ID: <20060104005131.GA19356@kroah.com>
+References: <43BB05D8.6070101@watson.ibm.com> <43BB09D4.2060209@watson.ibm.com> <20060104002112.GA18730@kroah.com> <43BB19FC.9020905@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601040150.15535.ak@suse.de>
+In-Reply-To: <43BB19FC.9020905@watson.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 01:43, Andrew Morton wrote:
+On Wed, Jan 04, 2006 at 12:42:36AM +0000, Shailabh Nagar wrote:
+> Greg KH wrote:
+> > On Tue, Jan 03, 2006 at 11:33:40PM +0000, Shailabh Nagar wrote:
+> > 
+> >>Changes since 11/14/05:
+> >>
+> >>- explicit versioning of statistics data returned
+> >>- new command type for returning per-tgid stats
+> >>- for cpu running time, use tsk->sched_info.cpu_time (collected by schedstats)
+> >>
+> >>First post 11/14/05
+> >>
+> >>delayacct-connector.patch
+> >>
+> >>Creates a connector interface for getting delay and cpu statistics of tasks
+> >>during their lifetime and when they exit. The cpu stats are available only if
+> >>CONFIG_SCHEDSTATS is enabled.
+> > 
+> > 
+> > Why do you use this when we can send typesafe data through netlink
+> > messages now?  
+> 
+> AFAIK, adding new netlink types was frowned upon which is one of the reasons why
+> connectors were proposed (besides making it easier to use the netlink interface) ?
 
-> Your changelog didn't describe this as a "severe" problem.  Things have
-> been like this for quite some time, haven't they?
+I don't know about the issue of creating new types (have you tried?),
+but there is a new netlink message format that pretty should make it
+just as easy as the connector stuff to send complex message types.
 
-I get at least regular complaints on x86-64 about it. It's not really a FAQ 
-yet, but at least an issue multiple people run into.
+thanks,
 
--Andi
+greg k-h

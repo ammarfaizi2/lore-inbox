@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWADR45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWADR6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWADR45 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWADR45
+	id S1030242AbWADR6N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWADR6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:56:57 -0500
-Received: from mail.linicks.net ([217.204.244.146]:15824 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1030238AbWADR44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:56:56 -0500
-From: Nick Warne <nick@linicks.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Date: Wed, 4 Jan 2006 17:56:52 +0000
-User-Agent: KMail/1.9
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-References: <200601041710.37648.nick@linicks.net> <9a8748490601040950q2b2691f5l7577b52417b4c50b@mail.gmail.com> <Pine.LNX.4.58.0601040950530.19134@shark.he.net>
-In-Reply-To: <Pine.LNX.4.58.0601040950530.19134@shark.he.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 4 Jan 2006 12:58:12 -0500
+Received: from hera.kernel.org ([140.211.167.34]:6318 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030242AbWADR6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:58:11 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] ipw2200: Fix NETDEV_TX_BUSY erroneous returned
+Date: Wed, 4 Jan 2006 09:58:00 -0800
+Organization: OSDL
+Message-ID: <20060104095800.7c71ef98@dxpl.pdx.osdl.net>
+References: <20060104040954.GA19618@mail.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601041756.52484.nick@linicks.net>
+X-Trace: build.pdx.osdl.net 1136397481 25804 10.8.0.74 (4 Jan 2006 17:58:01 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 4 Jan 2006 17:58:01 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 17:51, Randy.Dunlap wrote:
+On Wed, 4 Jan 2006 12:09:54 +0800
+Zhu Yi <yi.zhu@intel.com> wrote:
 
->
-> but the incremental patches do appear to be in
->   http://www.kernel.org/pub/linux/kernel/v2.6/incr/
->
-> who generates these?  are they automated?
+> 
+> This patch fixes the warning below warning for the ipw2200 driver.
+> 
+>   NETDEV_TX_BUSY returned; driver should report queue full via
+>   ieee_device->is_queue_full.
+> 
+> Signed-off-by: Hong Liu <hong.liu@intel.com>
+> Signed-off-by: Zhu Yi <yi.zhu@intel.com>
+> --
+> 
+> diff -urp linux.orig/drivers/net/wireless/ipw2200.c linux/drivers/net/wireless/ipw2200.c
+> --- linux.orig/drivers/net/wireless/ipw2200.c	2005-10-21 05:35:24.000000000 +0800
+> +++ linux/drivers/net/wireless/ipw2200.c	2005-10-25 13:22:38.000000000
+> +0800
+> @@ -9649,11 +9649,6 @@ static inline int ipw_tx_skb(struct ipw_
+>  	u16 remaining_bytes;
+>  	int fc;
+>  
+> -	/* If there isn't room in the queue, we return busy and let the
+> -	 * network stack requeue the packet for us */
+> -	if (ipw_queue_space(q) < q->high_mark)
+> -		return NETDEV_TX_BUSY;
+> -
+>  	switch (priv->ieee->iw_mode) {
+>  	case IW_MODE_ADHOC:
+>  		hdr_len = IEEE80211_3ADDR_LEN;
+> @@ -9871,7 +9866,7 @@ static int ipw_net_hard_start_xmit(struc
+>  
+>        fail_unlock:
+>  	spin_unlock_irqrestore(&priv->lock, flags);
+> -	return 1;
+> +	return -1;
 
-OMG - am I the only person in the world to be H4><0R3D from kernel.org...
+That's not right... -1 is NETDEV_TX_LOCKED, which is not what you want.
+Also, please use NETDEV_TX_ values for return values from transmit routine.
 
-Nick :-D
+You should post this to netdev@vger.kernel.org and ipw2100-devel@lists.sourceforge.net
+for discussion there.
 -- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

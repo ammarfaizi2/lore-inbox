@@ -1,55 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbWADOsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWADOsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbWADOsL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 09:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWADOsK
+	id S1030236AbWADOsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 09:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWADOrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 09:48:10 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:51619 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030221AbWADOr6 (ORCPT
+	Wed, 4 Jan 2006 09:47:42 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:17828 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932582AbWADOoj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 09:47:58 -0500
-Date: Wed, 4 Jan 2006 15:46:43 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Takashi Iwai <tiwai@suse.de>
-cc: Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-       Tomasz Torcz <zdzichu@irc.pl>, Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-In-Reply-To: <s5hpsn8md1j.wl%tiwai@suse.de>
-Message-ID: <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
-References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk>
- <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk>
- <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
- <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
- <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
- <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
- <s5hpsn8md1j.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jan 2006 09:44:39 -0500
+Date: Wed, 4 Jan 2006 15:44:29 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 19/21] mutex subsystem, semaphore to completion: CPU3WDT
+Message-ID: <20060104144429.GT27646@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Still would be nice if users of ALSA who have the OSS backwards compat
->> enabled would thus also get transparent software mixing for all apps
->> using the OSS API.
->> not crucial, that's not what I'm saying, just nice if it would be possible.
->
->Technicall it's trivial to implement the soft-mixing in the kernel.
->The question is whether it's the right implementation.
->We have a user-space softmix for ALSA, and aoss wrapper for OSS using
->it.  (I know aoss still has some problems that should be fixed,
->though.)
->
-Software mixing in the kernel is like FPU ops in the kernel...
+From: Steven Rostedt <rostedt@goodmis.org>
 
+change CPU3WDT semaphores to completions.
 
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Jan Engelhardt
--- 
+----
+
+ drivers/char/watchdog/cpu5wdt.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+Index: linux/drivers/char/watchdog/cpu5wdt.c
+===================================================================
+--- linux.orig/drivers/char/watchdog/cpu5wdt.c
++++ linux/drivers/char/watchdog/cpu5wdt.c
+@@ -28,6 +28,7 @@
+ #include <linux/init.h>
+ #include <linux/ioport.h>
+ #include <linux/timer.h>
++#include <linux/completion.h>
+ #include <linux/jiffies.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -57,7 +58,7 @@ static int ticks = 10000;
+ /* some device data */
+ 
+ static struct {
+-	struct semaphore stop;
++	struct completion stop;
+ 	volatile int running;
+ 	struct timer_list timer;
+ 	volatile int queue;
+@@ -85,7 +86,7 @@ static void cpu5wdt_trigger(unsigned lon
+ 	}
+ 	else {
+ 		/* ticks doesn't matter anyway */
+-		up(&cpu5wdt_device.stop);
++		complete(&cpu5wdt_device.stop);
+ 	}
+ 
+ }
+@@ -239,7 +240,7 @@ static int __devinit cpu5wdt_init(void)
+ 	if ( !val )
+ 		printk(KERN_INFO PFX "sorry, was my fault\n");
+ 
+-	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
++	init_completion(&cpu5wdt_device.stop);
+ 	cpu5wdt_device.queue = 0;
+ 
+ 	clear_bit(0, &cpu5wdt_device.inuse);
+@@ -269,7 +270,7 @@ static void __devexit cpu5wdt_exit(void)
+ {
+ 	if ( cpu5wdt_device.queue ) {
+ 		cpu5wdt_device.queue = 0;
+-		down(&cpu5wdt_device.stop);
++		wait_for_completion(&cpu5wdt_device.stop);
+ 	}
+ 
+ 	misc_deregister(&cpu5wdt_misc);

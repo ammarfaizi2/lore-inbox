@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWADXyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWADXyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWADXyo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:54:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWADXyo
+	id S1750782AbWADXyt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWADXyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:54:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:18855 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750764AbWADXyn (ORCPT
+	Wed, 4 Jan 2006 18:54:49 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:13201 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1750782AbWADXys (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:54:43 -0500
-Date: Wed, 4 Jan 2006 15:49:18 -0800
-From: Greg KH <greg@kroah.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Linux PM <linux-pm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC/RFT][PATCH -mm 2/5] swsusp: userland interface (rev. 2)
-Message-ID: <20060104234918.GA15983@kroah.com>
-References: <200601042340.42118.rjw@sisk.pl> <200601042351.58667.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jan 2006 18:54:48 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: Clock going way too fast on 2.6.15 for amd64 processor
+Date: Thu, 5 Jan 2006 00:54:45 +0100
+User-Agent: KMail/1.8
+Cc: ak@suse.de, acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20060104233919.GA15724@kroah.com>
+In-Reply-To: <20060104233919.GA15724@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200601042351.58667.rjw@sisk.pl>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601050054.45824.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 11:51:58PM +0100, Rafael J. Wysocki wrote:
-> +static struct snapshot_dev interface = {
-> +	.name = "snapshot",
-> +};
-> +
-> +static ssize_t snapshot_show(struct subsystem * subsys, char *buf)
-> +{
-> +	return sprintf(buf, "%d:%d\n", MAJOR(interface.devno),
-> +		       MINOR(interface.devno));
-> +}
-> +
-> +static struct subsys_attribute snapshot_attr = {
-> +	.attr = {
-> +		.name = __stringify(snapshot),
-> +		.mode = S_IRUGO,
-> +	},
-> +	.show = snapshot_show,
-> +};
-> +
-> +static int __init snapshot_dev_init(void)
-> +{
-> +	int error;
-> +
-> +	error =  alloc_chrdev_region(&interface.devno, 0, 1, interface.name);
-> +	if (error)
-> +		return error;
-> +	cdev_init(&interface.cdev, &snapshot_fops);
-> +	interface.cdev.ops = &snapshot_fops;
-> +	error = cdev_add(&interface.cdev, interface.devno, 1);
-> +	if (error)
-> +		goto Unregister;
-> +	error = sysfs_create_file(&power_subsys.kset.kobj, &snapshot_attr.attr);
+Am Donnerstag, 5. Januar 2006 00:39 schrieb Greg KH:
+> Hi,
+> 
+> I tried digging through the mess in
+> 	http://bugzilla.kernel.org/show_bug.cgi?id=3927
+> but got lost in a see of conflicting patches.
+> 
+> I too have a amd64 box that is showing that the clock is running way too
+> fast (feels about double speed, haven't checked for sure.)  I'm running
+> it in 32bit mode for now, and the boot dmesg is below.
+> 
+> Any hints on patches that I should test out to try to track this down?
+> I haven't run any real old kernels on it to see if it is something new
+> (shows up on a 2.6.13 and 2.6.14 kernel too.)
 
-Heh, that's a neat hack, register a sysfs file that contains the
-major:minor (there is a function that will print that the correct way,
-if you really want to do that), in sysfs.  It's better to just register
-a misc character device with the name "snapshot", and then udev will
-create your userspace node with the proper major:minor all automatically
-for you.
+Did you try "disable_timer_pin_1" on the kernel command line?
 
-Unless you want to turn these into syscalls :)
-
-thanks,
-
-greg k-h
+	HTH
+		Oliver

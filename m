@@ -1,75 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWADWYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWADWZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbWADWYb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWADWYb
+	id S1030303AbWADWZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:25:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWADWZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:24:31 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:47338 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1030300AbWADWY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:24:29 -0500
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: gcoady@gmail.com, Andrew Morton <akpm@osdl.org>,
+	Wed, 4 Jan 2006 17:25:29 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:43787 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1030303AbWADWZ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:25:27 -0500
+Date: Wed, 4 Jan 2006 23:25:17 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       Tomasz Torcz <zdzichu@irc.pl>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] i386: enable 4k stacks by default
-Date: Thu, 05 Jan 2006 09:24:24 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <3nior1hr32amav20nvo5qua7jnvsqaj69h@4ax.com>
-References: <20060104145138.GN3831@stusta.de> <35dor152f8ehril7qh22oi8sgkjdohd9jv@4ax.com> <20060104210045.GV3831@stusta.de>
-In-Reply-To: <20060104210045.GV3831@stusta.de>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060104222517.GA55316@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Takashi Iwai <tiwai@suse.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+	Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Andi Kleen <ak@suse.de>, perex@suse.cz, alsa-devel@alsa-project.org,
+	James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+	linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+	parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+	Thorsten Knabe <linux@thorsten-knabe.de>,
+	zwane@commfireservices.com, zaitcev@yahoo.com,
+	linux-kernel@vger.kernel.org
+References: <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com> <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <27043632-7EA6-4468-A5D9-7E90725373F3@mac.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <27043632-7EA6-4468-A5D9-7E90725373F3@mac.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006 22:00:45 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+On Wed, Jan 04, 2006 at 03:12:33PM -0500, Kyle Moffett wrote:
+> Software mixing in the kernel probably _IS_ FPU ops in the kernel.   
+> We already do video mixing (think X) in userspace, I see no reason  
+> why audio should be different.
 
->On Thu, Jan 05, 2006 at 07:53:00AM +1100, Grant Coady wrote:
->> On Wed, 4 Jan 2006 15:51:38 +0100, Adrian Bunk <bunk@stusta.de> wrote:
->>...
->> > 	  If you say Y here the kernel will use a 4Kb stacksize for the
->> > 	  kernel stack attached to each process/thread. This facilitates
->> 
->> Perhaps mention 4k + 4k stacks, the separate irq stacks used with 4k option?  
->
->Feel free to submit a patch.  ;-)
+Bad comparison.  X as it is is so good that if you want something
+remotely looking like performance you end up with a proprietary kernel
+module the size of Cleveland.
 
-Okay :)
+Software mixing in practice could be in the kernel, it's for instance
+way less complex than say the network stack.  I mean, even with an
+helper thread, it fits in 20-30 lines of kernel code or so.  But what
+happens is that you quickly want much more than that.  To give you
+some examples:
 
+- resampling (with a wide array of algorithms with a different cpu
+  usage/result quality mix), especially since a number of chips are
+  48KHz only.
 
-Based on Adrian Bunk's patch, default to 4k +4k stacks and making 
-it more obvious that available stack space is not being halved.
-Compile tested.
+- AC3/DTS encoding for multichannel output on spdif.
 
-Signed-off-by: Grant Coady <gcoady@gmail.com>
+- spatialisation (virtual or real, depending on the hardware
+  available).
 
----
- Kconfig.debug |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+- dynamic range compression.
 
---- linux-2.6.15a/arch/i386/Kconfig.debug	2005-10-28 10:02:08.000000000 +1000
-+++ linux-2.6.15b/arch/i386/Kconfig.debug	2006-01-05 09:39:22.000000000 +1100
-@@ -53,14 +53,15 @@
- 	  of memory corruptions.
- 
- config 4KSTACKS
--	bool "Use 4Kb for kernel stacks instead of 8Kb"
--	depends on DEBUG_KERNEL
-+	bool "Use 4Kb + 4Kb for kernel stacks instead of 8Kb" if DEBUG_KERNEL
-+	default y
- 	help
- 	  If you say Y here the kernel will use a 4Kb stacksize for the
- 	  kernel stack attached to each process/thread. This facilitates
- 	  running more threads on a system and also reduces the pressure
- 	  on the VM subsystem for higher order allocations. This option
--	  will also use IRQ stacks to compensate for the reduced stackspace.
-+	  will also use separate 4Kb IRQ stacks to compensate for the 
-+	  reduced stackspace.
- 
- config X86_FIND_SMP_CONFIG
- 	bool
+So as soon as you build some decent infrastructure to allow for that
+in userspace, having software mixing specifically in the kernel does
+not make much sense.
+
+I have 3 main problems with ALSA, but using userspace for flexibility
+is definitively not one of them.
+
+  OG.
+

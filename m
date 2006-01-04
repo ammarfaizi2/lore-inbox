@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWADU3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWADUeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030280AbWADU3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965279AbWADU3A
+	id S964861AbWADUeE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbWADUeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:29:00 -0500
-Received: from xenotime.net ([66.160.160.81]:58019 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965252AbWADU27 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:28:59 -0500
-Date: Wed, 4 Jan 2006 12:28:59 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Stefan Rompf <stefan@loplof.de>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Clemens Fruhwirth <clemens@endorphin.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: [Patch 2.6] dm-crypt: zero key before freeing it
-In-Reply-To: <200601042126.47081.stefan@loplof.de>
-Message-ID: <Pine.LNX.4.58.0601041228170.19134@shark.he.net>
-References: <200601042108.04544.stefan@loplof.de> <1136405379.2839.46.camel@laptopd505.fenrus.org>
- <200601042126.47081.stefan@loplof.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jan 2006 15:34:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:21152 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964861AbWADUeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:34:03 -0500
+Subject: Re: 2.6.15-ck1
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060104195726.GB14782@redhat.com>
+References: <200601041200.03593.kernel@kolivas.org>
+	 <20060104190554.GG10592@redhat.com>  <20060104195726.GB14782@redhat.com>
+Content-Type: text/plain
+Date: Wed, 04 Jan 2006 21:33:56 +0100
+Message-Id: <1136406837.2839.67.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006, Stefan Rompf wrote:
+On Wed, 2006-01-04 at 14:57 -0500, Dave Jones wrote:
+> On Wed, Jan 04, 2006 at 02:05:54PM -0500, Dave Jones wrote:
+>  > On Wed, Jan 04, 2006 at 12:00:00PM +1100, Con Kolivas wrote:
+>  >  >  +2.6.15-dynticks-060101.patch
+>  >  >  +dynticks-disable_smp_config.patch
+>  >  > Latest version of the dynticks patch. This is proving stable and effective on 
+>  >  > virtually all uniprocessor machines and will benefit systems that desire 
+>  >  > power savings. SMP kernels (even on UP machines) still misbehave so this 
+>  >  > config option is not available by default for this stable kernel.
+>  > 
+>  > I've been curious for some time if this would actually show any measurable
+>  > power savings. So I hooked up my laptop to a gizmo[1] that shows how much
+>  > power is being sucked.
+>  > 
+>  > both before, and after, it shows my laptop when idle is pulling 21W.
+>  > So either the savings here are <1W (My device can't measure more accurately
+>  > than a single watt), or this isn't actually buying us anything at all, or
+>  > something needs tuning.
+> 
+> Ah interesting. It needs to be totally idle for a period of time before
+> anything starts to happen at all. After about a minute of doing nothing,
+> it started to fluctuate once a second 20,21,19,20,19,20,18,21,19,20,22 etc..
 
-> Am Mittwoch 04 Januar 2006 21:09 schrieb Arjan van de Ven:
->
-> > since a memset right before a free is a very unusual code pattern in the
-> > kernel it may well be worth putting a short comment around it to prevent
-> > someone later removing it as "optimization"
->
-> Valid objection, here is an update (and see, I'm running 2.6.15 now ;-)
 
-A reason "why" would be more helpful that a "what".
+sounds like we need some sort of profiler or benchmarker or at least a
+tool that helps finding out which timers are regularly firing, with the
+aim at either grouping them or trying to reduce their disturbance in
+some form.
 
 
-> Signed-off-by: Stefan Rompf <stefan@loplof.de>
-> Acked-by: Clemens Fruhwirth <clemens@endorphin.org>
->
-> --- linux-2.6.15/drivers/md/dm-crypt.c.orig	2006-01-04 01:01:16.000000000 +0100
-> +++ linux-2.6.15/drivers/md/dm-crypt.c	2006-01-04 21:23:34.000000000 +0100
-> @@ -690,6 +690,8 @@
->  bad2:
->  	crypto_free_tfm(tfm);
->  bad1:
-> +	/* Must zero key material before freeing */
-> +	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
->  	kfree(cc);
->  	return -EINVAL;
->  }
-> @@ -706,6 +708,9 @@
->  		cc->iv_gen_ops->dtr(cc);
->  	crypto_free_tfm(cc->tfm);
->  	dm_put_device(ti, cc->dev);
-> +
-> +	/* Must zero key material before freeing */
-> +	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
->  	kfree(cc);
->  }
->
-> -
-
--- 
-~Randy

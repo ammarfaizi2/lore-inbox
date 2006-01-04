@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965292AbWADWgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965300AbWADWkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965292AbWADWgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbWADWgJ
+	id S965300AbWADWkm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965303AbWADWkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:36:09 -0500
-Received: from mailhub.hp.com ([192.151.27.10]:38807 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S965292AbWADWgH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:36:07 -0500
-Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
-From: Alex Williamson <alex.williamson@hp.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-ia64@vger.kernel.org, ak@suse.de,
-       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060104221627.GA26064@lists.us.dell.com>
-References: <20060104221627.GA26064@lists.us.dell.com>
-Content-Type: text/plain
-Organization: OSLO R&D
-Date: Wed, 04 Jan 2006 15:36:03 -0700
-Message-Id: <1136414164.6198.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 17:40:42 -0500
+Received: from xproxy.gmail.com ([66.249.82.207]:4764 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965300AbWADWkl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:40:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lMD04cY3CI8Z/Yq9lNFbwTf5281FBzFLyawmfpp/qtVww981+os3DgaE54HPNjq8z7AwCvn2DdZ4YHcGSBEj5p2sWSBj5R+riObbiFmku2WOQJPgIC4DsvBL5NalVFTzdGHEH7TpE//KIj1R8LJsSfUMm+eGpcHQfPjbWzHe6Yg=
+Message-ID: <4d8e3fd30601041440ja24b40em17848766e282cfef@mail.gmail.com>
+Date: Wed, 4 Jan 2006 23:40:40 +0100
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: [PATCH 0/15] Ubuntu patch sync
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <0ISL003P992UCY@a34-mta01.direcway.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <0ISL003P992UCY@a34-mta01.direcway.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 16:16 -0600, Matt Domsch wrote:
-> Andi Kleen has a patch in his x86_64 tree which enables the use of
-> i386 dmi_scan.c on x86_64.  dmi_scan.c functions are being used by the
-> drivers/char/ipmi/ipmi_si_intf.c driver for autodetecting the ports or
-> memory spaces where the IPMI controllers may be found.
+On 1/4/06, Ben Collins <bcollins@ubuntu.com> wrote:
+> These patches are just attempts to merge code from the ubuntu kernel tree.
+> This is most of the differences between our tree and stock code (not
+> necessarily all differences, since we do have a lot of external drivers
+> pulled in).
 
-   Can't this be done via ACPI/EFI?  I'm really opposed to adding
-anything to ia64 that blindly picks memory ranges and starts scanning
-for magic legacy tables.  If nothing else, this can be found via
-efi.smbios.  Thanks,
+Hi Ben,
+Just a note in case you don't receive feedbacks to all the patches,
+it looks like you didn't CC the relevant maintainers.
 
-	Alex
+Anyway, i really appreciate that you try to keep as in sync as
+possible the Ubuntu kernel to the vanilla.
 
+Ciao,
+--
+Paolo

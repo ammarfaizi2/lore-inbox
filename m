@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751668AbWADKpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbWADKzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751668AbWADKpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 05:45:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbWADKpK
+	id S1751675AbWADKzs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 05:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751676AbWADKzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 05:45:10 -0500
-Received: from mx2.suse.de ([195.135.220.15]:7394 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751668AbWADKpJ (ORCPT
+	Wed, 4 Jan 2006 05:55:48 -0500
+Received: from ns2.suse.de ([195.135.220.15]:29667 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751669AbWADKzs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 05:45:09 -0500
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Shrinks sizeof(files_struct) and better layout
-References: <20051108185349.6e86cec3.akpm@osdl.org>
-	<437226B1.4040901@cosmosbay.com>
-	<20051109220742.067c5f3a.akpm@osdl.org>
-	<4373698F.9010608@cosmosbay.com> <43BB1178.7020409@cosmosbay.com>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Jan 2006 11:45:07 +0100
-In-Reply-To: <43BB1178.7020409@cosmosbay.com>
-Message-ID: <p733bk4z2z0.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jan 2006 05:55:48 -0500
+Date: Wed, 4 Jan 2006 11:55:46 +0100
+From: Jan Blunck <jblunck@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Dave Jones <davej@redhat.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] Eliminate __attribute__ ((packed)) warnings for gcc-4.1
+Message-ID: <20060104105546.GA10207@hasse.suse.de>
+References: <20060103113045.GB24131@hasse.suse.de> <20060104022530.GA29784@redhat.com> <Pine.LNX.4.61.0601041014570.29257@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0601041014570.29257@yvahk01.tjqt.qr>
+"From: jblunck@suse.de"
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet <dada1@cosmosbay.com> writes:
-> 
-> 1) Reduces the size of (struct fdtable) to exactly 64 bytes on 32bits
-> platforms, lowering kmalloc() allocated space by 50%.
+On Wed, Jan 04, Jan Engelhardt wrote:
 
-It should be probably a kmem_cache_alloc() instead of a kmalloc
-in the first place anyways. This would reduce fragmentation.
+> >What's with the funky placement of ; ?
+> >The rest of the struct looks sensible.
+> >
+> Looks like a simple s/__attribute__((packed))// rather than
+> s/\s+__attribute__((packed))/;
 
-> 2) Reduces the size of (files_struct), using a special 32 bits (or
-> 64bits) embedded_fd_set, instead of a 1024 bits fd_set for the
-> close_on_exec_init and open_fds_init fields. This save some ram (248
-> bytes per task) as most tasks dont open more than 32 files. D-Cache
-> footprint for such tasks is also reduced to the minimum.
-> 
-> 3) Reduces size of allocated fdset. Currently two full pages are
-> allocated, that is 32768 bits on x86 for example, and way too
-> much. The minimum is now L1_CACHE_BYTES.
-> 
-> UP and SMP should benefit from this patch, because most tasks will
-> touch only one cache line when open()/close() stdin/stdout/stderr
-> (0/1/2), (next_fd, close_on_exec_init, open_fds_init, fd_array[0 .. 2]
-> being in the same cache line)
+Yeah, seems that I was too lazy. I'll do better next time ;)
 
-Looks mostly good to me.
+Andrew, I'll resend a whitespace-beautified version.
 
-> +   * read mostly part
-> +   */
->  	atomic_t count;
->  	struct fdtable *fdt;
->  	struct fdtable fdtab;
-> -	fd_set close_on_exec_init;
-> -	fd_set open_fds_init;
-> +  /*
-> +   * written part on a separate cache line in SMP
-> +   */
-> +	spinlock_t file_lock ____cacheline_aligned_in_smp;
-> +	int next_fd;
-> +	embedded_fd_set close_on_exec_init;
-> +	embedded_fd_set open_fds_init;
+Regards,
+	Jan
 
-You didn't describe that change, but unless it's clear the separate cache lines
-are a win I would not do it and save memory again. Was this split based on
-actual measurements or more theoretical considerations? 
-
--Andi
+-- 
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

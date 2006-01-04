@@ -1,57 +1,32 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWADPyl (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 4 Jan 2006 10:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWADPyk
+	id S965109AbWADRUU (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 4 Jan 2006 12:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbWADRUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 10:54:40 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:62654 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1751199AbWADPyk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 10:54:40 -0500
-Message-Id: <8.9.1.2.5.62514027379036.595a2264@204.152.191.36>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.4
-Date: Wed, 04 Jan 2006 07:54:23 -0800
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 12:20:19 -0500
+Received: from host-155-79-220-24.midco.net ([24.220.79.155]:28934 "HELO
+	email.stvincent.edu") by vger.kernel.org with SMTP id S965070AbWADRUE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:20:04 -0500
+Message-ID: <9c0201c61144$22b4b6bd$077030fb@email.stvincent.edu>
+From: "Josiah Leach" <josiah_leach_bs@mogelpackung.de>
 To: linux-kernel@vger.kernel.org
-From: "Alison Henderson" <2006_kkqpj@ezweb.ne.jp>
-Subject: RE: Marian
+Subject: lasts for 36 hours
+Date: Wed, 04 Jan 2006 16:36:35 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751199AbWADPyl@vger.kernel.org>
-
-ALERT:
-
-With the new year comes some good news. 
-
-Your present homeloan meets the criteria for you to receive handsome gains.
-
-Our system will synchronise you with the most adept company, so that you 
-will have more money in your books at the end of each month.
-
-It really is that smooth..
-
-Many many Americans are Re-Fi-Nancing their homes every day.
-
-Now its your turn.
-
-This brief 1 minute form will be your next step towards definite fiscal 
-security.
-
-http://dottytimes.net/mtg.asp
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965109AbWADRUU@vger.kernel.org>
 
 
-With kind salutations,
+Be ERECT in under 15 mins
 
-Manager - Alison Henderson
+C0ST: $ 2 / use
 
---
-
-Should you decide not to be given this opening offer any further say no 
-more..just go here:  http://dottytimes.net/gone.asp
-
-
-
-
+view our site --> directloqii.com
 

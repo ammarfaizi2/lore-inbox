@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751644AbWADJk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751640AbWADJoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751644AbWADJk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 04:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWADJk2
+	id S1751640AbWADJoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 04:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751642AbWADJoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 04:40:28 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:7125 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1751448AbWADJk1 convert rfc822-to-8bit (ORCPT
+	Wed, 4 Jan 2006 04:44:09 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:43737 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1751640AbWADJoI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 04:40:27 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Tomasz =?utf-8?q?K=C5=82oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Subject: [OT] ALSA userspace API complexity
-Date: Wed, 4 Jan 2006 09:37:55 +0000
-User-Agent: KMail/1.9
-Cc: Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
-       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Andi Kleen <ak@suse.de>, perex@suse.cz, alsa-devel@alsa-project.org,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de> <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
-In-Reply-To: <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Wed, 4 Jan 2006 04:44:08 -0500
+Date: Wed, 4 Jan 2006 10:44:03 +0100
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Peter Lauda <plauda@rx30.com>
+Cc: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Boot hang on 2.6.14
+Message-ID: <20060104094403.GA22615@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Peter Lauda <plauda@rx30.com>,
+	kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1136311996.10020.21.camel@plauda5.rx30.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601040937.55624.s0348365@sms.ed.ac.uk>
+In-Reply-To: <1136311996.10020.21.camel@plauda5.rx30.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 January 2006 23:10, Tomasz Kłoczko wrote:
-[snip]
->
-> 2) ALSA API is to complicated: most applications opens single sound
->    stream.
+On Tue, Jan 03, 2006 at 01:13:04PM -0500, Peter Lauda wrote:
+> I've been looking all day for any FAQ or answer to this question/problem
+> and finally have to post here because I am out of options.
 
-FUD and nonsense. I've written many DSP applications and very often I can 
-recycle the same code for use in them. Here's an example, abstracted, 
-commented, handling errors from the subsystem, in just over 100 LOC.
-
-http://devzero.co.uk/~alistair/alsa/
-
-The API is really _only_ complicated because it expects you to set things OSS 
-either can't handle or doesn't allow you to configure. Things that very often 
-an application will eventually care about. All this for the sake of 5 minutes 
-reading documentation, and each API call almost identical in design.
-
-Personally, I found the lack of documentation for some of the setup API 
-annoying, but it's since been rectified and each call is humanly 
-understandable.
+Might be old udev.
 
 -- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

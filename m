@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbWADWFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbWADWGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932598AbWADWFd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWADWFc
+	id S932595AbWADWGO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWADWGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:05:32 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:8180 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S1030335AbWADWAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:00:35 -0500
-Date: Wed, 04 Jan 2006 17:00:12 -0500
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: [PATCH 06/15] asus_acpi: Invert read of wled proc file to show correct
- state of LED.
-To: linux-kernel@vger.kernel.org
-Message-id: <0ISL00NW494T1L@a34-mta01.direcway.com>
-Content-transfer-encoding: 7BIT
+	Wed, 4 Jan 2006 17:06:14 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:61856 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932144AbWADWGL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:06:11 -0500
+Date: Wed, 4 Jan 2006 17:06:09 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Pavel Machek <pavel@ucw.cz>
+cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
+ interface
+In-Reply-To: <20060104213405.GC1761@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L0.0601041703350.26871-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+On Wed, 4 Jan 2006, Pavel Machek wrote:
 
----
+> > As I mentioned in the thread (currently happening, BTW) on the linux-pm
+> > list, what you want to do is accept a string that reflects an actual state
+> > that the device supports. For PCI devices that support low-power states,
+> > this would be "D1", "D2", "D3", etc. For USB devices, which only support
+> > an "on" and "suspended" state, the values that this patch parses would
+> > actually work.
+> 
+> We want _common_ values, anyway. So, we do not want "D0", "D1", "D2",
+> "D3hot" in PCI cases. We probably want "on", "D1", "D2", "suspend",
+> and I'm not sure about those "D1" and "D2" parts. Userspace should not
+> have to know about details, it will mostly use "on"/"suspend" anyway.
 
- drivers/acpi/asus_acpi.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+It would be good to make the details available so that they are there when
+needed.  For instance, we might export "D0", "on", "D1", "D2", "D3", and
+"suspend", treating "on" as a synonym for "D0" and "suspend" as a synonym
+for "D3".
 
-4d2e320add8e00550bae442d12e9c980310076a9
-diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
-index fec895a..20e53c4 100644
---- a/drivers/acpi/asus_acpi.c
-+++ b/drivers/acpi/asus_acpi.c
-@@ -490,13 +490,13 @@ proc_read_info(char *page, char **start,
-  */
- 
- /* Generic LED functions */
--static int read_led(const char *ledname, int ledmask)
-+static int read_led(const char *ledname, int ledmask, int invert)
- {
- 	if (ledname) {
- 		int led_status;
- 
- 		if (read_acpi_int(NULL, ledname, &led_status))
--			return led_status;
-+			return (invert) ? !led_status : led_status;
- 		else
- 			printk(KERN_WARNING "Asus ACPI: Error reading LED "
- 			       "status\n");
-@@ -552,7 +552,7 @@ proc_read_mled(char *page, char **start,
- 	       void *data)
- {
- 	return sprintf(page, "%d\n",
--		       read_led(hotk->methods->mled_status, MLED_ON));
-+		       read_led(hotk->methods->mled_status, MLED_ON, 0));
- }
- 
- static int
-@@ -570,7 +570,7 @@ proc_read_wled(char *page, char **start,
- 	       void *data)
- {
- 	return sprintf(page, "%d\n",
--		       read_led(hotk->methods->wled_status, WLED_ON));
-+		       read_led(hotk->methods->wled_status, WLED_ON, 1));
- }
- 
- static int
-@@ -588,7 +588,7 @@ proc_read_tled(char *page, char **start,
- 	       void *data)
- {
- 	return sprintf(page, "%d\n",
--		       read_led(hotk->methods->tled_status, TLED_ON));
-+		       read_led(hotk->methods->tled_status, TLED_ON, 0));
- }
- 
- static int
--- 
-1.0.5
+Alan Stern
+

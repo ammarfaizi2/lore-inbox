@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWADABo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbWADAER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWADABo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 19:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWADABo
+	id S965156AbWADAER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 19:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWADAER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 19:01:44 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:40913 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S965146AbWADABn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 19:01:43 -0500
-Date: Tue, 3 Jan 2006 16:01:41 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Mark Maule <maule@sgi.com>
-Cc: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Tony Luck <tony.luck@intel.com>, gregkh@suse.de
-Subject: Re: [PATCH 2/3] per-platform IA64_{FIRST,LAST}_DEVICE_VECTOR definitions
-Message-ID: <20060104000141.GC13841@esmail.cup.hp.com>
-References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222201705.2019.59377.24060@lnx-maule.americas.sgi.com>
+	Tue, 3 Jan 2006 19:04:17 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:57780 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965156AbWADAEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 19:04:15 -0500
+Date: Tue, 3 Jan 2006 16:02:54 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] Fix the zone reclaim code in 2.6.15
+In-Reply-To: <20060103152923.2f5bbfe9.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0601031556120.23039@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0601031457300.22676@schroedinger.engr.sgi.com>
+ <20060103152923.2f5bbfe9.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051222201705.2019.59377.24060@lnx-maule.americas.sgi.com>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 02:15:57PM -0600, Mark Maule wrote:
-> Abstract IA64_FIRST_DEVICE_VECTOR/IA64_LAST_DEVICE_VECTOR since SN platforms
-> use a subset of the IA64 range.  Implement this by making the above macros
-> global variables which the platform can override in it setup code.
-...
-> Index: msi/arch/ia64/sn/kernel/irq.c
-> ===================================================================
-> --- msi.orig/arch/ia64/sn/kernel/irq.c	2005-12-21 22:59:09.199823700 -0600
-> +++ msi/arch/ia64/sn/kernel/irq.c	2005-12-22 14:10:01.024578027 -0600
-> @@ -203,6 +203,9 @@
->  	int i;
->  	irq_desc_t *base_desc = irq_desc;
->  
-> +	ia64_first_device_vector = IA64_SN2_FIRST_DEVICE_VECTOR;
-> +	ia64_last_device_vector = IA64_SN2_LAST_DEVICE_VECTOR;
+On Tue, 3 Jan 2006, Andrew Morton wrote:
 
-Shouldn't this chunk of diff go in "PATCH [2/3] altix: msi support"?
-(typo: that should have been "3/3" in the original mail)
+> Christoph Lameter <clameter@engr.sgi.com> wrote:
+> >
+> > Some bits for zone reclaim exists in 2.6.15 but they are not usable.
+> >  This patch fixes them up, removes unused code and makes zone reclaim usable.
+> >
+> 
+> You know that there are over 100 mm/ patches in -mm.  If Linus applies this
+> patch, it will cause extensive wreckage.  And this patch doesn't vaguely
+> apply to the mm/ patches which I have queued.  So it's basically useless.
+> 
+> Please try to play along.
 
-thanks,
-grant
+Well, this is one case where there is crap in Linus tree that needs to be 
+fixed. Its an urgent issue. And the existing patches in mm do not fix 
+this issue but remove the code altogether. When I asked you to remove 
+these patches, you got mad at me for some reason.
+ 
+> yes, it's awkward that there's such a large backlog in that area.  We just
+> need to be patient and extra careful.
+
+So you are saying we need to remove this feature and then add it back in 
+later?
+
+This means another 2 and 3 release cycles with this severe unfixed 
+problem?

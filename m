@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWADUIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWADUJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWADUIS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWADUIS
+	id S1751293AbWADUJq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWADUJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:08:18 -0500
-Received: from natsluvver.rzone.de ([81.169.145.176]:14565 "EHLO
-	natsluvver.rzone.de") by vger.kernel.org with ESMTP
-	id S1751289AbWADUIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:08:17 -0500
-From: Stefan Rompf <stefan@loplof.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch 2.6] dm-crypt: zero key before freeing it
-Date: Wed, 4 Jan 2006 21:08:04 +0100
-User-Agent: KMail/1.8
-Cc: Clemens Fruhwirth <clemens@endorphin.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 4 Jan 2006 15:09:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:48512 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751293AbWADUJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:09:45 -0500
+Subject: Re: [Patch 2.6] dm-crypt: zero key before freeing it
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stefan Rompf <stefan@loplof.de>
+Cc: Andrew Morton <akpm@osdl.org>, Clemens Fruhwirth <clemens@endorphin.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+In-Reply-To: <200601042108.04544.stefan@loplof.de>
+References: <200601042108.04544.stefan@loplof.de>
+Content-Type: text/plain
+Date: Wed, 04 Jan 2006 21:09:39 +0100
+Message-Id: <1136405379.2839.46.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601042108.04544.stefan@loplof.de>
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Wed, 2006-01-04 at 21:08 +0100, Stefan Rompf wrote:
+> Hi Andrew,
+> 
+> dm-crypt does not clear struct crypt_config before freeing it. Thus, 
+> information on the key could leak f.e. to a swsusp image even after the 
+> encrypted device has been removed. The attached patch against 2.6.14 / 2.6.15 
+> fixes it.
 
-dm-crypt does not clear struct crypt_config before freeing it. Thus, 
-information on the key could leak f.e. to a swsusp image even after the 
-encrypted device has been removed. The attached patch against 2.6.14 / 2.6.15 
-fixes it.
+since a memset right before a free is a very unusual code pattern in the
+kernel it may well be worth putting a short comment around it to prevent
+someone later removing it as "optimization"
 
-Signed-off-by: Stefan Rompf <stefan@loplof.de>
-Acked-by: Clemens Fruhwirth <clemens@endorphin.org>
-
---- linux-2.6.14.4/drivers/md/dm-crypt.c.old	2005-12-16 18:27:05.000000000 +0100
-+++ linux-2.6.14.4/drivers/md/dm-crypt.c	2005-12-28 12:49:13.000000000 +0100
-@@ -694,6 +694,7 @@ bad3:
- bad2:
- 	crypto_free_tfm(tfm);
- bad1:
-+	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
- 	kfree(cc);
- 	return -EINVAL;
- }
-@@ -710,6 +711,7 @@ static void crypt_dtr(struct dm_target *
- 		cc->iv_gen_ops->dtr(cc);
- 	crypto_free_tfm(cc->tfm);
- 	dm_put_device(ti, cc->dev);
-+	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
- 	kfree(cc);
- }
- 
 

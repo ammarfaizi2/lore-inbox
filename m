@@ -1,143 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965234AbWADRce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbWADRdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965234AbWADRce (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbWADRce
+	id S965244AbWADRdL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbWADRdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:32:34 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:33705 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965234AbWADRcc convert rfc822-to-8bit
+	Wed, 4 Jan 2006 12:33:11 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:18346 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965235AbWADRdI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:32:32 -0500
+	Wed, 4 Jan 2006 12:33:08 -0500
 From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: mista.tapas@gmx.net
+To: Jaroslav Kysela <perex@suse.cz>
 Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Wed, 4 Jan 2006 17:28:57 +0000
+Date: Wed, 4 Jan 2006 17:31:18 +0000
 User-Agent: KMail/1.9
-Cc: Tomasz =?iso-8859-1?q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+Cc: Andi Kleen <ak@suse.de>,
+       Joern Nettingsmeier <nettings@folkwang-hochschule.de>,
+       Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
+       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
        sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
        kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
        jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
        zwane@commfireservices.com, zaitcev@yahoo.com,
        linux-kernel@vger.kernel.org
-References: <s5h1wzpnjrx.wl%tiwai@suse.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <20060104113726.3bd7a649@mango.fruits.de>
-In-Reply-To: <20060104113726.3bd7a649@mango.fruits.de>
+References: <20050726150837.GT3160@stusta.de> <20060104123538.GE7222@wotan.suse.de> <Pine.LNX.4.61.0601041337340.9321@tm8103.perex-int.cz>
+In-Reply-To: <Pine.LNX.4.61.0601041337340.9321@tm8103.perex-int.cz>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200601041728.57816.s0348365@sms.ed.ac.uk>
+Message-Id: <200601041731.18344.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a superb, informed summary of the pros and cons of ALSA.
+On Wednesday 04 January 2006 12:41, Jaroslav Kysela wrote:
+> On Wed, 4 Jan 2006, Andi Kleen wrote:
+> > > this is like whining about the oh so complex networking infrastructure
+> > > and iptables and constantly reminiscing how simple it used to be to set
+> > > up a modem on /dev/ttyS0.
+> >
+> > Can be nearly all CONFIGured out. With the removal of the sane
+> > sound drivers that would be impossible though.
+>
+> The code reduction is possible also for the ALSA midlevel code.
+> For example, removing the verbose /proc support might save some bytes and
+> so on.
 
-I urge the ALSA developers to consider each point carefully so we can try to 
-make ALSA even better.
+But can more be done? Andi's not pointed anything out in particular (unless I 
+am mistaken), but could more of ALSA be configurable, even if it is at the 
+expense of userspace API features?
 
-On Wednesday 04 January 2006 10:37, tapas wrote:
-> On Wed, 4 Jan 2006 03:51:09 +0100 (CET)
->
-> Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl> wrote:
-> > After four years ALSA development quality of sound support in Linux is
-> > IMO on the ~same (still bad) level as four years ago. Still to
-> > complicated but now more bloated and additionaly not ready for handle
-> > fancy gadgets like BT headsets.
->
-> Hi,
->
-> i want to chime in here in the defense of ALSA. ALSA is vastly superiour
-> for musicians using linux as opposed to a mere music consumer. Right,
-> for a music consumer (mp3s, cd's, etc), OSS was probably easier to setup
-> and use, but there's other advantages of ALSA vs. OSS:
->
-> - userspace software mixing (or better software mixing at all. OSS
-> doesn't have this (the libre version in the kernel, not the closed
-> source proprietary one)
->
-> - userspace resampling (i.e. you have crappy AC97 card that sounds like
-> shit when resampling automatically? Use the ALSA resampler. It might
-> sound like shit, too, but at least it can be fixed ;)
->
-> - the biggest benefit for me: MIDI routing in between any number of
-> applications.
->
-> - more capable (more complicated yeah but wtf :)) mixer implementation
-> (the thing to control the volumes, etc)
->
-> - way more flexible in handling more than one soundcard/device, etc..
->
-> Drawbacks yet:
->
-> - complicated device naming scheme. There has been recent changes in
-> this area to build up a list from which the user can select a device.
->
-> - so so documentation:
->
-> -- many apps still use the ALSA api wrongly due to the complex nature of
-> it and lacking tutorials, etc (for example: ALSA apps should always use
-> the "default" device if not otherwise indicated by the user. The user
-> must be able to enter any device identifier string, or additionally
-> select from the newly built ALSA provided choices list).
->
-> -- Users get frustrated often, too, because their distros fail to setup
-> their ALSA system correctly. Documentation does exist, but it's often of
-> a technical nature, which is too much for joe user.
->
-> - a single badly behaved OSS app can kill the whole software mixing
-> setup, leaving the user with seemingly hanging applications. This is
-> IMHO completely unacceptable. ALSA devs have, more than once, stated
-> that it is perfectly well acceptable for them :(
->
-> - there's two reasons for above:
->
-> -- ALSA's kernel level OSS emulation (as opposed to aoss) cannot provide
-> software mixing. As aoss cannot provide OSS emulation to all OSS apps,
-> the kernel level OSS emu must be fixed. I would probably have a look at
-> FUSE to redirect OSS access to userspace. I suppose oss2jack could be
-> modified to use ALSA instead of jack.
->
-> -- ALSA's default open mode is "blocking". But the ALSA API uses the
-> term blocking in two meanings and throws them together into the open
-> mode of a pcm device. Normally on device files, blocking access means a
-> read()/write() returns, when there's data which has actually been
-> read/written to the device. nonblocking access means, read()/write()
-> return immediately. In ALSA blocking mode means above _plus_ that the
-> open call will only immediately return (in case of contention) when the
-> previous user of the audio device has given it up.
->
-> The combination of the last two is deadly :) It leaves users with
-> nonfunctional sound plus seemingly hanging apps when their soundcard is
-> not hardware mixing capable. So IMHO, to fix these two issues really is
-> the most pressing matter of all, but like i said, sadly ALSA devs seem
-> to disagree (i haven't followed ALSA development that closely lately
-> though).
->
-> > On other systems (MOX, Win*, Solaris ..) on handle sound situations is
-> > now better than four years ago. IMO this allow form conclution: generaly
-> > current ALSA is step back compare to other systems and probaly Linux need
-> > some deeper work then simple polishing sound device drivers.
->
-> ALSA is a definitive step forward from OSS. It even is superior to the
-> original windows sound system (except for ease of configuration - but
-> windows had no interapp midi routing (extra software needed) plus you
-> need another audio device driver system (ASIO) to get reliable low
-> latency operation, and even there it still sucks compared to
-> linux/ALSA/jack/-rt). MAC OS X almost got it right. Their design has
-> another drawback though which makes OS X always have ca. 1 period of
-> latency more. I.e. in terms of low latency operation for musicians with
-> jackd and -rt kernels, linux is ATM the _superior_ platform.
->
-> It is, when setup correctly simply a joy to work with and make music
-> with.
->
-> Regards,
-> Florian Schmidt
+As has already been pointed out, individual ALSA drivers with comparable 
+features tend themselves to be smaller than the original OSS ones. It's the 
+ALSA infrastructure that comes at a cost, and surely not all if it is 
+mandatory.
 
 -- 
 Cheers,

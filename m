@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWADXAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWADXAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWADXAp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWADXAo
+	id S1751049AbWADXAl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:00:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWADXAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:00:44 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:7881 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1751052AbWADXAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:00:44 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Date: Wed, 4 Jan 2006 22:58:24 +0000
-User-Agent: KMail/1.9
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Nick Warne <nick@linicks.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-References: <200601041710.37648.nick@linicks.net> <Pine.LNX.4.58.0601041415510.19134@shark.he.net> <20060104223101.GB13799@kroah.com>
-In-Reply-To: <20060104223101.GB13799@kroah.com>
+	Wed, 4 Jan 2006 18:00:41 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:34079 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751049AbWADXAk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:00:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=i3LDvEvrQ66Xc7N6olBVFiAq8sMGQAwTXC46qDWxjCGNeFAV0krI45CLyh8QasoYdFgnBo3tjHM00b1sisuznkcI/PCkUgDs6gi57F6ebL9XB1/uiYMOF6cZy2YPACsT1ymonfFOYxAiVu5+tV/hyXx7IjdjDkn4+BJPcaqiMcE=
+Message-ID: <4d8e3fd30601041500t20f54dcdpdb6866b7753d1731@mail.gmail.com>
+Date: Thu, 5 Jan 2006 00:00:39 +0100
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: userspace breakage
+In-Reply-To: <20060103203724.GG5819@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200601042258.24888.s0348365@sms.ed.ac.uk>
+References: <20051228214845.GA7859@elte.hu> <20051229073259.GA20177@elte.hu>
+	 <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
+	 <20051229202852.GE12056@redhat.com>
+	 <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
+	 <20051229224103.GF12056@redhat.com>
+	 <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org>
+	 <20051229230307.GB24452@redhat.com> <20060103202853.GF12617@kroah.com>
+	 <20060103203724.GG5819@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 22:31, Greg KH wrote:
-[snip]
-> > >
-> > > The issue I hit was we have a 'latest stable kernel release 2.6.14.5'
-> > > and under it a 'the latest stable kernel' (or words to that effect) on
-> > > kernel.org.
-> > >
-> > > Then when 2.6.15 came out, that was it!  No patch for the 'latest
-> > > stable kernel release 2.6.14.5'.  It was GONE!
-> >
-> > Yes, I brought this up a couple of weeks ago, but I was told
-> > that I was wrong (in some such words).
-> > I agree that it needs to be fixed.
+On 1/3/06, Dave Jones <davej@redhat.com> wrote:
+> On Tue, Jan 03, 2006 at 12:28:53PM -0800, Greg Kroah-Hartman wrote:
 >
-> How would you suggest that it be fixed?
+>  > > I'm glad you agree.  I've decided to try something different once 2.6.16
+>  > > is out.  Every day, I'm going to push the -git snapshot of the day into
+>  > > a testing branch for Fedora users. (Normally, only rawhide[1] users
+>  > > get to test kernel-de-jour, and this always has the latest userspace, so
+>  > > we don't notice problems until a kernel point release and the stable
+>  > > distro gets an update).
+>  >
+>  > Ah, nice idea, I'll try to set up the same thing for Gentoo's kernels.
+>  > Hopefully the expanded coverage will help...
 
-It's difficult, but perhaps providing a link to the latest "stable team" 
-release in addition to Linus's release would solve the problem.
+Greg,
+did you manage for doing the same for Gentoo?
 
-At least then you can do what Nick wanted (assuming the kernel.org FAQ gets 
-fixed) and download the "patch" for 2.6.14.5, say, revert it, then apply 
-Linus's latest and greatest (one or more times as required).
+If so, what's the approach? Is Gentoo now shipping pre-compiled -git
+vanilla kernels as well?
 
-Bloats the front page though. I think as long as something is documented 
-properly it doesn't really matter. Currently it isn't.
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+--
+Paolo

@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbWADJTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWADJUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932495AbWADJTL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 04:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWADJTL
+	id S932503AbWADJUR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 04:20:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWADJUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 04:19:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46279 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932495AbWADJTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 04:19:09 -0500
-Date: Wed, 4 Jan 2006 01:18:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: dax@gurulabs.com, erich@areca.com.tw, arjan@infradead.org,
-       oliver@neukum.org, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: ETA for Areca RAID driver (arcmsr) in mainline?
-Message-Id: <20060104011841.036ea510.akpm@osdl.org>
-In-Reply-To: <20051230113227.2b787d43.rdunlap@xenotime.net>
-References: <1135228831.4122.15.camel@mentorng.gurulabs.com>
-	<1135229681.439.23.camel@mindpipe>
-	<200512220917.41494.oliver@neukum.org>
-	<1135239601.2940.5.camel@laptopd505.fenrus.org>
-	<20051222052443.57ffe6f9.akpm@osdl.org>
-	<1135279895.19320.24.camel@mentorng.gurulabs.com>
-	<20051230113227.2b787d43.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Jan 2006 04:20:16 -0500
+Received: from dns.toxicfilms.tv ([150.254.220.184]:48527 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S932503AbWADJUO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 04:20:14 -0500
+X-Spam-Report: SA TESTS
+ -1.7 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+ -2.3 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+  0.8 AWL                    AWL: From: address is in the auto white-list
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(62.21.11.20):SA:0(-3.1/2.5):. Processed in 0.564143 secs Process 10941)
+Date: Wed, 4 Jan 2006 10:20:14 +0100
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <1289800042.20060104102014@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] http://kernel.org gives a 403 + 404
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> Here's a start on some cleanups and a list of general issues.
->  I'm not addressing SCSI or MM/DMA API issues, if there are any.
-> 
->  0.  some Kconfig and Makefile cleanups
->  1.  fix arcmsr_device_id_table[] inits;
->  2.  fix return (value); -- don't use parenethese
->  3.  fix one-line-ifs-with-braces -- remove braces
->  4.  struct _XYZ & typedef XYZ, PXYZ -- convert to struct XYZ only
->  5.  check NULL usage
->  6.  no "return;" at end of func; -- removed
->  7.  return -ENXIO instead of ENXIO;
-> 
->  Patch for above items is below.
-> 
->  More issues, not yet patched:
-> 
->  8.  check sparse warnings, stack usage, init/exit sections;
->  9.  don't use // comments;
->  10. use printk levels
->  11. pPCI_DEV: bad naming (throughout driver; don't use mixed case)
->  12. some comments are unreadable (non-ASCII ?)
->  13. uintNN_t int types:  use kernel types except for userspace interfaces
->  14. use kernel-doc
->  15. try to fit source files into 80 columns
+Hello,
 
-Unfortunately I've gone and applied a huge driver update from Erich, so
-none of this applies any more.
+I do not remember the webmaster email address of kernel.org so I am
+sending this here.
 
-A recut would be appreciated.  Please include your additional suggestions:
+Accessing http://kernel.org results in:
 
-16. Tab size in Linux kernel is 8 (not less).
-17. Don't put changelog comments in source files.  That's what
-     SCMs are for (source code manager tools).
-18. Put arcmsr.txt in Documentation/scsi/, not in scsi/arcmsr/.
-19. Maybe use sysfs (/sys) instead of /proc.
+Forbidden
+You don't have permission to access / on this server.
 
-In the updated changelog, thanks.
+Additionally, a 404 Not Found error was encountered while trying to use an
+ErrorDocument to handle the request.
+
+Regards,
+Maciej
+

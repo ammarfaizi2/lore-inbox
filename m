@@ -1,40 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWADWyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWADW4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbWADWyY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWADWyY
+	id S1751028AbWADW4w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWADW4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:54:24 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:53187 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1750852AbWADWyX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:54:23 -0500
-Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-ia64@vger.kernel.org, ak@suse.de,
-       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060104221627.GA26064@lists.us.dell.com>
-References: <20060104221627.GA26064@lists.us.dell.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Jan 2006 22:55:55 +0000
-Message-Id: <1136415355.7443.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 4 Jan 2006 17:56:52 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:55683 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1751028AbWADW4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:56:51 -0500
+Date: Wed, 04 Jan 2006 17:56:12 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 04/15] i386: Handle HP laptop rebooting properly.
+In-reply-to: <20060104224250.GA32177@quicksilver.road.mcmartin.ca>
+To: Kyle McMartin <kyle@mcmartin.ca>
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+Message-id: <1136415372.4430.47.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL004R0943MT@a34-mta01.direcway.com>
+ <20060104224250.GA32177@quicksilver.road.mcmartin.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-01-04 at 16:16 -0600, Matt Domsch wrote:
-> Andi Kleen has a patch in his x86_64 tree which enables the use of
-> i386 dmi_scan.c on x86_64.  dmi_scan.c functions are being used by the
-> drivers/char/ipmi/ipmi_si_intf.c driver for autodetecting the ports or
-> memory spaces where the IPMI controllers may be found.
+On Wed, 2006-01-04 at 17:42 -0500, Kyle McMartin wrote:
+> On Wed, Jan 04, 2006 at 04:59:44PM -0500, Ben Collins wrote:
+> > +	{	/* HP laptops have weird reboot issues */
+> > +		.callback = set_bios_reboot,
+> > +		.ident = "HP Laptop",
+> > +		.matches = {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq"),
+> > +		},
+> > +	},
+> >  	{	/* Handle problems with rebooting on HP nc6120 */
+> >  		.callback = set_bios_reboot,
+> >  		.ident = "HP Compaq nc6120",
+> >
 > 
-> This patch adds equivalent changes for ia64 as to what is in the
-> x86_64 tree.
+> Looks like the entry below could be removed, as it's now covered by
+> the above.
 
-I was under the impression that the correct way to find the DMI tables
-on IA64 was by the EFI[ng ;)] firmware interface
+That's correct, so here's a better trivial patch to just broaden the
+existing entry.
+
+Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+
+diff --git a/arch/i386/kernel/reboot.c b/arch/i386/kernel/reboot.c
+index 2afe0f8..2fa5803 100644
+--- a/arch/i386/kernel/reboot.c
++++ b/arch/i386/kernel/reboot.c
+@@ -111,12 +111,12 @@ static struct dmi_system_id __initdata r
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 2400"),
+ 		},
+ 	},
+-	{	/* Handle problems with rebooting on HP nc6120 */
++	{	/* Handle problems with rebooting on HP laptops */
+ 		.callback = set_bios_reboot,
+-		.ident = "HP Compaq nc6120",
++		.ident = "HP Compaq Laptop",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq nc6120"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq"),
+ 		},
+ 	},
+ 	{ }
+
+
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 

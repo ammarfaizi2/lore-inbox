@@ -1,142 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWADT6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWADUIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbWADT6B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 14:58:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965281AbWADT5e
+	id S1751289AbWADUIS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWADUIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 14:57:34 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:22775 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965279AbWADT5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 14:57:32 -0500
-Message-Id: <20060104194501.210484000@localhost>
-References: <20060104193120.050539000@localhost>
-Date: Wed, 04 Jan 2006 20:31:27 +0100
-From: Arnd Bergmann <arnd@arndb.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>, Mark Nutter <mnutter@us.ibm.com>,
-       Arnd Bergmann <arndb@de.ibm.com>
-Subject: [PATCH 07/13] spufs: fix spufs_fill_dir error path
-Content-Disposition: inline; filename=spufs-fill-dir-leak.diff
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+	Wed, 4 Jan 2006 15:08:18 -0500
+Received: from natsluvver.rzone.de ([81.169.145.176]:14565 "EHLO
+	natsluvver.rzone.de") by vger.kernel.org with ESMTP
+	id S1751289AbWADUIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:08:17 -0500
+From: Stefan Rompf <stefan@loplof.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [Patch 2.6] dm-crypt: zero key before freeing it
+Date: Wed, 4 Jan 2006 21:08:04 +0100
+User-Agent: KMail/1.8
+Cc: Clemens Fruhwirth <clemens@endorphin.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601042108.04544.stefan@loplof.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If creating one entry failed in spufs_fill_dir,
-we never cleaned up the freshly created entries.
-Fix this by calling the cleanup function on error.
+Hi Andrew,
 
-Noticed by Al Viro.
+dm-crypt does not clear struct crypt_config before freeing it. Thus, 
+information on the key could leak f.e. to a swsusp image even after the 
+encrypted device has been removed. The attached patch against 2.6.14 / 2.6.15 
+fixes it.
 
-Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
+Signed-off-by: Stefan Rompf <stefan@loplof.de>
+Acked-by: Clemens Fruhwirth <clemens@endorphin.org>
 
-Index: linux-2.6.15-rc/arch/powerpc/platforms/cell/spufs/inode.c
-===================================================================
---- linux-2.6.15-rc.orig/arch/powerpc/platforms/cell/spufs/inode.c
-+++ linux-2.6.15-rc/arch/powerpc/platforms/cell/spufs/inode.c
-@@ -134,47 +134,18 @@ spufs_delete_inode(struct inode *inode)
- 	clear_inode(inode);
+--- linux-2.6.14.4/drivers/md/dm-crypt.c.old	2005-12-16 18:27:05.000000000 +0100
++++ linux-2.6.14.4/drivers/md/dm-crypt.c	2005-12-28 12:49:13.000000000 +0100
+@@ -694,6 +694,7 @@ bad3:
+ bad2:
+ 	crypto_free_tfm(tfm);
+ bad1:
++	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
+ 	kfree(cc);
+ 	return -EINVAL;
+ }
+@@ -710,6 +711,7 @@ static void crypt_dtr(struct dm_target *
+ 		cc->iv_gen_ops->dtr(cc);
+ 	crypto_free_tfm(cc->tfm);
+ 	dm_put_device(ti, cc->dev);
++	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
+ 	kfree(cc);
  }
  
--static int
--spufs_fill_dir(struct dentry *dir, struct tree_descr *files,
--		int mode, struct spu_context *ctx)
--{
--	struct dentry *dentry;
--	int ret;
--
--	while (files->name && files->name[0]) {
--		ret = -ENOMEM;
--		dentry = d_alloc_name(dir, files->name);
--		if (!dentry)
--			goto out;
--		ret = spufs_new_file(dir->d_sb, dentry, files->ops,
--					files->mode & mode, ctx);
--		if (ret)
--			goto out;
--		files++;
--	}
--	return 0;
--out:
--	// FIXME: remove all files that are left
--
--	return ret;
--}
--
--static int spufs_rmdir(struct inode *root, struct dentry *dir_dentry)
-+static void spufs_prune_dir(struct dentry *dir)
- {
- 	struct dentry *dentry, *tmp;
--	struct spu_context *ctx;
--
--	/* remove all entries */
--	down(&root->i_sem);
--	down(&dir_dentry->d_inode->i_sem);
--	list_for_each_entry_safe(dentry, tmp, &dir_dentry->d_subdirs, d_child) {
-+	down(&dir->d_inode->i_sem);
-+	list_for_each_entry_safe(dentry, tmp, &dir->d_subdirs, d_child) {
- 		spin_lock(&dcache_lock);
- 		spin_lock(&dentry->d_lock);
- 		if (!(d_unhashed(dentry)) && dentry->d_inode) {
- 			dget_locked(dentry);
- 			__d_drop(dentry);
- 			spin_unlock(&dentry->d_lock);
--			simple_unlink(dir_dentry->d_inode, dentry);
-+			simple_unlink(dir->d_inode, dentry);
- 			spin_unlock(&dcache_lock);
- 			dput(dentry);
- 		} else {
-@@ -182,8 +153,17 @@ static int spufs_rmdir(struct inode *roo
- 			spin_unlock(&dcache_lock);
- 		}
- 	}
--	shrink_dcache_parent(dir_dentry);
--	up(&dir_dentry->d_inode->i_sem);
-+	shrink_dcache_parent(dir);
-+	up(&dir->d_inode->i_sem);
-+}
-+
-+static int spufs_rmdir(struct inode *root, struct dentry *dir_dentry)
-+{
-+	struct spu_context *ctx;
-+
-+	/* remove all entries */
-+	down(&root->i_sem);
-+	spufs_prune_dir(dir_dentry);
- 	up(&root->i_sem);
- 
- 	/* We have to give up the mm_struct */
-@@ -194,6 +174,29 @@ static int spufs_rmdir(struct inode *roo
- 	return simple_rmdir(root, dir_dentry);
- }
- 
-+static int spufs_fill_dir(struct dentry *dir, struct tree_descr *files,
-+			  int mode, struct spu_context *ctx)
-+{
-+	struct dentry *dentry;
-+	int ret;
-+
-+	while (files->name && files->name[0]) {
-+		ret = -ENOMEM;
-+		dentry = d_alloc_name(dir, files->name);
-+		if (!dentry)
-+			goto out;
-+		ret = spufs_new_file(dir->d_sb, dentry, files->ops,
-+					files->mode & mode, ctx);
-+		if (ret)
-+			goto out;
-+		files++;
-+	}
-+	return 0;
-+out:
-+	spufs_prune_dir(dir);
-+	return ret;
-+}
-+
- static int spufs_dir_close(struct inode *inode, struct file *file)
- {
- 	struct inode *dir;
-
---
 

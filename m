@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWADQSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWADQW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWADQSq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 11:18:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWADQSp
+	id S932213AbWADQW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 11:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWADQW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 11:18:45 -0500
-Received: from 5301d.unt0.torres.l21.ma.zugschlus.de ([217.151.83.1]:26519
-	"EHLO torres.zugschlus.de") by vger.kernel.org with ESMTP
-	id S932180AbWADQSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 11:18:45 -0500
-Date: Wed, 4 Jan 2006 17:18:44 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.15 EHCI hang on boot
-Message-ID: <20060104161844.GA28839@torres.l21.ma.zugschlus.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jan 2006 11:22:58 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:18229 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932213AbWADQW5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 11:22:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iYKXaCDL/P0ivzeOsViKpG23KioSdvPGX5B1mExKD4BPA536gEpAmY+u2hdWdWeKNJKy3LNXC/3WPfAU55Ijqx1FJ1Jgr+3XdRK4nQWlXLoltt5OqhAdDZ/V8sIwP8tK55d2srFavu/BPmw94NLb2GyZXS3yr2hJIZMw2jG3RvY=
+Message-ID: <d120d5000601040822p5d15880bu51e5989917389e4@mail.gmail.com>
+Date: Wed, 4 Jan 2006 11:22:56 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Scott A Crosby <scrosby@cs.rice.edu>
+Subject: Re: tap-drag on laptop touchpad no longer works in 2.6.15 and 2.6.13
+Cc: petero2@telia.com, Vojtech Pavlik <vojtech@ucw.cz>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <oydd5j80ybv.fsf@cs.rice.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+References: <oydd5j80ybv.fsf@cs.rice.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 1/4/06, Scott A Crosby <scrosby@cs.rice.edu> wrote:
+> I'm not sure if it was a planned change, but the default behavior for
+> my touchpad has changed --- I can no longer tap-drag.
+>
 
-I have rolled out 2.6.15 on a number of test hosts. On one of my
-boxes, which is by far the most recent one, has an i865 chipset, hangs
-on boot when the EHCI driver is loaded. USB is not compiled as module,
-so the system doesn't come up at all:
+Please try installing synaptics X driver:
 
-ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 18
-ehci_hcd 0000:00:1d.7: EHCI Host Controller
-ehci_hcd 0000:00:1d.7: debug port 1
+            http://web.telia.com/~u89404340/touchpad/
 
-These are the last lines of the boot log (which I have completely
-captured via serial console and can submit on request).
+or use "psmouse.proto=exps" option to restore old behavior.
 
-The EHCI controller's lspci output (obtained with 2.6.14.3):
-0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI
- Controller (rev 02) (prog-if 20 [EHCI])
-        Subsystem: Micro-Star International Co., Ltd. 865PE Neo2 (MS-6728)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort - <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin D routed to IRQ 18
-        Region 0: Memory at febffc00 (32-bit, non-prefetchable) [size=1K]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [58] #0a [20a0]
-(complete lspci output available on request)
-
-The 2.6.14.3 kernel which was installed on that box before works fine.
-The 2.6.15 configuration is the result of make oldconfig over that
-2.6.14.3 kernel, so I suspect that the configurations are sufficiently
-similiar, and the same 2.6.15 binary works fine on other systems which
-have their EHCI as PCI cards.
-
-I suspect an incompatibility with the i865 chipset. Is there anything
-I can do to help debugging?
-
-Greetings
-Marc
-
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835
+--
+Dmitry

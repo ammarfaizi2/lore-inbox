@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751688AbWADLFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWADLJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751688AbWADLFY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 06:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWADLFX
+	id S1751695AbWADLJd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 06:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWADLJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 06:05:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8328 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751682AbWADLFW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 06:05:22 -0500
-Date: Wed, 4 Jan 2006 03:00:34 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       <kloczek@rudy.mif.pg.gda.pl>
-Cc: Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
-       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Andi Kleen <ak@suse.de>, perex@suse.cz, alsa-devel@alsa-project.org,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [OT] ALSA userspace API complexity
-Message-Id: <20060104030034.6b780485.zaitcev@redhat.com>
-In-Reply-To: <mailman.1136368805.14661.linux-kernel2news@redhat.com>
-References: <20050726150837.GT3160@stusta.de>
-	<20060103193736.GG3831@stusta.de>
-	<Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
-	<mailman.1136368805.14661.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
+	Wed, 4 Jan 2006 06:09:33 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:27873 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751689AbWADLJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 06:09:32 -0500
+Date: Wed, 4 Jan 2006 12:09:29 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Ben Slusky <sluskyb@paranoiacs.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-fsdevel@vger.kernel.org,
+       legal@lists.gnumonks.org, "Robert W. Fuller" <garbageout@sbcglobal.net>,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, info@crossmeta.com
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+Message-ID: <20060104110929.GH4898@sunbeam.de.gnumonks.org>
+References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <20051223153541.GA13111@paranoiacs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qoTlaiD+Y2fIM3Ll"
+Content-Disposition: inline
+In-Reply-To: <20051223153541.GA13111@paranoiacs.org>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006 09:37:55 +0000, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 
-> > 2) ALSA API is to complicated: most applications opens single sound
-> >    stream.
-> 
-> FUD and nonsense. []
-> http://devzero.co.uk/~alistair/alsa/
+--qoTlaiD+Y2fIM3Ll
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That's the kicker, isn't it? Once you get used to it, it's a workable
-API, if kinky and verbose. I have a real life example, too:
- http://people.redhat.com/zaitcev/linux/mpg123-0.59r-p3.diff
-But arriving on the solution costed a lot of torn hair. Look at this
-bald head here! And who is going to pay my medical bills when ALSA
-causes me ulcers, Jaroslav?
+On Fri, Dec 23, 2005 at 10:35:41AM -0500, Ben Slusky wrote:
+> It isn't the case here. (Tho' your question is interesting.)
+>=20
+> The case here appears to be:
+>=20
+> * Crossmeta offers "add-on" software as a free download from their web
+>   site: <URL:http://www.crossmeta.com/downloads/crossmeta-add-1_0.zip>.
+>   The zip file contains a text file gpl-license.txt, which says that the
+>   add-ons are offered under the terms of the GPL.
+>=20
+> * User downloads this GPLed software and asks the developer to provide
+>   source code. Developer replies that the source code will be provided
+>   only to paying customers:
+>   <URL:http://www.opensolaris.org/jive/message.jspa?messageID=3D12277#122=
+77>.
+>=20
+> That's baad, m'kay?
 
--- Pete
+This is definitely not acceptable.  A written offer must be valid to ANY
+3RD PARTY. =20
+
+So it wouldn't even be enough to offer the source code to paying
+customers and those who downloaded the binary code, but actually it must
+be made available to anyone who asks for it.
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--qoTlaiD+Y2fIM3Ll
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDu6zpXaXGVTD0i/8RAnglAKCjbLqJml0q4mI3XkvgErcDTbfGIwCeJiVg
+eSG9EZw8HrxQQR5mTtBcBoA=
+=U8P3
+-----END PGP SIGNATURE-----
+
+--qoTlaiD+Y2fIM3Ll--

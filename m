@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWADQLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWADQSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWADQLT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 11:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWADQLT
+	id S932180AbWADQSq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 11:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWADQSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 11:11:19 -0500
-Received: from cs.rice.edu ([128.42.1.30]:24774 "EHLO cs.rice.edu")
-	by vger.kernel.org with ESMTP id S932179AbWADQLS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 11:11:18 -0500
-To: petero2@telia.com, Vojtech Pavlik <vojtech@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: tap-drag on laptop touchpad no longer works in 2.6.15 and 2.6.13
-From: Scott A Crosby <scrosby@cs.rice.edu>
-Organization: Rice University
-Date: Wed, 04 Jan 2006 10:09:24 -0600
-Message-ID: <oydd5j80ybv.fsf@cs.rice.edu>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (linux)
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 11:18:45 -0500
+Received: from 5301d.unt0.torres.l21.ma.zugschlus.de ([217.151.83.1]:26519
+	"EHLO torres.zugschlus.de") by vger.kernel.org with ESMTP
+	id S932180AbWADQSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 11:18:45 -0500
+Date: Wed, 4 Jan 2006 17:18:44 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.15 EHCI hang on boot
+Message-ID: <20060104161844.GA28839@torres.l21.ma.zugschlus.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if it was a planned change, but the default behavior for
-my touchpad has changed --- I can no longer tap-drag.
+Hi,
 
-It works fine in 2.6.10 and no longer works on 2.6.13 or 2.6.15 on my
-Dell Inspiron 8200.
+I have rolled out 2.6.15 on a number of test hosts. On one of my
+boxes, which is by far the most recent one, has an i865 chipset, hangs
+on boot when the EHCI driver is loaded. USB is not compiled as module,
+so the system doesn't come up at all:
 
-The device is recognized (by 2.6.15) as:
+ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 18
+ehci_hcd 0000:00:1d.7: EHCI Host Controller
+ehci_hcd 0000:00:1d.7: debug port 1
 
-I: Bus=0011 Vendor=0002 Product=0008 Version=0000
-N: Name="DualPoint Stick"
-P: Phys=isa0060/serio1/input1
-S: Sysfs=/class/input/input1
-H: Handlers=mouse0 event1 
-B: EV=7
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=3
+These are the last lines of the boot log (which I have completely
+captured via serial console and can submit on request).
 
-I: Bus=0011 Vendor=0002 Product=0008 Version=2222
-N: Name="AlpsPS/2 ALPS DualPoint TouchPad"
-P: Phys=isa0060/serio1/input0
-S: Sysfs=/class/input/input2
-H: Handlers=mouse1 event2 
-B: EV=f
-B: KEY=420 0 70000 0 0 0 0 0 0 0 0
-B: REL=3
-B: ABS=1000003
+The EHCI controller's lspci output (obtained with 2.6.14.3):
+0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI
+ Controller (rev 02) (prog-if 20 [EHCI])
+        Subsystem: Micro-Star International Co., Ltd. 865PE Neo2 (MS-6728)
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort - <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin D routed to IRQ 18
+        Region 0: Memory at febffc00 (32-bit, non-prefetchable) [size=1K]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] #0a [20a0]
+(complete lspci output available on request)
 
+The 2.6.14.3 kernel which was installed on that box before works fine.
+The 2.6.15 configuration is the result of make oldconfig over that
+2.6.14.3 kernel, so I suspect that the configurations are sufficiently
+similiar, and the same 2.6.15 binary works fine on other systems which
+have their EHCI as PCI cards.
 
-xorg.conf:
+I suspect an incompatibility with the i865 chipset. Is there anything
+I can do to help debugging?
 
-Section "InputDevice"
-        Identifier      "Configured Mouse"
-        Driver          "mouse"
-        Option          "SendCoreEvents"        "true"
-        Option          "Device"                "/dev/input/mice"
-        Option          "Protocol"              "Auto"
-        Option          "Emulate3Buttons"       "true"
-        Option          "ZAxisMapping"          "4 5"
-EndSection
+Greetings
+Marc
 
-
-Thanks,
-Scott
+-- 
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835

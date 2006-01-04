@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965315AbWADWqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWADWtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965315AbWADWqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965316AbWADWqI
+	id S1750770AbWADWtM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWADWtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:46:08 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:1465 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965315AbWADWqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:46:06 -0500
-Subject: Re: [ckrm-tech] Re: [Patch 6/6] Delay accounting: Connector
-	interface
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       LSE <lse-tech@lists.sourceforge.net>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
-       John Hesterberg <jh@sgi.com>
-In-Reply-To: <43BC1C43.9020101@engr.sgi.com>
-References: <43BB05D8.6070101@watson.ibm.com>
-	 <43BB09D4.2060209@watson.ibm.com>  <43BC1C43.9020101@engr.sgi.com>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 14:40:31 -0800
-Message-Id: <1136414431.22868.115.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Wed, 4 Jan 2006 17:49:12 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:1990 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1750770AbWADWtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:49:11 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Date: Wed, 4 Jan 2006 22:49:11 +0000
+User-Agent: KMail/1.9
+Cc: Nick Warne <nick@linicks.net>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+References: <200601041710.37648.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk> <20060104220157.GB12778@kroah.com>
+In-Reply-To: <20060104220157.GB12778@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601042249.12116.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 11:04 -0800, Jay Lan wrote:
-> Shailabh Nagar wrote:
-<snip>
-> >Index: linux-2.6.15-rc7/kernel/exit.c
-> >===================================================================
-> >--- linux-2.6.15-rc7.orig/kernel/exit.c
-> >+++ linux-2.6.15-rc7/kernel/exit.c
-> >@@ -29,6 +29,7 @@
-> > #include <linux/syscalls.h>
-> > #include <linux/signal.h>
-> > #include <linux/cn_proc.h>
-> >+#include <linux/cn_stats.h>
+On Wednesday 04 January 2006 22:01, Greg KH wrote:
+> On Wed, Jan 04, 2006 at 08:10:36PM +0000, Alistair John Strachan wrote:
+> > On Wednesday 04 January 2006 19:53, Nick Warne wrote:
+> > > On Wednesday 04 January 2006 18:34, Alistair John Strachan wrote:
+> > > > On Wednesday 04 January 2006 17:39, Nick Warne wrote:
+> > > > > On Wednesday 04 January 2006 17:36, Randy.Dunlap wrote:
+> > > > > > > I went from 2.6.14 -> 2.6.14.2 -> .2-.3 -> .3-.4 -> .4-.5
+> > > > > >
+> > > > > > and how did you do that?
+> > > > > > Noone supplies such incremental patches AFAIK.
+> > > > >
+> > > > > Yes, I got from kernel.org - I am _not_ that clever to devise my
+> > > > > own incremental patches, otherwise I wouldn't be asking stupid
+> > > > > questions...
+> > > >
+> > > > Nick's right, both are provided automatically by kernel.org.
+> > >
+> > > Anyway, I started from scratch - 2.6.14, patched to 2.6.15 and then
+> > > make oldconfig etc.
+> > >
+> > > I think there needs to be a way out of this that is easily discernible
+> > > - it does get confusing sometimes with all the patches flying around on
+> > > a 'stable release'.
 > >
-> > #include <asm/uaccess.h>
-> > #include <asm/unistd.h>
-> >@@ -865,6 +866,7 @@ fastcall NORET_TYPE void do_exit(long co
+> > It's documented in the kernel.
 > >
-> > 	tsk->exit_code = code;
-> > 	proc_exit_connector(tsk);
-> >+	cnstats_exit_connector(tsk);
-> >  
-> 
-> We need to move both proc_exit_connector(tsk) and
-> cnstats_exit_connector(tsk) up to before exit_mm(tsk) statement.
-> There are task statistics collected in task->mm and those stats
-> will be lost after exit_mm(tsk).
-> 
-> Thanks,
->  - jay
-> 
-> > 	exit_notify(tsk);
-> > #ifdef CONFIG_NUMA
-> > 	mpol_free(tsk->mempolicy);
-> >-
+> > There's something in the kernel.org FAQ there about -rc kernels, but it
+> > might be better to generalise this for stable releases. Added hpa to CC.
+>
+> What do you mean, "generalize" this?  Where else could we document it
+> better?
 
-	Good point. The assignment of the task exit code will also have to move
-up before exit_mm(tsk) because the process event connector exit function
-retrieves the exit code from the task struct.
+Re-read the thread. The confusion here is about "going back" to 2.6.14 before 
+patching 2.6.15. This has nothing to do with "rc kernels". We have this 
+documented explicitly in the kernel but not on the kernel.org FAQ.
 
-	Moving these may also affect the job/pagg/task_notify/cpuset exit
-notification if we're eventually going to remove *direct* calls to these
-from kernel/exit.c.
-
+-- 
 Cheers,
-	-Matt Helsley
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

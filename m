@@ -1,113 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWADB1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWADBg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWADB1X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 20:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWADB1X
+	id S965124AbWADBg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 20:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWADBg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 20:27:23 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38866 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751017AbWADB1W (ORCPT
+	Tue, 3 Jan 2006 20:36:56 -0500
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:1541 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S965124AbWADBgz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 20:27:22 -0500
-Date: Tue, 3 Jan 2006 17:26:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net,
-       mike@steroidmicros.com
-Subject: Re: [patch 2.6.15-rc5-mm3] M25 series SPI flash
-Message-Id: <20060103172635.17b641fa.akpm@osdl.org>
-In-Reply-To: <200512192243.21889.david-b@pacbell.net>
-References: <200512181037.39154.david-b@pacbell.net>
-	<200512192243.21889.david-b@pacbell.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 20:36:55 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Patch] es7000 broken without acpi
+Date: Tue, 3 Jan 2006 19:36:39 -0600
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B09AE@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Patch] es7000 broken without acpi
+Thread-Index: AcYQwD4nezlL70WsQqG19cKyGG4LFQADaMag
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Andrew Morton" <akpm@osdl.org>,
+       "Eric Sesterhenn / snakebyte" <snakebyte@gmx.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Jan 2006 01:36:39.0921 (UTC) FILETIME=[4F2C3610:01C610CF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell <david-b@pacbell.net> wrote:
->
-> Here's a driver for more traditional types of SPI flash, as found
-> in the ST M25 series.  Contributed by Mike Lavender (thanks Mike!)
-> and tested on some ColdFire boards.
+> Eric Sesterhenn / snakebyte <snakebyte@gmx.de> wrote:
+> >
+> > hi,
+> > 
+> > a make randconfig gave me a situation where es7000 was enabled, but 
+> > acpi wasnt ( dont know if this makes sense ), gcc gave me some 
+> > compiling errors, which the following patch fixes. Please 
+> cc me as i am not on the list. Thanks.
+> > 
+> > 
 > 
-
-bah, attachments..
-
-> This was originally a driver for the ST M25P80 SPI flash.   It's been
-> updated slightly to handle other M25P series chips.
+> I believe that es7000 requires ACPI, so a better fix would be 
+> to enforce that within Kconfig.
 > 
-> For many of these chips, the specific type could be probed, but for now
-> this just requires static setup with flash_platform_data that lists the
-> chip type (size, format) and any default partitioning to use.
+> Natalie, can you please comment?
+
+
+You are correct, Andrew: ES7000 "preferred" mode is ACPI (although it
+runs in MPS as well, which we use for debugging of intermittent ACPI and
+platform problems).
+I have done a similar patch (see
+http://bugzilla.kernel.org/attachment.cgi?id=5771&action=view) against
+2.6.13, but the one suggested later by Peter Hagervall  
+http://www.ussg.iu.edu/hypermail/linux/kernel/0510.3/1302.html was
+actually taking care of the compile problem through Kconfig better,
+since "acpi=off" option is available for our debug/testing purposes
+anyway.
+Thanks,
+--Natalie
+
 > 
-> From: Mike Lavender <mike@steroidmicros.com>
-> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> > 
+> > 
+> > diff -up 
+> linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000.h 
+> linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000.h
+> > --- 
+> linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000.h	
+> 2005-12-12 23:44:39.000000000 +0100
+> > +++ linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000.h	
+> 2005-12-12 23:43:51.000000000 +0100
+> > @@ -83,6 +83,7 @@ struct es7000_oem_table {
+> >  	struct psai psai;
+> >  };
+> >  
+> > +#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
+> >  struct acpi_table_sdt {
+> >  	unsigned long pa;
+> >  	unsigned long count;
+> > @@ -98,6 +99,7 @@ struct oem_table {
+> >  	u32 OEMTableAddr;
+> >  	u32 OEMTableSize;
+> >  };
+> > +#endif
+> >  
+> >  struct mip_reg {
+> >  	unsigned long long off_0;
+> > diff -up 
+> linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000plat.c 
+> linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000plat.c
+> > --- 
+> linux-2.6.15-rc5-git2/arch/i386/mach-es7000.orig/es7000plat.c	
+> 2005-12-12 23:44:39.000000000 +0100
+> > +++ 
+> linux-2.6.15-rc5-git2/arch/i386/mach-es7000/es7000plat.c	
+> 2005-12-12 23:43:20.000000000 +0100
+> > @@ -92,7 +92,9 @@ setup_unisys(void)
+> >  		es7000_plat = ES7000_ZORRO;
+> >  	else
+> >  		es7000_plat = ES7000_CLASSIC;
+> > +#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
+> >  	ioapic_renumber_irq = es7000_rename_gsi;
+> > +#endif
+> >  }
+> >  
+> >  /*
+> > @@ -160,6 +162,7 @@ parse_unisys_oem (char *oemptr)
+> >  	return es7000_plat;
+> >  }
+> >  
+> > +#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
+> >  int __init
+> >  find_unisys_acpi_oem_table(unsigned long *oem_addr)  { @@ -212,6 
+> > +215,7 @@ find_unisys_acpi_oem_table(unsigned long
+> >  	}
+> >  	return -1;
+> >  }
+> > +#endif
+> >  
+> >  static void
+> >  es7000_spin(int n)
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe 
+> > linux-kernel" in the body of a message to majordomo@vger.kernel.org 
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 > 
-
-Please put the From: at the very first line of the changelog.
-
-Mike, please review section 11 of Documentation/SubmittingPatches and send
-a Signed-off-by: for this work, thanks.
-
-
-> +static int m25p80_write(struct mtd_info *mtd, loff_t to, size_t len,
-> +	size_t *retlen, const u_char *buf)
-> +{
-> +	struct m25p *flash = mtd_to_m25p(mtd);
-> +	u32 page_offset, page_size;
-> +	struct spi_transfer t[2];
-> +	struct spi_message m;
-> +
-> +	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %z\n", spi->dev.bus_id,
-> +			__FUNCTION__, "to", (u32) to, len);
-> +
-> +	if (retlen)
-> +		*retlen = 0;
-
-If retlen can be NULL
-
-> +	/* sanity checks */
-> +	if (!len)
-> +		return(0);
-> +
-> +	if (to + len > flash->mtd.size)
-> +		return -EINVAL;
-> +
-> +  	down(&flash->lock);
-> +
-> +	/* Wait until finished previous write command. */
-> +	if (wait_till_ready(flash))
-> +		return 1;
-> +
-> +	write_enable(flash);
-> +
-> +	memset(t, 0, (sizeof t));
-> +
-> +	/* Set up the opcode in the write buffer. */
-> +	flash->command[0] = OPCODE_PP;
-> +	flash->command[1] = to >> 16;
-> +	flash->command[2] = to >> 8;
-> +	flash->command[3] = to;
-> +
-> +	t[0].tx_buf = flash->command;
-> +	t[0].len = sizeof(flash->command);
-> +
-> +	m.transfers = t;
-> +	m.n_transfer = 2;
-> +
-> +	/* what page do we start with? */
-> +	page_offset = to % FLASH_PAGESIZE;
-> +
-> +	/* do all the bytes fit onto one page? */
-> +	if (page_offset + len <= FLASH_PAGESIZE) {
-> +		t[1].tx_buf = buf;
-> +		t[1].len = len;
-> +
-> +		spi_sync(flash->spi, &m);
-> +
-> +		*retlen = m.actual_length - sizeof(flash->command);
-
-this will oops.
-

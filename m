@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWADJh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751644AbWADJk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbWADJh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 04:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWADJh6
+	id S1751644AbWADJk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 04:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWADJk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 04:37:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50122 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751229AbWADJh5 (ORCPT
+	Wed, 4 Jan 2006 04:40:28 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:7125 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751448AbWADJk1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 04:37:57 -0500
-Date: Wed, 4 Jan 2006 01:36:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [PATCH] protect remove_proc_entry
-Message-Id: <20060104013658.620e51e6.akpm@osdl.org>
-In-Reply-To: <43B64712.3000105@sw.ru>
-References: <1135973075.6039.63.camel@localhost.localdomain>
-	<1135978110.6039.81.camel@localhost.localdomain>
-	<20051230154647.5a38227e.akpm@osdl.org>
-	<43B64712.3000105@sw.ru>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 04:40:27 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Tomasz =?utf-8?q?K=C5=82oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Subject: [OT] ALSA userspace API complexity
+Date: Wed, 4 Jan 2006 09:37:55 +0000
+User-Agent: KMail/1.9
+Cc: Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
+       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andi Kleen <ak@suse.de>, perex@suse.cz, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de> <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+In-Reply-To: <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601040937.55624.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> wrote:
+On Tuesday 03 January 2006 23:10, Tomasz Kłoczko wrote:
+[snip]
 >
-> Hi Andrew,
-> 
-> I have a full patch for this.
+> 2) ALSA API is to complicated: most applications opens single sound
+>    stream.
 
-Please don't top-post.  It makes things hard...
+FUD and nonsense. I've written many DSP applications and very often I can 
+recycle the same code for use in them. Here's an example, abstracted, 
+commented, handling errors from the subsystem, in just over 100 LOC.
 
-> I don't remember the details yet, but lock was not god here, we used 
-> semaphore. I pointed to this problem long ago when fixed error path in 
-> proc with moduleget.
-> 
-> This patch protects proc_dir_entry tree with a proc_tree_sem semaphore. 
-> I suppose lock_kernel() can be removed later after checking that no proc 
-> handlers require it.
-> Also this patch remakes de refcounters a bit making it more clear and 
-> more similar to dentry scheme - this is required to make sure that 
-> everything works correctly.
-> 
-> Patch is against 2.6.15-rcX and was tested for about a week. Also works 
-> half a year on 2.6.8 :)
-> 
-> [ patch which uses an rwsem for procfs and somewhat removes lock_kernel() ]
->
+http://devzero.co.uk/~alistair/alsa/
 
-I worry about replacing a spinlock with a sleeping lock.  In some
-circumstances it can cause a complete scalability collapse and I suspect
-this could happen with /proc.  Although I guess the only fastpath here is
-proc_readdir(), and as the lock is taken there for reading, we'll be OK..
+The API is really _only_ complicated because it expects you to set things OSS 
+either can't handle or doesn't allow you to configure. Things that very often 
+an application will eventually care about. All this for the sake of 5 minutes 
+reading documentation, and each API call almost identical in design.
 
-The patch does leave some lock_kernel() calls behind.  If we're going to do
-this, I think they should all be removed?
+Personally, I found the lack of documentation for some of the setup API 
+annoying, but it's since been rectified and each call is humanly 
+understandable.
 
-Races in /proc have been plentiful and hard to find.  The patch worries me,
-frankly.  I'd like to see quite a bit more description of the locking
-schema and some demonstration that it's actually complete before taking the
-plunge.
+-- 
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

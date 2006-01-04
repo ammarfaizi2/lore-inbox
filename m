@@ -1,84 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWADLJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWADLNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751695AbWADLJd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 06:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWADLJd
+	id S1751246AbWADLNd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 06:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWADLNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 06:09:33 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:27873 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751689AbWADLJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 06:09:32 -0500
-Date: Wed, 4 Jan 2006 12:09:29 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Ben Slusky <sluskyb@paranoiacs.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-fsdevel@vger.kernel.org,
-       legal@lists.gnumonks.org, "Robert W. Fuller" <garbageout@sbcglobal.net>,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>, info@crossmeta.com
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-Message-ID: <20060104110929.GH4898@sunbeam.de.gnumonks.org>
-References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <20051223153541.GA13111@paranoiacs.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qoTlaiD+Y2fIM3Ll"
-Content-Disposition: inline
-In-Reply-To: <20051223153541.GA13111@paranoiacs.org>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+	Wed, 4 Jan 2006 06:13:33 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:15342 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751246AbWADLNc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 06:13:32 -0500
+Message-ID: <43BBADD5.3070706@cosmosbay.com>
+Date: Wed, 04 Jan 2006 12:13:25 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Shrinks sizeof(files_struct) and better layout
+References: <20051108185349.6e86cec3.akpm@osdl.org>	<437226B1.4040901@cosmosbay.com>	<20051109220742.067c5f3a.akpm@osdl.org>	<4373698F.9010608@cosmosbay.com> <43BB1178.7020409@cosmosbay.com> <p733bk4z2z0.fsf@verdi.suse.de>
+In-Reply-To: <p733bk4z2z0.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 04 Jan 2006 12:13:26 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen a écrit :
+> Eric Dumazet <dada1@cosmosbay.com> writes:
+>> 1) Reduces the size of (struct fdtable) to exactly 64 bytes on 32bits
+>> platforms, lowering kmalloc() allocated space by 50%.
+> 
+> It should be probably a kmem_cache_alloc() instead of a kmalloc
+> in the first place anyways. This would reduce fragmentation.
 
---qoTlaiD+Y2fIM3Ll
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well in theory yes, if you really expect thousand of tasks running...
+But for most machines, number of concurrent tasks is < 200, and using a 
+special cache for this is not a win.
 
-On Fri, Dec 23, 2005 at 10:35:41AM -0500, Ben Slusky wrote:
-> It isn't the case here. (Tho' your question is interesting.)
->=20
-> The case here appears to be:
->=20
-> * Crossmeta offers "add-on" software as a free download from their web
->   site: <URL:http://www.crossmeta.com/downloads/crossmeta-add-1_0.zip>.
->   The zip file contains a text file gpl-license.txt, which says that the
->   add-ons are offered under the terms of the GPL.
->=20
-> * User downloads this GPLed software and asks the developer to provide
->   source code. Developer replies that the source code will be provided
->   only to paying customers:
->   <URL:http://www.opensolaris.org/jive/message.jspa?messageID=3D12277#122=
-77>.
->=20
-> That's baad, m'kay?
+> 
+>> +   * read mostly part
+>> +   */
+>>  	atomic_t count;
+>>  	struct fdtable *fdt;
+>>  	struct fdtable fdtab;
+>> -	fd_set close_on_exec_init;
+>> -	fd_set open_fds_init;
+>> +  /*
+>> +   * written part on a separate cache line in SMP
+>> +   */
+>> +	spinlock_t file_lock ____cacheline_aligned_in_smp;
+>> +	int next_fd;
+>> +	embedded_fd_set close_on_exec_init;
+>> +	embedded_fd_set open_fds_init;
+> 
+> You didn't describe that change, but unless it's clear the separate cache lines
+> are a win I would not do it and save memory again. Was this split based on
+> actual measurements or more theoretical considerations? 
 
-This is definitely not acceptable.  A written offer must be valid to ANY
-3RD PARTY. =20
+As it is a refinement on a previous patch (that was integrated in 2.6.15) that 
+put spin_lock after the array[] (so cleary using a separate cache line), I 
+omited to describe it.
 
-So it wouldn't even be enough to offer the source code to paying
-customers and those who downloaded the binary code, but actually it must
-be made available to anyone who asks for it.
+Yes, this part is really important because some multi-threaded benchmarks get 
+a nice speedup with this separation in two parts.
 
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
+Threads that are doing read()/write() (reading the first part of files_struct) 
+are not slowed by others that do open()/close() syscalls (writing the second 
+part), no false sharing (and no locking thanks to RCU of course).
 
---qoTlaiD+Y2fIM3Ll
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Big Apache 2.0 servers, database servers directly benefit from this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Note that process that tend to create/destroy a lot of threads per second are 
+writing into 'count' field and might dirty the 'read mostly' part, but we can 
+expect that well writen high performance programs wont do this.
 
-iD8DBQFDu6zpXaXGVTD0i/8RAnglAKCjbLqJml0q4mI3XkvgErcDTbfGIwCeJiVg
-eSG9EZw8HrxQQR5mTtBcBoA=
-=U8P3
------END PGP SIGNATURE-----
-
---qoTlaiD+Y2fIM3Ll--
+Eric

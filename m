@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWADWGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbWADWGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbWADWGp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWADWGo
+	id S932585AbWADWGL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWADWGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:06:44 -0500
-Received: from hera.kernel.org ([140.211.167.34]:53956 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932214AbWADWGf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:06:35 -0500
+	Wed, 4 Jan 2006 17:06:09 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:48115 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1030371AbWADWAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:00:22 -0500
+Date: Wed, 04 Jan 2006 16:59:59 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: [PATCH 05/15] pci: Add Toshiba PSA40U laptop to ohci1394 quirk dmi
+ table.
 To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH 0/15] Ubuntu patch sync
-Date: Wed, 4 Jan 2006 14:06:27 -0800
-Organization: OSDL
-Message-ID: <20060104140627.1e89c185@dxpl.pdx.osdl.net>
-References: <0ISL003P992UCY@a34-mta01.direcway.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1136412389 28328 10.8.0.74 (4 Jan 2006 22:06:29 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 4 Jan 2006 22:06:29 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+Message-id: <0ISL00NV994G1L@a34-mta01.direcway.com>
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 04 Jan 2006 16:59:02 -0500
-Ben Collins <bcollins@ubuntu.com> wrote:
+Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-> These patches are just attempts to merge code from the ubuntu kernel tree.
-> This is most of the differences between our tree and stock code (not
-> necessarily all differences, since we do have a lot of external drivers
-> pulled in).
+---
 
-Why not submit them too?
+ arch/i386/pci/fixup.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
+ab501219717d15686ad4ab488e070cce8c42b24c
+diff --git a/arch/i386/pci/fixup.c b/arch/i386/pci/fixup.c
+index eeb1b1f..65f6707 100644
+--- a/arch/i386/pci/fixup.c
++++ b/arch/i386/pci/fixup.c
+@@ -413,6 +413,13 @@ static struct dmi_system_id __devinitdat
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "PSM4"),
+ 		},
+ 	},
++	{
++		.ident = "Toshiba A40 based laptop",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "PSA40U"),
++		},
++	},
+ 	{ }
+ };
+ 
 -- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+1.0.5

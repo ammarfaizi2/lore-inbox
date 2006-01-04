@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWADJXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWADJXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbWADJXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 04:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030185AbWADJXK
+	id S1030188AbWADJXY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 04:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWADJXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 04:23:10 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:11306 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030184AbWADJXI (ORCPT
+	Wed, 4 Jan 2006 04:23:24 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:7837 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030186AbWADJXV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 04:23:08 -0500
-Message-ID: <43BB94AD.8090909@sw.ru>
-Date: Wed, 04 Jan 2006 12:26:05 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Wed, 4 Jan 2006 04:23:21 -0500
+Date: Wed, 4 Jan 2006 10:23:18 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Leonard Milcin Jr." <leonard.milcin@post.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: keyboard driver of 2.6 kernel
+In-Reply-To: <43BB906F.3010900@post.pl>
+Message-ID: <Pine.LNX.4.61.0601041017560.29257@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in>
+ <1136363622.2839.6.camel@laptopd505.fenrus.org> <43BB906F.3010900@post.pl>
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: torvalds@osdl.org, simon.derr@bull.net, linux-kernel@vger.kernel.org,
-       den@sw.ru, st@sw.ru, Andrew Morton <akpm@osdl.org>
-Subject: Re: cpusets: BUG: cpuset_excl_nodes_overlap() may sleep under tasklist_lock
-References: <43B28996.7060006@sw.ru> <20060103143158.8ab385d0.pj@sgi.com>
-In-Reply-To: <20060103143158.8ab385d0.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> > Greetings,
+>> >     I have a small doubt in Linux kernel keyboard driver.
 
->>FYI, there is an obvious bug in cpusets in 2.6.15-rcX:
->>cpuset_excl_nodes_overlap() may sleep (as it takes semaphore), but is 
->>called from atomic context - select_bad_process() under tasklist_lock.
->>BUG. Found by Denis Lunev.
-> 
-> 
-> Sorry for not responding sooner - I was off the air for a week.
-> 
-> Thanks for finding and reporting this.
-> 
-> Apparently, from KUROSAWA Takahiro's report, this bug was also in
-> 2.6.14.  My initial reading of the code in 2.6.14 and 2.6.15-* agrees,
-> and finds that this bug was present since the cpuset_excl_nodes_overlap
-> call was added, Sept 8, 2005 (in Linus's tree.)
-> 
-> 
-> 
->>the same actually applies to cpuset_zone_allowed() which is called e.g. 
->>from __alloc_pages()->get_page_from_freelist() and doesn't check for 
->>GPF_NOATOMIC anyhow...
-> 
-> 
-> I don't think so.  Please read the comments in kernel/cpuset.c above
-> the routine cpuset_zone_allowed().  Either that routine is called with
-> the __GFP_HARDWALL flag set, so returns before it gets to the semaphore
-> call, or it is not called at all, due to the check for ATOMIC (!wait)
-> in mm/page_alloc.c.
-> 
-> I don't see any bugs like this, in the cpuset_zone_allowed code path.
-this piece of code in __alloc_pages():
+Oh really?
+(Try looking into drivers/input/keyboard/atkbd.c.)
 
-         if (((p->flags & PF_MEMALLOC) || 
-unlikely(test_thread_flag(TIF_MEMDIE)))
-                         && !in_interrupt()) {
-                 if (!(gfp_mask & __GFP_NOMEMALLOC)) {
-nofail_alloc:
-                         /* go through the zonelist yet again, ignoring 
-mins */
-                         page = get_page_from_freelist(gfp_mask, order,
-                                 zonelist, 
-ALLOC_NO_WATERMARKS|ALLOC_CPUSET);
+>> > Is there any keyloggers which are implemented for 2.6 kernels?
 
-ALLOC_CPUSET is specified, gfp_mask can be GFP_ATOMIC still and no 
-__GFP_HARDWALL. Am I wrong?
+Can't you use Google?
+ttyrpld
 
-Kirill
+>> this is not r00tkitnewbies mailing list 
+>> keyloggers are evil!
 
+That does not prevent one from writing one ^_^
+
+> Let's pretend it's some sort of auditing ;-)
+
+Actually, I use my keylogger (advertised above) more for "situation 
+reconstruction" rather than spying. When you happen to have a multi-root
+environment and people "forget what they did", stuff like ttyrpld can 
+really be a gift compared to .bash_history (if it exists, after all).
+
+
+Jan
+-- 
 

@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWADFvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWADGCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWADFvX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 00:51:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWADFvX
+	id S965012AbWADGCU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 01:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbWADGCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 00:51:23 -0500
-Received: from dvhart.com ([64.146.134.43]:36842 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S964892AbWADFvW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 00:51:22 -0500
-Message-ID: <43BB6255.2030903@mbligh.org>
-Date: Tue, 03 Jan 2006 21:51:17 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Wed, 4 Jan 2006 01:02:20 -0500
+Received: from nproxy.gmail.com ([64.233.182.204]:7866 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965012AbWADGCT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 01:02:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lP+g2Cbt0SvWEMRgVHE3pcny9iPwtvhcGRGUu9vlk/E/1Bc19CJXPDp2TL94uTEQgTAI+u7FMV2DOMH58a5/1rB5bYfL3wZTqyTTZAByDUvNeMTQaNFAEsv8Rn5rcWpvkWCnz9HkMBHCtc4oXOdResfuUcX/m/Xe+MJdfyTDmfk=
+Message-ID: <2cd57c900601032202y3de62e78m@mail.gmail.com>
+Date: Wed, 4 Jan 2006 14:02:18 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: "Ed L. Cashin" <ecashin@coraid.com>
+Subject: Re: [PATCH 2.6.15-rc7] aoe [4/7]: use less confusing driver name
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+In-Reply-To: <871wzp10lm.fsf@coraid.com>
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>, mingo@elte.hu,
-       tim@physik3.uni-rostock.de, arjan@infradead.org, torvalds@osdl.org,
-       davej@redhat.com, linux-kernel@vger.kernel.org,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-References: <1135897092.2935.81.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de> <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <20060102134228.GC17398@stusta.de> <20060102102824.4c7ff9ad.akpm@osdl.org> <43BB0B8B.1000703@mbligh.org> <20060104042822.GA3356@waste.org>
-In-Reply-To: <20060104042822.GA3356@waste.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <87hd8l2fb4.fsf@coraid.com> <871wzp10lm.fsf@coraid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
+2006/1/4, Ed L. Cashin <ecashin@coraid.com>:
+> Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+>
+> Users were confused by the driver being called "aoe-2.6-$version".
+> This form looks less like a Linux kernel version number.
+>
+> Index: 2.6.15-rc7-aoe/drivers/block/aoe/aoemain.c
+> ===================================================================
+> --- 2.6.15-rc7-aoe.orig/drivers/block/aoe/aoemain.c     2006-01-02 13:35:13.000000000 -0500
+> +++ 2.6.15-rc7-aoe/drivers/block/aoe/aoemain.c  2006-01-02 13:35:14.000000000 -0500
+> @@ -89,7 +89,7 @@
+>         }
+>
+>         printk(KERN_INFO
+> -              "aoe: aoe_init: AoE v2.6-%s initialised.\n",
+> +              "aoe: aoe_init: aoe6-%s initialised.\n",
+>                VERSION);
 
->On Tue, Jan 03, 2006 at 03:40:59PM -0800, Martin J. Bligh wrote:
->  
->
->>It seems odd to me that we're doing this by second-hand effect on
->>code size ... the objective of making the code smaller is to make it
->>run faster, right? So ... howcome there are no benchmark results
->>for this?
->>    
->>
->
->Because it's extremely hard to design a benchmark that will show a
->significant change one way or the other for single kernel functions
->that doesn't also make said functions unusually cache-hot. And part of
->the presumed advantage of uninlining is that it leaves icache room for
->random other code that you're _not_ benchmarking.
->
->In other words, if it's not a microbenchmark, it generally can't be
->measured, directly or indirectly. And if it is a microbenchmark, the
->result is known to be biased.
->  
->
-Well, it's not just one function, is it? It'd seem that if you unlined
-a whole bunch of stuff (according to this theory) then normal
-macro-benchmarks would go faster? Otherwise it's all just rather
-theoretical, is it not?
+Better simply be `AoE v%s'?
 
->In the rare case of functions that are extremely popular (like
->spinlock and friends), we _can_ actually see small improvements in
->macrobenchmarks like kernel compiles. So it's fairly reasonable to
->assume that reducing icache footprint really does matter more than
->cycle count and extrapolate that to other functions.
->  
+>         discover_timer(TINIT);
+>         return 0;
 >
-Cool, that sounds good. How much are we talking about?
-I didn't see that in the thread anywhere ... perhaps I just
-missed it, sorry it got long ;-)
-
-M.
+>
+--
+Coywolf Qi Hunt

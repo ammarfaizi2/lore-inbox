@@ -1,99 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWADU75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWADVBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWADU75 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWADU74
+	id S1751798AbWADVBu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWADVBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:59:56 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:51614 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750911AbWADU7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:59:55 -0500
-Message-Id: <200601042152.k04Lq0nc009242@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 5/9] UML - add mconsole_reply variant with length param
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 04 Jan 2006 16:52:00 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Wed, 4 Jan 2006 16:01:44 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17029 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751286AbWADVBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 16:01:23 -0500
+Message-ID: <43BC377E.3050603@sgi.com>
+Date: Wed, 04 Jan 2006 15:00:46 -0600
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2.6] Altix - ioc3 serial support
+References: <200512162233.jBGMXRUQ139857@fsgi900.americas.sgi.com>
+In-Reply-To: <200512162233.jBGMXRUQ139857@fsgi900.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is needed for the console output patch, since we have a
-possibly non-NULL-terminated string there.  So, the new interface
-takes a string and a length, and the old interface calls strlen on
-its string and calls the new interface with the length.
+There hasn't been any further comments on this - I'm guessing it's ready to go.
 
-There's also a bit of whitespace cleanup.
+Andrew can you take this  ??
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+-- Pat
 
-Index: linux-2.6.15/arch/um/drivers/mconsole_user.c
-===================================================================
---- linux-2.6.15.orig/arch/um/drivers/mconsole_user.c	2005-11-30 12:48:57.000000000 -0500
-+++ linux-2.6.15/arch/um/drivers/mconsole_user.c	2005-12-28 23:22:37.000000000 -0500
-@@ -122,12 +122,12 @@ int mconsole_get_request(int fd, struct 
- 	return(1);
- }
- 
--int mconsole_reply(struct mc_request *req, char *str, int err, int more)
-+int mconsole_reply_len(struct mc_request *req, const char *str, int total,
-+		       int err, int more)
- {
- 	struct mconsole_reply reply;
--	int total, len, n;
-+	int len, n;
- 
--	total = strlen(str);
- 	do {
- 		reply.err = err;
- 
-@@ -155,6 +155,12 @@ int mconsole_reply(struct mc_request *re
- 	return(0);
- }
- 
-+int mconsole_reply(struct mc_request *req, const char *str, int err, int more)
-+{
-+	return mconsole_reply_len(req, str, strlen(str), err, more);
-+}
-+
-+
- int mconsole_unlink_socket(void)
- {
- 	unlink(mconsole_socket_name);
-Index: linux-2.6.15/arch/um/include/mconsole.h
-===================================================================
---- linux-2.6.15.orig/arch/um/include/mconsole.h	2005-10-28 12:58:12.000000000 -0400
-+++ linux-2.6.15/arch/um/include/mconsole.h	2005-12-29 11:52:19.000000000 -0500
-@@ -32,7 +32,7 @@ struct mconsole_reply {
- 
- struct mconsole_notify {
- 	u32 magic;
--	u32 version;	
-+	u32 version;
- 	enum { MCONSOLE_SOCKET, MCONSOLE_PANIC, MCONSOLE_HANG,
- 	       MCONSOLE_USER_NOTIFY } type;
- 	u32 len;
-@@ -66,7 +66,9 @@ struct mc_request
- extern char mconsole_socket_name[];
- 
- extern int mconsole_unlink_socket(void);
--extern int mconsole_reply(struct mc_request *req, char *reply, int err,
-+extern int mconsole_reply_len(struct mc_request *req, const char *reply,
-+			      int len, int err, int more);
-+extern int mconsole_reply(struct mc_request *req, const char *str, int err,
- 			  int more);
- 
- extern void mconsole_version(struct mc_request *req);
-@@ -84,7 +86,7 @@ extern void mconsole_proc(struct mc_requ
- extern void mconsole_stack(struct mc_request *req);
- 
- extern int mconsole_get_request(int fd, struct mc_request *req);
--extern int mconsole_notify(char *sock_name, int type, const void *data, 
-+extern int mconsole_notify(char *sock_name, int type, const void *data,
- 			   int len);
- extern char *mconsole_notify_socket(void);
- extern void lock_notify(void);
 
+
+The following patch adds driver support for a 2 port PCI IOC3-based
+serial card on Altix boxes:
+
+ftp://oss.sgi.com/projects/sn2/sn2-update/044-ioc3-support
+
+  arch/ia64/configs/gensparse_defconfig |    2
+  arch/ia64/configs/sn2_defconfig       |    2
+  drivers/serial/Kconfig                |    9
+  drivers/serial/Makefile               |    1
+  drivers/serial/ioc3_serial.c          | 2231 ++++++++++++++++++++++++++++++++++
+  drivers/sn/Kconfig                    |   14
+  drivers/sn/Makefile                   |    1
+  drivers/sn/ioc3.c                     |  851 ++++++++++++
+  include/asm-ia64/sn/ioc3.h            |  241 +++
+  include/linux/ioc3.h                  |   93 +
+
+
+
+This is a re-submission. On the original submission I was asked to
+organize the code so that the MIPS ioc3 ethernet and serial parts could
+be used with this driver. Stanislaw Skowronek was kind enough to
+provide the shim layer for this - thanks Stanislaw. This patch includes
+the shim layer and the Altix PCI ioc3 serial driver. The MIPS merged
+ioc3 ethernet and serial support is forthcoming.
+
+Signed-off-by: Patrick Gefre <pfg@sgi.com>

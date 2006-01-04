@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751760AbWADRKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751652AbWADRKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751760AbWADRKr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWADRKr
+	id S1751652AbWADRKb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751710AbWADRKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:10:47 -0500
-Received: from mail.linicks.net ([217.204.244.146]:51411 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1751771AbWADRKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:10:46 -0500
-From: Nick Warne <nick@linicks.net>
+	Wed, 4 Jan 2006 12:10:30 -0500
+Received: from 5301d.unt0.torres.l21.ma.zugschlus.de ([217.151.83.1]:2256 "EHLO
+	torres.zugschlus.de") by vger.kernel.org with ESMTP
+	id S1751652AbWADRKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:10:30 -0500
+Date: Wed, 4 Jan 2006 18:10:29 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.14.5 to 2.6.15 patch
-Date: Wed, 4 Jan 2006 17:10:37 +0000
-User-Agent: KMail/1.9
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.15 EHCI hang on boot
+Message-ID: <20060104171029.GK8079@torres.l21.ma.zugschlus.de>
+References: <20060104161844.GA28839@torres.l21.ma.zugschlus.de> <20060104162743.GA11794@home.fluff.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601041710.37648.nick@linicks.net>
+In-Reply-To: <20060104162743.GA11794@home.fluff.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, Jan 04, 2006 at 04:27:43PM +0000, Ben Dooks wrote:
+> I have the same (but only intermittently) on an Intel i875 based
+> board by MSI. In about 25% of the cases it manages to boot past
+> these lines, and initialise the mouse connected. 
 
-A stupid question - buggered if I can find a kernel patch from 2.6.14.5 to 
-2.6.15?
+After trying a few more times, I can now confirm that the issue is
+indeed intermittent. My mainboard in question is an MSI as well.
 
-Is there one?
+> The usb bus has a low-speed Microsoft mouse on it, and a
+> USB 1.1 Hub, with a card reader and serial dongle connected.
 
-Thanks,
+The only device on my USB is a Logitech Receiver:
+Bus 002 Device 002: ID 046d:c504 Logitech, Inc. Cordless Mouse+Keyboard Receiver
 
-Nick
+Greetings
+Marc
+
 -- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835

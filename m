@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWADAXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWADAYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbWADAXn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 19:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWADAXn
+	id S964990AbWADAYp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 19:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWADAYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 19:23:43 -0500
-Received: from mxout.hispeed.ch ([62.2.95.247]:18122 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S964971AbWADAXm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 19:23:42 -0500
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Lee Revell <rlrevell@joe-job.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0601032101570.9362@tm8103.perex-int.cz>
-References: <20050726150837.GT3160@stusta.de>
-	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
-	 <200601031629.21765.s0348365@sms.ed.ac.uk>
-	 <20060103170316.GA12249@dspnet.fr.eu.org>
-	 <1136312901.24703.59.camel@mindpipe> <1136316640.4106.26.camel@unreal>
-	 <Pine.LNX.4.61.0601032036250.9362@tm8103.perex-int.cz>
-	 <1136318187.4106.32.camel@unreal>
-	 <Pine.LNX.4.61.0601032101570.9362@tm8103.perex-int.cz>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 01:23:24 +0100
-Message-Id: <1136334204.4106.43.camel@unreal>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-02.tornado.cablecom.ch 32700; Body=3
-	Fuz1=3 Fuz2=3
+	Tue, 3 Jan 2006 19:24:45 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:61085 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965002AbWADAYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 19:24:44 -0500
+Date: Tue, 3 Jan 2006 19:24:29 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Florian Schmidt <mista.tapas@gmx.net>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rt1
+In-Reply-To: <20060104010138.060c8a32@mango.fruits.de>
+Message-ID: <Pine.LNX.4.58.0601031922020.1339@gandalf.stny.rr.com>
+References: <20060103094720.GA16497@elte.hu> <20060103153317.26a512fa@mango.fruits.de>
+ <20060103161356.4e1b47e0@mango.fruits.de> <1136313652.6039.171.camel@localhost.localdomain>
+ <1136314600.6039.174.camel@localhost.localdomain> <20060104010138.060c8a32@mango.fruits.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-03 at 21:06 +0100, Jaroslav Kysela wrote:
 
-> The "plugin" (or rather conversion, routing and resampling) system in the 
-> OSS emulation can be turned off using the proc interface:
+On Wed, 4 Jan 2006, Florian Schmidt wrote:
 
-Hm. IMO by including resampling and format conversion you're trying to
-"unbreak" broken OSS apps in the kernel. And by having this on by
-default you're rewarding writers of broken OSS apps while punishing
-those that write correct apps...
+> On Tue, 03 Jan 2006 13:56:40 -0500
+> Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> > Well, with the patch, the above program has been running for over ten
+> > minutes without the race occurring.  Without the patch, the race happens
+> > in about one minute or less.
+>
+> It has yet to show up here, too. Thanks, looks good.
+>
 
-But this is a sidetrack. Even though it's not optimal from the CPU usage
-point of view to have two sampling rate converters in sequence, and
-apart from the SNR loss by the overly simplistic linear interpolator,
-soundmodem should still work with ALSA's OSS emulation. But it doesn't.
-Well, it almost does: only every tenth or so bit is incorrect (which is
-inacceptable for a modem, though). This leads me to suspect there's
-something else wrong with the sample rate converter.
+I have yet to stop my test, and it has been running for over three hours
+now.  So I believe that this fixes that race.
 
-In sound/core/oss/rate.c, resample_expand, line 111:
-if (src_frames1-- > 0) {
+Ingo, do you see any problems with the patch?
 
-What is this test for? Similar code is also in resample_shrink.
-
-Either it's never false, or I know why modem apps don't work with it: it
-would be "inventing samples out of the blue", thereby adding lots of
-jitter to the time axis...
-
-Tom
-
+-- Steve
 

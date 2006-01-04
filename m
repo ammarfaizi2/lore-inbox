@@ -1,131 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbWADWCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWADWEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751812AbWADWCE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWADWBx
+	id S932586AbWADWEe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWADWEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:01:53 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:13046 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S932144AbWADWBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:01:32 -0500
-Date: Wed, 04 Jan 2006 17:01:10 -0500
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: [PATCH 11/15] therm_adt746x: Quiet fan speed change messages
-To: linux-kernel@vger.kernel.org
-Message-id: <0ISL001UT96EWW@a34-mta01.direcway.com>
-Content-transfer-encoding: 7BIT
+	Wed, 4 Jan 2006 17:04:33 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:62181 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S932144AbWADWEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:04:15 -0500
+Date: Wed, 4 Jan 2006 14:04:03 -0800
+From: Greg KH <greg@kroah.com>
+To: Marc Haber <mh+linux-kernel@zugschlus.de>,
+       David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.15 EHCI hang on boot
+Message-ID: <20060104220403.GC12778@kroah.com>
+References: <20060104161844.GA28839@torres.l21.ma.zugschlus.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060104161844.GA28839@torres.l21.ma.zugschlus.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only output the messages about fan speed changes with a verbose=1 module
-param.
+On Wed, Jan 04, 2006 at 05:18:44PM +0100, Marc Haber wrote:
+> Hi,
+> 
+> I have rolled out 2.6.15 on a number of test hosts. On one of my
+> boxes, which is by far the most recent one, has an i865 chipset, hangs
+> on boot when the EHCI driver is loaded. USB is not compiled as module,
+> so the system doesn't come up at all:
+> 
+> ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 18
+> ehci_hcd 0000:00:1d.7: EHCI Host Controller
+> ehci_hcd 0000:00:1d.7: debug port 1
+> 
+> These are the last lines of the boot log (which I have completely
+> captured via serial console and can submit on request).
+> 
+> The EHCI controller's lspci output (obtained with 2.6.14.3):
+> 0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI
+>  Controller (rev 02) (prog-if 20 [EHCI])
+>         Subsystem: Micro-Star International Co., Ltd. 865PE Neo2 (MS-6728)
+>         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort - <MAbort- >SERR- <PERR-
+>         Latency: 0
+>         Interrupt: pin D routed to IRQ 18
+>         Region 0: Memory at febffc00 (32-bit, non-prefetchable) [size=1K]
+>         Capabilities: [50] Power Management version 2
+>                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+>         Capabilities: [58] #0a [20a0]
+> (complete lspci output available on request)
+> 
+> The 2.6.14.3 kernel which was installed on that box before works fine.
+> The 2.6.15 configuration is the result of make oldconfig over that
+> 2.6.14.3 kernel, so I suspect that the configurations are sufficiently
+> similiar, and the same 2.6.15 binary works fine on other systems which
+> have their EHCI as PCI cards.
+> 
+> I suspect an incompatibility with the i865 chipset. Is there anything
+> I can do to help debugging?
 
-Signed-off-by: Fabio M. Di Nitto <fabbione@ubuntu.com>
-Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+I don't know, David, any ideas?
 
----
+thanks,
 
- drivers/macintosh/therm_adt746x.c |   39 +++++++++++++++++++++++--------------
- 1 files changed, 24 insertions(+), 15 deletions(-)
-
-b0641454dfe898af0e6901ecd6eef349c5239e31
-diff --git a/drivers/macintosh/therm_adt746x.c b/drivers/macintosh/therm_adt746x.c
-index f386966..5e1f5e9 100644
---- a/drivers/macintosh/therm_adt746x.c
-+++ b/drivers/macintosh/therm_adt746x.c
-@@ -52,6 +52,7 @@ static char *sensor_location[3] = {NULL,
- 
- static int limit_adjust = 0;
- static int fan_speed = -1;
-+static int verbose = 0;
- 
- MODULE_AUTHOR("Colin Leroy <colin@colino.net>");
- MODULE_DESCRIPTION("Driver for ADT746x thermostat in iBook G4 and "
-@@ -66,6 +67,10 @@ module_param(fan_speed, int, 0644);
- MODULE_PARM_DESC(fan_speed,"Specify starting fan speed (0-255) "
- 		 "(default 64)");
- 
-+module_param(verbose, bool, 0);
-+MODULE_PARM_DESC(verbose,"Verbose log operations "
-+		 "(default 0)");
-+
- struct thermostat {
- 	struct i2c_client	clt;
- 	u8			temps[3];
-@@ -149,13 +154,13 @@ detach_thermostat(struct i2c_adapter *ad
- 	if (thread_therm != NULL) {
- 		kthread_stop(thread_therm);
- 	}
--		
-+
- 	printk(KERN_INFO "adt746x: Putting max temperatures back from "
- 			 "%d, %d, %d to %d, %d, %d\n",
- 		th->limits[0], th->limits[1], th->limits[2],
- 		th->initial_limits[0], th->initial_limits[1],
- 		th->initial_limits[2]);
--	
-+
- 	for (i = 0; i < 3; i++)
- 		write_reg(th, LIMIT_REG[i], th->initial_limits[i]);
- 
-@@ -212,12 +217,14 @@ static void write_fan_speed(struct therm
- 		return;
- 	
- 	if (th->last_speed[fan] != speed) {
--		if (speed == -1)
--			printk(KERN_DEBUG "adt746x: Setting speed to automatic "
--				"for %s fan.\n", sensor_location[fan+1]);
--		else
--			printk(KERN_DEBUG "adt746x: Setting speed to %d "
--				"for %s fan.\n", speed, sensor_location[fan+1]);
-+		if (verbose) {
-+			if (speed == -1)
-+				printk(KERN_DEBUG "adt746x: Setting speed to automatic "
-+					"for %s fan.\n", sensor_location[fan+1]);
-+			else
-+				printk(KERN_DEBUG "adt746x: Setting speed to %d "
-+					"for %s fan.\n", speed, sensor_location[fan+1]);
-+		}
- 	} else
- 		return;
- 	
-@@ -298,10 +305,11 @@ static void update_fans_speed (struct th
- 			if (new_speed > 255)
- 				new_speed = 255;
- 
--			printk(KERN_DEBUG "adt746x: setting fans speed to %d "
--					 "(limit exceeded by %d on %s) \n",
--					new_speed, var,
--					sensor_location[fan_number+1]);
-+			if (verbose)
-+				printk(KERN_DEBUG "adt746x: Setting fans speed to %d "
-+						 "(limit exceeded by %d on %s) \n",
-+						new_speed, var,
-+						sensor_location[fan_number+1]);
- 			write_both_fan_speed(th, new_speed);
- 			th->last_var[fan_number] = var;
- 		} else if (var < -2) {
-@@ -309,8 +317,9 @@ static void update_fans_speed (struct th
- 			 * so cold (lastvar >= -1) */
- 			if (i == 2 && lastvar < -1) {
- 				if (th->last_speed[fan_number] != 0)
--					printk(KERN_DEBUG "adt746x: Stopping "
--						"fans.\n");
-+					if (verbose)
-+						printk(KERN_DEBUG "adt746x: Stopping "
-+							"fans.\n");
- 				write_both_fan_speed(th, 0);
- 			}
- 		}
-@@ -406,7 +415,7 @@ static int attach_one_thermostat(struct 
- 		th->initial_limits[i] = read_reg(th, LIMIT_REG[i]);
- 		set_limit(th, i);
- 	}
--	
-+
- 	printk(KERN_INFO "adt746x: Lowering max temperatures from %d, %d, %d"
- 			 " to %d, %d, %d\n",
- 			 th->initial_limits[0], th->initial_limits[1],
--- 
-1.0.5
+greg k-h

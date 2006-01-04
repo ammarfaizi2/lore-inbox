@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWADUeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965283AbWADUf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWADUeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbWADUeE
+	id S965283AbWADUf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965274AbWADUf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:34:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21152 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964861AbWADUeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:34:03 -0500
-Subject: Re: 2.6.15-ck1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Jones <davej@redhat.com>
-Cc: Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060104195726.GB14782@redhat.com>
-References: <200601041200.03593.kernel@kolivas.org>
-	 <20060104190554.GG10592@redhat.com>  <20060104195726.GB14782@redhat.com>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 21:33:56 +0100
-Message-Id: <1136406837.2839.67.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 4 Jan 2006 15:35:28 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:58876 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S965252AbWADUf1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:35:27 -0500
+Date: Wed, 4 Jan 2006 12:34:49 -0800 (PST)
+From: Daniel Walker <dwalker@mvista.com>
+To: Serge Noiraud <serge.noiraud@bull.net>
+cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: RT : 2.6.15-rt1 and net/ipv6/mcast.c
+In-Reply-To: <200601041832.39089.Serge.Noiraud@bull.net>
+Message-ID: <Pine.LNX.4.64.0601041234130.22025@dhcp153.mvista.com>
+References: <200601041832.39089.Serge.Noiraud@bull.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 14:57 -0500, Dave Jones wrote:
-> On Wed, Jan 04, 2006 at 02:05:54PM -0500, Dave Jones wrote:
->  > On Wed, Jan 04, 2006 at 12:00:00PM +1100, Con Kolivas wrote:
->  >  >  +2.6.15-dynticks-060101.patch
->  >  >  +dynticks-disable_smp_config.patch
->  >  > Latest version of the dynticks patch. This is proving stable and effective on 
->  >  > virtually all uniprocessor machines and will benefit systems that desire 
->  >  > power savings. SMP kernels (even on UP machines) still misbehave so this 
->  >  > config option is not available by default for this stable kernel.
->  > 
->  > I've been curious for some time if this would actually show any measurable
->  > power savings. So I hooked up my laptop to a gizmo[1] that shows how much
->  > power is being sucked.
->  > 
->  > both before, and after, it shows my laptop when idle is pulling 21W.
->  > So either the savings here are <1W (My device can't measure more accurately
->  > than a single watt), or this isn't actually buying us anything at all, or
->  > something needs tuning.
-> 
-> Ah interesting. It needs to be totally idle for a period of time before
-> anything starts to happen at all. After about a minute of doing nothing,
-> it started to fluctuate once a second 20,21,19,20,19,20,18,21,19,20,22 etc..
 
+I thought I submitted an identical patch, but maybe I forgot to CC LKML .
 
-sounds like we need some sort of profiler or benchmarker or at least a
-tool that helps finding out which timers are regularly firing, with the
-aim at either grouping them or trying to reduce their disturbance in
-some form.
+On Wed, 4 Jan 2006, Serge Noiraud wrote:
 
-
+> Hi,
+>
+> 	On my i386 machine I can't compile. I have an error in net/ipv6/mcast.c
+> I correct the error doing the correction below. No more compilation problem.
+> Not yet tested. perhaps someone already submit it, but I received no mail today from vger.kernel.org
+>
+> Index: linux/net/ipv6/mcast.c
+> ===================================================================
+> --- linux.orig/net/ipv6/mcast.c
+> +++ linux/net/ipv6/mcast.c
+> @@ -224,7 +224,7 @@
+>
+>        mc_lst->ifindex = dev->ifindex;
+>        mc_lst->sfmode = MCAST_EXCLUDE;
+> -       mc_lst->sflock = RW_LOCK_UNLOCKED;
+> +       mc_lst->sflock = RW_LOCK_UNLOCKED(mc_lst->sflock);
+>        mc_lst->sflist = NULL;
+>
+>        /*
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

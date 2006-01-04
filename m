@@ -1,75 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWADIrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWADIt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWADIrK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 03:47:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWADIrJ
+	id S1751224AbWADIt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 03:49:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWADItZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 03:47:09 -0500
-Received: from llsa378-a01.servidoresdns.net ([82.223.190.20]:27294 "EHLO
-	llsa378-a01.servidoresdns.net") by vger.kernel.org with ESMTP
-	id S1751223AbWADIrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 03:47:08 -0500
-Message-ID: <43BB8C0D.1030302@yahoo.com>
-Date: Wed, 04 Jan 2006 09:49:17 +0100
-From: Pedro Monjo Florit <pmonjo2000@yahoo.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Wed, 4 Jan 2006 03:49:25 -0500
+Received: from dslsmtp.struer.net ([62.242.36.21]:45067 "EHLO
+	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S1751224AbWADItY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 03:49:24 -0500
+Message-ID: <47519.194.237.142.10.1136364561.squirrel@194.237.142.10>
+In-Reply-To: <200601040828.k048SgGX019713@shell0.pdx.osdl.net>
+References: <200601040828.k048SgGX019713@shell0.pdx.osdl.net>
+Date: Wed, 4 Jan 2006 09:49:21 +0100 (CET)
+Subject: Re: + gitignore-asm-offsetsh.patch added to -mm tree
+From: sam@ravnborg.org
+To: akpm@osdl.org
+Cc: bgerst@didntduck.org, mm-commits@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Error in ohci_hcd with bluetooth dongles
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Hi Andrew.
 
-I am using kernel 2.6.12 patched with Marcel Holtmann patches 
-(2.6.12-mh3) and a custom Linux distribution based on Linux From Scratch 
-6.1. I attach up to three CSR-based Bluetooth dongles, through USB.
+This patch is already part of git-kbuild.
+Do you have the latest pull from my kbuild repository?
 
-I have a problem with the ohci_hcd module. For some (still unknown) 
-reason, at a random time, I start to get error messages in syslog, at a 
-rate of about 150 lines per second, until they fill up the entire hard 
-disk. This does not happen always, only from time to time. Here is a 
-sample of the messages:
+    Sam
 
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f7f4 path 1.3 ep1in 5f160000 cc 5 --> status -110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160000 cc 5 --> status -110
-Dec 22 21:30:21 Host last message repeated 3 times
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f7f4 path 1.3 ep1in 5f160000 cc 5 --> status -110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160000 cc 5 --> status -110
-Dec 22 21:30:21 Host last message repeated 3 times
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f7f4 path 1.3 ep1in 5f160000 cc 5 --> status -110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160000 cc 5 --> status -110
-Dec 22 21:30:21 Host last message repeated 3 times
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f7f4 path 1.3 ep1in 5f160000 cc 5 --> status -110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160000 cc 5 --> status -110
-Dec 22 21:30:21 Host last message repeated 2 times
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e1110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160000 cc 5 --> status -110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f7f4 path 1.3 ep1in 5f160000 cc 5 --> status -110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160000 cc 5 --> status -110
-Dec 22 21:30:21 Host last message repeated 3 times
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f7f4 path 1.3 ep1in 5f160000 cc 5 --> status -110
-Dec 22 21:30:21 Host kernel: ohci_hcd 0000:00:13.0: urb c130f974 path 1.3 ep2in 5e160000 cc 5 --> status -110
+>
+> The patch titled
+>
+>      gitignore asm-offsets.h
+>
+> has been added to the -mm tree.  Its filename is
+>
+>      gitignore-asm-offsetsh.patch
+>
+>
+> From: Brian Gerst <bgerst@didntduck.org>
+>
+> Ignore asm-offsets.h for all arches.
+>
+> Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+>
+>  dev/null   |    1 -
+>  .gitignore |    1 +
+>  2 files changed, 1 insertion(+), 1 deletion(-)
+>
+> diff -puN .gitignore~gitignore-asm-offsetsh .gitignore
+> --- .gitignore~gitignore-asm-offsetsh	2006-01-04 00:28:30.000000000 -0800
+> +++ devel-akpm/.gitignore	2006-01-04 00:28:30.000000000 -0800
+> @@ -23,6 +23,7 @@ Module.symvers
+>  # Generated include files
+>  #
+>  include/asm
+> +include/asm-*/asm-offsets.h
+>  include/config
+>  include/linux/autoconf.h
+>  include/linux/compile.h
+> diff -L include/asm-mips/.gitignore -puN
+> include/asm-mips/.gitignore~gitignore-asm-offsetsh /dev/null
+> --- devel/include/asm-mips/.gitignore
+> +++ /dev/null	2003-09-15 06:40:47.000000000 -0700
+> @@ -1 +0,0 @@
+> -asm_offsets.h
+> _
+>
+> Patches currently in -mm which might be from bgerst@didntduck.org are
+>
+> mpspec-remove-unneeded-packed-attribute.patch
+> gitignore-asm-offsetsh.patch
+> gitignore-x86_64-files.patch
+> gitignore-misc.patch
+> remove-checkconfigpl.patch
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe mm-commits" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
 
-I have found where the error is generated in the kernel souces (file 
-ohci-q.c), but I am not an expert in USB protocol, so I do not know 
-exactly when is this triggered. Searching in the archives, I have seen 
-that this problem was once reported back in June 2004 and Marcel 
-answered that in 2.6.7-rc2 it was already solved.
-
-I must add that the problem may be well due to a hardware error, but I 
-want to make sure that the problem is not in the software.
-
-What does exactly this error mean? When is it generated? Is there any 
-known reason that could make the kernel enter an infinite loop that 
-would generate this error continously, even in the absence of the 
-original condition?
-
-Cheers,
-
-Pedro Monjo

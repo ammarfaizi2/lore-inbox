@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWADRRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964769AbWADRSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbWADRRN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWADRRN
+	id S964769AbWADRSr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWADRSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:17:13 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9481 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932553AbWADRRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:17:11 -0500
-Date: Wed, 4 Jan 2006 18:17:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] i386: enable 4k stacks by default
-Message-ID: <20060104171710.GQ3831@stusta.de>
-References: <20060104145138.GN3831@stusta.de> <9a8748490601040839s58a0a26en454f54459006077c@mail.gmail.com> <20060104164445.GO3831@stusta.de> <9a8748490601040849l5e144f18s381854dd7f5f6e6b@mail.gmail.com> <20060104165835.GP3831@stusta.de> <9a8748490601040910q50655fc1sbdef48c8bd3d02d4@mail.gmail.com>
+	Wed, 4 Jan 2006 12:18:47 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:19132 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964769AbWADRSq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:18:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KxDA4kJqAGTNxQt2iiNNZ6GabUJbYyWt/emVSAVeggencca0R3QKh24l4Sb3BvafFiunAVh0blW51FP/x4FclOCm0dmgu21drRrq1H3kdu8o25Ztv1Uo8SAMkUM1qAcsItmx9qYQuwbxw4q3z0LNFB7z+nqD6Qh5y8yjZJ/MR/E=
+Message-ID: <9a8748490601040918p24674d86j132315e9c8875483@mail.gmail.com>
+Date: Wed, 4 Jan 2006 18:18:44 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Nick Warne <nick@linicks.net>
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200601041710.37648.nick@linicks.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <9a8748490601040910q50655fc1sbdef48c8bd3d02d4@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+References: <200601041710.37648.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 06:10:45PM +0100, Jesper Juhl wrote:
-> On 1/4/06, Adrian Bunk <bunk@stusta.de> wrote:
-> > On Wed, Jan 04, 2006 at 05:49:25PM +0100, Jesper Juhl wrote:
-> > > To get maximum testing making 4KSTACKS default Y and removing the "if
-> > > DEBUG_KERNEL" conditional just seems to me to be the obvious choice...
-> >
-> > With my version, we are getting the bigger testing coverage - and
-> > getting a big testing coverage in -mm is what we need if we want to know
-> > whether we have really already fixed all stack problems or whether
-> > there are any left.
-> >
-> Ok, I guess I didn't make myself as clear as I thought.
-> What I meant was that if 4K stacks are always enabled by default, then
-> you'll get more testing than if only people who enable DEBUG_KERNEL
-> are able to turn it on.
->...
+On 1/4/06, Nick Warne <nick@linicks.net> wrote:
+> Hi all,
+>
+> A stupid question - buggered if I can find a kernel patch from 2.6.14.5 to
+> 2.6.15?
+>
+> Is there one?
+>
+No.
 
-This is not what my patch does.
-
-Please apply my patch, use DEBUG_KERNEL=n and you'll understand it.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+What you do is you first revert the 2.6.14.5 patch so you are left
+with a 2.6.14 kernel, then you apply the 2.6.15 patch.
+For more info, please read Documentation/applying-patches.txt
+(http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt)
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

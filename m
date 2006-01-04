@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751818AbWADXWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWADXYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751818AbWADXWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751827AbWADXWn
+	id S1751837AbWADXYn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWADXYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:22:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5323 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751818AbWADXWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:22:42 -0500
-Date: Wed, 4 Jan 2006 15:24:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 4/9] UML - Better diagnostics for broken configs
-Message-Id: <20060104152433.7304ec75.akpm@osdl.org>
-In-Reply-To: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org>
-References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 18:24:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:23564 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751837AbWADXYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:24:43 -0500
+Date: Thu, 5 Jan 2006 00:24:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+       "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: [2.6 patch] Define BITS_PER_BYTE
+Message-ID: <20060104232442.GX3831@stusta.de>
+References: <20051108185349.6e86cec3.akpm@osdl.org> <437226B1.4040901@cosmosbay.com> <20051109220742.067c5f3a.akpm@osdl.org> <4373698F.9010608@cosmosbay.com> <43BB1178.7020409@cosmosbay.com> <20060104034534.45d9c18a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060104034534.45d9c18a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike <jdike@addtoit.com> wrote:
->
-> Produce a compile-time error if both MODE_SKAS and MODE_TT are disabled.
-> 
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
-> 
-> Index: linux-2.6.15/arch/um/include/choose-mode.h
-> ===================================================================
-> --- linux-2.6.15.orig/arch/um/include/choose-mode.h	2005-08-28 19:41:01.000000000 -0400
-> +++ linux-2.6.15/arch/um/include/choose-mode.h	2005-11-17 10:43:47.000000000 -0500
-> @@ -23,6 +23,9 @@ static inline void *__choose_mode(void *
->  
->  #elif defined(UML_CONFIG_MODE_TT)
->  #define CHOOSE_MODE(tt, skas) (tt)
+On Wed, Jan 04, 2006 at 03:45:34AM -0800, Andrew Morton wrote:
+>...
+> +/*
+> + * More than this number of fds: we use a separately allocated fd_set
+> + */
+> +#define EMBEDDED_FD_SET_SIZE	(8 * sizeof(struct embedded_fd_set))
 > +
-> +#else
-> +#error CONFIG_MODE_SKAS and CONFIG_MODE_TT are both disabled
->  #endif
->  
->  #define CHOOSE_MODE_PROC(tt, skas, args...) \
+>...
 
-Is there no sane way to prevent this situation within Kconfig?
+What about applying and using the patch below?
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+This can make some arithmetic expressions clearer.
+
+
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- a/include/linux/types.h	Wed Dec 28 14:19:42 2005 -0800
++++ b/include/linux/types.h	Wed Dec 28 14:19:42 2005 -0800
+@@ -8,6 +8,8 @@
+ 	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
+ #define DECLARE_BITMAP(name,bits) \
+ 	unsigned long name[BITS_TO_LONGS(bits)]
++
++#define BITS_PER_BYTE 8
+ #endif
+ 
+ #include <linux/posix_types.h>

@@ -1,48 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965250AbWADRpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965254AbWADRqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965250AbWADRpn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWADRpn
+	id S965254AbWADRqh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965253AbWADRqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:45:43 -0500
-Received: from mail.linicks.net ([217.204.244.146]:41906 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S965250AbWADRpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:45:42 -0500
-From: Nick Warne <nick@linicks.net>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Date: Wed, 4 Jan 2006 17:45:39 +0000
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rdunlap@xenotime.net>
-References: <200601041710.37648.nick@linicks.net> <200601041728.52081.nick@linicks.net> <9a8748490601040940peb15b75n454e02a622f795e1@mail.gmail.com>
-In-Reply-To: <9a8748490601040940peb15b75n454e02a622f795e1@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 12:46:36 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:60560 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S965252AbWADRqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:46:35 -0500
+Date: Wed, 4 Jan 2006 18:46:33 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Jamie Lokier <jamie@shareable.org>, Ben Slusky <sluskyb@paranoiacs.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-fsdevel@vger.kernel.org,
+       legal@lists.gnumonks.org, "Robert W. Fuller" <garbageout@sbcglobal.net>,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, info@crossmeta.com
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+Message-ID: <20060104174633.GY4898@sunbeam.de.gnumonks.org>
+References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <20051223153541.GA13111@paranoiacs.org> <20060104110929.GH4898@sunbeam.de.gnumonks.org> <20060104115422.GA2562@mail.shareable.org> <20060104131805.GM4898@sunbeam.de.gnumonks.org> <20060104134641.GM19769@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hSsVBZHIO2Q9XETc"
 Content-Disposition: inline
-Message-Id: <200601041745.39180.nick@linicks.net>
+In-Reply-To: <20060104134641.GM19769@parisc-linux.org>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 17:40, Jesper Juhl wrote:
 
-> > I went from 2.6.14 -> 2.6.14.2 -> .2-.3 -> .3-.4 -> .4-.5
->
-> If you did that you did it wrong. The -stable patches are *not*
-> incremental, they all apply to the base 2.6.x kernel.
+--hSsVBZHIO2Q9XETc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-nick@linuxamd:kernel$ ls -lsa | grep patch
+On Wed, Jan 04, 2006 at 06:46:41AM -0700, Matthew Wilcox wrote:
+> On Wed, Jan 04, 2006 at 02:18:05PM +0100, Harald Welte wrote:
+> > yes.  but the point is (according to reports I have received) that the
+> > object code (without source code) was available for download on the
+> > crossmeta website.=20
+>=20
+> It's  still downloadable.
+> http://www.crossmeta.com/downloads/crossmeta-add-1_0.zip
 
-   24 -rw-r--r--   1 nick users    20572 2005-11-11 06:07 patch-2.6.14.2
-   48 -rw-r--r--   1 nick users    46260 2005-11-24 22:15 patch-2.6.14.3
-   24 -rw-r--r--   1 nick users    22725 2005-12-15 00:27 patch-2.6.14.3-4
-   20 -rw-r--r--   1 nick users    18651 2005-12-27 00:29 patch-2.6.14.4-5
+thanks for letting me know.
 
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/
+> There is no source included, nor an offer to provide source, nor
+> anything which could be construed as to satisfy 3 (c).
+>=20
+> Do you want to take this one on, Harald?
+
+I would be happier if someone based in the US (and more familiar with
+the US legal system) could take up this one.
+
+Maybe Hans Reiser is interested doing something about it, I've already
+had gpl enforcement related contact with him in the past and he seemed
+very interested.
+
+I would recommend moving this thread off the technical mailinglists.
+
+Everyone who wants to continue discussing the legal aspects is invited
+to join the legal@lists.gpl-violations.org mailinglist, see more info at=20
+http://gpl-violations.org/mailinglists.html#ml-legal
+
+Thanks.
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--hSsVBZHIO2Q9XETc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDvAn5XaXGVTD0i/8RAuM/AJ4gLD2Hvnl5n20iOnd5mZl5xVK09ACfY1BX
+kSljrVtS3Z8ID52Uo19EBkk=
+=uFeS
+-----END PGP SIGNATURE-----
+
+--hSsVBZHIO2Q9XETc--

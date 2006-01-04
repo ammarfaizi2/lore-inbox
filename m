@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWADNU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWADNVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751784AbWADNU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 08:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWADNUV
+	id S1751785AbWADNVp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 08:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbWADNVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 08:20:21 -0500
-Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:16778 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751785AbWADNTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 08:19:17 -0500
-Message-Id: <20060104131843.317180000@dorka.pomaz.szeredi.hu>
-References: <20060104131530.511388000@dorka.pomaz.szeredi.hu>
-Date: Wed, 04 Jan 2006 14:15:35 +0100
-From: Miklos Szeredi <miklos@szeredi.hu>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/6] fuse: ensure progress in read and write
-Content-Disposition: inline; filename=fuse_at_least_one_page.patch
+	Wed, 4 Jan 2006 08:21:44 -0500
+Received: from csl2r.consultronics.on.ca ([204.138.93.16]:9093 "EHLO
+	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id S1751785AbWADNVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 08:21:43 -0500
+Date: Wed, 4 Jan 2006 08:21:39 -0500
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060104132139.GA5753@athame.dynamicro.on.ca>
+Mail-Followup-To: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl> <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl> <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <1136364634.22598.70.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1136364634.22598.70.camel@localhost.localdomain>
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In direct_io mode, send at least one page per reqest.  Previously it
-was possible that reqests with zero data were sent, and hence the
-read/write didn't make any progress, resulting in an infinite (though
-interruptible) loop.
+On 20060104 (Wed) at 0850:34 +0000, Alan Cox wrote:
+> On Mer, 2006-01-04 at 03:51 +0100, Tomasz K??oczko wrote:
+> > Be compliant with OSS specyfication allow save many time on applications 
+> > development level by consume (in good sense) time spend on this 
+> > applications by *BSD, Solaris and other systems developers (even on not 
+> > open source applications).
+> 
+> Both Solaris and FreeBSD contain Linux emulation code so in that sense
+> they admitted 'defeat' long ago.
+> 
+> > valuable functionalities in usable/simpler form for joe-like users .. 
+> > remember: sound support in Linux isn't for data centers/big-ass-machines :)
+> 
+> And distributions nowdays ship with ALSA by default, which is giving
+> users far better audio timing behaviour, mixing they want, digital and
+> analogue 5.1 outputs. OSS really isn't ideal for serious "end user"
+> applications like video playback
+> 
+Ok, so I'm not serious :) just wanna do fairly standard audio things.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
----
+- ALSA doesn't (AFAIK, haven't checked for a few months) support my old
+  Audiotrix sound card -- bye, machine 1
+- ALSA can't be persuaded (not by me, anyway) to drive my VIA
+  ac97_codec onboard sound hardware -- everything works fine except
+  unmuting ;) -- bye, machine 2
+- ALSA does suport my i810_audio ac97_codec laptop, but so does OSS,
+  equally well (for my unsophisticated needs) and with a far less
+  elephantine footprint in memory. -- strike 3, ALSA out.
 
-Index: linux/fs/fuse/file.c
-===================================================================
---- linux.orig/fs/fuse/file.c	2006-01-04 12:37:52.000000000 +0100
-+++ linux/fs/fuse/file.c	2006-01-04 12:37:56.000000000 +0100
-@@ -475,7 +475,7 @@ static int fuse_get_user_pages(struct fu
- 
- 	nbytes = min(nbytes, (unsigned) FUSE_MAX_PAGES_PER_REQ << PAGE_SHIFT);
- 	npages = (nbytes + offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
--	npages = min(npages, FUSE_MAX_PAGES_PER_REQ);
-+	npages = min(max(npages, 1), FUSE_MAX_PAGES_PER_REQ);
- 	down_read(&current->mm->mmap_sem);
- 	npages = get_user_pages(current, current->mm, user_addr, npages, write,
- 				0, req->pages, NULL);
-@@ -506,7 +506,6 @@ static ssize_t fuse_direct_io(struct fil
- 		return -EINTR;
- 
- 	while (count) {
--		size_t tmp;
- 		size_t nres;
- 		size_t nbytes = min(count, nmax);
- 		int err = fuse_get_user_pages(req, buf, nbytes, !write);
-@@ -514,8 +513,8 @@ static ssize_t fuse_direct_io(struct fil
- 			res = err;
- 			break;
- 		}
--		tmp = (req->num_pages << PAGE_SHIFT) - req->page_offset;
--		nbytes = min(nbytes, tmp);
-+		nbytes = (req->num_pages << PAGE_SHIFT) - req->page_offset;
-+		nbytes = min(count, nbytes);
- 		if (write)
- 			nres = fuse_send_write(req, file, inode, pos, nbytes);
- 		else
+So even if sound support in Linux _is_ for "big-ass" studio work, it
+would be nice if little guys didn't get abandoned along the way, IMHO.
 
---
+-- 
+| G r e g  L o u i s         | gpg public key: 0x400B1AA86D9E3E64 |
+|  http://www.bgl.nu/~glouis |   (on my website or any keyserver) |
+|  http://wecanstopspam.org in signatures helps fight junk email. |

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965288AbWADWbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965295AbWADWcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965288AbWADWbA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965291AbWADWbA
+	id S965295AbWADWcd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWADWcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:31:00 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:41650 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S965288AbWADWa6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:30:58 -0500
-Date: Wed, 4 Jan 2006 14:30:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Nick Warne <nick@linicks.net>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Message-ID: <20060104223045.GA13799@kroah.com>
-References: <200601041710.37648.nick@linicks.net> <200601042210.47152.nick@linicks.net> <20060104221549.GA13254@kroah.com> <200601042220.59637.nick@linicks.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601042220.59637.nick@linicks.net>
-User-Agent: Mutt/1.5.11
+	Wed, 4 Jan 2006 17:32:33 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:8020 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S965295AbWADWcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:32:32 -0500
+Date: Wed, 04 Jan 2006 17:32:06 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 03/15] powernow-k7: Work when kernel is compiled for SMP
+In-reply-to: <20060104222618.GA24376@isilmar.linta.de>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Ben Collins <bcollins@ubuntu.com>, davej@redhat.com,
+       linux-kernel@vger.kernel.org
+Message-id: <1136413927.4430.35.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL00NU693O1L@a34-mta01.direcway.com>
+ <20060104222618.GA24376@isilmar.linta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 10:20:59PM +0000, Nick Warne wrote:
-> On Wednesday 04 January 2006 22:15, Greg KH wrote:
-> 
-> > > Then when 2.6.15 came out, that was it!  No patch for the 'latest stable
-> > > kernel release 2.6.14.5'.  It was GONE!
+On Wed, 2006-01-04 at 23:26 +0100, Dominik Brodowski wrote:
+> On Wed, Jan 04, 2006 at 04:59:31PM -0500, Ben Collins wrote:
+> > On a UP system with SMP compiled kernel, the powernow-k7 module would not
+> > initialize (returned -ENODEV). Not sure why policy->cpu != 0 for UP
 > >
-> > That's because 2.6.15 is the latest stable release.
-> >
-> > > OK, I suppose we are all capable of getting back to where we are on
-> > > rebuilding to latest 'stable', but there _is_ a missing link for somebody
-> > > that doesn't know - and I think backtracking patches isn't really the way
-> > > to go if the 'latest stable release' isn't catered for.
-> >
-> > Um, it is, see my sentance above.  And if you want to download older
-> > stable releases, you can jump to the proper directory, how long do you
-> > want us to put older stable releases on the main page for?  :)
+> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 > 
-> OK, I see what you mean, but 2.6.14 wasn't the latest 'release' - 2.6.14.5 was 
-> (according to kernel.org).  Yet there is no upgrade path for that build (or 
-> any other .x releases)
-> 
-> It is a bit of a mess really.
+> May the smp_processor_id() be != 0 on _true_ UP on SMP? What happens if (using
+> virtual CPU hotplug) the module is modprobe'd with one CPU online, and then
+> the second CPU becomes online later?
 
-Huh?  I'm confused, what exactly would you like the kernel.org site to
-look like?
+That's why there is num_possible_cpus() checked aswell. That's supposed
+to report possible hotplug cpu's, even if not plugged, correct?
 
-thanks,
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 
-greg k-h

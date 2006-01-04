@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWADQW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWADQZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWADQW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 11:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWADQW6
+	id S1751205AbWADQZD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 11:25:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWADQZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 11:22:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:18229 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932213AbWADQW5 convert rfc822-to-8bit
+	Wed, 4 Jan 2006 11:25:03 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:61065 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751205AbWADQZA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 11:22:57 -0500
+	Wed, 4 Jan 2006 11:25:00 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iYKXaCDL/P0ivzeOsViKpG23KioSdvPGX5B1mExKD4BPA536gEpAmY+u2hdWdWeKNJKy3LNXC/3WPfAU55Ijqx1FJ1Jgr+3XdRK4nQWlXLoltt5OqhAdDZ/V8sIwP8tK55d2srFavu/BPmw94NLb2GyZXS3yr2hJIZMw2jG3RvY=
-Message-ID: <d120d5000601040822p5d15880bu51e5989917389e4@mail.gmail.com>
-Date: Wed, 4 Jan 2006 11:22:56 -0500
+        b=ZIk9jXw3nwVDCmYgbnSV2Ssve3yrY/SUcnZy7RrVBhkx6o21BPC1jpkO7oJRTUObTi0DhJSYGlTI8uySo1qUvWkMGA7GjVGd4eoMNIdOadV8nNzX+Ag/NSi3jtFHm87NLZbcY3OBLEosOnuaalEV96GbQs4vPdAVBiKHLcjNhxs=
+Message-ID: <d120d5000601040825m1ee3f994g8ae45ca30819a7ae@mail.gmail.com>
+Date: Wed, 4 Jan 2006 11:25:00 -0500
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Reply-To: dtor_core@ameritech.net
-To: Scott A Crosby <scrosby@cs.rice.edu>
-Subject: Re: tap-drag on laptop touchpad no longer works in 2.6.15 and 2.6.13
-Cc: petero2@telia.com, Vojtech Pavlik <vojtech@ucw.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <oydd5j80ybv.fsf@cs.rice.edu>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: keyboard driver of 2.6 kernel
+Cc: "P.Manohar" <pmanohar@lantana.tenet.res.in>, linux-kernel@vger.kernel.org
+In-Reply-To: <1136363622.2839.6.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <oydd5j80ybv.fsf@cs.rice.edu>
+References: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in>
+	 <1136363622.2839.6.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/06, Scott A Crosby <scrosby@cs.rice.edu> wrote:
-> I'm not sure if it was a planned change, but the default behavior for
-> my touchpad has changed --- I can no longer tap-drag.
+On 1/4/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Wed, 2006-01-04 at 14:02 +0530, P.Manohar wrote:
+> > Greetings,
+> >      I have a small doubt in Linux kernel keyboard driver.
+> > In 2.4 kernels the starting fuction of keyboard driver is "handle_scancode".
+> > But in 2.6 kernels the keyboard interface
+> > is changed drastically.  If you familiar with that can you tell me the starting
+> > fuction of keyboard interace which gets
+> > the scancodes in 2.6 kernels.
+> >
+> > Actually my paln is to stuff scancodes or keycodes to the keyboard buffer
+> > , from there on the keyboard driver processes them.  I have done this for
+> > 2.4 kernel.  I want to implement the same to 2.6 kernel.
+> >
+> > Is there any keyloggers which are implemented for 2.6 kernels?
+>
+> this is not r00tkitnewbies mailing list
+>
+> keyloggers are evil!
 >
 
-Please try installing synaptics X driver:
-
-            http://web.telia.com/~u89404340/touchpad/
-
-or use "psmouse.proto=exps" option to restore old behavior.
+Anyway, if you want to read keypresses and other input events use
+corresponding event device (/dev/input/eventX). If you want to feed
+input events into the kernel you need to use "uinput" driver.
 
 --
 Dmitry

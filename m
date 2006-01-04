@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWADXZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751839AbWADX0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWADXZg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWADXZg
+	id S1751839AbWADX0m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751844AbWADX0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:25:36 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:9185 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750949AbWADXZf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:25:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=X6J8/esE2FlFkTwUVvNZ5IgPDjc+DoxILfnUBhgBJtmJm82PFBJq6Ut8hLBCLgIYpUJotnQtTgElctgvphps3F7cinCfeuXKMD/r9XoyFly+rclAfoDVogeBA+FBvMj9k4GtjOuEkCLM7+h0kLPWywxPok6LYDEIheu5cwKgMho=
-Message-ID: <4d8e3fd30601041525i4e23e3bbl26ad3590c2dd80ac@mail.gmail.com>
-Date: Thu, 5 Jan 2006 00:25:34 +0100
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH] MAINTAINERS file: Fix missing colon
-Cc: "John L. Villalovos" <john.l.villalovos@intel.com>,
-       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
-       torvalds@osdl.org
-In-Reply-To: <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
+	Wed, 4 Jan 2006 18:26:42 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:16088 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751839AbWADX0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:26:41 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Date: Wed, 4 Jan 2006 23:26:42 +0000
+User-Agent: KMail/1.9
+Cc: Nick Warne <nick@linicks.net>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+References: <200601041710.37648.nick@linicks.net> <200601042249.12116.s0348365@sms.ed.ac.uk> <20060104231226.GC14788@kroah.com>
+In-Reply-To: <20060104231226.GC14788@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <43BC45DE.5060303@intel.com>
-	 <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
+Message-Id: <200601042326.42740.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> On Wed, 4 Jan 2006, John L. Villalovos wrote:
+On Wednesday 04 January 2006 23:12, Greg KH wrote:
+> On Wed, Jan 04, 2006 at 10:49:11PM +0000, Alistair John Strachan wrote:
+> > Re-read the thread. The confusion here is about "going back" to 2.6.14
+> > before patching 2.6.15. This has nothing to do with "rc kernels". We have
+> > this documented explicitly in the kernel but not on the kernel.org FAQ.
 >
-> > From: John L. Villalovos <john.l.villalovos@intel.com>
-> >
-> > While parsing the MAINTAINERS file I disovered one entry was missing a colon.
-> > This patch adds the one missing colon.
-> >
-> > ---
-> > diff -r 8441517e7e79 MAINTAINERS
-> > --- a/MAINTAINERS       Thu Jan  5 04:00:05 2006
-> > +++ b/MAINTAINERS       Wed Jan  4 13:49:27 2006
-> > @@ -681,7 +681,7 @@
-> >
-> >   DAC960 RAID CONTROLLER DRIVER
-> >   P:     Dave Olien
-> > -M      dmo@osdl.org
-> > +M:     dmo@osdl.org
-> >   W:     http://www.osdl.org/archive/dmo/DAC960
-> >   L:     linux-kernel@vger.kernel.org
-> >   S:     Maintained
->
-> That would be helpful except that Dave is no longer at OSDL
-> and is no longer maintaining that driver...
+> The kernel.org FAQ does not deal with Linux kernel specific things, only
+> kernel.org specific things.  So documenting it in the kernel itself is
+> the proper place for it :)
 
-I don't know who I should CC to this email but it seems it's time to
-update http://developer.osdl.org/dev/people/ since Dave is still
-listed as an OSDL developer.
+The note on -rc kernels refutes this claim. How difficult it is really to 
+modify the sentence?
 
---
-Paolo
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

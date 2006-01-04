@@ -1,128 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWADPu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWADP6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbWADPu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 10:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWADPu1
+	id S932190AbWADP6K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 10:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWADP6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 10:50:27 -0500
-Received: from mail.gmx.net ([213.165.64.21]:22753 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751797AbWADPu1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 10:50:27 -0500
-X-Authenticated: #24128601
-Date: Wed, 4 Jan 2006 16:50:36 +0100
-From: Sebastian <sebastian_ml@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Message-ID: <20060104155036.GA5542@section_eight.mops.rwth-aachen.de>
-References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <20060104092058.GN3472@suse.de> <20060104092443.GO3472@suse.de>
+	Wed, 4 Jan 2006 10:58:10 -0500
+Received: from mail.shareable.org ([81.29.64.88]:39644 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S932174AbWADP6J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 10:58:09 -0500
+Date: Wed, 4 Jan 2006 15:57:14 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Harald Welte <laforge@gnumonks.org>, Ben Slusky <sluskyb@paranoiacs.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-fsdevel@vger.kernel.org,
+       legal@lists.gnumonks.org, "Robert W. Fuller" <garbageout@sbcglobal.net>,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, info@crossmeta.com
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+Message-ID: <20060104155714.GD12824@mail.shareable.org>
+References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <20051223153541.GA13111@paranoiacs.org> <20060104110929.GH4898@sunbeam.de.gnumonks.org> <20060104115422.GA2562@mail.shareable.org> <20060104131805.GM4898@sunbeam.de.gnumonks.org> <20060104141607.GA12824@mail.shareable.org> <20060104144540.GN19769@parisc-linux.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060104092443.GO3472@suse.de>
-X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20060104144540.GN19769@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Yes.  You're not a lawyer.  Stop wasting everybody's time by trying to
+> interpret a legal document.
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Matthew, thanks for your abuse.  It was not necessary.
 
-Hello all! Hi Jens!
+As a programmer, it is essential that I, like others, have a
+reasonable understanding of the GPL.  It is not written only for
+lawyers.  I did not nitpick something esoteric; I nitpicked something
+which is important to real people who deal in GPL software which is
+not available to the public.
 
-I'd be kind if you would cc me in case you reply as I'm not (yet)
-subscribed to this list.
+> > That sentence is not clear to me.  Are you're saying that it was
+> > possible to download the object code without source code, or that
+> > _only_ the object code was available? 
+> 
+> Why don't you go and look instead of quibbling in the abstract?
+> The binary is *currently* available, and no source code is.
 
-On Mi, Jan 04, 2006 at 10:24:44 +0100, Jens Axboe wrote:
-> On Wed, Jan 04 2006, Jens Axboe wrote:
-> >=20
-> > Can you try and see how, say, track01 differ? Is it single bytes, chunks
-> > of 2352 bytes, or?
->=20
-> Oh, and try and disable DMA on the cd driver and repeat your results
-> with ide-cd. It uses DMA, where ide-scsi does not. Dunno what Windows
-> does. It could just be a problem with your drive and DMA enabled rips.
+Because this thread kept using the past tense to say what crossmeta
+_have_ done.  As it's still available, why mention 'third parties'?
+They're irrelevant; the violation is quite straightforward.
 
-Hi Jens,
+> > No.  They must provide the 'written offer' to the person downloading
+> > the binary, if they did not make available source code to that person.
+> 
+> Why are you bothering to nitpick Harald?
 
-I did as you said and disabled dma:
+Because he wrote something that, _without context_, is a technical
+mistake that people sometimes make when talking about the GPL.  Like
+you, I consider it my duty to ensure the GPL is upheld, and in the
+proper way.  I appreciate now that Harald understands it well and his
+statement was a simplification; others, may not.  I've been writing
+GPL software for 15 years; it's not a new thing to me.
 
-/dev/hdc:
- IO_support   =3D  1 (32-bit)
- unmaskirq    =3D  1 (on)
- using_dma    =3D  0 (off)
- keepsettings =3D  0 (off)
- readonly     =3D  0 (off)
- readahead    =3D 256 (on)
- HDIO_GETGEO failed: Invalid argument
+Please understand that I didn't receive these messages through a
+legal-experts list, where of course I would be far more cautious to
+comment; I received them on a software development list.
 
-Then I reripped the whole disc. Now this is remarkable. The rip still
-has errors, but the errors are not only in the same tracks. They are
-exactly the same errors (md5sums are equal to the ones I yielded from
-using ide-cd before):
+> Do you not realise he understands the GPL better than you do, having
+> agreed over 30 settlements against people violating it?  He's even
+> got courts to grant injunctions!
 
-e8319ccc20d053557578b9ca3eb368dd  track01.cdda.wav (!)
-cb978f86ddc18c9df1b7e91705380bc5  track02.cdda.wav (!)
-35f1b296d72a8708d03aeb540a3b4f30  track03.cdda.wav (!)
-e82169e5ea1b441b80db96fce12fd109  track04.cdda.wav
-8d807b7ac19f90049aec6ff177e9b486  track05.cdda.wav
-02561939763d67aacf23157c09966a89  track06.cdda.wav (!)
-9724b0a3e2295084613da9df7397ae6d  track07.cdda.wav (!)
-c2d85b3d10428aad66664d0fb3e4c71a  track08.cdda.wav (!)
-5116b2fae44b8b86fbf40b9bac9a8268  track09.cdda.wav (!)
-9e6a5ab2dab76e1677667f586895293a  track10.cdda.wav (!)
-3792a680b1ba729de9185043d331186f  track11.cdda.wav
-ba534fd8eb42dd84aa7b59ab3ae6f132  track12.cdda.wav
-d6346ab76696dddf735a5b752aa7888b  track13.cdda.wav
+That's correct.  I did not realise that.  That's great!  But I haven't
+known Harald's name before; and also did not know this thread had
+reached the point of someone actually handling the legal end.
 
-I used the wav compare function in EAC.
-
-1. wav ripped by EAC
-####################
-
-What happened?          Where?
--------------------------------------------------
-
-Different samples       0:04:08.318 - 0:04:08.362
-2100 missing samples    0:04:08.359
-Different samples       0:04:08.430 - 0:04:08.433
-Different samples       0:04:09.348 - 0:04:09.398
-
-2. wav ripped by cdparanoia
-###########################
-
-What happened?          Where?
--------------------------------------------------
-
-Different samples       0:04:08.318 - 0:04:08.362
-2039 missing samples    0:04:08.414
-Different samples       0:04:08.431 - 0:04:08.434
-Different samples       0:04:09.349 - 0:04:09.399
-
-I'm sorry if this isn't what you had in mind when you told me to compare
-the wav files. If it doesn't help what can I do to compare the files to
-your liking?
-
-Sebastian
---=20
-"When the going gets weird, the weird turn pro." (HST)
-
---bp/iNruPH9dso1Pn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDu+7MTWouIrjrWo4RAk73AJoCguOKurFNKf+lXQVB/wKQ5xEFnACfflTq
-9qD+V8TmTny1ng7bLTAf/kE=
-=1Alr
------END PGP SIGNATURE-----
-
---bp/iNruPH9dso1Pn--
-
+-- Jamie (goodbye)

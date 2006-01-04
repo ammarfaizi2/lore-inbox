@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWADUxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbWADUxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWADUxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWADUxZ
+	id S1030248AbWADUxH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWADUxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:53:25 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:33769 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030288AbWADUxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:53:24 -0500
-Date: Wed, 4 Jan 2006 15:53:11 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: john stultz <johnstul@us.ibm.com>
-cc: Mike Galbraith <efault@gmx.de>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.15-rc7-rt1] check_monotonic_clock: monotonic inconsistency
- detected!
-In-Reply-To: <1136407813.2351.2.camel@leatherman>
-Message-ID: <Pine.LNX.4.58.0601041551400.10974@gandalf.stny.rr.com>
-References: <5.2.1.1.2.20051231152916.00bd5fd0@pop.gmx.net> 
- <5.2.1.1.2.20051231152916.00bd5fd0@pop.gmx.net>  <5.2.1.1.2.20051231171108.00bd9f40@pop.gmx.net>
- <1136407813.2351.2.camel@leatherman>
+	Wed, 4 Jan 2006 15:53:07 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:36813 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1030248AbWADUxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:53:06 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] i386: enable 4k stacks by default
+Date: Thu, 05 Jan 2006 07:53:00 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <35dor152f8ehril7qh22oi8sgkjdohd9jv@4ax.com>
+References: <20060104145138.GN3831@stusta.de>
+In-Reply-To: <20060104145138.GN3831@stusta.de>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 4 Jan 2006 15:51:38 +0100, Adrian Bunk <bunk@stusta.de> wrote:
 
-On Wed, 4 Jan 2006, john stultz wrote:
-
-> On Sat, 2005-12-31 at 17:36 +0100, Mike Galbraith wrote:
-> > At 10:49 AM 12/31/2005 -0500, Steven Rostedt wrote:
-> > >   And John will
-> > >probably want to see your dmesg output.
+>This patch enables 4k stacks by default.
 >
-> Am I so predictable? :)
+>4k stacks have become a well-tested feature used fore a long time in 
+>Fedora and even in RHEL 4.
 >
+>There are no known problems in in-kernel code with 4k stacks still 
+>present after Neil's patch that went into -mm nearly two months ago.
+>
+>Defaulting to 4k stacks in -mm kernel will give some more testing 
+>coverage and should show whether there are really no problems left.
+>
+>Keeping the option for now should make the people happy who want to use 
+>the experimental -mm kernel but don't trust the well-tested 4k stacks.
+>
+>
+>Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+>--- linux-2.6.15-rc5-mm3-full/arch/i386/Kconfig.debug.old	2006-01-04 11:43:55.000000000 +0100
+>+++ linux-2.6.15-rc5-mm3-full/arch/i386/Kconfig.debug	2006-01-04 11:44:14.000000000 +0100
+>@@ -53,8 +53,8 @@
+> 	  If in doubt, say "N".
+> 
+> config 4KSTACKS
+>-	bool "Use 4Kb for kernel stacks instead of 8Kb"
+>-	depends on DEBUG_KERNEL
+>+	bool "Use 4Kb for kernel stacks instead of 8Kb" if DEBUG_KERNEL
+>+	default y
+> 	help
+> 	  If you say Y here the kernel will use a 4Kb stacksize for the
+> 	  kernel stack attached to each process/thread. This facilitates
 
-Oh, only that every problem thread, you start out with "can you send me
-your dmesg?". ;)
+Perhaps mention 4k + 4k stacks, the separate irq stacks used with 4k option?  
 
--- Steve
-
+Grant.

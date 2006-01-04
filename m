@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWADXbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWADXi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWADXbF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWADXbF
+	id S1750718AbWADXi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWADXi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:31:05 -0500
-Received: from xenotime.net ([66.160.160.81]:60605 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750705AbWADXbB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:31:01 -0500
-Date: Wed, 4 Jan 2006 15:31:01 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Nick Warne <nick@linicks.net>, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel@vger.kernel.org, webmaster@kernel.org
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-In-Reply-To: <200601042328.15528.s0348365@sms.ed.ac.uk>
-Message-ID: <Pine.LNX.4.58.0601041530000.19134@shark.he.net>
-References: <200601041710.37648.nick@linicks.net> <200601042258.24888.s0348365@sms.ed.ac.uk>
- <20060104231330.GD14788@kroah.com> <200601042328.15528.s0348365@sms.ed.ac.uk>
+	Wed, 4 Jan 2006 18:38:57 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:61646 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750718AbWADXi4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:38:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jvh5AR0iGQVjwTN5je8kJFqNmiiFaV668SRJKTWQgOH9Dva/9YUsrjowr29vU4VM3dj0CJzd2OOqvZ9EPk/FSdVyavJGcOytxKONFIjR5YBruvBqq16iIoDtFjdrv+Zwnx2M9nMcfH+/FHnQTS44zgVPqN8LgSjNXMLDHxAa3wU=
+Message-ID: <4807377b0601041538t98275acn54a36374a42346ab@mail.gmail.com>
+Date: Wed, 4 Jan 2006 15:38:55 -0800
+From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+To: c-otto@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: Intel e1000 fails after RAM upgrade
+In-Reply-To: <20060102121752.GA29275@carsten-otto.halifax.rwth-aachen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051219195458.GA23650@carsten-otto.halifax.rwth-aachen.de>
+	 <20060102121752.GA29275@carsten-otto.halifax.rwth-aachen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006, Alistair John Strachan wrote:
-
-> On Wednesday 04 January 2006 23:13, Greg KH wrote:
-> > On Wed, Jan 04, 2006 at 10:58:24PM +0000, Alistair John Strachan wrote:
-> > > On Wednesday 04 January 2006 22:31, Greg KH wrote:
-> > > [snip]
-> > >
-> > > > > > The issue I hit was we have a 'latest stable kernel release
-> > > > > > 2.6.14.5' and under it a 'the latest stable kernel' (or words to
-> > > > > > that effect) on kernel.org.
-> > > > > >
-> > > > > > Then when 2.6.15 came out, that was it!  No patch for the 'latest
-> > > > > > stable kernel release 2.6.14.5'.  It was GONE!
-> > > > >
-> > > > > Yes, I brought this up a couple of weeks ago, but I was told
-> > > > > that I was wrong (in some such words).
-> > > > > I agree that it needs to be fixed.
-> > > >
-> > > > How would you suggest that it be fixed?
-> > >
-> > > It's difficult, but perhaps providing a link to the latest "stable team"
-> > > release in addition to Linus's release would solve the problem.
-> >
-> > But what happens when we release a 2.6.14.y release and a 2.6.15.y
-> > release at the same time (as people have requested this in previous
-> > threads...)?  What would show up where?
+On 1/2/06, Carsten Otto <c-otto@gmx.de> wrote:
+> On Mon, Dec 19, 2005 at 08:54:58PM +0100, Carsten Otto wrote:
+> > e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
 >
-> You're right, it's complicated. In that case I'd still opt for showing
-> 2.6.15.y, as the vast majority of people manually installing vanilla kernels
-> will either be on the latest-ish kernel, or have a clue about what they're
-> doing (who doesn't know the ftp URL off by heart now).
+> Is there anything I can do to make this work and/or you have more fun
+> and luck fixing this? I could provide plenty of debugging information,
+> just tell me what you need. Unfortunately I am unable to solve the
+> problem myself.
+>
+> Short summary:
+> Every e1000 card I tried (Desktop MT) produces above error in my
+> computer and works in other PCs. Memory/BIOS/Kernel-version do not
+> change this. Either the kernel is flawed in several versions or my system
+> (Gentoo) does some ugly things to the driver (I doubt that). Changing some
+> values with ethtool does not help.
 
-I agree.  I think that one previous -stable patch version should always
-be listed there, even if we think that 2.6.N is stable.  :)
+I'm not sure it's e1000, is there any chance you can try a different
+network adapter (like not e1000 based)?  with the ethtool diags error
+there is something corrupting memory in your system or on your pci bus
+(most likely)
 
--- 
-~Randy
+My best recommendation is to check to make sure there aren't any bios
+updates for your system, make sure you aren't running overclocked on
+the pci bus, try different slots, try a different network adapter. 
+Maybe you can try memtest86 overnight?
+
+Honestly right now it doesn't sound like a network problem, but a
+system problem.
+
+Jesse

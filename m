@@ -1,123 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbWADSzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965269AbWADS6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965267AbWADSzf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 13:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965268AbWADSzf
+	id S965269AbWADS6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965270AbWADS6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 13:55:35 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:15626 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S965267AbWADSze (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 13:55:34 -0500
-Date: Wed, 4 Jan 2006 19:55:24 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: anil dahiya <ak_ait@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: makefile for 2.6 kernel
-Message-ID: <20060104185524.GA8296@mars.ravnborg.org>
-References: <20060104182356.14925.qmail@web60217.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060104182356.14925.qmail@web60217.mail.yahoo.com>
-User-Agent: Mutt/1.5.11
+	Wed, 4 Jan 2006 13:58:25 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:3261 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965269AbWADS6Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 13:58:24 -0500
+Message-ID: <43BC1AB8.3050801@zytor.com>
+Date: Wed, 04 Jan 2006 10:58:00 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Ulrich Drepper <drepper@redhat.com>, Andi Kleen <ak@suse.de>,
+       "Viro, Al" <viro@ftp.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Limit sendfile() to 2^31-PAGE_CACHE_SIZE bytes without
+ error
+References: <43BB348F.3070108@zytor.com> <200601040451.20411.ak@suse.de> <Pine.LNX.4.64.0601032051300.3668@g5.osdl.org> <43BB5646.2040504@zytor.com> <43BB5E22.2010306@zytor.com> <Pine.LNX.4.64.0601040900311.3668@g5.osdl.org> <Pine.LNX.4.64.0601041033040.3668@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601041033040.3668@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 10:23:56AM -0800, anil dahiya wrote:
-> hello 
-> I want to make kernel module dummy.ko using multiple
-> .c and .h files. In short i am telling .c and .h files
-> with directory structure
+Linus Torvalds wrote:
 > 
-> 1> dummy.ko should made be using module1.ko and
-> module2.o (i.e 
->    module2.o uses module1.ko to make dummy.ko)
-
-You cannot make a module with a module as input.
-It does not make sense.
-Either you create a module or you don't.
-
-So you will create following modules:
-module1.ko + module2.ko
-
-Alternatively you create one module but using the individual .o files as
-input which is more likely what you want - correct?
-
-Then your Kbuild file would look like this:
-
-Kbuild:
-obj-m := dummy.o
-dummy-y := module1/a1/a1.o
-dummy-y += module1/a2/a2.o
-dummy-y += module2/b1/b1.o
-
-# Tell where to find .h files
-EXTRA_CFLAGS := -I$(src)/include
-
-And to compile your module:
-make -C $PATH_TO_KERNEL_SRC M=`pwd`
-
-
-I assume you already read Documentation/kbuild/modules.txt - otherwise
-please do so too.
-
-Please include the source or provide an URL to the src if you need more
-help.
-
-	Sam
-
-
-
+> On Wed, 4 Jan 2006, Linus Torvalds wrote:
 > 
-> 2> module1.ko made using a1/a1.c & a2/a2.c and  both
-> .c file   
->    use /home/include/a.h 
-> 3> module2.o should made using b/b1.c which use   
->    use /home/module2/include/b.h 
+>>On Tue, 3 Jan 2006, H. Peter Anvin wrote:
+>>
+>>>(I set the limit to 2^31-PAGE_CACHE_SIZE so that a transfer that starts at the
+>>>beginning of the file will continue to be page-aligned.)
+>>
+>>Ok, this patch looks ok, if it's confirmed to unbreak apache.
 > 
-> Suggest me tht should make i make module2.o or
-> module2.ko and then combine it with module1.o to make
-> dummy.ko 
+> Actually, looking closer, this patch does the wrong thing for a size_t 
+> that is negative in ssize_t (which is technically "undefined behaviour" in 
+> POSIX, but turning it into a big positive number is objectively worse than 
+> returning -EINVAL).
 > 
-> 
-> /home/------
->              |_ include _
->              |           |
->              |           a.h 
->              | 
->              |___module1_
->              |           |__ a1 ____
->              |           |          | 
->              |           |         a1.c 
->              |           |
->                          |__ a2 ____
->              |           |           | 
->              |           |         a2.c 
->              |
->              |___ moudule2_
->              |             |             
->              |             |__include _
->              |             |           |
->              |             |           b.h 
->              |             |___b1__
->              |                     | 
->              |                   b1.c 
->         
->                                    
-> Looking forward for ur reply 
-> thanks in advance
-> ---- Anil 
-> 
-> 
-> 		
-> __________________________________________ 
-> Yahoo! DSL ? Something to write home about. 
-> Just $16.99/mo. or less. 
-> dsl.yahoo.com 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+OK, that's a fair cop.  I agree.  In fact, for readv/writev(), POSIX 
+does specify:
+
+"If the sum of the iov_len values is greater than {SSIZE_MAX}, the 
+operation shall fail and no data shall be tranferred."
+
+... which is good precedence for doing so for all values.
+
+So, what system calls are affected?  sendfile, [p]read[v], [p]write[v], 
+send*, recv*, any others?
+
+	-hpa

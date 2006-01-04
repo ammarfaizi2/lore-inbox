@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbWADFeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWADFvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965198AbWADFeM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 00:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbWADFeM
+	id S964892AbWADFvX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 00:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWADFvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 00:34:12 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:8341 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965198AbWADFeM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 00:34:12 -0500
-Message-ID: <43BB5E22.2010306@zytor.com>
-Date: Tue, 03 Jan 2006 21:33:22 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Wed, 4 Jan 2006 00:51:23 -0500
+Received: from dvhart.com ([64.146.134.43]:36842 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S964892AbWADFvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 00:51:22 -0500
+Message-ID: <43BB6255.2030903@mbligh.org>
+Date: Tue, 03 Jan 2006 21:51:17 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
-       Andi Kleen <ak@suse.de>, "Viro, Al" <viro@ftp.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Limit sendfile() to 2^31-PAGE_CACHE_SIZE bytes without error
-References: <43BB348F.3070108@zytor.com> <200601040451.20411.ak@suse.de> <Pine.LNX.4.64.0601032051300.3668@g5.osdl.org> <43BB5646.2040504@zytor.com>
-In-Reply-To: <43BB5646.2040504@zytor.com>
-Content-Type: multipart/mixed;
- boundary="------------080506090603020102080301"
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>, mingo@elte.hu,
+       tim@physik3.uni-rostock.de, arjan@infradead.org, torvalds@osdl.org,
+       davej@redhat.com, linux-kernel@vger.kernel.org,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+References: <1135897092.2935.81.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0512300035550.2747@gockel.physik3.uni-rostock.de> <20051230074916.GC25637@elte.hu> <20051231143800.GJ3811@stusta.de> <20051231144534.GA5826@elte.hu> <20051231150831.GL3811@stusta.de> <20060102103721.GA8701@elte.hu> <20060102134228.GC17398@stusta.de> <20060102102824.4c7ff9ad.akpm@osdl.org> <43BB0B8B.1000703@mbligh.org> <20060104042822.GA3356@waste.org>
+In-Reply-To: <20060104042822.GA3356@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080506090603020102080301
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Matt Mackall wrote:
 
-sendfile() has a limit of 2^31-1 bytes even on 64-bit platforms.  Linus 
-wants to maintain it in order to avoid potential future security bugs 
-(always a good thing.)
+>On Tue, Jan 03, 2006 at 03:40:59PM -0800, Martin J. Bligh wrote:
+>  
+>
+>>It seems odd to me that we're doing this by second-hand effect on
+>>code size ... the objective of making the code smaller is to make it
+>>run faster, right? So ... howcome there are no benchmark results
+>>for this?
+>>    
+>>
+>
+>Because it's extremely hard to design a benchmark that will show a
+>significant change one way or the other for single kernel functions
+>that doesn't also make said functions unusually cache-hot. And part of
+>the presumed advantage of uninlining is that it leaves icache room for
+>random other code that you're _not_ benchmarking.
+>
+>In other words, if it's not a microbenchmark, it generally can't be
+>measured, directly or indirectly. And if it is a microbenchmark, the
+>result is known to be biased.
+>  
+>
+Well, it's not just one function, is it? It'd seem that if you unlined
+a whole bunch of stuff (according to this theory) then normal
+macro-benchmarks would go faster? Otherwise it's all just rather
+theoretical, is it not?
 
-This patch changes the behaviour from returning EINVAL when this limit 
-is exceeded to returning a short count.  This means that a 
-properly-written userspace program will simply loop around and continue; 
-  it will expose bugs in improperly-written userspace programs, which is 
-also a good thing.  Additionally, the limit becomes an issue that is 
-completely contained within the kernel, and not encoded in the kernel 
-ABI, so it can be changed in the future.
+>In the rare case of functions that are extremely popular (like
+>spinlock and friends), we _can_ actually see small improvements in
+>macrobenchmarks like kernel compiles. So it's fairly reasonable to
+>assume that reducing icache footprint really does matter more than
+>cycle count and extrapolate that to other functions.
+>  
+>
+Cool, that sounds good. How much are we talking about?
+I didn't see that in the thread anywhere ... perhaps I just
+missed it, sorry it got long ;-)
 
-(I set the limit to 2^31-PAGE_CACHE_SIZE so that a transfer that starts 
-at the beginning of the file will continue to be page-aligned.)
-
-The
-
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
-
---------------080506090603020102080301
-Content-Type: text/x-patch;
- name="sendfile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sendfile.patch"
-
-diff --git a/fs/read_write.c b/fs/read_write.c
-index a091ee4..3712886 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -9,6 +9,7 @@
- #include <linux/fcntl.h>
- #include <linux/file.h>
- #include <linux/uio.h>
-+#include <linux/pagemap.h>
- #include <linux/smp_lock.h>
- #include <linux/fsnotify.h>
- #include <linux/security.h>
-@@ -631,6 +632,9 @@ static ssize_t do_sendfile(int out_fd, i
- 	ssize_t retval;
- 	int fput_needed_in, fput_needed_out;
- 
-+	/* Avoid potential security holes.  User space will get a short count and should loop. */
-+	count = min(count, (size_t)0x80000000-PAGE_CACHE_SIZE);
-+
- 	/*
- 	 * Get input file, and verify that it is ok..
- 	 */
-
---------------080506090603020102080301--
+M.

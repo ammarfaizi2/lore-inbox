@@ -1,47 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751804AbWADV2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751790AbWADVbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751804AbWADV2g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 16:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWADV2g
+	id S1751790AbWADVbl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWADVbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:28:36 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:56462 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751804AbWADV2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 16:28:35 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 0 of 20] [RFC] ipath - PathScale
- InfiniPath driver
-X-Message-Flag: Warning: May contain useful information
-References: <patchbomb.1135816279@eng-12.pathscale.com>
-	<20051230080002.GA7438@kroah.com>
-	<1135984304.13318.50.camel@serpentine.pathscale.com>
-	<20051231001051.GB20314@kroah.com>
-	<1135993250.13318.94.camel@serpentine.pathscale.com>
-	<20060103172732.GA9170@kroah.com>
-	<1136321691.10862.61.camel@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 04 Jan 2006 13:28:29 -0800
-In-Reply-To: <1136321691.10862.61.camel@localhost.localdomain> (Bryan
- O'Sullivan's message of "Tue, 03 Jan 2006 12:54:50 -0800")
-Message-ID: <adasls34r9e.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Wed, 4 Jan 2006 16:31:41 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:26280 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751790AbWADVbl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 16:31:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=X7zQIVoFPvbEL/lX2pbL64FbYtVDcOqPKTZHEZ9q2/M3SEKzd3pxvepMdoCpKX15rTpDryLgopyUxCkQOY66f5qot8fs2Hkc26Fpj9g4aFd7Tz30NWrT74kogawSGK1dUS+Pr6GIdYAu5djLqNabc87xhQadmZWVfjhTQEncZMI=
+Message-ID: <728201270601041329r64ee9fb5h3ff015533c762924@mail.gmail.com>
+Date: Wed, 4 Jan 2006 15:29:38 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: setrlimit for RLIMIT_RSS not enforced
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 04 Jan 2006 21:28:29.0551 (UTC) FILETIME=[CE3BCFF0:01C61175]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> It does when our OpenIB driver is being used.  But our
-    Bryan> lower level driver is independent of OpenIB (and is often
-    Bryan> used without the infiniband stuff even configured into the
-    Bryan> kernel), and needs to provide some way for a userspace
-    Bryan> subnet management agent to send and receive packets.
+I am wondering why setrlimit for RLIMIT_RSS is  not enforced? Is 
+there any particular reason for not implementing it? Is there any
+taker if I implement it & submit patch for it?
 
-Isn't there some way you can use the same SMA (subnet management
-agent) interface in all the cases?  Can ipath_mad.c just go away in
-favor of your userspace SMA?
-
- - R.
+Thanks
+Ram Gupta

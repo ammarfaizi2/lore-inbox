@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWADPcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWADPvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751800AbWADPcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 10:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWADPcI
+	id S1750825AbWADPvS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 10:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWADPvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 10:32:08 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:53220 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1750827AbWADPcH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 10:32:07 -0500
-Message-ID: <43BBE40E.5040600@wolfmountaingroup.com>
-Date: Wed, 04 Jan 2006 08:04:46 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Wed, 4 Jan 2006 10:51:18 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:44961 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750825AbWADPvR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 10:51:17 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+Subject: Re: [Patch] es7000 broken without acpi
+Date: Wed, 4 Jan 2006 16:40:30 +0100
+User-Agent: KMail/1.8.2
+Cc: "Peter Hagervall" <hager@cs.umu.se>, "Andrew Morton" <akpm@osdl.org>,
+       "Eric Sesterhenn / snakebyte" <snakebyte@gmx.de>,
+       linux-kernel@vger.kernel.org
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B09B4@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B09B4@USRV-EXCH4.na.uis.unisys.com>
 MIME-Version: 1.0
-To: Keith Owens <kaos@sgi.com>
-Cc: kdb@oss.sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Announce: kdb v4.4 is available for kernel 2.6.15
-References: <13550.1136365849@kao2.melbourne.sgi.com>
-In-Reply-To: <13550.1136365849@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601041640.30909.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith,
+On Wednesday 04 January 2006 16:05, Protasevich, Natalie wrote:
 
-I noticed that during page faults, the OOPS handler is not getting
-called when the kernel crashes in
-filp_open() -- the notifier chain does not return for some reason.  I
-also noticed that when this happens, if you the section in 
-/arch/i386/kernel/traps.c in function die() prior to the busting of
-spinlocks, it will work (sortof work).  To reproduce this error, call 
-filp_open with a text string complied in the kernel.  I can reproduce on 
-2.6.10 and 2.6.11 Fedora Kernels.   Also noticed that when Kprobes is 
-enabled, the debugger page faults during a page fault exeception. 
-Seems related to the notifier chain.
+> The only possible problem I see with that patch is making genapic
+> dependant on ACPI, which I'm not sure about (for example, if Summit
+> would want that, but nobody commented back then...Andi, what do you
+> think?) As for ES7000, it fixes build problem overall, however, maybe it
+> would be prudent to make it builldable even without its dependency on
+> ACPI, just for correctness sake, meaning properly #ifdef-ing ACPI parts,
+> this will make it more versatile (even though I cannot think of
+> situation it might be used...Andi, what do you think? :) 
 
-If you fixed this already, disregard this notice.
+I haven't looked at it in detail, but likely it's better to 
+add the necessary ifdefs to es7000 to compile without ACPI 
+than making genapic dependent on ACPI. Not that it makes
+that much difference in practice, but it would be cleaner this 
+way.
 
-Jeff
-
+-Andi

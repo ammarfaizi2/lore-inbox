@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965264AbWADSqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWADSts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965264AbWADSqz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 13:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbWADSqy
+	id S965265AbWADSts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965267AbWADSts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 13:46:54 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:64715 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965264AbWADSqx
+	Wed, 4 Jan 2006 13:49:48 -0500
+Received: from [195.177.114.17] ([195.177.114.17]:57325 "EHLO
+	powerman.sky.net.ua") by vger.kernel.org with ESMTP id S965265AbWADSts
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 13:46:53 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [OT] ALSA userspace API complexity
-Date: Wed, 4 Jan 2006 18:46:54 +0000
-User-Agent: KMail/1.9
-Cc: patrizio.bassi@gmail.com, Jaroslav Kysela <perex@suse.cz>,
-       "Kernel, " <linux-kernel@vger.kernel.org>
-References: <4uzow-1g5-13@gated-at.bofh.it> <43BBB7DC.2060303@gmail.com> <20060104190705.36488cb5@mango.fruits.de>
-In-Reply-To: <20060104190705.36488cb5@mango.fruits.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 13:49:48 -0500
+Date: Wed, 4 Jan 2006 20:49:27 +0200
+From: Alex Efros <powerman@sky.net.ua>
+To: linux-kernel@vger.kernel.org
+Subject: Hyper Threading slowdown
+Message-ID: <20060104184927.GF13953@home.power>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601041846.54689.s0348365@sms.ed.ac.uk>
+Organization: asdfGroup Inc., http://www.asdfGroup.com/
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 18:07, Florian Schmidt wrote:
-> On Wed, 04 Jan 2006 12:56:12 +0100
->
-> Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
-> > that's a big problem. Needs a radical solution. Considering aoss works
-> > in 50% of cases i suggest aoss improvement and not OSS keeping in kernel.
->
-> aoss works _much_ less often than the OSS emulation kernel modules. I'd
-> rather see (if not just for ease of setup), sw mixing in the OSS
-> emulation kernel modules. aoss should still continue to exist as it has
-> some advanced functionality like being able to use any alsa defined pcm
-> device, but for the vast majority of cases it would be the best if the
-> OSS emulation kernel module simply finally provided sw mixing.
->
-> It might also be worth taking a look at FUSE and stuff like oss2jack
-> instead, as it would be (imho) the cleaner approach for getting OSS
-> emulation to userspace as opposed to aoss (device file interface vs.
-> ugly LD_PRELOAD hack (which has its share of problems. Especially with
-> apps/libs that resolved the linux system call symbols at compile time -
-> this is where aoss/LD_PRELOAD won't work, but a FUSE based approach
-> would)).
->
-> Actually i suppose a FUSE based oss2alsa would probably make the old OSS
-> emulation modules unnecessary if implemented right :) As the relevant
-> code then lives in userspace it can make trivial use of stuff like ALSA
-> sw mixing and all other ALSA userspace goodies (which aoss can, too, but
-> at the cost of being an ugly LD_PRELOAD hack).
+Hi!
 
-Not to disrespect Miklos's work, but relying on FUSE for such a fundamental 
-problem is probably not a good idea. Most people probably do not compile FUSE 
-into their kernel.
+I notice Hyper Threading slowdown and kernel hangs while boot on:
+    2.6.14.2
+    2.6.15_rc6 with & without this patch:
+	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=1e483969930a82e16767884449f3a121a817ef00;hp=4c0335526c95d90a1d958e0059f40a5745fc7c5d
+    2.6.15
+(tested on two (similar) servers).
 
-I do agree with other posters here that OSS compatibility a) needs to be 
-improved and b) should not be limited to the features of the soundcard (i.e. 
-it must software mix). As Andi has pointed out, wholly removing OSS is not in 
-the spirit of Linux and will not happen for many years.
+All details available here: http://bugs.gentoo.org/show_bug.cgi?id=115781
+
+Below is my /proc/cpuinfo (without SMP) from these two servers.
+If you need more details - email me (I'm not subscribed to this maillist).
+
+---server1---
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      : Intel(R) Pentium(R) 4 CPU 3.00GHz
+stepping        : 3
+cpu MHz         : 3000.477
+cache size      : 2048 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm pni monitor ds_cpl est cid cx16 xtpr
+bogomips        : 6008.95
+
+---server2---
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 3
+model name      : Intel(R) Pentium(R) 4 CPU 3.00GHz
+stepping        : 4
+cpu MHz         : 2993.283
+cache size      : 1024 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe pni monitor ds_cpl cid xtpr
+bogomips        : 5993.49
 
 -- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+			WBR, Alex.

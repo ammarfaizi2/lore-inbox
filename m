@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965293AbWADWHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWADWHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965293AbWADWHH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965303AbWADWHG
+	id S932554AbWADWHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWADV7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:07:06 -0500
-Received: from xenotime.net ([66.160.160.81]:60861 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965293AbWADWHE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:07:04 -0500
-Date: Wed, 4 Jan 2006 14:07:01 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: "John L. Villalovos" <john.l.villalovos@intel.com>
-cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au, torvalds@osdl.org
-Subject: Re: [PATCH] MAINTAINERS file: Fix missing colon
-In-Reply-To: <43BC45DE.5060303@intel.com>
-Message-ID: <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
-References: <43BC45DE.5060303@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jan 2006 16:59:55 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:51954 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1030296AbWADV7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 16:59:53 -0500
+Date: Wed, 04 Jan 2006 16:59:31 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: [PATCH 03/15] powernow-k7: Work when kernel is compiled for SMP
+To: linux-kernel@vger.kernel.org
+Message-id: <0ISL00NU693O1L@a34-mta01.direcway.com>
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006, John L. Villalovos wrote:
+On a UP system with SMP compiled kernel, the powernow-k7 module would not
+initialize (returned -ENODEV). Not sure why policy->cpu != 0 for UP
+systems, but since policy->cpu isn't used anywhere, just check for
+num_cpus in the system, and fail of it's > 1.
 
-> From: John L. Villalovos <john.l.villalovos@intel.com>
->
-> While parsing the MAINTAINERS file I disovered one entry was missing a colon.
-> This patch adds the one missing colon.
->
-> ---
-> diff -r 8441517e7e79 MAINTAINERS
-> --- a/MAINTAINERS       Thu Jan  5 04:00:05 2006
-> +++ b/MAINTAINERS       Wed Jan  4 13:49:27 2006
-> @@ -681,7 +681,7 @@
->
->   DAC960 RAID CONTROLLER DRIVER
->   P:     Dave Olien
-> -M      dmo@osdl.org
-> +M:     dmo@osdl.org
->   W:     http://www.osdl.org/archive/dmo/DAC960
->   L:     linux-kernel@vger.kernel.org
->   S:     Maintained
+Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-That would be helpful except that Dave is no longer at OSDL
-and is no longer maintaining that driver...
+---
 
+ arch/i386/kernel/cpu/cpufreq/powernow-k7.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+a1418b50daac86ff02e0d7a4cba6185a452ca393
+diff --git a/arch/i386/kernel/cpu/cpufreq/powernow-k7.c b/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
+index edcd626..a9c4970 100644
+--- a/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
++++ b/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
+@@ -576,9 +576,6 @@ static int __init powernow_cpu_init (str
+ 	union msr_fidvidstatus fidvidstatus;
+ 	int result;
+ 
+-	if (policy->cpu != 0)
+-		return -ENODEV;
+-
+ 	rdmsrl (MSR_K7_FID_VID_STATUS, fidvidstatus.val);
+ 
+ 	/* recalibrate cpu_khz */
+@@ -664,8 +661,13 @@ static struct cpufreq_driver powernow_dr
+ 
+ static int __init powernow_init (void)
+ {
+-	if (check_powernow()==0)
++	/* Does not support multi-cpu systems */
++	if (num_online_cpus() != 1 || num_possible_cpus() != 1)
+ 		return -ENODEV;
++
++	if (check_powernow() == 0)
++		return -ENODEV;
++
+ 	return cpufreq_register_driver(&powernow_driver);
+ }
+ 
 -- 
-~Randy
+1.0.5

@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWADWUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWADWVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbWADWUM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWADWUL
+	id S1030299AbWADWVL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWADWVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:20:11 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:15801 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030288AbWADWUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:20:09 -0500
+	Wed, 4 Jan 2006 17:21:11 -0500
+Received: from mail.linicks.net ([217.204.244.146]:45516 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1030299AbWADWVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:21:09 -0500
+From: Nick Warne <nick@linicks.net>
+To: Greg KH <greg@kroah.com>
 Subject: Re: 2.6.14.5 to 2.6.15 patch
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       Nick Warne <nick@linicks.net>
-In-Reply-To: <1136411285.12468.88.camel@localhost.localdomain>
-References: <200601041710.37648.nick@linicks.net>
-	 <9a8748490601040950q2b2691f5l7577b52417b4c50b@mail.gmail.com>
-	 <Pine.LNX.4.58.0601040950530.19134@shark.he.net>
-	 <200601041756.52484.nick@linicks.net>
-	 <1136399230.12468.70.camel@localhost.localdomain>
-	 <9a8748490601041317q3711511ak22b95f985023e5b0@mail.gmail.com>
-	 <1136411285.12468.88.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 17:20:01 -0500
-Message-Id: <1136413201.12468.94.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Date: Wed, 4 Jan 2006 22:20:59 +0000
+User-Agent: KMail/1.9
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+References: <200601041710.37648.nick@linicks.net> <200601042210.47152.nick@linicks.net> <20060104221549.GA13254@kroah.com>
+In-Reply-To: <20060104221549.GA13254@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601042220.59637.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 16:48 -0500, Steven Rostedt wrote:
+On Wednesday 04 January 2006 22:15, Greg KH wrote:
 
-> 21) head Makefile
-> 
-> 
-> 22 steps is the equivalent of ketchup's 14, not to mention you need to
+> > Then when 2.6.15 came out, that was it!  No patch for the 'latest stable
+> > kernel release 2.6.14.5'.  It was GONE!
+>
+> That's because 2.6.15 is the latest stable release.
+>
+> > OK, I suppose we are all capable of getting back to where we are on
+> > rebuilding to latest 'stable', but there _is_ a missing link for somebody
+> > that doesn't know - and I think backtracking patches isn't really the way
+> > to go if the 'latest stable release' isn't catered for.
+>
+> Um, it is, see my sentance above.  And if you want to download older
+> stable releases, you can jump to the proper directory, how long do you
+> want us to put older stable releases on the main page for?  :)
 
-OK, after doing all that, I couldn't count anymore.  I meant 21 steps,
-not 22 :P
+OK, I see what you mean, but 2.6.14 wasn't the latest 'release' - 2.6.14.5 was 
+(according to kernel.org).  Yet there is no upgrade path for that build (or 
+any other .x releases)
 
--- Steve
+It is a bit of a mess really.
 
-
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb
+My quake2 project:
+http://sourceforge.net/projects/quake2plus/

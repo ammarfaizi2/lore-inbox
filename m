@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWADWQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965286AbWADWRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbWADWQm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:16:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWADWQl
+	id S965286AbWADWRL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965284AbWADWRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:16:41 -0500
-Received: from xenotime.net ([66.160.160.81]:36297 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750910AbWADWQk (ORCPT
+	Wed, 4 Jan 2006 17:17:10 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4779 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965285AbWADWRH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:16:40 -0500
-Date: Wed, 4 Jan 2006 14:16:37 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Nick Warne <nick@linicks.net>
-cc: Greg KH <greg@kroah.com>, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-In-Reply-To: <200601042210.47152.nick@linicks.net>
-Message-ID: <Pine.LNX.4.58.0601041415510.19134@shark.he.net>
-References: <200601041710.37648.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk>
- <20060104220157.GB12778@kroah.com> <200601042210.47152.nick@linicks.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jan 2006 17:17:07 -0500
+Date: Wed, 4 Jan 2006 23:16:56 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Message-ID: <20060104221656.GE1860@elf.ucw.cz>
+References: <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.44L0.0601041703350.26871-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0601041703350.26871-100000@iolanthe.rowland.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006, Nick Warne wrote:
+On St 04-01-06 17:06:09, Alan Stern wrote:
+> On Wed, 4 Jan 2006, Pavel Machek wrote:
+> 
+> > > As I mentioned in the thread (currently happening, BTW) on the linux-pm
+> > > list, what you want to do is accept a string that reflects an actual state
+> > > that the device supports. For PCI devices that support low-power states,
+> > > this would be "D1", "D2", "D3", etc. For USB devices, which only support
+> > > an "on" and "suspended" state, the values that this patch parses would
+> > > actually work.
+> > 
+> > We want _common_ values, anyway. So, we do not want "D0", "D1", "D2",
+> > "D3hot" in PCI cases. We probably want "on", "D1", "D2", "suspend",
+> > and I'm not sure about those "D1" and "D2" parts. Userspace should not
+> > have to know about details, it will mostly use "on"/"suspend" anyway.
+> 
+> It would be good to make the details available so that they are there when
+> needed.  For instance, we might export "D0", "on", "D1", "D2", "D3", and
+> "suspend", treating "on" as a synonym for "D0" and "suspend" as a synonym
+> for "D3".
 
-> On Wednesday 04 January 2006 22:01, Greg KH wrote:
->
-> > > > > Nick's right, both are provided automatically by kernel.org.
-> > > >
-> > > > Anyway, I started from scratch - 2.6.14, patched to 2.6.15 and then
-> > > > make oldconfig etc.
-> > > >
-> > > > I think there needs to be a way out of this that is easily discernible
-> > > > - it does get confusing sometimes with all the patches flying around on
-> > > > a 'stable release'.
-> > >
-> > > It's documented in the kernel.
-> > >
-> > > There's something in the kernel.org FAQ there about -rc kernels, but it
-> > > might be better to generalise this for stable releases. Added hpa to CC.
-> >
-> > What do you mean, "generalize" this?  Where else could we document it
-> > better?
->
-> The issue I hit was we have a 'latest stable kernel release 2.6.14.5' and
-> under it a 'the latest stable kernel' (or words to that effect) on
-> kernel.org.
->
-> Then when 2.6.15 came out, that was it!  No patch for the 'latest stable
-> kernel release 2.6.14.5'.  It was GONE!
+Why to make it this complex?
 
-Yes, I brought this up a couple of weeks ago, but I was told
-that I was wrong (in some such words).
-I agree that it needs to be fixed.
-
-> OK, I suppose we are all capable of getting back to where we are on rebuilding
-> to latest 'stable', but there _is_ a missing link for somebody that doesn't
-> know - and I think backtracking patches isn't really the way to go if the
-> 'latest stable release' isn't catered for.
-
+I do not think there's any confusion possible. "on" always corresponds
+to "D0", and "suspend" is "D3". Anyone who knows what "D2" means,
+should know that, too...
+							Pavel
 -- 
-~Randy
+Thanks, Sharp!

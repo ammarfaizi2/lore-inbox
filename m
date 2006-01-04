@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030273AbWADUY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWADUZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030273AbWADUY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 15:24:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965279AbWADUY5
+	id S1030279AbWADUZg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 15:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWADUZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 15:24:57 -0500
-Received: from xenotime.net ([66.160.160.81]:18845 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965252AbWADUY5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:24:57 -0500
-Date: Wed, 4 Jan 2006 12:24:54 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: andyliebman@aol.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Atapi CDROM, SATA OS drive, and 2.6.14+ kernel
-In-Reply-To: <8C7DF7FCD8430A9-C8C-4BB2@MBLK-M38.sysops.aol.com>
-Message-ID: <Pine.LNX.4.58.0601041224180.19134@shark.he.net>
-References: <8C7DF7FCD8430A9-C8C-4BB2@MBLK-M38.sysops.aol.com>
+	Wed, 4 Jan 2006 15:25:36 -0500
+Received: from natblindhugh.rzone.de ([81.169.145.175]:1490 "EHLO
+	natblindhugh.rzone.de") by vger.kernel.org with ESMTP
+	id S1030283AbWADUZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 15:25:35 -0500
+From: Stefan Rompf <stefan@loplof.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [Patch 2.6] dm-crypt: zero key before freeing it
+Date: Wed, 4 Jan 2006 21:26:46 +0100
+User-Agent: KMail/1.8
+Cc: Andrew Morton <akpm@osdl.org>, Clemens Fruhwirth <clemens@endorphin.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+References: <200601042108.04544.stefan@loplof.de> <1136405379.2839.46.camel@laptopd505.fenrus.org>
+In-Reply-To: <1136405379.2839.46.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601042126.47081.stefan@loplof.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006 andyliebman@aol.com wrote:
+Am Mittwoch 04 Januar 2006 21:09 schrieb Arjan van de Ven:
 
-> Can somebody tell me what changed in the 2.6.14 kernel that doesn't
-> allow me to access my CDROM drive when my OS drive is SATA?
->
-> I have an image of a working 2.6.14 system that was installed on an IDE
-> drive. I restored the image to a SATA drive, changed a few lines in
-> /etc/fstab and /etc/lilo.conf so that they refer to /dev/sd* devices
-> instead of /dev/hd* devices.
->
-> I also modified /etc/modprobe.conf so that it is identical to the file
-> that Mandriva 2006 produces when installed directly to a SATA drive
-> (but Mandriva 2006 has the 2.6.12.x kernel).
->
-> I can't mount my CDROM when running 2.6.14.x
->
-> I have googled this for several days. I have seen posts about passing
-> options to the kernel and including extra lines in modprobe.conf like:
->
-> libata atapi_enabled=1
+> since a memset right before a free is a very unusual code pattern in the
+> kernel it may well be worth putting a short comment around it to prevent
+> someone later removing it as "optimization"
 
-should be:
-  libata.atapi_enabled=1
-if libata is built into the kernel image.
+Valid objection, here is an update (and see, I'm running 2.6.15 now ;-)
 
-> Can't find the magic formula. Help would be appreciated.
+Stefan
 
--- 
-~Randy
+
+Signed-off-by: Stefan Rompf <stefan@loplof.de>
+Acked-by: Clemens Fruhwirth <clemens@endorphin.org>
+
+--- linux-2.6.15/drivers/md/dm-crypt.c.orig	2006-01-04 01:01:16.000000000 +0100
++++ linux-2.6.15/drivers/md/dm-crypt.c	2006-01-04 21:23:34.000000000 +0100
+@@ -690,6 +690,8 @@
+ bad2:
+ 	crypto_free_tfm(tfm);
+ bad1:
++	/* Must zero key material before freeing */
++	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
+ 	kfree(cc);
+ 	return -EINVAL;
+ }
+@@ -706,6 +708,9 @@
+ 		cc->iv_gen_ops->dtr(cc);
+ 	crypto_free_tfm(cc->tfm);
+ 	dm_put_device(ti, cc->dev);
++
++	/* Must zero key material before freeing */
++	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
+ 	kfree(cc);
+ }
+ 

@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751806AbWADVwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWADVyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751806AbWADVwE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 16:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWADVwE
+	id S1030241AbWADVyI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWADVyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:52:04 -0500
-Received: from xenotime.net ([66.160.160.81]:64424 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751809AbWADVwB (ORCPT
+	Wed, 4 Jan 2006 16:54:08 -0500
+Received: from mail.gmx.de ([213.165.64.21]:54146 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751807AbWADVyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 16:52:01 -0500
-Date: Wed, 4 Jan 2006 13:52:00 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: andy liebman <andyliebman@aol.com>
-cc: rdunlap@xenotime.net, linux-kernel@vger.kernel.org
-Subject: Re: Atapi CDROM, SATA OS drive, and 2.6.14+ kernel
-In-Reply-To: <43BC4161.1030800@aol.com>
-Message-ID: <Pine.LNX.4.58.0601041350090.19134@shark.he.net>
-References: <8C7DF7FCD8430A9-C8C-4BB2@MBLK-M38.sysops.aol.com>
- <Pine.LNX.4.58.0601041224180.19134@shark.he.net> <43BC4161.1030800@aol.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jan 2006 16:54:06 -0500
+X-Authenticated: #24128601
+Date: Wed, 4 Jan 2006 22:54:15 +0100
+From: Sebastian <sebastian_ml@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+Message-ID: <20060104215415.GA25595@section_eight.mops.rwth-aachen.de>
+References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <20060104092443.GO3472@suse.de> <20060104155036.GA5542@section_eight.mops.rwth-aachen.de> <200601041936.03223.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
+Content-Disposition: inline
+In-Reply-To: <200601041936.03223.s0348365@sms.ed.ac.uk>
+X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006, andy liebman wrote:
 
-> rdunlap@xenotime.net wrote:
-> > On Wed, 4 Jan 2006 andyliebman@aol.com wrote:
-> >
-> >> Can somebody tell me what changed in the 2.6.14 kernel that doesn't
-> >> allow me to access my CDROM drive when my OS drive is SATA?
-> >>
-> >> I have an image of a working 2.6.14 system that was installed on an IDE
-> >> drive. I restored the image to a SATA drive, changed a few lines in
-> >> /etc/fstab and /etc/lilo.conf so that they refer to /dev/sd* devices
-> >> instead of /dev/hd* devices.
-> >>
-> >> I also modified /etc/modprobe.conf so that it is identical to the file
-> >> that Mandriva 2006 produces when installed directly to a SATA drive
-> >> (but Mandriva 2006 has the 2.6.12.x kernel).
-> >>
-> >> I can't mount my CDROM when running 2.6.14.x
-> >>
-> >> I have googled this for several days. I have seen posts about passing
-> >> options to the kernel and including extra lines in modprobe.conf like:
-> >>
-> >> libata atapi_enabled=1
-> >
-> > should be:
-> >   libata.atapi_enabled=1
-> > if libata is built into the kernel image.
->
-> Well, I added that to my modprobe.conf file, remade the initrd. But then
-> on rebooting I got a kernel panic -- VFS not able to sync root filesystem.
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-or Unable to mount root filesystem ??
+I'd be kind if you would cc me in case you reply as I'm not (yet)
+subscribed to this list.
 
-Are your SCSI & SATA drivers built as loadable modules or
-built into the kernel image?
-Why use an inited at all?
+On Mi, Jan 04, 2006 at 07:36:03 +0000, Alistair John Strachan wrote:
+> Just a thought, but could you try ripping to something without a header, =
+like=20
+> RAW? In your case you seem to have been lucky and it'll make no differenc=
+e,=20
+> but WAV headers can vary slightly even if the PCM contained within is=20
+> identical.
+>=20
+> --=20
+> Cheers,
+> Alistair.
+>=20
 
-> Any other ideas?
->
-> >
-> >> Can't find the magic formula. Help would be appreciated.
+I know that this can happen. But it's not the issue here.
 
--- 
-~Randy
+Sebastian
+
+--=20
+"When the going gets weird, the weird turn pro." (HST)
+
+--HlL+5n6rz5pIUxbD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDvEQHTWouIrjrWo4RAiM0AJ9KNG2dLAyN9gPd5gugvGDmqQcGCQCgiew3
+xmrOD5puQrSdSiF+V8+NeGg=
+=2iH3
+-----END PGP SIGNATURE-----
+
+--HlL+5n6rz5pIUxbD--
+

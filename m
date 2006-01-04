@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWADHa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWADHbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWADHa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 02:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWADHa7
+	id S965191AbWADHbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 02:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWADHbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 02:30:59 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36316
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751195AbWADHa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 02:30:58 -0500
-Date: Tue, 03 Jan 2006 23:27:36 -0800 (PST)
-Message-Id: <20060103.232736.32349707.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: mikukkon@iki.fi, laforge@netfilter.org, coreteam@netfilter.org,
-       linux-kernel@vger.kernel.org, kaber@trash.net
-Subject: Re: +
- netfilter-fix-handling-of-module-param-dcc_timeout-in-ip_conntrack_ircc.patch
- added to -mm tree
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060103225157.0d03d726.akpm@osdl.org>
-References: <200601040603.k0463JZa012473@shell0.pdx.osdl.net>
-	<4301cff60601032236h6c930d16j349bcb209d59b68b@mail.gmail.com>
-	<20060103225157.0d03d726.akpm@osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 4 Jan 2006 02:31:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42159 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965191AbWADHbv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 02:31:51 -0500
+Date: Tue, 3 Jan 2006 23:31:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 1/3] mm: add a new function (needed for swap
+ suspend)
+Message-Id: <20060103233127.26328cba.akpm@osdl.org>
+In-Reply-To: <200512271752.47003.rjw@sisk.pl>
+References: <200512271747.43374.rjw@sisk.pl>
+	<200512271752.47003.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Tue, 3 Jan 2006 22:51:57 -0800
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+> @@ -211,6 +211,26 @@
+>   	return (swp_entry_t) {0};
+>   }
+>   
+>  +swp_entry_t get_swap_page_of_type(int type)
+>  +{
+>  +	struct swap_info_struct *si;
+>  +	pgoff_t offset;
+>  +
+>  +	spin_lock(&swap_lock);
+>  +	si = swap_info + type;
+>  +	if (si->flags & SWP_WRITEOK) {
+>  +		nr_swap_pages--;
+>  +		offset = scan_swap_map(si);
+>  +		if (offset) {
+>  +			spin_unlock(&swap_lock);
+>  +			return swp_entry(type, offset);
+>  +		}
+>  +		nr_swap_pages++;
+>  +	}
+>  +	spin_unlock(&swap_lock);
+>  +	return (swp_entry_t) {0};
+>  +}
 
-> That was a couple of weeks ago and Patrick's patch hasn't yet made it to
-> any of the git trees which I know about.
-> 
-> Has Patrick's patch got lost, or is there some tree which I don't know
-> about, or what?
+A little introductory comment would have been nice..
 
-I may have dropped it by accident.
+Would it be appropriate to put this under CONFIG_SOMETHING to save a little
+space?
 
-Patrick, let me know what to do.

@@ -1,38 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWADRbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965234AbWADRce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbWADRbo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbWADRbo
+	id S965234AbWADRce (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbWADRce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:31:44 -0500
-Received: from gate.crashing.org ([63.228.1.57]:7115 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965234AbWADRbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:31:43 -0500
-Date: Wed, 4 Jan 2006 11:25:51 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: platform_device_add_resources doesn't request the resources?
-In-Reply-To: <20060104172712.GA3119@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0601041123010.32358-100000@gate.crashing.org>
+	Wed, 4 Jan 2006 12:32:34 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:33705 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965234AbWADRcc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:32:32 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: mista.tapas@gmx.net
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Wed, 4 Jan 2006 17:28:57 +0000
+User-Agent: KMail/1.9
+Cc: Tomasz =?iso-8859-1?q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+References: <s5h1wzpnjrx.wl%tiwai@suse.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <20060104113726.3bd7a649@mango.fruits.de>
+In-Reply-To: <20060104113726.3bd7a649@mango.fruits.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601041728.57816.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006, Russell King wrote:
+This is a superb, informed summary of the pros and cons of ALSA.
 
-> On Wed, Jan 04, 2006 at 11:07:51AM -0600, Kumar Gala wrote:
-> > Is there any reason that platform_device_add_resources doesn't process the 
-> > resources that are passed to it like platform_device_add does?
-> 
-> Yes.  Please dig out the example usage in the change comments which
-> introduced it.  The use is clearly explained in there.
+I urge the ALSA developers to consider each point carefully so we can try to 
+make ALSA even better.
 
-Will do so.  Out of interest is there a way to do this with git.  Some 
-cross between an annotate command and history.  Give it a line number get 
-which commit that was related to and then git the commit message for it.
+On Wednesday 04 January 2006 10:37, tapas wrote:
+> On Wed, 4 Jan 2006 03:51:09 +0100 (CET)
+>
+> Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl> wrote:
+> > After four years ALSA development quality of sound support in Linux is
+> > IMO on the ~same (still bad) level as four years ago. Still to
+> > complicated but now more bloated and additionaly not ready for handle
+> > fancy gadgets like BT headsets.
+>
+> Hi,
+>
+> i want to chime in here in the defense of ALSA. ALSA is vastly superiour
+> for musicians using linux as opposed to a mere music consumer. Right,
+> for a music consumer (mp3s, cd's, etc), OSS was probably easier to setup
+> and use, but there's other advantages of ALSA vs. OSS:
+>
+> - userspace software mixing (or better software mixing at all. OSS
+> doesn't have this (the libre version in the kernel, not the closed
+> source proprietary one)
+>
+> - userspace resampling (i.e. you have crappy AC97 card that sounds like
+> shit when resampling automatically? Use the ALSA resampler. It might
+> sound like shit, too, but at least it can be fixed ;)
+>
+> - the biggest benefit for me: MIDI routing in between any number of
+> applications.
+>
+> - more capable (more complicated yeah but wtf :)) mixer implementation
+> (the thing to control the volumes, etc)
+>
+> - way more flexible in handling more than one soundcard/device, etc..
+>
+> Drawbacks yet:
+>
+> - complicated device naming scheme. There has been recent changes in
+> this area to build up a list from which the user can select a device.
+>
+> - so so documentation:
+>
+> -- many apps still use the ALSA api wrongly due to the complex nature of
+> it and lacking tutorials, etc (for example: ALSA apps should always use
+> the "default" device if not otherwise indicated by the user. The user
+> must be able to enter any device identifier string, or additionally
+> select from the newly built ALSA provided choices list).
+>
+> -- Users get frustrated often, too, because their distros fail to setup
+> their ALSA system correctly. Documentation does exist, but it's often of
+> a technical nature, which is too much for joe user.
+>
+> - a single badly behaved OSS app can kill the whole software mixing
+> setup, leaving the user with seemingly hanging applications. This is
+> IMHO completely unacceptable. ALSA devs have, more than once, stated
+> that it is perfectly well acceptable for them :(
+>
+> - there's two reasons for above:
+>
+> -- ALSA's kernel level OSS emulation (as opposed to aoss) cannot provide
+> software mixing. As aoss cannot provide OSS emulation to all OSS apps,
+> the kernel level OSS emu must be fixed. I would probably have a look at
+> FUSE to redirect OSS access to userspace. I suppose oss2jack could be
+> modified to use ALSA instead of jack.
+>
+> -- ALSA's default open mode is "blocking". But the ALSA API uses the
+> term blocking in two meanings and throws them together into the open
+> mode of a pcm device. Normally on device files, blocking access means a
+> read()/write() returns, when there's data which has actually been
+> read/written to the device. nonblocking access means, read()/write()
+> return immediately. In ALSA blocking mode means above _plus_ that the
+> open call will only immediately return (in case of contention) when the
+> previous user of the audio device has given it up.
+>
+> The combination of the last two is deadly :) It leaves users with
+> nonfunctional sound plus seemingly hanging apps when their soundcard is
+> not hardware mixing capable. So IMHO, to fix these two issues really is
+> the most pressing matter of all, but like i said, sadly ALSA devs seem
+> to disagree (i haven't followed ALSA development that closely lately
+> though).
+>
+> > On other systems (MOX, Win*, Solaris ..) on handle sound situations is
+> > now better than four years ago. IMO this allow form conclution: generaly
+> > current ALSA is step back compare to other systems and probaly Linux need
+> > some deeper work then simple polishing sound device drivers.
+>
+> ALSA is a definitive step forward from OSS. It even is superior to the
+> original windows sound system (except for ease of configuration - but
+> windows had no interapp midi routing (extra software needed) plus you
+> need another audio device driver system (ASIO) to get reliable low
+> latency operation, and even there it still sucks compared to
+> linux/ALSA/jack/-rt). MAC OS X almost got it right. Their design has
+> another drawback though which makes OS X always have ca. 1 period of
+> latency more. I.e. in terms of low latency operation for musicians with
+> jackd and -rt kernels, linux is ATM the _superior_ platform.
+>
+> It is, when setup correctly simply a joy to work with and make music
+> with.
+>
+> Regards,
+> Florian Schmidt
 
-- kumar
+-- 
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

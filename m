@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWADRTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWADRTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWADRTi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWADRTh
+	id S964818AbWADRTr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:19:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWADRTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:19:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62893 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964812AbWADRTV (ORCPT
+	Wed, 4 Jan 2006 12:19:39 -0500
+Received: from bay7-f20.bay7.hotmail.com ([64.4.11.45]:14573 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S964844AbWADRTh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:19:21 -0500
-Message-ID: <43BC030A.1060208@redhat.com>
-Date: Wed, 04 Jan 2006 09:16:58 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mail/News 1.5 (X11/20051129)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
-       "Viro, Al" <viro@ftp.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Limit sendfile() to 2^31-PAGE_CACHE_SIZE bytes without
- error
-References: <43BB348F.3070108@zytor.com> <200601040451.20411.ak@suse.de> <Pine.LNX.4.64.0601032051300.3668@g5.osdl.org> <43BB5646.2040504@zytor.com> <43BB5E22.2010306@zytor.com> <Pine.LNX.4.64.0601040900311.3668@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601040900311.3668@g5.osdl.org>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC37A0E20D4F3C26BFBC5AE4B"
+	Wed, 4 Jan 2006 12:19:37 -0500
+Message-ID: <BAY7-F20B9964B2E040C06705307C52F0@phx.gbl>
+X-Originating-IP: [82.22.224.216]
+X-Originating-Email: [x-list-subscriptions@hotmail.com]
+Reply-To: x-lists@cqsat.com
+From: "J R" <x-list-subscriptions@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel programming donts
+Date: Wed, 04 Jan 2006 09:19:36 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 04 Jan 2006 17:19:36.0923 (UTC) FILETIME=[09B19AB0:01C61153]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC37A0E20D4F3C26BFBC5AE4B
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Linus Torvalds wrote:
-> Ok, this patch looks ok, if it's confirmed to unbreak apache.
+Is there a list of kernel / driver development "donts" documented in 1
+place. I'm looking for examples of coding errors that would lead to
+leaks,  crashes or vulnerabilities - like using tainted data from
+copy_from_user() in an unsafe way. Have these things been collected in 1 
+place?
 
-Yes, sounds reasonable.  But I don't think that, as Peter suggested in
-another mail, that glibc should automatically wrap the syscall to
-provide support for  larger sizes.  The caller probably should know when
-a transfer was cut short.
+The only thing I could find was the coding style document - but I'm looking 
+for more meaty problems than commenting style.
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+Thanks
+-J
 
 
---------------enigC37A0E20D4F3C26BFBC5AE4B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+--
+www.cqsat.com
+jr at that domain
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+_________________________________________________________________
+Don’t just search. Find. Check out the new MSN Search! 
+http://search.msn.click-url.com/go/onm00200636ave/direct/01/
 
-iD8DBQFDvAMK2ijCOnn/RHQRAmj4AJ95H3gaMTSP2wee86JzyeLzYfTFAwCeJ8FN
-kvvDZCEa4WGxdnNWo98AeZw=
-=GOSx
------END PGP SIGNATURE-----
-
---------------enigC37A0E20D4F3C26BFBC5AE4B--

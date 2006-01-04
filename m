@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWADW33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965290AbWADWaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030310AbWADW33 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWADW32
+	id S965290AbWADWaz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbWADWay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:29:28 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:45902 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S1030310AbWADW32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:29:28 -0500
-Date: Wed, 04 Jan 2006 17:28:59 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 09/15] wistron_btns: Add Acer TravelMate 240 key	mappings.
-In-reply-to: <d120d5000601041421y4965ae64tc4ce2c2cef92b9a5@mail.gmail.com>
-To: dtor_core@ameritech.net
-Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
-Message-id: <1136413739.4430.32.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL00ELB95T6A@a34-mta01.direcway.com>
- <d120d5000601041421y4965ae64tc4ce2c2cef92b9a5@mail.gmail.com>
+	Wed, 4 Jan 2006 17:30:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:1169 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965290AbWADWax convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:30:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bv7snVxi6GArJG9z1qM/Lezgqu3M4eTb8f81Ss24mMX0vb5F6jalYAHLYIOajXJMyPG86R4hOMkQZcLJwrVKHcoWoRDF8Hk5mTIFDEefSgv4qUF3tEfAvEv9vsUorhx+djPjZQv8qm3V0vAN69u4KaFTBCCW7zxuIQWV7cHuPqc=
+Message-ID: <9a8748490601041430g67720b14h10474d9be5059d9@mail.gmail.com>
+Date: Wed, 4 Jan 2006 23:30:52 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Nick Warne <nick@linicks.net>
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Cc: Greg KH <greg@kroah.com>, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+In-Reply-To: <200601042220.59637.nick@linicks.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200601041710.37648.nick@linicks.net>
+	 <200601042210.47152.nick@linicks.net>
+	 <20060104221549.GA13254@kroah.com>
+	 <200601042220.59637.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 17:21 -0500, Dmitry Torokhov wrote:
-> On 1/4/06, Ben Collins <bcollins@ubuntu.com> wrote:
-> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+On 1/4/06, Nick Warne <nick@linicks.net> wrote:
+> On Wednesday 04 January 2006 22:15, Greg KH wrote:
+>
+> > > Then when 2.6.15 came out, that was it!  No patch for the 'latest stable
+> > > kernel release 2.6.14.5'.  It was GONE!
 > >
-> 
-> Hi Ben,
-> 
-> It looks like this is the patch from Ashutosh Naik, would be nice to
-> preserve authorship information. I have it staged for merging BTW.
-> 
-> Also, would you mind sending patches for input subsystem to myself,
-> just to ease merging task.
+> > That's because 2.6.15 is the latest stable release.
+> >
+> > > OK, I suppose we are all capable of getting back to where we are on
+> > > rebuilding to latest 'stable', but there _is_ a missing link for somebody
+> > > that doesn't know - and I think backtracking patches isn't really the way
+> > > to go if the 'latest stable release' isn't catered for.
+> >
+> > Um, it is, see my sentance above.  And if you want to download older
+> > stable releases, you can jump to the proper directory, how long do you
+> > want us to put older stable releases on the main page for?  :)
+>
+> OK, I see what you mean, but 2.6.14 wasn't the latest 'release' - 2.6.14.5 was
 
-Sorry about that. A lot of these patches I "inherited" when I took over
-the Ubuntu kernel. So there are likely some authorship slip ups, which I
-am happy to fix.
+2.6.14 was indeed the latest mainline/Linus release, all the 2.6.14.x
+kernels were -stable kernels released by the -stable team, and when
+2.6.15 shows up noone knows how many further -stable kernels the team
+will release for 2.6.14 (most likely 1 at most, but it's not set in
+stone).
 
-If this is scheduled for entry, then I'll just let it go from there.
-Just wanted to make sure we weren't holding any patches back from the
-rest of the world.
+> (according to kernel.org).  Yet there is no upgrade path for that build (or
+> any other .x releases)
+>
+> It is a bit of a mess really.
+>
+but, a 2.6.14.6 kernel might come out *after* 2.6.15, then what?
 
-Thanks
+There's a 2.6.15 patch on the kernel.org frontpage that's a 2.6.14 ->
+2.6.15 delta, if people are using 2.6.14.x then I think it's fair to
+assume they have that .x patch around somewhere (or know where to find
+it) and can easily revert it to then apply the 2.6.15 patch.
 
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

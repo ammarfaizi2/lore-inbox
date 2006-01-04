@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWADW0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWADW33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbWADW0m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWADW0U
+	id S1030310AbWADW33 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWADW32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:26:20 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:17297 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1030310AbWADW0T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:26:19 -0500
-Date: Wed, 4 Jan 2006 23:26:18 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Ben Collins <bcollins@ubuntu.com>, davej@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 03/15] powernow-k7: Work when kernel is compiled for SMP
-Message-ID: <20060104222618.GA24376@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Ben Collins <bcollins@ubuntu.com>, davej@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <0ISL00NU693O1L@a34-mta01.direcway.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0ISL00NU693O1L@a34-mta01.direcway.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 4 Jan 2006 17:29:28 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:45902 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1030310AbWADW32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:29:28 -0500
+Date: Wed, 04 Jan 2006 17:28:59 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 09/15] wistron_btns: Add Acer TravelMate 240 key	mappings.
+In-reply-to: <d120d5000601041421y4965ae64tc4ce2c2cef92b9a5@mail.gmail.com>
+To: dtor_core@ameritech.net
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+Message-id: <1136413739.4430.32.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL00ELB95T6A@a34-mta01.direcway.com>
+ <d120d5000601041421y4965ae64tc4ce2c2cef92b9a5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 04:59:31PM -0500, Ben Collins wrote:
-> On a UP system with SMP compiled kernel, the powernow-k7 module would not
-> initialize (returned -ENODEV). Not sure why policy->cpu != 0 for UP
->
-> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+On Wed, 2006-01-04 at 17:21 -0500, Dmitry Torokhov wrote:
+> On 1/4/06, Ben Collins <bcollins@ubuntu.com> wrote:
+> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> >
+> 
+> Hi Ben,
+> 
+> It looks like this is the patch from Ashutosh Naik, would be nice to
+> preserve authorship information. I have it staged for merging BTW.
+> 
+> Also, would you mind sending patches for input subsystem to myself,
+> just to ease merging task.
 
-May the smp_processor_id() be != 0 on _true_ UP on SMP? What happens if (using
-virtual CPU hotplug) the module is modprobe'd with one CPU online, and then
-the second CPU becomes online later?
+Sorry about that. A lot of these patches I "inherited" when I took over
+the Ubuntu kernel. So there are likely some authorship slip ups, which I
+am happy to fix.
 
-	Dominik
+If this is scheduled for entry, then I'll just let it go from there.
+Just wanted to make sure we weren't holding any patches back from the
+rest of the world.
+
+Thanks
+
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
+

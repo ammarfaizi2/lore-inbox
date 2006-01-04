@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWADNVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWADNkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751785AbWADNVp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 08:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbWADNVo
+	id S1751768AbWADNkx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 08:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWADNkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 08:21:44 -0500
-Received: from csl2r.consultronics.on.ca ([204.138.93.16]:9093 "EHLO
-	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id S1751785AbWADNVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 08:21:43 -0500
-Date: Wed, 4 Jan 2006 08:21:39 -0500
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20060104132139.GA5753@athame.dynamicro.on.ca>
-Mail-Followup-To: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl> <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl> <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <1136364634.22598.70.camel@localhost.localdomain>
+	Wed, 4 Jan 2006 08:40:52 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:30949 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751253AbWADNkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 08:40:52 -0500
+Date: Wed, 4 Jan 2006 14:40:47 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Resubmit: [PATCH] natsemi: NAPI support
+Message-ID: <20060104134047.GR4898@sunbeam.de.gnumonks.org>
+References: <20051204231209.GA28949@electric-eye.fr.zoreil.com> <20051205232301.GA4551@sirena.org.uk> <20051206001934.GA18329@electric-eye.fr.zoreil.com> <20051206211729.GB3709@sirena.org.uk> <20051206215619.GB3425@electric-eye.fr.zoreil.com> <20051209104832.GA3677@sirena.org.uk> <20051212235531.GB3714@sirena.org.uk> <439E14F0.4040001@pobox.com> <20051221234850.GC5274@sirena.org.uk> <20060104073249.GA8024@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2D20dG0OqTzqkNh7"
 Content-Disposition: inline
-In-Reply-To: <1136364634.22598.70.camel@localhost.localdomain>
-Organization: Dynamicro Consulting Limited
+In-Reply-To: <20060104073249.GA8024@sirena.org.uk>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20060104 (Wed) at 0850:34 +0000, Alan Cox wrote:
-> On Mer, 2006-01-04 at 03:51 +0100, Tomasz K??oczko wrote:
-> > Be compliant with OSS specyfication allow save many time on applications 
-> > development level by consume (in good sense) time spend on this 
-> > applications by *BSD, Solaris and other systems developers (even on not 
-> > open source applications).
-> 
-> Both Solaris and FreeBSD contain Linux emulation code so in that sense
-> they admitted 'defeat' long ago.
-> 
-> > valuable functionalities in usable/simpler form for joe-like users .. 
-> > remember: sound support in Linux isn't for data centers/big-ass-machines :)
-> 
-> And distributions nowdays ship with ALSA by default, which is giving
-> users far better audio timing behaviour, mixing they want, digital and
-> analogue 5.1 outputs. OSS really isn't ideal for serious "end user"
-> applications like video playback
-> 
-Ok, so I'm not serious :) just wanna do fairly standard audio things.
 
-- ALSA doesn't (AFAIK, haven't checked for a few months) support my old
-  Audiotrix sound card -- bye, machine 1
-- ALSA can't be persuaded (not by me, anyway) to drive my VIA
-  ac97_codec onboard sound hardware -- everything works fine except
-  unmuting ;) -- bye, machine 2
-- ALSA does suport my i810_audio ac97_codec laptop, but so does OSS,
-  equally well (for my unsophisticated needs) and with a far less
-  elephantine footprint in memory. -- strike 3, ALSA out.
+--2D20dG0OqTzqkNh7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So even if sound support in Linux _is_ for "big-ass" studio work, it
-would be nice if little guys didn't get abandoned along the way, IMHO.
+On Wed, Jan 04, 2006 at 07:32:49AM +0000, Mark Brown wrote:
+> This patch against 2.6.14 converts the natsemi driver to use NAPI.  It
+> was originally based on one written by Harald Welte, though it has since
+> been modified quite a bit, most extensively in order to remove the
+> ability to disable NAPI since none of the other drivers seem to provide
+> that functionality any more.
 
--- 
-| G r e g  L o u i s         | gpg public key: 0x400B1AA86D9E3E64 |
-|  http://www.bgl.nu/~glouis |   (on my website or any keyserver) |
-|  http://wecanstopspam.org in signatures helps fight junk email. |
+Mark, sorry for not responding earlier to your emails with regard to
+your natsemi patch.
+
+Thanks for pushing this persistently.  From reviewing your patch, I
+personally thin it's fine to be merged.
+
+I will test it on my natsemi based boxes later today.
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--2D20dG0OqTzqkNh7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDu9BfXaXGVTD0i/8RAi7dAJsFJF5e4ObWF3U4VVShjOdHDMhrggCfd4fH
+yROpTNIBf4APf0Rof17b0ss=
+=M2n2
+-----END PGP SIGNATURE-----
+
+--2D20dG0OqTzqkNh7--

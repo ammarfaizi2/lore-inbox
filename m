@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWADW4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWADXBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751028AbWADW4w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWADW4w
+	id S1751106AbWADXBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWADXBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:56:52 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:55683 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S1751028AbWADW4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:56:51 -0500
-Date: Wed, 04 Jan 2006 17:56:12 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 04/15] i386: Handle HP laptop rebooting properly.
-In-reply-to: <20060104224250.GA32177@quicksilver.road.mcmartin.ca>
-To: Kyle McMartin <kyle@mcmartin.ca>
-Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
-Message-id: <1136415372.4430.47.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL004R0943MT@a34-mta01.direcway.com>
- <20060104224250.GA32177@quicksilver.road.mcmartin.ca>
+	Wed, 4 Jan 2006 18:01:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40899 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751142AbWADXA7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:00:59 -0500
+Date: Wed, 4 Jan 2006 15:01:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Subject: Re: [patch 2.6.15] i386: Optimize local APIC timer interrupt code
+Message-Id: <20060104150139.34829833.akpm@osdl.org>
+In-Reply-To: <200601041352_MC3-1-B550-4606@compuserve.com>
+References: <200601041352_MC3-1-B550-4606@compuserve.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 17:42 -0500, Kyle McMartin wrote:
-> On Wed, Jan 04, 2006 at 04:59:44PM -0500, Ben Collins wrote:
-> > +	{	/* HP laptops have weird reboot issues */
-> > +		.callback = set_bios_reboot,
-> > +		.ident = "HP Laptop",
-> > +		.matches = {
-> > +			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-> > +			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq"),
-> > +		},
-> > +	},
-> >  	{	/* Handle problems with rebooting on HP nc6120 */
-> >  		.callback = set_bios_reboot,
-> >  		.ident = "HP Compaq nc6120",
-> >
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+> Local APIC timer interrupt happens HZ times per second on each CPU.
 > 
-> Looks like the entry below could be removed, as it's now covered by
-> the above.
+> Optimize it for the case where profile multiplier equals one and does
+> not change (99+% of cases); this saves about 20 CPU cycles on Pentium II.
+> 
+> Also update the old multiplier immediately after noticing it changed,
+> while values are register-hot, saving eight bytes of stack depth.
 
-That's correct, so here's a better trivial patch to just broaden the
-existing entry.
+The code which you're patching is cheerfully nuked by a patch in Andi's
+tree:
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/no-subjiffy-profile
 
-Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+I don't immediately understand that patch and I don't recall seeing it
+discussed - maybe I was asleep.
 
-diff --git a/arch/i386/kernel/reboot.c b/arch/i386/kernel/reboot.c
-index 2afe0f8..2fa5803 100644
---- a/arch/i386/kernel/reboot.c
-+++ b/arch/i386/kernel/reboot.c
-@@ -111,12 +111,12 @@ static struct dmi_system_id __initdata r
- 			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 2400"),
- 		},
- 	},
--	{	/* Handle problems with rebooting on HP nc6120 */
-+	{	/* Handle problems with rebooting on HP laptops */
- 		.callback = set_bios_reboot,
--		.ident = "HP Compaq nc6120",
-+		.ident = "HP Compaq Laptop",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq nc6120"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq"),
- 		},
- 	},
- 	{ }
+It removes the profile multiplier (readprofile -M).  I've used that
+occasionally, but can't say that I noticed much benefit from it.
 
-
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
-
+What's the thinking here?

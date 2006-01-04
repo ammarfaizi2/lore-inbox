@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWADXPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWADXPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751822AbWADXPn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWADXPm
+	id S1751824AbWADXPA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWADXPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:15:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5066 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751822AbWADXPl (ORCPT
+	Wed, 4 Jan 2006 18:15:00 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16537 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751824AbWADXO7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:15:41 -0500
-Date: Wed, 4 Jan 2006 15:17:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: jlan@engr.sgi.com, nagar@watson.ibm.com, linux-kernel@vger.kernel.org,
-       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       ckrm-tech@lists.sourceforge.net, pj@sgi.com, erikj@sgi.com,
-       steiner@sgi.com, jh@sgi.com
-Subject: Re: [ckrm-tech] Re: [Patch 6/6] Delay accounting: Connector
- interface
-Message-Id: <20060104151730.77df5bf6.akpm@osdl.org>
-In-Reply-To: <1136414431.22868.115.camel@stark>
-References: <43BB05D8.6070101@watson.ibm.com>
-	<43BB09D4.2060209@watson.ibm.com>
-	<43BC1C43.9020101@engr.sgi.com>
-	<1136414431.22868.115.camel@stark>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 4 Jan 2006 18:14:59 -0500
+Date: Wed, 4 Jan 2006 15:12:30 -0800
+From: Greg KH <greg@kroah.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Nick Warne <nick@linicks.net>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Message-ID: <20060104231226.GC14788@kroah.com>
+References: <200601041710.37648.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk> <20060104220157.GB12778@kroah.com> <200601042249.12116.s0348365@sms.ed.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601042249.12116.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley <matthltc@us.ibm.com> wrote:
->
-> > We need to move both proc_exit_connector(tsk) and
-> > cnstats_exit_connector(tsk) up to before exit_mm(tsk) statement.
-> > There are task statistics collected in task->mm and those stats
-> > will be lost after exit_mm(tsk).
-> > 
-> > Thanks,
-> >  - jay
-> > 
-> > > 	exit_notify(tsk);
-> > > #ifdef CONFIG_NUMA
-> > > 	mpol_free(tsk->mempolicy);
-> > >-
-> 
-> 	Good point. The assignment of the task exit code will also have to move
-> up before exit_mm(tsk) because the process event connector exit function
-> retrieves the exit code from the task struct.
+On Wed, Jan 04, 2006 at 10:49:11PM +0000, Alistair John Strachan wrote:
+> Re-read the thread. The confusion here is about "going back" to 2.6.14 before 
+> patching 2.6.15. This has nothing to do with "rc kernels". We have this 
+> documented explicitly in the kernel but not on the kernel.org FAQ.
 
-Could someone please volunteer to do the patch?
+The kernel.org FAQ does not deal with Linux kernel specific things, only
+kernel.org specific things.  So documenting it in the kernel itself is
+the proper place for it :)
+
+thanks,
+
+greg k-h

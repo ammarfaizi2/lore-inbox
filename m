@@ -1,100 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbWADBIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWADBJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965088AbWADBIv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 20:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbWADBIv
+	id S965095AbWADBJp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 20:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbWADBJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 20:08:51 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:34537 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S965088AbWADBIv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 20:08:51 -0500
-Date: Tue, 3 Jan 2006 17:08:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Jason Dravet <dravet@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-parport@lists.infradead.org
-Subject: Re: [RFC]: add sysfs support to parport_pc, v3
-Message-ID: <20060104010841.GA19541@kroah.com>
-References: <BAY103-F835CFFD193D6F76C5527FDF2D0@phx.gbl>
+	Tue, 3 Jan 2006 20:09:44 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:59081 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S965089AbWADBJn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 20:09:43 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
+To: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: linux-kernel@vger.kernel.org, zaitcev@yahoo.com,
+       zwane@commfireservices.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       jgarzik@pobox.com, parisc-linux@lists.parisc-linux.org,
+       kyle@parisc-linux.org, zab@zabbo.net, linux-sound@vger.kernel.org,
+       sailer@ife.ee.ethz.ch, James@superbug.demon.co.uk,
+       alsa-devel@alsa-project.org, perex@suse.cz, Andi Kleen <ak@suse.de>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Tomasz Torcz <zdzichu@irc.pl>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Olivier Galibert <galibert@pobox.com>, Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+References: <20050726150837.GT3160@stusta.de>
+	 <200601031629.21765.s0348365@sms.ed.ac.uk>
+	 <20060103170316.GA12249@dspnet.fr.eu.org>
+	 <200601031716.13409.s0348365@sms.ed.ac.uk>
+	 <20060103192449.GA26030@dspnet.fr.eu.org> <20060103193736.GG3831@stusta.de>
+	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+Content-Type: text/plain; charset=iso-8859-2
+Date: Wed, 04 Jan 2006 01:33:27 +0100
+Message-Id: <1136334807.4106.51.camel@unreal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY103-F835CFFD193D6F76C5527FDF2D0@phx.gbl>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-06.tornado.cablecom.ch 32701; Body=20
+	Fuz1=20 Fuz2=20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 02, 2006 at 09:39:50AM -0600, Jason Dravet wrote:
-> Here is a new patch to parport_pc that adds sysfs and thus udev support to 
-> parport_pc.  I fixed my earilier problem of the kernel oops (I forgot the 
-> class_destory) and I can insmod and rmmod this module all day long with no 
-> side effects.  I do have one question why do both lp and parport nodes have 
-> to be created?
-> 
-> What do you think of this patch?  What would be the next step to get this 
-> into the kernel?
-> 
-> Thanks,
-> Jason Dravet
-> 
-> signed-off-by: Jason Dravet <dravet@hotmail.com>
+On Wed, 2006-01-04 at 00:10 +0100, Tomasz K³oczko wrote:
 
-"Signed-off-by:"
+> 1) ALSA API forces not use devices files and many things on sound managing
+>    level are handled on user space library. This dissallow civilized
 
-> 
-> --- /usr/src/linux-2.6.14/drivers/parport/parport_pc.c.orig	2005-12-30 
-> 13:52:48.000000000 -0600
-> +++ /usr/src/linux-2.6.14/drivers/parport/parport_pc.c	2006-01-01 
-> 11:29:05.000000000 -0600
+Huh? Why's that? Actually, I welcome that ALSA does quite a lot in
+userspace, it could even do more. The whole format conversion and
+sampling rate conversion has no business in the kernel, IMO.
 
-Line wrapped so it can't be applied :(
+> 2) ALSA API is to complicated: most applications opens single sound
+>    stream.
 
-> @@ -14,6 +14,7 @@
->  * More PCI support now conditional on CONFIG_PCI, 03/2001, Paul G.
->  * Various hacks, Fred Barnes, 04/2001
->  * Updated probing logic - Adam Belay <ambx1@neo.rr.com>
-> + * Added sysfs and udev - Jason Dravet <dravet@hotmail.com>
->  */
+Agreed. It took me quite some time to get my app ported, even though I
+had lots of documentation and sample code...
 
-Doesn't belong here, this goes in the change log.
 
-> 
-> /* This driver should work with any hardware that is broadly compatible
-> @@ -55,6 +56,7 @@
-> #include <linux/pci.h>
-> #include <linux/pnp.h>
-> #include <linux/sysctl.h>
-> +#include <linux/sysfs.h>
+> 3) ALSA kernel architecture is to complicated. This main reason why
+>    configuring sound on Linux is SO COMPLICATED. From my system:
 
-Your email client also ate the leading spaces :(
+Also agreed. It is IMO the hardest kernel subsystem to read. Instead of
+having control passing from VFS to driver and the driver calling core
+library routines, control passes from VFS to alsa core, which is calling
+lots of callbacks. It's a coding style that should be avoided, it makes
+reading and understanding code extremely hard.
 
-> 
-> #include <asm/io.h>
-> #include <asm/dma.h>
-> @@ -99,6 +101,9 @@ static struct superio_struct {	/* For Su
-> 	int dma;
-> } superios[NR_SUPERIOS] __devinitdata = { {0,},};
-> 
-> +static struct class *parallel_class;
-> +int countports = 0;
-> +
-> static int user_specified;
-> #if defined(CONFIG_PARPORT_PC_SUPERIO) || \
->        (defined(CONFIG_PARPORT_1284) && defined(CONFIG_PARPORT_PC_FIFO))
-> @@ -2232,6 +2237,11 @@ struct parport *parport_pc_probe_port (u
->                                            is mandatory (see above) */
-> 		p->dma = PARPORT_DMA_NONE;
-> 
-> +	parallel_class = class_create(THIS_MODULE, "lp");
-> +	class_device_create(parallel_class, NULL, MKDEV(6, countports), 
-> NULL, "lp%i", countports);
-> +	class_device_create(parallel_class, NULL, MKDEV(99, countports), 
-> NULL, "parport%i", countports);
-> +	countports++;
+> 4) ALSA mixing model is UNSECURE by design because all mixing sound
+>    streams (for example with diffrent sampling rates) are performed
+>    in user space.
 
-What does the 6 and 99 come from?  Aren't these #defined in a header
-file somewhere?
+Why is that? Even with kernel space mixing, any application having
+access to the soundcard can fuck up the output, so I don't see why the
+user space solution is less secure than a kernel solution.
 
-thanks,
+Tom
 
-greg k-h
+

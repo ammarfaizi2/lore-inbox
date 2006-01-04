@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWADWVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWADWVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWADWVL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWADWVL
+	id S1030288AbWADWVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWADWVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:21:11 -0500
-Received: from mail.linicks.net ([217.204.244.146]:45516 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1030299AbWADWVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:21:09 -0500
-From: Nick Warne <nick@linicks.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Date: Wed, 4 Jan 2006 22:20:59 +0000
-User-Agent: KMail/1.9
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-References: <200601041710.37648.nick@linicks.net> <200601042210.47152.nick@linicks.net> <20060104221549.GA13254@kroah.com>
-In-Reply-To: <20060104221549.GA13254@kroah.com>
+	Wed, 4 Jan 2006 17:21:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:49496 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030288AbWADWVS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:21:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=D0JbvwNkksXftoTaM+9G5lLN+KR/C895S2lv/xZEEmNzjqZBgkc9Ddys4q58t/PTa1p2i07NwiuSg4HCDap/qqLdDWZUpBNDeUFY1GqWIA2RfmMX7DnESyglaIOxyfAKg62aJydb86jEhQksrmDTIQiU7RjIoUv0p1R1imVo57w=
+Message-ID: <d120d5000601041421y4965ae64tc4ce2c2cef92b9a5@mail.gmail.com>
+Date: Wed, 4 Jan 2006 17:21:17 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: [PATCH 09/15] wistron_btns: Add Acer TravelMate 240 key mappings.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0ISL00ELB95T6A@a34-mta01.direcway.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200601042220.59637.nick@linicks.net>
+References: <0ISL00ELB95T6A@a34-mta01.direcway.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 22:15, Greg KH wrote:
-
-> > Then when 2.6.15 came out, that was it!  No patch for the 'latest stable
-> > kernel release 2.6.14.5'.  It was GONE!
+On 1/4/06, Ben Collins <bcollins@ubuntu.com> wrote:
+> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 >
-> That's because 2.6.15 is the latest stable release.
->
-> > OK, I suppose we are all capable of getting back to where we are on
-> > rebuilding to latest 'stable', but there _is_ a missing link for somebody
-> > that doesn't know - and I think backtracking patches isn't really the way
-> > to go if the 'latest stable release' isn't catered for.
->
-> Um, it is, see my sentance above.  And if you want to download older
-> stable releases, you can jump to the proper directory, how long do you
-> want us to put older stable releases on the main page for?  :)
 
-OK, I see what you mean, but 2.6.14 wasn't the latest 'release' - 2.6.14.5 was 
-(according to kernel.org).  Yet there is no upgrade path for that build (or 
-any other .x releases)
+Hi Ben,
 
-It is a bit of a mess really.
+It looks like this is the patch from Ashutosh Naik, would be nice to
+preserve authorship information. I have it staged for merging BTW.
 
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/
+Also, would you mind sending patches for input subsystem to myself,
+just to ease merging task.
+
+Thanks!
+
+--
+Dmitry

@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWADVna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751805AbWADVnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWADVna (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 16:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751729AbWADVna
+	id S1751805AbWADVnT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:43:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751729AbWADVnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:43:30 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:23520 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S1751233AbWADVn3
+	Wed, 4 Jan 2006 16:43:19 -0500
+Received: from imo-m14.mx.aol.com ([64.12.138.204]:31204 "EHLO
+	imo-m14.mx.aol.com") by vger.kernel.org with ESMTP id S1751233AbWADVnS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 16:43:29 -0500
-From: Stefan Rompf <stefan@loplof.de>
-To: Greg KH <greg@kroah.com>
-Subject: [Patch 2.6] dm-crypt: Zero key material before free to avoid information leak
-Date: Wed, 4 Jan 2006 22:44:57 +0100
-User-Agent: KMail/1.8
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>, linux-kernel@vger.kernel.org,
-       Clemens Fruhwirth <clemens@endorphin.org>, stable@kernel.org,
-       Arjan van de Ven <arjan@infradead.org>
-References: <200601042108.04544.stefan@loplof.de> <Pine.LNX.4.58.0601041242270.19134@shark.he.net> <20060104211526.GA12042@kroah.com>
-In-Reply-To: <20060104211526.GA12042@kroah.com>
+	Wed, 4 Jan 2006 16:43:18 -0500
+Message-ID: <43BC4161.1030800@aol.com>
+Date: Wed, 04 Jan 2006 16:42:57 -0500
+From: andy liebman <andyliebman@aol.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: rdunlap@xenotime.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Atapi CDROM, SATA OS drive, and 2.6.14+ kernel
+References: <8C7DF7FCD8430A9-C8C-4BB2@MBLK-M38.sysops.aol.com> <Pine.LNX.4.58.0601041224180.19134@shark.he.net>
+In-Reply-To: <Pine.LNX.4.58.0601041224180.19134@shark.he.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601042244.58683.stefan@loplof.de>
+X-AOL-IP: 146.115.27.35
+X-Mailer: Unknown (No Version)
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch 04 Januar 2006 22:15 schrieb Greg KH:
+rdunlap@xenotime.net wrote:
+> On Wed, 4 Jan 2006 andyliebman@aol.com wrote:
+> 
+>> Can somebody tell me what changed in the 2.6.14 kernel that doesn't
+>> allow me to access my CDROM drive when my OS drive is SATA?
+>>
+>> I have an image of a working 2.6.14 system that was installed on an IDE
+>> drive. I restored the image to a SATA drive, changed a few lines in
+>> /etc/fstab and /etc/lilo.conf so that they refer to /dev/sd* devices
+>> instead of /dev/hd* devices.
+>>
+>> I also modified /etc/modprobe.conf so that it is identical to the file
+>> that Mandriva 2006 produces when installed directly to a SATA drive
+>> (but Mandriva 2006 has the 2.6.12.x kernel).
+>>
+>> I can't mount my CDROM when running 2.6.14.x
+>>
+>> I have googled this for several days. I have seen posts about passing
+>> options to the kernel and including extra lines in modprobe.conf like:
+>>
+>> libata atapi_enabled=1
+> 
+> should be:
+>   libata.atapi_enabled=1
+> if libata is built into the kernel image.
 
-> Yes, Stefan, care to redo this with an updated changelog command?
+Well, I added that to my modprobe.conf file, remade the initrd. But then 
+on rebooting I got a kernel panic -- VFS not able to sync root filesystem.
 
+Any other ideas?
 
-dm-crypt should clear struct crypt_config before freeing it to
-avoid information leak f.e. to a swsusp image.
+> 
+>> Can't find the magic formula. Help would be appreciated.
+> 
 
-Signed-off-by: Stefan Rompf <stefan@loplof.de>
-Acked-by: Clemens Fruhwirth <clemens@endorphin.org>
-
---- linux-2.6.15/drivers/md/dm-crypt.c.orig	2006-01-04 01:01:16.000000000 +0100
-+++ linux-2.6.15/drivers/md/dm-crypt.c	2006-01-04 22:35:13.000000000 +0100
-@@ -690,6 +690,8 @@
- bad2:
- 	crypto_free_tfm(tfm);
- bad1:
-+	/* Zero key material before free to avoid information leak */
-+	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
- 	kfree(cc);
- 	return -EINVAL;
- }
-@@ -706,6 +708,9 @@
- 		cc->iv_gen_ops->dtr(cc);
- 	crypto_free_tfm(cc->tfm);
- 	dm_put_device(ti, cc->dev);
-+
-+	/* Zero key material before free to avoid information leak */
-+	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
- 	kfree(cc);
- }
- 

@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965299AbWADWgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965292AbWADWgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965299AbWADWgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:36:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965300AbWADWgZ
+	id S965292AbWADWgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbWADWgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:36:25 -0500
-Received: from mail.linicks.net ([217.204.244.146]:34203 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S965297AbWADWgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:36:23 -0500
-From: Nick Warne <nick@linicks.net>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Date: Wed, 4 Jan 2006 22:36:10 +0000
-User-Agent: KMail/1.9
-Cc: Greg KH <greg@kroah.com>, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-References: <200601041710.37648.nick@linicks.net> <200601042220.59637.nick@linicks.net> <9a8748490601041430g67720b14h10474d9be5059d9@mail.gmail.com>
-In-Reply-To: <9a8748490601041430g67720b14h10474d9be5059d9@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 4 Jan 2006 17:36:09 -0500
+Received: from mailhub.hp.com ([192.151.27.10]:38807 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S965292AbWADWgH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:36:07 -0500
+Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
+From: Alex Williamson <alex.williamson@hp.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: linux-ia64@vger.kernel.org, ak@suse.de,
+       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060104221627.GA26064@lists.us.dell.com>
+References: <20060104221627.GA26064@lists.us.dell.com>
+Content-Type: text/plain
+Organization: OSLO R&D
+Date: Wed, 04 Jan 2006 15:36:03 -0700
+Message-Id: <1136414164.6198.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601042236.10293.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 22:30, Jesper Juhl wrote:
+On Wed, 2006-01-04 at 16:16 -0600, Matt Domsch wrote:
+> Andi Kleen has a patch in his x86_64 tree which enables the use of
+> i386 dmi_scan.c on x86_64.  dmi_scan.c functions are being used by the
+> drivers/char/ipmi/ipmi_si_intf.c driver for autodetecting the ports or
+> memory spaces where the IPMI controllers may be found.
 
-> > (according to kernel.org).  Yet there is no upgrade path for that build
-> > (or any other .x releases)
-> >
-> > It is a bit of a mess really.
->
-> but, a 2.6.14.6 kernel might come out *after* 2.6.15, then what?
+   Can't this be done via ACPI/EFI?  I'm really opposed to adding
+anything to ia64 that blindly picks memory ranges and starts scanning
+for magic legacy tables.  If nothing else, this can be found via
+efi.smbios.  Thanks,
 
-Nightmares...
+	Alex
 
-I get all the points.  Let me say then it needs better distinction on what the 
-'latest kernel' is and on what the 'latest -stable' is.
-
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb

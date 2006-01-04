@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWADIeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWADIlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWADIeN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 03:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWADIeN
+	id S1751217AbWADIlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 03:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWADIlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 03:34:13 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:19376 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751211AbWADIeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 03:34:12 -0500
-Subject: Re: keyboard driver of 2.6 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: "P.Manohar" <pmanohar@lantana.tenet.res.in>
+	Wed, 4 Jan 2006 03:41:36 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:26304 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751217AbWADIlg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 03:41:36 -0500
+Subject: Re: Ping-Pong Compatible DMA buffer chaining
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Deven Balani <devenbalani@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in>
-References: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in>
+In-Reply-To: <7a37e95e0601032128l2c7d6e03v742de8dd485af9db@mail.gmail.com>
+References: <7a37e95e0512252205t68c6b6f6sfeedf3a75880fda9@mail.gmail.com>
+	 <1136250520.13968.5.camel@localhost.localdomain>
+	 <7a37e95e0601032128l2c7d6e03v742de8dd485af9db@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 04 Jan 2006 09:33:42 +0100
-Message-Id: <1136363622.2839.6.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Wed, 04 Jan 2006 08:43:49 +0000
+Message-Id: <1136364229.22598.66.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 14:02 +0530, P.Manohar wrote:
-> Greetings,
->      I have a small doubt in Linux kernel keyboard driver.
-> In 2.4 kernels the starting fuction of keyboard driver is "handle_scancode". 
-> But in 2.6 kernels the keyboard interface
-> is changed drastically.  If you familiar with that can you tell me the starting 
-> fuction of keyboard interace which gets
-> the scancodes in 2.6 kernels.
-> 
-> Actually my paln is to stuff scancodes or keycodes to the keyboard buffer 
-> , from there on the keyboard driver processes them.  I have done this for 
-> 2.4 kernel.  I want to implement the same to 2.6 kernel.
-> 
-> Is there any keyloggers which are implemented for 2.6 kernels?
+On Mer, 2006-01-04 at 10:58 +0530, Deven Balani wrote:
+> My hardware has two Buffers B0 and B1 for both Tx and Rx path.
+> I had to fill the first buffer initially and then _continue_ a walk
+> through the sg list with help of buffer completion interrupts of B0 &
+> B1.
 
-this is not r00tkitnewbies mailing list 
+This looks workable to me. You can possibly also use the max_Sectors
+field in the sht to simplify the logic by letting the kernel split the
+sg entries before they become too large for your hardware.
 
-keyloggers are evil!
-
+Alan
 

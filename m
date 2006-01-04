@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWADNkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWADNqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbWADNkx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 08:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWADNkw
+	id S1030224AbWADNqm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 08:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWADNqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 08:40:52 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:30949 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751253AbWADNkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 08:40:52 -0500
-Date: Wed, 4 Jan 2006 14:40:47 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Resubmit: [PATCH] natsemi: NAPI support
-Message-ID: <20060104134047.GR4898@sunbeam.de.gnumonks.org>
-References: <20051204231209.GA28949@electric-eye.fr.zoreil.com> <20051205232301.GA4551@sirena.org.uk> <20051206001934.GA18329@electric-eye.fr.zoreil.com> <20051206211729.GB3709@sirena.org.uk> <20051206215619.GB3425@electric-eye.fr.zoreil.com> <20051209104832.GA3677@sirena.org.uk> <20051212235531.GB3714@sirena.org.uk> <439E14F0.4040001@pobox.com> <20051221234850.GC5274@sirena.org.uk> <20060104073249.GA8024@sirena.org.uk>
+	Wed, 4 Jan 2006 08:46:42 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:58252 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751410AbWADNql
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 08:46:41 -0500
+Date: Wed, 4 Jan 2006 06:46:41 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Ben Slusky <sluskyb@paranoiacs.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-fsdevel@vger.kernel.org,
+       legal@lists.gnumonks.org, "Robert W. Fuller" <garbageout@sbcglobal.net>,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, info@crossmeta.com
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+Message-ID: <20060104134641.GM19769@parisc-linux.org>
+References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <20051223153541.GA13111@paranoiacs.org> <20060104110929.GH4898@sunbeam.de.gnumonks.org> <20060104115422.GA2562@mail.shareable.org> <20060104131805.GM4898@sunbeam.de.gnumonks.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2D20dG0OqTzqkNh7"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060104073249.GA8024@sirena.org.uk>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+In-Reply-To: <20060104131805.GM4898@sunbeam.de.gnumonks.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 04, 2006 at 02:18:05PM +0100, Harald Welte wrote:
+> yes.  but the point is (according to reports I have received) that the
+> object code (without source code) was available for download on the
+> crossmeta website. 
 
---2D20dG0OqTzqkNh7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's  still downloadable.
+http://www.crossmeta.com/downloads/crossmeta-add-1_0.zip
 
-On Wed, Jan 04, 2006 at 07:32:49AM +0000, Mark Brown wrote:
-> This patch against 2.6.14 converts the natsemi driver to use NAPI.  It
-> was originally based on one written by Harald Welte, though it has since
-> been modified quite a bit, most extensively in order to remove the
-> ability to disable NAPI since none of the other drivers seem to provide
-> that functionality any more.
+There is no source included, nor an offer to provide source, nor
+anything which could be construed as to satisfy 3 (c).
 
-Mark, sorry for not responding earlier to your emails with regard to
-your natsemi patch.
-
-Thanks for pushing this persistently.  From reviewing your patch, I
-personally thin it's fine to be merged.
-
-I will test it on my natsemi based boxes later today.
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---2D20dG0OqTzqkNh7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDu9BfXaXGVTD0i/8RAi7dAJsFJF5e4ObWF3U4VVShjOdHDMhrggCfd4fH
-yROpTNIBf4APf0Rof17b0ss=
-=M2n2
------END PGP SIGNATURE-----
-
---2D20dG0OqTzqkNh7--
+Do you want to take this one on, Harald?

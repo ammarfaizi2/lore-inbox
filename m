@@ -1,96 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWADJWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWADJXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbWADJWw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 04:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWADJWw
+	id S1030184AbWADJXK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 04:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030185AbWADJXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 04:22:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:18981 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964937AbWADJWv (ORCPT
+	Wed, 4 Jan 2006 04:23:10 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:11306 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030184AbWADJXI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 04:22:51 -0500
-Date: Wed, 4 Jan 2006 10:24:44 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sebastian <sebastian_ml@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Message-ID: <20060104092443.GO3472@suse.de>
-References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <20060104092058.GN3472@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060104092058.GN3472@suse.de>
+	Wed, 4 Jan 2006 04:23:08 -0500
+Message-ID: <43BB94AD.8090909@sw.ru>
+Date: Wed, 04 Jan 2006 12:26:05 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: torvalds@osdl.org, simon.derr@bull.net, linux-kernel@vger.kernel.org,
+       den@sw.ru, st@sw.ru, Andrew Morton <akpm@osdl.org>
+Subject: Re: cpusets: BUG: cpuset_excl_nodes_overlap() may sleep under tasklist_lock
+References: <43B28996.7060006@sw.ru> <20060103143158.8ab385d0.pj@sgi.com>
+In-Reply-To: <20060103143158.8ab385d0.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04 2006, Jens Axboe wrote:
-> On Tue, Jan 03 2006, Sebastian wrote:
-> > Hello all!
-> > 
-> > I'd be kind if you would cc me in case you reply as I'm not (yet)
-> > subscribed to this list.
-> > 
-> > I'm a music buff :) Well, I guess most people are in one way or the
-> > other. But in addition to that I like bitperfect ripping very much.
-> > Since some time this doesn't work well with linux anymore.
-> > 
-> > I'd like to know if there's something in the making already or what
-> > could be done to solve this issue. A supporting layer for the ide
-> > system, a new driver maybe? I think this can't be fixed in userspace,
-> > right?
-> > 
-> > I ripped an audio disc in different ways and compared the results using
-> > md5sum. As you can see the wav data is perfect when using ide-scsi
-> > emulation. On the contrary, using ide lead to errors.
-> > 
-> > Linux version 2.6.15 (root@section_eight) (gcc-Version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8))
-> > 
-> > In all cases I used the same drive, a NEC ND-4550A dvd writer.
-> > 
-> > The first series of wav files was ripped with EAC in Windows and is
-> > bitperfect:
-> > 
-> > 8cab5ca4820a753ebb3cb7e3c5c34e6a  01.Man In A Suitcase.wav
-> > 187f90f900cffd36ce56e97a3bcf595e  02.Box Of Six.wav
-> > 8cc168bb50e80a06693a01a9cd34bbdf  03.Mysterons.wav
-> > e82169e5ea1b441b80db96fce12fd109  04.Justified.wav
-> > 8d807b7ac19f90049aec6ff177e9b486  05.Department S.wav
-> > 130306e9a564c844d5269256f38afca7  06.Area Code 51.wav
-> > 96489dbfcab8f97e7e450cf8db2c8aaa  07.Has To Be.wav
-> > 4597a6ed75e201916a3479f05eb86405  08.No. 5.wav
-> > f978327a98fc6359be2fc25eb865211d  09.Among The Cybermen.wav
-> > e316e140b4b0cd66e5822edae22dadb1  10.Unspeakable Elvis.wav
-> > 3792a680b1ba729de9185043d331186f  11.Xodiak.wav
-> > ba534fd8eb42dd84aa7b59ab3ae6f132  12.Northern Wisdom.wav
-> > d6346ab76696dddf735a5b752aa7888b  13.Trinity Road.wav
-> > 
-> > The second series was ripped with deprecated ide-scsi emulation and yielded the
-> > same results as EAC.
-> > 
-> > The third series was done with ide-cd. Erroneous data is marked
-> > with a (!):
-> > 
-> > e8319ccc20d053557578b9ca3eb368dd  track01.cdda.wav (!)
-> > cb978f86ddc18c9df1b7e91705380bc5  track02.cdda.wav (!)
-> > 35f1b296d72a8708d03aeb540a3b4f30  track03.cdda.wav (!)
-> > e82169e5ea1b441b80db96fce12fd109  track04.cdda.wav
-> > 8d807b7ac19f90049aec6ff177e9b486  track05.cdda.wav
-> > 02561939763d67aacf23157c09966a89  track06.cdda.wav (!)
-> > 9724b0a3e2295084613da9df7397ae6d  track07.cdda.wav (!)
-> > c2d85b3d10428aad66664d0fb3e4c71a  track08.cdda.wav (!)
-> > 5116b2fae44b8b86fbf40b9bac9a8268  track09.cdda.wav (!)
-> > 9e6a5ab2dab76e1677667f586895293a  track10.cdda.wav (!)
-> > 3792a680b1ba729de9185043d331186f  track11.cdda.wav
-> > ba534fd8eb42dd84aa7b59ab3ae6f132  track12.cdda.wav
-> > d6346ab76696dddf735a5b752aa7888b  track13.cdda.wav
+
+>>FYI, there is an obvious bug in cpusets in 2.6.15-rcX:
+>>cpuset_excl_nodes_overlap() may sleep (as it takes semaphore), but is 
+>>called from atomic context - select_bad_process() under tasklist_lock.
+>>BUG. Found by Denis Lunev.
 > 
-> Can you try and see how, say, track01 differ? Is it single bytes, chunks
-> of 2352 bytes, or?
+> 
+> Sorry for not responding sooner - I was off the air for a week.
+> 
+> Thanks for finding and reporting this.
+> 
+> Apparently, from KUROSAWA Takahiro's report, this bug was also in
+> 2.6.14.  My initial reading of the code in 2.6.14 and 2.6.15-* agrees,
+> and finds that this bug was present since the cpuset_excl_nodes_overlap
+> call was added, Sept 8, 2005 (in Linus's tree.)
+> 
+> 
+> 
+>>the same actually applies to cpuset_zone_allowed() which is called e.g. 
+>>from __alloc_pages()->get_page_from_freelist() and doesn't check for 
+>>GPF_NOATOMIC anyhow...
+> 
+> 
+> I don't think so.  Please read the comments in kernel/cpuset.c above
+> the routine cpuset_zone_allowed().  Either that routine is called with
+> the __GFP_HARDWALL flag set, so returns before it gets to the semaphore
+> call, or it is not called at all, due to the check for ATOMIC (!wait)
+> in mm/page_alloc.c.
+> 
+> I don't see any bugs like this, in the cpuset_zone_allowed code path.
+this piece of code in __alloc_pages():
 
-Oh, and try and disable DMA on the cd driver and repeat your results
-with ide-cd. It uses DMA, where ide-scsi does not. Dunno what Windows
-does. It could just be a problem with your drive and DMA enabled rips.
+         if (((p->flags & PF_MEMALLOC) || 
+unlikely(test_thread_flag(TIF_MEMDIE)))
+                         && !in_interrupt()) {
+                 if (!(gfp_mask & __GFP_NOMEMALLOC)) {
+nofail_alloc:
+                         /* go through the zonelist yet again, ignoring 
+mins */
+                         page = get_page_from_freelist(gfp_mask, order,
+                                 zonelist, 
+ALLOC_NO_WATERMARKS|ALLOC_CPUSET);
 
--- 
-Jens Axboe
+ALLOC_CPUSET is specified, gfp_mask can be GFP_ATOMIC still and no 
+__GFP_HARDWALL. Am I wrong?
+
+Kirill
+
 

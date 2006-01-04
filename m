@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWADOpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWADOnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932588AbWADOpf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 09:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWADOoq
+	id S932573AbWADOnx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 09:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWADOnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 09:44:46 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:7607 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932553AbWADOoI (ORCPT
+	Wed, 4 Jan 2006 09:43:31 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:27299 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932553AbWADOn1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 09:44:08 -0500
-Date: Wed, 4 Jan 2006 15:43:57 +0100
+	Wed, 4 Jan 2006 09:43:27 -0500
+Date: Wed, 4 Jan 2006 15:43:19 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,88 +19,173 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 16/21] mutex subsystem, semaphore to mutex: VFS, sb->s_lock
-Message-ID: <20060104144357.GQ27646@elte.hu>
+Subject: [patch 11/21] mutex subsystem, more debugging code
+Message-ID: <20060104144319.GL27646@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
+X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch converts the superblock-lock semaphore to a mutex, affecting
-lock_super()/unlock_super(). Tested on ext3 and XFS.
+more mutex debugging: check for held locks during memory freeing,
+task exit, enable sysrq printouts, etc.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- fs/ext3/super.c    |    2 +-
- fs/super.c         |    2 +-
- include/linux/fs.h |    6 +++---
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ arch/i386/mm/pageattr.c |    4 ++++
+ drivers/char/sysrq.c    |   19 +++++++++++++++++++
+ include/linux/mm.h      |    4 ++++
+ kernel/exit.c           |    5 +++++
+ kernel/sched.c          |    1 +
+ mm/page_alloc.c         |    3 +++
+ mm/slab.c               |    1 +
+ 7 files changed, 37 insertions(+)
 
-Index: linux/fs/ext3/super.c
+Index: linux/arch/i386/mm/pageattr.c
 ===================================================================
---- linux.orig/fs/ext3/super.c
-+++ linux/fs/ext3/super.c
-@@ -2116,7 +2116,7 @@ int ext3_force_commit(struct super_block
- 
- static void ext3_write_super (struct super_block * sb)
+--- linux.orig/arch/i386/mm/pageattr.c
++++ linux/arch/i386/mm/pageattr.c
+@@ -207,6 +207,10 @@ void kernel_map_pages(struct page *page,
  {
--	if (down_trylock(&sb->s_lock) == 0)
-+	if (mutex_trylock(&sb->s_lock) != 0)
- 		BUG();
- 	sb->s_dirt = 0;
- }
-Index: linux/fs/super.c
+ 	if (PageHighMem(page))
+ 		return;
++	if (!enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page+numpages));
++
+ 	/* the return value is ignored - the calls cannot fail,
+ 	 * large pages are disabled at boot time.
+ 	 */
+Index: linux/drivers/char/sysrq.c
 ===================================================================
---- linux.orig/fs/super.c
-+++ linux/fs/super.c
-@@ -72,7 +72,7 @@ static struct super_block *alloc_super(v
- 		INIT_HLIST_HEAD(&s->s_anon);
- 		INIT_LIST_HEAD(&s->s_inodes);
- 		init_rwsem(&s->s_umount);
--		sema_init(&s->s_lock, 1);
-+		mutex_init(&s->s_lock);
- 		down_write(&s->s_umount);
- 		s->s_count = S_BIAS;
- 		atomic_set(&s->s_active, 1);
-Index: linux/include/linux/fs.h
+--- linux.orig/drivers/char/sysrq.c
++++ linux/drivers/char/sysrq.c
+@@ -153,6 +153,21 @@ static struct sysrq_key_op sysrq_mountro
+ 
+ /* END SYNC SYSRQ HANDLERS BLOCK */
+ 
++#ifdef CONFIG_DEBUG_MUTEXES
++
++static void
++sysrq_handle_showlocks(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
++{
++	mutex_debug_show_all_locks();
++}
++
++static struct sysrq_key_op sysrq_showlocks_op = {
++	.handler	= sysrq_handle_showlocks,
++	.help_msg	= "show-all-locks(D)",
++	.action_msg	= "Show Locks Held",
++};
++
++#endif
+ 
+ /* SHOW SYSRQ HANDLERS BLOCK */
+ 
+@@ -294,7 +309,11 @@ static struct sysrq_key_op *sysrq_key_ta
+ #else
+ /* c */	NULL,
+ #endif
++#ifdef CONFIG_DEBUG_MUTEXES
++/* d */ &sysrq_showlocks_op,
++#else
+ /* d */ NULL,
++#endif
+ /* e */	&sysrq_term_op,
+ /* f */	&sysrq_moom_op,
+ /* g */	NULL,
+Index: linux/include/linux/mm.h
 ===================================================================
---- linux.orig/include/linux/fs.h
-+++ linux/include/linux/fs.h
-@@ -791,7 +791,7 @@ struct super_block {
- 	unsigned long		s_magic;
- 	struct dentry		*s_root;
- 	struct rw_semaphore	s_umount;
--	struct semaphore	s_lock;
-+	struct mutex		s_lock;
- 	int			s_count;
- 	int			s_syncing;
- 	int			s_need_sync_fs;
-@@ -863,13 +863,13 @@ static inline int has_fs_excl(void)
- static inline void lock_super(struct super_block * sb)
+--- linux.orig/include/linux/mm.h
++++ linux/include/linux/mm.h
+@@ -13,6 +13,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/prio_tree.h>
+ #include <linux/fs.h>
++#include <linux/mutex.h>
+ 
+ struct mempolicy;
+ struct anon_vma;
+@@ -978,6 +979,9 @@ static inline void vm_stat_account(struc
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable)
  {
- 	get_fs_excl();
--	down(&sb->s_lock);
-+	mutex_lock(&sb->s_lock);
++	if (!PageHighMem(page) && !enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page + numpages));
+ }
+ #endif
+ 
+Index: linux/kernel/exit.c
+===================================================================
+--- linux.orig/kernel/exit.c
++++ linux/kernel/exit.c
+@@ -29,6 +29,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
++#include <linux/mutex.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -870,6 +871,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 	mpol_free(tsk->mempolicy);
+ 	tsk->mempolicy = NULL;
+ #endif
++	/*
++	 * If DEBUG_MUTEXES is on, make sure we are holding no locks:
++	 */
++	mutex_debug_check_no_locks_held(tsk);
+ 
+ 	/* PF_DEAD causes final put_task_struct after we schedule. */
+ 	preempt_disable();
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -4379,6 +4379,7 @@ void show_state(void)
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
++	mutex_debug_show_all_locks();
  }
  
- static inline void unlock_super(struct super_block * sb)
- {
- 	put_fs_excl();
--	up(&sb->s_lock);
-+	mutex_unlock(&sb->s_lock);
- }
+ /**
+Index: linux/mm/page_alloc.c
+===================================================================
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -400,6 +400,9 @@ void __free_pages_ok(struct page *page, 
+ 	int reserved = 0;
  
- /*
+ 	arch_free_page(page, order);
++	if (!PageHighMem(page))
++		mutex_debug_check_no_locks_freed(page_address(page),
++			page_address(page+(1<<order)));
+ 
+ #ifndef CONFIG_MMU
+ 	if (order > 0)
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -3038,6 +3038,7 @@ void kfree(const void *objp)
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+ 	c = page_get_cache(virt_to_page(objp));
++	mutex_debug_check_no_locks_freed(objp, objp+obj_reallen(c));
+ 	__cache_free(c, (void*)objp);
+ 	local_irq_restore(flags);
+ }

@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWADHux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWADHx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWADHux (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 02:50:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWADHux
+	id S1751201AbWADHx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 02:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWADHx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 02:50:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:37580 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751197AbWADHuw convert rfc822-to-8bit
+	Wed, 4 Jan 2006 02:53:29 -0500
+Received: from stinky.trash.net ([213.144.137.162]:15503 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1751202AbWADHx3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 02:50:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pbIhhRcd1MravMtLSaDKn3IaJ90oRAtURVWn5ylLebWcL39Brq/w8ebtcuUwjnA/xAaykpgJUpg3yMu8gy6DjMhwCJ5WixLgslWhmIAq/DZK6PVO4OAsSYfsWX2ZHVMliqR/kXGT/09Iw9VH7jCKvI/FzqJJcdN7RdyGqoBacqo=
-Message-ID: <9c21eeae0601032350q747e8733q7fa752aa3332a13c@mail.gmail.com>
-Date: Tue, 3 Jan 2006 23:50:52 -0800
-From: David Brown <dmlb2000@gmail.com>
-To: =?ISO-2022-JP?Q?YOSHIFUJI_Hideaki_/_=1B=24B5HF=231QL=40=1B=28B?= 
-	<yoshfuji@linux-ipv6.org>
-Subject: Re: 2.6.15-rt1
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20060104.014301.113325512.yoshfuji@linux-ipv6.org>
+	Wed, 4 Jan 2006 02:53:29 -0500
+Message-ID: <43BB7ED7.70909@trash.net>
+Date: Wed, 04 Jan 2006 08:52:55 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9c21eeae0601031512m44c4a269ua2214528eaf90914@mail.gmail.com>
-	 <20060103.202422.50699198.yoshfuji@linux-ipv6.org>
-	 <9c21eeae0601032316l3259fbecle6a0b290ed244e12@mail.gmail.com>
-	 <20060104.014301.113325512.yoshfuji@linux-ipv6.org>
+To: "David S. Miller" <davem@davemloft.net>
+CC: akpm@osdl.org, mikukkon@iki.fi, laforge@netfilter.org,
+       coreteam@netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: + netfilter-fix-handling-of-module-param-dcc_timeout-in-ip_conntrack_ircc.patch
+ added to -mm tree
+References: <200601040603.k0463JZa012473@shell0.pdx.osdl.net>	<4301cff60601032236h6c930d16j349bcb209d59b68b@mail.gmail.com>	<20060103225157.0d03d726.akpm@osdl.org> <20060103.232736.32349707.davem@davemloft.net>
+In-Reply-To: <20060103.232736.32349707.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have linux-2.6 git tree and I did something like this:
->
-> $ cd linux-2.6
-> $ patch -p1 < /tmp/patch-2.6.15-rt1
-> hack, hack, hack...
-> $ patch -p1 -R < /tmp/patch-2.6.15-rt1
-> $ git reset
-> $ git diff
+David S. Miller wrote:
+> From: Andrew Morton <akpm@osdl.org>
+> Date: Tue, 3 Jan 2006 22:51:57 -0800
+> 
+>>Has Patrick's patch got lost, or is there some tree which I don't know
+>>about, or what?
+> 
+> 
+> I may have dropped it by accident.
+> 
+> Patrick, let me know what to do.
+> 
 
-Thanks again, this reminds me that I'm going to have to make a serious
-effort to learn how to use git.
-
-- David Brown
+I didn't send it yet, but it I'll send it together with my
+other queued netfilter patches sometime today.

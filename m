@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbWADAER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965155AbWADADs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965156AbWADAER (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 19:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWADAER
+	id S965155AbWADADs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 19:03:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWADADs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 19:04:17 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:57780 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965156AbWADAEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 19:04:15 -0500
-Date: Tue, 3 Jan 2006 16:02:54 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] Fix the zone reclaim code in 2.6.15
-In-Reply-To: <20060103152923.2f5bbfe9.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0601031556120.23039@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0601031457300.22676@schroedinger.engr.sgi.com>
- <20060103152923.2f5bbfe9.akpm@osdl.org>
+	Tue, 3 Jan 2006 19:03:48 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:6674 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965154AbWADADq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 19:03:46 -0500
+Date: Wed, 4 Jan 2006 01:03:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060104000344.GJ3831@stusta.de>
+References: <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl> <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jan 2006, Andrew Morton wrote:
-
-> Christoph Lameter <clameter@engr.sgi.com> wrote:
+On Wed, Jan 04, 2006 at 12:51:52AM +0100, Tomasz K?oczko wrote:
+> On Wed, 4 Jan 2006, Adrian Bunk wrote:
+> [..]
+> >>  OSS is universal cross-unix API. ALSA is Linux-only.
 > >
-> > Some bits for zone reclaim exists in 2.6.15 but they are not usable.
-> >  This patch fixes them up, removes unused code and makes zone reclaim usable.
+> >How "universal cross-unix" is the OSS API really?
 > >
+> >Which operating systems besides Linux have a native sound system
+> >supporting the OSS API [1]?
+> >
+> >I know about FreeBSD and partial support in NetBSD.
+> >
+> >Are there any other [2]?
 > 
-> You know that there are over 100 mm/ patches in -mm.  If Linus applies this
-> patch, it will cause extensive wreckage.  And this patch doesn't vaguely
-> apply to the mm/ patches which I have queued.  So it's basically useless.
-> 
-> Please try to play along.
+> Solaris, AIX ..
+> Full list is avalaible in "Operating System" listbox on 
+> http://www.4front-tech.com/download.cgi
 
-Well, this is one case where there is crap in Linus tree that needs to be 
-fixed. Its an urgent issue. And the existing patches in mm do not fix 
-this issue but remove the code altogether. When I asked you to remove 
-these patches, you got mad at me for some reason.
- 
-> yes, it's awkward that there's such a large backlog in that area.  We just
-> need to be patient and extra careful.
+As I said in footnote 1 of my email, this has little value for 
+application developers since only few users on these systems use this 
+commercial sound system.
 
-So you are saying we need to remove this feature and then add it back in 
-later?
+> kloczek
 
-This means another 2 and 3 release cycles with this severe unfixed 
-problem?
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,101 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWADNSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWADNTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751780AbWADNSN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 08:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWADNSN
+	id S1751787AbWADNTh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 08:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWADNTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 08:18:13 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:58279 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751252AbWADNSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 08:18:12 -0500
-Date: Wed, 4 Jan 2006 14:18:05 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Ben Slusky <sluskyb@paranoiacs.org>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-fsdevel@vger.kernel.org, legal@lists.gnumonks.org,
-       "Robert W. Fuller" <garbageout@sbcglobal.net>,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>, info@crossmeta.com
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-Message-ID: <20060104131805.GM4898@sunbeam.de.gnumonks.org>
-References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <20051223153541.GA13111@paranoiacs.org> <20060104110929.GH4898@sunbeam.de.gnumonks.org> <20060104115422.GA2562@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huBJOJF9BsF479P6"
-Content-Disposition: inline
-In-Reply-To: <20060104115422.GA2562@mail.shareable.org>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+	Wed, 4 Jan 2006 08:19:37 -0500
+Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:17290 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751786AbWADNTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 08:19:25 -0500
+Message-Id: <20060104131846.869224000@dorka.pomaz.szeredi.hu>
+References: <20060104131530.511388000@dorka.pomaz.szeredi.hu>
+Date: Wed, 04 Jan 2006 14:15:36 +0100
+From: Miklos Szeredi <miklos@szeredi.hu>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 6/6] fuse: check file type in lookup
+Content-Disposition: inline; filename=fuse_check_type.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Previously invalid types were quietly changed to regular files, but at
+revalidation the inode was changed to bad.  This was rather
+inconsistent behavior.
 
---huBJOJF9BsF479P6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now check if the type is valid on initial lookup, and return -EIO if
+not.
 
-On Wed, Jan 04, 2006 at 11:54:22AM +0000, Jamie Lokier wrote:
-> Harald Welte wrote:
-> > > The case here appears to be:
-> > >=20
-> > > * Crossmeta offers "add-on" software as a free download from their web
-> > >   site: <URL:http://www.crossmeta.com/downloads/crossmeta-add-1_0.zip=
->.
-> > >   The zip file contains a text file gpl-license.txt, which says that =
-the
-> > >   add-ons are offered under the terms of the GPL.
-> > >=20
-> > > * User downloads this GPLed software and asks the developer to provide
-> > >   source code. Developer replies that the source code will be provided
-> > >   only to paying customers:
-> > >   <URL:http://www.opensolaris.org/jive/message.jspa?messageID=3D12277=
-#12277>.
-> > >=20
-> > > That's baad, m'kay?
-> >=20
-> > This is definitely not acceptable.  A written offer must be valid to ANY
-> > 3RD PARTY. =20
-> >=20
-> > So it wouldn't even be enough to offer the source code to paying
-> > customers and those who downloaded the binary code, but actually it must
-> > be made available to anyone who asks for it.
->=20
-> Ah, that depends on whether they provided the source code for download
-> to paying customers at the time those customers downloaded the binary.
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+---
 
-yes.  but the point is (according to reports I have received) that the
-object code (without source code) was available for download on the
-crossmeta website.=20
+Index: linux/fs/fuse/dir.c
+===================================================================
+--- linux.orig/fs/fuse/dir.c	2006-01-04 12:37:53.000000000 +0100
++++ linux/fs/fuse/dir.c	2006-01-04 12:37:57.000000000 +0100
+@@ -166,6 +166,12 @@ static struct dentry_operations fuse_den
+ 	.d_revalidate	= fuse_dentry_revalidate,
+ };
+ 
++static inline int valid_mode(int m)
++{
++	return S_ISREG(m) || S_ISDIR(m) || S_ISLNK(m) || S_ISCHR(m) ||
++		S_ISBLK(m) || S_ISFIFO(m) || S_ISSOCK(m);
++}
++
+ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
+ 				  struct nameidata *nd)
+ {
+@@ -185,7 +191,8 @@ static struct dentry *fuse_lookup(struct
+ 	fuse_lookup_init(req, dir, entry, &outarg);
+ 	request_send(fc, req);
+ 	err = req->out.h.error;
+-	if (!err && outarg.nodeid && invalid_nodeid(outarg.nodeid))
++	if (!err && ((outarg.nodeid && invalid_nodeid(outarg.nodeid)) ||
++		     !valid_mode(outarg.attr.mode)))
+ 		err = -EIO;
+ 	if (!err && outarg.nodeid) {
+ 		inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
+@@ -328,10 +335,13 @@ static int create_new_entry(struct fuse_
+ 		fuse_put_request(fc, req);
+ 		return err;
+ 	}
+-	if (invalid_nodeid(outarg.nodeid)) {
+-		fuse_put_request(fc, req);
+-		return -EIO;
+-	}
++	err = -EIO;
++	if (invalid_nodeid(outarg.nodeid))
++		goto out_put_request;
++
++	if ((outarg.attr.mode ^ mode) & S_IFMT)
++		goto out_put_request;
++
+ 	inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
+ 			  &outarg.attr);
+ 	if (!inode) {
+@@ -340,8 +350,7 @@ static int create_new_entry(struct fuse_
+ 	}
+ 	fuse_put_request(fc, req);
+ 
+-	/* Don't allow userspace to do really stupid things... */
+-	if (((inode->i_mode ^ mode) & S_IFMT) || dir_alias(inode)) {
++	if (dir_alias(inode)) {
+ 		iput(inode);
+ 		return -EIO;
+ 	}
+@@ -350,6 +359,10 @@ static int create_new_entry(struct fuse_
+ 	fuse_change_timeout(entry, &outarg);
+ 	fuse_invalidate_attr(dir);
+ 	return 0;
++
++ out_put_request:
++	fuse_put_request(fc, req);
++	return err;
+ }
+ 
+ static int fuse_mknod(struct inode *dir, struct dentry *entry, int mode,
+Index: linux/fs/fuse/inode.c
+===================================================================
+--- linux.orig/fs/fuse/inode.c	2006-01-04 12:37:55.000000000 +0100
++++ linux/fs/fuse/inode.c	2006-01-04 12:37:57.000000000 +0100
+@@ -135,12 +135,8 @@ static void fuse_init_inode(struct inode
+ 		fuse_init_common(inode);
+ 		init_special_inode(inode, inode->i_mode,
+ 				   new_decode_dev(attr->rdev));
+-	} else {
+-		/* Don't let user create weird files */
+-		inode->i_mode = S_IFREG;
+-		fuse_init_common(inode);
+-		fuse_init_file_inode(inode);
+-	}
++	} else
++		BUG();
+ }
+ 
+ static int fuse_inode_eq(struct inode *inode, void *_nodeidp)
 
-Therefore anyone could have obtained a binary copy with no included
-source code, and thus the 'any third party' clause implicitly comes into
-effect.
-
-As soon as you've even only once given a copy of the executable code
-without at the same time including the full corresponding source code,
-"any third party" is entitled to obtain a copy of the source code.
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---huBJOJF9BsF479P6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDu8sNXaXGVTD0i/8RAtmxAJ979JpxdWHjCxD6TJpMMDuczuB7QQCfTujp
-uuhFz/4SJV9rCGcARqiVU90=
-=i6K4
------END PGP SIGNATURE-----
-
---huBJOJF9BsF479P6--
+--

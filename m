@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWADAYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWADA1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964990AbWADAYp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 19:24:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWADAYp
+	id S965061AbWADA1y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 19:27:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbWADA1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 19:24:45 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:61085 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965002AbWADAYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 19:24:44 -0500
-Date: Tue, 3 Jan 2006 19:24:29 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Florian Schmidt <mista.tapas@gmx.net>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rt1
-In-Reply-To: <20060104010138.060c8a32@mango.fruits.de>
-Message-ID: <Pine.LNX.4.58.0601031922020.1339@gandalf.stny.rr.com>
-References: <20060103094720.GA16497@elte.hu> <20060103153317.26a512fa@mango.fruits.de>
- <20060103161356.4e1b47e0@mango.fruits.de> <1136313652.6039.171.camel@localhost.localdomain>
- <1136314600.6039.174.camel@localhost.localdomain> <20060104010138.060c8a32@mango.fruits.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Jan 2006 19:27:54 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:15772 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S965017AbWADA1x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 19:27:53 -0500
+Date: Tue, 3 Jan 2006 16:27:38 -0800
+From: Greg KH <gregkh@suse.de>
+To: Grant Grundler <iod00d@hp.com>
+Cc: Mark Maule <maule@sgi.com>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 1/3] msi vector targeting abstractions
+Message-ID: <20060104002737.GA18963@suse.de>
+References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222201657.2019.69251.48815@lnx-maule.americas.sgi.com> <20060103223918.GB13841@esmail.cup.hp.com> <20060103235024.GC16827@sgi.com> <20060104002047.GA14810@esmail.cup.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060104002047.GA14810@esmail.cup.hp.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 03, 2006 at 04:20:47PM -0800, Grant Grundler wrote:
+> On Tue, Jan 03, 2006 at 05:50:24PM -0600, Mark Maule wrote:
+> > > > +struct msi_ops msi_apic_ops = {
+> > > > +	.setup = msi_setup_apic,
+> > > > +	.teardown = msi_teardown_apic,
+> > > > +#ifdef CONFIG_SMP
+> > > > +	.target = msi_target_apic,
+> > > > +#endif
+> > > 
+> > > Mark,
+> > > msi_target_apic() initializes address_lo parameter.
+> > > Even on a UP machine, we need inialize this value.
+> > 
+> > Not sure what you mean here.  target is used to retarget an existing
+> > MSI vector to a different processor.
+> 
+> Right - I didn't realize the caller, set_msi_affinity(), was surrounded by
+> "#ifdef CONFIG_SMP".
+> 
+> But set_msi_affinity() appears to be dead code.
+> I couldn't find any calls to set_msi_affinity() in 2.6.14 or 2.6.15.
+> Greg, you want a patch to remove that?
 
-On Wed, 4 Jan 2006, Florian Schmidt wrote:
+Yes please, that would be great to have.
 
-> On Tue, 03 Jan 2006 13:56:40 -0500
-> Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> > Well, with the patch, the above program has been running for over ten
-> > minutes without the race occurring.  Without the patch, the race happens
-> > in about one minute or less.
->
-> It has yet to show up here, too. Thanks, looks good.
->
+thanks,
 
-I have yet to stop my test, and it has been running for over three hours
-now.  So I believe that this fixes that race.
-
-Ingo, do you see any problems with the patch?
-
--- Steve
-
+greg k-h

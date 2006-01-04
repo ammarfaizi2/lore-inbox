@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWADSPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWADSSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbWADSPb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 13:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWADSPb
+	id S1030266AbWADSSF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWADSSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 13:15:31 -0500
-Received: from mail.gmx.net ([213.165.64.21]:43679 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932550AbWADSPa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 13:15:30 -0500
-X-Authenticated: #428038
-Date: Wed, 4 Jan 2006 19:15:22 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Nick Warne <nick@linicks.net>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Message-ID: <20060104181522.GA7332@merlin.emma.line.org>
-Mail-Followup-To: Nick Warne <nick@linicks.net>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200601041710.37648.nick@linicks.net>
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 13:18:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8842 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030261AbWADSSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 13:18:03 -0500
+Date: Wed, 4 Jan 2006 18:18:01 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Denis Vlasenko <vda@ilport.com.ua>, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix warning in 8250.c
+Message-ID: <20060104181801.GA3605@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Denis Vlasenko <vda@ilport.com.ua>, linux-serial@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200601031012.49068.vda@ilport.com.ua> <20060104181425.GE3119@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601041710.37648.nick@linicks.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20060104181425.GE3119@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 04 Jan 2006, Nick Warne wrote:
-
-> Hi all,
+On Wed, Jan 04, 2006 at 06:14:25PM +0000, Russell King wrote:
+> On Tue, Jan 03, 2006 at 10:12:48AM +0200, Denis Vlasenko wrote:
+> >   CC      drivers/serial/8250.o
+> > /.1/usr/srcdevel/kernel/linux-2.6.15-rc7.src/drivers/serial/8250.c:1085: warning: 'transmit_chars' declared inline after being called
+> > /.1/usr/srcdevel/kernel/linux-2.6.15-rc7.src/drivers/serial/8250.c:1085: warning: previous declaration of 'transmit_chars' was here
+> > 
+> > Since this function is not small, inlining effect is way below noise floor.
+> > Let's just remove _INLINE_.
 > 
-> A stupid question - buggered if I can find a kernel patch from 2.6.14.5 to 
-> 2.6.15?
-> 
-> Is there one?
+> I think we want to remove _INLINE_ from both receive_chars and
+> transmit_chars.  Both functions aren't small, so...
 
-Use ketchup. <http://www.selenic.com/ketchup/> - just typing "ketchup
-2.6" in your /usr/src/linux directory should download the required patch
-files, verify their signatures and apply them. No hassles.
-
--- 
-Matthias Andree
+While we're at it can we please kill _INLINE_?  Those functions that should
+be inlined can become inline, but this macro just obsfucates the serial code.

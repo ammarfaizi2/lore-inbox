@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWADXoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWADXpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWADXoH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWADXoH
+	id S1750743AbWADXpr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:45:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWADXpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:44:07 -0500
-Received: from mail.gmx.net ([213.165.64.21]:55517 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750737AbWADXoG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:44:06 -0500
-X-Authenticated: #5082238
-Date: Thu, 5 Jan 2006 00:44:04 +0100
-From: Carsten Otto <c-otto@gmx.de>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel e1000 fails after RAM upgrade
-Message-ID: <20060104234404.GA23314@carsten-otto.halifax.rwth-aachen.de>
-Reply-To: c-otto@gmx.de
-Mail-Followup-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20051219195458.GA23650@carsten-otto.halifax.rwth-aachen.de> <20060102121752.GA29275@carsten-otto.halifax.rwth-aachen.de> <4807377b0601041538t98275acn54a36374a42346ab@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
-Content-Disposition: inline
-In-Reply-To: <4807377b0601041538t98275acn54a36374a42346ab@mail.gmail.com>
-X-GnuGP-Key: http://c-otto.de/pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Wed, 4 Jan 2006 18:45:47 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:33489 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750743AbWADXpq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:45:46 -0500
+Message-ID: <43BC5E15.207@austin.ibm.com>
+Date: Wed, 04 Jan 2006 17:45:25 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [patch 00/21] mutex subsystem, -V14
+References: <20060104144151.GA27646@elte.hu>
+In-Reply-To: <20060104144151.GA27646@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> this is version 14 of the generic mutex subsystem, against v2.6.15.
+> 
+> The patch-queue consists of 21 patches, which can also be downloaded 
+> from:
+> 
+>   http://redhat.com/~mingo/generic-mutex-subsystem/
+> 
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Took a glance at this on ppc64.  Would it be useful if I contributed an arch 
+specific version like arm has?  We'll either need an arch specific version or 
+have the generic changed.
 
-On Wed, Jan 04, 2006 at 03:38:55PM -0800, Jesse Brandeburg wrote:
-> I'm not sure it's e1000, is there any chance you can try a different
-> network adapter (like not e1000 based)?  with the ethtool diags error
-> there is something corrupting memory in your system or on your pci bus
-> (most likely)
->=20
-> My best recommendation is to check to make sure there aren't any bios
-> updates for your system, make sure you aren't running overclocked on
-> the pci bus, try different slots, try a different network adapter.=20
-> Maybe you can try memtest86 overnight?
->=20
-> Honestly right now it doesn't sound like a network problem, but a
-> system problem.
+Anyway, here is some disassembly of some of the code generated with my comments:
 
-I forgot to answer here, sorry.
-The problem is solved, see here:
-http://lkml.org/lkml/2006/1/2/21
---=20
-Carsten Otto
-c-otto@gmx.de
-www.c-otto.de
+c00000000049bf9c <.mutex_lock>:
+c00000000049bf9c:       7c 00 06 ac     eieio
+c00000000049bfa0:       7d 20 18 28     lwarx   r9,r0,r3
+c00000000049bfa4:       31 29 ff ff     addic   r9,r9,-1
+c00000000049bfa8:       7d 20 19 2d     stwcx.  r9,r0,r3
+c00000000049bfac:       40 c2 ff f4     bne+    c00000000049bfa0 <.mutex_lock+0x4>
+c00000000049bfb0:       4c 00 01 2c     isync
+c00000000049bfb4:       7d 20 4b 78     mr      r0,r9
+c00000000049bfb8:       78 09 0f e3     rldicl. r9,r0,33,63
+c00000000049bfbc:       4d 82 00 20     beqlr
+c00000000049bfc0:       4b ff ff 58     b       c00000000049bf18 
+<.__mutex_lock_noinline>
 
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+The eieio is completly unnecessary, it got picked up from atomic_dec_return 
+(Anton, why is there an eieio at the start of atomic_dec_return in the first 
+place?).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Ignore the + on the bne, the disassembler is wrong, it is really a -
 
-iD4DBQFDvF3EjUF4jpCSQBQRApIhAJQJrQfVVnzWIXJPbd7cJHnWJnNHAKCXUNn3
-b6ikzC5JzCWp/8shnMWTaQ==
-=7uwD
------END PGP SIGNATURE-----
+c00000000049bfc4 <.mutex_unlock>:
+c00000000049bfc4:       7c 00 06 ac     eieio
+c00000000049bfc8:       7d 20 18 28     lwarx   r9,r0,r3
+c00000000049bfcc:       31 29 00 01     addic   r9,r9,1
+c00000000049bfd0:       7d 20 19 2d     stwcx.  r9,r0,r3
+c00000000049bfd4:       40 c2 ff f4     bne+    c00000000049bfc8 <.mutex_unlock+0x4>
+c00000000049bfd8:       4c 00 01 2c     isync
+c00000000049bfdc:       7d 20 07 b4     extsw   r0,r9
+c00000000049bfe0:       2c 00 00 00     cmpwi   r0,0
+c00000000049bfe4:       4d 81 00 20     bgtlr
+c00000000049bfe8:       4b ff ff 40     b       c00000000049bf28 
+<.__mutex_unlock_noinline>
 
---pWyiEgJYm5f9v55/--
+That eieio should be an lwsync to avoid data corruption.  And I think the isync 
+is superfluous.
+
+Ditto the disassembler being wrong about the + vs -.

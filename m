@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965274AbWADWMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWADWNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965274AbWADWMi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:12:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWADWMh
+	id S964792AbWADWNO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWADWNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:12:37 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:15767 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965270AbWADWMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:12:36 -0500
-Subject: Re: RT : 2.6.15-rt1 and net/ipv6/mcast.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Serge Noiraud <serge.noiraud@bull.net>
-In-Reply-To: <Pine.LNX.4.64.0601041234130.22025@dhcp153.mvista.com>
-References: <200601041832.39089.Serge.Noiraud@bull.net>
-	 <Pine.LNX.4.64.0601041234130.22025@dhcp153.mvista.com>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 17:12:17 -0500
-Message-Id: <1136412737.12468.92.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 17:13:13 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:58670 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S964792AbWADWNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:13:11 -0500
+Date: Wed, 04 Jan 2006 17:12:48 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 0/15] Ubuntu patch sync
+In-reply-to: <20060104140627.1e89c185@dxpl.pdx.osdl.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1136412768.4430.28.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL003P992UCY@a34-mta01.direcway.com>
+ <20060104140627.1e89c185@dxpl.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 12:34 -0800, Daniel Walker wrote:
-> I thought I submitted an identical patch, but maybe I forgot to CC LKML .
+On Wed, 2006-01-04 at 14:06 -0800, Stephen Hemminger wrote:
+> On Wed, 04 Jan 2006 16:59:02 -0500
+> Ben Collins <bcollins@ubuntu.com> wrote:
+> 
+> > These patches are just attempts to merge code from the ubuntu kernel tree.
+> > This is most of the differences between our tree and stock code (not
+> > necessarily all differences, since we do have a lot of external drivers
+> > pulled in).
+> 
+> Why not submit them too?
 
-Nope, you CC'd LKML:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113630942301200&w=2
+Because neither I nor Ubuntu maintains them as upstream. I would rather
+leave it to the upstream authors of those drivers (e.g. rt2400, rt2500,
+unionfs, etc.) to submit their own code to Linus.
 
-Ingo has been really busy with getting the mutex stuff into mainline, so
-he hasn't had time to update RT or even work on it very much.  Maybe,
-I'll start up a patch website to hold patches to Ingo's -rt code until
-he has time to work on it again.
-
--- Steve
-
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 

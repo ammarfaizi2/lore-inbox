@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbWADOmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbWADOmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbWADOmP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 09:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbWADOmO
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 09:42:14 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:29068 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932553AbWADOmN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932557AbWADOmN (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 4 Jan 2006 09:42:13 -0500
-Date: Wed, 4 Jan 2006 15:42:04 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbWADOmN
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 4 Jan 2006 09:42:13 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:28300 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932557AbWADOmM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 09:42:12 -0500
+Date: Wed, 4 Jan 2006 15:41:51 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,8 +19,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 02/21] mutex subsystem, add typecheck_fn(type, function)
-Message-ID: <20060104144204.GC27646@elte.hu>
+Subject: [patch 00/21] mutex subsystem, -V14
+Message-ID: <20060104144151.GA27646@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -35,40 +35,36 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Chuck Ebbert <76306.1226@compuserve.com>
 
-add typecheck_fn(type, function) to do type-checking of function
-pointers.
+this is version 14 of the generic mutex subsystem, against v2.6.15.
 
-Modified-by: Ingo Molnar <mingo@elte.hu>
+The patch-queue consists of 21 patches, which can also be downloaded 
+from:
 
-(made it typeof() based, instead of typedef based.)
+  http://redhat.com/~mingo/generic-mutex-subsystem/
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Changes since -V13:
 
-----
+ 13 files changed, 113 insertions(+), 85 deletions(-)
 
- include/linux/kernel.h |    9 +++++++++
- 1 files changed, 9 insertions(+)
+ - VFS: converted sb->s_lock to a mutex too. This improves the
+   create+unlink benchmark on ext3.
 
-Index: linux/include/linux/kernel.h
-===================================================================
---- linux.orig/include/linux/kernel.h
-+++ linux/include/linux/kernel.h
-@@ -286,6 +286,15 @@ extern void dump_stack(void);
- 	1; \
- })
- 
-+/*
-+ * Check at compile time that 'function' is a certain type, or is a pointer
-+ * to that type (needs to use typedef for the function type.)
-+ */
-+#define typecheck_fn(type,function) \
-+({	typeof(type) __tmp = function; \
-+	(void)__tmp; \
-+})
-+
- #endif /* __KERNEL__ */
- 
- #define SI_LOAD_SHIFT	16
+ - further simplification of __mutex_lock_common(): no more gotos, and
+   only one atomic_xchg() is done. Code size is now extremely small on 
+   both UP and SMP:
+
+   text    data     bss     dec     hex filename
+    398       0       0     398     18e mutex.o.UP
+
+   text    data     bss     dec     hex filename
+    463       0       0     463     1cf mutex.o.SMP
+
+ - synchro-test updates: max # of threads of 64, fairness stats,
+   better defaults if =y, cleanups. (David Howells, me)
+
+ - FASTCALL -> fastcall in mutex.h (suggested by David Howells)
+
+ - documentation updates
+
+	Ingo

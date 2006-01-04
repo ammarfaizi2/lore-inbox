@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWADX4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWADX45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWADX4t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWADX4t
+	id S1750791AbWADX45 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 18:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWADX45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:56:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16083 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750778AbWADX4s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:56:48 -0500
-Date: Wed, 4 Jan 2006 18:56:31 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: mm/rmap.c negative page map count BUG.
-Message-ID: <20060104235631.GB29634@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-	linux-kernel@vger.kernel.org
-References: <20060103082609.GB11738@redhat.com> <43BA630F.1020805@yahoo.com.au> <20060103135312.GB18060@redhat.com> <20060104155326.351a9c01.akpm@osdl.org>
+	Wed, 4 Jan 2006 18:56:57 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6083 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750783AbWADX44
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 18:56:56 -0500
+Date: Thu, 5 Jan 2006 00:52:47 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Zhu Yi <yi.zhu@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, jketreno@linux.intel.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] ipw2200: Fix NETDEV_TX_BUSY erroneous returned
+Message-ID: <20060104235247.GA8137@electric-eye.fr.zoreil.com>
+References: <20060104040954.GA19618@mail.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060104155326.351a9c01.akpm@osdl.org>
+In-Reply-To: <20060104040954.GA19618@mail.intel.com>
 User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 03:53:26PM -0800, Andrew Morton wrote:
- > Dave Jones <davej@redhat.com> wrote:
- > >
- > >  > Can you print ->flags, ->count, ->mapping, etc instead of going BUG?
- > > 
- > > I can add some instrumentation like this though, and see what turns up.
- > 
- > Can we get that instrumentation into the upstream kernel please?  We do
- > seem to be hitting rmap assertions too often for it to be dud
- > hardware/bodgy drivers/etc.
+Zhu Yi <yi.zhu@intel.com> :
+> 
+> This patch fixes the warning below warning for the ipw2200 driver.
+> 
+>   NETDEV_TX_BUSY returned; driver should report queue full via
+>   ieee_device->is_queue_full.
 
-This is what I came up with..
-anything missing ?
+Beyond what was said by Stephen Hemminger, the driver reports a
+NETDEV_TX_BUSY when !STATUS_ASSOCIATED: neither this patch nor mine
+fix it. 
 
-		Dave
+Btw the patch that I posted earlier forgets to protect against 
+every undue wake-up through:
 
---- linux-2.6.14/mm/rmap.c~	2006-01-03 08:53:32.000000000 -0500
-+++ linux-2.6.14/mm/rmap.c	2006-01-03 08:58:19.000000000 -0500
-@@ -484,6 +484,13 @@ void page_remove_rmap(struct page *page)
- 	BUG_ON(PageReserved(page));
- 
- 	if (atomic_add_negative(-1, &page->_mapcount)) {
-+		if (page_mapcount(page) < 0) {
-+			printk (KERN_EMERG "Eeek! page_mapcount(page) went negative! (%d)\n", page->_mapcount);
-+			printk (KERN_EMERG "  page->flags = %x\n", page->flags);
-+			printk (KERN_EMERG "  page->count = %x\n", page->_count);
-+			printk (KERN_EMERG "  page->mapping = %p\n", page->mapping);
-+		}
-+		
- 		BUG_ON(page_mapcount(page) < 0);
- 		/*
- 		 * It would be tidy to reset the PageAnon mapping here,
+ipw_rx
+-> ipw_rx_notification
+   -> priv->link_up (work_queue)
+      -> ipw_bg_link_up
+         -> ipw_link_up
+
+It will need some extra care to correctly play the
+netif_{stop/wake}_queue dance.
+
+--
+Ueimor

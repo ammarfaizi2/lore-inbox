@@ -1,67 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWADSwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbWADSzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbWADSwb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 13:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965268AbWADSwb
+	id S965267AbWADSzf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965268AbWADSzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 13:52:31 -0500
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:17824 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S965267AbWADSwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 13:52:30 -0500
-Date: Wed, 4 Jan 2006 13:48:09 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.15] i386: Optimize local APIC timer interrupt code
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200601041352_MC3-1-B550-4606@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Wed, 4 Jan 2006 13:55:35 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:15626 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S965267AbWADSze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 13:55:34 -0500
+Date: Wed, 4 Jan 2006 19:55:24 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: anil dahiya <ak_ait@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: makefile for 2.6 kernel
+Message-ID: <20060104185524.GA8296@mars.ravnborg.org>
+References: <20060104182356.14925.qmail@web60217.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060104182356.14925.qmail@web60217.mail.yahoo.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Local APIC timer interrupt happens HZ times per second on each CPU.
+On Wed, Jan 04, 2006 at 10:23:56AM -0800, anil dahiya wrote:
+> hello 
+> I want to make kernel module dummy.ko using multiple
+> .c and .h files. In short i am telling .c and .h files
+> with directory structure
+> 
+> 1> dummy.ko should made be using module1.ko and
+> module2.o (i.e 
+>    module2.o uses module1.ko to make dummy.ko)
 
-Optimize it for the case where profile multiplier equals one and does
-not change (99+% of cases); this saves about 20 CPU cycles on Pentium II.
+You cannot make a module with a module as input.
+It does not make sense.
+Either you create a module or you don't.
 
-Also update the old multiplier immediately after noticing it changed,
-while values are register-hot, saving eight bytes of stack depth.
+So you will create following modules:
+module1.ko + module2.ko
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Alternatively you create one module but using the individual .o files as
+input which is more likely what you want - correct?
 
-diff -up 2.6.15a.orig/arch/i386/kernel/apic.c 2.6.15a/arch/i386/kernel/apic.c
---- 2.6.15a.orig/arch/i386/kernel/apic.c
-+++ 2.6.15a/arch/i386/kernel/apic.c
-@@ -1137,7 +1137,7 @@ inline void smp_local_timer_interrupt(st
- 	int cpu = smp_processor_id();
- 
- 	profile_tick(CPU_PROFILING, regs);
--	if (--per_cpu(prof_counter, cpu) <= 0) {
-+	if (likely(--per_cpu(prof_counter, cpu)) <= 0) {
- 		/*
- 		 * The multiplier may have changed since the last time we got
- 		 * to this point as a result of the user writing to
-@@ -1147,13 +1147,13 @@ inline void smp_local_timer_interrupt(st
- 		 * Interrupts are already masked off at this point.
- 		 */
- 		per_cpu(prof_counter, cpu) = per_cpu(prof_multiplier, cpu);
--		if (per_cpu(prof_counter, cpu) !=
--					per_cpu(prof_old_multiplier, cpu)) {
-+		if (unlikely(per_cpu(prof_counter, cpu) !=
-+					per_cpu(prof_old_multiplier, cpu))) {
-+			per_cpu(prof_old_multiplier, cpu) =
-+						per_cpu(prof_counter, cpu);
- 			__setup_APIC_LVTT(
- 					calibration_result/
- 					per_cpu(prof_counter, cpu));
--			per_cpu(prof_old_multiplier, cpu) =
--						per_cpu(prof_counter, cpu);
- 		}
- 
- #ifdef CONFIG_SMP
--- 
-Chuck
+Then your Kbuild file would look like this:
+
+Kbuild:
+obj-m := dummy.o
+dummy-y := module1/a1/a1.o
+dummy-y += module1/a2/a2.o
+dummy-y += module2/b1/b1.o
+
+# Tell where to find .h files
+EXTRA_CFLAGS := -I$(src)/include
+
+And to compile your module:
+make -C $PATH_TO_KERNEL_SRC M=`pwd`
+
+
+I assume you already read Documentation/kbuild/modules.txt - otherwise
+please do so too.
+
+Please include the source or provide an URL to the src if you need more
+help.
+
+	Sam
+
+
+
+> 
+> 2> module1.ko made using a1/a1.c & a2/a2.c and  both
+> .c file   
+>    use /home/include/a.h 
+> 3> module2.o should made using b/b1.c which use   
+>    use /home/module2/include/b.h 
+> 
+> Suggest me tht should make i make module2.o or
+> module2.ko and then combine it with module1.o to make
+> dummy.ko 
+> 
+> 
+> /home/------
+>              |_ include _
+>              |           |
+>              |           a.h 
+>              | 
+>              |___module1_
+>              |           |__ a1 ____
+>              |           |          | 
+>              |           |         a1.c 
+>              |           |
+>                          |__ a2 ____
+>              |           |           | 
+>              |           |         a2.c 
+>              |
+>              |___ moudule2_
+>              |             |             
+>              |             |__include _
+>              |             |           |
+>              |             |           b.h 
+>              |             |___b1__
+>              |                     | 
+>              |                   b1.c 
+>         
+>                                    
+> Looking forward for ur reply 
+> thanks in advance
+> ---- Anil 
+> 
+> 
+> 		
+> __________________________________________ 
+> Yahoo! DSL ? Something to write home about. 
+> Just $16.99/mo. or less. 
+> dsl.yahoo.com 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

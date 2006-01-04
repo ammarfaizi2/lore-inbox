@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWADSBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWADSEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWADSBR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 13:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWADSBR
+	id S1750866AbWADSEh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWADSEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 13:01:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58316 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750866AbWADSBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 13:01:17 -0500
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix pragma packing in ip2 driver
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Wed, 04 Jan 2006 18:01:03 +0000
-Message-ID: <31215.1136397663@warthog.cambridge.redhat.com>
+	Wed, 4 Jan 2006 13:04:37 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32777 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750866AbWADSEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 13:04:36 -0500
+Date: Wed, 4 Jan 2006 18:04:25 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Gyorgy Jeney <nog.lkml@gmail.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+Subject: Re: [patch][rfc] 8250_early: Too early for ioremap
+Message-ID: <20060104180425.GB3119@flint.arm.linux.org.uk>
+Mail-Followup-To: Gyorgy Jeney <nog.lkml@gmail.com>,
+	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+	linux-serial@vger.kernel.org
+References: <221e0ff70601010712l3ee799c0n@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <221e0ff70601010712l3ee799c0n@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 01, 2006 at 04:12:21PM +0100, Gyorgy Jeney wrote:
+> Let the individual architectures define the function to use to remap the
+> mmio-range that will be used by the 8250_early driver.  This is needed
+> because, the default, ioremap() is non-functional when the 8250_early
+> driver initialises.
 
-The attached patch fixes the pragma packing in the ip2 driver by popping the
-previous setting rather than explicitly assuming that the correct setting
-is 4.
+Isn't there some other way this can be handled?  Can't this be hidden
+in the architectures ioremap where it's a problem?
 
-This also gets around a compiler bug in the FRV compiler when building
-allmodconfig.
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 ip2-pragma-2615rc5.diff 
- drivers/char/ip2/i2pack.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -urp linux-2.6.15-rc5/drivers/char/ip2/i2pack.h linux-2.6.15-rc5-frv/drivers/char/ip2/i2pack.h
---- linux-2.6.15-rc5/drivers/char/ip2/i2pack.h	2004-06-18 13:41:44.000000000 +0100
-+++ linux-2.6.15-rc5-frv/drivers/char/ip2/i2pack.h	2006-01-04 17:48:08.000000000 +0000
-@@ -358,7 +358,7 @@ typedef struct _failStat
- #define MB_OUT_STRIPPED    0x40  // Board has read all output from fifo 
- #define MB_FATAL_ERROR     0x20  // Board has encountered a fatal error
- 
--#pragma pack(4)                  // Reset padding to command-line default
-+#pragma pack()                  // Reset padding to command-line default
- 
- #endif      // I2PACK_H
- 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

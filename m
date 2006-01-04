@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWADLPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWADLQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751694AbWADLPn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 06:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWADLPn
+	id S1751700AbWADLQV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 06:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751697AbWADLQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 06:15:43 -0500
-Received: from ns2.suse.de ([195.135.220.15]:29158 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750819AbWADLPm (ORCPT
+	Wed, 4 Jan 2006 06:16:20 -0500
+Received: from gate.perex.cz ([85.132.177.35]:6818 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S1751692AbWADLQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 06:15:42 -0500
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] Shrinks sizeof(files_struct) and better layout
-Date: Wed, 4 Jan 2006 12:15:36 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20051108185349.6e86cec3.akpm@osdl.org> <p733bk4z2z0.fsf@verdi.suse.de> <43BBADD5.3070706@cosmosbay.com>
-In-Reply-To: <43BBADD5.3070706@cosmosbay.com>
+	Wed, 4 Jan 2006 06:16:19 -0500
+Date: Wed, 4 Jan 2006 12:16:18 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <20060104031300.270541d9.zaitcev@redhat.com>
+Message-ID: <Pine.LNX.4.61.0601041214050.9321@tm8103.perex-int.cz>
+References: <20050726150837.GT3160@stusta.de> <200601031347.19328.s0348365@sms.ed.ac.uk>
+ <200601031452.10855.ak@suse.de> <mailman.1136300646.6679.linux-kernel2news@redhat.com>
+ <20060104031300.270541d9.zaitcev@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200601041215.36627.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 12:13, Eric Dumazet wrote:
-> Andi Kleen a écrit :
-> > Eric Dumazet <dada1@cosmosbay.com> writes:
-> >> 1) Reduces the size of (struct fdtable) to exactly 64 bytes on 32bits
-> >> platforms, lowering kmalloc() allocated space by 50%.
-> > 
-> > It should be probably a kmem_cache_alloc() instead of a kmalloc
-> > in the first place anyways. This would reduce fragmentation.
+On Wed, 4 Jan 2006, Pete Zaitcev wrote:
+
+> On Tue, 3 Jan 2006 14:01:40 +0000, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 > 
-> Well in theory yes, if you really expect thousand of tasks running...
-> But for most machines, number of concurrent tasks is < 200, and using a 
-> special cache for this is not a win.
-
-It is because it avoids fragmentation because objects with similar livetimes
-are clustered together. In general caches are a win
-if the data is nearly a page or more.
-
+> > Is multiple-source mixing really a "high end" requirement? When I last 
+> > checked, the OSS driver didn't support multiple applications claiming it at 
+> > once, thus requiring you to use "more bloat" like esound, arts, or some other 
+> > crap to access your soundcard more than once at any given time.
 > 
-> > 
-> >> +   * read mostly part
-> >> +   */
-> >>  	atomic_t count;
-> >>  	struct fdtable *fdt;
-> >>  	struct fdtable fdtab;
-> >> -	fd_set close_on_exec_init;
-> >> -	fd_set open_fds_init;
-> >> +  /*
-> >> +   * written part on a separate cache line in SMP
-> >> +   */
-> >> +	spinlock_t file_lock ____cacheline_aligned_in_smp;
-> >> +	int next_fd;
-> >> +	embedded_fd_set close_on_exec_init;
-> >> +	embedded_fd_set open_fds_init;
-> > 
-> > You didn't describe that change, but unless it's clear the separate cache lines
-> > are a win I would not do it and save memory again. Was this split based on
-> > actual measurements or more theoretical considerations? 
+> If ALSA's OSS emulator does not support mixing properly, it's a bug
+> in ALSA, clearly, because real OSS in 2.4 allowed for mixing, as long
+> as the hardware supported it. I played Doom while listening to MP3s on
+> ymfpci (which, in fact, was a copy of ALSA's ymfpci with OSS API on top).
 > 
-> As it is a refinement on a previous patch (that was integrated in 2.6.15) that 
-> put spin_lock after the array[] (so cleary using a separate cache line), I 
-> omited to describe it.
+> If ALSA developers wanted, they could have supported mixing in their OSS
+> emulator. They intentionally chose not to, in order to create an incentive
+> for developers to program in native ALSA.
 
-Ok, perhaps you should describe that too then
+You're in a mistake. ALSA supported multi-open feature for the hardware 
+capable devices as first before any OSS drivers and it's available for the 
+OSS emulation, too.
 
--Andi
+The thread is about simple hardware without this capability, so the mixing 
+must be processed in software.
 
- 
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

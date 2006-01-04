@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWADAoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWADAqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751508AbWADAoM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jan 2006 19:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWADAoL
+	id S1751515AbWADAqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jan 2006 19:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWADAqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jan 2006 19:44:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27847 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751508AbWADAoK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jan 2006 19:44:10 -0500
-Date: Tue, 3 Jan 2006 16:43:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] Fix the zone reclaim code in 2.6.15
-Message-Id: <20060103164351.658a75c7.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0601031556120.23039@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0601031457300.22676@schroedinger.engr.sgi.com>
-	<20060103152923.2f5bbfe9.akpm@osdl.org>
-	<Pine.LNX.4.62.0601031556120.23039@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jan 2006 19:46:15 -0500
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:29554 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S1751511AbWADAqO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jan 2006 19:46:14 -0500
+Date: Wed, 4 Jan 2006 01:46:08 +0100 (CET)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Jesper Juhl <jesper.juhl@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <20060104000344.GJ3831@stusta.de>
+Message-ID: <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl>
+References: <200601031629.21765.s0348365@sms.ed.ac.uk>
+ <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
+ <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
+ <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
+ <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl>
+ <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl>
+ <20060104000344.GJ3831@stusta.de>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-644871101-1136335568=:29027"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--0-644871101-1136335568=:29027
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
+
+On Wed, 4 Jan 2006, Adrian Bunk wrote:
+[..]
+>> Solaris, AIX ..
+>> Full list is avalaible in "Operating System" listbox on
+>> http://www.4front-tech.com/download.cgi
 >
-> On Tue, 3 Jan 2006, Andrew Morton wrote:
-> 
-> > Christoph Lameter <clameter@engr.sgi.com> wrote:
-> > >
-> > > Some bits for zone reclaim exists in 2.6.15 but they are not usable.
-> > >  This patch fixes them up, removes unused code and makes zone reclaim usable.
-> > >
-> > 
-> > You know that there are over 100 mm/ patches in -mm.  If Linus applies this
-> > patch, it will cause extensive wreckage.  And this patch doesn't vaguely
-> > apply to the mm/ patches which I have queued.  So it's basically useless.
-> > 
-> > Please try to play along.
-> 
-> Well, this is one case where there is crap in Linus tree that needs to be 
-> fixed. Its an urgent issue. And the existing patches in mm do not fix 
-> this issue but remove the code altogether. When I asked you to remove 
-> these patches, you got mad at me for some reason.
+> As I said in footnote 1 of my email, this has little value for
+> application developers since only few users on these systems use this
+> commercial sound system.
 
-The code in Linus's tree is dead and is unused.
+You are wrong using pejorative labeling "commercial sound system" for 
+this. Comercial is implementation. OSS is defined by user space API.
+This is all what was neccessary on implemting this in for Linux.
 
-> > yes, it's awkward that there's such a large backlog in that area.  We just
-> > need to be patient and extra careful.
-> 
-> So you are saying we need to remove this feature and then add it back in 
-> later?
+OSS case on Linux is very simillar to Motiff case on X11.
+As same as Motiff OSS have publically avalaible and open specyfication
+avalaible on http://www.opensound.com/pguide/oss.pdf which do not touch 
+kernel level implemntations details. Using this specyfication you can
+collect all neccessary details for implemt handle /dev/* interface on
+kernel side.
 
-Yes.  It's cleaner to remove all the dead stuff and to then reintroduce the
-new feature as a clean, standalone thing.  So we can see its effects ore
-clearly.
-
-Also, what happens if for some reason we later want to revert your patch? 
-Such a reversion would reintroduce all the old dead stuff!
-
-Patches should each do a single thing.
-
-> This means another 2 and 3 release cycles with this severe unfixed 
-> problem?
-
-There's plenty of time to get this into 2.6.16.
-
-Your changelog didn't describe this as a "severe" problem.  Things have
-been like this for quite some time, haven't they?
-
-And we shouldn't be merging new, untested things ahead of work which has
-had considerable amounts of testing.
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-644871101-1136335568=:29027--

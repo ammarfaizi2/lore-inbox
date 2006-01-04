@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWADOsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWADOsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030236AbWADOsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 09:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWADOrm
+	id S1030221AbWADOsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 09:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWADOsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 09:47:42 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17828 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932582AbWADOoj (ORCPT
+	Wed, 4 Jan 2006 09:48:14 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17590 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932561AbWADOmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 09:44:39 -0500
-Date: Wed, 4 Jan 2006 15:44:29 +0100
+	Wed, 4 Jan 2006 09:42:46 -0500
+Date: Wed, 4 Jan 2006 15:42:37 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,78 +19,165 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 19/21] mutex subsystem, semaphore to completion: CPU3WDT
-Message-ID: <20060104144429.GT27646@elte.hu>
+Subject: [patch 06/21] mutex subsystem, add include/asm-arm/mutex.h
+Message-ID: <20060104144237.GG27646@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Nicolas Pitre <nico@cam.org>
 
-change CPU3WDT semaphores to completions.
+add the ARM version of mutex.h, which is optimized in assembly for
+ARMv6, and uses the xchg implementation on pre-ARMv6.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
 ----
 
- drivers/char/watchdog/cpu5wdt.c |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+ include/asm-arm/mutex.h |  128 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 128 insertions(+)
 
-Index: linux/drivers/char/watchdog/cpu5wdt.c
+Index: linux/include/asm-arm/mutex.h
 ===================================================================
---- linux.orig/drivers/char/watchdog/cpu5wdt.c
-+++ linux/drivers/char/watchdog/cpu5wdt.c
-@@ -28,6 +28,7 @@
- #include <linux/init.h>
- #include <linux/ioport.h>
- #include <linux/timer.h>
-+#include <linux/completion.h>
- #include <linux/jiffies.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
-@@ -57,7 +58,7 @@ static int ticks = 10000;
- /* some device data */
- 
- static struct {
--	struct semaphore stop;
-+	struct completion stop;
- 	volatile int running;
- 	struct timer_list timer;
- 	volatile int queue;
-@@ -85,7 +86,7 @@ static void cpu5wdt_trigger(unsigned lon
- 	}
- 	else {
- 		/* ticks doesn't matter anyway */
--		up(&cpu5wdt_device.stop);
-+		complete(&cpu5wdt_device.stop);
- 	}
- 
- }
-@@ -239,7 +240,7 @@ static int __devinit cpu5wdt_init(void)
- 	if ( !val )
- 		printk(KERN_INFO PFX "sorry, was my fault\n");
- 
--	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
-+	init_completion(&cpu5wdt_device.stop);
- 	cpu5wdt_device.queue = 0;
- 
- 	clear_bit(0, &cpu5wdt_device.inuse);
-@@ -269,7 +270,7 @@ static void __devexit cpu5wdt_exit(void)
- {
- 	if ( cpu5wdt_device.queue ) {
- 		cpu5wdt_device.queue = 0;
--		down(&cpu5wdt_device.stop);
-+		wait_for_completion(&cpu5wdt_device.stop);
- 	}
- 
- 	misc_deregister(&cpu5wdt_misc);
+--- /dev/null
++++ linux/include/asm-arm/mutex.h
+@@ -0,0 +1,128 @@
++/*
++ * include/asm-arm/mutex.h
++ *
++ * ARM optimized mutex locking primitives
++ *
++ * Please look into asm-generic/mutex-xchg.h for a formal definition.
++ */
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
++
++#if __LINUX_ARM_ARCH__ < 6
++/* On pre-ARMv6 hardware the swp based implementation is the most efficient. */
++# include <asm-generic/mutex-xchg.h>
++#else
++
++/*
++ * Attempting to lock a mutex on ARMv6+ can be done with a bastardized
++ * atomic decrement (it is not a reliable atomic decrement but it satisfies
++ * the defined semantics for our purpose, while being smaller and faster
++ * than a real atomic decrement or atomic swap.  The idea is to attempt
++ * decrementing the lock value only once.  If once decremented it isn't zero,
++ * or if its store-back fails due to a dispute on the exclusive store, we
++ * simply bail out immediately through the slow path where the lock will be
++ * reattempted until it succeeds.
++ */
++#define __mutex_fastpath_lock(count, fail_fn)				\
++do {									\
++	int __ex_flag, __res;						\
++									\
++	typecheck(atomic_t *, count);					\
++	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ (							\
++		"ldrex	%0, [%2]	\n"				\
++		"sub	%0, %0, #1	\n"				\
++		"strex	%1, %0, [%2]	\n"				\
++									\
++		: "=&r" (__res), "=&r" (__ex_flag)			\
++		: "r" (&(count)->counter)				\
++		: "cc","memory" );					\
++									\
++	if (unlikely(__res || __ex_flag))				\
++		fail_fn(count);						\
++} while (0)
++
++#define __mutex_fastpath_lock_retval(count, fail_fn)			\
++({									\
++	int __ex_flag, __res;						\
++									\
++	typecheck(atomic_t *, count);					\
++	typecheck_fn(fastcall int (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ (							\
++		"ldrex	%0, [%2]	\n"				\
++		"sub	%0, %0, #1	\n"				\
++		"strex	%1, %0, [%2]	\n"				\
++									\
++		: "=&r" (__res), "=&r" (__ex_flag)			\
++		: "r" (&(count)->counter)				\
++		: "cc","memory" );					\
++									\
++	__res |= __ex_flag;						\
++	if (unlikely(__res != 0))					\
++		__res = fail_fn(count);					\
++	__res;								\
++})
++
++/*
++ * Same trick is used for the unlock fast path. However the original value,
++ * rather than the result, is used to test for success in order to have
++ * better generated assembly.
++ */
++#define __mutex_fastpath_unlock(count, fail_fn)				\
++do {									\
++	int __ex_flag, __res, __orig;					\
++									\
++	typecheck(atomic_t *, count);					\
++	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ (							\
++		"ldrex	%0, [%3]	\n"				\
++		"add	%1, %0, #1	\n"				\
++		"strex	%2, %1, [%3]	\n"				\
++									\
++		: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)	\
++		: "r" (&(count)->counter)				\
++		: "cc","memory" );					\
++									\
++	if (unlikely(__orig || __ex_flag))				\
++		fail_fn(count);						\
++} while (0)
++
++/*
++ * If the unlock was done on a contended lock, or if the unlock simply fails
++ * then the mutex remains locked.
++ */
++#define __mutex_slowpath_needs_to_unlock()	1
++
++/*
++ * For __mutex_fastpath_trylock we use another construct which could be
++ * described as a "single value cmpxchg".
++ *
++ * This provides the needed trylock semantics like cmpxchg would, but it is
++ * lighter and less generic than a true cmpxchg implementation.
++ */
++static inline int
++__mutex_fastpath_trylock(atomic_t *count, int (*fail_fn)(atomic_t *))
++{
++	int __ex_flag, __res, __orig;
++
++	__asm__ (
++
++		"1: ldrex	%0, [%3]	\n"
++		"subs		%1, %0, #1	\n"
++		"strexeq	%2, %1, [%3]	\n"
++		"movlt		%0, #0		\n"
++		"cmpeq		%2, #0		\n"
++		"bgt		1b		\n"
++
++		: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)
++		: "r" (&count->counter)
++		: "cc", "memory" );
++
++	return __orig;
++}
++
++#endif
++#endif

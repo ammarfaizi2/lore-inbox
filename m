@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbWADRdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbWADRgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965244AbWADRdL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbWADRdL
+	id S965249AbWADRgI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 12:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbWADRgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:33:11 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:18346 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965235AbWADRdI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:33:08 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jaroslav Kysela <perex@suse.cz>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Wed, 4 Jan 2006 17:31:18 +0000
-User-Agent: KMail/1.9
-Cc: Andi Kleen <ak@suse.de>,
-       Joern Nettingsmeier <nettings@folkwang-hochschule.de>,
-       Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
-       Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
-       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-References: <20050726150837.GT3160@stusta.de> <20060104123538.GE7222@wotan.suse.de> <Pine.LNX.4.61.0601041337340.9321@tm8103.perex-int.cz>
-In-Reply-To: <Pine.LNX.4.61.0601041337340.9321@tm8103.perex-int.cz>
+	Wed, 4 Jan 2006 12:36:08 -0500
+Received: from xenotime.net ([66.160.160.81]:12707 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965249AbWADRgH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 12:36:07 -0500
+Date: Wed, 4 Jan 2006 09:36:03 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Nick Warne <nick@linicks.net>
+cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+In-Reply-To: <200601041728.52081.nick@linicks.net>
+Message-ID: <Pine.LNX.4.58.0601040935060.19134@shark.he.net>
+References: <200601041710.37648.nick@linicks.net>
+ <9a8748490601040918p24674d86j132315e9c8875483@mail.gmail.com>
+ <200601041728.52081.nick@linicks.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601041731.18344.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 12:41, Jaroslav Kysela wrote:
-> On Wed, 4 Jan 2006, Andi Kleen wrote:
-> > > this is like whining about the oh so complex networking infrastructure
-> > > and iptables and constantly reminiscing how simple it used to be to set
-> > > up a modem on /dev/ttyS0.
-> >
-> > Can be nearly all CONFIGured out. With the removal of the sane
-> > sound drivers that would be impossible though.
+On Wed, 4 Jan 2006, Nick Warne wrote:
+
+> On Wednesday 04 January 2006 17:18, Jesper Juhl wrote:
 >
-> The code reduction is possible also for the ALSA midlevel code.
-> For example, removing the verbose /proc support might save some bytes and
-> so on.
+> > > Is there one?
+> >
+> > No.
+> >
+> > What you do is you first revert the 2.6.14.5 patch so you are left
+> > with a 2.6.14 kernel, then you apply the 2.6.15 patch.
+> > For more info, please read Documentation/applying-patches.txt
+> > (http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt)
+>
+> I thought about doing it that way, but convinced myself it was too
+> complicated.
+>
+> I see it is the right way (whatever that is).
+>
+> I went from 2.6.14 -> 2.6.14.2 -> .2-.3 -> .3-.4 -> .4-.5
 
-But can more be done? Andi's not pointed anything out in particular (unless I 
-am mistaken), but could more of ALSA be configurable, even if it is at the 
-expense of userspace API features?
+and how did you do that?
+Noone supplies such incremental patches AFAIK.
 
-As has already been pointed out, individual ALSA drivers with comparable 
-features tend themselves to be smaller than the original OSS ones. It's the 
-ALSA infrastructure that comes at a cost, and surely not all if it is 
-mandatory.
+> I suppose I have to backtrack and revert all those patches in order?
+
+No, you can revert 2.6.14.5 directly to 2.6.14.
 
 -- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+~Randy

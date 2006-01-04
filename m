@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWADR6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWADSBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030242AbWADR6N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 12:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWADR6M
+	id S1750880AbWADSBR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 13:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWADSBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 12:58:12 -0500
-Received: from hera.kernel.org ([140.211.167.34]:6318 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1030242AbWADR6L (ORCPT
+	Wed, 4 Jan 2006 13:01:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58316 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750866AbWADSBR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 12:58:11 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH] ipw2200: Fix NETDEV_TX_BUSY erroneous returned
-Date: Wed, 4 Jan 2006 09:58:00 -0800
-Organization: OSDL
-Message-ID: <20060104095800.7c71ef98@dxpl.pdx.osdl.net>
-References: <20060104040954.GA19618@mail.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1136397481 25804 10.8.0.74 (4 Jan 2006 17:58:01 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 4 Jan 2006 17:58:01 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+	Wed, 4 Jan 2006 13:01:17 -0500
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix pragma packing in ip2 driver
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Wed, 04 Jan 2006 18:01:03 +0000
+Message-ID: <31215.1136397663@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jan 2006 12:09:54 +0800
-Zhu Yi <yi.zhu@intel.com> wrote:
 
-> 
-> This patch fixes the warning below warning for the ipw2200 driver.
-> 
->   NETDEV_TX_BUSY returned; driver should report queue full via
->   ieee_device->is_queue_full.
-> 
-> Signed-off-by: Hong Liu <hong.liu@intel.com>
-> Signed-off-by: Zhu Yi <yi.zhu@intel.com>
-> --
-> 
-> diff -urp linux.orig/drivers/net/wireless/ipw2200.c linux/drivers/net/wireless/ipw2200.c
-> --- linux.orig/drivers/net/wireless/ipw2200.c	2005-10-21 05:35:24.000000000 +0800
-> +++ linux/drivers/net/wireless/ipw2200.c	2005-10-25 13:22:38.000000000
-> +0800
-> @@ -9649,11 +9649,6 @@ static inline int ipw_tx_skb(struct ipw_
->  	u16 remaining_bytes;
->  	int fc;
->  
-> -	/* If there isn't room in the queue, we return busy and let the
-> -	 * network stack requeue the packet for us */
-> -	if (ipw_queue_space(q) < q->high_mark)
-> -		return NETDEV_TX_BUSY;
-> -
->  	switch (priv->ieee->iw_mode) {
->  	case IW_MODE_ADHOC:
->  		hdr_len = IEEE80211_3ADDR_LEN;
-> @@ -9871,7 +9866,7 @@ static int ipw_net_hard_start_xmit(struc
->  
->        fail_unlock:
->  	spin_unlock_irqrestore(&priv->lock, flags);
-> -	return 1;
-> +	return -1;
+The attached patch fixes the pragma packing in the ip2 driver by popping the
+previous setting rather than explicitly assuming that the correct setting
+is 4.
 
-That's not right... -1 is NETDEV_TX_LOCKED, which is not what you want.
-Also, please use NETDEV_TX_ values for return values from transmit routine.
+This also gets around a compiler bug in the FRV compiler when building
+allmodconfig.
 
-You should post this to netdev@vger.kernel.org and ipw2100-devel@lists.sourceforge.net
-for discussion there.
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 ip2-pragma-2615rc5.diff 
+ drivers/char/ip2/i2pack.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -urp linux-2.6.15-rc5/drivers/char/ip2/i2pack.h linux-2.6.15-rc5-frv/drivers/char/ip2/i2pack.h
+--- linux-2.6.15-rc5/drivers/char/ip2/i2pack.h	2004-06-18 13:41:44.000000000 +0100
++++ linux-2.6.15-rc5-frv/drivers/char/ip2/i2pack.h	2006-01-04 17:48:08.000000000 +0000
+@@ -358,7 +358,7 @@ typedef struct _failStat
+ #define MB_OUT_STRIPPED    0x40  // Board has read all output from fifo 
+ #define MB_FATAL_ERROR     0x20  // Board has encountered a fatal error
+ 
+-#pragma pack(4)                  // Reset padding to command-line default
++#pragma pack()                  // Reset padding to command-line default
+ 
+ #endif      // I2PACK_H
+ 

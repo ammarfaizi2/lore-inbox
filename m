@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751646AbWADJw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751639AbWADKFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751646AbWADJw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 04:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWADJw4
+	id S1751639AbWADKFf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 05:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWADKFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 04:52:56 -0500
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:64220 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S1751602AbWADJwz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 04:52:55 -0500
-To: "Andrew Morton" <akpm@osdl.org>, "Jiri Slaby" <xslaby@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH 1/4] media-radio: Pci probing for maestro radio
-References: <200500919343.923456789ble@anxur.fi.muni.cz> <20051231161634.422661E32EE@anxur.fi.muni.cz> <20060104014532.3909a51e.akpm@osdl.org>
-Message-ID: <op.s2ulovh1q5yxc3@merlin>
-Date: Wed, 04 Jan 2006 10:51:57 +0100
-From: =?iso-8859-2?B?QWRhbSBUbGGza2E=?= <atlka@pg.gda.pl>
-Organization: =?iso-8859-2?B?R2Rh8XNrIFVuaXZlcnNpdHkgb2YgVGVjaG5vbG9neQ==?=
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 05:05:35 -0500
+Received: from mail.cs.umu.se ([130.239.40.25]:34293 "EHLO mail.cs.umu.se")
+	by vger.kernel.org with ESMTP id S1751234AbWADKFf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 05:05:35 -0500
+Date: Wed, 4 Jan 2006 11:05:24 +0100
+From: Peter Hagervall <hager@cs.umu.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eric Sesterhenn / snakebyte <snakebyte@gmx.de>,
+       linux-kernel@vger.kernel.org,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Subject: Re: [Patch] es7000 broken without acpi
+Message-ID: <20060104100523.GA27056@brainysmurf.cs.umu.se>
+References: <1134427819.18385.2.camel@alice> <20060103154808.5ca0d1a4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060104014532.3909a51e.akpm@osdl.org>
-User-Agent: Opera M2/8.51 (Linux, build 1462)
+In-Reply-To: <20060103154808.5ca0d1a4.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia 04-01-2006 o 10:45:32 Andrew Morton <akpm@osdl.org> napisa³:
+On Tue, Jan 03, 2006 at 03:48:08PM -0800, Andrew Morton wrote:
+> 
+> I believe that es7000 requires ACPI, so a better fix would be to enforce
+> that within Kconfig.
+> 
+> Natalie, can you please comment?
+> 
 
-> "Jiri Slaby" <xslaby@fi.muni.cz> wrote:
->>
->> +	retval = video_register_device(maestro_radio_inst, VFL_TYPE_RADIO,
->>  +		radio_nr);
->>  +	if (retval) {
->>  +		printk(KERN_ERR "can't register video device!\n");
->>  +		goto errfr1;
->>  +	}
->>  +
->>  +	if (!radio_power_on(radio_unit)) {
->>  +		retval = -EIO;
->
-> Shouldn't we unregister the video device here?
+This was discussed back in October [1], but nothing became of it. Should
+I resend the patch perhaps?
 
-Current behaviour means that device is here but not functioning properly  
-but
-we can unregister it of course because it is useless anyway ;-).
+	Peter
 
-Regards
+[1] http://marc.theaimsgroup.com/?t=112928755800002&r=1&w=2
+
 -- 
-Adam Tla³ka      mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
-System  & Network Administration Group           ~~~~~~
-Computer Center,  Gdañsk University of Technology, Poland
-PGP public key:   finger atlka@sunrise.pg.gda.pl
+Peter Hagervall......................email: hager@cs.umu.se
+Department of Computing Science........tel: +46(0)90 786 7018
+University of Umeå, SE-901 87 Umeå.....fax: +46(0)90 786 6126

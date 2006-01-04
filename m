@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWADVBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWADVCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWADVBv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 16:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWADVAA
+	id S1751292AbWADVCh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWADVBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:00:00 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:52638 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751292AbWADU7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 15:59:55 -0500
-Message-Id: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 4/9] UML - Better diagnostics for broken configs
+	Wed, 4 Jan 2006 16:01:51 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:29708 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751292AbWADVBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 16:01:45 -0500
+Date: Wed, 4 Jan 2006 22:01:22 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: David Brown <dmlb2000@gmail.com>
+Cc: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rt1
+Message-ID: <20060104210122.GA7142@w.ods.org>
+References: <9c21eeae0601031512m44c4a269ua2214528eaf90914@mail.gmail.com> <20060103.202422.50699198.yoshfuji@linux-ipv6.org> <9c21eeae0601032316l3259fbecle6a0b290ed244e12@mail.gmail.com> <20060104.014301.113325512.yoshfuji@linux-ipv6.org> <9c21eeae0601032350q747e8733q7fa752aa3332a13c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 04 Jan 2006 16:51:59 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <9c21eeae0601032350q747e8733q7fa752aa3332a13c@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Produce a compile-time error if both MODE_SKAS and MODE_TT are disabled.
+On Tue, Jan 03, 2006 at 11:50:52PM -0800, David Brown wrote:
+> > I have linux-2.6 git tree and I did something like this:
+> >
+> > $ cd linux-2.6
+> > $ patch -p1 < /tmp/patch-2.6.15-rt1
+> > hack, hack, hack...
+> > $ patch -p1 -R < /tmp/patch-2.6.15-rt1
+> > $ git reset
+> > $ git diff
+> 
+> Thanks again, this reminds me that I'm going to have to make a serious
+> effort to learn how to use git.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+"serious" is the appropriate word here :-)
+BTW, if you want to know what has changed between the original patch
+and yours, you can use interdiff from diffutils. It will give you a
+patch between what the trees you would get by applying your patches.
+It's very useful for such usages !
 
-Index: linux-2.6.15/arch/um/include/choose-mode.h
-===================================================================
---- linux-2.6.15.orig/arch/um/include/choose-mode.h	2005-08-28 19:41:01.000000000 -0400
-+++ linux-2.6.15/arch/um/include/choose-mode.h	2005-11-17 10:43:47.000000000 -0500
-@@ -23,6 +23,9 @@ static inline void *__choose_mode(void *
- 
- #elif defined(UML_CONFIG_MODE_TT)
- #define CHOOSE_MODE(tt, skas) (tt)
-+
-+#else
-+#error CONFIG_MODE_SKAS and CONFIG_MODE_TT are both disabled
- #endif
- 
- #define CHOOSE_MODE_PROC(tt, skas, args...) \
+> - David Brown
+
+Regards,
+Willy
 

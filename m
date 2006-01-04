@@ -1,56 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWADVPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWADVRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751591AbWADVPn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 16:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWADVPn
+	id S1751797AbWADVRV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 16:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWADVRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 16:15:43 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:42219 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751591AbWADVPm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 16:15:42 -0500
-Date: Wed, 4 Jan 2006 13:15:26 -0800
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>, linux-kernel@vger.kernel.org,
-       Stefan Rompf <stefan@loplof.de>,
-       Clemens Fruhwirth <clemens@endorphin.org>, stable@kernel.org,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [stable] Re: [Patch 2.6] dm-crypt: zero key before freeing it
-Message-ID: <20060104211526.GA12042@kroah.com>
-References: <200601042108.04544.stefan@loplof.de> <1136405379.2839.46.camel@laptopd505.fenrus.org> <200601042126.47081.stefan@loplof.de> <Pine.LNX.4.58.0601041228170.19134@shark.he.net> <20060104204129.GA12339@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0601041242270.19134@shark.he.net>
+	Wed, 4 Jan 2006 16:17:21 -0500
+Received: from xproxy.gmail.com ([66.249.82.198]:11133 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751797AbWADVRU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 16:17:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=nbx3k6PUD5rXlXv+lHF1XpbeT0k1bc2t1os/v0mH3u3Qx/PpfQzTcMG/ZdhD87mATQgq9AsIesMRjZX6+IUnjrjdIQM/Pphkoa/0vEOTLLsZeXZM5LNK7Z3ZAyn5qUedWg5on01//EqXDMpBhQiHlcIgMLLqoAjq+ApaBL+11VI=
+Subject: [PATCH] PXA2xx: build PCMCIA as a module
+From: Florin Malita <fmalita@gmail.com>
+To: rpurdie@rpsys.net
+Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 04 Jan 2006 16:16:29 -0500
+Message-Id: <1136409389.14442.20.camel@scox.glenatl.glenayre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601041242270.19134@shark.he.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 12:43:21PM -0800, Randy.Dunlap wrote:
-> On Wed, 4 Jan 2006, J?rn Engel wrote:
-> 
-> > On Wed, 4 January 2006 12:28:59 -0800, Randy.Dunlap wrote:
-> > > On Wed, 4 Jan 2006, Stefan Rompf wrote:
-> > > > Am Mittwoch 04 Januar 2006 21:09 schrieb Arjan van de Ven:
-> > > >
-> > > > > since a memset right before a free is a very unusual code pattern in the
-> > > > > kernel it may well be worth putting a short comment around it to prevent
-> > > > > someone later removing it as "optimization"
-> > > >
-> > > > Valid objection, here is an update (and see, I'm running 2.6.15 now ;-)
-> > >
-> > > A reason "why" would be more helpful that a "what".
-> >
-> > "prevent information leak"
-> >
-> > This is still a "what", but at least not a "how".
-> 
-> OK, that's a much better changelog entry or source code comment...
-> if it could be put in one of those places.
+This patch adds support for building the PCMCIA driver for pxa2xx Sharp
+platforms as a module:
 
-Yes, Stefan, care to redo this with an updated changelog command?
+1) platform_scoop_config is currently declared in pxa2xx_sharpsl.c but
+referenced in the platform code - move the declaration in the platform
+code so pxa2xx_sharpsl.c can be built as a module.
+2) export soc_common_drv_pcmcia_remove which is referenced in
+pxa2xx_base.c.
 
-thanks,
+Please apply.
 
-greg k-h
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+--
+diff --git a/arch/arm/mach-pxa/corgi.c b/arch/arm/mach-pxa/corgi.c
+--- a/arch/arm/mach-pxa/corgi.c
++++ b/arch/arm/mach-pxa/corgi.c
+@@ -45,6 +45,9 @@
+ #include "generic.h"
+ #include "sharpsl.h"
+ 
++/* PCMCIA to Scoop linkage */
++struct scoop_pcmcia_config *platform_scoop_config;
++EXPORT_SYMBOL(platform_scoop_config);
+ 
+ /*
+  * Corgi SCOOP Device
+diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
+--- a/arch/arm/mach-pxa/spitz.c
++++ b/arch/arm/mach-pxa/spitz.c
+@@ -48,6 +48,10 @@
+ #include "generic.h"
+ #include "sharpsl.h"
+ 
++/* PCMCIA to Scoop linkage */
++struct scoop_pcmcia_config *platform_scoop_config;
++EXPORT_SYMBOL(platform_scoop_config);
++
+ /*
+  * Spitz SCOOP Device #1
+  */
+diff --git a/drivers/pcmcia/pxa2xx_sharpsl.c b/drivers/pcmcia/pxa2xx_sharpsl.c
+--- a/drivers/pcmcia/pxa2xx_sharpsl.c
++++ b/drivers/pcmcia/pxa2xx_sharpsl.c
+@@ -27,13 +27,6 @@
+ 
+ #define	NO_KEEP_VS 0x0001
+ 
+-/* PCMCIA to Scoop linkage
+-
+-   There is no easy way to link multiple scoop devices into one
+-   single entity for the pxa2xx_pcmcia device so this structure
+-   is used which is setup by the platform code
+-*/
+-struct scoop_pcmcia_config *platform_scoop_config;
+ #define SCOOP_DEV platform_scoop_config->devs
+ 
+ static void sharpsl_pcmcia_init_reset(struct scoop_pcmcia_dev *scoopdev)
+diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
+--- a/drivers/pcmcia/soc_common.c
++++ b/drivers/pcmcia/soc_common.c
+@@ -846,3 +846,5 @@ int soc_common_drv_pcmcia_remove(struct 
+ 
+ 	return 0;
+ }
++
++EXPORT_SYMBOL(soc_common_drv_pcmcia_remove);
+
+

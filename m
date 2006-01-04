@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWADJdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWADJh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWADJdk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 04:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWADJdk
+	id S1751638AbWADJh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 04:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWADJh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 04:33:40 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:26567 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751225AbWADJdj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 04:33:39 -0500
-Date: Wed, 4 Jan 2006 15:03:20 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Morton Andrew Morton <akpm@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>, Andi Kleen <ak@muc.de>
-Subject: [PATCH 1/2] x86_64: ioapic virtual wire mode fix
-Message-ID: <20060104093320.GA4995@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
+	Wed, 4 Jan 2006 04:37:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50122 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751229AbWADJh5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 04:37:57 -0500
+Date: Wed, 4 Jan 2006 01:36:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [PATCH] protect remove_proc_entry
+Message-Id: <20060104013658.620e51e6.akpm@osdl.org>
+In-Reply-To: <43B64712.3000105@sw.ru>
+References: <1135973075.6039.63.camel@localhost.localdomain>
+	<1135978110.6039.81.camel@localhost.localdomain>
+	<20051230154647.5a38227e.akpm@osdl.org>
+	<43B64712.3000105@sw.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kirill Korotaev <dev@sw.ru> wrote:
+>
+> Hi Andrew,
+> 
+> I have a full patch for this.
 
-o Currently, during kexec reboot, IOAPIC is re-programmed back to virtual
-  wire mode if there was an i8259 connected to it. This enables getting
-  timer interrupts in second kernel in legacy mode.
+Please don't top-post.  It makes things hard...
 
-o After putting into virtual wire mode, IOAPIC delivers the i8259 interrupts
-  to CPU0. This works well for kexec but not for kdump as we might crash
-  on a different CPU and second kernel will not see timer interrupts.
+> I don't remember the details yet, but lock was not god here, we used 
+> semaphore. I pointed to this problem long ago when fixed error path in 
+> proc with moduleget.
+> 
+> This patch protects proc_dir_entry tree with a proc_tree_sem semaphore. 
+> I suppose lock_kernel() can be removed later after checking that no proc 
+> handlers require it.
+> Also this patch remakes de refcounters a bit making it more clear and 
+> more similar to dentry scheme - this is required to make sure that 
+> everything works correctly.
+> 
+> Patch is against 2.6.15-rcX and was tested for about a week. Also works 
+> half a year on 2.6.8 :)
+> 
+> [ patch which uses an rwsem for procfs and somewhat removes lock_kernel() ]
+>
 
-o This patch modifies the redirection table entry to deliver the timer 
-  interrupts to the cpu we are rebooting (instead of hardcoding to zero).
-  This ensures that second kernel receives timer interrupts even on a 
-  non-boot cpu.
+I worry about replacing a spinlock with a sleeping lock.  In some
+circumstances it can cause a complete scalability collapse and I suspect
+this could happen with /proc.  Although I guess the only fastpath here is
+proc_readdir(), and as the lock is taken there for reading, we'll be OK..
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
+The patch does leave some lock_kernel() calls behind.  If we're going to do
+this, I think they should all be removed?
 
+Races in /proc have been plentiful and hard to find.  The patch worries me,
+frankly.  I'd like to see quite a bit more description of the locking
+schema and some demonstration that it's actually complete before taking the
+plunge.
 
-diff -puN arch/x86_64/kernel/io_apic.c~kdump-x86_64-program-ioapic-non-boot-cpu-timer-interrupts arch/x86_64/kernel/io_apic.c
---- linux-2.6.15/arch/x86_64/kernel/io_apic.c~kdump-x86_64-program-ioapic-non-boot-cpu-timer-interrupts	2006-01-04 05:12:48.000000000 -0800
-+++ linux-2.6.15-root/arch/x86_64/kernel/io_apic.c	2006-01-04 06:55:42.000000000 -0800
-@@ -1245,8 +1245,8 @@ void disable_IO_APIC(void)
- 		entry.dest_mode       = 0; /* Physical */
- 		entry.delivery_mode   = 7; /* ExtInt */
- 		entry.vector          = 0;
--		entry.dest.physical.physical_dest = 0;
--
-+		entry.dest.physical.physical_dest =
-+					GET_APIC_ID(apic_read(APIC_ID));
- 
- 		/*
- 		 * Add it to the IO-APIC irq-routing table:
-_

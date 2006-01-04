@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWADKWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWADK1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbWADKWd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 05:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWADKWd
+	id S1751663AbWADK1S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 05:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWADK1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 05:22:33 -0500
-Received: from ns.muni.cz ([147.251.4.33]:26823 "EHLO ithil.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S964952AbWADKWc (ORCPT
+	Wed, 4 Jan 2006 05:27:18 -0500
+Received: from vvv.conterra.de ([212.124.44.162]:49055 "EHLO conterra.de")
+	by vger.kernel.org with ESMTP id S1751655AbWADK1S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 05:22:32 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Wed,  4 Jan 2006 11:22:19 +0100
-To: atlka@pg.gda.pl
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-Subject: [PATCH] media-radio: video device unregister in one fail case [Was: Re: [PATCH 1/4] media-radio: Pci probing for maestro radio]
-References: <200500919343.923456789ble@anxur.fi.muni.cz> <20051231161634.422661E32EE@anxur.fi.muni.cz> <20060104014532.3909a51e.akpm@osdl.org> <20060104014532.3909a51e.akpm@osdl.org>
-In-reply-to: <op.s2ulovh1q5yxc3@merlin>
-Message-Id: <20060104102219.D9A7922AEFB@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Wed, 4 Jan 2006 05:27:18 -0500
+Message-ID: <43BBA2FE.5060006@conterra.de>
+Date: Wed, 04 Jan 2006 11:27:10 +0100
+From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: X86_64 + VIA + 4g problems
+References: <43B90A04.2090403@conterra.de> <p73k6difvm3.fsf@verdi.suse.de>	<43BA4C3D.4060206@conterra.de> <p731wzpjtvm.fsf@verdi.suse.de>
+In-Reply-To: <p731wzpjtvm.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Tlalka wrote:
->Dnia 04-01-2006 o 10:45:32 Andrew Morton <akpm@osdl.org> napisal:
+Andi Kleen wrote:
+> [can you please not always drop me from cc with each reply?] 
+
+sorry, I thought the other way around: it would be annoying
+to get each mail twice...
+
+I just found a mailing list "discuss@x86-64.org". Would it be
+better to turn over there, instead of polluting linux.kernel
+by this?
+
+>> But swiotlb=force works well! 
 >
->> "Jiri Slaby" <xslaby@fi.muni.cz> wrote:
->>>
->>> +	retval = video_register_device(maestro_radio_inst, VFL_TYPE_RADIO,
->>>  +		radio_nr);
->>>  +	if (retval) {
->>>  +		printk(KERN_ERR "can't register video device!\n");
->>>  +		goto errfr1;
->>>  +	}
->>>  +
->>>  +	if (!radio_power_on(radio_unit)) {
->>>  +		retval = -EIO;
->>
->> Shouldn't we unregister the video device here?
+> This means your PCI bridge doesn't support addresses >4GB. 
 >
->Current behaviour means that device is here but not functioning properly  
->but
->we can unregister it of course because it is useless anyway ;-).
-Yup, here is a patch to avoid this. Thanks. [Applicable/dependent after/on
-media-radio-maestro-types-change (last patch)]
+>> The pci-gart.c patch seems to disable dma.
+> 
+> Only DMA for addresses >4GB.
+> 
+> If your torture test involves more than 64MB of IO in flight
+> you might also need to increase the bounce buffer area
+> with swiotlb=128M or somesuch. 
 
-media-radio-pci-probing-for-maestro-radio-unregister-video
+I'm about to understand whats going on. So should I use the
+dma patch INSTEAD of "swiotlb=force"? I'll try that tonight.
 
-Unregister video device if it is registered, but driver fail still in
-initialization.
+> When you not compile in the SKGE network driver does everything else work? 
 
---
- radio-maestro.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+I may test it again, but all seemed to work without any patch or
+swiotlb settings when running without the SKGE network driver.
 
---- drivers/media/radio/radio-maestro.c.old	2006-01-04 11:07:41.000000000 +0100
-+++ drivers/media/radio/radio-maestro.c	2006-01-04 11:09:48.000000000 +0100
-@@ -333,7 +333,7 @@ static int __devinit maestro_probe(struc
- 
- 	if (!radio_power_on(radio_unit)) {
- 		retval = -EIO;
--		goto errfr1;
-+		goto errunr;
- 	}
- 
- 	dev_info(&pdev->dev, "version " DRIVER_VERSION " time " __TIME__ "  "
-@@ -341,6 +341,8 @@ static int __devinit maestro_probe(struc
- 	dev_info(&pdev->dev, "radio chip initialized\n");
- 
- 	return 0;
-+errunr:
-+	video_unregister_device(maestro_radio_inst);
- errfr1:
- 	kfree(maestro_radio_inst);
- errfr:
+So, how does this work, if my PCI bridge generally fails above 4G?
+
+Problems arise not until I enable/use the network driver.
+Does the dma-patch disable DMA for all PCI devices or only
+for those which cause problems (like my SKGE)?
+
+Dieter.
+-- 
+Dieter Stüken, con terra GmbH, Münster
+     stueken@conterra.de
+     http://www.conterra.de/
+     (0)251-7474-501

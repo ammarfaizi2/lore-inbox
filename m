@@ -1,61 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWADWDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbWADWCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWADWDN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 17:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWADWCi
+	id S1751812AbWADWCE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 17:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWADWBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 17:02:38 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:45447 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S932214AbWADWCJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 17:02:09 -0500
-Date: Wed, 4 Jan 2006 14:01:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Nick Warne <nick@linicks.net>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-Message-ID: <20060104220157.GB12778@kroah.com>
-References: <200601041710.37648.nick@linicks.net> <200601041834.23722.s0348365@sms.ed.ac.uk> <200601041953.15735.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601042010.36208.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.5.11
+	Wed, 4 Jan 2006 17:01:53 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:13046 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S932144AbWADWBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 17:01:32 -0500
+Date: Wed, 04 Jan 2006 17:01:10 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: [PATCH 11/15] therm_adt746x: Quiet fan speed change messages
+To: linux-kernel@vger.kernel.org
+Message-id: <0ISL001UT96EWW@a34-mta01.direcway.com>
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 08:10:36PM +0000, Alistair John Strachan wrote:
-> On Wednesday 04 January 2006 19:53, Nick Warne wrote:
-> > On Wednesday 04 January 2006 18:34, Alistair John Strachan wrote:
-> > > On Wednesday 04 January 2006 17:39, Nick Warne wrote:
-> > > > On Wednesday 04 January 2006 17:36, Randy.Dunlap wrote:
-> > > > > > I went from 2.6.14 -> 2.6.14.2 -> .2-.3 -> .3-.4 -> .4-.5
-> > > > >
-> > > > > and how did you do that?
-> > > > > Noone supplies such incremental patches AFAIK.
-> > > >
-> > > > Yes, I got from kernel.org - I am _not_ that clever to devise my own
-> > > > incremental patches, otherwise I wouldn't be asking stupid questions...
-> > >
-> > > Nick's right, both are provided automatically by kernel.org.
-> >
-> > Anyway, I started from scratch - 2.6.14, patched to 2.6.15 and then make
-> > oldconfig etc.
-> >
-> > I think there needs to be a way out of this that is easily discernible - it
-> > does get confusing sometimes with all the patches flying around on a
-> > 'stable release'.
-> 
-> It's documented in the kernel.
-> 
-> There's something in the kernel.org FAQ there about -rc kernels, but it might 
-> be better to generalise this for stable releases. Added hpa to CC.
+Only output the messages about fan speed changes with a verbose=1 module
+param.
 
-What do you mean, "generalize" this?  Where else could we document it
-better?
+Signed-off-by: Fabio M. Di Nitto <fabbione@ubuntu.com>
+Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-thanks,
+---
 
-greg k-h
+ drivers/macintosh/therm_adt746x.c |   39 +++++++++++++++++++++++--------------
+ 1 files changed, 24 insertions(+), 15 deletions(-)
+
+b0641454dfe898af0e6901ecd6eef349c5239e31
+diff --git a/drivers/macintosh/therm_adt746x.c b/drivers/macintosh/therm_adt746x.c
+index f386966..5e1f5e9 100644
+--- a/drivers/macintosh/therm_adt746x.c
++++ b/drivers/macintosh/therm_adt746x.c
+@@ -52,6 +52,7 @@ static char *sensor_location[3] = {NULL,
+ 
+ static int limit_adjust = 0;
+ static int fan_speed = -1;
++static int verbose = 0;
+ 
+ MODULE_AUTHOR("Colin Leroy <colin@colino.net>");
+ MODULE_DESCRIPTION("Driver for ADT746x thermostat in iBook G4 and "
+@@ -66,6 +67,10 @@ module_param(fan_speed, int, 0644);
+ MODULE_PARM_DESC(fan_speed,"Specify starting fan speed (0-255) "
+ 		 "(default 64)");
+ 
++module_param(verbose, bool, 0);
++MODULE_PARM_DESC(verbose,"Verbose log operations "
++		 "(default 0)");
++
+ struct thermostat {
+ 	struct i2c_client	clt;
+ 	u8			temps[3];
+@@ -149,13 +154,13 @@ detach_thermostat(struct i2c_adapter *ad
+ 	if (thread_therm != NULL) {
+ 		kthread_stop(thread_therm);
+ 	}
+-		
++
+ 	printk(KERN_INFO "adt746x: Putting max temperatures back from "
+ 			 "%d, %d, %d to %d, %d, %d\n",
+ 		th->limits[0], th->limits[1], th->limits[2],
+ 		th->initial_limits[0], th->initial_limits[1],
+ 		th->initial_limits[2]);
+-	
++
+ 	for (i = 0; i < 3; i++)
+ 		write_reg(th, LIMIT_REG[i], th->initial_limits[i]);
+ 
+@@ -212,12 +217,14 @@ static void write_fan_speed(struct therm
+ 		return;
+ 	
+ 	if (th->last_speed[fan] != speed) {
+-		if (speed == -1)
+-			printk(KERN_DEBUG "adt746x: Setting speed to automatic "
+-				"for %s fan.\n", sensor_location[fan+1]);
+-		else
+-			printk(KERN_DEBUG "adt746x: Setting speed to %d "
+-				"for %s fan.\n", speed, sensor_location[fan+1]);
++		if (verbose) {
++			if (speed == -1)
++				printk(KERN_DEBUG "adt746x: Setting speed to automatic "
++					"for %s fan.\n", sensor_location[fan+1]);
++			else
++				printk(KERN_DEBUG "adt746x: Setting speed to %d "
++					"for %s fan.\n", speed, sensor_location[fan+1]);
++		}
+ 	} else
+ 		return;
+ 	
+@@ -298,10 +305,11 @@ static void update_fans_speed (struct th
+ 			if (new_speed > 255)
+ 				new_speed = 255;
+ 
+-			printk(KERN_DEBUG "adt746x: setting fans speed to %d "
+-					 "(limit exceeded by %d on %s) \n",
+-					new_speed, var,
+-					sensor_location[fan_number+1]);
++			if (verbose)
++				printk(KERN_DEBUG "adt746x: Setting fans speed to %d "
++						 "(limit exceeded by %d on %s) \n",
++						new_speed, var,
++						sensor_location[fan_number+1]);
+ 			write_both_fan_speed(th, new_speed);
+ 			th->last_var[fan_number] = var;
+ 		} else if (var < -2) {
+@@ -309,8 +317,9 @@ static void update_fans_speed (struct th
+ 			 * so cold (lastvar >= -1) */
+ 			if (i == 2 && lastvar < -1) {
+ 				if (th->last_speed[fan_number] != 0)
+-					printk(KERN_DEBUG "adt746x: Stopping "
+-						"fans.\n");
++					if (verbose)
++						printk(KERN_DEBUG "adt746x: Stopping "
++							"fans.\n");
+ 				write_both_fan_speed(th, 0);
+ 			}
+ 		}
+@@ -406,7 +415,7 @@ static int attach_one_thermostat(struct 
+ 		th->initial_limits[i] = read_reg(th, LIMIT_REG[i]);
+ 		set_limit(th, i);
+ 	}
+-	
++
+ 	printk(KERN_INFO "adt746x: Lowering max temperatures from %d, %d, %d"
+ 			 " to %d, %d, %d\n",
+ 			 th->initial_limits[0], th->initial_limits[1],
+-- 
+1.0.5

@@ -1,88 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbWADOlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbWADOmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932556AbWADOlk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 09:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWADOlj
+	id S932563AbWADOmP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 09:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbWADOmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 09:41:39 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56327 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932551AbWADOlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 09:41:39 -0500
-Date: Wed, 4 Jan 2006 15:41:37 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20060104144137.GM3831@stusta.de>
-References: <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl> <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl> <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <1136364634.22598.70.camel@localhost.localdomain> <20060104132139.GA5753@athame.dynamicro.on.ca>
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 09:42:14 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:29068 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932553AbWADOmN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 09:42:13 -0500
+Date: Wed, 4 Jan 2006 15:42:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 02/21] mutex subsystem, add typecheck_fn(type, function)
+Message-ID: <20060104144204.GC27646@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060104132139.GA5753@athame.dynamicro.on.ca>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 08:21:39AM -0500, Greg Louis wrote:
-> On 20060104 (Wed) at 0850:34 +0000, Alan Cox wrote:
-> > On Mer, 2006-01-04 at 03:51 +0100, Tomasz K??oczko wrote:
-> > > Be compliant with OSS specyfication allow save many time on applications 
-> > > development level by consume (in good sense) time spend on this 
-> > > applications by *BSD, Solaris and other systems developers (even on not 
-> > > open source applications).
-> > 
-> > Both Solaris and FreeBSD contain Linux emulation code so in that sense
-> > they admitted 'defeat' long ago.
-> > 
-> > > valuable functionalities in usable/simpler form for joe-like users .. 
-> > > remember: sound support in Linux isn't for data centers/big-ass-machines :)
-> > 
-> > And distributions nowdays ship with ALSA by default, which is giving
-> > users far better audio timing behaviour, mixing they want, digital and
-> > analogue 5.1 outputs. OSS really isn't ideal for serious "end user"
-> > applications like video playback
-> > 
-> Ok, so I'm not serious :) just wanna do fairly standard audio things.
-> 
-> - ALSA doesn't (AFAIK, haven't checked for a few months) support my old
->   Audiotrix sound card -- bye, machine 1
+From: Chuck Ebbert <76306.1226@compuserve.com>
 
-Noone wants to remove the drivers for hardware not supported by ALSA 
-from OSS.
+add typecheck_fn(type, function) to do type-checking of function
+pointers.
 
-After 4 years of ALSA in the kernel we are starting to remove the OSS 
-drivers from the kernel where ALSA drives the same hardware.
+Modified-by: Ingo Molnar <mingo@elte.hu>
 
-We might end up with a handful of OSS drivers for some ancient 
-soundcards without ALSA support and keep them similar to the old CD-ROM 
-drivers under drivers/cdrom/ (or someone might write ALSA drivers for 
-such hardware), but we don't need two drivers for the same hardware.
+(made it typeof() based, instead of typedef based.)
 
-> - ALSA can't be persuaded (not by me, anyway) to drive my VIA
->   ac97_codec onboard sound hardware -- everything works fine except
->   unmuting ;) -- bye, machine 2
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Can you give me a bug number in the ALSA bug tracking system for this 
-issue to track it?
+----
 
-> - ALSA does suport my i810_audio ac97_codec laptop, but so does OSS,
->   equally well (for my unsophisticated needs) and with a far less
->   elephantine footprint in memory. -- strike 3, ALSA out.
->...
+ include/linux/kernel.h |    9 +++++++++
+ 1 files changed, 9 insertions(+)
 
-How much RAM does your system have that this is really an issue for you?
-
-Sure, it would be possible to make ALSA a bit slimmer, but if you are 
-running something like KDE or Mozilla or OpenOffice on your Laptop the 
-size of the kernel shouldn't be a real issue.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Index: linux/include/linux/kernel.h
+===================================================================
+--- linux.orig/include/linux/kernel.h
++++ linux/include/linux/kernel.h
+@@ -286,6 +286,15 @@ extern void dump_stack(void);
+ 	1; \
+ })
+ 
++/*
++ * Check at compile time that 'function' is a certain type, or is a pointer
++ * to that type (needs to use typedef for the function type.)
++ */
++#define typecheck_fn(type,function) \
++({	typeof(type) __tmp = function; \
++	(void)__tmp; \
++})
++
+ #endif /* __KERNEL__ */
+ 
+ #define SI_LOAD_SHIFT	16

@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752072AbWAEGnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751935AbWAEGw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752072AbWAEGnF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 01:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752073AbWAEGnF
+	id S1751935AbWAEGw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 01:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWAEGw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 01:43:05 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56774 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1752072AbWAEGnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 01:43:01 -0500
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Lee Revell <rlrevell@joe-job.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060103192449.GA26030@dspnet.fr.eu.org>
-References: <20050726150837.GT3160@stusta.de>
-	 <200601031629.21765.s0348365@sms.ed.ac.uk>
-	 <20060103170316.GA12249@dspnet.fr.eu.org>
-	 <200601031716.13409.s0348365@sms.ed.ac.uk>
-	 <20060103192449.GA26030@dspnet.fr.eu.org>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 01:42:57 -0500
-Message-Id: <1136443378.24475.8.camel@mindpipe>
+	Thu, 5 Jan 2006 01:52:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:61381 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750704AbWAEGwZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 01:52:25 -0500
+Date: Wed, 4 Jan 2006 22:52:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dane Mutters <dmutters@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: (1) ACPI messes up Parallel support in kernels >2.6.9
+Message-Id: <20060104225209.56e35802.akpm@osdl.org>
+In-Reply-To: <200601042203.12377.dmutters@gmail.com>
+References: <200601042203.12377.dmutters@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-03 at 20:24 +0100, Olivier Galibert wrote:
-> As for the OSS API being crippled, I'd take the 3 ioctl calls you need
-> to setup a simple stereo 16bits output with OSS than the 13 ALSA
-> library calls anyday.  Especially with the impressive lack of
-> documentation you get about what the hell is a period, or what you can
-> do except aborting when you get an error. 
+Dane Mutters <dmutters@gmail.com> wrote:
+>
+> 	I've been attempting to figure out this problem for a long time, and have 
+>  come to the conclusion that it must be a kernel bug (that or perhaps I'm a 
+>  bit dense).  Whenever I have the option, "Device Drivers > Plug and Play > 
+>  ACPI Support" enabled, I become unable to print using my parallel port.
 
-Same thing as a fragment in OSS.  It's the number of frames between
-interrupts from the audio interface.
+hm, regressions are bad and the fact that it _used_ to work meand that we
+should be able to make it work again.
 
-Come on, Google could have told you that in 5 seconds.
+Could you please raise a bug reports against acpi at bugzilla.kernel.org? 
+It might help if that report includes the output of `dmesg -s 1000000' for
+both working and non-working kernels.
 
-Lee
+Thanks.
 

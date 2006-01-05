@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWAEX4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWAEX6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWAEX4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWAEX4U
+	id S932284AbWAEX6n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWAEX6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:56:20 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:3772 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S932087AbWAEX4U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:56:20 -0500
-Date: Fri, 6 Jan 2006 00:56:18 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: alan <alan@clueserver.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with pci_fixups in drivers/pci/probe.c
-Message-ID: <20060105235618.GA317@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	alan <alan@clueserver.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0601051533430.27220-100000@www.fnordora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0601051533430.27220-100000@www.fnordora.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 5 Jan 2006 18:58:20 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:42114 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932273AbWAEX6I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:58:08 -0500
+Message-Id: <20060105235947.100933000@sorel.sous-sol.org>
+Date: Thu, 05 Jan 2006 13:47:21 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [PATCH 0/6] -stable review
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is the start of the stable review cycle for the 2.6.14.6 release.
+There are 6 patches in this series, all will be posted as a response to
+this one.  If anyone has any issues with these being applied, please let
+us know.  If anyone is a maintainer of the proper subsystem, and wants
+to add a Signed-off-by: line to the patch, please respond with it.
 
-On Thu, Jan 05, 2006 at 03:46:35PM -0800, alan wrote:
-> I went to patch the current FC5T1 kernel and found that the patch no 
-> longer applied.  On further investigation I found that the patch had been 
-> added to the kernel, but some helpful soul had added a subroutine that 
-> made it absolutely worthless to anyone on x86 architecture.
+These patches are sent out with a number of different people on the
+Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
+to add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-See
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=12f44f46bc9c6dc79255e661b085797af395d8da
-and
-http://bugzilla.kernel.org/show_bug.cgi?id=5557
-for more information on this issue.
+Responses should be made by Sat, Jan 7, 23:00 UTC.  Anything received after
+that time, might be too late.
 
-> My cardbus devices will thank you.
+thanks,
 
-Well, you can add "pci=assign-busses" as boot parameter, and then the
-cardbus devices should work. Alternatively, I'd propose making
-pcibios_assign_all_busses default to 1 on x86-64 (at least), possibly also on
-x86.
-
-	Dominik
+the -stable release team
+--

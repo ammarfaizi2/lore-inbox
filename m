@@ -1,84 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWAEAL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWAEAMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWAEAL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWAEAL3
+	id S1750807AbWAEAMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWAEAMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:11:29 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:7642 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750800AbWAEAL2 (ORCPT
+	Wed, 4 Jan 2006 19:12:09 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:22049 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750807AbWAEAMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:11:28 -0500
-Date: Wed, 4 Jan 2006 16:13:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Patrick Gefre <pfg@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix - ioc3 serial support
-Message-Id: <20060104161320.28756e24.akpm@osdl.org>
-In-Reply-To: <43BC377E.3050603@sgi.com>
-References: <200512162233.jBGMXRUQ139857@fsgi900.americas.sgi.com>
-	<43BC377E.3050603@sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 4 Jan 2006 19:12:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=OUqPv9h9xIvOsTgAjepQ2k8rw+hs+MxEm2lon2B8jqrzqogCYq8H8ZkE/i9XjWg8SBGQqm4a87Uo1cJd+AKtjrlP5GOLhJp4xueRzeSskuAQv5FLd9nwjup8W6wufPsPzkCvXZgOPOq/D27J9WC01bPsh4izLqOQItO1YTBUQCA=
+Subject: Re: [PATCH] PXA2xx: build PCMCIA as a module
+From: Florin Malita <fmalita@gmail.com>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <1136413220.9902.94.camel@localhost.localdomain>
+References: <1136409389.14442.20.camel@scox.glenatl.glenayre.com>
+	 <1136413220.9902.94.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 04 Jan 2006 19:12:53 -0500
+Message-Id: <1136419973.2768.7.camel@zed.malinux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Gefre <pfg@sgi.com> wrote:
->
-> The following patch adds driver support for a 2 port PCI IOC3-based
-> serial card on Altix boxes:
-> 
-> ftp://oss.sgi.com/projects/sn2/sn2-update/044-ioc3-support
->
+On Wed, 2006-01-04 at 22:20 +0000, Richard Purdie wrote:
+> NAK. This breaks poodle, tosa and collie who also use scoop and this
+> pcmcia driver. I'd suggest moving scoop_pcmcia_config to
+> arch/arm/common/scoop.c instead.
 
-> +struct ring_entry {
-> +	union {
-> +		struct {
-> +			uint32_t alldata;
-> +			uint32_t allsc;
-> +		} all;
-> +		struct {
-> +			char data[4];	/* data bytes */
-> +			char sc[4];	/* status/control */
-> +		} s;
-> +	} u;
-> +};
-> +
-> +/* Test the valid bits in any of the 4 sc chars using "allsc" member */
-> +#define RING_ANY_VALID \
-> +	((uint32_t)(RXSB_MODEM_VALID | RXSB_DATA_VALID) * 0x01010101)
-> +
-> +#define ring_sc		u.s.sc
-> +#define ring_data	u.s.data
-> +#define ring_allsc	u.all.allsc
->
+Breaking collies is not exactly at the top of my todo list :)
 
-You no longer need to go through this pain - we plan on dropping gcc-2.95
-support this cycle, so anonymous unions and anonymous structs can be used
-in-kernel.
+So how about this then:
 
-The above looks a bit dodgy wrt endianness..
-
-> +	writeb((unsigned char)divisor, &uart->iu_dll);
-> +	writeb((unsigned char)(divisor >> 8), &uart->iu_dlm);
-> +	writeb((unsigned char)prediv, &uart->iu_scr);
-> +	writeb((unsigned char)lcr, &uart->iu_lcr);
-
-Are those casts needed?
-
-
-ioc3uart_intr_one() has two callsites and should not be inlined.  Although
-the compiler could conceivably do something sneaky with it.  Needs checking.
-
-nic_read_bit() should be uninlined.
-
-nic_write_bit() should be uninlined.
-
-write_ireg() should be uninlined.
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+--
+diff --git a/arch/arm/common/scoop.c b/arch/arm/common/scoop.c
+--- a/arch/arm/common/scoop.c
++++ b/arch/arm/common/scoop.c
+@@ -19,6 +19,10 @@
+ 
+ #define SCOOP_REG(d,adr) (*(volatile unsigned short*)(d +(adr)))
+ 
++/* PCMCIA to Scoop linkage */
++struct scoop_pcmcia_config *platform_scoop_config;
++EXPORT_SYMBOL(platform_scoop_config);
++
+ struct  scoop_dev {
+ 	void  *base;
+ 	spinlock_t scoop_lock;
+diff --git a/drivers/pcmcia/pxa2xx_sharpsl.c b/drivers/pcmcia/pxa2xx_sharpsl.c
+--- a/drivers/pcmcia/pxa2xx_sharpsl.c
++++ b/drivers/pcmcia/pxa2xx_sharpsl.c
+@@ -27,13 +27,6 @@
+ 
+ #define	NO_KEEP_VS 0x0001
+ 
+-/* PCMCIA to Scoop linkage
+-
+-   There is no easy way to link multiple scoop devices into one
+-   single entity for the pxa2xx_pcmcia device so this structure
+-   is used which is setup by the platform code
+-*/
+-struct scoop_pcmcia_config *platform_scoop_config;
+ #define SCOOP_DEV platform_scoop_config->devs
+ 
+ static void sharpsl_pcmcia_init_reset(struct scoop_pcmcia_dev *scoopdev)
+diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
+--- a/drivers/pcmcia/soc_common.c
++++ b/drivers/pcmcia/soc_common.c
+@@ -846,3 +846,4 @@ int soc_common_drv_pcmcia_remove(struct 
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(soc_common_drv_pcmcia_remove);
 
 
-This driver will break when tty-layer-buffering-revamp.patch is merged,
-which looks like it'll be 1-2 weeks hence.  A fixup patch against next -mm
-would suit..

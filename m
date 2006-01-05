@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWAEUSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWAEUSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWAEUSW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 15:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWAEUSW
+	id S932146AbWAEUSl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 15:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWAEUSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 15:18:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19625 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932119AbWAEUSV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 15:18:21 -0500
-Date: Thu, 5 Jan 2006 12:13:13 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Martin Bligh <mbligh@mbligh.org>
-cc: Matt Mackall <mpm@selenic.com>, Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-In-Reply-To: <43BD784F.4040804@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0601051208510.3169@g5.osdl.org>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org>
- <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org>
- <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
- <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <43BD784F.4040804@mbligh.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jan 2006 15:18:41 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:35260 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S932141AbWAEUSk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 15:18:40 -0500
+In-Reply-To: <1136491503.847.0.camel@mindpipe>
+References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com> <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr> <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <1136491503.847.0.camel@mindpipe>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       Tomasz Torcz <zdzichu@irc.pl>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Thu, 5 Jan 2006 21:18:21 +0100
+To: Lee Revell <rlrevell@joe-job.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 2006-01-05, at 21:05, Lee Revell wrote:
 
-On Thu, 5 Jan 2006, Martin Bligh wrote:
-> 
-> Hmm. if you're just going to do it as binary on/off ...is it not pretty
-> trivial to do a crude test implementation by booting the kernel, turning
-> on profiling, running a bunch of different tests, then marking anything
-> that never appears at all in profiling as rare?
+> On Thu, 2006-01-05 at 21:03 +0100, Marcin Dalecki wrote:
+>> On 2006-01-05, at 19:33, Lee Revell wrote:
+>>
+>>> On Thu, 2006-01-05 at 13:44 +0100, Marcin Dalecki wrote:
+>>>> Second - you still didn't explain why this allows you to conclude
+>>>> that sound mixing should in no way be done inside the kernel.
+>>>
+>>> It works perfectly right now in userspace.
+>>
+>> Yeah - for you maybe...
+>>
+>
+> Please rephrase your comment in the form of a useful bug report.
 
-Yes, I think "crude" is exactly where we want to start. It's much easier 
-to then make it smarter later.
+Yes I will. But only after you stop spreading BS about how fine and
+generally dandy the situation about sound support in Linux is thanks  
+to ALSA.
+One reports bugs only if one expects that the situation will improve.
+Glaring problems on average commodity hardware one expect the  
+developers to take
+care of without any notice.
 
-> Not saying it's a good long-term approach, but would it not give us enough
-> data to know whether the whole approach was worthwhile?
-
-Yes. And it's entirely possible that "crude" is perfectly fine even in the 
-long run. I suspect this is very much a "5% of the work gets us 80% of the 
-benefit", with a _very_ long tail with tons of more work to get very minor 
-incremental savings..
-
-> OTOH, do we have that much to gain anyway in kernel space? all we're doing is
-> packing stuff down into the same cacheline or not, isn't it?
-> As we have all pages pinned in memory, does it matter for any reason
-> beyond that?
-
-The cache effects are likely the biggest ones, and no, I don't know how 
-much denser it will be in the cache. Especially with a 64-byte one.. 
-(although 128 bytes is fairly common too).
-
-There are some situations where we have TLB issues, but those are likely 
-cases where we don't care about placement performance anyway (ie they'd
-be in situations where you use the page-alloc-debug stuff, which is very 
-expensive for _other_ reasons ;)
-
-		Linus
+However since the beginning the situation with ALSA has always been a  
+lot of
+advertisement how well it will work but the results where always less  
+then stellar
+if one looked at them from the functional side. 

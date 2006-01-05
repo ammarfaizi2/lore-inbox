@@ -1,113 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWAEV21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWAEVeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbWAEV21 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAEV21
+	id S932226AbWAEVeF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAEVeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:28:27 -0500
-Received: from alpha.polcom.net ([83.143.162.52]:51647 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S932227AbWAEV20 (ORCPT
+	Thu, 5 Jan 2006 16:34:05 -0500
+Received: from mail42.e.nsc.no ([193.213.115.42]:10891 "EHLO mail42.e.nsc.no")
+	by vger.kernel.org with ESMTP id S932226AbWAEVeE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:28:26 -0500
-Date: Thu, 5 Jan 2006 22:32:18 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Martin Bligh <mbligh@mbligh.org>, Matt Mackall <mpm@selenic.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-In-Reply-To: <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
-Message-ID: <Pine.LNX.4.63.0601052155440.20858@alpha.polcom.net>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org>
- <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org>
- <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 5 Jan 2006 16:34:04 -0500
+Subject: Re: 2.6.15-rt1-sr1: xfs mount crash
+From: Vegard Lima <Vegard.Lima@hia.no>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Daniel Walker <dwalker@mvista.com>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.44L0.0601051618200.3110-100000@lifa02.phys.au.dk>
+References: <Pine.LNX.4.44L0.0601051618200.3110-100000@lifa02.phys.au.dk>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 22:34:27 +0100
+Message-Id: <1136496867.12042.5.camel@tordenfugl.lima.heim>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Linus Torvalds wrote:
-> On Thu, 5 Jan 2006, Martin Bligh wrote:
->>
->> There are tools already around to do this sort of thing as well - "profile
->> directed optimization" or whatever they called it. Seems to be fairly commonly
->> done with userspace, but not with the kernel. I'm not sure why not ...
->> possibly because it's not available for gcc ?
->
-> .. and they are totally useless.
-[snip]
->
-> A kernel that people recompile themselves simply isn't something where it
-> works.
->
-> What _would_ work is something that actually CHECKS (and suggests) the
-> hints we already have in the kernel. IOW, you could have an automated
-> test-bed that runs some reasonable load, and then verifies whether there
-> are branches that go only one way that could be annotated as such, or
-> whether some annotation is wrong.
->
-> That way the "profile data" actually follows the source code, and is thus
-> actually relevant to an open-source project. Because we do _not_ start
-> having specially optimized binaries. That's against the whole point of
-> being open source and trying to get users to get more deeply involved with
-> the project.
+to den 05.01.2006 Klokka 16:19 (+0100) skreiv Esben Nielsen:
+> 
+> On Thu, 5 Jan 2006, Daniel Walker wrote:
+> >
+> > Looks like a race , so maybe a timing issue. Just turn on some debugging
+> > in the code path that slows/speeds things just enough .
+> 
+> CONFIG_DEBUG_RT_LOCKING_MODE turns spinlock_t into raw_spinlock_t again as
+> far as I can see. It is probably some spinlock_t which has to be a
+> raw_spinlock_t for the time being.
 
-This is exactly what I am thinking for quite some time (for my userspace 
-projects).
-
-I would really want to see some program in gcc package that takes source 
-code and some profile results (maybe even multiple profile results from 
-many different environments and systems under different loads) and tries 
-to suggest some annotations for the code like
-
-- __fastpath,
-- likely/unlikely,
-- inline (normal for performance reasons not some forced inline because 
-code breaks if not inlined - this could be marked __always_inline)
-- maybe something for small loops on fastpath
-- possibly some detection of dead code - if some part of code is never or 
-nearly never executed it should be double checked for 1. is it still 
-needed? 2. bugs - because if it never executes it is probably not tested 
-enough,
-
-and so on. It also should warn if it finds annotations already in the code 
-that don't match profile results (especially if it differs greatly).
-
-It could also try to check possible inline scenarios using some heuristics 
-and searches. Something like "Ok, if I will inline this function and this 
---- will it improve things [== reduce code size for example] because some 
-things will become constants?" This is probably not possible to do at 
-compile time because it will make normal compiles much longer. But it 
-could be run from time to time or continously on some automated testing 
-farm and then generate reports for programmer to add or remove some 
-annotations (and why and how certain the report is about some annotation). 
-This way the (not only) linux kernel problem with inlines will be solved 
-once and for ever.
-
-Also I think that "profile driven optimizations" like currently in gcc are 
-evil because the profile is most often biased and incomplete (for example 
-the one used in gcc compile itself). Also it can make debuging strange 
-problems (that can be caused by buggy compiler) much harder because 
-everyone can have completly different binary code generated by their 
-compiler because completly different profile was used. This way 
-reproducing the bug by developer is much harder if not nearly impossible.
-
-And gcc (like any other compiler) can have some bug that will cause it to 
-make some completly stupid decision in some cases making program much 
-slower. This can't be investigated without looking directly at assembler 
-code for several hours and this is not what human programmers should be 
-doing probably. And if we will be using such "hinter" and it will have 
-some bug and will tell us that something is likely while it is clearly not 
-we could easily invwstigate - the whole process becomes transparent and 
-could be well managed.
-
-Unfortunatelly I don't know gcc good enough to add such code to it. But I 
-will hapily help by testing and reporting bugs if someone will want to 
-write such code.... ;-)
+Just FYI 2.5.14-rt22 worked fine with
+CONFIG_DEBUG_RT_LOCKING_MODE _not_ set.
 
 
-Grzegorz Kulewski
+
+Thanks,
+-- 
+Vegard Lima <Vegard.Lima@hia.no>
+

@@ -1,60 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWAEOax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWAEOcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWAEOax (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWAEOax
+	id S1751341AbWAEOcT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWAEOcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:30:53 -0500
-Received: from dpc6682004040.direcpc.com ([66.82.4.40]:28691 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1751323AbWAEOau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:30:50 -0500
-Date: Thu, 05 Jan 2006 09:30:23 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH] fix workqueue oops during cpu offline
-In-reply-to: <1136440988.4840.60.camel@localhost.localdomain>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, Nathan Lynch <ntl@pobox.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Message-id: <1136471423.4430.58.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20060105045810.GE16729@localhost.localdomain>
- <200601051558.14275.ncunningham@cyclades.com>
- <1136440988.4840.60.camel@localhost.localdomain>
+	Thu, 5 Jan 2006 09:32:18 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52240 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751345AbWAEOcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:32:06 -0500
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Greg K-H <greg@kroah.com>
+Subject: [CFT 5/29] Add AMBA bus_type probe/remove/shutdown methods
+Date: Thu, 05 Jan 2006 14:32:00 +0000
+Message-ID: <20060105142951.13.05@flint.arm.linux.org.uk>
+In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
+References: <20060105142951.13.01@flint.arm.linux.org.uk>
+From: Russell King <rmk@arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 17:03 +1100, Benjamin Herrenschmidt wrote:
-> On Thu, 2006-01-05 at 15:58 +1000, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Thursday 05 January 2006 14:58, Nathan Lynch wrote:
-> > > With 2.6.15, powerpc systems oops when cpu 0 is offlined.  This is a
-> > > regression from 2.6.14, caused by commit id
-> > > bce61dd49d6ba7799be2de17c772e4c701558f14 ("Fix hardcoded cpu=0 in
-> > > workqueue for per_cpu_ptr() calls").
-> > 
-> > So it's valid on ppc for cpu 0 to be taken offline? IIRC, trying that on my P4 
-> > a while back did nothing. I think you'll find other places that assume that 
-> > cpu 0 is always up (swsusp? ... I should check suspend2).
-> 
-> It's bogus, cpu0 can be put offline.
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-Not only that, but on some systems it may never even exist. Which was
-the whole reason for my problem in the first place with the workqueue
-code.
+---
+ arch/arm/common/amba.c |   71 ++++++++++++++++++++++++++-----------------------
+ 1 files changed, 38 insertions(+), 33 deletions(-)
 
-I haven't tested it, but the patch would appear to work for me. Since
-sparc64 doesn't support CPU hotplug, the cpu_possible_map is just a copy
-of cpu_present_map. I'll merge it into my tree and give it a run on the
-ultra3k.
-
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
-
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/arch/arm/common/amba.c linux/arch/arm/common/amba.c
+--- linus/arch/arm/common/amba.c	Sun Nov  6 22:14:11 2005
++++ linux/arch/arm/common/amba.c	Sun Nov 13 15:49:25 2005
+@@ -61,6 +61,41 @@ static int amba_hotplug(struct device *d
+ #define amba_hotplug NULL
+ #endif
+ 
++/*
++ * These are the device model conversion veneers; they convert the
++ * device model structures to our more specific structures.
++ */
++static int amba_probe(struct device *dev)
++{
++	struct amba_device *pcdev = to_amba_device(dev);
++	struct amba_driver *pcdrv = to_amba_driver(dev->driver);
++	struct amba_id *id;
++	int ret = -ENODEV;
++
++	if (pcdrv->probe) {
++		id = amba_lookup(pcdrv->id_table, pcdev);
++		ret = pcdrv->probe(pcdev, id);
++	}
++	return ret;
++}
++
++static int amba_remove(struct device *dev)
++{
++	struct amba_driver *drv = to_amba_driver(dev->driver);
++	int ret = 0;
++
++	if (drv->remove)
++		ret = drv->remove(to_amba_device(dev));
++	return ret;
++}
++
++static void amba_shutdown(struct device *dev)
++{
++	struct amba_driver *drv = to_amba_driver(dev->driver);
++	if (dev->driver && drv->shutdown)
++		drv->shutdown(to_amba_device(dev));
++}
++
+ static int amba_suspend(struct device *dev, pm_message_t state)
+ {
+ 	struct amba_driver *drv = to_amba_driver(dev->driver);
+@@ -89,6 +124,9 @@ static struct bus_type amba_bustype = {
+ 	.name		= "amba",
+ 	.match		= amba_match,
+ 	.hotplug	= amba_hotplug,
++	.probe		= amba_probe,
++	.remove		= amba_remove,
++	.shutdown	= amba_shutdown,
+ 	.suspend	= amba_suspend,
+ 	.resume		= amba_resume,
+ };
+@@ -100,33 +138,6 @@ static int __init amba_init(void)
+ 
+ postcore_initcall(amba_init);
+ 
+-/*
+- * These are the device model conversion veneers; they convert the
+- * device model structures to our more specific structures.
+- */
+-static int amba_probe(struct device *dev)
+-{
+-	struct amba_device *pcdev = to_amba_device(dev);
+-	struct amba_driver *pcdrv = to_amba_driver(dev->driver);
+-	struct amba_id *id;
+-
+-	id = amba_lookup(pcdrv->id_table, pcdev);
+-
+-	return pcdrv->probe(pcdev, id);
+-}
+-
+-static int amba_remove(struct device *dev)
+-{
+-	struct amba_driver *drv = to_amba_driver(dev->driver);
+-	return drv->remove(to_amba_device(dev));
+-}
+-
+-static void amba_shutdown(struct device *dev)
+-{
+-	struct amba_driver *drv = to_amba_driver(dev->driver);
+-	drv->shutdown(to_amba_device(dev));
+-}
+-
+ /**
+  *	amba_driver_register - register an AMBA device driver
+  *	@drv: amba device driver structure
+@@ -138,12 +149,6 @@ static void amba_shutdown(struct device 
+ int amba_driver_register(struct amba_driver *drv)
+ {
+ 	drv->drv.bus = &amba_bustype;
+-
+-#define SETFN(fn)	if (drv->fn) drv->drv.fn = amba_##fn
+-	SETFN(probe);
+-	SETFN(remove);
+-	SETFN(shutdown);
+-
+ 	return driver_register(&drv->drv);
+ }
+ 

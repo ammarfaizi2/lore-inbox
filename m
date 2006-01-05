@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752201AbWAEUFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752197AbWAEUHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752201AbWAEUFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 15:05:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752198AbWAEUFI
+	id S1752197AbWAEUHH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 15:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752199AbWAEUHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 15:05:08 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:22467 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1752195AbWAEUFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 15:05:07 -0500
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Lee Revell <rlrevell@joe-job.com>
-To: Marcin Dalecki <martin@dalecki.de>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-       Tomasz Torcz <zdzichu@irc.pl>, Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de>
-References: <20050726150837.GT3160@stusta.de>
-	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
-	 <200601031629.21765.s0348365@sms.ed.ac.uk>
-	 <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
-	 <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
-	 <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
-	 <20060103215654.GH3831@stusta.de>
-	 <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
-	 <s5hpsn8md1j.wl%tiwai@suse.de>
-	 <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
-	 <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
-	 <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
-	 <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
-	 <1136486021.31583.26.camel@mindpipe>
-	 <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 15:05:03 -0500
-Message-Id: <1136491503.847.0.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.3 
+	Thu, 5 Jan 2006 15:07:07 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:29639 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752197AbWAEUHG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 15:07:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=BqPlaq3P48uEK1cLENKtrEg26EJMTbe4CnP4cbz885aLpNImItDLUO2pwI5ZA/XUAFKCU2CL+0gSGdu+Emae1dveXIYLfPr9vkq1UeeX71wx7RxsF7xpCBLL6xDPl/SmXlNMEvUdjMl4mXQRiB50EhE+ZVePYV1eY3LCc3g0puI=
+Message-ID: <43BD7C5D.4090506@gmail.com>
+Date: Thu, 05 Jan 2006 21:06:53 +0100
+From: Patrizio Bassi <patrizio.bassi@gmail.com>
+Reply-To: patrizio.bassi@gmail.com
+Organization: patrizio.bassi@gmail.com
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051210)
+X-Accept-Language: it, it-it, en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Jaroslav Kysela <perex@suse.cz>, "Kernel," <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+References: <4uzow-1g5-13@gated-at.bofh.it> <5r0aY-2If-41@gated-at.bofh.it>	 <5r3Ca-88G-81@gated-at.bofh.it> <5reGV-6YD-23@gated-at.bofh.it>	 <5reGV-6YD-21@gated-at.bofh.it> <5rf9X-7yf-25@gated-at.bofh.it>	 <43BBB7DC.2060303@gmail.com> <1136487557.31583.37.camel@mindpipe>
+In-Reply-To: <1136487557.31583.37.camel@mindpipe>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 21:03 +0100, Marcin Dalecki wrote:
-> On 2006-01-05, at 19:33, Lee Revell wrote:
-> 
-> > On Thu, 2006-01-05 at 13:44 +0100, Marcin Dalecki wrote:
-> >> Second - you still didn't explain why this allows you to conclude
-> >> that sound mixing should in no way be done inside the kernel.
-> >
-> > It works perfectly right now in userspace.
-> 
-> Yeah - for you maybe...
-> 
+Lee Revell ha scritto:
 
-Please rephrase your comment in the form of a useful bug report.
+>On Wed, 2006-01-04 at 12:56 +0100, Patrizio Bassi wrote:
+>  
+>
+>>that's a big problem. Needs a radical solution. Considering aoss works
+>>in 50% of cases i suggest aoss improvement and not OSS keeping in
+>>kernel.
+>>
+>>    
+>>
+>
+>Please rephrase your statement in the form of a USEFUL BUG REPORT.
+>
+>Lee
+>
+>
+>  
+>
+i opened an aoss/skype bug, that got closed without a complete fix..
+because other problems were found...but actually that's not a complete
+solution
 
-Lee
+https://bugtrack.alsa-project.org/alsa-bug/view.php?id=1224
 

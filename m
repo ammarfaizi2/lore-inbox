@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752066AbWAEGm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752068AbWAEGmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752066AbWAEGm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 01:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752068AbWAEGm1
+	id S1752068AbWAEGmz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 01:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752075AbWAEGmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 01:42:27 -0500
-Received: from styx.suse.cz ([82.119.242.94]:17557 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1752066AbWAEGm0 (ORCPT
+	Thu, 5 Jan 2006 01:42:54 -0500
+Received: from mail.gmx.de ([213.165.64.21]:36265 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1752070AbWAEGmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 01:42:26 -0500
-Date: Thu, 5 Jan 2006 07:42:27 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-ck1
-Message-ID: <20060105064227.GA6120@corona.suse.cz>
-References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <20060104195726.GB14782@redhat.com> <1136406837.2839.67.camel@laptopd505.fenrus.org> <p73y81vxyci.fsf@verdi.suse.de>
+	Thu, 5 Jan 2006 01:42:53 -0500
+X-Authenticated: #24128601
+Date: Thu, 5 Jan 2006 07:43:03 +0100
+From: Sebastian <sebastian_ml@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+Message-ID: <20060105064303.GA8927@section_eight.mops.rwth-aachen.de>
+References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <20060104092058.GN3472@suse.de> <20060104092443.GO3472@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
 Content-Disposition: inline
-In-Reply-To: <p73y81vxyci.fsf@verdi.suse.de>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060104092443.GO3472@suse.de>
+X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 02:22:37AM +0100, Andi Kleen wrote:
-> Arjan van de Ven <arjan@infradead.org> writes:
-> 
-> 
-> > sounds like we need some sort of profiler or benchmarker or at least a
-> > tool that helps finding out which timers are regularly firing, with the
-> > aim at either grouping them or trying to reduce their disturbance in
-> > some form.
-> 
-> I did one some time ago for my own noidletick patch. Can probably dig
-> it out again. It just profiled which timers interrupted idle.
-> 
-> Executive summary for my laptop: worst was the keyboard driver (it ran
-> some polling driver to work around some hardware bug, but fired very
-> often) , followed by the KDE desktop (should be mostly
-> fixed now, I complained) and the X server and some random kernel 
-> drivers.
-> 
-> I haven't checked recently if keyboard has been fixed by now.
 
-It's not. At this moment it's impossible to remove without significant
-surgery to the driver, because it'd prevent hotplugging and many KVMs
-from working.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I can rather easily make the timer frequency variable. Would be 1 second
-idle ticks OK? 
+Hello all!
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I'd be kind if you would cc me in case you reply as I'm not (yet)
+subscribed to this list.
+
+On Mi, Jan 04, 2006 at 10:24:44 +0100, Jens Axboe wrote:
+> unno what Windows does.
+
+EAC prefers ASPI, but it falls back to Windows' native SCSI emu layer if
+ASPI is not installed.
+
+Sebastian
+
+--=20
+"When the going gets weird, the weird turn pro." (HST)
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDvL/3TWouIrjrWo4RAjgXAJ0Ws5OUJ8xxEAu/oGlTG6snb6GmggCfdYM0
++Tj97KkWLnDO/P1Z961G9Fw=
+=HX4u
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--
+

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWAEUc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWAEUjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWAEUc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 15:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWAEUc5
+	id S932176AbWAEUjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 15:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWAEUjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 15:32:57 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:6086 "HELO
+	Thu, 5 Jan 2006 15:39:18 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48070 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932173AbWAEUcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 15:32:55 -0500
+	id S932176AbWAEUjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 15:39:17 -0500
 Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
 From: Lee Revell <rlrevell@joe-job.com>
 To: Marcin Dalecki <martin@dalecki.de>
@@ -22,7 +22,7 @@ Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
        jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
        zwane@commfireservices.com, zaitcev@yahoo.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de>
+In-Reply-To: <CE222A69-A124-46C9-8139-BB579F91B9FA@dalecki.de>
 References: <20050726150837.GT3160@stusta.de>
 	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
 	 <200601031629.21765.s0348365@sms.ed.ac.uk>
@@ -40,20 +40,35 @@ References: <20050726150837.GT3160@stusta.de>
 	 <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de>
 	 <1136491503.847.0.camel@mindpipe>
 	 <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de>
+	 <1136492896.847.21.camel@mindpipe>
+	 <CE222A69-A124-46C9-8139-BB579F91B9FA@dalecki.de>
 Content-Type: text/plain
-Date: Thu, 05 Jan 2006 15:32:51 -0500
-Message-Id: <1136493172.847.26.camel@mindpipe>
+Date: Thu, 05 Jan 2006 15:39:13 -0500
+Message-Id: <1136493553.847.33.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 21:18 +0100, Marcin Dalecki wrote:
-> Glaring problems on average commodity hardware
+On Thu, 2006-01-05 at 21:32 +0100, Marcin Dalecki wrote:
+> On 2006-01-05, at 21:28, Lee Revell wrote:
+> 
+> > We close dozens of bugs each week.  I personally closed more than 50
+> > last week (most had been fixed months ago).  90% of ALSA development
+> > happens through the bug tracker.
+> 
+> ...
+> 
+> > Check out the linux-audio-dev and linux-audio-user archives.  ALSA has
+> > been working perfectly for all of those users for years.
+> 
+> You are aware of how self contradicting this sounds?!
+> 
 
-A good first step would be to mention which driver, ALSA version and
-soundcard you are using.
+Not at all.  By "working perfectly" I obviously didn't mean that ALSA
+hasn't had a bug in years - I meant that when we DO get an actionable
+bug report we fix it.
 
 Lee
 

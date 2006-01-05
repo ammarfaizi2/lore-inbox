@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751914AbWAEDwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751919AbWAEES5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751914AbWAEDwr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 22:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751916AbWAEDwr
+	id S1751919AbWAEES5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 23:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWAEES5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 22:52:47 -0500
-Received: from smtp-7.smtp.ucla.edu ([169.232.46.137]:65174 "EHLO
-	smtp-7.smtp.ucla.edu") by vger.kernel.org with ESMTP
-	id S1751914AbWAEDwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 22:52:46 -0500
-Date: Wed, 4 Jan 2006 19:52:36 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-In-Reply-To: <20051231130151.GA15993@alpha.home.local>
-Message-ID: <Pine.LNX.4.64.0601041402340.28134@potato.cts.ucla.edu>
-References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu>
- <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu>
- <1136030901.28365.51.camel@localhost.localdomain> <20051231130151.GA15993@alpha.home.local>
+	Wed, 4 Jan 2006 23:18:57 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:196 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751921AbWAEES4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 23:18:56 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: Recursive dependency for SAA7134 in 2.6.15-rc7
+Date: Thu, 5 Jan 2006 05:15:03 +0100
+User-Agent: KMail/1.8.2
+Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Ricardo Cerqueira <v4l@cerqueira.org>, linux-kernel@vger.kernel.org,
+       video4linux-list@redhat.com
+References: <20051227215351.3d581b13.khali@linux-fr.org> <1135949941.25274.1.camel@localhost> <20051231193956.4271e2f0.khali@linux-fr.org>
+In-Reply-To: <20051231193956.4271e2f0.khali@linux-fr.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Probable-Spam: no
-X-Spam-Report: none
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601050515.07205.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Dec 2005, Willy Tarreau wrote:
-> On Sat, Dec 31, 2005 at 12:08:21PM +0000, Alan Cox wrote:
->> On Gwe, 2005-12-30 at 17:48 -0800, Chris Stromsoe wrote:
->>> scsi0:0:0:0: Attempting to queue an ABORT message CDB: 0x12 0x0 0x0 
->>> 0x0 0xff 0x0 scsi0:0:0:0: Command already completed aic7xxx_abort 
->>> returns 0x2002
->>
->> IRQ routing by the look of that trace. Make sure that if you are using 
->> 2.4.x you have ACPI disabled and see it looks any better
->
-> Correct, and I came to the same conclusion ; Chris told us he booted 
-> with the "nosmp" option. I've checked his config, and he has 
-> CONFIG_ACPI_BOOT=y. I've just tried the same here, and I confirm that my 
-> machine (dual athlon) does not boot with "nosmp" unless I also add 
-> "acpi=off". Mine even stops ealier, while scanning IDE devices.
+Hi,
 
-2.6.14.4 has been running stable for 4 days.  For the long term, I'll 
-probably migrate the box to 2.6 and leave it there.
+On Saturday 31 December 2005 19:39, Jean Delvare wrote:
 
-> So now we're back to the original problem, i.e. why does he get bad pmd
-> that often on 2.4. It leaves us with the following possible next steps
-> after the problem occurs again (if it still happens with 2.6.14 or if
-> Chris is OK for a few more tests) :
->  - 2.4.32 nosmp acpi=off       => the easiest one
->  - 2.4.32 + aic7xxx+20040522   => the more interesting one
+> So I believe that "choice" is an interesting Kconfig feature when used
+> with boolean options, but with modules I am not convinced, especially
+> when these modules have different dependencies.
 
-I booted 2.4.32 with the aic7xxx patch you pointed me at last week.  It's 
-been up for a few hours.  I'll let it run for at least a week or two and 
-will report back positive or negative results.  After that, I'll try 
-2.4.32 with nosmp and acpi=off.
+Well, I'm always open to suggestions (or even better patches) to improve 
+tristate choices. Such interdependent options have to be done via a choice 
+group, so they are handled correctly handled by kconfig, otherwise you have 
+to live with the current compromise. OTOH how they are mapped to the user 
+interface is easily changeable.
 
-
--Chris
+bye, Roman

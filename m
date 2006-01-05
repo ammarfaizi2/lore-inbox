@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWAEM3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWAEMjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWAEM3z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 07:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWAEM3z
+	id S1751297AbWAEMjz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 07:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWAEMjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 07:29:55 -0500
-Received: from hulk.jobsahead.com ([202.138.125.174]:54668 "EHLO
-	hulk.jobsahead.com") by vger.kernel.org with ESMTP id S1750761AbWAEM3z
+	Thu, 5 Jan 2006 07:39:55 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:17200 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751297AbWAEMjy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 07:29:55 -0500
-Subject: Re: High load
-From: Aniruddh Singh <aps@jobsahead.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <200601052100.45107.kernel@kolivas.org>
-References: <1136454597.6016.7.camel@aps.monsterindia.noida>
-	 <200601052100.45107.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 16:38:10 +0530
-Message-Id: <1136459290.6016.18.camel@aps.monsterindia.noida>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4.asl) 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 07:39:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MjscWpCZ/TKUyAEkQlsEnP0AWBzWdvmBvlr4F45a1bWBUnvgJBC3MTHiydyYTmm0QjnW3dozy9XRy/SqWOU818d13vdO1AVcMrit6kH5+aXmMon7DeC5t7tVl8nxd1/eHu7IMSnKH8p9J/evPzMyMKryFXsLRToF9TR2GHDANCM=
+Message-ID: <df33fe7c0601050439o7d2ae3b3k@mail.gmail.com>
+Date: Thu, 5 Jan 2006 13:39:43 +0100
+From: Takis <panagiotis.issaris@gmail.com>
+Reply-To: takis@issaris.org
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] drivers/media: Conversions from kmalloc+memset to kzalloc.
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+In-Reply-To: <84144f020601050423j19b73446l143162a9ef6067b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060105104332.3E5CC6ADE@localhost.localdomain>
+	 <84144f020601050423j19b73446l143162a9ef6067b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-hdparm -tT /dev/cciss/c0d0p2 returns the following
-
-/dev/cciss/c0d0p2:
- Timing buffer-cache reads:   2660 MB in  2.00 seconds = 1329.92 MB/sec
- Timing buffered disk reads:  248 MB in  3.00 seconds =  82.55 MB/sec
-
-if i try to hdparm -I /dev/cciss/c0d0 it returns 
-/dev/cciss/c0d0:
- operation not supported on SCSI disks
-
-Do i need to installed sdparm and modify some settings?
-
-
-On Thu, 2006-01-05 at 21:00 +1100, Con Kolivas wrote:
-> On Thursday 05 January 2006 20:49, Aniruddh Singh wrote:
-> > HI all,
+2006/1/5, Pekka Enberg <penberg@cs.helsinki.fi>:
+> On 1/5/06, Panagiotis Issaris <takis@issaris.org> wrote:
+> > 993e5ce2979baa3df3d8dd238d74ea3b607e4693
+> > diff --git a/drivers/media/common/saa7146_core.c b/drivers/media/common/saa7146_core.c
+> > index 2899d34..38982a7 100644
+> > --- a/drivers/media/common/saa7146_core.c
+> > +++ b/drivers/media/common/saa7146_core.c
+> > @@ -109,10 +109,9 @@ static struct scatterlist* vmalloc_to_sg
+> >         struct page *pg;
+> >         int i;
 > >
-> > I have one compaq server with 4 Intel(R) Xeon cpu's (3.1GHZ), 4GB RAM.
-> > OS:- Fedora Core 2
-> > Kernel:- 2.6.14
-> >
-> > when i compile a new kernel, during th compilation process load goes
-> > very high (10 and little above). i can not understand why does this
-> > happen, while if i compile the same kernel on my P4 machine with 1GB ram
-> > and 3GHZ, it remains under 3.
-> >
-> > can somebody tell me what is wrong?
-> > -
-> 
-> Sounds suspiciously like DMA is not working on your drives. Check your dmesg 
-> logs and what hdparm returns.
-> 
-> Con
--- 
-Regards
-Aniruddh Singh
-System Administrator
-Monster.com India Pvt. Ltd.
-FC 23, Block B, 1st Floor, Sector 16A
-Film City Noida 201301 U.P.
+> > -       sglist = kmalloc(sizeof(struct scatterlist)*nr_pages, GFP_KERNEL);
+> > +       sglist = kzalloc(sizeof(struct scatterlist)*nr_pages, GFP_KERNEL);
+>
+> Hmm, these should be converted to kcalloc().
+Oops... you're right. I'll send an updated patch later this evening.
 
-
+With friendly regards,
+Takis

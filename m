@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752128AbWAEKFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751941AbWAEKGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752128AbWAEKFl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 05:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751941AbWAEKFl
+	id S1751941AbWAEKGG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 05:06:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752127AbWAEKGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 05:05:41 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:52416 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1751901AbWAEKFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 05:05:39 -0500
-From: "Takashi Sato" <sho@tnes.nec.co.jp>
-To: <torvalds@osdl.org>, <viro@zeniv.linux.org.uk>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-       <trond.myklebust@fys.uio.no>
-Subject: [PATCH 3/3] Fix problems on multi-TB filesystem and file
-Date: Thu, 5 Jan 2006 19:05:31 +0900
-Message-ID: <000201c611df$92dca230$4168010a@bsd.tnes.nec.co.jp>
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Thu, 5 Jan 2006 05:06:06 -0500
+Received: from odin2.bull.net ([192.90.70.84]:12175 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S1751941AbWAEKGE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 05:06:04 -0500
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc5-rt4 and CONFIG_SLAB=y : structure has no member named `nodeid'
+Date: Thu, 5 Jan 2006 11:12:10 +0100
+User-Agent: KMail/1.7.1
+Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>
+References: <200512211045.58763.Serge.Noiraud@bull.net>
+In-Reply-To: <200512211045.58763.Serge.Noiraud@bull.net>
+MIME-Version: 1.0
+Message-Id: <200601051112.10762.Serge.Noiraud@bull.net>
+X-MIMETrack: Itemize by SMTP Server on ANN-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 05/01/2006 11:06:52,
+	Serialize by Router on ANN-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 05/01/2006 11:06:53,
+	Serialize complete at 05/01/2006 11:06:53
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fix was proposed by Trond Myklebust.  He says:
- The type "sector_t" is heavily tied in to the block layer interface
- as an offset/handle to a block, and is subject to a supposedly
- block-specific configuration option: CONFIG_LBD. Despite this, it is
- used in struct kstatfs to save a couple of bytes on the stack
- whenever we call the filesystems' ->statfs().
+mercredi 21 Décembre 2005 10:45, Serge Noiraud wrote/a écrit :
+> Hi,
+> 
+> 	testing on i386, I get the following error :
+> ...
+>   CC      mm/slab.o
+> mm/slab.c: In function `cache_alloc_refill':
+> mm/slab.c:2093: error: structure has no member named `nodeid'
+> mm/slab.c: In function `free_block':
+> mm/slab.c:2239: error: structure has no member named `nodeid'
+> mm/slab.c:2239: error: `node' undeclared (first use in this function)
+> mm/slab.c:2239: error: (Each undeclared identifier is reported only once
+> mm/slab.c:2239: error: for each function it appears in.)
+> make[4]: *** [mm/slab.o] Erreur 1
+> ...
+> 
+> You removed nodeid in the slab struct, but many functions use it.
+> 
+I get the same problem with 2.6.15-rt1
+The following patch suppress the error : I'm not sure it's the good correction.
+perhaps we should supress this DEBUG test ?
 
-So kstatfs's entries related to blocks are invalid on statfs64 for a
-network filesystem which has more than 2^32-1 blocks when CONFIG_LBD
-is disabled.
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -2090,7 +2090,6 @@
+            next = slab_bufctl(slabp)[slabp->free];
+ #if DEBUG
+            slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
+-           WARN_ON(numa_node_id() != slabp->nodeid);
+ #endif
+                slabp->free = next;
+        }
+        check_slabp(cachep, slabp);
 
-The content of the patch attached to this mail is below.
-- struct kstatfs
-  Change the type of following entries from sector_t to u64.
-  f_blocks
-  f_bfree
-  f_bavail
-  f_files
-  f_ffree
-
-Any feedback and comments are welcome.
-
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
-Signed-off-by: Takashi Sato <sho@tnes.nec.co.jp>
-
-diff -uprN -X linux-2.6.15-lsf/Documentation/dontdiff linux-2.6.15-lsf/include/linux/statfs.h
-linux-2.6.15-kstatfs/include/linux/statfs.h
---- linux-2.6.15-lsf/include/linux/statfs.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.15-kstatfs/include/linux/statfs.h	2006-01-04 15:24:38.000000000 +0900
-@@ -8,11 +8,11 @@
- struct kstatfs {
- 	long f_type;
- 	long f_bsize;
--	sector_t f_blocks;
--	sector_t f_bfree;
--	sector_t f_bavail;
--	sector_t f_files;
--	sector_t f_ffree;
-+	u64 f_blocks;
-+	u64 f_bfree;
-+	u64 f_bavail;
-+	u64 f_files;
-+	u64 f_ffree;
- 	__kernel_fsid_t f_fsid;
- 	long f_namelen;
- 	long f_frsize;
-
--- Takashi Sato
 
 

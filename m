@@ -1,77 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWAEVR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWAEVT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWAEVR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWAEVR0
+	id S932136AbWAEVT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWAEVT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:17:26 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:33036 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932211AbWAEVRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:17:25 -0500
-Date: Thu, 5 Jan 2006 22:17:15 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       lnx4us@gmail.com
-Subject: Re: bug reports ignored?
-Message-ID: <20060105211715.GC7142@w.ods.org>
-References: <38150.145.117.21.143.1136477335.squirrel@145.117.21.143> <9a8748490601050852t1e10ea6evd8769f2f4719186c@mail.gmail.com> <20060105185319.GB10923@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105185319.GB10923@vanheusden.com>
-User-Agent: Mutt/1.5.10i
+	Thu, 5 Jan 2006 16:19:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56504 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932136AbWAEVT0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 16:19:26 -0500
+Date: Thu, 5 Jan 2006 13:18:57 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <20060105201249.GB1795@tau.solarneutrino.net>
+Message-ID: <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
+References: <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
+ <1134409531.9994.13.camel@mulgrave> <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
+ <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net>
+ <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
+ <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
+ <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
+ <20060105201249.GB1795@tau.solarneutrino.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 07:53:20PM +0100, Folkert van Heusden wrote:
-> > > Last couple of weeks I sent 2 bug-reports. They seem to be ignored. I was
-> > > wondering: what is missing in them? Am I sending them to the incorrect
-> > > address? One I also put into bugzilla (no reactions either).
-> > Perhaps you could let us know the subjects & dates of those two
-> > previous mails so they are easier to locate in the archives?
-> 
-> 20051219190137.GA13923@vanheusden.com
-> Mon, 19 Dec 2005 20:01:47 +0100
-> [2.6.13.3] occasional oops mostly in iget_locked
-> 
-> It seems that those oopses in iget_locked are gone since I ran 2.6.14.4
-> and currently run 2.6.15.
-> 
-> 
-> Other message:
-> 20060103210252.GA2043@vanheusden.com
-> Tue, 3 Jan 2006 22:03:36 +0100
-> [2.6.15] reproducable hang
-> 
-> this one still happens. System loses total network connectivity. When I
-> dial the system (by phone), asterisk (the software pabx) picks up the
-> phone and plays a sample, then it becomes mute. After that, the system
-> doesn't respond to anything at all. Even sysreq+t is ignored.
-> The last message on the console is:
-> eth1: transmit error tx status register 82
 
-Then you're in the situation where you have to narrow the bug down to
-something more reproduceable for other people. Possibly very few people
-on the list have 2.6.15 + asterisk + a sample to play + etc...
 
-Try to strace asterisk when this happens for instance, try to remove
-a lot of loaded modules and configured options from your system, then
-you will finally reach a case where you can simply reproduce it with
-a 10-line C prog without a complex setup. With those info, it will be
-too complex and boring to try to reproduce your problem on any
-developer's system.
-
-> >  - Sometimes bugs are reported with a *demand* that it be fixed *right
-> > now* or with other abusive language towards developers in the email.
-> > Such reports are usually ignored or, if responded to, don't get very
-> > positive replies.
+On Thu, 5 Jan 2006, Ryan Richter wrote:
 > 
-> Haha no I did not do that :-)
-> 
-> 
-> Folkert van Heusden
+> Another one.  I can't keep running this kernel - nearly all of our
+> backup tapes are erased now.  If a drive were to fail today, we would
+> lose hundreds of GB of irreplacible data.  I'm going back to 2.6.11.3
+> until we have a full set of backups again.
 
-Willy
+Yeah, don't trash your backups.
 
+If/when you try something again, how about these two trivial one-liners?
+
+I'm not 100% sure the mapcount sanity check is strictly speaking right (no 
+locking between mapcount/pagecount comparison), but the page count really 
+should never fall below the mapcount, so aside from races that I don't 
+think can be triggered in practice, this might be very useful to find 
+where those pesky page counts suddenly disappear..
+
+Right now we get the oops "too late" - something has decremented the page
+count way too far, but we don't know what it was, and the actual function 
+that triggers it _seems_ to be harmless.
+
+The other part of the patch is to clear "page" when it's being free'd, in 
+case somebody tries to free the same thing twice. I don't see how that 
+could happen either, but...
+
+The patch is untested in every way. No guarantees.
+
+		Linus
+
+---
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index c4aade8..18e60e1 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -4481,6 +4481,7 @@ static int sgl_unmap_user_pages(struct s
+ 	for (i=0; i < nr_pages; i++) {
+ 		struct page *page = sgl[i].page;
+ 
++		sgl[i].page = NULL;
+ 		if (dirtied)
+ 			SetPageDirty(page);
+ 		/* FIXME: cache flush missing for rw==READ
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index a06a84d..daf504d 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -299,6 +299,7 @@ struct page {
+ #define put_page_testzero(p)				\
+ 	({						\
+ 		BUG_ON(page_count(p) == 0);		\
++		BUG_ON(page_count(p) <= page_mapcount(p));	\
+ 		atomic_add_negative(-1, &(p)->_count);	\
+ 	})
+ 

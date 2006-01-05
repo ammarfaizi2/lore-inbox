@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752067AbWAEGln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752066AbWAEGm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752067AbWAEGln (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 01:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752066AbWAEGln
+	id S1752066AbWAEGm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 01:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752068AbWAEGm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 01:41:43 -0500
-Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:52170 "EHLO
-	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1752067AbWAEGln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 01:41:43 -0500
-Date: Thu, 5 Jan 2006 01:38:32 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 2.6.15] i386: Optimize local APIC timer interrupt
-  code
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200601050141_MC3-1-B553-82B6@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 5 Jan 2006 01:42:27 -0500
+Received: from styx.suse.cz ([82.119.242.94]:17557 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1752066AbWAEGm0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 01:42:26 -0500
+Date: Thu, 5 Jan 2006 07:42:27 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-ck1
+Message-ID: <20060105064227.GA6120@corona.suse.cz>
+References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <20060104195726.GB14782@redhat.com> <1136406837.2839.67.camel@laptopd505.fenrus.org> <p73y81vxyci.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <p73y81vxyci.fsf@verdi.suse.de>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060105060314.GB7142@w.ods.org>
+On Thu, Jan 05, 2006 at 02:22:37AM +0100, Andi Kleen wrote:
+> Arjan van de Ven <arjan@infradead.org> writes:
+> 
+> 
+> > sounds like we need some sort of profiler or benchmarker or at least a
+> > tool that helps finding out which timers are regularly firing, with the
+> > aim at either grouping them or trying to reduce their disturbance in
+> > some form.
+> 
+> I did one some time ago for my own noidletick patch. Can probably dig
+> it out again. It just profiled which timers interrupted idle.
+> 
+> Executive summary for my laptop: worst was the keyboard driver (it ran
+> some polling driver to work around some hardware bug, but fired very
+> often) , followed by the KDE desktop (should be mostly
+> fixed now, I complained) and the X server and some random kernel 
+> drivers.
+> 
+> I haven't checked recently if keyboard has been fixed by now.
 
-On Thu, 5 Jan 2006 at 07:03:14 +0100, Willy Tarreau wrote:
+It's not. At this moment it's impossible to remove without significant
+surgery to the driver, because it'd prevent hotplugging and many KVMs
+from working.
 
-> +     if (likely(--per_cpu(prof_counter, cpu)) <= 0) {
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-are you sure about this ? it looks suspicious to me. I would have
-expected something like  this instead :
-
-+       if (likely(--per_cpu(prof_counter, cpu) <= 0)) {
-
-
-  Nice catch, proving yet again the value of posting code for review!
-
+I can rather easily make the timer frequency variable. Would be 1 second
+idle ticks OK? 
 
 -- 
-Chuck
-Currently reading: _Thud!_ by Terry Pratchett
+Vojtech Pavlik
+SuSE Labs, SuSE CR

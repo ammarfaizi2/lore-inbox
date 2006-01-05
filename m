@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751879AbWAESk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWAESko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751879AbWAESk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWAESk0
+	id S932069AbWAESko (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWAESko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:40:26 -0500
-Received: from webbox269.server-home.net ([195.137.213.113]:38821 "EHLO
-	blackwhale.net") by vger.kernel.org with ESMTP id S1751879AbWAESk0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:40:26 -0500
-From: Andreas Happe <andreashappe@snikt.net>
-To: jketreno@linux.intel.com
-Subject: Re: [ipw2200] add monitor and qos entries to Kconfig
-Date: Thu, 5 Jan 2006 19:40:07 +0100
-User-Agent: KMail/1.9.1
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-References: <200601051856.13828.andreashappe@snikt.net>
-In-Reply-To: <200601051856.13828.andreashappe@snikt.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 13:40:44 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:46253 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S932069AbWAESkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:40:43 -0500
+Date: Thu, 5 Jan 2006 19:40:42 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Jiri Slaby <lnx4us@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.15] reproducable hang
+Message-ID: <20060105184031.GA10923@vanheusden.com>
+References: <20060103210252.GA2043@vanheusden.com>
+	<3888a5cd0601050846i129fd0a5j71d24150b1e0bcd1@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601051940.08116.andreashappe@snikt.net>
+In-Reply-To: <3888a5cd0601050846i129fd0a5j71d24150b1e0bcd1@mail.gmail.com>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Fri Jan  6 19:20:40 CET 2006
+X-Message-Flag: www.vanheusden.com
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have made a stupid copy&paste error: QoS option is named IPW_QOS not 
-IPW2200_MONITOR. Spotted by Daniel Paschka, thanks.
+> > Since 2.6.14 (I also tried 2.6.14.4 and 2.6.15), my pc crashes (hangs)
+> > when I set eth1 into promisques mode.
+> > The crash (no oops or panic!) does NOT crash when I run tcpdump (or any other
+> > traffic monitor) on eth0 or eth2.
+> > The eth1 card is a 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24).
+> > Receiving/sending data through that card works fine.
+> sysrq is defunct? try sysrq-t to trace back the running stack.
 
-Add the following config entries for the ipw2200 driver to 
-drivers/net/wireless/Kconfig
- * IPW2200_MONITOR
-   enables Monitor mode
- * IPW_QOS
-   enables QoS feature - this is under development right now, so it depends 
-upon EXPERIMENTAL
+No luck there I'm afraid.
+BUT: the last message on the console is: 'eth1: transmit error Tx status
+register 82'. This message is not in any logfiles so it must have
+happened pretty much arround the crash.
 
-Signed-off-by: Andreas Happe <andreashappe@snikt.net>
---- drivers/net/wireless/Kconfig.orig	2006-01-05 18:30:10.000000000 +0100
-+++ drivers/net/wireless/Kconfig	2006-01-05 18:30:13.000000000 +0100
-@@ -217,6 +217,19 @@ config IPW2200
-           say M here and read <file:Documentation/modules.txt>.  The module
-           will be called ipw2200.ko.
- 
-+config IPW2200_MONITOR
-+        bool "Enable promiscuous mode"
-+        depends on IPW2200
-+        ---help---
-+	  Enables promiscuous/monitor mode support for the ipw2200 driver.
-+	  With this feature compiled into the driver, you can switch to 
-+	  promiscuous mode via the Wireless Tool's Monitor mode.  While in this
-+	  mode, no packets can be sent.
-+
-+config IPW_QOS
-+        bool "Enable QoS support"
-+        depends on IPW2200 && EXPERIMENTAL
-+
- config IPW_DEBUG
- 	bool "Enable full debugging output in IPW2200 module."
- 	depends on IPW2200
+
+Folkert van Heusden
+
+-- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

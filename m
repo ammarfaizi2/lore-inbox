@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWAEUwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWAEUy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWAEUwn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 15:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWAEUwn
+	id S932193AbWAEUy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 15:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWAEUy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 15:52:43 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:2314 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S932189AbWAEUwm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 15:52:42 -0500
-From: James Cloos <cloos@jhcloos.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rt1
-In-Reply-To: <20060103094720.GA16497@elte.hu> (Ingo Molnar's message of "Tue,
-	3 Jan 2006 10:47:20 +0100")
-References: <20060103094720.GA16497@elte.hu>
-Copyright: Copyright 2005 James Cloos
-X-Hashcash: 1:23:060105:mingo@elte.hu::VjgkP9keVLsclEzs:0000O5hE
-X-Hashcash: 1:23:060105:linux-kernel@vger.kernel.org::QNZ2L+ZzisLaSJBf:0000000000000000000000000000000003qiJ
-Date: Thu, 05 Jan 2006 15:52:29 -0500
-Message-ID: <m3r77mv1ma.fsf@lugabout.cloos.reno.nv.us>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/23.0.0 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jan 2006 15:54:56 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:49596 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S932189AbWAEUyz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 15:54:55 -0500
+In-Reply-To: <1136493172.847.26.camel@mindpipe>
+References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com> <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr> <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <1136491503.847.0.camel@mindpipe> <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de> <1136493172.847.26.camel@mindpipe>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8D670C39-7B52-407C-8BDD-3478DB172641@dalecki.de>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       Tomasz Torcz <zdzichu@irc.pl>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Thu, 5 Jan 2006 21:54:35 +0100
+To: Lee Revell <rlrevell@joe-job.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this compiling 15-rt1:
 
-,----
-|   CC      net/ipv6/mcast.o
-| net/ipv6/mcast.c: In function `ipv6_sock_mc_join':
-| net/ipv6/mcast.c:227: error: `RW_LOCK_UNLOCKED' undeclared (first use in this function)
-| net/ipv6/mcast.c:227: error: (Each undeclared identifier is reported only once
-| net/ipv6/mcast.c:227: error: for each function it appears in.)
-| make[2]: *** [net/ipv6/mcast.o] Error 1
-`----
+On 2006-01-05, at 21:32, Lee Revell wrote:
 
-I take it something on the order of this is needed?:
+> On Thu, 2006-01-05 at 21:18 +0100, Marcin Dalecki wrote:
+>> Glaring problems on average commodity hardware
+>
+> A good first step would be to mention which driver, ALSA version and
+> soundcard you are using.
 
--	mc_lst->sflock = RW_LOCK_UNLOCKED;
-+	mc_lst->sflock = RW_LOCK_UNLOCKED(foo.bar);
+I will do you this favor: NONE. Using something implies that it is  
+working.
 
-for some foo.bar, yes?
-
-Or is it?:
-
--	mc_lst->sflock = RW_LOCK_UNLOCKED;
-+	rwlock_init(mc_lst->sflock);
-
-I'm trying the latter now, but won't be able to reboot for
-a runtime test for a while....
-
--JimC
--- 
-James H. Cloos, Jr. <cloos@jhcloos.com>

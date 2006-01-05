@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWAEBkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWAEBsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWAEBkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:40:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWAEBkP
+	id S1751154AbWAEBsz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWAEBsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:40:15 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:39051 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751136AbWAEBkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:40:14 -0500
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: gcoady@gmail.com
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] pci_ids.h: remove duplicate IDs
-Date: Thu, 05 Jan 2006 12:40:12 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <p5uor1lhum4ilra154o27e4vglvccd0v0a@4ax.com>
-References: <1isor19fmroc4ue21gnqkp6k1ln1pp06r1@4ax.com>
-In-Reply-To: <1isor19fmroc4ue21gnqkp6k1ln1pp06r1@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Wed, 4 Jan 2006 20:48:54 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:44770 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S1751154AbWAEBsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 20:48:54 -0500
+Date: Wed, 4 Jan 2006 17:48:35 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] protect remove_proc_entry
+Message-ID: <20060105014835.GB84622@gaz.sfgoth.com>
+References: <1135973075.6039.63.camel@localhost.localdomain> <1135978110.6039.81.camel@localhost.localdomain> <20051230215544.GI27284@gaz.sfgoth.com> <1135980542.6039.84.camel@localhost.localdomain> <1135981124.6039.90.camel@localhost.localdomain> <20060104012105.64e0e5cf.akpm@osdl.org> <Pine.LNX.4.58.0601040716190.3052@gandalf.stny.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0601040716190.3052@gandalf.stny.rr.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Wed, 04 Jan 2006 17:48:36 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Jan 2006 12:14:16 +1100, Grant Coady <grant_lkml@dodo.com.au> wrote:
+Steven Rostedt wrote:
+> > I guess the lock_kernel() approach is the way to go.  Fixing a race and
+> > de-BKLing procfs are separate exercises...
+> >
+> > Did the patch work?
+> 
+> Sorry, I forgot to respond, because the test is still running ;)
+> 
+> So yes, it not only ran for three days, it ran for six. I just killed it.
 
->
->From: Grant Coady <gcoady@gmail.com>
->
->pci_ids.h: removes eight duplicate IDs that crept in during the 
-> 2.6.15 development cycle, commented a duplicate where one ID was 
-> defined in terms of another.  Compile tested with allyesconfig.
->
->Signed-off-by: Grant Coady <gcoady@gmail.com>
+Have you looked at the other paths that touch ->subdir?  Namely:
+  proc_devtree.c:
+    proc_device_tree_add_node() -- plays games with ->subdir directly
+  generic.c:
+    proc_create() -- calls xlate_proc_name() which touches ->subdir and
+      should therefore probably be called under BKL
+    proc_register() -- both the call to xlate_proc_name() and the
+      following accesses to ->subdir should be under BKL
 
-Sorry gang, please scratch.  I'll wait for -mm1
-
-Cheers,
-Grant.
-
+-Mitch

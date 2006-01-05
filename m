@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWAEVRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWAEVR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWAEVRu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWAEVRu
+	id S932211AbWAEVR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWAEVR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:17:50 -0500
-Received: from nproxy.gmail.com ([64.233.182.193]:51718 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932217AbWAEVRt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:17:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ELbOcw5oQZYnTQa8WOmdnrhUGuGJiiUV3c0e3FlU2qdoiSyX4M00IBqGv6PV8txVZlQgS67kTnysDM0idr8PchyM18fsTqXrDpaUZ7fRzZ1C/gKk8C8AGkLF3WRNuAOF+8tDQFSQjMjaAicXF2cybJFwB5tQTjKRqBclQeeAVug=
-Message-ID: <728201270601051317s2fd8f9aeh7d5772dc4dbe54af@mail.gmail.com>
-Date: Thu, 5 Jan 2006 15:17:38 -0600
-From: Ram Gupta <ram.gupta5@gmail.com>
-To: jeff shia <tshxiayu@gmail.com>
-Subject: Re: what is the state of current after an mm_fault occurs?
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <7cd5d4b40601041920u596551d2h75e167311e9452e4@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 5 Jan 2006 16:17:26 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:33036 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932211AbWAEVRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 16:17:25 -0500
+Date: Thu, 5 Jan 2006 22:17:15 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       lnx4us@gmail.com
+Subject: Re: bug reports ignored?
+Message-ID: <20060105211715.GC7142@w.ods.org>
+References: <38150.145.117.21.143.1136477335.squirrel@145.117.21.143> <9a8748490601050852t1e10ea6evd8769f2f4719186c@mail.gmail.com> <20060105185319.GB10923@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7cd5d4b40601040240n79b2d654t33424e91059988a9@mail.gmail.com>
-	 <20060104174808.7b882af8.akpm@osdl.org>
-	 <7cd5d4b40601041920u596551d2h75e167311e9452e4@mail.gmail.com>
+In-Reply-To: <20060105185319.GB10923@vanheusden.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/06, jeff shia <tshxiayu@gmail.com> wrote:
-> en,
->  You mean in some pagefault place we do schedule()?
->   Where?
->   Thank you !
+On Thu, Jan 05, 2006 at 07:53:20PM +0100, Folkert van Heusden wrote:
+> > > Last couple of weeks I sent 2 bug-reports. They seem to be ignored. I was
+> > > wondering: what is missing in them? Am I sending them to the incorrect
+> > > address? One I also put into bugzilla (no reactions either).
+> > Perhaps you could let us know the subjects & dates of those two
+> > previous mails so they are easier to locate in the archives?
+> 
+> 20051219190137.GA13923@vanheusden.com
+> Mon, 19 Dec 2005 20:01:47 +0100
+> [2.6.13.3] occasional oops mostly in iget_locked
+> 
+> It seems that those oopses in iget_locked are gone since I ran 2.6.14.4
+> and currently run 2.6.15.
+> 
+> 
+> Other message:
+> 20060103210252.GA2043@vanheusden.com
+> Tue, 3 Jan 2006 22:03:36 +0100
+> [2.6.15] reproducable hang
+> 
+> this one still happens. System loses total network connectivity. When I
+> dial the system (by phone), asterisk (the software pabx) picks up the
+> phone and plays a sample, then it becomes mute. After that, the system
+> doesn't respond to anything at all. Even sysreq+t is ignored.
+> The last message on the console is:
+> eth1: transmit error tx status register 82
 
-It used to be in earlier kernel at least in 2.5.45 version  .It is
-called from pte_alloc_one when it fails to allocate page & waits by
-calling schedule_timeout.
+Then you're in the situation where you have to narrow the bug down to
+something more reproduceable for other people. Possibly very few people
+on the list have 2.6.15 + asterisk + a sample to play + etc...
 
+Try to strace asterisk when this happens for instance, try to remove
+a lot of loaded modules and configured options from your system, then
+you will finally reach a case where you can simply reproduce it with
+a 10-line C prog without a complex setup. With those info, it will be
+too complex and boring to try to reproduce your problem on any
+developer's system.
 
-Ram
+> >  - Sometimes bugs are reported with a *demand* that it be fixed *right
+> > now* or with other abusive language towards developers in the email.
+> > Such reports are usually ignored or, if responded to, don't get very
+> > positive replies.
+> 
+> Haha no I did not do that :-)
+> 
+> 
+> Folkert van Heusden
+
+Willy
+

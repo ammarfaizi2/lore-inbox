@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWAEB3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWAEBiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWAEB3r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWAEB3r
+	id S1750873AbWAEBiL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWAEBiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:29:47 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:3233 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751107AbWAEB3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:29:46 -0500
-Date: Wed, 4 Jan 2006 21:21:29 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 4/9] UML - Better diagnostics for broken configs
-Message-ID: <20060105022129.GA13183@ccure.user-mode-linux.org>
-References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org> <20060104152433.7304ec75.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060104152433.7304ec75.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 4 Jan 2006 20:38:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27776 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750873AbWAEBiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 20:38:09 -0500
+Date: Wed, 4 Jan 2006 17:38:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Driver Core patches for 2.6.15
+In-Reply-To: <20060105004826.GA17328@kroah.com>
+Message-ID: <Pine.LNX.4.64.0601041724560.3279@g5.osdl.org>
+References: <20060105004826.GA17328@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 03:24:33PM -0800, Andrew Morton wrote:
-> Jeff Dike <jdike@addtoit.com> wrote:
-> >
-> > Produce a compile-time error if both MODE_SKAS and MODE_TT are disabled.
-> Is there no sane way to prevent this situation within Kconfig?
 
-I tried.  The best I managed was to get *config to moan about circular
-dependencies.
 
-				Jeff
+On Wed, 4 Jan 2006, Greg KH wrote:
+>
+> Here are a lot of driver core patches for 2.6.15.  They have all been in
+> the past few -mm releases with no problems.
+
+Strange, because it doesn't merge with your other own changes. It might be 
+an ordering thing (ie they might have merged fine in another order). Or 
+maybe it's just because the -mm scripts will force-apply patches (or drop 
+them).
+
+Anyway, there were clashes in drivers/usb/core/usb.c with the patch "USB: 
+fix usb_find_interface for ppc64" that came through your USB changes, and 
+that gets a merge error with the uevent/hotplug thing.
+
+I can do the trivial manual fixup, but when I do, I have two copies of 
+"usb_match_id()": one in drivers/usb/core/driver.c and one in 
+drivers/usb/core/usb.c.
+
+I've pushed out my tree, so that you can see for yourself (it seems to 
+have mirrored out too).
+
+		Linus

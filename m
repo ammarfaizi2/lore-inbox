@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWAEXS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWAEXSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWAEXS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWAEXS4
+	id S1750712AbWAEXSp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWAEXSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:18:56 -0500
-Received: from waste.org ([64.81.244.121]:54737 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750774AbWAEXS4 (ORCPT
+	Thu, 5 Jan 2006 18:18:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4318 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750712AbWAEXSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:18:56 -0500
-Date: Thu, 5 Jan 2006 17:11:50 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-Message-ID: <20060105231150.GR3356@waste.org>
-References: <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <20060105213442.GM3356@waste.org> <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org> <20060105223656.GP3356@waste.org> <20060105225513.GA1570@elte.hu>
+	Thu, 5 Jan 2006 18:18:44 -0500
+Date: Thu, 5 Jan 2006 15:18:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: tshxiayu@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: what is the state of current after an mm_fault occurs?
+Message-Id: <20060105151811.23f82ad8.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0601051228320.7328@schroedinger.engr.sgi.com>
+References: <7cd5d4b40601040240n79b2d654t33424e91059988a9@mail.gmail.com>
+	<20060104174808.7b882af8.akpm@osdl.org>
+	<7cd5d4b40601041920u596551d2h75e167311e9452e4@mail.gmail.com>
+	<20060104192334.1e88cfda.akpm@osdl.org>
+	<Pine.LNX.4.62.0601051228320.7328@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105225513.GA1570@elte.hu>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 11:55:13PM +0100, Ingo Molnar wrote:
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> On Wed, 4 Jan 2006, Andrew Morton wrote:
 > 
-> * Matt Mackall <mpm@selenic.com> wrote:
-> 
-> > > I don't believe it is actually all _that_ volatile. Yes, it would be a 
-> > > huge issue _initially_, but the incremental effects shouldn't be that big, 
-> > > or there is something wrong with the approach.
+> > >  You mean in some pagefault place we do schedule()?
 > > 
-> > No, perhaps not. But it would be nice in theory for people to be able 
-> > to do things like profile their production system and relink. And 
-> > having to touch hundreds of files to do it would be painful.
+> > We used to - that should no longer be the case.  The TASK_RUNNING thing is
+> > probably redundant now.
 > 
-> we can (almost) do that: via -ffunction-sections. It does seem to work 
-> on both the gcc and the ld side. [i tried to use this for --gc-sections 
-> to save more space, but that ld option seems unstable, i couldnt link a 
-> bootable image. -ffunction-sections itself seems to work fine in gcc4.]
+> The page fault handler calls the page allocator in various places 
+> which may sleep. 
 
-Yeah, we've been talking about --gc-sections for years. It'd be nice
-if we could work the build system in that direction with this
-profiling concept.
+That's OK - they should all do set_current_state() before sleeping.  It's
+the bare schedule() without previously setting TASK_foo which is the
+problem.  We used to do that sort of thing in 2.4 as a lame yield point but
+we really shouldn't be doing that at all anywhere any more.
 
-(I suspect something silly happened in your test like dropping the
-fixup table, btw.)
+> current may not point to the current process if the page fault handler was 
+> called from get_user_pages.
 
-> i think all that is needed to reorder the functions is a build-time 
-> generated ld script, which is generated off the 'popularity list'.
-> 
-> so i think the two concepts could nicely co-exist: in-source annotations 
-> help us maintain the popularity list, -ffunction-sections allows us to 
-> reorder at link time. In fact such a kernel could be shipped in 
-> 'unlinked' state, and could be relinked based on per-system profiling 
-> data. As long as we have KALLSYMS, it's not even a big debuggability 
-> issue.
-
-I'm still not sure about in-source annotations for popularity. My
-suspicion is that it's just too workload-dependent, and a given
-author's workload will likely be biased towards their code.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+current always points at the current process.  In the situation
+ptrace->access_process_vm->get_user_pages->pagefault we'll have mm !=
+current->mm.

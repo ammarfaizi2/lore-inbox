@@ -1,53 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWADX45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWAEABv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWADX45 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 18:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWADX45
+	id S1750792AbWAEABv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWAEABv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 18:56:57 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6083 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750783AbWADX44
+	Wed, 4 Jan 2006 19:01:51 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:48864 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750792AbWAEABu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 18:56:56 -0500
-Date: Thu, 5 Jan 2006 00:52:47 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Zhu Yi <yi.zhu@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, jketreno@linux.intel.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] ipw2200: Fix NETDEV_TX_BUSY erroneous returned
-Message-ID: <20060104235247.GA8137@electric-eye.fr.zoreil.com>
-References: <20060104040954.GA19618@mail.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060104040954.GA19618@mail.intel.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Wed, 4 Jan 2006 19:01:50 -0500
+Message-ID: <43BC61EA.7030406@watson.ibm.com>
+Date: Wed, 04 Jan 2006 19:01:46 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Jay Lan <jlan@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       LSE <lse-tech@lists.sourceforge.net>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
+       John Hesterberg <jh@sgi.com>
+Subject: Re: [ckrm-tech] Re: [Patch 6/6] Delay accounting: Connector	interface
+References: <43BB05D8.6070101@watson.ibm.com>	 <43BB09D4.2060209@watson.ibm.com>  <43BC1C43.9020101@engr.sgi.com> <1136414431.22868.115.camel@stark>
+In-Reply-To: <1136414431.22868.115.camel@stark>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhu Yi <yi.zhu@intel.com> :
-> 
-> This patch fixes the warning below warning for the ipw2200 driver.
-> 
->   NETDEV_TX_BUSY returned; driver should report queue full via
->   ieee_device->is_queue_full.
+Matt Helsley wrote:
 
-Beyond what was said by Stephen Hemminger, the driver reports a
-NETDEV_TX_BUSY when !STATUS_ASSOCIATED: neither this patch nor mine
-fix it. 
+>On Wed, 2006-01-04 at 11:04 -0800, Jay Lan wrote:
+>  
+>
+>>Shailabh Nagar wrote:
+>>    
+>>
+><snip>
+>  
+>
+>>>Index: linux-2.6.15-rc7/kernel/exit.c
+>>>===================================================================
+>>>--- linux-2.6.15-rc7.orig/kernel/exit.c
+>>>+++ linux-2.6.15-rc7/kernel/exit.c
+>>>@@ -29,6 +29,7 @@
+>>>#include <linux/syscalls.h>
+>>>#include <linux/signal.h>
+>>>#include <linux/cn_proc.h>
+>>>+#include <linux/cn_stats.h>
+>>>
+>>>#include <asm/uaccess.h>
+>>>#include <asm/unistd.h>
+>>>@@ -865,6 +866,7 @@ fastcall NORET_TYPE void do_exit(long co
+>>>
+>>>	tsk->exit_code = code;
+>>>	proc_exit_connector(tsk);
+>>>+	cnstats_exit_connector(tsk);
+>>> 
+>>>      
+>>>
+>>We need to move both proc_exit_connector(tsk) and
+>>cnstats_exit_connector(tsk) up to before exit_mm(tsk) statement.
+>>There are task statistics collected in task->mm and those stats
+>>will be lost after exit_mm(tsk).
+>>
+>>Thanks,
+>> - jay
+>>
+>>    
+>>
+>>>	exit_notify(tsk);
+>>>#ifdef CONFIG_NUMA
+>>>	mpol_free(tsk->mempolicy);
+>>>-
+>>>      
+>>>
+>
+>	Good point. The assignment of the task exit code will also have to move
+>up before exit_mm(tsk) because the process event connector exit function
+>retrieves the exit code from the task struct.
+>  
+>
+Why does proc_exit_connector need to move ? It only uses 
+task->{pid,tgid,exit_code,exit_signal}, none of which
+should be affected by exit_mm(), right ?
 
-Btw the patch that I posted earlier forgets to protect against 
-every undue wake-up through:
+-- Shailabh
 
-ipw_rx
--> ipw_rx_notification
-   -> priv->link_up (work_queue)
-      -> ipw_bg_link_up
-         -> ipw_link_up
+>	Moving these may also affect the job/pagg/task_notify/cpuset exit
+>notification if we're eventually going to remove *direct* calls to these
+>from kernel/exit.c.
+>
+>Cheers,
+>	-Matt Helsley
+>
+>
+>  
+>
 
-It will need some extra care to correctly play the
-netif_{stop/wake}_queue dance.
 
---
-Ueimor

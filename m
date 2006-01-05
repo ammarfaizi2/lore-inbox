@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751957AbWAEFq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751959AbWAEFyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751957AbWAEFq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 00:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751959AbWAEFq4
+	id S1751959AbWAEFyw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 00:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751960AbWAEFyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 00:46:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:42680 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751957AbWAEFq4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 00:46:56 -0500
-Date: Wed, 4 Jan 2006 21:46:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: bcollins@ubuntu.com, linux-kernel@vger.kernel.org, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [PATCH 07/15] acpi: Add list of IBM R40 laptops to
- processor_power dmi table.
-Message-Id: <20060104214630.68b0c984.akpm@osdl.org>
-In-Reply-To: <20060105053400.GB20809@redhat.com>
-References: <0ISL00NX49551L@a34-mta01.direcway.com>
-	<20060105034738.GF2658@redhat.com>
-	<20060104212751.1670e058.akpm@osdl.org>
-	<20060105053400.GB20809@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Jan 2006 00:54:52 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:36030 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751959AbWAEFyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 00:54:51 -0500
+Date: Thu, 05 Jan 2006 14:54:25 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: jschopp@austin.ibm.com
+Subject: Re: [Patch] New zone ZONE_EASY_RECLAIM take 4. (Change PageHighMem())[8/8]
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+In-Reply-To: <43BAEF69.3020006@austin.ibm.com>
+References: <20051220173217.1B18.Y-GOTO@jp.fujitsu.com> <43BAEF69.3020006@austin.ibm.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
+Message-Id: <20060105144337.491F.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Wed, Jan 04, 2006 at 09:27:51PM -0800, Andrew Morton wrote:
->  > Dave Jones <davej@redhat.com> wrote:
->  > >
->  > > On Wed, Jan 04, 2006 at 05:00:25PM -0500, Ben Collins wrote:
->  > >  > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
->  > > 
->  > > There's a variant of this in -mm already, (albeit with horked indentation)
->  > > Does your diff have all the same entries that one does ?
->  > > (If so, I prefer yours :)
->  > 
->  > Below.
+> > This patch is change PageHighMem()'s definition for i386.
+> > Easy reclaim zone is treated like highmem on i386.
 > 
-> Ok. The IDs seem to be the same. I'd vote to drop the -mm one and
-> go with Ben's variant which fixes the lindent trainwreck at the same time.
+> This doesn't look like an i386 file, it looks like you are changing it 
+> for all architectures that have HIGHMEM (do any other archs use 
+> highmeme?). This may be fine, just wanted you to be aware.
+
+Right. My description was wrong. This is for all arch.
+
+The first purpose of his patch is to give i386 environment for
+Kame-san's remove patch. This description came from it.
+
+Sorry.
+
+
+
+> 
+> > 
+> > This is new patch at take 4.
+> > 
+> > Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+> > 
+> > Index: zone_reclaim/include/linux/page-flags.h
+> > ===================================================================
+> > --- zone_reclaim.orig/include/linux/page-flags.h	2005-12-15 21:01:09.000000000 +0900
+> > +++ zone_reclaim/include/linux/page-flags.h	2005-12-15 21:24:07.000000000 +0900
+> > @@ -265,7 +265,7 @@ extern void __mod_page_state_offset(unsi
+> >  #define TestSetPageSlab(page)	test_and_set_bit(PG_slab, &(page)->flags)
+> >  
+> >  #ifdef CONFIG_HIGHMEM
+> > -#define PageHighMem(page)	is_highmem(page_zone(page))
+> > +#define PageHighMem(page)	is_higher_zone(page_zone(page))
+> >  #else
+> >  #define PageHighMem(page)	0 /* needed to optimize away at compile time */
+> >  #endif
+> > 
+> 
 > 
 
-OK.  But I'll keep the attributions as I had them, under the assumption
-that they're more accurate than Ben's (which appear to be not at all ;))
+-- 
+Yasunori Goto 
+
 

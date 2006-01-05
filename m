@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752226AbWAEVpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWAEVpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752226AbWAEVpK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:45:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752234AbWAEVpK
+	id S932229AbWAEVpw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWAEVpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:45:10 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10730 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752226AbWAEVpI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:45:08 -0500
-Date: Thu, 5 Jan 2006 22:44:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Scott E. Preece" <preece@motorola.com>, akpm@osdl.org,
-       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
-Message-ID: <20060105214432.GE2095@elf.ucw.cz>
-References: <20060105211446.GD2095@elf.ucw.cz> <Pine.LNX.4.44L0.0601051631200.6460-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Thu, 5 Jan 2006 16:45:52 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:40855 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932229AbWAEVpv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 16:45:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Z2HGSxk8GqvvmRe3xZ+bMluXZPpqFt0esJ85f5sP5yT4gCDTLYI1qu6txvMwoiEcJUpb8SEI/sqILfSzyxxIx3EkxMS0UMnwOcfKlZHVJxUq/pWEtUkfbSvCWGvhVaZADUWcWLkr9MOJicA9nn5pEVPn1vTLm418KcZvAmrbKHU=
+Message-ID: <12c511ca0601051345pee8d8wc735507d361fa65e@mail.gmail.com>
+Date: Thu, 5 Jan 2006 13:45:50 -0800
+From: Tony Luck <tony.luck@intel.com>
+To: Nathan Lynch <ntl@pobox.com>
+Subject: Re: [PATCH] fix workqueue oops during cpu offline
+Cc: linux-kernel@vger.kernel.org, Ben Collins <bcollins@debian.org>,
+       Andrew Morton <akpm@osdl.org>, ashok.raj@intel.com
+In-Reply-To: <20060105045810.GE16729@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44L0.0601051631200.6460-100000@iolanthe.rowland.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <20060105045810.GE16729@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 05-01-06 16:37:52, Alan Stern wrote:
-> > > And it's not all that complex.  Certainly no more complex than forcing
-> > > userspace tools to use {"on", "D1, "D2", "suspend"} instead of the
-> > > much-more-logical {"D0", "D1", "D2", "D3"}.
-> > 
-> > It is not much more logical. First, noone really needs D1 and
-> > D2. Plus, people want to turn their devices on and off, and don't want
-> > and should not have to care about details like D1.
-> 
-> Who are you to say what people really need?  What about people who want to 
-> test their PCI device and see if it behaves properly in D1 or D2?  How are 
-> they going to do that if you don't let them put it in that state?
+On 1/4/06, Nathan Lynch <ntl@pobox.com> wrote:
+> This is where things go wrong -- any_online_cpu() now gets 1, not 0.
+> In queue_work, the cpu_workqueue_struct at per_cpu_ptr(wq->cpu_wq, 1) is
+> uninitialized.
 
-> What about people with platform-specific non-PCI devices that have a whole
-> bunch of different internal power states?  Why force them to use only two
-> of those states?
+Same issue on ia64 when I tried to add Ashok' s patch to allow
+removal of cpu0 (BSP in ia64-speak).  Ashok told me that this fix
+solves the problem for us too.
 
-Its okay with me to add more states _when they are needed_. Just now,
-many drivers do not even handle system suspend/resume correctly.
-
-> The kernel isn't supposed to prevent people from doing perfectly legal
-> things.  The kernel should provide mechanisms to help people do what they
-> want.
-
-We are not adding random crap to kernel just because "someone may need
-it". And yes, having aliases counts as "random crap". Perfectly legal
-but totally useless things count as a random crap, too.
-
-Bring example hardware that needs more than two states, implement
-driver support for that, and then we can talk about adding more than
-two states into core code.
-
-								Pavel
--- 
-Thanks, Sharp!
+-Tony

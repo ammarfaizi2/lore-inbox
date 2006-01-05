@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751924AbWAEHa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752101AbWAEHbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751924AbWAEHa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 02:30:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752101AbWAEHa2
+	id S1752101AbWAEHbT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 02:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWAEHbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 02:30:28 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:52931 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751924AbWAEHa1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 02:30:27 -0500
-Date: Thu, 5 Jan 2006 08:30:14 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Greg KH <greg@kroah.com>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Nick Warne <nick@linicks.net>, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel@vger.kernel.org, webmaster@kernel.org
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-In-Reply-To: <20060104234106.GB15724@kroah.com>
-Message-ID: <Pine.LNX.4.61.0601050829240.10161@yvahk01.tjqt.qr>
-References: <200601041710.37648.nick@linicks.net> <200601042258.24888.s0348365@sms.ed.ac.uk>
- <20060104231330.GD14788@kroah.com> <200601042328.15528.s0348365@sms.ed.ac.uk>
- <Pine.LNX.4.58.0601041530000.19134@shark.he.net> <20060104234106.GB15724@kroah.com>
+	Thu, 5 Jan 2006 02:31:18 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:25435 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752101AbWAEHbR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 02:31:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Mouz6YcTZ2NVkRlf1UwcfhOY2aj+FFUSUU5gV1ekOleNAicgXoTybFHamhbDKkF/UCS1votmyr4Xl5zRmCMYXJkSY7fNb0VGPwYQ+gwlstRmEGWoVsQ5rlGmNVZUnGtBTHl0l1MOL08YHt/jcMhLpF+s6pxTVgBaUZP9k7LcGMQ=
+Message-ID: <81b0412b0601042331l5506117fw89360e50be3a423e@mail.gmail.com>
+Date: Thu, 5 Jan 2006 08:31:15 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Possible GPL violation in Canyon CN-WF514 WLAN router
+Cc: xerces8 <xerces8@butn.net>, tech@lists.gnumonks.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0601050815030.10161@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <WorldClient-F200512251652.AA52540032@butn.net>
+	 <WorldClient-F200601032031.AA31410090@butn.net>
+	 <81b0412b0601040707r355da9eey1b6332d0563dd3a4@mail.gmail.com>
+	 <Pine.LNX.4.61.0601050815030.10161@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I agree.  I think that one previous -stable patch version should always
->> be listed there, even if we think that 2.6.N is stable.  :)
+On 1/5/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >$ file WF514-200713T5.img
+> >WF514-200713T5.img: PPCBoot image
+> >
+> Why does not my "file" utility print that...!?
 >
->I don't at all.  If we do that, people will assume that they need to
->wait till 2.6.N.1 before trying that kernel (as it wouldn't be "stable"
->otherwise.)  So no one will test it, to really generate the bug reports
->that we need to get to that .1 release.
->
->Or should we just throw out a .1 release with the first simple patch
->that comes along just to make the kernel.org page update properly?  I
->don't think so...
->
+> # rpm -q file
+> file-4.14-3
 
-Or call the "2.6.X" as "2.6.X.0", so they got at least a clue that this is
-becoming .1
-
-
-Jan Engelhardt
--- 
+Mine is newer:
+$ file --version
+file-4.16
+magic file from /usr/share/file/magic

@@ -1,153 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWAEPle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWAEPrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWAEPle (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:41:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWAEPkN
+	id S1751421AbWAEPrB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:47:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWAEPrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:40:13 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17804 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932116AbWAEPj7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:39:59 -0500
-Date: Thu, 5 Jan 2006 16:39:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 21/21] mutex subsystem, semaphore to completion: drivers/block/loop.c
-Message-ID: <20060105153951.GV31013@elte.hu>
+	Thu, 5 Jan 2006 10:47:01 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:31408 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1751421AbWAEPrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 10:47:00 -0500
+Subject: Re: [PATCH 0/15] Ubuntu patch sync
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1136414740.4430.44.camel@grayson>
+References: <0ISL003P992UCY@a34-mta01.direcway.com>
+	 <20060104140627.1e89c185@dxpl.pdx.osdl.net>
+	 <1136412768.4430.28.camel@grayson>
+	 <20060104143023.5b2f7967@dxpl.pdx.osdl.net>
+	 <1136414740.4430.44.camel@grayson>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 15:46:50 +0000
+Message-Id: <1136476010.4158.196.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-01-04 at 17:45 -0500, Ben Collins wrote:
+> After dealing with literally dozens of upstream drivers, I think the
+> reasons boil down to a few categories:
 
-convert the block loop device from semaphores to completions.
+> <...>
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+You missed one:
 
-----
+5 - They've implemented Yet Another IEEE802.11 stack instead of
+embracing and extending the Intel one we already have, and are hence
+urinating into the atmospheric disturbance.
 
- drivers/block/loop.c |   27 ++++++++++++---------------
- include/linux/loop.h |    4 ++--
- 2 files changed, 14 insertions(+), 17 deletions(-)
+That's one of the reasons why I merged bcm43xx and softmac into the
+Fedora kernel and none of the others, FWIW -- Johannes is actually
+working on improving what we have in the kernel, rather than just saying
+"You have to throw it all away because $MYSTACK is better". So I figure
+softmac has a _much_ better chance of going upstream, even if its
+feature list isn't quite as comprehensive yet.
 
-Index: linux/drivers/block/loop.c
-===================================================================
---- linux.orig/drivers/block/loop.c
-+++ linux/drivers/block/loop.c
-@@ -514,12 +514,12 @@ static int loop_make_request(request_que
- 	lo->lo_pending++;
- 	loop_add_bio(lo, old_bio);
- 	spin_unlock_irq(&lo->lo_lock);
--	up(&lo->lo_bh_mutex);
-+	complete(&lo->lo_bh_done);
- 	return 0;
- 
- out:
- 	if (lo->lo_pending == 0)
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- 	spin_unlock_irq(&lo->lo_lock);
- 	bio_io_error(old_bio, old_bio->bi_size);
- 	return 0;
-@@ -580,23 +580,20 @@ static int loop_thread(void *data)
- 	lo->lo_pending = 1;
- 
- 	/*
--	 * up sem, we are running
-+	 * complete it, we are running
- 	 */
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
- 
- 	for (;;) {
- 		int pending;
- 
--		/*
--		 * interruptible just to not contribute to load avg
--		 */
--		if (down_interruptible(&lo->lo_bh_mutex))
-+		if (wait_for_completion_interruptible(&lo->lo_bh_done))
- 			continue;
- 
- 		spin_lock_irq(&lo->lo_lock);
- 
- 		/*
--		 * could be upped because of tear-down, not pending work
-+		 * could be completed because of tear-down, not pending work
- 		 */
- 		if (unlikely(!lo->lo_pending)) {
- 			spin_unlock_irq(&lo->lo_lock);
-@@ -619,7 +616,7 @@ static int loop_thread(void *data)
- 			break;
- 	}
- 
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
- 	return 0;
- }
- 
-@@ -830,7 +827,7 @@ static int loop_set_fd(struct loop_devic
- 	set_blocksize(bdev, lo_blocksize);
- 
- 	kernel_thread(loop_thread, lo, CLONE_KERNEL);
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 	return 0;
- 
-  out_putf:
-@@ -896,10 +893,10 @@ static int loop_clr_fd(struct loop_devic
- 	lo->lo_state = Lo_rundown;
- 	lo->lo_pending--;
- 	if (!lo->lo_pending)
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- 	spin_unlock_irq(&lo->lo_lock);
- 
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 
- 	lo->lo_backing_file = NULL;
- 
-@@ -1276,8 +1273,8 @@ static int __init loop_init(void)
- 		if (!lo->lo_queue)
- 			goto out_mem4;
- 		init_MUTEX(&lo->lo_ctl_mutex);
--		init_MUTEX_LOCKED(&lo->lo_sem);
--		init_MUTEX_LOCKED(&lo->lo_bh_mutex);
-+		init_completion(&lo->lo_done);
-+		init_completion(&lo->lo_bh_done);
- 		lo->lo_number = i;
- 		spin_lock_init(&lo->lo_lock);
- 		disk->major = LOOP_MAJOR;
-Index: linux/include/linux/loop.h
-===================================================================
---- linux.orig/include/linux/loop.h
-+++ linux/include/linux/loop.h
-@@ -58,9 +58,9 @@ struct loop_device {
- 	struct bio 		*lo_bio;
- 	struct bio		*lo_biotail;
- 	int			lo_state;
--	struct semaphore	lo_sem;
-+	struct completion	lo_done;
-+	struct completion	lo_bh_done;
- 	struct semaphore	lo_ctl_mutex;
--	struct semaphore	lo_bh_mutex;
- 	int			lo_pending;
- 
- 	request_queue_t		*lo_queue;
+http://softmac.sipsolutions.net/softmac-2.6.git
+
+-- 
+dwmw2
+

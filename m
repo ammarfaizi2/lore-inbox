@@ -1,60 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWAEB04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWAEB3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWAEB04 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:26:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWAEB04
+	id S1751132AbWAEB3r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWAEB3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:26:56 -0500
-Received: from pat.uio.no ([129.240.130.16]:51132 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751096AbWAEB0z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:26:55 -0500
-Subject: Re: d_instantiate_unique / NFS inode leakage?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk
-In-Reply-To: <20060105010047.GJ5743@linuxhacker.ru>
-References: <20060105010047.GJ5743@linuxhacker.ru>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 02:26:47 +0100
-Message-Id: <1136424407.7847.37.camel@lade.trondhjem.org>
+	Wed, 4 Jan 2006 20:29:47 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:3233 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751107AbWAEB3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 20:29:46 -0500
+Date: Wed, 4 Jan 2006 21:21:29 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 4/9] UML - Better diagnostics for broken configs
+Message-ID: <20060105022129.GA13183@ccure.user-mode-linux.org>
+References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org> <20060104152433.7304ec75.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.757, required 12,
-	autolearn=disabled, AWL 1.19, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060104152433.7304ec75.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 03:00 +0200, Oleg Drokin wrote:
-> Hello!
-> 
->    Searching for inode leakage in NFS code (seen in 2.6.14 and 2.6.15 at least,
->    have not tried earlier versions), I see suspicious place in
->    d_instantiate_unique (the only user happens to be NFS).
->    There if we have found aliased dentry that we return, inode reference is
->    not dropped and inode is not attached anywhere, so it seems the reference
->    to inode is leaked in that case.
->    This simple patch below fixes the problem. Unfortunatelly the leakage seems
->    to be non-100% in my testing, so I will continue the testing to see
->    if I still see inodes to leak or not (no leak seen so far with the patch).
-> 
-> --- fs/dcache.c.orig	2006-01-05 02:28:57.000000000 +0200
-> +++ fs/dcache.c	2006-01-05 02:32:08.000000000 +0200
-> @@ -838,6 +838,7 @@ struct dentry *d_instantiate_unique(stru
->  		dget_locked(alias);
->  		spin_unlock(&dcache_lock);
->  		BUG_ON(!d_unhashed(alias));
-> +		iput(inode);
->  		return alias;
->  	}
->  	list_add(&entry->d_alias, &inode->i_dentry);
+On Wed, Jan 04, 2006 at 03:24:33PM -0800, Andrew Morton wrote:
+> Jeff Dike <jdike@addtoit.com> wrote:
+> >
+> > Produce a compile-time error if both MODE_SKAS and MODE_TT are disabled.
+> Is there no sane way to prevent this situation within Kconfig?
 
-Yep, that looks like it ought to be the correct behaviour. Could you
-please also add a note to this effect in the DocBook header for
-d_instantiate_unique?
+I tried.  The best I managed was to get *config to moan about circular
+dependencies.
 
-Cheers,
-  Trond
-
+				Jeff

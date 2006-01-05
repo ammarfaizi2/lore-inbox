@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWAESEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWAESHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWAESEk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWAESEj
+	id S932133AbWAESHs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWAESHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:04:39 -0500
-Received: from c-67-174-241-67.hsd1.ca.comcast.net ([67.174.241.67]:49827 "EHLO
-	plato.virtuousgeek.org") by vger.kernel.org with ESMTP
-	id S932117AbWAESEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:04:38 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Anton Blanchard <anton@samba.org>
-Subject: Re: [patch 00/21] mutex subsystem, -V14
-Date: Thu, 5 Jan 2006 10:04:31 -0800
-User-Agent: KMail/1.9
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linus Torvalds <torvalds@osdl.org>,
-       Nicolas Pitre <nico@cam.org>, Joel Schopp <jschopp@austin.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-References: <20060104144151.GA27646@elte.hu> <43BC90CE.4040201@yahoo.com.au> <20060105033951.GD10140@krispykreme>
-In-Reply-To: <20060105033951.GD10140@krispykreme>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 13:07:48 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:62349 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S932133AbWAESHr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:07:47 -0500
+Date: Thu, 5 Jan 2006 10:08:15 -0800
+From: Greg KH <gregkh@suse.de>
+To: David Vrabel <dvrabel@arcom.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [DRIVER CORE] platform_get_irq*(): return   NO_IRQ on error
+Message-ID: <20060105180815.GB13317@suse.de>
+References: <43BD534E.8050701@arcom.com> <20060105173717.GA11279@suse.de> <43BD5F5E.1070108@arcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601051004.31449.jbarnes@virtuousgeek.org>
+In-Reply-To: <43BD5F5E.1070108@arcom.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, January 4, 2006 7:39 pm, Anton Blanchard wrote:
-> SGIs mmiowb() might be useful for some of these cases but every time
-> its brought up everyone ends up confused as to its real use.
+On Thu, Jan 05, 2006 at 06:03:10PM +0000, David Vrabel wrote:
+> Greg KH wrote:
+> > On Thu, Jan 05, 2006 at 05:11:42PM +0000, David Vrabel wrote:
+> > 
+> >>platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
+> >>platforms, return NO_IRQ (-1) instead.
+> >>
+> >>Signed-off-by: David Vrabel <dvrabel@arcom.com>
+> >>
+> >>--- linux-2.6-working.orig/drivers/base/platform.c	2006-01-05 16:49:23.000000000 +0000
+> >>+++ linux-2.6-working/drivers/base/platform.c	2006-01-05 17:10:18.000000000 +0000
+> >>@@ -59,7 +59,7 @@
+> >> {
+> >> 	struct resource *r = platform_get_resource(dev, IORESOURCE_IRQ, num);
+> >> 
+> >>-	return r ? r->start : 0;
+> >>+	return r ? r->start : NO_IRQ;
+> > 
+> > 
+> > No, I think the whole NO_IRQ stuff has been given up on, see the lkml
+> > archives for details.
+> 
+> Now that you mention it I remember that thread[1].
+> 
+> How about returning -ENXIO (or similar) then?
 
-It's documented in Documentation/DocBook/deviceiobook.tmpl.  If the 
-documentation isn't clear, we should fix it, rather than avoid using the 
-primitive altogether.  If drivers/net really means mmiowb() in some 
-places, we should change it, and like you said maybe get rid of some of 
-these primitives so that their usage is clearer.
+That would be fine as long as you fix up all callers to not pass that
+value to request_irq() :)
 
-Jesse
+thanks,
+
+greg k-h

@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWAEVpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWAEVsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWAEVpw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWAEVpw
+	id S1750976AbWAEVsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752230AbWAEVsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:45:52 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:40855 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932229AbWAEVpv convert rfc822-to-8bit
+	Thu, 5 Jan 2006 16:48:16 -0500
+Received: from digitalimplant.org ([64.62.235.95]:17631 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S1750975AbWAEVsP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:45:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z2HGSxk8GqvvmRe3xZ+bMluXZPpqFt0esJ85f5sP5yT4gCDTLYI1qu6txvMwoiEcJUpb8SEI/sqILfSzyxxIx3EkxMS0UMnwOcfKlZHVJxUq/pWEtUkfbSvCWGvhVaZADUWcWLkr9MOJicA9nn5pEVPn1vTLm418KcZvAmrbKHU=
-Message-ID: <12c511ca0601051345pee8d8wc735507d361fa65e@mail.gmail.com>
-Date: Thu, 5 Jan 2006 13:45:50 -0800
-From: Tony Luck <tony.luck@intel.com>
-To: Nathan Lynch <ntl@pobox.com>
-Subject: Re: [PATCH] fix workqueue oops during cpu offline
-Cc: linux-kernel@vger.kernel.org, Ben Collins <bcollins@debian.org>,
-       Andrew Morton <akpm@osdl.org>, ashok.raj@intel.com
-In-Reply-To: <20060105045810.GE16729@localhost.localdomain>
+	Thu, 5 Jan 2006 16:48:15 -0500
+Date: Thu, 5 Jan 2006 13:48:06 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: "Scott E. Preece" <preece@motorola.com>
+cc: pavel@suse.cz, "" <akpm@osdl.org>, "" <linux-pm@lists.osdl.org>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
+ interface
+In-Reply-To: <200601051516.k05FGC5d023781@olwen.urbana.css.mot.com>
+Message-ID: <Pine.LNX.4.50.0601051344200.17046-100000@monsoon.he.net>
+References: <200601051516.k05FGC5d023781@olwen.urbana.css.mot.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060105045810.GE16729@localhost.localdomain>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/06, Nathan Lynch <ntl@pobox.com> wrote:
-> This is where things go wrong -- any_online_cpu() now gets 1, not 0.
-> In queue_work, the cpu_workqueue_struct at per_cpu_ptr(wq->cpu_wq, 1) is
-> uninitialized.
 
-Same issue on ia64 when I tried to add Ashok' s patch to allow
-removal of cpu0 (BSP in ia64-speak).  Ashok told me that this fix
-solves the problem for us too.
+On Thu, 5 Jan 2006, Scott E. Preece wrote:
 
--Tony
+> --===============26103097005026354==
+>
+>
+> My inclination would be to have the sysfs interface know generic terms,
+> with the implementation mapping them to device-specific terms. It ought
+> to be possible to build portable tools that don't have to know about
+> device-specific states and have the device interfaces (in sysfs) do the
+> necessary translation.
+
+Userspace should do the translation. You should give the user the ability
+to specify simple, meaningful states, like "on" and "off". But, it should
+be the tools itself that are mapping those requests to valid input for the
+sysfs files.
+
+Why force the translation into the kernel, and provide more opportunities
+for error in parsing the sysfs files? Do it in userspace, and you can
+afford much more flexibility and portability.
+
+Thanks,
+
+
+	Patrick
+

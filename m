@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWAESSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWAESVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751354AbWAESSy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWAESSy
+	id S1750724AbWAESVv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWAESVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:18:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50450 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750796AbWAESSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:18:37 -0500
-Date: Thu, 5 Jan 2006 19:18:37 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: isdn4linux@listserv.isdn4linux.de, Armin Schindler <armin@melware.de>,
-       linux-kernel@vger.kernel.org, kkeil@suse.de, kai.germaschewski@gmx.de
-Subject: [2.6 patch] drivers/isdn/hardware/eicon/os_4bri.c: correct the xdiLoadFile() signature
-Message-ID: <20060105181837.GF12313@stusta.de>
+	Thu, 5 Jan 2006 13:21:51 -0500
+Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:10213 "EHLO
+	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750724AbWAESVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:21:50 -0500
+Date: Thu, 5 Jan 2006 13:18:32 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: dual line backtraces for i386.
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200601051321_MC3-1-B55B-8147@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's not good if caller and callee disagree regarding the type of the
-arguments.
+In-Reply-To: <20060105062208.GA12095@redhat.com>
 
-In this case, this could cause problems on 64bit architectures.
+On Thu, 5 Jan 2006 at 01:22:08 -0500, Dave Jones wrote:
 
+> --- linux-2.6.15/arch/i386/kernel/traps.c~    2005-12-01 04:25:36.000000000 -0500
+> +++ linux-2.6.15/arch/i386/kernel/traps.c     2005-12-01 04:36:19.000000000 -0500
+> @@ -116,6 +116,7 @@ static inline unsigned long print_contex
+>                               unsigned long *stack, unsigned long ebp)
+>  {
+>       unsigned long addr;
+> +     char space=0;
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Armin Schindler <armin@melware.de>
- 
---- linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_4bri.c.old	2005-11-19 03:48:37.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_4bri.c	2005-11-19 06:18:16.000000000 +0100
-@@ -16,6 +16,7 @@
- #include "diva_pci.h"
- #include "mi_pc.h"
- #include "dsrv4bri.h"
-+#include "helpers.h"
- 
- static void *diva_xdiLoadFileFile = NULL;
- static dword diva_xdiLoadFileLength = 0;
-@@ -815,7 +816,7 @@
- 	return (ret);
- }
- 
--void *xdiLoadFile(char *FileName, unsigned long *FileLength,
-+void *xdiLoadFile(char *FileName, dword *FileLength,
- 		  unsigned long lim)
- {
- 	void *ret = diva_xdiLoadFileFile;
+        char space = 0;
 
 
+> -                     printk("\n");
+> +                     if (space == 0) {
+> +                             printk("    ");
+> +                             space = 1;
+> +                     } else {
+> +                             printk("\n");
+> +                             space = 0;
+> +                     }
+
+Why not:
+
+                        printk(space == 0 ? "     " : "\n");
+                        space = !space;
+
+
+> +     if (space==1)
+> +             printk("\n");
+
+        if (space == 1)
+
+-- 
+Chuck
+Currently reading: _Thud!_ by Terry Pratchett

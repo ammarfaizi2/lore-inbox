@@ -1,85 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWAEXEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWAEXGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWAEXEX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWAEXEX
+	id S932249AbWAEXGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWAEXGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:04:23 -0500
-Received: from pin.if.uz.zgora.pl ([212.109.128.251]:63462 "EHLO
-	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S932177AbWAEXEW
+	Thu, 5 Jan 2006 18:06:46 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:23211 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932249AbWAEXGp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:04:22 -0500
-Message-ID: <43BDA76F.1000906@pin.if.uz.zgora.pl>
-Date: Fri, 06 Jan 2006 00:10:39 +0100
-From: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: pl, en-us, en
+	Thu, 5 Jan 2006 18:06:45 -0500
+Message-ID: <43BDA672.4090704@austin.ibm.com>
+Date: Thu, 05 Jan 2006 17:06:26 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Oops with 2.6.15
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Ingo Molnar <mingo@elte.hu>
+CC: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>,
+       PPC64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [patch 00/21] mutex subsystem, -V14
+References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu>
+In-Reply-To: <20060105222106.GA26474@elte.hu>
+Content-Type: multipart/mixed;
+ boundary="------------000402040707040807030009"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI all
+This is a multi-part message in MIME format.
+--------------000402040707040807030009
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I receive this Oops (see below) with kernels from 2.6.15-rc5 to 2.6.15 
-(I haven't using earlier versions of 2.6.15-rc). I'm using sk98lin 
-driver (version 8.28.1.3) from Syskonnect and ndiswrapper-1.7. Is this 
-error caused by sk98lin driver?
+> ISYNC_ON_SMP flushes all speculative reads currently in the queue - and 
+> is hence a smp_rmb_backwards() primitive [per my previous mail] - but 
+> does not affect writes - correct?
+> 
+> if that's the case, what prevents a store from within the critical 
+> section going up to right after the EIEIO_ON_SMP, but before the 
+> atomic-dec instructions? Does any of those instructions imply some 
+> barrier perhaps? Are writes always ordered perhaps (like on x86 CPUs), 
+> and hence the store before the bne is an effective write-barrier?
 
---------
-CPU: Intel Pentium4 3GHz HT
-GCC: 3.4.5
-Binutils: 2.16.1
---------
+It really makes more sense after reading PowerPC Book II, which you can find at 
+this link, it was written by people who explain this for a living: 
+http://www-128.ibm.com/developerworks/eserver/articles/archguide.html
 
-Regards
+While isync technically doesn't order stores it does order instructions.  The 
+previous bne- must complete, that bne- is dependent on the previous stwcx being 
+complete.  So no stores are slipping up.  To get a better explanation you will 
+have to read the document yourself.
 
-	Jacek Luczak
+Here is a first pass at a powerpc file for the fast paths just as an FYI/RFC. 
+It is completely untested, but compiles.
 
--------------------------------
+Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
 
-Jan  5 19:25:04 slawek kernel: Unable to handle kernel NULL pointer 
-dereference at virtual address 00000003
-Jan  5 19:25:04 slawek kernel:  printing eip:
-Jan  5 19:25:04 slawek kernel: c0138603
-Jan  5 19:25:04 slawek kernel: *pde = 00000000
-Jan  5 19:25:04 slawek kernel: Oops: 0002 [#1]
-Jan  5 19:25:04 slawek kernel: SMP
-Jan  5 19:25:04 slawek kernel: Modules linked in: sk98lin ndiswrapper 
-usbhid uhci_hcd i915
-Jan  5 19:25:04 slawek kernel: CPU:    0
-Jan  5 19:25:04 slawek kernel: EIP:    0060:[<c0138603>]    Tainted: P 
-     VLI
-Jan  5 19:25:05 slawek kernel: EFLAGS: 00010086   (2.6.15)
-Jan  5 19:25:05 slawek kernel: EIP is at free_block+0x45/0xd1
-Jan  5 19:25:05 slawek kernel: eax: ffffffff   ebx: df0388c0   ecx: 
-de9fbbc0   edx: 00000000
-Jan  5 19:25:05 slawek kernel: esi: df7ad340   edi: 00000005   ebp: 
-df7af600   esp: df731ef0
-Jan  5 19:25:05 slawek kernel: ds: 007b   es: 007b   ss: 0068
-Jan  5 19:25:05 slawek kernel: Process events/0 (pid: 6, 
-threadinfo=df730000 task=df70ea30)
-Jan  5 19:25:05 slawek kernel: Stack: df7ad350 00000002 deabd800 
-df7aa194 0000000b df7aa180 00000000 c0138e15
-Jan  5 19:25:05 slawek kernel:        df7af600 df7aa194 0000000b 
-00000000 df7af600 df7ad340 df7af600 df7af654
-Jan  5 19:25:05 slawek kernel:        00000003 c0138ea9 df7af600 
-df7aa180 00000000 00000000 c146e418 c13f71a0
-Jan  5 19:25:05 slawek kernel: Call Trace:
-Jan  5 19:25:05 slawek kernel:  [<c0138e15>] drain_array_locked+0x6a/0x95
-Jan  5 19:25:05 slawek kernel:  [<c0138ea9>] cache_reap+0x69/0x155
-Jan  5 19:25:05 slawek kernel:  [<c012533e>] worker_thread+0x170/0x1de
-Jan  5 19:25:05 slawek kernel:  [<c0138e40>] cache_reap+0x0/0x155
-Jan  5 19:25:05 slawek kernel:  [<c01148e2>] default_wake_function+0x0/0x12
-Jan  5 19:25:05 slawek kernel:  [<c01148e2>] default_wake_function+0x0/0x12
-Jan  5 19:25:05 slawek kernel:  [<c01251ce>] worker_thread+0x0/0x1de
-Jan  5 19:25:05 slawek kernel:  [<c01288df>] kthread+0x7c/0xa6
-Jan  5 19:25:05 slawek kernel:  [<c0128863>] kthread+0x0/0xa6
-Jan  5 19:25:05 slawek kernel:  [<c0100eb5>] kernel_thread_helper+0x5/0xb
-Jan  5 19:25:05 slawek kernel: Code: 24 8b 54 24 2c 8b 04 b8 89 44 24 08 
-05 00 00 00 40 c1 e8 0c 8b 74 95 18 31 d2 c1 e0 05 03 05 d0 e4 35 c0 8b 
-58 1c 8b 03 8b 4b 04 <89> 48 04 89 01 c7 43 04 00 02 20 00 c7 03 00 01 
-10 00 8b 43 0c
+
+
+
+--------------000402040707040807030009
+Content-Type: text/plain;
+ name="powerpcmutex.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="powerpcmutex.patch"
+
+Index: 2.6.15-mutex14/include/asm-powerpc/mutex.h
+===================================================================
+--- 2.6.15-mutex14.orig/include/asm-powerpc/mutex.h	2006-01-04 14:46:31.%N -0600
++++ 2.6.15-mutex14/include/asm-powerpc/mutex.h	2006-01-05 16:25:41.%N -0600
+@@ -1,9 +1,83 @@
+ /*
+- * Pull in the generic implementation for the mutex fastpath.
++ * include/asm-powerpc/mutex.h
+  *
+- * TODO: implement optimized primitives instead, or leave the generic
+- * implementation in place, or pick the atomic_xchg() based generic
+- * implementation. (see asm-generic/mutex-xchg.h for details)
++ * PowerPC optimized mutex locking primitives
++ *
++ * Please look into asm-generic/mutex-xchg.h for a formal definition.
++ * Copyright (C) 2006 Joel Schopp <jschopp@austin.ibm.com>, IBM
+  */
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
++#define __mutex_fastpath_lock(count, fail_fn)\
++do{                                     \
++	long tmp;                       \
++	__asm__ __volatile__(		\
++"1:	lwarx		%0,0,%1\n"      \
++"	addic	        %0,%0,-1\n"     \
++"	stwcx.          %0,0,%1\n"      \
++"	bne-            1b\n"           \
++"	isync           \n"             \
++	: "=&r" (tmp)                   \
++	: "r" (&(count)->counter)       \
++	: "cr0", "memory");             \
++	if (unlikely(tmp < 0))          \
++		fail_fn(count);         \
++} while (0)                              
++
++#define __mutex_fastpath_unlock(count, fail_fn)\
++do{                                         \
++	long tmp;                           \
++	__asm__ __volatile__(SYNC_ON_SMP    \
++"1:	lwarx		%0,0,%1\n"          \
++"	addic	        %0,%0,1\n"          \
++"	stwcx.          %0,0,%1\n"          \
++"       bne-            1b\n"               \
++	: "=&r" (tmp)                       \
++	: "r" (&(count)->counter)           \
++	: "cr0", "memory");                 \
++	if (unlikely(tmp <= 0))             \
++		fail_fn(count);             \
++} while (0)
++
++
++static inline int 
++__mutex_fastpath_trylock(atomic_t* count, int (*fail_fn)(atomic_t*))
++{
++	long tmp;
++	__asm__ __volatile__(
++"1:     lwarx		%0,0,%1\n"
++"       cmpwi           0,%0,1\n"
++"       bne-            2f\n"
++"       stwcx.          %0,0,%1\n"
++"	bne-		1b\n"
++"	isync\n"
++"2:"
++	: "=&r" (tmp)
++	: "r" (&(count)->counter)
++	: "cr0", "memory");
++
++	return (int)tmp;
++
++}
++
++#define __mutex_slowpath_needs_to_unlock()		1
+ 
+-#include <asm-generic/mutex-dec.h>
++static inline int 
++__mutex_fastpath_lock_retval(atomic_t* count, int (*fail_fn)(atomic_t *))
++{
++	long tmp;
++	__asm__ __volatile__(
++"1:	lwarx		%0,0,%1\n"
++"	addic	        %0,%0,-1\n"
++"	stwcx.          %0,0,%1\n"
++"	bne-            1b\n"
++"	isync           \n"
++	: "=&r" (tmp)
++	: "r" (&(count)->counter)
++	: "cr0", "memory");
++	if (unlikely(tmp < 0))
++		return fail_fn(count);
++	else
++		return 0;
++}
++#endif
+
+--------------000402040707040807030009--

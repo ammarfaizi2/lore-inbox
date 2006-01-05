@@ -1,50 +1,362 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWAEBFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWAEBG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWAEBFk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWAEBFj
+	id S1751078AbWAEBG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWAEBG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:05:39 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27868 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750992AbWAEBFj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:05:39 -0500
-Date: Thu, 5 Jan 2006 02:05:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       ast@domdv.de, Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [RFC/RFT][PATCH -mm 0/5] swsusp: userland interface (rev. 2)
-Message-ID: <20060105010505.GD1751@elf.ucw.cz>
-References: <200601042340.42118.rjw@sisk.pl>
+	Wed, 4 Jan 2006 20:06:59 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:6862 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750769AbWAEBG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 20:06:58 -0500
+Subject: Re: [PATCH 1/2]MSI(X) save/restore for suspend/resume
+From: Shaohua Li <shaohua.li@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>,
+       lkml <linux-kernel@vger.kernel.org>, Greg <greg@kroah.com>,
+       Rajesh Shah <rajesh.shah@intel.com>
+In-Reply-To: <20060103231304.56e3228b.akpm@osdl.org>
+References: <1135649077.17476.14.camel@sli10-desk.sh.intel.com>
+	 <20060103231304.56e3228b.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1136422680.30655.1.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200601042340.42118.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 05 Jan 2006 08:58:00 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This is the second "preview release" of the swsusp userland interface patches.
-> They have changed quite a bit since the previous post, as I tried to make the
-> interface more robust against some potential user space bugs (or outright
-> attempts to abuse it).
+On Wed, 2006-01-04 at 15:13, Andrew Morton wrote:
+> Shaohua Li <shaohua.li@intel.com> wrote:
+> >
+> >  Add MSI(X) configure space save/restore in generic PCI helper.
 > 
-> The swsusp userland interface is based on a special character device allowing
-> a user space process to initiate suspend or resume using ioctls and to write or read
-> the system memory snapshot from the device (actually more operations are
-> defined on the device).  The device itself is introduced by the
-> second patch.
-...
-> Any feedback will be very much appreciated.
+> This adds a bunch of code which isn't needed if !CONFIG_PM.
+Ok, the updated one fixes this.
 
-Pretty please, give it a try. If you think about introducing
-splashscreen/compression/encryption into swsusp, userland parts of
-these patches should be great place for it.
-								Pavel
--- 
-Thanks, Sharp!
+
+Add MSI(X) configure sapce save/restore in generic PCI helper.
+
+---
+
+ linux-2.6.15-rc5-root/drivers/pci/msi.c        |  213 +++++++++++++++++++++----
+ linux-2.6.15-rc5-root/drivers/pci/pci.c        |    6 
+ linux-2.6.15-rc5-root/drivers/pci/pci.h        |   11 +
+ linux-2.6.15-rc5-root/include/linux/pci.h      |    1 
+ linux-2.6.15-rc5-root/include/linux/pci_regs.h |    1 
+ 5 files changed, 203 insertions(+), 29 deletions(-)
+
+diff -puN drivers/pci/msi.c~msi_save_restore drivers/pci/msi.c
+--- linux-2.6.15-rc5/drivers/pci/msi.c~msi_save_restore	2005-12-22 09:23:16.000000000 +0800
++++ linux-2.6.15-rc5-root/drivers/pci/msi.c	2006-01-05 08:50:11.000000000 +0800
+@@ -499,6 +499,187 @@ void pci_scan_msi_device(struct pci_dev 
+ 		nr_reserved_vectors++;
+ }
+ 
++#ifdef CONFIG_PM
++int pci_save_msi_state(struct pci_dev *dev)
++{
++	int pos, i = 0;
++	u16 control;
++	u32 *cap;
++
++	if ((pos = pci_find_capability(dev, PCI_CAP_ID_MSI)) <= 0 ||
++			dev->no_msi)
++		return 0;
++
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	if (!(control & PCI_MSI_FLAGS_ENABLE))
++		return 0;
++
++	cap = kzalloc(sizeof(u32) * 5, GFP_KERNEL);
++	if (!cap) {
++		printk(KERN_ERR "Out of memory in pci_save_msi_state\n");
++		return -ENOMEM;
++	}
++
++	pci_read_config_dword(dev, pos, &cap[i++]);
++	control = cap[0] >> 16;
++	pci_read_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, &cap[i++]);
++	if (control & PCI_MSI_FLAGS_64BIT) {
++		pci_read_config_dword(dev, pos + PCI_MSI_ADDRESS_HI, &cap[i++]);
++		pci_read_config_dword(dev, pos + PCI_MSI_DATA_64, &cap[i++]);
++	} else
++		pci_read_config_dword(dev, pos + PCI_MSI_DATA_32, &cap[i++]);
++	if (control & PCI_MSI_FLAGS_MASKBIT)
++		pci_read_config_dword(dev, pos + PCI_MSI_MASK_BIT, &cap[i++]);
++	dev->saved_cap_space[PCI_CAP_ID_MSI] = cap;
++	disable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
++	return 0;
++}
++
++void pci_restore_msi_state(struct pci_dev *dev)
++{
++	int i = 0, pos;
++	u16 control;
++	u32 *cap = dev->saved_cap_space[PCI_CAP_ID_MSI];
++
++	if (!cap || (pos = pci_find_capability(dev, PCI_CAP_ID_MSI)) <= 0)
++		return;
++
++	control = cap[i++] >> 16;
++	pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, cap[i++]);
++	if (control & PCI_MSI_FLAGS_64BIT) {
++		pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_HI, cap[i++]);
++		pci_write_config_dword(dev, pos + PCI_MSI_DATA_64, cap[i++]);
++	} else
++		pci_write_config_dword(dev, pos + PCI_MSI_DATA_32, cap[i++]);
++	if (control & PCI_MSI_FLAGS_MASKBIT)
++		pci_write_config_dword(dev, pos + PCI_MSI_MASK_BIT, cap[i++]);
++	pci_write_config_word(dev, pos + PCI_MSI_FLAGS, control);
++	enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
++	dev->saved_cap_space[PCI_CAP_ID_MSI] = NULL;
++	kfree(cap);
++}
++
++int pci_save_msix_state(struct pci_dev *dev)
++{
++	int pos;
++	u16 control;
++	u16 *save;
++
++	if ((pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)) <= 0 ||
++		dev->no_msi)
++		return 0;
++
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	if (!(control & PCI_MSIX_FLAGS_ENABLE))
++		return 0;
++	save = kmalloc(sizeof(u16), GFP_KERNEL);
++	if (!save) {
++		printk(KERN_ERR "Out of memory in pci_save_msix_state\n");
++		return -ENOMEM;
++	}
++	*save = control;
++	dev->saved_cap_space[PCI_CAP_ID_MSIX] = save;
++	disable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
++	return 0;
++}
++
++void pci_restore_msix_state(struct pci_dev *dev)
++{
++	u16 *control = dev->saved_cap_space[PCI_CAP_ID_MSIX];
++	u16 save;
++	int pos;
++	int vector, head, tail = 0;
++	void __iomem *base;
++	int j;
++	struct msg_address address;
++	struct msg_data data;
++	struct msi_desc *entry;
++	int temp;
++
++	if (control == NULL)
++		return;
++	save = *control;
++	dev->saved_cap_space[PCI_CAP_ID_MSIX] = NULL;
++	kfree(control);
++	if ((pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)) <= 0)
++		return;
++
++	/* route the table */
++	temp = dev->irq;
++	if (msi_lookup_vector(dev, PCI_CAP_ID_MSIX))
++		return;
++	vector = head = dev->irq;
++	while (head != tail) {
++		entry = msi_desc[vector];
++		base = entry->mask_base;
++		j = entry->msi_attrib.entry_nr;
++
++		msi_address_init(&address);
++		msi_data_init(&data, vector);
++
++		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
++		address.lo_address.value |= entry->msi_attrib.current_cpu <<
++					MSI_TARGET_CPU_SHIFT;
++
++		writel(address.lo_address.value,
++			base + j * PCI_MSIX_ENTRY_SIZE +
++			PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
++		writel(address.hi_address,
++			base + j * PCI_MSIX_ENTRY_SIZE +
++			PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
++		writel(*(u32*)&data,
++			base + j * PCI_MSIX_ENTRY_SIZE +
++			PCI_MSIX_ENTRY_DATA_OFFSET);
++
++		tail = msi_desc[vector]->link.tail;
++		vector = tail;
++	}
++	dev->irq = temp;
++
++	pci_write_config_word(dev, msi_control_reg(pos), save);
++	enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
++}
++#endif
++
++static void msi_register_init(struct pci_dev *dev, struct msi_desc *entry)
++{
++	struct msg_address address;
++	struct msg_data data;
++	int pos, vector = dev->irq;
++	u16 control;
++
++   	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	/* Configure MSI capability structure */
++	msi_address_init(&address);
++	msi_data_init(&data, vector);
++	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
++				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
++	pci_write_config_dword(dev, msi_lower_address_reg(pos),
++			address.lo_address.value);
++	if (is_64bit_address(control)) {
++		pci_write_config_dword(dev,
++			msi_upper_address_reg(pos), address.hi_address);
++		pci_write_config_word(dev,
++			msi_data_reg(pos, 1), *((u32*)&data));
++	} else
++		pci_write_config_word(dev,
++			msi_data_reg(pos, 0), *((u32*)&data));
++	if (entry->msi_attrib.maskbit) {
++		unsigned int maskbits, temp;
++		/* All MSIs are unmasked by default, Mask them all */
++		pci_read_config_dword(dev,
++			msi_mask_bits_reg(pos, is_64bit_address(control)),
++			&maskbits);
++		temp = (1 << multi_msi_capable(control));
++		temp = ((temp - 1) & ~temp);
++		maskbits |= temp;
++		pci_write_config_dword(dev,
++			msi_mask_bits_reg(pos, is_64bit_address(control)),
++			maskbits);
++	}
++}
++
+ /**
+  * msi_capability_init - configure device's MSI capability structure
+  * @dev: pointer to the pci_dev data structure of MSI device function
+@@ -511,8 +692,6 @@ void pci_scan_msi_device(struct pci_dev 
+ static int msi_capability_init(struct pci_dev *dev)
+ {
+ 	struct msi_desc *entry;
+-	struct msg_address address;
+-	struct msg_data data;
+ 	int pos, vector;
+ 	u16 control;
+ 
+@@ -542,33 +721,8 @@ static int msi_capability_init(struct pc
+ 	/* Replace with MSI handler */
+ 	irq_handler_init(PCI_CAP_ID_MSI, vector, entry->msi_attrib.maskbit);
+ 	/* Configure MSI capability structure */
+-	msi_address_init(&address);
+-	msi_data_init(&data, vector);
+-	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
+-				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
+-	pci_write_config_dword(dev, msi_lower_address_reg(pos),
+-			address.lo_address.value);
+-	if (is_64bit_address(control)) {
+-		pci_write_config_dword(dev,
+-			msi_upper_address_reg(pos), address.hi_address);
+-		pci_write_config_word(dev,
+-			msi_data_reg(pos, 1), *((u32*)&data));
+-	} else
+-		pci_write_config_word(dev,
+-			msi_data_reg(pos, 0), *((u32*)&data));
+-	if (entry->msi_attrib.maskbit) {
+-		unsigned int maskbits, temp;
+-		/* All MSIs are unmasked by default, Mask them all */
+-		pci_read_config_dword(dev,
+-			msi_mask_bits_reg(pos, is_64bit_address(control)),
+-			&maskbits);
+-		temp = (1 << multi_msi_capable(control));
+-		temp = ((temp - 1) & ~temp);
+-		maskbits |= temp;
+-		pci_write_config_dword(dev,
+-			msi_mask_bits_reg(pos, is_64bit_address(control)),
+-			maskbits);
+-	}
++	msi_register_init(dev, entry);
++
+ 	attach_msi_entry(entry, vector);
+ 	/* Set MSI enabled bits	 */
+ 	enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
+@@ -717,6 +871,7 @@ int pci_enable_msi(struct pci_dev* dev)
+ 			vector_irq[dev->irq] = -1;
+ 			nr_released_vectors--;
+ 			spin_unlock_irqrestore(&msi_lock, flags);
++			msi_register_init(dev, msi_desc[dev->irq]);
+ 			enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
+ 			return 0;
+ 		}
+diff -puN drivers/pci/pci.c~msi_save_restore drivers/pci/pci.c
+--- linux-2.6.15-rc5/drivers/pci/pci.c~msi_save_restore	2005-12-22 09:23:16.000000000 +0800
++++ linux-2.6.15-rc5-root/drivers/pci/pci.c	2005-12-27 08:42:09.000000000 +0800
+@@ -438,6 +438,10 @@ pci_save_state(struct pci_dev *dev)
+ 	/* XXX: 100% dword access ok here? */
+ 	for (i = 0; i < 16; i++)
+ 		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
++	if ((i = pci_save_msi_state(dev)) != 0)
++		return i;
++	if ((i = pci_save_msix_state(dev)) != 0)
++		return i;
+ 	return 0;
+ }
+ 
+@@ -452,6 +456,8 @@ pci_restore_state(struct pci_dev *dev)
+ 
+ 	for (i = 0; i < 16; i++)
+ 		pci_write_config_dword(dev,i * 4, dev->saved_config_space[i]);
++	pci_restore_msi_state(dev);
++	pci_restore_msix_state(dev);
+ 	return 0;
+ }
+ 
+diff -puN drivers/pci/pci.h~msi_save_restore drivers/pci/pci.h
+--- linux-2.6.15-rc5/drivers/pci/pci.h~msi_save_restore	2005-12-22 09:23:16.000000000 +0800
++++ linux-2.6.15-rc5-root/drivers/pci/pci.h	2006-01-05 08:51:51.000000000 +0800
+@@ -58,6 +58,17 @@ void disable_msi_mode(struct pci_dev *de
+ #else
+ static inline void disable_msi_mode(struct pci_dev *dev, int pos, int type) { }
+ #endif
++#if defined(CONFIG_PCI_MSI) && defined(CONFIG_PM)
++int pci_save_msi_state(struct pci_dev *dev);
++int pci_save_msix_state(struct pci_dev *dev);
++void pci_restore_msi_state(struct pci_dev *dev);
++void pci_restore_msix_state(struct pci_dev *dev);
++#else
++static inline void pci_save_msi_state(struct pci_dev *dev) {}
++static inline void pci_save_msix_state(struct pci_dev *dev) {}
++static inline void pci_restore_msi_state(struct pci_dev *dev) {}
++static inline void pci_restore_msix_state(struct pci_dev *dev) {}
++#endif
+ 
+ extern int pcie_mch_quirk;
+ extern struct device_attribute pci_dev_attrs[];
+diff -puN include/linux/pci.h~msi_save_restore include/linux/pci.h
+--- linux-2.6.15-rc5/include/linux/pci.h~msi_save_restore	2005-12-22 09:23:16.000000000 +0800
++++ linux-2.6.15-rc5-root/include/linux/pci.h	2005-12-22 09:23:16.000000000 +0800
+@@ -135,6 +135,7 @@ struct pci_dev {
+ 	unsigned int	block_ucfg_access:1;	/* userspace config space access is blocked */
+ 
+ 	u32		saved_config_space[16]; /* config space saved at suspend time */
++	void		*saved_cap_space[PCI_CAP_ID_MAX + 1]; /* ext config space saved at suspend time */
+ 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
+ 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
+diff -puN include/linux/pci_regs.h~msi_save_restore include/linux/pci_regs.h
+--- linux-2.6.15-rc5/include/linux/pci_regs.h~msi_save_restore	2005-12-22 09:23:16.000000000 +0800
++++ linux-2.6.15-rc5-root/include/linux/pci_regs.h	2005-12-22 09:23:16.000000000 +0800
+@@ -199,6 +199,7 @@
+ #define  PCI_CAP_ID_SHPC 	0x0C	/* PCI Standard Hot-Plug Controller */
+ #define  PCI_CAP_ID_EXP 	0x10	/* PCI Express */
+ #define  PCI_CAP_ID_MSIX	0x11	/* MSI-X */
++#define PCI_CAP_ID_MAX		PCI_CAP_ID_MSIX
+ #define PCI_CAP_LIST_NEXT	1	/* Next capability in the list */
+ #define PCI_CAP_FLAGS		2	/* Capability defined flags (16 bits) */
+ #define PCI_CAP_SIZEOF		4
+_
+
+

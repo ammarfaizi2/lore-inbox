@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWAESFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWAESEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWAESFE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:05:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWAESFD
+	id S932117AbWAESEk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:04:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWAESEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:05:03 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:28408 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932129AbWAESFA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:05:00 -0500
-Message-ID: <43BD5E6F.1040000@mbligh.org>
-Date: Thu, 05 Jan 2006 09:59:11 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 5 Jan 2006 13:04:39 -0500
+Received: from c-67-174-241-67.hsd1.ca.comcast.net ([67.174.241.67]:49827 "EHLO
+	plato.virtuousgeek.org") by vger.kernel.org with ESMTP
+	id S932117AbWAESEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:04:38 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Anton Blanchard <anton@samba.org>
+Subject: Re: [patch 00/21] mutex subsystem, -V14
+Date: Thu, 5 Jan 2006 10:04:31 -0800
+User-Agent: KMail/1.9
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Nicolas Pitre <nico@cam.org>, Joel Schopp <jschopp@austin.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+References: <20060104144151.GA27646@elte.hu> <43BC90CE.4040201@yahoo.com.au> <20060105033951.GD10140@krispykreme>
+In-Reply-To: <20060105033951.GD10140@krispykreme>
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org>
-In-Reply-To: <20060105170255.GK3356@waste.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601051004.31449.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Thu, Jan 05, 2006 at 01:19:12PM +0100, Arjan van de Ven wrote:
-> 
->>>What would be nice to do is pack all the frequently used code together 
->>>in close proximity. Would probably have much larger effects with 
->>>userspace code, esp where we touch disk (which is more page-size 
->>>granularity), but is probably worth doing with kernel code too (where 
->>>AFAICS we'd only get cacheline granular).
->>
->>in the kernel we could make a .text.rare section for functions, which we
->>could annotate with __rare.
->>The other way around, __fastpath or whatever is a bad idea, everyone
->>will consider all of their own functions as such (just like inline ;)...
->>go-fast-stripes all the way :-(
-> 
-> 
-> Gah, we don't want to do this by hand in either direction. It's the
-> inline nightmare all over again.
+On Wednesday, January 4, 2006 7:39 pm, Anton Blanchard wrote:
+> SGIs mmiowb() might be useful for some of these cases but every time
+> its brought up everyone ends up confused as to its real use.
 
-Absolutely.
+It's documented in Documentation/DocBook/deviceiobook.tmpl.  If the 
+documentation isn't clear, we should fix it, rather than avoid using the 
+primitive altogether.  If drivers/net really means mmiowb() in some 
+places, we should change it, and like you said maybe get rid of some of 
+these primitives so that their usage is clearer.
 
-> It'd be better to take a tool like oprofile and run it against some
-> test suite to generate a usage map, then re-sort based on the map.
-> Then ship a "standard" map in the stock tarball. Note that the map
-> need only list the popular functions.
-> 
-> The ideal sampling tool can collect second order information: which
-> functions are executed near each other as well as which are executed
-> most frequently.
-
-There are tools already around to do this sort of thing as well - 
-"profile directed optimization" or whatever they called it. Seems to be 
-fairly commonly done with userspace, but not with the kernel. I'm not 
-sure why not ... possibly because it's not available for gcc ?
-
-M.
+Jesse

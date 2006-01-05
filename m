@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWAEXNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWAEXQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWAEXNU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWAEXNU
+	id S1750776AbWAEXQX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWAEXQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:13:20 -0500
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:30193 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751387AbWAEXNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:13:19 -0500
-Message-ID: <43BDA80C.4020009@bigpond.net.au>
-Date: Fri, 06 Jan 2006 10:13:16 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Helge Hafting <helgehaf@aitel.hist.no>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: Fix adverse effects of NFS client   on	interactive
- response
-References: <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net> <43BB2414.6060400@bigpond.net.au> <43A8EF87.1080108@bigpond.net.au> <1135145341.7910.17.camel@lade.trondhjem.org> <43A8F714.4020406@bigpond.net.au> <20060102110145.GA25624@aitel.hist.no> <43B9BD19.5050408@bigpond.net.au> <43BB2414.6060400@bigpond.net.au> <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net> <5.2.1.1.2.20060105143705.00be85c8@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20060105143705.00be85c8@pop.gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 5 Jan 2006 23:13:16 +0000
+	Thu, 5 Jan 2006 18:16:23 -0500
+Received: from thorn.pobox.com ([208.210.124.75]:59287 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S1750776AbWAEXQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:16:23 -0500
+Date: Thu, 5 Jan 2006 17:18:06 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
+       Ben Collins <bcollins@debian.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix workqueue oops during cpu offline
+Message-ID: <20060105231806.GF16729@localhost.localdomain>
+References: <20060105045810.GE16729@localhost.localdomain> <12c511ca0601051345pee8d8wc735507d361fa65e@mail.gmail.com> <20060105144210.A14956@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060105144210.A14956@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> At 10:31 PM 1/5/2006 +1100, Peter Williams wrote:
+Ashok Raj wrote:
+> On Thu, Jan 05, 2006 at 01:45:50PM -0800, Tony Luck wrote:
+> > On 1/4/06, Nathan Lynch <ntl@pobox.com> wrote:
+> > > This is where things go wrong -- any_online_cpu() now gets 1, not 0.
+> > > In queue_work, the cpu_workqueue_struct at per_cpu_ptr(wq->cpu_wq, 1) is
+> > > uninitialized.
+> > 
+> > Same issue on ia64 when I tried to add Ashok' s patch to allow
+> > removal of cpu0 (BSP in ia64-speak).  Ashok told me that this fix
+> > solves the problem for us too.
+> > 
 > 
->> Mike Galbraith wrote:
->>
->>> At 08:51 AM 1/5/2006 +1100, Peter Williams wrote:
->>>
->>>> I think that some of the harder to understand parts of the scheduler 
->>>> code are actually attempts to overcome the undesirable effects (such 
->>>> as those I've described) of inappropriately identifying tasks as 
->>>> interactive.  I think that it would have been better to attempt to 
->>>> fix the inappropriate identifications rather than their effects and 
->>>> I think the prudent use of TASK_NONINTERACTIVE is an important tool 
->>>> for achieving this.
->>>
->>>
->>> IMHO, that's nothing but a cover for the weaknesses induced by using 
->>> exclusively sleep time as an information source for the priority 
->>> calculation.  While this heuristic does work pretty darn well, it's 
->>> easily fooled (intentionally or otherwise).  The challenge is to find 
->>> the right low cost informational component, and to stir it in at O(1).
->>
->>
->> TASK_NONINTERACTIVE helps in this regard, is no cost in the code where 
->> it's used and probably decreases the costs in the scheduler code by 
->> enabling some processing to be skipped.  If by its judicious use the 
->> heuristic is only fed interactive sleep data the heuristics accuracy 
->> in identifying interactive tasks should be improved.  It may also 
->> allow the heuristic to be simplified.
-> 
-> 
-> I disagree.  You can nip and tuck all the bits of sleep time you want, 
-> and it'll just shift the lumpy spots around (btdt).
+> Is this safe to use in NUMA path as well? Not that memory hot-remove is there
+> yet today, but if a NUMA node is being removed, i would assume the memory for 
+> that node goes with it. i.e assuming alloc_percpu() gets node local memory for 
+> each cpu.
 
-Yes, but there's a lot of (understandable) reluctance to do any major 
-rework of this part of the scheduler so we're stuck with nips and tucks 
-for the time being.  This patch is a zero cost nip and tuck.
+I guess I don't understand your concern here -- the workqueue patch
+doesn't introduce any potential difficulty with memory or node removal
+that alloc_percpu didn't already have.
 
-If the plugsched patches were included in -mm we could get wider testing 
-of alternative scheduling mechanisms.  But I think it will take a lot of 
-testing of the new schedulers to allay fears that they may introduce new 
-problems of their own.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+> So is it safe to continue to reference an area of an offline cpu that may not
+> exist?
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Yes.

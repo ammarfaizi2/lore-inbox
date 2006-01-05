@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWAEPup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWAEPwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbWAEPup (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWAEPup
+	id S1751442AbWAEPwO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWAEPwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:50:45 -0500
-Received: from gate.crashing.org ([63.228.1.57]:2014 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751463AbWAEPun (ORCPT
+	Thu, 5 Jan 2006 10:52:14 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:37781 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751442AbWAEPwN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:50:43 -0500
-Date: Thu, 5 Jan 2006 09:44:49 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: netdev@vger.kernel.org, <linux-kernel@vger.kernel.org>,
-       <afleming@freescale.com>
-Subject: [PATCH] gianfar: Use new PHY_ID_FMT macro
-Message-ID: <Pine.LNX.4.44.0601050943150.31237-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jan 2006 10:52:13 -0500
+Subject: Re: [PATCH] PXA2xx: build PCMCIA as a module
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Florin Malita <fmalita@gmail.com>, rmk+lkml@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1136470671.14442.26.camel@scox.glenatl.glenayre.com>
+References: <1136409389.14442.20.camel@scox.glenatl.glenayre.com>
+	 <1136413220.9902.94.camel@localhost.localdomain>
+	 <1136419973.2768.7.camel@zed.malinux.net>
+	 <1136470671.14442.26.camel@scox.glenatl.glenayre.com>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 15:52:03 +0000
+Message-Id: <1136476323.6451.85.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make the driver produce the string used by phy_connect and have
-board specific code pass the integer mii bus id and phy device id
-for the specific controller instance.
-
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
-
----
-commit 2b67fe22e3c88ad9941c9e9f7b668d0fe661be88
-tree 9fb376123d3cf4bc335b98b0f902ab08acb86f37
-parent 1a6720f78a7fb69451983e6b73723b57594ecac1
-author Kumar Gala <galak@kernel.crashing.org> Thu, 05 Jan 2006 09:46:17 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Thu, 05 Jan 2006 09:46:17 -0600
-
- drivers/net/gianfar.c       |    5 ++++-
- include/linux/fsl_devices.h |    3 ++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/gianfar.c b/drivers/net/gianfar.c
-index 637b73a..0c18dbd 100644
---- a/drivers/net/gianfar.c
-+++ b/drivers/net/gianfar.c
-@@ -399,12 +399,15 @@ static int init_phy(struct net_device *d
- 		priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_GIGABIT ?
- 		SUPPORTED_1000baseT_Full : 0;
- 	struct phy_device *phydev;
-+	char phy_id[BUS_ID_SIZE];
- 
- 	priv->oldlink = 0;
- 	priv->oldspeed = 0;
- 	priv->oldduplex = -1;
- 
--	phydev = phy_connect(dev, priv->einfo->bus_id, &adjust_link, 0);
-+	snprintf(phy_id, BUS_ID_SIZE, PHY_ID_FMT, priv->einfo->bus_id, priv->einfo->phy_id);
-+
-+	phydev = phy_connect(dev, phy_id, &adjust_link, 0);
- 
- 	if (IS_ERR(phydev)) {
- 		printk(KERN_ERR "%s: Could not attach to PHY\n", dev->name);
-diff --git a/include/linux/fsl_devices.h b/include/linux/fsl_devices.h
-index a7a2b85..a9f1cfd 100644
---- a/include/linux/fsl_devices.h
-+++ b/include/linux/fsl_devices.h
-@@ -50,7 +50,8 @@ struct gianfar_platform_data {
- 
- 	/* board specific information */
- 	u32 board_flags;
--	const char *bus_id;
-+	u32 bus_id;
-+	u32 phy_id;
- 	u8 mac_addr[6];
- };
- 
-
-
+On Thu, 2006-01-05 at 09:17 -0500, Florin Malita wrote:
+> > On Wed, 2006-01-04 at 22:20 +0000, Richard Purdie wrote:
+> > > NAK. This breaks poodle, tosa and collie who also use scoop and this
+> > > pcmcia driver. I'd suggest moving scoop_pcmcia_config to
+> > > arch/arm/common/scoop.c instead.
+> 
+> Here's a version with the modified comment following your suggestion.
+> 
+> Thanks,
+> Florin
+> 
+> Signed-off-by: Florin Malita <fmalita@gmail.com>
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+> --
+> diff --git a/arch/arm/common/scoop.c b/arch/arm/common/scoop.c
+> --- a/arch/arm/common/scoop.c
+> +++ b/arch/arm/common/scoop.c
+> @@ -19,6 +19,16 @@
+>  
+>  #define SCOOP_REG(d,adr) (*(volatile unsigned short*)(d +(adr)))
+>  
+> +/* PCMCIA to Scoop linkage
+> +
+> +   There is no easy way to link multiple scoop devices into one
+> +   single entity for the pxa2xx_pcmcia device so this structure
+> +   is used which is setup by the platform code and used by the
+> +   pcmcia driver.
+> +*/
+> +struct scoop_pcmcia_config *platform_scoop_config;
+> +EXPORT_SYMBOL(platform_scoop_config);
+> +
+>  struct  scoop_dev {
+>  	void  *base;
+>  	spinlock_t scoop_lock;
+> diff --git a/drivers/pcmcia/pxa2xx_sharpsl.c b/drivers/pcmcia/pxa2xx_sharpsl.c
+> --- a/drivers/pcmcia/pxa2xx_sharpsl.c
+> +++ b/drivers/pcmcia/pxa2xx_sharpsl.c
+> @@ -27,13 +27,6 @@
+>  
+>  #define	NO_KEEP_VS 0x0001
+>  
+> -/* PCMCIA to Scoop linkage
+> -
+> -   There is no easy way to link multiple scoop devices into one
+> -   single entity for the pxa2xx_pcmcia device so this structure
+> -   is used which is setup by the platform code
+> -*/
+> -struct scoop_pcmcia_config *platform_scoop_config;
+>  #define SCOOP_DEV platform_scoop_config->devs
+>  
+>  static void sharpsl_pcmcia_init_reset(struct scoop_pcmcia_dev *scoopdev)
+> diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
+> --- a/drivers/pcmcia/soc_common.c
+> +++ b/drivers/pcmcia/soc_common.c
+> @@ -846,3 +846,4 @@ int soc_common_drv_pcmcia_remove(struct 
+>  
+>  	return 0;
+>  }
+> +EXPORT_SYMBOL(soc_common_drv_pcmcia_remove);
+> 
+> 
 

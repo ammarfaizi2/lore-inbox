@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWAEWAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWAEWBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWAEWAO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWAEWAN
+	id S1750903AbWAEWBV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWAEWBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:00:13 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:5257 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932233AbWAEWAM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:00:12 -0500
-Date: Thu, 5 Jan 2006 22:59:58 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jeff Dike <jdike@addtoit.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 4/9] UML - Better diagnostics for broken configs
-In-Reply-To: <20060105161436.GA4426@ccure.user-mode-linux.org>
-Message-ID: <Pine.LNX.4.61.0601052258350.27662@yvahk01.tjqt.qr>
-References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org>
- <Pine.LNX.4.61.0601050844550.10161@yvahk01.tjqt.qr>
- <20060105161436.GA4426@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jan 2006 17:01:20 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:15054 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750903AbWAEWBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 17:01:20 -0500
+Subject: Re: No Coax digital out with SB Live! and 2.6.15
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tino Keitel <tino.keitel@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060104073617.GA15342@localhost.localdomain>
+References: <20060103180831.GA5265@localhost.localdomain>
+	 <20060104072618.GA10973@localhost.localdomain>
+	 <20060104073617.GA15342@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 17:01:17 -0500
+Message-Id: <1136498477.847.52.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >Produce a compile-time error if both MODE_SKAS and MODE_TT are disabled.
->>
->> What would happen if both were disabled?
->> Say, if the host system does not have SKAS and I did not want any 
->> tracing/debugging stuff?
->
->You get a UML that can't run.  TT mode isn't tracing/debugging stuff.  It's 
->a basic mode of UML operation.  Also, UML doesn't need the skas patch on
->the host in order to use skas mode any more.  It helps, but is not necessary.
+On Wed, 2006-01-04 at 08:36 +0100, Tino Keitel wrote:
+> On Wed, Jan 04, 2006 at 08:26:18 +0100, Tino Keitel wrote:
+> > On Tue, Jan 03, 2006 at 19:08:31 +0100, Tino Keitel wrote:
+> > > Hi folks,
+> > > 
+> > > since I upgraded to 2.6.15, the Coax digital output of my SB Live!
+> > > stays silent. Analog output works. After reverting to 2.6.14.3 the
+> > > digital output works again. Does anyone have a solution for this or at
+> > > least the same problem?
+> > 
+> > I just tried alsa-driver 1.0.11-rc2 and now the digital out works again.
+> 
+> alsa-driver 1.0.10 works, too.
 
-config MODE_TT
-        bool "Tracing thread support"
-        default y
-        help
-        This option controls whether tracing thread support is compiled
-        into UML.  Normally, this should be set to Y.  If you intend to
-        use only skas mode (and the host has the skas patch applied to it),
-        then it is OK to say N here.
+Are you sure it was not a mixer settings issue?
 
-Then I unfortunately do not quite understand what this is for.
+If you can confirm that this is a regression try to narrow it down by
+code inspection or binary search by date with ALSA CVS it can be fixed
+for 2.6.15.x.
 
+Lee
 
-
-Jan Engelhardt
--- 

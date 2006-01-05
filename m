@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWAEPho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWAEPiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWAEPho (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:37:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWAEPho
+	id S932107AbWAEPiS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWAEPhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:37:44 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:47597 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932096AbWAEPhf (ORCPT
+	Thu, 5 Jan 2006 10:37:53 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10194 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932097AbWAEPhp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:37:35 -0500
-Date: Thu, 5 Jan 2006 16:37:30 +0100
+	Thu, 5 Jan 2006 10:37:45 -0500
+Date: Thu, 5 Jan 2006 16:37:37 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,148 +19,165 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 05/21] mutex subsystem, add include/asm-x86_64/mutex.h
-Message-ID: <20060105153730.GF31013@elte.hu>
+Subject: [patch 06/21] mutex subsystem, add include/asm-arm/mutex.h
+Message-ID: <20060105153737.GG31013@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Nicolas Pitre <nico@cam.org>
 
-add the x86_64 version of mutex.h, optimized in assembly.
+add the ARM version of mutex.h, which is optimized in assembly for
+ARMv6, and uses the xchg implementation on pre-ARMv6.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- include/asm-x86_64/mutex.h |  113 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 113 insertions(+)
+ include/asm-arm/mutex.h |  128 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 128 insertions(+)
 
-Index: linux/include/asm-x86_64/mutex.h
+Index: linux/include/asm-arm/mutex.h
 ===================================================================
 --- /dev/null
-+++ linux/include/asm-x86_64/mutex.h
-@@ -0,0 +1,113 @@
++++ linux/include/asm-arm/mutex.h
+@@ -0,0 +1,128 @@
 +/*
-+ * Assembly implementation of the mutex fastpath, based on atomic
-+ * decrement/increment.
++ * include/asm-arm/mutex.h
 + *
-+ * started by Ingo Molnar:
++ * ARM optimized mutex locking primitives
 + *
-+ *  Copyright (C) 2004, 2005, 2006 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
++ * Please look into asm-generic/mutex-xchg.h for a formal definition.
 + */
 +#ifndef _ASM_MUTEX_H
 +#define _ASM_MUTEX_H
 +
-+/**
-+ * __mutex_fastpath_lock - decrement and call function if negative
-+ * @v: pointer of type atomic_t
-+ * @fail_fn: function to call if the result is negative
-+ *
-+ * Atomically decrements @v and calls <fail_fn> if the result is negative.
++#if __LINUX_ARM_ARCH__ < 6
++/* On pre-ARMv6 hardware the swp based implementation is the most efficient. */
++# include <asm-generic/mutex-xchg.h>
++#else
++
++/*
++ * Attempting to lock a mutex on ARMv6+ can be done with a bastardized
++ * atomic decrement (it is not a reliable atomic decrement but it satisfies
++ * the defined semantics for our purpose, while being smaller and faster
++ * than a real atomic decrement or atomic swap.  The idea is to attempt
++ * decrementing the lock value only once.  If once decremented it isn't zero,
++ * or if its store-back fails due to a dispute on the exclusive store, we
++ * simply bail out immediately through the slow path where the lock will be
++ * reattempted until it succeeds.
 + */
-+#define __mutex_fastpath_lock(v, fail_fn)				\
++#define __mutex_fastpath_lock(count, fail_fn)				\
 +do {									\
-+	unsigned long dummy;						\
++	int __ex_flag, __res;						\
 +									\
-+	typecheck(atomic_t *, v);					\
++	typecheck(atomic_t *, count);					\
 +	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
 +									\
-+	__asm__ __volatile__(						\
-+		LOCK	"   decl (%%rdi)	\n"			\
-+			"   js 2f		\n"			\
-+			"1:			\n"			\
++	__asm__ (							\
++		"ldrex	%0, [%2]	\n"				\
++		"sub	%0, %0, #1	\n"				\
++		"strex	%1, %0, [%2]	\n"				\
 +									\
-+		LOCK_SECTION_START("")					\
-+			"2: call "#fail_fn"	\n"			\
-+			"   jmp 1b		\n"			\
-+		LOCK_SECTION_END					\
++		: "=&r" (__res), "=&r" (__ex_flag)			\
++		: "r" (&(count)->counter)				\
++		: "cc","memory" );					\
 +									\
-+		:"=D" (dummy)						\
-+		: "D" (v)						\
-+		: "rax", "rsi", "rdx", "rcx",				\
-+		  "r8", "r9", "r10", "r11", "memory");			\
++	if (unlikely(__res || __ex_flag))				\
++		fail_fn(count);						\
 +} while (0)
 +
-+/**
-+ *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
-+ *                                 from 1 to a 0 value
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: function to call if the original value was not 1
-+ *
-+ * Change the count from 1 to a value lower than 1, and call <fail_fn> if
-+ * it wasn't 1 originally. This function returns 0 if the fastpath succeeds,
-+ * or anything the slow path function returns
-+ */
-+static inline int
-+__mutex_fastpath_lock_retval(atomic_t *count,
-+			     int fastcall (*fail_fn)(atomic_t *))
-+{
-+	if (unlikely(atomic_dec_return(count) < 0))
-+		return fail_fn(count);
-+	else
-+		return 0;
-+}
-+
-+/**
-+ * __mutex_fastpath_unlock - increment and call function if nonpositive
-+ * @v: pointer of type atomic_t
-+ * @fail_fn: function to call if the result is nonpositive
-+ *
-+ * Atomically increments @v and calls <fail_fn> if the result is nonpositive.
-+ */
-+#define __mutex_fastpath_unlock(v, fail_fn)				\
-+do {									\
-+	unsigned long dummy;						\
++#define __mutex_fastpath_lock_retval(count, fail_fn)			\
++({									\
++	int __ex_flag, __res;						\
 +									\
-+	typecheck(atomic_t *, v);					\
++	typecheck(atomic_t *, count);					\
++	typecheck_fn(fastcall int (*)(atomic_t *), fail_fn);		\
++									\
++	__asm__ (							\
++		"ldrex	%0, [%2]	\n"				\
++		"sub	%0, %0, #1	\n"				\
++		"strex	%1, %0, [%2]	\n"				\
++									\
++		: "=&r" (__res), "=&r" (__ex_flag)			\
++		: "r" (&(count)->counter)				\
++		: "cc","memory" );					\
++									\
++	__res |= __ex_flag;						\
++	if (unlikely(__res != 0))					\
++		__res = fail_fn(count);					\
++	__res;								\
++})
++
++/*
++ * Same trick is used for the unlock fast path. However the original value,
++ * rather than the result, is used to test for success in order to have
++ * better generated assembly.
++ */
++#define __mutex_fastpath_unlock(count, fail_fn)				\
++do {									\
++	int __ex_flag, __res, __orig;					\
++									\
++	typecheck(atomic_t *, count);					\
 +	typecheck_fn(fastcall void (*)(atomic_t *), fail_fn);		\
 +									\
-+	__asm__ __volatile__(						\
-+		LOCK	"   incl (%%rdi)	\n"			\
-+			"   jle 2f		\n"			\
-+			"1:			\n"			\
++	__asm__ (							\
++		"ldrex	%0, [%3]	\n"				\
++		"add	%1, %0, #1	\n"				\
++		"strex	%2, %1, [%3]	\n"				\
 +									\
-+		LOCK_SECTION_START("")					\
-+			"2: call "#fail_fn"	\n"			\
-+			"   jmp 1b		\n"			\
-+		LOCK_SECTION_END					\
++		: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)	\
++		: "r" (&(count)->counter)				\
++		: "cc","memory" );					\
 +									\
-+		:"=D" (dummy)						\
-+		: "D" (v)						\
-+		: "rax", "rsi", "rdx", "rcx",				\
-+		  "r8", "r9", "r10", "r11", "memory");			\
++	if (unlikely(__orig || __ex_flag))				\
++		fail_fn(count);						\
 +} while (0)
 +
++/*
++ * If the unlock was done on a contended lock, or if the unlock simply fails
++ * then the mutex remains locked.
++ */
 +#define __mutex_slowpath_needs_to_unlock()	1
 +
-+/**
-+ * __mutex_fastpath_trylock - try to acquire the mutex, without waiting
++/*
++ * For __mutex_fastpath_trylock we use another construct which could be
++ * described as a "single value cmpxchg".
 + *
-+ *  @count: pointer of type atomic_t
-+ *  @fail_fn: fallback function
-+ *
-+ * Change the count from 1 to 0 and return 1 (success), or return 0 (failure)
-+ * if it wasn't 1 originally. [the fallback function is never used on
-+ * x86_64, because all x86_64 CPUs have a CMPXCHG instruction.]
++ * This provides the needed trylock semantics like cmpxchg would, but it is
++ * lighter and less generic than a true cmpxchg implementation.
 + */
 +static inline int
 +__mutex_fastpath_trylock(atomic_t *count, int (*fail_fn)(atomic_t *))
 +{
-+	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
-+		return 1;
-+	else
-+		return 0;
++	int __ex_flag, __res, __orig;
++
++	__asm__ (
++
++		"1: ldrex	%0, [%3]	\n"
++		"subs		%1, %0, #1	\n"
++		"strexeq	%2, %1, [%3]	\n"
++		"movlt		%0, #0		\n"
++		"cmpeq		%2, #0		\n"
++		"bgt		1b		\n"
++
++		: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)
++		: "r" (&count->counter)
++		: "cc", "memory" );
++
++	return __orig;
 +}
 +
++#endif
 +#endif

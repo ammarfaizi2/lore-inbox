@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751959AbWAEFyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751960AbWAEF57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751959AbWAEFyw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 00:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751960AbWAEFyw
+	id S1751960AbWAEF57 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 00:57:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751961AbWAEF56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 00:54:52 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:36030 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751959AbWAEFyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 00:54:51 -0500
-Date: Thu, 05 Jan 2006 14:54:25 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: jschopp@austin.ibm.com
-Subject: Re: [Patch] New zone ZONE_EASY_RECLAIM take 4. (Change PageHighMem())[8/8]
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-In-Reply-To: <43BAEF69.3020006@austin.ibm.com>
-References: <20051220173217.1B18.Y-GOTO@jp.fujitsu.com> <43BAEF69.3020006@austin.ibm.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
-Message-Id: <20060105144337.491F.Y-GOTO@jp.fujitsu.com>
+	Thu, 5 Jan 2006 00:57:58 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:46475 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S1751960AbWAEF56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 00:57:58 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades
+To: Nathan Lynch <ntl@pobox.com>
+Subject: Re: [PATCH] fix workqueue oops during cpu offline
+Date: Thu, 5 Jan 2006 15:58:13 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Ben Collins <bcollins@debian.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060105045810.GE16729@localhost.localdomain>
+In-Reply-To: <20060105045810.GE16729@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+Content-Disposition: inline
+Message-Id: <200601051558.14275.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This patch is change PageHighMem()'s definition for i386.
-> > Easy reclaim zone is treated like highmem on i386.
-> 
-> This doesn't look like an i386 file, it looks like you are changing it 
-> for all architectures that have HIGHMEM (do any other archs use 
-> highmeme?). This may be fine, just wanted you to be aware.
+Hi.
 
-Right. My description was wrong. This is for all arch.
+On Thursday 05 January 2006 14:58, Nathan Lynch wrote:
+> With 2.6.15, powerpc systems oops when cpu 0 is offlined.  This is a
+> regression from 2.6.14, caused by commit id
+> bce61dd49d6ba7799be2de17c772e4c701558f14 ("Fix hardcoded cpu=0 in
+> workqueue for per_cpu_ptr() calls").
 
-The first purpose of his patch is to give i386 environment for
-Kame-san's remove patch. This description came from it.
+So it's valid on ppc for cpu 0 to be taken offline? IIRC, trying that on my P4 
+a while back did nothing. I think you'll find other places that assume that 
+cpu 0 is always up (swsusp? ... I should check suspend2).
 
-Sorry.
+Regards,
 
-
-
-> 
-> > 
-> > This is new patch at take 4.
-> > 
-> > Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-> > 
-> > Index: zone_reclaim/include/linux/page-flags.h
-> > ===================================================================
-> > --- zone_reclaim.orig/include/linux/page-flags.h	2005-12-15 21:01:09.000000000 +0900
-> > +++ zone_reclaim/include/linux/page-flags.h	2005-12-15 21:24:07.000000000 +0900
-> > @@ -265,7 +265,7 @@ extern void __mod_page_state_offset(unsi
-> >  #define TestSetPageSlab(page)	test_and_set_bit(PG_slab, &(page)->flags)
-> >  
-> >  #ifdef CONFIG_HIGHMEM
-> > -#define PageHighMem(page)	is_highmem(page_zone(page))
-> > +#define PageHighMem(page)	is_higher_zone(page_zone(page))
-> >  #else
-> >  #define PageHighMem(page)	0 /* needed to optimize away at compile time */
-> >  #endif
-> > 
-> 
-> 
-
--- 
-Yasunori Goto 
-
-
+Nigel

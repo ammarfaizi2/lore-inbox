@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752119AbWAEIx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752125AbWAEJRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752119AbWAEIx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 03:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752118AbWAEIx6
+	id S1752125AbWAEJRz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 04:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752127AbWAEJRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 03:53:58 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:18077 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1751095AbWAEIx5 (ORCPT
+	Thu, 5 Jan 2006 04:17:55 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:42117 "EHLO
+	orac.home") by vger.kernel.org with ESMTP id S1752125AbWAEJRy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 03:53:57 -0500
-Date: Thu, 5 Jan 2006 03:55:59 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Dane Mutters <dmutters@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: (1) ACPI messes up Parallel support in kernels >2.6.9
-Message-ID: <20060105085559.GA1357@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Dane Mutters <dmutters@gmail.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <200601042203.12377.dmutters@gmail.com> <20060104225209.56e35802.akpm@osdl.org>
+	Thu, 5 Jan 2006 04:17:54 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: devfs going away, last chance to complain (was Re: [GIT PATCH] Driver Core patches for 2.6.15)
+Date: Thu, 5 Jan 2006 09:17:47 +0000
+User-Agent: KMail/1.8.2
+References: <20060105004826.GA17328@kroah.com> <20060105034414.GA23660@suse.de> <43BCCE69.1020509@uplinklabs.net>
+In-Reply-To: <43BCCE69.1020509@uplinklabs.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060104225209.56e35802.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601050917.47726.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 10:52:09PM -0800, Andrew Morton wrote:
-> Dane Mutters <dmutters@gmail.com> wrote:
-> >
-> > 	I've been attempting to figure out this problem for a long time, and have 
-> >  come to the conclusion that it must be a kernel bug (that or perhaps I'm a 
-> >  bit dense).  Whenever I have the option, "Device Drivers > Plug and Play > 
-> >  ACPI Support" enabled, I become unable to print using my parallel port.
-> 
-> hm, regressions are bad and the fact that it _used_ to work meand that we
-> should be able to make it work again.
-> 
-> Could you please raise a bug reports against acpi at bugzilla.kernel.org? 
-> It might help if that report includes the output of `dmesg -s 1000000' for
-> both working and non-working kernels.
-> 
-> Thanks.
+On Thursday 05 January 2006 07:44, Steven Noonan wrote:
+> Pardon my ignorance, but what precisely was/is the problem with devfs,
+> anyway?
 
-This may be a PnP bug.  If you can provide further information, I'll
-look into it.
+This has been toasted to death many times. These guys won't waste time 
+describing the issues again. Just search the ML archives for devfs, but make 
+sure you have several hours to kill ;)
 
-Thanks,
-Adam
-
+Andrew Walrond

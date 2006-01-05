@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWAEV5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWAEWAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWAEV5O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWAEV5N
+	id S932233AbWAEWAO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWAEWAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:57:13 -0500
-Received: from linux.dunaweb.hu ([62.77.196.1]:10118 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S932232AbWAEV5L (ORCPT
+	Thu, 5 Jan 2006 17:00:13 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:5257 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932233AbWAEWAM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:57:11 -0500
-Message-ID: <43BD9E4A.8090200@freemail.hu>
-Date: Thu, 05 Jan 2006 23:31:38 +0100
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
-X-Accept-Language: hu-hu, hu, en-us, en
+	Thu, 5 Jan 2006 17:00:12 -0500
+Date: Thu, 5 Jan 2006 22:59:58 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jeff Dike <jdike@addtoit.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 4/9] UML - Better diagnostics for broken configs
+In-Reply-To: <20060105161436.GA4426@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.61.0601052258350.27662@yvahk01.tjqt.qr>
+References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org>
+ <Pine.LNX.4.61.0601050844550.10161@yvahk01.tjqt.qr>
+ <20060105161436.GA4426@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bad page state in 2.6.15
-References: <43BD9A17.4010305@freemail.hu>
-In-Reply-To: <43BD9A17.4010305@freemail.hu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zoltan Boszormenyi írta:
-
-> Hi,
+>> >Produce a compile-time error if both MODE_SKAS and MODE_TT are disabled.
+>>
+>> What would happen if both were disabled?
+>> Say, if the host system does not have SKAS and I did not want any 
+>> tracing/debugging stuff?
 >
-> I just got this on FC3, a shiny new compiled 2.6.15 kernel:
->
-> Bad page state at prep_new_page (in process 'cc1', page ffff8100018e1278)
-> flags:0x4000000000000004 mapping:0000000000000000 mapcount:0 
-> count:-131072
-> Backtrace:
->
-> Call Trace:<ffffffff8015536e>{bad_page+113} 
-> <ffffffff80155edf>{get_page_from_freelist+702}
->       <ffffffff80156032>{__alloc_pages+80} 
-> <ffffffff80160f8b>{__handle_mm_fault+453}
->       <ffffffff8011edd6>{do_page_fault+959} 
-> <ffffffff80164225>{do_mmap_pgoff+1604}
->       <ffffffff8010f0c9>{error_exit+0}
-> Trying to fix it up, but a reboot is needed
+>You get a UML that can't run.  TT mode isn't tracing/debugging stuff.  It's 
+>a basic mode of UML operation.  Also, UML doesn't need the skas patch on
+>the host in order to use skas mode any more.  It helps, but is not necessary.
+
+config MODE_TT
+        bool "Tracing thread support"
+        default y
+        help
+        This option controls whether tracing thread support is compiled
+        into UML.  Normally, this should be set to Y.  If you intend to
+        use only skas mode (and the host has the skas patch applied to it),
+        then it is OK to say N here.
+
+Then I unfortunately do not quite understand what this is for.
 
 
-... and about 5-6 minutes later, the machine locked up. :-(
 
-Best regards,
-Zoltán Böszörményi
-
+Jan Engelhardt
+-- 

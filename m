@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752095AbWAEHO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752096AbWAEHP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752095AbWAEHO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 02:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWAEHO5
+	id S1752096AbWAEHP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 02:15:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWAEHP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 02:14:57 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:48776 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752095AbWAEHO4 (ORCPT
+	Thu, 5 Jan 2006 02:15:58 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:52872 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1752096AbWAEHP5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 02:14:56 -0500
-Date: Thu, 5 Jan 2006 08:14:37 +0100 (MET)
+	Thu, 5 Jan 2006 02:15:57 -0500
+Date: Thu, 5 Jan 2006 08:15:50 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-cc: mista.tapas@gmx.net,
-       Tomasz =?iso-8859-1?q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
-       Andi Kleen <ak@suse.de>, perex@suse.cz, alsa-devel@alsa-project.org,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-In-Reply-To: <200601041728.57816.s0348365@sms.ed.ac.uk>
-Message-ID: <Pine.LNX.4.61.0601050813570.10161@yvahk01.tjqt.qr>
-References: <s5h1wzpnjrx.wl%tiwai@suse.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl>
- <20060104113726.3bd7a649@mango.fruits.de> <200601041728.57816.s0348365@sms.ed.ac.uk>
+To: Alex Riesen <raa.lkml@gmail.com>
+cc: xerces8 <xerces8@butn.net>, tech@lists.gnumonks.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Possible GPL violation in Canyon CN-WF514 WLAN router
+In-Reply-To: <81b0412b0601040707r355da9eey1b6332d0563dd3a4@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0601050815030.10161@yvahk01.tjqt.qr>
+References: <WorldClient-F200512251652.AA52540032@butn.net> 
+ <WorldClient-F200601032031.AA31410090@butn.net>
+ <81b0412b0601040707r355da9eey1b6332d0563dd3a4@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->This is a superb, informed summary of the pros and cons of ALSA.
+>On 1/3/06, xerces8 <xerces8@butn.net> wrote:
+>>  Help disecting the FW package [4]. It is a ZIP archive containing
+>>  a text file and a *.bin file. This *.bin file appears to be some kind
+>>  of another archive, containing two files : webpages-6104ipc.bin
+>>  and vmlinux.bin
 >
-Reminds me of Takashi's talk named "ALSA sucks". :)
+>$ file WF514-200713T5.img
+>WF514-200713T5.img: PPCBoot image
+>
+Why does not my "file" utility print that...!?
 
->I urge the ALSA developers to consider each point carefully so we can try to 
->make ALSA even better.
->
+# rpm -q file
+file-4.14-3
+
+
+>Which probably (I didn't look) points to http://ppcboot.sourceforge.net/
+
 
 Jan Engelhardt
 -- 

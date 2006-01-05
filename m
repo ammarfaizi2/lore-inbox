@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWAESof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWAESpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWAESof (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWAESof
+	id S932139AbWAESpm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWAESpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:44:35 -0500
-Received: from nevyn.them.org ([66.93.172.17]:5010 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S932114AbWAESoe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:44:34 -0500
-Date: Thu, 5 Jan 2006 13:43:29 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Martin Bligh <mbligh@mbligh.org>, Matt Mackall <mpm@selenic.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-Message-ID: <20060105184329.GB15337@nevyn.them.org>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Martin Bligh <mbligh@mbligh.org>, Matt Mackall <mpm@selenic.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Dave Jones <davej@redhat.com>,
-	Tim Schmielau <tim@physik3.uni-rostock.de>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <1136484577.2920.56.camel@laptopd505.fenrus.org>
+	Thu, 5 Jan 2006 13:45:42 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:45512 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932139AbWAESpl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:45:41 -0500
+Subject: [PATCH 00/01] Move Exit Connectors
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jay Lan <jlan@engr.sgi.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>, elsa-devel@lists.sourceforge.net,
+       lse-tech@lists.sourceforge.net,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
+       John Hesterberg <jh@sgi.com>
+In-Reply-To: <20060104151730.77df5bf6.akpm@osdl.org>
+References: <43BB05D8.6070101@watson.ibm.com>
+	 <43BB09D4.2060209@watson.ibm.com> <43BC1C43.9020101@engr.sgi.com>
+	 <1136414431.22868.115.camel@stark>  <20060104151730.77df5bf6.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 10:42:46 -0800
+Message-Id: <1136486566.22868.127.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136484577.2920.56.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 07:09:36PM +0100, Arjan van de Ven wrote:
+On Wed, 2006-01-04 at 15:17 -0800, Andrew Morton wrote:
+> Matt Helsley <matthltc@us.ibm.com> wrote:
+> >
+> > > We need to move both proc_exit_connector(tsk) and
+> > > cnstats_exit_connector(tsk) up to before exit_mm(tsk) statement.
+> > > There are task statistics collected in task->mm and those stats
+> > > will be lost after exit_mm(tsk).
+> > > 
+> > > Thanks,
+> > >  - jay
+> > > 
+> > > > 	exit_notify(tsk);
+> > > > #ifdef CONFIG_NUMA
+> > > > 	mpol_free(tsk->mempolicy);
+> > > >-
+> > 
+> > 	Good point. The assignment of the task exit code will also have to move
+> > up before exit_mm(tsk) because the process event connector exit function
+> > retrieves the exit code from the task struct.
 > 
-> > There are tools already around to do this sort of thing as well - 
-> > "profile directed optimization" or whatever they called it. Seems to be 
-> > fairly commonly done with userspace, but not with the kernel. I'm not 
-> > sure why not ... possibly because it's not available for gcc ?
-> 
-> gcc has this for sure
-> the problem is that it expects the profile info in a special format
-> that.. gets written to a file. So to do it in the kernel you need
-> SomeMagic(tm), for example to use the kernel profiler but to let it
-> output it somehow in a gcc compatible format.
+> Could someone please volunteer to do the patch?
 
-Right - at some point I remember a discussion of nifty Eclipse plugins
-to allow test runs on a custom workload and rebuild with feedback,
-but it never materialized.
+Here are two separate patches (not a series).
 
--- 
-Daniel Jacobowitz
-CodeSourcery
+The first simply moves the process event connector north of exit_mm().
+It applies to a clean 2.6.15 kernel. Please consider it for -mm.
+
+The second patch moves both -- it's intended to be applied on top of
+Shailabh's series of patches.
+
+Cheers,
+	-Matt Helsley
+

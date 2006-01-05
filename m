@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWAEA47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWAEA45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWAEA47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWAEA46
+	id S1750971AbWAEA45 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWAEAu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:56:58 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52191 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751025AbWAEA4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:56:33 -0500
-Date: Thu, 5 Jan 2006 01:55:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux PM <linux-pm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC/RFT][PATCH -mm 2/5] swsusp: userland interface (rev. 2)
-Message-ID: <20060105005559.GC1751@elf.ucw.cz>
-References: <200601042340.42118.rjw@sisk.pl> <200601042351.58667.rjw@sisk.pl> <20060104234918.GA15983@kroah.com> <20060105001837.GA1751@elf.ucw.cz> <20060105002619.GA16714@kroah.com>
+	Wed, 4 Jan 2006 19:50:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:64185 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750971AbWAEAty convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 19:49:54 -0500
+Cc: rusty@rustcorp.com.au
+Subject: [PATCH] Input: fix add modalias support build error
+In-Reply-To: <1136422171546@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 4 Jan 2006 16:49:31 -0800
+Message-Id: <11364221713236@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105002619.GA16714@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+[PATCH] Input: fix add modalias support build error
 
-> > > Unless you want to turn these into syscalls :)
-> > 
-> > Well, I think we simply want to get static major/minor allocated for
-> > this device. It really uses read/write, IIRC, so no, I do not think we
-> > want to make it a syscall.
-> 
-> Ok, then I'd recommend using the misc device, dynamic for now, and
-> reserve one when you get a bit closer to merging into mainline.
+Fix build when scripts/mod/file2alias.c includes linux/input.h, which
+tries to include /usr/include/linux/mod_devicetable.h:
 
-Actually, misc major (character, major 10) seems to be okay,
-too. There's stuff like /dev/fuse there, already. But it feels little
-crowded there, and /dev/snapshot seems to fit between memory devices
-nicely...
-								Pavel
--- 
-Thanks, Sharp!
+ In file included from scripts/mod/file2alias.c:40:
+ include/linux/input.h:21:35: linux/mod_devicetable.h: No such file or directory
+ make[2]: *** [scripts/mod/file2alias.o] Error 1
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+commit e39b84337b8aed3044683a57741a19e5002225b9
+tree b0e6fdd68b9b7d24b984401795f4660cc9cf7d0b
+parent 1d8f430c15b3a345db990e285742c67c2f52f9a6
+author Rusty Russell <rusty@rustcorp.com.au> Sat, 10 Dec 2005 22:48:20 +1100
+committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 04 Jan 2006 16:18:09 -0800
+
+ include/linux/input.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/include/linux/input.h b/include/linux/input.h
+index bef0855..6d4cc3c 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -13,12 +13,12 @@
+ #include <linux/time.h>
+ #include <linux/list.h>
+ #include <linux/device.h>
++#include <linux/mod_devicetable.h>
+ #else
+ #include <sys/time.h>
+ #include <sys/ioctl.h>
+ #include <asm/types.h>
+ #endif
+-#include <linux/mod_devicetable.h>
+ 
+ /*
+  * The event structure itself
+

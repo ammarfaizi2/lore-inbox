@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWAERJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751846AbWAERL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751844AbWAERJc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 12:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751846AbWAERJc
+	id S1751846AbWAERL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 12:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751847AbWAERL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 12:09:32 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:25731 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1751844AbWAERJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 12:09:31 -0500
-Message-ID: <43BD531C.3060801@didntduck.org>
-Date: Thu, 05 Jan 2006 12:10:52 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mail/News 1.5 (X11/20060103)
+	Thu, 5 Jan 2006 12:11:27 -0500
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:1688
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1751846AbWAERL1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 12:11:27 -0500
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.git checkout error
+Date: Thu, 5 Jan 2006 11:11:27 -0600
+Message-Id: <20060105170910.M70902@linuxwireless.org>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 16.90.17.175 (abonilla@linuxwireless.org)
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] gitignore shared objects
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many arches make shared objects for VDSOs.  Generally exclude them.
 
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+receiving file list ... done
 
----
-commit 78a3333da041f4ec40d2fda241b7a491a69c44b7
-tree 648d14cc3e86dc286b8fc9f9ffa99f213fc4e23d
-parent d5b9ab9d83c4beda74115d03b9bb9bad843f9d55
-author Brian Gerst <bgerst@didntduck.org> Thu, 05 Jan 2006 11:08:25 -0500
-committer Brian Gerst <bgerst@didntduck.org> Thu, 05 Jan 2006 11:08:25 -0500
+sent 121 bytes  received 922 bytes  695.33 bytes/sec
+total size is 103831840  speedup is 99551.14
+* committish: db9edfd7e339ca4113153d887e782dd05be5a9eb  HEAD from
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+Updating from 88026842b0a760145aa71d69e74fbc9ec118ca44 to
+db9edfd7e339ca4113153d887e782dd05be5a9eb.
+fatal: Entry 'Makefile' not uptodate. Cannot merge.
+debian:~/linux-2.6#
 
- .gitignore                  |    1 +
- arch/x86_64/ia32/.gitignore |    1 -
- 2 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/.gitignore b/.gitignore
-index a4b576e..3f8fb68 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -10,6 +10,7 @@
- *.a
- *.s
- *.ko
-+*.so
- *.mod.c
- 
- #
-diff --git a/arch/x86_64/ia32/.gitignore b/arch/x86_64/ia32/.gitignore
-deleted file mode 100644
-index 48ab174..0000000
---- a/arch/x86_64/ia32/.gitignore
-+++ /dev/null
-@@ -1 +0,0 @@
--vsyscall*.so
-
-
+.Alejandro

@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752141AbWAELFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752142AbWAELIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752141AbWAELFS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 06:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752142AbWAELFS
+	id S1752142AbWAELIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 06:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752145AbWAELIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 06:05:18 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:41655 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752141AbWAELFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 06:05:17 -0500
-Date: Thu, 5 Jan 2006 12:05:08 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Dave Jones <davej@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: oops pauser.
-In-Reply-To: <20060105103339.GG20809@redhat.com>
-Message-ID: <Pine.LNX.4.61.0601051201200.21555@yvahk01.tjqt.qr>
-References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
- <20060105103339.GG20809@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jan 2006 06:08:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27016 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752142AbWAELIk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 06:08:40 -0500
+Date: Thu, 5 Jan 2006 03:08:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Debug shared irqs.
+Message-Id: <20060105030824.20c70359.akpm@osdl.org>
+In-Reply-To: <1136457598.4158.175.camel@pmac.infradead.org>
+References: <1135251766.3557.13.camel@pmac.infradead.org>
+	<20060105021929.498f45ef.akpm@osdl.org>
+	<1136457598.4158.175.camel@pmac.infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->See the other patch I sent which halves the amount of lines needed
->for a backtrace on i386 (like x86-64 uses). This helps too.
+David Woodhouse <dwmw2@infradead.org> wrote:
 >
-.oO( Compress the oops, encode it base64 and display that instead )Oo. :-)
+> On Thu, 2006-01-05 at 02:19 -0800, Andrew Morton wrote:
+> > This is going to cause me a ton of grief.  How's about you put it in
+> > Fedora for a few weeks, get all the drivers debugged first ;)
+> 
+> I'd do that normally, but it's the wrong point in the cycle -- we're
+> getting ready for Fedora Core 5 at the moment; it's not the time to be
+> doing such things. We can apply the patch... but we'd have to turn the
+> config option off :)
+> 
+> What you're seeing is the whole point of the patch, surely? And it _is_
+> a config option -- people aren't forced to turn it on.
 
-> > Is it be possible to change the VGA mode to 80x43/80x50/80x60
-> > during protected mode?
->
->After an oops, we can't really rely on anything. What if the
->oops came from the console layer, or a framebuffer driver?
->
-Well, setting the video mode can be done (on x86, ugh) with a BIOS call, so 
-we would not need to run through oops-affected code. But that was the 
-question, if this int 0x10 call was possible at all. Think of VBE -
-VBE3 is the first version that can be done in protected mode.
+Sure.  I was just regretting being the sucker again.
 
->If I had any faith in the sturdyness of the floppy driver, I'd
->recommend someone looked into a 'dump oops to floppy' patch, but
->it too relies on a large part of the system being in a sane
->enough state to write blocks out to disk.
->
-Right, sad world. (With fun I await the day someone writes a morse encoder 
-that writes oops to keyboard leds.)
+> Would it help if we added a printk to make it more obvious what's
+> happening, which gives the naïve user the opportunity to turn off the
+> config option just to get things working again? Somethign along the
+> lines of "Faking irq %d due to CONFIG_DEBUG_SHIRQ. If your machine
+> crashes now, don't blame akpm"?
 
+Nah, that's all right.  I'm skilled at sending maintainers new bug reports
+to ignore.
 
+> Out of interest, does your i810 patch fix the problem which was reported
+> in November by Eyal Lebedinsky ("2.6.14.2: repeated oops in i810 init")?
 
-Jan Engelhardt
--- 
+Looks like it.  I was oopsing at 0x00000030 too, although on x86_64, not x86.
+

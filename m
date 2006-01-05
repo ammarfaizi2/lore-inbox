@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWAEORt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWAEOSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWAEORt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:17:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWAEORt
+	id S1751284AbWAEOSn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWAEOSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:17:49 -0500
-Received: from dpc6682004040.direcpc.com ([66.82.4.40]:47084 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1751270AbWAEORs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:17:48 -0500
-Date: Thu, 05 Jan 2006 09:17:15 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 12/15] via-pmu: Wrap some uses of sleep_in_progress	with
- proper ifdef's
-In-reply-to: <1136403259.14273.17.camel@pismo>
-To: Kristian Mueller <kernel@mput.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1136470635.4430.52.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL00EOC96O6A@a34-mta01.direcway.com>
- <1136403259.14273.17.camel@pismo>
+	Thu, 5 Jan 2006 09:18:43 -0500
+Received: from xproxy.gmail.com ([66.249.82.196]:52050 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751284AbWAEOSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:18:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=rSs1jS/YA4IJ7saeVGRVRQg72kM4m6aP87b7d0DZwIT9jI0uPmDavKqmnHyEePDwB2hpaQAJGGSYWoUskK8N3Bz7J8V7m8JJPOeudG0FWmhi0WkdpA4wmQHuMipGiGtax4YDdGPKVKDrdZ2s8QKvDsiPfFam7VUbT/ARQkhcAOA=
+Subject: Re: [PATCH] PXA2xx: build PCMCIA as a module
+From: Florin Malita <fmalita@gmail.com>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <1136419973.2768.7.camel@zed.malinux.net>
+References: <1136409389.14442.20.camel@scox.glenatl.glenayre.com>
+	 <1136413220.9902.94.camel@localhost.localdomain>
+	 <1136419973.2768.7.camel@zed.malinux.net>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 09:17:51 -0500
+Message-Id: <1136470671.14442.26.camel@scox.glenatl.glenayre.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 03:34 +0800, Kristian Mueller wrote:
-> Hi Ben
-> 
-> On Mi, 2006-01-04 at 17:01 -0500, Ben Collins wrote:
-> > Basically completes what's already in the rest of the driver.
-> > sleep_in_progress is only defined for pm+ppc32.
-> > 
-> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
-> 
-> We've already found a different solution to this in the Linuxppc-dev
-> list.
-> 
-> See:
->  http://patchwork.ozlabs.org/linuxppc/patch?id=3737
+> On Wed, 2006-01-04 at 22:20 +0000, Richard Purdie wrote:
+> > NAK. This breaks poodle, tosa and collie who also use scoop and this
+> > pcmcia driver. I'd suggest moving scoop_pcmcia_config to
+> > arch/arm/common/scoop.c instead.
 
-That patch makes no sense. It just moves the variable out of the ifdef,
-but if CONFIG_PM or CONFIG_PPC32 is not enabled, then the variable never
-gets modified, and so is always 0. Why not just wrap all the code that
-uses it (like my patch did)?
+Here's a version with the modified comment following your suggestion.
 
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
+Thanks,
+Florin
+
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+--
+diff --git a/arch/arm/common/scoop.c b/arch/arm/common/scoop.c
+--- a/arch/arm/common/scoop.c
++++ b/arch/arm/common/scoop.c
+@@ -19,6 +19,16 @@
+ 
+ #define SCOOP_REG(d,adr) (*(volatile unsigned short*)(d +(adr)))
+ 
++/* PCMCIA to Scoop linkage
++
++   There is no easy way to link multiple scoop devices into one
++   single entity for the pxa2xx_pcmcia device so this structure
++   is used which is setup by the platform code and used by the
++   pcmcia driver.
++*/
++struct scoop_pcmcia_config *platform_scoop_config;
++EXPORT_SYMBOL(platform_scoop_config);
++
+ struct  scoop_dev {
+ 	void  *base;
+ 	spinlock_t scoop_lock;
+diff --git a/drivers/pcmcia/pxa2xx_sharpsl.c b/drivers/pcmcia/pxa2xx_sharpsl.c
+--- a/drivers/pcmcia/pxa2xx_sharpsl.c
++++ b/drivers/pcmcia/pxa2xx_sharpsl.c
+@@ -27,13 +27,6 @@
+ 
+ #define	NO_KEEP_VS 0x0001
+ 
+-/* PCMCIA to Scoop linkage
+-
+-   There is no easy way to link multiple scoop devices into one
+-   single entity for the pxa2xx_pcmcia device so this structure
+-   is used which is setup by the platform code
+-*/
+-struct scoop_pcmcia_config *platform_scoop_config;
+ #define SCOOP_DEV platform_scoop_config->devs
+ 
+ static void sharpsl_pcmcia_init_reset(struct scoop_pcmcia_dev *scoopdev)
+diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
+--- a/drivers/pcmcia/soc_common.c
++++ b/drivers/pcmcia/soc_common.c
+@@ -846,3 +846,4 @@ int soc_common_drv_pcmcia_remove(struct 
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(soc_common_drv_pcmcia_remove);
+
 

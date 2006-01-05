@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWAESHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWAESJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWAESHs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:07:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWAESHs
+	id S932132AbWAESJx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWAESJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:07:48 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:62349 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S932133AbWAESHr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:07:47 -0500
-Date: Thu, 5 Jan 2006 10:08:15 -0800
-From: Greg KH <gregkh@suse.de>
-To: David Vrabel <dvrabel@arcom.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [DRIVER CORE] platform_get_irq*(): return   NO_IRQ on error
-Message-ID: <20060105180815.GB13317@suse.de>
-References: <43BD534E.8050701@arcom.com> <20060105173717.GA11279@suse.de> <43BD5F5E.1070108@arcom.com>
+	Thu, 5 Jan 2006 13:09:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49616 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932132AbWAESJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:09:52 -0500
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+From: Arjan van de Ven <arjan@infradead.org>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Matt Mackall <mpm@selenic.com>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+In-Reply-To: <43BD5E6F.1040000@mbligh.org>
+References: <200601041959_MC3-1-B550-5EE2@compuserve.com>
+	 <43BC716A.5080204@mbligh.org>
+	 <1136463553.2920.22.camel@laptopd505.fenrus.org>
+	 <20060105170255.GK3356@waste.org>  <43BD5E6F.1040000@mbligh.org>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 19:09:36 +0100
+Message-Id: <1136484577.2920.56.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BD5F5E.1070108@arcom.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 06:03:10PM +0000, David Vrabel wrote:
-> Greg KH wrote:
-> > On Thu, Jan 05, 2006 at 05:11:42PM +0000, David Vrabel wrote:
-> > 
-> >>platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
-> >>platforms, return NO_IRQ (-1) instead.
-> >>
-> >>Signed-off-by: David Vrabel <dvrabel@arcom.com>
-> >>
-> >>--- linux-2.6-working.orig/drivers/base/platform.c	2006-01-05 16:49:23.000000000 +0000
-> >>+++ linux-2.6-working/drivers/base/platform.c	2006-01-05 17:10:18.000000000 +0000
-> >>@@ -59,7 +59,7 @@
-> >> {
-> >> 	struct resource *r = platform_get_resource(dev, IORESOURCE_IRQ, num);
-> >> 
-> >>-	return r ? r->start : 0;
-> >>+	return r ? r->start : NO_IRQ;
-> > 
-> > 
-> > No, I think the whole NO_IRQ stuff has been given up on, see the lkml
-> > archives for details.
-> 
-> Now that you mention it I remember that thread[1].
-> 
-> How about returning -ENXIO (or similar) then?
 
-That would be fine as long as you fix up all callers to not pass that
-value to request_irq() :)
+> There are tools already around to do this sort of thing as well - 
+> "profile directed optimization" or whatever they called it. Seems to be 
+> fairly commonly done with userspace, but not with the kernel. I'm not 
+> sure why not ... possibly because it's not available for gcc ?
 
-thanks,
+gcc has this for sure
+the problem is that it expects the profile info in a special format
+that.. gets written to a file. So to do it in the kernel you need
+SomeMagic(tm), for example to use the kernel profiler but to let it
+output it somehow in a gcc compatible format.
 
-greg k-h
+

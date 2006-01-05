@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752273AbWAEW7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752287AbWAEXAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752273AbWAEW7J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752277AbWAEW7J
+	id S1752287AbWAEXAN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752279AbWAEXAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:59:09 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:17797 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1752273AbWAEW7H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:59:07 -0500
-Date: Thu, 5 Jan 2006 23:55:13 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-Message-ID: <20060105225513.GA1570@elte.hu>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <20060105213442.GM3356@waste.org> <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org> <20060105223656.GP3356@waste.org>
-Mime-Version: 1.0
+	Thu, 5 Jan 2006 18:00:12 -0500
+Received: from dns.toxicfilms.tv ([150.254.220.184]:47551 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S1752294AbWAEXAK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:00:10 -0500
+X-Spam-Report: SA TESTS
+ -1.7 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+ -2.3 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+  0.4 AWL                    AWL: From: address is in the auto white-list
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(62.21.2.84):SA:0(-3.6/2.5):. Processed in 2.233136 secs Process 23545)
+Date: Thu, 5 Jan 2006 23:59:59 +0100
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <807369901.20060105235959@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: Re: What's Happening with Reiser 4?
+In-Reply-To: <43BD7A26.6040207@perkel.com>
+References: <43BD7A26.6040207@perkel.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105223656.GP3356@waste.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Matt Mackall <mpm@selenic.com> wrote:
+> I haven't heard any Reiser4 news lately. What's happening with that?
+> Will it ever be merged?
+I am not the r4 spokesman but I can say what I recorded lately.
 
-> > I don't believe it is actually all _that_ volatile. Yes, it would be a 
-> > huge issue _initially_, but the incremental effects shouldn't be that big, 
-> > or there is something wrong with the approach.
-> 
-> No, perhaps not. But it would be nice in theory for people to be able 
-> to do things like profile their production system and relink. And 
-> having to touch hundreds of files to do it would be painful.
+I think r4 folks are still working on Christoph's suggestions that include
+changes required for the code to be merged.
 
-we can (almost) do that: via -ffunction-sections. It does seem to work 
-on both the gcc and the ld side. [i tried to use this for --gc-sections 
-to save more space, but that ld option seems unstable, i couldnt link a 
-bootable image. -ffunction-sections itself seems to work fine in gcc4.]
+Some of those changes made the code unstable a bit and those issues were
+and some still are being adressed I think.
 
-i think all that is needed to reorder the functions is a build-time 
-generated ld script, which is generated off the 'popularity list'.
+The r4 mailing list is kind of silent lately but there were a few important
+"fixed now" reports from a couple of users.
 
-so i think the two concepts could nicely co-exist: in-source annotations 
-help us maintain the popularity list, -ffunction-sections allows us to 
-reorder at link time. In fact such a kernel could be shipped in 
-'unlinked' state, and could be relinked based on per-system profiling 
-data. As long as we have KALLSYMS, it's not even a big debuggability 
-issue.
+Maybe someone from namesys could elaborate on their short-term plans.
 
-the branch-likelyhood thing is a separate issue from function-cohesion, 
-but could be handled by the same concept: if there was a 
---ffunction-unlikely-sections option in gcc (there's none currently, 
-AFAICS), then those could be reordered in a smart way too. (We wouldnt 
-get the 8-byte relative jumps back though, gcc would always have to 
-assume that the jump is far away.)
+Best regards,
+Maciej Soltysiak
 
-	Ingo
+

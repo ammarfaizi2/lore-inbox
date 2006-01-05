@@ -1,119 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752131AbWAETU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752161AbWAETVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752131AbWAETU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 14:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752160AbWAETU2
+	id S1752161AbWAETVE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 14:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752160AbWAETVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 14:20:28 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:54423 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S1752131AbWAETUE (ORCPT
+	Thu, 5 Jan 2006 14:21:03 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:29098 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752159AbWAETVA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 14:20:04 -0500
-Message-ID: <43BD7162.2090906@vc.cvut.cz>
-Date: Thu, 05 Jan 2006 20:20:02 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: cs, en
-MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>
-CC: Dane Mutters <dmutters@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: (1) ACPI messes up Parallel support in kernels >2.6.9
-References: <200601042203.12377.dmutters@gmail.com> <20060104225209.56e35802.akpm@osdl.org> <20060105085559.GA1357@neo.rr.com>
-In-Reply-To: <20060105085559.GA1357@neo.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Jan 2006 14:21:00 -0500
+Subject: [PATCH 01/01][RFC] Move Exit Connectors
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jay Lan <jlan@engr.sgi.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>, elsa-devel@lists.sourceforge.net,
+       lse-tech@lists.sourceforge.net,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
+       John Hesterberg <jh@sgi.com>
+In-Reply-To: <1136486566.22868.127.camel@stark>
+References: <43BB05D8.6070101@watson.ibm.com>
+	 <43BB09D4.2060209@watson.ibm.com> <43BC1C43.9020101@engr.sgi.com>
+	 <1136414431.22868.115.camel@stark>  <20060104151730.77df5bf6.akpm@osdl.org>
+	 <1136486566.22868.127.camel@stark>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 11:17:35 -0800
+Message-Id: <1136488655.22868.138.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Belay wrote:
-> On Wed, Jan 04, 2006 at 10:52:09PM -0800, Andrew Morton wrote:
-> 
->>Dane Mutters <dmutters@gmail.com> wrote:
->>
->>>	I've been attempting to figure out this problem for a long time, and have 
->>> come to the conclusion that it must be a kernel bug (that or perhaps I'm a 
->>> bit dense).  Whenever I have the option, "Device Drivers > Plug and Play > 
->>> ACPI Support" enabled, I become unable to print using my parallel port.
->>
->>hm, regressions are bad and the fact that it _used_ to work meand that we
->>should be able to make it work again.
->>
->>Could you please raise a bug reports against acpi at bugzilla.kernel.org? 
->>It might help if that report includes the output of `dmesg -s 1000000' for
->>both working and non-working kernels.
->>
->>Thanks.
-> 
-> 
-> This may be a PnP bug.  If you can provide further information, I'll
-> look into it.
+	This patch moves the process event connector exit function above
+exit_mm() with the expectation that it will later be removed from the
+exit function with other calls that need to take place before exit_mm().
 
-At least on my hardware (ASUS A8V, W83627THF superio) problem is that it now 
-uses ECP...
+	I'm looking into how this affects the exit_signal field. Please review
+but do not apply.
 
-Once parport_pc is loaded, it says it found PnPBIOS parport and finds printer
+Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
 
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378 (0x778), irq 7, dma 3 
-[PCSPP,TRISTATE,COMPAT,EPP,ECP,DMA]
-parport0: Printer, HEWLETT-PACKARD DESKJET 690C
-lp0: using parport0 (interrupt-driven).
-lp0: ECP mode
+--
 
-unfortunately write to /dev/lp* blocks indefinitely.  SuperIO registers 
-inspection reveals that SIO is actually programmed to use DMA 1 and not DMA 3. 
-When SuperIO is reprogrammed, data are apparently sent somewhere (as writes to 
-/dev/lp no longer blocks), IRQ count is incremented for each block sent, but 
-unfortunately printer does not seem to agree that any data arrived.
+Index: linux-2.6.15/kernel/exit.c
+===================================================================
+--- linux-2.6.15.orig/kernel/exit.c
++++ linux-2.6.15/kernel/exit.c
+@@ -844,10 +844,13 @@ fastcall NORET_TYPE void do_exit(long co
+ 	if (group_dead) {
+  		del_timer_sync(&tsk->signal->real_timer);
+ 		exit_itimers(tsk->signal);
+ 		acct_process(code);
+ 	}
++
++	tsk->exit_code = code;
++	proc_exit_connector(tsk);
+ 	exit_mm(tsk);
+ 
+ 	exit_sem(tsk);
+ 	__exit_files(tsk);
+ 	__exit_fs(tsk);
+@@ -860,13 +863,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 		disassociate_ctty(1);
+ 
+ 	module_put(task_thread_info(tsk)->exec_domain->module);
+ 	if (tsk->binfmt)
+ 		module_put(tsk->binfmt->module);
+-
+-	tsk->exit_code = code;
+-	proc_exit_connector(tsk);
+ 	exit_notify(tsk);
+ #ifdef CONFIG_NUMA
+ 	mpol_free(tsk->mempolicy);
+ 	tsk->mempolicy = NULL;
+ #endif
 
-Actually I believe that ECP mode never worked for me - but in the past 
-parport_pc just used SPP or EPP, and everything was happy.  Now 'modprobe 
-parport_pc io=0x378' does not work anymore as parallel port hardware is kindly 
-disabled by PnPBIOS code :-(  So I have to first enable parport in SuperIO, then 
-set parport mode to SPP, PS2, EPP1.7 or EPP1.9 (low three bits of F0 register in 
-function 1 must be 100, 000, 001 or 101) and load parport_pc io=0x378 
-io_hi=0x778 irq=7 dma=1.  Then ECP mode is not used and printing works...
-
-parport0: PC-style at 0x378, irq 7 [PCSPP,TRISTATE,EPP]
-parport0: Printer, HEWLETT-PACKARD DESKJET 690C
-lp0: using parport0 (interrupt-driven).
-
-If you are interested, ACPI DSDT is available at 
-http://platan.vc.cvut.cz/ftp/private/a8v.acpi.dsdt.  W83627THF datasheet is 
-available from Winbond website...  I do not understand AML sufficiently to tell 
-whether problem with DMA is caused by parport or AML interpreter or buggy DSDT. 
-  Non-working ECP is either dead hardware or parport problem existing for very long.
-
-SuperIO dump after initial parport_pc load:
-
-       RR/EN 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17
-BASE: 0B    82 84 FF FE A2 00 00 FF 20 00 00 1A 48 00 00 FF
-FN00: 01    03 F0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF 06 FF FF FF 02 FF FF FF
-     :       8E 00 FF FF 00 00 FF FF FF FF FF FF FF FF FF FF
-FN01: 01    03 78 FF FF FF FF FF FF FF FF FF FF FF FF FF FF 07 FF FF FF 01 FF FF FF
-     :       3A FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-FN02: 01    03 F8 FF FF FF FF FF FF FF FF FF FF FF FF FF FF 04 FF FF FF FF FF FF FF
-     :       00 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-FN03: 01    02 F8 FF FF FF FF FF FF FF FF FF FF FF FF FF FF 03 FF FF FF FF FF FF FF
-     :       00 00 FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-FN04: 01    FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-     :       FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-FN05: 00    00 00 00 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 FF 00 FF FF FF FF FF
-     :       83 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-FN06: 00    FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-     :       FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-FN07: 08    02 01 03 30 FF FF FF FF FF FF FF FF FF FF FF FF 00 FF FF FF FF FF FF FF
-     :       FF FF FF FF E3 00 FF FF FF FF FF FF FF FF FF 00
-FN08: 01    FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-     :       FF 38 00 00 FF 00 00 00 FF FF FF FF FF FF FF FF
-FN09: 03    FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-     :       FF 51 00 00 DF 21 00 FF FF FF FF FF FF FF FF FF
-FN0A: 01    FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 00 FF FF FF FF FF FF FF
-     :       00 AF FF 3F 00 FF 00 00 FF 00 FF FF FF FF 00 00
-FN0B: 01    02 90 FF FF FF FF FF FF FF FF FF FF FF FF FF FF 00 FF FF FF FF FF FF FF
-     :       01 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-PowerState: 01
-
-								Petr
 

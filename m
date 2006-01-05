@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWAEWH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWAEWIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWAEWH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWAEWH5
+	id S932251AbWAEWIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWAEWIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:07:57 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:5464 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1751167AbWAEWHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:07:55 -0500
-Date: Fri, 6 Jan 2006 00:09:01 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <20060105201249.GB1795@tau.solarneutrino.net>
-Message-ID: <Pine.LNX.4.63.0601052357100.8036@kai.makisara.local>
-References: <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
- <1134409531.9994.13.camel@mulgrave> <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
- <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net>
- <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
- <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
- <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
- <20060105201249.GB1795@tau.solarneutrino.net>
+	Thu, 5 Jan 2006 17:08:09 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38917 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932249AbWAEWIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 17:08:07 -0500
+Date: Thu, 5 Jan 2006 23:08:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: -mm1: drivers/char/amiserial.c doesn't compile
+Message-ID: <20060105220805.GG12313@stusta.de>
+References: <20060105062249.4bc94697.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060105062249.4bc94697.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Ryan Richter wrote:
+Alan, your tty-layer-buffering-revamp.patch in -mm causes the following 
+compile error on m68k:
 
-> On Wed, Jan 04, 2006 at 11:48:52PM +0200, Kai Makisara wrote:
-> > > Here's what I got:
-> 
-> Another one.  I can't keep running this kernel - nearly all of our
-> backup tapes are erased now.  If a drive were to fail today, we would
-> lose hundreds of GB of irreplacible data.  I'm going back to 2.6.11.3
-> until we have a full set of backups again.
-> 
-Yes, don't risk the backups. If you don't want to change the kernel, you 
-can load the st module with the option try_direct_io=0. If you do this, st 
-will use the driver's buffer for reading and writing and you don't see 
-this problem.
+<--  snip  -->
 
-If you later have an opportunity to try the patch Linus suggested, it 
-might provide interesting information. However, if all goes well, the st 
-driver will not be using these mapping functions in 2.6.16 any more (see 
-Mike Christie's changes in "[GIT PATCH] SCSI update for 2.6.15" sent to 
-linux-scsi by James Bottomley yesterday). I am not sure this fixes your 
-problem but it certainly changes the code that is being debugged.
+...
+  CC      drivers/char/amiserial.o
+drivers/char/amiserial.c: In function `receive_chars':
+drivers/char/amiserial.c:321: error: label `ignore_char' used but not defined
+make[2]: *** [drivers/char/amiserial.o] Error 1
+
+<--  snip  -->
+
+cu
+Adrian
 
 -- 
-Kai
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

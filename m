@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751912AbWAEDvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWAEDvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751912AbWAEDvX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 22:51:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWAEDvX
+	id S1751131AbWAEDvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 22:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWAEDvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 22:51:23 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39633 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750994AbWAEDvW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 22:51:22 -0500
-Date: Thu, 5 Jan 2006 03:51:18 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-m68k@vger.kernel.org
-Subject: Re: [PATCH 08/41] m68k: fix macro syntax to make current binutils happy
-Message-ID: <20060105035118.GS27946@ftp.linux.org.uk>
-References: <E1EtvYX-0003Lo-Gf@ZenIV.linux.org.uk> <200601050412.16136.zippel@linux-m68k.org>
+	Wed, 4 Jan 2006 22:51:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24227 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751131AbWAEDvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 22:51:12 -0500
+Date: Wed, 4 Jan 2006 19:50:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       linux-tiny@selenic.com
+Subject: Re: [PATCH 0/20] inflate: refactor boot-time inflate code
+Message-Id: <20060104195057.75ab3fe1.akpm@osdl.org>
+In-Reply-To: <1.150843412@selenic.com>
+References: <1.150843412@selenic.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601050412.16136.zippel@linux-m68k.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 04:11:35AM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Wednesday 04 January 2006 00:27, Al Viro wrote:
-> 
-> > recent as(1) doesn't think that . terminates a macro name, so
-> > getuser.l is _not_ treated as invoking getuser with .l as the
-> > first argument.
-> 
-> Al, please don't send the binutils patches yet, I simply need more time to 
-> figure out how to deal with it and it's not a critical patch.
-> Linus, please don't apply patch 8 and 9.
+Matt Mackall <mpm@selenic.com> wrote:
+>
+> This is a refactored version of the lib/inflate.c:
 
-OK.  Nothing else depends on those; however, getuser.l stuff _is_ documented.
+allnoconfig fails:
 
-Frankly, my preference long-term would be to kill the .macro and just
-use C preprocessor for expansion.  Do you have any objections against
-such variant?
+lib/lib.a(inflate.o)(.text+0x1f): In function `flush_output':
+: undefined reference to `crc32_le'
+

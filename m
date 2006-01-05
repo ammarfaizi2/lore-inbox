@@ -1,104 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752129AbWAEK3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWAEKds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752129AbWAEK3I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 05:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWAEK3I
+	id S1751095AbWAEKds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 05:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWAEKds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 05:29:08 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:20381 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1752129AbWAEK3H (ORCPT
+	Thu, 5 Jan 2006 05:33:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42953 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751095AbWAEKdr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 05:29:07 -0500
-From: Roger Leigh <rleigh@whinlatter.ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Subject: BUG: 2.6.14/2.6.15: USB storage/ext2fs uninterruptable sleep
-Date: Thu, 05 Jan 2006 10:29:05 +0000
-Message-ID: <87zmmbt1ce.fsf@hardknott.home.whinlatter.ukfsn.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 5 Jan 2006 05:33:47 -0500
+Date: Thu, 5 Jan 2006 05:33:39 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops pauser.
+Message-ID: <20060105103339.GG20809@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org
+References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Thu, Jan 05, 2006 at 09:15:02AM +0100, Jan Engelhardt wrote:
 
-I use a USB storage device (Kingston 128 MiB keydrive) to hold GPG
-keys, which is automounted with autofs4.  It's looking like a write
-operation on the device (so far always involving an ext2_delete_inode
-up to sync_buffer) causes the process to hang in an uninterruptable
-sleep.
+ > Here's something interesting too:
+ > Sometimes, an oops is even longer than 25 rows, and the usual user
+ > does not have
+ >  - VGA mode with a lot of lines (because it's hard to read)
+ >  - FB mode with a lot of lines (slow, and it's also hard to read)
 
-The system is running stock kernel.org linux-2.6.15 and 2.6.14.5 on a
-PowerPC 7447A system (Mac Mini) running Debian unstable.  The .config
-is here: http://www.whinlatter.ukfsn.org/config-2.6.15-hardknott.bz2
+See the other patch I sent which halves the amount of lines needed
+for a backtrace on i386 (like x86-64 uses). This helps too.
 
-For example:
-# cd /misc/pen-secure/.gnupg
-# rm secring.gpg.lock pubring.gpg.lock pubring.gpg.tmp
+ > Is it be possible to change the VGA mode to 80x43/80x50/80x60
+ > during protected mode?
 
-7818 pts/1    D+     0:00 rm secring.gpg.lock pubring.gpg.lock pubring.gpg.tmp
+After an oops, we can't really rely on anything. What if the
+oops came from the console layer, or a framebuffer driver?
 
-rm            D 0FF35634     0  7818   7196                   (NOTLB)
-Call trace:
- [c0007524] __switch_to+0x54/0x6c
- [c0287c28] schedule+0x584/0x634
- [c0287d08] io_schedule+0x30/0x60
- [c006be78] sync_buffer+0x50/0x64
- [c0288854] __wait_on_bit_lock+0x60/0xc0
- [c0288928] out_of_line_wait_on_bit_lock+0x74/0x88
- [c006b33c] __lock_buffer+0x3c/0x4c
- [c006c570] sync_dirty_buffer+0x58/0x130
- [e2eef13c] ext2_xattr_delete_inode+0x1bc/0x278 [ext2]
- [e2ee8324] ext2_free_inode+0x38/0x27c [ext2]
- [e2eeb0a8] ext2_delete_inode+0x8c/0xac [ext2] [c00863b0] generic_delete_inode+0x104/0x17c
- [c0085450] iput+0x9c/0xb0
- [c007b09c] sys_unlink+0x124/0x180
- [c00046dc] ret_from_syscall+0x0/0x44
+ > >With this patch, if we oops, there's a pause for a two minutes..
+ > >which hopefully gives people enough time to grab a digital camera
+ > >to take a screenshot of the oops.
+ > >
+ > It would be ideal to have something like BSD's "dump to predefined 
+ > block device on oops", so extraction of oops logs requires neither 
+ > pen-and-paper nor a digital camera. Requires another partition that
+ > can be used for it, though.
 
-I have had the same with the entry point being sys_rename:
+I dislike most of the disk dump patches that I've seen out there
+because most of them rely on the system being in a decent enough
+state to be able to write out blocks of data.
 
-[gpg --recv-key ...]
+If I had any faith in the sturdyness of the floppy driver, I'd
+recommend someone looked into a 'dump oops to floppy' patch, but
+it too relies on a large part of the system being in a sane
+enough state to write blocks out to disk.
 
-gpg           D 0F6D76B4     0 19099   3976 19103               (NOTLB)
-Call trace:
- [c0007524] __switch_to+0x54/0x6c
- [c0287c28] schedule+0x584/0x634
- [c0287d08] io_schedule+0x30/0x60
- [c006be78] sync_buffer+0x50/0x64
- [c0288854] __wait_on_bit_lock+0x60/0xc0
- [c0288928] out_of_line_wait_on_bit_lock+0x74/0x88
- [c006b33c] __lock_buffer+0x3c/0x4c
- [c006c570] sync_dirty_buffer+0x58/0x130
- [e2eaf13c] ext2_xattr_delete_inode+0x1bc/0x278 [ext2]
- [e2ea8324] ext2_free_inode+0x38/0x27c [ext2]
- [e2eab0a8] ext2_delete_inode+0x8c/0xac [ext2] [c00863b0] generic_delete_inode+0x104/0x17c
- [c0085450] iput+0x9c/0xb0
- [c0083b14] dput+0x234/0x264
- [c007b908] sys_rename+0x168/0x1c4
+ > (*) If the oops is longer than 25 lines, ... you can't even use scrollback 
+ > because scrollback is cleared when you change consoles. X runs by default 
+ > on tty7, and the kernel dumps it somewhere else. (And even if it dumped to 
+ > tty7 directly, you would not see it.)
 
-I can write other files to the device without trouble, but it's
-clearly getting stuck somewhere inside the kernel.  In all the times
-it's happened so far, eventually pdflush will subsequently go into D
-state, and it's downhill from there (I can't unmount the filesystems
-properly, and shutdown also hangs, so have to use Alt-SysRq to remount
-readonly and reboot).
+What to do about oopses whilst in X has been the subject of much
+head-scratching for years now.  It's come up at least at the
+last two kernel summits, and I'll hazard a guess it'll come up
+again this year.  The amount of work necessary to make it all
+work on both kernel side and X side isn't unsubstantial however,
+so I wouldn't count on it working too soon.
 
-The device is using usb-storage, rather than ub:
-$ cat /proc/partitions |grep sda
-   8     0     125952 sda
-   8     1      97776 sda1
-   8     2      28160 sda2
+Hmm, SuSE/Novell folks, doesn't NKLD take over an X display?
+ISTR during a demo at last years OLS the presenter was flipping
+in/out of the debugger between slides. Is there anything
+useful there ?
 
+		Dave
 
-I'll be happy to provide any additional details or do any further
-testing.
-
-
-Regards,
-Roger
-
--- 
-Roger Leigh
-                Printing on GNU/Linux?  http://gimp-print.sourceforge.net/
-                Debian GNU/Linux        http://www.debian.org/
-                GPG Public Key: 0x25BFB848.  Please sign and encrypt your mail.

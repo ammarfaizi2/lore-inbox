@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752007AbWAEGDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752012AbWAEGFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752007AbWAEGDY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 01:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752009AbWAEGDX
+	id S1752012AbWAEGFA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 01:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752016AbWAEGFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 01:03:23 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:32012 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1752010AbWAEGDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 01:03:22 -0500
-Date: Thu, 5 Jan 2006 07:03:14 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch 2.6.15] i386: Optimize local APIC timer interrupt code
-Message-ID: <20060105060314.GB7142@w.ods.org>
-References: <200601041352_MC3-1-B550-4606@compuserve.com>
+	Thu, 5 Jan 2006 01:05:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30636 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752012AbWAEGE7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 01:04:59 -0500
+Date: Thu, 5 Jan 2006 01:04:27 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+Subject: Re: 2.6.15-ck1
+Message-ID: <20060105060427.GE20809@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	Arjan van de Ven <arjan@infradead.org>,
+	ck list <ck@vds.kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	vojtech@suse.cz
+References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <20060104195726.GB14782@redhat.com> <1136406837.2839.67.camel@laptopd505.fenrus.org> <p73y81vxyci.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601041352_MC3-1-B550-4606@compuserve.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <p73y81vxyci.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 01:48:09PM -0500, Chuck Ebbert wrote:
-> Local APIC timer interrupt happens HZ times per second on each CPU.
-> 
-> Optimize it for the case where profile multiplier equals one and does
-> not change (99+% of cases); this saves about 20 CPU cycles on Pentium II.
-> 
-> Also update the old multiplier immediately after noticing it changed,
-> while values are register-hot, saving eight bytes of stack depth.
-> 
-> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-> 
-> diff -up 2.6.15a.orig/arch/i386/kernel/apic.c 2.6.15a/arch/i386/kernel/apic.c
-> --- 2.6.15a.orig/arch/i386/kernel/apic.c
-> +++ 2.6.15a/arch/i386/kernel/apic.c
-> @@ -1137,7 +1137,7 @@ inline void smp_local_timer_interrupt(st
->  	int cpu = smp_processor_id();
->  
->  	profile_tick(CPU_PROFILING, regs);
-> -	if (--per_cpu(prof_counter, cpu) <= 0) {
-> +	if (likely(--per_cpu(prof_counter, cpu)) <= 0) {
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-are you sure about this ? it looks suspicious to me. I would have
-expected something like  this instead :
+On Thu, Jan 05, 2006 at 02:22:37AM +0100, Andi Kleen wrote:
+ > Arjan van de Ven <arjan@infradead.org> writes:
+ > 
+ > 
+ > > sounds like we need some sort of profiler or benchmarker or at least a
+ > > tool that helps finding out which timers are regularly firing, with the
+ > > aim at either grouping them or trying to reduce their disturbance in
+ > > some form.
+ > 
+ > I did one some time ago for my own noidletick patch. Can probably dig
+ > it out again. It just profiled which timers interrupted idle.
+ > 
+ > Executive summary for my laptop: worst was the keyboard driver (it ran
+ > some polling driver to work around some hardware bug, but fired very
+ > often) , followed by the KDE desktop (should be mostly
+ > fixed now, I complained) and the X server and some random kernel 
+ > drivers.
+ > 
+ > I haven't checked recently if keyboard has been fixed by now.
 
-+	if (likely(--per_cpu(prof_counter, cpu) <= 0)) {
+it was a little further down the list from the others I posted,
+but it is still there fairly high in the list of offenders,
+even though I wasn't touching keyboard/mouse (in fact, it was several feet
+away from me, I had ssh'd to it for tests).
 
-Willy
-
+		Dave

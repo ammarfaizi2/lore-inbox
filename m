@@ -1,95 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWAETHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752071AbWAETJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWAETHg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 14:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752071AbWAETHg
+	id S1752071AbWAETJl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 14:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752074AbWAETJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 14:07:36 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:18050 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1750982AbWAETHg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 14:07:36 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [ipw2200] add monitor and qos entries to Kconfig
-Date: Thu, 5 Jan 2006 13:07:32 -0600
-Message-ID: <F265D57E1F28274EA189ED0566D227DE8B4666@PGJEXC01.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ipw2200] add monitor and qos entries to Kconfig
-Thread-Index: AcYSJ7Lqlb8ImIFJTSy364AHfZE3GAAAsi8g
-From: "Bonilla, Alejandro" <alejandro.bonilla@hp.com>
-To: "Andreas Happe" <andreashappe@snikt.net>, <jketreno@linux.intel.com>
-Cc: <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Jan 2006 19:07:35.0272 (UTC) FILETIME=[4980F680:01C6122B]
+	Thu, 5 Jan 2006 14:09:41 -0500
+Received: from mail.gmx.net ([213.165.64.21]:51102 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1752071AbWAETJk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 14:09:40 -0500
+X-Authenticated: #271361
+Date: Thu, 5 Jan 2006 20:09:11 +0100
+From: Edgar Toernig <froese@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <tapas@affenbande.org>, Takashi Iwai <tiwai@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-Id: <20060105200911.5aa4e705.froese@gmx.de>
+In-Reply-To: <1136445063.24475.11.camel@mindpipe>
+References: <s5h1wzpnjrx.wl%tiwai@suse.de>
+	<20060103203732.GF5262@irc.pl>
+	<s5hvex1m472.wl%tiwai@suse.de>
+	<9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
+	<20060103215654.GH3831@stusta.de>
+	<20060103221314.GB23175@irc.pl>
+	<20060103231009.GI3831@stusta.de>
+	<Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl>
+	<20060104000344.GJ3831@stusta.de>
+	<Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl>
+	<20060104010123.GK3831@stusta.de>
+	<Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl>
+	<20060104113726.3bd7a649@mango.fruits.de>
+	<s5hsls398uv.wl%tiwai@suse.de>
+	<20060104191750.798af1da@mango.fruits.de>
+	<1136445063.24475.11.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Lee Revell wrote:
+>
+> All of this was solved with the switch in ALSA 1.0.9 to use dmix by
+> default.  If it does not Just Work it's a bug and we need to hear about
+> it.
 
-	I believe that people had decided not to incorporate this
-feature. Basically the IPW2200 will get too many firmware restarts on
-rfmon, making the feature unusable. I don't think we want this option at
-all so far. (Until there's a valid fix for the problem)
+So then:  xawtv4 (dvb-app) works with hw:0 but not with 1.0.9's dmix default.
+It works with /dev/dsp1 (usb-speakers) but not with /dev/dsp0 (atiixp ac'97).
+vdr's softdevice (another dvb-app) works with dmix-default but not with hw:0.
+And that's my experience with most audio apps - you have to try all configur-
+ations until you find one that works.  Sure, maybe badly written apps but
+there must be something wrong if so many developers have problems with
+Alsa.  I've even resigned to grok the config files :-(
 
-Alejandro Bonilla
+Ciao, ET.
 
-|-----Original Message-----
-|From: linux-kernel-owner@vger.kernel.org 
-|[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Andreas Happe
-|Sent: Thursday, January 05, 2006 12:40 PM
-|To: jketreno@linux.intel.com
-|Cc: jgarzik@pobox.com; linux-kernel@vger.kernel.org
-|Subject: Re: [ipw2200] add monitor and qos entries to Kconfig
-|
-|I have made a stupid copy&paste error: QoS option is named IPW_QOS not 
-|IPW2200_MONITOR. Spotted by Daniel Paschka, thanks.
-|
-|Add the following config entries for the ipw2200 driver to 
-|drivers/net/wireless/Kconfig
-| * IPW2200_MONITOR
-|   enables Monitor mode
-| * IPW_QOS
-|   enables QoS feature - this is under development right now, 
-|so it depends 
-|upon EXPERIMENTAL
-|
-|Signed-off-by: Andreas Happe <andreashappe@snikt.net>
-|--- drivers/net/wireless/Kconfig.orig	2006-01-05 
-|18:30:10.000000000 +0100
-|+++ drivers/net/wireless/Kconfig	2006-01-05 
-|18:30:13.000000000 +0100
-|@@ -217,6 +217,19 @@ config IPW2200
-|           say M here and read 
-|<file:Documentation/modules.txt>.  The module
-|           will be called ipw2200.ko.
-| 
-|+config IPW2200_MONITOR
-|+        bool "Enable promiscuous mode"
-|+        depends on IPW2200
-|+        ---help---
-|+	  Enables promiscuous/monitor mode support for the 
-|ipw2200 driver.
-|+	  With this feature compiled into the driver, you can switch to 
-|+	  promiscuous mode via the Wireless Tool's Monitor 
-|mode.  While in this
-|+	  mode, no packets can be sent.
-|+
-|+config IPW_QOS
-|+        bool "Enable QoS support"
-|+        depends on IPW2200 && EXPERIMENTAL
-|+
-| config IPW_DEBUG
-| 	bool "Enable full debugging output in IPW2200 module."
-| 	depends on IPW2200
-|-
-|To unsubscribe from this list: send the line "unsubscribe 
-|linux-kernel" in
-|the body of a message to majordomo@vger.kernel.org
-|More majordomo info at  http://vger.kernel.org/majordomo-info.html
-|Please read the FAQ at  http://www.tux.org/lkml/
-|
+And btw, with 2.6.15 the usb-speakers only produce noise most of the time.

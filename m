@@ -1,110 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751855AbWAEMXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWAEM3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751855AbWAEMXb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 07:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752174AbWAEMXa
+	id S1750761AbWAEM3z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 07:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWAEM3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 07:23:30 -0500
-Received: from gate.perex.cz ([85.132.177.35]:25009 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1751855AbWAEMX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 07:23:29 -0500
-Date: Thu, 5 Jan 2006 13:23:23 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
-       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Andi Kleen <ak@suse.de>, ALSA development <alsa-devel@alsa-project.org>,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-In-Reply-To: <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
-Message-ID: <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
-References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
- <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
- <mailman.1136368805.14661.linux-kernel2news@redhat.com>
- <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323584-200087672-1136463803=:10350"
+	Thu, 5 Jan 2006 07:29:55 -0500
+Received: from hulk.jobsahead.com ([202.138.125.174]:54668 "EHLO
+	hulk.jobsahead.com") by vger.kernel.org with ESMTP id S1750761AbWAEM3z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 07:29:55 -0500
+Subject: Re: High load
+From: Aniruddh Singh <aps@jobsahead.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <200601052100.45107.kernel@kolivas.org>
+References: <1136454597.6016.7.camel@aps.monsterindia.noida>
+	 <200601052100.45107.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 16:38:10 +0530
+Message-Id: <1136459290.6016.18.camel@aps.monsterindia.noida>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-4.asl) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi,
 
---8323584-200087672-1136463803=:10350
-Content-Type: TEXT/PLAIN; charset=iso8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+hdparm -tT /dev/cciss/c0d0p2 returns the following
 
-On Thu, 5 Jan 2006, Tomasz K=B3oczko wrote:
+/dev/cciss/c0d0p2:
+ Timing buffer-cache reads:   2660 MB in  2.00 seconds = 1329.92 MB/sec
+ Timing buffered disk reads:  248 MB in  3.00 seconds =  82.55 MB/sec
 
-> On Wed, 4 Jan 2006, Jaroslav Kysela wrote:
+if i try to hdparm -I /dev/cciss/c0d0 it returns 
+/dev/cciss/c0d0:
+ operation not supported on SCSI disks
 
-> > Well, the ALSA primary goal is to be the complete HAL not hidding the
-> > extra hardware capabilities to applications. So API might look a bit
-> > complicated for the first glance, but the ALSA interface code for simpl=
-e
-> > applications is not so big, isn't?
->=20
-> Sorry Jaroslav byt this not unix way.
-> Wny applications myst know anything about hardware layer ?
-> In unix way all this details are rolled on kernel layer.
+Do i need to installed sdparm and modify some settings?
 
-It means that you are saying that kernel should be bigger and bigger.
-Please, see the graphics APIs. Why we have X servers in user space (and
-only some supporting code is in the kernel) then? It's because if we=20
-would move everything into kernel it will be even more bloated. The kernel=
-=20
-should do really the basic things like direct hardware access, DMA=20
-transfer etc.
 
-> > Also, note that app developers are not forced to use ALSA directly -=20
-> > there is a lot of "portable" sound API libraries having an ALSA=20
-> > backend doing this job quite effectively. We can add a simple (like=20
-> > OSS) API layer into alsa-lib, but I'm not sure, if it's worth to do=20
-> > it. Perhaps, adding some support functions for the easy PCM device=20
-> > initialization might be a good idea.
->=20
-> If we have so many "portable" sound API libraries .. look most of them=20
-> uses the same way for handle sound on kernel interaction. Is this=20
-> complicated ALSA way is realy neccessary ? For example .. jackd can use=
-=20
-> OSS API for handle sound device.
+On Thu, 2006-01-05 at 21:00 +1100, Con Kolivas wrote:
+> On Thursday 05 January 2006 20:49, Aniruddh Singh wrote:
+> > HI all,
+> >
+> > I have one compaq server with 4 Intel(R) Xeon cpu's (3.1GHZ), 4GB RAM.
+> > OS:- Fedora Core 2
+> > Kernel:- 2.6.14
+> >
+> > when i compile a new kernel, during th compilation process load goes
+> > very high (10 and little above). i can not understand why does this
+> > happen, while if i compile the same kernel on my P4 machine with 1GB ram
+> > and 3GHZ, it remains under 3.
+> >
+> > can somebody tell me what is wrong?
+> > -
+> 
+> Sounds suspiciously like DMA is not working on your drives. Check your dmesg 
+> logs and what hdparm returns.
+> 
+> Con
+-- 
+Regards
+Aniruddh Singh
+System Administrator
+Monster.com India Pvt. Ltd.
+FC 23, Block B, 1st Floor, Sector 16A
+Film City Noida 201301 U.P.
 
-The grounds of ALSA APIs are not complicated. The complicated are the=20
-extra features (like stream linking) which can be included conditionaly.=20
-Note that during API development, mostly users requesting extra features=20
-were speak loudly, others were only watching.
 
-We know that the reduction requests have points for embedded systems etc.
-And we will definitely try to sort "real-core" and "extra" things.
-
-Also, note that if OSS used a library to access to sound devices, we won't=
-=20
-ever have such problems with the OSS API redirection to another API.
-I already created a prototype of OSS API redirector (part of alsa-oss=20
-package), see:
-
-http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-oss/oss-redir/README?rev=3D=
-1.1&view=3Dmarkup
-http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-oss/oss-redir/oss-redir.h?r=
-ev=3D1.6&view=3Dmarkup
-http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-oss/oss-redir/oss-redir.c?r=
-ev=3D1.9&view=3Dmarkup
-
-But it's a question, if OSS application developers take this proposal.
-
-=09=09=09=09=09=09Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
---8323584-200087672-1136463803=:10350--

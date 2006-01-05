@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWAEQlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWAEQm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751642AbWAEQlX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 11:41:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWAEQlX
+	id S932081AbWAEQm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 11:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAEQm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 11:41:23 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:50908 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1751582AbWAEQlW (ORCPT
+	Thu, 5 Jan 2006 11:42:29 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:57529 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932081AbWAEQm1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 11:41:22 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
-Date: Thu, 5 Jan 2006 09:41:15 -0700
-User-Agent: KMail/1.8.3
-Cc: Alex Williamson <alex.williamson@hp.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ia64@vger.kernel.org,
-       ak@suse.de, openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <20060104221627.GA26064@lists.us.dell.com> <1136414164.6198.36.camel@localhost.localdomain> <20060104232944.GA32250@lists.us.dell.com>
-In-Reply-To: <20060104232944.GA32250@lists.us.dell.com>
+	Thu, 5 Jan 2006 11:42:27 -0500
+Message-ID: <43BD4C66.60001@austin.ibm.com>
+Date: Thu, 05 Jan 2006 10:42:14 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Molnar <mingo@elte.hu>
+CC: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [patch 00/21] mutex subsystem, -V14
+References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu>
+In-Reply-To: <20060105143502.GA16816@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601050941.15915.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 16:29, Matt Domsch wrote:
-> On Wed, Jan 04, 2006 at 03:36:03PM -0700, Alex Williamson wrote:
-> > On Wed, 2006-01-04 at 16:16 -0600, Matt Domsch wrote:
-> > > Andi Kleen has a patch in his x86_64 tree which enables the use
-> > > of i386 dmi_scan.c on x86_64.  dmi_scan.c functions are being
-> > > used by the drivers/char/ipmi/ipmi_si_intf.c driver for
-> > > autodetecting the ports or memory spaces where the IPMI
-> > > controllers may be found.
-> >
-> >    Can't this be done via ACPI/EFI?  I'm really opposed to adding
-> > anything to ia64 that blindly picks memory ranges and starts
-> > scanning for magic legacy tables.  If nothing else, this can be
-> > found via efi.smbios.  Thanks,
->
-> I'll redo this to use efi.smbios.  Thanks for the tip.
 
-The DMI scan looks like it's done in try_init_smbios().  But
-try_init_acpi() is done first.  Since every ia64 machine has
-ACPI, I would think try_init_acpi() should be sufficient.
+>>Anyway, here is some disassembly of some of the code generated with my 
+>>comments:
+>>
+>>c00000000049bf9c <.mutex_lock>:
+>>c00000000049bf9c:       7c 00 06 ac     eieio
+>>c00000000049bfa0:       7d 20 18 28     lwarx   r9,r0,r3
+>>c00000000049bfa4:       31 29 ff ff     addic   r9,r9,-1
+> 
+> 
+>>The eieio is completly unnecessary, it got picked up from 
+>>atomic_dec_return (Anton, why is there an eieio at the start of 
+>>atomic_dec_return in the first place?).
+> 
+> 
+> a mutex is like a spinlock, it must prevent loads and stores within the 
+> critical section from 'leaking outside the critical section' [they must 
+> not be reordered to before the mutex_lock(), nor to after the 
+> mutex_unlock()] - hence the barriers added by atomic_dec_return() are 
+> very much needed.
 
-Or do you have a machine that doesn't supply the SPMI
-table used by try_init_acpi()?
+The bne- and isync together form a sufficient import barrier.  See PowerPC Book2 
+Appendix B.2.1.1
 
-Personally, I think try_init_acpi() should be re-done so it uses
-the normal acpi_bus_register_driver() mechanism, which would
-locate the IPMI device in the ACPI namespace.  I don't think
-there's any need to rely on the SPMI, which is primarily there
-to support OS's that want to do IPMI stuff early in boot, before
-the ACPI machinery is ready.
-
-Bjorn
+And if the eieio was necessary it should come after not before twidling the lock 
+bits.

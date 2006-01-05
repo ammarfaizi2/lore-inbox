@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWAEN64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWAEN7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWAEN64 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 08:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWAEN64
+	id S1750831AbWAEN7q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 08:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWAEN7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 08:58:56 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:6060 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1750706AbWAEN6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 08:58:55 -0500
-Subject: Re: oops pauser.
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060105045212.GA15789@redhat.com>
-References: <20060105045212.GA15789@redhat.com>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 08:58:53 -0500
-Message-Id: <1136469533.21485.91.camel@rockstar.fsl.cs.sunysb.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 08:59:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35088 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750831AbWAEN7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 08:59:44 -0500
+Date: Thu, 5 Jan 2006 14:59:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: wensong@linux-vs.org, horms@verge.net.au, ja@ssi.bg
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix ipvs compilation
+Message-ID: <20060105135943.GA3831@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some comments:
-1. I think this is a good idea, since serial consoles can also change
-timings.  I have seen several race conditions where the problem goes
-away once I add a serial console.
-2. Should this be a separate debugging option?
-3. Shouldn't you have KERN____ in your printk statements?
-4. Wouldn't printing out the message every second make the oops scroll
-off the screen, defeating the purpose of the patch?
+I don't know which change broke it, but I'm getting the following 
+compile error in Linus' tree:
 
-Avishay Traeger
-http://www.fsl.cs.sunysb.edu/~avishay/
+<--  snip  -->
 
-On Wed, 2006-01-04 at 23:52 -0500, Dave Jones wrote:
-> In my quest to get better debug data from users in Fedora bug reports,
-> I came up with this patch.  A majority of users don't have serial
-> consoles, so when an oops scrolls off the top of the screen,
-> and locks up, they usually end up reporting a 2nd (or later) oops
-> that isn't particularly helpful (or worse, some inconsequential
-> info like 'sleeping whilst atomic' warnings)
-> 
-> With this patch, if we oops, there's a pause for a two minutes..
-> which hopefully gives people enough time to grab a digital camera
-> to take a screenshot of the oops.
-> 
-> It has an on-screen timer so the user knows what's going on,
-> (and that it's going to come back to life [maybe] after the oops).
-> 
-> The one case this doesn't catch is the problem of oopses whilst
-> in X. Previously a non-fatal oops would stall X momentarily,
-> and then things continue. Now those cases will lock up completely
-> for two minutes. Future patches could add some additional feedback
-> during this 'stall' such as the blinky keyboard leds, or periodic speaker beeps.
-> 
-> Signed-off-by: Dave Jones <davej@redhat.com>
-> 
-> --- vanilla/arch/i386/kernel/traps.c	2006-01-02 22:21:10.000000000 -0500
-> +++ linux-2.6.15/arch/i386/kernel/traps.c	2006-01-04 23:42:46.000000000 -0500
-> @@ -256,6 +271,15 @@ void show_registers(struct pt_regs *regs
->  		}
->  	}
->  	printk("\n");
-> +	{
-> +		int i;
-> +		for (i=120;i>0;i--) {
-> +			mdelay(1000);
-> +			touch_nmi_watchdog();
-> +			printk("Continuing in %d seconds. \r", i);
-> +		}
-> +		printk("\n");
-> +	}
->  }	
->  
->  static void handle_BUG(struct pt_regs *regs)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+...
+  CC      net/ipv4/ipvs/ip_vs_sched.o
+net/ipv4/ipvs/ip_vs_sched.c: In function 'ip_vs_sched_getbyname':
+net/ipv4/ipvs/ip_vs_sched.c:110: warning: implicit declaration of function 'local_bh_disable'
+net/ipv4/ipvs/ip_vs_sched.c:124: warning: implicit declaration of function 'local_bh_enable'
+...
+  CC      net/ipv4/ipvs/ip_vs_est.o
+net/ipv4/ipvs/ip_vs_est.c: In function 'ip_vs_new_estimator':
+net/ipv4/ipvs/ip_vs_est.c:147: warning: implicit declaration of function 'local_bh_disable'
+net/ipv4/ipvs/ip_vs_est.c:156: warning: implicit declaration of function 'local_bh_enable'
+...
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `ip_vs_sched_getbyname':ip_vs_sched.c:(.text+0x99cfa): undefined reference to `local_bh_disable'
+net/built-in.o: In function `register_ip_vs_scheduler': undefined reference to `local_bh_disable'
+net/built-in.o: In function `unregister_ip_vs_scheduler': undefined reference to `local_bh_disable'
+net/built-in.o: In function `ip_vs_new_estimator': undefined reference to `local_bh_disable'
+net/built-in.o: In function `ip_vs_kill_estimator': undefined reference to `local_bh_disable'
+net/built-in.o: more undefined references to `local_bh_disable' follow
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+
+This patch fixes them by #include'ing linux/interrupt.h.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-git/net/ipv4/ipvs/ip_vs_sched.c.old	2006-01-05 14:56:44.000000000 +0100
++++ linux-git/net/ipv4/ipvs/ip_vs_sched.c	2006-01-05 14:56:59.000000000 +0100
+@@ -22,6 +22,7 @@
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
++#include <linux/interrupt.h>
+ #include <asm/string.h>
+ #include <linux/kmod.h>
+ 
+--- linux-git/net/ipv4/ipvs/ip_vs_est.c.old	2006-01-05 14:57:15.000000000 +0100
++++ linux-git/net/ipv4/ipvs/ip_vs_est.c	2006-01-05 14:57:27.000000000 +0100
+@@ -18,6 +18,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/slab.h>
+ #include <linux/types.h>
++#include <linux/interrupt.h>
+ 
+ #include <net/ip_vs.h>
+ 
 

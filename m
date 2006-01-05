@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWAELXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWAELXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWAELXw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 06:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWAELXv
+	id S932216AbWAELXb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 06:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752151AbWAELXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 06:23:51 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:11436 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S932389AbWAELXv convert rfc822-to-8bit (ORCPT
+	Thu, 5 Jan 2006 06:23:31 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:32188 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1752150AbWAELXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 06:23:51 -0500
+	Thu, 5 Jan 2006 06:23:30 -0500
+Date: Thu, 5 Jan 2006 11:23:06 +0000
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: jschopp@austin.ibm.com, Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+Subject: Re: [Patch] New zone ZONE_EASY_RECLAIM take 4. (disable gfp_easy_reclaim bit)[5/8]
+Message-ID: <20060105112305.GB14735@skynet.ie>
+References: <20060105144247.491D.Y-GOTO@jp.fujitsu.com> <20060105094726.GA14735@skynet.ie> <20060105194849.4929.Y-GOTO@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-From: =?iso-8859-1?q?Jo=E3o_Esteves?= <joao.m.esteves@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Via VT 6410 Raid Controller
-Date: Thu, 5 Jan 2006 11:23:54 +0000
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200601051123.54066.joao.m.esteves@netcabo.pt>
-X-OriginalArrivalTime: 05 Jan 2006 11:23:49.0439 (UTC) FILETIME=[8003CCF0:01C611EA]
+In-Reply-To: <20060105194849.4929.Y-GOTO@jp.fujitsu.com>
+User-Agent: Mutt/1.5.9i
+From: mel@csn.ul.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On (05/01/06 19:59), Yasunori Goto didst pronounce:
+> > On (05/01/06 14:43), Yasunori Goto didst pronounce:
+> > > > 
+> > > > > ===================================================================
+> > > > > --- zone_reclaim.orig/fs/pipe.c	2005-12-16 18:36:20.000000000 +0900
+> > > > > +++ zone_reclaim/fs/pipe.c	2005-12-16 19:15:35.000000000 +0900
+> > > > > @@ -284,7 +284,7 @@ pipe_writev(struct file *filp, const str
+> > > > >  			int error;
+> > > > >  
+> > > > >  			if (!page) {
+> > > > > -				page = alloc_page(GFP_HIGHUSER);
+> > > > > +				page = alloc_page(GFP_HIGHUSER & ~__GFP_EASY_RECLAIM);
+> > > > >  				if (unlikely(!page)) {
+> > > > >  					ret = ret ? : -ENOMEM;
+> > > > >  					break;
+> > > > 
+> > > > That is a bit hard to understand.  How about a new GFP_HIGHUSER_HARD or 
+> > > > somesuch define back in patch 1, then use it here?
+> > > 
+> > > It looks better. Thanks for your idea.
+> > > 
+> > 
+> > There are other places where GFP_HIGHUSER is used for pages that are not easily
+> > reclaimed. It is easier clearer to add __GFP_EASY_RECLAIM at the places you
+> > know pages are easily reclaimed rather than removing __GFP_EASY_RECLAIM from
+> > awkward places.
+> 
+> I thought that other pages can be migrated by Chlistoph-san's (and
+> Kame-san's) patch.
 
+Then the pages are not "easily reclaimed", they can just be moved by
+some other mechanism.
 
-----------  Mensagem Reencaminhada  ----------
+> May I ask which page should be no EASY_RECLAIM?
 
-Subject: Re: Via VT 6410 Raid Controller
-Date: Quinta, 5 de Janeiro de 2006 11:12
-From: João Esteves <joao.m.esteves@netcabo.pt>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-Hello:
-
-I was finally able to install the patch. I have now the Pata HDD as drive
- hdg. Thank you, Daniel and Bartlomiej.
-
-João
-
-> On 1/3/06, João Esteves <joao.m.esteves@netcabo.pt> wrote:
-> > Thank you, Daniel.
-> >
-> > > Can you explain what you mean by you don't "see" it? Where are you
-> > > looking?
-> > >
-> > > You could also post the output of:
-> > >       dmesg
-> > >       lspci
-> > >       lspci -n
-> >
-> > I'm looking in the "Devices" Desktop shortcut (Mandriva2006). It appears
-> > sda1, hda (DVD), hdb (DVD-Recorder) and floppy, but no reference to the
-> > Pata HDD. This is the same as "device:/" in konqueror.
-> > The output of the commands are attached.
->
-> You don't seem to have VIA IDE driver compiled in et all.
->
-> Could you retry with Daniel's patch applied and "VIA82CXXX chipset
-> support" (CONFIG_BLK_DEV_VIA82CXXX config option) compiled-in?
-> Yes, help entry should be updated. :-)
->
-> Thanks,
-> Bartlomiej
-
--------------------------------------------------------
+Based on http://lxr.linux.no/ident?i=GFP_HIGHUSER, examples include HugeTLB
+pages, pages allocated by the infiniband driver, pages allocated by the NFS
+driver and inode pages.
 
 -- 
-João Esteves
-joao.m.esteves@netcabo.pt
-----------------------------------------------
-"A imaginação é mais importante que o conhecimento"
-Albert Einstein
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

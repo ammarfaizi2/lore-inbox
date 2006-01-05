@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWAEXhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752187AbWAEXj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWAEXhY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWAEXhX
+	id S1752187AbWAEXj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWAEXj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:37:23 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:26851 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932272AbWAEXhV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:37:21 -0500
-Message-ID: <43BDAD8A.60108@austin.ibm.com>
-Date: Thu, 05 Jan 2006 17:36:42 -0600
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Anton Blanchard <anton@samba.org>,
-       PPC64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: [patch 00/21] mutex subsystem, -V14
-References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <Pine.LNX.4.64.0601051523060.3169@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601051523060.3169@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Jan 2006 18:39:27 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:41942 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751437AbWAEXj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:39:26 -0500
+Subject: Re: [OT] ALSA userspace API complexity
+From: Lee Revell <rlrevell@joe-job.com>
+To: Hannu Savolainen <hannu@opensound.com>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de>
+	 <20060103193736.GG3831@stusta.de>
+	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+	 <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+	 <20060104030034.6b780485.zaitcev@redhat.com>
+	 <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+	 <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
+	 <s5hmziaird8.wl%tiwai@suse.de>
+	 <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 18:39:23 -0500
+Message-Id: <1136504364.847.88.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Here is a first pass at a powerpc file for the fast paths just as an FYI/RFC.
->>It is completely untested, but compiles.
-> 
-> 
-> Shouldn't you make that "isync" dependent on SMP too? UP doesn't need it, 
-> since DMA will never matter, and interrupts are precise.
-> 
-> 		Linus
-> 
+On Fri, 2006-01-06 at 01:06 +0200, Hannu Savolainen wrote:
+> > - PCM with 3-bytes-packed 24bit formats
+> Applications have no reasons to use for this kind of stupid format so
+> OSS translates it to the usual 32 bit format on fly. In fact OSS API
+> does have support for this format. 
 
-I think the isync is necessary to keep heavily out of order processors from 
-getting ahead of themselves even on UP.  Scanning back through the powerpc 
-spinlock code they seem to take the same view there as well.
+What about hardware that only understands this format?
+
+Lee
+

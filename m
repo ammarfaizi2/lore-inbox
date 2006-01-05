@@ -1,40 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWAESqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751884AbWAESrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWAESqq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWAESqq
+	id S1751884AbWAESrv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWAESrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:46:46 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:48579 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750868AbWAESqp
+	Thu, 5 Jan 2006 13:47:51 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:16708 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751884AbWAESru convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:46:45 -0500
-Date: Thu, 5 Jan 2006 11:46:45 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg K-H <greg@kroah.com>,
-       parisc <parisc-linux@parisc-linux.org>
-Subject: Re: [parisc-linux] [CFT 10/29] Add parisc_bus_type probe and remove methods
-Message-ID: <20060105184645.GX19769@parisc-linux.org>
-References: <20060105142951.13.01@flint.arm.linux.org.uk> <20060105142951.13.10@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jan 2006 13:47:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZSSmbXqDErY+InP6DS5Nb672JU9rn6pZALLA1/Xrl+CG8/spHYxvVSKxDGy6S/g9owtg2BbfvCogmy0L9F0QXQx9heXq8U+deYcwoUuyhB3HGT5SHnf7TtI56/F0vARv8lUH0/qg0Sx2HqUcsqX3edKzX/3SgbrghfCRnTzrAqg=
+Message-ID: <3b0ffc1f0601051047i24fd1b9mb772cb64dccf6fcb@mail.gmail.com>
+Date: Thu, 5 Jan 2006 13:47:48 -0500
+From: Kevin Radloff <radsaq@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [ck] Re: 2.6.15-ck1
+Cc: Dave Jones <davej@redhat.com>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <200601051010.54156.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060105142951.13.10@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+References: <200601041200.03593.kernel@kolivas.org>
+	 <20060104190554.GG10592@redhat.com>
+	 <20060104195726.GB14782@redhat.com>
+	 <200601051010.54156.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 02:34:38PM +0000, Russell King wrote:
-> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+On 1/4/06, Con Kolivas <kernel@kolivas.org> wrote:
+> Thanks for testing it. Indeed skipping the ticks alone does not really save
+> any significant amount of power. The real chance for power savings comes from
+> using this period for smarter C state programming. The other thing as you've
+> noticed is that timers need to be curbed or minimised to get the maximum
+> benefit and the ondemand governor alone, which unfortunately shows up as
+> something not obvious in timertop, polls at 140HZ itself - fiddling with
+> ondemand/ settings in sys can drop this but slows the rate at which it
+> adapts.
 
-Works fine, Acked-by: Matthew Wilcox <matthew@wil.cx>
+For what it's worth (and I haven't done any actual power usage tests),
+on my 1.1GHz Pentium M laptop the gkrellm CPU speed meter
+(gkrellm-x86info) shows the CPU going down to around 30MHz thanks to
+the recent C-state patches (speeds under the minimum of 600MHz reflect
+C3 usage). On the other hand, without dynticks the speed hangs out
+around 60MHz, which as far as I know reflects the maximum possible C3
+usage with HZ = 1000. So really I'm guessing that the difference in
+power consumption isn't really improved much, given that on my Pentium
+M idle time is spent in C2, and if C3 is possible it's used quite
+extensively regardless.
 
-> diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/arch/parisc/kernel/drivers.c linux/arch/parisc/kernel/drivers.c
-> --- linus/arch/parisc/kernel/drivers.c	Sun Nov  6 22:14:46 2005
-> +++ linux/arch/parisc/kernel/drivers.c	Sun Nov 13 16:08:49 2005
-> @@ -173,8 +173,6 @@ int register_parisc_driver(struct parisc
->  	WARN_ON(driver->drv.probe != NULL);
->  	WARN_ON(driver->drv.remove != NULL);
+Of course, this may point to who the people who could really benefit
+from dynticks are--those with long latencies for higher C states. But
+in that sense, dynticks would seem to be of use more for legacy
+systems, since everyone is moving towards CPUs with better
+power-saving capabilities, no? I'm not knowledgeable about the
+specifics.. just thinking out loud, really. ;)
 
-I wonder if you want to delete the two WARN_ONs here too.
+Perhaps fixing the biggest offenders of timer (mis?)use would benefit
+everyone all-around. I haven't really been able to identify who those
+are though, given the lack of sorting in timertop and its
+seemingly-haphazard ordering of data (or is it there and I've missed
+it?).
+
+--
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

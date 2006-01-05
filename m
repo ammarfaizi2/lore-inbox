@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWAELvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752098AbWAEL6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWAELvg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 06:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752169AbWAELvf
+	id S1752098AbWAEL6d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 06:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752109AbWAEL6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 06:51:35 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:53385 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752168AbWAELvf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 06:51:35 -0500
-Date: Thu, 5 Jan 2006 12:51:31 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Roberto Nibali <ratz@drugphish.ch>
-cc: "Leonard Milcin Jr." <leonard.milcin@post.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: keyboard driver of 2.6 kernel
-In-Reply-To: <43BCF005.1050501@drugphish.ch>
-Message-ID: <Pine.LNX.4.61.0601051249030.21555@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in>
- <1136363622.2839.6.camel@laptopd505.fenrus.org> <43BB906F.3010900@post.pl>
- <Pine.LNX.4.61.0601041017560.29257@yvahk01.tjqt.qr> <43BCF005.1050501@drugphish.ch>
+	Thu, 5 Jan 2006 06:58:33 -0500
+Received: from nproxy.gmail.com ([64.233.182.200]:35514 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752098AbWAEL6c convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 06:58:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TM1/adDffTlogMXyNDH4kquqQTW/PJaMUWm7CGKQFHopTc1NowguXNhozxRkcyRLulbxME5CPYoibxLwsV89wi0981I5IUJB/O7XMS8f7a8o0ilZ1jDtfZ9Srj2OIePbOtcf/2v7htf9Npvjlo8d5AaYRTNPMypPQJG6IXprBMU=
+Message-ID: <df33fe7c0601050357o1b699a4aw@mail.gmail.com>
+Date: Thu, 5 Jan 2006 12:57:57 +0100
+From: Takis <panagiotis.issaris@gmail.com>
+Reply-To: takis@issaris.org
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] cs53l32a: kzalloc conversion
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060104163929.58a083d8.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060103143301.0D98E5BC3@localhost.localdomain>
+	 <20060104163929.58a083d8.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Let's pretend it's some sort of auditing ;-)
->> 
->> Actually, I use my keylogger (advertised above) more for "situation
->> reconstruction" rather than spying. When you happen to have a multi-root
->> environment and people "forget what they did", stuff like ttyrpld can
->> really be a gift compared to .bash_history (if it exists, after all).
->
-> If one needs it a bit less intrusive, she can also patch bash. A possible
-> solution can be found here:
->
-> http://www.drugphish.ch/patches/ratz/bash/bash-3.0-fix_1439-3.diff
->
-> But http://ttyrpld.sourceforge.net/ looks indeed interesting, however no 2.4.x
-> support from what I can see.
+Hi,
 
-Do you really need 2.4 support? Well, after all, I can add it back, it's 
-not too much #defines and stuff.
+2006/1/5, Andrew Morton <akpm@osdl.org>:
+> >  drivers/media/video/cs53l32a.c |    3 +--
+> >  1 files changed, 1 insertions(+), 2 deletions(-)
+> A quick grep shows that there are ~60 kmalloc+memsets under
+> drivers/media/video.  So I'd prefer that if we're going to do this, we do
+> it all in one big hit rather than merging a dribble of little patches.
+Sure, prepared two patches yesterday night doing the drivers/media and
+net/ directories. I've sent the drivers/media patch earlier today and
+will review and submit the net/ patch this evening.
 
-
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+With friendly regards,
+Takis

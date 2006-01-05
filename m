@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWAEMoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWAEMq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWAEMoj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 07:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWAEMoi
+	id S1751317AbWAEMq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 07:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWAEMq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 07:44:38 -0500
-Received: from ds01.webmacher.de ([213.239.192.226]:47546 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S1751317AbWAEMoh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 07:44:37 -0500
-In-Reply-To: <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
-References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com> <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
-Cc: Takashi Iwai <tiwai@suse.de>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
-       Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
+	Thu, 5 Jan 2006 07:46:26 -0500
+Received: from drugphish.ch ([69.55.226.176]:9625 "EHLO www.drugphish.ch")
+	by vger.kernel.org with ESMTP id S1750799AbWAEMq0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 07:46:26 -0500
+Message-ID: <43BD156E.8090601@drugphish.ch>
+Date: Thu, 05 Jan 2006 13:47:42 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Leonard Milcin Jr." <leonard.milcin@post.pl>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: keyboard driver of 2.6 kernel
+References: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in> <1136363622.2839.6.camel@laptopd505.fenrus.org> <43BB906F.3010900@post.pl> <Pine.LNX.4.61.0601041017560.29257@yvahk01.tjqt.qr> <43BCF005.1050501@drugphish.ch> <43BD09F4.2090603@post.pl>
+In-Reply-To: <43BD09F4.2090603@post.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Thu, 5 Jan 2006 13:44:14 +0100
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2006-01-05, at 11:57, Jan Engelhardt wrote:
-
->>> Software mixing in the kernel is like FPU ops in the kernel...
+>> http://www.drugphish.ch/patches/ratz/bash/bash-3.0-fix_1439-3.diff
 >>
->> Could you please elaborate a tad bit more on the analogy? It  
->> doesn't appear to
->> be stunningly obvious.
->>
-> It has never been done before in Linux, so there must be a reason  
-> to it.
-> There was also a reason why khttpd was (going in and) going out.
+>> But http://ttyrpld.sourceforge.net/ looks indeed interesting, however 
+>> no 2.4.x support from what I can see.
 >
->> Are you aware of the reasons why floating point operations are  
->> avoided inside
->> the kernel?
->>
-> Because it is "unportable". You cannot expect to have every  
-> hardware Linux
-> runs on today to have an FPU engine (hey, like that ol' i386 I got,  
-> needs
-> CONFIG_MATH_EMU...), especially in the Embedded Devices sector.
+> This can be very easily circumvented if you can execute another shell 
+> (for example your own version of bash without patch).
 
-First - the answer you provide is far from complete and it doesn't  
-even touch the more important reasons why the kernel avoids doing  
-FPU. (No, I don't feel obliged to explain the issue to you. Just a  
-note: The reasons are just merely *technical* and not principal.)
+Everything can be circumvented, but that's hardly the point of what the 
+patch tries to achieve. It is/was actually a requirement for financial 
+institutes, governments and ISPs running Linux-based services to comply 
+to the SOX and Basel II acts. Besides, ttyrpld can also be cirumvented 
+on a normal Linux distribution without special countermeasures or 
+policies regarding kernel module loading. It's just a tad bit harder to do.
 
-Second - you still didn't explain why this allows you to conclude  
-that sound mixing should in no way be done inside the kernel.
+The cited patch has auditing and trace facilities up to the point where 
+no intended malicious actions happen. It's only there to log and not to 
+prevent any kind of attack.
+
+Some of our systems for example run a highly secured Linux distribution 
+(Pitbull LX, SELinux, RSBAC, and partially other compartmentalized 
+environments), but some of those enhanced security systems do not 
+provide sufficient logging mechanisms to comply to those new acts.
+
+The reason I mentioned my patch is that it's non-intrusive, and this 
+helps in case of a security certification, and maybe also otherwise. YMMV.
+
+Best regards,
+Roberto Nibali, ratz
+-- 
+echo 
+'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc

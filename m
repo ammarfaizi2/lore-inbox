@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWAEVWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWAEVZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWAEVWM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWAEVWL
+	id S932222AbWAEVZU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWAEVZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:22:11 -0500
-Received: from hera.kernel.org ([140.211.167.34]:33154 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932220AbWAEVWK (ORCPT
+	Thu, 5 Jan 2006 16:25:20 -0500
+Received: from soundwarez.org ([217.160.171.123]:4327 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S932222AbWAEVZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:22:10 -0500
-Date: Thu, 5 Jan 2006 17:21:56 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH 09/16] mm: remove unnecessary variable and loop
-Message-ID: <20060105192156.GA12589@dmt.cnet>
-References: <20051207104755.177435000@localhost.localdomain> <20051207105106.887005000@localhost.localdomain>
+	Thu, 5 Jan 2006 16:25:19 -0500
+Date: Thu, 5 Jan 2006 22:25:11 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Marko Kohtala <marko.kohtala@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jason Dravet <dravet@hotmail.com>,
+       greg@kroah.com, device@lanana.org, linux-kernel@vger.kernel.org,
+       linux-parport@lists.infradead.org
+Subject: Re: [RFC]: add sysfs support to parport_pc, v3
+Message-ID: <20060105212511.GA1547@vrfy.org>
+References: <20060104010841.GA19541@kroah.com> <BAY103-F400667AF1AF50590C4990CDF2F0@phx.gbl> <20060104143157.357f9830.akpm@osdl.org> <9cfa10eb0601050817u56b007dbj@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051207105106.887005000@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <9cfa10eb0601050817u56b007dbj@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 06:48:04PM +0800, Wu Fengguang wrote:
-> shrink_cache() and refill_inactive_zone() do not need loops.
+On Thu, Jan 05, 2006 at 06:17:51PM +0200, Marko Kohtala wrote:
+> 2006/1/5, Andrew Morton <akpm@osdl.org>:
+> > "Jason Dravet" <dravet@hotmail.com> wrote:
+> > > >From: Greg KH <greg@kroah.com>
+> > > > > + * Added sysfs and udev - Jason Dravet <dravet@hotmail.com>
+> > > > >  */
+> >
+> > 6 is OK - it's LP_MAJOR.
+> >
+> > However 99 is JSFD_MAJOR, used by drivers/sbus/char/jsflash.c.  And yet my
+> > /dev/parport0 is also 99:0 (RH 7.3 and RH FC1).  I've no idea how that came
+> > about??
+> >
+> > bix:/home/akpm> grep parport /etc/makedev.d/*
+> > /etc/makedev.d/generic:a generic parport
+> > /etc/makedev.d/linux-2.4.x:c $PRINTER              99   0  1   8 parport%d
 > 
-> Simplify them to scan one chunk at a time.
+> JSFD is a block device so tha majors are ok. I'm not just sure if the
+> PP_MAJOR from linux/ppdev.h should be moved to major.h.
+> 
+> The patch by Jason however is not ok. He had another problem and this
+> is not the fix. What he tries to do is already in lp and ppdev, where
+> I think they belong.
 
-Hi Wu,
+Yeah, I was wondering about it too.
 
-What is the purpose of scanning large chunks at a time?
+> There is also something weird: why does RedHat create these nodes in
+> /dev when udev already does that.
 
-Some drawbacks that I can think of by doing that:
+Probably cause they want to be safe if nothing from their sysconfig loads
+the module. Opening the node will autoload it then.
 
-- zone->lru_lock will be held for much longer periods, resulting in
-decreased responsiveness and possibly slowdowns.
-
-- if the task doing the scan is uncapable of certain operations, for
-instance IO, dirty pages will be moved back to the head of the inactive
-list in much larger batches then they were before. This could hurt
-reclaim in general.
-
-What were the results of this change? Particularly contention on the
-lru_lock on medium-large SMP systems.
-
-Thanks!
+Kay

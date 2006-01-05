@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752019AbWAETAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWAETE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752019AbWAETAM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 14:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751917AbWAETAL
+	id S1751347AbWAETE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 14:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751908AbWAETE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 14:00:11 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:54149 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751908AbWAETAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 14:00:09 -0500
-Date: Thu, 5 Jan 2006 14:00:08 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Roger Leigh <rleigh@whinlatter.ukfsn.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       <autofs@linux.kernel.org>, <raven@themaw.net>
-Subject: Re: [linux-usb-devel] Re: BUG: 2.6.14/2.6.15: USB storage/ext2fs
- uninterruptable sleep
-In-Reply-To: <87fyo2k1zr.fsf@hardknott.home.whinlatter.ukfsn.org>
-Message-ID: <Pine.LNX.4.44L0.0601051355090.6460-100000@iolanthe.rowland.org>
+	Thu, 5 Jan 2006 14:04:56 -0500
+Received: from 200-77-196-210.ctetij.cablered.com.mx ([200.77.196.210]:19329
+	"EHLO server.alvarezp.pri") by vger.kernel.org with ESMTP
+	id S1751347AbWAETEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 14:04:55 -0500
+Date: Thu, 05 Jan 2006 11:00:41 -0800
+From: "Octavio Alvarez" <alvarezp@alvarezp.ods.org>
+To: "Dave Jones" <davej@redhat.com>, "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: mm/rmap.c negative page map count BUG.
+Cc: "Andrew Morton" <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+References: <20060103082609.GB11738@redhat.com> <43BA630F.1020805@yahoo.com.au> <20060103135312.GB18060@redhat.com> <20060104155326.351a9c01.akpm@osdl.org> <20060105074718.GF20809@redhat.com> <1136448712.2920.4.camel@laptopd505.fenrus.org> <20060105111520.GL20809@redhat.com>
+Organization: (None)
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.s2w4pyqm4oyyg1@octavio.tecbc.mx>
+In-Reply-To: <20060105111520.GL20809@redhat.com>
+User-Agent: Opera M2/8.50 (Win32, build 7700)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Roger Leigh wrote:
+On Thu, 05 Jan 2006 03:15:20 -0800, Dave Jones <davej@redhat.com> wrote:
 
-> > By any chance, does autofs or autofs4 mount your device with -o sync?  
-> > Doing that with flash memory devices is a grave mistake -- although it 
-> > shouldn't cause the sort of lock-up you described.
-> 
-> Yes.  I have
-> 
-> pen-secure  -fstype=ext2,sync,nodev,nosuid,noatime  :/dev/sda2
-> 
-> in /etc/auto.misc.  Removing the sync option does prevent the lockups.
-> I just added it back and it locked up immediately.
+> On Thu, Jan 05, 2006 at 09:11:51AM +0100, Arjan van de Ven wrote:
+>  >
+>  > > Quite a few Fedora users have hit it over the last year,
+>  > > but what I find fascinating is that there's not a single
+>  > > occurance of "BUG at mm/rmap.c" in our 2.6.9 based RHEL4 bug  
+> reports.
+>  >
+>  > could mean it's caused by consumer hardware code...
+>
+> Yeah. People buying enterprise distros do tend to buy branded RAM
+> with goodies like ECC from big name suppliers instead of a cheap $20
+> noname DIMM from "Joe's computers".
+>
+> So it *could* be a lot of these are crappy hardware, especially
+> as some of the reports do indicate that the problem went away
+> when they upgraded their RAM.  Some of the others though, I'm
+> not so sure.
 
-Sync for flash devices is generally a bad idea.  Especially with vfat 
-filesystems but to some extent with all of them, it causes constant 
-rewriting of sectors containing metadata.  Flash memory behaves poorly 
-when the same sector gets written over and over again; it tends to slow 
-down and eventually wear out completely.
+Nevertheless, there are more instances of the bug in recent versions.
+For me, version 2.6.10 or 2.6.11 seems to be the big difference, from
+1 bug monthly to --suddenly-- 4 weekly.
 
-> The usb/usb-storage logs are attached (device mount + command which
-> broke it).  Would you like any more information?
+I'm experiecing that problem too. I have notice that sometimes
+"bad_page_state" trigger before the BUG is reported.
 
-The log you provided shows only two commands, both of which completed 
-successfully.  Is that really the place where things got hung?  If it is 
-then the problem isn't in the USB stack but someplace higher up: the SCSI 
-stack, the block layer, or the filesystem layer.
+http://lkml.org/lkml/2005/12/14/449
 
-Alan Stern
+I have already installed the instrumentation Dave provided. I'll see how
+it goes.
 

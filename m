@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWAEAzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWAEA5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbWAEAzh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWAEAuh
+	id S1750980AbWAEA5l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWAEAu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:50:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62137 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750963AbWAEAtw convert rfc822-to-8bit
+	Wed, 4 Jan 2006 19:50:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:2490 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750988AbWAEAt4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:49:52 -0500
-Cc: gregkh@suse.de
-Subject: [PATCH] Driver core: only all userspace bind/unbind if CONFIG_HOTPLUG is enabled
-In-Reply-To: <11364221712844@kroah.com>
+	Wed, 4 Jan 2006 19:49:56 -0500
+Cc: kay.sievers@suse.de
+Subject: [PATCH] add uevent_helper control in /sys/kernel/
+In-Reply-To: <11364221691605@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 4 Jan 2006 16:49:31 -0800
-Message-Id: <1136422171299@kroah.com>
+Date: Wed, 4 Jan 2006 16:49:29 -0800
+Message-Id: <1136422169486@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,74 +24,80 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Driver core: only all userspace bind/unbind if CONFIG_HOTPLUG is enabled
+[PATCH] add uevent_helper control in /sys/kernel/
 
-Thanks to drivers making their id tables __devinit, we can't allow
-userspace to bind or unbind drivers from devices manually through sysfs.
-So we only allow this if CONFIG_HOTPLUG is enabled.
+This deprecates the /proc/sys/kernel/hotplug file, as all
+this stuff should be in /sys some day, right? :)
+In /sys/kernel/ we have now uevent_seqnum and uevent_helper.
+The seqnum is no longer used by udev, as the version for this
+kernel depends on netlink which events will never get
+out-of-order.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Recent udev versions disable the /sbin/hotplug helper with
+an init script, cause it leads to OOM on big boxes by running
+hundreds of shells in parallel. It should be done now by:
+  echo "" > /sys/kernel/uevent_helper
+
+(Note that "-n" does not work, cause neighter proc nor sysfs
+support truncate().)
+
+Signed-off-by: Kay Sievers <kay.sievers@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 874c6241b2e49e52680d32a50d4909c7768d5cb9
-tree 815b08ab6793cd45346c3d5f6a3875f36c0bfc91
-parent a96b204208443ab7e23c681f7ddabe807a741d0c
-author Greg Kroah-Hartman <gregkh@suse.de> Tue, 13 Dec 2005 15:17:34 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 04 Jan 2006 16:18:09 -0800
+commit 0f76e5acf9dc788e664056dda1e461f0bec93948
+tree fdb7db438cb03fb3e0508d582a7cc1321c62efed
+parent 0296b2281352e4794e174b393c37f131502e09f0
+author Kay Sievers <kay.sievers@suse.de> Fri, 11 Nov 2005 04:58:04 +0100
+committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 04 Jan 2006 16:18:07 -0800
 
- drivers/base/bus.c |   26 ++++++++++++++++++++++----
- 1 files changed, 22 insertions(+), 4 deletions(-)
+ kernel/ksysfs.c |   25 ++++++++++++++++++++++---
+ 1 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index e3f915a..29f6af5 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -428,6 +428,26 @@ static void driver_remove_attrs(struct b
- 	}
- }
+diff --git a/kernel/ksysfs.c b/kernel/ksysfs.c
+index 015fb69..e975a76 100644
+--- a/kernel/ksysfs.c
++++ b/kernel/ksysfs.c
+@@ -23,11 +23,29 @@ static struct subsys_attribute _name##_a
+ 	__ATTR(_name, 0644, _name##_show, _name##_store)
  
-+#ifdef CONFIG_HOTPLUG
-+/*
-+ * Thanks to drivers making their tables __devinit, we can't allow manual
-+ * bind and unbind from userspace unless CONFIG_HOTPLUG is enabled.
-+ */
-+static void add_bind_files(struct device_driver *drv)
-+{
-+	driver_create_file(drv, &driver_attr_unbind);
-+	driver_create_file(drv, &driver_attr_bind);
-+}
-+
-+static void remove_bind_files(struct device_driver *drv)
-+{
-+	driver_remove_file(drv, &driver_attr_bind);
-+	driver_remove_file(drv, &driver_attr_unbind);
-+}
-+#else
-+static inline void add_bind_files(struct device_driver *drv) {}
-+static inline void remove_bind_files(struct device_driver *drv) {}
-+#endif
- 
- /**
-  *	bus_add_driver - Add a driver to the bus.
-@@ -457,8 +477,7 @@ int bus_add_driver(struct device_driver 
- 		module_add_driver(drv->owner, drv);
- 
- 		driver_add_attrs(bus, drv);
--		driver_create_file(drv, &driver_attr_unbind);
--		driver_create_file(drv, &driver_attr_bind);
-+		add_bind_files(drv);
- 	}
- 	return error;
- }
-@@ -476,8 +495,7 @@ int bus_add_driver(struct device_driver 
- void bus_remove_driver(struct device_driver * drv)
+ #ifdef CONFIG_HOTPLUG
+-static ssize_t hotplug_seqnum_show(struct subsystem *subsys, char *page)
++/* current uevent sequence number */
++static ssize_t uevent_seqnum_show(struct subsystem *subsys, char *page)
  {
- 	if (drv->bus) {
--		driver_remove_file(drv, &driver_attr_bind);
--		driver_remove_file(drv, &driver_attr_unbind);
-+		remove_bind_files(drv);
- 		driver_remove_attrs(drv->bus, drv);
- 		klist_remove(&drv->knode_bus);
- 		pr_debug("bus %s: remove driver %s\n", drv->bus->name, drv->name);
+ 	return sprintf(page, "%llu\n", (unsigned long long)hotplug_seqnum);
+ }
+-KERNEL_ATTR_RO(hotplug_seqnum);
++KERNEL_ATTR_RO(uevent_seqnum);
++
++/* uevent helper program, used during early boo */
++static ssize_t uevent_helper_show(struct subsystem *subsys, char *page)
++{
++	return sprintf(page, "%s\n", hotplug_path);
++}
++static ssize_t uevent_helper_store(struct subsystem *subsys, const char *page, size_t count)
++{
++	if (count+1 > HOTPLUG_PATH_LEN)
++		return -ENOENT;
++	memcpy(hotplug_path, page, count);
++	hotplug_path[count] = '\0';
++	if (count && hotplug_path[count-1] == '\n')
++		hotplug_path[count-1] = '\0';
++	return count;
++}
++KERNEL_ATTR_RW(uevent_helper);
+ #endif
+ 
+ #ifdef CONFIG_KEXEC
+@@ -45,7 +63,8 @@ EXPORT_SYMBOL_GPL(kernel_subsys);
+ 
+ static struct attribute * kernel_attrs[] = {
+ #ifdef CONFIG_HOTPLUG
+-	&hotplug_seqnum_attr.attr,
++	&uevent_seqnum_attr.attr,
++	&uevent_helper_attr.attr,
+ #endif
+ #ifdef CONFIG_KEXEC
+ 	&crash_notes_attr.attr,
 

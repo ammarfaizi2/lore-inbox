@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWAECO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932957AbWAECiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWAECO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 21:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWAECO7
+	id S932957AbWAECiG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 21:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbWAECiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 21:14:59 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44527 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751200AbWAECO6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 21:14:58 -0500
-In-Reply-To: <20051220155004.GA3906@in.ibm.com>
-References: <20051214223912.GA4716@in.ibm.com> <43A1BD61.5070409@mvista.com> <20051220131956.GA24408@elte.hu> <20051220155004.GA3906@in.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <10843D42-7D91-11DA-AC71-000A959BB91E@mvista.com>
-Content-Transfer-Encoding: 7bit
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       robustmutexes@lists.osdl.org
-From: david singleton <dsingleton@mvista.com>
-Subject: Re: Recursion bug in -rt
-Date: Wed, 4 Jan 2006 18:14:56 -0800
-To: dino@in.ibm.com
-X-Mailer: Apple Mail (2.619)
+	Wed, 4 Jan 2006 21:38:06 -0500
+Received: from triton.atia.com ([193.16.246.115]:41533 "EHLO triton.atia.com")
+	by vger.kernel.org with ESMTP id S932963AbWAEChi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 21:37:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: sched.c:659 dec_rt_tasks BUG with patch-2.6.15-rt1
+ (realtime-preempt)
+References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
+	<20060102214516.GA12850@elte.hu> <87lkxyrzby.fsf_-_@arnaudov.name>
+From: Nedko Arnaudov <nedko@arnaudov.name>
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAM1BMVEX///8HBgUeFhGwUjwr
+ NDF5RjOgVz2UVTxxTz9pNSXCiW2OUjhNIxi6bE6ROChWammgrK7+pa2IAAAAAXRSTlMAQObYZgAA
+ AkxJREFUeAGtlAuTgyAMhK9gIGl4+P9/7W2wVbBo52YOZ2of+djdBPtT/7h+/lhf/wNYXFtLu38Y
+ OCss7jEut4zMCTiXGzwiA7CMm78+XQPzemC9q15hun/7sovRAZcCg8QBfPRnF3QPd0jswHW9gUeK
+ rwC2nwPTCRyudk9vhXtHXYgT4FxKOEn7zu83R+o3ULefUipKxjTn73LcPyzVbdck0YdAclJxE8C2
+ hKHiM5ZKGm1NLFn9IyUNBoQzMZsDjCKxD89sl6dBYwJYCFgi/8TKGfWWYzPmDkfdM40nEgRSWIYE
+ NREkQcdMem9SBzAStJJiCaxcpOAy4HDUARWbJyyRAKKwzbBoKQmAzBSqw/7iOJaYC+mTSYtiJs3d
+ FFjggTkGKr54r6gPwRoMZboASonB+wJA2/wQ32tysfAU4MWr97kBuLdx4FNy5QKoCfVYprCdEAhE
+ tFY7gb5LlcnqMwIgBASaI3S4S1AHoO7ASwH+bCTdFE4AmxP4wcIJMQFPaN01YBI5F7QT9wagq5KO
+ FuHd/sS1b8VCUMTeofUV07gH4Cno1iuo2BQY079RqKSK49MWYcyBSOgWEMWk2iCsUV4RQW6BNopN
+ wYJYBB7GcAqN2UXLbc3Cssyk9wpiw7NimwPqkemLArVZGBKIhWP8qkCExyaHHBn+Y4iR+rP3mQH1
+ zKpMuDjmZ8DHfhDjpCsyYkUsxqsZy3EcxAgsDUCl/TnZYcJLgLVOogPWKkIB/rHzVm9QyGzE+mZ2
+ YF1XHAQcPPy51kOhecI06vpCfgFqlF1IG9UTLgAAAABJRU5ErkJggg==
+Date: Thu, 05 Jan 2006 04:37:33 +0200
+In-Reply-To: <87lkxyrzby.fsf_-_@arnaudov.name> (Nedko Arnaudov's message of
+ "Tue, 03 Jan 2006 01:21:05 +0200")
+Message-ID: <87u0cj5riq.fsf_-_@arnaudov.name>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar,
-	I've got a more complete patch for deadlock detection for robust 
-futexes.
-
-	The patch is at 
-http://source.mvista.com/~dsingleton/patch-2.6.15-rc7-rt3-rf2
-
-	This patch handles pthread_mutex deadlocks in two ways:
-
-1) POSIX states that non-recursive pthread_mutexes hang if locked twice.
-This patch hangs the deadlocking thread on a waitqueue.  It releases
-all other kernel locks, like the mmap_sem and robust_sem before waiting
-on the waitqueue so as not to hang the kernel.
-
-2) pthread_mutexes that are only robust, not PRIO_INHERIT,  do not
-hang.  They have a new error code returned to them,  -EWOULDDEADLOCK.
-Since there is no POSIX specification for robust pthread_mutexes yet,
-returning EWOULDDEADLOCK to a robust mutex is more in the spirit
-of robustness.  For robust pthread_mutexes we clean up if the holding
-thread dies and we return EWOULDDEADLOCK to inform the
-application that it is trying to deadlock itself.
-
-	The patch handles both simple and circular deadlocks.  This is
-something I've been wanting to do for a while, export deadlock
-detection to all flavors of kernels.   The patch provides the correct
-deadlock behavior while not hanging the system.
-
-	It's also easier to see if a POSIX compliant app has deadlocked itself.
-the 'ps' command will show that the wait channel of a deadlocked
-application is waiting at 'futex_deadlock'.
-
-	Let me know if it passes all your tests.
-
-David
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
 
+> cdrecord issue is still there however. I got new screenshot (attached)
+> for it. In the new one, some stack was dumped before freeze.
 
+I was able to reproduce this by running oss2jack with -d option too.
+oss2jack -d option daemonizes it. If I run oss2jack without daemonizing,
+everything works and i'm not getting BUG at all.
 
-On Dec 20, 2005, at 7:50 AM, Dinakar Guniguntala wrote:
+=2D-=20
+Nedko Arnaudov <GnuPG KeyID: DE1716B0>
 
-> On Tue, Dec 20, 2005 at 02:19:56PM +0100, Ingo Molnar wrote:
->>
->> hm, i'm looking at -rf4 - these changes look fishy:
->>
->> -       _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
->> +       if (current != lock_owner(lock)->task)
->> +               _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
->>
->> why is this done?
->>
->
-> Ingo, this is to prevent a kernel hang due to application error.
->
-> Basically when an application does a pthread_mutex_lock twice on a
-> _nonrecursive_ mutex with robust/PI attributes the whole system hangs.
-> Ofcourse the application clearly should not be doing anything like
-> that, but it should not end up hanging the system either
->
-> 	-Dinakar
->
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDvIZx6bb4v94XFrARAuWHAJ0RLCyA++qt8HUuTHHRsokXzftOyQCgjxyB
+gPJboZieag64mP0OYLSlk/c=
+=C5lw
+-----END PGP SIGNATURE-----
+--=-=-=--
 

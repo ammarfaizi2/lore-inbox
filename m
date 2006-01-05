@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWAEGVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752022AbWAEGWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752021AbWAEGVd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 01:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752022AbWAEGVd
+	id S1752022AbWAEGWL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 01:22:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752023AbWAEGWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 01:21:33 -0500
-Received: from xenotime.net ([66.160.160.81]:35051 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1752021AbWAEGVc (ORCPT
+	Thu, 5 Jan 2006 01:22:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63156 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752022AbWAEGWJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 01:21:32 -0500
-Date: Wed, 4 Jan 2006 22:21:30 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: john.l.villalovos@intel.com, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au, torvalds@osdl.org
-Subject: Re: [PATCH] MAINTAINERS file: Fix missing colon
-Message-Id: <20060104222130.507d6877.rdunlap@xenotime.net>
-In-Reply-To: <4d8e3fd30601041525i4e23e3bbl26ad3590c2dd80ac@mail.gmail.com>
-References: <43BC45DE.5060303@intel.com>
-	<Pine.LNX.4.58.0601041406210.19134@shark.he.net>
-	<4d8e3fd30601041525i4e23e3bbl26ad3590c2dd80ac@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 5 Jan 2006 01:22:09 -0500
+Date: Thu, 5 Jan 2006 01:22:08 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: dual line backtraces for i386.
+Message-ID: <20060105062208.GA12095@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006 00:25:34 +0100 Paolo Ciarrocchi wrote:
+Another 'get better debug info from users' patch.
+x86-64 has had this since day one, and I don't know why
+no-one ever ported it to i386.
 
-> On 1/4/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> > On Wed, 4 Jan 2006, John L. Villalovos wrote:
-> >
-> > > From: John L. Villalovos <john.l.villalovos@intel.com>
-> > >
-> > > While parsing the MAINTAINERS file I disovered one entry was missing a colon.
-> > > This patch adds the one missing colon.
-> > >
-> > > ---
-> > > diff -r 8441517e7e79 MAINTAINERS
-> > > --- a/MAINTAINERS       Thu Jan  5 04:00:05 2006
-> > > +++ b/MAINTAINERS       Wed Jan  4 13:49:27 2006
-> > > @@ -681,7 +681,7 @@
-> > >
-> > >   DAC960 RAID CONTROLLER DRIVER
-> > >   P:     Dave Olien
-> > > -M      dmo@osdl.org
-> > > +M:     dmo@osdl.org
-> > >   W:     http://www.osdl.org/archive/dmo/DAC960
-> > >   L:     linux-kernel@vger.kernel.org
-> > >   S:     Maintained
-> >
-> > That would be helpful except that Dave is no longer at OSDL
-> > and is no longer maintaining that driver...
-> 
-> I don't know who I should CC to this email but it seems it's time to
-> update http://developer.osdl.org/dev/people/ since Dave is still
-> listed as an OSDL developer.
+Instead of using one line per function call in the backtrace,
+we can fit two per line.
 
-That list has been fixed.  Thanks.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
----
-~Randy
+--- linux-2.6.15/arch/i386/kernel/traps.c~	2005-12-01 04:25:36.000000000 -0500
++++ linux-2.6.15/arch/i386/kernel/traps.c	2005-12-01 04:36:19.000000000 -0500
+@@ -116,6 +116,7 @@ static inline unsigned long print_contex
+ 				unsigned long *stack, unsigned long ebp)
+ {
+ 	unsigned long addr;
++	char space=0;
+ 
+ #ifdef	CONFIG_FRAME_POINTER
+ 	while (valid_stack_ptr(tinfo, (void *)ebp)) {
+@@ -131,9 +132,17 @@ static inline unsigned long print_contex
+ 		if (__kernel_text_address(addr)) {
+ 			printk(" [<%08lx>]", addr);
+ 			print_symbol(" %s", addr);
+-			printk("\n");
++			if (space == 0) {
++				printk("    ");
++				space = 1;
++			} else {
++				printk("\n");
++				space = 0;
++			}
+ 		}
+ 	}
++	if (space==1)
++		printk("\n");
+ #endif
+ 	return ebp;
+ }

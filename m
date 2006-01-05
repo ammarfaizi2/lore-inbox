@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWAEA7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWAEBAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWAEA7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWAEAuR
+	id S1751083AbWAEBAr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWAEAuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:50:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:3002 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750990AbWAEAt4 convert rfc822-to-8bit
+	Wed, 4 Jan 2006 19:50:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:5306 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750993AbWAEAt6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:49:56 -0500
-Cc: akpm@osdl.org
-Subject: [PATCH] kobject_uevent CONFIG_NET=n fix
-In-Reply-To: <11364221703195@kroah.com>
+	Wed, 4 Jan 2006 19:49:58 -0500
+Cc: kay.sievers@suse.de
+Subject: [PATCH] remove mount/umount uevents from superblock handling
+In-Reply-To: <11364221683611@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 4 Jan 2006 16:49:30 -0800
-Message-Id: <11364221702087@kroah.com>
+Date: Wed, 4 Jan 2006 16:49:29 -0800
+Message-Id: <11364221693870@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,81 +24,101 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] kobject_uevent CONFIG_NET=n fix
+[PATCH] remove mount/umount uevents from superblock handling
 
-lib/lib.a(kobject_uevent.o)(.text+0x25f): In function `kobject_uevent':
-: undefined reference to `__alloc_skb'
-lib/lib.a(kobject_uevent.o)(.text+0x2a1): In function `kobject_uevent':
-: undefined reference to `skb_over_panic'
-lib/lib.a(kobject_uevent.o)(.text+0x31d): In function `kobject_uevent':
-: undefined reference to `skb_over_panic'
-lib/lib.a(kobject_uevent.o)(.text+0x356): In function `kobject_uevent':
-: undefined reference to `netlink_broadcast'
-lib/lib.a(kobject_uevent.o)(.init.text+0x9): In function `kobject_uevent_init':
-: undefined reference to `netlink_kernel_create'
-make: *** [.tmp_vmlinux1] Error 1
+The names of these events have been confusing from the beginning
+on, as they have been more like claim/release events. We needed these
+events for noticing HAL if storage devices have been mounted.
 
-Netlink is unconditionally enabled if CONFIG_NET, so that's OK.
+Thanks to Al, we have the proper solution now and can poll()
+/proc/mounts instead to get notfied about mount tree changes.
 
-kobject_uevent.o is compiled even if !CONFIG_HOTPLUG, which is lazy.
-
-Let's compound the sin.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Kay Sievers <kay.sievers@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit f743ca5e10f4145e0b3e6d11b9b46171e16af7ce
-tree e21e900b2400d66a6da37492951e80c6f4cf4230
-parent d960bb4db9f422b5c3c82e0dfd6c8213a4fc430d
-author akpm@osdl.org <akpm@osdl.org> Tue, 22 Nov 2005 23:36:13 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 04 Jan 2006 16:18:08 -0800
+commit 033b96fd30db52a710d97b06f87d16fc59fee0f1
+tree 00fbccf2cf478307e213f298a221e330f3ba12ae
+parent 0f76e5acf9dc788e664056dda1e461f0bec93948
+author Kay Sievers <kay.sievers@suse.de> Fri, 11 Nov 2005 06:09:55 +0100
+committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 04 Jan 2006 16:18:07 -0800
 
- include/linux/kobject.h |    2 +-
- kernel/ksysfs.c         |    3 +++
- lib/kobject_uevent.c    |    4 +---
- 3 files changed, 5 insertions(+), 4 deletions(-)
+ fs/super.c              |   15 +--------------
+ include/linux/kobject.h |    6 ++----
+ lib/kobject_uevent.c    |    4 ----
+ 3 files changed, 3 insertions(+), 22 deletions(-)
 
+diff --git a/fs/super.c b/fs/super.c
+index 6689dde..5a347a4 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -665,16 +665,6 @@ static int test_bdev_super(struct super_
+ 	return (void *)s->s_bdev == data;
+ }
+ 
+-static void bdev_uevent(struct block_device *bdev, enum kobject_action action)
+-{
+-	if (bdev->bd_disk) {
+-		if (bdev->bd_part)
+-			kobject_uevent(&bdev->bd_part->kobj, action, NULL);
+-		else
+-			kobject_uevent(&bdev->bd_disk->kobj, action, NULL);
+-	}
+-}
+-
+ struct super_block *get_sb_bdev(struct file_system_type *fs_type,
+ 	int flags, const char *dev_name, void *data,
+ 	int (*fill_super)(struct super_block *, void *, int))
+@@ -717,10 +707,8 @@ struct super_block *get_sb_bdev(struct f
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+ 			s = ERR_PTR(error);
+-		} else {
++		} else
+ 			s->s_flags |= MS_ACTIVE;
+-			bdev_uevent(bdev, KOBJ_MOUNT);
+-		}
+ 	}
+ 
+ 	return s;
+@@ -736,7 +724,6 @@ void kill_block_super(struct super_block
+ {
+ 	struct block_device *bdev = sb->s_bdev;
+ 
+-	bdev_uevent(bdev, KOBJ_UMOUNT);
+ 	generic_shutdown_super(sb);
+ 	sync_blockdev(bdev);
+ 	close_bdev_excl(bdev);
 diff --git a/include/linux/kobject.h b/include/linux/kobject.h
-index 8eb21f2..2a8d8da 100644
+index baf5251..e6926b3 100644
 --- a/include/linux/kobject.h
 +++ b/include/linux/kobject.h
-@@ -253,7 +253,7 @@ struct subsys_attribute {
- extern int subsys_create_file(struct subsystem * , struct subsys_attribute *);
- extern void subsys_remove_file(struct subsystem * , struct subsys_attribute *);
+@@ -42,10 +42,8 @@ enum kobject_action {
+ 	KOBJ_ADD	= (__force kobject_action_t) 0x01,	/* add event, for hotplug */
+ 	KOBJ_REMOVE	= (__force kobject_action_t) 0x02,	/* remove event, for hotplug */
+ 	KOBJ_CHANGE	= (__force kobject_action_t) 0x03,	/* a sysfs attribute file has changed */
+-	KOBJ_MOUNT	= (__force kobject_action_t) 0x04,	/* mount event for block devices */
+-	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices */
+-	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* offline event for hotplug devices */
+-	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* online event for hotplug devices */
++	KOBJ_OFFLINE	= (__force kobject_action_t) 0x04,	/* offline event for hotplug devices */
++	KOBJ_ONLINE	= (__force kobject_action_t) 0x05,	/* online event for hotplug devices */
+ };
  
--#ifdef CONFIG_HOTPLUG
-+#if defined(CONFIG_HOTPLUG) & defined(CONFIG_NET)
- void kobject_uevent(struct kobject *kobj, enum kobject_action action);
- 
- int add_uevent_var(char **envp, int num_envp, int *cur_index,
-diff --git a/kernel/ksysfs.c b/kernel/ksysfs.c
-index bfb4a7a..99af8b0 100644
---- a/kernel/ksysfs.c
-+++ b/kernel/ksysfs.c
-@@ -15,6 +15,9 @@
- #include <linux/module.h>
- #include <linux/init.h>
- 
-+u64 uevent_seqnum;
-+char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
-+
- #define KERNEL_ATTR_RO(_name) \
- static struct subsys_attribute _name##_attr = __ATTR_RO(_name)
- 
+ struct kobject {
 diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-index 01479e5..f56e27a 100644
+index 1f90eea..845bf67 100644
 --- a/lib/kobject_uevent.c
 +++ b/lib/kobject_uevent.c
-@@ -25,9 +25,7 @@
- #define BUFFER_SIZE	1024	/* buffer for the variables */
- #define NUM_ENVP	32	/* number of env pointers */
- 
--#if defined(CONFIG_HOTPLUG)
--char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
--u64 uevent_seqnum;
-+#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
- static DEFINE_SPINLOCK(sequence_lock);
- static struct sock *uevent_sock;
- 
+@@ -39,10 +39,6 @@ static char *action_to_string(enum kobje
+ 		return "remove";
+ 	case KOBJ_CHANGE:
+ 		return "change";
+-	case KOBJ_MOUNT:
+-		return "mount";
+-	case KOBJ_UMOUNT:
+-		return "umount";
+ 	case KOBJ_OFFLINE:
+ 		return "offline";
+ 	case KOBJ_ONLINE:
 

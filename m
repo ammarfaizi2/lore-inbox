@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWAESD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWAESEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWAESD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWAESD7
+	id S932125AbWAESEs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWAESEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:03:59 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:17868 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932116AbWAESD6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:03:58 -0500
-From: Andi Kleen <ak@suse.de>
-To: dtor_core@ameritech.net
-Subject: Re: 2.6.15-ck1
-Date: Thu, 5 Jan 2006 18:28:46 +0100
-User-Agent: KMail/1.8.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200601041200.03593.kernel@kolivas.org> <200601051739.05441.ak@suse.de> <d120d5000601050913n54677e8bib01f4bd70d5f7ee4@mail.gmail.com>
-In-Reply-To: <d120d5000601050913n54677e8bib01f4bd70d5f7ee4@mail.gmail.com>
+	Thu, 5 Jan 2006 13:04:48 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:12503 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932125AbWAESEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:04:47 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: 80 column line limit?
+To: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 05 Jan 2006 19:08:07 +0100
+References: <5rD2D-xs-11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601051828.47133.ak@suse.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EuZWy-0001FP-5j@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 January 2006 18:13, Dmitry Torokhov wrote:
+Kay Sievers <kay.sievers@vrfy.org> wrote:
 
-> Yes, until some driver claims serio port interrupt is not acquired and
-> thus available for others.
-> 
-> I would say we could bump the timer as high as 5 seconds for
-> hotplugging. It may give delay with some KVMs, but only first time you
-> switch to the box in question.
+> Can't we relax the 80 column line rule to something more comfortable?
+> These days descriptive variable/function names are much more valuable,
+> I think.
 
-I would say you just should aquire the interrupt always. Running
-a timer instead of just using the perfectly fine interrupt looks simply like 
-a design bug, not a feature.
+The patches are sent by email, and it's recommended to not exceed the
+76-character-limit within email.
 
--Andi
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

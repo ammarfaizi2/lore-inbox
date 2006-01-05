@@ -1,89 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWAEWVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWAEWVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWAEWVF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWAEWVF
+	id S1751075AbWAEWVm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWAEWVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:21:05 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:46729 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751126AbWAEWVD (ORCPT
+	Thu, 5 Jan 2006 17:21:42 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:6530 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751075AbWAEWVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:21:03 -0500
-Subject: [ANNOUNCE] January Release of LTP Available
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-       ltp-announce@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
-Message-ID: <OFD0F941A0.DFD6FB11-ON852570ED.007AA957-862570ED.007AC061@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Thu, 5 Jan 2006 17:20:55 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.5.4FP2 HF2|November 9, 2005) at
- 01/05/2006 17:20:57
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Thu, 5 Jan 2006 17:21:41 -0500
+Date: Thu, 5 Jan 2006 23:21:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Joel Schopp <jschopp@austin.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [patch 00/21] mutex subsystem, -V14
+Message-ID: <20060105222106.GA26474@elte.hu>
+References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43BD4C66.60001@austin.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LTP-20060105
-- Updates from Jennifer Monk to enable compiling w/o errors using XLC
-- Applied Coldfire patch from Jody McIntyre:
- - Make the fdopen workaround blackfin-specific (not needed on Coldfire.)
- - getdents01: gcc 2.95 does not like declarations in the middle
-   of functions, so move getdents to the top.
- - Add LDFLAGS to the following Makefiles:
- - Add -D_USC_LIB_ for Coldfire builds to the following Makefiles: creat,
-   execve, fchdir, kill, mkdir, open, rename, rmdir, sched_setscheduler,
-   vhangup, ipc/lib.  This avoids symbol conflicts reported by gcc 2.95.
- - Skip the following syscall tests on Coldfire: madvise, mlock, munlock.
-   These system calls are not implemented.
- - IPC: Modify the headers and Makefiles to avoid duplicate definitions of
-   msgkey on Coldfire.
- - msgctl08, msgctl09: Lower MAXNPROCS to a value that will fit in the
-   Coldfire's memory.
- - mallopt01: Define __MALLOC_STANDARD__ on Coldfire.
- - Skip mmap01 on Coldfire since it requires sbrk(), which is not
-available.
- - rename02: Remove private do_file_setup and use the library version to
-avoid
-   symbol conflicts.
- - kill07: Declare semkey as extern on Coldfire to avoid symbol conflicts.
- - kill11: Move *msg declaration since gcc 2.95 does not understand C99.
- - sigaction01: Move -lc in the Makefile after -lpthread.
-- Applied changes suggest by Jacky Malcles to keep gf18 from running longer
-than it needs.
-- Applied a suggested solution from Jacky Malcles to allow growfiles to run
-correctly in 64bits.
-- Applied a memory leak fix to fsx-linux tests.
-- Applied patch from Marc Unangst to resolve issues with leaking file
-descriptors in inode01.c
-- Update aio-stress.c tests from Chris Mason
-- Applied patch from Bibo,Mao to use RT signal instead of SIGUSR1 to inform
-parent process that
-  the child process has finished memory allocation.
-- New security tests from Michael Harlow
-- Applied patch from David Marlin to close the last file descriptor created
-in order to
-  make one file descriptor available for loading a needed library.
-- Added one line to gethostid, if 'hostid' includes fffffff, then we
-ignore.
-- Applied fix for Sourceforge bug ID 1332508 in getsid02
-- Appliec changes from Jane Lv for uClinux.
-- Applied patch from Mark Ver to allow proper execution on s390x platform.
-- Updates to ASAPI tests from David Stephens for new glibc and RFC 3542
-- Renamed create_file.c to nfs04_create_file.c to resolve duplicate name
-problem with network stress tests.
-- Updates to Makefile for acl testsuite
-- Initial add of acl testsuite from Bull
-- Updates from sridhar to sctp testsuite
-- Comment out CFLAGS overrides in network-stress Makefile, it was causing
-build breaks in 64bit compiles
 
-Marty Ridgeway
-Linux Test Project
-Linux Technology Center
-IBM Corporation
+* Joel Schopp <jschopp@austin.ibm.com> wrote:
 
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 902/6B021
-Austin, TX.
+> The bne- and isync together form a sufficient import barrier.  See 
+> PowerPC Book2 Appendix B.2.1.1
 
+ok. Please correct me if i'm wrong: the question is, could we on ppc64 
+use atomic_dec_return() for mutex_lock(), and atomic_inc_return() for 
+mutex_unlock().
+
+atomic_dec_return() does:
+
+        EIEIO_ON_SMP
+"1:     lwarx   %0,0,%1         # atomic_dec_return\n\
+        addic   %0,%0,-1\n"
+        PPC405_ERR77(0,%1)
+"       stwcx.  %0,0,%1\n\
+        bne-    1b"
+        ISYNC_ON_SMP
+
+the EIEIO_ON_SMP is in essence smp_wmb(), correct? (it's a bit stronger 
+because it also orders IO-space writes, but it doesnt impose any 
+restrictions on reads)
+
+ISYNC_ON_SMP flushes all speculative reads currently in the queue - and 
+is hence a smp_rmb_backwards() primitive [per my previous mail] - but 
+does not affect writes - correct?
+
+if that's the case, what prevents a store from within the critical 
+section going up to right after the EIEIO_ON_SMP, but before the 
+atomic-dec instructions? Does any of those instructions imply some 
+barrier perhaps? Are writes always ordered perhaps (like on x86 CPUs), 
+and hence the store before the bne is an effective write-barrier?
+
+	Ingo

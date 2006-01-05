@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWAEN7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWAEOBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWAEN7q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 08:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWAEN7p
+	id S1751302AbWAEOBM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:01:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWAEOBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 08:59:45 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35088 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750831AbWAEN7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 08:59:44 -0500
-Date: Thu, 5 Jan 2006 14:59:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: wensong@linux-vs.org, horms@verge.net.au, ja@ssi.bg
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix ipvs compilation
-Message-ID: <20060105135943.GA3831@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Thu, 5 Jan 2006 09:01:12 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27308 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751302AbWAEOBL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:01:11 -0500
+Date: Thu, 5 Jan 2006 06:00:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reduce sizeof(percpu_data) and removes dependance
+ against NR_CPUS
+Message-Id: <20060105060050.37ec91d3.akpm@osdl.org>
+In-Reply-To: <43BD2406.2040007@cosmosbay.com>
+References: <1135251766.3557.13.camel@pmac.infradead.org>
+	<20060105021929.498f45ef.akpm@osdl.org>
+	<43BD2406.2040007@cosmosbay.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know which change broke it, but I'm getting the following 
-compile error in Linus' tree:
+Eric Dumazet <dada1@cosmosbay.com> wrote:
+>
+> Current sizeof(percpu_data) is NR_CPUS*sizeof(void *)
+> 
+>  This trivial patch makes percpu_data real size depends on 
+>  highest_possible_processor_id() instead of NR_CPUS
+> 
+>  percpu_data allocations are not performance critical, we can spend few CPU 
+>  cycles and save some ram.
 
-<--  snip  -->
-
-...
-  CC      net/ipv4/ipvs/ip_vs_sched.o
-net/ipv4/ipvs/ip_vs_sched.c: In function 'ip_vs_sched_getbyname':
-net/ipv4/ipvs/ip_vs_sched.c:110: warning: implicit declaration of function 'local_bh_disable'
-net/ipv4/ipvs/ip_vs_sched.c:124: warning: implicit declaration of function 'local_bh_enable'
-...
-  CC      net/ipv4/ipvs/ip_vs_est.o
-net/ipv4/ipvs/ip_vs_est.c: In function 'ip_vs_new_estimator':
-net/ipv4/ipvs/ip_vs_est.c:147: warning: implicit declaration of function 'local_bh_disable'
-net/ipv4/ipvs/ip_vs_est.c:156: warning: implicit declaration of function 'local_bh_enable'
-...
-  LD      .tmp_vmlinux1
-net/built-in.o: In function `ip_vs_sched_getbyname':ip_vs_sched.c:(.text+0x99cfa): undefined reference to `local_bh_disable'
-net/built-in.o: In function `register_ip_vs_scheduler': undefined reference to `local_bh_disable'
-net/built-in.o: In function `unregister_ip_vs_scheduler': undefined reference to `local_bh_disable'
-net/built-in.o: In function `ip_vs_new_estimator': undefined reference to `local_bh_disable'
-net/built-in.o: In function `ip_vs_kill_estimator': undefined reference to `local_bh_disable'
-net/built-in.o: more undefined references to `local_bh_disable' follow
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-
-This patch fixes them by #include'ing linux/interrupt.h.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-git/net/ipv4/ipvs/ip_vs_sched.c.old	2006-01-05 14:56:44.000000000 +0100
-+++ linux-git/net/ipv4/ipvs/ip_vs_sched.c	2006-01-05 14:56:59.000000000 +0100
-@@ -22,6 +22,7 @@
- #include <linux/module.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
-+#include <linux/interrupt.h>
- #include <asm/string.h>
- #include <linux/kmod.h>
- 
---- linux-git/net/ipv4/ipvs/ip_vs_est.c.old	2006-01-05 14:57:15.000000000 +0100
-+++ linux-git/net/ipv4/ipvs/ip_vs_est.c	2006-01-05 14:57:27.000000000 +0100
-@@ -18,6 +18,7 @@
- #include <linux/jiffies.h>
- #include <linux/slab.h>
- #include <linux/types.h>
-+#include <linux/interrupt.h>
- 
- #include <net/ip_vs.h>
- 
-
+hm, highest_possible_processor_id() isn't very efficient.  And it's quite
+dopey that it's a macro.  We should turn it into a real function which
+caches its return result and goes BUG if it's called before
+cpu_possible_map is initialised.

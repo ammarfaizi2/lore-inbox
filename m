@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752244AbWAEWna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752150AbWAEWnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752244AbWAEWna (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752204AbWAEWna
+	id S1752150AbWAEWnm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752245AbWAEWnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:43:30 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:704 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1752150AbWAEWn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:43:29 -0500
-Date: Thu, 5 Jan 2006 14:42:10 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Tony Luck <tony.luck@intel.com>
-Cc: Nathan Lynch <ntl@pobox.com>, linux-kernel@vger.kernel.org,
-       Ben Collins <bcollins@debian.org>, Andrew Morton <akpm@osdl.org>,
-       ashok.raj@intel.com
-Subject: Re: [PATCH] fix workqueue oops during cpu offline
-Message-ID: <20060105144210.A14956@unix-os.sc.intel.com>
-References: <20060105045810.GE16729@localhost.localdomain> <12c511ca0601051345pee8d8wc735507d361fa65e@mail.gmail.com>
+	Thu, 5 Jan 2006 17:43:41 -0500
+Received: from waste.org ([64.81.244.121]:63368 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1752150AbWAEWnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 17:43:40 -0500
+Date: Thu, 5 Jan 2006 16:36:56 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Martin Bligh <mbligh@mbligh.org>, Arjan van de Ven <arjan@infradead.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+Message-ID: <20060105223656.GP3356@waste.org>
+References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <20060105213442.GM3356@waste.org> <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <12c511ca0601051345pee8d8wc735507d361fa65e@mail.gmail.com>; from tony.luck@intel.com on Thu, Jan 05, 2006 at 01:45:50PM -0800
+In-Reply-To: <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 01:45:50PM -0800, Tony Luck wrote:
-> On 1/4/06, Nathan Lynch <ntl@pobox.com> wrote:
-> > This is where things go wrong -- any_online_cpu() now gets 1, not 0.
-> > In queue_work, the cpu_workqueue_struct at per_cpu_ptr(wq->cpu_wq, 1) is
-> > uninitialized.
+On Thu, Jan 05, 2006 at 02:08:06PM -0800, Linus Torvalds wrote:
 > 
-> Same issue on ia64 when I tried to add Ashok' s patch to allow
-> removal of cpu0 (BSP in ia64-speak).  Ashok told me that this fix
-> solves the problem for us too.
+> On Thu, 5 Jan 2006, Matt Mackall wrote:
+> > 
+> > I think it's a mistake to interleave this data into the C source. It's
+> > expensive and tedious to change relative to its volatility.
 > 
+> I don't believe it is actually all _that_ volatile. Yes, it would be a 
+> huge issue _initially_, but the incremental effects shouldn't be that big, 
+> or there is something wrong with the approach.
 
-Is this safe to use in NUMA path as well? Not that memory hot-remove is there
-yet today, but if a NUMA node is being removed, i would assume the memory for 
-that node goes with it. i.e assuming alloc_percpu() gets node local memory for 
-each cpu.
+No, perhaps not. But it would be nice in theory for people to be able
+to do things like profile their production system and relink. And
+having to touch hundreds of files to do it would be painful.
 
-So is it safe to continue to reference an area of an offline cpu that may not
-exist?
+> > What I was proposing was something like, say, arch/i386/popularity.lst, 
+> > which would simply contain a list of the most popular n% of functions 
+> > sorted by popularity. As text, of course.
+> 
+> I suspect that would certainlty work for pure function-based popularity, 
+> and yes, it has the advantage of being simple (especially for something 
+> that ends up being almost totally separated from the compiler: if we're 
+> using this purely to modify link scripts etc with special tools).
+> 
+> But what about the unlikely/likely conditional hints that we currently do 
+> by hand? How are you going to sanely maintain a list of those without 
+> doing that in source code?
 
-
+Dunno. Those bits are all anonymous so marking them in situ is about
+the only way to go. But we can do better for whole functions.
 
 -- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+Mathematics is the supreme nostalgia of our time.

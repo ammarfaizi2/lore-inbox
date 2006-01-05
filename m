@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWAEPTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWAEPTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWAEPTi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWAEPTi
+	id S1751416AbWAEPTz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWAEPTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:19:38 -0500
-Received: from ns2.suse.de ([195.135.220.15]:3255 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751408AbWAEPTh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:19:37 -0500
-From: Andi Kleen <ak@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6.15-ck1
-Date: Thu, 5 Jan 2006 16:19:16 +0100
-User-Agent: KMail/1.8.2
-Cc: Arjan van de Ven <arjan@infradead.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200601041200.03593.kernel@kolivas.org> <p73y81vxyci.fsf@verdi.suse.de> <20060105064227.GA6120@corona.suse.cz>
-In-Reply-To: <20060105064227.GA6120@corona.suse.cz>
+	Thu, 5 Jan 2006 10:19:55 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:39593 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751416AbWAEPTy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 10:19:54 -0500
+Date: Thu, 5 Jan 2006 16:19:15 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Daniel Walker <dwalker@mvista.com>
+cc: Steven Rostedt <rostedt@goodmis.org>, Vegard Lima <Vegard.Lima@hia.no>,
+       <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.15-rt1-sr1: xfs mount crash
+In-Reply-To: <1136473721.31011.12.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L0.0601051618200.3110-100000@lifa02.phys.au.dk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601051619.17366.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 January 2006 07:42, Vojtech Pavlik wrote:
 
-> > I haven't checked recently if keyboard has been fixed by now.
-> 
-> It's not. At this moment it's impossible to remove without significant
-> surgery to the driver, because it'd prevent hotplugging and many KVMs
-> from working.
 
-Sorry? You say you can't do hot plugging in the keyboard driver
-without a polling timer? 
+On Thu, 5 Jan 2006, Daniel Walker wrote:
 
-That sounds quite bogus to me. A zillion other OS do keyboards
-fine without polling timers.
+> On Thu, 2006-01-05 at 08:38 -0500, Steven Rostedt wrote:
+>
+> > Hi Vergard,
+> >
+> > I just want to make sure I understand the above.
+> >
+> > The bug happens when CONFIG_DEBUG_RT_LOCKING_MODE is _not_ set?
+> >
+> > And the bug goes away when it _is_ set?
+>
+>
+> Looks like a race , so maybe a timing issue. Just turn on some debugging
+> in the code path that slows/speeds things just enough .
+>
+> Daniel
 
--Andi
+CONFIG_DEBUG_RT_LOCKING_MODE turns spinlock_t into raw_spinlock_t again as
+far as I can see. It is probably some spinlock_t which has to be a
+raw_spinlock_t for the time being.
+
+Esben
+
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

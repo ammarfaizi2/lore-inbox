@@ -1,42 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWAEAIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWAEAL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWAEAIu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWAEAIu
+	id S1750800AbWAEAL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:11:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWAEAL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:08:50 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:55702 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750793AbWAEAIu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:08:50 -0500
-Message-ID: <43BC636D.3070109@zytor.com>
-Date: Wed, 04 Jan 2006 16:08:13 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Greg KH <greg@kroah.com>, Nick Warne <nick@linicks.net>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-Subject: Re: 2.6.14.5 to 2.6.15 patch
-References: <200601041710.37648.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk> <20060104220157.GB12778@kroah.com> <200601042249.12116.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200601042249.12116.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 4 Jan 2006 19:11:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7642 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750800AbWAEAL2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 19:11:28 -0500
+Date: Wed, 4 Jan 2006 16:13:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix - ioc3 serial support
+Message-Id: <20060104161320.28756e24.akpm@osdl.org>
+In-Reply-To: <43BC377E.3050603@sgi.com>
+References: <200512162233.jBGMXRUQ139857@fsgi900.americas.sgi.com>
+	<43BC377E.3050603@sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
+Patrick Gefre <pfg@sgi.com> wrote:
+>
+> The following patch adds driver support for a 2 port PCI IOC3-based
+> serial card on Altix boxes:
 > 
-> Re-read the thread. The confusion here is about "going back" to 2.6.14 before 
-> patching 2.6.15. This has nothing to do with "rc kernels". We have this 
-> documented explicitly in the kernel but not on the kernel.org FAQ.
-> 
+> ftp://oss.sgi.com/projects/sn2/sn2-update/044-ioc3-support
+>
 
-If you can send me some suggested verbiage I'll put it in the FAQ.  We 
-can also make a page that's directly linked from the "stable release", 
-kind of like we have info links for -mm patches etc.
+> +struct ring_entry {
+> +	union {
+> +		struct {
+> +			uint32_t alldata;
+> +			uint32_t allsc;
+> +		} all;
+> +		struct {
+> +			char data[4];	/* data bytes */
+> +			char sc[4];	/* status/control */
+> +		} s;
+> +	} u;
+> +};
+> +
+> +/* Test the valid bits in any of the 4 sc chars using "allsc" member */
+> +#define RING_ANY_VALID \
+> +	((uint32_t)(RXSB_MODEM_VALID | RXSB_DATA_VALID) * 0x01010101)
+> +
+> +#define ring_sc		u.s.sc
+> +#define ring_data	u.s.data
+> +#define ring_allsc	u.all.allsc
+>
 
-	-hpa
+You no longer need to go through this pain - we plan on dropping gcc-2.95
+support this cycle, so anonymous unions and anonymous structs can be used
+in-kernel.
+
+The above looks a bit dodgy wrt endianness..
+
+> +	writeb((unsigned char)divisor, &uart->iu_dll);
+> +	writeb((unsigned char)(divisor >> 8), &uart->iu_dlm);
+> +	writeb((unsigned char)prediv, &uart->iu_scr);
+> +	writeb((unsigned char)lcr, &uart->iu_lcr);
+
+Are those casts needed?
+
+
+ioc3uart_intr_one() has two callsites and should not be inlined.  Although
+the compiler could conceivably do something sneaky with it.  Needs checking.
+
+nic_read_bit() should be uninlined.
+
+nic_write_bit() should be uninlined.
+
+write_ireg() should be uninlined.
+
+
+This driver will break when tty-layer-buffering-revamp.patch is merged,
+which looks like it'll be 1-2 weeks hence.  A fixup patch against next -mm
+would suit..

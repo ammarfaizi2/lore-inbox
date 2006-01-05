@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWAEXKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWAEXKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWAEXKK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWAEXJx
+	id S932265AbWAEXKo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWAEXKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:09:53 -0500
-Received: from waste.org ([64.81.244.121]:55707 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932260AbWAEXJn (ORCPT
+	Thu, 5 Jan 2006 18:10:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2268 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932260AbWAEXKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:09:43 -0500
-Date: Thu, 5 Jan 2006 17:02:54 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-Message-ID: <20060105230254.GQ3356@waste.org>
-References: <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <20060105213442.GM3356@waste.org> <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org> <20060105223656.GP3356@waste.org> <43BDA271.2020502@mbligh.org>
+	Thu, 5 Jan 2006 18:10:41 -0500
+Date: Thu, 5 Jan 2006 15:10:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: jlan@engr.sgi.com, nagar@watson.ibm.com, linux-kernel@vger.kernel.org,
+       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       ckrm-tech@lists.sourceforge.net, pj@sgi.com, erikj@sgi.com,
+       steiner@sgi.com, jh@sgi.com
+Subject: Re: [PATCH 00/01] Move Exit Connectors
+Message-Id: <20060105151016.732612fd.akpm@osdl.org>
+In-Reply-To: <1136488842.22868.142.camel@stark>
+References: <43BB05D8.6070101@watson.ibm.com>
+	<43BB09D4.2060209@watson.ibm.com>
+	<43BC1C43.9020101@engr.sgi.com>
+	<1136414431.22868.115.camel@stark>
+	<20060104151730.77df5bf6.akpm@osdl.org>
+	<1136486566.22868.127.camel@stark>
+	<1136488842.22868.142.camel@stark>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BDA271.2020502@mbligh.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 02:49:21PM -0800, Martin Bligh wrote:
+Matt Helsley <matthltc@us.ibm.com> wrote:
+>
+>  	This patch moves both the process exit event and per-process stats
+>  connectors above exit_mm() since the latter needs values from the
+>  mm_struct which will be lost after exit_mm().
 > 
-> >>>What I was proposing was something like, say, arch/i386/popularity.lst, 
-> >>>which would simply contain a list of the most popular n% of functions 
-> >>>sorted by popularity. As text, of course.
-> >>
-> >>I suspect that would certainlty work for pure function-based popularity, 
-> >>and yes, it has the advantage of being simple (especially for something 
-> >>that ends up being almost totally separated from the compiler: if we're 
-> >>using this purely to modify link scripts etc with special tools).
-> >>
-> >>But what about the unlikely/likely conditional hints that we currently do 
-> >>by hand? How are you going to sanely maintain a list of those without 
-> >>doing that in source code?
-> >
-> >
-> >Dunno. Those bits are all anonymous so marking them in situ is about
-> >the only way to go. But we can do better for whole functions.
+>  Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
 > 
-> Would also make it easier to rank it as a percentage, or group by
-> locality of reference to other functions, rather than just a binary
-> split of "rare" vs "not-rare".
+>  --
 > 
-> Of course it's all very dependant on workload, which drivers you're 
-> using too, etc, etc. So a profile that's separate also makes it much
-> easier to tweak for one machine than the source base in general, which
-> theoretically represents everyone (and thus has little info ;-)).
-> 
-> Which also makes me think it's easier to mark hot functions than cold
-> ones, in a more general maintainance sense.
+>  Index: linux-2.6.15/kernel/exit.c
+>  ===================================================================
+>  --- linux-2.6.15.orig/kernel/exit.c
+>  +++ linux-2.6.15/kernel/exit.c
+>  @@ -845,10 +845,14 @@ fastcall NORET_TYPE void do_exit(long co
+>   	if (group_dead) {
+>    		del_timer_sync(&tsk->signal->real_timer);
+>   		exit_itimers(tsk->signal);
+>   		acct_process(code);
+>   	}
+>  +
+>  +	tsk->exit_code = code;
+>  +	proc_exit_connector(tsk);
+>  +	cnstats_exit_connector(tsk);
 
-Yes, I think it definitely makes sense to think in terms of hot
-functions. We surely have a nice long tail on the popularity
-distribution and only the first 5% or so are actually worth sorting
-and packing.
+cnstats_exit_connector() doesn't exist yet...
 
--- 
-Mathematics is the supreme nostalgia of our time.
+

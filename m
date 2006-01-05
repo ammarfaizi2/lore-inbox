@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWAEVhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752213AbWAEVjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWAEVhy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:37:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752213AbWAEVhy
+	id S1752213AbWAEVjT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:39:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752214AbWAEVjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:37:54 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:62925 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750960AbWAEVhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:37:53 -0500
-Date: Thu, 5 Jan 2006 16:37:52 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Pavel Machek <pavel@ucw.cz>
-cc: "Scott E. Preece" <preece@motorola.com>, <akpm@osdl.org>,
-       <linux-pm@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
- interface
-In-Reply-To: <20060105211446.GD2095@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44L0.0601051631200.6460-100000@iolanthe.rowland.org>
+	Thu, 5 Jan 2006 16:39:19 -0500
+Received: from linux.dunaweb.hu ([62.77.196.1]:45698 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S1750960AbWAEVjS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 16:39:18 -0500
+Message-ID: <43BD9A17.4010305@freemail.hu>
+Date: Thu, 05 Jan 2006 23:13:43 +0100
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
+X-Accept-Language: hu-hu, hu, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Bad page state in 2.6.15
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Pavel Machek wrote:
+Hi,
 
-> > > | Why to make it this complex?
-> > > | 
-> > > | I do not think there's any confusion possible. "on" always corresponds
-> > > | to "D0", and "suspend" is "D3". Anyone who knows what "D2" means,
-> > > | should know that, too...
-> > 
-> > Not necessarily.  For instance, a particular driver might want to map 
-> > "suspend" to D1 instead of to D3.
-> 
-> Ok, lets change that to "on" and "off". That way, hopefully all the
-> drivers will agree that "off" means as low Dstate as possible.
+I just got this on FC3, a shiny new compiled 2.6.15 kernel:
 
-Nothing wrong with that.  We could let "off" be another synonym.  Although 
-I don't see the need for it, really.
+Bad page state at prep_new_page (in process 'cc1', page ffff8100018e1278)
+flags:0x4000000000000004 mapping:0000000000000000 mapcount:0 count:-131072
+Backtrace:
 
-> > Given that "on" and "suspend" are generic names and not actual states (at 
-> > least, not for PCI devices and presumably not for others as well), I think 
-> > it makes sense to treat them specially.
-> > 
-> > And it's not all that complex.  Certainly no more complex than forcing
-> > userspace tools to use {"on", "D1, "D2", "suspend"} instead of the
-> > much-more-logical {"D0", "D1", "D2", "D3"}.
-> 
-> It is not much more logical. First, noone really needs D1 and
-> D2. Plus, people want to turn their devices on and off, and don't want
-> and should not have to care about details like D1.
+Call Trace:<ffffffff8015536e>{bad_page+113} 
+<ffffffff80155edf>{get_page_from_freelist+702}
+       <ffffffff80156032>{__alloc_pages+80} 
+<ffffffff80160f8b>{__handle_mm_fault+453}
+       <ffffffff8011edd6>{do_page_fault+959} 
+<ffffffff80164225>{do_mmap_pgoff+1604}
+       <ffffffff8010f0c9>{error_exit+0}
+Trying to fix it up, but a reboot is needed
 
-Who are you to say what people really need?  What about people who want to 
-test their PCI device and see if it behaves properly in D1 or D2?  How are 
-they going to do that if you don't let them put it in that state?
-
-What about people with platform-specific non-PCI devices that have a whole
-bunch of different internal power states?  Why force them to use only two
-of those states?
-
-The kernel isn't supposed to prevent people from doing perfectly legal
-things.  The kernel should provide mechanisms to help people do what they
-want.
-
-Besides, as long as the sysfs interface accepts "on" and "suspend" (or 
-"off"), what harm does it do to accept the device-specific names as 
-well?
-
-Alan Stern
+Best regards,
+Zoltán Böszörményi
 

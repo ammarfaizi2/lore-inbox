@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752255AbWAEWyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752256AbWAEWzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752255AbWAEWyt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752253AbWAEWyt
+	id S1752256AbWAEWzk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752253AbWAEWzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:54:49 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:24575 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751148AbWAEWyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:54:49 -0500
-Message-ID: <43BDA271.2020502@mbligh.org>
-Date: Thu, 05 Jan 2006 14:49:21 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 5 Jan 2006 17:55:39 -0500
+Received: from motgate8.mot.com ([129.188.136.8]:31723 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S1751216AbWAEWzj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 17:55:39 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <20060105213442.GM3356@waste.org> <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org> <20060105223656.GP3356@waste.org>
-In-Reply-To: <20060105223656.GP3356@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Date: Thu, 5 Jan 2006 17:55:33 -0500
+Message-ID: <ADE4D9DBCFC3A345AAA95C195F62B6DDD3AD85@de01exm64.ds.mot.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Thread-Index: AcYSScI269FurwA4THmvIn9HWVNHbAAAIF4g
+From: "Preece Scott-PREECE" <scott.preece@motorola.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: "Alan Stern" <stern@rowland.harvard.edu>, <akpm@osdl.org>,
+       <linux-pm@lists.osdl.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I shouldn't oversimplify the power management in a cell phone. When I said we turned whole devices on/off, I was referring only to what the system-level PM (which uses suspend/resume) does. There's a fair amount of subsystem-specific power management outside the Linux suspend/resume framework. Some of it might be handled in the framework, if the framework were more capable.
 
->>>What I was proposing was something like, say, arch/i386/popularity.lst, 
->>>which would simply contain a list of the most popular n% of functions 
->>>sorted by popularity. As text, of course.
->>
->>I suspect that would certainlty work for pure function-based popularity, 
->>and yes, it has the advantage of being simple (especially for something 
->>that ends up being almost totally separated from the compiler: if we're 
->>using this purely to modify link scripts etc with special tools).
->>
->>But what about the unlikely/likely conditional hints that we currently do 
->>by hand? How are you going to sanely maintain a list of those without 
->>doing that in source code?
-> 
-> 
-> Dunno. Those bits are all anonymous so marking them in situ is about
-> the only way to go. But we can do better for whole functions.
+scott
 
-Would also make it easier to rank it as a percentage, or group by
-locality of reference to other functions, rather than just a binary
-split of "rare" vs "not-rare".
+-----Original Message-----
+From: Pavel Machek [mailto:pavel@ucw.cz] 
+Sent: Thursday, January 05, 2006 4:46 PM
+To: Preece Scott-PREECE
+Cc: Alan Stern; akpm@osdl.org; linux-pm@lists.osdl.org; linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
 
-Of course it's all very dependant on workload, which drivers you're 
-using too, etc, etc. So a profile that's separate also makes it much
-easier to tweak for one machine than the source base in general, which
-theoretically represents everyone (and thus has little info ;-)).
+On Èt 05-01-06 17:21:38, Preece Scott-PREECE wrote:
+> We do have multiple system-level low-power modes. I believe today they 
+> differ in turning whole devices on or off, but there are some of those 
+> devices that could be put in reduced-function/lowered-speed modes if 
+> we were ready to use a finer-grained distinction.
 
-Which also makes me think it's easier to mark hot functions than cold
-ones, in a more general maintainance sense.
+I think we were talking multiple off modes for _single device_. It is good to know that even cellphones can get away with whole devices on/off today.
+								Pavel
 
-M.
+--
+Thanks, Sharp!

@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWAEWNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWAEWNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751582AbWAEWNo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWAEWNo
+	id S1750845AbWAEWNh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:13:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWAEWNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:13:44 -0500
-Received: from motgate5.mot.com ([144.189.100.105]:65261 "EHLO
-	motgate5.mot.com") by vger.kernel.org with ESMTP id S1750878AbWAEWNn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:13:43 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
-Date: Thu, 5 Jan 2006 17:13:37 -0500
-Message-ID: <ADE4D9DBCFC3A345AAA95C195F62B6DDD3AD54@de01exm64.ds.mot.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
-Thread-Index: AcYSQb727A99IHYvSwe6Y47xvD4xKQAAw8IQ
-From: "Preece Scott-PREECE" <scott.preece@motorola.com>
-To: "Patrick Mochel" <mochel@digitalimplant.org>
-Cc: <pavel@suse.cz>, <akpm@osdl.org>, <linux-pm@lists.osdl.org>,
-       <linux-kernel@vger.kernel.org>
+	Thu, 5 Jan 2006 17:13:37 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:26796 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1750878AbWAEWNg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 17:13:36 -0500
+Date: Thu, 5 Jan 2006 23:13:34 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Message-ID: <20060105221334.GA925@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Pavel Machek <pavel@ucw.cz>,
+	Patrick Mochel <mochel@digitalimplant.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux-pm mailing list <linux-pm@lists.osdl.org>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20051227213439.GA1884@elf.ucw.cz> <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net> <20060105215528.GF2095@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060105215528.GF2095@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-User space has no particular reason to know which state of a particular
-device corresponds to the logical state "on" or "off" or whatever other
-states might be needed. Once you've defined the set of standard, generic
-states, then the device driver writer can figure out which device state
-matches the requirements for a given generic state.
+On Thu, Jan 05, 2006 at 10:55:29PM +0100, Pavel Machek wrote:
+> > I have a firewire controller in a desktop system, and a ATI Radeon in a
+> > T42 that support D1 and D2..
+> 
+> Ok, now we have a concrete example. So Radeon supports D1. But putting
+> radeon into D1 means you probably want to blank your screen and turn
+> the backlight off; that takes *long* time anyway. So you can simply
+> put your radeon into D3 and save a bit more power.
 
-While I wouldn't hate putting this in a system-level configuration file,
-I really think it's device-specific stuff that should be built-in.
+Using your logic, you never want to put your CPU into C2 power-saving state
+instead of C3 or C4. Which is ridiculous. There are technical reasons why
+you want to put devices into different power-saving states. E.g. wakeup
+latency, ability to receive wakeup signals, snooping and so on.
 
-scott
+In addition, your patch breaks pcmcia / pcmciautils which already uses
+numbers (which I already had to change from "3" to "2" before...).
 
------Original Message-----
-From: Patrick Mochel [mailto:mochel@digitalimplant.org] 
-Sent: Thursday, January 05, 2006 3:48 PM
-To: Preece Scott-PREECE
-Cc: pavel@suse.cz; ; ; 
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
-interface
-
-
-On Thu, 5 Jan 2006, Scott E. Preece wrote:
-
-> --===============26103097005026354==
->
->
-> My inclination would be to have the sysfs interface know generic 
-> terms, with the implementation mapping them to device-specific terms. 
-> It ought to be possible to build portable tools that don't have to 
-> know about device-specific states and have the device interfaces (in 
-> sysfs) do the necessary translation.
-
-Userspace should do the translation. You should give the user the
-ability to specify simple, meaningful states, like "on" and "off". But,
-it should be the tools itself that are mapping those requests to valid
-input for the sysfs files.
-
-Why force the translation into the kernel, and provide more
-opportunities for error in parsing the sysfs files? Do it in userspace,
-and you can afford much more flexibility and portability.
-
-Thanks,
-
-
-	Patrick
-
+	Dominik

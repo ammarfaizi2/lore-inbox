@@ -1,44 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWAEPIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWAEPNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWAEPIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWAEPIn
+	id S1750765AbWAEPNy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWAEPNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:08:43 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:29678 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750746AbWAEPIn
+	Thu, 5 Jan 2006 10:13:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:45611 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750765AbWAEPNx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:08:43 -0500
-Subject: Re: 2.6.15-rt1-sr1: xfs mount crash
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Vegard Lima <Vegard.Lima@hia.no>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.58.0601050830120.9377@gandalf.stny.rr.com>
-References: <1136467202.2310.10.camel@tordenfugl.lima.heim>
-	 <Pine.LNX.4.58.0601050830120.9377@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 07:08:41 -0800
-Message-Id: <1136473721.31011.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 10:13:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qcc+7bdUSpYUnBl0vYLchPtlyZbVJgGfPOBFwE8hn6sOsn8j6RnffK617e3ndm9g//aYHFbYuA4AyJzcI+sGVLQH80gzRloa89XevdSRAMDfdQKGRwcSqeeNFAH4Rf1DbstgA0EabkKFAVtQDYshtbrThObKPgAUqculDIrPmZo=
+Message-ID: <ee9e417a0601050713k3c778142k430c5329bbd8e841@mail.gmail.com>
+Date: Thu, 5 Jan 2006 10:13:52 -0500
+From: Russ Cox <rsc@swtch.com>
+To: Latchesar Ionkov <lucho@ionkov.net>
+Subject: Re: [V9fs-developer] [PATCH 3/3] v9fs: zero copy implementation
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net
+In-Reply-To: <20060105005731.GC27375@ionkov.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060105005731.GC27375@ionkov.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 08:38 -0500, Steven Rostedt wrote:
+> +char *v9fs_str_copy(char *buf, int buflen, struct v9fs_str *str)
+> +{
+> +       int n;
+> +
+> +       if (buflen < str->len)
+> +               n = buflen;
+> +       else
+> +               n = str->len;
+> +
+> +       memmove(buf, str->str, n - 1);
+> +
+> +       return buf;
+> +}
 
-> Hi Vergard,
-> 
-> I just want to make sure I understand the above.
-> 
-> The bug happens when CONFIG_DEBUG_RT_LOCKING_MODE is _not_ set?
-> 
-> And the bug goes away when it _is_ set?
 
+The above is wrong.  You'll chop the end of the string off
+when str->len <= buflen.
 
-Looks like a race , so maybe a timing issue. Just turn on some debugging
-in the code path that slows/speeds things just enough . 
+n = str->len;
+if (n > buflen-1)
+        n = buflen-1;
+memmove(buf, str->str, n);
+buf[n] = 0;
 
-Daniel
+> +int v9fs_str_compare(char *buf, struct v9fs_str *str)
+> +{
+> +       int n, ret;
+> +
+> +       ret = strncmp(buf, str->str, str->len);
+> +
+> +       if (!ret) {
+> +               n = strlen(buf);
+> +               if (n < str->len)
+> +                       ret = -1;
+> +               else if (n > str->len)
+> +                       ret = 1;
+> +       }
+> +
+> +       return ret;
+> +}
 
+You go through all this work to avoid copying the strings,
+which has questionable benefit, and then this routine
+walks the length of the string twice, unnecessarily.
+Also if strlen(buf) < str->len, then strncmp can't return 0.
+
+ret = strncmp(buf, str->str, str->len);
+if (!ret && buf[str->len])
+        ret = 1;
+return ret;
+
+>  static inline int buf_check_size(struct cbuf *buf, int len)
+>  {
+[snip deleted lines]
+> +       if (buf->p + len > buf->ep && buf->p < buf->ep) {
+> +               eprintk(KERN_ERR, "buffer overflow: want %d has %d\n",
+> +                       len, (int)(buf->ep - buf->p));
+> +               dump_stack();
+> +               buf->p = buf->ep + 1;
+> +               return 0;
+>         }
+>
+>         return 1;
+
+I think it's weird that you return 1 when you've already overflowed.
+It's fine that you don't print more than once, but what's the harm
+in returning 0 always when buf->p + len > buf->ep?
+
+Russ

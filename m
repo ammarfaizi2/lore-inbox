@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWAEX0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWAEX2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750969AbWAEX0p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWAEX0p
+	id S1751219AbWAEX2E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWAEX2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:26:45 -0500
-Received: from h-64-105-110-66.cmbrmaor.covad.net ([64.105.110.66]:10553 "EHLO
-	mail.w1nr.net") by vger.kernel.org with ESMTP id S1750969AbWAEX0o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:26:44 -0500
-From: "Mike McCarthy, W1NR" <mike@w1nr.net>
-To: <linux-hams@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: <ralf@linux-mips.org>
-Subject: 2.6.15 ax25 system lockup with kissattach
-Date: Thu, 5 Jan 2006 18:26:43 -0500
-Message-ID: <008401c6124f$7ceed0e0$3849a8c0@lan.w1nr.net>
+	Thu, 5 Jan 2006 18:28:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25312 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751219AbWAEX2D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:28:03 -0500
+Date: Thu, 5 Jan 2006 15:26:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Joel Schopp <jschopp@austin.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>,
+       PPC64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [patch 00/21] mutex subsystem, -V14
+In-Reply-To: <43BDA672.4090704@austin.ibm.com>
+Message-ID: <Pine.LNX.4.64.0601051523060.3169@g5.osdl.org>
+References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com>
+ <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com>
+ <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-thread-index: AcYST3zE4MhQWdo2RvODWzGRuSUTAA==
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using SuSE 10.0 with 2.6.15 kernel built from source or via SuSE kotd
-rpm.  The system will hang when issuing kissattach command.
-
-># /etc/ax25/ax25d.conf
->#
-># ax25d Configuration File.
->#
-># AX.25 Ports begin with a '['.
->#
->[W1NR VIA 2m]
->parameters      2 1 6 900 * 15 0
->NOCALL   * * * * * * L
->default  * * * * * * - root /spider/src/client client %s ax25
-
-># /etc/ax25/axports
->#
-># The format of this file is:
->#
-># name callsign speed paclen window description
->#
->2m      W1NR-9          19200   255     2       145.650 MHz (1200 bps)
 
 
-Following is a trace of commands issued:
+On Thu, 5 Jan 2006, Joel Schopp wrote:
+> 
+> Here is a first pass at a powerpc file for the fast paths just as an FYI/RFC.
+> It is completely untested, but compiles.
 
+Shouldn't you make that "isync" dependent on SMP too? UP doesn't need it, 
+since DMA will never matter, and interrupts are precise.
 
->worf:~ # modprobe -v mkiss
->insmod /lib/modules/2.6.15-20060103193109-debug/kernel/lib/crc16.ko
->insmod /lib/modules/2.6.15-20060103193109-debug/kernel/net/ax25/ax25.ko
->insmod
-/lib/modules/2.6.15-20060103193109-debug/kernel/drivers/net/hamradio/mkiss.k
-o
->worf:~ # kissattach /dev/ttyS0 2m 44.56.10.3
->AX.25 port 2m bound to device ax0
-
-
-That's all folks.  System locked up hard.  Caps lock and scroll lock lights
-flashing.  System needs a hard reset.
-
-2.6.14-5 appears to be fine.  Tried recompiled tools and libraries as well.
-Others report similar problems on Debian systems with 2.6.15 kernel as well.
-
-Mike McCarthy, W1NR
-
+		Linus

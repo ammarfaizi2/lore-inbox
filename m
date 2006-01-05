@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752136AbWAEKxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752139AbWAEK6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752136AbWAEKxX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 05:53:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752137AbWAEKxW
+	id S1752139AbWAEK6i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 05:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752137AbWAEK6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 05:53:22 -0500
-Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:27327 "EHLO
-	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1752136AbWAEKxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 05:53:22 -0500
-Date: Thu, 5 Jan 2006 02:51:30 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stephane Eranian <eranian@hpl.hp.com>
-Subject: ptrace denies access to EFLAGS_RF
-Message-ID: <20060105105130.GC3712@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Thu, 5 Jan 2006 05:58:38 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:43937 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750709AbWAEK6h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 05:58:37 -0500
+Date: Thu, 5 Jan 2006 11:57:42 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Marcin Dalecki <martin@dalecki.de>
+cc: Takashi Iwai <tiwai@suse.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
+Message-ID: <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
+References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk>
+ <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk>
+ <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
+ <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
+ <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
+ <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
+ <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
+ <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>> Software mixing in the kernel is like FPU ops in the kernel...
+>
+> Could you please elaborate a tad bit more on the analogy? It doesn't appear to
+> be stunningly obvious.
+>
+It has never been done before in Linux, so there must be a reason to it.
+There was also a reason why khttpd was (going in and) going out.
 
-I am trying to the user HW debug registers on i386
-and I am running into a problem with ptrace() not allowing access
-to EFLAGS_RF for POKEUSER (see FLAG_MASK).
+> Are you aware of the reasons why floating point operations are avoided inside
+> the kernel?
+>
+Because it is "unportable". You cannot expect to have every hardware Linux 
+runs on today to have an FPU engine (hey, like that ol' i386 I got, needs 
+CONFIG_MATH_EMU...), especially in the Embedded Devices sector.
 
-I am not sure I understand the motivation for denying access
-to this flag which can be used to resume after a code
-breakpoint has been reached. It avoids the need to remove the
-breakpoint, single step, and reinstall. The equivalent
-functionality exists on IA-64 and is allowed by ptrace().
 
-Why is EFLAGS_RF not accessible to users on i386?
 
-Thanks.
-
+Jan Engelhardt
 -- 
--Stephane

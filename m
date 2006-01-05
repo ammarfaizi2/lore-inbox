@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751856AbWAERWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWAER2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751856AbWAERWE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 12:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751857AbWAERWE
+	id S1750766AbWAER2A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 12:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751857AbWAER2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 12:22:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18450 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751856AbWAERWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 12:22:03 -0500
-Date: Thu, 5 Jan 2006 18:22:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Make apm buildable without legacy pm.
-Message-ID: <20060105172201.GC3831@stusta.de>
-References: <20060103143352.GA24937@redhat.com> <20060105014126.GH5895@kurtwerks.com>
-MIME-Version: 1.0
+	Thu, 5 Jan 2006 12:28:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43791 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750766AbWAER2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 12:28:00 -0500
+Date: Thu, 5 Jan 2006 17:26:55 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Vrabel <dvrabel@arcom.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, gregkh@suse.de
+Subject: Re: [DRIVER CORE] platform_get_irq*(): return NO_IRQ on error
+Message-ID: <20060105172655.GA15968@flint.arm.linux.org.uk>
+Mail-Followup-To: David Vrabel <dvrabel@arcom.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, gregkh@suse.de
+References: <43BD534E.8050701@arcom.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060105014126.GH5895@kurtwerks.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43BD534E.8050701@arcom.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 08:41:26PM -0500, Kurt Wall wrote:
-> On Tue, Jan 03, 2006 at 09:33:52AM -0500, Dave Jones took 0 lines to write:
-> > APM doesn't _need_ the PM_LEGACY junk, so remove it's dependancy
-> > from Kconfig, and ifdef the junk in the code.
-> > Whilst the ifdefs are ugly, when the legacy stuff gets ripped out
-> > so will the ifdefs.
-> > 
-> > Signed-off-by: Dave Jones <davej@redhat.com>
-> > 
-> > --- linux-2.6.14/arch/i386/Kconfig~	2005-12-22 22:06:10.000000000 -0500
-> > +++ linux-2.6.14/arch/i386/Kconfig	2005-12-22 22:06:16.000000000 -0500
-> > @@ -710,7 +710,7 @@ depends on PM && !X86_VISWS
-> >  
-> >  config APM
-> >  	tristate "APM (Advanced Power Management) BIOS support"
-> > -	depends on PM && PM_LEGACY
-> > +	depends on PM
-> >  	---help---
-> >  	  APM is a BIOS specification for saving power using several different
-> >  	  techniques. This is mostly useful for battery powered laptops with
-> 
-> Here's this hunk re-diffed against 2.6.15 (which applies without
-> needing patch to apply an offset of -11 lines):
->...
+On Thu, Jan 05, 2006 at 05:11:42PM +0000, David Vrabel wrote:
+> platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
+> platforms, return NO_IRQ (-1) instead.
 
-Offsets when applying patches are usually completely harmless (problems 
-are only possible if there isn't enough context, but that's obviously 
-not the case here).
+This change would require an audit of the users of these functions.
+Could you check whether this is going to cause them any problems?
 
-> Kurt
+> Index: linux-2.6-working/drivers/base/platform.c
+> ===================================================================
+> --- linux-2.6-working.orig/drivers/base/platform.c	2006-01-05 16:49:23.000000000 +0000
+> +++ linux-2.6-working/drivers/base/platform.c	2006-01-05 17:10:18.000000000 +0000
+> @@ -59,7 +59,7 @@
+>  {
+>  	struct resource *r = platform_get_resource(dev, IORESOURCE_IRQ, num);
+>  
+> -	return r ? r->start : 0;
+> +	return r ? r->start : NO_IRQ;
+>  }
+>  
+>  /**
+> @@ -94,7 +94,7 @@
+>  {
+>  	struct resource *r = platform_get_resource_byname(dev, IORESOURCE_IRQ, name);
+>  
+> -	return r ? r->start : 0;
+> +	return r ? r->start : NO_IRQ;
+>  }
+>  
+>  /**
 
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

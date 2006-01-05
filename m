@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWAEXSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWAEXWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWAEXSp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWAEXSp
+	id S1750780AbWAEXWO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWAEXWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:18:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4318 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750712AbWAEXSo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:18:44 -0500
-Date: Thu, 5 Jan 2006 15:18:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: tshxiayu@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: what is the state of current after an mm_fault occurs?
-Message-Id: <20060105151811.23f82ad8.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0601051228320.7328@schroedinger.engr.sgi.com>
-References: <7cd5d4b40601040240n79b2d654t33424e91059988a9@mail.gmail.com>
-	<20060104174808.7b882af8.akpm@osdl.org>
-	<7cd5d4b40601041920u596551d2h75e167311e9452e4@mail.gmail.com>
-	<20060104192334.1e88cfda.akpm@osdl.org>
-	<Pine.LNX.4.62.0601051228320.7328@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Jan 2006 18:22:13 -0500
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:17371 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750780AbWAEXWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:22:12 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Tomasz Torcz <zdzichu@irc.pl>
+Subject: Re: 2.6.15-ck1
+Date: Fri, 6 Jan 2006 10:22:45 +1100
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200601041200.03593.kernel@kolivas.org> <20060105175821.GA4010@irc.pl>
+In-Reply-To: <20060105175821.GA4010@irc.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601061022.46026.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
+On Fri, 6 Jan 2006 04:58 am, Tomasz Torcz wrote:
+> On Wed, Jan 04, 2006 at 12:00:00PM +1100, Con Kolivas wrote:
+> > Added:
+> >  +2.6.15-dynticks-060101.patch
 >
-> On Wed, 4 Jan 2006, Andrew Morton wrote:
-> 
-> > >  You mean in some pagefault place we do schedule()?
-> > 
-> > We used to - that should no longer be the case.  The TASK_RUNNING thing is
-> > probably redundant now.
-> 
-> The page fault handler calls the page allocator in various places 
-> which may sleep. 
+>   On practically unused (booted and logged in into GNOME, one terminal
+> emulator, clock gdesklet ticking) desktop system -- Sempron 2500+,
+> pmstats show between 450 and 600 Hz. Is this normal?
 
-That's OK - they should all do set_current_state() before sleeping.  It's
-the bare schedule() without previously setting TASK_foo which is the
-problem.  We used to do that sort of thing in 2.4 as a lame yield point but
-we really shouldn't be doing that at all anywhere any more.
+Chances are your hardware is one that doesn't play well with dynticks then. 
+Compile in the timer info and use the timertop utility to see if there really 
+is something increasing your timer activity to 450HZ and if there isn't then 
+it's a problem with dynticks and your hardware. This is the problem I'm 
+currently seeing on SMP configs (too many HZ) and I have yet to figure out 
+what it is about the IO APIC that makes this happen.
 
-> current may not point to the current process if the page fault handler was 
-> called from get_user_pages.
-
-current always points at the current process.  In the situation
-ptrace->access_process_vm->get_user_pages->pagefault we'll have mm !=
-current->mm.
+Cheers,
+Con

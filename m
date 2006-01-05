@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWAES5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751886AbWAES4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751893AbWAES5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbWAES53
+	id S1751886AbWAES4u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWAES4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:57:29 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:53667 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751893AbWAES52 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:57:28 -0500
-Message-ID: <43BD6C03.2080605@pobox.com>
-Date: Thu, 05 Jan 2006 13:57:07 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: saw@saw.sw.com.sg, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
-References: <20060105181826.GD12313@stusta.de>
-In-Reply-To: <20060105181826.GD12313@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Adrian Bunk wrote: > This patch removes the obsolete
-	drivers/net/eepro100.c driver. > > Is there any known problem in e100
-	still preventing us from removing > this driver (it seems noone was
-	able anymore to verify the ARM problem)? [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Thu, 5 Jan 2006 13:56:49 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:30140 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751886AbWAES4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:56:48 -0500
+Subject: Re: [OT] ALSA userspace API complexity
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: Jaroslav Kysela <perex@suse.cz>, Pete Zaitcev <zaitcev@redhat.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
+       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andi Kleen <ak@suse.de>, ALSA development <alsa-devel@alsa-project.org>,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
+References: <20050726150837.GT3160@stusta.de>
+	 <20060103193736.GG3831@stusta.de>
+	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+	 <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+	 <20060104030034.6b780485.zaitcev@redhat.com>
+	 <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+	 <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
+Content-Type: text/plain; charset=iso-8859-2
+Date: Thu, 05 Jan 2006 13:56:45 -0500
+Message-Id: <1136487406.31583.35.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This patch removes the obsolete drivers/net/eepro100.c driver.
+On Thu, 2006-01-05 at 16:07 +0100, Tomasz K³oczko wrote:
+> - KNOWN FACT is OSS provides simpler API for user space for handle
+>    usual cases.
+>    Why Linux can't provide only OSS API abstraction for user space
+>    application ? And/or why ALSA developers want to replace this by
+>    mostly bloated and pourly documented ALSA user space API ?
 > 
-> Is there any known problem in e100 still preventing us from removing 
-> this driver (it seems noone was able anymore to verify the ARM problem)?
 
-Still waiting to see if e100 in -mm works on ARM.
+Please, stop with the documentation thing.  ALSA is perfectly well
+documented.  I guess the problem is that you googled "ALSA
+documentation" and this page didn't come up as the first hit (or even on
+the first page):
 
-	Jeff
+http://www.alsa-project.org/alsa-doc/alsa-lib/index.html
 
+This is a Google bug.  I suspect that the copius inter-document links
+that Doxygen creates causes Google to think someone is trying to spam it
+and penalizes the result.
+
+Lee
 
 

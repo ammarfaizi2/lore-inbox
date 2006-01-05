@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWAESko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWAESnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWAESko (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWAESko
+	id S932072AbWAESnO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWAESnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:40:44 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:46253 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S932069AbWAESkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:40:43 -0500
-Date: Thu, 5 Jan 2006 19:40:42 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: Jiri Slaby <lnx4us@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15] reproducable hang
-Message-ID: <20060105184031.GA10923@vanheusden.com>
-References: <20060103210252.GA2043@vanheusden.com>
-	<3888a5cd0601050846i129fd0a5j71d24150b1e0bcd1@mail.gmail.com>
+	Thu, 5 Jan 2006 13:43:14 -0500
+Received: from nevyn.them.org ([66.93.172.17]:2194 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S932072AbWAESnN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:43:13 -0500
+Date: Thu, 5 Jan 2006 13:42:18 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jakub Jelinek <jakub@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Matt Mackall <mpm@selenic.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+Message-ID: <20060105184218.GA15337@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Jakub Jelinek <jakub@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Martin Bligh <mbligh@mbligh.org>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Matt Mackall <mpm@selenic.com>, Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Dave Jones <davej@redhat.com>,
+	Tim Schmielau <tim@physik3.uni-rostock.de>
+References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105143048.GT22293@devserv.devel.redhat.com> <Pine.LNX.4.64.0601050848580.3169@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3888a5cd0601050846i129fd0a5j71d24150b1e0bcd1@mail.gmail.com>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Fri Jan  6 19:20:40 CET 2006
-X-Message-Flag: www.vanheusden.com
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <Pine.LNX.4.64.0601050848580.3169@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Since 2.6.14 (I also tried 2.6.14.4 and 2.6.15), my pc crashes (hangs)
-> > when I set eth1 into promisques mode.
-> > The crash (no oops or panic!) does NOT crash when I run tcpdump (or any other
-> > traffic monitor) on eth0 or eth2.
-> > The eth1 card is a 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24).
-> > Receiving/sending data through that card works fine.
-> sysrq is defunct? try sysrq-t to trace back the running stack.
+On Thu, Jan 05, 2006 at 08:55:27AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 5 Jan 2006, Jakub Jelinek wrote:
+> > > 
+> > > I wonder if gcc can be convinced to put all unlikely() code sections
+> > > into a .text.rare as well, that'd be really cool.
+> > 
+> > gcc 4.1 calls them .text.unlikely and you need to use
+> > -freorder-blocks-and-partition
+> > switch.  But I haven't been able to reproduce it on a short testcase I
+> > cooked up, so maybe it is broken ATM (it put the whole function into
+> > .text rather than the expected part into .text.unlikely and left
+> > empty .text.unlikely).
+> 
+> If it causes the conditional jump to become a long one instead of a byte 
+> offset one, it's actually a pessimisation for no gain (yes, it might give 
+> better cache density _if_ the function that is linked after the current 
+> one is cache-dense with the function in question and _if_ the unlikely 
+> sequence is really really unlikely, but that's two fairly big ifs).
+> 
+> So I'm not at all convinced of the feature (or maybe gcc actually does the 
+> right thing, and the reason you can't reproduce it is because gcc is being 
+> understandably reluctant to use the other section).
 
-No luck there I'm afraid.
-BUT: the last message on the console is: 'eth1: transmit error Tx status
-register 82'. This message is not in any logfiles so it must have
-happened pretty much arround the crash.
-
-
-Folkert van Heusden
+It triggers either rarely or never in basic compilation; it's designed
+to work off profile feedback.  With that it worked in gcc 4.1 a couple
+of weeks ago.
 
 -- 
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Daniel Jacobowitz
+CodeSourcery

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWAEU6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWAEVAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWAEU6m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 15:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752208AbWAEU6m
+	id S1750723AbWAEVAW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752208AbWAEVAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 15:58:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:26177 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750864AbWAEU6l convert rfc822-to-8bit
+	Thu, 5 Jan 2006 16:00:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:6779 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750863AbWAEVAW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 15:58:41 -0500
+	Thu, 5 Jan 2006 16:00:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GF5akc+Fb4eFeg3BmhTCAGbQjRmJE0rTk25ejdVaQwLdO435clVx7WDSs3A1d+K6RslNhCWHDC9dvPb9KxixJX1KbwWE/lEOlB8aA5fFwslEYnHKUUVwk0ebRW6iigqPPxW44K/Iv8HpVQyNZJXquhGUtlMn/7USWPKmZiRhMEQ=
-Message-ID: <5bdc1c8b0601051258j3bfc390bsa770ddf6506d2deb@mail.gmail.com>
-Date: Thu, 5 Jan 2006 12:58:39 -0800
-From: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.15-rc7-rt1
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       john stultz <johnstul@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <1136492165.847.9.camel@mindpipe>
+        b=fZM8BmbT5TMBWxomGFXlbp5htGU/cq1mSPj7Dnu7YtmhRsjwRYuc2YNzsf/ZvAKfBDKCiB4B+brRQk6ufZsaspFUnmp2DY2HM13nuNq87hxs+cElImcqIOrWL1N1AOEBUiDUAqzGk3wGms2YetDo2cIul4bjIs4y6QqOIphM1cU=
+Message-ID: <9c21eeae0601051300t1a7decb9k86536870e1cd4597@mail.gmail.com>
+Date: Thu, 5 Jan 2006 13:00:18 -0800
+From: David Brown <dmlb2000@gmail.com>
+To: James Cloos <cloos@jhcloos.com>
+Subject: Re: 2.6.15-rt1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <m3r77mv1ma.fsf@lugabout.cloos.reno.nv.us>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20051228172643.GA26741@elte.hu>
-	 <Pine.LNX.4.61.0512311808070.7910@yvahk01.tjqt.qr>
-	 <1136051113.6039.109.camel@localhost.localdomain>
-	 <1136054936.6039.125.camel@localhost.localdomain>
-	 <5bdc1c8b0601010719h40f2393cu85bae52fef35c1d2@mail.gmail.com>
-	 <1136205719.6039.156.camel@localhost.localdomain>
-	 <5bdc1c8b0601051133g6ed0b3b4ob699d65e4a12b699@mail.gmail.com>
-	 <1136492165.847.9.camel@mindpipe>
+References: <20060103094720.GA16497@elte.hu>
+	 <m3r77mv1ma.fsf@lugabout.cloos.reno.nv.us>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/5/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Thu, 2006-01-05 at 11:33 -0800, Mark Knecht wrote:
-> > I expect that I am probably still getting a low level of xruns. I
-> > hope one day we can make that work a bit better.
+> I get this compiling 15-rt1:
 >
-> Were you ever able to get latency tracing to work on your box?
+> ,----
+> |   CC      net/ipv6/mcast.o
+> | net/ipv6/mcast.c: In function `ipv6_sock_mc_join':
+> | net/ipv6/mcast.c:227: error: `RW_LOCK_UNLOCKED' undeclared (first use in this function)
+> | net/ipv6/mcast.c:227: error: (Each undeclared identifier is reported only once
+> | net/ipv6/mcast.c:227: error: for each function it appears in.)
+> | make[2]: *** [net/ipv6/mcast.o] Error 1
+> `----
 >
-> Lee
+> I take it something on the order of this is needed?:
+>
+> -       mc_lst->sflock = RW_LOCK_UNLOCKED;
+> +       mc_lst->sflock = RW_LOCK_UNLOCKED(foo.bar);
+>
+> for some foo.bar, yes?
+>
+> Or is it?:
+>
+> -       mc_lst->sflock = RW_LOCK_UNLOCKED;
+> +       rwlock_init(mc_lst->sflock);
+>
+> I'm trying the latter now, but won't be able to reboot for
+> a runtime test for a while....
+>
 
-Not yet, due to the power failure and being off line. I'll give it a
-shot this evening.
+Take a look at the 15-rt1-sr1 patch it has a fix for this
+there was also a fix posted earlier in the thread :)
 
-Does anyone with an AMD64 platform have this working?
+and its:
+-       mc_lst->sflock = RW_LOCK_UNLOCKED;
++       mc_lst->sflock = RW_LOCK_UNLOCKED(mc_list->fslock);
 
-Thanks,
-Mark
+- David Brown

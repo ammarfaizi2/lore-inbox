@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWAEBgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWAEBiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWAEBgN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWAEBgN
+	id S1751135AbWAEBiS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbWAEBiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:36:13 -0500
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:961 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750854AbWAEBgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:36:12 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.15-ck1
-Date: Thu, 5 Jan 2006 12:36:04 +1100
-User-Agent: KMail/1.8.2
-Cc: Arjan van de Ven <arjan@infradead.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-References: <200601041200.03593.kernel@kolivas.org> <1136406837.2839.67.camel@laptopd505.fenrus.org> <p73y81vxyci.fsf@verdi.suse.de>
-In-Reply-To: <p73y81vxyci.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 20:38:18 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:35462 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751135AbWAEBiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 20:38:17 -0500
+Date: Wed, 4 Jan 2006 20:41:26 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Make apm buildable without legacy pm.
+Message-ID: <20060105014126.GH5895@kurtwerks.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20060103143352.GA24937@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601051236.04988.kernel@kolivas.org>
+In-Reply-To: <20060103143352.GA24937@redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.15-rc6krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006 12:22 pm, Andi Kleen wrote:
-> Arjan van de Ven <arjan@infradead.org> writes:
-> > sounds like we need some sort of profiler or benchmarker or at least a
-> > tool that helps finding out which timers are regularly firing, with the
-> > aim at either grouping them or trying to reduce their disturbance in
-> > some form.
->
-> I did one some time ago for my own noidletick patch. Can probably dig
-> it out again. It just profiled which timers interrupted idle.
->
-> Executive summary for my laptop: worst was the keyboard driver (it ran
-> some polling driver to work around some hardware bug, but fired very
-> often) , followed by the KDE desktop (should be mostly
-> fixed now, I complained) and the X server and some random kernel
-> drivers.
->
-> I haven't checked recently if keyboard has been fixed by now.
+On Tue, Jan 03, 2006 at 09:33:52AM -0500, Dave Jones took 0 lines to write:
+> APM doesn't _need_ the PM_LEGACY junk, so remove it's dependancy
+> from Kconfig, and ifdef the junk in the code.
+> Whilst the ifdefs are ugly, when the legacy stuff gets ripped out
+> so will the ifdefs.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6.14/arch/i386/Kconfig~	2005-12-22 22:06:10.000000000 -0500
+> +++ linux-2.6.14/arch/i386/Kconfig	2005-12-22 22:06:16.000000000 -0500
+> @@ -710,7 +710,7 @@ depends on PM && !X86_VISWS
+>  
+>  config APM
+>  	tristate "APM (Advanced Power Management) BIOS support"
+> -	depends on PM && PM_LEGACY
+> +	depends on PM
+>  	---help---
+>  	  APM is a BIOS specification for saving power using several different
+>  	  techniques. This is mostly useful for battery powered laptops with
 
-I checked with Vojtech some time ago and he said we could change the polling 
-from HZ/20 to about HZ/5 which I have included in the rolled up dynticks 
-patch already. Not that 20 HZ is very frequent, but anything that splits up 
-timer intervals potentially by 20 more adds up.
+Here's this hunk re-diffed against 2.6.15 (which applies without
+needing patch to apply an offset of -11 lines):
 
-Cheers,
-Con
+--- linux-2.6.15/arch/i386/Kconfig.orig	2006-01-04 20:33:43.000000000 -0500
++++ linux-2.6.15/arch/i386/Kconfig	2006-01-04 20:35:34.000000000 -0500
+@@ -699,7 +699,7 @@
+ 
+ config APM
+ 	tristate "APM (Advanced Power Management) BIOS support"
+-	depends on PM && PM_LEGACY
++	depends on PM
+ 	---help---
+ 	  APM is a BIOS specification for saving power using several different
+ 	  techniques. This is mostly useful for battery powered laptops with
+
+Kurt
+-- 
+If I traveled to the end of the rainbow
+As Dame Fortune did intend,
+Murphy would be there to tell me
+The pot's at the other end.
+		-- Bert Whitney

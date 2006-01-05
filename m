@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752133AbWAEKrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752130AbWAEKsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752133AbWAEKrd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 05:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752134AbWAEKrd
+	id S1752130AbWAEKsl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 05:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752134AbWAEKsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 05:47:33 -0500
-Received: from seanodes.co.fr.clara.net ([212.43.220.11]:18056 "EHLO
-	seanodes.co.fr.clara.net") by vger.kernel.org with ESMTP
-	id S1752133AbWAEKrc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 05:47:32 -0500
-From: =?iso-8859-1?q?Ga=EBl_UTARD?= <gael.utard@seanodes.com>
-Organization: Seanodes
-To: kai@germaschewski.name, sam@ravnborg.org
-Subject: [PATCH] kbuild: fix external modules build
-Date: Thu, 5 Jan 2006 11:46:58 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601051146.58824.gael.utard@seanodes.com>
+	Thu, 5 Jan 2006 05:48:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23226 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752130AbWAEKsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 05:48:40 -0500
+Subject: Re: [PATCH] Debug shared irqs.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060105021929.498f45ef.akpm@osdl.org>
+References: <1135251766.3557.13.camel@pmac.infradead.org>
+	 <20060105021929.498f45ef.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 11:48:34 +0100
+Message-Id: <1136458115.2920.15.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch 2dd34b488a99135ad2a529e33087ddd6a09e992a breaks external modules 
-build since include/linux/autoconf.h is not found in the header files 
-directories.
+On Thu, 2006-01-05 at 02:19 -0800, Andrew Morton wrote:
 
-Signed-off-by: Gaël Utard <gael.utard@seanodes.com>
+> 
+> This is going to cause me a ton of grief.  How's about you put it in
+> Fedora for a few weeks, get all the drivers debugged first ;)
 
---- linux-2.6.15/Makefile.orig	2006-01-05 10:54:15.000000000 +0100
-+++ linux-2.6.15/Makefile	2006-01-05 10:55:05.000000000 +0100
-@@ -348,7 +348,7 @@
- # Needed to be compatible with the O= option
- LINUXINCLUDE    := -Iinclude \
-                    $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
--		   -include include/linux/autoconf.h
-+		   -include linux/autoconf.h
- 
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
- 
+well it's a config option for a reason :)
+Also it's something driver writers now can turn on so that THEY can
+debug their driver as well.... -mm or even mainline is better for that
+than fedora.
+
+

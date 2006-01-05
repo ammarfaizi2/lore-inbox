@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWAEPdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWAEPfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWAEPdr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWAEPdr
+	id S932083AbWAEPfj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWAEPfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:33:47 -0500
-Received: from gate.perex.cz ([85.132.177.35]:58034 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S932082AbWAEPdp (ORCPT
+	Thu, 5 Jan 2006 10:35:39 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:14310 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932083AbWAEPfi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:33:45 -0500
-Date: Thu, 5 Jan 2006 16:33:44 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Heikki Orsila <shd@modeemi.cs.tut.fi>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Subject: Re: [OT] ALSA userspace API complexity
-In-Reply-To: <20060105145101.GB28611@dspnet.fr.eu.org>
-Message-ID: <Pine.LNX.4.61.0601051631260.10350@tm8103.perex-int.cz>
-References: <20060105140155.GC757@jolt.modeemi.cs.tut.fi>
- <Pine.LNX.4.61.0601051518370.10350@tm8103.perex-int.cz>
- <20060105145101.GB28611@dspnet.fr.eu.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jan 2006 10:35:38 -0500
+Subject: Re: [CFT 7/29] Add locomo bus_type probe/remove methods
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg K-H <greg@kroah.com>
+In-Reply-To: <20060105142951.13.07@flint.arm.linux.org.uk>
+References: <20060105142951.13.01@flint.arm.linux.org.uk>
+	 <20060105142951.13.07@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 15:35:22 +0000
+Message-Id: <1136475323.6451.74.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Olivier Galibert wrote:
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-> - "A small demo which sends a simple sinusoidal wave to the speakers"
->   requiring close to 900 lines is demented.  That's the size of
->   glxgears.c, with 50% of that one being printer support.  A complete
->   smartflow example getting a sound stream on the network and playing
->   it with oss takes 160 lines, with 20 lines of copyright-ish at the
->   start.  The actual sound part of that is _30_ lines.
+but no changelog entry?
 
-The pcm.c file shows you 7 available methods how you can send audio data 
-to alsa-lib. It's complete example. If you remove the parsing command 
-line, sine generation, error handling, you'll end with few lines too.
-
-> - Error and state handling after writei changes depending on the call.
->   We're supposed to guess which one is correct?
+On Thu, 2006-01-05 at 14:33 +0000, Russell King wrote:
+> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+>
+> ---
+>  arch/arm/common/locomo.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej
+> -x .git linus/arch/arm/common/locomo.c linux/arch/arm/common/locomo.c
+> --- linus/arch/arm/common/locomo.c      Fri Nov 11 21:20:00 2005
+> +++ linux/arch/arm/common/locomo.c      Sun Nov 13 15:56:31 2005
+> @@ -1103,14 +1103,14 @@ static int locomo_bus_remove(struct devi
+>  struct bus_type locomo_bus_type = {
+>         .name           = "locomo-bus",
+>         .match          = locomo_match,
+> +       .probe          = locomo_bus_probe,
+> +       .remove         = locomo_bus_remove,
+>         .suspend        = locomo_bus_suspend,
+>         .resume         = locomo_bus_resume,
+>  };
+>  
+>  int locomo_driver_register(struct locomo_driver *driver)
+>  {
+> -       driver->drv.probe = locomo_bus_probe;
+> -       driver->drv.remove = locomo_bus_remove;
+>         driver->drv.bus = &locomo_bus_type;
+>         return driver_register(&driver->drv);
+>  }
 > 
-> Make simple things simple, guys.
+> 
 
-Yes, we should stay with simple 1.0 linux kernel. Anyway, we're taking all 
-points from this discussion.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs

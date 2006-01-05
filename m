@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWAEBWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWAEBWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWAEBWs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:22:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWAEBWs
+	id S1751113AbWAEBWY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWAEBWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:22:48 -0500
-Received: from ns1.suse.de ([195.135.220.2]:45199 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751114AbWAEBWr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:22:47 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-Subject: Re: 2.6.15-ck1
-References: <200601041200.03593.kernel@kolivas.org>
-	<20060104190554.GG10592@redhat.com>
-	<20060104195726.GB14782@redhat.com>
-	<1136406837.2839.67.camel@laptopd505.fenrus.org>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Jan 2006 02:22:37 +0100
-In-Reply-To: <1136406837.2839.67.camel@laptopd505.fenrus.org>
-Message-ID: <p73y81vxyci.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 4 Jan 2006 20:22:24 -0500
+Received: from rgminet01.oracle.com ([148.87.122.30]:14740 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751113AbWAEBWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 20:22:23 -0500
+Date: Wed, 4 Jan 2006 17:22:02 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Zach Brown <zach.brown@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Christoph Hellwig <hch@lst.de>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: merging ocfs2?
+Message-ID: <20060105012202.GQ18439@ca-server1.us.oracle.com>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Zach Brown <zach.brown@oracle.com>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Christoph Hellwig <hch@lst.de>,
+	Wim Coekaerts <wim.coekaerts@oracle.com>,
+	Mark Fasheh <mark.fasheh@oracle.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <43BAF93A.10509@oracle.com> <Pine.LNX.4.64.0601041649270.3668@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601041649270.3668@g5.osdl.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> writes:
+On Wed, Jan 04, 2006 at 04:50:49PM -0800, Linus Torvalds wrote:
+> However, I really _really_ prefer that people who use git to merge use the 
+> native git protocol, which I trust. That http: thing may work, but it's a 
+> cludge ;)
+> 
+> Can you run git-daemon on the machine? 
 
+	Getting that port open is in progress.  http: is the for-now
+solution.
 
-> sounds like we need some sort of profiler or benchmarker or at least a
-> tool that helps finding out which timers are regularly firing, with the
-> aim at either grouping them or trying to reduce their disturbance in
-> some form.
+Joel
 
-I did one some time ago for my own noidletick patch. Can probably dig
-it out again. It just profiled which timers interrupted idle.
+-- 
 
-Executive summary for my laptop: worst was the keyboard driver (it ran
-some polling driver to work around some hardware bug, but fired very
-often) , followed by the KDE desktop (should be mostly
-fixed now, I complained) and the X server and some random kernel 
-drivers.
+"Practice random acts of kindness and senseless acts of beauty."
 
-I haven't checked recently if keyboard has been fixed by now.
+ Oh, and don't forget where your towel is.
 
--Andi
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127
 

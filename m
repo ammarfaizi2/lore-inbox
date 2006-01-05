@@ -1,147 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWAEDYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751904AbWAEDcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWAEDYO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 22:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWAEDYN
+	id S1751904AbWAEDcE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 22:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751903AbWAEDcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 22:24:13 -0500
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:61606 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751038AbWAEDYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 22:24:12 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Frank Sorenson <frank@tuxrocks.com>
-Subject: Re: mouse issues in 2.6.15-rc5-mm series
-Date: Wed, 4 Jan 2006 22:24:07 -0500
-User-Agent: KMail/1.8.3
-Cc: Marc Koschewski <marc@osknowledge.org>, Joe Feise <jfeise@feise.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <43ACEE14.7060507@feise.com> <200512252309.07162.dtor_core@ameritech.net> <43AF742E.5040604@tuxrocks.com>
-In-Reply-To: <43AF742E.5040604@tuxrocks.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 22:32:04 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:57763 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751904AbWAEDcD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 22:32:03 -0500
+Date: Wed, 4 Jan 2006 19:31:52 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Driver Core patches for 2.6.15
+Message-ID: <20060105033152.GA23380@suse.de>
+References: <20060105004826.GA17328@kroah.com> <Pine.LNX.4.64.0601041724560.3279@g5.osdl.org> <20060105020742.GA18815@suse.de> <Pine.LNX.4.64.0601041836370.3279@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601042224.08509.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.64.0601041836370.3279@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 December 2005 23:40, Frank Sorenson wrote:
-> Dmitry Torokhov wrote:
-> > On Saturday 24 December 2005 05:57, Frank Sorenson wrote:
-> >
-> >>I continue to see the same issues with the resync patch in -mm.  For me,
-> >>tapping stops working, and I'm now seeing both the mouse pointer jumping
-> >> as well (a lesser issue for me, so it was probably present earlier as
-> >>well).
-> >>
-> >
-> > Frank,
-> >
-> > Does the tapping not work period or it only does not work first time you
-> > try to tap after not touching the pad for more than 5 seconds?
+On Wed, Jan 04, 2006 at 06:40:33PM -0800, Linus Torvalds wrote:
 > 
-> The tapping works initially, then stops.  I hadn't put 2+2 together with
-> the 5-second idle bit, but that seems the likely issue.
 > 
-> I applied that patch you sent out yesterday, and now tapping works and
-> I'm not seeing the mouse stall/jump problem.  I'm at 21+ hours uptime
-> now, with no mouse problems, so I think setting the resync_time to 0
-> looks like the right fix.
+> On Wed, 4 Jan 2006, Greg KH wrote:
+> > > 
+> > > I can do the trivial manual fixup, but when I do, I have two copies of 
+> > > "usb_match_id()": one in drivers/usb/core/driver.c and one in 
+> > > drivers/usb/core/usb.c.
+> > > 
+> > > I've pushed out my tree, so that you can see for yourself (it seems to 
+> > > have mirrored out too).
+> > 
+> > Yeah, I was wondering how that would merge together, I'll take a look at
+> > the tree after dinner and fix up the problem (there should only be one
+> > copy of that function.)
 > 
+> Actually, looking closer, my first trivial merge was wrong (it took the 
+> code from both branches), and doing it right seems to get the proper 
+> results (with just one usb_match_id() function).
+> 
+> I'll push out my _proper_ trivial merge fixup, please just verify that the 
+> end result looks sane and matches what you have.
 
-Frank,
+The end result looks sane, thanks for fixing it up.
 
-Could you please try the patch below and see if it makes tapping work?
-Make sure you enable resynching by doing:
+But it looks like you forgot to pull from my "remove devfs" git tree at:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/devfs-2.6.git/
 
-	echo -n 5 > /sys/bus/serio/devices/serioX/resync_time
+so you still are missing some patches :)
 
-Thanks!
+thanks,
 
--- 
-Dmitry
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/mouse/alps.c         |   11 ++++++-----
- drivers/input/mouse/psmouse-base.c |   27 ++++++++++++++++++++++++---
- 2 files changed, 30 insertions(+), 8 deletions(-)
-
-Index: work/drivers/input/mouse/alps.c
-===================================================================
---- work.orig/drivers/input/mouse/alps.c
-+++ work/drivers/input/mouse/alps.c
-@@ -356,19 +356,20 @@ static int alps_poll(struct psmouse *psm
- {
- 	struct alps_data *priv = psmouse->private;
- 	unsigned char buf[6];
-+	int poll_failed;
- 
- 	if (priv->i->flags & ALPS_PASS)
- 		alps_passthrough_mode(psmouse, 1);
- 
--	if (ps2_command(&psmouse->ps2dev, buf, PSMOUSE_CMD_POLL | (psmouse->pktsize << 8)))
--		return -1;
--
--	if ((buf[0] & priv->i->mask0) != priv->i->byte0)
--		return -1;
-+	poll_failed = ps2_command(&psmouse->ps2dev, buf,
-+				  PSMOUSE_CMD_POLL | (psmouse->pktsize << 8)) < 0;
- 
- 	if (priv->i->flags & ALPS_PASS)
- 		alps_passthrough_mode(psmouse, 0);
- 
-+	if (poll_failed || (buf[0] & priv->i->mask0) != priv->i->byte0)
-+		return -1;
-+
- 	if ((psmouse->badbyte & 0xc8) == 0x08) {
- /*
-  * Poll the track stick ...
-Index: work/drivers/input/mouse/psmouse-base.c
-===================================================================
---- work.orig/drivers/input/mouse/psmouse-base.c
-+++ work/drivers/input/mouse/psmouse-base.c
-@@ -54,7 +54,7 @@ static unsigned int psmouse_smartscroll 
- module_param_named(smartscroll, psmouse_smartscroll, bool, 0644);
- MODULE_PARM_DESC(smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
- 
--static unsigned int psmouse_resetafter;
-+static unsigned int psmouse_resetafter = 5;
- module_param_named(resetafter, psmouse_resetafter, uint, 0644);
- MODULE_PARM_DESC(resetafter, "Reset device after so many bad packets (0 = never).");
- 
-@@ -850,8 +850,29 @@ static void psmouse_deactivate(struct ps
- 
- static int psmouse_poll(struct psmouse *psmouse)
- {
--	return ps2_command(&psmouse->ps2dev, psmouse->packet,
--			   PSMOUSE_CMD_POLL | (psmouse->pktsize << 8));
-+	if (ps2_command(&psmouse->ps2dev, psmouse->packet,
-+			PSMOUSE_CMD_POLL | (psmouse->pktsize << 8)))
-+		return -1;
-+
-+	switch (psmouse->type) {
-+		case PSMOUSE_PS2:
-+		case PSMOUSE_PS2PP:
-+		case PSMOUSE_IMPS:
-+		case PSMOUSE_IMEX:
-+		case PSMOUSE_LIFEBOOK:
-+		case PSMOUSE_TRACKPOINT:
-+/*
-+ * If protocol may be used by "tappable" device (touchpad, touchscreen) try to "restore"
-+ * tap data from the halfway-discarded packet
-+ */
-+			if ((psmouse->badbyte & 0x08) == (psmouse->packet[0] & 0x08))
-+				psmouse->packet[0] |= psmouse->badbyte & 0x07;
-+
-+		default:
-+			break;
-+	}
-+
-+	return 0;
- }
- 
- 
+greg k-h

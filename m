@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWAEObQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWAEObj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWAEObQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWAEObP
+	id S1751323AbWAEObj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:31:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWAEObj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:31:15 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8714 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751326AbWAEObG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:31:06 -0500
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Greg K-H <greg@kroah.com>
-Subject: [CFT 3/29] Add ecard_bus_type probe/remove/shutdown methods
-Date: Thu, 05 Jan 2006 14:30:57 +0000
-Message-ID: <20060105142951.13.03@flint.arm.linux.org.uk>
-In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
-References: <20060105142951.13.01@flint.arm.linux.org.uk>
-From: Russell King <rmk@arm.linux.org.uk>
+	Thu, 5 Jan 2006 09:31:39 -0500
+Received: from mail.gmx.de ([213.165.64.21]:35524 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751323AbWAEObh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:31:37 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20060105143705.00be85c8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Thu, 05 Jan 2006 15:31:17 +0100
+To: Peter Williams <pwil3058@bigpond.net.au>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client 
+  on	interactive response
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <43BD038E.9070204@bigpond.net.au>
+References: <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net>
+ <43BB2414.6060400@bigpond.net.au>
+ <43A8EF87.1080108@bigpond.net.au>
+ <1135145341.7910.17.camel@lade.trondhjem.org>
+ <43A8F714.4020406@bigpond.net.au>
+ <20060102110145.GA25624@aitel.hist.no>
+ <43B9BD19.5050408@bigpond.net.au>
+ <43BB2414.6060400@bigpond.net.au>
+ <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0601-0, 01/02/2006), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+At 10:31 PM 1/5/2006 +1100, Peter Williams wrote:
+>Mike Galbraith wrote:
+>>At 08:51 AM 1/5/2006 +1100, Peter Williams wrote:
+>>
+>>>I think that some of the harder to understand parts of the scheduler 
+>>>code are actually attempts to overcome the undesirable effects (such as 
+>>>those I've described) of inappropriately identifying tasks as 
+>>>interactive.  I think that it would have been better to attempt to fix 
+>>>the inappropriate identifications rather than their effects and I think 
+>>>the prudent use of TASK_NONINTERACTIVE is an important tool for achieving this.
+>>
+>>IMHO, that's nothing but a cover for the weaknesses induced by using 
+>>exclusively sleep time as an information source for the priority 
+>>calculation.  While this heuristic does work pretty darn well, it's 
+>>easily fooled (intentionally or otherwise).  The challenge is to find the 
+>>right low cost informational component, and to stir it in at O(1).
+>
+>TASK_NONINTERACTIVE helps in this regard, is no cost in the code where 
+>it's used and probably decreases the costs in the scheduler code by 
+>enabling some processing to be skipped.  If by its judicious use the 
+>heuristic is only fed interactive sleep data the heuristics accuracy in 
+>identifying interactive tasks should be improved.  It may also allow the 
+>heuristic to be simplified.
 
----
- arch/arm/kernel/ecard.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+I disagree.  You can nip and tuck all the bits of sleep time you want, and 
+it'll just shift the lumpy spots around (btdt).
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/arch/arm/kernel/ecard.c linux/arch/arm/kernel/ecard.c
---- linus/arch/arm/kernel/ecard.c	Sun Nov  6 22:14:13 2005
-+++ linux/arch/arm/kernel/ecard.c	Sun Nov 13 15:52:20 2005
-@@ -1146,9 +1146,11 @@ static void ecard_drv_shutdown(struct de
- 	struct ecard_driver *drv = ECARD_DRV(dev->driver);
- 	struct ecard_request req;
- 
--	if (drv->shutdown)
--		drv->shutdown(ec);
--	ecard_release(ec);
-+	if (dev->driver) {
-+		if (drv->shutdown)
-+			drv->shutdown(ec);
-+		ecard_release(ec);
-+	}
- 
- 	/*
- 	 * If this card has a loader, call the reset handler.
-@@ -1163,9 +1165,6 @@ static void ecard_drv_shutdown(struct de
- int ecard_register_driver(struct ecard_driver *drv)
- {
- 	drv->drv.bus = &ecard_bus_type;
--	drv->drv.probe = ecard_drv_probe;
--	drv->drv.remove = ecard_drv_remove;
--	drv->drv.shutdown = ecard_drv_shutdown;
- 
- 	return driver_register(&drv->drv);
- }
-@@ -1194,6 +1193,9 @@ struct bus_type ecard_bus_type = {
- 	.name		= "ecard",
- 	.dev_attrs	= ecard_dev_attrs,
- 	.match		= ecard_match,
-+	.probe		= ecard_drv_probe,
-+	.remove		= ecard_drv_remove,
-+	.shutdown	= ecard_drv_shutdown,
- };
- 
- static int ecard_bus_init(void)
+         -Mike 
+

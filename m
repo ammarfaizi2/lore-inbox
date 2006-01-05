@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWAEQlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWAEQlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWAEQlh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 11:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAEQlh
+	id S1751642AbWAEQlX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 11:41:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWAEQlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 11:41:37 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:33432 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932073AbWAEQlg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 11:41:36 -0500
-Date: Thu, 5 Jan 2006 11:41:34 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Scott E. Preece" <preece@motorola.com>
-cc: pavel@suse.cz, <akpm@osdl.org>, <linux-pm@lists.osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
- interface
-In-Reply-To: <200601051516.k05FGC5d023781@olwen.urbana.css.mot.com>
-Message-ID: <Pine.LNX.4.44L0.0601051136230.5520-100000@iolanthe.rowland.org>
+	Thu, 5 Jan 2006 11:41:23 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:50908 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1751582AbWAEQlW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 11:41:22 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
+Date: Thu, 5 Jan 2006 09:41:15 -0700
+User-Agent: KMail/1.8.3
+Cc: Alex Williamson <alex.williamson@hp.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ia64@vger.kernel.org,
+       ak@suse.de, openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <20060104221627.GA26064@lists.us.dell.com> <1136414164.6198.36.camel@localhost.localdomain> <20060104232944.GA32250@lists.us.dell.com>
+In-Reply-To: <20060104232944.GA32250@lists.us.dell.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601050941.15915.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Scott E. Preece wrote:
+On Wednesday 04 January 2006 16:29, Matt Domsch wrote:
+> On Wed, Jan 04, 2006 at 03:36:03PM -0700, Alex Williamson wrote:
+> > On Wed, 2006-01-04 at 16:16 -0600, Matt Domsch wrote:
+> > > Andi Kleen has a patch in his x86_64 tree which enables the use
+> > > of i386 dmi_scan.c on x86_64.  dmi_scan.c functions are being
+> > > used by the drivers/char/ipmi/ipmi_si_intf.c driver for
+> > > autodetecting the ports or memory spaces where the IPMI
+> > > controllers may be found.
+> >
+> >    Can't this be done via ACPI/EFI?  I'm really opposed to adding
+> > anything to ia64 that blindly picks memory ranges and starts
+> > scanning for magic legacy tables.  If nothing else, this can be
+> > found via efi.smbios.  Thanks,
+>
+> I'll redo this to use efi.smbios.  Thanks for the tip.
 
-> My inclination would be to have the sysfs interface know generic terms,
-> with the implementation mapping them to device-specific terms. It ought
-> to be possible to build portable tools that don't have to know about
-> device-specific states and have the device interfaces (in sysfs) do the
-> necessary translation.
-> 
-> However, I also think there is value in having the sysfs interface
-> recognize the device-specific values as well, so that device-specific
-> tools can also be written (offering the option of taking advantage of
-> special capabilities of a particular device).
+The DMI scan looks like it's done in try_init_smbios().  But
+try_init_acpi() is done first.  Since every ia64 machine has
+ACPI, I would think try_init_acpi() should be sufficient.
 
-Yes, that was part of my point.
+Or do you have a machine that doesn't supply the SPMI
+table used by try_init_acpi()?
 
-> | > It would be good to make the details available so that they are there when
-> | > needed.  For instance, we might export "D0", "on", "D1", "D2", "D3", and
-> | > "suspend", treating "on" as a synonym for "D0" and "suspend" as a synonym
-> | > for "D3".
-> | 
-> | Why to make it this complex?
-> | 
-> | I do not think there's any confusion possible. "on" always corresponds
-> | to "D0", and "suspend" is "D3". Anyone who knows what "D2" means,
-> | should know that, too...
+Personally, I think try_init_acpi() should be re-done so it uses
+the normal acpi_bus_register_driver() mechanism, which would
+locate the IPMI device in the ACPI namespace.  I don't think
+there's any need to rely on the SPMI, which is primarily there
+to support OS's that want to do IPMI stuff early in boot, before
+the ACPI machinery is ready.
 
-Not necessarily.  For instance, a particular driver might want to map 
-"suspend" to D1 instead of to D3.
-
-Given that "on" and "suspend" are generic names and not actual states (at 
-least, not for PCI devices and presumably not for others as well), I think 
-it makes sense to treat them specially.
-
-And it's not all that complex.  Certainly no more complex than forcing
-userspace tools to use {"on", "D1, "D2", "suspend"} instead of the
-much-more-logical {"D0", "D1", "D2", "D3"}.
-
-Alan Stern
-
+Bjorn

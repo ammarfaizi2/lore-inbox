@@ -1,61 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWAEVZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWAEV21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWAEVZU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWAEVZU
+	id S932227AbWAEV21 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAEV21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:25:20 -0500
-Received: from soundwarez.org ([217.160.171.123]:4327 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S932222AbWAEVZT (ORCPT
+	Thu, 5 Jan 2006 16:28:27 -0500
+Received: from alpha.polcom.net ([83.143.162.52]:51647 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S932227AbWAEV20 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:25:19 -0500
-Date: Thu, 5 Jan 2006 22:25:11 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Marko Kohtala <marko.kohtala@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jason Dravet <dravet@hotmail.com>,
-       greg@kroah.com, device@lanana.org, linux-kernel@vger.kernel.org,
-       linux-parport@lists.infradead.org
-Subject: Re: [RFC]: add sysfs support to parport_pc, v3
-Message-ID: <20060105212511.GA1547@vrfy.org>
-References: <20060104010841.GA19541@kroah.com> <BAY103-F400667AF1AF50590C4990CDF2F0@phx.gbl> <20060104143157.357f9830.akpm@osdl.org> <9cfa10eb0601050817u56b007dbj@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9cfa10eb0601050817u56b007dbj@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 5 Jan 2006 16:28:26 -0500
+Date: Thu, 5 Jan 2006 22:32:18 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Martin Bligh <mbligh@mbligh.org>, Matt Mackall <mpm@selenic.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+In-Reply-To: <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
+Message-ID: <Pine.LNX.4.63.0601052155440.20858@alpha.polcom.net>
+References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org>
+ <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org>
+ <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 06:17:51PM +0200, Marko Kohtala wrote:
-> 2006/1/5, Andrew Morton <akpm@osdl.org>:
-> > "Jason Dravet" <dravet@hotmail.com> wrote:
-> > > >From: Greg KH <greg@kroah.com>
-> > > > > + * Added sysfs and udev - Jason Dravet <dravet@hotmail.com>
-> > > > >  */
-> >
-> > 6 is OK - it's LP_MAJOR.
-> >
-> > However 99 is JSFD_MAJOR, used by drivers/sbus/char/jsflash.c.  And yet my
-> > /dev/parport0 is also 99:0 (RH 7.3 and RH FC1).  I've no idea how that came
-> > about??
-> >
-> > bix:/home/akpm> grep parport /etc/makedev.d/*
-> > /etc/makedev.d/generic:a generic parport
-> > /etc/makedev.d/linux-2.4.x:c $PRINTER              99   0  1   8 parport%d
-> 
-> JSFD is a block device so tha majors are ok. I'm not just sure if the
-> PP_MAJOR from linux/ppdev.h should be moved to major.h.
-> 
-> The patch by Jason however is not ok. He had another problem and this
-> is not the fix. What he tries to do is already in lp and ppdev, where
-> I think they belong.
+On Thu, 5 Jan 2006, Linus Torvalds wrote:
+> On Thu, 5 Jan 2006, Martin Bligh wrote:
+>>
+>> There are tools already around to do this sort of thing as well - "profile
+>> directed optimization" or whatever they called it. Seems to be fairly commonly
+>> done with userspace, but not with the kernel. I'm not sure why not ...
+>> possibly because it's not available for gcc ?
+>
+> .. and they are totally useless.
+[snip]
+>
+> A kernel that people recompile themselves simply isn't something where it
+> works.
+>
+> What _would_ work is something that actually CHECKS (and suggests) the
+> hints we already have in the kernel. IOW, you could have an automated
+> test-bed that runs some reasonable load, and then verifies whether there
+> are branches that go only one way that could be annotated as such, or
+> whether some annotation is wrong.
+>
+> That way the "profile data" actually follows the source code, and is thus
+> actually relevant to an open-source project. Because we do _not_ start
+> having specially optimized binaries. That's against the whole point of
+> being open source and trying to get users to get more deeply involved with
+> the project.
 
-Yeah, I was wondering about it too.
+This is exactly what I am thinking for quite some time (for my userspace 
+projects).
 
-> There is also something weird: why does RedHat create these nodes in
-> /dev when udev already does that.
+I would really want to see some program in gcc package that takes source 
+code and some profile results (maybe even multiple profile results from 
+many different environments and systems under different loads) and tries 
+to suggest some annotations for the code like
 
-Probably cause they want to be safe if nothing from their sysconfig loads
-the module. Opening the node will autoload it then.
+- __fastpath,
+- likely/unlikely,
+- inline (normal for performance reasons not some forced inline because 
+code breaks if not inlined - this could be marked __always_inline)
+- maybe something for small loops on fastpath
+- possibly some detection of dead code - if some part of code is never or 
+nearly never executed it should be double checked for 1. is it still 
+needed? 2. bugs - because if it never executes it is probably not tested 
+enough,
 
-Kay
+and so on. It also should warn if it finds annotations already in the code 
+that don't match profile results (especially if it differs greatly).
+
+It could also try to check possible inline scenarios using some heuristics 
+and searches. Something like "Ok, if I will inline this function and this 
+--- will it improve things [== reduce code size for example] because some 
+things will become constants?" This is probably not possible to do at 
+compile time because it will make normal compiles much longer. But it 
+could be run from time to time or continously on some automated testing 
+farm and then generate reports for programmer to add or remove some 
+annotations (and why and how certain the report is about some annotation). 
+This way the (not only) linux kernel problem with inlines will be solved 
+once and for ever.
+
+Also I think that "profile driven optimizations" like currently in gcc are 
+evil because the profile is most often biased and incomplete (for example 
+the one used in gcc compile itself). Also it can make debuging strange 
+problems (that can be caused by buggy compiler) much harder because 
+everyone can have completly different binary code generated by their 
+compiler because completly different profile was used. This way 
+reproducing the bug by developer is much harder if not nearly impossible.
+
+And gcc (like any other compiler) can have some bug that will cause it to 
+make some completly stupid decision in some cases making program much 
+slower. This can't be investigated without looking directly at assembler 
+code for several hours and this is not what human programmers should be 
+doing probably. And if we will be using such "hinter" and it will have 
+some bug and will tell us that something is likely while it is clearly not 
+we could easily invwstigate - the whole process becomes transparent and 
+could be well managed.
+
+Unfortunatelly I don't know gcc good enough to add such code to it. But I 
+will hapily help by testing and reporting bugs if someone will want to 
+write such code.... ;-)
+
+
+Grzegorz Kulewski

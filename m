@@ -1,68 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWAEAzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWAEAzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWAEAzP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWAEAyr
+	id S1751059AbWAEAzh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWAEAuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:54:47 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51167 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750964AbWAEAyg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:54:36 -0500
-Date: Thu, 5 Jan 2006 01:54:03 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux PM <linux-pm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC/RFT][PATCH -mm 2/5] swsusp: userland interface (rev. 2)
-Message-ID: <20060105005403.GB1751@elf.ucw.cz>
-References: <200601042340.42118.rjw@sisk.pl> <200601042351.58667.rjw@sisk.pl> <20060104234918.GA15983@kroah.com> <20060105001837.GA1751@elf.ucw.cz> <20060105002619.GA16714@kroah.com>
+	Wed, 4 Jan 2006 19:50:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:62137 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750963AbWAEAtw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 19:49:52 -0500
+Cc: gregkh@suse.de
+Subject: [PATCH] Driver core: only all userspace bind/unbind if CONFIG_HOTPLUG is enabled
+In-Reply-To: <11364221712844@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 4 Jan 2006 16:49:31 -0800
+Message-Id: <1136422171299@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105002619.GA16714@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 04-01-06 16:26:19, Greg KH wrote:
-> On Thu, Jan 05, 2006 at 01:18:37AM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > +static int __init snapshot_dev_init(void)
-> > > > +{
-> > > > +	int error;
-> > > > +
-> > > > +	error =  alloc_chrdev_region(&interface.devno, 0, 1, interface.name);
-> > > > +	if (error)
-> > > > +		return error;
-> > > > +	cdev_init(&interface.cdev, &snapshot_fops);
-> > > > +	interface.cdev.ops = &snapshot_fops;
-> > > > +	error = cdev_add(&interface.cdev, interface.devno, 1);
-> > > > +	if (error)
-> > > > +		goto Unregister;
-> > > > +	error = sysfs_create_file(&power_subsys.kset.kobj, &snapshot_attr.attr);
-> > > 
-> > > Heh, that's a neat hack, register a sysfs file that contains the
-> > > major:minor (there is a function that will print that the correct way,
-> > > if you really want to do that), in sysfs.  It's better to just register
-> > > a misc character device with the name "snapshot", and then udev will
-> > > create your userspace node with the proper major:minor all automatically
-> > > for you.
-> > > 
-> > > Unless you want to turn these into syscalls :)
-> > 
-> > Well, I think we simply want to get static major/minor allocated for
-> > this device. It really uses read/write, IIRC, so no, I do not think we
-> > want to make it a syscall.
-> 
-> Ok, then I'd recommend using the misc device, dynamic for now, and
-> reserve one when you get a bit closer to merging into mainline.
+[PATCH] Driver core: only all userspace bind/unbind if CONFIG_HOTPLUG is enabled
 
-I'd say that "memory devices", character, major 1 is appropriate for
-this. 13 seems to be free ("swsusp can be unlucky for your data"? :-).
+Thanks to drivers making their id tables __devinit, we can't allow
+userspace to bind or unbind drivers from devices manually through sysfs.
+So we only allow this if CONFIG_HOTPLUG is enabled.
 
-								Pavel
--- 
-Thanks, Sharp!
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+commit 874c6241b2e49e52680d32a50d4909c7768d5cb9
+tree 815b08ab6793cd45346c3d5f6a3875f36c0bfc91
+parent a96b204208443ab7e23c681f7ddabe807a741d0c
+author Greg Kroah-Hartman <gregkh@suse.de> Tue, 13 Dec 2005 15:17:34 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 04 Jan 2006 16:18:09 -0800
+
+ drivers/base/bus.c |   26 ++++++++++++++++++++++----
+ 1 files changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+index e3f915a..29f6af5 100644
+--- a/drivers/base/bus.c
++++ b/drivers/base/bus.c
+@@ -428,6 +428,26 @@ static void driver_remove_attrs(struct b
+ 	}
+ }
+ 
++#ifdef CONFIG_HOTPLUG
++/*
++ * Thanks to drivers making their tables __devinit, we can't allow manual
++ * bind and unbind from userspace unless CONFIG_HOTPLUG is enabled.
++ */
++static void add_bind_files(struct device_driver *drv)
++{
++	driver_create_file(drv, &driver_attr_unbind);
++	driver_create_file(drv, &driver_attr_bind);
++}
++
++static void remove_bind_files(struct device_driver *drv)
++{
++	driver_remove_file(drv, &driver_attr_bind);
++	driver_remove_file(drv, &driver_attr_unbind);
++}
++#else
++static inline void add_bind_files(struct device_driver *drv) {}
++static inline void remove_bind_files(struct device_driver *drv) {}
++#endif
+ 
+ /**
+  *	bus_add_driver - Add a driver to the bus.
+@@ -457,8 +477,7 @@ int bus_add_driver(struct device_driver 
+ 		module_add_driver(drv->owner, drv);
+ 
+ 		driver_add_attrs(bus, drv);
+-		driver_create_file(drv, &driver_attr_unbind);
+-		driver_create_file(drv, &driver_attr_bind);
++		add_bind_files(drv);
+ 	}
+ 	return error;
+ }
+@@ -476,8 +495,7 @@ int bus_add_driver(struct device_driver 
+ void bus_remove_driver(struct device_driver * drv)
+ {
+ 	if (drv->bus) {
+-		driver_remove_file(drv, &driver_attr_bind);
+-		driver_remove_file(drv, &driver_attr_unbind);
++		remove_bind_files(drv);
+ 		driver_remove_attrs(drv->bus, drv);
+ 		klist_remove(&drv->knode_bus);
+ 		pr_debug("bus %s: remove driver %s\n", drv->bus->name, drv->name);
+

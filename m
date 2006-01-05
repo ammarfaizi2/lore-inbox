@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWAEPcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWAEPcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWAEPcX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAEPcX
+	id S932079AbWAEPcO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAEPcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:32:23 -0500
-Received: from general.keba.co.at ([193.154.24.243]:56001 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S932082AbWAEPcW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:32:22 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 5 Jan 2006 10:32:14 -0500
+Received: from rtr.ca ([64.26.128.89]:10138 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932079AbWAEPcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 10:32:12 -0500
+Message-ID: <43BD3BEC.5060309@rtr.ca>
+Date: Thu, 05 Jan 2006 10:31:56 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-Date: Thu, 5 Jan 2006 16:32:12 +0100
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323317@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Latency traces I cannot interpret (sa1100, 2.6.15-rc7-rt1)
-Thread-Index: AcYSBKEBN1hhps4qRYakoCJS9tMVRgAB+PJg
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Daniel Walker" <dwalker@mvista.com>
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Lee Revell" <rlrevell@joe-job.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
+To: gcoady@gmail.com
+Cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org,
+       davej@redhat.com
+Subject: Re: oops pauser. / boot_delayer
+References: <20060104221023.10249eb3.rdunlap@xenotime.net> <E1EuPZg-0008Kw-00@calista.inka.de> <6appr1djnkhaa35cjahs22itittduia9bf@4ax.com>
+In-Reply-To: <6appr1djnkhaa35cjahs22itittduia9bf@4ax.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Daniel Walker [mailto:dwalker@mvista.com] 
-> On Wed, 2006-01-04 at 10:28 +0100, kus Kusche Klaus wrote:
-> > > From: Daniel Walker
-> > > Ok, yet another patch. This one uses the correct lowlevel 
-> calls, and I
-> > > fixed the call ordering.
-> > 
-> > Hmm, I have no deep knowledge of ARM assembler programming,
-> > but your patch branches to a C subroutine without setting up a
-> > return address in the lr register.
-> > 
-> > Hence, the return in trace_irqs_... jumps to god-knows-where,
-> > but not back to the next instruction.
-> > 
-> > As a wild guess, I replaced the "b trace_irqs_..." with
-> > "bl trace_irqs_...".
-> 
-> Ok .
-> 
-> > With this change, the kernel boots fine, but the system seems to go
-> > into an infinite loop as soon as the first usermode processes start.
-> > Most likely, my change messes up the lr register of some surrounding
-> > context.
-> 
-> That's odd. Do you have an OOPS, or is it just a silent hang?
+Grant Coady wrote:
+>
+> No, after oops, console dead, very dead . . . no scrollback :(
 
-No Oops, just a silent hang.
+This mis-feature is beginning to annoy more and more.
 
-But as far as I can tell, the macros are used in code parts where just
-jumps, but no calls are made (e.g. syscall entry / exit sequence)
-and the lr register contains data which should not be messed up by
-subroutine calls.
+I seem to recall that "in the old days" (1990s),
+this was NOT the case:  scrollback still worked from oops.
 
+I wonder if perhaps a better feature here would be to fix that again?
 
--- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
+Cheers

@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752150AbWAEWnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752248AbWAEWoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752150AbWAEWnm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752245AbWAEWnl
+	id S1752248AbWAEWoY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752249AbWAEWoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:43:41 -0500
-Received: from waste.org ([64.81.244.121]:63368 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1752150AbWAEWnk (ORCPT
+	Thu, 5 Jan 2006 17:44:23 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31448 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752248AbWAEWoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:43:40 -0500
-Date: Thu, 5 Jan 2006 16:36:56 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Martin Bligh <mbligh@mbligh.org>, Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-Message-ID: <20060105223656.GP3356@waste.org>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <20060105213442.GM3356@waste.org> <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org>
+	Thu, 5 Jan 2006 17:44:22 -0500
+Date: Thu, 5 Jan 2006 23:44:04 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: dtor_core@ameritech.net, Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Message-ID: <20060105224403.GJ2095@elf.ucw.cz>
+References: <20051227213439.GA1884@elf.ucw.cz> <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net> <20060105215528.GF2095@elf.ucw.cz> <Pine.LNX.4.50.0601051359290.10834-100000@monsoon.he.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.50.0601051359290.10834-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 02:08:06PM -0800, Linus Torvalds wrote:
+On Čt 05-01-06 14:15:39, Patrick Mochel wrote:
 > 
-> On Thu, 5 Jan 2006, Matt Mackall wrote:
-> > 
-> > I think it's a mistake to interleave this data into the C source. It's
-> > expensive and tedious to change relative to its volatility.
+> On Thu, 5 Jan 2006, Pavel Machek wrote:
 > 
-> I don't believe it is actually all _that_ volatile. Yes, it would be a 
-> huge issue _initially_, but the incremental effects shouldn't be that big, 
-> or there is something wrong with the approach.
-
-No, perhaps not. But it would be nice in theory for people to be able
-to do things like profile their production system and relink. And
-having to touch hundreds of files to do it would be painful.
-
-> > What I was proposing was something like, say, arch/i386/popularity.lst, 
-> > which would simply contain a list of the most popular n% of functions 
-> > sorted by popularity. As text, of course.
+> > Do you have the patch to filter bad values? I submitted one. You
+> > rejected it, because it does not support D1. Never mind that original
+> > code does not support D1, either. [Should I retransmit the patch?]
 > 
-> I suspect that would certainlty work for pure function-based popularity, 
-> and yes, it has the advantage of being simple (especially for something 
-> that ends up being almost totally separated from the compiler: if we're 
-> using this purely to modify link scripts etc with special tools).
+> No, I offered guidance in one of the first emails. The code that exports a
+> 'power' file for every single device from the driver model core should be
+> removed.
 > 
-> But what about the unlikely/likely conditional hints that we currently do 
-> by hand? How are you going to sanely maintain a list of those without 
-> doing that in source code?
+> It should be replaced with a file exported by the bus driver that exports
+> the actual states that the device supports. The parsing can easily happen
+> at this point, because the bus knows what a good value is.
 
-Dunno. Those bits are all anonymous so marking them in situ is about
-the only way to go. But we can do better for whole functions.
+(1) would change core<->driver interface
 
+(2) is quite a lot of work
+
+(3) ...with very little benefit, until drivers support >2 states
+
+I want to fix invalid values being passed down to drivers, not rewrite
+half of driver model.
+
+If you want to rewrite driver model for >2 states, great, but that is
+going to take at least a year AFAICS, so please let me at least fix
+the bugs in meantime.
+
+> > If you suggest to just add check for == 0 or == 2... I think I can do
+> > that, but that's going to break userspace, anyway (it passes _3_
+> > there) and have no reasonable path to sane interface.
+> 
+> The userspace interface is broken. We can keep it for compatability
+> reasons, but there needs to be a new interface.
+
+I assumed we could fix the interface without actually introducing >2
+states support. That can be done in reasonable ammount of code. 
+
+> > > If we export exactly the device states that a device supports, then
+> > >we can
+> >
+> > Exporting multiple states is quite a lot of code, and it needs driver
+> > changes. There's no clear benefit.
+> 
+> I don't understand what you're saying. If I have a driver that Iwant to
+                                         ~~~~~~~~~~~~~~~~~~
+> make support another power state and I'm willing to write that code, then
+> there is a clear benefit to having the infrastructure for it to "just
+> work".
+
+I do not see such drivers around me, that's all. It seems fair to me
+that first driver author wanting that is the one who introduces >2
+states support to generic infrastructure.
+
+> If you want a more concrete example, consider the possibility where it may
+> be possible to reinitialize the device from D1 or D2, but not from D3. For
+> the radeon, this is true in some cases (if I understand Ben H
+> correctly).
+
+...which seems like one more reason to only export "on" and "off" in
+radeon case. We don't want userspace to write "D3" to radeon, then
+wondering why it failed.
+
+Passing "on"/"off" down to radeon lets the driver decide what power
+state it should enter.
+								Pavel
 -- 
-Mathematics is the supreme nostalgia of our time.
+Thanks, Sharp!

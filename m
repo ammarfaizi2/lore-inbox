@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWAEWNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWAEWQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750845AbWAEWNh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWAEWNh
+	id S1750702AbWAEWQG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWAEWQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:13:37 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:26796 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1750878AbWAEWNg (ORCPT
+	Thu, 5 Jan 2006 17:16:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:61642 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750702AbWAEWQD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:13:36 -0500
-Date: Thu, 5 Jan 2006 23:13:34 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
-Message-ID: <20060105221334.GA925@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Pavel Machek <pavel@ucw.cz>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20051227213439.GA1884@elf.ucw.cz> <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net> <20060105215528.GF2095@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105215528.GF2095@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
+	Thu, 5 Jan 2006 17:16:03 -0500
+Date: Thu, 5 Jan 2006 14:08:06 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: Martin Bligh <mbligh@mbligh.org>, Arjan van de Ven <arjan@infradead.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+In-Reply-To: <20060105213442.GM3356@waste.org>
+Message-ID: <Pine.LNX.4.64.0601051402550.3169@g5.osdl.org>
+References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org>
+ <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org>
+ <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
+ <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <20060105213442.GM3356@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 10:55:29PM +0100, Pavel Machek wrote:
-> > I have a firewire controller in a desktop system, and a ATI Radeon in a
-> > T42 that support D1 and D2..
+
+
+On Thu, 5 Jan 2006, Matt Mackall wrote:
 > 
-> Ok, now we have a concrete example. So Radeon supports D1. But putting
-> radeon into D1 means you probably want to blank your screen and turn
-> the backlight off; that takes *long* time anyway. So you can simply
-> put your radeon into D3 and save a bit more power.
+> I think it's a mistake to interleave this data into the C source. It's
+> expensive and tedious to change relative to its volatility.
 
-Using your logic, you never want to put your CPU into C2 power-saving state
-instead of C3 or C4. Which is ridiculous. There are technical reasons why
-you want to put devices into different power-saving states. E.g. wakeup
-latency, ability to receive wakeup signals, snooping and so on.
+I don't believe it is actually all _that_ volatile. Yes, it would be a 
+huge issue _initially_, but the incremental effects shouldn't be that big, 
+or there is something wrong with the approach.
 
-In addition, your patch breaks pcmcia / pcmciautils which already uses
-numbers (which I already had to change from "3" to "2" before...).
+> What I was proposing was something like, say, arch/i386/popularity.lst, 
+> which would simply contain a list of the most popular n% of functions 
+> sorted by popularity. As text, of course.
 
-	Dominik
+I suspect that would certainlty work for pure function-based popularity, 
+and yes, it has the advantage of being simple (especially for something 
+that ends up being almost totally separated from the compiler: if we're 
+using this purely to modify link scripts etc with special tools).
+
+But what about the unlikely/likely conditional hints that we currently do 
+by hand? How are you going to sanely maintain a list of those without 
+doing that in source code?
+
+			Linus

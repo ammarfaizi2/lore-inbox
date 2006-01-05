@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWAERwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWAERyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWAERwv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 12:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWAERwv
+	id S1750708AbWAERyX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 12:54:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751876AbWAERyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 12:52:51 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:16821 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751875AbWAERwt (ORCPT
+	Thu, 5 Jan 2006 12:54:22 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:15065 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1750708AbWAERyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 12:52:49 -0500
-In-Reply-To: <20060104144540.GN19769@parisc-linux.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: "Robert W. Fuller" <garbageout@sbcglobal.net>, info@crossmeta.com,
-       Jamie Lokier <jamie@shareable.org>, Harald Welte <laforge@gnumonks.org>,
-       legal@lists.gnumonks.org, linux-fsdevel@vger.kernel.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Ben Slusky <sluskyb@paranoiacs.org>
+	Thu, 5 Jan 2006 12:54:21 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
+Date: Thu, 5 Jan 2006 10:54:18 -0700
+User-Agent: KMail/1.8.3
+Cc: Alex Williamson <alex.williamson@hp.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ia64@vger.kernel.org,
+       ak@suse.de, openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <20060104221627.GA26064@lists.us.dell.com> <200601050941.15915.bjorn.helgaas@hp.com> <20060105173740.GA20650@lists.us.dell.com>
+In-Reply-To: <20060105173740.GA20650@lists.us.dell.com>
 MIME-Version: 1.0
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF5B6FBC67.0E61A814-ON882570ED.00611107-882570ED.0062334E@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Thu, 5 Jan 2006 09:52:35 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF90 | November 16, 2005) at
- 01/05/2006 12:52:35,
-	Serialize complete at 01/05/2006 12:52:35
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601051054.18867.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Why don't you go and look instead of quibbling in the abstract?
+On Thursday 05 January 2006 10:37, Matt Domsch wrote:
+> On Thu, Jan 05, 2006 at 09:41:15AM -0700, Bjorn Helgaas wrote:
+> > The DMI scan looks like it's done in try_init_smbios().  But
+> > try_init_acpi() is done first.  Since every ia64 machine has
+> > ACPI, I would think try_init_acpi() should be sufficient.
+> >
+> > Or do you have a machine that doesn't supply the SPMI
+> > table used by try_init_acpi()?
+>
+> This system (Dell PowerEdge 7250, very very similar to an Intel
+> 4-way Itanium2 server) doesn't have an SPMI table, but it does have
+> the IPMI information in the SMBIOS table.
 
-I'm in favor of asking for clarification on the mailing list instead of 
-going and looking.  It's more efficient for one person to do the research 
-and then disseminate the information on a mailing list instead of everyone 
-going and looking.
+But the IPMI device *should* be described in the ACPI namespace, so
+using acpi_bus_register_driver() should be sufficient.
 
->Why are you bothering to nitpick Harald?
+I think that would be a better approach than using the SMBIOS table.
+But it is certainly a lot more work :-(
 
-I'm in favor of the nitpick.  Little ambiguities and errors can cause big 
-misunderstandings that snowball; I have more trouble with people who fail 
-to recognize they've inferred something that wasn't said than with people 
-who refuse to infer.
-
->Do you not realise he understands the GPL better than you do
-
-As a scientist, I give no one a free ride with, "It's true because I said 
-it and I should know."  Being an expert only means you're better able to 
-prove you're right.
-
---
-Bryan Henderson                     IBM Almaden Research Center
-San Jose CA                         Filesystems
-
+Bjorn

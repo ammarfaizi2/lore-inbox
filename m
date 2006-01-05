@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752124AbWAEJSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752123AbWAEJUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752124AbWAEJSr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 04:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752123AbWAEJSq
+	id S1752123AbWAEJUt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 04:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752127AbWAEJUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 04:18:46 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:57829 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1752124AbWAEJSp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 04:18:45 -0500
-In-Reply-To: <43BCCE69.1020509@uplinklabs.net>
-References: <20060105004826.GA17328@kroah.com> <Pine.LNX.4.64.0601041724560.3279@g5.osdl.org> <20060105020742.GA18815@suse.de> <Pine.LNX.4.64.0601041836370.3279@g5.osdl.org> <20060105033152.GA23380@suse.de> <Pine.LNX.4.64.0601041935070.3169@g5.osdl.org> <20060105034414.GA23660@suse.de> <43BCCE69.1020509@uplinklabs.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <6AAE697F-67B0-4976-B7D1-A87C441F4490@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: devfs going away, last chance to complain (was Re: [GIT PATCH] Driver Core patches for 2.6.15)
-Date: Thu, 5 Jan 2006 04:18:40 -0500
-To: Steven Noonan <steven@uplinklabs.net>
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 5 Jan 2006 04:20:49 -0500
+Received: from 213-140-2-68.ip.fastwebnet.it ([213.140.2.68]:39337 "EHLO
+	aa001msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1752123AbWAEJUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 04:20:48 -0500
+Date: Thu, 5 Jan 2006 10:20:54 +0100
+From: JohnnyRun <gianni79@gamebox.net>
+To: linux-kernel@vger.kernel.org
+Subject: eth0 and loopback problems.
+Message-ID: <20060105092052.GE3008@darkstar.mylan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 05, 2006, at 02:44, Steven Noonan wrote:
-> Pardon my ignorance, but what precisely was/is the problem with  
-> devfs, anyway?
+Hi all!
+I think  it's a bug....
 
-1) It had unfixable races  (The device is created when the hardware  
-is detected but the module isn't loaded yet so the device doesn't work?)
-2) The maintainer stopped maintaining it
-3) It put naming policy (and a bad one at that) in the kernel where  
-it doesn't belong.
+HOSTA# ifconfig eth0 192.168.0.1
+HOSTA# ifconfig eth0 down
+HOSTA# ping 192.168.0.1
+(the ping works, like all other ICMP / TCP /UDP ... application. 
+In other words: all work like eth0 in UP mode when source and
+destination point comunicate via loopback device.
+I think it's not correct because if eth0 is DOWN for all the hosts in
+LAN should be down for me too. Or not?
 
-I'm sure there are more, but those are the basic ones.
+Suppose another conf:
 
-Cheers,
-Kyle Moffett
+HOSTA# ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:10:DC:C3:5E:FF  
+          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.0.0.0
+	  BROADCAST MULTICAST  MTU:1500  Metric:1
+eth1      Link encap:Ethernet  HWaddr 00:0E:35:74:16:67  
+          inet addr:192.168.0.2 [...]
+	  UP BROADCAST RUNNING MULTICAST  MTU:1500
+lo  	 [...]
 
---
-Somone asked me why I work on this free (http://www.fsf.org/ 
-philosophy/) software stuff and not get a real job. Charles Schulz  
-had the best answer:
+HOSTB# ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 00:00:24:C8:4A:7D  
+          inet addr:192.168.0.1  Bcast:1.255.255.255  Mask:255.0.0.0
+	  UP BROADCAST RUNNING MULTICAST  MTU:1500
+	  [...]
 
-"Why do musicians compose symphonies and poets write poems? They do  
-it because life wouldn't have any meaning for them if they didn't.  
-That's why I draw cartoons. It's my life."
-   -- Charles Schulz
+So, HOSTA and HOSTB share the same ip but: HOSTA eth0 is DOWN; HOSTA eth1 is
+UP, HOSTB eth0 is UP. So, no conflict should be possible.
+but:
 
+HOSTB# ping 192.168.0.2
+(does not reply)
 
+So I suppose that HOSTA route the icmp reply through its lo.
+But:
+
+HOSTA# tcpdump -i lo
+doesn't show any reply, and 
+
+HOSTA# tcpdump -i eth0 
+it's not permitted, because eth0 is DOWN.
+
+The same result for TCP protocol (tested with hping).
+Operative conditions: Linux 2.6.14, HOSTA eth1 is wifi.
+Regards
+JohnnyRun

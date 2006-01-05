@@ -1,58 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWAEW10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWAEW1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbWAEW10 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWAEW10
+	id S1751452AbWAEW1a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:27:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWAEW1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:27:26 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:34567 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751445AbWAEW1Y convert rfc822-to-8bit
+	Thu, 5 Jan 2006 17:27:30 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:47279 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751452AbWAEW13
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:27:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j9S5B4nMGPg5eHMoaeQfbV8hYanTf8P6XYuiczXiUiwunuyoxwxWX6O7RRJq1SK7OgClsnlzG3V2Dhno2pM0fBQh6GFGbMLWlnUq9LfncEhbAqUQtaazd3s/ZOPq1c4/Si/vuA0tIuuIUc3Kno3nUFxkViKH4gtiglcGHr5RQds=
-Message-ID: <9a8748490601051427x1ab06565o2e7b76a28f2b42fc@mail.gmail.com>
-Date: Thu, 5 Jan 2006 23:27:23 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: } <grundig@teleline.es>
-Subject: Re: 80 column line limit?
-Cc: kay.sievers@vrfy.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060105154330.da1016fc.grundig@teleline.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20060105130249.GB29894@vrfy.org>
-	 <9a8748490601050527x407ff85dref45774d5eb131d9@mail.gmail.com>
-	 <20060105154330.da1016fc.grundig@teleline.es>
+	Thu, 5 Jan 2006 17:27:29 -0500
+Subject: Re: + time-generic-timekeeping-infrastructure.patch added to -mm
+	tree
+From: john stultz <johnstul@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1136363161.2839.4.camel@laptopd505.fenrus.org>
+References: <200601040036.k040aOS1001312@shell0.pdx.osdl.net>
+	 <1136363161.2839.4.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 14:27:25 -0800
+Message-Id: <1136500046.7849.14.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/5/06, } <grundig@teleline.es> wrote:
-> El Thu, 5 Jan 2006 14:27:23 +0100,
-> Jesper Juhl <jesper.juhl@gmail.com> escribió:
->
-> > I very often work in console (or xterm) and editing kernel code. Files
-> > with lines >80 col. are quite annoying to have to scroll left/right in
->
-> I wonder why (we) people keeps working (and writing emails) with a 80
-> cols limit - monitors are BIG these days and even the crappiest
-> graphic card can do better than 80x25 even without using fbcon. Is not
+On Wed, 2006-01-04 at 09:25 +0100, Arjan van de Ven wrote:
+> On Tue, 2006-01-03 at 16:36 -0800, akpm@osdl.org wrote:
+> > +static inline void normalize_timespec(struct timespec *ts)
+> > +{
+> > +	while (unlikely((unsigned long)ts->tv_nsec >= NSEC_PER_SEC)) {
+> > +		ts->tv_nsec -= NSEC_PER_SEC;
+> > +		ts->tv_sec++;
+> > +	}
+> > +}
+> > +
+> > +static inline void timespec_add_ns(struct timespec *a, nsec_t ns)
+> > +{
+> > +	while(unlikely(ns >= NSEC_PER_SEC)) {
+> > +		ns -= NSEC_PER_SEC;
+> > +		a->tv_sec++;
+> > +	}
+> > +	a->tv_nsec += ns;
+> > +	normalize_timespec(a);
+> > +}
+> > +
+> >  #endif /* __KERNEL__ */
+> >  
+> 
+> are you sure you want this one inlined? that's 2 while loops already....
+> (and afaics the ns argument isn't a constant really so the first one
+> doesn't optimize out)
 
-I'm well aware that my hardware can easily do more than 80 columns,
-but that's simply not as pleasant to read. Even in X I usually keep my
-xterms to 80 columns and with a resonably large font so I don't have
-to strain my eyes too much when reading.
+Good point. I'm mainly concerned w/ gettimeofday/clock_gettime()
+performance here since those calls tend to be somewhat micro-optimized. 
 
-> that breaking the 80-cols rules is annoying, working with such setups
-> are painful even to run basic shell scripts. These days hardware can do
-> better things than 80-col consoles even for console users.
->
-It's not about hardware capabilities, it's about readability.
+For now I've left timespec_add_ns inlined, but it still could use some
+work, so I just dropped the normalize_timespec() since no one else uses
+it and rewrote timespec_add_ns() to be:
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+	ns += a->tv_nsec;
+	while (unlikely(ns >= NSEC_PER_SEC)) {
+		ns -= NSEC_PER_SEC;
+		a->tv_sec++;
+	}
+	a->tv_nsec = ns;
+
+
+Which should simplify it.
+
+> 
+> > +/**
+> > + * __get_nsec_offset - Returns nanoseconds since last call to periodic_hook
+> > + *
+> > + * private function, must hold system_time_lock lock when being
+> > + * called. Returns the number of nanoseconds since the
+> > + * last call to timeofday_periodic_hook() (adjusted by NTP scaling)
+> > + */
+> > +static inline nsec_t __get_nsec_offset(void)
+> > +{
+> > +	cycle_t cycle_now, cycle_delta;
+> > +	nsec_t ns_offset;
+> > +
+> > +	/* read clocksource: */
+> > +	cycle_now = read_clocksource(clock);
+> > +
+> > +	/* calculate the delta since the last timeofday_periodic_hook: */
+> > +	cycle_delta = (cycle_now - cycle_last) & clock->mask;
+> > +
+> > +	/* convert to nanoseconds: */
+> > +	ns_offset = cyc2ns(clock, ntp_adj, cycle_delta);
+> > +
+> > +	/*
+> > +	 * special case for jiffies tick/offset based systems,
+> > +	 * add arch-specific offset:
+> > +	 */
+> > +	ns_offset += arch_getoffset();
+> > +
+> > +	return ns_offset;
+> > +}
+> 
+> likewise here.. 
+
+I left this one inlined as well, since it is in the gettimeofday() call
+path and it was originally inlined because the numbers were compelling
+enough at the time. However, the concern is valid, so I did just remove
+a number of inlines in timeofday.c where performance isn't quite so
+critical.
+
+I'll do some further analysis for code size vs performance when I have a
+spare moment and maybe go further removing more inlines.
+
+I appreciate you pointing this out, though. Looking at it now, it seems
+I was a bit reckless w/ inlines.
+
+Thanks again,
+-john
+

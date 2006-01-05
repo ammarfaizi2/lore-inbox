@@ -1,91 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWAEPwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWAEP6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWAEPwO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWAEPwO
+	id S1750902AbWAEP6P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWAEP6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:52:14 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:37781 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751442AbWAEPwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:52:13 -0500
-Subject: Re: [PATCH] PXA2xx: build PCMCIA as a module
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Florin Malita <fmalita@gmail.com>, rmk+lkml@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1136470671.14442.26.camel@scox.glenatl.glenayre.com>
-References: <1136409389.14442.20.camel@scox.glenatl.glenayre.com>
-	 <1136413220.9902.94.camel@localhost.localdomain>
-	 <1136419973.2768.7.camel@zed.malinux.net>
-	 <1136470671.14442.26.camel@scox.glenatl.glenayre.com>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 15:52:03 +0000
-Message-Id: <1136476323.6451.85.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 5 Jan 2006 10:58:15 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:22227 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1750902AbWAEP6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 10:58:14 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+Date: Thu, 5 Jan 2006 15:55:25 +0000
+User-Agent: KMail/1.9
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Greg KH <greg@kroah.com>,
+       Nick Warne <nick@linicks.net>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, webmaster@kernel.org
+References: <200601041710.37648.nick@linicks.net> <200601051525.05613.s0348365@sms.ed.ac.uk> <9a8748490601050737y24f04505hb605fbe96fe4f92c@mail.gmail.com>
+In-Reply-To: <9a8748490601050737y24f04505hb605fbe96fe4f92c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601051555.25915.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 09:17 -0500, Florin Malita wrote:
-> > On Wed, 2006-01-04 at 22:20 +0000, Richard Purdie wrote:
-> > > NAK. This breaks poodle, tosa and collie who also use scoop and this
-> > > pcmcia driver. I'd suggest moving scoop_pcmcia_config to
-> > > arch/arm/common/scoop.c instead.
-> 
-> Here's a version with the modified comment following your suggestion.
-> 
-> Thanks,
-> Florin
-> 
-> Signed-off-by: Florin Malita <fmalita@gmail.com>
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
-> --
-> diff --git a/arch/arm/common/scoop.c b/arch/arm/common/scoop.c
-> --- a/arch/arm/common/scoop.c
-> +++ b/arch/arm/common/scoop.c
-> @@ -19,6 +19,16 @@
->  
->  #define SCOOP_REG(d,adr) (*(volatile unsigned short*)(d +(adr)))
->  
-> +/* PCMCIA to Scoop linkage
-> +
-> +   There is no easy way to link multiple scoop devices into one
-> +   single entity for the pxa2xx_pcmcia device so this structure
-> +   is used which is setup by the platform code and used by the
-> +   pcmcia driver.
-> +*/
-> +struct scoop_pcmcia_config *platform_scoop_config;
-> +EXPORT_SYMBOL(platform_scoop_config);
-> +
->  struct  scoop_dev {
->  	void  *base;
->  	spinlock_t scoop_lock;
-> diff --git a/drivers/pcmcia/pxa2xx_sharpsl.c b/drivers/pcmcia/pxa2xx_sharpsl.c
-> --- a/drivers/pcmcia/pxa2xx_sharpsl.c
-> +++ b/drivers/pcmcia/pxa2xx_sharpsl.c
-> @@ -27,13 +27,6 @@
->  
->  #define	NO_KEEP_VS 0x0001
->  
-> -/* PCMCIA to Scoop linkage
-> -
-> -   There is no easy way to link multiple scoop devices into one
-> -   single entity for the pxa2xx_pcmcia device so this structure
-> -   is used which is setup by the platform code
-> -*/
-> -struct scoop_pcmcia_config *platform_scoop_config;
->  #define SCOOP_DEV platform_scoop_config->devs
->  
->  static void sharpsl_pcmcia_init_reset(struct scoop_pcmcia_dev *scoopdev)
-> diff --git a/drivers/pcmcia/soc_common.c b/drivers/pcmcia/soc_common.c
-> --- a/drivers/pcmcia/soc_common.c
-> +++ b/drivers/pcmcia/soc_common.c
-> @@ -846,3 +846,4 @@ int soc_common_drv_pcmcia_remove(struct 
->  
->  	return 0;
->  }
-> +EXPORT_SYMBOL(soc_common_drv_pcmcia_remove);
-> 
-> 
+On Thursday 05 January 2006 15:37, Jesper Juhl wrote:
+> On 1/5/06, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > On Thursday 05 January 2006 00:08, H. Peter Anvin wrote:
+> > > Alistair John Strachan wrote:
+> > > > Re-read the thread. The confusion here is about "going back" to
+> > > > 2.6.14 before patching 2.6.15. This has nothing to do with "rc
+> > > > kernels". We have this documented explicitly in the kernel but not on
+> > > > the kernel.org FAQ.
+> > >
+> > > If you can send me some suggested verbiage I'll put it in the FAQ.  We
+> > > can also make a page that's directly linked from the "stable release",
+> > > kind of like we have info links for -mm patches etc.
+> >
+> > I hope somebody else here can minimise my logic; I think the verbosity is
+> > necessary to completely explain the "patch nightmare" to everybody
+> > concerned.
+>
+> [snip]
+>
+> Nice writeup, but why not simply put a copy of
+> Documentation/applying-patches.txt online and link to that?
+> It contains more or less the same stuff you just wrote.
 
+It's certainly one possibility, but this file is at least 4x more verbose than 
+my summary. I aimed to write something instructional, rather than provide a 
+complete explanation of the "patch problem".
+
+If this issue is large enough to get its own page on kernel.org, then a more 
+complete description may indeed be justified. Comments?
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

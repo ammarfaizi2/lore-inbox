@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWAFCGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbWAFCHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWAFCGA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 21:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWAFCGA
+	id S932541AbWAFCHX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 21:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752215AbWAFCHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 21:06:00 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:159 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751901AbWAFCF7 convert rfc822-to-8bit (ORCPT
+	Thu, 5 Jan 2006 21:07:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:14060 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751901AbWAFCHV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 21:05:59 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Re. 2.6.15-mm1
-Date: Thu, 5 Jan 2006 18:05:03 -0800
-Message-ID: <01EF044AAEE12F4BAAD955CB7506494305977CC4@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re. 2.6.15-mm1
-Thread-Index: AcYSV2UpfQWfykebQDKTI2NUy/r9WAADUsbg
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>,
-       "Alexander Gran" <alex@zodiac.dnsalias.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-       "Brown, Len" <len.brown@intel.com>, <ambx1@neo.rr.com>,
-       <reiserfs-dev@namesys.com>, <airlied@linux.ie>, <vs@namesys.com>,
-       "Dave Jones" <davej@codemonkey.org.uk>
-X-OriginalArrivalTime: 06 Jan 2006 02:05:04.0105 (UTC) FILETIME=[9BC58D90:01C61265]
+	Thu, 5 Jan 2006 21:07:21 -0500
+Date: Thu, 5 Jan 2006 15:54:36 -0500
+From: Dave Jones <davej@redhat.com>
+To: Avishay Traeger <atraeger@cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops pauser.
+Message-ID: <20060105205436.GO20809@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Avishay Traeger <atraeger@cs.sunysb.edu>,
+	linux-kernel@vger.kernel.org
+References: <20060105045212.GA15789@redhat.com> <1136469533.21485.91.camel@rockstar.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136469533.21485.91.camel@rockstar.fsl.cs.sunysb.edu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton Thursday, January 05, 2006 4:22 PM
+On Thu, Jan 05, 2006 at 08:58:53AM -0500, Avishay Traeger wrote:
+ > Some comments:
+ > 1. I think this is a good idea, since serial consoles can also change
+ > timings.  I have seen several race conditions where the problem goes
+ > away once I add a serial console.
+ > 2. Should this be a separate debugging option?
 
->> 8b 1d 10 00 00 0
->> 0 0f b6 c0 8d 48 04 8d 6c 24
->>  <3>[drm:drm_release] *ERROR* Device busy: 1 0
->> EDAC PCI- Detected Parity Error on 0000:00:1e.0
->
->OK.  I've been assuming that this is a DRM bug but I note that the AGP
-tree
->has been dinking with agp_collect_device_status(), so perhaps I had the
->wrong David.
->
->> Additionally every second or so I got these console (and kernel of
->cource)
->> message:
->> EDAC PCI- Detected Parity Error on 0000:00:1e.0
->
->Alan, Rohit: do we expect that the EDAC fixes which you're cooking up
-will
->address this?  I think not?
->
+maybe
 
-Nops.  That one patch does not address this issue.
+ > 3. Shouldn't you have KERN____ in your printk statements?
 
--rohit
+doesn't make a great deal of difference in this context.
+
+ > 4. Wouldn't printing out the message every second make the oops scroll
+ > off the screen, defeating the purpose of the patch?
+
+no. that's why it uses \r instead of \n.
+
+		Dave
+

@@ -1,136 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWAEWGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWAEWHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWAEWGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWAEWGj
+	id S1751443AbWAEWHb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWAEWHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:06:39 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:42190 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932238AbWAEWGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:06:38 -0500
-Subject: Re: Problem: USB phone not detected after disconnect/reconnect
-From: Lee Revell <rlrevell@joe-job.com>
-To: Rob Dyck <rob.dyck@telus.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@vger.kernel.org,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-In-Reply-To: <200601031337.52560.rob.dyck@telus.net>
-References: <200601031337.52560.rob.dyck@telus.net>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 17:06:35 -0500
-Message-Id: <1136498796.847.56.camel@mindpipe>
+	Thu, 5 Jan 2006 17:07:30 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:34572 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1752164AbWAEWH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 17:07:29 -0500
+Date: Thu, 5 Jan 2006 23:07:19 +0100
+From: Willy TARREAU <willy@w.ods.org>
+To: =?iso-8859-1?Q?j=FCrgen?= baumann <jbaumann@is-kassel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.33pre1 kernel/sysctl.c missing spin_unlock()
+Message-ID: <20060105220719.GA618@w.ods.org>
+References: <43BD3AB7.9020003@is-kassel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43BD3AB7.9020003@is-kassel.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[added alsa-devel and linux-usb-devel to cc]
+On Thu, Jan 05, 2006 at 04:26:47PM +0100, jürgen baumann wrote:
+> possibly fixed yet, but maybe not:
+> 
+> in above patch there was a spinlock(&sysctl_lock) added in 
+> function do_register_sysctl_table(), but no corresponding 
+> spin_unlock() before return.
+> 
+> after starting the new kernel (unfortunately with further 
+> patches), it hangs on trying to start the kswapd-thread.
+> 
+> after inserting the spin_unlock() all run fine.
 
-I have seen similar bug reports from other users.  This one seems to
-affect the USB storage and USB audio devices, is it a bug in the host
-controller?
+Can you be more specific ? First, there's no function named
+like this in 2.4.33-pre1. The most approaching change I can
+find lies in kernel/sysctl.c:register_sysctl_table() and this
+one uses valid locking :
 
-On Tue, 2006-01-03 at 13:37 -0800, Rob Dyck wrote:
-> When USB phone is disconnected and then reconnected the system sometimes does 
-> not detect it. Another device such as storage is not detected either. I am 
-> not positive but the problem seems to occur if the USB phone was connected 
-> during the boot. I do not know if it is relevant but I use APM not ACPI.
-> 
-> Some information I have gathered.
-> This is the device
-> usb 3-1: new device strings: Mfr=1, Product=2, SerialNumber=4
-> usb 3-1: Product: USB Phone
-> usb 3-1: Manufacturer: BeyondTel
-> usb 3-1: SerialNumber: 0001
-> 
-> Good disconnect. Four interfaces unregistered.
-> 
-> usb 3-1: USB disconnect, address 7
-> usb 3-1: usb_disable_device nuking all URBs
-> usb 3-1: unregistering interface 3-1:1.0
-> usb 3-1:1.0: hotplug
-> usb 3-1: unregistering interface 3-1:1.1
-> usb 3-1:1.1: hotplug
-> usb 3-1: unregistering interface 3-1:1.2
-> usb 3-1:1.2: hotplug
-> usb 3-1: unregistering interface 3-1:1.3
-> drivers/usb/core/file.c: removing 96 minor
-> usb 3-1:1.3: hotplug
-> usb 3-1: unregistering device
-> usb 3-1: hotplug
-> hub 3-0:1.0: debounce: port 1: total 100ms stable 100ms status 0x100
-> uhci_hcd 0000:00:10.1: suspend_rh (auto-stop)
-> 
-> Bad disconnect. interfaces 1.1 1.2 and 1.3 not unregistered
-> 
-> usb 3-1: USB disconnect, address 2
-> usb 3-1: usb_disable_device nuking all URBs
-> usb 3-1: unregistering interface 3-1:1.0
-> uhci_hcd 0000:00:10.1: suspend_rh (auto-stop)
-> 
-> Also /var/log/hotplug/events shows that the OSS audio devices were removed on 
-> disconnect but the ALSA devices were not. The problem is not specific to 
-> 2.6.15 however I do not know when it started. Perhaps it has always been a 
-> problem in USB.
-> 
-> Linux fatboy.mylan 2.6.15 #1 PREEMPT Tue Jan 3 11:49:30 PST 2006 i686 athlon 
-> i386 GNU/Linux
-> 
-> Gnu C                  3.4.2
-> Gnu make               3.80
-> binutils               2.15.92.0.2
-> util-linux             2.12a
-> mount                  2.12a
-> module-init-tools      3.1-pre5
-> e2fsprogs              1.35
-> reiserfsprogs          line
-> reiser4progs           line
-> pcmcia-cs              3.2.7
-> quota-tools            3.12.
-> PPP                    2.4.2
-> isdn4k-utils           3.3
-> nfs-utils              1.0.6
-> Linux C Library        2.3.3
-> Dynamic linker (ldd)   2.3.3
-> Procps                 3.2.3
-> Net-tools              1.60
-> Kbd                    1.12
-> Sh-utils               5.2.1
-> udev                   075
-> Modules Loaded         parport_pc lp parport autofs4 nfs lockd sunrpc 
-> af_packet usbhid uhci_hcd ehci_hcd snd_via82xx snd_ac97_codec snd_ac97_bus 
-> snd_mpu401_uart snd_usb_audio snd_pcm_oss snd_mixer_oss snd_pcm snd_timer 
-> snd_page_alloc snd_usb_lib snd_rawmidi snd_hwdep snd soundcore
-> 
-> Keywords - USB, hotplug
-> 
-> Output of lspci
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP] Host 
-> Bridge
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8235 PCI Bridge
-> 00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-> Controller (rev 80)
-> 00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-> Controller (rev 80)
-> 00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-> Controller (rev 80)
-> 00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-> 00:11.1 IDE interface: VIA Technologies, Inc. 
-> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-> 00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 
-> AC97 Audio Controller (rev 50)
-> 00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
-> 01:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT2 Model 
-> 64/Model 64 Pro] (rev 15)
-> 
-> lsusb just hangs.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+struct ctl_table_header *register_sysctl_table(ctl_table * table, 
+                                               int insert_at_head)
+{
+        struct ctl_table_header *tmp;
+        tmp = kmalloc(sizeof(struct ctl_table_header), GFP_KERNEL);
+        if (!tmp)
+                return NULL;
+        tmp->ctl_table = table;
+        INIT_LIST_HEAD(&tmp->ctl_entry);
+        tmp->used = 0;
+        tmp->unregistering = NULL;
+===>    spin_lock(&sysctl_lock);
+        if (insert_at_head)
+                list_add(&tmp->ctl_entry, &root_table_header.ctl_entry);
+        else
+                list_add_tail(&tmp->ctl_entry, &root_table_header.ctl_entry);
+===>    spin_unlock(&sysctl_lock);
+#ifdef CONFIG_PROC_FS
+        register_proc_table(table, proc_sys_root, tmp);
+#endif
+        return tmp;
+}
+
+So possibly you found one real bug, but please tell us where you
+had to patch !
+
+Thanks in advance,
+Willy
 

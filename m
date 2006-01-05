@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWAEOme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWAEOkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWAEOme (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWAEOmZ
+	id S1751178AbWAEOkG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWAEOkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:42:25 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:34807 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751375AbWAEOl6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:41:58 -0500
-Subject: Re: 2.6.15-rc5-rt4 and CONFIG_SLAB=y : structure has no member
-	named `nodeid'
-From: Daniel Walker <dwalker@mvista.com>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200601051112.10762.Serge.Noiraud@bull.net>
-References: <200512211045.58763.Serge.Noiraud@bull.net>
-	 <200601051112.10762.Serge.Noiraud@bull.net>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 05 Jan 2006 06:41:56 -0800
-Message-Id: <1136472116.31011.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+	Thu, 5 Jan 2006 09:40:05 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45071 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751372AbWAEOkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:40:01 -0500
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Greg K-H <greg@kroah.com>
+Subject: [CFT 20/29] Add MCP bus_type probe and remove methods
+Date: Thu, 05 Jan 2006 14:39:56 +0000
+Message-ID: <20060105142951.13.20@flint.arm.linux.org.uk>
+In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
+References: <20060105142951.13.01@flint.arm.linux.org.uk>
+From: Russell King <rmk@arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-Looks like nodeid might just be equal to the cpu now. 
+---
+ drivers/mfd/mcp-core.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-You could try turning off CONFIG_DEBUG_SLAB as a temporary solution. It
-looks like the DEBUG define depends on that config option .
-
-Daniel
-
-On Thu, 2006-01-05 at 11:12 +0100, Serge Noiraud wrote:
-> mercredi 21 Décembre 2005 10:45, Serge Noiraud wrote/a écrit :
-> > Hi,
-> > 
-> > 	testing on i386, I get the following error :
-> > ...
-> >   CC      mm/slab.o
-> > mm/slab.c: In function `cache_alloc_refill':
-> > mm/slab.c:2093: error: structure has no member named `nodeid'
-> > mm/slab.c: In function `free_block':
-> > mm/slab.c:2239: error: structure has no member named `nodeid'
-> > mm/slab.c:2239: error: `node' undeclared (first use in this function)
-> > mm/slab.c:2239: error: (Each undeclared identifier is reported only once
-> > mm/slab.c:2239: error: for each function it appears in.)
-> > make[4]: *** [mm/slab.o] Erreur 1
-> > ...
-> > 
-> > You removed nodeid in the slab struct, but many functions use it.
-> > 
-> I get the same problem with 2.6.15-rt1
-> The following patch suppress the error : I'm not sure it's the good correction.
-> perhaps we should supress this DEBUG test ?
-> 
-> --- linux.orig/mm/slab.c
-> +++ linux/mm/slab.c
-> @@ -2090,7 +2090,6 @@
->             next = slab_bufctl(slabp)[slabp->free];
->  #if DEBUG
->             slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
-> -           WARN_ON(numa_node_id() != slabp->nodeid);
->  #endif
->                 slabp->free = next;
->         }
->         check_slabp(cachep, slabp);
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/drivers/mfd/mcp-core.c linux/drivers/mfd/mcp-core.c
+--- linus/drivers/mfd/mcp-core.c	Mon Nov  7 19:57:44 2005
++++ linux/drivers/mfd/mcp-core.c	Sun Nov 13 16:31:11 2005
+@@ -77,6 +77,8 @@ static int mcp_bus_resume(struct device 
+ static struct bus_type mcp_bus_type = {
+ 	.name		= "mcp",
+ 	.match		= mcp_bus_match,
++	.probe		= mcp_bus_probe,
++	.remove		= mcp_bus_remove,
+ 	.suspend	= mcp_bus_suspend,
+ 	.resume		= mcp_bus_resume,
+ };
+@@ -227,8 +229,6 @@ EXPORT_SYMBOL(mcp_host_unregister);
+ int mcp_driver_register(struct mcp_driver *mcpdrv)
+ {
+ 	mcpdrv->drv.bus = &mcp_bus_type;
+-	mcpdrv->drv.probe = mcp_bus_probe;
+-	mcpdrv->drv.remove = mcp_bus_remove;
+ 	return driver_register(&mcpdrv->drv);
+ }
+ EXPORT_SYMBOL(mcp_driver_register);

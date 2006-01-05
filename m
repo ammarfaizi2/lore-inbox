@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWAES2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751877AbWAESdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWAES2A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWAES2A
+	id S1751877AbWAESdq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:33:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWAESdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:28:00 -0500
-Received: from mail.gmx.net ([213.165.64.21]:29916 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750796AbWAES17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:27:59 -0500
-X-Authenticated: #453372
-Message-ID: <43BD6572.9090100@gmx.net>
-Date: Thu, 05 Jan 2006 19:29:06 +0100
-From: Daniel Paschka <monkey20181@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007
-X-Accept-Language: en-us, en, de-de, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ipw2200] add monitor and qos entries to Kconfig
-References: <5rHzm-7c4-21@gated-at.bofh.it>
-In-Reply-To: <5rHzm-7c4-21@gated-at.bofh.it>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jan 2006 13:33:46 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:23226 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751877AbWAESdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:33:45 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: Marcin Dalecki <martin@dalecki.de>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       Tomasz Torcz <zdzichu@irc.pl>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
+References: <20050726150837.GT3160@stusta.de>
+	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
+	 <200601031629.21765.s0348365@sms.ed.ac.uk>
+	 <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
+	 <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
+	 <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
+	 <20060103215654.GH3831@stusta.de>
+	 <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
+	 <s5hpsn8md1j.wl%tiwai@suse.de>
+	 <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
+	 <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
+	 <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
+	 <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 13:33:40 -0500
+Message-Id: <1136486021.31583.26.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.3 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Happe wrote:
+On Thu, 2006-01-05 at 13:44 +0100, Marcin Dalecki wrote:
+> Second - you still didn't explain why this allows you to conclude  
+> that sound mixing should in no way be done inside the kernel. 
 
-> Add the following config entries for the ipw2200 driver to
-> drivers/net/wireless/Kconfig
->  * IPW2200_MONITOR
->    enables Monitor mode
->  * IPW2200_QOS
->    enables QoS feature - this is under development right now, so it depends 
->    upon EXPERIMENTAL
-> 
-> driver compiles and enters monitor mode.
-> 
-> Signed-off-by: Andreas Happe <andreashappe@snikt.net>
-> --- drivers/net/wireless/Kconfig.orig	2006-01-05 18:30:10.000000000 +0100
-> +++ drivers/net/wireless/Kconfig	2006-01-05 18:30:13.000000000 +0100
-> @@ -217,6 +217,19 @@ config IPW2200
->            say M here and read <file:Documentation/modules.txt>.  The module
->            will be called ipw2200.ko.
->  
-> +config IPW2200_MONITOR
-> +        bool "Enable promiscuous mode"
-> +        depends on IPW2200
-> +        ---help---
-> +	  Enables promiscuous/monitor mode support for the ipw2200 driver.
-> +	  With this feature compiled into the driver, you can switch to 
-> +	  promiscuous mode via the Wireless Tool's Monitor mode.  While in this
-> +	  mode, no packets can be sent.
-> +
-> +config IPW2200_MONITOR
-> +        bool "Enable QoS support"
-> +        depends on IPW2200 && EXPERIMENTAL
-> +
->  config IPW_DEBUG
->  	bool "Enable full debugging output in IPW2200 module."
->  	depends on IPW2200
+It works perfectly right now in userspace.  Therefore it should not be
+in the kernel.
 
-I think you made a copy&paste error here. QoS is enabling monitor mode.
-You probably meant IPW_QOS.
+Lee
+

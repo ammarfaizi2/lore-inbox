@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWAEMq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWAEMtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWAEMq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 07:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWAEMq0
+	id S1750799AbWAEMtI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 07:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWAEMtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 07:46:26 -0500
-Received: from drugphish.ch ([69.55.226.176]:9625 "EHLO www.drugphish.ch")
-	by vger.kernel.org with ESMTP id S1750799AbWAEMq0 (ORCPT
+	Thu, 5 Jan 2006 07:49:08 -0500
+Received: from post.pl ([212.85.96.51]:49607 "HELO v00051.home.net.pl")
+	by vger.kernel.org with SMTP id S1750893AbWAEMtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 07:46:26 -0500
-Message-ID: <43BD156E.8090601@drugphish.ch>
-Date: Thu, 05 Jan 2006 13:47:42 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Thu, 5 Jan 2006 07:49:06 -0500
+Message-ID: <43BD1576.2050107@post.pl>
+Date: Thu, 05 Jan 2006 13:47:50 +0100
+From: "Leonard Milcin Jr." <leonard.milcin@post.pl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: "Leonard Milcin Jr." <leonard.milcin@post.pl>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: keyboard driver of 2.6 kernel
-References: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in> <1136363622.2839.6.camel@laptopd505.fenrus.org> <43BB906F.3010900@post.pl> <Pine.LNX.4.61.0601041017560.29257@yvahk01.tjqt.qr> <43BCF005.1050501@drugphish.ch> <43BD09F4.2090603@post.pl>
-In-Reply-To: <43BD09F4.2090603@post.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+CC: Jaroslav Kysela <perex@suse.cz>, Pete Zaitcev <zaitcev@redhat.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
+       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andi Kleen <ak@suse.de>, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] ALSA userspace API complexity
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de> <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> <mailman.1136368805.14661.linux-kernel2news@redhat.com> <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+In-Reply-To: <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> http://www.drugphish.ch/patches/ratz/bash/bash-3.0-fix_1439-3.diff
->>
->> But http://ttyrpld.sourceforge.net/ looks indeed interesting, however 
->> no 2.4.x support from what I can see.
->
-> This can be very easily circumvented if you can execute another shell 
-> (for example your own version of bash without patch).
+Tomasz K³oczko wrote in his signature:
+ > -----------------------------------------------------------
+ > *Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+ > -----------------------------------------------------------
+ > Allow me translate sentence from my signature to english
+ > "People do not have problems they create them themselves"
+ > and ALSA case matches in 100%.
 
-Everything can be circumvented, but that's hardly the point of what the 
-patch tries to achieve. It is/was actually a requirement for financial 
-institutes, governments and ISPs running Linux-based services to comply 
-to the SOX and Basel II acts. Besides, ttyrpld can also be cirumvented 
-on a normal Linux distribution without special countermeasures or 
-policies regarding kernel module loading. It's just a tad bit harder to do.
+Look, kloczek, how less problems we cold have by banishing
+all the technology and going back to stone age?
 
-The cited patch has auditing and trace facilities up to the point where 
-no intended malicious actions happen. It's only there to log and not to 
-prevent any kind of attack.
+The complexity is sometimes unavoidable if one tries to
+please as many as possible. But why not userspace library
+that simplifies access to ALSA for those who don't need
+all the ,,complexity''? That pleases both -- those who
+need feauters, and those who only need to pass something
+to speakers. Maybe there are cards that work with OSS and
+not with ALSA, and that may be the reason to keep it just
+for some time. But in the long run I don't think there is
+a need to have two sound systems in kernel just because
+one is complicated and other lacks some features.
 
-Some of our systems for example run a highly secured Linux distribution 
-(Pitbull LX, SELinux, RSBAC, and partially other compartmentalized 
-environments), but some of those enhanced security systems do not 
-provide sufficient logging mechanisms to comply to those new acts.
-
-The reason I mentioned my patch is that it's non-intrusive, and this 
-helps in case of a security certification, and maybe also otherwise. YMMV.
-
-Best regards,
-Roberto Nibali, ratz
--- 
-echo 
-'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc
+Leonard

@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWAEP2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWAEPaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWAEP2u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAEP2u
+	id S932077AbWAEPaL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAEPaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:28:50 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:21962 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932076AbWAEP2t (ORCPT
+	Thu, 5 Jan 2006 10:30:10 -0500
+Received: from gate.perex.cz ([85.132.177.35]:54962 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932077AbWAEPaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:28:49 -0500
-Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <adawthf4rc0.fsf@cisco.com>
-References: <patchbomb.1135816279@eng-12.pathscale.com>
-	 <20051230080002.GA7438@kroah.com>
-	 <1135984304.13318.50.camel@serpentine.pathscale.com>
-	 <20051231001051.GB20314@kroah.com>
-	 <1135993250.13318.94.camel@serpentine.pathscale.com>
-	 <m1irt25pxg.fsf@ebiederm.dsl.xmission.com>  <adawthf4rc0.fsf@cisco.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Thu, 05 Jan 2006 07:28:48 -0800
-Message-Id: <1136474928.31922.14.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 10:30:08 -0500
+Date: Thu, 5 Jan 2006 16:30:06 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: "Alexander E. Patrakov" <patrakov@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Olivier Galibert <galibert@pobox.com>,
+       Heikki Orsila <shd@modeemi.cs.tut.fi>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <43BD3AAC.9000104@gmail.com>
+Message-ID: <Pine.LNX.4.61.0601051627590.10350@tm8103.perex-int.cz>
+References: <20060105140155.GC757@jolt.modeemi.cs.tut.fi>
+ <Pine.LNX.4.61.0601051518370.10350@tm8103.perex-int.cz>
+ <20060105145101.GB28611@dspnet.fr.eu.org> <43BD3AAC.9000104@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-04 at 13:26 -0800, Roland Dreier wrote:
+On Thu, 5 Jan 2006, Alexander E. Patrakov wrote:
 
-> Yes, this might be a good idea.  The "core" driver looks like it is
-> suffering from really being several things stuck together.
+> Olivier Galibert wrote:
+> 
+> > Make simple things simple, guys.
+> 
+> Sorry for hijacking the thread, but it is very true. ALSA is just too flexible
+> so that the ALSA equivalent (if it indeed exists) of
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=339951 cannot be fixed. OSS
+> allows specification of device name, and one can set up udev rules so that
+> e.g. /dev/dsp-creative it is always a symlink to a SB PCI sound card and
+> /dev/dsp-fortemedia is for FM801. Then one can tell xine to play sound through
+> /dev/dsp-fortemedia. ALSA accepts only numbers in its plughw:x,y,z notation,
+> and applications are unfixable when kernel device numbers become random.
 
-Yes, this is undoubtedly the case; we developed it organically based on
-our evolving needs, and we're only now (maybe a bit belatedly) stepping
-back to take a breath and see how things should be logically split out.
+It's not true. You can also use plughw:CARDID,0 or so notation. 
+Identification of cards are available via control interface or look 
+to /proc/asound/cards file. The card ID string can be set via
+a module option. Also you can fix the card index numbers with
+a module option.
 
-> Also, there are APIs in the "core" driver that are only exported for a
-> single user outside the driver -- it would probably make sense to move
-> that logic directly to where it's used.
+						Jaroslav
 
-Right.  The purpose of the whole ipath_layer.c file has perhaps been
-unclear; we've been holding back a network driver that makes use of it,
-to keep the size of the review patches down.  Some of the other
-verbs-related routines in the core driver are in the process of finding
-a new home, as you suggested.
-
-As ever, thanks for the comments.
-
-	<b
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

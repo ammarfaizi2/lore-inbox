@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWAEQfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWAEQjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWAEQfu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 11:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWAEQfu
+	id S1751511AbWAEQjT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 11:39:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWAEQjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 11:35:50 -0500
-Received: from ns1.coraid.com ([65.14.39.133]:54757 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1750784AbWAEQft (ORCPT
+	Thu, 5 Jan 2006 11:39:19 -0500
+Received: from cantor.suse.de ([195.135.220.2]:57738 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751511AbWAEQjS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 11:35:49 -0500
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.15-rc7] aoe [4/7]: use less confusing driver name
-References: <87hd8l2fb4.fsf@coraid.com> <871wzp10lm.fsf@coraid.com>
-	<2cd57c900601032202y3de62e78m@mail.gmail.com>
-	<87mziclztq.fsf@coraid.com>
-	<2cd57c900601041650j6b3e7ea6u@mail.gmail.com>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Thu, 05 Jan 2006 11:35:29 -0500
-In-Reply-To: <2cd57c900601041650j6b3e7ea6u@mail.gmail.com> (Coywolf Qi
- Hunt's message of "Thu, 5 Jan 2006 08:50:40 +0800")
-Message-ID: <87hd8i63am.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Thu, 5 Jan 2006 11:39:18 -0500
+From: Andi Kleen <ak@suse.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.15-ck1
+Date: Thu, 5 Jan 2006 17:39:05 +0100
+User-Agent: KMail/1.8.2
+Cc: Arjan van de Ven <arjan@infradead.org>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200601041200.03593.kernel@kolivas.org> <200601051619.17366.ak@suse.de> <20060105163058.GA9381@corona.suse.cz>
+In-Reply-To: <20060105163058.GA9381@corona.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601051739.05441.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt <coywolf@gmail.com> writes:
+On Thursday 05 January 2006 17:30, Vojtech Pavlik wrote:
+> On Thu, Jan 05, 2006 at 04:19:16PM +0100, Andi Kleen wrote:
+> > On Thursday 05 January 2006 07:42, Vojtech Pavlik wrote:
+> > 
+> > > > I haven't checked recently if keyboard has been fixed by now.
+> > > 
+> > > It's not. At this moment it's impossible to remove without significant
+> > > surgery to the driver, because it'd prevent hotplugging and many KVMs
+> > > from working.
+> > 
+> > Sorry? You say you can't do hot plugging in the keyboard driver
+> > without a polling timer? 
+> > 
+> > That sounds quite bogus to me. A zillion other OS do keyboards
+> > fine without polling timers.
+>  
+> I can either have the polling timer, or the IRQs acquired all the time.
+> The later needs significant changes to the driver - I currently enable
+> the IRQs only if a device is present.
 
-[Ed writes]
-...
->> Coywolf Qi Hunt <coywolf@gmail.com> writes:
-...
->> > Better simply be `AoE v%s'?
->>
->> That would be nice, but there's a driver for the 2.4 linux kernel that
->> has an independent version number, so the "6" distinguishes the 2.6
->> aoe driver from the 2.4 aoe driver.
->
-> But 2.4 and 2.6 driver never meet each other, right?
+You mean you run the timer to avoid aquiring the interrupt early? 
 
-Yes, after thinking it over more, I agree.  Here's a new version of
-this patch.
-
-
-Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
-
-Users were confused by the driver being called "aoe-2.6-$version".
-This form looks less like a Linux kernel version number.
-
-Index: 2.6.15-rc7-aoe/drivers/block/aoe/aoemain.c
-===================================================================
---- 2.6.15-rc7-aoe.orig/drivers/block/aoe/aoemain.c	2006-01-05 11:30:14.000000000 -0500
-+++ 2.6.15-rc7-aoe/drivers/block/aoe/aoemain.c	2006-01-05 11:30:15.000000000 -0500
-@@ -89,7 +89,7 @@
- 	}
- 
- 	printk(KERN_INFO
--	       "aoe: aoe_init: AoE v2.6-%s initialised.\n",
-+	       "aoe: aoe_init: AoE v%s initialised.\n",
- 	       VERSION);
- 	discover_timer(TINIT);
- 	return 0;
-
-
-
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
-
+-Andi

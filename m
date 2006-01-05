@@ -1,137 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWAEKEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWAEKE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWAEKEF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 05:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWAEKEE
+	id S1750959AbWAEKE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 05:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbWAEKE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 05:04:04 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:63421 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1750810AbWAEKED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 05:04:03 -0500
-From: "Takashi Sato" <sho@tnes.nec.co.jp>
-To: <torvalds@osdl.org>, <viro@zeniv.linux.org.uk>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-       <trond.myklebust@fys.uio.no>
-Subject: [PATCH 1/3] Fix problems on multi-TB filesystem and file
-Date: Thu, 5 Jan 2006 19:03:47 +0900
-Message-ID: <000001c611df$5556aa00$4168010a@bsd.tnes.nec.co.jp>
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Thu, 5 Jan 2006 05:04:26 -0500
+Received: from triton.atia.com ([193.16.246.115]:42258 "EHLO triton.atia.com")
+	by vger.kernel.org with ESMTP id S1750959AbWAEKEZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 05:04:25 -0500
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sched.c:659 dec_rt_tasks BUG with patch-2.6.15-rt1
+ (realtime-preempt)
+References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
+	<20060102214516.GA12850@elte.hu> <87lkxyrzby.fsf_-_@arnaudov.name>
+	<87u0cj5riq.fsf_-_@arnaudov.name>
+	<1136436273.12468.113.camel@localhost.localdomain>
+From: Nedko Arnaudov <nedko@arnaudov.name>
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAM1BMVEX///8HBgUeFhGwUjwr
+ NDF5RjOgVz2UVTxxTz9pNSXCiW2OUjhNIxi6bE6ROChWammgrK7+pa2IAAAAAXRSTlMAQObYZgAA
+ AkxJREFUeAGtlAuTgyAMhK9gIGl4+P9/7W2wVbBo52YOZ2of+djdBPtT/7h+/lhf/wNYXFtLu38Y
+ OCss7jEut4zMCTiXGzwiA7CMm78+XQPzemC9q15hun/7sovRAZcCg8QBfPRnF3QPd0jswHW9gUeK
+ rwC2nwPTCRyudk9vhXtHXYgT4FxKOEn7zu83R+o3ULefUipKxjTn73LcPyzVbdck0YdAclJxE8C2
+ hKHiM5ZKGm1NLFn9IyUNBoQzMZsDjCKxD89sl6dBYwJYCFgi/8TKGfWWYzPmDkfdM40nEgRSWIYE
+ NREkQcdMem9SBzAStJJiCaxcpOAy4HDUARWbJyyRAKKwzbBoKQmAzBSqw/7iOJaYC+mTSYtiJs3d
+ FFjggTkGKr54r6gPwRoMZboASonB+wJA2/wQ32tysfAU4MWr97kBuLdx4FNy5QKoCfVYprCdEAhE
+ tFY7gb5LlcnqMwIgBASaI3S4S1AHoO7ASwH+bCTdFE4AmxP4wcIJMQFPaN01YBI5F7QT9wagq5KO
+ FuHd/sS1b8VCUMTeofUV07gH4Cno1iuo2BQY079RqKSK49MWYcyBSOgWEMWk2iCsUV4RQW6BNopN
+ wYJYBB7GcAqN2UXLbc3Cssyk9wpiw7NimwPqkemLArVZGBKIhWP8qkCExyaHHBn+Y4iR+rP3mQH1
+ zKpMuDjmZ8DHfhDjpCsyYkUsxqsZy3EcxAgsDUCl/TnZYcJLgLVOogPWKkIB/rHzVm9QyGzE+mZ2
+ YF1XHAQcPPy51kOhecI06vpCfgFqlF1IG9UTLgAAAABJRU5ErkJggg==
+Date: Thu, 05 Jan 2006 12:03:52 +0200
+In-Reply-To: <1136436273.12468.113.camel@localhost.localdomain> (Steven
+ Rostedt's message of "Wed, 04 Jan 2006 23:44:33 -0500")
+Message-ID: <87u0cj3saf.fsf@arnaudov.name>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I sent following patches three weeks ago, but I got only a few
-responses.
-So, I am sending them again.  Comments are always welcome.
+Steven Rostedt <rostedt@goodmis.org> writes:
 
-We made patches to fix problems that occur when handling a large
-filesystem and a large file.  It was discussed on the mails titled
-"stat64 for over 2TB file returned invalid st_blocks".
+> Could you send me your .config.  And this is a smp machine right?
 
-They consist of three patches.
-[1/3] Fix the problem that st_blocks is invalid when calling stat64
-      for > 2TB-file.
-[2/3] Add blkcnt_t as the type of inode.i_blocks.
-      This enables you to make the size of blkcnt_t either 4 bytes
-      or 8 bytes on 32 bits architecture with new configuration
-      parameter (CONFIG_LSF).
-[3/3] Fix the problem that kstatfs's entries related to blocks are
-      invalid on statfs64 for a network filesystem which has more
-      than 2^32-1 blocks when CONFIG_LBD is disabled.  This fix was
-      proposed by Trond Myklebust.
+No it is not. Sending you my config personally.
 
-The content of the patch attached to this mail is below.
-- inode.i_blocks
-    Change the type from unsigned long to sector_t.
-- kstat.blocks
-    Change the type from unsigned long to unsigned long long.
-- stat64.st_blocks
-    Change the type from unsigned long to unsigned long long on
-    architectures (i386, m68k, sh).
+=2D-=20
+Nedko Arnaudov <GnuPG KeyID: DE1716B0>
 
-Any feedback and comments are welcome.
+--=-=-=
+Content-Type: application/pgp-signature
 
-Signed-off-by: Takashi Sato <sho@tnes.nec.co.jp>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-diff -uprN -X linux-2.6.15.org/Documentation/dontdiff linux-2.6.15.org/include/asm-i386/stat.h
-linux-2.6.15-iblocks/include/asm-i386/stat.h
---- linux-2.6.15.org/include/asm-i386/stat.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.15-iblocks/include/asm-i386/stat.h	2006-01-04 15:39:06.000000000 +0900
-@@ -58,8 +58,7 @@ struct stat64 {
- 	long long	st_size;
- 	unsigned long	st_blksize;
-
--	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
--	unsigned long	__pad4;		/* future possible st_blocks high bits */
-+	unsigned long long	st_blocks;	/* Number 512-byte blocks allocated. */
-
- 	unsigned long	st_atime;
- 	unsigned long	st_atime_nsec;
-diff -uprN -X linux-2.6.15.org/Documentation/dontdiff linux-2.6.15.org/include/asm-m68k/stat.h
-linux-2.6.15-iblocks/include/asm-m68k/stat.h
---- linux-2.6.15.org/include/asm-m68k/stat.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.15-iblocks/include/asm-m68k/stat.h	2006-01-04 15:39:06.000000000 +0900
-@@ -60,8 +60,7 @@ struct stat64 {
- 	long long	st_size;
- 	unsigned long	st_blksize;
-
--	unsigned long	__pad4;		/* future possible st_blocks high bits */
--	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
-+	unsigned long long	st_blocks;	/* Number 512-byte blocks allocated. */
-
- 	unsigned long	st_atime;
- 	unsigned long	st_atime_nsec;
-diff -uprN -X linux-2.6.15.org/Documentation/dontdiff linux-2.6.15.org/include/asm-sh/stat.h
-linux-2.6.15-iblocks/include/asm-sh/stat.h
---- linux-2.6.15.org/include/asm-sh/stat.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.15-iblocks/include/asm-sh/stat.h	2006-01-04 15:39:06.000000000 +0900
-@@ -60,13 +60,7 @@ struct stat64 {
- 	long long	st_size;
- 	unsigned long	st_blksize;
-
--#if defined(__BIG_ENDIAN__)
--	unsigned long	__pad4;		/* Future possible st_blocks hi bits */
--	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
--#else /* Must be little */
--	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
--	unsigned long	__pad4;		/* Future possible st_blocks hi bits */
--#endif
-+	unsigned long long	st_blocks;	/* Number 512-byte blocks allocated. */
-
- 	unsigned long	st_atime;
- 	unsigned long	st_atime_nsec;
-diff -uprN -X linux-2.6.15.org/Documentation/dontdiff linux-2.6.15.org/include/linux/fs.h linux-2.6.15-iblocks/include/linux/fs.h
---- linux-2.6.15.org/include/linux/fs.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.15-iblocks/include/linux/fs.h	2006-01-04 15:39:06.000000000 +0900
-@@ -450,7 +450,7 @@ struct inode {
- 	unsigned int		i_blkbits;
- 	unsigned long		i_blksize;
- 	unsigned long		i_version;
--	unsigned long		i_blocks;
-+	sector_t		i_blocks;
- 	unsigned short          i_bytes;
- 	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */
- 	struct semaphore	i_sem;
-diff -uprN -X linux-2.6.15.org/Documentation/dontdiff linux-2.6.15.org/include/linux/stat.h
-linux-2.6.15-iblocks/include/linux/stat.h
---- linux-2.6.15.org/include/linux/stat.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.15-iblocks/include/linux/stat.h	2006-01-04 15:39:06.000000000 +0900
-@@ -69,7 +69,7 @@ struct kstat {
- 	struct timespec	mtime;
- 	struct timespec	ctime;
- 	unsigned long	blksize;
--	unsigned long	blocks;
-+	unsigned long long	blocks;
- };
-
- #endif
-
--- Takashi Sato
-
+iD8DBQBDvO8S6bb4v94XFrARAqRrAKCQIpLs0eNwAoBbr/k+mf932RDOugCdEuZW
++Ur8fKR4bHQKU2zltNe1DNs=
+=rlf7
+-----END PGP SIGNATURE-----
+--=-=-=--
 

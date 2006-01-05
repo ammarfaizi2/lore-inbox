@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWAEUy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWAEU6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWAEUy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 15:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWAEUy4
+	id S1751373AbWAEU6m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 15:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752208AbWAEU6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 15:54:56 -0500
-Received: from ds01.webmacher.de ([213.239.192.226]:49596 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S932189AbWAEUyz
+	Thu, 5 Jan 2006 15:58:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:26177 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750864AbWAEU6l convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 15:54:55 -0500
-In-Reply-To: <1136493172.847.26.camel@mindpipe>
-References: <20050726150837.GT3160@stusta.de> <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl> <200601031629.21765.s0348365@sms.ed.ac.uk> <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de> <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de> <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com> <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com> <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr> <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <1136491503.847.0.camel@mindpipe> <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de> <1136493172.847.26.camel@mindpipe>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8D670C39-7B52-407C-8BDD-3478DB172641@dalecki.de>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-       Tomasz Torcz <zdzichu@irc.pl>, Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Thu, 5 Jan 2006 21:54:35 +0100
+	Thu, 5 Jan 2006 15:58:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GF5akc+Fb4eFeg3BmhTCAGbQjRmJE0rTk25ejdVaQwLdO435clVx7WDSs3A1d+K6RslNhCWHDC9dvPb9KxixJX1KbwWE/lEOlB8aA5fFwslEYnHKUUVwk0ebRW6iigqPPxW44K/Iv8HpVQyNZJXquhGUtlMn/7USWPKmZiRhMEQ=
+Message-ID: <5bdc1c8b0601051258j3bfc390bsa770ddf6506d2deb@mail.gmail.com>
+Date: Thu, 5 Jan 2006 12:58:39 -0800
+From: Mark Knecht <markknecht@gmail.com>
 To: Lee Revell <rlrevell@joe-job.com>
-X-Mailer: Apple Mail (2.746.2)
+Subject: Re: 2.6.15-rc7-rt1
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       john stultz <johnstul@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <1136492165.847.9.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051228172643.GA26741@elte.hu>
+	 <Pine.LNX.4.61.0512311808070.7910@yvahk01.tjqt.qr>
+	 <1136051113.6039.109.camel@localhost.localdomain>
+	 <1136054936.6039.125.camel@localhost.localdomain>
+	 <5bdc1c8b0601010719h40f2393cu85bae52fef35c1d2@mail.gmail.com>
+	 <1136205719.6039.156.camel@localhost.localdomain>
+	 <5bdc1c8b0601051133g6ed0b3b4ob699d65e4a12b699@mail.gmail.com>
+	 <1136492165.847.9.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2006-01-05, at 21:32, Lee Revell wrote:
-
-> On Thu, 2006-01-05 at 21:18 +0100, Marcin Dalecki wrote:
->> Glaring problems on average commodity hardware
+On 1/5/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Thu, 2006-01-05 at 11:33 -0800, Mark Knecht wrote:
+> > I expect that I am probably still getting a low level of xruns. I
+> > hope one day we can make that work a bit better.
 >
-> A good first step would be to mention which driver, ALSA version and
-> soundcard you are using.
+> Were you ever able to get latency tracing to work on your box?
+>
+> Lee
 
-I will do you this favor: NONE. Using something implies that it is  
-working.
+Not yet, due to the power failure and being off line. I'll give it a
+shot this evening.
 
+Does anyone with an AMD64 platform have this working?
+
+Thanks,
+Mark

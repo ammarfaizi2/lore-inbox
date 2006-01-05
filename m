@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWAEAYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWAEA2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWAEAYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWAEAYt
+	id S1750840AbWAEA2H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWAEA2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:24:49 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:57739 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1750834AbWAEAYt
+	Wed, 4 Jan 2006 19:28:07 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:24533 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1750840AbWAEA2G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:24:49 -0500
-Subject: Re: [PATCH 1/1] usb/input: Add missing keys to hid-debug.h
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20060103195344.GC6443@corona.home.nbox.cz>
-References: <20060102233730.GA29826@hansmi.ch>
-	 <200601030142.32623.dtor_core@ameritech.net>
-	 <20060103195344.GC6443@corona.home.nbox.cz>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 01:24:34 +0100
-Message-Id: <1136420674.6652.27.camel@localhost>
+	Wed, 4 Jan 2006 19:28:06 -0500
+Date: Wed, 4 Jan 2006 16:28:18 -0800
+From: Greg KH <gregkh@suse.de>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: ak@suse.de, acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Clock going way too fast on 2.6.15 for amd64 processor
+Message-ID: <20060105002818.GA9019@suse.de>
+References: <20060104233919.GA15724@kroah.com> <200601050054.45824.oliver@neukum.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601050054.45824.oliver@neukum.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
-
-> We should split HID in two parts - transport and decoding. This would
-> help in many places:
+On Thu, Jan 05, 2006 at 12:54:45AM +0100, Oliver Neukum wrote:
+> Am Donnerstag, 5. Januar 2006 00:39 schrieb Greg KH:
+> > Hi,
+> > 
+> > I tried digging through the mess in
+> > 	http://bugzilla.kernel.org/show_bug.cgi?id=3927
+> > but got lost in a see of conflicting patches.
+> > 
+> > I too have a amd64 box that is showing that the clock is running way too
+> > fast (feels about double speed, haven't checked for sure.)  I'm running
+> > it in 32bit mode for now, and the boot dmesg is below.
+> > 
+> > Any hints on patches that I should test out to try to track this down?
+> > I haven't run any real old kernels on it to see if it is something new
+> > (shows up on a 2.6.13 and 2.6.14 kernel too.)
 > 
-> 	Bluetooth would be happy, because it uses the same HID protocol
-> 	on top of a different transport layer (completely non-USB).
-> 
-> 	Wacom and many other blacklisted devices would be happy, because
-> 	they could use the USB HID transport - no blacklist would be
-> 	needed.
-> 
-> 	Would allow for /dev/usb/rawhid0 style devices, which would give
-> 	access to raw HID reports without any parsing done.
-> 
-> 	Would allow userspace drivers for broken UPS devices (like APC)
-> 	without the need for special handling of their bugs in the kernel.
-> 
-> It seems to me it could be almost its own layer, like serio or gameport.
-> Windows has an API like that.
-> 
-> I don't have the time to do the split myself, but it shouldn't be too
-> hard.
+> Did you try "disable_timer_pin_1" on the kernel command line?
 
-I actually started this work when I presented the Bluetooth HID at the
-Linux-Kongress 2004. However getting this fully done is not as easy as
-it sounds. There are still parts inside the HID driver that I still have
-no clue why they exists and what they actually do. A good revision
-history inside the SCM seems really important for this driver.
+Nice, that worked just fine, no kernel patch needed.  Thanks for
+pointing it out to me, I totally missed it.
 
-The biggest problem that I see is that we can't break the current USB
-HID driver, because this will render a lot of desktop system totally
-useless and one 2.6 release is not enough to sort the problems out. Even
-breaking the -mm kernel doesn't sound very helpful.
+Now to go fix the usb irq "ignore" issue for this machine, and I'll be
+able to switch to using it all the time...
 
-My idea actually was to create a HID subsystem under drivers/hid/ which
-will be a fully copy of the current usbhid.ko driver, but without any
-USB related code. This means that hiddev needs its own major number.
-After that I am happy to offer the Bluetooth subsystem as testing base
-for the new HID subsystem. The number of devices are still limited, but
-it should be enough to sort out the basic problems.
-
-The rawhidX devices should not be USB specific, because we might even
-need them with Bluetooth as transport. There exists a Wacom tablet that
-might make use of it.
-
-I also need raw access to the reports (sending and receiving) for some
-special features. The LCD displays of some Logitech keyboards are using
-two report IDs for this job. It would be great to handle them via a
-special rawhidX (with a ID filter) or via an extra driver while the
-basic input processing is still done by the HID driver.
-
-Regards
-
-Marcel
-
-
+greg k-h

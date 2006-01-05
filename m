@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWAEPcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWAEPdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWAEPcO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAEPcO
+	id S932082AbWAEPdr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWAEPdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:32:14 -0500
-Received: from rtr.ca ([64.26.128.89]:10138 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932079AbWAEPcM (ORCPT
+	Thu, 5 Jan 2006 10:33:47 -0500
+Received: from gate.perex.cz ([85.132.177.35]:58034 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932082AbWAEPdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:32:12 -0500
-Message-ID: <43BD3BEC.5060309@rtr.ca>
-Date: Thu, 05 Jan 2006 10:31:56 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Thu, 5 Jan 2006 10:33:45 -0500
+Date: Thu, 5 Jan 2006 16:33:44 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Heikki Orsila <shd@modeemi.cs.tut.fi>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <20060105145101.GB28611@dspnet.fr.eu.org>
+Message-ID: <Pine.LNX.4.61.0601051631260.10350@tm8103.perex-int.cz>
+References: <20060105140155.GC757@jolt.modeemi.cs.tut.fi>
+ <Pine.LNX.4.61.0601051518370.10350@tm8103.perex-int.cz>
+ <20060105145101.GB28611@dspnet.fr.eu.org>
 MIME-Version: 1.0
-To: gcoady@gmail.com
-Cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org,
-       davej@redhat.com
-Subject: Re: oops pauser. / boot_delayer
-References: <20060104221023.10249eb3.rdunlap@xenotime.net> <E1EuPZg-0008Kw-00@calista.inka.de> <6appr1djnkhaa35cjahs22itittduia9bf@4ax.com>
-In-Reply-To: <6appr1djnkhaa35cjahs22itittduia9bf@4ax.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
->
-> No, after oops, console dead, very dead . . . no scrollback :(
+On Thu, 5 Jan 2006, Olivier Galibert wrote:
 
-This mis-feature is beginning to annoy more and more.
+> - "A small demo which sends a simple sinusoidal wave to the speakers"
+>   requiring close to 900 lines is demented.  That's the size of
+>   glxgears.c, with 50% of that one being printer support.  A complete
+>   smartflow example getting a sound stream on the network and playing
+>   it with oss takes 160 lines, with 20 lines of copyright-ish at the
+>   start.  The actual sound part of that is _30_ lines.
 
-I seem to recall that "in the old days" (1990s),
-this was NOT the case:  scrollback still worked from oops.
+The pcm.c file shows you 7 available methods how you can send audio data 
+to alsa-lib. It's complete example. If you remove the parsing command 
+line, sine generation, error handling, you'll end with few lines too.
 
-I wonder if perhaps a better feature here would be to fix that again?
+> - Error and state handling after writei changes depending on the call.
+>   We're supposed to guess which one is correct?
+> 
+> Make simple things simple, guys.
 
-Cheers
+Yes, we should stay with simple 1.0 linux kernel. Anyway, we're taking all 
+points from this discussion.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

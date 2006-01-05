@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWAEVfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWAEVhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbWAEVfk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 16:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWAEVfk
+	id S1751141AbWAEVhy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 16:37:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752213AbWAEVhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 16:35:40 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:65448 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750958AbWAEVfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 16:35:39 -0500
-Date: Thu, 5 Jan 2006 17:27:37 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: + uml-sigwinch-handling-cleanup.patch added to -mm tree
-Message-ID: <20060105222737.GA10369@ccure.user-mode-linux.org>
-References: <200601042323.k04NNti4021942@shell0.pdx.osdl.net> <200601052054.37512.blaisorblade@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601052054.37512.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 5 Jan 2006 16:37:54 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:62925 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750960AbWAEVhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 16:37:53 -0500
+Date: Thu, 5 Jan 2006 16:37:52 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Pavel Machek <pavel@ucw.cz>
+cc: "Scott E. Preece" <preece@motorola.com>, <akpm@osdl.org>,
+       <linux-pm@lists.osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
+ interface
+In-Reply-To: <20060105211446.GD2095@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L0.0601051631200.6460-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 08:54:37PM +0100, Blaisorblade wrote:
-> Meanwhile, the whole content of the new free_winch(), including some syscalls
-> on the host, and various other stuff, is brought back under the 
-> winch_handler_lock.
+On Thu, 5 Jan 2006, Pavel Machek wrote:
 
-And?  There's no particular problem with host system calls being under
-a lock.  And the various other stuff is a kfree and a free_irq, which
-I don't think have a problem being called under a spinlock.
+> > > | Why to make it this complex?
+> > > | 
+> > > | I do not think there's any confusion possible. "on" always corresponds
+> > > | to "D0", and "suspend" is "D3". Anyone who knows what "D2" means,
+> > > | should know that, too...
+> > 
+> > Not necessarily.  For instance, a particular driver might want to map 
+> > "suspend" to D1 instead of to D3.
+> 
+> Ok, lets change that to "on" and "off". That way, hopefully all the
+> drivers will agree that "off" means as low Dstate as possible.
 
-> I had carefully brought that stuff out keeping only the list access under the
-> lock, probably while fixing some "scheduling while atomic" warnings - once 
-> the element is out of the list it's unreachable thus (IMHO) safely 
-> accessible.
+Nothing wrong with that.  We could let "off" be another synonym.  Although 
+I don't see the need for it, really.
 
-Probably?  What in there is sensitive to being called under a lock?
+> > Given that "on" and "suspend" are generic names and not actual states (at 
+> > least, not for PCI devices and presumably not for others as well), I think 
+> > it makes sense to treat them specially.
+> > 
+> > And it's not all that complex.  Certainly no more complex than forcing
+> > userspace tools to use {"on", "D1, "D2", "suspend"} instead of the
+> > much-more-logical {"D0", "D1", "D2", "D3"}.
+> 
+> It is not much more logical. First, noone really needs D1 and
+> D2. Plus, people want to turn their devices on and off, and don't want
+> and should not have to care about details like D1.
 
-> So, list_del should be brought out from free_winch, which would then become 
-> callable without the spinlock held.
+Who are you to say what people really need?  What about people who want to 
+test their PCI device and see if it behaves properly in D1 or D2?  How are 
+they going to do that if you don't let them put it in that state?
 
-That would increase the amount of code, with no gain that I can see.
-The list_del would be duplicated, and the loop in winch_cleanup would
-have to drop and reacquire the lock around each call to free_winch.
+What about people with platform-specific non-PCI devices that have a whole
+bunch of different internal power states?  Why force them to use only two
+of those states?
 
-				Jeff
+The kernel isn't supposed to prevent people from doing perfectly legal
+things.  The kernel should provide mechanisms to help people do what they
+want.
+
+Besides, as long as the sysfs interface accepts "on" and "suspend" (or 
+"off"), what harm does it do to accept the device-specific names as 
+well?
+
+Alan Stern
+

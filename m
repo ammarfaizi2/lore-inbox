@@ -1,67 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWAEMTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWAEMU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751458AbWAEMTV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 07:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWAEMTV
+	id S1751842AbWAEMU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 07:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752174AbWAEMU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 07:19:21 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:16610 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751458AbWAEMTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 07:19:21 -0500
-Subject: Re: sched.c:659 dec_rt_tasks BUG with patch-2.6.15-rt1
-	(realtime-preempt)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Nedko Arnaudov <nedko@arnaudov.name>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <87u0cj3saf.fsf@arnaudov.name>
-References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
-	 <20060102214516.GA12850@elte.hu> <87lkxyrzby.fsf_-_@arnaudov.name>
-	 <87u0cj5riq.fsf_-_@arnaudov.name>
-	 <1136436273.12468.113.camel@localhost.localdomain>
-	 <87u0cj3saf.fsf@arnaudov.name>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 07:19:12 -0500
-Message-Id: <1136463552.12468.119.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 07:20:58 -0500
+Received: from hermes.ciemat.es ([130.206.11.6]:4624 "EHLO hermes.ciemat.es")
+	by vger.kernel.org with ESMTP id S1751842AbWAEMU5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 07:20:57 -0500
+Date: Thu, 05 Jan 2006 13:21:50 +0100
+From: =?ISO-8859-1?Q?Jose_Gonz=E1lez?= <jose.gonzalez@psa.es>
+Subject: socketpair - too many open files
+To: linux-kernel@vger.kernel.org
+Message-id: <43BD0F5E.6020108@psa.es>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: es-es, en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+ Fedora/1.7.12-1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 12:03 +0200, Nedko Arnaudov wrote:
-> Steven Rostedt <rostedt@goodmis.org> writes:
-> 
-> > Could you send me your .config.  And this is a smp machine right?
-> 
-> No it is not. Sending you my config personally.
-> 
-
-The reason that I asked is that sched.c:659 looks like this:
-
-static inline void dec_rt_tasks(task_t *p, runqueue_t *rq)
-{
-#if defined(CONFIG_PREEMPT_RT) && defined(CONFIG_SMP)
-	if (rt_task(p)) {
-		WARN_ON(!rq->rt_nr_running);
-		rq->rt_nr_running--;
-		if (rq->rt_nr_running == 1)
-			atomic_dec(&rt_overload);
-	}
-#endif
-}
-
-And so that will only get into that path on a SMP configured system. But
-although you are not running on an SMP machine, here's what's in
-your .config.
-
-CONFIG_SMP=y
-CONFIG_NR_CPUS=8
-
-Although this should not bug, and I'm going to try this config on a UP
-machine myself to see if I can reproduce your problem, I'd suggest to
-you to turn off the SMP configuration.
-
--- Steve
-
-
+Hello.
+I am programming an application that need to create over 300 threads. 
+Each thread calls socketpair function, but it returns EMFILE when it is 
+called 150 times. Which kernel parameter can I change to do it?
+Best regards,
+Jose.

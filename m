@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWAEAO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWAEAVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWAEAO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWAEAO7
+	id S1750830AbWAEAVe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWAEAVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:14:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53210 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750822AbWAEAO6 (ORCPT
+	Wed, 4 Jan 2006 19:21:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63896 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750830AbWAEAVd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:14:58 -0500
-Date: Wed, 4 Jan 2006 16:16:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: mm/rmap.c negative page map count BUG.
-Message-Id: <20060104161640.08a53c3f.akpm@osdl.org>
-In-Reply-To: <20060104235631.GB29634@redhat.com>
-References: <20060103082609.GB11738@redhat.com>
-	<43BA630F.1020805@yahoo.com.au>
-	<20060103135312.GB18060@redhat.com>
-	<20060104155326.351a9c01.akpm@osdl.org>
-	<20060104235631.GB29634@redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 4 Jan 2006 19:21:33 -0500
+Date: Thu, 5 Jan 2006 01:18:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux PM <linux-pm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [RFC/RFT][PATCH -mm 2/5] swsusp: userland interface (rev. 2)
+Message-ID: <20060105001837.GA1751@elf.ucw.cz>
+References: <200601042340.42118.rjw@sisk.pl> <200601042351.58667.rjw@sisk.pl> <20060104234918.GA15983@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060104234918.GA15983@kroah.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> +			printk (KERN_EMERG "Eeek! page_mapcount(page) went negative! (%d)\n", page->_mapcount);
+Hi!
 
-page_mapcount(page);
+> > +static int __init snapshot_dev_init(void)
+> > +{
+> > +	int error;
+> > +
+> > +	error =  alloc_chrdev_region(&interface.devno, 0, 1, interface.name);
+> > +	if (error)
+> > +		return error;
+> > +	cdev_init(&interface.cdev, &snapshot_fops);
+> > +	interface.cdev.ops = &snapshot_fops;
+> > +	error = cdev_add(&interface.cdev, interface.devno, 1);
+> > +	if (error)
+> > +		goto Unregister;
+> > +	error = sysfs_create_file(&power_subsys.kset.kobj, &snapshot_attr.attr);
+> 
+> Heh, that's a neat hack, register a sysfs file that contains the
+> major:minor (there is a function that will print that the correct way,
+> if you really want to do that), in sysfs.  It's better to just register
+> a misc character device with the name "snapshot", and then udev will
+> create your userspace node with the proper major:minor all automatically
+> for you.
+> 
+> Unless you want to turn these into syscalls :)
 
-> +			printk (KERN_EMERG "  page->flags = %x\n", page->flags);
+Well, I think we simply want to get static major/minor allocated for
+this device. It really uses read/write, IIRC, so no, I do not think we
+want to make it a syscall.
+								Pavel
 
-%lx
-
-> +			printk (KERN_EMERG "  page->count = %x\n", page->_count);
-
-page_count(page);
-
-
+-- 
+Thanks, Sharp!

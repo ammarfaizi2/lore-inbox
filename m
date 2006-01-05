@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWAEOox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWAEOnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWAEOox (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:44:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWAEOow
+	id S1750942AbWAEOnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWAEOnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:44:52 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26636 "EHLO
+	Thu, 5 Jan 2006 09:43:19 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24588 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751386AbWAEOov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:44:51 -0500
+	id S1750942AbWAEOnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:43:17 -0500
 To: LKML <linux-kernel@vger.kernel.org>
-CC: Greg K-H <greg@kroah.com>, SCSI <linux-scsi@vger.kernel.org>
-Subject: [CFT 29/29] Add Pseudo LLD bus_type probe and remove methods
-Date: Thu, 05 Jan 2006 14:44:46 +0000
-Message-ID: <20060105142951.13.29@flint.arm.linux.org.uk>
+CC: Greg K-H <greg@kroah.com>
+Subject: [CFT 26/29] Add usb_serial_bus_type probe and remove methods
+Date: Thu, 05 Jan 2006 14:43:11 +0000
+Message-ID: <20060105142951.13.26@flint.arm.linux.org.uk>
 In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
 References: <20060105142951.13.01@flint.arm.linux.org.uk>
 From: Russell King <rmk@arm.linux.org.uk>
@@ -23,27 +23,43 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
 ---
- drivers/scsi/scsi_debug.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/bus.c |   15 +++++++--------
+ 1 files changed, 7 insertions(+), 8 deletions(-)
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/drivers/scsi/scsi_debug.c linux/drivers/scsi/scsi_debug.c
---- linus/drivers/scsi/scsi_debug.c	Sat Nov 12 07:32:38 2005
-+++ linux/drivers/scsi/scsi_debug.c	Sun Nov 13 16:45:02 2005
-@@ -221,8 +221,6 @@ static struct bus_type pseudo_lld_bus;
- static struct device_driver sdebug_driverfs_driver = {
- 	.name 		= sdebug_proc_name,
- 	.bus		= &pseudo_lld_bus,
--	.probe          = sdebug_driver_probe,
--	.remove         = sdebug_driver_remove,
- };
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/drivers/usb/serial/bus.c linux/drivers/usb/serial/bus.c
+--- linus/drivers/usb/serial/bus.c	Sun Nov  6 22:17:51 2005
++++ linux/drivers/usb/serial/bus.c	Sun Nov 13 16:40:36 2005
+@@ -37,11 +37,6 @@ static int usb_serial_device_match (stru
+ 	return 0;
+ }
  
- static const int check_condition_result =
-@@ -1796,6 +1794,8 @@ static int pseudo_lld_bus_match(struct d
- static struct bus_type pseudo_lld_bus = {
-         .name = "pseudo",
-         .match = pseudo_lld_bus_match,
-+	.probe = sdebug_driver_probe,
-+	.remove = sdebug_driver_remove,
- };
+-struct bus_type usb_serial_bus_type = {
+-	.name =		"usb-serial",
+-	.match =	usb_serial_device_match,
+-};
+-
+ static int usb_serial_device_probe (struct device *dev)
+ {
+ 	struct usb_serial_driver *driver;
+@@ -109,14 +104,18 @@ exit:
+ 	return retval;
+ }
  
- static void sdebug_release_adapter(struct device * dev)
++struct bus_type usb_serial_bus_type = {
++	.name =		"usb-serial",
++	.match =	usb_serial_device_match,
++	.probe =	usb_serial_device_probe,
++	.remove =	usb_serial_device_remove,
++};
++
+ int usb_serial_bus_register(struct usb_serial_driver *driver)
+ {
+ 	int retval;
+ 
+ 	driver->driver.bus = &usb_serial_bus_type;
+-	driver->driver.probe = usb_serial_device_probe;
+-	driver->driver.remove = usb_serial_device_remove;
+-
+ 	retval = driver_register(&driver->driver);
+ 
+ 	return retval;

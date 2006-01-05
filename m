@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWAERyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWAERzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWAERyX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 12:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751876AbWAERyW
+	id S932102AbWAERzA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 12:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWAERzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 12:54:22 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:15065 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1750708AbWAERyV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 12:54:21 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
-Date: Thu, 5 Jan 2006 10:54:18 -0700
-User-Agent: KMail/1.8.3
-Cc: Alex Williamson <alex.williamson@hp.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ia64@vger.kernel.org,
-       ak@suse.de, openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <20060104221627.GA26064@lists.us.dell.com> <200601050941.15915.bjorn.helgaas@hp.com> <20060105173740.GA20650@lists.us.dell.com>
-In-Reply-To: <20060105173740.GA20650@lists.us.dell.com>
+	Thu, 5 Jan 2006 12:55:00 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35346 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932102AbWAERy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 12:54:59 -0500
+Date: Thu, 5 Jan 2006 18:54:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Grant Coady <gcoady@gmail.com>
+Subject: [-mm patch] i386: enable 4k stacks by default
+Message-ID: <20060105175458.GC12313@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601051054.18867.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 January 2006 10:37, Matt Domsch wrote:
-> On Thu, Jan 05, 2006 at 09:41:15AM -0700, Bjorn Helgaas wrote:
-> > The DMI scan looks like it's done in try_init_smbios().  But
-> > try_init_acpi() is done first.  Since every ia64 machine has
-> > ACPI, I would think try_init_acpi() should be sufficient.
-> >
-> > Or do you have a machine that doesn't supply the SPMI
-> > table used by try_init_acpi()?
->
-> This system (Dell PowerEdge 7250, very very similar to an Intel
-> 4-way Itanium2 server) doesn't have an SPMI table, but it does have
-> the IPMI information in the SMBIOS table.
+This patch enables 4k stacks by default.
 
-But the IPMI device *should* be described in the ACPI namespace, so
-using acpi_bus_register_driver() should be sufficient.
+4k stacks have become a well-tested feature used fore a long time in
+Fedora and even in RHEL 4.
 
-I think that would be a better approach than using the SMBIOS table.
-But it is certainly a lot more work :-(
+There are no known problems in in-kernel code with 4k stacks still
+present after Neil's patch that went into -mm nearly two months ago.
 
-Bjorn
+Defaulting to 4k stacks in -mm kernel will give some more testing
+coverage and should show whether there are really no problems left.
+
+Keeping the option for now should make the people happy who want to use
+the experimental -mm kernel but don't trust the well-tested 4k stacks.
+
+Additionally, make it more obvious that available stack space is not 
+being halved.
+
+
+Signed-off-by: Grant Coady <gcoady@gmail.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ Kconfig.debug |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+--- linux-2.6.15a/arch/i386/Kconfig.debug	2005-10-28 10:02:08.000000000 +1000
++++ linux-2.6.15b/arch/i386/Kconfig.debug	2006-01-05 09:39:22.000000000 +1100
+@@ -53,14 +53,15 @@
+ 	  of memory corruptions.
+ 
+ config 4KSTACKS
+-	bool "Use 4Kb for kernel stacks instead of 8Kb"
+-	depends on DEBUG_KERNEL
++	bool "Use 4Kb + 4Kb for kernel stacks instead of 8Kb" if DEBUG_KERNEL
++	default y
+ 	help
+ 	  If you say Y here the kernel will use a 4Kb stacksize for the
+ 	  kernel stack attached to each process/thread. This facilitates
+ 	  running more threads on a system and also reduces the pressure
+ 	  on the VM subsystem for higher order allocations. This option
+-	  will also use IRQ stacks to compensate for the reduced stackspace.
++	  will also use separate 4Kb IRQ stacks to compensate for the 
++	  reduced stackspace.
+ 
+ config X86_FIND_SMP_CONFIG
+ 	bool

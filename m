@@ -1,123 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWAEOwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWAEPFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWAEOwF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWAEOwF
+	id S1751366AbWAEPFT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWAEPFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:52:05 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:37036 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1751399AbWAEOwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:52:04 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Heikki Orsila <shd@modeemi.cs.tut.fi>
-Subject: Re: [OT] ALSA userspace API complexity
-Date: Thu, 5 Jan 2006 14:49:36 +0000
-User-Agent: KMail/1.9
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20060105140155.GC757@jolt.modeemi.cs.tut.fi>
-In-Reply-To: <20060105140155.GC757@jolt.modeemi.cs.tut.fi>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 5 Jan 2006 10:05:19 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:52903 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1750810AbWAEPFQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 10:05:16 -0500
+Subject: Re: [parisc-linux] Re: [OT] ALSA userspace API complexity
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Jaroslav Kysela <perex@suse.cz>, zwane@commfireservices.com,
+       ALSA development <alsa-devel@alsa-project.org>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, sailer@ife.ee.ethz.ch,
+       kyle@parisc-linux.org, James@superbug.demon.co.uk,
+       Thorsten Knabe <linux@thorsten-knabe.de>, linux-sound@vger.kernel.org,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Tomasz Torcz <zdzichu@irc.pl>, jgarzik@pobox.com, zab@zabbo.net,
+       parisc-linux@lists.parisc-linux.org, Pete Zaitcev <zaitcev@redhat.com>
+In-Reply-To: <20060105142120.GA28611@dspnet.fr.eu.org>
+References: <20050726150837.GT3160@stusta.de>
+	 <20060103193736.GG3831@stusta.de>
+	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+	 <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+	 <20060104030034.6b780485.zaitcev@redhat.com>
+	 <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+	 <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+	 <20060105142120.GA28611@dspnet.fr.eu.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601051449.36083.s0348365@sms.ed.ac.uk>
+Date: Thu, 05 Jan 2006 14:56:19 +0000
+Message-Id: <1136472979.16358.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Firstly, trimming CCs is quite rude and makes it very difficult for others to 
-address your problems.
+On Iau, 2006-01-05 at 15:21 +0100, Olivier Galibert wrote:
+> historical and political reasons, not technical ones.  When
+> performance raises its ugly head and you end up having to listen to
+> engineers again you end up with DRI and that:
+> 
+> Module                  Size  Used by
+> nvidia               3464380  12 
 
-On Thursday 05 January 2006 14:01, Heikki Orsila wrote:
-> Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > On Tuesday 03 January 2006 23:10, Tomasz K?oczko wrote:
-> > 2) ALSA API is to complicated: most applications opens single sound
-> >    stream.
-> >
-> > FUD and nonsense. I've written many DSP applications and very often I can
-> > recycle the same code for use in them.
->
-> It's not FUD and it's very true. I've written ALSA support for many
-> programs and I still can't remember the tricks that are needed to get
-> even basic things working.
+That isn't DRI. DRI is a good deal smaller than the crazy nvidia stuff.
 
-They're not really tricks, they're allowing developers to flexibly handle 
-cases that they may care about, such as momentary communication problems 
-(think USB soundcards, headsets), versus unrecoverable errors. For example, 
-the code I wrote handles your example below somewhat more easily:
+radeon                 81089  1
+drm                    83433  2 radeon
 
-	// try to play data
-	for (i = 0; i < PLAYBACK_RETRIES; i++) {
-		if ((err = snd_pcm_writei (card->playback.fd, card->buffer, card->frames)) < 
-0) {
-			adebug ("Had to re-init playback.\n");
-			if ((err = snd_pcm_prepare (card->playback.fd)) < 0)
-				return -PCM_PREPARATION_FAILED;
-		}
-		break;
-	}
+.. speaks volumes doesn't it 8)
 
-	// we couldn't reprepare
-	if (i == PLAYBACK_RETRIES)
-		return -PCM_WRITE_FAILED;
+> X is a beautiful example of how things should not have been done.  Its
+> only redeeming quality is that it exists and works, and that's
+> definitively a non-negligible one.
 
-	return ALSA_SUCCESS;
+X servers have been implemented a variety of ways involving mixed user
+and kernel space environments, user space only, pure kernel space, and
+even downloading the server onto a graphics coprocessor and talking X
+protocol to it.
 
-PLAYBACK_RETRIES is arbitrary. Less robust software, or programs that were 
-very sensitive to any sort of intermittent unavailability would error out 
-immediately, without the for loop.
+The actual performance properties are heavily dependant upon the
+architecture of the cards of the period. The flavour of the past few
+years is the DMA command stream which happens to lend itself well to
+splitting rendering between the kernel and user space. 
 
-However, the documentation makes it fairly clear that in the case where a 
-writei() fails, you must "re-prepare" the card for PCM IO. This can be 
-attempted numerous times before giving up.
+Alan
 
-I agree that some sort of layman's wrapper might be helpful here, but please 
-don't go back to the ways of a crippled OSS API by preventing us from 
-handling these cases
-
-> alsa_error_recovery() expands to 30 lines of more logic. This is pretty
-> insane considering that libao _only_ writes data to device and does
-> nothing else. If ALSA was done properly, the main loop would simply be:
-
-This is ridiculous. Why bother? If libao is so simple, just break out if 
-re-preparation fails.
-
->
->                 err = internal->writei(internal->pcm_handle, ptr, len);
->
->                 /* it's possible that no data was transferred */
->                 if (err == -EAGAIN || err == -EINTR) {
->                         continue;
->                 }
->
-> 		if (err < 0) {
-> 			/* BAD BAD */
-> 		}
-
-This looks suspiciously like what I have above. Clear, simple, non-broken. 
-ALSA does it already.
-
-> 	err = alsa_simple_pcm_open(nchannels, sampleformat, samplingrate,
-> frames_in_period /* 0 for automated default */ ); err =
-> alsa_simple_writei(); /* handless signal brokeness automagically */
-> alsa_simple_close();
-
-simple_{open,setup}() I agree with. There's no reason for that to have to be a 
-whole stack of separate functions. Use return codes to indicate the type of 
-failure.
-
-simple_writei() might be okay, but it's pretty inflexible for even mildly 
-complex problems requiring more than "just write data". The old mechanisms 
-need to persist.
-
-simple_close(), uhm.. snd_pcm_close (fd). Don't need it. I'm not sure why you 
-think that is necessary.
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

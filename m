@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWAEOej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWAEOfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWAEOej (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWAEOei
+	id S1751321AbWAEOfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWAEOfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:34:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27783 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751337AbWAEOef (ORCPT
+	Thu, 5 Jan 2006 09:35:40 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:1734 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751321AbWAEOfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:34:35 -0500
-Date: Thu, 5 Jan 2006 09:30:48 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Martin Bligh <mbligh@mbligh.org>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Matt Mackall <mpm@selenic.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-Message-ID: <20060105143048.GT22293@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org>
+	Thu, 5 Jan 2006 09:35:37 -0500
+Date: Thu, 5 Jan 2006 15:35:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Joel Schopp <jschopp@austin.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [patch 00/21] mutex subsystem, -V14
+Message-ID: <20060105143502.GA16816@elte.hu>
+References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136463553.2920.22.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <43BC5E15.207@austin.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 01:19:12PM +0100, Arjan van de Ven wrote:
-> obvious candidates for __rare are
-> * pm suspend/resume functions
-> * error handling functions
-> * initialization stuff (including mount time stuff for filesystems,
->   and hardware setup for drivers)
+
+* Joel Schopp <jschopp@austin.ibm.com> wrote:
+
+> Took a glance at this on ppc64.  Would it be useful if I contributed 
+> an arch specific version like arm has?  We'll either need an arch 
+> specific version or have the generic changed.
+
+feel free to implement an assembly mutex fastpath, and it would 
+certainly be welcome and useful - but i think you are wrong about SMP 
+synchronization:
+
+> Anyway, here is some disassembly of some of the code generated with my 
+> comments:
 > 
-> I wonder if gcc can be convinced to put all unlikely() code sections
-> into a .text.rare as well, that'd be really cool.
+> c00000000049bf9c <.mutex_lock>:
+> c00000000049bf9c:       7c 00 06 ac     eieio
+> c00000000049bfa0:       7d 20 18 28     lwarx   r9,r0,r3
+> c00000000049bfa4:       31 29 ff ff     addic   r9,r9,-1
 
-gcc 4.1 calls them .text.unlikely and you need to use
--freorder-blocks-and-partition
-switch.  But I haven't been able to reproduce it on a short testcase I
-cooked up, so maybe it is broken ATM (it put the whole function into
-.text rather than the expected part into .text.unlikely and left
-empty .text.unlikely).
+> The eieio is completly unnecessary, it got picked up from 
+> atomic_dec_return (Anton, why is there an eieio at the start of 
+> atomic_dec_return in the first place?).
 
-	Jakub
+a mutex is like a spinlock, it must prevent loads and stores within the 
+critical section from 'leaking outside the critical section' [they must 
+not be reordered to before the mutex_lock(), nor to after the 
+mutex_unlock()] - hence the barriers added by atomic_dec_return() are 
+very much needed.
+
+	Ingo

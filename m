@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWAEOdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWAEOdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWAEOdN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWAEOdN
+	id S1751066AbWAEOdf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:33:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWAEOde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:33:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54032 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751345AbWAEOdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:33:09 -0500
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Greg K-H <greg@kroah.com>, Richard Purdie <rpurdie@rpsys.net>
-Subject: [CFT 7/29] Add locomo bus_type probe/remove methods
-Date: Thu, 05 Jan 2006 14:33:04 +0000
-Message-ID: <20060105142951.13.07@flint.arm.linux.org.uk>
-In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
-References: <20060105142951.13.01@flint.arm.linux.org.uk>
-From: Russell King <rmk@arm.linux.org.uk>
+	Thu, 5 Jan 2006 09:33:34 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:23209 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751333AbWAEOdb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:33:31 -0500
+Message-ID: <43BD2E37.203@cosmosbay.com>
+Date: Thu, 05 Jan 2006 15:33:27 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reduce sizeof(percpu_data) and removes dependance against
+ NR_CPUS
+References: <1135251766.3557.13.camel@pmac.infradead.org>	<20060105021929.498f45ef.akpm@osdl.org>	<43BD2406.2040007@cosmosbay.com> <20060105060050.37ec91d3.akpm@osdl.org>
+In-Reply-To: <20060105060050.37ec91d3.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 05 Jan 2006 15:33:27 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Andrew Morton a écrit :
+> Eric Dumazet <dada1@cosmosbay.com> wrote:
+>> Current sizeof(percpu_data) is NR_CPUS*sizeof(void *)
+>>
+>>  This trivial patch makes percpu_data real size depends on 
+>>  highest_possible_processor_id() instead of NR_CPUS
+>>
+>>  percpu_data allocations are not performance critical, we can spend few CPU 
+>>  cycles and save some ram.
+> 
+> hm, highest_possible_processor_id() isn't very efficient.  And it's quite
+> dopey that it's a macro.  We should turn it into a real function which
+> caches its return result and goes BUG if it's called before
+> cpu_possible_map is initialised.
 
----
- arch/arm/common/locomo.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I agree, I will see if I can do that without poking in every arch :(
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/arch/arm/common/locomo.c linux/arch/arm/common/locomo.c
---- linus/arch/arm/common/locomo.c	Fri Nov 11 21:20:00 2005
-+++ linux/arch/arm/common/locomo.c	Sun Nov 13 15:56:31 2005
-@@ -1103,14 +1103,14 @@ static int locomo_bus_remove(struct devi
- struct bus_type locomo_bus_type = {
- 	.name		= "locomo-bus",
- 	.match		= locomo_match,
-+	.probe		= locomo_bus_probe,
-+	.remove		= locomo_bus_remove,
- 	.suspend	= locomo_bus_suspend,
- 	.resume		= locomo_bus_resume,
- };
- 
- int locomo_driver_register(struct locomo_driver *driver)
- {
--	driver->drv.probe = locomo_bus_probe;
--	driver->drv.remove = locomo_bus_remove;
- 	driver->drv.bus = &locomo_bus_type;
- 	return driver_register(&driver->drv);
- }
+More over, my patch has an error on pdsize computation, it should be :
+
+size_t pdsize = (highest_possible_processor_id() + 1) * sizeof(void *);
+
+Eric

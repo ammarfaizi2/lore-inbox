@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751884AbWAESrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751885AbWAESrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751884AbWAESrv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 13:47:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWAESrv
+	id S1751885AbWAESrL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 13:47:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751884AbWAESrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 13:47:51 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:16708 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751884AbWAESru convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 13:47:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZSSmbXqDErY+InP6DS5Nb672JU9rn6pZALLA1/Xrl+CG8/spHYxvVSKxDGy6S/g9owtg2BbfvCogmy0L9F0QXQx9heXq8U+deYcwoUuyhB3HGT5SHnf7TtI56/F0vARv8lUH0/qg0Sx2HqUcsqX3edKzX/3SgbrghfCRnTzrAqg=
-Message-ID: <3b0ffc1f0601051047i24fd1b9mb772cb64dccf6fcb@mail.gmail.com>
-Date: Thu, 5 Jan 2006 13:47:48 -0500
-From: Kevin Radloff <radsaq@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [ck] Re: 2.6.15-ck1
-Cc: Dave Jones <davej@redhat.com>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <200601051010.54156.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 5 Jan 2006 13:47:11 -0500
+Received: from 6.143.111.62.revers.nsm.pl ([62.111.143.6]:48241 "HELO
+	matthew.ogrody.nsm.pl") by vger.kernel.org with SMTP
+	id S1751885AbWAESrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 13:47:10 -0500
+Date: Thu, 5 Jan 2006 19:47:03 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <tapas@affenbande.org>,
+       Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060105184703.GB4010@irc.pl>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Florian Schmidt <tapas@affenbande.org>,
+	Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+	Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+	Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+	perex@suse.cz, alsa-devel@alsa-project.org,
+	James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+	linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+	parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+	Thorsten Knabe <linux@thorsten-knabe.de>,
+	zwane@commfireservices.com, zaitcev@yahoo.com,
+	linux-kernel@vger.kernel.org
+References: <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl> <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <20060104113726.3bd7a649@mango.fruits.de> <1136445395.24475.17.camel@mindpipe> <20060105124317.2d12a85c@mango.fruits.de> <1136486180.31583.29.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200601041200.03593.kernel@kolivas.org>
-	 <20060104190554.GG10592@redhat.com>
-	 <20060104195726.GB14782@redhat.com>
-	 <200601051010.54156.kernel@kolivas.org>
+In-Reply-To: <1136486180.31583.29.camel@mindpipe>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/06, Con Kolivas <kernel@kolivas.org> wrote:
-> Thanks for testing it. Indeed skipping the ticks alone does not really save
-> any significant amount of power. The real chance for power savings comes from
-> using this period for smarter C state programming. The other thing as you've
-> noticed is that timers need to be curbed or minimised to get the maximum
-> benefit and the ondemand governor alone, which unfortunately shows up as
-> something not obvious in timertop, polls at 140HZ itself - fiddling with
-> ondemand/ settings in sys can drop this but slows the rate at which it
-> adapts.
+On Thu, Jan 05, 2006 at 01:36:20PM -0500, Lee Revell wrote:
+> On Thu, 2006-01-05 at 12:43 +0100, Florian Schmidt wrote:
+> > On Thu, 05 Jan 2006 02:16:35 -0500
+> > Lee Revell <rlrevell@joe-job.com> wrote:
+> > 
+> > > On Wed, 2006-01-04 at 11:37 +0100, tapas wrote:
+> > > > ALSA's kernel level OSS emulation (as opposed to aoss) cannot provide
+> > > > software mixing. As aoss cannot provide OSS emulation to all OSS apps
+> > > 
+> > > Why not?
+> > 
+> > I did write it out before. aoss is a LD_PRELOAD hack. Apps/libs that
+> > resolve the system call symbols at build time cannot be made to use
+> > these calls from a different lib (which is what LD_PRELOAD tries to do).
+> > A famous example is libc for which a workaround was added (as libc
+> > offers its own mechanism to intercept fopen() et al.). Others can lurk
+> > in the background, too. It would even be trivial to write an app that
+> > aoss will not work with - ever (unless the code be modified - which is
+> > not an option for closed source apps).
+> > 
+> > It simply cannot ever work with _all_ apps (as opposed to kernel level
+> > OSS emu  which can be made to work with _all_ apps (at least in
+> > principle)).
+> > 
+> 
+> OK so you can contrive an example.  Have we ever seen a real world app
+> where aoss can't work?
 
-For what it's worth (and I haven't done any actual power usage tests),
-on my 1.1GHz Pentium M laptop the gkrellm CPU speed meter
-(gkrellm-x86info) shows the CPU going down to around 30MHz thanks to
-the recent C-state patches (speeds under the minimum of 600MHz reflect
-C3 usage). On the other hand, without dynticks the speed hangs out
-around 60MHz, which as far as I know reflects the maximum possible C3
-usage with HZ = 1000. So really I'm guessing that the difference in
-power consumption isn't really improved much, given that on my Pentium
-M idle time is spent in C2, and if C3 is possible it's used quite
-extensively regardless.
+  Skype. Earlier Quake 3 Arena (now Q3A is open source with SDL sound,
+so it had native ALSA).
+  They're more widely used that musical software for which ALSA seem to
+be written. People needing <1ms latency are "obscure corner cases" in
+real world.
 
-Of course, this may point to who the people who could really benefit
-from dynticks are--those with long latencies for higher C states. But
-in that sense, dynticks would seem to be of use more for legacy
-systems, since everyone is moving towards CPUs with better
-power-saving capabilities, no? I'm not knowledgeable about the
-specifics.. just thinking out loud, really. ;)
+-- 
+Tomasz Torcz                Only gods can safely risk perfection,
+zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia
 
-Perhaps fixing the biggest offenders of timer (mis?)use would benefit
-everyone all-around. I haven't really been able to identify who those
-are though, given the lack of sorting in timertop and its
-seemingly-haphazard ordering of data (or is it there and I've missed
-it?).
-
---
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://thesaq.com/

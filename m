@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752063AbWAEGjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752065AbWAEGkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752063AbWAEGjT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 01:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752067AbWAEGjT
+	id S1752065AbWAEGkt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 01:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752066AbWAEGkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 01:39:19 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61893 "HELO
+	Thu, 5 Jan 2006 01:40:49 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:15558 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1752065AbWAEGjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 01:39:18 -0500
+	id S1752065AbWAEGks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 01:40:48 -0500
 Subject: Re: [2.6 patch] the scheduled removal of obsolete OSS drivers
 From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060103114900.GA3831@stusta.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0601031344480.32658@yvahk01.tjqt.qr>
 References: <20060103114900.GA3831@stusta.de>
+	 <6bffcb0e0601030401n97997a0n@mail.gmail.com>
+	 <Pine.LNX.4.61.0601031344480.32658@yvahk01.tjqt.qr>
 Content-Type: text/plain
-Date: Thu, 05 Jan 2006 01:39:14 -0500
-Message-Id: <1136443154.24475.2.camel@mindpipe>
+Date: Thu, 05 Jan 2006 01:40:45 -0500
+Message-Id: <1136443246.24475.6.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-03 at 12:49 +0100, Adrian Bunk wrote:
->  sound/oss/nm256.h                          |  292 
->  sound/oss/nm256_audio.c                    | 1709 -----
->  sound/oss/nm256_coeff.h                    | 4697 ---------------- 
-
-This driver must not be removed.  The ALSA driver is broken.
-
-Here's why:
-
-On Tue, 2006-01-03 at 13:14 +0100, Takashi Iwai wrote: 
-> Unfortunately, it's impossible to fix this without a test hardware.
-> The condition is worst:  No datasheet, a picky chipset, a pure
-> reverse-engineered driver code.
+On Tue, 2006-01-03 at 13:46 +0100, Jan Engelhardt wrote:
+> >[snip]
+> >>  124 files changed, 11 insertions(+), 90412 deletions(-)
+> >                                                        ^^^^^^^
+> >                                                        Cool :)
+> 
+> Since when is "-)" cool?
 > 
 > 
-> Takashi
+> >PS. Greg's remove-devfs patch is also cool :).
 > 
+> Oh yeah. When 2.6.0 got out, the kernel tree was 32475 KB. By 2.6.15, it is 
+> already 38899 KB. Time to get some dust off :D
 
-See https://bugtrack.alsa-project.org/alsa-bug/view.php?id=328 for details.
+Why is this a problem?  The 2.6.15 kernel is capable of a lot more than
+2.6.0.  Of course it's bigger.  Unless you have some magic toolchain
+that can add features without adding any code.
 
 Lee
 

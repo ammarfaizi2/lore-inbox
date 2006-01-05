@@ -1,45 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWAEPjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWAEPkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWAEPjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 10:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWAEPjI
+	id S932126AbWAEPkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 10:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWAEPjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 10:39:08 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:57006 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932085AbWAEPi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 10:38:59 -0500
-Subject: Re: oops pauser. / boot_delayer
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
-To: Mark Lord <lkml@rtr.ca>
-Cc: gcoady@gmail.com, Bernd Eckenfels <be-news06@lina.inka.de>,
-       linux-kernel@vger.kernel.org, davej@redhat.com
-In-Reply-To: <43BD3BEC.5060309@rtr.ca>
-References: <20060104221023.10249eb3.rdunlap@xenotime.net>
-	 <E1EuPZg-0008Kw-00@calista.inka.de>
-	 <6appr1djnkhaa35cjahs22itittduia9bf@4ax.com>  <43BD3BEC.5060309@rtr.ca>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 10:38:50 -0500
-Message-Id: <1136475531.21485.97.camel@rockstar.fsl.cs.sunysb.edu>
+	Thu, 5 Jan 2006 10:39:54 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:19411 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932116AbWAEPjr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 10:39:47 -0500
+Date: Thu, 5 Jan 2006 16:39:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 19/21] mutex subsystem, semaphore to completion: CPU3WDT
+Message-ID: <20060105153938.GT31013@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 10:31 -0500, Mark Lord wrote:
-> Grant Coady wrote:
-> >
-> > No, after oops, console dead, very dead . . . no scrollback :(
-> 
-> This mis-feature is beginning to annoy more and more.
-> 
-> I seem to recall that "in the old days" (1990s),
-> this was NOT the case:  scrollback still worked from oops.
+From: Steven Rostedt <rostedt@goodmis.org>
 
-I am able to scroll up on the console for most regular oopses, but not
-panics.  Am I missing something here?
+change CPU3WDT semaphores to completions.
 
-Avishay Traeger
-http://www.fsl.cs.sunysb.edu/~avishay/
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
+----
+
+ drivers/char/watchdog/cpu5wdt.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+Index: linux/drivers/char/watchdog/cpu5wdt.c
+===================================================================
+--- linux.orig/drivers/char/watchdog/cpu5wdt.c
++++ linux/drivers/char/watchdog/cpu5wdt.c
+@@ -28,6 +28,7 @@
+ #include <linux/init.h>
+ #include <linux/ioport.h>
+ #include <linux/timer.h>
++#include <linux/completion.h>
+ #include <linux/jiffies.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -57,7 +58,7 @@ static int ticks = 10000;
+ /* some device data */
+ 
+ static struct {
+-	struct semaphore stop;
++	struct completion stop;
+ 	volatile int running;
+ 	struct timer_list timer;
+ 	volatile int queue;
+@@ -85,7 +86,7 @@ static void cpu5wdt_trigger(unsigned lon
+ 	}
+ 	else {
+ 		/* ticks doesn't matter anyway */
+-		up(&cpu5wdt_device.stop);
++		complete(&cpu5wdt_device.stop);
+ 	}
+ 
+ }
+@@ -239,7 +240,7 @@ static int __devinit cpu5wdt_init(void)
+ 	if ( !val )
+ 		printk(KERN_INFO PFX "sorry, was my fault\n");
+ 
+-	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
++	init_completion(&cpu5wdt_device.stop);
+ 	cpu5wdt_device.queue = 0;
+ 
+ 	clear_bit(0, &cpu5wdt_device.inuse);
+@@ -269,7 +270,7 @@ static void __devexit cpu5wdt_exit(void)
+ {
+ 	if ( cpu5wdt_device.queue ) {
+ 		cpu5wdt_device.queue = 0;
+-		down(&cpu5wdt_device.stop);
++		wait_for_completion(&cpu5wdt_device.stop);
+ 	}
+ 
+ 	misc_deregister(&cpu5wdt_misc);

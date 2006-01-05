@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWAEXmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWAEXqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWAEXmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWAEXmy
+	id S1751440AbWAEXqh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWAEXqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:42:54 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:54421 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750981AbWAEXmy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:42:54 -0500
-Date: Fri, 6 Jan 2006 00:42:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Joel Schopp <jschopp@austin.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Anton Blanchard <anton@samba.org>,
-       PPC64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: [patch 00/21] mutex subsystem, -V14
-Message-ID: <20060105234222.GA11474@elte.hu>
-References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <Pine.LNX.4.64.0601051523060.3169@g5.osdl.org> <43BDAD8A.60108@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BDAD8A.60108@austin.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 5 Jan 2006 18:46:37 -0500
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:65254 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S1751440AbWAEXqg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:46:36 -0500
+Date: Thu, 5 Jan 2006 15:46:35 -0800 (PST)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@www.fnordora.org
+To: linux-kernel@vger.kernel.org
+Subject: Problem with pci_fixups in drivers/pci/probe.c
+Message-ID: <Pine.LNX.4.44.0601051533430.27220-100000@www.fnordora.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an HP zv5200z laptop running a x86_64 kernel.
 
-* Joel Schopp <jschopp@austin.ibm.com> wrote:
+In order to get cardbus devices to work, I had to patch the kernel to get 
+the cardbus to actually see those devices.  (We will call this patch 
+"cardbus.patch".)
 
-> > Shouldn't you make that "isync" dependent on SMP too? UP doesn't 
-> > need it, since DMA will never matter, and interrupts are precise.
-> 
-> I think the isync is necessary to keep heavily out of order processors 
-> from getting ahead of themselves even on UP.  Scanning back through 
-> the powerpc spinlock code they seem to take the same view there as 
-> well.
+I went to patch the current FC5T1 kernel and found that the patch no 
+longer applied.  On further investigation I found that the patch had been 
+added to the kernel, but some helpful soul had added a subroutine that 
+made it absolutely worthless to anyone on x86 architecture.
 
-the asm/spinlock.h ops are only built on SMP kernels. mutex.h is for 
-both UP and SMP. On UP you should need no synchronization, because the 
-only way another context could interfere with your critical section is 
-by getting interrupted, and interrupts are fully synchronizing, right?  
-On UP the only synchronization needed is when a device reads/writes 
-memory in parallel to the CPU.
+in drivers/pci/probe.c at line 408 there is the following code:
 
-	Ingo
+        /* Attempts to fix that up are really dangerous unless
+           we're going to re-assign all bus numbers. */
+        if (!pcibios_assign_all_busses())
+                return;
+
+The problem with this is that for x86 and x86_64 this function is defined 
+as 0.
+
+include/asm-x86_64/pci.h:18:#define pcibios_assign_all_busses() 0
+include/asm-i386/pci.h:14:extern unsigned int pcibios_assign_all_busses(void);
+include/asm-i386/pci.h:16:#define pcibios_assign_all_busses()   0
+include/asm-ia64/pci.h:18:#define pcibios_assign_all_busses()     0
+
+This "fix" makes the patch absolutely useless to me.
+
+Is there a way to get this to only run the fixup where needed or to make 
+this patch less problematic or just remove the test entirely?
+
+My cardbus devices will thank you.
+
+-- 
+"George W. Bush -- Bringing back the Sixties one Nixon at a time."
+

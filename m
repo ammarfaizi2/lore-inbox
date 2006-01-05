@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWAEObq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWAEOax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWAEObq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWAEObl
+	id S1751334AbWAEOax (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWAEOax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:31:41 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51984 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751337AbWAEObj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:31:39 -0500
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Greg K-H <greg@kroah.com>
-Subject: [CFT 4/29] Add ecard_bus_type probe/remove/shutdown methods
-Date: Thu, 05 Jan 2006 14:31:29 +0000
-Message-ID: <20060105142951.13.04@flint.arm.linux.org.uk>
-In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
-References: <20060105142951.13.01@flint.arm.linux.org.uk>
-From: Russell King <rmk@arm.linux.org.uk>
+	Thu, 5 Jan 2006 09:30:53 -0500
+Received: from dpc6682004040.direcpc.com ([66.82.4.40]:28691 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S1751323AbWAEOau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:30:50 -0500
+Date: Thu, 05 Jan 2006 09:30:23 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH] fix workqueue oops during cpu offline
+In-reply-to: <1136440988.4840.60.camel@localhost.localdomain>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, Nathan Lynch <ntl@pobox.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Message-id: <1136471423.4430.58.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20060105045810.GE16729@localhost.localdomain>
+ <200601051558.14275.ncunningham@cyclades.com>
+ <1136440988.4840.60.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+On Thu, 2006-01-05 at 17:03 +1100, Benjamin Herrenschmidt wrote:
+> On Thu, 2006-01-05 at 15:58 +1000, Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Thursday 05 January 2006 14:58, Nathan Lynch wrote:
+> > > With 2.6.15, powerpc systems oops when cpu 0 is offlined.  This is a
+> > > regression from 2.6.14, caused by commit id
+> > > bce61dd49d6ba7799be2de17c772e4c701558f14 ("Fix hardcoded cpu=0 in
+> > > workqueue for per_cpu_ptr() calls").
+> > 
+> > So it's valid on ppc for cpu 0 to be taken offline? IIRC, trying that on my P4 
+> > a while back did nothing. I think you'll find other places that assume that 
+> > cpu 0 is always up (swsusp? ... I should check suspend2).
+> 
+> It's bogus, cpu0 can be put offline.
 
----
- arch/arm26/kernel/ecard.c |   18 ++++++++++--------
- 1 files changed, 10 insertions(+), 8 deletions(-)
+Not only that, but on some systems it may never even exist. Which was
+the whole reason for my problem in the first place with the workqueue
+code.
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/arch/arm26/kernel/ecard.c linux/arch/arm26/kernel/ecard.c
---- linus/arch/arm26/kernel/ecard.c	Sun Nov  6 22:14:20 2005
-+++ linux/arch/arm26/kernel/ecard.c	Sun Nov 13 15:52:04 2005
-@@ -793,9 +793,11 @@ static void ecard_drv_shutdown(struct de
- 	struct ecard_driver *drv = ECARD_DRV(dev->driver);
- 	struct ecard_request req;
- 
--	if (drv->shutdown)
--		drv->shutdown(ec);
--	ecard_release(ec);
-+	if (dev->driver) {
-+		if (drv->shutdown)
-+			drv->shutdown(ec);
-+		ecard_release(ec);
-+	}
- 	req.req = req_reset;
- 	req.ec = ec;
- 	ecard_call(&req);
-@@ -804,9 +806,6 @@ static void ecard_drv_shutdown(struct de
- int ecard_register_driver(struct ecard_driver *drv)
- {
- 	drv->drv.bus = &ecard_bus_type;
--	drv->drv.probe = ecard_drv_probe;
--	drv->drv.remove = ecard_drv_remove;
--	drv->drv.shutdown = ecard_drv_shutdown;
- 
- 	return driver_register(&drv->drv);
- }
-@@ -832,8 +831,11 @@ static int ecard_match(struct device *_d
- }
- 
- struct bus_type ecard_bus_type = {
--	.name	= "ecard",
--	.match	= ecard_match,
-+	.name		= "ecard",
-+	.match		= ecard_match,
-+	.probe		= ecard_drv_probe,
-+	.remove		= ecard_drv_remove,
-+	.shutdown	= ecard_drv_shutdown,
- };
- 
- static int ecard_bus_init(void)
+I haven't tested it, but the patch would appear to work for me. Since
+sparc64 doesn't support CPU hotplug, the cpu_possible_map is just a copy
+of cpu_present_map. I'll merge it into my tree and give it a run on the
+ultra3k.
+
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
+

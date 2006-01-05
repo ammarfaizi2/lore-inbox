@@ -1,87 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWAEOd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWAEOcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWAEOd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWAEOd7
+	id S1750738AbWAEOcy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:32:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWAEOcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:33:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54544 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751337AbWAEOdk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:33:40 -0500
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Greg K-H <greg@kroah.com>
-Subject: [CFT 8/29] Add logic module bus_type probe/remove methods
-Date: Thu, 05 Jan 2006 14:33:35 +0000
-Message-ID: <20060105142951.13.08@flint.arm.linux.org.uk>
-In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
-References: <20060105142951.13.01@flint.arm.linux.org.uk>
-From: Russell King <rmk@arm.linux.org.uk>
+	Thu, 5 Jan 2006 09:32:54 -0500
+Received: from triton.atia.com ([193.16.246.115]:5017 "EHLO triton.atia.com")
+	by vger.kernel.org with ESMTP id S1751340AbWAEOcw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:32:52 -0500
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: sched.c:659 dec_rt_tasks BUG with patch-2.6.15-rt1
+ (realtime-preempt)
+References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
+	<20060102214516.GA12850@elte.hu> <87lkxyrzby.fsf_-_@arnaudov.name>
+	<87u0cj5riq.fsf_-_@arnaudov.name>
+	<1136436273.12468.113.camel@localhost.localdomain>
+	<87u0cj3saf.fsf@arnaudov.name>
+	<1136463552.12468.119.camel@localhost.localdomain>
+From: Nedko Arnaudov <nedko@arnaudov.name>
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAM1BMVEX///8HBgUeFhGwUjwr
+ NDF5RjOgVz2UVTxxTz9pNSXCiW2OUjhNIxi6bE6ROChWammgrK7+pa2IAAAAAXRSTlMAQObYZgAA
+ AkxJREFUeAGtlAuTgyAMhK9gIGl4+P9/7W2wVbBo52YOZ2of+djdBPtT/7h+/lhf/wNYXFtLu38Y
+ OCss7jEut4zMCTiXGzwiA7CMm78+XQPzemC9q15hun/7sovRAZcCg8QBfPRnF3QPd0jswHW9gUeK
+ rwC2nwPTCRyudk9vhXtHXYgT4FxKOEn7zu83R+o3ULefUipKxjTn73LcPyzVbdck0YdAclJxE8C2
+ hKHiM5ZKGm1NLFn9IyUNBoQzMZsDjCKxD89sl6dBYwJYCFgi/8TKGfWWYzPmDkfdM40nEgRSWIYE
+ NREkQcdMem9SBzAStJJiCaxcpOAy4HDUARWbJyyRAKKwzbBoKQmAzBSqw/7iOJaYC+mTSYtiJs3d
+ FFjggTkGKr54r6gPwRoMZboASonB+wJA2/wQ32tysfAU4MWr97kBuLdx4FNy5QKoCfVYprCdEAhE
+ tFY7gb5LlcnqMwIgBASaI3S4S1AHoO7ASwH+bCTdFE4AmxP4wcIJMQFPaN01YBI5F7QT9wagq5KO
+ FuHd/sS1b8VCUMTeofUV07gH4Cno1iuo2BQY079RqKSK49MWYcyBSOgWEMWk2iCsUV4RQW6BNopN
+ wYJYBB7GcAqN2UXLbc3Cssyk9wpiw7NimwPqkemLArVZGBKIhWP8qkCExyaHHBn+Y4iR+rP3mQH1
+ zKpMuDjmZ8DHfhDjpCsyYkUsxqsZy3EcxAgsDUCl/TnZYcJLgLVOogPWKkIB/rHzVm9QyGzE+mZ2
+ YF1XHAQcPPy51kOhecI06vpCfgFqlF1IG9UTLgAAAABJRU5ErkJggg==
+Date: Thu, 05 Jan 2006 16:32:13 +0200
+In-Reply-To: <1136463552.12468.119.camel@localhost.localdomain> (Steven
+ Rostedt's message of "Thu, 05 Jan 2006 07:19:12 -0500")
+Message-ID: <87k6deg2z6.fsf@arnaudov.name>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
----
- arch/arm/mach-integrator/lm.c |   36 ++++++++++++++++++------------------
- 1 files changed, 18 insertions(+), 18 deletions(-)
+Steven Rostedt <rostedt@goodmis.org> writes:
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git linus/arch/arm/mach-integrator/lm.c linux/arch/arm/mach-integrator/lm.c
---- linus/arch/arm/mach-integrator/lm.c	Sun Nov  6 22:14:16 2005
-+++ linux/arch/arm/mach-integrator/lm.c	Sun Nov 13 15:57:58 2005
-@@ -22,20 +22,6 @@ static int lm_match(struct device *dev, 
- 	return 1;
- }
- 
--static struct bus_type lm_bustype = {
--	.name		= "logicmodule",
--	.match		= lm_match,
--//	.suspend	= lm_suspend,
--//	.resume		= lm_resume,
--};
--
--static int __init lm_init(void)
--{
--	return bus_register(&lm_bustype);
--}
--
--postcore_initcall(lm_init);
--
- static int lm_bus_probe(struct device *dev)
- {
- 	struct lm_device *lmdev = to_lm_device(dev);
-@@ -49,16 +35,30 @@ static int lm_bus_remove(struct device *
- 	struct lm_device *lmdev = to_lm_device(dev);
- 	struct lm_driver *lmdrv = to_lm_driver(dev->driver);
- 
--	lmdrv->remove(lmdev);
-+	if (lmdrv->remove)
-+		lmdrv->remove(lmdev);
- 	return 0;
- }
- 
-+static struct bus_type lm_bustype = {
-+	.name		= "logicmodule",
-+	.match		= lm_match,
-+	.probe		= lm_bus_probe,
-+	.remove		= lm_bus_remove,
-+//	.suspend	= lm_bus_suspend,
-+//	.resume		= lm_bus_resume,
-+};
-+
-+static int __init lm_init(void)
-+{
-+	return bus_register(&lm_bustype);
-+}
-+
-+postcore_initcall(lm_init);
-+
- int lm_driver_register(struct lm_driver *drv)
- {
- 	drv->drv.bus = &lm_bustype;
--	drv->drv.probe = lm_bus_probe;
--	drv->drv.remove = lm_bus_remove;
--
- 	return driver_register(&drv->drv);
- }
- 
+> Although this should not bug, and I'm going to try this config on a UP
+> machine myself to see if I can reproduce your problem, I'd suggest to
+> you to turn off the SMP configuration.
+
+Unfortunatly this is not option for my setup, since I use same kernel on
+multiple systems (kind of livecd but with usb disk). One of them is SMP
+one. I'm currently doing audio only on one of machines and it is
+uniprocessor one. I prefer to avoid triggerring this bug instead of
+having multiple kernels.
+
+=2D-=20
+Nedko Arnaudov <GnuPG KeyID: DE1716B0>
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDvS3z6bb4v94XFrARAvNUAKCBlcTW1SRzdIyUILpKcKBjTQS2ZgCcCwGe
+Ajw5Xo+CloWrVlOJJsox2R4=
+=1yi5
+-----END PGP SIGNATURE-----
+--=-=-=--
+

@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWAECHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWAECMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbWAECHy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 21:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAECHy
+	id S1751183AbWAECMO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 21:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWAECMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 21:07:54 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:54682 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751019AbWAECHx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 21:07:53 -0500
-Date: Wed, 4 Jan 2006 18:07:42 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Driver Core patches for 2.6.15
-Message-ID: <20060105020742.GA18815@suse.de>
-References: <20060105004826.GA17328@kroah.com> <Pine.LNX.4.64.0601041724560.3279@g5.osdl.org>
+	Wed, 4 Jan 2006 21:12:14 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:12965 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751183AbWAECMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 21:12:13 -0500
+Subject: [Announce] RT patch updates while Ingo is busy
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, john stultz <johnstul@us.ibm.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Mark Knecht <markknecht@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       "K.R. Foley" <kr@cybsft.com>, Lee Revell <rlrevell@joe-job.com>,
+       Serge Noiraud <serge.noiraud@bull.net>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1136412737.12468.92.camel@localhost.localdomain>
+References: <200601041832.39089.Serge.Noiraud@bull.net>
+	 <Pine.LNX.4.64.0601041234130.22025@dhcp153.mvista.com>
+	 <1136412737.12468.92.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 04 Jan 2006 21:11:50 -0500
+Message-Id: <1136427110.12468.112.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601041724560.3279@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 05:38:05PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 4 Jan 2006, Greg KH wrote:
-> >
-> > Here are a lot of driver core patches for 2.6.15.  They have all been in
-> > the past few -mm releases with no problems.
-> 
-> Strange, because it doesn't merge with your other own changes. It might be 
-> an ordering thing (ie they might have merged fine in another order). Or 
-> maybe it's just because the -mm scripts will force-apply patches (or drop 
-> them).
-> 
-> Anyway, there were clashes in drivers/usb/core/usb.c with the patch "USB: 
-> fix usb_find_interface for ppc64" that came through your USB changes, and 
-> that gets a merge error with the uevent/hotplug thing.
-> 
-> I can do the trivial manual fixup, but when I do, I have two copies of 
-> "usb_match_id()": one in drivers/usb/core/driver.c and one in 
-> drivers/usb/core/usb.c.
-> 
-> I've pushed out my tree, so that you can see for yourself (it seems to 
-> have mirrored out too).
+On Wed, 2006-01-04 at 17:12 -0500, Steven Rostedt wrote:
+> Ingo has been really busy with getting the mutex stuff into mainline, so
+> he hasn't had time to update RT or even work on it very much.  Maybe,
+> I'll start up a patch website to hold patches to Ingo's -rt code until
+> he has time to work on it again.
 
-Yeah, I was wondering how that would merge together, I'll take a look at
-the tree after dinner and fix up the problem (there should only be one
-copy of that function.)
+While Ingo is busy working 48 hours a day on the new mutex
+info-structure, the -rt patch set has been a little slow at getting
+patch releases.  So I've started up a little patch fix repository for
+the -rt patch set until Ingo has time to get back to this again.
 
-thanks,
+If you have a problem with the -rt patch set, please CC Ingo and myself,
+and I'll try to fix the problem and post a patch here.
 
-greg k-h
+My updates will be named -sr, so the current release is at
+2.6.15-rt1-sr1.  Note, this is more like the stable branch, I'm only
+updating bug fixes here.  Although this is not as strict as the stable
+branch, my adding a patch will be based mainly on how critical it is.
+
+This release contains:
+
+- latest rtc fix (Steven Rostedt)
+
+- ipv6 mcast rwlock initialization fix (Daniel Walker)
+
+Download from:
+http://home.stny.rr.com/rostedt/patches/
+
+Patch order is:
+
+http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
+http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt1
+http://home.stny.rr.com/rostedt/patches/patch-2.6.15-rt1-sr1
+
+-- Steve
+
+
+

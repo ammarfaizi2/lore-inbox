@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWAEOhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWAEOiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWAEOhP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWAEOhO
+	id S1751382AbWAEOiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWAEOiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:37:14 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:36426 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751364AbWAEOhL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:37:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HiZ8wgiPv/HibAEcaL0LaDHBwiekNROrdsrPzdSTPvCb6znYfI+xQ8fIMm+5TKjV0TCdsEujXpPaT/1cuCOCWXvVPtvoiOSaYGSpYtJP7A4bPUcy5yadSbLM9/XIzrnZ7T1+lMgdeHoqfWx3hv5a7qyci7pkfCGVk83H+QxwOUo=
-Message-ID: <d120d5000601050637q7ec5688fi572aa4d27762d4cf@mail.gmail.com>
-Date: Thu, 5 Jan 2006 09:37:10 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E1EuVds-0000n9-00@mars.bretschneidernet.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 5 Jan 2006 09:38:03 -0500
+Received: from verein.lst.de ([213.95.11.210]:39834 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1751368AbWAEOhl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:37:41 -0500
+Date: Thu, 5 Jan 2006 15:37:15 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Zach Brown <zach.brown@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Joel Becker <Joel.Becker@oracle.com>,
+       Arjan van de Ven <arjan@infradead.org>, Christoph Hellwig <hch@lst.de>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: merging ocfs2?
+Message-ID: <20060105143715.GA24927@lst.de>
+References: <43BAF93A.10509@oracle.com> <Pine.LNX.4.64.0601041649270.3668@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <E1EuVds-0000n9-00@mars.bretschneidernet.de>
+In-Reply-To: <Pine.LNX.4.64.0601041649270.3668@g5.osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/5/06, Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de> wrote:
-> Hi kernel-devs,
->
-> [1.]
-> a keyboard that is connected to to PS/2 port does not work with
-> kernel 2.6.15. That is to say that no action is seen at the login
-> promt if I enter any key.
->
+On Wed, Jan 04, 2006 at 04:50:49PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 3 Jan 2006, Zach Brown wrote:
+> >
+> > Joel has done the heavy lifting to bring its git repository up to date
+> > so one should be able to pull from:
+> > 
+> >   http://oss.oracle.com/git/ocfs2.git
+> 
+> If Christoph is happy with it, and there has been no grumbling from -mm, I 
+> can certainly merge it.
 
-Could you please boot with "i8042.debug", then reboot and send me
-/var/log/messages or whatever file your syslog dumps kernel messages?
+Last time I looked it seemed fine.  That's been about a month ago and
+I don't have time to look over it again currently.  I'd say merge it and
+blame everything on me if something horrible is hidden inside now :)
 
-Thanks!
-
---
-Dmitry

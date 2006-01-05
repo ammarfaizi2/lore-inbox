@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWAEWHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWAEWH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWAEWHb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 17:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWAEWHa
+	id S1751167AbWAEWH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 17:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWAEWH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 17:07:30 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:34572 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1752164AbWAEWH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 17:07:29 -0500
-Date: Thu, 5 Jan 2006 23:07:19 +0100
-From: Willy TARREAU <willy@w.ods.org>
-To: =?iso-8859-1?Q?j=FCrgen?= baumann <jbaumann@is-kassel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.33pre1 kernel/sysctl.c missing spin_unlock()
-Message-ID: <20060105220719.GA618@w.ods.org>
-References: <43BD3AB7.9020003@is-kassel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43BD3AB7.9020003@is-kassel.org>
-User-Agent: Mutt/1.5.10i
+	Thu, 5 Jan 2006 17:07:57 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:5464 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1751167AbWAEWHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 17:07:55 -0500
+Date: Fri, 6 Jan 2006 00:09:01 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <20060105201249.GB1795@tau.solarneutrino.net>
+Message-ID: <Pine.LNX.4.63.0601052357100.8036@kai.makisara.local>
+References: <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
+ <1134409531.9994.13.camel@mulgrave> <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
+ <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net>
+ <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
+ <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
+ <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
+ <20060105201249.GB1795@tau.solarneutrino.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 04:26:47PM +0100, jürgen baumann wrote:
-> possibly fixed yet, but maybe not:
+On Thu, 5 Jan 2006, Ryan Richter wrote:
+
+> On Wed, Jan 04, 2006 at 11:48:52PM +0200, Kai Makisara wrote:
+> > > Here's what I got:
 > 
-> in above patch there was a spinlock(&sysctl_lock) added in 
-> function do_register_sysctl_table(), but no corresponding 
-> spin_unlock() before return.
+> Another one.  I can't keep running this kernel - nearly all of our
+> backup tapes are erased now.  If a drive were to fail today, we would
+> lose hundreds of GB of irreplacible data.  I'm going back to 2.6.11.3
+> until we have a full set of backups again.
 > 
-> after starting the new kernel (unfortunately with further 
-> patches), it hangs on trying to start the kswapd-thread.
-> 
-> after inserting the spin_unlock() all run fine.
+Yes, don't risk the backups. If you don't want to change the kernel, you 
+can load the st module with the option try_direct_io=0. If you do this, st 
+will use the driver's buffer for reading and writing and you don't see 
+this problem.
 
-Can you be more specific ? First, there's no function named
-like this in 2.4.33-pre1. The most approaching change I can
-find lies in kernel/sysctl.c:register_sysctl_table() and this
-one uses valid locking :
+If you later have an opportunity to try the patch Linus suggested, it 
+might provide interesting information. However, if all goes well, the st 
+driver will not be using these mapping functions in 2.6.16 any more (see 
+Mike Christie's changes in "[GIT PATCH] SCSI update for 2.6.15" sent to 
+linux-scsi by James Bottomley yesterday). I am not sure this fixes your 
+problem but it certainly changes the code that is being debugged.
 
-struct ctl_table_header *register_sysctl_table(ctl_table * table, 
-                                               int insert_at_head)
-{
-        struct ctl_table_header *tmp;
-        tmp = kmalloc(sizeof(struct ctl_table_header), GFP_KERNEL);
-        if (!tmp)
-                return NULL;
-        tmp->ctl_table = table;
-        INIT_LIST_HEAD(&tmp->ctl_entry);
-        tmp->used = 0;
-        tmp->unregistering = NULL;
-===>    spin_lock(&sysctl_lock);
-        if (insert_at_head)
-                list_add(&tmp->ctl_entry, &root_table_header.ctl_entry);
-        else
-                list_add_tail(&tmp->ctl_entry, &root_table_header.ctl_entry);
-===>    spin_unlock(&sysctl_lock);
-#ifdef CONFIG_PROC_FS
-        register_proc_table(table, proc_sys_root, tmp);
-#endif
-        return tmp;
-}
-
-So possibly you found one real bug, but please tell us where you
-had to patch !
-
-Thanks in advance,
-Willy
-
+-- 
+Kai

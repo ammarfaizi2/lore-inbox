@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWAEMRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWAEMTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWAEMRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 07:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752174AbWAEMRJ
+	id S1751458AbWAEMTV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 07:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWAEMTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 07:17:09 -0500
-Received: from mail.gmx.net ([213.165.64.21]:48080 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752172AbWAEMRI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 07:17:08 -0500
-X-Authenticated: #4368190
-Message-ID: <43BD0E1C.9060705@gmx.de>
-Date: Thu, 05 Jan 2006 13:16:28 +0100
-From: =?ISO-8859-1?Q?Hans-J=FCrgen_Lange?= <Hans-Juergen.Lange@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.x on IBM thin client 8363 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 5 Jan 2006 07:19:21 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:16610 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751458AbWAEMTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 07:19:21 -0500
+Subject: Re: sched.c:659 dec_rt_tasks BUG with patch-2.6.15-rt1
+	(realtime-preempt)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Nedko Arnaudov <nedko@arnaudov.name>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <87u0cj3saf.fsf@arnaudov.name>
+References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
+	 <20060102214516.GA12850@elte.hu> <87lkxyrzby.fsf_-_@arnaudov.name>
+	 <87u0cj5riq.fsf_-_@arnaudov.name>
+	 <1136436273.12468.113.camel@localhost.localdomain>
+	 <87u0cj3saf.fsf@arnaudov.name>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 07:19:12 -0500
+Message-Id: <1136463552.12468.119.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2006-01-05 at 12:03 +0200, Nedko Arnaudov wrote:
+> Steven Rostedt <rostedt@goodmis.org> writes:
+> 
+> > Could you send me your .config.  And this is a smp machine right?
+> 
+> No it is not. Sending you my config personally.
+> 
 
-I would like to run a 2.6.x kernel on a IBM thin client 8363. There are 
-patches available for the 2.4 series of kernels.
-I had a look on these patches and the only thing they do is to expand 
-the kernel commandline size to 512 Bytes and a change in 
-arch/i386/kernel/head.S that changed the pointer to the commandline to a 
-fixed address.
+The reason that I asked is that sched.c:659 looks like this:
 
-In the 2.4.kernel the kernel parameter and command line are ,,moved out 
-of the way''  in two steps. And the second step is the one that get patched.
-In the 2.6 kernel this is done in one step. I did get an explanation of 
-the startup code for the 2.4. kernel but not for the 2.6. I believe that 
-it is no problem to make the changes to get the IBM 8363 running.
+static inline void dec_rt_tasks(task_t *p, runqueue_t *rq)
+{
+#if defined(CONFIG_PREEMPT_RT) && defined(CONFIG_SMP)
+	if (rt_task(p)) {
+		WARN_ON(!rq->rt_nr_running);
+		rq->rt_nr_running--;
+		if (rq->rt_nr_running == 1)
+			atomic_dec(&rt_overload);
+	}
+#endif
+}
 
-I have seen that some people use this machine but all what use the 
-newest kernel.
+And so that will only get into that path on a SMP configured system. But
+although you are not running on an SMP machine, here's what's in
+your .config.
 
-If someone could help me to understand what is going on in the startup 
-code or may have a ready to use solution for this problem it would be 
-very nice if you could help with get it running.
+CONFIG_SMP=y
+CONFIG_NR_CPUS=8
 
-BR
-Hans-Juergen Lange
+Although this should not bug, and I'm going to try this config on a UP
+machine myself to see if I can reproduce your problem, I'd suggest to
+you to turn off the SMP configuration.
+
+-- Steve
+
+

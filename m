@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWAEKpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752133AbWAEKrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWAEKpw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 05:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWAEKpw
+	id S1752133AbWAEKrd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 05:47:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752134AbWAEKrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 05:45:52 -0500
-Received: from odin2.bull.net ([192.90.70.84]:30638 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S1751109AbWAEKpv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 05:45:51 -0500
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc5-rt4 and CONFIG_SLAB=y : structure has no member named `nodeid'
-Date: Thu, 5 Jan 2006 11:50:46 +0100
-User-Agent: KMail/1.7.1
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>
-References: <200512211045.58763.Serge.Noiraud@bull.net> <200601051112.10762.Serge.Noiraud@bull.net>
-In-Reply-To: <200601051112.10762.Serge.Noiraud@bull.net>
+	Thu, 5 Jan 2006 05:47:33 -0500
+Received: from seanodes.co.fr.clara.net ([212.43.220.11]:18056 "EHLO
+	seanodes.co.fr.clara.net") by vger.kernel.org with ESMTP
+	id S1752133AbWAEKrc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 05:47:32 -0500
+From: =?iso-8859-1?q?Ga=EBl_UTARD?= <gael.utard@seanodes.com>
+Organization: Seanodes
+To: kai@germaschewski.name, sam@ravnborg.org
+Subject: [PATCH] kbuild: fix external modules build
+Date: Thu, 5 Jan 2006 11:46:58 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Message-Id: <200601051150.46431.Serge.Noiraud@bull.net>
-X-MIMETrack: Itemize by SMTP Server on ANN-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
- 05/01/2006 11:45:27,
-	Serialize by Router on ANN-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
- 05/01/2006 11:46:40,
-	Serialize complete at 05/01/2006 11:46:40
-Content-Transfer-Encoding: 8BIT
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
+Message-Id: <200601051146.58824.gael.utard@seanodes.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jeudi 5 Janvier 2006 11:12, Serge Noiraud wrote/a écrit :
-> mercredi 21 Décembre 2005 10:45, Serge Noiraud wrote/a écrit :
-> > Hi,
-> > 
-> > 	testing on i386, I get the following error :
-> > ...
-> >   CC      mm/slab.o
-> > mm/slab.c: In function `cache_alloc_refill':
-> > mm/slab.c:2093: error: structure has no member named `nodeid'
-> > mm/slab.c: In function `free_block':
-> > mm/slab.c:2239: error: structure has no member named `nodeid'
-> > mm/slab.c:2239: error: `node' undeclared (first use in this function)
-> > mm/slab.c:2239: error: (Each undeclared identifier is reported only once
-> > mm/slab.c:2239: error: for each function it appears in.)
-> > make[4]: *** [mm/slab.o] Erreur 1
-> > ...
-> > 
-> > You removed nodeid in the slab struct, but many functions use it.
-> > 
-> I get the same problem with 2.6.15-rt1
-> The following patch suppress the error : I'm not sure it's the good correction.
-> perhaps we should supress this DEBUG test ?
-> 
-> --- linux.orig/mm/slab.c
-> +++ linux/mm/slab.c
-> @@ -2090,7 +2090,6 @@
->             next = slab_bufctl(slabp)[slabp->free];
->  #if DEBUG
->             slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
-> -           WARN_ON(numa_node_id() != slabp->nodeid);
->  #endif
->                 slabp->free = next;
->         }
->         check_slabp(cachep, slabp);
+The patch 2dd34b488a99135ad2a529e33087ddd6a09e992a breaks external modules 
+build since include/linux/autoconf.h is not found in the header files 
+directories.
 
-I forgot the second problem.
+Signed-off-by: Gaël Utard <gael.utard@seanodes.com>
 
-@@ -2236,7 +2235,6 @@
-        check_slabp(cachep, slabp);
- #if DEBUG
-        /* Verify that the slab belongs to the intended node */
--       WARN_ON(slabp->nodeid != node);
-
-        if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
-            printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
-
+--- linux-2.6.15/Makefile.orig	2006-01-05 10:54:15.000000000 +0100
++++ linux-2.6.15/Makefile	2006-01-05 10:55:05.000000000 +0100
+@@ -348,7 +348,7 @@
+ # Needed to be compatible with the O= option
+ LINUXINCLUDE    := -Iinclude \
+                    $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+-		   -include include/linux/autoconf.h
++		   -include linux/autoconf.h
+ 
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 

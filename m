@@ -1,108 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWAEUaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWAEUbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWAEUaS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 15:30:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWAEUaR
+	id S932170AbWAEUbL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 15:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWAEUbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 15:30:17 -0500
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:42619 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S932168AbWAEUaQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 15:30:16 -0500
-Date: Thu, 5 Jan 2006 21:29:54 +0100 (CET)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-cc: linux-netdev@vger.kernel.org
-Subject: e1000_watchdog_task: NIC Link is Up/Down on kernels 2.4.15 2.4.14
-Message-ID: <Pine.LNX.4.64.0601052121270.8434@lt.wsisiz.edu.pl>
+	Thu, 5 Jan 2006 15:31:11 -0500
+Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:47344 "EHLO
+	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S932170AbWAEUbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 15:31:10 -0500
+Message-ID: <43BD8206.4000103@lwfinger.net>
+Date: Thu, 05 Jan 2006 14:31:02 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (portraits.wsisiz.edu.pl [127.0.0.1]); Thu, 05 Jan 2006 21:30:14 +0100 (CET)
+To: linux-kernel@vger.kernel.org
+Subject: Re: BUG: spinlockup in kacpid of 2.6.15-rc6 during boot
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Adrian Bunk wrote:
 
-I have machine with build in ethernet interafce, system is Linux Fedora 
-Core 4.
-Ethernet controller: Intel Corporation 82541GI/PI Gigabit Ethernet 
-Controller. It's connected to cisco Catalyst 4000 switch:
-
-#show interface GigabitEthernet3/5
-
-GigabitEthernet3/5 is up, line protocol is up (connected)
-   Hardware is Gigabit Ethernet Port, address is xxx
-   Description: xxx
-   MTU 1500 bytes, BW 1000000 Kbit, DLY 10 usec,
-      reliability 255/255, txload 1/255, rxload 1/255
-   Encapsulation ARPA, loopback not set
-   Keepalive set (10 sec)
-   Full-duplex, 1000Mb/s, link type is auto, media type is 10/100/1000-TX
-   input flow-control is off, output flow-control is off
+ > On Sun, Jan 01, 2006 at 10:58:19PM -0600, Larry Finger wrote:
+ >
+ >> I am getting an intermittent "BUG: spinlockup on CPU #0, kacpid/13, e3bcef9c" message when 
+booting. I know it occurs from a cold boot, but am not sure about from a warm reboot.
+ >>
+ >> I don't know where in the boot sequence it occurs as I only have the text display on the screen, 
+which is as follows:
+ >
+ >
+ >
+ > You can set a higher resolution using the vga= boot parameter (see 
+Documentation/kernel-parameters.txt in the kernel sources).
 
 
-configuration on switch interface:
+Thanks - I'll set as high as I can.
 
-interface GigabitEthernet3/5
-  switchport mode access
-  switchport nonegotiate
-  logging event link-status
-  no cdp enable
-end
-
-
-
-on linux machine:
-
-[root@w3cache ~]# ethtool eth0
-Settings for eth0:
-         Supported ports: [ TP ]
-         Supported link modes:   10baseT/Half 10baseT/Full
-                                 100baseT/Half 100baseT/Full
-                                 1000baseT/Full
-         Supports auto-negotiation: Yes
-         Advertised link modes:  10baseT/Half 10baseT/Full
-                                 100baseT/Half 100baseT/Full
-                                 1000baseT/Full
-         Advertised auto-negotiation: Yes
-         Speed: 1000Mb/s
-         Duplex: Full
-         Port: Twisted Pair
-         PHYAD: 0
-         Transceiver: internal
-         Auto-negotiation: on
-         Supports Wake-on: umbg
-         Wake-on: g
-         Current message level: 0x00000007 (7)
-         Link detected: yes
-
-Some times I observe flaping eth0 interface:
-
-Jan  5 18:31:19 w3cache kernel: e1000: eth0: e1000_watchdog_task: NIC Link 
-is Down
-Jan  5 18:31:21 w3cache kernel: e1000: eth0: e1000_watchdog_task: NIC Link 
-is Up 1000 Mbps Full Duplex
-Jan  5 18:31:25 w3cache kernel: e1000: eth0: e1000_watchdog_task: NIC Link 
-is Down
-Jan  5 18:31:27 w3cache kernel: e1000: eth0: e1000_watchdog_task: NIC Link 
-is Up 1000 Mbps Full Duplex
-Jan  5 18:56:30 w3cache kernel: e1000: eth0: e1000_watchdog_task: NIC Link 
-is Down
-Jan  5 18:56:33 w3cache kernel: e1000: eth0: e1000_watchdog_task: NIC Link 
-is Up 1000 Mbps Full Duplex
-
-Patchcords and other physical layer is OK. Tested kernels 
-kernel-2.6.14-1.1653_FC4 and latest vanilla 2.4.15. I have tried set full 
-duplex, speed 1000 on switch but it's happan again.
-On cisco switch i don't have seen any flaps this interface or any errors.
-
-Any idea? Thank You.
-
-I have also commited this problem to redhat bugzilla:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177043
+ >> ...... unknown material that rolled off the top of the screen
+ >> _spinlock + 0x1b/0x30
+ >> exit_io_context + 0x25/0x90
+ >> do_exit + 0x54/0x430
+ >> die + 0x17c/0x180
+ >> do_page_fault + 0x209/0x62e
+ >> error_code + 0x4f/0x54
+ >> show_stack + 0x9c/0x0e
+ >> show_registers + 0x18f/0x230
+ >> die + 0xfa/0x180
+ >> do_page_fault + 0x209/0x62e
+ >> BUG: spinlockup on CPU #0, kacpid/13, e3bcef9c
+ >> dump_stack + 0x1e/0x20
+ >> __spin_lock_debug + 0xb6/0xf0
+ >> _raw_spin_lock + 0x67/0x90
+ >> _spinlock + 0x1b/0x30
+ >> exit_io_context + 0x25/0x90
+ >> do_exit + 0x54/0x430
+ >> die + 0x17c/0x180
+ >> do_page_fault + 0x209/0x62e
+ >> error_code + 0x4f/0x54
+ >> show_stack + 0x9c/0x0e
+ >> show_registers + 0x18f/0x230
+ >> die + 0xfa/0x180
+ >> do_page_fault + 0x209/0x62e
+ >>
+ >> The computer is an HP ze1115 notebook with a mobile K7 processor. The beginning lines of a 
+normal dmesg are:
+ >>
+ >> Linux version 2.6.15-rc6 (root@linux) (gcc version 4.0.2 20050901 (prerelease) (SUSE Linux)) #4 
+PREEMPT
+ >> ...
+ >
+ >
+ >
+ > IOW, 2.6.15-rc6 does sometimes boot, and sometimes it doesn't boot?
 
 
--- 
-£T
+Yes. I have never had it fail two times in a row. Powering off and restarting has fixed it everytime 
+so far.
+
+ > Can you give information regarding which kernel versions are affected and which aren't, and what 
+influences whether 2.6.15-rc6 does boot or does not boot?
+
+
+I have not had this problem (yet?) with 2.6.15-rc7 or 2.6.15; however, it occurs so infrequently 
+that I'm not sure I can rule out these later versions. The case I reported involved a dirty reiserfs 
+file system. I had been debugging the bcm43xx driver and the system had frozen during shutdown 
+because the module could not be unloaded. After I powered off for about 1 second, I restarted. The 
+bug dump occurred fairly quickly and I believe it is early in the reboot sequence.
+
+Larry
+
+

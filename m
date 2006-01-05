@@ -1,163 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWAEOpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWAEOpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWAEOpN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 09:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWAEOpN
+	id S1751389AbWAEOpa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 09:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWAEOp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 09:45:13 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63248 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751407AbWAEOpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 09:45:10 -0500
-Date: Thu, 5 Jan 2006 15:45:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] the scheduled removal of obsolete OSS drivers (v2)
-Message-ID: <20060105144509.GB3831@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jan 2006 09:45:29 -0500
+Received: from mail.cs.tut.fi ([130.230.4.42]:25847 "EHLO mail.cs.tut.fi")
+	by vger.kernel.org with ESMTP id S1751354AbWAEOpZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 09:45:25 -0500
+Date: Thu, 5 Jan 2006 16:45:21 +0200
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Jaroslav Kysela <perex@suse.cz>
+Subject: Re: [OT] ALSA userspace API complexity
+Message-ID: <20060105144521.GF757@jolt.modeemi.cs.tut.fi>
+References: <20060105140155.GC757@jolt.modeemi.cs.tut.fi> <Pine.LNX.4.61.0601051518370.10350@tm8103.perex-int.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.61.0601051518370.10350@tm8103.perex-int.cz>
+User-Agent: Mutt/1.5.9i
+From: shd@modeemi.cs.tut.fi (Heikki Orsila)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the scheduled removal of obsolete OSS drivers with 
-ALSA replacements.
+On Thu, Jan 05, 2006 at 03:24:18PM +0100, Jaroslav Kysela wrote:
+> On Thu, 5 Jan 2006, Heikki Orsila wrote:
+> This sentence makes this in my mind: real people = lazy people.
 
-The SOUND_NM256 driver was not removed since the ALSA driver for this 
-hardware has known issues.
+Yes, but it has good reasons too. The real point of userspace libraries 
+and programs rather than kernel space is saving effort. Laziness in 
+programming is good so long as programs are readable and correct.
 
+Your success must be measured according to the number of bugs with ALSA 
+programs and the time used to develop ALSA support for them. Right now 
+it looks very bad to me. Even libao can't handle ALSA well, and knowing 
+some XMMS developers they have hard time with ALSAs complexity. KISS.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> The error codes are documented well.
 
----
+That's a bad excuse for requiring buffer underruns to be handled 
+specially because it's not a fatal error. Errors should be handled 
+as close to the error source as possible, and the ALSA lib is the 
+logical place to handle underrun by default (unless the application 
+really is interested in handling underruns specially). Passing errors 
+through unreasonably many layers causes more complexity for programmers.
 
-This batch of scheduled removals does _not_ include the SOUND_ICH driver 
-whose possible removal Andi objected to.
+> > 	err = alsa_simple_pcm_open(nchannels, sampleformat, samplingrate, frames_in_period /* 0 for automated default */ );
+> > 	err = alsa_simple_writei(); /* handless signal brokeness automagically */
+> > 	alsa_simple_close();
+> 
+> Well, it's better to create only "fast parameter setup" and "default error 
+> recovery" functions.
 
-Due to it's size, the patch is available at
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/misc/patch-oss-removal-2.gz
+As long as all applications PCM code can be written into 10-20 C lines. 
+That includes: opening device, writing pcm data and closing the device. 
 
- Documentation/feature-removal-schedule.txt |    7 
- Documentation/sound/oss/AWE32              |   76 
- Documentation/sound/oss/CMI8338            |   85 
- Documentation/sound/oss/CS4232             |   23 
- Documentation/sound/oss/MAD16              |   56 
- Documentation/sound/oss/Maestro            |  123 
- Documentation/sound/oss/Maestro3           |   92 
- Documentation/sound/oss/NEWS               |   42 
- Documentation/sound/oss/OPL3-SA            |   52 
- Documentation/sound/oss/Wavefront          |  339 -
- Documentation/sound/oss/btaudio            |   92 
- Documentation/sound/oss/es1370             |   70 
- Documentation/sound/oss/es1371             |   64 
- Documentation/sound/oss/rme96xx            |  767 --
- Documentation/sound/oss/solo1              |   70 
- Documentation/sound/oss/sonicvibes         |   81 
- MAINTAINERS                                |   36 
- arch/ppc/platforms/prep_setup.c            |   81 
- include/asm-powerpc/dma.h                  |   39 
- include/linux/ac97_codec.h                 |    5 
- include/linux/sound.h                      |    2 
- include/sound/wavefront.h                  |  695 --
- include/sound/wavefront_fx.h               |    9 
- sound/oss/Kconfig                          |  399 -
- sound/oss/Makefile                         |   66 
- sound/oss/ac97_codec.c                     |   89 
- sound/oss/ac97_plugin_ad1980.c             |  126 
- sound/oss/ad1848.c                         |    5 
- sound/oss/ad1848.h                         |    1 
- sound/oss/ali5455.c                        | 3733 ------------
- sound/oss/au1000.c                         | 2214 -------
- sound/oss/audio_syms.c                     |    3 
- sound/oss/awe_hw.h                         |   99 
- sound/oss/awe_wave.c                       | 6147 ---------------------
- sound/oss/awe_wave.h                       |   77 
- sound/oss/btaudio.c                        | 1136 ---
- sound/oss/cmpci.c                          | 3379 -----------
- sound/oss/cs4232.c                         |  522 -
- sound/oss/cs4281/Makefile                  |    6 
- sound/oss/cs4281/cs4281_hwdefs.h           | 1234 ----
- sound/oss/cs4281/cs4281_wrapper-24.c       |   41 
- sound/oss/cs4281/cs4281m.c                 | 4506 ---------------
- sound/oss/cs4281/cs4281pm-24.c             |   84 
- sound/oss/cs4281/cs4281pm.h                |   74 
- sound/oss/dm.h                             |   79 
- sound/oss/dmabuf.c                         |   46 
- sound/oss/emu10k1/8010.h                   |  737 --
- sound/oss/emu10k1/Makefile                 |   17 
- sound/oss/emu10k1/audio.c                  | 1588 -----
- sound/oss/emu10k1/audio.h                  |   44 
- sound/oss/emu10k1/cardmi.c                 |  832 --
- sound/oss/emu10k1/cardmi.h                 |   97 
- sound/oss/emu10k1/cardmo.c                 |  229 
- sound/oss/emu10k1/cardmo.h                 |   62 
- sound/oss/emu10k1/cardwi.c                 |  373 -
- sound/oss/emu10k1/cardwi.h                 |   91 
- sound/oss/emu10k1/cardwo.c                 |  643 --
- sound/oss/emu10k1/cardwo.h                 |   90 
- sound/oss/emu10k1/ecard.c                  |  157 
- sound/oss/emu10k1/ecard.h                  |  113 
- sound/oss/emu10k1/efxmgr.c                 |  220 
- sound/oss/emu10k1/efxmgr.h                 |  270 
- sound/oss/emu10k1/emuadxmg.c               |  104 
- sound/oss/emu10k1/hwaccess.c               |  507 -
- sound/oss/emu10k1/hwaccess.h               |  247 
- sound/oss/emu10k1/icardmid.h               |  163 
- sound/oss/emu10k1/icardwav.h               |   53 
- sound/oss/emu10k1/irqmgr.c                 |  113 
- sound/oss/emu10k1/irqmgr.h                 |   52 
- sound/oss/emu10k1/main.c                   | 1475 -----
- sound/oss/emu10k1/midi.c                   |  611 --
- sound/oss/emu10k1/midi.h                   |   78 
- sound/oss/emu10k1/mixer.c                  |  690 --
- sound/oss/emu10k1/passthrough.c            |  235 
- sound/oss/emu10k1/passthrough.h            |   99 
- sound/oss/emu10k1/recmgr.c                 |  147 
- sound/oss/emu10k1/recmgr.h                 |   48 
- sound/oss/emu10k1/timer.c                  |  176 
- sound/oss/emu10k1/timer.h                  |   54 
- sound/oss/emu10k1/voicemgr.c               |  398 -
- sound/oss/emu10k1/voicemgr.h               |  103 
- sound/oss/es1370.c                         | 2818 ---------
- sound/oss/es1371.c                         | 3129 ----------
- sound/oss/esssolo1.c                       | 2514 --------
- sound/oss/forte.c                          | 2137 -------
- sound/oss/gus.h                            |   24 
- sound/oss/gus_card.c                       |  293 -
- sound/oss/gus_hw.h                         |   50 
- sound/oss/gus_linearvol.h                  |   18 
- sound/oss/gus_midi.c                       |  256 
- sound/oss/gus_vol.c                        |  153 
- sound/oss/gus_wave.c                       | 3464 -----------
- sound/oss/harmony.c                        | 1330 ----
- sound/oss/ics2101.c                        |  247 
- sound/oss/mad16.c                          | 1113 ---
- sound/oss/maestro.c                        | 3833 -------------
- sound/oss/maestro.h                        |   60 
- sound/oss/maestro3.c                       | 2973 ----------
- sound/oss/maestro3.h                       |  821 --
- sound/oss/maui.c                           |  478 -
- sound/oss/mpu401.c                         |   13 
- sound/oss/mpu401.h                         |    2 
- sound/oss/opl3sa.c                         |  329 -
- sound/oss/rme96xx.c                        | 1856 ------
- sound/oss/rme96xx.h                        |   78 
- sound/oss/sequencer_syms.c                 |    7 
- sound/oss/sgalaxy.c                        |  207 
- sound/oss/sonicvibes.c                     | 2807 ---------
- sound/oss/sound_calls.h                    |    3 
- sound/oss/sscape.c                         | 1479 -----
- sound/oss/tuning.h                         |   10 
- sound/oss/via82cxxx_audio.c                | 3616 ------------
- sound/oss/wavfront.c                       | 3554 ------------
- sound/oss/wf_midi.c                        |  880 ---
- sound/oss/ymfpci.c                         | 2692 ---------
- sound/oss/ymfpci.h                         |  360 -
- sound/oss/ymfpci_image.h                   | 1565 -----
- sound/oss/yss225.c                         |  319 -
- sound/oss/yss225.h                         |   24 
- sound/sound_core.c                         |   34 
- 120 files changed, 12 insertions(+), 83422 deletions(-)
+> > Basically ogg123/mpg123 like applications would only need 3 alsa calls. 
+> > Now everyone reimplementing their own buggy versions of simple mechanisms.
+> 
+> While "official" examples exists for a long time.
 
+btw. your official examples don't work on simple PCM playback didn't 
+work when I last time tried. Sorry, I can't remember details because it 
+is so long ago.
+
+-- 
+Heikki Orsila			Barbie's law:
+heikki.orsila@iki.fi		"Math is hard, let's go shopping!"
+http://www.iki.fi/shd

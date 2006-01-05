@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752068AbWAEGmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752072AbWAEGnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752068AbWAEGmz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 01:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752075AbWAEGmy
+	id S1752072AbWAEGnF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 01:43:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752073AbWAEGnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 01:42:54 -0500
-Received: from mail.gmx.de ([213.165.64.21]:36265 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752070AbWAEGmx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 01:42:53 -0500
-X-Authenticated: #24128601
-Date: Thu, 5 Jan 2006 07:43:03 +0100
-From: Sebastian <sebastian_ml@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Message-ID: <20060105064303.GA8927@section_eight.mops.rwth-aachen.de>
-References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <20060104092058.GN3472@suse.de> <20060104092443.GO3472@suse.de>
+	Thu, 5 Jan 2006 01:43:05 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:56774 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1752072AbWAEGnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 01:43:01 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060103192449.GA26030@dspnet.fr.eu.org>
+References: <20050726150837.GT3160@stusta.de>
+	 <200601031629.21765.s0348365@sms.ed.ac.uk>
+	 <20060103170316.GA12249@dspnet.fr.eu.org>
+	 <200601031716.13409.s0348365@sms.ed.ac.uk>
+	 <20060103192449.GA26030@dspnet.fr.eu.org>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 01:42:57 -0500
+Message-Id: <1136443378.24475.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
-Content-Disposition: inline
-In-Reply-To: <20060104092443.GO3472@suse.de>
-X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+X-Mailer: Evolution 2.5.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-01-03 at 20:24 +0100, Olivier Galibert wrote:
+> As for the OSS API being crippled, I'd take the 3 ioctl calls you need
+> to setup a simple stereo 16bits output with OSS than the 13 ALSA
+> library calls anyday.  Especially with the impressive lack of
+> documentation you get about what the hell is a period, or what you can
+> do except aborting when you get an error. 
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Same thing as a fragment in OSS.  It's the number of frames between
+interrupts from the audio interface.
 
-Hello all!
+Come on, Google could have told you that in 5 seconds.
 
-I'd be kind if you would cc me in case you reply as I'm not (yet)
-subscribed to this list.
-
-On Mi, Jan 04, 2006 at 10:24:44 +0100, Jens Axboe wrote:
-> unno what Windows does.
-
-EAC prefers ASPI, but it falls back to Windows' native SCSI emu layer if
-ASPI is not installed.
-
-Sebastian
-
---=20
-"When the going gets weird, the weird turn pro." (HST)
-
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDvL/3TWouIrjrWo4RAjgXAJ0Ws5OUJ8xxEAu/oGlTG6snb6GmggCfdYM0
-+Tj97KkWLnDO/P1Z961G9Fw=
-=HX4u
------END PGP SIGNATURE-----
-
---r5Pyd7+fXNt84Ff3--
+Lee
 

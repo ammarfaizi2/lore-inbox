@@ -1,99 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWAEBQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWAEBWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWAEBQW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWAEBQW
+	id S1751114AbWAEBWs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWAEBWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:16:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28137 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751108AbWAEBQV (ORCPT
+	Wed, 4 Jan 2006 20:22:48 -0500
+Received: from ns1.suse.de ([195.135.220.2]:45199 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751114AbWAEBWr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:16:21 -0500
-Date: Wed, 4 Jan 2006 17:18:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Latchesar Ionkov <lucho@ionkov.net>
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
-Subject: Re: [PATCH 3/3] v9fs: zero copy implementation
-Message-Id: <20060104171813.44f7e408.akpm@osdl.org>
-In-Reply-To: <20060105005731.GC27375@ionkov.net>
-References: <20060105005731.GC27375@ionkov.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jan 2006 20:22:47 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+Subject: Re: 2.6.15-ck1
+References: <200601041200.03593.kernel@kolivas.org>
+	<20060104190554.GG10592@redhat.com>
+	<20060104195726.GB14782@redhat.com>
+	<1136406837.2839.67.camel@laptopd505.fenrus.org>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Jan 2006 02:22:37 +0100
+In-Reply-To: <1136406837.2839.67.camel@laptopd505.fenrus.org>
+Message-ID: <p73y81vxyci.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Latchesar Ionkov <lucho@ionkov.net> wrote:
->
-> Performance enhancement reducing the number of copies in the data and
-> stat paths.
-> 
-> ...
-> diff --git a/fs/9p/mux.c b/fs/9p/mux.c
-> index 884fa75..e58c6ed 100644
-> --- a/fs/9p/mux.c
-> +++ b/fs/9p/mux.c
-> @@ -35,8 +35,8 @@
->  #include "debug.h"
->  #include "v9fs.h"
->  #include "9p.h"
-> -#include "transport.h"
->  #include "conv.h"
-> +#include "transport.h"
->  #include "mux.h"
->  
->  #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
-> @@ -76,6 +76,7 @@ struct v9fs_mux_data {
->  	wait_queue_head_t equeue;
->  	struct list_head req_list;
->  	struct list_head unsent_req_list;
-> +	struct v9fs_fcall *rcall;
->  	int rpos;
->  	char *rbuf;
->  	int wpos;
-> @@ -103,11 +104,15 @@ struct v9fs_mux_rpc {
->  	wait_queue_head_t wqueue;
->  };
->  
-> +extern int v9fs_errstr2errno(char *str, int len);
-> +
+Arjan van de Ven <arjan@infradead.org> writes:
 
-Please don't put extern declarations in .c files.  This declaraton is
-already in error.h so I suspect it can just be axed.
 
->  static int v9fs_poll_proc(void *);
->  static void v9fs_read_work(void *);
->  static void v9fs_write_work(void *);
->  static void v9fs_pollwait(struct file *filp, wait_queue_head_t * wait_address,
->  			  poll_table * p);
-> +static u16 v9fs_mux_get_tag(struct v9fs_mux_data *);
-> +static void v9fs_mux_put_tag(struct v9fs_mux_data *, u16);
->  
->  static DECLARE_MUTEX(v9fs_mux_task_lock);
->  static struct workqueue_struct *v9fs_mux_wq;
-> @@ -168,8 +173,9 @@ static void v9fs_mux_poll_start(struct v
->  			if (v9fs_mux_poll_tasks[i].task == NULL) {
->  				vpt = &v9fs_mux_poll_tasks[i];
->  				dprintk(DEBUG_MUX, "create proc %p\n", vpt);
-> -				vpt->task = kthread_create(v9fs_poll_proc, 
-> -					vpt, "v9fs-poll");
-> +				vpt->task =
-> +				    kthread_create(v9fs_poll_proc, vpt,
-> +						   "v9fs-poll");
+> sounds like we need some sort of profiler or benchmarker or at least a
+> tool that helps finding out which timers are regularly firing, with the
+> aim at either grouping them or trying to reduce their disturbance in
+> some form.
 
-What happens if kthread_create() fails?
+I did one some time ago for my own noidletick patch. Can probably dig
+it out again. It just profiled which timers interrupted idle.
 
->  	dprintk(DEBUG_VFS, " \n");
->  
-> -	v9ses = kcalloc(1, sizeof(struct v9fs_session_info), GFP_KERNEL);
-> +	v9ses = kmalloc(sizeof(struct v9fs_session_info), GFP_KERNEL);
->  	if (!v9ses)
->  		return ERR_PTR(-ENOMEM);
->  
-> +	memset(v9ses, 0, sizeof(struct v9fs_session_info));
+Executive summary for my laptop: worst was the keyboard driver (it ran
+some polling driver to work around some hardware bug, but fired very
+often) , followed by the KDE desktop (should be mostly
+fixed now, I complained) and the X server and some random kernel 
+drivers.
 
-We have nice kzalloc() which does this.  (If/when this is changed, please
-convert all of v9fs in one patch).
+I haven't checked recently if keyboard has been fixed by now.
 
+-Andi
 

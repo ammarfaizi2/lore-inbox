@@ -1,66 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752103AbWAEHTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751916AbWAEHaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752103AbWAEHTG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 02:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752101AbWAEHTG
+	id S1751916AbWAEHaT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 02:30:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751924AbWAEHaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 02:19:06 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:2766 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1752099AbWAEHTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 02:19:05 -0500
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Peter Bortas <bortas@gmail.com>, Stefan Smietanowski <stesmi@stesmi.com>,
-       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0601050812040.10161@yvahk01.tjqt.qr>
-References: <200601031522.06898.s0348365@sms.ed.ac.uk>
-	 <s5hvex1m472.wl%tiwai@suse.de>
-	 <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
-	 <20060103215654.GH3831@stusta.de> <20060103221314.GB23175@irc.pl>
-	 <20060103231009.GI3831@stusta.de>
-	 <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl>
-	 <43BB16C0.3080308@stesmi.com>
-	 <Pine.BSO.4.63.0601040146540.29027@rudy.mif.pg.gda.pl>
-	 <43BB9A0B.3010209@stesmi.com>
-	 <7e5f60720601041903s3462bf9bib9ada16fe70ef988@mail.gmail.com>
-	 <Pine.LNX.4.61.0601050812040.10161@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 02:19:00 -0500
-Message-Id: <1136445541.24475.21.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jan 2006 02:30:19 -0500
+Received: from quechua.inka.de ([193.197.184.2]:36267 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1751916AbWAEHaS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 02:30:18 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: oops pauser. / boot_delayer
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20060104221023.10249eb3.rdunlap@xenotime.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1EuPZg-0008Kw-00@calista.inka.de>
+Date: Thu, 05 Jan 2006 08:30:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 08:13 +0100, Jan Engelhardt wrote:
-> >No. Everything on Solaris uses the Solaris native sound API except for
-> >possibly quick-hack ports of applications from Linux. Doing anything
-> >else would as you say be insane and break things like device
-> >redirection on Sunrays.
-> >
-> Device redirection is just "writing to a different /dev node" - on
-> Solaris and Linux. IIRC, the API is the same.
+Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> This one delays each printk() during boot by a variable time
+> (from kernel command line), while system_state == SYSTEM_BOOTING.
 
-This whole "OSS is cross platform" thing seems mostly like a cop out by
-lazy developers who can't be bothered to grok ALSA.  None of the usual
-offenders (Skype, Quake 3, Doom 3) run on any other Unix platform so why
-not just use ALSA?
+This sounds a bit like a aprils fool joke, what it is meant to do? You can
+read the messages in the bootlog and use the scrollback keys, no?
 
-It does not help that the most problematic apps seem to be proprietary
-(most likely they are abusing the OSS API in a way that no one
-anticipated).
-
-Lee
-
+Gruss
+Bernd

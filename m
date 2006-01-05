@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWAEBsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWAEBsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWAEBsz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 20:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWAEBsy
+	id S1751138AbWAEBsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 20:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWAEBsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 20:48:54 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:44770 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S1751154AbWAEBsy (ORCPT
+	Wed, 4 Jan 2006 20:48:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58753 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751138AbWAEBsY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 20:48:54 -0500
-Date: Wed, 4 Jan 2006 17:48:35 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] protect remove_proc_entry
-Message-ID: <20060105014835.GB84622@gaz.sfgoth.com>
-References: <1135973075.6039.63.camel@localhost.localdomain> <1135978110.6039.81.camel@localhost.localdomain> <20051230215544.GI27284@gaz.sfgoth.com> <1135980542.6039.84.camel@localhost.localdomain> <1135981124.6039.90.camel@localhost.localdomain> <20060104012105.64e0e5cf.akpm@osdl.org> <Pine.LNX.4.58.0601040716190.3052@gandalf.stny.rr.com>
+	Wed, 4 Jan 2006 20:48:24 -0500
+Date: Wed, 4 Jan 2006 17:48:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jeff shia <tshxiayu@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what is the state of current after an mm_fault occurs?
+Message-Id: <20060104174808.7b882af8.akpm@osdl.org>
+In-Reply-To: <7cd5d4b40601040240n79b2d654t33424e91059988a9@mail.gmail.com>
+References: <7cd5d4b40601040240n79b2d654t33424e91059988a9@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601040716190.3052@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Wed, 04 Jan 2006 17:48:36 -0800 (PST)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> > I guess the lock_kernel() approach is the way to go.  Fixing a race and
-> > de-BKLing procfs are separate exercises...
-> >
-> > Did the patch work?
-> 
-> Sorry, I forgot to respond, because the test is still running ;)
-> 
-> So yes, it not only ran for three days, it ran for six. I just killed it.
+jeff shia <tshxiayu@gmail.com> wrote:
+>
+>        In my opinion, the state of current should be TASK_RUNNING
+>  after an mm_fault occurs.But I donot know why the function of
+>  handle_mm_fault() set the state of current TASK_RUNNING.
 
-Have you looked at the other paths that touch ->subdir?  Namely:
-  proc_devtree.c:
-    proc_device_tree_add_node() -- plays games with ->subdir directly
-  generic.c:
-    proc_create() -- calls xlate_proc_name() which touches ->subdir and
-      should therefore probably be called under BKL
-    proc_register() -- both the call to xlate_proc_name() and the
-      following accesses to ->subdir should be under BKL
+It was a long time ago.. 2.4.early, perhaps.
 
--Mitch
+There was a place (maybe in the select() code) where we were doing
+copy_*_user() while in state TASK_INTERRUPTIBLE.  And iirc there was a
+place in the pagefault code which did schedule().  So we would occasionally
+hit schedule() in state TASK_INTERRUPTIBLE, when we expected to be in state
+TASK_RUNNING.
+
+So we made handle_mm_fault() set TASK_RUNNING to prevent any further such
+things.
+

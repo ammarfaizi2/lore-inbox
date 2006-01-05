@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWAFACH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752305AbWAFACc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWAFACH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWAFACG
+	id S1752305AbWAFACc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752306AbWAFACb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:02:06 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:36299 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932291AbWAFACD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:02:03 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: [PATCH 2.6.15 1/2] ia64: use i386 dmi_scan.c
-Date: Thu, 5 Jan 2006 17:02:00 -0700
-User-Agent: KMail/1.8.3
-Cc: Alex Williamson <alex.williamson@hp.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ia64@vger.kernel.org,
-       ak@suse.de, openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <20060104221627.GA26064@lists.us.dell.com> <20060105173740.GA20650@lists.us.dell.com> <200601051054.18867.bjorn.helgaas@hp.com>
-In-Reply-To: <200601051054.18867.bjorn.helgaas@hp.com>
+	Thu, 5 Jan 2006 19:02:31 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:34150 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP id S932303AbWAFACQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 19:02:16 -0500
+Date: Fri, 6 Jan 2006 01:59:37 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <1136504460.847.91.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de>  <20060103193736.GG3831@stusta.de>
+  <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> 
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com> 
+ <20060104030034.6b780485.zaitcev@redhat.com>  <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+  <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> 
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> 
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>  <s5hmziaird8.wl%tiwai@suse.de>
+  <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <1136504460.847.91.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601051702.00150.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 January 2006 10:54, Bjorn Helgaas wrote:
-> On Thursday 05 January 2006 10:37, Matt Domsch wrote:
-> > This system (Dell PowerEdge 7250, very very similar to an Intel
-> > 4-way Itanium2 server) doesn't have an SPMI table, but it does have
-> > the IPMI information in the SMBIOS table.
+On Thu, 5 Jan 2006, Lee Revell wrote:
+
+> On Fri, 2006-01-06 at 01:06 +0200, Hannu Savolainen wrote:
+> > We have not received any single bug report that is caused 
+> > by the concept of kernel mixing.
+> > Kernel mixing is not rocket science. All you need to do is picking a 
+> > sample from the output buffers of each of the applications, sum them 
+> > together (with some volume scaling) and feed the result to the
+> > physical 
+> > device. 
 > 
-> But the IPMI device *should* be described in the ACPI namespace, so
-> using acpi_bus_register_driver() should be sufficient.
+> Hey, interesting, this is exactly what dmix does in userspace.  And we
+> have not seen any bug reports caused by the concept of userspace mixing
+> (just implementation bugs like any piece of software).
+Having dmix working in user space doesn't prove that kernel level mixing 
+is evil. This was the original topic.
 
-You mentioned on IRC that /sys/firmware/acpi/namespace didn't
-contain anything that looked like an IPMI device.  Try dumping the
-actual DSDT and looking there -- I'm not sure everything makes it
-into /sys/firmware/acpi/...
+Best regards,
 
-Use the latest "pmtools" from here:
-    http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils
-
-and "iasl" to disassemble it.
-
-I did this on an Intel Tiger, and didn't see any "IPI" devices in the
-namespace either.  I think it's a firmware bug if the hardware
-is there but not described in the namespace.
-
-So maybe you'd have to grub through SMBIOS to workaround
-the firmware defect.
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

@@ -1,104 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWAEABv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWAEAIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWAEABv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWAEABv
+	id S1750793AbWAEAIu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWAEAIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:01:51 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:48864 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750792AbWAEABu
+	Wed, 4 Jan 2006 19:08:50 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:55702 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750793AbWAEAIu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:01:50 -0500
-Message-ID: <43BC61EA.7030406@watson.ibm.com>
-Date: Wed, 04 Jan 2006 19:01:46 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Wed, 4 Jan 2006 19:08:50 -0500
+Message-ID: <43BC636D.3070109@zytor.com>
+Date: Wed, 04 Jan 2006 16:08:13 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Helsley <matthltc@us.ibm.com>
-CC: Jay Lan <jlan@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       LSE <lse-tech@lists.sourceforge.net>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
-       John Hesterberg <jh@sgi.com>
-Subject: Re: [ckrm-tech] Re: [Patch 6/6] Delay accounting: Connector	interface
-References: <43BB05D8.6070101@watson.ibm.com>	 <43BB09D4.2060209@watson.ibm.com>  <43BC1C43.9020101@engr.sgi.com> <1136414431.22868.115.camel@stark>
-In-Reply-To: <1136414431.22868.115.camel@stark>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: Greg KH <greg@kroah.com>, Nick Warne <nick@linicks.net>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+Subject: Re: 2.6.14.5 to 2.6.15 patch
+References: <200601041710.37648.nick@linicks.net> <200601042010.36208.s0348365@sms.ed.ac.uk> <20060104220157.GB12778@kroah.com> <200601042249.12116.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200601042249.12116.s0348365@sms.ed.ac.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley wrote:
+Alistair John Strachan wrote:
+> 
+> Re-read the thread. The confusion here is about "going back" to 2.6.14 before 
+> patching 2.6.15. This has nothing to do with "rc kernels". We have this 
+> documented explicitly in the kernel but not on the kernel.org FAQ.
+> 
 
->On Wed, 2006-01-04 at 11:04 -0800, Jay Lan wrote:
->  
->
->>Shailabh Nagar wrote:
->>    
->>
-><snip>
->  
->
->>>Index: linux-2.6.15-rc7/kernel/exit.c
->>>===================================================================
->>>--- linux-2.6.15-rc7.orig/kernel/exit.c
->>>+++ linux-2.6.15-rc7/kernel/exit.c
->>>@@ -29,6 +29,7 @@
->>>#include <linux/syscalls.h>
->>>#include <linux/signal.h>
->>>#include <linux/cn_proc.h>
->>>+#include <linux/cn_stats.h>
->>>
->>>#include <asm/uaccess.h>
->>>#include <asm/unistd.h>
->>>@@ -865,6 +866,7 @@ fastcall NORET_TYPE void do_exit(long co
->>>
->>>	tsk->exit_code = code;
->>>	proc_exit_connector(tsk);
->>>+	cnstats_exit_connector(tsk);
->>> 
->>>      
->>>
->>We need to move both proc_exit_connector(tsk) and
->>cnstats_exit_connector(tsk) up to before exit_mm(tsk) statement.
->>There are task statistics collected in task->mm and those stats
->>will be lost after exit_mm(tsk).
->>
->>Thanks,
->> - jay
->>
->>    
->>
->>>	exit_notify(tsk);
->>>#ifdef CONFIG_NUMA
->>>	mpol_free(tsk->mempolicy);
->>>-
->>>      
->>>
->
->	Good point. The assignment of the task exit code will also have to move
->up before exit_mm(tsk) because the process event connector exit function
->retrieves the exit code from the task struct.
->  
->
-Why does proc_exit_connector need to move ? It only uses 
-task->{pid,tgid,exit_code,exit_signal}, none of which
-should be affected by exit_mm(), right ?
+If you can send me some suggested verbiage I'll put it in the FAQ.  We 
+can also make a page that's directly linked from the "stable release", 
+kind of like we have info links for -mm patches etc.
 
--- Shailabh
-
->	Moving these may also affect the job/pagg/task_notify/cpuset exit
->notification if we're eventually going to remove *direct* calls to these
->from kernel/exit.c.
->
->Cheers,
->	-Matt Helsley
->
->
->  
->
-
-
+	-hpa

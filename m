@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWAEXYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWAEX1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWAEXYR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 18:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWAEXYR
+	id S1751381AbWAEX1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 18:27:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWAEX1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 18:24:17 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12552 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750797AbWAEXYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 18:24:16 -0500
-Date: Thu, 5 Jan 2006 23:24:10 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT 1/29] Add bus_type probe, remove, shutdown methods.
-Message-ID: <20060105232410.GA5399@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20060105142951.13.01@flint.arm.linux.org.uk> <20060105230739.GA27466@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jan 2006 18:27:15 -0500
+Received: from c-67-174-241-67.hsd1.ca.comcast.net ([67.174.241.67]:16334 "EHLO
+	plato.virtuousgeek.org") by vger.kernel.org with ESMTP
+	id S1751219AbWAEX1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:27:12 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+Date: Thu, 5 Jan 2006 15:27:05 -0800
+User-Agent: KMail/1.9
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+References: <43BC716A.5080204@mbligh.org> <20060105225513.GA1570@elte.hu> <20060105231150.GR3356@waste.org>
+In-Reply-To: <20060105231150.GR3356@waste.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060105230739.GA27466@kroah.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200601051527.05817.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 03:07:39PM -0800, Greg KH wrote:
-> On Thu, Jan 05, 2006 at 02:29:51PM +0000, Russell King wrote:
-> > Add bus_type probe, remove and shutdown methods to replace the
-> > corresponding methods in struct device_driver.  This matches
-> > the way we handle the suspend/resume methods.
-> > 
-> > Since the bus methods override the device_driver methods, warn
-> > if a device driver is registered whose methods will not be
-> > called.
-> > 
-> > The long-term idea is to remove the device_driver methods entirely.
-> > 
-> > Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> 
-> All of this looks good to me, want me to add them to my tree and forward
-> it on to Linus?
+On Thursday, January 5, 2006 3:11 pm, Matt Mackall wrote:
+> I'm still not sure about in-source annotations for popularity. My
+> suspicion is that it's just too workload-dependent, and a given
+> author's workload will likely be biased towards their code.
 
-As far as forwarding to Linus, not sure about that yet - I suspect
-these patches may cause akpm some reject grief since they're fairly
-wide-spread over the kernel.  If akpm prefers the small patches
-instead of one large one, it may make sense for it to go via akpm.
+To some extent that's true, but like Linus implied with his "5% work gets 
+us 80% there" I think there are a ton of obvious cases, e.g. kmalloc, 
+alloc_pages, interrupt handling, etc. that could be marked right away 
+and put into a frequently used section.
 
-I don't have a preference myself - it's whatever's easiest for others.
-
-> thanks for doing this work, I really appreciate it.
-
-Obviously, there's still more to come when I get a round tuit, but
-this should provide sufficient infrastructure to allow folk to
-move over the remaining areas if I don't get there first.  ISTR
-SCSI requires a bit of work.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Jesse

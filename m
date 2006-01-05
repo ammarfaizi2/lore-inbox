@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWAENgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWAENfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWAENgA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 08:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWAENgA
+	id S1750744AbWAENfp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 08:35:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWAENfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 08:36:00 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:60066 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751180AbWAENf7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 08:35:59 -0500
-Subject: Re: oops pauser.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060105045212.GA15789@redhat.com>
-References: <20060105045212.GA15789@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 05 Jan 2006 13:37:33 +0000
-Message-Id: <1136468254.16358.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 5 Jan 2006 08:35:45 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:15864 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750744AbWAENfo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 08:35:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YZ3FHxz1TR2JU7V50FMwKU/Wk85fCm6MmByCuwF8+RdUHlEuEz8sGR3NFlvnDuA4tQgFE+hqUOuk24/LWCbomwrBxxwyO1q2hQ/VLRulMvNKsAP1Yepf85deKmIuS7BRaDopEVEgFAsm7M/h8aKt24ycv1pDPhNC3YKByhJ2OBw=
+Message-ID: <84144f020601050535l30f57036g4477c650081a8a55@mail.gmail.com>
+Date: Thu, 5 Jan 2006 15:35:42 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: takis@issaris.org
+Subject: Re: [PATCH] drivers/media: Conversions from kmalloc+memset to k(z|c)alloc.
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+In-Reply-To: <20060105130229.7E65F6B35@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060105130229.7E65F6B35@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-01-04 at 23:52 -0500, Dave Jones wrote:
-> With this patch, if we oops, there's a pause for a two minutes..
-> which hopefully gives people enough time to grab a digital camera
-> to take a screenshot of the oops.
+On 1/5/06, Panagiotis Issaris <takis@issaris.org> wrote:
+> From: Panagiotis Issaris <takis@issaris.org>
+>
+> Conversions from kmalloc+memset to k(z|c)alloc.
 
-This appears to reduce the amount of information available as an oops
-instead of spewing to the log and continuing generally will hang the box
-stopping the scroll keys being used or dmesg being used to get the data
-out. 
+Looks good to me. I assume you have made sure it compiles?
 
-Who is going to wait two minutes for an oops when for most users its
-their only box. Instead of pasting reports people will now reboot, or
-perhaps send you the half a report they can see (which because we dump
-too much info by default to fit the screen is also useless).
-
-> The one case this doesn't catch is the problem of oopses whilst
-> in X. Previously a non-fatal oops would stall X momentarily,
-> and then things continue. Now those cases will lock up completely
-> for two minutes. 
-
-The console has awareness of graphic/text mode at all times and knows
-what is going on. Why not use that information if you must go this way ?
-
-Alan
-
+                                           Pekka

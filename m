@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWAEAVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWAEAWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWAEAVe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 19:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWAEAVe
+	id S1750832AbWAEAWo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 19:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWAEAWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 19:21:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750830AbWAEAVd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 19:21:33 -0500
-Date: Thu, 5 Jan 2006 01:18:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux PM <linux-pm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC/RFT][PATCH -mm 2/5] swsusp: userland interface (rev. 2)
-Message-ID: <20060105001837.GA1751@elf.ucw.cz>
-References: <200601042340.42118.rjw@sisk.pl> <200601042351.58667.rjw@sisk.pl> <20060104234918.GA15983@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jan 2006 19:22:44 -0500
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:1241 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750832AbWAEAWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 19:22:43 -0500
+Date: Wed, 4 Jan 2006 19:17:47 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.15] i386: Optimize local APIC timer interrupt
+  code
+To: Andrew Morton <akpm@osdl.org>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Message-ID: <200601041922_MC3-1-B554-CF6A@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060104234918.GA15983@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In-Reply-To: <20060104150139.34829833.akpm@osdl.org>
 
-> > +static int __init snapshot_dev_init(void)
-> > +{
-> > +	int error;
-> > +
-> > +	error =  alloc_chrdev_region(&interface.devno, 0, 1, interface.name);
-> > +	if (error)
-> > +		return error;
-> > +	cdev_init(&interface.cdev, &snapshot_fops);
-> > +	interface.cdev.ops = &snapshot_fops;
-> > +	error = cdev_add(&interface.cdev, interface.devno, 1);
-> > +	if (error)
-> > +		goto Unregister;
-> > +	error = sysfs_create_file(&power_subsys.kset.kobj, &snapshot_attr.attr);
-> 
-> Heh, that's a neat hack, register a sysfs file that contains the
-> major:minor (there is a function that will print that the correct way,
-> if you really want to do that), in sysfs.  It's better to just register
-> a misc character device with the name "snapshot", and then udev will
-> create your userspace node with the proper major:minor all automatically
-> for you.
-> 
-> Unless you want to turn these into syscalls :)
 
-Well, I think we simply want to get static major/minor allocated for
-this device. It really uses read/write, IIRC, so no, I do not think we
-want to make it a syscall.
-								Pavel
+Andrew Morton wrote:
+
+> The code which you're patching is cheerfully nuked by a patch in Andi's
+> tree:
+> ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/no-subjiffy-profile
+>
+> I don't immediately understand that patch and I don't recall seeing it
+> discussed - maybe I was asleep.
+>
+> It removes the profile multiplier (readprofile -M).  I've used that
+> occasionally, but can't say that I noticed much benefit from it.
+
+ It's probably required for the i386-timer-broadcast patch from the same
+patchset.  Apparently some Intel CPUs stop their local APIC timer when in
+certain ACPI C-states, so that patch switches them to use an IPI broadcast
+from the main timer interrupt instead.  Supporting subjiffy profiling
+is impossible in that case, so the code was removed.
 
 -- 
-Thanks, Sharp!
+Chuck

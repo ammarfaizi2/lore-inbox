@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751926AbWAEEnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751927AbWAEEoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751926AbWAEEnM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jan 2006 23:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751927AbWAEEnM
+	id S1751927AbWAEEoj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jan 2006 23:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751928AbWAEEoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jan 2006 23:43:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:60824 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751926AbWAEEnM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jan 2006 23:43:12 -0500
-Date: Wed, 4 Jan 2006 20:42:39 -0800
-From: Greg KH <greg@kroah.com>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: userspace breakage
-Message-ID: <20060105044239.GA24764@kroah.com>
-References: <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com> <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org> <20051229230307.GB24452@redhat.com> <20060103202853.GF12617@kroah.com> <20060103203724.GG5819@redhat.com> <4d8e3fd30601041500t20f54dcdpdb6866b7753d1731@mail.gmail.com>
+	Wed, 4 Jan 2006 23:44:39 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29624 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751927AbWAEEoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jan 2006 23:44:38 -0500
+Subject: Re: sched.c:659 dec_rt_tasks BUG with patch-2.6.15-rt1
+	(realtime-preempt)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Nedko Arnaudov <nedko@arnaudov.name>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87u0cj5riq.fsf_-_@arnaudov.name>
+References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
+	 <20060102214516.GA12850@elte.hu> <87lkxyrzby.fsf_-_@arnaudov.name>
+	 <87u0cj5riq.fsf_-_@arnaudov.name>
+Content-Type: text/plain
+Date: Wed, 04 Jan 2006 23:44:33 -0500
+Message-Id: <1136436273.12468.113.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4d8e3fd30601041500t20f54dcdpdb6866b7753d1731@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 12:00:39AM +0100, Paolo Ciarrocchi wrote:
-> On 1/3/06, Dave Jones <davej@redhat.com> wrote:
-> > On Tue, Jan 03, 2006 at 12:28:53PM -0800, Greg Kroah-Hartman wrote:
-> >
-> >  > > I'm glad you agree.  I've decided to try something different once 2.6.16
-> >  > > is out.  Every day, I'm going to push the -git snapshot of the day into
-> >  > > a testing branch for Fedora users. (Normally, only rawhide[1] users
-> >  > > get to test kernel-de-jour, and this always has the latest userspace, so
-> >  > > we don't notice problems until a kernel point release and the stable
-> >  > > distro gets an update).
-> >  >
-> >  > Ah, nice idea, I'll try to set up the same thing for Gentoo's kernels.
-> >  > Hopefully the expanded coverage will help...
+On Thu, 2006-01-05 at 04:37 +0200, Nedko Arnaudov wrote:
+> > cdrecord issue is still there however. I got new screenshot (attached)
+> > for it. In the new one, some stack was dumped before freeze.
 > 
-> Greg,
-> did you manage for doing the same for Gentoo?
+> I was able to reproduce this by running oss2jack with -d option too.
+> oss2jack -d option daemonizes it. If I run oss2jack without daemonizing,
+> everything works and i'm not getting BUG at all.
 
-As there wasn't a more recent kernel than 2.6.15 until a few hours ago,
-no I haven't done this yet :)
+Could you send me your .config.  And this is a smp machine right?
 
-> If so, what's the approach? Is Gentoo now shipping pre-compiled -git
-> vanilla kernels as well?
+Thanks,
 
-Gentoo doesn't ship anything "pre-compiled" :)
+-- Steve
 
-Well, ok, I guess it does with the -bin packages...
 
-I was just going to build a -git kernel ebuild and let users update
-that.  But maybe I should start building pre-built kernels, I'll take it
-to the gentoo-dev list, as this isn't a linux-kernel specific thing.
-
-thanks,
-
-greg k-h

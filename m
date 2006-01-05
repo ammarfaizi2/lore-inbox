@@ -1,66 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752162AbWAET0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752166AbWAET2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752162AbWAET0e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 14:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752164AbWAET0d
+	id S1752166AbWAET2j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 14:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752160AbWAET2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 14:26:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:15001 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752162AbWAET0d (ORCPT
+	Thu, 5 Jan 2006 14:28:39 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:54483 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1752166AbWAET2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 14:26:33 -0500
-Date: Thu, 5 Jan 2006 11:17:38 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Martin Bligh <mbligh@mbligh.org>
-cc: Matt Mackall <mpm@selenic.com>, Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-In-Reply-To: <43BD5E6F.1040000@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org>
- <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org>
- <43BD5E6F.1040000@mbligh.org>
+	Thu, 5 Jan 2006 14:28:38 -0500
+From: Roger Leigh <rleigh@whinlatter.ukfsn.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       <autofs@linux.kernel.org>, <raven@themaw.net>
+Subject: Re: [linux-usb-devel] Re: BUG: 2.6.14/2.6.15: USB storage/ext2fs uninterruptable sleep
+References: <Pine.LNX.4.44L0.0601051355090.6460-100000@iolanthe.rowland.org>
+Date: Thu, 05 Jan 2006 19:28:09 +0000
+In-Reply-To: <Pine.LNX.4.44L0.0601051355090.6460-100000@iolanthe.rowland.org>
+	(Alan Stern's message of "Thu, 5 Jan 2006 14:00:08 -0500 (EST)")
+Message-ID: <87lkxupj92.fsf@hardknott.home.whinlatter.ukfsn.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Alan Stern <stern@rowland.harvard.edu> writes:
+
+> On Thu, 5 Jan 2006, Roger Leigh wrote:
+>
+>> > By any chance, does autofs or autofs4 mount your device with -o sync?  
+>> > Doing that with flash memory devices is a grave mistake -- although it 
+>> > shouldn't cause the sort of lock-up you described.
+>> 
+>> Yes.  I have
+>> 
+>> pen-secure  -fstype=ext2,sync,nodev,nosuid,noatime  :/dev/sda2
+>> 
+>> in /etc/auto.misc.  Removing the sync option does prevent the lockups.
+>> I just added it back and it locked up immediately.
+>
+> Sync for flash devices is generally a bad idea.  Especially with vfat 
+> filesystems but to some extent with all of them, it causes constant 
+> rewriting of sectors containing metadata.  Flash memory behaves poorly 
+> when the same sector gets written over and over again; it tends to slow 
+> down and eventually wear out completely.
+
+ACK.  The device is generally only used for reading, and I wanted it
+to be safe for accidental unplugging soon after a write (hence the
+reason I didn't spot it in 2.6.14: I hadn't written to it for six
+months!).  It's also supposed to do write-levelling, though I don't
+know how good it is.
+
+>> The usb/usb-storage logs are attached (device mount + command which
+>> broke it).  Would you like any more information?
+>
+> The log you provided shows only two commands, both of which completed 
+> successfully.  Is that really the place where things got hung?
+
+Yes.  I confirmed this with the kern.log timestamps.  The log might
+exclude the mount (it might be a chdir instead), but definitely
+includes the failure, since there were no further writes to the log
+for at least five minutes after the hang, with no further USB
+messages.  BTW, after the hangs I could still copy the file in
+question, and also create/delete other files on the same filesystem,
+so it was not entirely dead, just wedged on that one thing.
+
+> If it is then the problem isn't in the USB stack but someplace
+> higher up: the SCSI stack, the block layer, or the filesystem layer.
+
+Yikes.
 
 
-On Thu, 5 Jan 2006, Martin Bligh wrote:
-> 
-> There are tools already around to do this sort of thing as well - "profile
-> directed optimization" or whatever they called it. Seems to be fairly commonly
-> done with userspace, but not with the kernel. I'm not sure why not ...
-> possibly because it's not available for gcc ?
+Regards,
+Roger
 
-.. and they are totally useless.
+- -- 
+Roger Leigh
+                Printing on GNU/Linux?  http://gimp-print.sourceforge.net/
+                Debian GNU/Linux        http://www.debian.org/
+                GPG Public Key: 0x25BFB848.  Please sign and encrypt your mail.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8+ <http://mailcrypt.sourceforge.net/>
 
-The fact is, the last thing we want to do is to ship a magic profile file 
-around for each and every release. And that's what we'd have to do to
-get consistent and _useful_ performance increases.
-
-That kind of profile-directed stuff is useful mainly for commercial binary 
-releases (where the release binary can be guided by a profile file), or 
-speciality programs that can tune themselves a few times before running.
-
-A kernel that people recompile themselves simply isn't something where it 
-works.
-
-What _would_ work is something that actually CHECKS (and suggests) the 
-hints we already have in the kernel. IOW, you could have an automated 
-test-bed that runs some reasonable load, and then verifies whether there 
-are branches that go only one way that could be annotated as such, or 
-whether some annotation is wrong.
-
-That way the "profile data" actually follows the source code, and is thus 
-actually relevant to an open-source project. Because we do _not_ start 
-having specially optimized binaries. That's against the whole point of 
-being open source and trying to get users to get more deeply involved with 
-the project.
-
-			Linus
+iD8DBQFDvXM9VcFcaSW/uEgRAjJuAKDsfJtTwOhyuzopsR+M8yxU+3lgjgCfS1jb
+CabRaCer49elckXQmrKDKVY=
+=9891
+-----END PGP SIGNATURE-----

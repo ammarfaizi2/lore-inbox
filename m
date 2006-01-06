@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWAFP3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWAFPbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWAFP3R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 10:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWAFP3Q
+	id S1751303AbWAFPbW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 10:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWAFPbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 10:29:16 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:30919 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S1751128AbWAFP3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 10:29:16 -0500
-Message-ID: <43BE8C41.3010908@lanl.gov>
-Date: Fri, 06 Jan 2006 08:26:57 -0700
-From: Ronald G Minnich <rminnich@lanl.gov>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrew Morton <akpm@osdl.org>, discuss@x86-64.org, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, Yinghai Lu <yinghai.lu@amd.com>,
-       ak@muc.de, vgoyal@in.ibm.com
-Subject: Re: [LinuxBIOS] Inclusion of x86_64 memorize ioapic at bootup patch
-References: <20060103044632.GA4969@in.ibm.com>	<86802c440601051630i4d52aa2fj1a2990acf858cd63@mail.gmail.com>	<20060105163848.3275a220.akpm@osdl.org> <m164ox6ayf.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m164ox6ayf.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 6 Jan 2006 10:31:22 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:50608 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1751303AbWAFPbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 10:31:21 -0500
+Date: Fri, 6 Jan 2006 13:30:51 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: Adds missing kmalloc() checks.
+Message-Id: <20060106133051.367f2d9b.lcapitulino@mandriva.com.br>
+In-Reply-To: <1136561087.2940.39.camel@laptopd505.fenrus.org>
+References: <20060106131246.0b9fde8c.lcapitulino@mandriva.com.br>
+	<1136561087.2940.39.camel@laptopd505.fenrus.org>
+Organization: Mandriva
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm  just doing a reply to this message so you all can continue the 
-discussion without the posting problems to the closed linuxbios list.
+On Fri, 06 Jan 2006 16:24:47 +0100
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-Yh Lu, please cc: me and ollie if you can but not the linuxbios list on 
-these discussions. It is going to annoy people when they get the bounce 
-message.
+| On Fri, 2006-01-06 at 13:12 -0200, Luiz Fernando Capitulino wrote:
+| >  Adds two missing kmalloc() checks in kmem_cache_init(). Note that if the
+| > allocation fails, there is nothing to do, so we panic();
+| 
+| ok so what good does this do? if you die this early.. you are in deeper
+| problems, and can't boot. while this makes the code bigger...
 
-I should add that I never quite understood Andi's objections to the 
-patch being discussed.
+ Well, you'll get a panic with a message saying you have no memory to
+boot, instead of a OOPS with a kernel NULL pointer derefecence, which
+will make you look for a bug.
 
-thanks
-
-ron
+-- 
+Luiz Fernando N. Capitulino

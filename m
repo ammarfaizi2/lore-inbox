@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWAFKrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWAFKqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWAFKrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 05:47:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWAFKrA
+	id S932260AbWAFKqX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 05:46:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWAFKp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 05:47:00 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:5274 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932397AbWAFKql (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 05:46:41 -0500
-Date: Fri, 6 Jan 2006 11:46:10 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-cc: Dave Jones <davej@redhat.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org, rms@gnu.org, torvalds@osdl.org
-Subject: Re: Add tainting for proprietary helper modules.
-In-Reply-To: <20060106094933.GB2807@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0601061139560.30781@yvahk01.tjqt.qr>
-References: <20051203004102.GA2923@redhat.com> <Pine.LNX.4.61.0512050832290.27133@chaos.analogic.com>
- <20051205173041.GE12664@redhat.com> <20060106094933.GB2807@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Jan 2006 05:45:59 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17043 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964906AbWAFKpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 05:45:51 -0500
+Subject: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
+From: Arjan van de Ven <arjan@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, mingo@elte.hu
+In-Reply-To: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 11:45:09 +0100
+Message-Id: <1136544309.2940.25.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Subject: when CONFIG_CC_OPTIMIZE_FOR_SIZE, allow gcc4 to control inlining
+From: Ingo Molnar <mingo@elte.hu>
 
->>  > > Kernels that have had Windows drivers loaded into them are undebuggable.
->>  > > I've wasted a number of hours chasing bugs filed in Fedora bugzilla
->>  > > only to find out much later that the user had used such 'helpers',
->>  > > and their problems were unreproducable without them loaded.
->>  > >
->>  > > Acked-by: Arjan van de Ven <arjan@infradead.org>
->>  > > Signed-off-by: Dave Jones <davej@redhat.com>
->>  > >
->>  > > --- linux-2.6.14/kernel/module.c~	2005-11-29 16:44:00.000000000 -0500
->>  > > +++ linux-2.6.14/kernel/module.c	2005-11-29 17:03:55.000000000 -0500
->>  > > @@ -1723,6 +1723,11 @@ static struct module *load_module(void _
->>  > > 	/* Set up license info based on the info section */
->>  > > 	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
->>  > >
->>  > > +	if (strcmp(mod->name, "ndiswrapper") == 0)
->>  > > +		add_taint(TAINT_PROPRIETARY_MODULE);
->>  > > +	if (strcmp(mod->name, "driverloader") == 0)
->>  > > +		add_taint(TAINT_PROPRIETARY_MODULE);
->>  > > +
->>  > > #ifdef CONFIG_MODULE_UNLOAD
->>  > > 	/* Set up MODINFO_ATTR fields */
->>  > > 	setup_modinfo(mod, sechdrs, infoindex);
+if optimizing for size (CONFIG_CC_OPTIMIZE_FOR_SIZE), allow gcc4 compilers
+to decide what to inline and what not - instead of the kernel forcing gcc
+to inline all the time. This requires several places that require to be 
+inlined to be marked as such, previous patches in this series do that.
+This is probably the most flame-worthy patch of the series.
 
-(That's like putting the PCI name device database back in.)
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
+----
 
->You've hard-coded some module names, that itself `taints' the
->kernel source IMO.  Blacklisting in kernel is both ugly and unacceptable.
->
->I agree that it would be convenient for you to only check if there's `Not tainted' in oops messages.  But I still suggest you to not hard-code them in the
->kernel source.  Instead you could use some script to grep the problematic module
->names in the `Modules linked in' field.
->
->For the long run, we could:
->
->1) Add some other mechanism, like MODULE_LICENSE_STRICT("GPL.strict").
->
->   GPL.strict:  A GPL.strict module is not only itself licensed under GPL,
->   but it shall not load/link any binary code (specially non-gpl binaries)
->   nor any non-GPL.strict code. This definition goes recursively.
->
+ include/linux/compiler-gcc4.h |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
 
-How are you going to verify that, how do you want to distinguish whether a
-certain byte range in memory (possibly beloaded with a windows driver) is prop
-or not?
+Index: linux-2.6.15/include/linux/compiler-gcc4.h
+===================================================================
+--- linux-2.6.15.orig/include/linux/compiler-gcc4.h
++++ linux-2.6.15/include/linux/compiler-gcc4.h
+@@ -3,9 +3,11 @@
+ /* These definitions are for GCC v4.x.  */
+ #include <linux/compiler-gcc.h>
+ 
+-#define inline			inline		__attribute__((always_inline))
+-#define __inline__		__inline__	__attribute__((always_inline))
+-#define __inline		__inline	__attribute__((always_inline))
++#ifndef CONFIG_CC_OPTIMIZE_FOR_SIZE
++# define inline			inline		__attribute__((always_inline))
++# define __inline__		__inline__	__attribute__((always_inline))
++# define __inline		__inline	__attribute__((always_inline))
++#endif
+ #define __always_inline		inline __attribute__((always_inline))
+ #define __deprecated		__attribute__((deprecated))
+ #define __attribute_used__	__attribute__((__used__))
 
 
-
-Jan Engelhardt
--- 

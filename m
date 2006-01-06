@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbWAFPXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWAFPZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751519AbWAFPXy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 10:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWAFPXy
+	id S932334AbWAFPZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 10:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWAFPZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 10:23:54 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:48787 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751518AbWAFPXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 10:23:53 -0500
-Date: Fri, 06 Jan 2006 10:23:51 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [RFC] why all the patches get messed up here!!!
-In-reply-to: <20060106081052.GA2807@localhost.localdomain>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200601061023.51389.gene.heskett@verizon.net>
-Organization: Absolutely none - usually detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
- <20060106081052.GA2807@localhost.localdomain>
-User-Agent: KMail/1.7
+	Fri, 6 Jan 2006 10:25:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:10672 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751515AbWAFPZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 10:25:03 -0500
+Subject: Re: [PATCH] slab: Adds missing kmalloc() checks.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+Cc: akpm <akpm@osdl.org>, penberg@cs.helsinki.fi,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060106131246.0b9fde8c.lcapitulino@mandriva.com.br>
+References: <20060106131246.0b9fde8c.lcapitulino@mandriva.com.br>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 16:24:47 +0100
+Message-Id: <1136561087.2940.39.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 January 2006 03:10, Coywolf Qi Hunt wrote:
+On Fri, 2006-01-06 at 13:12 -0200, Luiz Fernando Capitulino wrote:
+>  Adds two missing kmalloc() checks in kmem_cache_init(). Note that if the
+> allocation fails, there is nothing to do, so we panic();
 
-[...]
+ok so what good does this do? if you die this early.. you are in deeper
+problems, and can't boot. while this makes the code bigger...
 
->The most weird thought I hear this year, no offence really.
 
-Yes, but the year is quite young yet, CQH.  Surely there will be 
-something even more off the wall by Dec 31st.  I believe there is a 
-Murphy's Law corrollary about that but cannot quote it from memory, 
-that being the second thing to go you know.  Perhaps someone can 
-refresh our memories?
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

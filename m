@@ -1,108 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWAFABV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWAFAE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWAFABV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWAFABU
+	id S932304AbWAFAE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWAFAE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:01:20 -0500
-Received: from ds01.webmacher.de ([213.239.192.226]:5309 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S932290AbWAFABR convert rfc822-to-8bit
+	Thu, 5 Jan 2006 19:04:27 -0500
+Received: from digitalimplant.org ([64.62.235.95]:33954 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S932303AbWAFAEX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:01:17 -0500
-In-Reply-To: <43BDA02F.5070103@folkwang-hochschule.de>
-References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de> <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> <mailman.1136368805.14661.linux-kernel2news@redhat.com> <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <43BDA02F.5070103@folkwang-hochschule.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=UTF-8; delsp=yes; format=flowed
-Message-Id: <F2397D74-197C-4115-9626-F9BFA42215B2@dalecki.de>
-Cc: =?UTF-8?Q?Tomasz_K=C5=82oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Jaroslav Kysela <perex@suse.cz>, Pete Zaitcev <zaitcev@redhat.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Adrian Bunk <bunk@stusta.de>, Olivier Galibert <galibert@pobox.com>,
-       Tomasz Torcz <zdzichu@irc.pl>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Andi Kleen <ak@suse.de>, ALSA development <alsa-devel@alsa-project.org>,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       LKML <linux-kernel@vger.kernel.org>
+	Thu, 5 Jan 2006 19:04:23 -0500
+Date: Thu, 5 Jan 2006 16:04:07 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@ucw.cz>
+cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
+ interface
+In-Reply-To: <20060105235838.GC3339@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.50.0601051602560.10428-100000@monsoon.he.net>
+References: <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net>
+ <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net>
+ <20060105215528.GF2095@elf.ucw.cz> <20060105221334.GA925@isilmar.linta.de>
+ <20060105222338.GG2095@elf.ucw.cz> <20060105222705.GA12242@isilmar.linta.de>
+ <20060105230849.GN2095@elf.ucw.cz> <20060105234629.GA7298@isilmar.linta.de>
+ <20060105235838.GC3339@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
-From: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: [OT] ALSA userspace API complexity
-Date: Fri, 6 Jan 2006 01:00:58 +0100
-To: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2006-01-05, at 23:39, Joern Nettingsmeier wrote:
+On Fri, 6 Jan 2006, Pavel Machek wrote:
 
-> Tomasz KÅ‚oczko wrote:
->> List all neccessary feactures and abstract them. Below this layer  
->> you can plug to this all device drivers. Where is the problem ?
+> On Pá 06-01-06 00:46:29, Dominik Brodowski wrote:
+> > On Fri, Jan 06, 2006 at 12:08:49AM +0100, Pavel Machek wrote:
+> > > Ok, so lets at least add value-checking to .../power file, and prevent
+> > > userspace see changes to PM_EVENT_SUSPEND value. 2 and 0 are now
+> > > "arbitrary cookies". I'd like to use "on" and "off", but pcmcia
+> > > apparently depends on "2" and "0", so...
+> > >
+> > > Any objections?
+> >
+> > Sorry, but yes -- the same as before, minus the PCMCIA breakage.
 >
-> users want to use all the bells and whistles that modern sound  
-> hardware has to offer. so "necessary features" roughly equals the  
-> union of all the "cool ideas of the week" of all soundcard vendors.
-
-First and fore most users want simple things like for example playing  
-an mp3 file to just work.
-Your concept that very many of them are interested in the high end  
-"features" of hardware you assume to be modern is wrong. Did you ever  
-notice that sound cards got just reduced to a simple AD/DA converter  
-combination? Modern hardware is frequently actually MUCH MUCH simpler  
-then old one used to be in this area.
-
-> please have a look at, say, the rme hammerfall cards, compare them  
-> with ye olde sblive, then take a look at usb audio devices and for  
-> dessert, take a peek into current firewire hardware.
-
-The existence of /dev/sound doesn't prohibit the existence of
-/dev/bells_and_wistles (without any chance to work with anything else  
-then the vendors specific software).
-That was precisely the situation with my sam9700 card....
-
-> then push up your sleeves, design a small and elegant little  
-> abstraction mechanism that is maximally effective in all  
-> circumstances and makes all hardware features usable, wrap it up  
-> nicely and submit it to linus.
+> I don't understand at this point.
 >
-> i look forward to hearing back from you, in, oh, 2015 or so?
-
-Your assumption about "all circumstances" is misguided. There is no  
-requirement for one size fits all here.
-Look most people drive cars and not space shuttles.
-
-
-> jaroslav, takashi and the other alsa developers have been toiling  
-> with this for years, and i hate to see them having to take shit  
-> from people who don't do anything more with their sound hardware  
-> than listen to mp3s in stereo and can't imagine anything else.
-
-If hearing just the mp3 would just simply work with the alsa drivers  
-without getting in to too much hassle
-with AC97 sound cards, which usually don't even include hardware  
-based volume controls nowadays, I'm pretty sure they wouldn't have to  
-"take this shit". And you should remember the bold announcements they  
-did make in first place.
-
-> granted, there is always room for improvement. the alsa guys are  
-> very receptive towards constructive criticism, when it is backed  
-> with a little insight. many linux audio developers have criticised  
-> the API for the high initial barrier, and ALSA certainly does not  
-> score that high in the "making simple things simple" department.  
-> but it does make *complicated things possible*, and all those rants  
-> of "gimme back me oss" usually ignore this.
+> Current code takes value from user, and passes it down to driver,
+> without any checking. If user writes 666 into the file, it will
+> happily pass down 666 to the driver. Driver does not expect 666 in
+> pm_message_t.event. It may oops, BUG_ON() or anything like that.
 >
-> modem dialup users know better than to chime in to networking core  
-> discussions and complain they don't need all that complexity. why  
-> do professional audio users always have to put up with people who  
-> only listen to mp3s whining about a complicate API?
-> i'll always grant you far better taste and insight into kernel  
-> matters than i will ever have, but hey: the library is in  
-> userspace. it does not clutter the kernel. so rrreeelaax!
+> Shall I change
+>
+> #define PM_EVENT_SUSPEND 2
+>
+> to
+>
+> #define PM_EVENT_SUSPEND 1324
+>
+> to get my point across? This is kernel-specific value, it should not
+> be exported to userland.
 
-It clutters the application programming part very successfully.
+A better point, and one that would actually be useful, would be to remove
+the file altogether. Let Dominik export a power file, with complete
+control over the values, for each pcmcia device. Then you never have to
+worry about breaking PCMCIA again.
 
-BTW. Designing a sound API toward DMA, like ALSA does, is just plain  
-well beyond any hope...
+Thanks,
+
+
+	Patrick
+

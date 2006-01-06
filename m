@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWAFI3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWAFIeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWAFI3o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 03:29:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWAFI3o
+	id S1751475AbWAFIeD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 03:34:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWAFIeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 03:29:44 -0500
-Received: from www.tuxrocks.com ([64.62.190.123]:49156 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S932375AbWAFI3n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 03:29:43 -0500
-Message-ID: <43BE2A3A.9000706@tuxrocks.com>
-Date: Fri, 06 Jan 2006 01:28:42 -0700
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 6 Jan 2006 03:34:02 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:47070 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1751475AbWAFIeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 03:34:01 -0500
+Date: Fri, 6 Jan 2006 00:33:46 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: oops pauser. / boot_delayer
+In-Reply-To: <Pine.LNX.4.61.0601060836020.22809@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.62.0601060032160.1708@qynat.qvtvafvgr.pbz>
+References: <E1EuPZg-0008Kw-00@calista.inka.de>
+ <Pine.LNX.4.61.0601050905250.10161@yvahk01.tjqt.qr><Pine.LNX.4.62.0601051726290.973@qynat.qvtvafvgr.pbz>
+ <Pine.LNX.4.61.0601060836020.22809@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: Marc Koschewski <marc@osknowledge.org>, Joe Feise <jfeise@feise.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: mouse issues in 2.6.15-rc5-mm series
-References: <43ACEE14.7060507@feise.com> <200512252309.07162.dtor_core@ameritech.net> <43AF742E.5040604@tuxrocks.com> <200601042224.08509.dtor_core@ameritech.net>
-In-Reply-To: <200601042224.08509.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 6 Jan 2006, Jan Engelhardt wrote:
 
-Dmitry Torokhov wrote:
-> On Sunday 25 December 2005 23:40, Frank Sorenson wrote:
-> 
->>Dmitry Torokhov wrote:
+>> this large boot message issue also slows your boot significantly if you have a
+>> fast box that has a serial console, it takes a long time to dump all that info
+>> out the serial port.
+>
+> Don't blame the kernel that serial is slow.
 
->>>Does the tapping not work period or it only does not work first time you
->>>try to tap after not touching the pad for more than 5 seconds?
->>
->>The tapping works initially, then stops.  I hadn't put 2+2 together with
->>the 5-second idle bit, but that seems the likely issue.
->>
->>I applied that patch you sent out yesterday, and now tapping works and
->>I'm not seeing the mouse stall/jump problem.  I'm at 21+ hours uptime
->>now, with no mouse problems, so I think setting the resync_time to 0
->>looks like the right fix.
+the complaint wasn't that the serial was slow, It was a comment on the 
+amount of data being displayed during a boot (which turned out to be in 
+large part that I had a verbose config option turned on)
 
-> Frank,
-> 
-> Could you please try the patch below and see if it makes tapping work?
-> Make sure you enable resynching by doing:
-> 
-> 	echo -n 5 > /sys/bus/serio/devices/serioX/resync_time
+David Lang
 
-With this patch (on top of 2.6.15-mm1, right?), I see the mouse
-stall/jump problem, but tapping appears to continue working.  The
-touchpad also seems to be extremely touchy.  I get spurious taps with
-very little pressure, and sometimes double-tap will select, then
-immediately deselect.
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDvio6aI0dwg4A47wRAmx5AJ9caJlziT8MfGdxSf/yzVhEGqxqfgCggE0M
-P2wvTs9/Xbw/sXn8bc/Mk0Y=
-=oGAz
------END PGP SIGNATURE-----

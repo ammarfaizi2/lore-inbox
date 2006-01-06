@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWAFO5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWAFO7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWAFO5e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 09:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWAFO5e
+	id S1751482AbWAFO7z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 09:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWAFO7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 09:57:34 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:5899 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751217AbWAFO5d (ORCPT
+	Fri, 6 Jan 2006 09:59:55 -0500
+Received: from jdi.jdi-ict.nl ([82.94.239.5]:36530 "EHLO jdi.jdi-ict.nl")
+	by vger.kernel.org with ESMTP id S1751482AbWAFO7z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 09:57:33 -0500
-Date: Fri, 6 Jan 2006 15:57:23 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: Marcin Dalecki <martin@dalecki.de>, rlrevell@joe-job.com,
-       jengelh@linux01.gwdg.de, tiwai@suse.de, jesper.juhl@gmail.com,
-       bunk@stusta.de, zdzichu@irc.pl, s0348365@sms.ed.ac.uk, ak@suse.de,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, linux@thorsten-knabe.de, zwane@commfireservices.com,
-       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20060106145723.GA73361@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Diego Calleja <diegocg@gmail.com>,
-	Marcin Dalecki <martin@dalecki.de>, rlrevell@joe-job.com,
-	jengelh@linux01.gwdg.de, tiwai@suse.de, jesper.juhl@gmail.com,
-	bunk@stusta.de, zdzichu@irc.pl, s0348365@sms.ed.ac.uk, ak@suse.de,
-	perex@suse.cz, alsa-devel@alsa-project.org,
-	James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-	linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-	parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-	linux@thorsten-knabe.de, zwane@commfireservices.com,
-	zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-References: <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com> <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr> <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <20060106034026.c37c1ed9.diegocg@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060106034026.c37c1ed9.diegocg@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 6 Jan 2006 09:59:55 -0500
+Date: Fri, 6 Jan 2006 15:59:34 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
+X-X-Sender: igmar@jdi.jdi-ict.nl
+To: erich@areca.com.tw, linux-kernel@vger.kernel.org
+Subject: PROBLEM: arcmsr build-in driver shutdown issue
+Message-ID: <Pine.LNX.4.58.0601061434530.30000@jdi.jdi-ict.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 03:40:26AM +0100, Diego Calleja wrote:
-> Amazing - even windows is getting sound mixing out of the kernel
-> in windows vista because they've learnt (the hard way) that it's
-> the Right Thing and linux people is trying to get it in?
 
-You misread.  Most people just want to have things work like they
-should have for years.  Technical people, at least Marcin and I, want
-a documented kernel interface with optional libraries over it (think
-libX11 vs. the X Protocol, or glibc/klibc/uclibc/libc5 vs. the system
-calls), and then behind that have the kernel route the data to
-userspace demon(s) or the hardware depending on root-level setup and
-configuration.
+Hi,
 
-ALSA does not have a documented kernel interface nor an optional
-library but a mandatory library.  A highly complex, ipc-using library
-with no security audit that I could find with google.  A library for
-which people do not seem to care about compatibility with previous or
-future kernel versions, which means it _has_ to be shared.  And shared
-libraries are just unacceptable in some contexts, like distributing
-binaries outside of a specific linux distribution[1].
+I've got a machine with an ARC-1110 SATA RAID controller in it, and I'm 
+experiencing problems when the driver is built in the kernel.
 
-At least OSS, with all its flaws, is a documented kernel interface.
-You can static link a oss-using program, whether it uses it directly
-or through interfaces like sdl-audio, and it will just work.
+The problem appears on all versions I've tried, including the latest -mm, 
+and a hacked-up version from Areca's website.
 
-  OG.
+Description
 
-[1] And that does not necessarily means commercial and/or proprietary.
-"Just recompile" does not always work either, think missing libraries,
-headers, and version drift (snd_pcm_hw_params_set_rate_near anybody?).
+: issuing a shutdown / halt on the system spits out FS erros after 
+'Halting System' and before 'System halted', due to the fact it is 
+performing IO to a device that is considered dead :
+
+ 0:0:0:0: rejecting I/O to dead device
+EXT3-fs error (device sda1): ext3_find_entry: reading directory #65203 
+offset 0
+
+device always seems to be sda1, which is mounted on / on this machine. 
+Since the action is a read-only one on a read-only FS, I haven't seen any FS 
+corruption so far.
+
+kernel :
+
+2.6.15-mm1
+2.6.15 + hacked up ARC-1xxx driver from the website.
+
+Relevant .config stuff : 
+
+CONFIG_SCSI_ARCMSR=y
+
+CPU : dual Xeon 3.2 Ghz
+Mem : 4GB (This isn't a PAE kernel yet)
+
+I can post the fill .config and a dmesg log of desired, just let me know.
+
+
+regards,
+
+
+	Igmar

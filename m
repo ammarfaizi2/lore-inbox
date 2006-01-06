@@ -1,40 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752532AbWAFU7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752568AbWAFVBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752532AbWAFU7o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 15:59:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752565AbWAFU7o
+	id S1752568AbWAFVBA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 16:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752567AbWAFVBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 15:59:44 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:60858 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1752532AbWAFU7n convert rfc822-to-8bit (ORCPT
+	Fri, 6 Jan 2006 16:01:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17128 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752565AbWAFVA7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 15:59:43 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Linux/ACPI mailing list moved
-Date: Fri, 6 Jan 2006 15:59:20 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005A1305C@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux/ACPI mailing list moved
-Thread-Index: AcYSp2lrw0L7pGFNTqeMS+9HqSIaGgAXIO/w
-From: "Brown, Len" <len.brown@intel.com>
-To: "Philipp Matthias Hahn" <pmhahn@titan.lahn.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Jan 2006 20:59:39.0069 (UTC) FILETIME=[1B9CB6D0:01C61304]
+	Fri, 6 Jan 2006 16:00:59 -0500
+Date: Fri, 6 Jan 2006 16:00:24 -0500
+From: Dave Jones <davej@redhat.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Matthew Wilcox <matthew@wil.cx>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Arjan van de Ven <arjan@infradead.org>, hawkes@sgi.com,
+       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       John Hesterberg <jh@sgi.com>, Greg Edwards <edwardsg@sgi.com>
+Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
+Message-ID: <20060106210024.GK4595@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Christoph Lameter <clameter@engr.sgi.com>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>,
+	Matthew Wilcox <matthew@wil.cx>, "Luck, Tony" <tony.luck@intel.com>,
+	Arjan van de Ven <arjan@infradead.org>, hawkes@sgi.com,
+	Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+	John Hesterberg <jh@sgi.com>, Greg Edwards <edwardsg@sgi.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7B6B@scsmsx401.amr.corp.intel.com> <20060106174957.GF19769@parisc-linux.org> <Pine.LNX.4.62.0601060958110.17665@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0601061017510.11324@shark.he.net> <Pine.LNX.4.62.0601061035510.17875@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0601061035510.17875@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->-L:	acpi-devel@lists.sourceforge.net
->+L:	linux-acpi@vger.kernel.org
+On Fri, Jan 06, 2006 at 10:37:33AM -0800, Christoph Lameter wrote:
+ > On Fri, 6 Jan 2006, Randy.Dunlap wrote:
+ > 
+ > > > The dicey thing in all of this is that the generic kernels will be used
+ > > > for the certification of applications. If the cpu limit is too low then
+ > > > applications will simply not be certified for these high processor counts.
+ > > > One may encounter problems if the app is then run with a higher processor
+ > > > count.
+ > > 
+ > > Do you equate a 'defconfig' kernel with a generic kernel?
+ > > 
+ > > I would expect certs to be done on vendor kernels, and as
+ > > Arjan has suggested, they will have their own configs,
+ > > not defconfig.
+ > 
+ > Vendors look for the upstream defaults and orient themselves on the 
+ > defconfig. It is best to have as much common code and configurations as 
+ > possible.
 
-yeah, I was going to mention that is already checked in,
-just that we have not sent patches to Linus for 2.6.16 yet.
+As someone who builds vendor kernels, I can say this isn't true (from my
+experience at least).  When a new config option appears, I look at the
+Kconfig, and make a decision.  I *never* even look at the defconfig, as
+a lot of the time, they are either out of date, or irrelevant.
 
-thanks,
--Len
+		Dave
+

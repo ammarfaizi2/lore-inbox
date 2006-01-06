@@ -1,73 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752249AbWAFLbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWAFLcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752249AbWAFLbc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 06:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWAFLbc
+	id S932407AbWAFLcO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 06:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWAFLcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 06:31:32 -0500
-Received: from sipsolutions.net ([66.160.135.76]:275 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1752232AbWAFLbb (ORCPT
+	Fri, 6 Jan 2006 06:32:14 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:24805 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932407AbWAFLcM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 06:31:31 -0500
-Subject: Re: State of the Union: Wireless
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060106042218.GA18974@havoc.gtf.org>
-References: <20060106042218.GA18974@havoc.gtf.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SX8kqMC7fAVHD94rzeC8"
-Date: Fri, 06 Jan 2006 12:31:24 +0100
-Message-Id: <1136547084.4037.41.camel@localhost>
+	Fri, 6 Jan 2006 06:32:12 -0500
+Date: Fri, 6 Jan 2006 12:31:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 10/21] mutex subsystem, debugging code
+Message-ID: <20060106113136.GA18323@elte.hu>
+References: <20060105153804.GK31013@elte.hu> <1136497623.22868.180.camel@stark>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136497623.22868.180.camel@stark>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-SX8kqMC7fAVHD94rzeC8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* Matt Helsley <matthltc@us.ibm.com> wrote:
 
-On Fri, 2006-01-06 at 12:00 +0100, Michael Buesch wrote:
+> > Index: linux/kernel/fork.c
+> > ===================================================================
+> > --- linux.orig/kernel/fork.c
+> > +++ linux/kernel/fork.c
+> > @@ -973,6 +973,10 @@ static task_t *copy_process(unsigned lon
+> >   	}
+> >  #endif
+> >  
+> > +#ifdef CONFIG_DEBUG_MUTEXES
+> > +	p->blocked_on = NULL; /* not blocked yet */
+> > +#endif
+> > +
+> >  	p->tgid = p->pid;
+> >  	if (clone_flags & CLONE_THREAD)
+> >  		p->tgid = current->tgid;
+> 
+> Should there be a corresponding initialization of init's blocked_on 
+> field in include/linux/init_task.h?
 
-> * "master" interface as real device node
-> * Virtual interfaces (net_devices)
+no, since it's initialized to zero.
 
-I didn't want to spam the netdev wiki with this (yet) so I collected
-some more structured things outside. Anyone feel free to edit:
-http://softmac.sipsolutions.net/802.11
-
-I'll move that content to the netdev wiki if anyone else thinks it would
-be a good way forward to start with requirements, API issues and
-similar.
-
-Until we get there, we'll fix up softmac to make it usable for most
-people in basic station mode without any kind of virtual devices, which
-will need some slight changes to the current ieee80211.
-
-johannes
-
---=-SX8kqMC7fAVHD94rzeC8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQ75VCqVg1VMiehFYAQIWRQ//e3w0C0uKX3DsS/r+2Yk7czllBH7xQEJ9
-Rnm5g6dBq39fEzkRKEMMsW8WLDbstsCxP+UMWBeChw9U91hoKnfx2X2DfPcaQZSO
-7EWVSpzb/h44Bji9tp7IeQkZgLnkMkEzdYL0O9VKbrznptVz04NX7etEpakJFzsG
-HXF3Is0sOLT//YaF5dM3zKMy44jb+v0XOWt09dHBA98VBFmfTniqB4f6kjsMv85J
-dUfc/RiTlRKRq1IvT7m7gNalrN5ds5sb72My1sPUow99maEUkgYruaBoi7aunWOF
-1+ZmOPDP/7Ts3vmww8pNKk8zaMFOBHegYm0IBKmPkJnwz84SFk3N3ZcUjsFye/Ie
-CX28QMkI6M8K3E7zpMa5d8bFEbgC3NChWYF0xjJGhlFks72tqNBCgoHX72Uu4+w0
-Eu+id+sHJzbD49IYglGONnGXRqDSvkIX/gVlZC+Id42WU5PnIvcTcqlwEhYOyVfp
-hbf1JS2y6XwsAGk1tZ2a5m9t8Zc83FFQDMk8DTyVgfmCRKN8JJVqxbwcKUK3ggXA
-S1EVEkfil8Ot/n7/F/PQ8TcYWPgwksw/hKvVAgacBRKEZXLRM030UmRN8VdcQnIc
-4REw4+ANX103Y40HNBsqNKU5HQkOAjTYLFEmXqfHXOo+uRHAl7JzskFXOFQZE6pr
-XDpHb2eTG3U=
-=8lph
------END PGP SIGNATURE-----
-
---=-SX8kqMC7fAVHD94rzeC8--
-
+	Ingo

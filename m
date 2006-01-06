@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932851AbWAFSls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932824AbWAFSpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932851AbWAFSls (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932852AbWAFSls
+	id S932824AbWAFSpW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932854AbWAFSpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:41:48 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:24198 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932851AbWAFSlr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:41:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CVQAi+TC9AdeKPJh9vEUDDOuXwHbR+D8VuaGyCQTUaTowTOzhxl7ta+lqnY4FFH7ljErTYUK6jj3k54toTkn86DxaQ3W2MpYHi8g/YSxSkMe48ei7ltMX3PmXZjZ7BboUaRx9Sk7oetB2JQGc87fHw2ivVoylZosBg3HlhEeQrw=
-Message-ID: <9a8748490601061041y532cb797u6d106f03625d3daa@mail.gmail.com>
-Date: Fri, 6 Jan 2006 19:41:45 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Khushil Dep <khushil.dep@help.basilica.co.uk>
-Subject: Re: [PATCH] bio: gcc warning fix.
-Cc: Al Viro <viro@ftp.linux.org.uk>,
-       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
-       akpm <akpm@osdl.org>, axboe@suse.de,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <8941BE5F6A42CC429DA3BC4189F9D442014FAE@bashdad01.hd.basilica.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <8941BE5F6A42CC429DA3BC4189F9D442014FAE@bashdad01.hd.basilica.co.uk>
+	Fri, 6 Jan 2006 13:45:22 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:37322 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S932824AbWAFSpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:45:21 -0500
+Date: Fri, 06 Jan 2006 19:45:09 +0100
+From: Jan Spitalnik <lkml@spitalnik.net>
+Subject: [PATCH] Disable swsusp on CONFIG_HIGHMEM64
+To: linux-kernel@vger.kernel.org
+Cc: Pavel Machek <pavel@ucw.cz>
+Message-id: <200601061945.09466.lkml@spitalnik.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_IVUiE2uGvXaksXBa4MDF6w)"
+User-Agent: KMail/1.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/06, Khushil Dep <khushil.dep@help.basilica.co.uk> wrote:
-> I wonder however whether this is not correct? I was always taught to
-> initialise variables so there is no doubt as to their starting value?
->
-There is no doubt, the idx variable is used on the very next line,
-it's address is being passed to bvec_alloc_bs() which as the very
-first thing it does fills in a value or returns NULL (in which case
-idx is undefined anyway).
 
-So there's no doubt at all that idx will always get a value assigned to it.
+--Boundary_(ID_IVUiE2uGvXaksXBa4MDF6w)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
 
-gcc is right to warn in the sense that it doesn't know if
-bvec_alloc_bs() will read or write into idx when its address is passed
-to it. But since we know that bvec_alloc_bs() only reads from it after
-having assigned a value we know that gcc's warning is wrong, idx can
-never *actually* be used uninitialized.
+Hello,
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+suspending to disk is not supported on CONFIG_HIGHMEM64G setups 
+(http://suspend2.net/features). Also suspend to ram doesn't work. This patch 
+fixes Kconfig to disallow such combination. I'm not 100% sure about the 
+ACPI_SLEEP part, as it might be disabling some working setup - but i think 
+that s2r and s2d are the only acpi sleeps allowed, no?
+
+Bye,
+	spity
+
+PS: I didn't know that this is not supported so I had some nice oops after 
+resume (from ram) and s2d didn't resume at all :-)
+
+-- 
+Jan Spitalnik
+jan@spitalnik.net
+
+--Boundary_(ID_IVUiE2uGvXaksXBa4MDF6w)
+Content-type: text/x-diff; charset=us-ascii; name=swsusp-vs-higmem64.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=swsusp-vs-higmem64.patch
+
+diff --exclude=CVS --exclude=.svn -up --new-file --recursive linux-2.6.old/drivers/acpi/Kconfig linux-2.6/drivers/acpi/Kconfig
+--- linux-2.6.old/drivers/acpi/Kconfig	2006-01-06 18:58:10.000000000 +0100
++++ linux-2.6/drivers/acpi/Kconfig	2006-01-06 19:07:34.000000000 +0100
+@@ -46,7 +46,7 @@ if ACPI
+ 
+ config ACPI_SLEEP
+ 	bool "Sleep States"
+-	depends on X86 && (!SMP || SUSPEND_SMP)
++	depends on X86 && (!SMP || SUSPEND_SMP) && !HIGHMEM64G
+ 	depends on PM
+ 	default y
+ 	---help---
+diff --exclude=CVS --exclude=.svn -up --new-file --recursive linux-2.6.old/kernel/power/Kconfig linux-2.6/kernel/power/Kconfig
+--- linux-2.6.old/kernel/power/Kconfig	2006-01-06 18:58:28.000000000 +0100
++++ linux-2.6/kernel/power/Kconfig	2006-01-06 19:07:43.000000000 +0100
+@@ -38,7 +38,7 @@ config PM_DEBUG
+ 
+ config SOFTWARE_SUSPEND
+ 	bool "Software Suspend"
+-	depends on PM && SWAP && (X86 && (!SMP || SUSPEND_SMP)) || ((FVR || PPC32) && !SMP)
++	depends on PM && SWAP && (X86 && (!SMP || SUSPEND_SMP) && !HIGHMEM64G) || ((FVR || PPC32) && !SMP)
+ 	---help---
+ 	  Enable the possibility of suspending the machine.
+ 	  It doesn't need APM.
+
+--Boundary_(ID_IVUiE2uGvXaksXBa4MDF6w)--

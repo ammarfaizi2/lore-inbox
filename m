@@ -1,182 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965357AbWAFX7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932680AbWAFX75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965357AbWAFX7e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 18:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbWAFX7e
+	id S932680AbWAFX75 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 18:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWAFX74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 18:59:34 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:24550 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932679AbWAFX7d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 18:59:33 -0500
-Message-ID: <43BF0463.7010700@us.ibm.com>
-Date: Fri, 06 Jan 2006 15:59:31 -0800
-From: Vernon Mauery <vernux@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Max Asbock <amax@us.ibm.com>
-Subject: dynamic input_dev allocation for ibmasm driver
-Content-Type: multipart/mixed;
- boundary="------------050403030702010602080206"
+	Fri, 6 Jan 2006 18:59:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31972 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932680AbWAFX7z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 18:59:55 -0500
+Date: Sat, 7 Jan 2006 00:59:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/RFT][PATCH -mm 0/5] swsusp: userland interface (rev. 2)
+Message-ID: <20060106235934.GA20399@elf.ucw.cz>
+References: <200601042340.42118.rjw@sisk.pl> <200601062217.09012.rjw@sisk.pl> <20060106224430.GC12428@elf.ucw.cz> <200601070041.22497.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601070041.22497.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050403030702010602080206
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi!
 
-This patch updates the ibmasm driver to use the dynamic allocation of input_dev
-structs to work with the sysfs subsystem.  I have tested it on my machine and it
-seems to work fine.
+> > > > Perhaps it is time to get 1/4 and 3/4 into -mm? You get my signed-off
+> > > > on them...
+> > > 
+> > > OK, I'll prepare them in a while.
+> > 
+> > Thanks.
+> 
+> I had to remake the 3/4 a bit, as it depended on some changes to power.h
+> and swsusp.c done in the 2/4.  Nothing particularly invasive, basically some
+> definitions go to power.h and some function headers change, but please
+> have a look if the patch is still OK (appended).
 
-Signed-off-by: Vernon Mauery <vernux@us.ibm.com>
+Still ok :-).
 
- ibmasm.h |    6 ++---
- remote.c |   72 ++++++++++++++++++++++++++++++++++-----------------------------
- 2 files changed, 42 insertions(+), 36 deletions(-)
+> > If code is simpler, lets stick with misc. You have to obtain minor by
+> > mailing device@lanana.org, see Doc*/devices.txt.
+> 
+> OK, I'll try.
 
+It should be easy.
 
---------------050403030702010602080206
-Content-Type: text/x-patch;
- name="ibmasm_dynamic_allocate_input_device.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ibmasm_dynamic_allocate_input_device.patch"
+> > Ok, lets keep it as it is. We can always rename file in future. [I
+> > don't quite understand your reasons for movement, through. Highmem is
+> > part of snapshot we need to make; it is saved in a very different way
+> > than rest of memory, but that is implementation detail...]
+> 
+> I'm seeing this a bit differently.  In my view highmem is handled very much
+> like devices: save_highmem() turns it "off", restore_highmem() turns it "on"
+> back again, they are even called next to device_power_up/down().
 
-diff -Nuarp -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/misc/ibmasm/ibmasm.h linux-2.6.15-fixed/drivers/misc/ibmasm/ibmasm.h
---- linux-2.6.15/drivers/misc/ibmasm/ibmasm.h	2006-01-02 19:21:10.000000000 -0800
-+++ linux-2.6.15-fixed/drivers/misc/ibmasm/ibmasm.h	2006-01-05 03:43:03.000000000 -0800
-@@ -141,8 +141,8 @@ struct reverse_heartbeat {
- };
- 
- struct ibmasm_remote {
--	struct input_dev keybd_dev;
--	struct input_dev mouse_dev;
-+	struct input_dev * keybd_dev;
-+	struct input_dev * mouse_dev;
- };
- 
- struct service_processor {
-@@ -157,7 +157,7 @@ struct service_processor {
- 	char			dirname[IBMASM_NAME_SIZE];
- 	char			devname[IBMASM_NAME_SIZE];
- 	unsigned int		number;
--	struct ibmasm_remote	*remote;
-+	struct ibmasm_remote	remote;
- 	int			serial_line;
- 	struct device		*dev;
- };
-diff -Nuarp -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/misc/ibmasm/remote.c linux-2.6.15-fixed/drivers/misc/ibmasm/remote.c
---- linux-2.6.15/drivers/misc/ibmasm/remote.c	2006-01-02 19:21:10.000000000 -0800
-+++ linux-2.6.15-fixed/drivers/misc/ibmasm/remote.c	2006-01-06 07:38:57.000000000 -0800
-@@ -203,9 +203,9 @@ void ibmasm_handle_mouse_interrupt(struc
- 
- 		print_input(&input);
- 		if (input.type == INPUT_TYPE_MOUSE) {
--			send_mouse_event(&sp->remote->mouse_dev, regs, &input);
-+			send_mouse_event(sp->remote.mouse_dev, regs, &input);
- 		} else if (input.type == INPUT_TYPE_KEYBOARD) {
--			send_keyboard_event(&sp->remote->keybd_dev, regs, &input);
-+			send_keyboard_event(sp->remote.keybd_dev, regs, &input);
- 		} else
- 			break;
- 
-@@ -217,56 +217,62 @@ void ibmasm_handle_mouse_interrupt(struc
- int ibmasm_init_remote_input_dev(struct service_processor *sp)
- {
- 	/* set up the mouse input device */
--	struct ibmasm_remote *remote;
-+	struct input_dev *mouse_dev, *keybd_dev;
- 	struct pci_dev *pdev = to_pci_dev(sp->dev);
- 	int i;
-+	int ret = 0;
- 
--	sp->remote = remote = kmalloc(sizeof(*remote), GFP_KERNEL);
--	if (!remote)
--		return -ENOMEM;
--
--	memset(remote, 0, sizeof(*remote));
--
--	remote->mouse_dev.private = remote;
--	init_input_dev(&remote->mouse_dev);
--	remote->mouse_dev.id.vendor = pdev->vendor;
--	remote->mouse_dev.id.product = pdev->device;
--	remote->mouse_dev.evbit[0]  = BIT(EV_KEY) | BIT(EV_ABS);
--	remote->mouse_dev.keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) |
-+	mouse_dev = input_allocate_device();
-+	keybd_dev = input_allocate_device();
-+	if (!mouse_dev || !keybd_dev) {
-+		ret = -ENOMEM;
-+		goto error_alloc;
-+	}
-+	mouse_dev->id.vendor = pdev->vendor;
-+	mouse_dev->id.product = pdev->device;
-+	mouse_dev->evbit[0]  = BIT(EV_KEY) | BIT(EV_ABS);
-+	mouse_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) |
- 		BIT(BTN_RIGHT) | BIT(BTN_MIDDLE);
--	set_bit(BTN_TOUCH, remote->mouse_dev.keybit);
--	remote->mouse_dev.name = remote_mouse_name;
--	input_set_abs_params(&remote->mouse_dev, ABS_X, 0, xmax, 0, 0);
--	input_set_abs_params(&remote->mouse_dev, ABS_Y, 0, ymax, 0, 0);
--
--	remote->keybd_dev.private = remote;
--	init_input_dev(&remote->keybd_dev);
--	remote->keybd_dev.id.vendor = pdev->vendor;
--	remote->keybd_dev.id.product = pdev->device;
--	remote->keybd_dev.evbit[0]  = BIT(EV_KEY);
--	remote->keybd_dev.name = remote_keybd_name;
-+	set_bit(BTN_TOUCH, mouse_dev->keybit);
-+	mouse_dev->name = remote_mouse_name;
-+	input_set_abs_params(mouse_dev, ABS_X, 0, xmax, 0, 0);
-+	input_set_abs_params(mouse_dev, ABS_Y, 0, ymax, 0, 0);
-+
-+	keybd_dev->id.vendor = pdev->vendor;
-+	keybd_dev->id.product = pdev->device;
-+	keybd_dev->evbit[0]  = BIT(EV_KEY);
-+	keybd_dev->name = remote_keybd_name;
- 
- 	for (i=0; i<XLATE_SIZE; i++) {
- 		if (xlate_high[i])
--			set_bit(xlate_high[i], remote->keybd_dev.keybit);
-+			set_bit(xlate_high[i], keybd_dev->keybit);
- 		if (xlate[i])
--			set_bit(xlate[i], remote->keybd_dev.keybit);
-+			set_bit(xlate[i], keybd_dev->keybit);
- 	}
- 
--	input_register_device(&remote->mouse_dev);
--	input_register_device(&remote->keybd_dev);
-+	if ((ret = input_register_device(mouse_dev)))
-+		goto error_alloc;
-+	if ((ret = input_register_device(keybd_dev)))
-+		goto error_alloc;
-+
-+	sp->remote.mouse_dev = mouse_dev;
-+	sp->remote.keybd_dev = keybd_dev;
- 	enable_mouse_interrupts(sp);
- 
- 	printk(KERN_INFO "ibmasm remote responding to events on RSA card %d\n", sp->number);
- 
- 	return 0;
-+
-+error_alloc:
-+	input_free_device(mouse_dev);
-+	input_free_device(keybd_dev);
-+	return ret;
- }
- 
- void ibmasm_free_remote_input_dev(struct service_processor *sp)
- {
- 	disable_mouse_interrupts(sp);
--	input_unregister_device(&sp->remote->keybd_dev);
--	input_unregister_device(&sp->remote->mouse_dev);
--	kfree(sp->remote);
-+	input_unregister_device(sp->remote.mouse_dev);
-+	input_unregister_device(sp->remote.keybd_dev);
- }
- 
+Yes, I guess it is possible to view it like that, too.
 
---------------050403030702010602080206--
+BTW your "write 500MB to swap" hit mainline few hours
+ago. Congratulations.
+
+								Pavel
+-- 
+Thanks, Sharp!

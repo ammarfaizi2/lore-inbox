@@ -1,87 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWAFLlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWAFLmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWAFLlw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 06:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWAFLlw
+	id S964908AbWAFLmM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 06:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWAFLmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 06:41:52 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:19465 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S964901AbWAFLlu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 06:41:50 -0500
-Date: Fri, 6 Jan 2006 19:41:43 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Dave Jones <davej@redhat.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org, rms@gnu.org, torvalds@osdl.org
-Subject: Re: Add tainting for proprietary helper modules.
-Message-ID: <20060106114143.GA9046@localhost.localdomain>
-References: <20051203004102.GA2923@redhat.com> <Pine.LNX.4.61.0512050832290.27133@chaos.analogic.com> <20051205173041.GE12664@redhat.com> <20060106094933.GB2807@localhost.localdomain> <Pine.LNX.4.61.0601061139560.30781@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601061139560.30781@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+	Fri, 6 Jan 2006 06:42:12 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42765 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964908AbWAFLmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 06:42:09 -0500
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Greg K-H <greg@kroah.com>, V4L <video4linux-list@redhat.com>
+Subject: [CFT 3/3] Add bttv sub bus_type probe and remove methods
+Date: Fri, 06 Jan 2006 11:42:03 +0000
+Message-ID: <20060106114059.13.32@flint.arm.linux.org.uk>
+In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
+References: <20060105142951.13.01@flint.arm.linux.org.uk>
+From: Russell King <rmk@arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 11:46:10AM +0100, Jan Engelhardt wrote:
-> 
-> >>  > > Kernels that have had Windows drivers loaded into them are undebuggable.
-> >>  > > I've wasted a number of hours chasing bugs filed in Fedora bugzilla
-> >>  > > only to find out much later that the user had used such 'helpers',
-> >>  > > and their problems were unreproducable without them loaded.
-> >>  > >
-> >>  > > Acked-by: Arjan van de Ven <arjan@infradead.org>
-> >>  > > Signed-off-by: Dave Jones <davej@redhat.com>
-> >>  > >
-> >>  > > --- linux-2.6.14/kernel/module.c~	2005-11-29 16:44:00.000000000 -0500
-> >>  > > +++ linux-2.6.14/kernel/module.c	2005-11-29 17:03:55.000000000 -0500
-> >>  > > @@ -1723,6 +1723,11 @@ static struct module *load_module(void _
-> >>  > > 	/* Set up license info based on the info section */
-> >>  > > 	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
-> >>  > >
-> >>  > > +	if (strcmp(mod->name, "ndiswrapper") == 0)
-> >>  > > +		add_taint(TAINT_PROPRIETARY_MODULE);
-> >>  > > +	if (strcmp(mod->name, "driverloader") == 0)
-> >>  > > +		add_taint(TAINT_PROPRIETARY_MODULE);
-> >>  > > +
-> >>  > > #ifdef CONFIG_MODULE_UNLOAD
-> >>  > > 	/* Set up MODINFO_ATTR fields */
-> >>  > > 	setup_modinfo(mod, sechdrs, infoindex);
-> 
-> (That's like putting the PCI name device database back in.)
-> 
-> 
-> >You've hard-coded some module names, that itself `taints' the
-> >kernel source IMO.  Blacklisting in kernel is both ugly and unacceptable.
-> >
-> >I agree that it would be convenient for you to only check if there's `Not tainted' in oops messages.  But I still suggest you to not hard-code them in the
-> >kernel source.  Instead you could use some script to grep the problematic module
-> >names in the `Modules linked in' field.
-> >
-> >For the long run, we could:
-> >
-> >1) Add some other mechanism, like MODULE_LICENSE_STRICT("GPL.strict").
-> >
-> >   GPL.strict:  A GPL.strict module is not only itself licensed under GPL,
-> >   but it shall not load/link any binary code (specially non-gpl binaries)
-> >   nor any non-GPL.strict code. This definition goes recursively.
-> >
-> 
-> How are you going to verify that, how do you want to distinguish whether a
-> certain byte range in memory (possibly beloaded with a windows driver) is prop
-> or not?
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-Simple, I don't verify that.  But I know if a program is capable to link some
-binary to itself, this program is no longer gpl.strict.  Whether it loads prop
-or not depends on the user.  But at the time the author writes such programs,
-the risk is open.
+(This is an additional patch - on lkml, see
+ "[CFT 1/29] Add bus_type probe, remove, shutdown methods.")
 
-These binary-linking programs, under a gpl disguise, may look innocent, but they
-are especially dangerous to the free world.  We need gpl.strict to keep away
-from them.
+---
+ drivers/media/dvb/bt8xx/dvb-bt8xx.c |   23 +++++++++++------------
+ drivers/media/video/bttv-gpio.c     |   24 ++++++++++++++++++++++--
+ drivers/media/video/bttv.h          |    2 ++
+ drivers/media/video/ir-kbd-gpio.c   |   17 ++++++++---------
+ 4 files changed, 43 insertions(+), 23 deletions(-)
 
--- 
-Coywolf Qi Hunt
+diff --git a/drivers/media/dvb/bt8xx/dvb-bt8xx.c b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+--- a/drivers/media/dvb/bt8xx/dvb-bt8xx.c
++++ b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+@@ -787,9 +787,8 @@ static int __init dvb_bt8xx_load_card(st
+ 	return 0;
+ }
+ 
+-static int dvb_bt8xx_probe(struct device *dev)
++static int dvb_bt8xx_probe(struct bttv_sub_device *sub)
+ {
+-	struct bttv_sub_device *sub = to_bttv_sub_dev(dev);
+ 	struct dvb_bt8xx_card *card;
+ 	struct pci_dev* bttv_pci_dev;
+ 	int ret;
+@@ -907,13 +906,13 @@ static int dvb_bt8xx_probe(struct device
+ 		return ret;
+ 	}
+ 
+-	dev_set_drvdata(dev, card);
++	dev_set_drvdata(&sub->dev, card);
+ 	return 0;
+ }
+ 
+-static int dvb_bt8xx_remove(struct device *dev)
++static int dvb_bt8xx_remove(struct bttv_sub_device *sub)
+ {
+-	struct dvb_bt8xx_card *card = dev_get_drvdata(dev);
++	struct dvb_bt8xx_card *card = dev_get_drvdata(&sub->dev);
+ 
+ 	dprintk("dvb_bt8xx: unloading card%d\n", card->bttv_nr);
+ 
+@@ -936,14 +935,14 @@ static int dvb_bt8xx_remove(struct devic
+ static struct bttv_sub_driver driver = {
+ 	.drv = {
+ 		.name		= "dvb-bt8xx",
+-		.probe		= dvb_bt8xx_probe,
+-		.remove		= dvb_bt8xx_remove,
+-		/* FIXME:
+-		 * .shutdown	= dvb_bt8xx_shutdown,
+-		 * .suspend	= dvb_bt8xx_suspend,
+-		 * .resume	= dvb_bt8xx_resume,
+-		 */
+ 	},
++	.probe		= dvb_bt8xx_probe,
++	.remove		= dvb_bt8xx_remove,
++	/* FIXME:
++	 * .shutdown	= dvb_bt8xx_shutdown,
++	 * .suspend	= dvb_bt8xx_suspend,
++	 * .resume	= dvb_bt8xx_resume,
++	 */
+ };
+ 
+ static int __init dvb_bt8xx_init(void)
+diff --git a/drivers/media/video/bttv-gpio.c b/drivers/media/video/bttv-gpio.c
+--- a/drivers/media/video/bttv-gpio.c
++++ b/drivers/media/video/bttv-gpio.c
+@@ -47,9 +47,29 @@ static int bttv_sub_bus_match(struct dev
+ 	return 0;
+ }
+ 
++static int bttv_sub_probe(struct device *dev)
++{
++	struct bttv_sub_device *sdev = to_bttv_sub_dev(dev);
++	struct bttv_sub_driver *sub = to_bttv_sub_drv(dev->driver);
++
++	return sub->probe ? sub->probe(sdev) : -ENODEV;
++}
++
++static int bttv_sub_remove(struct device *dev)
++{
++	struct bttv_sub_device *sdev = to_bttv_sub_dev(dev);
++	struct bttv_sub_driver *sub = to_bttv_sub_drv(dev->driver);
++
++	if (sub->remove)
++		sub->remove(sdev);
++	return 0;
++}
++
+ struct bus_type bttv_sub_bus_type = {
+-	.name  = "bttv-sub",
+-	.match = &bttv_sub_bus_match,
++	.name   = "bttv-sub",
++	.match  = &bttv_sub_bus_match,
++	.probe  = bttv_sub_probe,
++	.remove = bttv_sub_remove,
+ };
+ EXPORT_SYMBOL(bttv_sub_bus_type);
+ 
+diff --git a/drivers/media/video/bttv.h b/drivers/media/video/bttv.h
+--- a/drivers/media/video/bttv.h
++++ b/drivers/media/video/bttv.h
+@@ -334,6 +334,8 @@ struct bttv_sub_device {
+ struct bttv_sub_driver {
+ 	struct device_driver   drv;
+ 	char                   wanted[BUS_ID_SIZE];
++	int                    (*probe)(struct bttv_sub_device *sub);
++	void                   (*remove)(struct bttv_sub_device *sub);
+ 	void                   (*gpio_irq)(struct bttv_sub_device *sub);
+ 	int                    (*any_irq)(struct bttv_sub_device *sub);
+ };
+diff --git a/drivers/media/video/ir-kbd-gpio.c b/drivers/media/video/ir-kbd-gpio.c
+--- a/drivers/media/video/ir-kbd-gpio.c
++++ b/drivers/media/video/ir-kbd-gpio.c
+@@ -319,15 +319,15 @@ module_param(repeat_period, int, 0644);
+ 	printk(KERN_DEBUG DEVNAME ": " fmt , ## arg)
+ 
+ static void ir_irq(struct bttv_sub_device *sub);
+-static int ir_probe(struct device *dev);
+-static int ir_remove(struct device *dev);
++static int ir_probe(struct bttv_sub_device *sub);
++static int ir_remove(struct bttv_sub_device *sub);
+ 
+ static struct bttv_sub_driver driver = {
+ 	.drv = {
+ 		.name	= DEVNAME,
+-		.probe	= ir_probe,
+-		.remove	= ir_remove,
+ 	},
++	.probe		= ir_probe,
++	.remove		= ir_remove,
+ 	.gpio_irq 	= ir_irq,
+ };
+ 
+@@ -570,9 +570,8 @@ static void ir_rc5_timer_keyup(unsigned 
+ 
+ /* ---------------------------------------------------------------------- */
+ 
+-static int ir_probe(struct device *dev)
++static int ir_probe(struct bttv_sub_device *sub)
+ {
+-	struct bttv_sub_device *sub = to_bttv_sub_dev(dev);
+ 	struct IR *ir;
+ 	struct input_dev *input_dev;
+ 	IR_KEYTAB_TYPE *ir_codes = NULL;
+@@ -707,7 +706,7 @@ static int ir_probe(struct device *dev)
+ 	}
+ 
+ 	/* all done */
+-	dev_set_drvdata(dev, ir);
++	dev_set_drvdata(&sub->dev, ir);
+ 	input_register_device(ir->input);
+ 
+ 	/* the remote isn't as bouncy as a keyboard */
+@@ -717,9 +716,9 @@ static int ir_probe(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int ir_remove(struct device *dev)
++static int ir_remove(struct bttv_sub_device *sub)
+ {
+-	struct IR *ir = dev_get_drvdata(dev);
++	struct IR *ir = dev_get_drvdata(&sub->dev);
+ 
+ 	if (ir->polling) {
+ 		del_timer(&ir->timer);

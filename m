@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWAFDvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWAFEPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWAFDvw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 22:51:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752195AbWAFDvw
+	id S932593AbWAFEPW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 23:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752233AbWAFEPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 22:51:52 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:7082 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750864AbWAFDvv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 22:51:51 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@osdl.org>, Nicolas Pitre <nico@cam.org>,
-       Joel Schopp <jschopp@austin.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [patch 00/21] mutex subsystem, -V14 
-In-reply-to: Your message of "Thu, 05 Jan 2006 23:43:57 BST."
-             <20060105224357.GA30298@elte.hu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 06 Jan 2006 14:49:51 +1100
-Message-ID: <9675.1136519391@kao2.melbourne.sgi.com>
+	Thu, 5 Jan 2006 23:15:22 -0500
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:46817 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751391AbWAFEPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 23:15:21 -0500
+Date: Thu, 5 Jan 2006 23:11:29 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: ptrace denies access to EFLAGS_RF
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Message-ID: <200601052314_MC3-1-B55E-CFB5@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar (on Thu, 5 Jan 2006 23:43:57 +0100) wrote:
->there's one exception i think: atomic-xchg.h was pretty optimal on ARM, 
->and i'd expect it to be pretty optimal on the other atomic-swap 
->platforms too. So maybe we should specify atomic_xchg() to _not_ imply a 
->full barrier - it's a new API anyway. We cannot embedd the barrier 
->within atomic_xchg(), because the barrier is needed at different ends 
->for lock and for unlock, and adding two barriers would be unnecessary.
+In-Reply-To: <20060105105130.GC3712@frankl.hpl.hp.com>
 
-IA64 defines two qualifiers for cmpxchg, specifically for
-distinguishing between acquiring and releasing the lock.
+On Thu, 5 Jan 2006 at 02:51:30 -0800, Stephane Eranian wrote:
 
-  cmpxchg<sz>.<sem>
+> I am trying to the user HW debug registers on i386
+> and I am running into a problem with ptrace() not allowing access
+> to EFLAGS_RF for POKEUSER (see FLAG_MASK).
+> 
+> I am not sure I understand the motivation for denying access
+> to this flag which can be used to resume after a code
+> breakpoint has been reached. It avoids the need to remove the
+> breakpoint, single step, and reinstall. The equivalent
+> functionality exists on IA-64 and is allowed by ptrace().
 
-<sz> is the data size, 1, 2, 4 or 8.  <sem> is one of 'acq' or 'rel'.
+I see no reason for denying this.  This patch should fix it:
 
-  sem       Ordering    Semaphore Operation
-Completer   Semantics
-  acq        Acquire    The memory read/write is made visible prior to
-                        all subsequent data memory accesses.
-  rel        Release    The memory read/write is made visible after all
-                        previous data memory accesses.
 
-cmpxchg4.acq prevents following data accesses from migrating before
-taking the lock (critical R/W cannot precede critical-START).
-cmpxchg4.rel prevents preceding data accesses from migrating after
-releasing the lock (critical R/W cannot follow critical-END).  I
-suggest adding acq and rel hints to atomic_xchg, and let architectures
-that implement suitable operations use those hints.
+i386: PTRACE_POKEUSR: allow changing RF bit in EFLAGS register.
 
+Setting RF (resume flag) allows a debugger to resume execution
+after a code breakpoint without tripping the breakpoint again.
+It is reset by the CPU after execution of one instruction.
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+--- 2.6.15a.orig/arch/i386/kernel/ptrace.c
++++ 2.6.15a/arch/i386/kernel/ptrace.c
+@@ -32,9 +32,12 @@
+  * in exit.c or in signal.c.
+  */
+ 
+-/* determines which flags the user has access to. */
+-/* 1 = access 0 = no access */
+-#define FLAG_MASK 0x00044dd5
++/*
++ * Determines which flags the user has access to [1 = access, 0 = no access].
++ * Prohibits changing ID(21), VIP(20), VIF(19), VM(17), IOPL(12-13), IF(9).
++ * Also masks reserved bits (31-22, 15, 5, 3, 1).
++ */
++#define FLAG_MASK 0x00054dd5
+ 
+ /* set's the trap flag. */
+ #define TRAP_FLAG 0x100
+-- 
+Chuck
+Currently reading: _Thud!_ by Terry Pratchett

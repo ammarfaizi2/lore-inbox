@@ -1,86 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbWAFR0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932771AbWAFR0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932757AbWAFR0i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 12:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbWAFR0h
+	id S932771AbWAFR0X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 12:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWAFR0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 12:26:37 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56076 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932788AbWAFR0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 12:26:35 -0500
-Date: Fri, 6 Jan 2006 18:26:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: "John L. Villalovos" <john.l.villalovos@intel.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [2.6 patch] MAINTAINERS: remove the outdated DAC960 entry
-Message-ID: <20060106172629.GQ12131@stusta.de>
-References: <43BC45DE.5060303@intel.com> <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
-MIME-Version: 1.0
+	Fri, 6 Jan 2006 12:26:21 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:56792 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932758AbWAFR0Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 12:26:16 -0500
+Date: Fri, 6 Jan 2006 10:26:15 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, hawkes@sgi.com,
+       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       John Hesterberg <jh@sgi.com>, Greg Edwards <edwardsg@sgi.com>
+Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
+Message-ID: <20060106172615.GE19769@parisc-linux.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7AFB@scsmsx401.amr.corp.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F055A7AFB@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 02:07:01PM -0800, Randy.Dunlap wrote:
-> On Wed, 4 Jan 2006, John L. Villalovos wrote:
-> 
-> > From: John L. Villalovos <john.l.villalovos@intel.com>
-> >
-> > While parsing the MAINTAINERS file I disovered one entry was missing a colon.
-> > This patch adds the one missing colon.
-> >
-> > ---
-> > diff -r 8441517e7e79 MAINTAINERS
-> > --- a/MAINTAINERS       Thu Jan  5 04:00:05 2006
-> > +++ b/MAINTAINERS       Wed Jan  4 13:49:27 2006
-> > @@ -681,7 +681,7 @@
-> >
-> >   DAC960 RAID CONTROLLER DRIVER
-> >   P:     Dave Olien
-> > -M      dmo@osdl.org
-> > +M:     dmo@osdl.org
-> >   W:     http://www.osdl.org/archive/dmo/DAC960
-> >   L:     linux-kernel@vger.kernel.org
-> >   S:     Maintained
-> 
-> That would be helpful except that Dave is no longer at OSDL
-> and is no longer maintaining that driver...
+On Fri, Jan 06, 2006 at 09:19:28AM -0800, Luck, Tony wrote:
+> Would it be impossibly hard to make the >64 cpus case (when the code
+> switches from a single word to an array) be dependent on a boot-time
+> variable?  If we could, then the defconfig could just say 128, and
+> users of monster machines would just boot with "maxcpus=4096" to increase
+> the size of the bitmask arrays.
 
-Let's remove this obsolete entry.
-
-> ~Randy
-
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-Randy Dunlap:
-Dave is no longer at OSDL and is no longer maintaining that driver.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-mm1-full/MAINTAINERS.old	2006-01-06 18:23:37.000000000 +0100
-+++ linux-2.6.15-mm1-full/MAINTAINERS	2006-01-06 18:23:44.000000000 +0100
-@@ -696,13 +696,6 @@
- W:	http://www.cyclades.com/
- S:	Supported
- 
--DAC960 RAID CONTROLLER DRIVER
--P:	Dave Olien
--M	dmo@osdl.org
--W:	http://www.osdl.org/archive/dmo/DAC960
--L:	linux-kernel@vger.kernel.org
--S:	Maintained
--
- DAMA SLAVE for AX.25
- P:	Joerg Reuter
- M:	jreuter@yaina.de
-
+Why can't we keep the default below 64?  Surely the 0.1% of the market
+which needs more than 64 cpus can recompile their kernel ...

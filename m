@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWAFHnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWAFHrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932659AbWAFHnb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 02:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWAFHnb
+	id S932661AbWAFHrl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 02:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbWAFHrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 02:43:31 -0500
-Received: from smtpout01-04.mesa1.secureserver.net ([64.202.165.79]:61615 "HELO
-	smtpout01-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
-	id S932659AbWAFHna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 02:43:30 -0500
-Message-ID: <43BE1FA3.4000904@sairyx.org>
-Date: Fri, 06 Jan 2006 18:43:31 +1100
-From: Arlen Christian Mart Cuss <celtic@sairyx.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060106)
-X-Accept-Language: en-us, en
+	Fri, 6 Jan 2006 02:47:40 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:54408 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932660AbWAFHrj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 02:47:39 -0500
+Date: Fri, 6 Jan 2006 08:47:02 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Hannu Savolainen <hannu@opensound.com>
+cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
+Message-ID: <Pine.LNX.4.61.0601060845250.22809@yvahk01.tjqt.qr>
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
+ <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+ <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
+ <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
 MIME-Version: 1.0
-To: Nauman Tahir <nauman.tahir@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] why all the patches get messed up here!!!
-References: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
-In-Reply-To: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-This list is also for discussing the patches and their effects, so other 
-developers can see them clearly and take a look!
-
- - Arlen.
-
-Nauman Tahir wrote:
-
->hi all,
->May I ask why all kernel patches just get in here in the list?
->I mean to say that isn't it better to have another list only for this
->purpose and let this mailing list be a discussion forum. I login here
->to see different issues. its a wonderful resource.
->I understand that alot of code is discussed here but in case of PATCH
->I think it would be better to have a separate archive.
->No offence just wanted to ask
->
->Regards
->Nauman
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
+>> > If you have sound device without this soft mixing is moved to user space 
+>> > .. but  applications do not need know about this even now because all
+>> > neccessary details are handled on library level. Is it ?
+>> > So question is: why the hell *ALL* mixing details are not moved to kernel 
+>> > space to SIMPLE and NOT GROWING abstraction ?
+>> 
+>> Because many people believe that the softmix in the kernel space is
+>> evil.
+>>
+>This is the usual argument against kernel level mixing. Somebody has once 
+>said that all this is evil. However this is not necessarily correct.
 >
 
+I'm going with "is evil". Better let userspace have a segfault than a kernel
+oops. I am having quite a moody feeling when running even my own things like
+http://alphagate.hopto.org/quad_dsp/
+
+>Kernel mixing is not rocket science. All you need to do is picking a 
+>sample from the output buffers of each of the applications, sum them 
+>together (with some volume scaling) and feed the result to the physical 
+>device. Ok, handling different sample formats/rates makes it much more 
+>difficult but that could be done in the library level.
+
+
+
+Jan Engelhardt
+-- 

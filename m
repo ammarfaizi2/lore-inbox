@@ -1,47 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965349AbWAFXML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbWAFXVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965349AbWAFXML (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 18:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965350AbWAFXMK
+	id S932645AbWAFXVX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 18:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbWAFXVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 18:12:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:31438 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965349AbWAFXMJ convert rfc822-to-8bit
+	Fri, 6 Jan 2006 18:21:23 -0500
+Received: from xenotime.net ([66.160.160.81]:17336 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932645AbWAFXVW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 18:12:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cmpHSNpKj7jA3xH6TElvRgLwesp1pSBkrH85pnV6YBAeeygF3QP+L2dMNuaOUwcHPkLLaGzLw5x40F4c7jcj6qHx+rdTYi2ZNexxXKrjg7Fow4UfaDiGJbpbcbYMvqOTyeUqxtx+xWFCb0kmxWP8iXnoHoKQ/AbMmFq+YU66WBc=
-Message-ID: <d120d5000601061512s1b282ee5o259ec3d6e9a730c2@mail.gmail.com>
-Date: Fri, 6 Jan 2006 18:12:08 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch 2/4] fix input layer f_ops abuse
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1136584073.2940.95.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1136583937.2940.90.camel@laptopd505.fenrus.org>
-	 <1136584073.2940.95.camel@laptopd505.fenrus.org>
+	Fri, 6 Jan 2006 18:21:22 -0500
+Date: Fri, 6 Jan 2006 15:21:21 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: =?ISO-8859-1?B?SGFucy1K/HJnZW4=?= Lange 
+	<Hans-Juergen.Lange@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.x on IBM thin client 8363
+Message-Id: <20060106152121.18f2afe0.rdunlap@xenotime.net>
+In-Reply-To: <43BE34BB.70309@gmx.de>
+References: <43BD0E1C.9060705@gmx.de>
+	<20060105191819.594767e0.rdunlap@xenotime.net>
+	<43BE34BB.70309@gmx.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> From: Arjan van de Ven <arjan@infradead.org>
->
-> The input layer has an assignment to a live ->fops, just after creating the
-> fops as a duplicate of another one. Just move this assignment a few lines up to avoid
-> the race and the assignment to a live fops
->
+On Fri, 06 Jan 2006 10:13:31 +0100 Hans-Jürgen Lange wrote:
 
-I do not understand how it will fix the "race", there is still a split
-second between "entry" having default fops and modified one. I'd
-prefer you fix the comment to reflect that the only change is because
-fops is now constant.
+> Randy.Dunlap wrote:
+> > On Thu, 05 Jan 2006 13:16:28 +0100 Hans-Jürgen Lange wrote:
+> > 
+> > 
+> >>Hello,
+> >>
+> >>I would like to run a 2.6.x kernel on a IBM thin client 8363. There are 
+> >>patches available for the 2.4 series of kernels.
+> >>I had a look on these patches and the only thing they do is to expand 
+> >>the kernel commandline size to 512 Bytes and a change in 
+> >>arch/i386/kernel/head.S that changed the pointer to the commandline to a 
+> >>fixed address.
+> > 
+> > 
+> > Where are these 2.4 patches that you are referring to?
+> >
+> 
+> O.K. this is the very important one. Because without it the 8363 wont start.
 
---
-Dmitry
+Sorry, I have no idea about this patch.
+Where did you get these 2.4 patches?  are there others?
+
+It looks a little like it may be dependent on your boot loader.
+What boot loader are you using?
+
+
+> --- linux/arch/i386/kernel/head.S.orig	Mon Jul 16 16:13:11 2001
+> +++ linux/arch/i386/kernel/head.S	Mon Jul 16 16:14:26 2001
+> @@ -158,7 +158,10 @@
+>   	movl $512,%ecx
+>   	rep
+>   	stosl
+> -	movl SYMBOL_NAME(empty_zero_page)+NEW_CL_POINTER,%esi
+> +/* NetVista */
+> +/*	movl SYMBOL_NAME(empty_zero_page)+NEW_CL_POINTER,%esi */
+> +	movl $0x98000, %esi
+> +
+>   	andl %esi,%esi
+>   	jnz 2f			# New command line protocol
+>   	cmpw $(OLD_CL_MAGIC),OLD_CL_MAGIC_ADDR
+
+
+---
+~Randy

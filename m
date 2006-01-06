@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWAFVi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWAFVl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbWAFVi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 16:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWAFVi1
+	id S1751462AbWAFVl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 16:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWAFVl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 16:38:27 -0500
-Received: from gate.crashing.org ([63.228.1.57]:54151 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750951AbWAFVi0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 16:38:26 -0500
-Subject: Re: Platform device matching, & weird strncmp usage
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060106185352.GG16093@flint.arm.linux.org.uk>
-References: <1136527179.4840.120.camel@localhost.localdomain>
-	 <20060106185352.GG16093@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sat, 07 Jan 2006 08:38:12 +1100
-Message-Id: <1136583493.4840.137.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 16:41:26 -0500
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:53952 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751431AbWAFVl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 16:41:26 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH 3/3] updated *at function patch
+To: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 06 Jan 2006 22:45:04 +0100
+References: <5s5sB-p4-181@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EuzOT-0000jw-1g@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 at 18:53 +0000, Russell King wrote:
-> On Fri, Jan 06, 2006 at 04:59:39PM +1100, Benjamin Herrenschmidt wrote:
-> > static int platform_match(struct device * dev, struct device_driver * drv)
-> > {
-> > 	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
-> > 
-> > 	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
-> > }
-> > 
-> > As far as I know, strncmp() is _NOT_ supposed to return 0 if one string
-> > is shorter than the other and they match until that point. Thus the
-> > above will never match unless the <name> portion of pdev->name is
-> > exactly of size BUS_ID_SIZE which is obviously not the case...
-> 
-> pdev->name is just the <name> part - it's pdev->dev.name which has
-> both the <name> and <instance>.  I think the strncmp is unnecessary,
-> and it can be replaced by a plain strcmp.
+Ulrich Drepper <drepper@redhat.com> wrote:
 
-Ah indeed, I got confused by having both strings.
+> +#define __NR_fchownat                259
+> +__SYSCALL(__NR_fchownat, sys_fchownat)
 
-Ben.
-
-
+s/fchown/chown/ ?
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

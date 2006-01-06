@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbWAFSh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932717AbWAFShp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932671AbWAFSh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932717AbWAFSh1
+	id S932717AbWAFShp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbWAFSho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:37:27 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:35541 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932671AbWAFSh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:37:26 -0500
-Subject: Re: [OT] ALSA userspace API complexity
-From: Lee Revell <rlrevell@joe-job.com>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Hannu Savolainen <hannu@opensound.com>, Takashi Iwai <tiwai@suse.de>,
-       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <43BE86BE.3010203@stesmi.com>
-References: <20050726150837.GT3160@stusta.de>
-	 <20060103193736.GG3831@stusta.de>
-	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
-	 <mailman.1136368805.14661.linux-kernel2news@redhat.com>
-	 <20060104030034.6b780485.zaitcev@redhat.com>
-	 <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
-	 <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
-	 <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
-	 <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
-	 <s5hmziaird8.wl%tiwai@suse.de>
-	 <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
-	 <1136504460.847.91.camel@mindpipe>
-	 <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
-	 <43BE86BE.3010203@stesmi.com>
-Content-Type: text/plain
-Date: Fri, 06 Jan 2006 13:37:24 -0500
-Message-Id: <1136572645.17979.24.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 13:37:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10477 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932717AbWAFShn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:37:43 -0500
+Date: Fri, 6 Jan 2006 10:37:33 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: Matthew Wilcox <matthew@wil.cx>, "Luck, Tony" <tony.luck@intel.com>,
+       Arjan van de Ven <arjan@infradead.org>, hawkes@sgi.com,
+       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       John Hesterberg <jh@sgi.com>, Greg Edwards <edwardsg@sgi.com>
+Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
+In-Reply-To: <Pine.LNX.4.58.0601061017510.11324@shark.he.net>
+Message-ID: <Pine.LNX.4.62.0601061035510.17875@schroedinger.engr.sgi.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7B6B@scsmsx401.amr.corp.intel.com>
+ <20060106174957.GF19769@parisc-linux.org> <Pine.LNX.4.62.0601060958110.17665@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0601061017510.11324@shark.he.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 at 16:03 +0100, Stefan Smietanowski wrote:
-> I can't remember if it was about OSS, ALSA or anything else but I
-> believe the conclusion was that sound mixing does NOT belong in the
-> kernel and SHOULD be done in userspace.
+On Fri, 6 Jan 2006, Randy.Dunlap wrote:
 
-Well, sound mixing really belongs in hardware, but that seems to be a
-lost cause - vendors are way too cheap these days.
+> > The dicey thing in all of this is that the generic kernels will be used
+> > for the certification of applications. If the cpu limit is too low then
+> > applications will simply not be certified for these high processor counts.
+> > One may encounter problems if the app is then run with a higher processor
+> > count.
+> 
+> Do you equate a 'defconfig' kernel with a generic kernel?
+> 
+> I would expect certs to be done on vendor kernels, and as
+> Arjan has suggested, they will have their own configs,
+> not defconfig.
 
-I can't believe they managed to hoodwink Windows gamers into accepting a
-new generation of sound devices that make the CPU do the work the
-hardware used to do...
-
-Lee
+Vendors look for the upstream defaults and orient themselves on the 
+defconfig. It is best to have as much common code and configurations as 
+possible.
 

@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbWAFHkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWAFHnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbWAFHkq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 02:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbWAFHkp
+	id S932659AbWAFHnb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 02:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWAFHnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 02:40:45 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:48049 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932657AbWAFHko convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 02:40:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=D8OffP0tm1HefcZGqcwKbku/Ftpa295kd4DvCz6+JCxFgaa1F8NEkhmrX/8dkefbAYR3/GxPZP6E1xPijFtNuzZmorn60KMEcS1LUCGkmT4FTLodHIDTuYkUS084OL+PDRJEjjvU9zf2i7LTl9P8gTPKAqrkxbryR4Of0cQs25U=
-Message-ID: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
-Date: Thu, 5 Jan 2006 23:40:43 -0800
-From: Nauman Tahir <nauman.tahir@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] why all the patches get messed up here!!!
+	Fri, 6 Jan 2006 02:43:31 -0500
+Received: from smtpout01-04.mesa1.secureserver.net ([64.202.165.79]:61615 "HELO
+	smtpout01-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
+	id S932659AbWAFHna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 02:43:30 -0500
+Message-ID: <43BE1FA3.4000904@sairyx.org>
+Date: Fri, 06 Jan 2006 18:43:31 +1100
+From: Arlen Christian Mart Cuss <celtic@sairyx.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060106)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Nauman Tahir <nauman.tahir@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] why all the patches get messed up here!!!
+References: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
+In-Reply-To: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-May I ask why all kernel patches just get in here in the list?
-I mean to say that isn't it better to have another list only for this
-purpose and let this mailing list be a discussion forum. I login here
-to see different issues. its a wonderful resource.
-I understand that alot of code is discussed here but in case of PATCH
-I think it would be better to have a separate archive.
-No offence just wanted to ask
+Hi,
 
-Regards
-Nauman
+This list is also for discussing the patches and their effects, so other 
+developers can see them clearly and take a look!
+
+ - Arlen.
+
+Nauman Tahir wrote:
+
+>hi all,
+>May I ask why all kernel patches just get in here in the list?
+>I mean to say that isn't it better to have another list only for this
+>purpose and let this mailing list be a discussion forum. I login here
+>to see different issues. its a wonderful resource.
+>I understand that alot of code is discussed here but in case of PATCH
+>I think it would be better to have a separate archive.
+>No offence just wanted to ask
+>
+>Regards
+>Nauman
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+

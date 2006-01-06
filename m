@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWAFAqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752328AbWAFAuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWAFAqh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWAFAqh
+	id S1752328AbWAFAuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752329AbWAFAuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:46:37 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:10715 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932357AbWAFAqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:46:35 -0500
-Subject: Re: 2.6.15-rc7-rt1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       john stultz <johnstul@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <5bdc1c8b0601051643m1d8cf0b5k8abc6697e281ffb7@mail.gmail.com>
-References: <20051228172643.GA26741@elte.hu>
-	 <Pine.LNX.4.61.0512311808070.7910@yvahk01.tjqt.qr>
-	 <1136051113.6039.109.camel@localhost.localdomain>
-	 <1136054936.6039.125.camel@localhost.localdomain>
-	 <5bdc1c8b0601010719h40f2393cu85bae52fef35c1d2@mail.gmail.com>
-	 <1136205719.6039.156.camel@localhost.localdomain>
-	 <5bdc1c8b0601051133g6ed0b3b4ob699d65e4a12b699@mail.gmail.com>
-	 <1136492165.847.9.camel@mindpipe>
-	 <5bdc1c8b0601051258j3bfc390bsa770ddf6506d2deb@mail.gmail.com>
-	 <5bdc1c8b0601051643m1d8cf0b5k8abc6697e281ffb7@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 05 Jan 2006 19:46:33 -0500
-Message-Id: <1136508393.12482.3.camel@mindpipe>
+	Thu, 5 Jan 2006 19:50:07 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:45764 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S1752326AbWAFAuF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 19:50:05 -0500
+Date: Thu, 5 Jan 2006 16:50:04 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Martin Bligh <mbligh@mbligh.org>, Matt Mackall <mpm@selenic.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+Message-ID: <20060106005004.GC84622@gaz.sfgoth.com>
+References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <43BD784F.4040804@mbligh.org> <Pine.LNX.4.64.0601051208510.3169@g5.osdl.org> <Pine.LNX.4.64.0601051213270.3169@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601051213270.3169@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 05 Jan 2006 16:50:05 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-05 at 16:43 -0800, Mark Knecht wrote:
-> On 1/5/06, Mark Knecht <markknecht@gmail.com> wrote:
-> > On 1/5/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > > On Thu, 2006-01-05 at 11:33 -0800, Mark Knecht wrote:
-> > > > I expect that I am probably still getting a low level of xruns. I
-> > > > hope one day we can make that work a bit better.
-> > >
-> > > Were you ever able to get latency tracing to work on your box?
-> > >
-> > > Lee
-> >
-> > Not yet, due to the power failure and being off line. I'll give it a
-> > shot this evening.
-> >
-> > Does anyone with an AMD64 platform have this working?
-> >
-> > Thanks,
-> > Mark
-> >
-> 
-> Hi Lee,
->    OK, I rebuilt the new kernel (2.6.15-rt2) with latency tracing
-> enabled. I still get xruns when running Jack and Aqualung. The tracing
-> doesn't show anything new although I do have the IRQ off tracing
-> turned on and don't see the long timer delays that Iused to see.
-> 
->    What the following shows is that I have a 14uS delay before
+Linus Torvalds wrote:
+> Oh, but validatign things like "likely()" and "unlikely()" branch hints 
+> might be a noticeably bigger issue. 
 
-Yeah 14 usec is nothing, I think we've established that this isn't a
-kernel problem.  We should take it to the JACK list.
+I think the issues are somewhat intertwined.
 
-Lee
+For instance, assume you have code like:
 
+	if (some_function(skb)) {
+		blah();
+		printk(KERN_WARN "bad packet...\n");
+	} else {
+		process_skb(skb);
+	}
+
+Now just by annotating printk() as "rare" then gcc should be able to guess
+that the "if" is unlikely() without explicitly marking it as such since
+one of its paths calls a rare function and the other does not.  If instead
+both paths called rare functions then the compiler could decide that the
+whole block is probably "rare" and optimize accordingly.
+
+I haven't looked at gcc 4.1 yet so I don't know how sophisticated its "rare"
+promotion rules are yet but this is certainly the kind of thing the compiler
+should be able to handle.
+
+So basically better inter-functional locality hints should also help
+intra-functional locality.
+
+[from another message]
+> We don't have likely()/unlikely() that often, and at least in my case it's
+> partly because the syntax is a pain (it would probably have been better to
+> include the "if ()" part in the syntax - the millions of parenthesis just
+> drive me wild).
+
+I actually did that in a project once (an "unlikely_if()" macro)  It was
+not a good idea.  The problem is that every syntax-highlighter knows that
+"if" is a keyword but you'd have to teach it about "unlikely_if".  It was
+surprising how visually jarring having different pretty-printing for
+different types of "if" statements was.  "if (unlikely())" looks much
+cleaner in comparison.
+
+-Mitch

@@ -1,57 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWAFTDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWAFTEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWAFTDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWAFTDQ
+	id S932474AbWAFTEg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWAFTEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:03:16 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:24748 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932203AbWAFTDP (ORCPT
+	Fri, 6 Jan 2006 14:04:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2213 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932474AbWAFTEd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:03:15 -0500
-Message-ID: <43BEBEE1.6060500@pobox.com>
-Date: Fri, 06 Jan 2006 14:02:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>	 <1136543914.2940.11.camel@laptopd505.fenrus.org>	 <43BEA672.4010309@pobox.com>  <20060106184841.GA13917@mars.ravnborg.org> <1136574052.2940.68.camel@laptopd505.fenrus.org>
-In-Reply-To: <1136574052.2940.68.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Arjan van de Ven wrote: >>Also why should we care so
-	much for multi directory modules? > > > I suspect Jeff didn't mean it
-	like that, but instead assumed that > multi-directory would be harder
-	so that starting with single-directory > would be a good start... [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Fri, 6 Jan 2006 14:04:33 -0500
+Date: Fri, 6 Jan 2006 14:04:29 -0500
+From: Ulrich Drepper <drepper@redhat.com>
+Message-Id: <200601061904.k06J4TOs027900@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] updated *at function patch
+Cc: akpm@osdl.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>Also why should we care so much for multi directory modules?
-> 
-> 
-> I suspect Jeff didn't mean it like that, but instead assumed that
-> multi-directory would be harder so that starting with single-directory
-> would be a good start...
-
-Correct...
-
-	Jeff
-
-
-
+diff --git a/arch/x86_64/ia32/ia32entry.S b/arch/x86_64/ia32/ia32entry.S
+index e0eb0c7..cae0248 100644
+--- a/arch/x86_64/ia32/ia32entry.S
++++ b/arch/x86_64/ia32/ia32entry.S
+@@ -643,6 +643,19 @@ ia32_sys_call_table:
+ 	.quad sys_inotify_init
+ 	.quad sys_inotify_add_watch
+ 	.quad sys_inotify_rm_watch
++	.quad compat_sys_openat
++	.quad sys_mkdirat		/* 295 */
++	.quad sys_mknodat
++	.quad sys_fchownat
++	.quad sys_futimesat
++	.quad compat_sys_newfstatat
++	.quad sys_unlinkat		/* 300 */
++	.quad sys_renameat
++	.quad sys_linkat
++	.quad sys_symlinkat
++	.quad sys_readlinkat
++	.quad sys_fchmodat		/* 305 */
++	.quad sys_faccessat
+ ia32_syscall_end:		
+ 	.rept IA32_NR_syscalls-(ia32_syscall_end-ia32_sys_call_table)/8
+ 		.quad ni_syscall
+diff --git a/include/asm-x86_64/ia32_unistd.h b/include/asm-x86_64/ia32_unistd.h
+index d5166ec..6215317 100644
+--- a/include/asm-x86_64/ia32_unistd.h
++++ b/include/asm-x86_64/ia32_unistd.h
+@@ -299,7 +299,20 @@
+ #define __NR_ia32_inotify_init		291
+ #define __NR_ia32_inotify_add_watch	292
+ #define __NR_ia32_inotify_rm_watch	293
++#define __NR_ia32_opanat		294
++#define __NR_ia32_mkdirat		295
++#define __NR_ia32_mknodat		296
++#define __NR_ia32_fchownat		297
++#define __NR_ia32_futimesat		298
++#define __NR_ia32_newfstatat		299
++#define __NR_ia32_unlinkat		300
++#define __NR_ia32_renameat		301
++#define __NR_ia32_linkat		302
++#define __NR_ia32_symlinkat		303
++#define __NR_ia32_readlinkat		304
++#define __NR_ia32_fchmodat		305
++#define __NR_ia32_faccessat		306
+ 
+-#define IA32_NR_syscalls 294	/* must be > than biggest syscall! */
++#define IA32_NR_syscalls 307	/* must be > than biggest syscall! */
+ 
+ #endif /* _ASM_X86_64_IA32_UNISTD_H_ */
+diff --git a/include/asm-x86_64/unistd.h b/include/asm-x86_64/unistd.h
+index 2c42150..52aeee6 100644
+--- a/include/asm-x86_64/unistd.h
++++ b/include/asm-x86_64/unistd.h
+@@ -571,8 +571,34 @@ __SYSCALL(__NR_inotify_init, sys_inotify
+ __SYSCALL(__NR_inotify_add_watch, sys_inotify_add_watch)
+ #define __NR_inotify_rm_watch	255
+ __SYSCALL(__NR_inotify_rm_watch, sys_inotify_rm_watch)
++#define __NR_openat		256
++__SYSCALL(__NR_openat, sys_openat)
++#define __NR_mkdirat		257
++__SYSCALL(__NR_mkdirat, sys_mkdirat)
++#define __NR_mknodat		258
++__SYSCALL(__NR_mknodat, sys_mknodat)
++#define __NR_fchownat		259
++__SYSCALL(__NR_fchownat, sys_fchownat)
++#define __NR_futimesat		260
++__SYSCALL(__NR_futimesat, sys_futimesat)
++#define __NR_newfstatat		261
++__SYSCALL(__NR_newfstatat, sys_newfstatat)
++#define __NR_unlinkat		262
++__SYSCALL(__NR_unlinkat, sys_unlinkat)
++#define __NR_renameat		263
++__SYSCALL(__NR_renameat, sys_renameat)
++#define __NR_linkat		264
++__SYSCALL(__NR_linkat, sys_linkat)
++#define __NR_symlinkat		265
++__SYSCALL(__NR_symlinkat, sys_symlinkat)
++#define __NR_readlinkat		266
++__SYSCALL(__NR_readlinkat, sys_readlinkat)
++#define __NR_fchmodat		267
++__SYSCALL(__NR_fchmodat, sys_fchmodat)
++#define __NR_faccessat		268
++__SYSCALL(__NR_faccessat, sys_faccessat)
+ 
+-#define __NR_syscall_max __NR_inotify_rm_watch
++#define __NR_syscall_max __NR_faccessat
+ #ifndef __NO_STUBS
+ 
+ /* user-visible error numbers are in the range -1 - -4095 */

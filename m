@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932876AbWAFRXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbWAFR0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932876AbWAFRXA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 12:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932733AbWAFRW6
+	id S932757AbWAFR0i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 12:26:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbWAFR0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 12:22:58 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:36364 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932849AbWAFRWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 12:22:55 -0500
-Date: Fri, 6 Jan 2006 18:22:47 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Nauman Tahir <nauman.tahir@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] why all the patches get messed up here!!!
-Message-ID: <20060106172247.GF7142@w.ods.org>
-References: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
-Mime-Version: 1.0
+	Fri, 6 Jan 2006 12:26:37 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56076 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932788AbWAFR0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 12:26:35 -0500
+Date: Fri, 6 Jan 2006 18:26:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: "John L. Villalovos" <john.l.villalovos@intel.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: [2.6 patch] MAINTAINERS: remove the outdated DAC960 entry
+Message-ID: <20060106172629.GQ12131@stusta.de>
+References: <43BC45DE.5060303@intel.com> <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <Pine.LNX.4.58.0601041406210.19134@shark.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 11:40:43PM -0800, Nauman Tahir wrote:
-> hi all,
-> May I ask why all kernel patches just get in here in the list?
-> I mean to say that isn't it better to have another list only for this
-> purpose and let this mailing list be a discussion forum. I login here
-> to see different issues. its a wonderful resource.
-> I understand that alot of code is discussed here but in case of PATCH
-> I think it would be better to have a separate archive.
-> No offence just wanted to ask
+On Wed, Jan 04, 2006 at 02:07:01PM -0800, Randy.Dunlap wrote:
+> On Wed, 4 Jan 2006, John L. Villalovos wrote:
+> 
+> > From: John L. Villalovos <john.l.villalovos@intel.com>
+> >
+> > While parsing the MAINTAINERS file I disovered one entry was missing a colon.
+> > This patch adds the one missing colon.
+> >
+> > ---
+> > diff -r 8441517e7e79 MAINTAINERS
+> > --- a/MAINTAINERS       Thu Jan  5 04:00:05 2006
+> > +++ b/MAINTAINERS       Wed Jan  4 13:49:27 2006
+> > @@ -681,7 +681,7 @@
+> >
+> >   DAC960 RAID CONTROLLER DRIVER
+> >   P:     Dave Olien
+> > -M      dmo@osdl.org
+> > +M:     dmo@osdl.org
+> >   W:     http://www.osdl.org/archive/dmo/DAC960
+> >   L:     linux-kernel@vger.kernel.org
+> >   S:     Maintained
+> 
+> That would be helpful except that Dave is no longer at OSDL
+> and is no longer maintaining that driver...
 
-Hmmm it would be terrible. Just thinking about what a conversation
-would look like :
+Let's remove this obsolete entry.
 
-  "Hi guys, I found a bug in xxx subsystem, basically it did blablabla
-   to my box when I tried to blablabla. I fixed it the dirty way, please
-   consult the patch list and look for subject XXX.
-   => reply :
-   Hi foo,
-   there was an cleaner fix, yours is buggy because blablabla. please
-   use my reply to your mail on the patch list instead.
-  "
+> ~Randy
 
-Most people here *comment* patches :
-  - methods
-  - bugs
-  - typos
-  - coding style
+cu
+Adrian
 
-There's no way to do this on two separate lists. It's already very
-annoying when someone posts an HTTP link to some content outside !
 
-> Regards
-> Nauman
+<--  snip  -->
 
-Willy
+
+Randy Dunlap:
+Dave is no longer at OSDL and is no longer maintaining that driver.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-mm1-full/MAINTAINERS.old	2006-01-06 18:23:37.000000000 +0100
++++ linux-2.6.15-mm1-full/MAINTAINERS	2006-01-06 18:23:44.000000000 +0100
+@@ -696,13 +696,6 @@
+ W:	http://www.cyclades.com/
+ S:	Supported
+ 
+-DAC960 RAID CONTROLLER DRIVER
+-P:	Dave Olien
+-M	dmo@osdl.org
+-W:	http://www.osdl.org/archive/dmo/DAC960
+-L:	linux-kernel@vger.kernel.org
+-S:	Maintained
+-
+ DAMA SLAVE for AX.25
+ P:	Joerg Reuter
+ M:	jreuter@yaina.de
 

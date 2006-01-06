@@ -1,32 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752521AbWAFS7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWAFTBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752521AbWAFS7z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752496AbWAFS7j
+	id S932460AbWAFTBA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWAFTBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:59:39 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15755 "EHLO
+	Fri, 6 Jan 2006 14:01:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:19339 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752482AbWAFS7Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:59:25 -0500
-Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
+	id S932460AbWAFTA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 14:00:58 -0500
+Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
 From: Arjan van de Ven <arjan@infradead.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Matthew Wilcox <matthew@wil.cx>,
-       "Luck, Tony" <tony.luck@intel.com>, hawkes@sgi.com,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
-       John Hesterberg <jh@sgi.com>, Greg Edwards <edwardsg@sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0601061035510.17875@schroedinger.engr.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7B6B@scsmsx401.amr.corp.intel.com>
-	 <20060106174957.GF19769@parisc-linux.org>
-	 <Pine.LNX.4.62.0601060958110.17665@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0601061017510.11324@shark.he.net>
-	 <Pine.LNX.4.62.0601061035510.17875@schroedinger.engr.sgi.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu
+In-Reply-To: <20060106184841.GA13917@mars.ravnborg.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+	 <1136543914.2940.11.camel@laptopd505.fenrus.org>
+	 <43BEA672.4010309@pobox.com>  <20060106184841.GA13917@mars.ravnborg.org>
 Content-Type: text/plain
-Date: Fri, 06 Jan 2006 19:59:07 +0100
-Message-Id: <1136573948.2940.65.camel@laptopd505.fenrus.org>
+Date: Fri, 06 Jan 2006 20:00:52 +0100
+Message-Id: <1136574052.2940.68.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -42,13 +36,9 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Vendors look for the upstream defaults and orient themselves on the 
-> defconfig.
+> Also why should we care so much for multi directory modules?
 
-they do? That's news to me. I've worked at a vendor for almost 5 years,
-3 1/2 years of which I was the person who decided on the configs (with
-external input of course). In those 3 1/2 years I *never* looked at
-defconfig. *never*. And I don't expect other vendor kernel owners to do
-things differently; when a config option needs deciding you look at the
-description and pick a good value. That's it. Defconfig doesn't matter.
+I suspect Jeff didn't mean it like that, but instead assumed that
+multi-directory would be harder so that starting with single-directory
+would be a good start...
 

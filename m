@@ -1,44 +1,334 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWAFPbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWAFPh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWAFPbW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 10:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWAFPbW
+	id S1750710AbWAFPh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 10:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWAFPhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 10:31:22 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:50608 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751303AbWAFPbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 10:31:21 -0500
-Date: Fri, 6 Jan 2006 13:30:51 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab: Adds missing kmalloc() checks.
-Message-Id: <20060106133051.367f2d9b.lcapitulino@mandriva.com.br>
-In-Reply-To: <1136561087.2940.39.camel@laptopd505.fenrus.org>
-References: <20060106131246.0b9fde8c.lcapitulino@mandriva.com.br>
-	<1136561087.2940.39.camel@laptopd505.fenrus.org>
-Organization: Mandriva
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 10:37:55 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:21515 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750710AbWAFPhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 10:37:55 -0500
+Date: Fri, 6 Jan 2006 16:37:49 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove the outdated remove arch/i386/kernel/cpu/{,mtrr/}changelog
+Message-ID: <20060106153749.GF12131@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Jan 2006 16:24:47 +0100
-Arjan van de Ven <arjan@infradead.org> wrote:
+This patch removes two outdated changelog files.
 
-| On Fri, 2006-01-06 at 13:12 -0200, Luiz Fernando Capitulino wrote:
-| >  Adds two missing kmalloc() checks in kmem_cache_init(). Note that if the
-| > allocation fails, there is nothing to do, so we panic();
-| 
-| ok so what good does this do? if you die this early.. you are in deeper
-| problems, and can't boot. while this makes the code bigger...
 
- Well, you'll get a panic with a message saying you have no memory to
-boot, instead of a OOPS with a kernel NULL pointer derefecence, which
-will make you look for a bug.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Luiz Fernando N. Capitulino
+---
+
+ arch/i386/kernel/cpu/changelog      |   63 -------
+ arch/i386/kernel/cpu/mtrr/changelog |  229 ----------------------------
+ 2 files changed, 292 deletions(-)
+
+--- linux-2.6.15-mm1-full/arch/i386/kernel/cpu/changelog	2006-01-03 04:21:10.000000000 +0100
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,63 +0,0 @@
+-/*
+- *  Enhanced CPU type detection by Mike Jagdis, Patrick St. Jean
+- *  and Martin Mares, November 1997.
+- *
+- *  Force Cyrix 6x86(MX) and M II processors to report MTRR capability
+- *  and Cyrix "coma bug" recognition by
+- *  Zoltán Böszörményi <zboszor@mail.externet.hu> February 1999.
+- * 
+- *  Force Centaur C6 processors to report MTRR capability.
+- *  Bart Hartgers <bart@etpmod.phys.tue.nl>, May 1999.
+- *
+- *  Intel Mobile Pentium II detection fix. Sean Gilley, June 1999.
+- *
+- *  IDT Winchip tweaks, misc clean ups.
+- *  Dave Jones <davej@suse.de>, August 1999
+- *
+- *  Better detection of Centaur/IDT WinChip models.
+- *  Bart Hartgers <bart@etpmod.phys.tue.nl>, August 1999.
+- *
+- *  Cleaned up cache-detection code
+- *  Dave Jones <davej@suse.de>, October 1999
+- *
+- *  Added proper L2 cache detection for Coppermine
+- *  Dragan Stancevic <visitor@valinux.com>, October 1999
+- *
+- *  Added the original array for capability flags but forgot to credit 
+- *  myself :) (~1998) Fixed/cleaned up some cpu_model_info and other stuff
+- *  Jauder Ho <jauderho@carumba.com>, January 2000
+- *
+- *  Detection for Celeron coppermine, identify_cpu() overhauled,
+- *  and a few other clean ups.
+- *  Dave Jones <davej@suse.de>, April 2000
+- *
+- *  Pentium III FXSR, SSE support
+- *  General FPU state handling cleanups
+- *  Gareth Hughes <gareth@valinux.com>, May 2000
+- *
+- *  Added proper Cascades CPU and L2 cache detection for Cascades
+- *  and 8-way type cache happy bunch from Intel:^)
+- *  Dragan Stancevic <visitor@valinux.com>, May 2000 
+- *
+- *  Forward port AMD Duron errata T13 from 2.2.17pre
+- *  Dave Jones <davej@suse.de>, August 2000
+- *
+- *  Forward port lots of fixes/improvements from 2.2.18pre
+- *  Cyrix III, Pentium IV support.
+- *  Dave Jones <davej@suse.de>, October 2000
+- *
+- *  Massive cleanup of CPU detection and bug handling;
+- *  Transmeta CPU detection,
+- *  H. Peter Anvin <hpa@zytor.com>, November 2000
+- *
+- *  VIA C3 Support.
+- *  Dave Jones <davej@suse.de>, March 2001
+- *
+- *  AMD Athlon/Duron/Thunderbird bluesmoke support.
+- *  Dave Jones <davej@suse.de>, April 2001.
+- *
+- *  CacheSize bug workaround updates for AMD, Intel & VIA Cyrix.
+- *  Dave Jones <davej@suse.de>, September, October 2001.
+- *
+- */
+-
+--- linux-2.6.15-mm1-full/arch/i386/kernel/cpu/mtrr/changelog	2006-01-03 04:21:10.000000000 +0100
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,229 +0,0 @@
+-    ChangeLog
+-
+-    Prehistory Martin Tischhäuser <martin@ikcbarka.fzk.de>
+-	       Initial register-setting code (from proform-1.0).
+-    19971216   Richard Gooch <rgooch@atnf.csiro.au>
+-               Original version for /proc/mtrr interface, SMP-safe.
+-  v1.0
+-    19971217   Richard Gooch <rgooch@atnf.csiro.au>
+-               Bug fix for ioctls()'s.
+-	       Added sample code in Documentation/mtrr.txt
+-  v1.1
+-    19971218   Richard Gooch <rgooch@atnf.csiro.au>
+-               Disallow overlapping regions.
+-    19971219   Jens Maurer <jmaurer@menuett.rhein-main.de>
+-               Register-setting fixups.
+-  v1.2
+-    19971222   Richard Gooch <rgooch@atnf.csiro.au>
+-               Fixups for kernel 2.1.75.
+-  v1.3
+-    19971229   David Wragg <dpw@doc.ic.ac.uk>
+-               Register-setting fixups and conformity with Intel conventions.
+-    19971229   Richard Gooch <rgooch@atnf.csiro.au>
+-               Cosmetic changes and wrote this ChangeLog ;-)
+-    19980106   Richard Gooch <rgooch@atnf.csiro.au>
+-               Fixups for kernel 2.1.78.
+-  v1.4
+-    19980119   David Wragg <dpw@doc.ic.ac.uk>
+-               Included passive-release enable code (elsewhere in PCI setup).
+-  v1.5
+-    19980131   Richard Gooch <rgooch@atnf.csiro.au>
+-               Replaced global kernel lock with private spinlock.
+-  v1.6
+-    19980201   Richard Gooch <rgooch@atnf.csiro.au>
+-               Added wait for other CPUs to complete changes.
+-  v1.7
+-    19980202   Richard Gooch <rgooch@atnf.csiro.au>
+-               Bug fix in definition of <set_mtrr> for UP.
+-  v1.8
+-    19980319   Richard Gooch <rgooch@atnf.csiro.au>
+-               Fixups for kernel 2.1.90.
+-    19980323   Richard Gooch <rgooch@atnf.csiro.au>
+-               Move SMP BIOS fixup before secondary CPUs call <calibrate_delay>
+-  v1.9
+-    19980325   Richard Gooch <rgooch@atnf.csiro.au>
+-               Fixed test for overlapping regions: confused by adjacent regions
+-    19980326   Richard Gooch <rgooch@atnf.csiro.au>
+-               Added wbinvd in <set_mtrr_prepare>.
+-    19980401   Richard Gooch <rgooch@atnf.csiro.au>
+-               Bug fix for non-SMP compilation.
+-    19980418   David Wragg <dpw@doc.ic.ac.uk>
+-               Fixed-MTRR synchronisation for SMP and use atomic operations
+-	       instead of spinlocks.
+-    19980418   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Differentiate different MTRR register classes for BIOS fixup.
+-  v1.10
+-    19980419   David Wragg <dpw@doc.ic.ac.uk>
+-	       Bug fix in variable MTRR synchronisation.
+-  v1.11
+-    19980419   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Fixups for kernel 2.1.97.
+-  v1.12
+-    19980421   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Safer synchronisation across CPUs when changing MTRRs.
+-  v1.13
+-    19980423   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Bugfix for SMP systems without MTRR support.
+-  v1.14
+-    19980427   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Trap calls to <mtrr_add> and <mtrr_del> on non-MTRR machines.
+-  v1.15
+-    19980427   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Use atomic bitops for setting SMP change mask.
+-  v1.16
+-    19980428   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Removed spurious diagnostic message.
+-  v1.17
+-    19980429   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Moved register-setting macros into this file.
+-	       Moved setup code from init/main.c to i386-specific areas.
+-  v1.18
+-    19980502   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Moved MTRR detection outside conditionals in <mtrr_init>.
+-  v1.19
+-    19980502   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Documentation improvement: mention Pentium II and AGP.
+-  v1.20
+-    19980521   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Only manipulate interrupt enable flag on local CPU.
+-	       Allow enclosed uncachable regions.
+-  v1.21
+-    19980611   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Always define <main_lock>.
+-  v1.22
+-    19980901   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Removed module support in order to tidy up code.
+-	       Added sanity check for <mtrr_add>/<mtrr_del> before <mtrr_init>.
+-	       Created addition queue for prior to SMP commence.
+-  v1.23
+-    19980902   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Ported patch to kernel 2.1.120-pre3.
+-  v1.24
+-    19980910   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Removed sanity checks and addition queue: Linus prefers an OOPS.
+-  v1.25
+-    19981001   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Fixed harmless compiler warning in include/asm-i386/mtrr.h
+-	       Fixed version numbering and history for v1.23 -> v1.24.
+-  v1.26
+-    19990118   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Added devfs support.
+-  v1.27
+-    19990123   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Changed locking to spin with reschedule.
+-	       Made use of new <smp_call_function>.
+-  v1.28
+-    19990201   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-	       Extended the driver to be able to use Cyrix style ARRs.
+-    19990204   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Restructured Cyrix support.
+-  v1.29
+-    19990204   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-	       Refined ARR support: enable MAPEN in set_mtrr_prepare()
+-	       and disable MAPEN in set_mtrr_done().
+-    19990205   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Minor cleanups.
+-  v1.30
+-    19990208   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Protect plain 6x86s (and other processors without the
+-               Page Global Enable feature) against accessing CR4 in
+-               set_mtrr_prepare() and set_mtrr_done().
+-    19990210   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Turned <set_mtrr_up> and <get_mtrr> into function pointers.
+-  v1.31
+-    19990212   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Major rewrite of cyrix_arr_init(): do not touch ARRs,
+-               leave them as the BIOS have set them up.
+-               Enable usage of all 8 ARRs.
+-               Avoid multiplications by 3 everywhere and other
+-               code clean ups/speed ups.
+-    19990213   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Set up other Cyrix processors identical to the boot cpu.
+-               Since Cyrix don't support Intel APIC, this is l'art pour l'art.
+-               Weigh ARRs by size:
+-               If size <= 32M is given, set up ARR# we were given.
+-               If size >  32M is given, set up ARR7 only if it is free,
+-               fail otherwise.
+-    19990214   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Also check for size >= 256K if we are to set up ARR7,
+-               mtrr_add() returns the value it gets from set_mtrr()
+-    19990218   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Remove Cyrix "coma bug" workaround from here.
+-               Moved to linux/arch/i386/kernel/setup.c and
+-               linux/include/asm-i386/bugs.h
+-    19990228   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Added MTRRIOC_KILL_ENTRY ioctl(2)
+-	       Trap for counter underflow in <mtrr_file_del>.
+-	       Trap for 4 MiB aligned regions for PPro, stepping <= 7.
+-    19990301   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Created <get_free_region> hook.
+-    19990305   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Temporarily disable AMD support now MTRR capability flag is set.
+-  v1.32
+-    19990308   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-	       Adjust my changes (19990212-19990218) to Richard Gooch's
+-	       latest changes. (19990228-19990305)
+-  v1.33
+-    19990309   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Fixed typo in <printk> message.
+-    19990310   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Support K6-II/III based on Alan Cox's <alan@redhat.com> patches.
+-  v1.34
+-    19990511   Bart Hartgers <bart@etpmod.phys.tue.nl>
+-	       Support Centaur C6 MCR's.
+-    19990512   Richard Gooch <rgooch@atnf.csiro.au>
+-	       Minor cleanups.
+-  v1.35
+-    19990707   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Check whether ARR3 is protected in cyrix_get_free_region()
+-               and mtrr_del(). The code won't attempt to delete or change it
+-               from now on if the BIOS protected ARR3. It silently skips ARR3
+-               in cyrix_get_free_region() or returns with an error code from
+-               mtrr_del().
+-    19990711   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Reset some bits in the CCRs in cyrix_arr_init() to disable SMM
+-               if ARR3 isn't protected. This is needed because if SMM is active
+-               and ARR3 isn't protected then deleting and setting ARR3 again
+-               may lock up the processor. With SMM entirely disabled, it does
+-               not happen.
+-    19990812   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-               Rearrange switch() statements so the driver accomodates to
+-               the fact that the AMD Athlon handles its MTRRs the same way
+-               as Intel does.
+-    19990814   Zoltán Böszörményi <zboszor@mail.externet.hu>
+-	       Double check for Intel in mtrr_add()'s big switch() because
+-	       that revision check is only valid for Intel CPUs.
+-    19990819   Alan Cox <alan@redhat.com>
+-               Tested Zoltan's changes on a pre production Athlon - 100%
+-               success.
+-    19991008   Manfred Spraul <manfreds@colorfullife.com>
+-    	       replaced spin_lock_reschedule() with a normal semaphore.
+-  v1.36
+-    20000221   Richard Gooch <rgooch@atnf.csiro.au>
+-               Compile fix if procfs and devfs not enabled.
+-	       Formatting changes.
+-  v1.37
+-    20001109   H. Peter Anvin <hpa@zytor.com>
+-	       Use the new centralized CPU feature detects.
+-
+-  v1.38
+-    20010309   Dave Jones <davej@suse.de>
+-	       Add support for Cyrix III.
+-
+-  v1.39
+-    20010312   Dave Jones <davej@suse.de>
+-               Ugh, I broke AMD support.
+-	       Reworked fix by Troels Walsted Hansen <troels@thule.no>
+-
+-  v1.40
+-    20010327   Dave Jones <davej@suse.de>
+-	       Adapted Cyrix III support to include VIA C3.
+-
+-  v2.0
+-    20020306   Patrick Mochel <mochel@osdl.org>
+-               Split mtrr.c -> mtrr/*.c
+-               Converted to Linux Kernel Coding Style
+-               Fixed several minor nits in form
+-               Moved some SMP-only functions out, so they can be used
+-                for power management in the future.
+-               TODO: Fix user interface cruft.
+

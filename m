@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWAFNjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWAFNkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWAFNjm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 08:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWAFNjm
+	id S932413AbWAFNkR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 08:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWAFNkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 08:39:42 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:44559 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932403AbWAFNjl convert rfc822-to-8bit
+	Fri, 6 Jan 2006 08:40:16 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:30568 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP id S932409AbWAFNkO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 08:39:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=llZFbL4OJhQPXXeqbXT6t0A8UXOElctpv3XRuivDK5X2g8X05bxWm4iSALNpkScmSCUGL6yEN6qFVmhuL/udMzJGtYmnz/5KdhtJoMa0IIwlJGAwvIlcuF1bYkb993ulzNRuqOBgPLxsrY3d1FpbYJ4CJDr2MkQnGrqP3XC47pA=
-Message-ID: <5a2cf1f60601060539k47ba157cy36ca18046575d4fe@mail.gmail.com>
-Date: Fri, 6 Jan 2006 14:39:40 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Sebastian <sebastian_ml@gmx.net>
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060104155036.GA5542@section_eight.mops.rwth-aachen.de>
+	Fri, 6 Jan 2006 08:40:14 -0500
+Date: Fri, 6 Jan 2006 15:37:32 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+Cc: Marcin Dalecki <martin@dalecki.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <43BE3E3D.7050506@superbug.demon.co.uk>
+Message-ID: <Pine.LNX.4.61.0601061526350.3057@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
+ <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
+ <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe>
+ <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <1136491503.847.0.camel@mindpipe>
+ <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de> <1136493172.847.26.camel@mindpipe>
+ <8D670C39-7B52-407C-8BDD-3478DB172641@dalecki.de>
+ <9a8748490601051535s5e28fd81of6814088db7ccac@mail.gmail.com>
+ <A1ECA9D1-29EB-4C44-A343-87B5EAAD4ADA@dalecki.de>
+ <Pine.LNX.4.61.0601060302370.29362@zeus.compusonic.fi>
+ <43BE3E3D.7050506@superbug.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de>
-	 <20060104092058.GN3472@suse.de> <20060104092443.GO3472@suse.de>
-	 <20060104155036.GA5542@section_eight.mops.rwth-aachen.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/4/06, Sebastian <sebastian_ml@gmx.net> wrote:
-> Hello all! Hi Jens!
+On Fri, 6 Jan 2006, James Courtier-Dutton wrote:
+> Even you admit that the OSS drivers in the kernel mainline are "really
+> obsolete", so you must agree with this thread that we should remove them.
+I completely agree. As I said I would like to see the old OSS code to be 
+removed from the kernel soon.
+ 
+> Only if your binary blobs are released as GPL so that they can be included in
+> mainline can it really be any use to discuss them.
+We are planning to release OSS under some open source license (not GPL).
+However it will be released and built outside the Linux kernel source tree 
+(mostly because the same code has to work with several other operating 
+system).
 
-[...]
+Best regards,
 
-> I used the wav compare function in EAC.
->
-> 1. wav ripped by EAC
-> ####################
->
-> What happened?          Where?
-> -------------------------------------------------
->
-> Different samples       0:04:08.318 - 0:04:08.362
-> 2100 missing samples    0:04:08.359
-> Different samples       0:04:08.430 - 0:04:08.433
-> Different samples       0:04:09.348 - 0:04:09.398
->
-> 2. wav ripped by cdparanoia
-> ###########################
->
-> What happened?          Where?
-> -------------------------------------------------
->
-> Different samples       0:04:08.318 - 0:04:08.362
-> 2039 missing samples    0:04:08.414
-> Different samples       0:04:08.431 - 0:04:08.434
-> Different samples       0:04:09.349 - 0:04:09.399
->
-> I'm sorry if this isn't what you had in mind when you told me to compare
-> the wav files. If it doesn't help what can I do to compare the files to
-> your liking?
-
-It's funny. It looks like the problems happened twice in the more or
-less same position.
-
-Jerome
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

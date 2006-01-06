@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWAFHrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932658AbWAFHrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932661AbWAFHrl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 02:47:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbWAFHrk
+	id S932658AbWAFHrb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 02:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWAFHrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 02:47:40 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54408 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932660AbWAFHrj (ORCPT
+	Fri, 6 Jan 2006 02:47:31 -0500
+Received: from xenotime.net ([66.160.160.81]:3300 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932658AbWAFHrb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 02:47:39 -0500
-Date: Fri, 6 Jan 2006 08:47:02 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Hannu Savolainen <hannu@opensound.com>
-cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-In-Reply-To: <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
-Message-ID: <Pine.LNX.4.61.0601060845250.22809@yvahk01.tjqt.qr>
-References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
- <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
- <mailman.1136368805.14661.linux-kernel2news@redhat.com>
- <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
- <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
- <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Jan 2006 02:47:31 -0500
+Date: Thu, 5 Jan 2006 23:47:18 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: hancockr@shaw.ca, linux-kernel@vger.kernel.org
+Subject: Re: oops pauser.
+Message-Id: <20060105234718.31111929.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.61.0601060804100.22809@yvahk01.tjqt.qr>
+References: <5rvok-5Sr-1@gated-at.bofh.it>
+	<5ryvR-2aN-5@gated-at.bofh.it>
+	<5rAHn-5kc-9@gated-at.bofh.it>
+	<43BE0592.3040200@shaw.ca>
+	<Pine.LNX.4.61.0601060804100.22809@yvahk01.tjqt.qr>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > If you have sound device without this soft mixing is moved to user space 
->> > .. but  applications do not need know about this even now because all
->> > neccessary details are handled on library level. Is it ?
->> > So question is: why the hell *ALL* mixing details are not moved to kernel 
->> > space to SIMPLE and NOT GROWING abstraction ?
->> 
->> Because many people believe that the softmix in the kernel space is
->> evil.
->>
->This is the usual argument against kernel level mixing. Somebody has once 
->said that all this is evil. However this is not necessarily correct.
->
+On Fri, 6 Jan 2006 08:06:12 +0100 (MET) Jan Engelhardt wrote:
 
-I'm going with "is evil". Better let userspace have a segfault than a kernel
-oops. I am having quite a moody feeling when running even my own things like
-http://alphagate.hopto.org/quad_dsp/
+> >> After an oops, we can't really rely on anything. What if the
+> >> oops came from the console layer, or a framebuffer driver?
+> 
+> How about this?:
+> 
+> Put an "emergency kernel" into a memory location that is being protected in 
+> some way (i.e. writing there even from kernel space generates an oops). 
+> Upon oops, it gets unlocked and we do some sort of kexec() to it.
+> Of course, this probably requires that the unlocking must not be done 
+> with help of the standard page mappings.
 
->Kernel mixing is not rocket science. All you need to do is picking a 
->sample from the output buffers of each of the applications, sum them 
->together (with some volume scaling) and feed the result to the physical 
->device. Ok, handling different sample formats/rates makes it much more 
->difficult but that could be done in the library level.
+This is what kexec + kdump is.
 
-
-
-Jan Engelhardt
--- 
+---
+~Randy

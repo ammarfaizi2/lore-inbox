@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932686AbWAFRVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752508AbWAFRXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932686AbWAFRVv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 12:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWAFRUE
+	id S1752508AbWAFRXt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 12:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752502AbWAFRXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 12:20:04 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:5316 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932686AbWAFRUA convert rfc822-to-8bit (ORCPT
+	Fri, 6 Jan 2006 12:23:46 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:35507 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1752500AbWAFRXl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 12:20:00 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 6 Jan 2006 12:23:41 -0500
+Date: Fri, 6 Jan 2006 09:23:30 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+cc: Oleg Nesterov <oleg@tv-sign.ru>, Shai Fultheim <shai@scalex86.org>,
+       Nippun Goel <nippung@calsoftinc.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single
+ threadedprocess at getrusage()
+In-Reply-To: <20060106094627.GA4272@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0601060921530.17444@schroedinger.engr.sgi.com>
+References: <43AD8AF6.387B357A@tv-sign.ru> <Pine.LNX.4.62.0512271220380.27174@schroedinger.engr.sgi.com>
+ <43B2874F.F41A9299@tv-sign.ru> <20051228183345.GA3755@localhost.localdomain>
+ <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru>
+ <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru>
+ <20060106094627.GA4272@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] ia64: change defconfig to NR_CPUS==1024
-Date: Fri, 6 Jan 2006 09:19:28 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F055A7AFB@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] ia64: change defconfig to NR_CPUS==1024
-Thread-Index: AcYSnQDY8o1DS5mGTsSopAjjLnXqOwAR5wlA
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Arjan van de Ven" <arjan@infradead.org>, <hawkes@sgi.com>
-Cc: "Tony Luck" <tony.luck@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Jack Steiner" <steiner@sgi.com>, "Dan Higgins" <djh@sgi.com>,
-       "John Hesterberg" <jh@sgi.com>, "Greg Edwards" <edwardsg@sgi.com>
-X-OriginalArrivalTime: 06 Jan 2006 17:19:27.0389 (UTC) FILETIME=[58D654D0:01C612E5]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Increase the generic ia64 config from its current max of 512 CPUs to a
->> new max of 1024 CPUs.
->
->I wonder why this would be seen as a sane thing...
->Very few people have 1024 cpus, and the ones that do sure would know how
->to set 1024 in their kernel config. In fact I would argue to lower it. I
->can see the point of keeping it over 64, to give the
->more-cpus-than-a-long code more testing, but 512 is too high already..
->most people who have ia64 will not have 512 cpus.
+On Fri, 6 Jan 2006, Ravikiran G Thirumalai wrote:
 
-Would it be impossibly hard to make the >64 cpus case (when the code
-switches from a single word to an array) be dependent on a boot-time
-variable?  If we could, then the defconfig could just say 128, and
-users of monster machines would just boot with "maxcpus=4096" to increase
-the size of the bitmask arrays.
+> +	need_lock = !(p == current && thread_group_empty(p));
 
--Tony
+Isnt 
+
+need_lock = (p != current || !thread_group_empty(b))
+
+clearer?

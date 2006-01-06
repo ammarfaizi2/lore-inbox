@@ -1,74 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWAFAIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWAFANL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWAFAIn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWAFAIm
+	id S1750848AbWAFANL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWAFANL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:08:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:58616 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932303AbWAFAIl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:08:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CyJZUlOEghNbNnZ2Ox+NDU2YOaJvwT2ox3LIeP7yus7kVweFDANQNRUTqpgYbs7bWgGJXdWmT1O3qROM/wG5E+mHfLSG1UvrSquUMGJ/WFUsxdzGkQGppOO8+PBubnhTx5pZzGUeR8LMd1OoaexL/kvkE0yHTl134p40IGjbrXs=
-Message-ID: <9a8748490601051608h307d3acei9897333d92d83139@mail.gmail.com>
-Date: Fri, 6 Jan 2006 01:08:20 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
-       Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <A1ECA9D1-29EB-4C44-A343-87B5EAAD4ADA@dalecki.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 5 Jan 2006 19:13:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62653 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932311AbWAFANI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 19:13:08 -0500
+Date: Fri, 6 Jan 2006 01:12:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Message-ID: <20060106001252.GE3339@elf.ucw.cz>
+References: <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net> <20060105215528.GF2095@elf.ucw.cz> <20060105221334.GA925@isilmar.linta.de> <20060105222338.GG2095@elf.ucw.cz> <20060105222705.GA12242@isilmar.linta.de> <20060105230849.GN2095@elf.ucw.cz> <20060105234629.GA7298@isilmar.linta.de> <20060105235838.GC3339@elf.ucw.cz> <Pine.LNX.4.50.0601051602560.10428-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20050726150837.GT3160@stusta.de>
-	 <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
-	 <1136486021.31583.26.camel@mindpipe>
-	 <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de>
-	 <1136491503.847.0.camel@mindpipe>
-	 <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de>
-	 <1136493172.847.26.camel@mindpipe>
-	 <8D670C39-7B52-407C-8BDD-3478DB172641@dalecki.de>
-	 <9a8748490601051535s5e28fd81of6814088db7ccac@mail.gmail.com>
-	 <A1ECA9D1-29EB-4C44-A343-87B5EAAD4ADA@dalecki.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.50.0601051602560.10428-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/06, Marcin Dalecki <martin@dalecki.de> wrote:
->
-> On 2006-01-06, at 00:35, Jesper Juhl wrote:
->
-> >>
-> >> I will do you this favor: NONE. Using something implies that it is
-> >> working.
-> >>
-> > Do you really expect your problems to be solved with that attitude?
->
-> No I do not. How do you dare to assume I do?
-> I never ever did ask for any support on behalf of the ALSA bunch...
-> We are just discussing the merits of one sound system design
-> over another one (without design).
->
-> So please just keep your superstitions for yourself.
->
+On Čt 05-01-06 16:04:07, Patrick Mochel wrote:
+> 
+> On Fri, 6 Jan 2006, Pavel Machek wrote:
+> 
+> > On Pá 06-01-06 00:46:29, Dominik Brodowski wrote:
+> > > On Fri, Jan 06, 2006 at 12:08:49AM +0100, Pavel Machek wrote:
+> > > > Ok, so lets at least add value-checking to .../power file, and prevent
+> > > > userspace see changes to PM_EVENT_SUSPEND value. 2 and 0 are now
+> > > > "arbitrary cookies". I'd like to use "on" and "off", but pcmcia
+> > > > apparently depends on "2" and "0", so...
+> > > >
+> > > > Any objections?
+> > >
+> > > Sorry, but yes -- the same as before, minus the PCMCIA breakage.
+> >
+> > I don't understand at this point.
+> >
+> > Current code takes value from user, and passes it down to driver,
+> > without any checking. If user writes 666 into the file, it will
+> > happily pass down 666 to the driver. Driver does not expect 666 in
+> > pm_message_t.event. It may oops, BUG_ON() or anything like that.
+> >
+> > Shall I change
+> >
+> > #define PM_EVENT_SUSPEND 2
+> >
+> > to
+> >
+> > #define PM_EVENT_SUSPEND 1324
+> >
+> > to get my point across? This is kernel-specific value, it should not
+> > be exported to userland.
+> 
+> A better point, and one that would actually be useful, would be to remove
+> the file altogether. Let Dominik export a power file, with complete
+> control over the values, for each pcmcia device. Then you never have to
+> worry about breaking PCMCIA again.
 
-welcome to my killfile
+Fine with me.
 
+[except that now you we went from supporting 2 runtime device states
+to supporting just 1... I don't think this is much of progress...]
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+diff --git a/drivers/base/power/sysfs.c b/drivers/base/power/sysfs.c
+--- a/drivers/base/power/sysfs.c
++++ b/drivers/base/power/sysfs.c
+@@ -6,49 +6,6 @@
+ #include <linux/string.h>
+ #include "power.h"
+ 
+-
+-/**
+- *	state - Control current power state of device
+- *
+- *	show() returns the current power state of the device. '0' indicates
+- *	the device is on. Other values (1-3) indicate the device is in a low
+- *	power state.
+- *
+- *	store() sets the current power state, which is an integer value
+- *	between 0-3. If the device is on ('0'), and the value written is
+- *	greater than 0, then the device is placed directly into the low-power
+- *	state (via its driver's ->suspend() method).
+- *	If the device is currently in a low-power state, and the value is 0,
+- *	the device is powered back on (via the ->resume() method).
+- *	If the device is in a low-power state, and a different low-power state
+- *	is requested, the device is first resumed, then suspended into the new
+- *	low-power state.
+- */
+-
+-static ssize_t state_show(struct device * dev, struct device_attribute *attr, char * buf)
+-{
+-	return sprintf(buf, "%u\n", dev->power.power_state.event);
+-}
+-
+-static ssize_t state_store(struct device * dev, struct device_attribute *attr, const char * buf, size_t n)
+-{
+-	pm_message_t state;
+-	char * rest;
+-	int error = 0;
+-
+-	state.event = simple_strtoul(buf, &rest, 10);
+-	if (*rest)
+-		return -EINVAL;
+-	if (state.event)
+-		error = dpm_runtime_suspend(dev, state);
+-	else
+-		dpm_runtime_resume(dev);
+-	return error ? error : n;
+-}
+-
+-static DEVICE_ATTR(state, 0644, state_show, state_store);
+-
+-
+ /*
+  *	wakeup - Report/change current wakeup option for device
+  *
+@@ -122,7 +79,6 @@ static DEVICE_ATTR(wakeup, 0644, wake_sh
+ 
+ 
+ static struct attribute * power_attrs[] = {
+-	&dev_attr_state.attr,
+ 	&dev_attr_wakeup.attr,
+ 	NULL,
+ };
+
+-- 
+Thanks, Sharp!

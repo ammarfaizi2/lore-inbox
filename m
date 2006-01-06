@@ -1,81 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWAFVyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWAFVyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWAFVyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 16:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWAFVyq
+	id S964799AbWAFVyy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 16:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWAFVyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 16:54:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3343 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964793AbWAFVyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 16:54:45 -0500
-Date: Fri, 6 Jan 2006 22:54:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
+	Fri, 6 Jan 2006 16:54:53 -0500
+Received: from smtp-3.smtp.ucla.edu ([169.232.48.136]:35290 "EHLO
+	smtp-3.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S932472AbWAFVyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 16:54:52 -0500
+Date: Fri, 6 Jan 2006 13:54:45 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
 To: Willy Tarreau <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] document that gcc 4 is not supported
-Message-ID: <20060106215436.GH12131@stusta.de>
-References: <20060106203727.GE12131@stusta.de> <20060106211115.GG7142@w.ods.org>
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+In-Reply-To: <20060105054348.GA28125@w.ods.org>
+Message-ID: <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
+References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu>
+ <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu>
+ <1136030901.28365.51.camel@localhost.localdomain> <20051231130151.GA15993@alpha.home.local>
+ <Pine.LNX.4.64.0601041402340.28134@potato.cts.ucla.edu> <20060105054348.GA28125@w.ods.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060106211115.GG7142@w.ods.org>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 10:11:15PM +0100, Willy Tarreau wrote:
-> Hi Adrian,
+On Thu, 5 Jan 2006, Willy Tarreau wrote:
+> On Wed, Jan 04, 2006 at 07:52:36PM -0800, Chris Stromsoe wrote:
 > 
-> On Fri, Jan 06, 2006 at 09:37:27PM +0100, Adrian Bunk wrote:
-> > gcc 4 is not supported for compiling kernel 2.4, and I don't see any 
-> > compelling reason why kernel 2.4 should ever be adapted to gcc 4.
-> > 
-> > This patch documents this fact.
-> > 
-> > Without this patch, your screen is flooded with warnings and errors when
-> > accidentially trying to compile kernel 2.4 with gcc 4.
-> > 
-> > With this patch, the same happens, but the last lines contain the
-> > explanation
-> >   #error Sorry, your GCC is too recent for kernel 2.4
-> 
-> Well, why not putting this into include/linux/compiler.h instead ? It
-> would shout earlier and will be easier to find.
->...
- 
-init/main.c is the first file that gets compiled, and therefore the 
-traditional place for such compiler checks.
+>> I booted 2.4.32 with the aic7xxx patch you pointed me at last week. 
+>> It's been up for a few hours.  I'll let it run for at least a week or 
+>> two and will report back positive or negative results.  After that, 
+>> I'll try 2.4.32 with nosmp and acpi=off.
+>
+> Thanks for your continued feedback, Chris. Your reports are very 
+> helpful, they tend to prove that your hardware is OK and that there's a 
+> bug in mainline 2.4.32 with SMP+ACPI+aic7xxx enabled. That's already a 
+> good piece of information.
 
-> > --- linux-2.4.31-rc1-full/README.old	2005-05-30 21:21:29.000000000 +0200
-> > +++ linux-2.4.31-rc1-full/README	2005-05-30 21:21:59.000000000 +0200
-> > @@ -152,6 +152,7 @@
-> >  
-> >   - Make sure you have gcc 2.95.3 available.  gcc 2.91.66 (egcs-1.1.2) may
-> >     also work but is not as safe, and *gcc 2.7.2.3 is no longer supported*.
-> > +   gcc 4 is *not* supported.
-> 
-> I would even explicitly state that gcc-3.3 and 3.4 should work in most
-> cases, while gcc 4 will definitely not work. It's important IMHO to
-> give the answers that most users will be looking for, and 3.3/3.4 are
-> fairly common.
->...
+After a little more than one day up with 2.4.32 SMP+ACP+aic7xxx, I got 
+another bad pmd and an oops this morning at 4:23am.  I'm going to boot 
+vanilla 2.4.32 with nosmp and acpi=off.
 
-gcc 2.95 is still the recommended compiler for kernel 2.4.
 
-But if you want to improve the text, feel free to send a patch.  :-)
+-Chris
 
-> Thanks,
-> Willy
+ksymoops 2.4.9 on i686 2.4.32-aic79xx.  Options used
+      -V (default)
+      -k /proc/ksyms (default)
+      -l /proc/modules (default)
+      -o /lib/modules/2.4.32-aic79xx/ (default)
+      -m /boot/System.map-2.4.32-aic79xx (specified)
 
-cu
-Adrian
+Unable to handle kernel paging request at virtual address c2deee80
+c025b3d3
+*pde = 02c001e3
+Oops: 0002
+CPU:    2
+EIP:    0010:[alloc_skb+275/480]    Not tainted
+EFLAGS: 00010282
+eax: c2deee80   ebx: e0508880   ecx: 000006bc   edx: 00000680
+esi: 000001f0   edi: 00000000   ebp: f6cf7df0   esp: f6cf7ddc
+ds: 0018   es: 0018   ss: 0018
+Process innfeed (pid: 523, stackpage=f6cf7000)
+Stack: 000006bc 000001f0 f3023b80 00000000 d307e000 f6cf7e68 c027cd2b 00000680
+        000001f0 000005a8 00000000 f6cf7e54 00000000 00000283 cb3f3000 c025a339
+        c8083280 00000000 00000000 c43428a0 f6cf6000 461800d6 00009bc7 00010430 
+Call Trace:    [tcp_sendmsg+2619/4512] [sock_wfree+73/80] [inet_sendmsg+65/80] [sock_sendmsg+102/176] [sock_readv_writev+116/176]
+Code: c7 00 01 00 00 00 8b 83 8c 00 00 00 c7 40 04 00 00 00 00 8b 
+Using defaults from ksymoops -t elf32-i386 -a i386
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+>>eax; c2deee80 <_end+2a0b300/3864e4e0>
+>>ebx; e0508880 <_end+20124d00/3864e4e0>
+>>ebp; f6cf7df0 <_end+36914270/3864e4e0>
+>>esp; f6cf7ddc <_end+3691425c/3864e4e0>
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+    0:   c7 00 01 00 00 00         movl   $0x1,(%eax)
+Code;  00000006 Before first symbol
+    6:   8b 83 8c 00 00 00         mov    0x8c(%ebx),%eax
+Code;  0000000c Before first symbol
+    c:   c7 40 04 00 00 00 00      movl   $0x0,0x4(%eax)
+Code;  00000013 Before first symbol
+   13:   8b 00                     mov    (%eax),%eax
 

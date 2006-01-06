@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWAFVjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWAFVi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbWAFVjw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 16:39:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWAFVjv
+	id S1751069AbWAFVi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 16:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWAFVi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 16:39:51 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:5048 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1751071AbWAFVjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 16:39:51 -0500
-Date: Fri, 6 Jan 2006 16:39:50 -0500
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-git2: CONFIGFS_FS shows up as M/y choice, help says "if unsure, say N"
-Message-ID: <20060106213950.GA26581@csclub.uwaterloo.ca>
-References: <5a4c581d0601061310j3f4eb310o1d68c0b87c278685@mail.gmail.com>
+	Fri, 6 Jan 2006 16:38:27 -0500
+Received: from gate.crashing.org ([63.228.1.57]:54151 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750951AbWAFVi0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 16:38:26 -0500
+Subject: Re: Platform device matching, & weird strncmp usage
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060106185352.GG16093@flint.arm.linux.org.uk>
+References: <1136527179.4840.120.camel@localhost.localdomain>
+	 <20060106185352.GG16093@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Sat, 07 Jan 2006 08:38:12 +1100
+Message-Id: <1136583493.4840.137.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5a4c581d0601061310j3f4eb310o1d68c0b87c278685@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 10:10:13PM +0100, Alessandro Suardi wrote:
-> ===========
-> Userspace-driven configuration filesystem (EXPERIMENTAL) (CONFIGFS_FS)
-> [M/y/?] (NEW)
+On Fri, 2006-01-06 at 18:53 +0000, Russell King wrote:
+> On Fri, Jan 06, 2006 at 04:59:39PM +1100, Benjamin Herrenschmidt wrote:
+> > static int platform_match(struct device * dev, struct device_driver * drv)
+> > {
+> > 	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
+> > 
+> > 	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
+> > }
+> > 
+> > As far as I know, strncmp() is _NOT_ supposed to return 0 if one string
+> > is shorter than the other and they match until that point. Thus the
+> > above will never match unless the <name> portion of pdev->name is
+> > exactly of size BUS_ID_SIZE which is obviously not the case...
 > 
-> Both sysfs and configfs can and should exist together on the
-> same system. One is not a replacement for the other.
-> 
-> If unsure, say N.
-> ===========
-> 
-> I think I'll say M - for now ;)
+> pdev->name is just the <name> part - it's pdev->dev.name which has
+> both the <name> and <instance>.  I think the strncmp is unnecessary,
+> and it can be replaced by a plain strcmp.
 
-Sure, if you want to play with configfs you should.  Most users probably
-have no interest in helping develop/debug it, so the decomendation makes
-perfect sense.
+Ah indeed, I got confused by having both strings.
 
-Len Sorensen
+Ben.
+
+

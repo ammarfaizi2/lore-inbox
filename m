@@ -1,84 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWAFS1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWAFSaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbWAFS1G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWAFS1G
+	id S964834AbWAFSaE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWAFSaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:27:06 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:52180 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964829AbWAFS1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:27:02 -0500
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Lee Revell <rlrevell@joe-job.com>
-To: Calin Szonyi <caszonyi@rdslink.ro>
-Cc: Hannu Savolainen <hannu@opensound.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0601061506010.2151@grinch.ro>
-References: <20050726150837.GT3160@stusta.de>
-	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
-	 <200601031629.21765.s0348365@sms.ed.ac.uk>
-	 <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
-	 <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
-	 <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
-	 <20060103215654.GH3831@stusta.de>
-	 <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
-	 <s5hpsn8md1j.wl%tiwai@suse.de>
-	 <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
-	 <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
-	 <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
-	 <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
-	 <1136486021.31583.26.camel@mindpipe>
-	 <Pine.LNX.4.61.0601060109130.27932@zeus.compusonic.fi>
-	 <1136503996.847.85.camel@mindpipe>
-	 <Pine.LNX.4.62.0601061506010.2151@grinch.ro>
-Content-Type: text/plain
-Date: Fri, 06 Jan 2006 13:27:00 -0500
-Message-Id: <1136572020.17979.18.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Fri, 6 Jan 2006 13:30:03 -0500
+Received: from [213.85.88.22] ([213.85.88.22]:34754 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S964827AbWAFSaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:30:00 -0500
+From: Alexander Zarochentsev <zam@namesys.com>
+Organization: namesys
+To: reiserfs-dev@namesys.com
+Subject: Re: Re. 2.6.15-mm1
+Date: Fri, 6 Jan 2006 21:29:21 +0300
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, Alexander Gran <alex@zodiac.dnsalias.org>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>, Adam Belay <ambx1@neo.rr.com>,
+       Dave Airlie <airlied@linux.ie>, "Vladimir V. Saveliev" <vs@namesys.com>
+References: <200601051801.29007@zodiac.zodiac.dnsalias.org> <20060105144720.25085afa.akpm@osdl.org>
+In-Reply-To: <20060105144720.25085afa.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601062129.22733.zam@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 at 15:20 +0200, caszonyi@rdslink.ro wrote:
-> On Thu, 5 Jan 2006, Lee Revell wrote:
-> 
-> > On Fri, 2006-01-06 at 01:19 +0200, Hannu Savolainen wrote:
-> >> On Thu, 5 Jan 2006, Lee Revell wrote:
-> >>
-> >>> On Thu, 2006-01-05 at 13:44 +0100, Marcin Dalecki wrote:
-> >>>> Second - you still didn't explain why this allows you to conclude
-> >>>> that sound mixing should in no way be done inside the kernel.
-> >>>
-> >>> It works perfectly right now in userspace.  Therefore it should not be
-> >>> in the kernel.
-> >> So all the complaints about dmix problems in the ALSA mailing lists are
-> >> just exceptions that prove the above statement to be true.
+On Friday 06 January 2006 01:47, Andrew Morton wrote:
+> Alexander Gran <alex@zodiac.dnsalias.org> wrote:
+> > Hi,
 > >
-> > No, it just means ALSA like the kernel is a work in progress.  Anyway
-> > almost all the known issues have been fixed.  It works perfectly for the
-> > vast majority of users.
-> >
-> 
-> Ok. It seems i'm a minority.
-> I switched xmms to alsa
-> If i play a stream in xmms using alsa output and try to play in the same 
-> time a movie in mplayer the last message printed by mplayer is
-> alsa-init: 1 soundcard found, using: default
-> and then it hangs until i press stop button in xmms. When i press the stop 
-> button in xmms the movie begins to play. If i press now the play button in 
-> xmms it says:
-> ** WARNING **: alsa_setup(): Failed to open pcm device (default): Device 
-> or resource busy
-> 
-> So it seems that dmix is not working by default in kernel 2.6.15
-> Alsa userspace tools are version 1.0.8.
+> > just tried 2.6.15-mm1 on my thinkpad. Various aspects that didn't work /
+> > look good:
+>
+> Thanks.  A few people have some work to do before they are ready to merge
+> to 2.6.16.
+>
+> > Jan  5 16:22:38 t40 kernel: pnp: PnP ACPI init
+> > Jan  5 16:22:38 t40 kernel: pnp: PnPACPI: unknown resource type 7
+> > Jan  5 16:22:38 t40 kernel: pnp: PnPACPI: unknown resource type 7
+> > Jan  5 16:22:39 t40 last message repeated 10 times
+> > Jan  5 16:22:39 t40 kernel: pnp: PnP ACPI: found 0 devices
+>
+> pnpacpi is unhappy.
+>
+> > All over the place logs like this:
+> > Jan  5 16:22:43 t40 kernel: **** SET: Misaligned resource pointer:
+> > f7db5502 Type 07 Len 0
+> > Unknown to me so far..
+>
+> acpi is unhappy.
+>
+> > When X startet, the laptops crashed:
+> > Jan  5 16:22:43 t40 kernel: <4>reiser4[syslogd(2729)]:
+> > disable_write_barrier (fs/reiser4/wander.c:233)[zam-1055]:
+> > Jan  5 16:22:43 t40 kernel: WARNING: disabling write barrier
 
-Sorry disregard last message.
+It means submit_bio(WRITE_BARRIER, bio) fails and reiser4 falls back to 
+synchronous write in the transaction commit code.  
 
-Upgrade alsa-lib to 1.0.9 or later (preferable 1.0.10) to get dmix
-working by default.  The default PCM is defined
-in /usr/share/alsa/cards/$YOUR-CARD.conf which is part of alsa-lib.
+Ext3, reiserfs do similar checks in their code and all issue warnings if those 
+checks fail.  But only ext3, it seems, has write barrier support disabled by 
+default.
 
-Lee
+> Vladimir, is that expected?
+>
+> > Jan  5 16:22:43 t40 kernel:
+> > Jan  5 16:22:47 t40 kernel: mtrr: 0xe0000000,0x8000000 overlaps existing
+> > 0xe0000000,0x4000000
+> > Jan  5 16:22:48 t40 last message repeated 2 times
+>
+> Is that new?
+>
+> > Jan  5 16:22:48 t40 kernel: agpgart: Found an AGP 2.0 compliant device at
+> > 0000:00:00.0.
+> > Jan  5 16:22:48 t40 kernel: c028b7cf
+> > Jan  5 16:22:48 t40 kernel: Modules linked in: irtty_sir sir_dev
+> > cfq_iosched ehci_hcd uhci_hcd
+> > Jan  5 16:22:48 t40 kernel: EIP:    0060:[<c028b7cf>]    Not tainted VLI
+> > Jan  5 16:22:48 t40 kernel: EFLAGS: 00013202   (2.6.15-mm1)
+> > Jan  5 16:22:48 t40 kernel:        <0>c028b9e9 f762ff08 00000002 00000000
+> > c19720ec 00000000 1f000217 c1a79400
+> > Jan  5 16:22:48 t40 kernel:        <0>00000032 00000001 c028bfb5 c0297262
+> > c1a79400 c02972af 1f000207 c029727f
+>
+> hm, it's not clear what oopsed.   Can you get a cleaner copy of this?
+>
+> > Jan  5 16:22:48 t40 kernel:  <3>[drm:drm_release] *ERROR* Device busy: 1
+> > 0
+>
+> drm is unhappy
 
+-- 
+Alex.

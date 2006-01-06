@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752295AbWAFGDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWAFGZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752295AbWAFGDY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 01:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752331AbWAFGDY
+	id S932635AbWAFGZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 01:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWAFGZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 01:03:24 -0500
-Received: from gate.crashing.org ([63.228.1.57]:3050 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1752271AbWAFGDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 01:03:23 -0500
-Subject: Re: Platform device matching, & weird strncmp usage
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1136527179.4840.120.camel@localhost.localdomain>
-References: <1136527179.4840.120.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 06 Jan 2006 17:04:17 +1100
-Message-Id: <1136527457.4840.123.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 01:25:47 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:53840 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932635AbWAFGZr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 01:25:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=J9Ne/ts1OXGb5lQPy3NtNmFE2bkxtrf7GOlgZhDsCudgPFeNuGbi6LLt93zDHcXSmYru52qPUYflWIffxd6ogNR1ofoGoBwAfWYOCyBx7xyyte4VSREcRIEHGRkNcMghmadb5JawP43LEXPqQI79c76CnVoWB0wR1Bb463FYkcU=
+Message-ID: <25ac9de40601052225i48bca97dx3ad796a1cd68f1c3@mail.gmail.com>
+Date: Fri, 6 Jan 2006 00:25:46 -0600
+From: Patrick Read <pread99999@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Oops in Kernel 2.6.15 usbhid
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 at 16:59 +1100, Benjamin Herrenschmidt wrote:
-> Hi !
-> 
-> In 2.6.15, platform device matching works according to this comment in
-> the code, or rather are supposed to:
+[1.] Oops in Kernel 2.6.15 usbhid
 
-  .../...
+[2.] Compiled 2.6.15 downloaded from kernel.org.  Configured, made,
+and installed.  During reboot, I get an Oops in the USB HID module. 
+This does not occur with a nearly-identical config on the same
+computer with kernel 2.6.14.5.
 
-Just in case my analysis is correct, here's an untested fix:
+[3.] USB, HID, kernel, 2.6.15, module
 
----
+[4.] 2.6.15
 
-Platform device matching doesn't work when an "id" is used.
+[5.] 2.6.14.5
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+[6.] Syslog available online at
+http://www.cs.txstate.edu/~patrick/kernel-debug/syslog-2.6.15-DEBUG.txt
 
---- linux-work.orig/drivers/base/platform.c	2005-11-24 17:18:43.000000000 +1100
-+++ linux-work/drivers/base/platform.c	2006-01-06 16:59:59.000000000 +1100
-@@ -447,7 +447,8 @@ static int platform_match(struct device 
- {
- 	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
- 
--	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
-+	return strncmp(pdev->name, drv->name,
-+			min(BUS_ID_SIZE, strlen(drv->name))) == 0;
- }
- 
- static int platform_suspend(struct device * dev, pm_message_t state)
+[7.] N/A
 
+[8.] N/A
 
+[8.1] Output of ver_linux script available online at
+http://www.cs.txstate.edu/~patrick/kernel-debug/ver_linux_output.txt
+
+[8.2] CPU information (/proc/cpuinfo) available online at
+http://www.cs.txstate.edu/~patrick/kernel-debug/cpuinfo-DEBUG.txt
+
+[8.3] Module information (/proc/modules) available online at
+http://www.cs.txstate.edu/~patrick/kernel-debug/modulesinfo-DEBUG.txt
+
+[8.4] Information regarding I/O Ports/Memory available online at
+http://www.cs.txstate.edu/~patrick/kernel-debug/ioports-DEBUG.txt and
+http://www.cs.txstate.edu/~patrick/kernel-debug/iomem-DEBUG.txt
+
+[8.5] PCI information available online at
+http://www.cs.txstate.edu/~patrick/kernel-debug/lspci-vvv-as-root-DEBUG.txt
+
+[8.6] SCSI devices:  None
+patrick@pr01:~$ cat /proc/scsi/scsi
+Attached devices:
+patrick@pr01:~$
+
+[8.7] Other information: None
+
+[X.] I copied everything over to text files (plain ASCII) and posted
+them online in the interest of saving space in this e-mail.  The
+entire directory is browseable at
+http://www.cs.txstate.edu/~patrick/kernel-debug/
+
+Thank you,
+Patrick A. Read

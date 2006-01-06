@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWAFLiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWAFLlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWAFLiS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 06:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752437AbWAFLiS
+	id S932433AbWAFLlk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 06:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWAFLlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 06:38:18 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:54677 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1752274AbWAFLiR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 06:38:17 -0500
-Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: jgarzik@pobox.com, bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200601061200.59376.mbuesch@freenet.de>
-References: <1136541243.4037.18.camel@localhost>
-	 <200601061200.59376.mbuesch@freenet.de>
-Content-Type: text/plain
-Date: Fri, 06 Jan 2006 12:38:14 +0100
-Message-Id: <1136547494.7429.72.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 06:41:40 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41997 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932433AbWAFLli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 06:41:38 -0500
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Greg K-H <greg@kroah.com>, IDE <linux-usb@vger.kernel.org>
+Subject: [CFT 2/3] Remove usb gadget generic driver methods
+Date: Fri, 06 Jan 2006 11:41:32 +0000
+Message-ID: <20060106114059.13.31@flint.arm.linux.org.uk>
+In-reply-to: <20060105142951.13.01@flint.arm.linux.org.uk>
+References: <20060105142951.13.01@flint.arm.linux.org.uk>
+From: Russell King <rmk@arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Michael,
+USB gadget drivers make no use of these, remove the pointless
+comments.
 
-> How would the virtual interfaces look like? That is quite easy to answer.
-> They are net_devices, as they transfer data.
-> They should probaly _not_ be on top of the ethernet, as 80211 does not
-> have very much in common with ethernet. Basically they share the same
-> MAC address format. Does someone have another thing, which he thinks
-> is shared?
-> How would the master interface look like? A somewhat unusual idea came
-> up. Using a device node in /dev. So every wireless card in the system
-> would have a node in /dev associated (/dev/wlan0 for example).
-> A node for the master device would be ok, because no data is transferred
-> through it. It is only a configuration interface.
-> So you would tell the, yet-to-be-written userspace tool wconfig (or something
-> like that) "I need a STA in INFRA mode and want to drive it on the
-> wlan0 card". So wconfig goes and write()s some data to /dev/wlan0
-> telling the 80211 code to setup a virtual net_device for the driver
-> associated to /dev/wlan0.
-> The virtual interface is then configured though /dev/wlan0 using write()
-> (no ugly ioctl anymore, you see...). Config data like TX rate,
-> current essid,.... basically everything + xyz which is done by WE today,
-> is written to /dev/wlan0.
-> This config data is entirely cached in the 80211 code for the /dev/wlan0
-> instance. This is important, to have the data persistent throughout
-> suspend/resume cycles, if up/down cycles.
-> After configuring, a virtual net_device (let's call it wlan0) exists,
-> which can be brought up by ifconfig and data can be transferred though
-> it as usual.
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-what is wrong with using netlink and/or sysfs for it? I don't see the
-advantage of defining another /dev something interface.
+(This is an additional patch - on lkml, see
+ "[CFT 1/29] Add bus_type probe, remove, shutdown methods.")
 
-Regards
+---
+ drivers/usb/gadget/ether.c  |    3 ---
+ drivers/usb/gadget/inode.c  |    3 ---
+ drivers/usb/gadget/serial.c |    3 ---
+ drivers/usb/gadget/zero.c   |    3 ---
+ 4 files changed, 12 deletions(-)
 
-Marcel
-
-
+diff --git a/drivers/usb/gadget/ether.c b/drivers/usb/gadget/ether.c
+--- a/drivers/usb/gadget/ether.c
++++ b/drivers/usb/gadget/ether.c
+@@ -2534,9 +2534,6 @@ static struct usb_gadget_driver eth_driv
+ 	.driver 	= {
+ 		.name		= (char *) shortname,
+ 		.owner		= THIS_MODULE,
+-		// .shutdown = ...
+-		// .suspend = ...
+-		// .resume = ...
+ 	},
+ };
+ 
+diff --git a/drivers/usb/gadget/inode.c b/drivers/usb/gadget/inode.c
+--- a/drivers/usb/gadget/inode.c
++++ b/drivers/usb/gadget/inode.c
+@@ -1738,9 +1738,6 @@ static struct usb_gadget_driver gadgetfs
+ 
+ 	.driver 	= {
+ 		.name		= (char *) shortname,
+-		// .shutdown = ...
+-		// .suspend = ...
+-		// .resume = ...
+ 	},
+ };
+ 
+diff --git a/drivers/usb/gadget/serial.c b/drivers/usb/gadget/serial.c
+--- a/drivers/usb/gadget/serial.c
++++ b/drivers/usb/gadget/serial.c
+@@ -374,9 +374,6 @@ static struct usb_gadget_driver gs_gadge
+ 	.disconnect =		gs_disconnect,
+ 	.driver = {
+ 		.name =		GS_SHORT_NAME,
+-		/* .shutdown = ... */
+-		/* .suspend = ...  */
+-		/* .resume = ...   */
+ 	},
+ };
+ 
+diff --git a/drivers/usb/gadget/zero.c b/drivers/usb/gadget/zero.c
+--- a/drivers/usb/gadget/zero.c
++++ b/drivers/usb/gadget/zero.c
+@@ -1303,9 +1303,6 @@ static struct usb_gadget_driver zero_dri
+ 	.driver 	= {
+ 		.name		= (char *) shortname,
+ 		.owner		= THIS_MODULE,
+-		// .shutdown = ...
+-		// .suspend = ...
+-		// .resume = ...
+ 	},
+ };
+ 

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752562AbWAFUxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752564AbWAFUzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752562AbWAFUxT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 15:53:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752564AbWAFUxT
+	id S1752564AbWAFUzm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 15:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752567AbWAFUzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 15:53:19 -0500
-Received: from xenotime.net ([66.160.160.81]:13965 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1752562AbWAFUxS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 15:53:18 -0500
-Date: Fri, 6 Jan 2006 12:53:17 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] suspend: update documentation
-In-Reply-To: <Pine.LNX.4.58.0601060843190.11324@shark.he.net>
-Message-ID: <Pine.LNX.4.58.0601061252590.1545@shark.he.net>
-References: <20060106110922.GC9219@atrey.karlin.mff.cuni.cz>
- <Pine.LNX.4.58.0601060843190.11324@shark.he.net>
+	Fri, 6 Jan 2006 15:55:42 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:48398 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1752564AbWAFUzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 15:55:41 -0500
+Date: Fri, 6 Jan 2006 21:55:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, mike.miller@hp.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] cciss: avoid defining useless MAJOR_NR macro
+Message-ID: <20060106205532.GF12131@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006, Randy.Dunlap wrote:
+From: Christoph Hellwig <hch@lst.de>
 
-> On Fri, 6 Jan 2006, Pavel Machek wrote:
->
-> > This updates documentation for suspend-to-disk and RAM. In particular
-> > modular disk drivers trap is documented.
-> >
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> >
-> > --- a/Documentation/power/swsusp.txt
-> > +++ b/Documentation/power/swsusp.txt
-> > @@ -27,13 +27,11 @@ echo shutdown > /sys/power/disk; echo di
-> > +. If you have SATA disks, you'll need recent kernels with SATA suspend
-> > +support. For suspend and resume to work, make sure your disk drivers
-> > +are built into kernel -- not modules. [There's way to make
-> > +suspend/resume with modular disk drivers, see FAQ, but you should
-> > +better not do that.]
->
-> (drop "better", or say "but you probably shouldn't do that.")
->
-> What recent kernels have SATA suspend/resume support?
-> Not from kernel.org AFAIK.
+this sneaked in with one of the updates
 
-Ah, now I see that it's merged.  Great.
 
-Thanks,
--- 
-~Randy
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was sent by Christoph Hellwig on:
+- 4 May 2005
+
+--- 1.136/drivers/block/cciss.c	2005-03-10 09:38:39 +01:00
++++ edited/drivers/block/cciss.c	2005-03-12 09:12:51 +01:00
+@@ -2762,7 +2762,7 @@
+ 	 * 8 controller support.
+ 	 */
+ 	if (i < MAX_CTLR_ORIG)
+-		hba[i]->major = MAJOR_NR + i;
++		hba[i]->major = COMPAQ_CISS_MAJOR + i;
+ 	rc = register_blkdev(hba[i]->major, hba[i]->devname);
+ 	if(rc == -EBUSY || rc == -EINVAL) {
+ 		printk(KERN_ERR
+--- 1.27/drivers/block/cciss.h	2005-03-10 09:38:39 +01:00
++++ edited/drivers/block/cciss.h	2005-03-12 09:12:30 +01:00
+@@ -13,8 +13,6 @@
+ #define IO_OK		0
+ #define IO_ERROR	1
+ 
+-#define MAJOR_NR COMPAQ_CISS_MAJOR
+-
+ struct ctlr_info;
+ typedef struct ctlr_info ctlr_info_t;
+ 

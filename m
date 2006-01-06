@@ -1,38 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWAFTSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWAFTTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWAFTSN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752490AbWAFTSM
+	id S932434AbWAFTTk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWAFTTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:18:12 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:60392 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751190AbWAFTSL (ORCPT
+	Fri, 6 Jan 2006 14:19:40 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:59732 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932470AbWAFTTi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:18:11 -0500
-Date: Fri, 6 Jan 2006 20:17:16 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Dave Jones <davej@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: dual line backtraces for i386.
-In-Reply-To: <200601061338_MC3-1-B567-4FDD@compuserve.com>
-Message-ID: <Pine.LNX.4.61.0601062016550.28630@yvahk01.tjqt.qr>
-References: <200601061338_MC3-1-B567-4FDD@compuserve.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Jan 2006 14:19:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=T7agrLGl+sIV/i9wUWKP3HjPRn1jGMX7iDarksrijB/zOLUbOI4G7+Cm67/ZOif8jbISJ2DCf3pt8Hd2Sy52lE1UIvnP8g+YhAhWgn7tOjBAlPMMGsC/QM7tM0YujtDumUP+GvVB+aFHS6hm/GVIVYf1c8g6ES81DfCysUEE25g=
+Date: Fri, 6 Jan 2006 22:36:26 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: drivers/acpi/scan.c: inconsequent NULL handling
+Message-ID: <20060106193625.GA26372@mipter.zuzino.mipt.ru>
+References: <20060106162929.GK12131@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060106162929.GK12131@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >                         printk(space == 0 ? "     " : "\n");
->> >                         space = !space;
->>
->> readability ?
->
->Well, if I were going for _un_readability I'd have suggested:
->
->        printk(space = !space ? "     " : "\n");
+On Fri, Jan 06, 2006 at 05:29:29PM +0100, Adrian Bunk wrote:
+> static int
+> acpi_bus_match (
+>         struct acpi_device      *device,
+>         struct acpi_driver      *driver)
+> {
+>         if (driver && driver->ops.match)
+>                 return driver->ops.match(device, driver);
+>         return acpi_match_ids(device, driver->ids);
+> }
 
-Anyone voting for "\t" instead of "     "?
+> Either driver can be NULL, in which case the driver->ids is a possible
+> NULL pointer reference, or it can't, in which case the check whether
+> it's NULL is superfluous.
 
+Follow the mon^Wcall tree.
 
-Jan Engelhardt
--- 
+drivers/acpi/scan.c:478: * acpi_bus_match 
+drivers/acpi/scan.c:484:acpi_bus_match(struct acpi_device *device, struct acpi_driver *driver)
+drivers/acpi/scan.c:564:		if (!acpi_bus_match(dev, drv)) {
+drivers/acpi/scan.c:682:		if (!acpi_bus_match(device, driver)) {
+
+1. acpi_bus_match()
+
+   Second arg is passed without changes.
+
+	acpi_driver_attach()
+		acpi_bus_register_driver()
+
+	  ===>	if (!driver) <===
+			return_VALUE(-EINVAL);
+
+		spin_lock(&acpi_device_lock);
+		list_add_tail(&driver->node, &acpi_bus_drivers);
+		spin_unlock(&acpi_device_lock);
+		count = acpi_driver_attach(driver);
+
+2. acpi_bus_match()
+	acpi_bus_find_driver()
+
+		atomic_inc(&driver->references);
+			    ^^^^^^^^
+                spin_unlock(&acpi_device_lock);
+		if (!acpi_bus_match(device, driver)) {
+
+Looks like it can't.
+

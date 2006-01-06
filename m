@@ -1,108 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWAFAHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751708AbWAFAHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWAFAHY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751708AbWAFAHX
+	id S1751708AbWAFAHh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWAFAHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:07:23 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5555 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751191AbWAFAHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:07:21 -0500
-Date: Fri, 6 Jan 2006 01:07:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: dtor_core@ameritech.net, Andrew Morton <akpm@osdl.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
-Message-ID: <20060106000704.GD3339@elf.ucw.cz>
-References: <20051227213439.GA1884@elf.ucw.cz> <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net> <20060105215528.GF2095@elf.ucw.cz> <Pine.LNX.4.50.0601051359290.10834-100000@monsoon.he.net> <20060105224403.GJ2095@elf.ucw.cz> <Pine.LNX.4.50.0601051546380.10428-100000@monsoon.he.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.50.0601051546380.10428-100000@monsoon.he.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 5 Jan 2006 19:07:37 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:9342 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932303AbWAFAHg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 19:07:36 -0500
+Message-ID: <43BDB381.6020701@mbligh.org>
+Date: Thu, 05 Jan 2006 16:02:09 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org> <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <43BD784F.4040804@mbligh.org> <Pine.LNX.4.64.0601051208510.3169@g5.osdl.org> <Pine.LNX.4.64.0601051213270.3169@g5.osdl.org> <20060105233049.GA3441@elte.hu>
+In-Reply-To: <20060105233049.GA3441@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 05-01-06 15:54:15, Patrick Mochel wrote:
-> 
-> On Thu, 5 Jan 2006, Pavel Machek wrote:
-> 
-> > On Čt 05-01-06 14:15:39, Patrick Mochel wrote:
-> 
-> > > It should be replaced with a file exported by the bus driver that exports
-> > > the actual states that the device supports. The parsing can easily happen
-> > > at this point, because the bus knows what a good value is.
-> >
-> > (1) would change core<->driver interface
-> 
-> It's broken anyway for runtime power management.
+> I think the only sane solution [that would be endorsed by distributions] 
+> is to allow users to reorder function sections runtime (per boot). That 
+> is alot faster and more robust (from a production POV) than a full 
+> recompilation of the kernel. Recompilation is always risky, it needs too 
+> much context, and has too many tool dependencies - and is thus currently 
+> untestable. 
 
-Please explain. As far as I can see, it is fairly simple, but good
-enough. pm_message_t.flags indicating it is runtime suspend would be
-nice, but I do not think it is broken.
+<smhuch> - the sound of my eyeballs popping out and splatting against 
+the opposite wall.
 
-> > (2) is quite a lot of work
-> 
-> In the long run, it's not.
+So ... recompilation is not testable, but boot time reordering of the 
+code somehow is? ;-) Yes, I understand the distro toolchain issues, but 
+it's still a scary solution ...
 
-Nobody fixed it in a year, so apparently it is a lot of work.
+Personally, I'd think the sane thing is not to try to optimise by 
+workload, but get 80% of the benefit by just reordering on a more 
+generalized workload. Doing boot-time reordering for this on non-custom 
+kernels just seems terrifying .. it's not that huge a benefit, surely?
 
-> > (3) ...with very little benefit, until drivers support >2 states
-> 
-> Without it, you are preventing drivers from being able to support > 2
-> states.
+> one problem are modules though - they could only be reordered within 
+> themselves. On an average system which has ~100 modules loaded, the 
+> average icache fragmentation is +100*128/2 == 6.4K [with 128 byte L1 
+> cachelines], which can be significant (depending on the workload). OTOH, 
+> modules do have strong internal cohesion - they contain functions that 
+> belong together conceptually. So by reordering functions within modules 
+> we'll likely be able to realize most of the icache savings possible. The 
+> only exception would be workloads that utilize many modules at a high 
+> frequency. Such workloads will likely trash the icache anyway.
 
-0 drivers support > 2 states. So it is indeed very little benefit.
+I was thinking about that with modules earlier, and whether modular 
+kernels would actually be faster because of that than a statically 
+compiled one. But don't you get similar effects from the .o groupings by 
+file we get? or does the linker not preserve those groupings?
 
-> > If you want to rewrite driver model for >2 states, great, but that is
-> > going to take at least a year AFAICS, so please let me at least fix
-> > the bugs in meantime.
-> 
-> It's a band-aid; it is not a long-term solution.
-
-But band-aid is apparently neccessary unless you want drivers to see
-invalid values.
-
-> > > The userspace interface is broken. We can keep it for compatability
-> > > reasons, but there needs to be a new interface.
-> >
-> > I assumed we could fix the interface without actually introducing >2
-> > states support. That can be done in reasonable ammount of code.
-> 
-> The interface is irreparably broken. You can't fix it with an infinite
-> number of band aids.
-
-Without "band aids", you'll get BUG()s all over the kernel.
-
-> > > I don't understand what you're saying. If I have a driver that Iwant to
-> >                                          ~~~~~~~~~~~~~~~~~~
-> > > make support another power state and I'm willing to write that code, then
-> > > there is a clear benefit to having the infrastructure for it to "just
-> > > work".
-> >
-> > I do not see such drivers around me, that's all. It seems fair to me
-> > that first driver author wanting that is the one who introduces >2
-> > states support to generic infrastructure.
-> 
-> Just because you personally have not seen such things does not mean they
-> do not exist.
-
-Just because you claim they exist does not mean they exist.
-
-> > Passing "on"/"off" down to radeon lets the driver decide what power
-> > state it should enter.
-> 
-> Driver implements power state policy? Sounds like that policy would find a
-> much more comfortable home in userspace.
-
-Userspace can't know that driver does not support D3 on this
-particular hardware version because of hardware problems... or simply
-because it is not yet implemented.
-								Pavel
--- 
-Thanks, Sharp!
+M.

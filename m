@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWAKMlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWAKMl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbWAKMlP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 07:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWAKMlO
+	id S1751420AbWAKMl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 07:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWAKMl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:41:14 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29957 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751194AbWAKMlO
+	Wed, 11 Jan 2006 07:41:28 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31237 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751420AbWAKMl1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:41:14 -0500
-Date: Fri, 6 Jan 2006 14:23:05 +0000
+	Wed, 11 Jan 2006 07:41:27 -0500
+Date: Fri, 6 Jan 2006 20:28:24 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Jan Spitalnik <lkml@spitalnik.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable swsusp on CONFIG_HIGHMEM64
-Message-ID: <20060106142304.GA3269@ucw.cz>
-References: <200601061945.09466.lkml@spitalnik.net> <200601071604.03846.lkml@spitalnik.net> <20060106043019.GA2545@ucw.cz> <200601072042.07337.lkml@spitalnik.net>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][-mm]kedac not stopped at suspend
+Message-ID: <20060106202824.GA2736@ucw.cz>
+References: <1136862067.5435.4.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601072042.07337.lkml@spitalnik.net>
+In-Reply-To: <1136862067.5435.4.camel@sli10-desk.sh.intel.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Well, I was using suspend2.net's page just as reference, to point out the
-> > > fact that HIGHMEM is on both suspend "platforms" supported only up to 4G.
-> > > I was not refering to suspend2's actual features, but rather swsusp's (or
-> > > what's the proper name for suspend1 code). So i guess the patch still
-> > > holds, no?
-> >
-> > No.
+On Tue 10-01-06 11:01:01, Shaohua Li wrote:
+> kedac thread doesn't stop at suspend time.
+> http://bugzilla.kernel.org/show_bug.cgi?id=5849
 > 
-> Could you be please more specific? Is there some list of swsusp's features? 
-> swsusp.txt says that it "A: It should work okay with highmem." Does that mean 
-> both possible highmem configurations?
-
-It should work in all configurations. I'd like to try fixing
-it before disabling it in config.
-
-> > s2ram should not depend on ammount of memory. Try debugging
-> > it, but do not disable feature just because it does not work
-> > for you. I'd start with minimum drivers...
+> Thanks,
+> Shaohua
+> ---
 > 
-> Well, I've tried it with the bare minimum that was needed to run the system, 
-> but it did the same. I'm sorry but i lack the knowledge to properly debug it 
-> on source level.  Do you see something that perhaps i don't see in the oops? 
-> Maybe some clues as what might be going wrong?
+>  linux-2.6.15-root/drivers/edac/edac_mc.c |    2 ++
+>  1 files changed, 2 insertions(+)
+> 
+> diff -puN drivers/edac/edac_mc.c~edac drivers/edac/edac_mc.c
+> --- linux-2.6.15/drivers/edac/edac_mc.c~edac	2006-01-09 09:47:18.000000000 +0800
+> +++ linux-2.6.15-root/drivers/edac/edac_mc.c	2006-01-09 09:59:26.000000000 +0800
+> @@ -2072,6 +2072,8 @@ static int edac_kernel_thread(void *arg)
+>  		if(signal_pending(current))
+>  			flush_signals(current);
+>  
+> +		try_to_freeze();
+> +
+>  		/* ensure we are interruptable */
+>  		set_current_state(TASK_INTERRUPTIBLE);
 
-No clues :-(. I'll try reproducing it locally.
+Should be already fixed....
 
+								Pavel
 -- 
 Thanks, Sharp!

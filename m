@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWAFPWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbWAFPXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbWAFPWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 10:22:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWAFPWY
+	id S1751519AbWAFPXy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 10:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWAFPXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 10:22:24 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30938 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751467AbWAFPWX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 10:22:23 -0500
-Date: Fri, 6 Jan 2006 16:22:03 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: oops pauser.
-Message-ID: <20060106152203.GA11906@elf.ucw.cz>
-References: <20060105045212.GA15789@redhat.com> <1136468254.16358.23.camel@localhost.localdomain> <20060105205221.GN20809@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105205221.GN20809@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 6 Jan 2006 10:23:54 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:48787 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751518AbWAFPXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 10:23:53 -0500
+Date: Fri, 06 Jan 2006 10:23:51 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [RFC] why all the patches get messed up here!!!
+In-reply-to: <20060106081052.GA2807@localhost.localdomain>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizononline.net
+Message-id: <200601061023.51389.gene.heskett@verizon.net>
+Organization: Absolutely none - usually detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
+ <20060106081052.GA2807@localhost.localdomain>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 06 January 2006 03:10, Coywolf Qi Hunt wrote:
 
->  > > The one case this doesn't catch is the problem of oopses whilst
->  > > in X. Previously a non-fatal oops would stall X momentarily,
->  > > and then things continue. Now those cases will lock up completely
->  > > for two minutes. 
->  > 
->  > The console has awareness of graphic/text mode at all times and knows
->  > what is going on. Why not use that information if you must go this way ?
-> 
-> If we've just oopsed, the console may have no awareness of what day it is,
-> yet alone anything about video modes. I'm not entirely sure what you're
-> suggesting, but it gives me the creeps. Are you talking about switching
-> away from X back to a tty when we oops?
+[...]
 
-No.
+>The most weird thought I hear this year, no offence really.
 
-But you _know_ if user is running X or not -- notice that kernel does
-not attempt to printk() when X is running, because that could lock up
-the box.
-
-If user is running X, you don't need the delay.
-
-if (CON_IS_VISIBLE(vc) && vc->vc_mode == KD_TEXT) {
-	delay(10sec)
-}
-
-or something like that should do the trick.
-								Pavel
+Yes, but the year is quite young yet, CQH.  Surely there will be 
+something even more off the wall by Dec 31st.  I believe there is a 
+Murphy's Law corrollary about that but cannot quote it from memory, 
+that being the second thing to go you know.  Perhaps someone can 
+refresh our memories?
 
 -- 
-Thanks, Sharp!
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

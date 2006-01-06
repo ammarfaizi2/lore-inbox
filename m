@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWAFXco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWAFXf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbWAFXco (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 18:32:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWAFXco
+	id S964852AbWAFXf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 18:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWAFXf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 18:32:44 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:32926 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S964850AbWAFXcn
+	Fri, 6 Jan 2006 18:35:57 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:62623 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S964852AbWAFXf5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 18:32:43 -0500
-Message-ID: <43BEFE6D.6080107@didntduck.org>
-Date: Fri, 06 Jan 2006 18:34:05 -0500
+	Fri, 6 Jan 2006 18:35:57 -0500
+Message-ID: <43BEFF39.10500@didntduck.org>
+Date: Fri, 06 Jan 2006 18:37:29 -0500
 From: Brian Gerst <bgerst@didntduck.org>
 User-Agent: Mail/News 1.5 (X11/20060103)
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-CC: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] x86_64: cleanup enter_lazy_tlb()
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Remove set_fs() in stop_machine()
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move the #ifdef into the function body.
+Call sched_setscheduler() directly instead.
 
 Signed-off-by: Brian Gerst <bgerst@didntduck.org>
 
 ---
-commit bcefe96417edca37a3834ba081bc8928cf411183
-tree bb6b021c691fa2cbcc85fe6c880a3a548d65bb85
-parent 35b05d09cd8b10bebe341d8f315d11497b88f012
-author Brian Gerst <bgerst@didntduck.org> Fri, 06 Jan 2006 17:20:20 -0500
-committer Brian Gerst <bgerst@didntduck.org> Fri, 06 Jan 2006 17:20:20 -0500
+commit f9ba016f085bd87e730790e76f03db87667dd407
+tree 4f75884b818ac68b97fe2a737d339ed54a130b1f
+parent 41297aae94d08bb3a4c8c1a777ce373b5b432141
+author Brian Gerst <bgerst@didntduck.org> Thu, 05 Jan 2006 19:17:25 -0500
+committer Brian Gerst <bgerst@didntduck.org> Fri, 06 Jan 2006 16:23:09 -0500
 
- include/asm-x86_64/mmu_context.h |    9 ++-------
- 1 files changed, 2 insertions(+), 7 deletions(-)
+ kernel/stop_machine.c |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
 
-diff --git a/include/asm-x86_64/mmu_context.h b/include/asm-x86_64/mmu_context.h
-index b630d52..16e4be4 100644
---- a/include/asm-x86_64/mmu_context.h
-+++ b/include/asm-x86_64/mmu_context.h
-@@ -15,18 +15,13 @@
- int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
- void destroy_context(struct mm_struct *mm);
- 
--#ifdef CONFIG_SMP
--
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
+diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
+index b3d4dc8..dcfb5d7 100644
+--- a/kernel/stop_machine.c
++++ b/kernel/stop_machine.c
+@@ -87,13 +87,9 @@ static int stop_machine(void)
  {
-+#ifdef CONFIG_SMP
- 	if (read_pda(mmu_state) == TLBSTATE_OK) 
- 		write_pda(mmu_state, TLBSTATE_LAZY);
--}
--#else
--static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
--{
--}
- #endif
-+}
+ 	int i, ret = 0;
+ 	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
+-	mm_segment_t old_fs = get_fs();
  
- static inline void load_cr3(pgd_t *pgd)
- {
+ 	/* One high-prio thread per cpu.  We'll do this one. */
+-	set_fs(KERNEL_DS);
+-	sys_sched_setscheduler(current->pid, SCHED_FIFO,
+-				(struct sched_param __user *)&param);
+-	set_fs(old_fs);
++	sched_setscheduler(current, SCHED_FIFO, &param);
+ 
+ 	atomic_set(&stopmachine_thread_ack, 0);
+ 	stopmachine_num_threads = 0;
 
 

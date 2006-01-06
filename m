@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWAFMMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWAFMPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWAFMMF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 07:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWAFMMF
+	id S1751403AbWAFMPN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 07:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWAFMPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 07:12:05 -0500
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:25833 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S1751211AbWAFMMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 07:12:01 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       mingo@elte.hu
-Subject: [PATCH] pktcdvd: Un-inline some functions
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
-	<1136544226.2940.23.camel@laptopd505.fenrus.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 06 Jan 2006 13:11:00 +0100
-In-Reply-To: <1136544226.2940.23.camel@laptopd505.fenrus.org>
-Message-ID: <m3mzi9wo8b.fsf_-_@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Jan 2006 07:15:13 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:14230 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751403AbWAFMPM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 07:15:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=Ja5yRn08iCXm2ZM1YO9tYrtUOk0gaB7+QWDt9oS8qcBFYWr6JCHz9pwVbVlepOgQeZLx86VEUU1IGqfJs+Xg0kbKzRusO2+KT2C2hVS+4WcwveBpFC8Z5LiSoifOQsaA1ew+H5No5bTyHn5GS16KYDZ00AOfdTEpxxALNWUae2k=
+Date: Fri, 6 Jan 2006 14:15:09 +0200
+From: Timo Hirvonen <tihirvon@gmail.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove gfp argument from kstrdup()
+Message-Id: <20060106141509.01c66bf2.tihirvon@gmail.com>
+In-Reply-To: <84144f020601060351g48f3ef5bqf25a2a1bf02af4e6@mail.gmail.com>
+References: <20060105234253.758b126a.tihirvon@gmail.com>
+	<84144f020601060351g48f3ef5bqf25a2a1bf02af4e6@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.0beta2 (GTK+ 2.8.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch to un-inline two functions in the pktcdvd driver.
-This makes the compiled code 172 bytes smaller on my system.
+On Fri, 6 Jan 2006 13:51:41 +0200
+Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+> On 1/5/06, Timo Hirvonen <tihirvon@gmail.com> wrote:
+> > All kstrdup() callers use GFP_KERNEL flag so this parameter seems to be
+> > useless.
+> 
+> Please don't. You're making the API inconsistent and forcing everyone
+> to use GFP_KERNEL for little or no benefit.
 
- drivers/block/pktcdvd.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
-index b5f67b1..7eb2931 100644
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -247,7 +247,7 @@ static inline struct pkt_rb_node *pkt_rb
- 	return rb_entry(n, struct pkt_rb_node, rb_node);
- }
- 
--static inline void pkt_rbtree_erase(struct pktcdvd_device *pd, struct pkt_rb_node *node)
-+static void pkt_rbtree_erase(struct pktcdvd_device *pd, struct pkt_rb_node *node)
- {
- 	rb_erase(&node->rb_node, &pd->bio_queue);
- 	mempool_free(node, pd->rb_pool);
-@@ -315,7 +315,7 @@ static void pkt_rbtree_insert(struct pkt
- /*
-  * Add a bio to a single linked list defined by its head and tail pointers.
-  */
--static inline void pkt_add_list_last(struct bio *bio, struct bio **list_head, struct bio **list_tail)
-+static void pkt_add_list_last(struct bio *bio, struct bio **list_head, struct bio **list_tail)
- {
- 	bio->bi_next = NULL;
- 	if (*list_tail) {
+I don't see why any other GFP_* flag could be useful for strings.
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+http://onion.dynserv.net/~timo/

@@ -1,190 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWAFTTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWAFTU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWAFTTO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWAFTTN
+	id S932483AbWAFTU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWAFTUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:19:13 -0500
-Received: from mailhub.stratus.com ([134.111.1.17]:47298 "EHLO
-	mailhub4.stratus.com") by vger.kernel.org with ESMTP
-	id S932242AbWAFTTM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:19:12 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 6 Jan 2006 14:20:25 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6158 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932470AbWAFTUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 14:20:23 -0500
+Date: Fri, 6 Jan 2006 20:20:17 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: [2.6 patch] drivers/mtd/: small cleanups
+Message-ID: <20060106192017.GA12131@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] corruption during e100 MDI register access
-Date: Fri, 6 Jan 2006 14:19:00 -0500
-Message-ID: <92952AEF1F064042B6EF2522E0EEF437032252ED@EXNA.corp.stratus.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] corruption during e100 MDI register access
-Thread-Index: AcYSYB9jBD1fSCVYQsacPr/2AL6xiQAcKczwAAjcmeA=
-From: "ODonnell, Michael" <Michael.ODonnell@stratus.com>
-To: <adapter_support@intel.com>
-Cc: <bonding-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <linux-netdev@lists.sourceforge.net>
-X-OriginalArrivalTime: 06 Jan 2006 19:19:01.0489 (UTC) FILETIME=[0CEF1E10:01C612F6]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+This patch contains the following cleanups:
+- chips/sharp.c: make two needlessly global functions static
+- move some declarations to a header file where they belong to
 
-We have identified two related bugs in the e100 driver and we request
-that they be repaired in the official Intel version of the driver.
 
-Both bugs are related to manipulation of the MDI control register.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-The first problem is that the Ready bit is being ignored when
-writing to the Control register; we noticed this because the Linux
-bonding driver would occasionally come to the spurious conclusion
-that the link was down when querying Link State.  It turned out
-that by failing to wait for a previous command to complete it was
-selecting what was essentially a random register in the MDI register
-set.  When we added code that waits for the Ready bit (as shown in
-the patch file below) all such problems ceased.
+---
 
-The second problem is that, although access to the MDI registers
-involves multiple steps which must not be intermixed, nothing was
-defending against two or more threads attempting simultaneous access.
-The most obvious situation where such interference could occur
-involves the watchdog versus ioctl paths, but there are probably
-others, so we recommend the locking shown in our patch file.
+ drivers/mtd/chips/sharp.c |    7 +++----
+ drivers/mtd/inftlcore.c   |    5 -----
+ include/linux/mtd/inftl.h |    5 +++++
+ 3 files changed, 8 insertions(+), 9 deletions(-)
 
-Thanks,
-  --Michael O'Donnell, Stratus Technologies, Maynard, MA  USA
-
-Signed-off-by: Michael O'Donnell <Michael.ODonnell at stratus dot com>
-
---- drivers/net/e100.c.orig	2006-01-06 10:28:13.000000000 -0500
-+++ drivers/net/e100.c	2006-01-06 10:51:57.000000000 -0500
-@@ -125,20 +125,24 @@
-  * 	not supported (hardware limitation).
-  *
-  * 	MagicPacket(tm) WoL support is enabled/disabled via ethtool.
-  *
-  * 	Thanks to JC (jchapman@katalix.com) for helping with
-  * 	testing/troubleshooting the development driver.
-  *
-  * 	TODO:
-  * 	o several entry points race with dev->close
-  * 	o check for tx-no-resources/stop Q races with tx clean/wake Q
-+ *
-+ *	FIXES:
-+ * 2005/12/02 - Michael O'Donnell <Michael.ODonnell at stratus dot com>
-+ *	- Stratus87247: protect MDI control register manipulations
+--- linux-2.6.15-rc5-mm2-full/include/linux/mtd/inftl.h.old	2005-12-13 00:38:32.000000000 +0100
++++ linux-2.6.15-rc5-mm2-full/include/linux/mtd/inftl.h	2005-12-13 00:40:26.000000000 +0100
+@@ -52,6 +52,11 @@
+ int INFTL_mount(struct INFTLrecord *s);
+ int INFTL_formatblock(struct INFTLrecord *s, int block);
+ 
++extern char inftlmountrev[];
++
++void INFTL_dumptables(struct INFTLrecord *s);
++void INFTL_dumpVUchains(struct INFTLrecord *s);
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* __MTD_INFTL_H__ */
+--- linux-2.6.15-rc5-mm2-full/drivers/mtd/inftlcore.c.old	2005-12-13 00:39:14.000000000 +0100
++++ linux-2.6.15-rc5-mm2-full/drivers/mtd/inftlcore.c	2005-12-13 00:40:43.000000000 +0100
+@@ -47,9 +47,6 @@
   */
+ #define MAX_LOOPS 10000
  
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-@@ -572,20 +577,21 @@ struct nic {
- 	u32 rx_fc_pause;
- 	u32 rx_fc_unsupported;
- 	u32 rx_tco_frames;
- 	u32 rx_over_length_errors;
- 
- 	u8 rev_id;
- 	u16 leds;
- 	u16 eeprom_wc;
- 	u16 eeprom[256];
- 	u32 pm_state[16];
-+	spinlock_t mdio_lock;
+-extern void INFTL_dumptables(struct INFTLrecord *inftl);
+-extern void INFTL_dumpVUchains(struct INFTLrecord *inftl);
+-
+ static void inftl_add_mtd(struct mtd_blktrans_ops *tr, struct mtd_info *mtd)
+ {
+ 	struct INFTLrecord *inftl;
+@@ -885,8 +882,6 @@
+ 	.owner		= THIS_MODULE,
  };
  
- static inline void e100_write_flush(struct nic *nic)
- {
- 	/* Flush previous PCI writes through intermediate bridges
- 	 * by doing a benign read */
- 	(void)readb(&nic->csr->scb.status);
- }
- 
- static inline void e100_enable_irq(struct nic *nic)
-@@ -869,29 +894,49 @@ static inline int e100_exec_cb(struct ni
- err_unlock:
- 	spin_unlock_irqrestore(&nic->cb_lock, flags);
- 
- 	return err;
- }
- 
- static u16 mdio_ctrl(struct nic *nic, u32 addr, u32 dir, u32 reg, u16
-data)
- {
- 	u32 data_out = 0;
- 	unsigned int i;
-+	unsigned long flags;
-+
- 
-+	/*
-+	 * Stratus87247: we shouldn't be writing the MDI control
-+	 * register until the Ready bit shows True.  Also, since
-+	 * manipulation of the MDI control registers is a multi-step
-+	 * procedure it should be done under lock.
-+	 */
-+	spin_lock_irqsave( &(nic->mdio_lock), flags );
-+	for( i = 100;  i;  --i )  {
-+		if( readl( &(nic->csr->mdi_ctrl) ) & mdi_ready )  {
-+			break;
-+		}
-+		udelay( 20 );
-+	}
-+	if( unlikely( !i )  )  {
-+		printk( "e100.mdio_ctrl(%s)won't go Ready\n",
-nic->netdev->name );
-+		spin_unlock_irqrestore( &(nic->mdio_lock), flags );
-+		return( 0 );		/* No way to indicate timeout
-error */
-+	}
- 	writel((reg << 16) | (addr << 21) | dir | data,
-&nic->csr->mdi_ctrl);
- 
- 	for(i = 0; i < 100; i++) {
- 		udelay(20);
- 		if((data_out = readl(&nic->csr->mdi_ctrl)) & mdi_ready)
- 			break;
- 	}
+-extern char inftlmountrev[];
 -
-+	spin_unlock_irqrestore( &(nic->mdio_lock), flags );
- 	DPRINTK(HW, DEBUG,
- 		"%s:addr=%d, reg=%d, data_in=0x%04X, data_out=0x%04X\n",
- 		dir == mdi_read ? "READ" : "WRITE", addr, reg, data,
-data_out);
- 	return (u16)data_out;
- }
- 
- static int mdio_read(struct net_device *netdev, int addr, int reg)
+ static int __init init_inftl(void)
  {
- 	return mdio_ctrl(netdev_priv(netdev), addr, mdi_read, reg, 0);
+ 	printk(KERN_INFO "INFTL: inftlcore.c $Revision: 1.19 $, "
+
+--- linux-2.6.15-mm1-full/drivers/mtd/chips/sharp.c.old	2006-01-06 19:37:50.000000000 +0100
++++ linux-2.6.15-mm1-full/drivers/mtd/chips/sharp.c	2006-01-06 19:38:32.000000000 +0100
+@@ -64,7 +64,7 @@
+ 
+ #undef AUTOUNLOCK  /* automatically unlocks blocks before erasing */
+ 
+-struct mtd_info *sharp_probe(struct map_info *);
++static struct mtd_info *sharp_probe(struct map_info *);
+ 
+ static int sharp_probe_map(struct map_info *map,struct mtd_info *mtd);
+ 
+@@ -96,7 +96,6 @@
+ 	struct flchip chips[1];
+ };
+ 
+-struct mtd_info *sharp_probe(struct map_info *map);
+ static void sharp_destroy(struct mtd_info *mtd);
+ 
+ static struct mtd_chip_driver sharp_chipdrv = {
+@@ -107,7 +106,7 @@
+ };
+ 
+ 
+-struct mtd_info *sharp_probe(struct map_info *map)
++static struct mtd_info *sharp_probe(struct map_info *map)
+ {
+ 	struct mtd_info *mtd = NULL;
+ 	struct sharp_info *sharp = NULL;
+@@ -581,7 +580,7 @@
+ 
  }
-@@ -2306,20 +2435,21 @@ static int __devinit e100_probe(struct p
- 	if(ent->driver_data)
- 		nic->flags |= ich;
- 	else
- 		nic->flags &= ~ich;
  
- 	e100_get_defaults(nic);
+-int __init sharp_probe_init(void)
++static int __init sharp_probe_init(void)
+ {
+ 	printk("MTD Sharp chip driver <ds@lineo.com>\n");
  
- 	/* locks must be initialized before calling hw_reset */
- 	spin_lock_init(&nic->cb_lock);
- 	spin_lock_init(&nic->cmd_lock);
-+	spin_lock_init(&nic->mdio_lock);
- 
- 	/* Reset the device before pci_set_master() in case device is in
-some
- 	 * funky state and has an interrupt pending - hint: we don't
-have the
- 	 * interrupt handler registered yet. */
- 	e100_hw_reset(nic);
- 
- 	pci_set_master(pdev);
- 
- 	init_timer(&nic->watchdog);
- 	nic->watchdog.function = e100_watchdog;

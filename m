@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWAFVKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWAFVMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbWAFVKm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 16:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWAFVKm
+	id S932510AbWAFVMp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 16:12:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWAFVMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 16:10:42 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:47271 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932523AbWAFVKl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 16:10:41 -0500
-Message-ID: <43BEDCDB.8010102@tmr.com>
-Date: Fri, 06 Jan 2006 16:10:51 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.6.15
-References: <43BDA76F.1000906@pin.if.uz.zgora.pl> <9a8748490601051512w72ea0baekd52d991d2984c017@mail.gmail.com> <43BE9FDA.2020300@pin.if.uz.zgora.pl>
-In-Reply-To: <43BE9FDA.2020300@pin.if.uz.zgora.pl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 6 Jan 2006 16:12:45 -0500
+Received: from pat.qlogic.com ([198.70.193.2]:29947 "EHLO avexch02.qlogic.com")
+	by vger.kernel.org with ESMTP id S932510AbWAFVMo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 16:12:44 -0500
+Date: Fri, 6 Jan 2006 13:12:41 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/qla2xxx/Kconfig: two fixes
+Message-ID: <20060106211241.GG13844@andrew-vasquezs-powerbook-g4-15.local>
+References: <20060106163401.GP12131@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060106163401.GP12131@stusta.de>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 06 Jan 2006 21:12:43.0433 (UTC) FILETIME=[EF212990:01C61305]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacek Luczak wrote:
-> Jesper Juhl napisał(a):
-> 
->>
->> Try and reproduce with a non-tainted kernel.
->>
-> 
-> Non-tained kernel works great. There is no oops with that. The real 
-> problem is with ndiswrapper + sk98lin conflict. I will try to find 
-> solution and fix this conflict.
+On Fri, 06 Jan 2006, Adrian Bunk wrote:
 
-Are you running 4k stacks? I wouldn't expect ndiswrapper to works at all 
-in that case, but...
+> This patch contains the following fixes for 
+> drivers/scsi/qla2xxx/Kconfig:
+> - add a help text for SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+> - the firmware modules must depend on SCSI_QLA2XXX to prevent
+>   illegal configurations like SCSI_QLA2XXX=m, SCSI_QLA21XX=y
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Ack.
+
+--
+Andrew Vasquez

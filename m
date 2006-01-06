@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWAFMol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWAFMqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWAFMol (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 07:44:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWAFMol
+	id S932224AbWAFMqH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 07:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWAFMqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 07:44:41 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6666 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750909AbWAFMok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 07:44:40 -0500
-Date: Fri, 6 Jan 2006 13:44:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: [2.6 patch] UML - Prevent MODE_SKAS=n and MODE_TT=n
-Message-ID: <20060106124438.GB12131@stusta.de>
-References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org> <20060104152433.7304ec75.akpm@osdl.org> <20060105022129.GA13183@ccure.user-mode-linux.org>
+	Fri, 6 Jan 2006 07:46:07 -0500
+Received: from natfrord.rzone.de ([81.169.145.161]:5784 "EHLO
+	natfrord.rzone.de") by vger.kernel.org with ESMTP id S1751343AbWAFMqG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 07:46:06 -0500
+From: Stefan Rompf <stefan@loplof.de>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: State of the Union: Wireless
+Date: Fri, 6 Jan 2006 13:48:05 +0100
+User-Agent: KMail/1.8
+Cc: Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <20060106042218.GA18974@havoc.gtf.org> <1136547084.4037.41.camel@localhost> <20060106114620.GA23707@isilmar.linta.de>
+In-Reply-To: <20060106114620.GA23707@isilmar.linta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060105022129.GA13183@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601061348.05803.stefan@loplof.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 09:21:29PM -0500, Jeff Dike wrote:
-> On Wed, Jan 04, 2006 at 03:24:33PM -0800, Andrew Morton wrote:
-> > Jeff Dike <jdike@addtoit.com> wrote:
-> > >
-> > > Produce a compile-time error if both MODE_SKAS and MODE_TT are disabled.
-> > Is there no sane way to prevent this situation within Kconfig?
-> 
-> I tried.  The best I managed was to get *config to moan about circular
-> dependencies.
+Am Freitag 06 Januar 2006 12:46 schrieb Dominik Brodowski:
 
-The patch below implements this in Kconfig.
+> From someone who has no idea at all (yet) about 802.11: why character
+> device, and not sysfs or configfs files? Like
 
-> 				Jeff
+sysfs shares the main problem with wireless extensions: It configures one 
+value per file / per ioctl. Setting up a wireless card to associate or form 
+an IBSS network consists of multiple parameters, many requiring the card to 
+disasscociate.
 
-cu
-Adrian
+With hardware like prism2 usb that gets "don't touch me now mode" for a while 
+after a join command is issued, current API requires a driver to delay 
+starting an association in order to wait if other config requests are issued 
+- an ugly hack.
 
+I vote for netlink. It's a defined and tested interface and has all features 
+needed to set multiple values in one transaction.
 
-<--  snip  -->
-
-
-If MODE_TT=n, MODE_SKAS must be y.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-git/arch/um/Kconfig.old	2006-01-06 13:41:02.000000000 +0100
-+++ linux-git/arch/um/Kconfig	2006-01-06 13:41:14.000000000 +0100
-@@ -83,7 +83,7 @@
-         of physical memory.
- 
- config MODE_SKAS
--	bool "Separate Kernel Address Space support"
-+	bool "Separate Kernel Address Space support" if MODE_TT
- 	default y
- 	help
- 	This option controls whether skas (separate kernel address space)
-
+Stefan

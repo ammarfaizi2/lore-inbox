@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWAFO7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbWAFPAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751482AbWAFO7z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 09:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWAFO7z
+	id S1751486AbWAFPAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 10:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWAFPAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 09:59:55 -0500
-Received: from jdi.jdi-ict.nl ([82.94.239.5]:36530 "EHLO jdi.jdi-ict.nl")
-	by vger.kernel.org with ESMTP id S1751482AbWAFO7z (ORCPT
+	Fri, 6 Jan 2006 10:00:08 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:57529 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1751486AbWAFPAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 09:59:55 -0500
-Date: Fri, 6 Jan 2006 15:59:34 +0100 (CET)
-From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
-X-X-Sender: igmar@jdi.jdi-ict.nl
-To: erich@areca.com.tw, linux-kernel@vger.kernel.org
-Subject: PROBLEM: arcmsr build-in driver shutdown issue
-Message-ID: <Pine.LNX.4.58.0601061434530.30000@jdi.jdi-ict.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Jan 2006 10:00:07 -0500
+Date: Fri, 6 Jan 2006 16:00:05 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Message-ID: <20060106150005.GA20242@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Patrick Mochel <mochel@digitalimplant.org>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+	Linux-pm mailing list <linux-pm@lists.osdl.org>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20060105215528.GF2095@elf.ucw.cz> <20060105221334.GA925@isilmar.linta.de> <20060105222338.GG2095@elf.ucw.cz> <20060105222705.GA12242@isilmar.linta.de> <20060105230849.GN2095@elf.ucw.cz> <20060105234629.GA7298@isilmar.linta.de> <20060105235838.GC3339@elf.ucw.cz> <Pine.LNX.4.50.0601051602560.10428-100000@monsoon.he.net> <20060106001252.GE3339@elf.ucw.cz> <Pine.LNX.4.50.0601051729400.30092-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0601051729400.30092-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-I've got a machine with an ARC-1110 SATA RAID controller in it, and I'm 
-experiencing problems when the driver is built in the kernel.
+On Thu, Jan 05, 2006 at 05:37:30PM -0800, Patrick Mochel wrote:
+> And, appended is a patch to export PM controls for PCI devices. The file
+> "pm_possible_states" exports the states a device supports, and "pm_state"
+> exports the current state (and provides the interface for entering a
+> state).
 
-The problem appears on all versions I've tried, including the latest -mm, 
-and a hacked-up version from Areca's website.
+Your patch doesn't handle the PM dependencies, unfortunately... 
 
-Description
-
-: issuing a shutdown / halt on the system spits out FS erros after 
-'Halting System' and before 'System halted', due to the fact it is 
-performing IO to a device that is considered dead :
-
- 0:0:0:0: rejecting I/O to dead device
-EXT3-fs error (device sda1): ext3_find_entry: reading directory #65203 
-offset 0
-
-device always seems to be sda1, which is mounted on / on this machine. 
-Since the action is a read-only one on a read-only FS, I haven't seen any FS 
-corruption so far.
-
-kernel :
-
-2.6.15-mm1
-2.6.15 + hacked up ARC-1xxx driver from the website.
-
-Relevant .config stuff : 
-
-CONFIG_SCSI_ARCMSR=y
-
-CPU : dual Xeon 3.2 Ghz
-Mem : 4GB (This isn't a PAE kernel yet)
-
-I can post the fill .config and a dmesg log of desired, just let me know.
-
-
-regards,
-
-
-	Igmar
+Thanks,
+	Dominik

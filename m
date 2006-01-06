@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752482AbWAFWXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751948AbWAFWYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752482AbWAFWXO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 17:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWAFWXO
+	id S1751948AbWAFWYY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 17:24:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752489AbWAFWYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 17:23:14 -0500
-Received: from stinky.trash.net ([213.144.137.162]:51159 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1750798AbWAFWXN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 17:23:13 -0500
-Message-ID: <43BEEDAA.5040009@trash.net>
-Date: Fri, 06 Jan 2006 23:22:34 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Lang <dlang@digitalinsight.com>
-CC: Marcel Holtmann <marcel@holtmann.org>, Michael Buesch <mbuesch@freenet.de>,
-       jgarzik@pobox.com, bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+	Fri, 6 Jan 2006 17:24:24 -0500
+Received: from iabervon.org ([66.92.72.58]:54794 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S1751948AbWAFWYX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 17:24:23 -0500
+Date: Fri, 6 Jan 2006 17:25:57 -0500 (EST)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
-References: <1136541243.4037.18.camel@localhost>  <200601061200.59376.mbuesch@freenet.de>  <1136547494.7429.72.camel@localhost>  <200601061245.55978.mbuesch@freenet.de> <1136549423.7429.88.camel@localhost> <43BE6697.3030009@trash.net> <Pine.LNX.4.62.0601061414570.334@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0601061414570.334@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
+In-Reply-To: <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0601061705320.25300@iabervon.org>
+References: <20060106173547.GR12131@stusta.de>
+ <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> On Fri, 6 Jan 2006, Patrick McHardy wrote:
-> 
->> I think the main advantages of netlink over a character device is its
->> flexible format, which is easily extendable, and multicast capability,
->> which can be used to broadcast events and configuration changes. Its
->> also good to have all the net stuff accessible in a uniform way.
-> 
-> 
-> character devices are far easier to script. this really sounds like the 
-> type of configuration stuff that sysfs was designed for. can we avoid 
-> yet another configuration tool that's required?
+On Fri, 6 Jan 2006, Jesper Juhl wrote:
 
-I think its not just configuration but also event handling
-for associating, link layer authentication, ..., which is
-not something handled by scripts but by some daemon. It might
-also want to set up routes or ip addresses which is done using
-netlink anyway.
+> On 1/6/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > Do not allow people to create configurations with CONFIG_BROKEN=y.
+> >
+> > The sole reason for CONFIG_BROKEN=y would be if you are working on
+> > fixing a broken driver, but in this case editing the Kconfig file is
+> > trivial.
+> >
+> > Never ever should a user enable CONFIG_BROKEN.
+> >
+> I disagree (slightly) with this patch for a few reasons:
+> 
+> - It's very convenient to be able to enable it through menuconfig.
+> 
+> - Being able to easily enable it in menuconfig, then browse through
+> the menus to look for something matching your hardware is nice, even
+> if that something is marked BROKEN at least you've then found a place
+> to start working on. A lot simpler than digging through directories.
+
+It might be nice if you could enable "show BROKEN" options, and have them 
+appear in the list without being able to select them...
+
+> - Some things marked BROKEN may not be 100% broken and may actually
+> work for some specific things, so if you know that it works for your
+> use, then being able to easily enable BROKEN and then whatever it is
+> you need is nice.
+
+But then you can accidentally enable something else that really is broken 
+in the way you're going to use it. What you really want is to be able to 
+override the BROKEN marking on individual options, not to override all 
+BROKEN markings. Perhaps there should be a way to enable an option with 
+unmet dependencies, such that the dependencies are treated as enabled for 
+the purpose of building, but not for the purpose of making options that 
+also depend on the same things available. This would also be nice for the 
+case where you don't generally want EXPERIMENTAL drivers, but you do want 
+a particular one that you've personally found to be stable.
+
+	-Daniel
+*This .sig left intentionally blank*

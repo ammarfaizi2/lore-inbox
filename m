@@ -1,104 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752370AbWAFEny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWAFEuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752370AbWAFEny (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 23:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752372AbWAFEny
+	id S932246AbWAFEuq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 23:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWAFEuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 23:43:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:16396 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752367AbWAFEnx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 23:43:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AHrGIAA2blIjs3/QNKhIkOuahek+/CH05/dkwuSpmuzzuRoWS4DRXn2NnRFqaEC5lVsfkgeWr6g1uUO9k+Wri/R4fvE2Qyj5ofhmOIGnIW+CV6L/OcPOeQqUPGWLA8EcFMe75NvGrLDuQTGZ5FBciQ9xRkmfDIFMpt3l6mOPSeU=
-Message-ID: <d4757e600601052043u647658f1yaa15b0f396b4ad3c@mail.gmail.com>
-Date: Thu, 5 Jan 2006 23:43:52 -0500
-From: Joe <joecool1029@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] fix ipvs compilation
-Cc: wensong@linux-vs.org, horms@verge.net.au, ja@ssi.bg,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060105135943.GA3831@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 5 Jan 2006 23:50:46 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:50923 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932246AbWAFEup (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 23:50:45 -0500
+Date: Fri, 6 Jan 2006 10:20:26 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Yinghai Lu <yinghai.lu@amd.com>, ak@muc.de, ebiederm@xmission.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, linuxbios@openbios.org
+Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
+Message-ID: <20060106045026.GA4928@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060103044632.GA4969@in.ibm.com> <86802c440601051630i4d52aa2fj1a2990acf858cd63@mail.gmail.com> <20060105163848.3275a220.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060105135943.GA3831@stusta.de>
+In-Reply-To: <20060105163848.3275a220.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/5/06, Adrian Bunk <bunk@stusta.de> wrote:
-> I don't know which change broke it, but I'm getting the following
-> compile error in Linus' tree:
->
-> <--  snip  -->
->
-> ...
->   CC      net/ipv4/ipvs/ip_vs_sched.o
-> net/ipv4/ipvs/ip_vs_sched.c: In function 'ip_vs_sched_getbyname':
-> net/ipv4/ipvs/ip_vs_sched.c:110: warning: implicit declaration of function 'local_bh_disable'
-> net/ipv4/ipvs/ip_vs_sched.c:124: warning: implicit declaration of function 'local_bh_enable'
-> ...
->   CC      net/ipv4/ipvs/ip_vs_est.o
-> net/ipv4/ipvs/ip_vs_est.c: In function 'ip_vs_new_estimator':
-> net/ipv4/ipvs/ip_vs_est.c:147: warning: implicit declaration of function 'local_bh_disable'
-> net/ipv4/ipvs/ip_vs_est.c:156: warning: implicit declaration of function 'local_bh_enable'
-> ...
->   LD      .tmp_vmlinux1
-> net/built-in.o: In function `ip_vs_sched_getbyname':ip_vs_sched.c:(.text+0x99cfa): undefined reference to `local_bh_disable'
-> net/built-in.o: In function `register_ip_vs_scheduler': undefined reference to `local_bh_disable'
-> net/built-in.o: In function `unregister_ip_vs_scheduler': undefined reference to `local_bh_disable'
-> net/built-in.o: In function `ip_vs_new_estimator': undefined reference to `local_bh_disable'
-> net/built-in.o: In function `ip_vs_kill_estimator': undefined reference to `local_bh_disable'
-> net/built-in.o: more undefined references to `local_bh_disable' follow
-> make: *** [.tmp_vmlinux1] Error 1
->
-> <--  snip  -->
->
->
-> This patch fixes them by #include'ing linux/interrupt.h.
->
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> --- linux-git/net/ipv4/ipvs/ip_vs_sched.c.old   2006-01-05 14:56:44.000000000 +0100
-> +++ linux-git/net/ipv4/ipvs/ip_vs_sched.c       2006-01-05 14:56:59.000000000 +0100
-> @@ -22,6 +22,7 @@
->  #include <linux/module.h>
->  #include <linux/sched.h>
->  #include <linux/spinlock.h>
-> +#include <linux/interrupt.h>
->  #include <asm/string.h>
->  #include <linux/kmod.h>
->
-> --- linux-git/net/ipv4/ipvs/ip_vs_est.c.old     2006-01-05 14:57:15.000000000 +0100
-> +++ linux-git/net/ipv4/ipvs/ip_vs_est.c 2006-01-05 14:57:27.000000000 +0100
-> @@ -18,6 +18,7 @@
->  #include <linux/jiffies.h>
->  #include <linux/slab.h>
->  #include <linux/types.h>
-> +#include <linux/interrupt.h>
->
->  #include <net/ip_vs.h>
->
->
+On Thu, Jan 05, 2006 at 04:38:48PM -0800, Andrew Morton wrote:
+> Yinghai Lu <yinghai.lu@amd.com> wrote:
+> >
+> > the patch is good.
+> > 
+> > I tried LinuxBIOS with kexec.
+> > 
+> > without this patch: I need to disable acpi in kernel. otherwise the
+> > kernel with acpi support can boot the second kernel, but the second
+> > kernel will hang after
+> > 
+> > time.c: Using 14.318180 MHz HPET timer.
+> > time.c: Detected 2197.663 MHz processor.
+> > Console: colour VGA+ 80x25
+> > Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
+> > Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
+> > Memory: 1009152k/1048576k available (2967k kernel code, 39036k reserved, 1186k )
+> > 
+> > 
+> 
+> Please don't top-post.
+> 
+> > 
+> > On 1/2/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> > > Hi Andi,
+> > >
+> > > Can you please include the following patch. This patch has already been pushed
+> > > by Andrew.
+> > >
+> > > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/broken-out/x86_64-io_apicc-memorize-at-bootup-where-the-i8259-is.patch
+> 
+> IIRC, I dropped this patch because of discouraging noises from Andi and
+> because underlying x86_64 changes broke it in ugly ways.  It needs to be
+> redone and Andi's objections (whatever they were) need to be addressed or
+> argued about.
+> 
 
-Thats not all either,  ./net/ipv4/netfilter/ipt_helper.c has the same
-error and the same fix.
+Andrew, as per my information this patch has not broken anything. It was
+other patch which tried to initialize ioapics early which had broken some
+sysmtems and that patch has already been dropped.
 
-Here's the patch for this one.  Sorry for the dupe.. i sent the last
-as html by accident.
+Andi's main concern with this patch is that it has got special case
+knowledge of 8259 and legacy stuff. He would rather prefer, saving all the
+APIC states early during boot and restore it back during reboot.
 
---- linux/net/ipv4/netfilter/ipt_helper.c.old        2006-01-05
-19:38:32.498991515 -0500
-+++ linux/net/ipv4/netfilter/ipt_helper.c    2006-01-05 19:40:30.047057859 -0500
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/skbuff.h>
- #include <linux/netfilter.h>
-+#include <linux/interrupt.h>
- #if defined(CONFIG_IP_NF_CONNTRACK) || defined(CONFIG_IP_NF_CONNTRACK_MODULE)
- #include <linux/netfilter_ipv4/ip_conntrack.h>
- #include <linux/netfilter_ipv4/ip_conntrack_core.h>
+This shall work well for kexec but will not work for kdump as we might
+crash on a non-boot cpu and second kernel will come up on a non-boot cpu.
+Just restoring the APIC states shall ensure that kernel can boot well on
+BIOS designated boot cpu but it does not hold good for other cpus. One
+example is that other cpus will not receive timer interrupts during early
+boot.
+
+Hence there does not seem to be any escape route except relocate
+to boot cpu after crash and second kernel comes up on BIOS designated
+boot cpu. But after crash relocating to boot cpu might not be a very
+reliable thing to do.
+
+Thanks
+Vivek

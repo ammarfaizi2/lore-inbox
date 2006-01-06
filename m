@@ -1,64 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752510AbWAFRYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752501AbWAFRXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752510AbWAFRYj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 12:24:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWAFRYd
+	id S1752501AbWAFRXl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 12:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWAFRWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 12:24:33 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32904 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932733AbWAFRY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 12:24:29 -0500
-Subject: RE: [PATCH] ia64: change defconfig to NR_CPUS==1024
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: hawkes@sgi.com, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Dan Higgins <djh@sgi.com>, John Hesterberg <jh@sgi.com>,
-       Greg Edwards <edwardsg@sgi.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F055A7AFB@scsmsx401.amr.corp.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7AFB@scsmsx401.amr.corp.intel.com>
-Content-Type: text/plain
-Date: Fri, 06 Jan 2006 18:24:16 +0100
-Message-Id: <1136568256.2940.50.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 6 Jan 2006 12:22:50 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:63698 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932678AbWAFRUB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 12:20:01 -0500
+Message-ID: <43BEA693.5010509@cosmosbay.com>
+Date: Fri, 06 Jan 2006 18:19:15 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>, netdev@vger.kernel.org
+Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
+References: <20060105235845.967478000@sorel.sous-sol.org> <20060106004555.GD25207@sorel.sous-sol.org> <Pine.LNX.4.64.0601051727070.3169@g5.osdl.org> <43BE43B6.3010105@cosmosbay.com> <1136554632.30498.7.camel@localhost.localdomain> <20060106164702.GA5087@us.ibm.com>
+In-Reply-To: <20060106164702.GA5087@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 06 Jan 2006 18:19:18 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 at 09:19 -0800, Luck, Tony wrote:
-> >> Increase the generic ia64 config from its current max of 512 CPUs to a
-> >> new max of 1024 CPUs.
-> >
-> >I wonder why this would be seen as a sane thing...
-> >Very few people have 1024 cpus, and the ones that do sure would know how
-> >to set 1024 in their kernel config. In fact I would argue to lower it. I
-> >can see the point of keeping it over 64, to give the
-> >more-cpus-than-a-long code more testing, but 512 is too high already..
-> >most people who have ia64 will not have 512 cpus.
+Paul E. McKenney a écrit :
+> On Fri, Jan 06, 2006 at 01:37:12PM +0000, Alan Cox wrote:
+>> On Gwe, 2006-01-06 at 11:17 +0100, Eric Dumazet wrote:
+>>> I assume that if a CPU queued 10.000 items in its RCU queue, then the oldest 
+>>> entry cannot still be in use by another CPU. This might sounds as a violation 
+>>> of RCU rules, (I'm not an RCU expert) but seems quite reasonable.
+>> Fixing the real problem in the routing code would be the real fix. 
+>>
+>> The underlying problem of RCU and memory usage could be solved more
+>> safely by making sure that the sleeping memory allocator path always
+>> waits until at least one RCU cleanup has occurred after it fails an
+>> allocation before it starts trying harder. That ought to also naturally
+>> throttle memory consumers more in the situation which is the right
+>> behaviour.
 > 
-> Would it be impossibly hard to make the >64 cpus case (when the code
-> switches from a single word to an array) be dependent on a boot-time
-> variable?  If we could, then the defconfig could just say 128, and
-> users of monster machines would just boot with "maxcpus=4096" to increase
-> the size of the bitmask arrays.
+> A quick look at rt_garbage_collect() leads me to believe that although
+> the IP route cache does try to limit its use of memory, it does not
+> fully account for memory that it has released to RCU, but that RCU has
+> not yet freed due to a grace period not having elapsed.
+> 
+> The following appears to be possible:
+> 
+> 1.	rt_garbage_collect() sees that there are too many entries,
+> 	and sets "goal" to the number to free up, based on a
+> 	computed "equilibrium" value.
+> 
+> 2.	The number of entries is (correctly) decremented only when
+> 	the corresponding RCU callback is invoked, which actually
+> 	frees the entry.
+> 
+> 3.	Between the time that rt_garbage_collect() is invoked the
+> 	first time and when the RCU grace period ends, rt_garbage_collect()
+> 	is invoked again.  It still sees too many entries (since
+> 	RCU has not yet freed the ones released by the earlier
+> 	invocation in step (1) above), so frees a bunch more.
+> 
+> 4.	Packets routed now miss the route cache, because the corresponding
+> 	entries are waiting for a grace period, slowing the system down.
+> 	Therefore, even more entries are freed to make room for new
+> 	entries corresponding to the new packets.
+> 
+> If my (likely quite naive) reading of the IP route cache code is correct,
+> it would be possible to end up in a steady state with most of the entries
+> always being in RCU rather than in the route cache.
+> 
+> Eric, could this be what is happening to your system?
+> 
+> If it is, one straightforward fix would be to keep a count of the number
+> of route-cache entries waiting on RCU, and for rt_garbage_collect()
+> to subtract this number of entries from its goal.  Does this make sense?
+> 
 
-variable size runtime cpu count.. that's beside the point for this
-change though. The *default* shouldn't be insanely high, but more
-represent a "typical" setup. The *maximum* is of course an entirely
-different thing. So.. I'd say lower the default from 512 to 128 (just to
-get the default to be the "complex case", which has benefits). Going to
-1024 for a per user default is silly. Just about everyone will change it
-anyway to something lower. And distros set their own regardless.
+Hi Paul
 
+Thanks for reviewing route code :)
+
+As I said, the problem comes from 'route flush cache', that is periodically 
+done by rt_run_flush(), triggered by rt_flush_timer.
+
+The 10% of LOWMEM ram that was used by route-cache entries are pushed into rcu 
+queues (with call_rcu_bh()) and network continue to receive
+packets from *many* sources that want their route-cache entry.
+
+
+Eric
 

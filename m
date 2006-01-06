@@ -1,71 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWAFBso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWAFBuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750968AbWAFBso (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 20:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWAFBso
+	id S932442AbWAFBuu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 20:50:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWAFBuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 20:48:44 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:24006 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S1750968AbWAFBsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 20:48:43 -0500
-Date: Thu, 5 Jan 2006 17:48:41 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>, Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-Message-ID: <20060106014841.GE84622@gaz.sfgoth.com>
-References: <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <43BD784F.4040804@mbligh.org> <Pine.LNX.4.64.0601051208510.3169@g5.osdl.org> <Pine.LNX.4.64.0601051213270.3169@g5.osdl.org> <20060105233049.GA3441@elte.hu> <43BDB381.6020701@mbligh.org> <20060106004050.GA18727@elte.hu> <43BDBFE5.5020405@mbligh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BDBFE5.5020405@mbligh.org>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 05 Jan 2006 17:48:43 -0800 (PST)
+	Thu, 5 Jan 2006 20:50:50 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:1509 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
+	id S1751097AbWAFBut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 20:50:49 -0500
+Date: Fri, 6 Jan 2006 02:49:42 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Marcin Dalecki <martin@dalecki.de>
+cc: Lee Revell <rlrevell@joe-job.com>, Hannu Savolainen <hannu@opensound.com>,
+       Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <942EC96F-580B-4F4C-B019-F38D4964942C@dalecki.de>
+Message-ID: <Pine.LNX.4.60.0601060201200.31782@kepler.fjfi.cvut.cz>
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
+ <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+ <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
+ <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <1136504460.847.91.camel@mindpipe>
+ <4A284096-E889-4E6D-B017-B8241CD72A0D@dalecki.de>
+ <Pine.LNX.4.60.0601060122290.31782@kepler.fjfi.cvut.cz>
+ <942EC96F-580B-4F4C-B019-F38D4964942C@dalecki.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
-> But we were just discussing here ... wouldn't it be worth moving 
-> "unlikely" sections of code completely out of line? If they were calls 
-> to separate functions, all this optimisation stuff could just work at a 
-> function level, and would be pretty trivial to do?
-
-...assuming that they don't need to access many local variables.   And don't
-have any "goto" statements... and... etc, etc.
-
-> we'd have
+On Fri, 6 Jan 2006, Marcin Dalecki wrote:
+> On 2006-01-06, at 01:29, Martin Drab wrote:
 > 
-> if (unlikely(conditon)) {
-> 	call_oh_shit();
-> }
+> > Because as much as we all don't like it, it is
+> > a realistic fact. There's just NO WAY you can responsibly say about any
+> > piece software, that it is completely error free.
 > 
-> __rarely_called void call_oh_shit()
-> {
-> 	do;
-> 	some;
-> 	stuff;
-> 	BUG();
-> 	error();
-> 	oh_dear();
-> }
+> You would be for example surprised to see how complex the software controlling
+> the breaks
+> of a reasonable modern car turns out to be... This is just a technical example
 
-As I described in my other mail on this thread, the _ideal_ solution would
-be to tell the compiler that BUG() is a __rarely_called function (well, it's
-a macro now but it could be made into an inline function) and let the
-compiler figure the rest out without further annotation
+No doubts it is.
 
-> Moving that out of line would seem 
-> to make more difference to icache footprint to me than just cacheline 
-> packing functions.
+> running contrary
+> to your "wisdom". In numerical computations you can find reasonable amounts of
+> software
+> which is precisely just that - bug free. There are mathematical proofs running
+> for hundreds of pages,
+> which are just valid.
 
-Assuming "-funit-at-a-time" (which all archs will probably be using soon)
-you'd probably get exactly the same opcodes either way.
+Yes, I know. That, however, still doesn't necesarilly mean that it has to 
+be completely error free. (An error must not necessarily mean a complete 
+screw-up.)
 
--Mitch
+> Do you think this kind of guys doesn't ever sit down and
+> write
+> some piece of software to help out well for example in determining some
+> aerodynamics of a plane?
+
+I know they do. Again, it doesn't mean that that software has to be 
+completely error free.
+
+> Are you assuming this kind of applications is trivial and by virtue of a
+> natural law bug ridden?
+
+Well, I'm moving in an environment of nuclear energy, physics, and 
+mathematical modelling a bit for quite some while. And I know, that you 
+can never be absolutely certain that any (reasonably complex) software is 
+completely error free.
+
+Apart from that, that in those really critical cases (such as a primary 
+controlling system of a nuclear reactor), you are actually forced to just 
+a strict subset of a strictly defined programming languages, it is just 
+that, that forces you to have tons of various sophisticated checking and 
+safety mechanisms implemented in the software to prevent any possible bugs 
+to do any serious harm, which in this case can no doubt be very terminal.
+Overconfidence in these cases is not in place, even though these really 
+are the ones that are really thotoughly checked for bugs.
+
+> And by the way: the zero program which has nothing to do is bug free. QED.
+
+Ah, OK, you got me on that one. :) But that's not quite what I had in 
+mind.
+
+Anyway, I guess we're quite by far OT with this. So I think we should just 
+leave it at that, and let everybody draw their own conclusions to their 
+own best knowledge. Sorry for bothering with this.
+
+Martin

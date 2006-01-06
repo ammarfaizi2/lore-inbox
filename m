@@ -1,92 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWAFAaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWAFAas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbWAFAaI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWAFAaI
+	id S932321AbWAFAas (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWAFAar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:30:08 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:54582 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932320AbWAFAaF convert rfc822-to-8bit
+	Thu, 5 Jan 2006 19:30:47 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:64740 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S932321AbWAFAap
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:30:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dXk+GtwBoIP1vKYY+L1Qvj0y1kLPmRnsyjcNZh98jffpd9YYImyJPl3Sc7mkMdhCaRFack2ZWSnK6dRhGiuc/qVbIjldIVhivXn/wp3b98f+9TMmtknIxVMrBGWxNmA6ShexsgM73v0avSpyd4aK4PazUaGU/sich3eloWwomMo=
-Message-ID: <86802c440601051630i4d52aa2fj1a2990acf858cd63@mail.gmail.com>
-Date: Thu, 5 Jan 2006 16:30:05 -0800
-From: Yinghai Lu <yinghai.lu@amd.com>
-To: vgoyal@in.ibm.com, Andi Kleen <ak@muc.de>
-Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "discuss@x86-64.org" <discuss@x86-64.org>, linuxbios@openbios.org
-In-Reply-To: <20060103044632.GA4969@in.ibm.com>
+	Thu, 5 Jan 2006 19:30:45 -0500
+Date: Fri, 6 Jan 2006 01:29:19 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Marcin Dalecki <martin@dalecki.de>
+cc: Lee Revell <rlrevell@joe-job.com>, Hannu Savolainen <hannu@opensound.com>,
+       Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <4A284096-E889-4E6D-B017-B8241CD72A0D@dalecki.de>
+Message-ID: <Pine.LNX.4.60.0601060122290.31782@kepler.fjfi.cvut.cz>
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
+ <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+ <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
+ <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <1136504460.847.91.camel@mindpipe>
+ <4A284096-E889-4E6D-B017-B8241CD72A0D@dalecki.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060103044632.GA4969@in.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the patch is good.
+On Fri, 6 Jan 2006, Marcin Dalecki wrote:
+> On 2006-01-06, at 00:40, Lee Revell wrote:
+...
+> > (just implementation bugs like any piece of software).
+> 
+> This attitude that every kind of software has to have bugs is
+> blunt idiotic tale-tale bullshit just showing off complete incompetence.
 
-I tried LinuxBIOS with kexec.
+Now you're dreaming, right? Because as much as we all don't like it, it is 
+a realistic fact. There's just NO WAY you can responsibly say about any 
+piece software, that it is completely error free. I think there's lots of 
+people (especially) on this list, that may confirm that.
 
-without this patch: I need to disable acpi in kernel. otherwise the
-kernel with acpi support can boot the second kernel, but the second
-kernel will hang after
-
-time.c: Using 14.318180 MHz HPET timer.
-time.c: Detected 2197.663 MHz processor.
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Memory: 1009152k/1048576k available (2967k kernel code, 39036k reserved, 1186k )
-
-
-YH
-
-On 1/2/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> Hi Andi,
->
-> Can you please include the following patch. This patch has already been pushed
-> by Andrew.
->
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/broken-out/x86_64-io_apicc-memorize-at-bootup-where-the-i8259-is.patch
->
-> This patch is regarding remembering at boot up time where i8259 is connected
-> and restore the APIC settings back during kexec boot or kdump boot. This
-> enables getting timer interrupts in new kernel in legacy mode.
->
-> This patch is needed to make kexec and kdump work on some systems,
-> especially opteron boxes. Otherwise the second kernel does not receive
-> timer interrupts during early boot hence hangs.
->
-> I understand, that you are inclined towards remembering all the APIC states
-> and simply restore it back instead of putting hooks. This will work
-> well for kexec but not for kdump because in kdump system can crash on
-> non-boot cpu.
->
-> Restoring BIOS APIC state can make sure that BIOS designated boot cpu will
-> always be able to see timer interrupts in legacy mode but same does not
-> hold good if new kernel boots on some other cpu as is the case with kdump.
->
-> In case of kexec boot, we relocate to boot cpu but in case of kdump we
-> don't because it was suggested that in some extreme cases of crash, boot cpu
-> might not respond even to NMI and relocation to boot cpu will not be
-> possible.
->
-> Can you please re-consider this patch for inclusion.
->
-> Thanks
-> Vivek
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Martin

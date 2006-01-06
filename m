@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWAFAfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752188AbWAFAhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWAFAfp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWAFAfp
+	id S1752188AbWAFAhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752276AbWAFAhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:35:45 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41990 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932325AbWAFAfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:35:44 -0500
-Date: Fri, 6 Jan 2006 01:35:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andreas Oberritter <obi@linuxtv.org>
-Cc: Holger Waechtler <holger@qanu.de>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org, Linux-dvb <Linux-dvb@linuxtv.org>
-Subject: Re: [linux-dvb-maintainer] DVB at76c651.c driver seems to be dead code
-Message-ID: <20060106003543.GO12313@stusta.de>
-References: <20050210235605.GN2958@stusta.de> <420C7C83.4070309@qanu.de> <1108123869.3535.5.camel@localhost.localdomain>
+	Thu, 5 Jan 2006 19:37:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:136 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752188AbWAFAhR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 19:37:17 -0500
+Date: Thu, 5 Jan 2006 16:36:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Etienne Lorrain <etienne_lorrain@yahoo.fr>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Greg KH <greg@kroah.com>,
+       David Woodhouse <dwmw2@infradead.org>, Dave Airlie <airlied@linux.ie>
+Subject: Re: Re. 2.6.15-mm1
+In-Reply-To: <20060105161514.19a4b36b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0601051631190.3169@g5.osdl.org>
+References: <20060105233131.25101.qmail@web26902.mail.ukl.yahoo.com>
+ <20060105161514.19a4b36b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108123869.3535.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 01:11:08PM +0100, Andreas Oberritter wrote:
-> On Fri, 2005-02-11 at 10:36 +0100, Holger Waechtler wrote:
-> > Adrian Bunk wrote:
+
+
+On Thu, 5 Jan 2006, Andrew Morton wrote:
 > > 
-> > >I didn't find any way how the drivers/media/dvb/frontends/at76c651.c 
-> > >driver would do anything inside kernel 2.6.11-rc3-mm2. All it does is to 
-> > >EXPORT_SYMBOL a function at76c651_attach that isn't used anywhere.
-> > >
-> > >Is a patch to remove this driver OK or did I miss anything?
-> > >  
-> > >
-> > 
-> > no, please let it there. This driver is the GPL'd part of the dbox2 
-> > driver which is not part of the official kernel tree.
+> >  The only other strange thing is:
+> > Jan  5 22:39:29 localhost kernel: PCI: Using IRQ router VIA [1106/3177] at
+> > 0000:00:11.0
+> > Jan  5 22:39:29 localhost kernel:
+> > Jan  5 22:39:29 localhost kernel: PCI: IRQ 0 for device 0000:00:06.0 doesn't
+> > match PIRQ mask - try pci=usepirqmask
+> > Jan  5 22:39:29 localhost kernel: PCI: Sharing IRQ 5 with 0000:00:10.1
+> > Jan  5 22:39:29 localhost kernel:
+> > Jan  5 22:39:29 localhost kernel: PCI: IRQ 0 for device 0000:00:11.1 doesn't
+> > match PIRQ mask - try pci=usepirqmask
+> >  but it is not new with -mm1.
 > 
-> (Actually all dbox2 drivers are GPL-licensed, you can get them at
-> cvs.tuxbox.org)
-> 
-> > Since frontend and demod drivers are reusable elsewhere and mainstream 
-> > hardware that makes use of this demodulator may show up every week it's 
-> > just stupid to remove this code as long we know it is working and 
-> > continously tested by the dbox2 folks.
-> > 
-> > Instead it may make sense to move the dbox2 sources into the mainstream 
-> > source tree. Andreas, what do you think?
-> 
-> It has been a long term goal since months, but I don't have the time for
-> it now. We are still waiting for mpc8xx to become stable in 2.6.
+> hm.  That warning was added by a john@deater.net four years ago.  Various
+> PCI people cc'ed for suggestions, please.
 
-Are thre any news regarding merging code actually using at76c651.c?
+That warning is totally bogus. It shouldn't be printed out at all when 
+"newirq" is 0 (as in this case). 
 
-> Regards,
-> Andreas
+Even for a non-zero newirq, I suspect that 99% of the time, 
+"pci=usepirqmask" would end up causing more problems than it could ever 
+solve.
 
-cu
-Adrian
+But this diff would seem to be the minimal fix.
 
--- 
+The other problems _look_ like they are -mm related, not in plain 2.6.15. 
+Etienne, can you confirm?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+			Linus
+---
+diff --git a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
+index 19e6f48..ee8e016 100644
+--- a/arch/i386/pci/irq.c
++++ b/arch/i386/pci/irq.c
+@@ -846,7 +846,7 @@ static int pcibios_lookup_irq(struct pci
+ 	 * reported by the device if possible.
+ 	 */
+ 	newirq = dev->irq;
+-	if (!((1 << newirq) & mask)) {
++	if (newirq && !((1 << newirq) & mask)) {
+ 		if ( pci_probe & PCI_USE_PIRQ_MASK) newirq = 0;
+ 		else printk(KERN_WARNING "PCI: IRQ %i for device %s doesn't match PIRQ mask - try pci=usepirqmask\n", newirq, pci_name(dev));
+ 	}

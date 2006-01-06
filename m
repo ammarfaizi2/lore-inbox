@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752524AbWAFRuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWAFRym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752524AbWAFRuB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 12:50:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752523AbWAFRuB
+	id S964823AbWAFRym (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 12:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWAFRym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 12:50:01 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:40374 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1752524AbWAFRt7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 12:49:59 -0500
-Date: Fri, 6 Jan 2006 10:49:57 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, hawkes@sgi.com,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
-       John Hesterberg <jh@sgi.com>, Greg Edwards <edwardsg@sgi.com>
-Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
-Message-ID: <20060106174957.GF19769@parisc-linux.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7B6B@scsmsx401.amr.corp.intel.com>
-Mime-Version: 1.0
+	Fri, 6 Jan 2006 12:54:42 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16653 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964823AbWAFRyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 12:54:41 -0500
+Date: Fri, 6 Jan 2006 18:54:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
+Message-ID: <20060106175436.GU12131@stusta.de>
+References: <20060106173547.GR12131@stusta.de> <20060106174127.GE16093@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F055A7B6B@scsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060106174127.GE16093@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 09:45:20AM -0800, Luck, Tony wrote:
-> I suppose that depends on your expectations from defconfig.  In my
-> mind its the one that builds into a kernel that will boot and run
-> on just about any box.  People who want to get a bit of extra performance
-> will do the re-compilation to strip out the bits that they don't want
-> and tune down limits that are set higher than they need.  I only
-
-You can use that argument to set the CPU limit low too -- since a kernel
-with a CPU limit lower than the number of CPUs in the box will just ignore
-the additional ones, people who want to get the additional performance
-will tune limits that are set lower than they need ;-)
-
-> ever boot a defconfig kernel to check that it still works, my systems
-> all run tiger_defconfig/zx1_defconfig based most of the time.  But
-> perhaps I'm the weird one?
+On Fri, Jan 06, 2006 at 05:41:28PM +0000, Russell King wrote:
+> On Fri, Jan 06, 2006 at 06:35:47PM +0100, Adrian Bunk wrote:
+> > Do not allow people to create configurations with CONFIG_BROKEN=y.
+> > 
+> > The sole reason for CONFIG_BROKEN=y would be if you are working on 
+> > fixing a broken driver, but in this case editing the Kconfig file is 
+> > trivial.
+> > 
+> > Never ever should a user enable CONFIG_BROKEN.
 > 
-> There are quite a few >16 socket boxes out there, which will give
-> you >64 cpus with Montecito ... so I don't think that the >64 cpu
-> system is going to remain in the noise for long.
+> NACK.  MTD_OBSOLETE_CHIPS still hasn't been fixed and must be fixed
+> _before_ this patch can go in.
 
-I bet the number of 32-way+ boxes is lost in the noise compared to the
-number of 1-, 2- and 4-way boxes sold.  Not that HP trust me with that
-kind of sales data ;-)
+The MTD_OBSOLETE_CHIPS patch is also part of the batch of patches I'm 
+currently resending (it's coming in a few minutes).
+
+@Andrew:
+I agree with Russell on the ordering of the two patches.
+
+> Russell King
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWAFSbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbWAFSh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWAFSbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWAFSbZ
+	id S932671AbWAFSh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932717AbWAFSh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:31:25 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:41524 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S964831AbWAFSbY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:31:24 -0500
-Date: Fri, 6 Jan 2006 21:18:01 +0300
-From: Evgeniy <dushistov@mail.ru>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] fs/ufs: debug mode compilation failure
-Message-ID: <20060106181801.GA11579@rain.homenetwork>
-Mail-Followup-To: torvalds@osdl.org, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+	Fri, 6 Jan 2006 13:37:27 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:35541 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932671AbWAFSh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:37:26 -0500
+Subject: Re: [OT] ALSA userspace API complexity
+From: Lee Revell <rlrevell@joe-job.com>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: Hannu Savolainen <hannu@opensound.com>, Takashi Iwai <tiwai@suse.de>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <43BE86BE.3010203@stesmi.com>
+References: <20050726150837.GT3160@stusta.de>
+	 <20060103193736.GG3831@stusta.de>
+	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+	 <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+	 <20060104030034.6b780485.zaitcev@redhat.com>
+	 <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+	 <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
+	 <s5hmziaird8.wl%tiwai@suse.de>
+	 <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
+	 <1136504460.847.91.camel@mindpipe>
+	 <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
+	 <43BE86BE.3010203@stesmi.com>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 13:37:24 -0500
+Message-Id: <1136572645.17979.24.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch should fix compilation failure of fs/ufs/dir.c with defined UFS_DIR_DEBUG
+On Fri, 2006-01-06 at 16:03 +0100, Stefan Smietanowski wrote:
+> I can't remember if it was about OSS, ALSA or anything else but I
+> believe the conclusion was that sound mixing does NOT belong in the
+> kernel and SHOULD be done in userspace.
 
-Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
+Well, sound mixing really belongs in hardware, but that seems to be a
+lost cause - vendors are way too cheap these days.
 
----
+I can't believe they managed to hoodwink Windows gamers into accepting a
+new generation of sound devices that make the CPU do the work the
+hardware used to do...
 
---- linux-2.6.15-rc7/fs/ufs/dir.c.orig	2006-01-02 16:34:41.932673500 +0300
-+++ linux-2.6.15-rc7/fs/ufs/dir.c	2006-01-02 16:36:20.090808000 +0300
-@@ -491,7 +491,7 @@ int ufs_delete_entry (struct inode * ino
- 	
- 	UFSD(("ino %u, reclen %u, namlen %u, name %s\n",
- 		fs32_to_cpu(sb, de->d_ino),
--		fs16to_cpu(sb, de->d_reclen),
-+		fs16_to_cpu(sb, de->d_reclen),
- 		ufs_get_de_namlen(sb, de), de->d_name))
- 
- 	while (i < bh->b_size) {
-
--- 
-/Evgeniy
+Lee
 

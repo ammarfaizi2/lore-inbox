@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932796AbWAFSiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWAFSjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932796AbWAFSiH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932851AbWAFSiH
+	id S932388AbWAFSjq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932670AbWAFSjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:38:07 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:33985 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932815AbWAFSiF (ORCPT
+	Fri, 6 Jan 2006 13:39:46 -0500
+Received: from xenotime.net ([66.160.160.81]:13790 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932388AbWAFSjp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:38:05 -0500
-From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH] [MMC] Indicate that R1/R1b contains command opcode
-Date: Fri, 06 Jan 2006 19:38:03 +0100
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>
-To: rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060106183802.10810.81449.stgit@poseidon.drzeus.cx>
+	Fri, 6 Jan 2006 13:39:45 -0500
+Date: Fri, 6 Jan 2006 10:39:30 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
+In-Reply-To: <9a8748490601061026t3e467dfdxc90b6403bbd45802@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0601061038130.11324@shark.he.net>
+References: <20060106173547.GR12131@stusta.de> 
+ <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com> 
+ <20060106180626.GV12131@stusta.de> <9a8748490601061026t3e467dfdxc90b6403bbd45802@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some controllers actually check the first byte of the response (most don't).
-This byte contains the command opcode for R1/R1b and all 1:s for other types.
-The difference must be indicated to the controller so it knows which reply
-to expect.
+On Fri, 6 Jan 2006, Jesper Juhl wrote:
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
+> On 1/6/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > On Fri, Jan 06, 2006 at 06:49:55PM +0100, Jesper Juhl wrote:
+> > > On 1/6/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > > > Do not allow people to create configurations with CONFIG_BROKEN=y.
+> > > >
+> > > > The sole reason for CONFIG_BROKEN=y would be if you are working on
+> > > > fixing a broken driver, but in this case editing the Kconfig file is
+> > > > trivial.
+> > > >
+> > > > Never ever should a user enable CONFIG_BROKEN.
+> > > >
+> > > I disagree (slightly) with this patch for a few reasons:
+> > >
+> > > - It's very convenient to be able to enable it through menuconfig.
+> >
+> > And when do you really need it?
+> >
+> Hmm, when I'm looking for broken stuff to fix ;)
+> I guess you are right, ordinary users don't need it.. Ok, count me in
+> as supporting this move.
 
- include/linux/mmc/mmc.h |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+I'm having a little trouble determining why it matters.
 
-diff --git a/include/linux/mmc/mmc.h b/include/linux/mmc/mmc.h
-index aef6042..b101f9e 100644
---- a/include/linux/mmc/mmc.h
-+++ b/include/linux/mmc/mmc.h
-@@ -27,14 +27,15 @@ struct mmc_command {
- #define MMC_RSP_MASK	(3 << 0)
- #define MMC_RSP_CRC	(1 << 3)		/* expect valid crc */
- #define MMC_RSP_BUSY	(1 << 4)		/* card may send busy */
-+#define MMC_RSP_OPCODE	(1 << 5)		/* response contains opcode */
- 
- /*
-  * These are the response types, and correspond to valid bit
-  * patterns of the above flags.  One additional valid pattern
-  * is all zeros, which means we don't expect a response.
-  */
--#define MMC_RSP_R1	(MMC_RSP_SHORT|MMC_RSP_CRC)
--#define MMC_RSP_R1B	(MMC_RSP_SHORT|MMC_RSP_CRC|MMC_RSP_BUSY)
-+#define MMC_RSP_R1	(MMC_RSP_SHORT|MMC_RSP_CRC|MMC_RSP_OPCODE)
-+#define MMC_RSP_R1B	(MMC_RSP_SHORT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_BUSY)
- #define MMC_RSP_R2	(MMC_RSP_LONG|MMC_RSP_CRC)
- #define MMC_RSP_R3	(MMC_RSP_SHORT)
- #define MMC_RSP_R6	(MMC_RSP_SHORT|MMC_RSP_CRC)
+Are you trying to cut down on lkml bug reports or just make
+it harder on everyone?
 
+-- 
+~Randy

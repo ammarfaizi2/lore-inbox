@@ -1,52 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWAFBYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWAFBZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWAFBYP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 20:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWAFBYP
+	id S932439AbWAFBZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 20:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751709AbWAFBZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 20:24:15 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:26754 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1750835AbWAFBYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 20:24:14 -0500
-Date: Thu, 5 Jan 2006 17:24:01 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Dave Jones <davej@redhat.com>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: oops pauser.
-In-Reply-To: <20060105103339.GG20809@redhat.com>
-Message-ID: <Pine.LNX.4.62.0601051722110.973@qynat.qvtvafvgr.pbz>
-References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
- <20060105103339.GG20809@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 5 Jan 2006 20:25:26 -0500
+Received: from zlynx.org ([199.45.143.209]:11793 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S1750722AbWAFBZZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 20:25:25 -0500
+Subject: Re: [OT] ALSA userspace API complexity
+From: Zan Lynx <zlynx@acm.org>
+To: Marcin Dalecki <martin@dalecki.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Hannu Savolainen <hannu@opensound.com>,
+       Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <4A284096-E889-4E6D-B017-B8241CD72A0D@dalecki.de>
+References: <20050726150837.GT3160@stusta.de>
+	 <20060103193736.GG3831@stusta.de>
+	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+	 <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+	 <20060104030034.6b780485.zaitcev@redhat.com>
+	 <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+	 <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
+	 <s5hmziaird8.wl%tiwai@suse.de>
+	 <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
+	 <1136504460.847.91.camel@mindpipe>
+	 <4A284096-E889-4E6D-B017-B8241CD72A0D@dalecki.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fuwTEsj+aADdkIJR3NtG"
+Date: Thu, 05 Jan 2006 18:21:49 -0700
+Message-Id: <1136510509.9382.24.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Dave Jones wrote:
 
-> > (*) If the oops is longer than 25 lines, ... you can't even use scrollback
-> > because scrollback is cleared when you change consoles. X runs by default
-> > on tty7, and the kernel dumps it somewhere else. (And even if it dumped to
-> > tty7 directly, you would not see it.)
->
-> What to do about oopses whilst in X has been the subject of much
-> head-scratching for years now.  It's come up at least at the
-> last two kernel summits, and I'll hazard a guess it'll come up
-> again this year.  The amount of work necessary to make it all
-> work on both kernel side and X side isn't unsubstantial however,
-> so I wouldn't count on it working too soon.
+--=-fuwTEsj+aADdkIJR3NtG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-hmm, if you can hope that someone will grab a camera to report an oops, 
-how about them grabbing a tape recorder/mp3 recorder to record audio from 
-the speaker. it's not fast, but you don't have that much data to output, 
-do it in morse (with the audio explination of what's going to happen 
-first)
+On Fri, 2006-01-06 at 01:14 +0100, Marcin Dalecki wrote:
+> On 2006-01-06, at 00:40, Lee Revell wrote:
+> > Hey, interesting, this is exactly what dmix does in userspace.  And we
+> > have not seen any bug reports caused by the concept of userspace =20
+> > mixing
+> > (just implementation bugs like any piece of software).
+>=20
+> This attitude that every kind of software has to have bugs is
+> blunt idiotic tale-tale bullshit just showing off complete incompetence.
+>=20
+> Does the acronym car-ABS and micro-controller maybe perhaps ring a =20
+> bell for you?=20
 
-David Lang
+Funny that you should mention bug-free code and ABS.
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Just a few months ago, Subaru updated the ABS controller code for the
+WRX.  They sent me the notice in the mail.  It was an optional upgrade,
+the change was only needed to fix some very odd corner cases. =20
+
+The point being that even critical micro-controller software has bugs.
+
+Even software that has been mathematically proofed can have bugs.  Knuth
+uses it as a joke: "Beware bugs in the above code.  I have
+proven it correct; I have not actually tried it."
+
+It's so funny because it's so true.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-fuwTEsj+aADdkIJR3NtG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDvcYtG8fHaOLTWwgRArPmAKCsDiU38AkUoFRz0Ya/HpTA/GDlSQCgq400
+j63fFXfcnLULwCamSEDUTFs=
+=53Md
+-----END PGP SIGNATURE-----
+
+--=-fuwTEsj+aADdkIJR3NtG--
 

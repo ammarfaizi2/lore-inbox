@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752514AbWAFRlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752513AbWAFRlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752514AbWAFRlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 12:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752513AbWAFRlI
+	id S1752513AbWAFRlj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 12:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752517AbWAFRli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 12:41:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8973 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752514AbWAFRlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 12:41:07 -0500
-Date: Fri, 6 Jan 2006 18:41:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: johnpol@2ka.mipt.ru, gregkh@suse.de
-Cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
-Subject: [-mm patch] fix W1_MASTER_DS9490_BRIDGE dependencies
-Message-ID: <20060106174101.GT12131@stusta.de>
-MIME-Version: 1.0
+	Fri, 6 Jan 2006 12:41:38 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58637 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1752513AbWAFRlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 12:41:37 -0500
+Date: Fri, 6 Jan 2006 17:41:28 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
+Message-ID: <20060106174127.GE16093@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060106173547.GR12131@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060106173547.GR12131@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W1_DS9490 was renamed to W1_MASTER_DS9490, but the entry in the 
-dependencies of W1_MASTER_DS9490_BRIDGE was forgotten.
+On Fri, Jan 06, 2006 at 06:35:47PM +0100, Adrian Bunk wrote:
+> Do not allow people to create configurations with CONFIG_BROKEN=y.
+> 
+> The sole reason for CONFIG_BROKEN=y would be if you are working on 
+> fixing a broken driver, but in this case editing the Kconfig file is 
+> trivial.
+> 
+> Never ever should a user enable CONFIG_BROKEN.
 
+NACK.  MTD_OBSOLETE_CHIPS still hasn't been fixed and must be fixed
+_before_ this patch can go in.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-mm1-full/drivers/w1/masters/Kconfig.old	2006-01-06 18:17:23.000000000 +0100
-+++ linux-2.6.15-mm1-full/drivers/w1/masters/Kconfig	2006-01-06 18:17:53.000000000 +0100
-@@ -26,7 +26,7 @@
- 
- config W1_MASTER_DS9490_BRIDGE
- 	tristate "DS9490R USB <-> W1 transport layer for 1-wire"
--	depends on W1_DS9490
-+	depends on W1_MASTER_DS9490
- 	help
- 	  Say Y here if you want to communicate with your 1-wire devices
- 	  using DS9490R USB bridge.
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

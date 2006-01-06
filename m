@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751854AbWAFK2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWAFKet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751854AbWAFK2z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 05:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752442AbWAFK2z
+	id S932393AbWAFKet (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 05:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWAFKet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 05:28:55 -0500
-Received: from [213.13.124.66] ([213.13.124.66]:40074 "EHLO mail.paradigma.pt")
-	by vger.kernel.org with ESMTP id S1751854AbWAFK2y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 05:28:54 -0500
-Date: Fri, 6 Jan 2006 10:28:48 +0000
-From: Nuno Monteiro <nuno+lkml@itsari.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Roberto Nibali <ratz@drugphish.ch>,
-       "Leonard Milcin Jr." <leonard.milcin@post.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: keyboard driver of 2.6 kernel
-Message-ID: <20060106102848.GA6854@hobbes.itsari.org>
-References: <Pine.LNX.4.60.0601041359380.7341@lantana.cs.iitm.ernet.in> <1136363622.2839.6.camel@laptopd505.fenrus.org> <43BB906F.3010900@post.pl> <Pine.LNX.4.61.0601041017560.29257@yvahk01.tjqt.qr> <43BCF005.1050501@drugphish.ch> <Pine.LNX.4.61.0601051249030.21555@yvahk01.tjqt.qr> <43BD146B.2010308@drugphish.ch> <20060105210751.GC4332@hobbes.itsari.org> <43BDABA1.1060607@drugphish.ch> <Pine.LNX.4.61.0601060752110.22809@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 Jan 2006 05:34:49 -0500
+Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:64461 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S932199AbWAFKes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 05:34:48 -0500
+Date: Fri, 6 Jan 2006 11:34:37 +0100
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: Hannu Savolainen <hannu@opensound.com>
+Cc: Marcin Dalecki <martin@dalecki.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060106103436.GB24929@boogie.lpds.sztaki.hu>
+References: <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <1136491503.847.0.camel@mindpipe> <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de> <1136493172.847.26.camel@mindpipe> <8D670C39-7B52-407C-8BDD-3478DB172641@dalecki.de> <9a8748490601051535s5e28fd81of6814088db7ccac@mail.gmail.com> <A1ECA9D1-29EB-4C44-A343-87B5EAAD4ADA@dalecki.de> <Pine.LNX.4.61.0601060302370.29362@zeus.compusonic.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.61.0601060752110.22809@yvahk01.tjqt.qr> (from jengelh@linux01.gwdg.de on Fri, Jan 06, 2006 at 07:01:26 +0000)
-X-Mailer: Balsa 2.0.15
+In-Reply-To: <Pine.LNX.4.61.0601060302370.29362@zeus.compusonic.fi>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 06, 2006 at 03:36:47AM +0200, Hannu Savolainen wrote:
 
-On 2006.01.06 07:01, Jan Engelhardt wrote:
-> 
-> >> rid of the extra fluff -- the dependency on moduleparm.h which
-> >> doesn't exit in 2.4.22
-> 
-> Good to know.
+> There are two very opposite approaches to do a sound subsystem. The ALSA 
+> way is to expose every single detail of the hardware to the applications 
+> and to allow (or force) application developers to deal with them. The OSS 
+> approach is to provide maximum device abstraction in the API level (by 
+> isolating the apps from the hardware as much as practically possible).
 
-IIRC, it was introduced in 2.4.25. Since I'm still running 2.4.22, and
-since I also didn't need the 2.6 module_param() stuff, I just ripped it
-out.
+Well, then it is quite clear to me: you can build an OSS-like interface
+on top of ALSA, but you cannot build an ALSA-like interface on top of
+OSS. This implies that an ALSA-like interface should be in the kernel,
+and an OSS-like interface should be implemented on top of it in
+userspace for those who do not need all the features. This way both
+camps are satisfied.
 
-> >> the BSD defines
-> 
-> In the kernel part? Where?
-
-Not in the driver itself, of course, in rpl_ioctl.h and rpl_packet.h.
-
-> >> the 2.6 defines, etc. Also, if built as a
-> >> module, it'll be called 'rpl' instead of 'rpldev'.
-> >
-> > Why?
-> 
-> By default, it's called rpldev everywhere.
-
-Yeah, it was just my personal preference. That, and the fact that I
-don't know the build system very well, and the O_TARGET and the obj-y
-couldn't have the same name. So I opted to make O_TARGET simply rpl.o.
-Since the driver you ship in the ttyrpld tarball can only be built
-modular, this doesn't affect you anyway :-)
-
- 
-> I will have 2.4 put back in.
-
-That'd be great, thanks! A great deal of people are still running 2.4 on
-their production servers, and no intention to upgrade anytime soon. If
-it's not broken... :-)
-
-Thanks for this tool, by the way, I for one find it very useful!
-
-
-Regards,
-
-		Nuno
+Gabor
 
 -- 
-Nuno Monteiro <nuno+spamtrap@itsari.org> pgp key 8DEF0334
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

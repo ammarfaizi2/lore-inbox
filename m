@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWAFIeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752433AbWAFIiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751475AbWAFIeD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 03:34:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWAFIeC
+	id S1752433AbWAFIiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 03:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752435AbWAFIiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 03:34:02 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:47070 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751475AbWAFIeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 03:34:01 -0500
-Date: Fri, 6 Jan 2006 00:33:46 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: oops pauser. / boot_delayer
-In-Reply-To: <Pine.LNX.4.61.0601060836020.22809@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.62.0601060032160.1708@qynat.qvtvafvgr.pbz>
-References: <E1EuPZg-0008Kw-00@calista.inka.de>
- <Pine.LNX.4.61.0601050905250.10161@yvahk01.tjqt.qr><Pine.LNX.4.62.0601051726290.973@qynat.qvtvafvgr.pbz>
- <Pine.LNX.4.61.0601060836020.22809@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 6 Jan 2006 03:38:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42927 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752249AbWAFIiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 03:38:24 -0500
+Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
+From: Arjan van de Ven <arjan@infradead.org>
+To: hawkes@sgi.com
+Cc: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       John Hesterberg <jh@sgi.com>, Greg Edwards <edwardsg@sgi.com>
+In-Reply-To: <20060105213948.11412.45463.sendpatchset@tomahawk.engr.sgi.com>
+References: <20060105213948.11412.45463.sendpatchset@tomahawk.engr.sgi.com>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 09:38:18 +0100
+Message-Id: <1136536698.2940.5.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006, Jan Engelhardt wrote:
+On Thu, 2006-01-05 at 13:39 -0800, hawkes@sgi.com wrote:
+> Increase the generic ia64 config from its current max of 512 CPUs to a
+> new max of 1024 CPUs.
 
->> this large boot message issue also slows your boot significantly if you have a
->> fast box that has a serial console, it takes a long time to dump all that info
->> out the serial port.
->
-> Don't blame the kernel that serial is slow.
+I wonder why this would be seen as a sane thing...
+Very few people have 1024 cpus, and the ones that do sure would know how
+to set 1024 in their kernel config. In fact I would argue to lower it. I
+can see the point of keeping it over 64, to give the
+more-cpus-than-a-long code more testing, but 512 is too high already..
+most people who have ia64 will not have 512 cpus.
 
-the complaint wasn't that the serial was slow, It was a comment on the 
-amount of data being displayed during a boot (which turned out to be in 
-large part that I had a verbose config option turned on)
+(and please don't say "but distributions.." because distributions don't
+use the defconfigs anyway)
 
-David Lang
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
 

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752155AbWAFSHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWAFSJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752155AbWAFSHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:07:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWAFSHO
+	id S932638AbWAFSJG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932670AbWAFSJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:07:14 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:13696 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751586AbWAFSHL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:07:11 -0500
-Date: Fri, 6 Jan 2006 11:07:11 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, Arjan van de Ven <arjan@infradead.org>,
-       hawkes@sgi.com, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Dan Higgins <djh@sgi.com>, John Hesterberg <jh@sgi.com>,
-       Greg Edwards <edwardsg@sgi.com>
-Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
-Message-ID: <20060106180711.GG19769@parisc-linux.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7B6B@scsmsx401.amr.corp.intel.com> <20060106174957.GF19769@parisc-linux.org> <Pine.LNX.4.62.0601060958110.17665@schroedinger.engr.sgi.com>
+	Fri, 6 Jan 2006 13:09:06 -0500
+Received: from mail.kroah.org ([69.55.234.183]:12190 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932388AbWAFSJE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:09:04 -0500
+Date: Fri, 6 Jan 2006 10:08:33 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15
+Message-ID: <20060106180833.GA14235@kroah.com>
+References: <20060106063716.GA4425@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0601060958110.17665@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060106063716.GA4425@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 10:04:56AM -0800, Christoph Lameter wrote:
-> On Fri, 6 Jan 2006, Matthew Wilcox wrote:
-> > You can use that argument to set the CPU limit low too -- since a kernel
-> > with a CPU limit lower than the number of CPUs in the box will just ignore
-> > the additional ones, people who want to get the additional performance
-> > will tune limits that are set lower than they need ;-)
+On Thu, Jan 05, 2006 at 10:37:16PM -0800, Greg KH wrote:
+> Here are some PCI patches against your latest git tree.  They have all
+> been in the -mm tree for a while with no problems.
 > 
-> The dicey thing in all of this is that the generic kernels will be used 
-> for the certification of applications. If the cpu limit is too low then 
+> The thing that touches so many different files are the change from the
+> pci_module_init() to pci_register_driver() that was done by Richard
+> Knutsson.  Other big stuff is the addition of the pci error recovery
+> framework, after many different revisions and reworks.
+> There are also some pci hotplug fixes, and quirks added.
+> 
+> Please pull from:
+> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+> or if master.kernel.org hasn't synced up yet:
+> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+> 
+> The full patches will be sent to the linux-pci mailing list, if anyone
+> wants to see them.
 
-Why on earth would somebody do that?
+Linus, sorry about this, but due to all of the comments and complaints
+posted about this series, please do not pull it.
+
+Thanks,
+
+greg k-h

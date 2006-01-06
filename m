@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932628AbWAFDSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbWAFDUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932628AbWAFDSY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 22:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbWAFDSY
+	id S932629AbWAFDUe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 22:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWAFDUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 22:18:24 -0500
-Received: from xenotime.net ([66.160.160.81]:1722 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932628AbWAFDSX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 22:18:23 -0500
-Date: Thu, 5 Jan 2006 19:18:19 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: =?ISO-8859-1?B?SGFucy1K/HJnZW4=?= Lange 
-	<Hans-Juergen.Lange@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.x on IBM thin client 8363
-Message-Id: <20060105191819.594767e0.rdunlap@xenotime.net>
-In-Reply-To: <43BD0E1C.9060705@gmx.de>
-References: <43BD0E1C.9060705@gmx.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 5 Jan 2006 22:20:33 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:36362 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932629AbWAFDUd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 22:20:33 -0500
+Date: Fri, 6 Jan 2006 11:20:21 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-mm1: what's page_owner.c doing in Documentation/ ???
+Message-ID: <20060106032021.GB7152@localhost.localdomain>
+References: <9a8748490601051624u36fb03d2l349c40a0165cbddb@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490601051624u36fb03d2l349c40a0165cbddb@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Jan 2006 13:16:28 +0100 Hans-Jürgen Lange wrote:
-
-> Hello,
+On Fri, Jan 06, 2006 at 01:24:20AM +0100, Jesper Juhl wrote:
+> Just wondering what page_owner.c is doing in Documentation/ in 2.6.15-mm1 ;-)
 > 
-> I would like to run a 2.6.x kernel on a IBM thin client 8363. There are 
-> patches available for the 2.4 series of kernels.
-> I had a look on these patches and the only thing they do is to expand 
-> the kernel commandline size to 512 Bytes and a change in 
-> arch/i386/kernel/head.S that changed the pointer to the commandline to a 
-> fixed address.
+> $ ls -l linux-2.6.15-mm1/Documentation/page_owner.c
+> -rw-r--r--  1 juhl users 2587 2006-01-05 18:15
+> linux-2.6.15-mm1/Documentation/page_owner.c
 
-Where are these 2.4 patches that you are referring to?
+[coywolf@everest ~/linux/2.6.15-mm1]$ head Documentation/page_owner.c
+/*
+ * User-space helper to sort the output of /proc/page_owner
+ *
+ * Example use:
+ * cat /proc/page_owner > page_owner.txt
+ * ./sort page_owner.txt sorted_page_owner.txt
+ */
 
-> In the 2.4.kernel the kernel parameter and command line are ,,moved out 
-> of the way''  in two steps. And the second step is the one that get patched.
-> In the 2.6 kernel this is done in one step. I did get an explanation of 
-> the startup code for the 2.4. kernel but not for the 2.6. I believe that 
-> it is no problem to make the changes to get the IBM 8363 running.
-> 
-> I have seen that some people use this machine but all what use the 
-> newest kernel.
-> 
-> If someone could help me to understand what is going on in the startup 
-> code or may have a ready to use solution for this problem it would be 
-> very nice if you could help with get it running.
+#include <stdio.h>
+#include <stdlib.h>
 
-
----
-~Randy

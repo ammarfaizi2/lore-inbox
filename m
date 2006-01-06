@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWAFSYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWAFSYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWAFSYe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWAFSYe
+	id S964826AbWAFSYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWAFSYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:24:34 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:37332 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964815AbWAFSYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:24:33 -0500
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Lee Revell <rlrevell@joe-job.com>
-To: Calin Szonyi <caszonyi@rdslink.ro>
-Cc: Hannu Savolainen <hannu@opensound.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0601061506010.2151@grinch.ro>
-References: <20050726150837.GT3160@stusta.de>
-	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
-	 <200601031629.21765.s0348365@sms.ed.ac.uk>
-	 <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
-	 <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
-	 <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
-	 <20060103215654.GH3831@stusta.de>
-	 <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
-	 <s5hpsn8md1j.wl%tiwai@suse.de>
-	 <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
-	 <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
-	 <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
-	 <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
-	 <1136486021.31583.26.camel@mindpipe>
-	 <Pine.LNX.4.61.0601060109130.27932@zeus.compusonic.fi>
-	 <1136503996.847.85.camel@mindpipe>
-	 <Pine.LNX.4.62.0601061506010.2151@grinch.ro>
-Content-Type: text/plain
-Date: Fri, 06 Jan 2006 13:24:29 -0500
-Message-Id: <1136571869.17979.14.camel@mindpipe>
+	Fri, 6 Jan 2006 13:24:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25230 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964824AbWAFSYq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:24:46 -0500
+Date: Fri, 6 Jan 2006 10:23:53 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Marcel Holtmann <marcel@holtmann.org>, Michael Buesch <mbuesch@freenet.de>,
+       jgarzik@pobox.com, bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
+Message-ID: <20060106102353.68d5f7ea@dxpl.pdx.osdl.net>
+In-Reply-To: <43BE6697.3030009@trash.net>
+References: <1136541243.4037.18.camel@localhost>
+	<200601061200.59376.mbuesch@freenet.de>
+	<1136547494.7429.72.camel@localhost>
+	<200601061245.55978.mbuesch@freenet.de>
+	<1136549423.7429.88.camel@localhost>
+	<43BE6697.3030009@trash.net>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 at 15:20 +0200, caszonyi@rdslink.ro wrote:
-> On Thu, 5 Jan 2006, Lee Revell wrote:
+On Fri, 06 Jan 2006 13:46:15 +0100
+Patrick McHardy <kaber@trash.net> wrote:
+
+> Marcel Holtmann wrote:
 > 
-> > On Fri, 2006-01-06 at 01:19 +0200, Hannu Savolainen wrote:
-> >> On Thu, 5 Jan 2006, Lee Revell wrote:
-> >>
-> >>> On Thu, 2006-01-05 at 13:44 +0100, Marcin Dalecki wrote:
-> >>>> Second - you still didn't explain why this allows you to conclude
-> >>>> that sound mixing should in no way be done inside the kernel.
-> >>>
-> >>> It works perfectly right now in userspace.  Therefore it should not be
-> >>> in the kernel.
-> >> So all the complaints about dmix problems in the ALSA mailing lists are
-> >> just exceptions that prove the above statement to be true.
-> >
-> > No, it just means ALSA like the kernel is a work in progress.  Anyway
-> > almost all the known issues have been fixed.  It works perfectly for the
-> > vast majority of users.
-> >
+> >>I just personally liked the idea of having a device node in /dev for
+> >>every existing hardware wlan card. Like we have device nodes for
+> >>other real hardware, too. It felt like a bit of a "unix way" to do
+> >>this to me. I don't say this is the way to go.
+> >>If a netlink socket is used (which is possible, for sure), we stay with
+> >>the old way of having no device node in /dev for networking devices.
+> >>That is ok. But that is really only an implementation detail (and for sure
+> >>a matter of taste).
+> > 
+> > 
+> > At the OLS last year, I think the consensus was to use netlink for all
+> > configuration task. However this was mainly driven by Harald Welte and
+> > he might be able to talk about the pros and cons of netlink versus a
+> > character device.
 > 
-> Ok. It seems i'm a minority.
-> I switched xmms to alsa
+> I think the main advantages of netlink over a character device is its
+> flexible format, which is easily extendable, and multicast capability,
+> which can be used to broadcast events and configuration changes. Its
+> also good to have all the net stuff accessible in a uniform way.
 
-XMMS has a bug where it uses "hw:0,0" by default which will prevent dmix
-from working.  It should be using the "default" PCM.
+Also netlink doesn't have the naming issues that /dev node would.
 
-Lee
-
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

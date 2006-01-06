@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932656AbWAFHkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbWAFHkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932656AbWAFHkW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 02:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbWAFHkW
+	id S932657AbWAFHkq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 02:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbWAFHkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 02:40:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8590 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932656AbWAFHkU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 02:40:20 -0500
-Date: Fri, 6 Jan 2006 02:40:19 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: reference_discarded addition
-Message-ID: <20060106074019.GA1226@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Jan 2006 02:40:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:48049 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932657AbWAFHko convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 02:40:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=D8OffP0tm1HefcZGqcwKbku/Ftpa295kd4DvCz6+JCxFgaa1F8NEkhmrX/8dkefbAYR3/GxPZP6E1xPijFtNuzZmorn60KMEcS1LUCGkmT4FTLodHIDTuYkUS084OL+PDRJEjjvU9zf2i7LTl9P8gTPKAqrkxbryR4Of0cQs25U=
+Message-ID: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
+Date: Thu, 5 Jan 2006 23:40:43 -0800
+From: Nauman Tahir <nauman.tahir@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] why all the patches get messed up here!!!
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Error: ./fs/quota_v2.o .opd refers to 0000000000000020 R_PPC64_ADDR64    .exit.text
+hi all,
+May I ask why all kernel patches just get in here in the list?
+I mean to say that isn't it better to have another list only for this
+purpose and let this mailing list be a discussion forum. I login here
+to see different issues. its a wonderful resource.
+I understand that alot of code is discussed here but in case of PATCH
+I think it would be better to have a separate archive.
+No offence just wanted to ask
 
-Been carrying this for some time in Red Hat trees.
-
-Signed-off-by: Dave Jones <davej@redhat.com>
-
-diff -urNp --exclude-from=/home/davej/.exclude linux-3022/scripts/reference_discarded.pl linux-10000/scripts/reference_discarded.pl
---- linux-3022/scripts/reference_discarded.pl
-+++ linux-10000/scripts/reference_discarded.pl
-@@ -88,6 +88,7 @@ foreach $object (keys(%object)) {
- 		    ($from !~ /\.text\.exit$/ &&
- 		     $from !~ /\.exit\.text$/ &&
- 		     $from !~ /\.data\.exit$/ &&
-+		     $from !~ /\.opd$/ &&
- 		     $from !~ /\.exit\.data$/ &&
- 		     $from !~ /\.altinstructions$/ &&
- 		     $from !~ /\.pdr$/ &&
+Regards
+Nauman

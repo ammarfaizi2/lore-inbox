@@ -1,126 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752545AbWAFU0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752542AbWAFU1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752545AbWAFU0t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 15:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752544AbWAFU0t
+	id S1752542AbWAFU1I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 15:27:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752550AbWAFU1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 15:26:49 -0500
-Received: from gate.perex.cz ([85.132.177.35]:31681 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1752541AbWAFU0s (ORCPT
+	Fri, 6 Jan 2006 15:27:07 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:58503 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1752547AbWAFU1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 15:26:48 -0500
-Date: Fri, 6 Jan 2006 21:26:42 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Diego Calleja <diegocg@gmail.com>, Marcin Dalecki <martin@dalecki.de>,
-       rlrevell@joe-job.com, jengelh@linux01.gwdg.de,
-       Takashi Iwai <tiwai@suse.de>, jesper.juhl@gmail.com, bunk@stusta.de,
-       zdzichu@irc.pl, s0348365@sms.ed.ac.uk, ak@suse.de,
-       ALSA development <alsa-devel@alsa-project.org>,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       linux@thorsten-knabe.de, zwane@commfireservices.com, zaitcev@yahoo.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-In-Reply-To: <20060106145723.GA73361@dspnet.fr.eu.org>
-Message-ID: <Pine.LNX.4.61.0601061938390.10811@tm8103.perex-int.cz>
-References: <20060103215654.GH3831@stusta.de>
- <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
- <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
- <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
- <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
- <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe>
- <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <20060106034026.c37c1ed9.diegocg@gmail.com>
- <20060106145723.GA73361@dspnet.fr.eu.org>
+	Fri, 6 Jan 2006 15:27:05 -0500
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 2 of 3] memcpy32 for x86_64
+X-Mercurial-Node: 33790477a163df7751aec887c9ca18fd11bdfcee
+Message-Id: <33790477a163df7751ae.1136579195@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1136579193@eng-12.pathscale.com>
+Date: Fri,  6 Jan 2006 12:26:35 -0800
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006, Olivier Galibert wrote:
+Introduce an x86_64-specific memcpy32 routine.  The routine is similar
+to memcpy, but is guaranteed to work in units of 32 bits at a time.
 
-> On Fri, Jan 06, 2006 at 03:40:26AM +0100, Diego Calleja wrote:
-> > Amazing - even windows is getting sound mixing out of the kernel
-> > in windows vista because they've learnt (the hard way) that it's
-> > the Right Thing and linux people is trying to get it in?
-> 
-> You misread.  Most people just want to have things work like they
-> should have for years.  Technical people, at least Marcin and I, want
-> a documented kernel interface with optional libraries over it (think
-> libX11 vs. the X Protocol, or glibc/klibc/uclibc/libc5 vs. the system
-> calls), and then behind that have the kernel route the data to
-> userspace demon(s) or the hardware depending on root-level setup and
-> configuration.
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-I got the point, but the audio is very specific that it requires realtime 
-scheduling. Even graphics is not so tied with realtime, because a 
-scheduling gap does not end with error or very ugly misbehaviour (pops) 
-like in audio.
-
-You're proposing to add more content switches versus current ALSA 
-implementation:
-
-user space <-> kernel
-
-While your daemon requires:
-
-user space <-> kernel <-> user space (daemon)
-
-So your solution is even more realtime and proper scheduling dependant.
-Unfortunately, Linux kernels still do not have perfect realtime behaviour 
-(mostly due to broken drivers etc.).
-
-Also, the API is completely irrelevant from this scheme. If daemon does 
-everything, the ALSA kernel API can go public and documented (altough I 
-still does not agree with it - see bellow).
-
-> ALSA does not have a documented kernel interface nor an optional
-> library but a mandatory library.  A highly complex, ipc-using library
-
-It's also not very true. You can create your own ALSA library, but this 
-library will not be supported with our team. The ALSA from 1.0 version is 
-binary compatible (even 0.9.0rc4+ linked applications should work) and old 
-ioctls are emulated.
-
-> with no security audit that I could find with google.  A library for
-> which people do not seem to care about compatibility with previous or
-> future kernel versions, which means it _has_ to be shared.  And shared
-> libraries are just unacceptable in some contexts, like distributing
-> binaries outside of a specific linux distribution[1].
-
-I'd like to point that this code runs with standard user priviledges. I 
-think that the security things are and should be in a different place (in 
-the kernel). If IPC is broken, other applications (not only using sound) 
-might be broken. If administrator (root) creates wrong configuration files 
-for alsa-lib - we cannot do anything. It's a human error. The same problem 
-is if you have this code in kernel. It can be bad (even more than in the 
-user space - you can shutdown whole system) too.
-
-> At least OSS, with all its flaws, is a documented kernel interface.
-> You can static link a oss-using program, whether it uses it directly
-> or through interfaces like sdl-audio, and it will just work.
-
-Please, see your words. You're simply anarchistic. You replaced 
-flexibility of dynamic library with a possibility to have static binary.
-
-ALSA library can be also compiled as static library, so it's not a 
-problem. The ALSA kernel API is stable. Also, we use symbol versions for 
-all exported functions, so all old binaries linked with the dynamic alsa 
-library will work. Of course, the drivers might change some universal 
-control names, then different configuration files for alsa-lib should be 
-used, but it's a different point and we're working also on this 
-compatibility to avoid these problems in future. But the standard stereo 
-sound work all the time (I speak about 5.1, S/PDIF devices).
-
-Also note, that if OSS had the API in userspace from the first days,
-the emulation or redirection of this API to another API or user space 
-drivers wouldn't be so much complicated nowadays. Bummer.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+diff -r d286502c3b3c -r 33790477a163 arch/x86_64/kernel/x8664_ksyms.c
+--- a/arch/x86_64/kernel/x8664_ksyms.c	Fri Jan  6 12:25:00 2006 -0800
++++ b/arch/x86_64/kernel/x8664_ksyms.c	Fri Jan  6 12:25:02 2006 -0800
+@@ -164,6 +164,8 @@
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(__memcpy);
+ 
++EXPORT_SYMBOL_GPL(memcpy32);
++
+ #ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
+ /* prototypes are wrong, these are assembly with custom calling functions */
+ extern void rwsem_down_read_failed_thunk(void);
+diff -r d286502c3b3c -r 33790477a163 arch/x86_64/lib/Makefile
+--- a/arch/x86_64/lib/Makefile	Fri Jan  6 12:25:00 2006 -0800
++++ b/arch/x86_64/lib/Makefile	Fri Jan  6 12:25:02 2006 -0800
+@@ -9,4 +9,4 @@
+ lib-y := csum-partial.o csum-copy.o csum-wrappers.o delay.o \
+ 	usercopy.o getuser.o putuser.o  \
+ 	thunk.o clear_page.o copy_page.o bitstr.o bitops.o
+-lib-y += memcpy.o memmove.o memset.o copy_user.o
++lib-y += memcpy.o memcpy32.o memmove.o memset.o copy_user.o
+diff -r d286502c3b3c -r 33790477a163 include/asm-x86_64/string.h
+--- a/include/asm-x86_64/string.h	Fri Jan  6 12:25:00 2006 -0800
++++ b/include/asm-x86_64/string.h	Fri Jan  6 12:25:02 2006 -0800
+@@ -45,6 +45,15 @@
+ #define __HAVE_ARCH_MEMMOVE
+ void * memmove(void * dest,const void *src,size_t count);
+ 
++/*
++ * memcpy32 - copy data, 32 bits at a time
++ *
++ * @dst: destination (must be 32-bit aligned)
++ * @src: source (must be 32-bit aligned)
++ * @count: number of 32-bit quantities to copy
++ */
++void memcpy32(void *dst, const void *src, size_t count);
++
+ /* Use C out of line version for memcmp */ 
+ #define memcmp __builtin_memcmp
+ int memcmp(const void * cs,const void * ct,size_t count);
+diff -r d286502c3b3c -r 33790477a163 arch/x86_64/lib/memcpy32.S
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/arch/x86_64/lib/memcpy32.S	Fri Jan  6 12:25:02 2006 -0800
+@@ -0,0 +1,36 @@
++/*
++ * Copyright 2006 PathScale, Inc.  All Rights Reserved.
++ *
++ * This file is free software; you can redistribute it and/or modify
++ * it under the terms of version 2 of the GNU General Public License
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
++ */
++
++/*
++ * memcpy32 - Copy a memory block, 32 bits at a time.
++ *
++ * This routine does not return anything.
++ * Input:
++ * rdi destination
++ * rsi source
++ * rdx count (32-bit quantities to copy)
++ */
++
++ 	.globl memcpy32
++memcpy32:
++	movl %edx,%ecx
++	shrl $1,%ecx
++	andl $1,%edx
++	rep movsq
++	movl %edx,%ecx
++	rep movsd
++	ret

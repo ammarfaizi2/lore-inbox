@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWAFVuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbWAFVvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWAFVuV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 16:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWAFVuV
+	id S1751516AbWAFVvV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 16:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751948AbWAFVvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 16:50:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57493 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751488AbWAFVuU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 16:50:20 -0500
-Message-ID: <43BEE5F8.5040109@redhat.com>
-Date: Fri, 06 Jan 2006 13:49:44 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mail/News 1.5 (X11/20060103)
-MIME-Version: 1.0
-To: 7eggert@gmx.de
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH 3/3] updated *at function patch
-References: <5s5sB-p4-181@gated-at.bofh.it> <E1EuzOT-0000jw-1g@be1.lrz>
-In-Reply-To: <E1EuzOT-0000jw-1g@be1.lrz>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2657D9B41484B82B72BD8816"
+	Fri, 6 Jan 2006 16:51:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18323 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751516AbWAFVvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 16:51:20 -0500
+Subject: [patch 0/4] Series to allow a "const" file_operations struct
+From: Arjan van de Ven <arjan@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 22:45:37 +0100
+Message-Id: <1136583937.2940.90.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2657D9B41484B82B72BD8816
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-Bodo Eggert wrote:
->> +#define __NR_fchownat                259
->> +__SYSCALL(__NR_fchownat, sys_fchownat)
->=20
-> s/fchown/chown/ ?
+this series allows drivers to have "const" file_operations, by making
+the f_ops field in the inode const. This has another benefit, there have
+been several bugs where code accidentally wrote to the ->f_ops
+structure, forgetting that it's a shared structure. One of those bugs
+got fixed in november for example (as a result of these patches),
+another one is fixed in this series. 
 
-No, fchownat is the name commonly used.  I don't like it much either but
-it's the name commonly used (i.e., what is used in Solaris).
+Greetings,
+   Arjan van de Ven
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig2657D9B41484B82B72BD8816
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDvuX42ijCOnn/RHQRAmZ2AKDCCRGiEsnLrb7aRkSrf8kik9bIYACfTmAN
-GLH3ILceAd3ArrDhjoKpq4g=
-=0Q3v
------END PGP SIGNATURE-----
-
---------------enig2657D9B41484B82B72BD8816--

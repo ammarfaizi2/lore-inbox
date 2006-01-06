@@ -1,106 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWAFX4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965357AbWAFX7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932674AbWAFX4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 18:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbWAFX4V
+	id S965357AbWAFX7e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 18:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbWAFX7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 18:56:21 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:60174 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932674AbWAFX4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 18:56:21 -0500
-Date: Sat, 7 Jan 2006 00:56:01 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
-Message-ID: <20060106235601.GA26268@mars.ravnborg.org>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136543914.2940.11.camel@laptopd505.fenrus.org> <43BEA672.4010309@pobox.com> <20060106184841.GA13917@mars.ravnborg.org> <1136574052.2940.68.camel@laptopd505.fenrus.org> <43BEBEE1.6060500@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BEBEE1.6060500@pobox.com>
-User-Agent: Mutt/1.5.11
+	Fri, 6 Jan 2006 18:59:34 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:24550 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932679AbWAFX7d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 18:59:33 -0500
+Message-ID: <43BF0463.7010700@us.ibm.com>
+Date: Fri, 06 Jan 2006 15:59:31 -0800
+From: Vernon Mauery <vernux@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Max Asbock <amax@us.ibm.com>
+Subject: dynamic input_dev allocation for ibmasm driver
+Content-Type: multipart/mixed;
+ boundary="------------050403030702010602080206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 02:02:57PM -0500, Jeff Garzik wrote:
-> Arjan van de Ven wrote:
-> >>Also why should we care so much for multi directory modules?
-> >
-> >
-> >I suspect Jeff didn't mean it like that, but instead assumed that
-> >multi-directory would be harder so that starting with single-directory
-> >would be a good start...
+This is a multi-part message in MIME format.
+--------------050403030702010602080206
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-The tricky part is to handle prerequisites correct.
-I have made a very hackish version now and some observations.
+This patch updates the ibmasm driver to use the dynamic allocation of input_dev
+structs to work with the sysfs subsystem.  I have tested it on my machine and it
+seems to work fine.
 
-- It is not easy to honour CFLAGS_<file.o> flags. And they will become
-  used for all files
-- If a single file is touched gcc will build all the source for the
-  module. Not what you expect when touching a single file in fs/xfs/*
-- needed to pass -nodefaultlibs to gcc to avoid linker errors - dunno
-  why but it complained that it could not find -lgcc_s otherwise
-- Gcc 3.4.4 at least compile the files individually, so not much seems
-  gained.
+Signed-off-by: Vernon Mauery <vernux@us.ibm.com>
 
-Here is the changes so far...
-This is not all all working, but I can compile xfs as a module with
-this. But it recompiles everytime.
-
-Do we really want this when it has the drawback that touching a single
-file causes all of a module to be built?
-It could be a <schrudder> CONFIG option....
-
-	Sam
+ ibmasm.h |    6 ++---
+ remote.c |   72 ++++++++++++++++++++++++++++++++++-----------------------------
+ 2 files changed, 42 insertions(+), 36 deletions(-)
 
 
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index c33e62b..aceab6b 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -281,16 +281,20 @@ endif
- #    <composite-object>-objs := <list of .o files>
- #  or
- #    <composite-object>-y    := <list of .o files>
--link_multi_deps =                     \
--$(filter $(addprefix $(obj)/,         \
--$($(subst $(obj)/,,$(@:.o=-objs)))    \
--$($(subst $(obj)/,,$(@:.o=-y)))), $^)
-+find-src = $(foreach f, $1, $(wildcard $(f:.o=.c))) \
-+           $(foreach f, $1, $(wildcard $(f:.o=.S)))
-+
-+link_multi_deps =  $(addprefix $(obj)/,         \
-+                   $($(subst $(obj)/,,$(@:.o=-objs)))    \
-+                   $($(subst $(obj)/,,$(@:.o=-y))))
-  
- quiet_cmd_link_multi-y = LD      $@
- cmd_link_multi-y = $(LD) $(ld_flags) -r -o $@ $(link_multi_deps)
+--------------050403030702010602080206
+Content-Type: text/x-patch;
+ name="ibmasm_dynamic_allocate_input_device.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ibmasm_dynamic_allocate_input_device.patch"
+
+diff -Nuarp -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/misc/ibmasm/ibmasm.h linux-2.6.15-fixed/drivers/misc/ibmasm/ibmasm.h
+--- linux-2.6.15/drivers/misc/ibmasm/ibmasm.h	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15-fixed/drivers/misc/ibmasm/ibmasm.h	2006-01-05 03:43:03.000000000 -0800
+@@ -141,8 +141,8 @@ struct reverse_heartbeat {
+ };
  
- quiet_cmd_link_multi-m = LD [M]  $@
--cmd_link_multi-m = $(LD) $(ld_flags) $(LDFLAGS_MODULE) -o $@ $(link_multi_deps)
-+#cmd_link_multi-m = $(LD) $(ld_flags) $(LDFLAGS_MODULE) -o $@ $(link_multi_deps)
-+cmd_link_multi-m = $(CC) -v -nodefaultlibs $(c_flags)  -Wl,-r -Wl,-melf_x86_64\
-+                   -o $@ $(call find-src, $(link_multi_deps))
+ struct ibmasm_remote {
+-	struct input_dev keybd_dev;
+-	struct input_dev mouse_dev;
++	struct input_dev * keybd_dev;
++	struct input_dev * mouse_dev;
+ };
  
- # We would rather have a list of rules like
- # 	foo.o: $(foo-objs)
-@@ -299,13 +303,12 @@ cmd_link_multi-m = $(LD) $(ld_flags) $(L
- $(multi-used-y) : %.o: $(multi-objs-y) FORCE
- 	$(call if_changed,link_multi-y)
+ struct service_processor {
+@@ -157,7 +157,7 @@ struct service_processor {
+ 	char			dirname[IBMASM_NAME_SIZE];
+ 	char			devname[IBMASM_NAME_SIZE];
+ 	unsigned int		number;
+-	struct ibmasm_remote	*remote;
++	struct ibmasm_remote	remote;
+ 	int			serial_line;
+ 	struct device		*dev;
+ };
+diff -Nuarp -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/misc/ibmasm/remote.c linux-2.6.15-fixed/drivers/misc/ibmasm/remote.c
+--- linux-2.6.15/drivers/misc/ibmasm/remote.c	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15-fixed/drivers/misc/ibmasm/remote.c	2006-01-06 07:38:57.000000000 -0800
+@@ -203,9 +203,9 @@ void ibmasm_handle_mouse_interrupt(struc
  
--$(multi-used-m) : %.o: $(multi-objs-m) FORCE
-+$(multi-used-m) : % : $(call find-src,$(multi-objs-m)) FORCE
- 	$(call if_changed,link_multi-m)
- 	@{ echo $(@:.o=.ko); echo $(link_multi_deps); } > $(MODVERDIR)/$(@F:.o=.mod)
+ 		print_input(&input);
+ 		if (input.type == INPUT_TYPE_MOUSE) {
+-			send_mouse_event(&sp->remote->mouse_dev, regs, &input);
++			send_mouse_event(sp->remote.mouse_dev, regs, &input);
+ 		} else if (input.type == INPUT_TYPE_KEYBOARD) {
+-			send_keyboard_event(&sp->remote->keybd_dev, regs, &input);
++			send_keyboard_event(sp->remote.keybd_dev, regs, &input);
+ 		} else
+ 			break;
  
- targets += $(multi-used-y) $(multi-used-m)
+@@ -217,56 +217,62 @@ void ibmasm_handle_mouse_interrupt(struc
+ int ibmasm_init_remote_input_dev(struct service_processor *sp)
+ {
+ 	/* set up the mouse input device */
+-	struct ibmasm_remote *remote;
++	struct input_dev *mouse_dev, *keybd_dev;
+ 	struct pci_dev *pdev = to_pci_dev(sp->dev);
+ 	int i;
++	int ret = 0;
  
+-	sp->remote = remote = kmalloc(sizeof(*remote), GFP_KERNEL);
+-	if (!remote)
+-		return -ENOMEM;
 -
- # Descending
- # ---------------------------------------------------------------------------
+-	memset(remote, 0, sizeof(*remote));
+-
+-	remote->mouse_dev.private = remote;
+-	init_input_dev(&remote->mouse_dev);
+-	remote->mouse_dev.id.vendor = pdev->vendor;
+-	remote->mouse_dev.id.product = pdev->device;
+-	remote->mouse_dev.evbit[0]  = BIT(EV_KEY) | BIT(EV_ABS);
+-	remote->mouse_dev.keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) |
++	mouse_dev = input_allocate_device();
++	keybd_dev = input_allocate_device();
++	if (!mouse_dev || !keybd_dev) {
++		ret = -ENOMEM;
++		goto error_alloc;
++	}
++	mouse_dev->id.vendor = pdev->vendor;
++	mouse_dev->id.product = pdev->device;
++	mouse_dev->evbit[0]  = BIT(EV_KEY) | BIT(EV_ABS);
++	mouse_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) |
+ 		BIT(BTN_RIGHT) | BIT(BTN_MIDDLE);
+-	set_bit(BTN_TOUCH, remote->mouse_dev.keybit);
+-	remote->mouse_dev.name = remote_mouse_name;
+-	input_set_abs_params(&remote->mouse_dev, ABS_X, 0, xmax, 0, 0);
+-	input_set_abs_params(&remote->mouse_dev, ABS_Y, 0, ymax, 0, 0);
+-
+-	remote->keybd_dev.private = remote;
+-	init_input_dev(&remote->keybd_dev);
+-	remote->keybd_dev.id.vendor = pdev->vendor;
+-	remote->keybd_dev.id.product = pdev->device;
+-	remote->keybd_dev.evbit[0]  = BIT(EV_KEY);
+-	remote->keybd_dev.name = remote_keybd_name;
++	set_bit(BTN_TOUCH, mouse_dev->keybit);
++	mouse_dev->name = remote_mouse_name;
++	input_set_abs_params(mouse_dev, ABS_X, 0, xmax, 0, 0);
++	input_set_abs_params(mouse_dev, ABS_Y, 0, ymax, 0, 0);
++
++	keybd_dev->id.vendor = pdev->vendor;
++	keybd_dev->id.product = pdev->device;
++	keybd_dev->evbit[0]  = BIT(EV_KEY);
++	keybd_dev->name = remote_keybd_name;
+ 
+ 	for (i=0; i<XLATE_SIZE; i++) {
+ 		if (xlate_high[i])
+-			set_bit(xlate_high[i], remote->keybd_dev.keybit);
++			set_bit(xlate_high[i], keybd_dev->keybit);
+ 		if (xlate[i])
+-			set_bit(xlate[i], remote->keybd_dev.keybit);
++			set_bit(xlate[i], keybd_dev->keybit);
+ 	}
+ 
+-	input_register_device(&remote->mouse_dev);
+-	input_register_device(&remote->keybd_dev);
++	if ((ret = input_register_device(mouse_dev)))
++		goto error_alloc;
++	if ((ret = input_register_device(keybd_dev)))
++		goto error_alloc;
++
++	sp->remote.mouse_dev = mouse_dev;
++	sp->remote.keybd_dev = keybd_dev;
+ 	enable_mouse_interrupts(sp);
+ 
+ 	printk(KERN_INFO "ibmasm remote responding to events on RSA card %d\n", sp->number);
+ 
+ 	return 0;
++
++error_alloc:
++	input_free_device(mouse_dev);
++	input_free_device(keybd_dev);
++	return ret;
+ }
+ 
+ void ibmasm_free_remote_input_dev(struct service_processor *sp)
+ {
+ 	disable_mouse_interrupts(sp);
+-	input_unregister_device(&sp->remote->keybd_dev);
+-	input_unregister_device(&sp->remote->mouse_dev);
+-	kfree(sp->remote);
++	input_unregister_device(sp->remote.mouse_dev);
++	input_unregister_device(sp->remote.keybd_dev);
+ }
  
 
-
+--------------050403030702010602080206--

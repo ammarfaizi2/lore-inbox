@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWAFC2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbWAFCaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932605AbWAFC2y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 21:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWAFC2y
+	id S932597AbWAFCaF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 21:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWAFCaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 21:28:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14343 "HELO
+	Thu, 5 Jan 2006 21:30:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:15623 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932605AbWAFC2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 21:28:52 -0500
-Date: Fri, 6 Jan 2006 03:28:52 +0100
+	id S932597AbWAFCaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 21:30:01 -0500
+Date: Fri, 6 Jan 2006 03:30:00 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: mmcclell@bigfoot.com
+To: luca.risolia@studio.unibo.it
 Cc: linux-usb-devel@lists.sourceforge.net, gregkh@suse.de,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/usb/media/ov511.c: remove hooks for the decomp module
-Message-ID: <20060106022852.GW12313@stusta.de>
+Subject: [2.6 patch] drivers/usb/media/w9968cf.c: remove hooks for the vpp module
+Message-ID: <20060106023000.GX12313@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,270 +23,231 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- the decomp module is not intended for inclusion into the kernel
-- people using the decomp module from upstream will usually simply use
-  the complete upstream 2.xx driver
+- the w9968cf-vpp module is not intended for inclusion into the kernel
+- the upstream w9968cf package shipping the w9968cf-vpp module suggests
+  to simply replace the w9968cf module shipped with the kernel
 
 Therefore, there seems to be no good reason spending some bytes of 
-kernel memory for hooks for this module.
+kernel memory for hooks for the w9968cf-vpp module.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/usb/media/ov511.c |  196 --------------------------------------
- 1 file changed, 2 insertions(+), 194 deletions(-)
+ drivers/usb/media/w9968cf.c     |  128 --------------------------------
+ drivers/usb/media/w9968cf.h     |    1 
+ drivers/usb/media/w9968cf_vpp.h |    3 
+ 3 files changed, 1 insertion(+), 131 deletions(-)
 
---- linux-2.6.15-mm1-full/drivers/usb/media/ov511.c.old	2006-01-06 02:36:25.000000000 +0100
-+++ linux-2.6.15-mm1-full/drivers/usb/media/ov511.c	2006-01-06 03:00:59.000000000 +0100
-@@ -204,22 +204,10 @@
+--- linux-2.6.15-mm1-full/drivers/usb/media/w9968cf_vpp.h.old	2006-01-06 02:26:01.000000000 +0100
++++ linux-2.6.15-mm1-full/drivers/usb/media/w9968cf_vpp.h	2006-01-06 02:26:08.000000000 +0100
+@@ -37,7 +37,4 @@
+ 	u8 busy; /* read-only flag: module is/is not in use */
+ };
  
- static struct usb_driver ov511_driver;
- 
--static struct ov51x_decomp_ops *ov511_decomp_ops;
--static struct ov51x_decomp_ops *ov511_mmx_decomp_ops;
--static struct ov51x_decomp_ops *ov518_decomp_ops;
--static struct ov51x_decomp_ops *ov518_mmx_decomp_ops;
+-extern int w9968cf_vppmod_register(struct w9968cf_vpp_t*);
+-extern int w9968cf_vppmod_deregister(struct w9968cf_vpp_t*);
 -
- /* Number of times to retry a failed I2C transaction. Increase this if you
-  * are getting "Failed to read sensor ID..." */
- static const int i2c_detect_tries = 5;
+ #endif /* _W9968CF_VPP_H_ */
+--- linux-2.6.15-mm1-full/drivers/usb/media/w9968cf.h.old	2006-01-06 02:52:03.000000000 +0100
++++ linux-2.6.15-mm1-full/drivers/usb/media/w9968cf.h	2006-01-06 02:52:08.000000000 +0100
+@@ -195,7 +195,6 @@
+ };
  
--/* MMX support is present in kernel and CPU. Checked upon decomp module load. */
--#if defined(__i386__) || defined(__x86_64__)
--#define ov51x_mmx_available (cpu_has_mmx)
--#else
--#define ov51x_mmx_available (0)
--#endif
--
- static struct usb_device_id device_table [] = {
- 	{ USB_DEVICE(VEND_OMNIVISION, PROD_OV511) },
- 	{ USB_DEVICE(VEND_OMNIVISION, PROD_OV511PLUS) },
-@@ -3012,93 +3000,18 @@
-  *
-  **********************************************************************/
+ static struct w9968cf_vpp_t* w9968cf_vpp;
+-static DECLARE_MUTEX(w9968cf_vppmod_lock);
+ static DECLARE_WAIT_QUEUE_HEAD(w9968cf_vppmod_wait);
  
--/* Chooses a decompression module, locks it, and sets ov->decomp_ops
-- * accordingly. Returns -ENXIO if decompressor is not available, otherwise
-- * returns 0 if no other error.
-- */
- static int
- request_decompressor(struct usb_ov511 *ov)
- {
--	if (!ov)
--		return -ENODEV;
+ static LIST_HEAD(w9968cf_dev_list); /* head of V4L registered cameras list */
+--- linux-2.6.15-mm1-full/drivers/usb/media/w9968cf.c.old	2006-01-06 02:26:15.000000000 +0100
++++ linux-2.6.15-mm1-full/drivers/usb/media/w9968cf.c	2006-01-06 03:01:55.000000000 +0100
+@@ -62,7 +62,6 @@
+ MODULE_SUPPORTED_DEVICE("Video");
+ 
+ static int ovmod_load = W9968CF_OVMOD_LOAD;
+-static int vppmod_load = W9968CF_VPPMOD_LOAD;
+ static unsigned short simcams = W9968CF_SIMCAMS;
+ static short video_nr[]={[0 ... W9968CF_MAX_DEVICES-1] = -1}; /*-1=first free*/
+ static unsigned int packet_size[] = {[0 ... W9968CF_MAX_DEVICES-1] = 
+@@ -107,7 +106,6 @@
+ 
+ #ifdef CONFIG_KMOD
+ module_param(ovmod_load, bool, 0644);
+-module_param(vppmod_load, bool, 0444);
+ #endif
+ module_param(simcams, ushort, 0644);
+ module_param_array(video_nr, short, &param_nv[0], 0444);
+@@ -150,18 +148,6 @@
+                  "\ninto memory."
+                  "\nDefault value is "__MODULE_STRING(W9968CF_OVMOD_LOAD)"."
+                  "\n");
+-MODULE_PARM_DESC(vppmod_load, 
+-                 "\n<0|1> Automatic 'w9968cf-vpp' module loading."
+-                 "\n0 disabled, 1 enabled."
+-                 "\nIf enabled, every time an application attempts to open a"
+-                 "\ncamera, 'insmod' searches for the video post-processing"
+-                 "\nmodule in the system and loads it automatically (if"
+-                 "\npresent). The optional 'w9968cf-vpp' module adds extra"
+-                 "\n image manipulation functions to the 'w9968cf' module,like"
+-                 "\nsoftware up-scaling,colour conversions and video decoding"
+-                 "\nfor very high frame rates."
+-                 "\nDefault value is "__MODULE_STRING(W9968CF_VPPMOD_LOAD)"."
+-                 "\n");
+ #endif
+ MODULE_PARM_DESC(simcams, 
+                  "\n<n> Number of cameras allowed to stream simultaneously."
+@@ -492,10 +478,6 @@
+ static void w9968cf_pop_frame(struct w9968cf_device*,struct w9968cf_frame_t**);
+ static void w9968cf_release_resources(struct w9968cf_device*);
+ 
+-/* Intermodule communication */
+-static int w9968cf_vppmod_detect(struct w9968cf_device*);
+-static void w9968cf_vppmod_release(struct w9968cf_device*);
 -
--	if (ov->decomp_ops) {
--		err("ERROR: Decompressor already requested!");
--		return -EINVAL;
+ 
+ 
+ /****************************************************************************
+@@ -2737,9 +2719,7 @@
+ 	cam->streaming = 0;
+ 	cam->misconfigured = 0;
+ 
+-	if (!w9968cf_vpp)
+-		if ((err = w9968cf_vppmod_detect(cam)))
+-			goto out;
++	w9968cf_adjust_configuration(cam);
+ 
+ 	if ((err = w9968cf_allocate_memory(cam)))
+ 		goto deallocate_memory;
+@@ -2766,7 +2746,6 @@
+ 
+ deallocate_memory:
+ 	w9968cf_deallocate_memory(cam);
+-out:
+ 	DBG(2, "Failed to open the video device")
+ 	up(&cam->dev_sem);
+ 	up_read(&w9968cf_disconnect);
+@@ -2784,8 +2763,6 @@
+ 
+ 	w9968cf_stop_transfer(cam);
+ 
+-	w9968cf_vppmod_release(cam);
+-
+ 	if (cam->disconnected) {
+ 		w9968cf_release_resources(cam);
+ 		up(&cam->dev_sem);
+@@ -3681,106 +3658,6 @@
+  * Module init, exit and intermodule communication                          *
+  ****************************************************************************/
+ 
+-static int w9968cf_vppmod_detect(struct w9968cf_device* cam)
+-{
+-	if (!w9968cf_vpp)
+-		if (vppmod_load)
+-			request_module("w9968cf-vpp");
+-
+-	down(&w9968cf_vppmod_lock);
+-
+-	if (!w9968cf_vpp) {
+-		DBG(4, "Video post-processing module not detected")
+-		w9968cf_adjust_configuration(cam);
+-		goto out;
 -	}
 -
--	lock_kernel();
--
--	/* Try to get MMX, and fall back on no-MMX if necessary */
--	if (ov->bclass == BCL_OV511) {
--		if (ov511_mmx_decomp_ops) {
--			PDEBUG(3, "Using OV511 MMX decompressor");
--			ov->decomp_ops = ov511_mmx_decomp_ops;
--		} else if (ov511_decomp_ops) {
--			PDEBUG(3, "Using OV511 decompressor");
--			ov->decomp_ops = ov511_decomp_ops;
--		} else {
--			err("No decompressor available");
--		}
--	} else if (ov->bclass == BCL_OV518) {
--		if (ov518_mmx_decomp_ops) {
--			PDEBUG(3, "Using OV518 MMX decompressor");
--			ov->decomp_ops = ov518_mmx_decomp_ops;
--		} else if (ov518_decomp_ops) {
--			PDEBUG(3, "Using OV518 decompressor");
--			ov->decomp_ops = ov518_decomp_ops;
--		} else {
--			err("No decompressor available");
--		}
-+	if (ov->bclass == BCL_OV511 || ov->bclass == BCL_OV518) {
-+		err("No decompressor available");
- 	} else {
- 		err("Unknown bridge");
- 	}
- 
--	if (!ov->decomp_ops)
--		goto nosys;
--
--	if (!ov->decomp_ops->owner) {
--		ov->decomp_ops = NULL;
--		goto nosys;
+-	if (!try_module_get(w9968cf_vpp->owner)) {
+-		DBG(1, "Couldn't increment the reference count of "
+-		       "the video post-processing module")
+-		up(&w9968cf_vppmod_lock);
+-		return -ENOSYS;
 -	}
--	
--	if (!try_module_get(ov->decomp_ops->owner))
--		goto nosys;
 -
--	unlock_kernel();
+-	w9968cf_vpp->busy++;
+-
+-	DBG(5, "Video post-processing module detected")
+-
+-out:
+-	up(&w9968cf_vppmod_lock);
 -	return 0;
--
-- nosys:
--	unlock_kernel();
- 	return -ENOSYS;
- }
- 
--/* Unlocks decompression module and nulls ov->decomp_ops. Safe to call even
-- * if ov->decomp_ops is NULL.
-- */
--static void
--release_decompressor(struct usb_ov511 *ov)
--{
--	int released = 0;	/* Did we actually do anything? */
--
--	if (!ov)
--		return;
--
--	lock_kernel();
--
--	if (ov->decomp_ops) {
--		module_put(ov->decomp_ops->owner);
--		released = 1;
--	}
--
--	ov->decomp_ops = NULL;
--
--	unlock_kernel();
--
--	if (released)
--		PDEBUG(3, "Decompressor released");
 -}
 -
- static void
- decompress(struct usb_ov511 *ov, struct ov511_frame *frame,
- 	   unsigned char *pIn0, unsigned char *pOut0)
-@@ -3107,31 +3020,6 @@
- 		if (request_decompressor(ov))
- 			return;
- 
--	PDEBUG(4, "Decompressing %d bytes", frame->bytes_recvd);
 -
--	if (frame->format == VIDEO_PALETTE_GREY
--	    && ov->decomp_ops->decomp_400) {
--		int ret = ov->decomp_ops->decomp_400(
--			pIn0,
--			pOut0,
--			frame->compbuf,
--			frame->rawwidth,
--			frame->rawheight,
--			frame->bytes_recvd);
--		PDEBUG(4, "DEBUG: decomp_400 returned %d", ret);
--	} else if (frame->format != VIDEO_PALETTE_GREY
--		   && ov->decomp_ops->decomp_420) {
--		int ret = ov->decomp_ops->decomp_420(
--			pIn0,
--			pOut0,
--			frame->compbuf,
--			frame->rawwidth,
--			frame->rawheight,
--			frame->bytes_recvd);
--		PDEBUG(4, "DEBUG: decomp_420 returned %d", ret);
--	} else {
--		err("Decompressor does not support this format");
--	}
- }
- 
- /**********************************************************************
-@@ -4087,8 +3974,6 @@
- 	ov->user--;
- 	ov51x_stop_isoc(ov);
- 
--	release_decompressor(ov);
--
- 	if (ov->led_policy == LED_AUTO)
- 		ov51x_led_control(ov, 0);
- 
-@@ -6021,82 +5906,6 @@
-  *
-  ***************************************************************************/
- 
--/* Returns 0 for success */
--int
--ov511_register_decomp_module(int ver, struct ov51x_decomp_ops *ops, int ov518,
--			     int mmx)
+-static void w9968cf_vppmod_release(struct w9968cf_device* cam)
 -{
--	if (ver != DECOMP_INTERFACE_VER) {
--		err("Decompression module has incompatible");
--		err("interface version %d", ver);
--		err("Interface version %d is required", DECOMP_INTERFACE_VER);
+-	down(&w9968cf_vppmod_lock);
+-
+-	if (w9968cf_vpp && w9968cf_vpp->busy) {
+-		module_put(w9968cf_vpp->owner);
+-		w9968cf_vpp->busy--;
+-		wake_up(&w9968cf_vppmod_wait);
+-		DBG(5, "Video post-processing module released")
+-	}
+-
+-	up(&w9968cf_vppmod_lock);
+-}
+-
+-
+-int w9968cf_vppmod_register(struct w9968cf_vpp_t* vpp)
+-{
+-	down(&w9968cf_vppmod_lock);
+-
+-	if (w9968cf_vpp) {
+-		KDBG(1, "Video post-processing module already registered")
+-		up(&w9968cf_vppmod_lock);
 -		return -EINVAL;
 -	}
 -
--	if (!ops)
--		return -EFAULT;
+-	w9968cf_vpp = vpp;
+-	w9968cf_vpp->busy = 0;
 -
--	if (mmx && !ov51x_mmx_available) {
--		err("MMX not available on this system or kernel");
--		return -EINVAL;
--	}
--
--	lock_kernel();
--
--	if (ov518) {
--		if (mmx) {
--			if (ov518_mmx_decomp_ops)
--				goto err_in_use;
--			else
--				ov518_mmx_decomp_ops = ops;
--		} else {
--			if (ov518_decomp_ops)
--				goto err_in_use;
--			else
--				ov518_decomp_ops = ops;
--		}
--	} else {
--		if (mmx) {
--			if (ov511_mmx_decomp_ops)
--				goto err_in_use;
--			else
--				ov511_mmx_decomp_ops = ops;
--		} else {
--			if (ov511_decomp_ops)
--				goto err_in_use;
--			else
--				ov511_decomp_ops = ops;
--		}
--	}
--
--	unlock_kernel();
+-	KDBG(2, "Video post-processing module registered")
+-	up(&w9968cf_vppmod_lock);
 -	return 0;
--
--err_in_use:
--	unlock_kernel();
--	return -EBUSY;
 -}
 -
--void
--ov511_deregister_decomp_module(int ov518, int mmx)
--{
--	lock_kernel();
 -
--	if (ov518) {
--		if (mmx)
--			ov518_mmx_decomp_ops = NULL;
--		else
--			ov518_decomp_ops = NULL;
--	} else {
--		if (mmx)
--			ov511_mmx_decomp_ops = NULL;
--		else
--			ov511_decomp_ops = NULL;
+-int w9968cf_vppmod_deregister(struct w9968cf_vpp_t* vpp)
+-{
+-	down(&w9968cf_vppmod_lock);
+-
+-	if (!w9968cf_vpp) {
+-		up(&w9968cf_vppmod_lock);
+-		return -EINVAL;
 -	}
 -
--	unlock_kernel();
+-	if (w9968cf_vpp != vpp) {
+-		KDBG(1, "Only the owner can unregister the video "
+-		        "post-processing module")
+-		up(&w9968cf_vppmod_lock);
+-		return -EINVAL;
+-	}
+-
+-	if (w9968cf_vpp->busy) {
+-		KDBG(2, "Video post-processing module busy. Wait for it to be "
+-		        "released...")
+-		up(&w9968cf_vppmod_lock);
+-		wait_event(w9968cf_vppmod_wait, !w9968cf_vpp->busy);
+-		w9968cf_vpp = NULL;
+-		goto out;
+-	}
+-
+-	w9968cf_vpp = NULL;
+-
+-	up(&w9968cf_vppmod_lock);
+-
+-out:
+-	KDBG(2, "Video post-processing module unregistered")
+-	return 0;
 -}
 -
- static int __init
- usb_ov511_init(void)
+-
+ static int __init w9968cf_module_init(void)
  {
-@@ -6123,5 +5932,3 @@
- module_init(usb_ov511_init);
- module_exit(usb_ov511_exit);
+ 	int err;
+@@ -3810,6 +3687,3 @@
+ module_init(w9968cf_module_init);
+ module_exit(w9968cf_module_exit);
  
--EXPORT_SYMBOL(ov511_register_decomp_module);
--EXPORT_SYMBOL(ov511_deregister_decomp_module);
+-
+-EXPORT_SYMBOL(w9968cf_vppmod_register);
+-EXPORT_SYMBOL(w9968cf_vppmod_deregister);
 

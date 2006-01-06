@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWAGTZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbWAGT2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbWAGTZF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 14:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161014AbWAGTZF
+	id S1161016AbWAGT2h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 14:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161014AbWAGT2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:25:05 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:32748 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161009AbWAGTZC
+	Sat, 7 Jan 2006 14:28:37 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17671 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161016AbWAGT2h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 14:25:02 -0500
-Date: Sat, 7 Jan 2006 11:24:58 -0800
-From: "Kurtis D. Rader" <kdrader@us.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Platform device matching, & weird strncmp usage
-Message-ID: <20060107192458.GA12409@us.ibm.com>
-References: <1136527179.4840.120.camel@localhost.localdomain>
+	Sat, 7 Jan 2006 14:28:37 -0500
+Date: Fri, 6 Jan 2006 04:30:19 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Spitalnik <lkml@spitalnik.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Disable swsusp on CONFIG_HIGHMEM64
+Message-ID: <20060106043019.GA2545@ucw.cz>
+References: <200601061945.09466.lkml@spitalnik.net> <20060105234327.GA2951@ucw.cz> <200601071604.03846.lkml@spitalnik.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1136527179.4840.120.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200601071604.03846.lkml@spitalnik.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 16:59:39, Benjamin Herrenschmidt wrote:
-> In 2.6.15, platform device matching works according to this comment in
-> the code, or rather are supposed to:
+On Sat 07-01-06 16:04:03, Jan Spitalnik wrote:
+> Dne pátek 06 leden 2006 00:43 Pavel Machek napsal(a):
+> > On Fri 06-01-06 19:45:09, Jan Spitalnik wrote:
+> > > Hello,
+> > >
+> > > suspending to disk is not supported on CONFIG_HIGHMEM64G setups
+> > > (http://suspend2.net/features). Also suspend to ram doesn't work. This
+> > > patch
+> >
+> > NAK. suspend2.net describes very different code.
 > 
->  *	Platform device IDs are assumed to be encoded like this:
->  *	"<name><instance>", where <name> is a short description of the
->  *	type of device, like "pci" or "floppy", and <instance> is the
->  *	enumerated instance of the device, like '0' or '42'.
-> 
-> However, looking a few lines below, I see the actual implemetation:
-> 
-> static int platform_match(struct device * dev, struct device_driver * drv)
-> {
-> 	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
-> 
-> 	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
-> }
-> 
-> As far as I know, strncmp() is _NOT_ supposed to return 0 if one string
-> is shorter than the other and they match until that point. Thus the
-> above will never match unless the <name> portion of pdev->name is
-> exactly of size BUS_ID_SIZE which is obviously not the case...
-> 
-> Did I miss something or do we expect a "special" semantic for strncmp in
-> the kernel ?
+> Well, I was using suspend2.net's page just as reference, to point out the fact 
+> that HIGHMEM is on both suspend "platforms" supported only up to 4G. 
+> I was not refering to suspend2's actual features, but rather swsusp's 
+> (or what's the proper name for suspend1 code). So i guess the patch still 
+> holds, no?
 
-I can't speak to the correctness of that code but your understanding of
-strncmp() is incorrect. From "GNU C Library Application Fundamentals":
+No.
 
-    This function is the [sic] similar to strcmp, except that no more
-    than size wide characters are compared. In other words, if the two
-    strings are the same in their first size wide characters, the return
-    value is zero.
+> > > fixes Kconfig to disallow such combination. I'm not 100% sure about the
+> > > ACPI_SLEEP part, as it might be disabling some working setup - but i
+> > > think that s2r and s2d are the only acpi sleeps allowed, no?
+> >
+> > s2ram probably works. Try getting it working without highmem64,
+> > then turn it on.
+> 
+> It works with HIGHMEM but not HIGHMEM64G. You can find the oops from 
+> HIGHMEM64G below. It crashes very reliably on little stress after resume.
+> 
 
-And this has been may experience for the past 20 years and is confirmed by
-this trivial program which prints zero in both cases:
+s2ram should not depend on ammount of memory. Try debugging
+it, but do not disable feature just because it does not work
+for you. I'd start with minimum drivers...
 
-#include <string.h>
-#include <stdio.h>
-int main() {
-    printf("%d\n", strncmp("abc","abcd",3));
-    printf("%d\n", strncmp("abcd","abc",3));
-}
+-- 
+Thanks, Sharp!

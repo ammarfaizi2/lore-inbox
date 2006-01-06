@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752288AbWAFLep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWAFLiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752288AbWAFLep (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 06:34:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752436AbWAFLep
+	id S932426AbWAFLiS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 06:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752437AbWAFLiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 06:34:45 -0500
-Received: from mail.gmx.de ([213.165.64.21]:61157 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752288AbWAFLeo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 06:34:44 -0500
-X-Authenticated: #4399952
-Date: Fri, 6 Jan 2006 12:34:40 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: Edgar Toernig <froese@gmx.de>, Takashi Iwai <tiwai@suse.de>,
-       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-Message-ID: <20060106123440.7359e430@mango.fruits.de>
-In-Reply-To: <Pine.LNX.4.61.0601060519450.29362@zeus.compusonic.fi>
-References: <20050726150837.GT3160@stusta.de>
-	<20060103193736.GG3831@stusta.de>
-	<Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
-	<mailman.1136368805.14661.linux-kernel2news@redhat.com>
-	<20060104030034.6b780485.zaitcev@redhat.com>
-	<Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
-	<Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
-	<Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
-	<Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
-	<s5hmziaird8.wl%tiwai@suse.de>
-	<Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
-	<20060106041421.31579e69.froese@gmx.de>
-	<Pine.LNX.4.61.0601060519450.29362@zeus.compusonic.fi>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Fri, 6 Jan 2006 06:38:18 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:54677 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1752274AbWAFLiR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 06:38:17 -0500
+Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: jgarzik@pobox.com, bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200601061200.59376.mbuesch@freenet.de>
+References: <1136541243.4037.18.camel@localhost>
+	 <200601061200.59376.mbuesch@freenet.de>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 12:38:14 +0100
+Message-Id: <1136547494.7429.72.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006 05:33:43 +0200 (EET)
-Hannu Savolainen <hannu@opensound.com> wrote:
+Hi Michael,
 
-> Then this is in no way an API issue. Many OSS drivers (including envy24) 
-> create separete device files for each input/output channel (or device pair). 
-> Applications can chose to open the first device file in for all the 
-> channels or any combination of the devices in mono/stereo/n-channel mode.
-> 
-> All this depends only on the driver implementation. There is nothing API 
-> related. Any app can open the devices as usual without paying any 
-> attention on the channel allocation (which is done automatically by the 
-> driver). xmms (or whatever else consumer app) can open the device and ask 
-> for stereo access. Equally well a DAB application can open the device and 
-> ask for full 10 output channels (or anything between 1 and 10). No special 
-> API features are needed for this.
+> How would the virtual interfaces look like? That is quite easy to answer.
+> They are net_devices, as they transfer data.
+> They should probaly _not_ be on top of the ethernet, as 80211 does not
+> have very much in common with ethernet. Basically they share the same
+> MAC address format. Does someone have another thing, which he thinks
+> is shared?
+> How would the master interface look like? A somewhat unusual idea came
+> up. Using a device node in /dev. So every wireless card in the system
+> would have a node in /dev associated (/dev/wlan0 for example).
+> A node for the master device would be ok, because no data is transferred
+> through it. It is only a configuration interface.
+> So you would tell the, yet-to-be-written userspace tool wconfig (or something
+> like that) "I need a STA in INFRA mode and want to drive it on the
+> wlan0 card". So wconfig goes and write()s some data to /dev/wlan0
+> telling the 80211 code to setup a virtual net_device for the driver
+> associated to /dev/wlan0.
+> The virtual interface is then configured though /dev/wlan0 using write()
+> (no ugly ioctl anymore, you see...). Config data like TX rate,
+> current essid,.... basically everything + xyz which is done by WE today,
+> is written to /dev/wlan0.
+> This config data is entirely cached in the 80211 code for the /dev/wlan0
+> instance. This is important, to have the data persistent throughout
+> suspend/resume cycles, if up/down cycles.
+> After configuring, a virtual net_device (let's call it wlan0) exists,
+> which can be brought up by ifconfig and data can be transferred though
+> it as usual.
 
-Hi,
+what is wrong with using netlink and/or sysfs for it? I don't see the
+advantage of defining another /dev something interface.
 
-i would find it helpful if you always made it crystal  clear about what
-version of OSS you are talking about:
+Regards
 
-- your proprietary version
+Marcel
 
-- or the free one in the kernel
 
-Mixing these isn't helping the discussion.
-
-Flo
-
--- 
-Palimm Palimm!
-http://tapas.affenbande.org

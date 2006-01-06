@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWAFNi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWAFNjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbWAFNi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 08:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWAFNi3
+	id S932403AbWAFNjm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 08:39:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWAFNjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 08:38:29 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:1416 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932387AbWAFNi2 convert rfc822-to-8bit
+	Fri, 6 Jan 2006 08:39:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:44559 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932403AbWAFNjl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 08:38:28 -0500
+	Fri, 6 Jan 2006 08:39:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VFUeFHZ410FURvUgLcCamgu7SkjNfL0PBJE7KFxq/YE9c8QK1+LHlGIOOWDEqH9kreRPrXghgp1H35EX3xRvt/AFU6B/sBqC5Nhr0OMvsyY9ofoYPnPSnPznvBHsDTmfSjiODBcclGJU+xxdRt/0SQHDyGkcb8FwjdKd79UklPI=
-Message-ID: <a070070d0601060538m487d099ax@mail.gmail.com>
-Date: Fri, 6 Jan 2006 14:38:27 +0100
-From: Cornelia Huck <cornelia.huck@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com,
-       Greg K-H <greg@kroah.com>
-Subject: Re: [CFT 1/29] Add bus_type probe, remove, shutdown methods.
-In-Reply-To: <20060106114822.GA11071@flint.arm.linux.org.uk>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=llZFbL4OJhQPXXeqbXT6t0A8UXOElctpv3XRuivDK5X2g8X05bxWm4iSALNpkScmSCUGL6yEN6qFVmhuL/udMzJGtYmnz/5KdhtJoMa0IIwlJGAwvIlcuF1bYkb993ulzNRuqOBgPLxsrY3d1FpbYJ4CJDr2MkQnGrqP3XC47pA=
+Message-ID: <5a2cf1f60601060539k47ba157cy36ca18046575d4fe@mail.gmail.com>
+Date: Fri, 6 Jan 2006 14:39:40 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Sebastian <sebastian_ml@gmx.net>
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060104155036.GA5542@section_eight.mops.rwth-aachen.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20060105142951.13.01@flint.arm.linux.org.uk>
-	 <20060106114822.GA11071@flint.arm.linux.org.uk>
+References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de>
+	 <20060104092058.GN3472@suse.de> <20060104092443.GO3472@suse.de>
+	 <20060104155036.GA5542@section_eight.mops.rwth-aachen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/1/6, Russell King <rmk+lkml@arm.linux.org.uk>:
+On 1/4/06, Sebastian <sebastian_ml@gmx.net> wrote:
+> Hello all! Hi Jens!
 
-> Could the s390 folk also look at what's required for ccw_driver and
-> css_driver please?
+[...]
 
-ccw_driver should be easy: Just don't set ->probe and ->remove in
-ccw_driver_register() and move ccw_device_remove() and
-ccw_device_probe() to the bus type.
+> I used the wav compare function in EAC.
+>
+> 1. wav ripped by EAC
+> ####################
+>
+> What happened?          Where?
+> -------------------------------------------------
+>
+> Different samples       0:04:08.318 - 0:04:08.362
+> 2100 missing samples    0:04:08.359
+> Different samples       0:04:08.430 - 0:04:08.433
+> Different samples       0:04:09.348 - 0:04:09.398
+>
+> 2. wav ripped by cdparanoia
+> ###########################
+>
+> What happened?          Where?
+> -------------------------------------------------
+>
+> Different samples       0:04:08.318 - 0:04:08.362
+> 2039 missing samples    0:04:08.414
+> Different samples       0:04:08.431 - 0:04:08.434
+> Different samples       0:04:09.349 - 0:04:09.399
+>
+> I'm sorry if this isn't what you had in mind when you told me to compare
+> the wav files. If it doesn't help what can I do to compare the files to
+> your liking?
 
-css_driver needs some wrapper functions added, since
-io_subchannel_{probe,remove,shutdown} are really specific to I/O
-subchannels.
+It's funny. It looks like the problems happened twice in the more or
+less same position.
 
-I'll see what I can put together when I'm back at work next week.
-
-Cornelia
+Jerome

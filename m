@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWAFNgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWAFNi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWAFNgy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 08:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWAFNgy
+	id S932387AbWAFNi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 08:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWAFNi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 08:36:54 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:5312 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932379AbWAFNgx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 08:36:53 -0500
-Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>, netdev@vger.kernel.org
-In-Reply-To: <43BE43B6.3010105@cosmosbay.com>
-References: <20060105235845.967478000@sorel.sous-sol.org>
-	 <20060106004555.GD25207@sorel.sous-sol.org>
-	 <Pine.LNX.4.64.0601051727070.3169@g5.osdl.org>
-	 <43BE43B6.3010105@cosmosbay.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 06 Jan 2006 13:37:12 +0000
-Message-Id: <1136554632.30498.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 6 Jan 2006 08:38:29 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:1416 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932387AbWAFNi2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 08:38:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VFUeFHZ410FURvUgLcCamgu7SkjNfL0PBJE7KFxq/YE9c8QK1+LHlGIOOWDEqH9kreRPrXghgp1H35EX3xRvt/AFU6B/sBqC5Nhr0OMvsyY9ofoYPnPSnPznvBHsDTmfSjiODBcclGJU+xxdRt/0SQHDyGkcb8FwjdKd79UklPI=
+Message-ID: <a070070d0601060538m487d099ax@mail.gmail.com>
+Date: Fri, 6 Jan 2006 14:38:27 +0100
+From: Cornelia Huck <cornelia.huck@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com,
+       Greg K-H <greg@kroah.com>
+Subject: Re: [CFT 1/29] Add bus_type probe, remove, shutdown methods.
+In-Reply-To: <20060106114822.GA11071@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060105142951.13.01@flint.arm.linux.org.uk>
+	 <20060106114822.GA11071@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-01-06 at 11:17 +0100, Eric Dumazet wrote:
-> I assume that if a CPU queued 10.000 items in its RCU queue, then the oldest 
-> entry cannot still be in use by another CPU. This might sounds as a violation 
-> of RCU rules, (I'm not an RCU expert) but seems quite reasonable.
+2006/1/6, Russell King <rmk+lkml@arm.linux.org.uk>:
 
-Fixing the real problem in the routing code would be the real fix. 
+> Could the s390 folk also look at what's required for ccw_driver and
+> css_driver please?
 
-The underlying problem of RCU and memory usage could be solved more
-safely by making sure that the sleeping memory allocator path always
-waits until at least one RCU cleanup has occurred after it fails an
-allocation before it starts trying harder. That ought to also naturally
-throttle memory consumers more in the situation which is the right
-behaviour.
+ccw_driver should be easy: Just don't set ->probe and ->remove in
+ccw_driver_register() and move ccw_device_remove() and
+ccw_device_probe() to the bus type.
 
-Alan
+css_driver needs some wrapper functions added, since
+io_subchannel_{probe,remove,shutdown} are really specific to I/O
+subchannels.
+
+I'll see what I can put together when I'm back at work next week.
+
+Cornelia

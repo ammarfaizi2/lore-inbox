@@ -1,101 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWAFJaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWAFJlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWAFJaY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 04:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752437AbWAFJaY
+	id S932390AbWAFJlt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 04:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWAFJlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 04:30:24 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:16769 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750915AbWAFJaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 04:30:23 -0500
-Message-ID: <43BE38AE.80203@namesys.com>
-Date: Fri, 06 Jan 2006 01:30:22 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Alexander Gran <alex@zodiac.dnsalias.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
-       Adam Belay <ambx1@neo.rr.com>, reiserfs-dev@namesys.com,
-       Dave Airlie <airlied@linux.ie>, "Vladimir V. Saveliev" <vs@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: Re. 2.6.15-mm1
-References: <200601051801.29007@zodiac.zodiac.dnsalias.org> <20060105144720.25085afa.akpm@osdl.org>
-In-Reply-To: <20060105144720.25085afa.akpm@osdl.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 04:41:49 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:52126 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S932390AbWAFJls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 04:41:48 -0500
+Date: Fri, 6 Jan 2006 01:39:51 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ptrace denies access to EFLAGS_RF
+Message-ID: <20060106093951.GA7676@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200601052314_MC3-1-B55E-CFB5@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601052314_MC3-1-B55E-CFB5@compuserve.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Chuck,
 
->
->
->  
->
->>When X startet, the laptops crashed:
->>Jan  5 16:22:43 t40 kernel: <4>reiser4[syslogd(2729)]: disable_write_barrier 
->>(fs/reiser4/wander.c:233)[zam-1055]:
->>Jan  5 16:22:43 t40 kernel: WARNING: disabling write barrier
->>    
->>
->
->Vladimir, is that expected?
->  
->
-Vladimir is in France skiing, as this is Russian Christmas right now. 
+Thanks for the quick patch. It does fix my problem.
 
-Zam says that this merely means that the underlying device does not
-support write barriers, and the code uses synchronous writes for commits
-instead of write barriers when this happens.  It should not affect
-correctness.  He will comment more this evening (russian time) when he
-gets home.   He suggests that he should change it from warning to
-notice.  He also suggests that this code is new code, so it is possible
-it has bugs.....
+Note that the same problem exists on x86_64 and
+the same patch should fix the problem there as well.
 
->  
->
->>Jan  5 16:22:43 t40 kernel:
->>Jan  5 16:22:47 t40 kernel: mtrr: 0xe0000000,0x8000000 overlaps existing 
->>0xe0000000,0x4000000
->>Jan  5 16:22:48 t40 last message repeated 2 times
->>    
->>
->
->Is that new?
->
->  
->
->>Jan  5 16:22:48 t40 kernel: agpgart: Found an AGP 2.0 compliant device at 
->>0000:00:00.0.
->>Jan  5 16:22:48 t40 kernel: c028b7cf
->>Jan  5 16:22:48 t40 kernel: Modules linked in: irtty_sir sir_dev cfq_iosched 
->>ehci_hcd uhci_hcd
->>Jan  5 16:22:48 t40 kernel: EIP:    0060:[<c028b7cf>]    Not tainted VLI
->>Jan  5 16:22:48 t40 kernel: EFLAGS: 00013202   (2.6.15-mm1)
->>Jan  5 16:22:48 t40 kernel:        <0>c028b9e9 f762ff08 00000002 00000000 
->>c19720ec 00000000 1f000217 c1a79400
->>Jan  5 16:22:48 t40 kernel:        <0>00000032 00000001 c028bfb5 c0297262 
->>c1a79400 c02972af 1f000207 c029727f
->>    
->>
->
->hm, it's not clear what oopsed.   Can you get a cleaner copy of this?
->
->  
->
->>Jan  5 16:22:48 t40 kernel:  <3>[drm:drm_release] *ERROR* Device busy: 1 0
->>    
->>
->
->drm is unhappy
->
->
->
->  
->
 
+On Thu, Jan 05, 2006 at 11:11:29PM -0500, Chuck Ebbert wrote:
+> In-Reply-To: <20060105105130.GC3712@frankl.hpl.hp.com>
+> 
+> On Thu, 5 Jan 2006 at 02:51:30 -0800, Stephane Eranian wrote:
+> 
+> > I am trying to the user HW debug registers on i386
+> > and I am running into a problem with ptrace() not allowing access
+> > to EFLAGS_RF for POKEUSER (see FLAG_MASK).
+> > 
+> > I am not sure I understand the motivation for denying access
+> > to this flag which can be used to resume after a code
+> > breakpoint has been reached. It avoids the need to remove the
+> > breakpoint, single step, and reinstall. The equivalent
+> > functionality exists on IA-64 and is allowed by ptrace().
+> 
+> I see no reason for denying this.  This patch should fix it:
+> 
+> 
+> i386: PTRACE_POKEUSR: allow changing RF bit in EFLAGS register.
+> 
+> Setting RF (resume flag) allows a debugger to resume execution
+> after a code breakpoint without tripping the breakpoint again.
+> It is reset by the CPU after execution of one instruction.
+> 
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> 
+> --- 2.6.15a.orig/arch/i386/kernel/ptrace.c
+> +++ 2.6.15a/arch/i386/kernel/ptrace.c
+> @@ -32,9 +32,12 @@
+>   * in exit.c or in signal.c.
+>   */
+>  
+> -/* determines which flags the user has access to. */
+> -/* 1 = access 0 = no access */
+> -#define FLAG_MASK 0x00044dd5
+> +/*
+> + * Determines which flags the user has access to [1 = access, 0 = no access].
+> + * Prohibits changing ID(21), VIP(20), VIF(19), VM(17), IOPL(12-13), IF(9).
+> + * Also masks reserved bits (31-22, 15, 5, 3, 1).
+> + */
+> +#define FLAG_MASK 0x00054dd5
+>  
+>  /* set's the trap flag. */
+>  #define TRAP_FLAG 0x100
+> -- 
+> Chuck
+> Currently reading: _Thud!_ by Terry Pratchett
+
+-- 
+
+-Stephane

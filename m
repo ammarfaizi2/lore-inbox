@@ -1,36 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWAFH2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbWAFH3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932654AbWAFH2F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 02:28:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbWAFH2E
+	id S932630AbWAFH3p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 02:29:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbWAFH3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 02:28:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5592 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932654AbWAFH2D (ORCPT
+	Fri, 6 Jan 2006 02:29:44 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:2902 "EHLO smtp.cegetel.net")
+	by vger.kernel.org with ESMTP id S932630AbWAFH3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 02:28:03 -0500
-Date: Thu, 5 Jan 2006 23:27:36 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 6 Jan 2006 02:29:44 -0500
+Message-ID: <43BE1C62.9030101@cosmosbay.com>
+Date: Fri, 06 Jan 2006 08:29:38 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
 To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reduce sizeof(percpu_data) and removes dependance
- against NR_CPUS
-Message-Id: <20060105232736.12c5c8d8.akpm@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reduce sizeof(percpu_data) and removes dependance against
+ NR_CPUS
+References: <1135251766.3557.13.camel@pmac.infradead.org> <20060105021929.498f45ef.akpm@osdl.org> <43BD2406.2040007@cosmosbay.com> <Pine.LNX.4.61.0601060816330.22809@yvahk01.tjqt.qr>
 In-Reply-To: <Pine.LNX.4.61.0601060816330.22809@yvahk01.tjqt.qr>
-References: <1135251766.3557.13.camel@pmac.infradead.org>
-	<20060105021929.498f45ef.akpm@osdl.org>
-	<43BD2406.2040007@cosmosbay.com>
-	<Pine.LNX.4.61.0601060816330.22809@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> 
+Jan Engelhardt a écrit :
 > 
 > --- linux-2.6.15/include/linux/percpu.h	2006-01-03 04:21:10.000000000 +0100
 > +++ linux-2.6.15-edum/include/linux/percpu.h	2006-01-05 14:45:48.000000000 +0100
@@ -49,6 +44,7 @@ Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 > I think we can use *ptrs[0] here.
 > 
 
-We can.  In fact with the gcc-2.95 abandonment I think we can use ptrs[].
+Or even dont change percpu.h, or else some guys will assume percpu_data cost 
+nothing...
 
-But it doesn't matter.
+Eric

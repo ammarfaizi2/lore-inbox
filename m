@@ -1,94 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752464AbWAFQeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWAFQe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752464AbWAFQeU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 11:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752466AbWAFQeT
+	id S932454AbWAFQe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 11:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752473AbWAFQdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 11:34:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57099 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752458AbWAFQeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 11:34:07 -0500
-Date: Fri, 6 Jan 2006 17:34:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: andrew.vasquez@qlogic.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/qla2xxx/Kconfig: two fixes
-Message-ID: <20060106163401.GP12131@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Fri, 6 Jan 2006 11:33:06 -0500
+Received: from server5.web4a.de ([82.149.231.244]:62850 "EHLO server5.web4a.de")
+	by vger.kernel.org with ESMTP id S1752459AbWAFQah (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 11:30:37 -0500
+Date: Fri, 6 Jan 2006 17:29:38 +0100
+From: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>
+To: linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+In-Reply-To: <E1EuVds-0000n9-00@mars.bretschneidernet.de>
+References: <E1EuVds-0000n9-00@mars.bretschneidernet.de>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.8; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1EuuTC-0000mF-00@mars.bretschneidernet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following fixes for 
-drivers/scsi/qla2xxx/Kconfig:
-- add a help text for SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-- the firmware modules must depend on SCSI_QLA2XXX to prevent
-  illegal configurations like SCSI_QLA2XXX=m, SCSI_QLA21XX=y
+Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de> wrote:
 
+with some debugging help of Dmitry Torokhov and Jan Engelhardt I
+could *not* find the cause why the PS/2 keyboard does not work.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+But other things do work:
+- If I connect the keyboard with the USB, it does work with 2.6.15.
+- If I use another pc with an old AMD 500, the PS/2 keyboard does
+work.
 
----
+So, it could be a strange problem between the motherboard chipset
+(nforce4), the 2.6.15 kernel and the PS/2 connection.
 
- drivers/scsi/qla2xxx/Kconfig |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+I am going to test some Kernels beetween 2.6.14.2 and 2.6.15 to find
+the problem in some time.
 
---- linux-2.6.15-mm1-full/drivers/scsi/qla2xxx/Kconfig.old	2006-01-06 16:38:09.000000000 +0100
-+++ linux-2.6.15-mm1-full/drivers/scsi/qla2xxx/Kconfig	2006-01-06 16:39:51.000000000 +0100
-@@ -29,42 +29,46 @@
- config SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	bool "  Use firmware-loader modules (DEPRECATED)"
- 	depends on SCSI_QLA2XXX
-+	help
-+	  This option offers you the deprecated firmware-loader
-+	  modules that have been obsoleted by the usage of the
-+	  Firmware Loader interface in the qla2xxx driver.
- 
- config SCSI_QLA21XX
- 	tristate "  Build QLogic ISP2100 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA2XXX && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 21xx (ISP2100) host adapter family.
- 
- config SCSI_QLA22XX
- 	tristate "  Build QLogic ISP2200 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA2XXX && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 22xx (ISP2200) host adapter family.
- 
- config SCSI_QLA2300
- 	tristate "  Build QLogic ISP2300 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA2XXX && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 2300 (ISP2300 and ISP2312) host
- 	adapter family.
- 
- config SCSI_QLA2322
- 	tristate "  Build QLogic ISP2322 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA2XXX && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 2322 (ISP2322) host adapter family.
- 
- config SCSI_QLA6312
- 	tristate "  Build QLogic ISP63xx firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA2XXX && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 63xx (ISP6312 and ISP6322) host
- 	adapter family.
- 
- config SCSI_QLA24XX
- 	tristate "  Build QLogic ISP24xx firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA2XXX && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 24xx (ISP2422 and ISP2432) host
- 	adapter family.
-
+Martin
+-- 
+http://www.bretschneidernet.de        OpenPGP-key: 0x4EA52583
+           _o)(o_                         Sallust:
+         -./\\//\.-              Nam idem velle atque idem
+          _\_VV_/_          nolle, ea demum firma amicitia est.

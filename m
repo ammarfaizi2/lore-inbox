@@ -1,59 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWAFKet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWAFKpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbWAFKet (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 05:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWAFKet
+	id S964912AbWAFKpv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 05:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWAFKpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 05:34:49 -0500
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:64461 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S932199AbWAFKes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 05:34:48 -0500
-Date: Fri, 6 Jan 2006 11:34:37 +0100
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: Marcin Dalecki <martin@dalecki.de>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
-       Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
-       zwane@commfireservices.com, zaitcev@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20060106103436.GB24929@boogie.lpds.sztaki.hu>
-References: <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <1136491503.847.0.camel@mindpipe> <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de> <1136493172.847.26.camel@mindpipe> <8D670C39-7B52-407C-8BDD-3478DB172641@dalecki.de> <9a8748490601051535s5e28fd81of6814088db7ccac@mail.gmail.com> <A1ECA9D1-29EB-4C44-A343-87B5EAAD4ADA@dalecki.de> <Pine.LNX.4.61.0601060302370.29362@zeus.compusonic.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601060302370.29362@zeus.compusonic.fi>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+	Fri, 6 Jan 2006 05:45:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14995 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932395AbWAFKpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 05:45:35 -0500
+Subject: [patch 5/7]  uninline capable()
+From: Arjan van de Ven <arjan@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, mingo@elte.hu
+In-Reply-To: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 11:42:40 +0100
+Message-Id: <1136544160.2940.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 03:36:47AM +0200, Hannu Savolainen wrote:
+Subject: uninline capable()
+From: Ingo Molnar <mingo@elte.hu>
 
-> There are two very opposite approaches to do a sound subsystem. The ALSA 
-> way is to expose every single detail of the hardware to the applications 
-> and to allow (or force) application developers to deal with them. The OSS 
-> approach is to provide maximum device abstraction in the API level (by 
-> isolating the apps from the hardware as much as practically possible).
+uninline capable(). Saves 2K of kernel text on a generic .config, and 1K
+on a tiny config. In addition it makes the use of capable more consistent
+between CONFIG_SECURITY and !CONFIG_SECURITY
 
-Well, then it is quite clear to me: you can build an OSS-like interface
-on top of ALSA, but you cannot build an ALSA-like interface on top of
-OSS. This implies that an ALSA-like interface should be in the kernel,
-and an OSS-like interface should be implemented on top of it in
-userspace for those who do not need all the features. This way both
-camps are satisfied.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Gabor
+----
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+ include/linux/sched.h |   15 ++-------------
+ kernel/sys.c          |   11 +++++++++++
+ 2 files changed, 13 insertions(+), 13 deletions(-)
+
+Index: linux-2.6.15/include/linux/sched.h
+===================================================================
+--- linux-2.6.15.orig/include/linux/sched.h
++++ linux-2.6.15/include/linux/sched.h
+@@ -1102,19 +1102,8 @@ static inline int sas_ss_flags(unsigned 
+ }
+ 
+ 
+-#ifdef CONFIG_SECURITY
+-/* code is in security.c */
++/* code is in security.c or kernel/sys.c if !SECURITY */
+ extern int capable(int cap);
+-#else
+-static inline int capable(int cap)
+-{
+-	if (cap_raised(current->cap_effective, cap)) {
+-		current->flags |= PF_SUPERPRIV;
+-		return 1;
+-	}
+-	return 0;
+-}
+-#endif
+ 
+ /*
+  * Routines for handling mm_structs
+Index: linux-2.6.15/kernel/sys.c
+===================================================================
+--- linux-2.6.15.orig/kernel/sys.c
++++ linux-2.6.15/kernel/sys.c
+@@ -223,6 +223,18 @@ int unregister_reboot_notifier(struct no
+ 
+ EXPORT_SYMBOL(unregister_reboot_notifier);
+ 
++#ifndef CONFIG_SECURITY
++int capable(int cap)
++{
++        if (cap_raised(current->cap_effective, cap)) {
++	       current->flags |= PF_SUPERPRIV;
++	       return 1;
++        }
++        return 0;
++}
++EXPORT_SYMBOL(capable);
++#endif
++
+ static int set_one_prio(struct task_struct *p, int niceval, int error)
+ {
+ 	int no_nice;
+
+

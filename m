@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWAFTec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWAFTet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbWAFTec (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWAFTeb
+	id S932504AbWAFTet (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWAFTet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:34:31 -0500
-Received: from zlynx.org ([199.45.143.209]:19473 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S932492AbWAFTea (ORCPT
+	Fri, 6 Jan 2006 14:34:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6816 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932504AbWAFTes (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:34:30 -0500
-Subject: Re: [PATCH] bio: gcc warning fix.
-From: Zan Lynx <zlynx@acm.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Khushil Dep <khushil.dep@help.basilica.co.uk>,
-       Al Viro <viro@ftp.linux.org.uk>,
-       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
-       akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060106184810.GR3389@suse.de>
-References: <8941BE5F6A42CC429DA3BC4189F9D442014FAE@bashdad01.hd.basilica.co.uk>
-	 <9a8748490601061041y532cb797u6d106f03625d3daa@mail.gmail.com>
-	 <20060106184810.GR3389@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-olVH06QZZE/RHwogogzT"
-Date: Fri, 06 Jan 2006 12:33:56 -0700
-Message-Id: <1136576037.10342.6.camel@localhost>
+	Fri, 6 Jan 2006 14:34:48 -0500
+Date: Fri, 6 Jan 2006 11:34:45 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Rusty Russell <rusty@rustycorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: command line parsing broken in 2.6.15-git?
+Message-ID: <20060106113445.57ddaf7f@dxpl.pdx.osdl.net>
+In-Reply-To: <5a4c581d0601051720w73132c89j218864dd4e313427@mail.gmail.com>
+References: <20060105163922.7806343b@dxpl.pdx.osdl.net>
+	<5a4c581d0601051720w73132c89j218864dd4e313427@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 6 Jan 2006 02:20:34 +0100
+Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
 
---=-olVH06QZZE/RHwogogzT
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On 1/6/06, Stephen Hemminger <shemminger@osdl.org> wrote:
+> > The command line parsing or psmouse driver is broken now, this
+> > makes my mouse go wacky on a KVM. It worked up until the latest
+> > git updates (post 2.6.15)
+> >
+> > Dmesg output:
+> >
+> > Kernel command line: root=/dev/md2 vga=0x31a ro selinux=0 psmouse.proto=bare
+> > Unknown boot option `psmouse.proto=bare': ignoring
+> 
+> Similar issue here... my DVD drive disappeared in 2.6.15-git1 because
+>
 
-On Fri, 2006-01-06 at 19:48 +0100, Jens Axboe wrote:
-> On Fri, Jan 06 2006, Jesper Juhl wrote:
-> > gcc is right to warn in the sense that it doesn't know if
-> > bvec_alloc_bs() will read or write into idx when its address is passed
->=20
-> The function is right there, on top of bio_alloc_bioset(). It's even
-> inlined. gcc has absolutely no reason to complain.
+Look at /sys/module directory. All the modules that gets compiled in is now being
+quoted. Looks like some macro screw up!
 
-GCC complains because it is possible for that function to return without
-ever setting a value into idx.  It's the "default" case in the switch.
-Of course, if that happens, idx will not be used and so it is not
-actually a problem.
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-olVH06QZZE/RHwogogzT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDvsYkG8fHaOLTWwgRAkVcAKCl9dosYiOuOVm2kdpmfNs8jDWR8QCcDa1f
-TeFu4YuYMVYmCtB3/rdUqow=
-=AqrY
------END PGP SIGNATURE-----
-
---=-olVH06QZZE/RHwogogzT--
-
+# ls /sys/module
+"8250"   ext3            iptable_nat  jbd        "psmouse"           skge
+ac       fan             ip_tables    lockd      raid0               sunrpc
+aic7xxx  "i8042"         ipt_limit    "md_mod"   raid1               "tcp_bic"
+battery  "ide_cd"        ipt_LOG      mii        reiserfs            thermal
+button   ip_conntrack    ipt_pkttype  nfnetlink  scsi_mod
+dm_mod   ip_nat          ipt_REJECT   nfs        scsi_transport_spi
+"drm"    iptable_filter  ipt_state    nfs_acl    sd_mod
+e100     iptable_mangle  ipv6         processor

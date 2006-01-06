@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWAFTO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWAFTSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbWAFTO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWAFTO5
+	id S1751190AbWAFTSN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752490AbWAFTSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:14:57 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54504 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932242AbWAFTO4 (ORCPT
+	Fri, 6 Jan 2006 14:18:12 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:60392 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751190AbWAFTSL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:14:56 -0500
-Date: Fri, 6 Jan 2006 20:14:51 +0100 (MET)
+	Fri, 6 Jan 2006 14:18:11 -0500
+Date: Fri, 6 Jan 2006 20:17:16 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
-In-Reply-To: <9a8748490601061026t3e467dfdxc90b6403bbd45802@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0601062013130.28630@yvahk01.tjqt.qr>
-References: <20060106173547.GR12131@stusta.de> 
- <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com> 
- <20060106180626.GV12131@stusta.de> <9a8748490601061026t3e467dfdxc90b6403bbd45802@mail.gmail.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Dave Jones <davej@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: dual line backtraces for i386.
+In-Reply-To: <200601061338_MC3-1-B567-4FDD@compuserve.com>
+Message-ID: <Pine.LNX.4.61.0601062016550.28630@yvahk01.tjqt.qr>
+References: <200601061338_MC3-1-B567-4FDD@compuserve.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> And when do you really need it?
+>> >                         printk(space == 0 ? "     " : "\n");
+>> >                         space = !space;
 >>
->Hmm, when I'm looking for broken stuff to fix ;)
->I guess you are right, ordinary users don't need it.. Ok, count me in
->as supporting this move.
+>> readability ?
 >
-I go with it.
+>Well, if I were going for _un_readability I'd have suggested:
+>
+>        printk(space = !space ? "     " : "\n");
 
-I had CONFIG_BROKEN on, which 'cost' me one post to LKML to find out that
-CONFIG_MTD_AMD... does rightfully not compile. It (CONFIG_BROKEN/CLEAN_COMPILE)
-just confuses.
+Anyone voting for "\t" instead of "     "?
 
 
 Jan Engelhardt

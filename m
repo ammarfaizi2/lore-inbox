@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWAFTdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWAFTec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWAFTdi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWAFTdi
+	id S932492AbWAFTec (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWAFTeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:33:38 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:35487 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932245AbWAFTdh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:33:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Fb3nQUMOPoyyNxg+3EPFNVfP7nZ7PuFjp8C0DirDcqXN4+GPwnucaMXkPog8IP5pS+uepzNM9GMZiacHOA5uisA9nfPCBpSKddCHKCC1qUHq47+SbxVbBOs+b4ryAnl9fP/Fxs0Y6oS3/AF1me/EBkHp9wgS5WXfuuKOc5lJLso=
-Message-ID: <b6c5339f0601061133r3653af33h89a0ad7b44f5f94a@mail.gmail.com>
-Date: Fri, 6 Jan 2006 14:33:36 -0500
-From: Bob Copeland <email@bobcopeland.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: dual line backtraces for i386.
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Dave Jones <davej@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0601062016550.28630@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200601061338_MC3-1-B567-4FDD@compuserve.com>
-	 <Pine.LNX.4.61.0601062016550.28630@yvahk01.tjqt.qr>
+	Fri, 6 Jan 2006 14:34:31 -0500
+Received: from zlynx.org ([199.45.143.209]:19473 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S932492AbWAFTea (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 14:34:30 -0500
+Subject: Re: [PATCH] bio: gcc warning fix.
+From: Zan Lynx <zlynx@acm.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Khushil Dep <khushil.dep@help.basilica.co.uk>,
+       Al Viro <viro@ftp.linux.org.uk>,
+       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060106184810.GR3389@suse.de>
+References: <8941BE5F6A42CC429DA3BC4189F9D442014FAE@bashdad01.hd.basilica.co.uk>
+	 <9a8748490601061041y532cb797u6d106f03625d3daa@mail.gmail.com>
+	 <20060106184810.GR3389@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-olVH06QZZE/RHwogogzT"
+Date: Fri, 06 Jan 2006 12:33:56 -0700
+Message-Id: <1136576037.10342.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> >> >                         printk(space == 0 ? "     " : "\n");
-> >> >                         space = !space;
-> >>
-> >> readability ?
-> >
-> >Well, if I were going for _un_readability I'd have suggested:
-> >
-> >        printk(space = !space ? "     " : "\n");
->
-> Anyone voting for "\t" instead of "     "?
 
-Sure: if you use '\t' then you can do:
+--=-olVH06QZZE/RHwogogzT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-printk("%c", 9+space++);
-space &= 1;
+On Fri, 2006-01-06 at 19:48 +0100, Jens Axboe wrote:
+> On Fri, Jan 06 2006, Jesper Juhl wrote:
+> > gcc is right to warn in the sense that it doesn't know if
+> > bvec_alloc_bs() will read or write into idx when its address is passed
+>=20
+> The function is right there, on top of bio_alloc_bioset(). It's even
+> inlined. gcc has absolutely no reason to complain.
 
-No branches ;)
+GCC complains because it is possible for that function to return without
+ever setting a value into idx.  It's the "default" case in the switch.
+Of course, if that happens, idx will not be used and so it is not
+actually a problem.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-olVH06QZZE/RHwogogzT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDvsYkG8fHaOLTWwgRAkVcAKCl9dosYiOuOVm2kdpmfNs8jDWR8QCcDa1f
+TeFu4YuYMVYmCtB3/rdUqow=
+=AqrY
+-----END PGP SIGNATURE-----
+
+--=-olVH06QZZE/RHwogogzT--
+

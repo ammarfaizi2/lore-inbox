@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWAFTU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWAFTWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbWAFTU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:20:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWAFTUZ
+	id S964782AbWAFTWI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbWAFTWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:20:25 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6158 "HELO
+	Fri, 6 Jan 2006 14:22:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9230 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932470AbWAFTUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:20:23 -0500
-Date: Fri, 6 Jan 2006 20:20:17 +0100
+	id S964846AbWAFTWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 14:22:04 -0500
+Date: Fri, 6 Jan 2006 20:21:58 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: [2.6 patch] drivers/mtd/: small cleanups
-Message-ID: <20060106192017.GA12131@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] the scheduled removal of obsolete OSS drivers (v3)
+Message-ID: <20060106192158.GD12131@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,90 +22,144 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- chips/sharp.c: make two needlessly global functions static
-- move some declarations to a header file where they belong to
+This patch contains the scheduled removal of obsolete OSS drivers with 
+ALSA replacements.
+
+The SOUND_NM256 driver was not removed since the ALSA driver for this 
+hardware has known issues.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/mtd/chips/sharp.c |    7 +++----
- drivers/mtd/inftlcore.c   |    5 -----
- include/linux/mtd/inftl.h |    5 +++++
- 3 files changed, 8 insertions(+), 9 deletions(-)
+This patch was rediffed to apply against Linus' current tree.
 
---- linux-2.6.15-rc5-mm2-full/include/linux/mtd/inftl.h.old	2005-12-13 00:38:32.000000000 +0100
-+++ linux-2.6.15-rc5-mm2-full/include/linux/mtd/inftl.h	2005-12-13 00:40:26.000000000 +0100
-@@ -52,6 +52,11 @@
- int INFTL_mount(struct INFTLrecord *s);
- int INFTL_formatblock(struct INFTLrecord *s, int block);
- 
-+extern char inftlmountrev[];
-+
-+void INFTL_dumptables(struct INFTLrecord *s);
-+void INFTL_dumpVUchains(struct INFTLrecord *s);
-+
- #endif /* __KERNEL__ */
- 
- #endif /* __MTD_INFTL_H__ */
---- linux-2.6.15-rc5-mm2-full/drivers/mtd/inftlcore.c.old	2005-12-13 00:39:14.000000000 +0100
-+++ linux-2.6.15-rc5-mm2-full/drivers/mtd/inftlcore.c	2005-12-13 00:40:43.000000000 +0100
-@@ -47,9 +47,6 @@
-  */
- #define MAX_LOOPS 10000
- 
--extern void INFTL_dumptables(struct INFTLrecord *inftl);
--extern void INFTL_dumpVUchains(struct INFTLrecord *inftl);
--
- static void inftl_add_mtd(struct mtd_blktrans_ops *tr, struct mtd_info *mtd)
- {
- 	struct INFTLrecord *inftl;
-@@ -885,8 +882,6 @@
- 	.owner		= THIS_MODULE,
- };
- 
--extern char inftlmountrev[];
--
- static int __init init_inftl(void)
- {
- 	printk(KERN_INFO "INFTL: inftlcore.c $Revision: 1.19 $, "
+This batch of scheduled removals does _not_ include the SOUND_ICH driver 
+whose possible removal Andi objected to.
 
---- linux-2.6.15-mm1-full/drivers/mtd/chips/sharp.c.old	2006-01-06 19:37:50.000000000 +0100
-+++ linux-2.6.15-mm1-full/drivers/mtd/chips/sharp.c	2006-01-06 19:38:32.000000000 +0100
-@@ -64,7 +64,7 @@
- 
- #undef AUTOUNLOCK  /* automatically unlocks blocks before erasing */
- 
--struct mtd_info *sharp_probe(struct map_info *);
-+static struct mtd_info *sharp_probe(struct map_info *);
- 
- static int sharp_probe_map(struct map_info *map,struct mtd_info *mtd);
- 
-@@ -96,7 +96,6 @@
- 	struct flchip chips[1];
- };
- 
--struct mtd_info *sharp_probe(struct map_info *map);
- static void sharp_destroy(struct mtd_info *mtd);
- 
- static struct mtd_chip_driver sharp_chipdrv = {
-@@ -107,7 +106,7 @@
- };
- 
- 
--struct mtd_info *sharp_probe(struct map_info *map)
-+static struct mtd_info *sharp_probe(struct map_info *map)
- {
- 	struct mtd_info *mtd = NULL;
- 	struct sharp_info *sharp = NULL;
-@@ -581,7 +580,7 @@
- 
- }
- 
--int __init sharp_probe_init(void)
-+static int __init sharp_probe_init(void)
- {
- 	printk("MTD Sharp chip driver <ds@lineo.com>\n");
- 
+Due to it's size, the patch is available at
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/misc/patch-oss-removal-3.gz
+
+ Documentation/feature-removal-schedule.txt |    7 
+ Documentation/sound/oss/AWE32              |   76 
+ Documentation/sound/oss/CMI8338            |   85 
+ Documentation/sound/oss/CS4232             |   23 
+ Documentation/sound/oss/MAD16              |   56 
+ Documentation/sound/oss/Maestro            |  123 
+ Documentation/sound/oss/Maestro3           |   92 
+ Documentation/sound/oss/NEWS               |   42 
+ Documentation/sound/oss/OPL3-SA            |   52 
+ Documentation/sound/oss/Wavefront          |  339 -
+ Documentation/sound/oss/btaudio            |   92 
+ Documentation/sound/oss/es1370             |   70 
+ Documentation/sound/oss/es1371             |   64 
+ Documentation/sound/oss/rme96xx            |  767 --
+ Documentation/sound/oss/solo1              |   70 
+ Documentation/sound/oss/sonicvibes         |   81 
+ MAINTAINERS                                |   36 
+ arch/ppc/platforms/prep_setup.c            |   81 
+ include/asm-powerpc/dma.h                  |   39 
+ include/linux/ac97_codec.h                 |    5 
+ include/linux/sound.h                      |    2 
+ include/sound/wavefront.h                  |  695 --
+ include/sound/wavefront_fx.h               |    9 
+ sound/oss/Kconfig                          |  399 -
+ sound/oss/Makefile                         |   66 
+ sound/oss/ac97_codec.c                     |   89 
+ sound/oss/ac97_plugin_ad1980.c             |  126 
+ sound/oss/ad1848.c                         |    5 
+ sound/oss/ad1848.h                         |    1 
+ sound/oss/ali5455.c                        | 3733 ------------
+ sound/oss/au1000.c                         | 2214 -------
+ sound/oss/audio_syms.c                     |    3 
+ sound/oss/awe_hw.h                         |   99 
+ sound/oss/awe_wave.c                       | 6147 ---------------------
+ sound/oss/awe_wave.h                       |   77 
+ sound/oss/btaudio.c                        | 1136 ---
+ sound/oss/cmpci.c                          | 3379 -----------
+ sound/oss/cs4232.c                         |  522 -
+ sound/oss/cs4281/Makefile                  |    6 
+ sound/oss/cs4281/cs4281_hwdefs.h           | 1234 ----
+ sound/oss/cs4281/cs4281_wrapper-24.c       |   41 
+ sound/oss/cs4281/cs4281m.c                 | 4487 ---------------
+ sound/oss/cs4281/cs4281pm-24.c             |   45 
+ sound/oss/cs4281/cs4281pm.h                |   74 
+ sound/oss/dm.h                             |   79 
+ sound/oss/dmabuf.c                         |   46 
+ sound/oss/emu10k1/8010.h                   |  737 --
+ sound/oss/emu10k1/Makefile                 |   17 
+ sound/oss/emu10k1/audio.c                  | 1588 -----
+ sound/oss/emu10k1/audio.h                  |   44 
+ sound/oss/emu10k1/cardmi.c                 |  832 --
+ sound/oss/emu10k1/cardmi.h                 |   97 
+ sound/oss/emu10k1/cardmo.c                 |  229 
+ sound/oss/emu10k1/cardmo.h                 |   62 
+ sound/oss/emu10k1/cardwi.c                 |  373 -
+ sound/oss/emu10k1/cardwi.h                 |   91 
+ sound/oss/emu10k1/cardwo.c                 |  643 --
+ sound/oss/emu10k1/cardwo.h                 |   90 
+ sound/oss/emu10k1/ecard.c                  |  157 
+ sound/oss/emu10k1/ecard.h                  |  113 
+ sound/oss/emu10k1/efxmgr.c                 |  220 
+ sound/oss/emu10k1/efxmgr.h                 |  270 
+ sound/oss/emu10k1/emuadxmg.c               |  104 
+ sound/oss/emu10k1/hwaccess.c               |  507 -
+ sound/oss/emu10k1/hwaccess.h               |  247 
+ sound/oss/emu10k1/icardmid.h               |  163 
+ sound/oss/emu10k1/icardwav.h               |   53 
+ sound/oss/emu10k1/irqmgr.c                 |  113 
+ sound/oss/emu10k1/irqmgr.h                 |   52 
+ sound/oss/emu10k1/main.c                   | 1475 -----
+ sound/oss/emu10k1/midi.c                   |  611 --
+ sound/oss/emu10k1/midi.h                   |   78 
+ sound/oss/emu10k1/mixer.c                  |  690 --
+ sound/oss/emu10k1/passthrough.c            |  235 
+ sound/oss/emu10k1/passthrough.h            |   99 
+ sound/oss/emu10k1/recmgr.c                 |  147 
+ sound/oss/emu10k1/recmgr.h                 |   48 
+ sound/oss/emu10k1/timer.c                  |  176 
+ sound/oss/emu10k1/timer.h                  |   54 
+ sound/oss/emu10k1/voicemgr.c               |  398 -
+ sound/oss/emu10k1/voicemgr.h               |  103 
+ sound/oss/es1370.c                         | 2818 ---------
+ sound/oss/es1371.c                         | 3129 ----------
+ sound/oss/esssolo1.c                       | 2514 --------
+ sound/oss/forte.c                          | 2137 -------
+ sound/oss/gus.h                            |   24 
+ sound/oss/gus_card.c                       |  293 -
+ sound/oss/gus_hw.h                         |   50 
+ sound/oss/gus_linearvol.h                  |   18 
+ sound/oss/gus_midi.c                       |  256 
+ sound/oss/gus_vol.c                        |  153 
+ sound/oss/gus_wave.c                       | 3464 -----------
+ sound/oss/harmony.c                        | 1330 ----
+ sound/oss/ics2101.c                        |  247 
+ sound/oss/mad16.c                          | 1113 ---
+ sound/oss/maestro.c                        | 3684 ------------
+ sound/oss/maestro.h                        |   60 
+ sound/oss/maestro3.c                       | 2973 ----------
+ sound/oss/maestro3.h                       |  821 --
+ sound/oss/maui.c                           |  478 -
+ sound/oss/mpu401.c                         |   13 
+ sound/oss/mpu401.h                         |    2 
+ sound/oss/opl3sa.c                         |  329 -
+ sound/oss/rme96xx.c                        | 1856 ------
+ sound/oss/rme96xx.h                        |   78 
+ sound/oss/sequencer_syms.c                 |    7 
+ sound/oss/sgalaxy.c                        |  207 
+ sound/oss/sonicvibes.c                     | 2807 ---------
+ sound/oss/sound_calls.h                    |    3 
+ sound/oss/sscape.c                         | 1479 -----
+ sound/oss/tuning.h                         |   10 
+ sound/oss/via82cxxx_audio.c                | 3616 ------------
+ sound/oss/wavfront.c                       | 3554 ------------
+ sound/oss/wf_midi.c                        |  880 ---
+ sound/oss/ymfpci.c                         | 2692 ---------
+ sound/oss/ymfpci.h                         |  360 -
+ sound/oss/ymfpci_image.h                   | 1565 -----
+ sound/oss/yss225.c                         |  319 -
+ sound/oss/yss225.h                         |   24 
+ sound/sound_core.c                         |   34 
+ 120 files changed, 12 insertions(+), 83215 deletions(-)
+

@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752438AbWAFIuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWAFI5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752438AbWAFIuH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 03:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752435AbWAFIuH
+	id S1751380AbWAFI5K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 03:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752441AbWAFI5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 03:50:07 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:4510 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1752438AbWAFIuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 03:50:05 -0500
-Date: Fri, 6 Jan 2006 16:58:59 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH 09/16] mm: remove unnecessary variable and loop
-Message-ID: <20060106085859.GD5297@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Christoph Lameter <christoph@lameter.com>,
-	Rik van Riel <riel@redhat.com>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-	Andrea Arcangeli <andrea@suse.de>
-References: <20051207104755.177435000@localhost.localdomain> <20051207105106.887005000@localhost.localdomain> <20060105192156.GA12589@dmt.cnet>
+	Fri, 6 Jan 2006 03:57:09 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:59300 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751380AbWAFI5I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 03:57:08 -0500
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>, elsa-devel@lists.sourceforge.net,
+       lse-tech@lists.sourceforge.net,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
+       John Hesterberg <jh@sgi.com>
+Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors
+References: <43BB05D8.6070101@watson.ibm.com>
+	<43BB09D4.2060209@watson.ibm.com> <43BC1C43.9020101@engr.sgi.com>
+	<1136414431.22868.115.camel@stark>
+	<20060104151730.77df5bf6.akpm@osdl.org>
+	<1136486566.22868.127.camel@stark> <1136488842.22868.142.camel@stark>
+	<20060105151016.732612fd.akpm@osdl.org>
+	<1136505973.22868.192.camel@stark>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 06 Jan 2006 03:57:06 -0500
+In-Reply-To: <1136505973.22868.192.camel@stark>
+Message-ID: <yq08xttybrx.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105192156.GA12589@dmt.cnet>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 05:21:56PM -0200, Marcelo Tosatti wrote:
-> On Wed, Dec 07, 2005 at 06:48:04PM +0800, Wu Fengguang wrote:
-> > shrink_cache() and refill_inactive_zone() do not need loops.
-> > 
-> > Simplify them to scan one chunk at a time.
-> 
-> Hi Wu,
+>>>>> "Matt" == Matt Helsley <matthltc@us.ibm.com> writes:
 
-Hi Marcelo,
+Matt> 	Right. I forgot to repeat what I mentioned in the parent email
+Matt> -- that this patch is intended to be applied on top of
+Matt> Shailabh's patches.
 
-> What is the purpose of scanning large chunks at a time?
+Matt> 	The first patch I posted (01/01) is intended for plain
+Matt> 2.6.15. Before proposing 01/01 for -mm I've been trying to see
+Matt> if there are any problems with the value of tsk->exit_signal
+Matt> before exit_mm() -- hence the "[RFC]" in the subject line of
+Matt> that one.
 
-But I did not say or mean 'large' chunks :)
-With the patch the chunk size is _always_ set to SWAP_CLUSTER_MAX=32 - the good
-old default value.
+Matt,
 
-Thanks.
-Wu
+Any chance one of you could put up a set of current patches somewhere?
+I am trying to make heads and tails of them and it's pretty hard as I
+haven't been on lse-tech for long and the lse-tech mailing list
+archives are useless due to the 99 to 1 SPAM ratio ;-(
+
+I am quite concerned about that lock your patches put into struct
+task_struct through struct task_delay_info. Have you done any
+measurements on how this impacts performance on highly threaded apps
+on larger system?
+
+IMHO it seems to make more sense to use something like Jack's proposed
+task_notifier code to lock-less collect the data into task local data
+structures and then take the data from there and ship off to userland
+through netlink or similar like you are doing?
+
+I am working on modifying Jack's patch to carry task local data and
+use it for not just accounting but other areas that need optional
+callbacks (optional in the sense that it's a feature that can be
+enabled or disabled). Looking at Shailabh's delayacct_blkio() changes
+it seems that it would be really easy to fit those into that
+framework.
+
+Guess I should post some of this code .....
+
+Cheers,
+Jes

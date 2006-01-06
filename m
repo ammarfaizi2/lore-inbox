@@ -1,55 +1,18 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWAEQKF (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 5 Jan 2006 11:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWAEQKF
+	id S932078AbWAEX5z (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 5 Jan 2006 18:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWAEX5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 11:10:05 -0500
-Received: from [219.134.28.243] ([219.134.28.243]:12046 "HELO 202.96.154.15")
-	by vger.kernel.org with SMTP id S1751490AbWAEQKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 11:10:01 -0500
-Message-ID: <M5d@tcts.seed.net.tw>
-From: 0x3ohg4YJZwMMw@gcn.net.tw
-To: oc1oPzqY8AH@ksts.seed.net.tw
-Subject: =?ISO-8859-1?Q?=20=BB=A5=C1=AA=CD=F8=CA=B1=B4=FA,=C4=FA=D3=C3=BF?= =?ISO-8859-1?Q?=CD=BB?=
-	=?ISO-8859-1?Q?=A7=B9=D8=CF=B5=B9=DC=C0=ED=CF=B5=CD=B3=C1=CB=C2?=
-	=?ISO-8859-1?Q?=F0=3F?=
-Content-Type: text/plain;
-Content-Transfer-Encoding: Quoted-Printable
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Thu, 5 Jan 2006 11:10:01 -0500
+	Thu, 5 Jan 2006 18:57:55 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:26498 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932078AbWAEX5y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 18:57:54 -0500
+Date: Thu, 5 Jan 2006 16:00:13 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+Message-Id: <200601060000.k0600DNa024619@sorel.sous-sol.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751490AbWAEQKF@vger.kernel.org>
-
-=B1=BE=C8=CB=D6=A3=D6=D8=CD=C6=BC=F6=D5=E2=CC=D7=BF=CD=BB=A7=B9=D8=CF=B5=B9=DC=C0=ED=CF=B5=CD=B3(StartCRM),B/S=BD=E1=B9=B9,=B9=A6=C4=DC=C7=BF=B4=F3
-,=BD=E7=C3=E6=BC=F2=BD=E0,=CA=B9=D3=C3=B7=BD=B1=E3
- 
-=CB=FC=CD=A8=B9=FD=CF=EE=C4=BF=B9=DC=C0=ED=A3=AC=CE=C4=B5=B5=BF=E2=B9=DC=C0=ED=A3=AC=CF=FA=CA=DB=B1=A8=B8=E6=A3=AC=BE=BA=D5=F9=B6=D4=CA=D6=B9=DC=C0=ED=A3=AC=C8=D5=C0=FA=B9=DC=C0=ED=A3=AC
-=B2=FA=C6=B7=B9=DC=C0=ED=A3=AC=CF=FA=CA=DB=D4=A4=C6=DA=B9=DC=C0=ED=C6=DF=B4=F3=B9=A6=C4=DC=C4=A3=BF=E9=A3=AC=CE=AA=BB=A5=C1=AA=CD=F8=CA=B1=B4=FA=B5=C4=CF=FA=CA=DB=B9=DC=C0=ED=CC=E1
-=B9=A9=C1=CB=C8=AB=D0=C2=B5=C4=C6=F3=D2=B5=A3=AD=BF=CD=BB=A7=BD=E2=BE=F6=B7=BD=B0=B8=A1=A3=CD=A8=B9=FD=CB=FC=BF=C9=D2=D4=B2=E9=BF=B4=BA=CD=B8=FC=D0=C2=D2=D4=CF=C2=D0=C5=CF=A2=A3=BA
- 
-=BF=CD=BB=A7=A3=BA =BA=CF=D7=F7=BB=EF=B0=E9=B5=C4=CF=EA=CF=B8=D0=C5=CF=A2 
-=C1=AA=CF=B5=C8=CB=A3=BA=D3=EB=BF=CD=BB=A7=D3=D0=B9=D8=CF=B5=B5=C4=CC=D8=B6=A8=C8=CB=B5=C4=C1=AA=CF=B5=D0=C5=CF=A2 
-=CF=DF=CB=F7=A3=BA =C7=B1=D4=DA=BF=CD=BB=A7=B5=C4=CF=EA=CF=B8=D0=C5=CF=A2 
-=BB=FA=BB=E1=A3=BA =D3=EB=C4=B3=BF=CD=BB=A7=D5=FD=D4=DA=BD=F8=D0=D0=B5=C4=CC=D8=B6=A8=CF=FA=CA=DB=D0=C5=CF=A2 
-=CF=FA=CA=DB=D4=A4=B2=E2=A3=BA=C3=BF=B2=C6=BC=BE=B5=C4=BC=C6=BB=AE=CF=FA=CA=DB=C4=BF=B1=EA 
-=CF=FA=CA=DB=B1=A8=B1=ED=A3=BA=B5=A5=B8=F6=CF=FA=CA=DB=C8=CB=D4=B1=BB=F2=D5=FB=B8=F6=CF=FA=CA=DB=BB=FA=B9=B9=B5=C4=CF=FA=CA=DB=BD=E1=B9=FB 
- 
-=C1=ED=CD=E2=A3=AC=C4=FA=D2=B2=BF=C9=D2=D4=B2=D9=D7=F7=C8=E7=CF=C2=D0=C5=CF=A2=A3=BA
- 
-=BB=EE=B6=AF=A3=AC=C8=CE=CE=F1=BA=CD=C6=E4=CB=FB=C4=FA=D0=E8=D2=AA=B2=E9=BF=B4=B5=C4=C8=D5=C0=FA=CA=C2=BC=FE 
-=BE=BA=D5=F9=B6=D4=CA=D6=BA=CD=BA=CF=D7=F7=BB=EF=B0=E9=D0=C5=CF=A2 
-=C1=AA=CF=B5=C8=CB=A3=AC=BB=FA=BB=E1=A3=AC=BF=CD=BB=A7=B5=C4=D0=C5=CF=A2 
- 
-StartCRM=BF=CD=BB=A7=B9=D8=CF=B5=B9=DC=C0=ED=CF=B5=CD=B3=CA=B9=C4=FA=B5=C4=B9=AB=CB=BE=BF=C9=D2=D4=C7=E1=CB=C9=B5=D8=B6=A9=D6=C6=B8=F7=D6=D6=B8=F6=D0=D4=BB=AF=B5=C4=BD=E7=C3=E6=A3=AC
-=B1=BB=D6=B8=B6=A8=B5=C4=CF=B5=CD=B3=B9=DC=C0=ED=D4=B1=BF=C9=D2=D4=CE=AA=B8=F7=B8=F6=D7=E9=C9=E8=D6=C3=B2=BB=CD=AC=B5=C4=C8=A8=CF=DE=A1=A3
-
-=B8=FC=B6=E0=D7=CA=C1=CF=D0=C5=CF=A2,=C7=EB=B7=C3=CE=CA http://starterp.oicp.net/crm/help/help.asp=3Ftitle=3D=CF=B5=CD=B3=BC=F2=BD=E9
-
-=B2=E2=CA=D4,=C7=EB=B7=C3=CE=CA  http://starterp.oicp.net/crm/default.asp 
-
-=D5=CA=BA=C5:admin =C3=DC=C2=EB:admin =D1=AF=BC=DB=C7=EB=D6=C2=B5=E7 086-755-61325311 =B2=DC=CF=C8=C9=FA
-
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932078AbWAEX5z@vger.kernel.org>
 

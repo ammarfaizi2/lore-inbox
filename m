@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWAFGZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751896AbWAFG2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbWAFGZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 01:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWAFGZr
+	id S1751896AbWAFG2E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 01:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWAFG2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 01:25:47 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:53840 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932635AbWAFGZr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 01:25:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=J9Ne/ts1OXGb5lQPy3NtNmFE2bkxtrf7GOlgZhDsCudgPFeNuGbi6LLt93zDHcXSmYru52qPUYflWIffxd6ogNR1ofoGoBwAfWYOCyBx7xyyte4VSREcRIEHGRkNcMghmadb5JawP43LEXPqQI79c76CnVoWB0wR1Bb463FYkcU=
-Message-ID: <25ac9de40601052225i48bca97dx3ad796a1cd68f1c3@mail.gmail.com>
-Date: Fri, 6 Jan 2006 00:25:46 -0600
-From: Patrick Read <pread99999@gmail.com>
+	Fri, 6 Jan 2006 01:28:04 -0500
+Received: from kcse.com ([66.147.204.154]:18377 "EHLO kcse.com")
+	by vger.kernel.org with ESMTP id S1752155AbWAFG2C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 01:28:02 -0500
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Oops in Kernel 2.6.15 usbhid
+Subject: [PATCH] ppc/boot: Put flush_{instruction,data}_cache back in
+ .relocate_code section
+From: Paul Janzen <pcj@linux.sez.to>
+Date: Thu, 05 Jan 2006 22:27:49 -0800
+Message-ID: <oqzmm9oopm.fsf@merlin.sez.to>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] Oops in Kernel 2.6.15 usbhid
+As part of the Great PowerPC Include Merge, the _GLOBAL() assembler
+macro was changed to force code declared using _GLOBAL() to be in the
+.text section.  As a result, two symbols defined in
+arch/ppc/boot/common/util.S which are intended to be in the
+.relocate_code section are being placed in .text instead, which causes
+booting to fail.
 
-[2.] Compiled 2.6.15 downloaded from kernel.org.  Configured, made,
-and installed.  During reboot, I get an Oops in the USB HID module. 
-This does not occur with a nearly-identical config on the same
-computer with kernel 2.6.14.5.
+There's another suspicious-looking usage at
+arch/ppc/kernel/swsusp.S:37 (swsusp_save_area) that should be looked
+into.  I did not exhaustively search the source tree, though.
 
-[3.] USB, HID, kernel, 2.6.15, module
+This is the minimal patch that fixes the immediate problem.  I could
+easily be convinced that the _GLOBAL macro should be modified to
+remove the ".text;" line either instead of, or in addition to, this
+fix.
 
-[4.] 2.6.15
+Signed-off-by: Paul Janzen <pcj@linux.sez.to>
+Acked-by: Tom Rini <trini@kernel.crashing.org>
 
-[5.] 2.6.14.5
+--- a/arch/ppc/boot/common/util.S	2005-12-24 15:47:48.000000000 -0800
++++ b/arch/ppc/boot/common/util.S 	2006-01-04 14:07:12.000000000 -0800
+@@ -234,7 +234,8 @@ udelay:
+  * First, flush the data cache in case it was enabled and may be
+  * holding instructions for copy back.
+  */
+-_GLOBAL(flush_instruction_cache)
++        .globl flush_instruction_cache
++flush_instruction_cache:
+ 	mflr	r6
+ 	bl	flush_data_cache
+ 
+@@ -279,7 +280,8 @@ _GLOBAL(flush_instruction_cache)
+  * Flush data cache
+  * Do this by just reading lots of stuff into the cache.
+  */
+-_GLOBAL(flush_data_cache)
++        .globl flush_data_cache
++flush_data_cache:
+ 	lis	r3,cache_flush_buffer@h
+ 	ori	r3,r3,cache_flush_buffer@l
+ 	li	r4,NUM_CACHE_LINES
 
-[6.] Syslog available online at
-http://www.cs.txstate.edu/~patrick/kernel-debug/syslog-2.6.15-DEBUG.txt
 
-[7.] N/A
-
-[8.] N/A
-
-[8.1] Output of ver_linux script available online at
-http://www.cs.txstate.edu/~patrick/kernel-debug/ver_linux_output.txt
-
-[8.2] CPU information (/proc/cpuinfo) available online at
-http://www.cs.txstate.edu/~patrick/kernel-debug/cpuinfo-DEBUG.txt
-
-[8.3] Module information (/proc/modules) available online at
-http://www.cs.txstate.edu/~patrick/kernel-debug/modulesinfo-DEBUG.txt
-
-[8.4] Information regarding I/O Ports/Memory available online at
-http://www.cs.txstate.edu/~patrick/kernel-debug/ioports-DEBUG.txt and
-http://www.cs.txstate.edu/~patrick/kernel-debug/iomem-DEBUG.txt
-
-[8.5] PCI information available online at
-http://www.cs.txstate.edu/~patrick/kernel-debug/lspci-vvv-as-root-DEBUG.txt
-
-[8.6] SCSI devices:  None
-patrick@pr01:~$ cat /proc/scsi/scsi
-Attached devices:
-patrick@pr01:~$
-
-[8.7] Other information: None
-
-[X.] I copied everything over to text files (plain ASCII) and posted
-them online in the interest of saving space in this e-mail.  The
-entire directory is browseable at
-http://www.cs.txstate.edu/~patrick/kernel-debug/
-
-Thank you,
-Patrick A. Read

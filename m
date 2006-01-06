@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWAFAbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752330AbWAFAcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWAFAbU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:31:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWAFAbU
+	id S1752330AbWAFAcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752324AbWAFAcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:31:20 -0500
-Received: from motgate8.mot.com ([129.188.136.8]:11165 "EHLO motgate8.mot.com")
-	by vger.kernel.org with ESMTP id S932325AbWAFAbS (ORCPT
+	Thu, 5 Jan 2006 19:32:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3463 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752276AbWAFAcN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:31:18 -0500
-X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
-       unless indicated otherwise in the message.
-Date: Thu, 5 Jan 2006 18:31:11 -0600 (CST)
-Message-Id: <200601060031.k060VBDV000727@olwen.urbana.css.mot.com>
-From: "Scott E. Preece" <preece@motorola.com>
-To: mochel@digitalimplant.org
-CC: scott.preece@motorola.com, pavel@ucw.cz, stern@rowland.harvard.edu,
-       akpm@osdl.org, linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-In-reply-to: Patrick Mochel's message of Thu, 5 Jan 2006 16:02:29 -0800 (PST)
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
- interface
+	Thu, 5 Jan 2006 19:32:13 -0500
+Date: Thu, 5 Jan 2006 16:27:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Martin Bligh <mbligh@mbligh.org>, Matt Mackall <mpm@selenic.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
+In-Reply-To: <20060106001519.GA15520@elte.hu>
+Message-ID: <Pine.LNX.4.64.0601051626290.3169@g5.osdl.org>
+References: <1136463553.2920.22.camel@laptopd505.fenrus.org>
+ <20060105170255.GK3356@waste.org> <43BD5E6F.1040000@mbligh.org>
+ <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org> <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org>
+ <43BD784F.4040804@mbligh.org> <Pine.LNX.4.64.0601051208510.3169@g5.osdl.org>
+ <Pine.LNX.4.64.0601051213270.3169@g5.osdl.org> <20060105233049.GA3441@elte.hu>
+ <Pine.LNX.4.64.0601051548290.3169@g5.osdl.org> <20060106001519.GA15520@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-OK - sorry, my misparsing of what you asked. I agree that wakeup would
-always be caused by some single device, not by multiple devices.
 
-scott
+On Fri, 6 Jan 2006, Ingo Molnar wrote:
+>
+> Especially if there enough profiling hits, it's usually a quick glance 
+> to figure out the hotpath:
 
-| From mochel@digitalimplant.org Thu Jan  5 18:04:42 2006
-| Date: Thu, 5 Jan 2006 16:02:29 -0800 (PST)
-| From: Patrick Mochel<mochel@digitalimplant.org>
-| cc: Pavel Machek<pavel@ucw.cz>, Alan Stern<stern@rowland.harvard.edu>,
-| 
-| 
-| On Thu, 5 Jan 2006, Preece Scott-PREECE wrote:
-| 
-| > This is, of course, in an embedded framework rather than a desktop
-| > framework - we suspend and wakeup automatically, not via user
-| > intervention. Answering a question asked in another piece of mail, we
-| > have roughly a dozen different devices that cause the system to wakeup -
-| > keypad press, touchscreen touch, flip open/close, etc.
-| 
-| Hmm, it would be nice if that comment was in reply to the email in which
-| it came. At least if it was in the same thread..
-| 
-| Many systems have > 1 _possible_ wakeup devices (keyboard, touchscreen,
-| lid, etc). You implied that when a system wakes up, there could be > 1
-| device that actually woke the system up, which is in direct conflict with
-| what I've always assumed - that when a system wakes up, it is caused by a
-| single device (and if there were multiple events, like a key press *and* a
-| mouse movement, it's doesn't really matter)..
-| 
-| Thanks,
-| 
-| 
-| 	Patrick
-| 
-| 
+Ehh. What's a "quick glance" to a human can be quite hard to automate. 
+That's my point.
 
--- 
-scott preece
-motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
-e-mail:	preece@motorola.com	fax:	+1-217-384-8550
-phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
+If we do the "human quick glances", we won't be seeing much come out of 
+this. That's what we've already been doing, for several years.
 
+I thought the discussion was about trying to automate this..
 
+		Linus

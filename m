@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWAFSx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752481AbWAFS56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWAFSx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751948AbWAFSx7
+	id S1752481AbWAFS56 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:57:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751948AbWAFS56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:53:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3345 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751588AbWAFSx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:53:58 -0500
-Date: Fri, 6 Jan 2006 18:53:52 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Platform device matching, & weird strncmp usage
-Message-ID: <20060106185352.GG16093@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Greg KH <greg@kroah.com>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <1136527179.4840.120.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136527179.4840.120.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Jan 2006 13:57:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39840 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752481AbWAFS55 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:57:57 -0500
+Date: Fri, 6 Jan 2006 13:57:49 -0500
+From: Ulrich Drepper <drepper@redhat.com>
+Message-Id: <200601061857.k06Ivn6M023985@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: akpm@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 04:59:39PM +1100, Benjamin Herrenschmidt wrote:
-> static int platform_match(struct device * dev, struct device_driver * drv)
-> {
-> 	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
-> 
-> 	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
-> }
-> 
-> As far as I know, strncmp() is _NOT_ supposed to return 0 if one string
-> is shorter than the other and they match until that point. Thus the
-> above will never match unless the <name> portion of pdev->name is
-> exactly of size BUS_ID_SIZE which is obviously not the case...
-
-pdev->name is just the <name> part - it's pdev->dev.name which has
-both the <name> and <instance>.  I think the strncmp is unnecessary,
-and it can be replaced by a plain strcmp.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+diff --git a/arch/i386/kernel/syscall_table.S b/arch/i386/kernel/syscall_table.S
+index 9b21a31..5022238 100644
+--- a/arch/i386/kernel/syscall_table.S
++++ b/arch/i386/kernel/syscall_table.S
+@@ -294,3 +294,16 @@ ENTRY(sys_call_table)
+ 	.long sys_inotify_init
+ 	.long sys_inotify_add_watch
+ 	.long sys_inotify_rm_watch
++	.long sys_openat
++	.long sys_mkdirat		/* 295 */
++	.long sys_mknodat
++	.long sys_fchownat
++	.long sys_futimesat
++	.long sys_newfstatat
++	.long sys_unlinkat		/* 300 */
++	.long sys_renameat
++	.long sys_linkat
++	.long sys_symlinkat
++	.long sys_readlinkat
++	.long sys_fchmodat		/* 305 */
++	.long sys_faccessat
+diff --git a/include/asm-i386/unistd.h b/include/asm-i386/unistd.h
+index 0f92e78..a61fb3a 100644
+--- a/include/asm-i386/unistd.h
++++ b/include/asm-i386/unistd.h
+@@ -299,8 +299,21 @@
+ #define __NR_inotify_init	291
+ #define __NR_inotify_add_watch	292
+ #define __NR_inotify_rm_watch	293
++#define __NR_openat		294
++#define __NR_mkdirat		295
++#define __NR_mknodat		296
++#define __NR_fchownat		297
++#define __NR_futimesat		298
++#define __NR_newfstatat		299
++#define __NR_unlinkat		300
++#define __NR_renameat		301
++#define __NR_linkat		302
++#define __NR_symlinkat		303
++#define __NR_readlinkat		304
++#define __NR_fchmodat		305
++#define __NR_faccessat		306
+ 
+-#define NR_syscalls 294
++#define NR_syscalls 307
+ 
+ /*
+  * user-visible error numbers are in the range -1 - -128: see

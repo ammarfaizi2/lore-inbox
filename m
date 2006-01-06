@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752559AbWAFUuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752562AbWAFUxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752559AbWAFUuv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 15:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752561AbWAFUuv
+	id S1752562AbWAFUxT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 15:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752564AbWAFUxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 15:50:51 -0500
-Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:58535 "EHLO
-	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S1752559AbWAFUuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 15:50:50 -0500
-Message-ID: <43BED847.7040709@keyaccess.nl>
-Date: Fri, 06 Jan 2006 21:51:19 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Fri, 6 Jan 2006 15:53:19 -0500
+Received: from xenotime.net ([66.160.160.81]:13965 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1752562AbWAFUxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 15:53:18 -0500
+Date: Fri, 6 Jan 2006 12:53:17 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] suspend: update documentation
+In-Reply-To: <Pine.LNX.4.58.0601060843190.11324@shark.he.net>
+Message-ID: <Pine.LNX.4.58.0601061252590.1545@shark.he.net>
+References: <20060106110922.GC9219@atrey.karlin.mff.cuni.cz>
+ <Pine.LNX.4.58.0601060843190.11324@shark.he.net>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: DE2104X
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff.
+On Fri, 6 Jan 2006, Randy.Dunlap wrote:
 
-Upgraded a DEC Multia to 2.6 today and noticed its 21040 was split off 
-into the "de2104x" driver. Also see it's marked "experimental" and just 
-wanted to report that it seems to be working fine on the 21040 as found 
-in a DEC Multia (Pentium variant):
+> On Fri, 6 Jan 2006, Pavel Machek wrote:
+>
+> > This updates documentation for suspend-to-disk and RAM. In particular
+> > modular disk drivers trap is documented.
+> >
+> > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> >
+> > --- a/Documentation/power/swsusp.txt
+> > +++ b/Documentation/power/swsusp.txt
+> > @@ -27,13 +27,11 @@ echo shutdown > /sys/power/disk; echo di
+> > +. If you have SATA disks, you'll need recent kernels with SATA suspend
+> > +support. For suspend and resume to work, make sure your disk drivers
+> > +are built into kernel -- not modules. [There's way to make
+> > +suspend/resume with modular disk drivers, see FAQ, but you should
+> > +better not do that.]
+>
+> (drop "better", or say "but you probably shouldn't do that.")
+>
+> What recent kernels have SATA suspend/resume support?
+> Not from kernel.org AFAIK.
 
-00:08.0 Ethernet controller: Digital Equipment Corporation DECchip 21040 
-[Tulip] (rev 23)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64
-         Interrupt: pin A routed to IRQ 10
-         Region 0: I/O ports at f880 [size=128]
-         Region 1: Memory at fedff800 (32-bit, non-prefetchable) [size=128]
+Ah, now I see that it's merged.  Great.
 
-(PCI ID 1011:0002).
-
-Rene.
+Thanks,
+-- 
+~Randy

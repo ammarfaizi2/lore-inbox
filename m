@@ -1,88 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWAFAEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWAFAHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWAFAEL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:04:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWAFAEK
+	id S932297AbWAFAHY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751708AbWAFAHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:04:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26092 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932297AbWAFAEH (ORCPT
+	Thu, 5 Jan 2006 19:07:23 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5555 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751191AbWAFAHV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:04:07 -0500
-Date: Thu, 5 Jan 2006 15:54:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Martin Bligh <mbligh@mbligh.org>, Matt Mackall <mpm@selenic.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer  compilers
-In-Reply-To: <20060105233049.GA3441@elte.hu>
-Message-ID: <Pine.LNX.4.64.0601051548290.3169@g5.osdl.org>
-References: <200601041959_MC3-1-B550-5EE2@compuserve.com> <43BC716A.5080204@mbligh.org>
- <1136463553.2920.22.camel@laptopd505.fenrus.org> <20060105170255.GK3356@waste.org>
- <43BD5E6F.1040000@mbligh.org> <Pine.LNX.4.64.0601051112070.3169@g5.osdl.org>
- <Pine.LNX.4.64.0601051126570.3169@g5.osdl.org> <43BD784F.4040804@mbligh.org>
- <Pine.LNX.4.64.0601051208510.3169@g5.osdl.org> <Pine.LNX.4.64.0601051213270.3169@g5.osdl.org>
- <20060105233049.GA3441@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jan 2006 19:07:21 -0500
+Date: Fri, 6 Jan 2006 01:07:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: dtor_core@ameritech.net, Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
+Message-ID: <20060106000704.GD3339@elf.ucw.cz>
+References: <20051227213439.GA1884@elf.ucw.cz> <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net> <20060105215528.GF2095@elf.ucw.cz> <Pine.LNX.4.50.0601051359290.10834-100000@monsoon.he.net> <20060105224403.GJ2095@elf.ucw.cz> <Pine.LNX.4.50.0601051546380.10428-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.50.0601051546380.10428-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 6 Jan 2006, Ingo Molnar wrote:
+On Čt 05-01-06 15:54:15, Patrick Mochel wrote:
 > 
-> i frequently validate branches in performance-critical kernel code like 
-> the scheduler (and the mutex code ;), via instruction-granularity 
-> profiling, driven by a high-frequency (10-100 KHz) NMI interrupt. A bad 
-> branch layout shows up pretty clearly in annotated assembly listings:
-
-Yes, but we only do this for routines that we look at anyway.
-
-Also, the profiles can be misleading at times: you often get instructions 
-with zero hits, because they always schedule together with another 
-instruction. So parsing things and then matching them up (correctly) with 
-the source code in order to annotate them is probably pretty nontrivial.
-
-But starting with the code-paths that get literally zero profile events is 
-definitely the way to go.
-
-> Especially with 64 or 128 byte L1 cachelines our codepaths are really 
-> fragmented and we can easily have 3-4 times of the optimal icache 
-> footprint, for a given syscall. We very often have cruft in the hotpath, 
-> and we often have functions that belong together ripped apart by things 
-> like e.g. __sched annotators. I havent seen many cases of wrongly judged 
-> likely/unlikely hints, what happens typically is that there's no 
-> annotation and the default compiler guess is wrong.
-
-We don't have likely()/unlikely() that often, and at least in my case it's 
-partly because the syntax is a pain (it would probably have been better to 
-include the "if ()" part in the syntax - the millions of parenthesis just 
-drive me wild).
-
-So yeah, we tend to put likely/unlikely only on really obvious stuff, and 
-only on functions where we think about it. So we probably don't get it 
-wrong that often.
-
-> the dcache footprint of the kernel is much better, mostly because it's 
-> so easy to control it in C. The icache footprint is alot more elusive.  
-> (and also alot more critical to execution speed on nontrivial workloads)
+> On Thu, 5 Jan 2006, Pavel Machek wrote:
 > 
-> so i think there are two major focus areas to improve our icache 
-> footprint:
+> > On Čt 05-01-06 14:15:39, Patrick Mochel wrote:
 > 
->  - reduce code size
->  - reduce fragmentation of the codepath
+> > > It should be replaced with a file exported by the bus driver that exports
+> > > the actual states that the device supports. The parsing can easily happen
+> > > at this point, because the bus knows what a good value is.
+> >
+> > (1) would change core<->driver interface
 > 
-> fortunately both are hard and technically challenging projects
+> It's broken anyway for runtime power management.
 
-That's an interesting use of "fortunately". I tend to prefer the form 
-where it means "fortunately, we can trivially fix this with a two-line 
-solution that is obviously correct" ;)
+Please explain. As far as I can see, it is fairly simple, but good
+enough. pm_message_t.flags indicating it is runtime suspend would be
+nice, but I do not think it is broken.
 
-		Linus
+> > (2) is quite a lot of work
+> 
+> In the long run, it's not.
+
+Nobody fixed it in a year, so apparently it is a lot of work.
+
+> > (3) ...with very little benefit, until drivers support >2 states
+> 
+> Without it, you are preventing drivers from being able to support > 2
+> states.
+
+0 drivers support > 2 states. So it is indeed very little benefit.
+
+> > If you want to rewrite driver model for >2 states, great, but that is
+> > going to take at least a year AFAICS, so please let me at least fix
+> > the bugs in meantime.
+> 
+> It's a band-aid; it is not a long-term solution.
+
+But band-aid is apparently neccessary unless you want drivers to see
+invalid values.
+
+> > > The userspace interface is broken. We can keep it for compatability
+> > > reasons, but there needs to be a new interface.
+> >
+> > I assumed we could fix the interface without actually introducing >2
+> > states support. That can be done in reasonable ammount of code.
+> 
+> The interface is irreparably broken. You can't fix it with an infinite
+> number of band aids.
+
+Without "band aids", you'll get BUG()s all over the kernel.
+
+> > > I don't understand what you're saying. If I have a driver that Iwant to
+> >                                          ~~~~~~~~~~~~~~~~~~
+> > > make support another power state and I'm willing to write that code, then
+> > > there is a clear benefit to having the infrastructure for it to "just
+> > > work".
+> >
+> > I do not see such drivers around me, that's all. It seems fair to me
+> > that first driver author wanting that is the one who introduces >2
+> > states support to generic infrastructure.
+> 
+> Just because you personally have not seen such things does not mean they
+> do not exist.
+
+Just because you claim they exist does not mean they exist.
+
+> > Passing "on"/"off" down to radeon lets the driver decide what power
+> > state it should enter.
+> 
+> Driver implements power state policy? Sounds like that policy would find a
+> much more comfortable home in userspace.
+
+Userspace can't know that driver does not support D3 on this
+particular hardware version because of hardware problems... or simply
+because it is not yet implemented.
+								Pavel
+-- 
+Thanks, Sharp!

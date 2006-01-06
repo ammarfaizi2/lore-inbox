@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWAFVKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWAFVKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbWAFVKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 16:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWAFVKQ
+	id S932500AbWAFVKm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 16:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWAFVKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 16:10:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:7246 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932455AbWAFVKN convert rfc822-to-8bit
+	Fri, 6 Jan 2006 16:10:42 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:47271 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932523AbWAFVKl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 16:10:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=S+nh19bQQV9cNl1sKbREPOZVwzH3zFhAHr5n6+p7b2OiM28fBCP3nxi9opUR8bToNv1jBkozjmaxUM+n9xf8kvyd+pw9i5nzkgwCg9CcMPxBc2ntRenQOgMVivlCpO/EMlRLYfgWKAh2mvBRxd5Yvpvjz2zXAFUiEdVUhITWt9g=
-Message-ID: <5a4c581d0601061310j3f4eb310o1d68c0b87c278685@mail.gmail.com>
-Date: Fri, 6 Jan 2006 22:10:13 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.15-git2: CONFIGFS_FS shows up as M/y choice, help says "if unsure, say N"
+	Fri, 6 Jan 2006 16:10:41 -0500
+Message-ID: <43BEDCDB.8010102@tmr.com>
+Date: Fri, 06 Jan 2006 16:10:51 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops with 2.6.15
+References: <43BDA76F.1000906@pin.if.uz.zgora.pl> <9a8748490601051512w72ea0baekd52d991d2984c017@mail.gmail.com> <43BE9FDA.2020300@pin.if.uz.zgora.pl>
+In-Reply-To: <43BE9FDA.2020300@pin.if.uz.zgora.pl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-===========
-Userspace-driven configuration filesystem (EXPERIMENTAL) (CONFIGFS_FS)
-[M/y/?] (NEW)
+Jacek Luczak wrote:
+> Jesper Juhl napisał(a):
+> 
+>>
+>> Try and reproduce with a non-tainted kernel.
+>>
+> 
+> Non-tained kernel works great. There is no oops with that. The real 
+> problem is with ndiswrapper + sk98lin conflict. I will try to find 
+> solution and fix this conflict.
 
-Both sysfs and configfs can and should exist together on the
-same system. One is not a replacement for the other.
+Are you running 4k stacks? I wouldn't expect ndiswrapper to works at all 
+in that case, but...
 
-If unsure, say N.
-===========
-
-I think I'll say M - for now ;)
-
---alessandro
-
- "Somehow all you ever need is, never really quite enough, you know"
-
-   (Bruce Springsteen - "Reno")
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

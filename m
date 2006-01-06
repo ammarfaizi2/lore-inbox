@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWAFWd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWAFWet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWAFWd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 17:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWAFWd7
+	id S964773AbWAFWet (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 17:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWAFWet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 17:33:59 -0500
-Received: from ns1.suse.de ([195.135.220.2]:20460 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750844AbWAFWd6 (ORCPT
+	Fri, 6 Jan 2006 17:34:49 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39316 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964851AbWAFWer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 17:33:58 -0500
-From: Andi Kleen <ak@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
-Date: Fri, 6 Jan 2006 23:18:34 +0100
-User-Agent: KMail/1.8.2
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>, netdev@vger.kernel.org
-References: <20060105235845.967478000@sorel.sous-sol.org> <200601061358.42344.ak@suse.de> <1136575600.17979.58.camel@mindpipe>
-In-Reply-To: <1136575600.17979.58.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 17:34:47 -0500
+Date: Fri, 6 Jan 2006 23:34:24 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: oops pauser.
+Message-ID: <20060106223424.GA12428@elf.ucw.cz>
+References: <20060105045212.GA15789@redhat.com> <1136468254.16358.23.camel@localhost.localdomain> <20060105205221.GN20809@redhat.com> <20060106152203.GA11906@elf.ucw.cz> <Pine.LNX.4.61.0601062006110.28630@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200601062318.35464.ak@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0601062006110.28630@yvahk01.tjqt.qr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 January 2006 20:26, Lee Revell wrote:
-> On Fri, 2006-01-06 at 13:58 +0100, Andi Kleen wrote:
-> > Another CPU might be stuck in a long 
-> > running interrupt
+On Pá 06-01-06 20:06:36, Jan Engelhardt wrote:
+> >No.
+> >
+> >But you _know_ if user is running X or not -- notice that kernel does
+> >not attempt to printk() when X is running, because that could lock up
+> >the box.
+> >
+> >If user is running X, you don't need the delay.
+> >
+> >if (CON_IS_VISIBLE(vc) && vc->vc_mode == KD_TEXT) {
 > 
-> Shouldn't a long running interrupt be considered a bug?
+> Does framebuffer fall under KD_TEXT?
 
-In normal operation yes, but there can be always exceptional
-circumstances where it's unavoidable (e.g. during error handling) 
-and in the name of defensive programming the rest of the system ought 
-to tolerate it.
+I think so.
 
--Andi
+-- 
+Thanks, Sharp!

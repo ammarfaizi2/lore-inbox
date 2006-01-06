@@ -1,88 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWAFEuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752173AbWAFFF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWAFEuq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 23:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWAFEuq
+	id S1752173AbWAFFF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 00:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752259AbWAFFF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 23:50:46 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:50923 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932246AbWAFEup (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 23:50:45 -0500
-Date: Fri, 6 Jan 2006 10:20:26 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Yinghai Lu <yinghai.lu@amd.com>, ak@muc.de, ebiederm@xmission.com,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, linuxbios@openbios.org
-Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
-Message-ID: <20060106045026.GA4928@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060103044632.GA4969@in.ibm.com> <86802c440601051630i4d52aa2fj1a2990acf858cd63@mail.gmail.com> <20060105163848.3275a220.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060105163848.3275a220.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Jan 2006 00:05:29 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:3813 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
+	id S1752173AbWAFFF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 00:05:28 -0500
+Date: Fri, 6 Jan 2006 06:05:27 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linux/spinlock_api_up.h has incomplete definitions
+Message-ID: <Pine.LNX.4.60.0601060527110.31782@kepler.fjfi.cvut.cz>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="546507526-2142816764-1136523348=:31782"
+Content-ID: <Pine.LNX.4.60.0601060559290.31782@kepler.fjfi.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 04:38:48PM -0800, Andrew Morton wrote:
-> Yinghai Lu <yinghai.lu@amd.com> wrote:
-> >
-> > the patch is good.
-> > 
-> > I tried LinuxBIOS with kexec.
-> > 
-> > without this patch: I need to disable acpi in kernel. otherwise the
-> > kernel with acpi support can boot the second kernel, but the second
-> > kernel will hang after
-> > 
-> > time.c: Using 14.318180 MHz HPET timer.
-> > time.c: Detected 2197.663 MHz processor.
-> > Console: colour VGA+ 80x25
-> > Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-> > Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
-> > Memory: 1009152k/1048576k available (2967k kernel code, 39036k reserved, 1186k )
-> > 
-> > 
-> 
-> Please don't top-post.
-> 
-> > 
-> > On 1/2/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> > > Hi Andi,
-> > >
-> > > Can you please include the following patch. This patch has already been pushed
-> > > by Andrew.
-> > >
-> > > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/broken-out/x86_64-io_apicc-memorize-at-bootup-where-the-i8259-is.patch
-> 
-> IIRC, I dropped this patch because of discouraging noises from Andi and
-> because underlying x86_64 changes broke it in ugly ways.  It needs to be
-> redone and Andi's objections (whatever they were) need to be addressed or
-> argued about.
-> 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Andrew, as per my information this patch has not broken anything. It was
-other patch which tried to initialize ioapics early which had broken some
-sysmtems and that patch has already been dropped.
+--546507526-2142816764-1136523348=:31782
+Content-Type: TEXT/PLAIN; CHARSET=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-ID: <Pine.LNX.4.60.0601060559291.31782@kepler.fjfi.cvut.cz>
 
-Andi's main concern with this patch is that it has got special case
-knowledge of 8259 and legacy stuff. He would rather prefer, saving all the
-APIC states early during boot and restore it back during reboot.
+Hi,
 
-This shall work well for kexec but will not work for kdump as we might
-crash on a non-boot cpu and second kernel will come up on a non-boot cpu.
-Just restoring the APIC states shall ensure that kernel can boot well on
-BIOS designated boot cpu but it does not hold good for other cpus. One
-example is that other cpus will not receive timer interrupts during early
-boot.
+linux/spinlock_api_up.h uses local_bh_disable() in definition of=20
+__LOCK_BH(lock) for instance, but it doesn't include linux/interrupt.h, in=
+=20
+which the local_bh_disable() is defined. So when you compile for instance=
+=20
+the net/ipv4/ipvs/ip_vs_sched.c or ip_vs_est.c (which doesn't include=20
+linux/interrupt.h in any direct or indirect way) in a UP configuration,=20
+you get an unresolved symbol in the resulting objects (though=20
+local_bh_disable() is just a macro).
 
-Hence there does not seem to be any escape route except relocate
-to boot cpu after crash and second kernel comes up on BIOS designated
-boot cpu. But after crash relocating to boot cpu might not be a very
-reliable thing to do.
+However when I tried to include the linux/interrupt.h directly in the=20
+linux/spinlock.h or linux/spinlock_api_up.h, nothing is able to compile=20
+with following complaints:
 
-Thanks
-Vivek
+-----------------------------------------------------------
+In file included from include/asm/hardirq.h:6,
+                 from include/linux/hardirq.h:7,
+                 from include/linux/interrupt.h:11,
+                 from include/linux/spinlock.h:56,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from arch/x86_64/kernel/asm-offsets.c:7:
+include/linux/irq.h:79: error: expected specifier-qualifier-list before=20
+`spinlock_t'
+In file included from include/asm/vsyscall.h:4,
+                 from include/asm/fixmap.h:18,
+                 from include/asm/apic.h:6,
+                 from include/asm/hardirq.h:8,
+                 from include/linux/hardirq.h:7,
+                 from include/linux/interrupt.h:11,
+                 from include/linux/spinlock.h:56,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from arch/x86_64/kernel/asm-offsets.c:7:
+include/linux/seqlock.h:35: error: expected specifier-qualifier-list before=
+ `spinlock_t'
+include/linux/seqlock.h: In function `write_seqloc':
+include/linux/seqlock.h:52: warning: implicit declaration of function `spin=
+_lock'
+include/linux/seqlock.h:52: error: `seqlock_' has no member named `lock'
+include/linux/seqlock.h: In function `write_sequnloc':
+include/linux/seqlock.h:61: warning: implicit declaration of function `spin=
+_unlock'
+include/linux/seqlock.h:61: error: `seqlock_' has no member named `lock'
+include/linux/seqlock.h: In function `write_tryseqloc':
+include/linux/seqlock.h:66: warning: implicit declaration of function `spin=
+_trylock'
+include/linux/seqlock.h:66: error: =E2=80=98seqlock_t=E2=80=99 has no membe=
+r name`lock'
+make[1]: *** [arch/x86_64/kernel/asm-offsets.s] Error 1
+make: *** [prepare0] Error 2
+------------------------------------------------------------
+
+So I'm not quite sure how to fix this best. But I think that ideally all=20
+publically used includes should be self sufficient and include all stuff=20
+they use.
+
+Martin
+
+P.S.: I'm not really sure who's the maintainer of the spinlocks, and=20
+though to whom should I direct this bugreport.
+P.P.S.: I also filed it as bug #5840.
+--546507526-2142816764-1136523348=:31782--

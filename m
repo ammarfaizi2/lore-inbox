@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWAFIQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752388AbWAFIVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWAFIQq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 03:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWAFIQq
+	id S1752388AbWAFIVW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 03:21:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752387AbWAFIVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 03:16:46 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4544 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964856AbWAFIQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 03:16:46 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Yinghai Lu <yinghai.lu@amd.com>, vgoyal@in.ibm.com, ak@muc.de,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, linuxbios@openbios.org
-Subject: [PATCH] i386 io_apic: Use correct index variable when computing the
- apic that is in ExtInt mode.
-References: <20060103044632.GA4969@in.ibm.com>
-	<86802c440601051630i4d52aa2fj1a2990acf858cd63@mail.gmail.com>
-	<20060105163848.3275a220.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 06 Jan 2006 01:14:16 -0700
-In-Reply-To: <20060105163848.3275a220.akpm@osdl.org> (Andrew Morton's
- message of "Thu, 5 Jan 2006 16:38:48 -0800")
-Message-ID: <m11wzl6aef.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 6 Jan 2006 03:21:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:64826 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751929AbWAFIVW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 03:21:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TzFKlG/6UjYIXX9Cvf6U2X0eG80ZclCDHxW1IEjOXdtD1WJyx1mBX7C1lhwnMcwlBSQOE6rpNq5q9ce9xogPPXb/YtRNv3q+4EXYi6lCbCUCQVQm8Dzsex9fS5c2D2DXhaTUleWRJ1igXAxUOgdxuGgCk9sPKnLww0Gmi1ETd4I=
+Message-ID: <9a8748490601060021n48af98fey2941b3e7ddf2f2b4@mail.gmail.com>
+Date: Fri, 6 Jan 2006 09:21:21 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+Subject: Re: 2.6.15-mm1: what's page_owner.c doing in Documentation/ ???
+Cc: Andrew Morton <akpm@osdl.org>, LKML List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060106032021.GB7152@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9a8748490601051624u36fb03d2l349c40a0165cbddb@mail.gmail.com>
+	 <20060106032021.GB7152@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1/6/06, Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
+> On Fri, Jan 06, 2006 at 01:24:20AM +0100, Jesper Juhl wrote:
+> > Just wondering what page_owner.c is doing in Documentation/ in 2.6.15-mm1 ;-)
+> >
+> > $ ls -l linux-2.6.15-mm1/Documentation/page_owner.c
+> > -rw-r--r--  1 juhl users 2587 2006-01-05 18:15
+> > linux-2.6.15-mm1/Documentation/page_owner.c
+>
+> [coywolf@everest ~/linux/2.6.15-mm1]$ head Documentation/page_owner.c
+[snip]
 
-Somehow in all of the chaos this one line bug fix got merged with
-the another patch and was then discarded when issues were found
-with that other patch.
+Yes, I did take a look at what it was, I was just wondering why it was
+put in the Documentation/ dir.  Just seemed a little odd location to
+me.
+But OK, it's considered documentation, no problem :)
 
- From: Vivek Goyal <vgoyal@in.ibm.com>
-
-  A minor fix to the patch which remembers the location of where i8259 is
-  connected.  Now counter i has been replaced by apic.  counter i is having
-  some junk value which was leading to non-detection of i8259 connected to
-  IOAPIC.
-
----
-
- arch/i386/kernel/io_apic.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-b5a215b462de26a1e6c21f607677796f0bb446aa
-diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
-index 7554f8f..f2dd218 100644
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@@ -1649,7 +1649,7 @@ static void __init enable_IO_APIC(void)
- 	for(apic = 0; apic < nr_ioapics; apic++) {
- 		int pin;
- 		/* See if any of the pins is in ExtINT mode */
--		for(pin = 0; pin < nr_ioapic_registers[i]; pin++) {
-+		for (pin = 0; pin < nr_ioapic_registers[apic]; pin++) {
- 			struct IO_APIC_route_entry entry;
- 			spin_lock_irqsave(&ioapic_lock, flags);
- 			*(((int *)&entry) + 0) = io_apic_read(apic, 0x10 + 2 * pin);
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

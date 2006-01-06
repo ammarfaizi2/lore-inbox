@@ -1,52 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWAFCLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWAFCNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbWAFCLj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 21:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWAFCLj
+	id S932533AbWAFCNd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 21:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWAFCNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 21:11:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7406 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932545AbWAFCLi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 21:11:38 -0500
-Date: Thu, 5 Jan 2006 16:28:02 -0500
-From: Dave Jones <davej@redhat.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: dual line backtraces for i386.
-Message-ID: <20060105212802.GR20809@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200601051321_MC3-1-B55B-8147@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601051321_MC3-1-B55B-8147@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 5 Jan 2006 21:13:33 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:21465 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932533AbWAFCNd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 21:13:33 -0500
+Date: Thu, 5 Jan 2006 19:13:29 -0700
+From: john stultz <johnstul@us.ibm.com>
+To: akpm@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       George Anzinger <george@mvista.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, john stultz <johnstul@us.ibm.com>
+Message-Id: <20060106021328.6714.45831.sendpatchset@cog.beaverton.ibm.com>
+Subject: [PATCH 0/10] Time: Generic Timeofday Subsystem (v B15-mm)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 01:18:32PM -0500, Chuck Ebbert wrote:
+Andrew, All,
 
- > > -                     printk("\n");
- > > +                     if (space == 0) {
- > > +                             printk("    ");
- > > +                             space = 1;
- > > +                     } else {
- > > +                             printk("\n");
- > > +                             space = 0;
- > > +                     }
- > 
- > Why not:
- > 
- >                         printk(space == 0 ? "     " : "\n");
- >                         space = !space;
+	This patchset  provides a generic timekeeping subsystem that is 
+independent of the timer interrupt. This allows for robust and correct
+behavior in cases of late or lost ticks, avoids interpolation errors, 
+reduces duplication in arch specific code, and allows or assists future
+changes such as high-res timers, dynamic ticks, or realtime preemption.
+Additionally, it provides finer nanosecond resolution values to the
+clock_gettime functions.
 
-readability ?
-Personally, I despise the ternary operator, because it makes me
-stop to try to parse it every time I see it.  With the code I wrote
-it's blindlingly obvious what is going on.
+The patch set provides the minimal NTP changes, the clocksource 
+abstraction, the core timekeeping code as well as the code to convert 
+i386. I have started on converting more arches, but for now I'm only 
+submmiting code for i386.
 
-		Dave
+As requested, I've reworked this patchset so it builds and boots every step 
+of the way, resulting in one less patch in the patchset. This was done 
+somewhat quickly and tested with my slow laptop, so it may be config 
+dependent, but I think it should be ok. I've also tried to improve the 
+patch descriptions as requested, but please let me know if they need 
+more work.
 
+Changes since the last release:
+o Builds each step in the patchset
+o Improved patch descriptions
+o Reduced use of inline (might need more of this)
+o Simplified timespec_add_ns()
+o Removed unncessary additions (timer_pit sysfs bits)
+
+The patchset applies against the 2.6.15-rc5-git + the hrtimer patch-set 
+already in -mm (same as the last release).
+
+It should replace the following patches currently in -mm:
+
+time-reduced-ntp-rework-part-1.patch
+time-reduced-ntp-rework-part-2.patch
+time-clocksource-infrastructure.patch
+time-generic-timekeeping-infrastructure.patch
+time-i386-conversion-part-1-move-timer_pitc-to-i8253c.patch
+time-i386-conversion-part-2-move-timer_tscc-to-tscc.patch
+time-i386-conversion-part-3-rework-tsc-support.patch
+time-i386-conversion-part-4-acpi-pm-variable-renaming-and-config-change.patch
+time-i386-conversion-part-5-enable-generic-timekeeping.patch
+time-i386-conversion-part-6-remove-old-code.patch
+time-i386-clocksource-drivers.patch
+
+Please note the slight re-ordering of the patches and that one patch has 
+been removed from the set.
+
+The complete patchset (including code for x86-64) can be found here:
+	http://sr71.net/~jstultz/tod/
+
+I'd like to thank the following people who have contributed ideas, 
+criticism, testing and code that has helped shape this work: 
+	George Anzinger, Nish Aravamudan, Max Asbock, Serge Belyshev,
+Dominik Brodowski, Thomas Gleixner, Darren Hart, Christoph Lameter, 
+Matt Mackal, Keith Mannthey, Ingo Molnar, Martin Schwidefsky, Frank
+Sorenson, Ulrich Windl, Jonathan Woithe, Darrick Wong, Roman Zippel 
+and any others whom I've accidentally left off this list.
+
+Andrew, please consider for inclusion into your tree.
+
+thanks 
+-john

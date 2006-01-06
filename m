@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWAFPDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWAFPDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWAFPDg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 10:03:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWAFPDg
+	id S1751498AbWAFPDe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 10:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWAFPDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 10:03:36 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:2746 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1751489AbWAFPDf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 10:03:35 -0500
-Date: Fri, 6 Jan 2006 16:03:34 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Greg KH <greg@kroah.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys interface
-Message-ID: <20060106150334.GB20242@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Greg KH <greg@kroah.com>, Pavel Machek <pavel@ucw.cz>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <Pine.LNX.4.50.0601051329590.17046-100000@monsoon.he.net> <20060105215528.GF2095@elf.ucw.cz> <20060105221334.GA925@isilmar.linta.de> <20060105222338.GG2095@elf.ucw.cz> <20060105222705.GA12242@isilmar.linta.de> <20060106003806.GA29182@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060106003806.GA29182@kroah.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 6 Jan 2006 10:03:34 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:1457 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S1751494AbWAFPDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 10:03:33 -0500
+Message-ID: <43BE86BE.3010203@stesmi.com>
+Date: Fri, 06 Jan 2006 16:03:26 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hannu Savolainen <hannu@opensound.com>
+CC: Lee Revell <rlrevell@joe-job.com>, Takashi Iwai <tiwai@suse.de>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+References: <20050726150837.GT3160@stusta.de>  <20060103193736.GG3831@stusta.de>  <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>  <mailman.1136368805.14661.linux-kernel2news@redhat.com>  <20060104030034.6b780485.zaitcev@redhat.com>  <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>  <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>  <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>  <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>  <s5hmziaird8.wl%tiwai@suse.de>  <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <1136504460.847.91.camel@mindpipe> <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
+In-Reply-To: <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-ripemd160;
+ protocol="application/pgp-signature";
+ boundary="------------enig9B277B93160D1B757F2CDE18"
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 04:38:06PM -0800, Greg KH wrote:
-> > NB: it will break one day, one way or another, when gregkh makes the
-> > /sys/class -> /sys/devices conversion. However, I'd want to try not to break
-> > the new pcmciautils userspace too often...
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig9B277B93160D1B757F2CDE18
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Hannu Savolainen wrote:
+> On Thu, 5 Jan 2006, Lee Revell wrote:
 > 
-> Why would the conversion that I'm working on break this userspace code?
-> You are only using the device directory, which will not change at all.
+> 
+>>On Fri, 2006-01-06 at 01:06 +0200, Hannu Savolainen wrote:
+>>
+>>>We have not received any single bug report that is caused 
+>>>by the concept of kernel mixing.
+>>>Kernel mixing is not rocket science. All you need to do is picking a 
+>>>sample from the output buffers of each of the applications, sum them 
+>>>together (with some volume scaling) and feed the result to the
+>>>physical 
+>>>device. 
+>>
+>>Hey, interesting, this is exactly what dmix does in userspace.  And we
+>>have not seen any bug reports caused by the concept of userspace mixing
+>>(just implementation bugs like any piece of software).
+> 
+> Having dmix working in user space doesn't prove that kernel level mixing 
+> is evil. This was the original topic.
 
-Actually, pcmciautils uses both paths starting with
-/sys/bus/pcmcia/devices/ and /sys/class/pcmcia_socket/pcmcia_socket%d/ --
-and I was expecting that the latter path won't be available somewhen in
-future?
+Wasn't there a thread a few years ago (3-5?) about sound mixing in the
+kernel?
 
-Thanks,
-	Dominik
+I've tried searching for it but have been unsuccessful so I could be
+remembering wrong.
+
+I can't remember if it was about OSS, ALSA or anything else but I
+believe the conclusion was that sound mixing does NOT belong in the
+kernel and SHOULD be done in userspace. I have a faint memory of that
+being written by Alan Cox, but since it was a while ago I could very
+well be mistaken there (too?).
+
+// Stefan
+
+--------------enig9B277B93160D1B757F2CDE18
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDvobBBrn2kJu9P78RAykCAKCiyP/4h/9Hfm32u234hOkDAQqRXACdHb0t
+wxf3EgLQpV+ZoI259URZcRU=
+=Gg3n
+-----END PGP SIGNATURE-----
+
+--------------enig9B277B93160D1B757F2CDE18--

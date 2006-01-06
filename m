@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWAFWou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWAFWqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWAFWou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 17:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWAFWou
+	id S932491AbWAFWqW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 17:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbWAFWqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 17:44:50 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51400 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964874AbWAFWou (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 17:44:50 -0500
-Date: Fri, 6 Jan 2006 23:44:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/RFT][PATCH -mm 0/5] swsusp: userland interface (rev. 2)
-Message-ID: <20060106224430.GC12428@elf.ucw.cz>
-References: <200601042340.42118.rjw@sisk.pl> <20060105233026.GA3339@elf.ucw.cz> <200601062217.09012.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601062217.09012.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 6 Jan 2006 17:46:22 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:15726 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932491AbWAFWqV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 17:46:21 -0500
+Message-ID: <43BEF338.3010403@cosmosbay.com>
+Date: Fri, 06 Jan 2006 23:46:16 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 0/4] Series to allow a "const" file_operations struct
+References: <1136583937.2940.90.camel@laptopd505.fenrus.org> <1136584539.2940.105.camel@laptopd505.fenrus.org>
+In-Reply-To: <1136584539.2940.105.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > This is the second "preview release" of the swsusp userland interface patches.
-> > > They have changed quite a bit since the previous post, as I tried to make the
-> > > interface more robust against some potential user space bugs (or outright
-> > > attempts to abuse it).
-> > 
-> > Works for me, thanks.
-> > 
-> > Perhaps it is time to get 1/4 and 3/4 into -mm? You get my signed-off
-> > on them...
+Arjan van de Ven a écrit :
+> On Fri, 2006-01-06 at 22:45 +0100, Arjan van de Ven wrote:
+>> Hi,
+>>
+>> this series allows drivers to have "const" file_operations, by making
+>> the f_ops field in the inode const. This has another benefit, there have
 > 
-> OK, I'll prepare them in a while.
-
-Thanks.
-
-> > 2/4 needs to allocate official major/minor. 1/13 would be nice :-).
+> ok there was a sentence missing here. The first benefit is that this
+> moves these hot datastructures to the rodata section, which means they
+> won't accidentally be doing false cacheline sharing.
 > 
-> Well, you said you liked the patch with a misc device (ie. major = 10).
-> 
-> Actually the code is somewhat simpler in that case so I'd prefer it.
-> 
-> Now, if we used a misc device, which minor would be suitable?  231?
 
-If code is simpler, lets stick with misc. You have to obtain minor by
-mailing device@lanana.org, see Doc*/devices.txt.
+Definitly a good thing I agree.
 
-> > 4/4... I'm not sure. It would be nice to make swsusp.c disappear. It
-> > is really wrong name. That means we need to only delete from it for a
-> > while...
-> 
-> Anyway I think it would be nice to move the code that does not really belong
-> to the snapshot and is used by both the user interface and disk.c/swap.c to
-> a separate file.  I have no preference as far as the name of the file is
-> concerned, though.
-
-Ok, lets keep it as it is. We can always rename file in future. [I
-don't quite understand your reasons for movement, through. Highmem is
-part of snapshot we need to make; it is saved in a very different way
-than rest of memory, but that is implementation detail...]
+But your patches miss to really declare all 'struct file_operations' as const, 
+dont they ?
 
 
-									Pavel
--- 
-Thanks, Sharp!
+On my x86_64 machine, I managed to reduce by 10% .data section by moving all 
+file_operations, but also 'address_space_operations', 'inode_operations, 
+super_operations, dentry_operations, seq_operations, ... to rodata section.
+
+size vmlinux*
+    text    data     bss     dec     hex filename
+2476156  522236  244868 3243260  317cfc vmlinux
+2588685  571348  246692 3406725  33fb85 vmlinux.old
+
+Eric
+

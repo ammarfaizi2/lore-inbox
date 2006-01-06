@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752293AbWAFSFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752450AbWAFSGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752293AbWAFSFl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752155AbWAFSFk
+	id S1752450AbWAFSGc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWAFSGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:05:40 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.26]:23763 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751413AbWAFSFk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:05:40 -0500
-Date: Fri, 6 Jan 2006 10:04:56 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Matthew Wilcox <matthew@wil.cx>
-cc: "Luck, Tony" <tony.luck@intel.com>, Arjan van de Ven <arjan@infradead.org>,
-       hawkes@sgi.com, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Dan Higgins <djh@sgi.com>, John Hesterberg <jh@sgi.com>,
-       Greg Edwards <edwardsg@sgi.com>
-Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
-In-Reply-To: <20060106174957.GF19769@parisc-linux.org>
-Message-ID: <Pine.LNX.4.62.0601060958110.17665@schroedinger.engr.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F055A7B6B@scsmsx401.amr.corp.intel.com>
- <20060106174957.GF19769@parisc-linux.org>
+	Fri, 6 Jan 2006 13:06:32 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:24077 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751586AbWAFSGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:06:31 -0500
+Date: Fri, 6 Jan 2006 19:06:26 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
+Message-ID: <20060106180626.GV12131@stusta.de>
+References: <20060106173547.GR12131@stusta.de> <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006, Matthew Wilcox wrote:
-
-> On Fri, Jan 06, 2006 at 09:45:20AM -0800, Luck, Tony wrote:
-> > I suppose that depends on your expectations from defconfig.  In my
-> > mind its the one that builds into a kernel that will boot and run
-> > on just about any box.  People who want to get a bit of extra performance
-> > will do the re-compilation to strip out the bits that they don't want
-> > and tune down limits that are set higher than they need.  I only
+On Fri, Jan 06, 2006 at 06:49:55PM +0100, Jesper Juhl wrote:
+> On 1/6/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > Do not allow people to create configurations with CONFIG_BROKEN=y.
+> >
+> > The sole reason for CONFIG_BROKEN=y would be if you are working on
+> > fixing a broken driver, but in this case editing the Kconfig file is
+> > trivial.
+> >
+> > Never ever should a user enable CONFIG_BROKEN.
+> >
+> I disagree (slightly) with this patch for a few reasons:
 > 
-> You can use that argument to set the CPU limit low too -- since a kernel
-> with a CPU limit lower than the number of CPUs in the box will just ignore
-> the additional ones, people who want to get the additional performance
-> will tune limits that are set lower than they need ;-)
+> - It's very convenient to be able to enable it through menuconfig.
 
-The dicey thing in all of this is that the generic kernels will be used 
-for the certification of applications. If the cpu limit is too low then 
-applications will simply not be certified for these high processor counts. 
-One may encounter problems if the app is then run with a higher processor 
-count.
+And when do you really need it?
 
-> > There are quite a few >16 socket boxes out there, which will give
-> > you >64 cpus with Montecito ... so I don't think that the >64 cpu
-> > system is going to remain in the noise for long.
-> 
-> I bet the number of 32-way+ boxes is lost in the noise compared to the
-> number of 1-, 2- and 4-way boxes sold.  Not that HP trust me with that
-> kind of sales data ;-)
+> - Being able to easily enable it in menuconfig, then browse through
+> the menus to look for something matching your hardware is nice, even
+> if that something is marked BROKEN at least you've then found a place
+> to start working on. A lot simpler than digging through directories.
 
-I think it is wrong to count the number of boxes. It is the number of 
-users that is of major interest. These small boxes typically have one 
-user. The larger boxes have whole communities working with them. The 
-number of users of very large systems can potentially go into the 10 
-thousands of users per installation.
+Our menus are mostly made for _users_.
 
-Moreover these larger boxes significantly impact the technological 
-progress of humanity on the planet. These large boxes run hurricane 
-simulations, do complex visualization necessary for bio technological 
-advances, cosmological simulations, other physic stuff etc etc.
+The more common are users accidentially enabling CONFIG_BROKEN and then 
+wondering why a driver isn't compiling or working.
+
+And in my experience, when searching whether hardware might be supported 
+a grep through the kernel sources brings you more than reading often 
+outdated Kconfig help texts. Besides this, a BROKEN driver usually has 
+the same value for the user as a non-existing driver.
+
+> - Some things marked BROKEN may not be 100% broken and may actually
+> work for some specific things, so if you know that it works for your
+> use, then being able to easily enable BROKEN and then whatever it is
+> you need is nice.
+
+In reality, people accidentially turn on CONFIG_BROKEN, enable a broken 
+driver, and wonder why it isn't working as expected.
+
+If you know the driver is marked as BROKEN and if you want to use it 
+despite this, editing the Kconfig file is trivial.
+
+Unless you _really_ know what you are doing, no driver for your hard 
+disk is better than a broken driver.
+
+> Perhaps just move it below the Kernel Hacking menu instead, users
+> don't go there (or if they do they damn well should know what they are
+> doing).
+>...
+
+Enabling MAGIC_SYSRQ for being able to sync the disks for crashed 
+machines...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

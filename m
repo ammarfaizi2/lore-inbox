@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932658AbWAFHrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWAFHvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932658AbWAFHrb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 02:47:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWAFHrb
+	id S964788AbWAFHvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 02:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWAFHvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 02:47:31 -0500
-Received: from xenotime.net ([66.160.160.81]:3300 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932658AbWAFHrb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 02:47:31 -0500
-Date: Thu, 5 Jan 2006 23:47:18 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: hancockr@shaw.ca, linux-kernel@vger.kernel.org
-Subject: Re: oops pauser.
-Message-Id: <20060105234718.31111929.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.61.0601060804100.22809@yvahk01.tjqt.qr>
-References: <5rvok-5Sr-1@gated-at.bofh.it>
-	<5ryvR-2aN-5@gated-at.bofh.it>
-	<5rAHn-5kc-9@gated-at.bofh.it>
-	<43BE0592.3040200@shaw.ca>
-	<Pine.LNX.4.61.0601060804100.22809@yvahk01.tjqt.qr>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Fri, 6 Jan 2006 02:51:04 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:61041 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964788AbWAFHvB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 02:51:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iYHi7K+n3xcQshof1JhwdwEB7Vx9Keu9TO3C8SU/r6P5TrFq/aDvzWBmLG1Rn9pPc4kzp0TALORDWNHn3kt5xGHzmPB4GHGwk5kv7C0U3KYsnduBVtMw5IA1p87ma4DLh4X/czv3y5n1KjPvtseMm7PSYqiGMG8ElrT3q9fU3Lw=
+Message-ID: <f0309ff0601052351s240c8e3bwb5ab5c4deb852314@mail.gmail.com>
+Date: Thu, 5 Jan 2006 23:51:00 -0800
+From: Nauman Tahir <nauman.tahir@gmail.com>
+To: Arlen Christian Mart Cuss <celtic@sairyx.org>
+Subject: Re: [RFC] why all the patches get messed up here!!!
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43BE1FA3.4000904@sairyx.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <f0309ff0601052340p492e4646ib8a4cde25fd29872@mail.gmail.com>
+	 <43BE1FA3.4000904@sairyx.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006 08:06:12 +0100 (MET) Jan Engelhardt wrote:
+On 1/5/06, Arlen Christian Mart Cuss <celtic@sairyx.org> wrote:
+> Hi,
+>
+> This list is also for discussing the patches and their effects, so other
+> developers can see them clearly and take a look!
+>
+>  - Arlen.
+>
+You are right Arlen but what irritates me is when I login here there
+is a long list of PATCHES and i have to move all those without reading
+them because I no its going to address very specific issue. I still
+think Patches should be moved to some other archive.
+ I may have been selfish here :) .
+kindly dont TOP POST
+Nauman
 
-> >> After an oops, we can't really rely on anything. What if the
-> >> oops came from the console layer, or a framebuffer driver?
-> 
-> How about this?:
-> 
-> Put an "emergency kernel" into a memory location that is being protected in 
-> some way (i.e. writing there even from kernel space generates an oops). 
-> Upon oops, it gets unlocked and we do some sort of kexec() to it.
-> Of course, this probably requires that the unlocking must not be done 
-> with help of the standard page mappings.
 
-This is what kexec + kdump is.
-
----
-~Randy
+> Nauman Tahir wrote:
+>
+> >hi all,
+> >May I ask why all kernel patches just get in here in the list?
+> >I mean to say that isn't it better to have another list only for this
+> >purpose and let this mailing list be a discussion forum. I login here
+> >to see different issues. its a wonderful resource.
+> >I understand that alot of code is discussed here but in case of PATCH
+> >I think it would be better to have a separate archive.
+> >No offence just wanted to ask
+> >
+> >Regards
+> >Nauman
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> >
+> >
+>
+>

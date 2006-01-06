@@ -1,98 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWAFMKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWAFMMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWAFMKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 07:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWAFMKZ
+	id S1751211AbWAFMMF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 07:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWAFMMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 07:10:25 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:918 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751415AbWAFMKY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 07:10:24 -0500
-Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: jgarzik@pobox.com, bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200601061245.55978.mbuesch@freenet.de>
-References: <1136541243.4037.18.camel@localhost>
-	 <200601061200.59376.mbuesch@freenet.de>
-	 <1136547494.7429.72.camel@localhost>
-	 <200601061245.55978.mbuesch@freenet.de>
-Content-Type: text/plain
-Date: Fri, 06 Jan 2006 13:10:23 +0100
-Message-Id: <1136549423.7429.88.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 07:12:05 -0500
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:25833 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1751211AbWAFMMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 07:12:01 -0500
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       mingo@elte.hu
+Subject: [PATCH] pktcdvd: Un-inline some functions
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+	<1136544226.2940.23.camel@laptopd505.fenrus.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 06 Jan 2006 13:11:00 +0100
+In-Reply-To: <1136544226.2940.23.camel@laptopd505.fenrus.org>
+Message-ID: <m3mzi9wo8b.fsf_-_@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Michael,
+Here is a patch to un-inline two functions in the pktcdvd driver.
+This makes the compiled code 172 bytes smaller on my system.
 
-> > > How would the virtual interfaces look like? That is quite easy to answer.
-> > > They are net_devices, as they transfer data.
-> > > They should probaly _not_ be on top of the ethernet, as 80211 does not
-> > > have very much in common with ethernet. Basically they share the same
-> > > MAC address format. Does someone have another thing, which he thinks
-> > > is shared?
-> > > How would the master interface look like? A somewhat unusual idea came
-> > > up. Using a device node in /dev. So every wireless card in the system
-> > > would have a node in /dev associated (/dev/wlan0 for example).
-> > > A node for the master device would be ok, because no data is transferred
-> > > through it. It is only a configuration interface.
-> > > So you would tell the, yet-to-be-written userspace tool wconfig (or something
-> > > like that) "I need a STA in INFRA mode and want to drive it on the
-> > > wlan0 card". So wconfig goes and write()s some data to /dev/wlan0
-> > > telling the 80211 code to setup a virtual net_device for the driver
-> > > associated to /dev/wlan0.
-> > > The virtual interface is then configured though /dev/wlan0 using write()
-> > > (no ugly ioctl anymore, you see...). Config data like TX rate,
-> > > current essid,.... basically everything + xyz which is done by WE today,
-> > > is written to /dev/wlan0.
-> > > This config data is entirely cached in the 80211 code for the /dev/wlan0
-> > > instance. This is important, to have the data persistent throughout
-> > > suspend/resume cycles, if up/down cycles.
-> > > After configuring, a virtual net_device (let's call it wlan0) exists,
-> > > which can be brought up by ifconfig and data can be transferred though
-> > > it as usual.
-> > 
-> > what is wrong with using netlink and/or sysfs for it? I don't see the
-> > advantage of defining another /dev something interface.
-> 
-> Nothing is wrong with that.
-> "brainstorming" was the most dominant word in the whole text. ;)
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
-so I might got the wrong impression, because it seemed you put a lot of
-thinking into the /dev/wlanX stuff without even considering netlink or
-something else.
+ drivers/block/pktcdvd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> I just personally liked the idea of having a device node in /dev for
-> every existing hardware wlan card. Like we have device nodes for
-> other real hardware, too. It felt like a bit of a "unix way" to do
-> this to me. I don't say this is the way to go.
-> If a netlink socket is used (which is possible, for sure), we stay with
-> the old way of having no device node in /dev for networking devices.
-> That is ok. But that is really only an implementation detail (and for sure
-> a matter of taste).
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index b5f67b1..7eb2931 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -247,7 +247,7 @@ static inline struct pkt_rb_node *pkt_rb
+ 	return rb_entry(n, struct pkt_rb_node, rb_node);
+ }
+ 
+-static inline void pkt_rbtree_erase(struct pktcdvd_device *pd, struct pkt_rb_node *node)
++static void pkt_rbtree_erase(struct pktcdvd_device *pd, struct pkt_rb_node *node)
+ {
+ 	rb_erase(&node->rb_node, &pd->bio_queue);
+ 	mempool_free(node, pd->rb_pool);
+@@ -315,7 +315,7 @@ static void pkt_rbtree_insert(struct pkt
+ /*
+  * Add a bio to a single linked list defined by its head and tail pointers.
+  */
+-static inline void pkt_add_list_last(struct bio *bio, struct bio **list_head, struct bio **list_tail)
++static void pkt_add_list_last(struct bio *bio, struct bio **list_head, struct bio **list_tail)
+ {
+ 	bio->bi_next = NULL;
+ 	if (*list_tail) {
 
-At the OLS last year, I think the consensus was to use netlink for all
-configuration task. However this was mainly driven by Harald Welte and
-he might be able to talk about the pros and cons of netlink versus a
-character device.
-
-> The _real_ main point I wanted to make was to _not_ use a net_device for
-> the master device. What else should be used for master device, let it
-> be a device node or a netlink socket, is rather unimportant at
-> this stage.
-
-I am all for it, because I don't like dummy Ethernet devices that are
-only used for configuration. I am still not happy that IrDA uses irda0
-to get somekind of packet management etc. instead of implementing a real
-suitable hardware abstraction.
-
-Regards
-
-Marcel
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

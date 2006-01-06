@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752415AbWAFHGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752418AbWAFHJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752415AbWAFHGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 02:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752417AbWAFHGS
+	id S1752418AbWAFHJg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 02:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752422AbWAFHJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 02:06:18 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:3225 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752416AbWAFHGR (ORCPT
+	Fri, 6 Jan 2006 02:09:36 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:7357 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1752418AbWAFHJf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 02:06:17 -0500
-Date: Fri, 6 Jan 2006 08:06:12 +0100 (MET)
+	Fri, 6 Jan 2006 02:09:35 -0500
+Date: Fri, 6 Jan 2006 08:09:30 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Robert Hancock <hancockr@shaw.ca>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oops pauser.
-In-Reply-To: <43BE0592.3040200@shaw.ca>
-Message-ID: <Pine.LNX.4.61.0601060804100.22809@yvahk01.tjqt.qr>
-References: <5rvok-5Sr-1@gated-at.bofh.it> <5ryvR-2aN-5@gated-at.bofh.it>
- <5rAHn-5kc-9@gated-at.bofh.it> <43BE0592.3040200@shaw.ca>
+To: Willy Tarreau <willy@w.ods.org>
+cc: Kay Sievers <kay.sievers@vrfy.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 80 column line limit?
+In-Reply-To: <20060106055208.GE7142@w.ods.org>
+Message-ID: <Pine.LNX.4.61.0601060807310.22809@yvahk01.tjqt.qr>
+References: <20060105130249.GB29894@vrfy.org>
+ <84144f020601050532l56c15be1i4938a84f6c212960@mail.gmail.com>
+ <20060105211438.GA1408@vrfy.org> <Pine.LNX.4.61.0601052301270.27662@yvahk01.tjqt.qr>
+ <20060106055208.GE7142@w.ods.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> After an oops, we can't really rely on anything. What if the
->> oops came from the console layer, or a framebuffer driver?
+>> >It's not about nesting, if that's the reason, the number of tabs
+>> >should get a maximum specified instead.
+>> >
+>> Or we could have the tab width lowered, but I doubt
+>> Linus would accept that :)
+>
+>In fact, one tab could be lowered, it's the first one. Nearly all code
+>has at least this tab which is not very useful and would not affect
+>readability if reduced to 2 or 4. But it will be difficult to maintain
+>a variable tab width, not to mention the alignment problem on the
+>second tab.
+>
+Oh every editor can be patched. Since 4-(wide)-tabs (in general, not just 
+at the start) and esp. 2-tabs are dishonored (CodingStyle: "There are 
+heretic movements that try to make indentations 4 (or even 2!)"), 6-tabs 
+and 3-tabs could be tried. Ahem :).
 
-How about this?:
-
-Put an "emergency kernel" into a memory location that is being protected in 
-some way (i.e. writing there even from kernel space generates an oops). 
-Upon oops, it gets unlocked and we do some sort of kexec() to it.
-Of course, this probably requires that the unlocking must not be done 
-with help of the standard page mappings.
 
 
 Jan Engelhardt

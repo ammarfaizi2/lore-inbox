@@ -1,78 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWAFTTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWAFTTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbWAFTTk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWAFTTk
+	id S932242AbWAFTTO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWAFTTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:19:40 -0500
-Received: from uproxy.gmail.com ([66.249.92.206]:59732 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932470AbWAFTTi (ORCPT
+	Fri, 6 Jan 2006 14:19:13 -0500
+Received: from mailhub.stratus.com ([134.111.1.17]:47298 "EHLO
+	mailhub4.stratus.com") by vger.kernel.org with ESMTP
+	id S932242AbWAFTTM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:19:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=T7agrLGl+sIV/i9wUWKP3HjPRn1jGMX7iDarksrijB/zOLUbOI4G7+Cm67/ZOif8jbISJ2DCf3pt8Hd2Sy52lE1UIvnP8g+YhAhWgn7tOjBAlPMMGsC/QM7tM0YujtDumUP+GvVB+aFHS6hm/GVIVYf1c8g6ES81DfCysUEE25g=
-Date: Fri, 6 Jan 2006 22:36:26 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: drivers/acpi/scan.c: inconsequent NULL handling
-Message-ID: <20060106193625.GA26372@mipter.zuzino.mipt.ru>
-References: <20060106162929.GK12131@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060106162929.GK12131@stusta.de>
-User-Agent: Mutt/1.5.11
+	Fri, 6 Jan 2006 14:19:12 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] corruption during e100 MDI register access
+Date: Fri, 6 Jan 2006 14:19:00 -0500
+Message-ID: <92952AEF1F064042B6EF2522E0EEF437032252ED@EXNA.corp.stratus.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] corruption during e100 MDI register access
+Thread-Index: AcYSYB9jBD1fSCVYQsacPr/2AL6xiQAcKczwAAjcmeA=
+From: "ODonnell, Michael" <Michael.ODonnell@stratus.com>
+To: <adapter_support@intel.com>
+Cc: <bonding-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <linux-netdev@lists.sourceforge.net>
+X-OriginalArrivalTime: 06 Jan 2006 19:19:01.0489 (UTC) FILETIME=[0CEF1E10:01C612F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 05:29:29PM +0100, Adrian Bunk wrote:
-> static int
-> acpi_bus_match (
->         struct acpi_device      *device,
->         struct acpi_driver      *driver)
-> {
->         if (driver && driver->ops.match)
->                 return driver->ops.match(device, driver);
->         return acpi_match_ids(device, driver->ids);
-> }
+Greetings,
 
-> Either driver can be NULL, in which case the driver->ids is a possible
-> NULL pointer reference, or it can't, in which case the check whether
-> it's NULL is superfluous.
+We have identified two related bugs in the e100 driver and we request
+that they be repaired in the official Intel version of the driver.
 
-Follow the mon^Wcall tree.
+Both bugs are related to manipulation of the MDI control register.
 
-drivers/acpi/scan.c:478: * acpi_bus_match 
-drivers/acpi/scan.c:484:acpi_bus_match(struct acpi_device *device, struct acpi_driver *driver)
-drivers/acpi/scan.c:564:		if (!acpi_bus_match(dev, drv)) {
-drivers/acpi/scan.c:682:		if (!acpi_bus_match(device, driver)) {
+The first problem is that the Ready bit is being ignored when
+writing to the Control register; we noticed this because the Linux
+bonding driver would occasionally come to the spurious conclusion
+that the link was down when querying Link State.  It turned out
+that by failing to wait for a previous command to complete it was
+selecting what was essentially a random register in the MDI register
+set.  When we added code that waits for the Ready bit (as shown in
+the patch file below) all such problems ceased.
 
-1. acpi_bus_match()
+The second problem is that, although access to the MDI registers
+involves multiple steps which must not be intermixed, nothing was
+defending against two or more threads attempting simultaneous access.
+The most obvious situation where such interference could occur
+involves the watchdog versus ioctl paths, but there are probably
+others, so we recommend the locking shown in our patch file.
 
-   Second arg is passed without changes.
+Thanks,
+  --Michael O'Donnell, Stratus Technologies, Maynard, MA  USA
 
-	acpi_driver_attach()
-		acpi_bus_register_driver()
+Signed-off-by: Michael O'Donnell <Michael.ODonnell at stratus dot com>
 
-	  ===>	if (!driver) <===
-			return_VALUE(-EINVAL);
-
-		spin_lock(&acpi_device_lock);
-		list_add_tail(&driver->node, &acpi_bus_drivers);
-		spin_unlock(&acpi_device_lock);
-		count = acpi_driver_attach(driver);
-
-2. acpi_bus_match()
-	acpi_bus_find_driver()
-
-		atomic_inc(&driver->references);
-			    ^^^^^^^^
-                spin_unlock(&acpi_device_lock);
-		if (!acpi_bus_match(device, driver)) {
-
-Looks like it can't.
-
+--- drivers/net/e100.c.orig	2006-01-06 10:28:13.000000000 -0500
++++ drivers/net/e100.c	2006-01-06 10:51:57.000000000 -0500
+@@ -125,20 +125,24 @@
+  * 	not supported (hardware limitation).
+  *
+  * 	MagicPacket(tm) WoL support is enabled/disabled via ethtool.
+  *
+  * 	Thanks to JC (jchapman@katalix.com) for helping with
+  * 	testing/troubleshooting the development driver.
+  *
+  * 	TODO:
+  * 	o several entry points race with dev->close
+  * 	o check for tx-no-resources/stop Q races with tx clean/wake Q
++ *
++ *	FIXES:
++ * 2005/12/02 - Michael O'Donnell <Michael.ODonnell at stratus dot com>
++ *	- Stratus87247: protect MDI control register manipulations
+  */
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/init.h>
+@@ -572,20 +577,21 @@ struct nic {
+ 	u32 rx_fc_pause;
+ 	u32 rx_fc_unsupported;
+ 	u32 rx_tco_frames;
+ 	u32 rx_over_length_errors;
+ 
+ 	u8 rev_id;
+ 	u16 leds;
+ 	u16 eeprom_wc;
+ 	u16 eeprom[256];
+ 	u32 pm_state[16];
++	spinlock_t mdio_lock;
+ };
+ 
+ static inline void e100_write_flush(struct nic *nic)
+ {
+ 	/* Flush previous PCI writes through intermediate bridges
+ 	 * by doing a benign read */
+ 	(void)readb(&nic->csr->scb.status);
+ }
+ 
+ static inline void e100_enable_irq(struct nic *nic)
+@@ -869,29 +894,49 @@ static inline int e100_exec_cb(struct ni
+ err_unlock:
+ 	spin_unlock_irqrestore(&nic->cb_lock, flags);
+ 
+ 	return err;
+ }
+ 
+ static u16 mdio_ctrl(struct nic *nic, u32 addr, u32 dir, u32 reg, u16
+data)
+ {
+ 	u32 data_out = 0;
+ 	unsigned int i;
++	unsigned long flags;
++
+ 
++	/*
++	 * Stratus87247: we shouldn't be writing the MDI control
++	 * register until the Ready bit shows True.  Also, since
++	 * manipulation of the MDI control registers is a multi-step
++	 * procedure it should be done under lock.
++	 */
++	spin_lock_irqsave( &(nic->mdio_lock), flags );
++	for( i = 100;  i;  --i )  {
++		if( readl( &(nic->csr->mdi_ctrl) ) & mdi_ready )  {
++			break;
++		}
++		udelay( 20 );
++	}
++	if( unlikely( !i )  )  {
++		printk( "e100.mdio_ctrl(%s)won't go Ready\n",
+nic->netdev->name );
++		spin_unlock_irqrestore( &(nic->mdio_lock), flags );
++		return( 0 );		/* No way to indicate timeout
+error */
++	}
+ 	writel((reg << 16) | (addr << 21) | dir | data,
+&nic->csr->mdi_ctrl);
+ 
+ 	for(i = 0; i < 100; i++) {
+ 		udelay(20);
+ 		if((data_out = readl(&nic->csr->mdi_ctrl)) & mdi_ready)
+ 			break;
+ 	}
+-
++	spin_unlock_irqrestore( &(nic->mdio_lock), flags );
+ 	DPRINTK(HW, DEBUG,
+ 		"%s:addr=%d, reg=%d, data_in=0x%04X, data_out=0x%04X\n",
+ 		dir == mdi_read ? "READ" : "WRITE", addr, reg, data,
+data_out);
+ 	return (u16)data_out;
+ }
+ 
+ static int mdio_read(struct net_device *netdev, int addr, int reg)
+ {
+ 	return mdio_ctrl(netdev_priv(netdev), addr, mdi_read, reg, 0);
+ }
+@@ -2306,20 +2435,21 @@ static int __devinit e100_probe(struct p
+ 	if(ent->driver_data)
+ 		nic->flags |= ich;
+ 	else
+ 		nic->flags &= ~ich;
+ 
+ 	e100_get_defaults(nic);
+ 
+ 	/* locks must be initialized before calling hw_reset */
+ 	spin_lock_init(&nic->cb_lock);
+ 	spin_lock_init(&nic->cmd_lock);
++	spin_lock_init(&nic->mdio_lock);
+ 
+ 	/* Reset the device before pci_set_master() in case device is in
+some
+ 	 * funky state and has an interrupt pending - hint: we don't
+have the
+ 	 * interrupt handler registered yet. */
+ 	e100_hw_reset(nic);
+ 
+ 	pci_set_master(pdev);
+ 
+ 	init_timer(&nic->watchdog);
+ 	nic->watchdog.function = e100_watchdog;

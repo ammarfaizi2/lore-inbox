@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWAFAov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWAFAqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWAFAov (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWAFAou
+	id S932336AbWAFAqD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWAFAqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:44:50 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37251 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932335AbWAFAot
+	Thu, 5 Jan 2006 19:46:01 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:33155 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932336AbWAFAqA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:44:49 -0500
-Date: Thu, 5 Jan 2006 16:46:12 -0800
+	Thu, 5 Jan 2006 19:46:00 -0500
+Date: Thu, 5 Jan 2006 16:45:03 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,14 +17,14 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "David S. Miller" <davem@davemloft.net>,
-       "Luis F. Ortiz" <lfo@Polyad.Org>
-Subject: [PATCH 6/6] [ATYFB]: Fix onboard video on SPARC Blade 100 for 2.6.{13,14,15}
-Message-ID: <20060106004612.GF25207@sorel.sous-sol.org>
+       Adrian Bunk <bunk@stusta.de>, "David S. Miller" <davem@davemloft.net>,
+       jgarzik@pobox.com, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 1/6] drivers/net/sungem.c: gem_remove_one mustnt be __devexit
+Message-ID: <20060106004503.GA25207@sorel.sous-sol.org>
 References: <20060105235845.967478000@sorel.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-ATY-video-on-sunblade.patch"
+Content-Disposition: inline; filename="drivers-net-sungem.c-gem_remove_one-mustn-t-be-__devexit.patch"
 In-Reply-To: <20060105235947.100933000@sorel.sous-sol.org>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,51 +33,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-	I have recently been switching from using 2.4.32 on my trusty
-old Sparc Blade 100 to using 2.6.15 .  Some of the problems I ran into
-were distorted video when the console was active (missing first
-character, skipped dots) and when running X windows (colored snow,
-stripes, missing pixels).  A quick examination of the 2.6 versus 2.4
-source for the ATY driver revealed alot of changes.
+gem_remove_one() is called from the __devinit gem_init_one().
 
-         A closer look at the code/data for the 64GR/XL chip revealed
-two minor "typos" that the rewriter(s) of the code made.  The first is
-a incorrect clock value (230 .vs. 235) and the second is a missing
-flag (M64F_SDRAM_MAGIC_PLL).  Making both these changes seems to have
-fixed my problem.  I tend to think the 235 value is the correct one,
-as there is a 29.4 Mhz clock crystal close to the video chip and 235.2
-(29.4*8) is too close to 235 to make it a coincidence.
+Therefore, gem_remove_one() mustn't be __devexit.
 
-	The flag for M64F_SDRAM_MAGIC_PLL was dropped during the
-changes made by adaplas in file revision 1.72 on the old bitkeeper
-repository.
+This patch was already included in 2.6.15-rc7.
 
-	The change relating to the clock rate has been there forever,
-at least in the 2.6 tree.  I'm not sure where to look for the old 2.5
-tree or if anyone cares when it happened.
 
-On SPARC Blades 100's, which use the ATY MACH64GR video chipset, the
-clock crystal frequency is 235.2 Mhz, not 230 Mhz.  The chipset also
-requires the use of M64F_SDRAM_MAGIC_PLL in order to setup the PLL
-properly for the DRAM.
-
-Signed-off-by: "Luis F. Ortiz" <lfo@Polyad.Org>
-Signed-off-by: "David S. Miller" <davem@davemloft.net>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/video/aty/atyfb_base.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/sungem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.14.5.orig/drivers/video/aty/atyfb_base.c
-+++ linux-2.6.14.5/drivers/video/aty/atyfb_base.c
-@@ -404,7 +404,7 @@ static struct {
- 	{ PCI_CHIP_MACH64GM, "3D RAGE XL (Mach64 GM, AGP)", 230, 83, 63, ATI_CHIP_264XL },
- 	{ PCI_CHIP_MACH64GN, "3D RAGE XL (Mach64 GN, AGP)", 230, 83, 63, ATI_CHIP_264XL },
- 	{ PCI_CHIP_MACH64GO, "3D RAGE XL (Mach64 GO, PCI-66/BGA)", 230, 83, 63, ATI_CHIP_264XL },
--	{ PCI_CHIP_MACH64GR, "3D RAGE XL (Mach64 GR, PCI-33MHz)", 230, 83, 63, ATI_CHIP_264XL },
-+	{ PCI_CHIP_MACH64GR, "3D RAGE XL (Mach64 GR, PCI-33MHz)", 235, 83, 63, ATI_CHIP_264XL | M64F_SDRAM_MAGIC_PLL },
- 	{ PCI_CHIP_MACH64GL, "3D RAGE XL (Mach64 GL, PCI)", 230, 83, 63, ATI_CHIP_264XL },
- 	{ PCI_CHIP_MACH64GS, "3D RAGE XL (Mach64 GS, PCI)", 230, 83, 63, ATI_CHIP_264XL },
+--- linux-2.6.14.5.orig/drivers/net/sungem.c
++++ linux-2.6.14.5/drivers/net/sungem.c
+@@ -2905,7 +2905,7 @@ static int __devinit gem_get_device_addr
+ 	return 0;
+ }
  
+-static void __devexit gem_remove_one(struct pci_dev *pdev)
++static void gem_remove_one(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 
+@@ -3179,7 +3179,7 @@ static struct pci_driver gem_driver = {
+ 	.name		= GEM_MODULE_NAME,
+ 	.id_table	= gem_pci_tbl,
+ 	.probe		= gem_init_one,
+-	.remove		= __devexit_p(gem_remove_one),
++	.remove		= gem_remove_one,
+ #ifdef CONFIG_PM
+ 	.suspend	= gem_suspend,
+ 	.resume		= gem_resume,
 
 --

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752371AbWAFQgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752448AbWAFQgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752371AbWAFQgb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 11:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752369AbWAFQ34
+	id S1752448AbWAFQgq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 11:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752369AbWAFQgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 11:29:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11199 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752371AbWAFQ3r (ORCPT
+	Fri, 6 Jan 2006 11:36:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34239 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752448AbWAFQaA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 11:29:47 -0500
-Date: Fri, 6 Jan 2006 16:29:36 GMT
-Message-Id: <200601061629.k06GTaYt011371@warthog.cambridge.redhat.com>
+	Fri, 6 Jan 2006 11:30:00 -0500
+Date: Fri, 6 Jan 2006 16:29:37 GMT
+Message-Id: <200601061629.k06GTb5P011382@warthog.cambridge.redhat.com>
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org, aviro@redhat.com
 Cc: linux-kernel@vger.kernel.org
 Fcc: outgoing
-Subject: [PATCH 6/17] FRV: Supply various missing I/O access primitives
+Subject: [PATCH 11/17] FRV: Make get_user macro cast pointers
 In-Reply-To: <dhowells1136564974@warthog.cambridge.redhat.com>
 References: <dhowells1136564974@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
@@ -23,214 +23,36 @@ Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch supplies various I/O access primitives that are missing for
-the FRV arch:
-
- (*) mmiowb()
-
- (*) read*_relaxed()
-
- (*) ioport_*map()
-
- (*) ioread*(), iowrite*(), ioread*_rep() and iowrite*_rep()
-
- (*) pci_io*map()
-
- (*) check_signature()
-
-The patch also makes __is_PCI_addr() more efficient.
+The attached patch makes the get_user macro cast the source pointer to an
+appropriate type for the specified size.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
-warthog>diffstat -p1 frv-io-2615.diff
- include/asm-frv/io.h      |  123 ++++++++++++++++++++++++++++++++++++++++++++++
- include/asm-frv/mb-regs.h |    4 +
- 2 files changed, 127 insertions(+)
+warthog>diffstat -p1 frv-uaccess-2615.diff
+ include/asm-frv/uaccess.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -uNrp /warthog/kernels/linux-2.6.15/include/asm-frv/io.h linux-2.6.15-frv/include/asm-frv/io.h
---- /warthog/kernels/linux-2.6.15/include/asm-frv/io.h	2005-06-22 13:52:26.000000000 +0100
-+++ linux-2.6.15-frv/include/asm-frv/io.h	2006-01-06 14:43:43.000000000 +0000
-@@ -18,6 +18,7 @@
- #ifdef __KERNEL__
- 
- #include <linux/config.h>
-+#include <linux/types.h>
- #include <asm/virtconvert.h>
- #include <asm/string.h>
- #include <asm/mb-regs.h>
-@@ -104,6 +105,8 @@ static inline void __insl(unsigned long 
- 		__insl_sw(addr, buf, len);
- }
- 
-+#define mmiowb() mb()
-+
- /*
-  *	make the short names macros so specific devices
-  *	can override them as required
-@@ -209,6 +212,10 @@ static inline uint32_t readl(const volat
- 	return ret;
- }
- 
-+#define readb_relaxed readb
-+#define readw_relaxed readw
-+#define readl_relaxed readl
-+
- static inline void writeb(uint8_t datum, volatile void __iomem *addr)
- {
- 	__builtin_write8((volatile uint8_t __force *) addr, datum);
-@@ -268,11 +275,106 @@ static inline void __iomem *ioremap_full
- 
- extern void iounmap(void __iomem *addr);
- 
-+static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
-+{
-+	return (void __iomem *) port;
-+}
-+
-+static inline void ioport_unmap(void __iomem *p)
-+{
-+}
-+
- static inline void flush_write_buffers(void)
- {
- 	__asm__ __volatile__ ("membar" : : :"memory");
- }
- 
-+/*
-+ * do appropriate I/O accesses for token type
-+ */
-+static inline unsigned int ioread8(void __iomem *p)
-+{
-+	return __builtin_read8(p);
-+}
-+
-+static inline unsigned int ioread16(void __iomem *p)
-+{
-+	uint16_t ret = __builtin_read16(p);
-+	if (__is_PCI_addr(p))
-+		ret = _swapw(ret);
-+	return ret;
-+}
-+
-+static inline unsigned int ioread32(void __iomem *p)
-+{
-+	uint32_t ret = __builtin_read32(p);
-+	if (__is_PCI_addr(p))
-+		ret = _swapl(ret);
-+	return ret;
-+}
-+
-+static inline void iowrite8(u8 val, void __iomem *p)
-+{
-+	__builtin_write8(p, val);
-+	if (__is_PCI_MEM(p))
-+		__flush_PCI_writes();
-+}
-+
-+static inline void iowrite16(u16 val, void __iomem *p)
-+{
-+	if (__is_PCI_addr(p))
-+		val = _swapw(val);
-+	__builtin_write16(p, val);
-+	if (__is_PCI_MEM(p))
-+		__flush_PCI_writes();
-+}
-+
-+static inline void iowrite32(u32 val, void __iomem *p)
-+{
-+	if (__is_PCI_addr(p))
-+		val = _swapl(val);
-+	__builtin_write32(p, val);
-+	if (__is_PCI_MEM(p))
-+		__flush_PCI_writes();
-+}
-+
-+static inline void ioread8_rep(void __iomem *p, void *dst, unsigned long count)
-+{
-+	io_insb((unsigned long) p, dst, count);
-+}
-+
-+static inline void ioread16_rep(void __iomem *p, void *dst, unsigned long count)
-+{
-+	io_insw((unsigned long) p, dst, count);
-+}
-+
-+static inline void ioread32_rep(void __iomem *p, void *dst, unsigned long count)
-+{
-+	__insl_ns((unsigned long) p, dst, count);
-+}
-+
-+static inline void iowrite8_rep(void __iomem *p, const void *src, unsigned long count)
-+{
-+	io_outsb((unsigned long) p, src, count);
-+}
-+
-+static inline void iowrite16_rep(void __iomem *p, const void *src, unsigned long count)
-+{
-+	io_outsw((unsigned long) p, src, count);
-+}
-+
-+static inline void iowrite32_rep(void __iomem *p, const void *src, unsigned long count)
-+{
-+	__outsl_ns((unsigned long) p, src, count);
-+}
-+
-+/* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
-+struct pci_dev;
-+extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-+static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
-+{
-+}
-+
- 
- /*
-  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
-@@ -284,6 +386,27 @@ static inline void flush_write_buffers(v
-  * Convert a virtual cached pointer to an uncached pointer
-  */
- #define xlate_dev_kmem_ptr(p)	p
-+ 
-+/*
-+ * Check BIOS signature
-+ */
-+static inline int check_signature(volatile void __iomem *io_addr,
-+				  const unsigned char *signature, int length)
-+{
-+	int retval = 0;
-+
-+	do {
-+		if (readb(io_addr) != *signature)
-+			goto out;
-+		io_addr++;
-+		signature++;
-+		length--;
-+	} while (length);
-+
-+	retval = 1;
-+out:
-+	return retval;
-+}
- 
- #endif /* __KERNEL__ */
- 
-diff -uNrp /warthog/kernels/linux-2.6.15/include/asm-frv/mb-regs.h linux-2.6.15-frv/include/asm-frv/mb-regs.h
---- /warthog/kernels/linux-2.6.15/include/asm-frv/mb-regs.h	2005-03-02 12:08:45.000000000 +0000
-+++ linux-2.6.15-frv/include/asm-frv/mb-regs.h	2006-01-06 14:43:43.000000000 +0000
-@@ -68,6 +68,9 @@ do {									\
- #define __is_PCI_MEM(addr) \
- 	((unsigned long)(addr) - __region_PCI_MEM < 0x08000000UL)
- 
-+#define __is_PCI_addr(addr) \
-+	((unsigned long)(addr) - __region_PCI_IO < 0x0c000000UL)
-+
- #define __get_CLKSW()	({ *(volatile unsigned long *)(__region_CS2 + 0x0130000cUL) & 0xffUL; })
- #define __get_CLKIN()	(__get_CLKSW() * 125U * 100000U / 24U)
- 
-@@ -149,6 +152,7 @@ do {									\
- 
- #define __is_PCI_IO(addr)	0	/* no PCI */
- #define __is_PCI_MEM(addr)	0
-+#define __is_PCI_addr(addr)	0
- #define __region_PCI_IO		0
- #define __region_PCI_MEM	0
- #define __flush_PCI_writes()	do { } while(0)
+diff -uNrp /warthog/kernels/linux-2.6.15/include/asm-frv/uaccess.h linux-2.6.15-frv/include/asm-frv/uaccess.h
+--- /warthog/kernels/linux-2.6.15/include/asm-frv/uaccess.h	2005-11-01 13:19:17.000000000 +0000
++++ linux-2.6.15-frv/include/asm-frv/uaccess.h	2006-01-06 14:43:43.000000000 +0000
+@@ -180,16 +180,16 @@ do {						\
+ 									\
+ 	switch (sizeof(*(ptr))) {					\
+ 	case 1:								\
+-		__get_user_asm(__gu_err, __gu_val, ptr, "ub", "=r");	\
++		__get_user_asm(__gu_err, *(u8*)&__gu_val, ptr, "ub", "=r"); \
+ 		break;							\
+ 	case 2:								\
+-		__get_user_asm(__gu_err, __gu_val, ptr, "uh", "=r");	\
++		__get_user_asm(__gu_err, *(u16*)&__gu_val, ptr, "uh", "=r"); \
+ 		break;							\
+ 	case 4:								\
+-		__get_user_asm(__gu_err, __gu_val, ptr, "", "=r");	\
++		__get_user_asm(__gu_err, *(u32*)&__gu_val, ptr, "", "=r"); \
+ 		break;							\
+ 	case 8:								\
+-		__get_user_asm(__gu_err, __gu_val, ptr, "d", "=e");	\
++		__get_user_asm(__gu_err, *(u64*)&__gu_val, ptr, "d", "=e"); \
+ 		break;							\
+ 	default:							\
+ 		__gu_err = __get_user_bad();				\

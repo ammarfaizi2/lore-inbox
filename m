@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWAFP4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWAFQAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWAFP4J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 10:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWAFP4I
+	id S1751026AbWAFQAT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 11:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWAFQAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 10:56:08 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:60164 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750721AbWAFP4I (ORCPT
+	Fri, 6 Jan 2006 11:00:18 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:8418 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751026AbWAFQAR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 10:56:08 -0500
-Date: Fri, 6 Jan 2006 16:55:55 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Nauman Tahir <nauman.tahir@gmail.com>
-Cc: anil dahiya <ak_ait@yahoo.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Subject: Re: makefile for 2.6 kernel
-Message-ID: <20060106155555.GD7953@mars.ravnborg.org>
-References: <20060104182356.14925.qmail@web60217.mail.yahoo.com> <20060104185524.GA8296@mars.ravnborg.org> <f0309ff0601052320g76bea0afg61322551f57c6d38@mail.gmail.com>
+	Fri, 6 Jan 2006 11:00:17 -0500
+Subject: RE: RAID controller safety
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060106151855.63846.qmail@web34102.mail.mud.yahoo.com>
+References: <20060106151855.63846.qmail@web34102.mail.mud.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 06 Jan 2006 16:02:35 +0000
+Message-Id: <1136563355.30498.29.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f0309ff0601052320g76bea0afg61322551f57c6d38@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 11:20:29PM -0800, Nauman Tahir wrote:
- 
-> hi,
-> Anil just put the names of your .c  files where I have mentioned. Hope
-> this will work
+On Gwe, 2006-01-06 at 07:18 -0800, Kenny Simpson wrote:
+> Won't the i2o_block driver use i2o_block_device_flush to flush the devices' cache (by issuing a
+> I2O_CMD_BLOCK_CFLUSH), or this this function used in some very different context?
 
-Your Makefile try to stay compatible with 2.4 + 2.6.
-And this includes a lot of extra stuff that can be removed for 2.6.
 
-So only if the users wants to be compatible with both 2.4 AND 2.6 this
-template is usefull.
+I'm out of date. It was originally used on the last close of removable
+media and to work around some promise bugs. Markus Lidel has indeed
+added the relevant functions and hooks to let the block layer use it for
+barriers
 
-	Sam
+Alan
+

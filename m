@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWAFAIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWAFAFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWAFAIO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752315AbWAFAIN
+	id S1751470AbWAFAFI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:05:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751708AbWAFAFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:08:13 -0500
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:9860 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1752313AbWAFAIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:08:10 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [PATCH] sched: Fix adverse effects of NFS client   on interactive response
-Date: Fri, 6 Jan 2006 11:08:26 +1100
-User-Agent: KMail/1.8.2
-Cc: Mike Galbraith <efault@gmx.de>, Helge Hafting <helgehaf@aitel.hist.no>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net> <200601061033.10001.kernel@kolivas.org> <43BDB37D.1030601@bigpond.net.au>
-In-Reply-To: <43BDB37D.1030601@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 5 Jan 2006 19:05:07 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:10429 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S1751470AbWAFAFC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 19:05:02 -0500
+In-Reply-To: <9a8748490601051535s5e28fd81of6814088db7ccac@mail.gmail.com>
+References: <20050726150837.GT3160@stusta.de> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr> <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <1136491503.847.0.camel@mindpipe> <7B34B941-46CC-478F-A870-43FE0D3143AB@dalecki.de> <1136493172.847.26.camel@mindpipe> <8D670C39-7B52-407C-8BDD-3478DB172641@dalecki.de> <9a8748490601051535s5e28fd81of6814088db7ccac@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <A1ECA9D1-29EB-4C44-A343-87B5EAAD4ADA@dalecki.de>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Takashi Iwai <tiwai@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601061108.26561.kernel@kolivas.org>
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Fri, 6 Jan 2006 01:04:44 +0100
+To: Jesper Juhl <jesper.juhl@gmail.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006 11:02 am, Peter Williams wrote:
-> Con Kolivas wrote:
-> > On Fri, 6 Jan 2006 10:13 am, Peter Williams wrote:
-> >>If the plugsched patches were included in -mm we could get wider testing
-> >>of alternative scheduling mechanisms.  But I think it will take a lot of
-> >>testing of the new schedulers to allay fears that they may introduce new
-> >>problems of their own.
-> >
-> > When I first generated plugsched and posted it to lkml for inclusion in
-> > -mm it was blocked as having no chance of being included by both Ingo and
-> > Linus and I doubt they've changed their position since then. As you're
-> > well aware this is why I gave up working on it and let you maintain it
-> > since then. Obviously I thought it was a useful feature or I wouldn't
-> > have worked on it.
->
-> I've put a lot of effort into reducing code duplication and reducing the
-> size of the interface and making it completely orthogonal to load
-> balancing so I'm hopeful (perhaps mistakenly) that this makes it more
-> acceptable (at least in -mm).
 
-The objection was to dilution of developer effort towards one cpu scheduler to 
-rule them all. Linus' objection was against specialisation - he preferred one 
-cpu scheduler that could do everything rather than unique cpu schedulers for 
-NUMA, SMP, UP, embedded... Each approach has its own arguments and there 
-isn't much point bringing them up again. We shall use Linux as the 
-"steamroller to crack a nut" no matter what that nut is.
+On 2006-01-06, at 00:35, Jesper Juhl wrote:
 
-> My testing shows that there's no observable difference in performance
-> between a stock kernel and plugsched with ingosched selected at the
-> total system level (although micro benchmarking may show slight
-> increases in individual operations).
+>>
+>> I will do you this favor: NONE. Using something implies that it is
+>> working.
+>>
+> Do you really expect your problems to be solved with that attitude?
 
-I could find no difference either, but IA64 which does not cope with 
-indirection well would probably suffer a demonstrable performance hit I have 
-been told. I do not have access to such hardware.
+No I do not. How do you dare to assume I do?
+I never ever did ask for any support on behalf of the ALSA bunch...
+We are just discussing the merits of one sound system design
+over another one (without design).
 
-> Anyway, I'll just keep plugging away,
+So please just keep your superstitions for yourself.
 
-Nice pun.
-
-Cheers,
-Con

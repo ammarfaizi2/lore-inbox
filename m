@@ -1,123 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWAFDbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWAFDgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWAFDbu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 22:31:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWAFDbt
+	id S1751094AbWAFDgW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 22:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWAFDgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 22:31:49 -0500
-Received: from main.gmane.org ([80.91.229.2]:40159 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750823AbWAFDbt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 22:31:49 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: eth0 and loopback problems.
-Date: Fri, 06 Jan 2006 12:31:24 +0900
-Message-ID: <dpkoae$5t2$1@sea.gmane.org>
-References: <20060105092052.GE3008@darkstar.mylan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060103)
-X-Accept-Language: en-us, en
-In-Reply-To: <20060105092052.GE3008@darkstar.mylan>
-X-Enigmail-Version: 0.93.0.0
+	Thu, 5 Jan 2006 22:36:22 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:7271 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP
+	id S1750970AbWAFDgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 22:36:22 -0500
+Date: Fri, 6 Jan 2006 05:33:43 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Edgar Toernig <froese@gmx.de>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <20060106041421.31579e69.froese@gmx.de>
+Message-ID: <Pine.LNX.4.61.0601060519450.29362@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
+ <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+ <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
+ <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
+ <20060106041421.31579e69.froese@gmx.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JohnnyRun wrote:
-> Hi all!
-> I think  it's a bug....
-That definately seems weired, but I never ran into it till now...
+On Fri, 6 Jan 2006, Edgar Toernig wrote:
 
-> HOSTA# ifconfig eth0 192.168.0.1
-> HOSTA# ifconfig eth0 down
-> HOSTA# ping 192.168.0.1
-> (the ping works, like all other ICMP / TCP /UDP ... application. 
-> In other words: all work like eth0 in UP mode when source and
-> destination point comunicate via loopback device.
-> I think it's not correct because if eth0 is DOWN for all the hosts in
-> LAN should be down for me too. Or not?
-
-Just to rewrite that in iproute2
-
-old ~ # ip addr flush dev eth1
-old ~ # ip addr show dev eth1
-4: eth1: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast qlen 1000
-    link/ether 00:00:00:54:0b:8a brd ff:ff:ff:ff:ff:ff
-old ~ # ping -c1 -q 192.168.0.1
-PING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.
-
---- 192.168.0.1 ping statistics ---
-1 packets transmitted, 0 received, 100% packet loss, time 0ms
-
-old ~ # ip addr add 192.168.0.1/32 dev eth1
-old ~ # ip link set dev eth1 down
-old ~ # ip link show dev eth1
-4: eth1: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast qlen 1000
-    link/ether 00:00:00:54:0b:8a brd ff:ff:ff:ff:ff:ff
-old ~ # ping -c1 -q 192.168.0.1
-PING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.
-
---- 192.168.0.1 ping statistics ---
-1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 0.033/0.033/0.033/0.000 ms
-
-
-> Suppose another conf:
+> Hannu Savolainen wrote:
+> >
+> > Takashi Iwai wrote:
+> > >
+> > > - Split of channels to concurrent accesses
+> >
+> > Could you be more specific with the above isues?
 > 
-> HOSTA# ifconfig
-> eth0      Link encap:Ethernet  HWaddr 00:10:DC:C3:5E:FF  
->           inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.0.0.0
-> 	  BROADCAST MULTICAST  MTU:1500  Metric:1
-> eth1      Link encap:Ethernet  HWaddr 00:0E:35:74:16:67  
->           inet addr:192.168.0.2 [...]
-> 	  UP BROADCAST RUNNING MULTICAST  MTU:1500
-> lo  	 [...]
-> 
-> HOSTB# ifconfig eth0
-> eth0      Link encap:Ethernet  HWaddr 00:00:24:C8:4A:7D  
->           inet addr:192.168.0.1  Bcast:1.255.255.255  Mask:255.0.0.0
-> 	  UP BROADCAST RUNNING MULTICAST  MTU:1500
-> 	  [...]
-> 
-> So, HOSTA and HOSTB share the same ip but: HOSTA eth0 is DOWN; HOSTA eth1 is
-> UP, HOSTB eth0 is UP. So, no conflict should be possible.
-> but:
-> 
-> HOSTB# ping 192.168.0.2
-> (does not reply)
-> 
-> So I suppose that HOSTA route the icmp reply through its lo.
-> But:
-> 
-> HOSTA# tcpdump -i lo
-> doesn't show any reply, and 
-> 
-> HOSTA# tcpdump -i eth0 
-> it's not permitted, because eth0 is DOWN.
-> 
-> The same result for TCP protocol (tested with hping).
-> Operative conditions: Linux 2.6.14, HOSTA eth1 is wifi.
+> As I understand it: instead of providing one device with 5.1 capabilities
+> provide one device with 3 concurrent stereo users.  Reading the datasheet
+> of my AC'97 decoder (a cheap ALC650 connected to an ATIIXP) there is hard-
+> ware that supports this[1].
+Then this is in no way an API issue. Many OSS drivers (including envy24) 
+create separete device files for each input/output channel (or device pair). 
+Applications can chose to open the first device file in for all the 
+channels or any combination of the devices in mono/stereo/n-channel mode.
 
-Very good testcase!
+All this depends only on the driver implementation. There is nothing API 
+related. Any app can open the devices as usual without paying any 
+attention on the channel allocation (which is done automatically by the 
+driver). xmms (or whatever else consumer app) can open the device and ask 
+for stereo access. Equally well a DAB application can open the device and 
+ask for full 10 output channels (or anything between 1 and 10). No special 
+API features are needed for this.
 
-Any IP gurus? Ideas on why is such behaviour observerd?
+Best regards,
 
-Does it have to do something with the driver for ethX being notiefied of the link status and thus
-hardware (PHY?) is shut down so signal from the wire is ignored?
-Or down the ARP somewhere?
-
-Cannot think of security exploit at the moment, but there should be one...
-
-
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

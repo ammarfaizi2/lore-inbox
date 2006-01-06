@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWAFADZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752308AbWAFADw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbWAFADZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 19:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752308AbWAFADG
+	id S1752308AbWAFADw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 19:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752313AbWAFADv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 19:03:06 -0500
-Received: from digitalimplant.org ([64.62.235.95]:64929 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S1751708AbWAFACw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 19:02:52 -0500
-Date: Thu, 5 Jan 2006 16:02:29 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Preece Scott-PREECE <scott.preece@motorola.com>
-cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
-       "" <akpm@osdl.org>, "" <linux-pm@lists.osdl.org>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: RE: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
- interface
-In-Reply-To: <ADE4D9DBCFC3A345AAA95C195F62B6DDD3AD5D@de01exm64.ds.mot.com>
-Message-ID: <Pine.LNX.4.50.0601051558100.10428-100000@monsoon.he.net>
-References: <ADE4D9DBCFC3A345AAA95C195F62B6DDD3AD5D@de01exm64.ds.mot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jan 2006 19:03:51 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:24792 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1752308AbWAFADb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 19:03:31 -0500
+Subject: Re: [OT] ALSA userspace API complexity
+From: Lee Revell <rlrevell@joe-job.com>
+To: Hannu Savolainen <hannu@opensound.com>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0601060153440.27932@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de>
+	 <20060103193736.GG3831@stusta.de>
+	 <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+	 <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+	 <20060104030034.6b780485.zaitcev@redhat.com>
+	 <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+	 <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+	 <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
+	 <s5hmziaird8.wl%tiwai@suse.de>
+	 <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi>
+	 <1136504364.847.88.camel@mindpipe>
+	 <Pine.LNX.4.61.0601060153440.27932@zeus.compusonic.fi>
+Content-Type: text/plain
+Date: Thu, 05 Jan 2006 19:03:28 -0500
+Message-Id: <1136505809.6035.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-01-06 at 01:56 +0200, Hannu Savolainen wrote:
+> On Thu, 5 Jan 2006, Lee Revell wrote:
+> 
+> > On Fri, 2006-01-06 at 01:06 +0200, Hannu Savolainen wrote:
+> > > > - PCM with 3-bytes-packed 24bit formats
+> > > Applications have no reasons to use for this kind of stupid format so
+> > > OSS translates it to the usual 32 bit format on fly. In fact OSS API
+> > > does have support for this format. 
+> > 
+> > What about hardware that only understands this format?
+> There is no such hardware. Or is there?
+> 
 
-On Thu, 5 Jan 2006, Preece Scott-PREECE wrote:
+Yep, the Roland SC-D70 and EDIROL UA-5 in "advanced mode", I guess it
+lets them cram more channels of 24 bit audio over a slow USB pipe.  It's
+no fun...
 
-> This is, of course, in an embedded framework rather than a desktop
-> framework - we suspend and wakeup automatically, not via user
-> intervention. Answering a question asked in another piece of mail, we
-> have roughly a dozen different devices that cause the system to wakeup -
-> keypad press, touchscreen touch, flip open/close, etc.
-
-Hmm, it would be nice if that comment was in reply to the email in which
-it came. At least if it was in the same thread..
-
-Many systems have > 1 _possible_ wakeup devices (keyboard, touchscreen,
-lid, etc). You implied that when a system wakes up, there could be > 1
-device that actually woke the system up, which is in direct conflict with
-what I've always assumed - that when a system wakes up, it is caused by a
-single device (and if there were multiple events, like a key press *and* a
-mouse movement, it's doesn't really matter)..
-
-Thanks,
-
-
-	Patrick
+Lee
 

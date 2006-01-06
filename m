@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbWAFCvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbWAFDBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932612AbWAFCvD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 21:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWAFCvA
+	id S932611AbWAFDBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 22:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWAFDBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 21:51:00 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:9931 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932608AbWAFCu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 21:50:59 -0500
-Date: Fri, 06 Jan 2006 11:50:03 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: "Luck, Tony" <tony.luck@intel.com>
-Subject: [PATCH] Simple memory hot-add for ia64.
-Cc: Linux Hotplug Memory Support <lhms-devel@lists.sourceforge.net>,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, Bob Picco <bob.picco@hp.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
-Message-Id: <20060106114249.5649.Y-GOTO@jp.fujitsu.com>
+	Thu, 5 Jan 2006 22:01:44 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:12796 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932611AbWAFDBo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 22:01:44 -0500
+Date: Thu, 5 Jan 2006 19:01:15 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Eric Dumazet <dada1@cosmosbay.com>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Shrinks sizeof(files_struct) and better layout
+In-Reply-To: <43BBADD5.3070706@cosmosbay.com>
+Message-ID: <Pine.LNX.4.62.0601051900440.973@qynat.qvtvafvgr.pbz>
+References: <20051108185349.6e86cec3.akpm@osdl.org> <437226B1.4040901@cosmosbay.com>
+ <20051109220742.067c5f3a.akpm@osdl.org> <4373698F.9010608@cosmosbay.com>
+ <43BB1178.7020409@cosmosbay.com> <p733bk4z2z0.fsf@verdi.suse.de>
+ <43BBADD5.3070706@cosmosbay.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Tony-san.
+On Wed, 4 Jan 2006, Eric Dumazet wrote:
 
-Fortunately, 2.6.15 includes memory hot-add function for i386 and ppc.
-So, I made a patch for ia64.
-This doesn't make new pgdat. All of new memory will belong to
-node 0 by this patch. But this is simplest first step and best start for
-future work.
+> Date: Wed, 04 Jan 2006 12:13:25 +0100
+> From: Eric Dumazet <dada1@cosmosbay.com>
+> To: Andi Kleen <ak@suse.de>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] Shrinks sizeof(files_struct) and better layout
+> 
+> Andi Kleen a écrit :
+>> Eric Dumazet <dada1@cosmosbay.com> writes:
+>>> 1) Reduces the size of (struct fdtable) to exactly 64 bytes on 32bits
+>>> platforms, lowering kmalloc() allocated space by 50%.
+>> 
+>> It should be probably a kmem_cache_alloc() instead of a kmalloc
+>> in the first place anyways. This would reduce fragmentation.
+>
+> Well in theory yes, if you really expect thousand of tasks running...
+> But for most machines, number of concurrent tasks is < 200, and using a 
+> special cache for this is not a win.
 
-I tested on my Tiger4. Please apply.
+is it enough of a win on machines with thousands of concurrent tasks that 
+it would be a useful config option?
 
-(This patch doesn't use ZONE_EASY_RECLAIM yet, because its zone will be useful
- for just hot-remove.)
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
-Index: new_feature_patch/arch/ia64/mm/init.c
-===================================================================
---- new_feature_patch.orig/arch/ia64/mm/init.c	2006-01-05 15:43:10.000000000 +0900
-+++ new_feature_patch/arch/ia64/mm/init.c	2006-01-05 20:23:00.000000000 +0900
-@@ -635,3 +635,38 @@ mem_init (void)
- 	ia32_mem_init();
- #endif
- }
-+
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+void online_page(struct page *page)
-+{
-+	ClearPageReserved(page);
-+	set_page_count(page, 1);
-+	__free_page(page);
-+	totalram_pages++;
-+	num_physpages++;
-+}
-+
-+int add_memory(u64 start, u64 size)
-+{
-+	pg_data_t *pgdat;
-+	struct zone *zone;
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
-+	int ret;
-+
-+	pgdat = NODE_DATA(0);
-+
-+	zone = pgdat->node_zones + ZONE_NORMAL;
-+	ret = __add_pages(zone, start_pfn, nr_pages);
-+
-+	if (ret)
-+		printk("%s: Problem encountered in __add_pages() as ret=%d\n", __func__,  ret);
-+
-+	return ret;
-+}
-+
-+int remove_memory(u64 start, u64 size)
-+{
-+	return -EINVAL;
-+}
-+#endif
+David Lang
 
 -- 
-Yasunori Goto 
-
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 

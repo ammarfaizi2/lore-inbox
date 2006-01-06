@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWAFMqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWAFMq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWAFMqH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 07:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWAFMqH
+	id S1751195AbWAFMq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 07:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWAFMq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 07:46:07 -0500
-Received: from natfrord.rzone.de ([81.169.145.161]:5784 "EHLO
-	natfrord.rzone.de") by vger.kernel.org with ESMTP id S1751343AbWAFMqG
+	Fri, 6 Jan 2006 07:46:56 -0500
+Received: from stinky.trash.net ([213.144.137.162]:24741 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1751195AbWAFMqy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 07:46:06 -0500
-From: Stefan Rompf <stefan@loplof.de>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: State of the Union: Wireless
-Date: Fri, 6 Jan 2006 13:48:05 +0100
-User-Agent: KMail/1.8
-Cc: Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <20060106042218.GA18974@havoc.gtf.org> <1136547084.4037.41.camel@localhost> <20060106114620.GA23707@isilmar.linta.de>
-In-Reply-To: <20060106114620.GA23707@isilmar.linta.de>
+	Fri, 6 Jan 2006 07:46:54 -0500
+Message-ID: <43BE6697.3030009@trash.net>
+Date: Fri, 06 Jan 2006 13:46:15 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Marcel Holtmann <marcel@holtmann.org>
+CC: Michael Buesch <mbuesch@freenet.de>, jgarzik@pobox.com,
+       bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
+References: <1136541243.4037.18.camel@localhost>	 <200601061200.59376.mbuesch@freenet.de>	 <1136547494.7429.72.camel@localhost>	 <200601061245.55978.mbuesch@freenet.de> <1136549423.7429.88.camel@localhost>
+In-Reply-To: <1136549423.7429.88.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601061348.05803.stefan@loplof.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag 06 Januar 2006 12:46 schrieb Dominik Brodowski:
+Marcel Holtmann wrote:
 
-> From someone who has no idea at all (yet) about 802.11: why character
-> device, and not sysfs or configfs files? Like
+>>I just personally liked the idea of having a device node in /dev for
+>>every existing hardware wlan card. Like we have device nodes for
+>>other real hardware, too. It felt like a bit of a "unix way" to do
+>>this to me. I don't say this is the way to go.
+>>If a netlink socket is used (which is possible, for sure), we stay with
+>>the old way of having no device node in /dev for networking devices.
+>>That is ok. But that is really only an implementation detail (and for sure
+>>a matter of taste).
+> 
+> 
+> At the OLS last year, I think the consensus was to use netlink for all
+> configuration task. However this was mainly driven by Harald Welte and
+> he might be able to talk about the pros and cons of netlink versus a
+> character device.
 
-sysfs shares the main problem with wireless extensions: It configures one 
-value per file / per ioctl. Setting up a wireless card to associate or form 
-an IBSS network consists of multiple parameters, many requiring the card to 
-disasscociate.
-
-With hardware like prism2 usb that gets "don't touch me now mode" for a while 
-after a join command is issued, current API requires a driver to delay 
-starting an association in order to wait if other config requests are issued 
-- an ugly hack.
-
-I vote for netlink. It's a defined and tested interface and has all features 
-needed to set multiple values in one transaction.
-
-Stefan
+I think the main advantages of netlink over a character device is its
+flexible format, which is easily extendable, and multicast capability,
+which can be used to broadcast events and configuration changes. Its
+also good to have all the net stuff accessible in a uniform way.

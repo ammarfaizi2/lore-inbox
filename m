@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWAFWxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWAFWy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWAFWxd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 17:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWAFWxd
+	id S964985AbWAFWy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 17:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWAFWy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 17:53:33 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32527 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964947AbWAFWxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 17:53:32 -0500
-Date: Fri, 6 Jan 2006 23:53:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	Fri, 6 Jan 2006 17:54:27 -0500
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:64493 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964977AbWAFWyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 17:54:25 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
+To: Michael Buesch <mbuesch@freenet.de>, jgarzik@pobox.com,
+       bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
-Message-ID: <20060106225330.GB3774@stusta.de>
-References: <20060106173547.GR12131@stusta.de> <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com> <20060106180626.GV12131@stusta.de> <Pine.LNX.4.62.0601061305480.334@qynat.qvtvafvgr.pbz> <20060106223702.GA3774@stusta.de> <Pine.LNX.4.62.0601061438020.431@qynat.qvtvafvgr.pbz>
+Reply-To: 7eggert@gmx.de
+Date: Fri, 06 Jan 2006 23:57:59 +0100
+References: <5rXDU-5s4-7@gated-at.bofh.it> <5rXDU-5s4-5@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0601061438020.431@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1Ev0X3-0000tX-4l@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 02:39:34PM -0800, David Lang wrote:
-> On Fri, 6 Jan 2006, Adrian Bunk wrote:
-> 
-> >
-> >On Fri, Jan 06, 2006 at 01:11:17PM -0800, David Lang wrote:
-> >>On Fri, 6 Jan 2006, Adrian Bunk wrote:
-> >>...
-> >>>>- Being able to easily enable it in menuconfig, then browse through
-> >>>>the menus to look for something matching your hardware is nice, even
-> >>>>if that something is marked BROKEN at least you've then found a place
-> >>>>to start working on. A lot simpler than digging through directories.
-> >>>
-> >>>Our menus are mostly made for _users_.
-> >>
-> >>true, but do you really want to raise the barrier for users to test
-> >>things? or do you intend to have a bunch of patches that remove BROKEN for
-> >>a config option so that people can test them during the -rc and then add
-> >>it back for them all before a real release?
-> >
-> >If an option is untested it's EXPERIMENTAL.
-> >If it's broken it's BROKEN.
-> >
-> >If an option is marked as BROKEN but works fine for you please send a
-> >bug report.
-> 
-> my point is that if someone sends a patch that they think will fix 
-> something, nobody will be able to test that patch unless they are willing 
-> to edit their kconfig file unless the patch also marks it unbroken before 
-> anyone else has tested it.
+Michael Buesch <mbuesch@freenet.de> wrote:
 
-Kernel developers usually aren't _that_ dumb:
-The patch that fixes the driver simply removes the dependency on BROKEN.
+> How would the virtual interfaces look like? That is quite easy to answer.
+> They are net_devices, as they transfer data.
+> They should probaly _not_ be on top of the ethernet, as 80211 does not
+> have very much in common with ethernet. Basically they share the same
+> MAC address format. Does someone have another thing, which he thinks
+> is shared?
 
-> David Lang
+<brainstorming>
 
-cu
-Adrian
+It has a connection status.
+It has a connection speed, which is less static than on a LAN.
+(Maybe it can be asynchronous in the next version.)
+It can't yet be full duplex, but who knows ...
+It can be in promiscious mode (wardriving).
+
+> The virtual interface is then configured though /dev/wlan0 using write()
+> (no ugly ioctl anymore, you see...). Config data like TX rate,
+> current essid,.... basically everything + xyz which is done by WE today,
+> is written to /dev/wlan0.
+
+In ASCII parsed by an in-kernel library? Did you consider sysfs?
+
+What would a connection manager look for if it's supposed to act on
+* plugging in the WLAN card
+* finding/losing a (better) network
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

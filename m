@@ -1,58 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752285AbWAFEid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752370AbWAFEny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752285AbWAFEid (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jan 2006 23:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752335AbWAFEid
+	id S1752370AbWAFEny (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jan 2006 23:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752372AbWAFEny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jan 2006 23:38:33 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:59550 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1752253AbWAFEic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jan 2006 23:38:32 -0500
-Date: Thu, 5 Jan 2006 20:38:05 -0800
-From: Wim Coekaerts <wim.coekaerts@oracle.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Zach Brown <zach.brown@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Joel Becker <Joel.Becker@oracle.com>, Christoph Hellwig <hch@lst.de>,
-       Mark Fasheh <mark.fasheh@oracle.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: merging ocfs2?
-Message-ID: <20060106043804.GC14715@ca-server1.us.oracle.com>
-References: <43BAF93A.10509@oracle.com> <Pine.LNX.4.64.0601041649270.3668@g5.osdl.org>
+	Thu, 5 Jan 2006 23:43:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:16396 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752367AbWAFEnx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jan 2006 23:43:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AHrGIAA2blIjs3/QNKhIkOuahek+/CH05/dkwuSpmuzzuRoWS4DRXn2NnRFqaEC5lVsfkgeWr6g1uUO9k+Wri/R4fvE2Qyj5ofhmOIGnIW+CV6L/OcPOeQqUPGWLA8EcFMe75NvGrLDuQTGZ5FBciQ9xRkmfDIFMpt3l6mOPSeU=
+Message-ID: <d4757e600601052043u647658f1yaa15b0f396b4ad3c@mail.gmail.com>
+Date: Thu, 5 Jan 2006 23:43:52 -0500
+From: Joe <joecool1029@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] fix ipvs compilation
+Cc: wensong@linux-vs.org, horms@verge.net.au, ja@ssi.bg,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060105135943.GA3831@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601041649270.3668@g5.osdl.org>
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+References: <20060105135943.GA3831@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 04:50:49PM -0800, Linus Torvalds wrote:
-> On Tue, 3 Jan 2006, Zach Brown wrote:
-> > Joel has done the heavy lifting to bring its git repository up to date
-> > so one should be able to pull from:
-> > 
-> >   http://oss.oracle.com/git/ocfs2.git
-> 
-> If Christoph is happy with it, and there has been no grumbling from -mm, I 
-> can certainly merge it.
+On 1/5/06, Adrian Bunk <bunk@stusta.de> wrote:
+> I don't know which change broke it, but I'm getting the following
+> compile error in Linus' tree:
+>
+> <--  snip  -->
+>
+> ...
+>   CC      net/ipv4/ipvs/ip_vs_sched.o
+> net/ipv4/ipvs/ip_vs_sched.c: In function 'ip_vs_sched_getbyname':
+> net/ipv4/ipvs/ip_vs_sched.c:110: warning: implicit declaration of function 'local_bh_disable'
+> net/ipv4/ipvs/ip_vs_sched.c:124: warning: implicit declaration of function 'local_bh_enable'
+> ...
+>   CC      net/ipv4/ipvs/ip_vs_est.o
+> net/ipv4/ipvs/ip_vs_est.c: In function 'ip_vs_new_estimator':
+> net/ipv4/ipvs/ip_vs_est.c:147: warning: implicit declaration of function 'local_bh_disable'
+> net/ipv4/ipvs/ip_vs_est.c:156: warning: implicit declaration of function 'local_bh_enable'
+> ...
+>   LD      .tmp_vmlinux1
+> net/built-in.o: In function `ip_vs_sched_getbyname':ip_vs_sched.c:(.text+0x99cfa): undefined reference to `local_bh_disable'
+> net/built-in.o: In function `register_ip_vs_scheduler': undefined reference to `local_bh_disable'
+> net/built-in.o: In function `unregister_ip_vs_scheduler': undefined reference to `local_bh_disable'
+> net/built-in.o: In function `ip_vs_new_estimator': undefined reference to `local_bh_disable'
+> net/built-in.o: In function `ip_vs_kill_estimator': undefined reference to `local_bh_disable'
+> net/built-in.o: more undefined references to `local_bh_disable' follow
+> make: *** [.tmp_vmlinux1] Error 1
+>
+> <--  snip  -->
+>
+>
+> This patch fixes them by #include'ing linux/interrupt.h.
+>
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> --- linux-git/net/ipv4/ipvs/ip_vs_sched.c.old   2006-01-05 14:56:44.000000000 +0100
+> +++ linux-git/net/ipv4/ipvs/ip_vs_sched.c       2006-01-05 14:56:59.000000000 +0100
+> @@ -22,6 +22,7 @@
+>  #include <linux/module.h>
+>  #include <linux/sched.h>
+>  #include <linux/spinlock.h>
+> +#include <linux/interrupt.h>
+>  #include <asm/string.h>
+>  #include <linux/kmod.h>
+>
+> --- linux-git/net/ipv4/ipvs/ip_vs_est.c.old     2006-01-05 14:57:15.000000000 +0100
+> +++ linux-git/net/ipv4/ipvs/ip_vs_est.c 2006-01-05 14:57:27.000000000 +0100
+> @@ -18,6 +18,7 @@
+>  #include <linux/jiffies.h>
+>  #include <linux/slab.h>
+>  #include <linux/types.h>
+> +#include <linux/interrupt.h>
+>
+>  #include <net/ip_vs.h>
+>
+>
 
-Linus, the code has been carried in -mm since 2.6.12-rc4-mm1 and hch
-just said he's fine with it - please merge when you can.
+Thats not all either,  ./net/ipv4/netfilter/ipt_helper.c has the same
+error and the same fix.
 
-> However, I really _really_ prefer that people who use git to merge use the 
-> native git protocol, which I trust. That http: thing may work, but it's a 
-> cludge ;)
-> 
-> Can you run git-daemon on the machine? 
+Here's the patch for this one.  Sorry for the dupe.. i sent the last
+as html by accident.
 
-we will going forward - need to get some admins to do stuff, otherwise
-if you want it from day 1 we can get it on kernel.org/git. but my guess
-is that it will only be a little while and the first updates will come
-through git-daemon (eg a week or so)
-
-thanks
-Wim
-
+--- linux/net/ipv4/netfilter/ipt_helper.c.old        2006-01-05
+19:38:32.498991515 -0500
++++ linux/net/ipv4/netfilter/ipt_helper.c    2006-01-05 19:40:30.047057859 -0500
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
+ #include <linux/netfilter.h>
++#include <linux/interrupt.h>
+ #if defined(CONFIG_IP_NF_CONNTRACK) || defined(CONFIG_IP_NF_CONNTRACK_MODULE)
+ #include <linux/netfilter_ipv4/ip_conntrack.h>
+ #include <linux/netfilter_ipv4/ip_conntrack_core.h>

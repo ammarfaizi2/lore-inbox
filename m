@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752445AbWAFQvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752475AbWAFQ5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752445AbWAFQvn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 11:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752471AbWAFQvn
+	id S1752475AbWAFQ5a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 11:57:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752476AbWAFQ53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 11:51:43 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2455 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752445AbWAFQvn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 11:51:43 -0500
-Date: Fri, 6 Jan 2006 17:51:24 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] suspend: update documentation
-Message-ID: <20060106165124.GC12190@elf.ucw.cz>
-References: <20060106110922.GC9219@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.58.0601060843190.11324@shark.he.net>
+	Fri, 6 Jan 2006 11:57:29 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38414 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751129AbWAFQ52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 11:57:28 -0500
+Date: Fri, 6 Jan 2006 16:57:17 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, schwidefsky@de.ibm.com,
+       Greg K-H <greg@kroah.com>
+Subject: Re: [CFT 1/29] Add bus_type probe, remove, shutdown methods.
+Message-ID: <20060106165717.GB16093@flint.arm.linux.org.uk>
+Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
+	LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
+	pcihpd-discuss@lists.sourceforge.net, schwidefsky@de.ibm.com,
+	Greg K-H <greg@kroah.com>
+References: <20060105142951.13.01@flint.arm.linux.org.uk> <20060106114822.GA11071@flint.arm.linux.org.uk> <1136565289.3528.26.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0601060843190.11324@shark.he.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1136565289.3528.26.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 06-01-06 08:46:19, Randy.Dunlap wrote:
-> On Fri, 6 Jan 2006, Pavel Machek wrote:
+On Fri, Jan 06, 2006 at 10:34:49AM -0600, James Bottomley wrote:
+> On Fri, 2006-01-06 at 11:48 +0000, Russell King wrote:
+> > The scsi_driver business looks like being a pig to solve - so can
+> > SCSI folk please look at what's required to unuse these fields.
 > 
-> > This updates documentation for suspend-to-disk and RAM. In particular
-> > modular disk drivers trap is documented.
-> >
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> >
-> > --- a/Documentation/power/swsusp.txt
-> > +++ b/Documentation/power/swsusp.txt
-> > @@ -27,13 +27,11 @@ echo shutdown > /sys/power/disk; echo di
-> > +. If you have SATA disks, you'll need recent kernels with SATA suspend
-> > +support. For suspend and resume to work, make sure your disk drivers
-> > +are built into kernel -- not modules. [There's way to make
-> > +suspend/resume with modular disk drivers, see FAQ, but you should
-> > +better not do that.]
-> 
-> (drop "better", or say "but you probably shouldn't do that.")
+> Well, not necessarily pig.  Perhaps piglet.  We definitely need the
+> separate probe, shutdown and remove methods for each of our ULDs.
+> However, if they moved into the bus, since scsi_driver is always of type
+> scsi_bus, we could add separate probe, shutdown and remove fields to
+> struct scsi_driver and have the new fields in scsi_bus call those.  I
+> have to ask, though; isn't that primarily what most other bus types are
+> going to be doing anyway?  So doesn't it make sense to leave the fields
+> in the generic driver?  Then the rule becomes that if the bus has the
+> field, we call it, and the bus routine *may* call the corresponding
+> generic driver field if it feels like it.  Otherwise if the bus has no
+> callbacks, just use the generic driver ones?
 
-Second variant applied.
+Firstly, having both causes confusion.  As a prime example of this,
+see the PCIE crap - they implement both the bus_type suspend/resume
+methods _and_ the device_driver suspend/resume methods, despite these
+device_driver suspend/resume methods never ever being called.
 
-> What recent kernels have SATA suspend/resume support?
-> Not from kernel.org AFAIK.
+Secondly, keeping both negates the _whole_ point of this series and
+the previous platform device driver series - needless bloat:
 
-Andrew merged it to -mm tree after getting notebook with SATA. I'm not
-sure if it is in kernel.org just now or not, it probably did not make
-it into 2.6.15.
-								Pavel
+- the extra bloat in struct device_driver for all bus types,
+  many of which do not have things like shutdown or suspend/resume
+  callbacks.
+
+- the extra code bloat in many drivers to convert the struct device
+  to something more bus specific.
+
+Also, don't you think it's wrong to keep these fields _just_ to
+support single case that SCSI wants to remain using the Old Way,
+when everything else can be (and almost has been) converted to the
+New Way?
+
 -- 
-Thanks, Sharp!
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

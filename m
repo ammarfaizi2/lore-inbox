@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWAFF6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWAFF6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWAFF6x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 00:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751868AbWAFF6x
+	id S1750978AbWAFF6r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 00:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751868AbWAFF6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 00:58:53 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:25095 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1751409AbWAFF6w (ORCPT
+	Fri, 6 Jan 2006 00:58:47 -0500
+Received: from gate.crashing.org ([63.228.1.57]:65001 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750978AbWAFF6r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 00:58:52 -0500
-Date: Fri, 6 Jan 2006 13:58:45 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: .gitignore files really necessary?
-Message-ID: <20060106055845.GA12015@localhost.localdomain>
-References: <20060106022531.GA7152@localhost.localdomain> <43BDE71D.3000103@didntduck.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43BDE71D.3000103@didntduck.org>
-User-Agent: Mutt/1.5.11
+	Fri, 6 Jan 2006 00:58:47 -0500
+Subject: Platform device matching, & weird strncmp usage
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 16:59:39 +1100
+Message-Id: <1136527179.4840.120.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 10:42:21PM -0500, Brian Gerst wrote:
-> Coywolf Qi Hunt wrote:
-> > Hello,
-> > 
-> > I see you keep updating .gitignore files. That would be a never ending
-> > extra burden IMHO.  May I suggest we all use KBUILD_OUTPUT instead to keep
-> > the source tree clean?  Or am I missing you?
-> > 
-> > 	Coywolf
-> 
-> Seperate output dirs are nice for building release kernels, but for
-> doing development it makes things more difficult.  The .gitignore files
+Hi !
 
-How? An example? I think it firstly benefits development, like making diffs.
+In 2.6.15, platform device matching works according to this comment in
+the code, or rather are supposed to:
 
-> don't affect the actual build, so it doesn't matter much if they arent't
-> totally kept up to date.
 
-But someone has to maintain them.
+ *	Platform device IDs are assumed to be encoded like this:
+ *	"<name><instance>", where <name> is a short description of the
+ *	type of device, like "pci" or "floppy", and <instance> is the
+ *	enumerated instance of the device, like '0' or '42'.
 
-	Coywolf
+However, looking a few lines below, I see the actual implemetation:
+
+static int platform_match(struct device * dev, struct device_driver * drv)
+{
+	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
+
+	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
+}
+
+As far as I know, strncmp() is _NOT_ supposed to return 0 if one string
+is shorter than the other and they match until that point. Thus the
+above will never match unless the <name> portion of pdev->name is
+exactly of size BUS_ID_SIZE which is obviously not the case...
+
+Did I miss something or do we expect a "special" semantic for strncmp in
+the kernel ?
+
+Ben.
+
+

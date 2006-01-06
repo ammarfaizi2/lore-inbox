@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWAFFwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWAFF6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWAFFwe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 00:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWAFFwe
+	id S1751409AbWAFF6x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 00:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751868AbWAFF6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 00:52:34 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:35596 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932376AbWAFFwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 00:52:33 -0500
-Date: Fri, 6 Jan 2006 06:52:08 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 80 column line limit?
-Message-ID: <20060106055208.GE7142@w.ods.org>
-References: <20060105130249.GB29894@vrfy.org> <84144f020601050532l56c15be1i4938a84f6c212960@mail.gmail.com> <20060105211438.GA1408@vrfy.org> <Pine.LNX.4.61.0601052301270.27662@yvahk01.tjqt.qr>
-Mime-Version: 1.0
+	Fri, 6 Jan 2006 00:58:53 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:25095 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1751409AbWAFF6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 00:58:52 -0500
+Date: Fri, 6 Jan 2006 13:58:45 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: .gitignore files really necessary?
+Message-ID: <20060106055845.GA12015@localhost.localdomain>
+References: <20060106022531.GA7152@localhost.localdomain> <43BDE71D.3000103@didntduck.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601052301270.27662@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <43BDE71D.3000103@didntduck.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 11:03:09PM +0100, Jan Engelhardt wrote:
-> >> And your nesting is too deep, it should be fixed.
-> >
-> >It's not about nesting, if that's the reason, the number of tabs
-> >should get a maximum specified instead.
-> >
-> Or we could have the tab width lowered, but I doubt
-> Linus would accept that :)
+On Thu, Jan 05, 2006 at 10:42:21PM -0500, Brian Gerst wrote:
+> Coywolf Qi Hunt wrote:
+> > Hello,
+> > 
+> > I see you keep updating .gitignore files. That would be a never ending
+> > extra burden IMHO.  May I suggest we all use KBUILD_OUTPUT instead to keep
+> > the source tree clean?  Or am I missing you?
+> > 
+> > 	Coywolf
+> 
+> Seperate output dirs are nice for building release kernels, but for
+> doing development it makes things more difficult.  The .gitignore files
 
-In fact, one tab could be lowered, it's the first one. Nearly all code
-has at least this tab which is not very useful and would not affect
-readability if reduced to 2 or 4. But it will be difficult to maintain
-a variable tab width, not to mention the alignment problem on the
-second tab.
+How? An example? I think it firstly benefits development, like making diffs.
 
-BTW, if 80 is not enough, simply consider that one tab is exactly one
-character ( '\011' ) and you will be able to put more, but I doubt
-your code will be accepted ;-)
+> don't affect the actual build, so it doesn't matter much if they arent't
+> totally kept up to date.
 
-Willy
+But someone has to maintain them.
 
+	Coywolf

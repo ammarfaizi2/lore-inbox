@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWAFTy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWAFTz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWAFTy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 14:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWAFTy5
+	id S932463AbWAFTz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 14:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWAFTz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 14:54:57 -0500
-Received: from emulex.emulex.com ([138.239.112.1]:19074 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S964833AbWAFTy4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 14:54:56 -0500
-Message-ID: <43BEC945.6030905@emulex.com>
-Date: Fri, 06 Jan 2006 14:47:17 -0500
-From: James Smart <James.Smart@Emulex.Com>
-Reply-To: James.Smart@Emulex.Com
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/scsi/lpfc/lpfc_scsi.c: make lpfc_get_scsi_buf()
- static
-References: <20060106192128.GC12131@stusta.de>
-In-Reply-To: <20060106192128.GC12131@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Jan 2006 19:47:17.0561 (UTC) FILETIME=[FFDF2A90:01C612F9]
+	Fri, 6 Jan 2006 14:55:57 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:49414 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932463AbWAFTz4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 14:55:56 -0500
+Date: Fri, 6 Jan 2006 20:55:26 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Ga?l UTARD <gael.utard@seanodes.com>
+Cc: kai@germaschewski.name, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kbuild: fix external modules build
+Message-ID: <20060106195526.GB16130@mars.ravnborg.org>
+References: <200601051146.58824.gael.utard@seanodes.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601051146.58824.gael.utard@seanodes.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACK - fine :)
+On Thu, Jan 05, 2006 at 11:46:58AM +0100, Ga?l UTARD wrote:
+> The patch 2dd34b488a99135ad2a529e33087ddd6a09e992a breaks external modules 
+> build since include/linux/autoconf.h is not found in the header files 
+> directories.
 
--- james
+Hi Gael.
 
-Adrian Bunk wrote:
-> This patch makes the needlessly global function lpfc_sli_get_scsi_buf()
-> static.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.15-mm1-full/drivers/scsi/lpfc/lpfc_scsi.c.old	2006-01-06 19:50:38.000000000 +0100
-> +++ linux-2.6.15-mm1-full/drivers/scsi/lpfc/lpfc_scsi.c	2006-01-06 19:50:46.000000000 +0100
-> @@ -150,7 +150,7 @@
->  	return psb;
->  }
->  
-> -struct  lpfc_scsi_buf*
-> +static struct lpfc_scsi_buf*
->  lpfc_get_scsi_buf(struct lpfc_hba * phba)
->  {
->  	struct  lpfc_scsi_buf * lpfc_cmd = NULL;
-> 
-> 
+Can you please elaborate a little more of what error you see (show
+output of make with V=1 option.
+Also try to show the directory structure you use.
+
+Reason for this is that is works for me - so please let me know what you
+exactly try to fix.
+
+Thanks,
+	Sam

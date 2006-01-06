@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWAFS0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWAFS1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWAFS0s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 13:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWAFS0r
+	id S964829AbWAFS1G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 13:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWAFS1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 13:26:47 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:9515 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964813AbWAFS0q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 13:26:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CrUjOWRq/5tXEdL1UK2xWhXtsW8dgYQP7lSn5RIsKYI39QZkRdqLlXGid/8rs4OVUgBF0M4DdxbxQ1IFCd0845cSKyo55PxpkXws7etCdXqM1NO2WWgv2nbmkWaJekZsT05ZJ2YPWR7gzLbs+PgW8RxSKcwhBfBuZYT5PUfcohE=
-Message-ID: <9a8748490601061026t3e467dfdxc90b6403bbd45802@mail.gmail.com>
-Date: Fri, 6 Jan 2006 19:26:45 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060106180626.GV12131@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060106173547.GR12131@stusta.de>
-	 <9a8748490601060949g4765a4dcrfab4adab4224b5ad@mail.gmail.com>
-	 <20060106180626.GV12131@stusta.de>
+	Fri, 6 Jan 2006 13:27:06 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52180 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964829AbWAFS1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 13:27:02 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: Calin Szonyi <caszonyi@rdslink.ro>
+Cc: Hannu Savolainen <hannu@opensound.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0601061506010.2151@grinch.ro>
+References: <20050726150837.GT3160@stusta.de>
+	 <200601031522.06898.s0348365@sms.ed.ac.uk> <20060103160502.GB5262@irc.pl>
+	 <200601031629.21765.s0348365@sms.ed.ac.uk>
+	 <20060103170316.GA12249@dspnet.fr.eu.org> <s5h1wzpnjrx.wl%tiwai@suse.de>
+	 <20060103203732.GF5262@irc.pl> <s5hvex1m472.wl%tiwai@suse.de>
+	 <9a8748490601031256x916bddav794fecdcf263fb55@mail.gmail.com>
+	 <20060103215654.GH3831@stusta.de>
+	 <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com>
+	 <s5hpsn8md1j.wl%tiwai@suse.de>
+	 <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr>
+	 <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de>
+	 <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr>
+	 <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de>
+	 <1136486021.31583.26.camel@mindpipe>
+	 <Pine.LNX.4.61.0601060109130.27932@zeus.compusonic.fi>
+	 <1136503996.847.85.camel@mindpipe>
+	 <Pine.LNX.4.62.0601061506010.2151@grinch.ro>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 13:27:00 -0500
+Message-Id: <1136572020.17979.18.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/06, Adrian Bunk <bunk@stusta.de> wrote:
-> On Fri, Jan 06, 2006 at 06:49:55PM +0100, Jesper Juhl wrote:
-> > On 1/6/06, Adrian Bunk <bunk@stusta.de> wrote:
-> > > Do not allow people to create configurations with CONFIG_BROKEN=y.
-> > >
-> > > The sole reason for CONFIG_BROKEN=y would be if you are working on
-> > > fixing a broken driver, but in this case editing the Kconfig file is
-> > > trivial.
-> > >
-> > > Never ever should a user enable CONFIG_BROKEN.
-> > >
-> > I disagree (slightly) with this patch for a few reasons:
+On Fri, 2006-01-06 at 15:20 +0200, caszonyi@rdslink.ro wrote:
+> On Thu, 5 Jan 2006, Lee Revell wrote:
+> 
+> > On Fri, 2006-01-06 at 01:19 +0200, Hannu Savolainen wrote:
+> >> On Thu, 5 Jan 2006, Lee Revell wrote:
+> >>
+> >>> On Thu, 2006-01-05 at 13:44 +0100, Marcin Dalecki wrote:
+> >>>> Second - you still didn't explain why this allows you to conclude
+> >>>> that sound mixing should in no way be done inside the kernel.
+> >>>
+> >>> It works perfectly right now in userspace.  Therefore it should not be
+> >>> in the kernel.
+> >> So all the complaints about dmix problems in the ALSA mailing lists are
+> >> just exceptions that prove the above statement to be true.
 > >
-> > - It's very convenient to be able to enable it through menuconfig.
->
-> And when do you really need it?
->
-Hmm, when I'm looking for broken stuff to fix ;)
-I guess you are right, ordinary users don't need it.. Ok, count me in
-as supporting this move.
+> > No, it just means ALSA like the kernel is a work in progress.  Anyway
+> > almost all the known issues have been fixed.  It works perfectly for the
+> > vast majority of users.
+> >
+> 
+> Ok. It seems i'm a minority.
+> I switched xmms to alsa
+> If i play a stream in xmms using alsa output and try to play in the same 
+> time a movie in mplayer the last message printed by mplayer is
+> alsa-init: 1 soundcard found, using: default
+> and then it hangs until i press stop button in xmms. When i press the stop 
+> button in xmms the movie begins to play. If i press now the play button in 
+> xmms it says:
+> ** WARNING **: alsa_setup(): Failed to open pcm device (default): Device 
+> or resource busy
+> 
+> So it seems that dmix is not working by default in kernel 2.6.15
+> Alsa userspace tools are version 1.0.8.
 
+Sorry disregard last message.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Upgrade alsa-lib to 1.0.9 or later (preferable 1.0.10) to get dmix
+working by default.  The default PCM is defined
+in /usr/share/alsa/cards/$YOUR-CARD.conf which is part of alsa-lib.
+
+Lee
+

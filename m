@@ -1,104 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWAGBUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932673AbWAGBZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWAGBUO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 20:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWAGBUN
+	id S932673AbWAGBZO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 20:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWAGBZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 20:20:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:16946 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030298AbWAGBUM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 20:20:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dwNNn2OP0b/N/wygL/3i+Tn4iDu7n+ficBEkCQczyZhHfBzmR0JizfvPBXUOxJ4EoX7ttZ587EokBoD6LNi1TUy1s7x9GvdmjLeo9Gk8Aoec4kLV9b+LXdognybrCLqpIDLOcS2DXrfLhQV+kZDOqQ2PTaDnYT7TyAvUPcQy8d0=
-Message-ID: <9a8748490601061720k228eec1dr2afcfdc7ece6c862@mail.gmail.com>
-Date: Sat, 7 Jan 2006 02:20:11 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, airlied@linux.ie
-Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
-In-Reply-To: <20060107005712.GF9402@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 6 Jan 2006 20:25:14 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:10503 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932673AbWAGBZM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 20:25:12 -0500
+Date: Sat, 7 Jan 2006 01:56:45 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: ALSA development <alsa-devel@alsa-project.org>,
+       linux-sound@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060107005645.GA67447@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Jaroslav Kysela <perex@suse.cz>,
+	ALSA development <alsa-devel@alsa-project.org>,
+	linux-sound@vger.kernel.org
+References: <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr> <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <20060106034026.c37c1ed9.diegocg@gmail.com> <20060106145723.GA73361@dspnet.fr.eu.org> <Pine.LNX.4.61.0601061938390.10811@tm8103.perex-int.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com>
-	 <20060105162714.6ad6d374.akpm@osdl.org>
-	 <9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com>
-	 <20060105165946.1768f3d5.akpm@osdl.org>
-	 <9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com>
-	 <20060107002833.GB9402@redhat.com>
-	 <20060106164012.041e14b2.akpm@osdl.org>
-	 <20060107005712.GF9402@redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0601061938390.10811@tm8103.perex-int.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/7/06, Dave Jones <davej@redhat.com> wrote:
-> On Fri, Jan 06, 2006 at 04:40:12PM -0800, Andrew Morton wrote:
->  > Dave Jones <davej@redhat.com> wrote:
->  > >
->  > > On Sat, Jan 07, 2006 at 01:25:22AM +0100, Jesper Juhl wrote:
->  > >  > On 1/6/06, Andrew Morton <akpm@osdl.org> wrote:
->  > >  > > Jesper Juhl <jesper.juhl@gmail.com> wrote:
->  > >  > >
->  > >  > > >  Reverted that one patch, then rebuild/reinstalled the kernel
->  > >  > > >  (with the same .config) and booted it - no change. It still locks up
->  > >  > > >  in the exact same spot.
->  > >  > > >  X starts & runs fine (sort of) since I can play around at the kdm
->  > >  > > >  login screen all I want, it's only once I actually login and KDE
->  > >  > > >  proper starts that it locks up.
->  > >  > >
->  > >  > > Oh bugger.  No serial console/netconsole or such?
->  > >  > >
->  > >  > > Or are you able log in and then quickly do the alt-ctrl-F1 thing, see if we
->  > >  > > get an oops?
->  > >  > >
->  > >  > I switched to tty1 right after logging in, and after a few seconds
->  > >  > (corresponding pretty well with the time it takes to hit the same spot
->  > >  > where it crashed all previous times) I got a lot of nice crash info
->  > >  > scrolling by.
->  > >  > Actually a *lot* scrolled by, a rough guestimate says some 4-6 (maybe
->  > >  > more) screens scrolled by, and since the box locks up solid I couldn't
->  > >  > scroll up to get at the initial parts :(  So all I have for you is the
->  > >  > final block - hand copied from the screen using pen and paper
->  > >  > ...
->  > >  > It never makes it to the logs, and as mentioned previously I don't
->  > >  > have another machine to capture on via netconsole or serial, so if you
->  > >  > have any good ideas as to how to capture it all, then I'm all ears.
->  > >
->  > > If only someone did a patch to pause the text output after the first oops..
->  > >
->  > > Oh wait! Someone did!
->  > >
->  >
->  > umm, it'd be more helpful if you'd actually sent the patch so Jesper could
->  > apply it so we can find this bug.
->  >
->  > I think I did one of those too.  It required a new kernel boot option
->  > `halt-after-oops' or some such.  Sounds like a good idea?
->
-> I thought Jesper had made a comment in that thread, so was aware of it.
-> Looking at the archive, I see was mistaken.
->
-Nope, you are were not mistaken, I did make a comment in that thread
-(http://lkml.org/lkml/2006/1/5/204), but that thread had completely
-slipped my mind, thank you for the reminder.
+On Fri, Jan 06, 2006 at 09:26:42PM +0100, Jaroslav Kysela wrote:
+> You're proposing to add more content switches versus current ALSA 
+> implementation:
+> 
+> user space <-> kernel
+> 
+> While your daemon requires:
+> 
+> user space <-> kernel <-> user space (daemon)
 
-> Jesper: http://lkml.org/lkml/2006/1/4/534
-> (unmunged diff is at http://lkml.org/lkml/diff/2006/1/4/534/1)
->
-Thanks, I'll apply that (and raise the timeout somewhat, since 2min is
-far from enough time for me to write down an entire Oops by hand -
-wouldn't it be better if it simply spun in a loop until some magic key
-(like enter, esc, break or something) is pressed? Then you have all
-the time you might need).
+Dmix _is_ a context switch, you know?
 
-I'll hopefully post a "first Oops" in a little while - stay tuned ;)
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> So your solution is even more realtime and proper scheduling dependant.
+> Unfortunately, Linux kernels still do not have perfect realtime behaviour 
+> (mostly due to broken drivers etc.).
+
+You only get context switches if you go through plugins, which is
+pretty much the same way alsa currently is, isn't it?
+
+
+> Also, the API is completely irrelevant from this scheme. If daemon does 
+> everything, the ALSA kernel API can go public and documented (altough I 
+> still does not agree with it - see bellow).
+
+The ALSA kernel API better go documented soon or I'll have to document
+it myself.  Security and openness-wise, it is just not acceptable to
+have a user-accessive kernel API kept under wraps.
+
+
+> > ALSA does not have a documented kernel interface nor an optional
+> > library but a mandatory library.  A highly complex, ipc-using library
+> 
+> It's also not very true. You can create your own ALSA library,
+
+After reverse-engineering your kernel interface.  How convenient.
+
+
+> but this library will not be supported with our team.
+
+Of course.  You won't have to though, since you claim the API is
+upwards compatible.
+
+
+> The ALSA from 1.0 version is 
+> binary compatible (even 0.9.0rc4+ linked applications should work) and old 
+> ioctls are emulated.
+
+Good.
+
+
+> I'd like to point that this code runs with standard user priviledges. I 
+> think that the security things are and should be in a different place (in 
+> the kernel). If IPC is broken, other applications (not only using sound) 
+> might be broken.
+
+Every application that does inter-process communication has potential
+protocol-level security issues.  Current ALSA creates two shared
+memory zones and one semaphore with group write permissions.  In a
+setup where a number of people are in the same group (student group
+for instance), are you 100% positive that another user cannot take
+control of the running application by writing the right values at the
+right time in these zones?  Shared memory is the most dangerous
+communication vector there is when the other application is
+untrustable.
+
+
+> > At least OSS, with all its flaws, is a documented kernel interface.
+> > You can static link a oss-using program, whether it uses it directly
+> > or through interfaces like sdl-audio, and it will just work.
+> 
+> Please, see your words. You're simply anarchistic. You replaced 
+> flexibility of dynamic library with a possibility to have static binary.
+
+I am indeed not really interested in reproducing the dll hell of
+windows in linux.  I want simple but really efficient interfaces to
+kernel services which then give the possibility to build special needs
+libraries over it[1].  At that point you're designing an API for a
+specific class of professional audio users and essentially telling all
+the other users to bugger off.  Bad karma.
+
+
+> ALSA library can be also compiled as static library, so it's not a 
+> problem. The ALSA kernel API is stable.
+
+Yeah, that's the second time you're saying that.  I'm sure Dave Jones
+will be really happy to know that his impressions were mistaken and
+his bugzilla was just having hallucinations:
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=113589615627420&w=2
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=113225994603627&w=2
+
+
+> Also, we use symbol versions for 
+> all exported functions, so all old binaries linked with the dynamic alsa 
+> library will work.
+
+Like all the programs I had which segfaulted after the alsa upgrade
+that changed set_rate_near.  Beautiful versioning there guys.
+
+
+> Of course, the drivers might change some universal 
+> control names,
+
+Yeah, also known as "the stick which broke jwz's back".
+
+
+> Also note, that if OSS had the API in userspace from the first days,
+> the emulation or redirection of this API to another API or user space 
+> drivers wouldn't be so much complicated nowadays. Bummer.
+
+It would be exactly as complicated because of the static link issue.
+
+  OG.
+
+[1] SDL, jack and slmodem are I think good examples

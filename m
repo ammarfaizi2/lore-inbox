@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWAGIeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932706AbWAGIgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030359AbWAGIeX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 03:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWAGIeW
+	id S932706AbWAGIgq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 03:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbWAGIgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 03:34:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61319 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030359AbWAGIeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 03:34:21 -0500
-Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20060106223311.134d76d4.akpm@osdl.org>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
-	 <1136544309.2940.25.camel@laptopd505.fenrus.org>
-	 <43BEA970.4050704@pobox.com>
-	 <1136576160.2940.76.camel@laptopd505.fenrus.org>
-	 <20060106223311.134d76d4.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 07 Jan 2006 09:34:15 +0100
-Message-Id: <1136622855.2936.6.camel@laptopd505.fenrus.org>
+	Sat, 7 Jan 2006 03:36:46 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28838
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932702AbWAGIgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 03:36:45 -0500
+Date: Sat, 07 Jan 2006 00:36:25 -0800 (PST)
+Message-Id: <20060107.003625.50986701.davem@davemloft.net>
+To: dada1@cosmosbay.com
+Cc: ak@suse.de, paulmck@us.ibm.com, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       manfred@colorfullife.com, netdev@vger.kernel.org
+Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43BF7390.6050005@cosmosbay.com>
+References: <43BF6F0B.4060108@cosmosbay.com>
+	<20060106.234440.53993868.davem@davemloft.net>
+	<43BF7390.6050005@cosmosbay.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-06 at 22:33 -0800, Andrew Morton wrote:
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> >
-> > if optimizing for size (CONFIG_CC_OPTIMIZE_FOR_SIZE), allow gcc4 compilers
-> >  to decide what to inline and what not - instead of the kernel forcing gcc
-> >  to inline all the time. This requires several places that require to be 
-> >  inlined to be marked as such, previous patches in this series do that.
-> 
-> This one stomps all over more-updates-for-the-gcc-=-32-requirement.patch. 
-> PLease redo against 2.6.15-mm1 or next -mm?
+From: Eric Dumazet <dada1@cosmosbay.com>
+Date: Sat, 07 Jan 2006 08:53:52 +0100
 
-Will do.
+> I have no problem with this, since the biggest server I have is 4
+> way, but are you sure big machines wont suffer from this single
+> spinlock ?
 
+It is the main question.
 
+> Also I dont understand what you want to do after this single
+> spinlock patch.  How is it supposed to help the 'ip route flush
+> cache' problem ?  In my case, I have about 600.000 dst-entries :
+
+I don't claim to have a solution to this problem currently.
+
+Doing RCU and going through the whole DST GC machinery is overkill for
+an active system.  So, perhaps a very simple solution will do:
+
+1) On rt_run_flush(), do not rt_free(), instead collect all active
+   routing cache entries onto a global list, begin a timer to
+   fire in 10 seconds (or some sysctl configurable amount).
+
+2) When a new routing cache entry is needed, check the global
+   list appended to in #1 above first, failing that do dst_alloc()
+   as is done currently.
+
+3) If timer expires, rt_free() any entries in the global list.
+
+The missing trick is how to ensure RCU semantics when reallocating
+from the global list.
+
+The idea is that an active system will immediately repopulate itself
+with all of these entries just flushed from the table.
+
+RCU really doesn't handle this kind of problem very well.  It truly
+excels when work is generated by process context work, not interrupt
+work.

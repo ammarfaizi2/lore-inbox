@@ -1,155 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbWAGEGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWAGERI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbWAGEGA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 23:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbWAGEGA
+	id S1030334AbWAGERI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 23:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWAGERI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 23:06:00 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:57466 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S932662AbWAGEF7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 23:05:59 -0500
-Date: Fri, 06 Jan 2006 23:05:58 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 03/21] mutex subsystem,
- add asm-generic/mutex-[dec|xchg|null].h implementations
-In-reply-to: <20060105153716.GD31013@elte.hu>
-X-X-Sender: nico@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
-Message-id: <Pine.LNX.4.64.0601062247370.13870@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20060105153716.GD31013@elte.hu>
+	Fri, 6 Jan 2006 23:17:08 -0500
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:30852 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030334AbWAGERH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 23:17:07 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: request for opinion on synaptics, adb and powerpc
+Date: Fri, 6 Jan 2006 23:17:03 -0500
+User-Agent: KMail/1.8.3
+Cc: Peter Osterlund <petero2@telia.com>, Luca Bigliardi <shammash@artha.org>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <20060106231301.GG4732@kamaji.shammash.lan> <Pine.LNX.4.58.0601070053470.2702@telia.com> <1136595097.4840.189.camel@localhost.localdomain>
+In-Reply-To: <1136595097.4840.189.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601062317.03712.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jan 2006, Ingo Molnar wrote:
-
+On Friday 06 January 2006 19:51, Benjamin Herrenschmidt wrote:
 > 
-> Add three (generic) mutex fastpath implementations.
+> > Fedora handles this situation by always installing the synaptics package
+> > and setting up the X config file automatically if the computer has a
+> > synaptics touchpad. I guess this approach could work for other
+> > distributions too.
 > 
-> The mutex-xchg.h implementation is atomic_xchg() based, and should
-> work fine on every architecture.
+> The problem we have is a bit different (or I didn't understand
+> something). The mac trackpad has it's own kernel driver and is all
+> relative mode. Luca's patch will make it work in absolute mode instead
+> for use with X synaptic driver, thus providing more "features" than the
+> default relative-mode one.
 > 
-> The mutex-dec.h implementation is atomic_dec_return() based - this
-> one too should work on every architecture, but might not perform the
-> most optimally on architectures that have no atomic-dec/inc instructions.
-> 
-> The mutex-null.h implementation forces all calls into the slowpath. This
-> is used for mutex debugging, but it can also be used on platforms that do
-> not want (or need) a fastpath at all.
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+> So what we are looking for is a way to have the kernel driver switch
+> between raw and ps2 modes based on instruction/ioctl from the userland
+> client (the X synaptic driver). This shouldn't be much of a problem if
+> the X synaptic driver switches it to raw at X start and on EnterVT and
+> back to what it was on LeaveVT...
+>
 
-What about this patch that turns some macros into inline functions? It 
-adds proper type checking as well as being more readable.
+Why would you want to switch to relative mode when leaving X? As far as
+I know the only other mouse "user" out there is GPM and there are patches
+available for it to use event device:
 
-I was under the impression that, at least on ARM, the passing of a 
-function pointer to an inline function would have caused indirect calls 
-through that function pointer but that doesn't seem to be true.
+	http://geocities.com/dt_or/gpm/gpm.html
 
-Signed-off-by: Nicolas Pitre <nico@cam.org>
+Unfortunately the maintainer can't find time to merge these so they were
+sitting there for over 2 years. FWIW Fedora patches their GPM with these.
 
-Index: linux-2.6/include/asm-generic/mutex-dec.h
-===================================================================
---- linux-2.6.orig/include/asm-generic/mutex-dec.h
-+++ linux-2.6/include/asm-generic/mutex-dec.h
-@@ -17,11 +17,12 @@
-  * it wasn't 1 originally. This function MUST leave the value lower than
-  * 1 even when the "1" assertion wasn't true.
-  */
--#define __mutex_fastpath_lock(count, fail_fn)				\
--do {									\
--	if (unlikely(atomic_dec_return(count) < 0))			\
--		fail_fn(count);						\
--} while (0)
-+static inline void
-+__mutex_fastpath_lock(atomic_t *count, fastcall void (*fail_fn)(atomic_t *))
-+{
-+	if (unlikely(atomic_dec_return(count) < 0))
-+		fail_fn(count);
-+}
- 
- /**
-  *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
-@@ -34,7 +35,7 @@ do {									\
-  * or anything the slow path function returns.
-  */
- static inline int
--__mutex_fastpath_lock_retval(atomic_t *count, int (*fail_fn)(atomic_t *))
-+__mutex_fastpath_lock_retval(atomic_t *count, fastcall int (*fail_fn)(atomic_t *))
- {
- 	if (unlikely(atomic_dec_return(count) < 0))
- 		return fail_fn(count);
-@@ -55,11 +56,12 @@ __mutex_fastpath_lock_retval(atomic_t *c
-  * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
-  * to return 0 otherwise.
-  */
--#define __mutex_fastpath_unlock(count, fail_fn)				\
--do {									\
--	if (unlikely(atomic_inc_return(count) <= 0))			\
--		fail_fn(count);						\
--} while (0)
-+static inline void
-+__mutex_fastpath_unlock(atomic_t *count, fastcall void (*fail_fn)(atomic_t *))
-+{
-+	if (unlikely(atomic_inc_return(count) <= 0))
-+		fail_fn(count);
-+}
- 
- #define __mutex_slowpath_needs_to_unlock()		1
- 
-Index: linux-2.6/include/asm-generic/mutex-xchg.h
-===================================================================
---- linux-2.6.orig/include/asm-generic/mutex-xchg.h
-+++ linux-2.6/include/asm-generic/mutex-xchg.h
-@@ -22,12 +22,12 @@
-  * wasn't 1 originally. This function MUST leave the value lower than 1
-  * even when the "1" assertion wasn't true.
-  */
--#define __mutex_fastpath_lock(count, fail_fn)				\
--do {									\
--	if (unlikely(atomic_xchg(count, 0) != 1))			\
--		fail_fn(count);						\
--} while (0)
--
-+static inline void
-+__mutex_fastpath_lock(atomic_t *count, fastcall void (*fail_fn)(atomic_t *))
-+{
-+	if (unlikely(atomic_xchg(count, 0) != 1))
-+		fail_fn(count);
-+}
- 
- /**
-  *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
-@@ -40,7 +40,7 @@ do {									\
-  * or anything the slow path function returns
-  */
- static inline int
--__mutex_fastpath_lock_retval(atomic_t *count, int (*fail_fn)(atomic_t *))
-+__mutex_fastpath_lock_retval(atomic_t *count, fastcall int (*fail_fn)(atomic_t *))
- {
- 	if (unlikely(atomic_xchg(count, 0) != 1))
- 		return fail_fn(count);
-@@ -60,11 +60,12 @@ __mutex_fastpath_lock_retval(atomic_t *c
-  * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
-  * to return 0 otherwise.
-  */
--#define __mutex_fastpath_unlock(count, fail_fn)				\
--do {									\
--	if (unlikely(atomic_xchg(count, 1) != 0))			\
--		fail_fn(count);						\
--} while (0)
-+static inline void
-+__mutex_fastpath_unlock(atomic_t *count, fastcall void (*fail_fn)(atomic_t *))
-+{
-+	if (unlikely(atomic_xchg(count, 1) != 0))
-+		fail_fn(count);
-+}
- 
- #define __mutex_slowpath_needs_to_unlock()		0
- 
+-- 
+Dmitry

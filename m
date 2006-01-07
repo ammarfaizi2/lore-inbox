@@ -1,43 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWALJi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1030333AbWAGEQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWALJi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 04:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWALJi6
+	id S1030333AbWAGEQk (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 6 Jan 2006 23:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbWAGEQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 04:38:58 -0500
-Received: from relay01.pair.com ([209.68.5.15]:14348 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S964776AbWALJi5 (ORCPT
+	Fri, 6 Jan 2006 23:16:40 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:54298 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030333AbWAGEQj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 04:38:57 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-To: Eric Belhomme <{gmane}+no/spam@ricospirit.net>
-Subject: Re: why sk98lin driver is not up-to date ?
-Date: Thu, 12 Jan 2006 03:39:16 -0600
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <Xns97496767C8536ericbelhommefreefr@80.91.229.5>
-In-Reply-To: <Xns97496767C8536ericbelhommefreefr@80.91.229.5>
-Organization: Clientec, Inc.
+	Fri, 6 Jan 2006 23:16:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding:from;
+        b=MORnPqjClTrZ2pT3bXVYL/+0TgpcTIVbTWixYiprxEt4YyANEXPJZVcqFFYdINVpk1FflC2bhvXSkOgZrSlM1Xif3rr/jizB2pmmt17LandycT+HlFw2Q2B9NGA14LjaqGhMpl/yxraDb3vWIH99giHAGYfyDwMWlkxoTT1chsY=
+Message-ID: <43BF40A1.7000302@gmail.com>
+Date: Sat, 07 Jan 2006 09:46:33 +0530
+Reply-To: Chaitanya Vinay Hazarey <c.v.hazarey@gmail.com>
+Organization: Grid Comp & Ecom Lab (C-212), School of Technology and Computer
+ Science, Tata Institue of Fundamental Research, Mumbai
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
+To: linux-kernel@vger.kernel.org
+Subject: (no subject)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601120339.17071.chase.venters@clientec.com>
+From: Chaitanya Vinay Hazarey <c.v.hazarey@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 January 2006 03:09, Eric Belhomme wrote:
-> So this archive is more recent than sources included in stock kernel, but
-> older than 2.6.14 kernel, so I wonder why this revision of sk98lin is not
-> included in kernel ?
-
-Eric,
-	IIRC, the SysKonnect official GPL driver attempts to support two different 
-chipsets / possibly has other coding issues as well. I think this is the 
-reason SysKonnect's driver is still out of tree. I think some netdev folks 
-might be working on newer drivers, but I haven't been keeping track honestly.
-
-Cheers,
-Chase
+subscribe linux-kernel

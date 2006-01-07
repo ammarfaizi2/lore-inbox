@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932625AbWAGIZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWAGIad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932625AbWAGIZV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 03:25:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWAGIZU
+	id S1030358AbWAGIad (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 03:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbWAGIad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 03:25:20 -0500
-Received: from styx.suse.cz ([82.119.242.94]:53894 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932625AbWAGIZU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 03:25:20 -0500
-Date: Sat, 7 Jan 2006 09:25:23 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Peter Osterlund <petero2@telia.com>,
-       Luca Bigliardi <shammash@artha.org>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: request for opinion on synaptics, adb and powerpc
-Message-ID: <20060107082523.GA6276@corona.ucw.cz>
-References: <20060106231301.GG4732@kamaji.shammash.lan> <Pine.LNX.4.58.0601070053470.2702@telia.com> <1136595097.4840.189.camel@localhost.localdomain> <200601062317.03712.dtor_core@ameritech.net> <1136608396.4840.206.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136608396.4840.206.camel@localhost.localdomain>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+	Sat, 7 Jan 2006 03:30:33 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:19608 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1030355AbWAGIac
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 03:30:32 -0500
+Message-ID: <43BF7C23.5070805@cosmosbay.com>
+Date: Sat, 07 Jan 2006 09:30:27 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+Cc: ak@suse.de, paulmck@us.ibm.com, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       manfred@colorfullife.com, netdev@vger.kernel.org
+Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
+References: <43BEA693.5010509@cosmosbay.com>	<20060106202626.GA5677@us.ibm.com>	<200601062157.42470.ak@suse.de> <20060106.161721.124249301.davem@davemloft.net>
+In-Reply-To: <20060106.161721.124249301.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 03:33:15PM +1100, Benjamin Herrenschmidt wrote:
+David S. Miller a écrit :
 > 
-> > Why would you want to switch to relative mode when leaving X? As far as
-> > I know the only other mouse "user" out there is GPM and there are patches
-> > available for it to use event device:
-> > 
-> > 	http://geocities.com/dt_or/gpm/gpm.html
-> > 
-> > Unfortunately the maintainer can't find time to merge these so they were
-> > sitting there for over 2 years. FWIW Fedora patches their GPM with these.
+> Eric, how important do you honestly think the per-hashchain spinlocks
+> are?  That's the big barrier from making rt_secret_rebuild() a simple
+> rehash instead of flushing the whole table as it does now.
 > 
-> gpm among other legacy things ...
- 
-For X there is the synaptics driver, with more features than the pads
-PS/2 mode.
 
-For GPM there are the abovementioned patches, with configurable tap
-characteristics, etc. They should be at least as good as the pads own
-PS/2 mode.
+No problem for me in going to a single spinlock.
+I did the hashed spinlock patch in order to reduce the size of the route hash 
+table and not hurting big NUMA machines. If you think a single spinlock is OK, 
+that's even better !
 
-For other legacy applications, there is the gpm repeater mode, exporting
-GPM's functionality over the PS/2 protocol.
+> The lock is only grabbed for updates, and the access to these locks is
+> random and as such probably non-local when taken anyways.  Back before
+> we used RCU for reads, this array-of-spinlock thing made a lot more
+> sense.
+> 
+> I mean something like this patch:
+> 
 
-For legacy applications without GPM on the system, there is mousedev.c,
-creating virtualized PS/2 devices for every application that opens it.
-Its tap handling is not perfect, and it's not very much configurable,
-but it works.
+> +static DEFINE_SPINLOCK(rt_hash_lock);
 
-IMO there are enough options to make the device work well in absolute
-mode.
 
-If a relative mode is an absolute must, then a kernel option is IMO
-sufficient (we have psmouse.proto=imps for the classic PS/2 Synaptics
-pads), although a sysfs attribute would likely be better.
+Just one point : This should be cache_line aligned, and use one full cache 
+line to avoid false sharing at least. (If a cpu takes the lock, no need to 
+invalidate *rt_hash_table for all other cpus)
 
-In theory, we could use EV_SYN, SYN_CONFIG for notifying applications
-that the device has changed its capabilities, but a
-disconnect/recreation will work better, since no applications support
-the SYN_CONFIG notification ATM.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Eric

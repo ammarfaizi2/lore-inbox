@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbWAGPJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWAGPMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030471AbWAGPJD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 10:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWAGPJB
+	id S1030473AbWAGPMM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 10:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWAGPMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 10:09:01 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:6944 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030471AbWAGPJA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 10:09:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uvMAfyH9cmXc7EUK7vUMZ8WzVlIwSKmSILlweyOUuBpZooIV6B7KJkVIbxYHRv+I7oye0yJ5idmNhXgdZQlOAHvSaCCTIVetwx7LUEn9P/TIy1U4RRfMcGn1bKEQ57FeNBFz9CwU4zwOuBxe9A9pQwgNT1uZD3pYqAdvScSLJG8=
-Message-ID: <9a8748490601070708p4353eb0ev9ea15edee132b13b@mail.gmail.com>
-Date: Sat, 7 Jan 2006 16:08:59 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.15-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060107052221.61d0b600.akpm@osdl.org>
+	Sat, 7 Jan 2006 10:12:12 -0500
+Received: from jubileegroup.co.uk ([217.147.177.250]:64488 "EHLO
+	mail3.jubileegroup.co.uk") by vger.kernel.org with ESMTP
+	id S1030473AbWAGPMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 10:12:10 -0500
+Date: Sat, 7 Jan 2006 15:11:40 +0000 (GMT)
+From: "G.W. Haywood" <ged@jubileegroup.co.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH] ne2k PCI/ISA documentation: improved cross-reference.
+In-Reply-To: <200512292149.55237.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.58.0601071459440.8957@mail3.jubileegroup.co.uk>
+References: <Pine.LNX.4.58.0512291301420.2118@mail3.jubileegroup.co.uk>
+ <9a8748490512290553g448d1e28w65dad834cd08e1a7@mail.gmail.com>
+ <Pine.LNX.4.58.0512291520250.6219@mail3.jubileegroup.co.uk>
+ <200512292149.55237.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060107052221.61d0b600.akpm@osdl.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (mail3.jubileegroup.co.uk [0.0.0.0]); Sat, 07 Jan 2006 15:11:45 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/7/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.15-mm2/
->
-> This should be somewhat less buggy than 2.6.15-mm1.
->
-For some maybe. For me it's just as broken as 2.6.15-mm1 :-(
+From: Ged Haywood <ged@jubileegroup.co.uk>
 
-I'll turn on all debug switches and try and collect some crash dumps.
-If there's anything specific you want me to try, let me know.
+Improved reference to PCI ne2k support in ISA ne2k documentation.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Signed-off-by: Ged Haywood <ged@jubileegroup.co.uk>
+---
+ Configure.help |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+--- linux-2.4.32/Documentation/Configure.help.original  2006-01-07 14:48:23.000000000 +0000
++++ linux-2.4.32/Documentation/Configure.help   2006-01-07 14:56:32.000000000 +0000
+@@ -12778,7 +12778,8 @@
+   without a specific driver are compatible with NE2000.
+
+   If you have a PCI NE2000 card however, say N here and Y to "PCI
+-  NE2000 support", above. If you have a NE2000 card and are running on
++  NE2000 and clones support" under "EISA, VLB, PCI and on board
++  controllers" below.  If you have a NE2000 card and are running on
+   an MCA system (a bus system used on some IBM PS/2 computers and
+   laptops), say N here and Y to "NE/2 (ne2000 MCA version) support",
+   below.

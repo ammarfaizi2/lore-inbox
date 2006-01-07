@@ -1,166 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbWAGU3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbWAGUqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161100AbWAGU3h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 15:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbWAGU3h
+	id S1161091AbWAGUqr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 15:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbWAGUqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 15:29:37 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:15324 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161094AbWAGU3f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 15:29:35 -0500
-Date: Sat, 7 Jan 2006 12:30:03 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: dada1@cosmosbay.com, ak@suse.de, alan@lxorguk.ukuu.org.uk,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
-       manfred@colorfullife.com, netdev@vger.kernel.org
-Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
-Message-ID: <20060107203003.GA8574@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <43BF6F0B.4060108@cosmosbay.com> <20060106.234440.53993868.davem@davemloft.net> <43BF7390.6050005@cosmosbay.com> <20060107.003625.50986701.davem@davemloft.net>
+	Sat, 7 Jan 2006 15:46:47 -0500
+Received: from pat.uio.no ([129.240.130.16]:34790 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1161091AbWAGUqr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 15:46:47 -0500
+Subject: Re: NFS processes gettting stuck in D with currrent git
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060107050313.GA16451@kvack.org>
+References: <20060107050313.GA16451@kvack.org>
+Content-Type: text/plain
+Date: Sat, 07 Jan 2006 15:46:34 -0500
+Message-Id: <1136666794.7860.12.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060107.003625.50986701.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.05, required 12,
+	autolearn=disabled, AWL 1.76, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 12:36:25AM -0800, David S. Miller wrote:
-> From: Eric Dumazet <dada1@cosmosbay.com>
-> Date: Sat, 07 Jan 2006 08:53:52 +0100
+On Sat, 2006-01-07 at 00:03 -0500, Benjamin LaHaise wrote:
+> Hi Trond,
 > 
-> > I have no problem with this, since the biggest server I have is 4
-> > way, but are you sure big machines wont suffer from this single
-> > spinlock ?
-> 
-> It is the main question.
-> 
-> > Also I dont understand what you want to do after this single
-> > spinlock patch.  How is it supposed to help the 'ip route flush
-> > cache' problem ?  In my case, I have about 600.000 dst-entries :
-> 
-> I don't claim to have a solution to this problem currently.
-> 
-> Doing RCU and going through the whole DST GC machinery is overkill for
-> an active system.  So, perhaps a very simple solution will do:
-> 
-> 1) On rt_run_flush(), do not rt_free(), instead collect all active
->    routing cache entries onto a global list, begin a timer to
->    fire in 10 seconds (or some sysctl configurable amount).
-> 
-> 2) When a new routing cache entry is needed, check the global
->    list appended to in #1 above first, failing that do dst_alloc()
->    as is done currently.
-> 
-> 3) If timer expires, rt_free() any entries in the global list.
-> 
-> The missing trick is how to ensure RCU semantics when reallocating
-> from the global list.
+> One of the NFS patches seems to have introduced a problem with the nfs 
+> client, as my test box now seems to be hanging processes in D somewhat 
+> randomly (RHEL4 box for the server).  I'll try to bisect it if there 
+> aren't any obvious candidates for the problem.  Cheers, 
 
-The straightforward ways of doing this require a per-entry lock in
-addition to the dst_entry reference count -- lots of read-side overhead.
+Does a magic sysrq-t give any useful clues as to where they are hanging?
 
-More complex approaches use a generation number that is incremented
-when adding to or removing from the global list.  When the generation
-number overflows, unconditionally rt_free() it rather than adding
-to the global list again.  Then there needs to be some clever code
-on the read side to detect the case when the generation number
-changes while acquiring a reference.  And memory barriers.  Also
-lots of read-side overhead.  Also, it is now -always- necessary to
-acquire a reference on the read-side.
+Cheers,
+  Trond
 
-> The idea is that an active system will immediately repopulate itself
-> with all of these entries just flushed from the table.
-> 
-> RCU really doesn't handle this kind of problem very well.  It truly
-> excels when work is generated by process context work, not interrupt
-> work.
-
-Sounds like a challenge to me.  ;-)
-
-Well, one possible way to attack Eric's workload might be the following:
-
-o	Size the hash table to strike the appropriate balance between
-	read-side search overhead and memory consumption.  Call the
-	number of hash-chain headers N.
-
-o	Create a hashed array of locks sized to allow the update to
-	proceed sufficiently quickly.  Call the number of locks M,
-	probably a power of two.  This means that M CPUs can be doing
-	the update in parallel.
-
-o	Create an array of M^2 list headers (call it xfer[][]), but
-	since this is only needed during an update, it can be allocated
-	and deallocated if need be.  (Me, with my big-server experience,
-	would probably just create the array, since M is not likely to
-	be too large.  But your mileage may vary.  And you really only
-	need M*(M-1) list headers, but that makes the index calculation
-	a bit more annoying.)
-
-o	Use a two-phase update.  In the first phase, each updating
-	CPU acquires the corresponding lock and removes entries from
-	the corresponding partition of the hash table.  If the new
-	location of a given entry falls into the same partition, it
-	is added back to the appropriate hash chain of that partition.
-	Otherwise, add the entry to xfer[dst][src], where "src" and 
-	"dst" are indexes of the corresponding partitions.
-
-o	When all CPUs finish removing entries from their partition,
-	they check into a barrier.  Once all have checked in, they
-	can start the second phase of the update.
-
-o	In the second phase, each CPU removes the entries from the
-	xfer array that are destined for its partition and adds them
-	to the hash chain that they are destined for.
-
-Some commentary and variations, in the hope that this inspires someone
-to come up with an even better idea:
-
-o	Unless M is at least three, there is no performance gain
-	over a single global lock with a single CPU doing the update,
-	since each element must now undergo four list operations rather
-	than just two.
-
-o	The xfer[][] array must have each entry cache-aligned, or
-	you lose big on cacheline effects.  Note that it is -not-
-	sufficient to simply align the rows or the columns, since
-	each CPU has its own column when inserting and its own
-	row when removing from xfer[][].
-
-o	And the data-skew effects are less severe if this procedure
-	runs from process context.  A spinning barrier must be used
-	otherwise.  But note that the per-partition locks could remain
-	spinlocks, only the barrier need involve sleeping (in case
-	that helps, am getting a bit ahead of my understanding of
-	this part of the kernel).
-
-	So I half-agree with Dave -- this works better if the bulk
-	update is done in process context, however, updates involving
-	single entries being individually added and removed from the
-	hash table can be done from interrupt context.
-
-o	One (more complex!) way to reduce the effect of data skew to
-	partition the array based on the number of elements in each
-	partition rather than by the number of chains, but this would
-	require a second barrier that is completed before dropping locks
-	in order to avoid messing up concurrent single-element updates.
-
-	And this only handles the phase-1 data-skew effects. It is
-	possible to handle phase-2 data skew as well, but it takes an
-	up-front full-table scan and so it is not clear how it could
-	possibly be a performance win.
-
-o	Note that routing slows down significantly while an update is
-	in progress, because on average only half of the entries are
-	in the hash table during the update.  I have no idea whether
-	or not this is acceptable.  I am assuming that the same
-	mechanism that prevents two concurrent route-cache misses
-	from inserting two entries from the same route would also
-	prevent adding a new entry when one was already in the
-	xfer array.
-
-Thoughts?
-
-							Thanx, Paul

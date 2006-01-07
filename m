@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWAGBA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWAGBBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWAGBA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 20:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWAGBA1
+	id S932486AbWAGBBS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 20:01:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWAGBBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 20:00:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:749 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030263AbWAGBA1 (ORCPT
+	Fri, 6 Jan 2006 20:01:18 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:54217 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932486AbWAGBBR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 20:00:27 -0500
-Date: Fri, 6 Jan 2006 17:01:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, arjan@infradead.org,
-       nico@cam.org, jes@trained-monkey.org, viro@ftp.linux.org.uk,
-       oleg@tv-sign.ru, dhowells@redhat.com, alan@lxorguk.ukuu.org.uk,
-       hch@infradead.org, ak@suse.de, rmk+lkml@arm.linux.org.uk
-Subject: Re: [patch 17/21] mutex subsystem, semaphore to mutex: automatic
- conversion of simpler cases
-Message-Id: <20060106170146.7e19a968.akpm@osdl.org>
-In-Reply-To: <20060105153903.GR31013@elte.hu>
-References: <20060105153903.GR31013@elte.hu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 20:01:17 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/4] Series to allow a "const" file_operations struct
+Date: Sat, 7 Jan 2006 02:01:02 +0100
+User-Agent: KMail/1.9.1
+Cc: Eric Dumazet <dada1@cosmosbay.com>, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+References: <1136583937.2940.90.camel@laptopd505.fenrus.org> <43BEF338.3010403@cosmosbay.com> <20060106162913.7621895c.akpm@osdl.org>
+In-Reply-To: <20060106162913.7621895c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601070201.02984.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Samstag, 7. Januar 2006 01:29 schrieb Andrew Morton:
+> > size vmlinux*
+> >     text    data     bss     dec     hex filename
+> > 2476156  522236  244868 3243260  317cfc vmlinux
+> > 2588685  571348  246692 3406725  33fb85 vmlinux.old
+>
+> Confused.   Why should this result in an aggregate reduction in vmlinux
+> size?
 
+The size tool only displays the sum of .text, .data and .bss, but completely 
+ignores other sections. So if you manage to move part of the object e.g.
+into .rodata or .initdata, it will show a smaller size although the size of 
+the actual vmlinux file stays the same.
 
-2 out of 7 hunks FAILED -- saving rejects to file drivers/md/dm.c.rej
-1 out of 4 hunks FAILED -- saving rejects to file drivers/md/md.c.rej
-2 out of 20 hunks FAILED -- saving rejects to file drivers/pcmcia/rsrc_nonstatic.c.rej
-1 out of 5 hunks FAILED -- saving rejects to file fs/nfs/callback.c.rej
-1 out of 10 hunks FAILED -- saving rejects to file security/selinux/selinuxfs.c.rej
-2 out of 6 hunks FAILED -- saving rejects to file sound/arm/pxa2xx-ac97.c.rej
-6 out of 9 hunks FAILED -- saving rejects to file sound/core/hwdep.c.rej
-1 out of 8 hunks FAILED -- saving rejects to file sound/core/info.c.rej
-5 out of 13 hunks FAILED -- saving rejects to file sound/core/pcm.c.rej
-5 out of 8 hunks FAILED -- saving rejects to file sound/core/rawmidi.c.rej
-1 out of 7 hunks FAILED -- saving rejects to file sound/core/seq/oss/seq_oss.c.rej
-3 out of 10 hunks FAILED -- saving rejects to file sound/core/seq/seq_device.c.rej
-1 out of 8 hunks FAILED -- saving rejects to file sound/core/seq/seq_midi.c.rej
-5 out of 8 hunks FAILED -- saving rejects to file sound/core/sound.c.rej
-6 out of 8 hunks FAILED -- saving rejects to file sound/core/sound_oss.c.rej
-1 out of 22 hunks FAILED -- saving rejects to file sound/core/timer.c.rej
-1 out of 6 hunks FAILED -- saving rejects to file sound/usb/usbaudio.c.rej
+Erics point was just about .data getting smaller, not about the bogus sum.
 
-I think I'll duck this one for now.
-
-Perhaps it should be split up a bit?
+	Arnd <><

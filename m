@@ -1,50 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbWAGJ7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbWAGKEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbWAGJ7P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 04:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbWAGJ7P
+	id S1030391AbWAGKEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 05:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWAGKEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 04:59:15 -0500
-Received: from uproxy.gmail.com ([66.249.92.204]:20635 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932709AbWAGJ7O (ORCPT
+	Sat, 7 Jan 2006 05:04:16 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:21772 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030391AbWAGKEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 04:59:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=SeSw0BwksnKHSZjjvZy8NTXpjGGENkXpJ6PsqznNz143+tmyMoTt6AQU0DMd/sl+LS9HI0syUuAM0w38kncfH7NMxC3EVCb2vEh95+GXhen6QlZwAMsGguc5a0gtpu7+DfwoepF2sJ4esMURx1PXEwwE7BDTfY6dFc5Q8aUlU+k=
-Message-ID: <43BF9114.7040102@gmail.com>
-Date: Sat, 07 Jan 2006 14:59:48 +0500
-From: "Alexander E. Patrakov" <patrakov@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: sanitized kernel headers
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Jan 2006 05:04:15 -0500
+Date: Sat, 7 Jan 2006 11:03:56 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
+Message-ID: <20060107100356.GA15664@mars.ravnborg.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136543914.2940.11.camel@laptopd505.fenrus.org> <20060107010757.2e853f77.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060107010757.2e853f77.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, Jan 07, 2006 at 01:07:57AM -0800, Andrew Morton wrote:
+ 
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> Set GCC_VERSION up-front rather than in arch Makefiles.  This reduces ordering
+> problems and generally consolidates things.
 
-almost two years ago, a decision has been made that raw kernel headers 
-are for the kernel only, and that userspace should be built against some 
-"sanitized" kernels. Linux-Libc-Headers 
-(http://ep09.pld-linux.org/~mmazur/linux-libc-headers/) were one of the 
-implementations of such sanitized headers, and they worked well and were 
-used e.g. in Linux From Scratch.
+This will fail if arch/Makefile for some reason redefine CC to something
+else. I recall one arch did that in the past.
 
-But now, the Linux-Libc-Headers project looks dead: no commits in the 
-SVN for the last two months, and the only changes in SVN as compared to 
-LLH 2.6.12.0 are addition of inotify.h, removal of some kernel-only 
-headers and some minor fix for non-glibc systems.
+Two options:
+1) Use $(call cc-version) all over the place.
+2) Use '=' assignment to GCC_VERSION so value is evaluated only when
+used.
 
-What is the recommended (non-dead) alternative implementation of such 
-"sanitized" headers? Where is the roadmap for this area?
+I prefer the first version since we loose the optimzation that gcc is
+called once anyway.
 
--- 
-Alexander E. Patrakov
-Don't mail to patrakov@ums.usu.ru: the server is off until 2006-01-11
-Use my GMail or linuxfromscratch address instead
+	Sam
 
+> 
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Arjan van de Ven <arjan@infradead.org>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  Makefile              |    2 +-
+>  arch/ia64/Makefile    |    1 -
+>  arch/parisc/Makefile  |    4 ----
+>  arch/powerpc/Makefile |    2 --
+>  arch/ppc/Makefile     |    1 -
+>  5 files changed, 1 insertion(+), 9 deletions(-)
+> 
+> diff -puN arch/ia64/Makefile~kbuild-call-gcc_version-earlier arch/ia64/Makefile
+> --- devel/arch/ia64/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 01:05:39.000000000 -0800
+> +++ devel-akpm/arch/ia64/Makefile	2006-01-07 01:05:39.000000000 -0800
+> @@ -25,7 +25,6 @@ cflags-y	:= -pipe $(EXTRA) -ffixed-r13 -
+>  		   -falign-functions=32 -frename-registers -fno-optimize-sibling-calls
+>  CFLAGS_KERNEL	:= -mconstant-gp
+>  
+> -GCC_VERSION     := $(call cc-version)
+>  GAS_STATUS	= $(shell $(srctree)/arch/ia64/scripts/check-gas "$(CC)" "$(OBJDUMP)")
+>  CPPFLAGS += $(shell $(srctree)/arch/ia64/scripts/toolchain-flags "$(CC)" "$(OBJDUMP)" "$(READELF)")
+>  
+> diff -puN arch/parisc/Makefile~kbuild-call-gcc_version-earlier arch/parisc/Makefile
+> --- devel/arch/parisc/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 01:05:39.000000000 -0800
+> +++ devel-akpm/arch/parisc/Makefile	2006-01-07 01:05:39.000000000 -0800
+> @@ -35,10 +35,6 @@ FINAL_LD=$(CROSS_COMPILE)ld --warn-commo
+>  
+>  OBJCOPY_FLAGS =-O binary -R .note -R .comment -S
+>  
+> -GCC_VERSION     := $(call cc-version)
+> -ifneq ($(shell if [ -z $(GCC_VERSION) ] ; then echo "bad"; fi ;),)
+> -$(error Sorry, couldn't find ($(cc-version)).)
+> -endif
+>  ifneq ($(shell if [ $(GCC_VERSION) -lt 0303 ] ; then echo "bad"; fi ;),)
+>  $(error Sorry, your compiler is too old ($(GCC_VERSION)).  GCC v3.3 or above is required.)
+>  endif
+> diff -puN arch/powerpc/Makefile~kbuild-call-gcc_version-earlier arch/powerpc/Makefile
+> --- devel/arch/powerpc/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 01:05:39.000000000 -0800
+> +++ devel-akpm/arch/powerpc/Makefile	2006-01-07 01:05:39.000000000 -0800
+> @@ -76,7 +76,6 @@ LINUXINCLUDE    += $(LINUXINCLUDE-y)
+>  CHECKFLAGS	+= -m$(SZ) -D__powerpc__ -D__powerpc$(SZ)__
+>  
+>  ifeq ($(CONFIG_PPC64),y)
+> -GCC_VERSION     := $(call cc-version)
+>  GCC_BROKEN_VEC	:= $(shell if [ $(GCC_VERSION) -lt 0400 ] ; then echo "y"; fi)
+>  
+>  ifeq ($(CONFIG_POWER4_ONLY),y)
+> @@ -189,7 +188,6 @@ TOUT	:= .tmp_gas_check
+>  # Ensure this is binutils 2.12.1 (or 2.12.90.0.7) or later for altivec
+>  # instructions.
+>  # gcc-3.4 and binutils-2.14 are a fatal combination.
+> -GCC_VERSION	:= $(call cc-version)
+>  
+>  checkbin:
+>  	@if test "$(GCC_VERSION)" = "0304" ; then \
+> diff -puN arch/ppc/Makefile~kbuild-call-gcc_version-earlier arch/ppc/Makefile
+> --- devel/arch/ppc/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 01:05:39.000000000 -0800
+> +++ devel-akpm/arch/ppc/Makefile	2006-01-07 01:05:39.000000000 -0800
+> @@ -128,7 +128,6 @@ TOUT	:= .tmp_gas_check
+>  # Ensure this is binutils 2.12.1 (or 2.12.90.0.7) or later for altivec
+>  # instructions.
+>  # gcc-3.4 and binutils-2.14 are a fatal combination.
+> -GCC_VERSION	:= $(call cc-version)
+>  
+>  checkbin:
+>  	@if test "$(GCC_VERSION)" = "0304" ; then \
+> diff -puN Makefile~kbuild-call-gcc_version-earlier Makefile
+> --- Makefile~kbuild-call-gcc_version-earlier	2006-01-07 01:05:39.000000000 -0800
+> +++ devel-akpm/Makefile	2006-01-07 01:05:39.000000000 -0800
+> @@ -300,7 +300,7 @@ cc-option-align = $(subst -functions=0,,
+>  # Usage gcc-ver := $(call cc-version $(CC))
+>  cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
+>                $(if $(1), $(1), $(CC)))
+> -
+> +GCC_VERSION	:= $(call cc-version)
+>  
+>  # Look for make include files relative to root of kernel src
+>  MAKEFLAGS += --include-dir=$(srctree)
+> _
+> 

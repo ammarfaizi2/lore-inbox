@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030504AbWAGQug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030512AbWAGRHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030504AbWAGQug (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 11:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030507AbWAGQug
+	id S1030512AbWAGRHP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 12:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbWAGRHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 11:50:36 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53009 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030504AbWAGQug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 11:50:36 -0500
-Date: Sat, 7 Jan 2006 16:50:28 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 15/15] misc: Configurable support for PCI serial ports
-Message-ID: <20060107165028.GI31384@flint.arm.linux.org.uk>
-Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <15.282480653@selenic.com> <16.282480653@selenic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16.282480653@selenic.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 7 Jan 2006 12:07:15 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:2994 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1030512AbWAGRHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 12:07:13 -0500
+X-IronPort-AV: i="3.99,342,1131350400"; 
+   d="scan'208"; a="1764550291:sNHT31897166"
+Subject: [git patch review 1/2] IB/uverbs: Release event file reference on
+	ib_uverbs_create_cq() error
+From: Roland Dreier <rolandd@cisco.com>
+Date: Sat, 07 Jan 2006 17:07:08 +0000
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Mailer: IB-patch-reviewer
+Content-Transfer-Encoding: 8bit
+Message-ID: <1136653628658-9dad0e46bb1d8cba@cisco.com>
+X-OriginalArrivalTime: 07 Jan 2006 17:07:10.0782 (UTC) FILETIME=[CC32C5E0:01C613AC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 02:35:57AM -0600, Matt Mackall wrote:
-> Configurable support for PCI serial devices
-> 
-> This allows disabling support for _non_-legacy PCI serial devices.
+ib_uverbs_create_cq() should release the completion channel event file
+if an error occurs after it looks it up.  Also, if userspace asks for
+a completion channel and we don't find it, an error should be returned
+instead of silently creating a CQ without a completion channel.
 
-Why is the config for SERIAL_PCI in init/Kconfig rather than
-drivers/serial/Kconfig ?
+Signed-off-by: Jack Morgenstein <jackm@mellanox.co.il>
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-> --- 2.6.14-misc.orig/init/Kconfig	2005-11-09 11:27:26.000000000 -0800
-> +++ 2.6.14-misc/init/Kconfig	2005-11-09 11:27:28.000000000 -0800
-> @@ -473,6 +473,15 @@ config BOOTFLAG
->  	help
->  	  This enables support for the Simple Bootflag Specification.
->  
-> +config SERIAL_PCI
-> +	depends PCI && SERIAL_8250
-> +	default y
-> +	bool "Enable standard PCI serial support" if EMBEDDED
-> +	help
-> +	  This builds standard PCI serial support. You may be able to disable
-> +          this feature if you are only need legacy serial support.
-> +	  Saves about 9K.
-> +
->  endmenu		# General setup
->  
->  config TINY_SHMEM
+---
 
+ drivers/infiniband/core/uverbs_cmd.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
+
+ac4e7b35579de55db50d602a472858867808a9c3
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 12d6cc0..a02c5a0 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -594,13 +594,18 @@ ssize_t ib_uverbs_create_cq(struct ib_uv
+ 	if (cmd.comp_vector >= file->device->num_comp_vectors)
+ 		return -EINVAL;
+ 
+-	if (cmd.comp_channel >= 0)
+-		ev_file = ib_uverbs_lookup_comp_file(cmd.comp_channel);
+-
+ 	uobj = kmalloc(sizeof *uobj, GFP_KERNEL);
+ 	if (!uobj)
+ 		return -ENOMEM;
+ 
++	if (cmd.comp_channel >= 0) {
++		ev_file = ib_uverbs_lookup_comp_file(cmd.comp_channel);
++		if (!ev_file) {
++			ret = -EINVAL;
++			goto err;
++		}
++	}
++
+ 	uobj->uobject.user_handle   = cmd.user_handle;
+ 	uobj->uobject.context       = file->ucontext;
+ 	uobj->uverbs_file	    = file;
+@@ -664,6 +669,8 @@ err_up:
+ 	ib_destroy_cq(cq);
+ 
+ err:
++	if (ev_file)
++		ib_uverbs_release_ucq(file, ev_file, uobj);
+ 	kfree(uobj);
+ 	return ret;
+ }
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+0.99.9n

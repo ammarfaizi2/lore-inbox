@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030600AbWAGVsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030597AbWAGVtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030600AbWAGVsR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 16:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWAGVsR
+	id S1030597AbWAGVtu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 16:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWAGVtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 16:48:17 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29922 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030600AbWAGVsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 16:48:16 -0500
-Subject: Re: oops pauser. / boot_delayer
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Kurtis D. Rader" <kdrader@us.ibm.com>
-Cc: Dave Jones <davej@redhat.com>, Bernd Eckenfels <be-news06@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060107214439.GA13433@us.ibm.com>
-References: <20060104221023.10249eb3.rdunlap@xenotime.net>
-	 <E1EuPZg-0008Kw-00@calista.inka.de> <20060105111105.GK20809@redhat.com>
-	 <20060107214439.GA13433@us.ibm.com>
-Content-Type: text/plain
-Date: Sat, 07 Jan 2006 22:48:08 +0100
-Message-Id: <1136670488.2936.44.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 7 Jan 2006 16:49:50 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52998 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030597AbWAGVtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 16:49:49 -0500
+Date: Sat, 7 Jan 2006 22:49:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: kurt.hackel@oracle.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] OCFS2: __init / __exit problem
+Message-ID: <20060107214947.GW3774@stusta.de>
+References: <20060107132008.GE820@lug-owl.de> <20060107190702.GT3774@stusta.de> <20060107213821.GD3313@ca-server1.us.oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060107213821.GD3313@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-07 at 13:44 -0800, Kurtis D. Rader wrote:
-> On Thu, 2006-01-05 06:11:05, Dave Jones wrote:
-> > On Thu, Jan 05, 2006 at 08:30:16AM +0100, Bernd Eckenfels wrote:
-> >  > Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> >  > > This one delays each printk() during boot by a variable time
-> >  > > (from kernel command line), while system_state == SYSTEM_BOOTING.
-> >  >
-> >  > This sounds a bit like a aprils fool joke, what it is meant to do? You can
-> >  > read the messages in the bootlog and use the scrollback keys, no?
-> > 
-> > could be handy for those 'I see a few messages that scroll, and the
-> > box instantly reboots' bugs.  Quite rare, but they do happen.
-> 
-> Another very common situation is a system which fails to boot due to
-> failures to find the root filesystem. This can happen because of device name
-> slippage, root disk not being found, the proper HBA driver isn't present in
+On Sat, Jan 07, 2006 at 01:38:21PM -0800, Mark Fasheh wrote:
+> On Sat, Jan 07, 2006 at 08:07:02PM +0100, Adrian Bunk wrote:
+> > It's a real problem that due to the fact that these errors have become 
+> > runtime errors on i386 in kernel 2.6, we do no longer have a big testing 
+> > coverage for them.  :-(
+> Indeed. Those function declarations have been in there for a while,
+> without any issue until now. Thanks for the patch Adrian.
 
-mount by label fixes some of that but not all
+The runtime error on architectures like i386 occurs in the error path of 
+ocfs2_init().
 
-> the initrd image, etc. The customer calls us and reports the last thing they
-> see on the screen:
+This is the common problem that such error paths are only used once 
+every dozen years and therefore get no real testing coverage...
 
-fwiw it would make sense (at least for distros) to make this print a
-more helpful text about potential causes etc, rather than just making
-people say "the kernel paniced".
+> 	--Mark
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

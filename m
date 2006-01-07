@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbWAGB3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWAGB3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030306AbWAGB3A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 20:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWAGB27
+	id S1030315AbWAGB3T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 20:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWAGB3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 20:28:59 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:50765 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030306AbWAGB27 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 20:28:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FIxahvB+vAaJC+tFoWMmtk2kWpWXuPvDEmfNKshlNlddjIrebtcnnYPnVzd1zNSDB/JO3hN370i45dFlk2GoOx+qQXznfSD8i/jRqIYwiqIc/RAROZij/vF1sGenCAJzSd87dapwOMxZxHl5kyJUHYhhuVFzoGG4pR/TMY9b4DQ=
-Message-ID: <9a8748490601061728x66fd3a76mecedde0c3a4c4b93@mail.gmail.com>
-Date: Sat, 7 Jan 2006 02:28:58 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, airlied@linux.ie
-Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
-In-Reply-To: <9a8748490601061720k228eec1dr2afcfdc7ece6c862@mail.gmail.com>
-MIME-Version: 1.0
+	Fri, 6 Jan 2006 20:29:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60290 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030307AbWAGB3Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 20:29:16 -0500
+Date: Fri, 6 Jan 2006 17:30:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, arjan@infradead.org,
+       nico@cam.org, jes@trained-monkey.org, viro@ftp.linux.org.uk,
+       oleg@tv-sign.ru, dhowells@redhat.com, alan@lxorguk.ukuu.org.uk,
+       hch@infradead.org, ak@suse.de, rmk+lkml@arm.linux.org.uk
+Subject: Re: [patch 17/21] mutex subsystem, semaphore to mutex: automatic
+ conversion of simpler cases
+Message-Id: <20060106173022.3df929dd.akpm@osdl.org>
+In-Reply-To: <20060107010749.GA6267@elte.hu>
+References: <20060105153903.GR31013@elte.hu>
+	<20060106170146.7e19a968.akpm@osdl.org>
+	<20060107010749.GA6267@elte.hu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com>
-	 <20060105162714.6ad6d374.akpm@osdl.org>
-	 <9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com>
-	 <20060105165946.1768f3d5.akpm@osdl.org>
-	 <9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com>
-	 <20060107002833.GB9402@redhat.com>
-	 <20060106164012.041e14b2.akpm@osdl.org>
-	 <20060107005712.GF9402@redhat.com>
-	 <9a8748490601061720k228eec1dr2afcfdc7ece6c862@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/7/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 1/7/06, Dave Jones <davej@redhat.com> wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
 >
-> > Jesper: http://lkml.org/lkml/2006/1/4/534
-> > (unmunged diff is at http://lkml.org/lkml/diff/2006/1/4/534/1)
-> >
-> Thanks, I'll apply that (and raise the timeout somewhat, since 2min is
-> far from enough time for me to write down an entire Oops by hand -
-> wouldn't it be better if it simply spun in a loop until some magic key
-> (like enter, esc, break or something) is pressed? Then you have all
-> the time you might need).
->
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > I think I'll duck this one for now.
+> > 
+> > Perhaps it should be split up a bit?
+> 
+> yeah, i'll merge it tomorrow and will split it up into per-driver 
+> patches. Could you upload an x.bz2 i should merge against - or is 
+> Linus-curr OK?
+> 
 
-btw: your patch is missing a small bit. You need to #include
-<linux/nmi.h> in arch/i386/kernel/traps.c or you'll get
+The old x.bz2 would be better please, because I'm going to have to do
+fixups for various -mm-only things like dlm, asfs, reiser4, etc.
 
-arch/i386/kernel/traps.c: In function `show_registers':
-arch/i386/kernel/traps.c:300: warning: implicit declaration of
-function `touch_nmi_watchdog'
+http://www.zip.com.au/~akpm/linux/patches/stuff/up-to-mutex-series.bz2
 
+Is everything up to and including the mutex series.  That's a suitable
+insertion point for new stuff.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+http://www.zip.com.au/~akpm/linux/patches/stuff/everything.bz2 is the whole
+kit.  It includes additional things which'll need fixups if you're feeling
+keen.
+
+Sorry for the hassle - there are still great gobs of stuff to merge, and
+we're basically twiddling thumbs until things like nfs, powerpc, usb get
+merged.

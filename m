@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbWAGMsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWAGNEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030435AbWAGMsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 07:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbWAGMsI
+	id S1030433AbWAGNEX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 08:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWAGNEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 07:48:08 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44753 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030432AbWAGMsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 07:48:07 -0500
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Andi Kleen <ak@muc.de>, ebiederm@xmission.com,
-       Vivek Goyal <vgoyal@in.ibm.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>
-Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
-References: <6F7DA19D05F3CF40B890C7CA2DB13A42030949CB@ssvlexmb2.amd.com>
-	<86802c440601061832m4898e20fw4c9a8360e85cfa17@mail.gmail.com>
-	<86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
-	<86802c440601062320r597d6970i3b120ec90f96abce@mail.gmail.com>
-	<86802c440601070143v44ee9f4dua2dcef2a536d4c73@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 07 Jan 2006 05:46:51 -0700
-In-Reply-To: <86802c440601070143v44ee9f4dua2dcef2a536d4c73@mail.gmail.com> (yhlu.kernel@gmail.com's
- message of "Sat, 7 Jan 2006 01:43:22 -0800")
-Message-ID: <m1ek3k2ojo.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sat, 7 Jan 2006 08:04:23 -0500
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:42909 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S1030433AbWAGNEX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 08:04:23 -0500
+Date: Sat, 7 Jan 2006 08:06:52 -0500
+From: Adam Belay <ambx1@neo.rr.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys	interface
+Message-ID: <20060107130652.GB3972@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
+	Andrew Morton <akpm@osdl.org>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Linux-pm mailing list <linux-pm@lists.osdl.org>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0601051729400.30092-100000@monsoon.he.net> <Pine.LNX.4.44L0.0601061035090.5127-100000@iolanthe.rowland.org> <20060107000826.GC20399@elf.ucw.cz> <20060107075851.GD3184@neo.rr.com> <20060107102013.GB9225@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060107102013.GB9225@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yhlu <yhlu.kernel@gmail.com> writes:
+On Sat, Jan 07, 2006 at 11:20:13AM +0100, Pavel Machek wrote:
+> On So 07-01-06 02:58:51, Adam Belay wrote:
+> > The driver core can provide some infustructure, but let's leave the states
+> > up to the drivers.  Afterall, some drivers might only be interested in "on"
+> > during runtime.  Also, drivers might support some sort of partial-off
+> > but not "off".
+> 
+> Then they map "off" to "as much off as I can". Big deal.
 
-> andi,
->
-> In LinuxBIOS, we don't set the MPS 0x467 and the AP still can be started by BSP.
->
-> are these really needed for x86_64?
->
->         Dprintk("Setting warm reset code and vector.\n");
->
->         CMOS_WRITE(0xa, 0xf);
->         local_flush_tlb();
->         Dprintk("1.\n");
->         *((volatile unsigned short *) phys_to_virt(0x469)) = start_rip >> 4;
->         Dprintk("2.\n");
->         *((volatile unsigned short *) phys_to_virt(0x467)) = start_rip & 0xf;
->         Dprintk("3.\n");
->
-> the STARTUP IPI should work well with MPS v1.4
+Yes, but it may not be the kernel's place to make this generalization.
 
-There are very large x86 machines that a reset is sent to the remote
-cpu and thus 0x40:0x67 and 0x40:0x67 becomes relevant.
+> 
+> > And no, this does not allow us to experiment with PCI power
+> > management.
+> 
+> Well, suse was already doing experiments with 2.6.14 sysfs...
 
-YH you didn't do something foolish and put a linuxbios table below
-0x500 did you?
+Sure one can see how much power is saved by entering D3, but than can
+even be done through userspace.  I think it's more important to
+experiment with schemes that will actually be useful and reliable to the
+end user.
 
-Eric
+> 
+> > Also there's nothing "runtime" about the PCMCIA PM API.  It's much more
+> > like calling ->remove() as it disabled the device all together.  
+> 
+> It looks enough runtime to me.
+
+As was already discussed, we don't want to modify every userspace
+application to check if the device it needs is "on" (resumed) or
+"off" (suspended).  It's just two painful with third party apps etc.
+Therefore, the kernel needs to handle this more seemlessly.  In my
+opinion, this is what runtime power management is all about, saving
+power without getting in the user's way.
+
+> 
+> > I'm more
+> > interested in saving power without crippling functionality.
+> 
+> You are on wrong mailing list, then. Seriously. If you can save power
+> without affecting functionality, then just doing, you don't need any
+> userland interface.
+
+Cool it, affecting functionality and disabling it are not the same
+thing.  I'm fairly certain this mailing list is interested in exploring
+more than suspend/resume (i.e. "on" and "off"), even if it can be hacked
+to happen during runtime.
+
+This issue depends on the platform and device class.  Some device
+classes will have more user initiated power transitions than others.
+With that in mind, even drivers with exclusively kernel-space control
+will want to export knobs and tunables for timeout values etc.  A
+userland interface if important regardless of kernel-side
+implementation.
+
+-Adam
+

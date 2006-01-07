@@ -1,115 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWAGDsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWAGDyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWAGDsV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 22:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWAGDsV
+	id S1030245AbWAGDyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 22:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWAGDyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 22:48:21 -0500
-Received: from smtp109.plus.mail.mud.yahoo.com ([68.142.206.242]:63056 "HELO
-	smtp109.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932306AbWAGDsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 22:48:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=fi8s/fuWiwOKbMd0i/c/v+XwfxKB61fkfomT6vq93uWilDKcmhA9rQTF2PCeYmkzTN6MODczcAzdOJ3l+MAUe1Meu7yhyo7ZQce3gGb40D8WLJ4rK8+jpKVUFR4fX4/trmuoY+CIwyoK61BjxN6c4gNRcdOyHSKxibcnr5BEGtI=  ;
-Message-ID: <43BF3A06.10502@yahoo.com.au>
-Date: Sat, 07 Jan 2006 14:48:22 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] use local_t for page statistics
-References: <20060106215332.GH8979@kvack.org> <200601070401.47618.ak@suse.de> <43BF3355.5060606@yahoo.com.au> <200601070425.24810.ak@suse.de>
-In-Reply-To: <200601070425.24810.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 22:54:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56226 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030245AbWAGDyH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 22:54:07 -0500
+Date: Fri, 6 Jan 2006 22:53:51 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, airlied@linux.ie
+Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
+Message-ID: <20060107035351.GH9402@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jesper Juhl <jesper.juhl@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+	airlied@linux.ie
+References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com> <20060105162714.6ad6d374.akpm@osdl.org> <9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com> <20060105165946.1768f3d5.akpm@osdl.org> <9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com> <20060107002833.GB9402@redhat.com> <20060106164012.041e14b2.akpm@osdl.org> <9a8748490601061851p7ecfab9fua866fc2a79153b0@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490601061851p7ecfab9fua866fc2a79153b0@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Saturday 07 January 2006 04:19, Nick Piggin wrote:
-> 
->>Andi Kleen wrote:
->>
->>>On Saturday 07 January 2006 03:52, Nick Piggin wrote:
->>>
->>>
->>>
->>>>No. On many load/store architectures there is no good way to do local_t,
->>>>so something like ppc32 or ia64 just uses all atomic operations for
->>>
->>>
->>>well, they're just broken and need to be fixed to not do that.
->>>
->>
->>How?
-> 
-> 
-> If anything use the 3x duplicated data setup, not atomic operations.
-> 
+On Sat, Jan 07, 2006 at 03:51:48AM +0100, Jesper Juhl wrote:
 
-At a 3x cache footprint cost? (and probably more than 3x for icache, though
-I haven't checked) And I think hardware trends are against us. (Also, does
-it have race issues with nested interrupts that Andrew noticed?)
+ > Ok, this is with a pristine 2.6.15-mm1 + Dave's oops-pausing-patch
+ > Captured by switching to tty1 just after logging in via kdm.
+ > A *lot* of info still scrolls down when the problem hits before Daves
+ > patch stops it at a BUG dump, it scrolls by too fast for me to see
+ > what it is, but I guess it must be warning/error messages other than
+ > Oops's or BUG()'s ???
+ > 
+ > Anyway, here's the entire contents of my screen after Daves patch
+ > stops the output - again written down by hand and then typed in from
+ > my handwritten notes, so there may be typos, but I've tried to be
+ > accurate.
+ > 
+ > 
+ > 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > 060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > 070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > 080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > 090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > 0a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > 0b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-> 
->>>Also I bet with some tricks a seqlock like setup could be made to work.
->>>
->>
->>I asked you how before. If you can come up with a way then it indeed
->>might be a good solution... 
-> 
-> 
-> I'll try to work something up.
-> 
+My first thought was 'slab poison', but you don't have slab debugging turned on.
+Randy's followup to my patch: http://lkml.org/lkml/2006/1/5/15
+had another trick that may be useful. It'll slow down printk's
+to a point where you might be able to see what happened.
 
-Cool, I'd be interested to see.
+another trick may be to just add a for (;;) into the BUG macro.
 
-> 
->>The problem I see with seqlock is that it 
->>is only fast in the read path. That path is not the issue here.
-> 
-> 
-> The common case - not getting interrupted would be fast.
-> 
+ > ------------{ cut here ]------------
+ > kernel BUG at include/linux/list.h:166!
+ > invalid opcode: 0000 [#1]
+ > PREEMPT SMP
+ > Last sysfs file: /class/vc/vcsa2/dev
+ > Modules linked in: snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss
+ > snd_mixer_oss uhci_hcd usbcore snd_emu10k1 snd_rawmidi snd_ac97_codec
+ > snd_ac97_bus snd_pcm snd_seq_device snd_timer snd_page_alloc
+ > snd_util_mem snd_hwdep snd agpgart
+ > CPU:    0
+ > EIP:    0060:[<c01475f5>]    Tainted: G    B VLI
 
-The problem is that you can never do the final store without risking a
-race with an interrupt. Because it is not a read-path.
+Hmm, you had hit bad_page(), so that may be a more useful place
+to add a pause.
 
-The closest think I can see to a seqlock would be ll/sc operations, at
-which point you're back to atomic ops.
+		Dave
 
-> 
->>>>local_t, and ppc64 uses 3 counters per-cpu thus tripling the cache
->>>>footprint.
->>>
->>>
->>>and ppc64 has big caches so this also shouldn't be a problem.
->>>
->>
->>Well it is even less of a problem for them now, by about 1/3.
->>
->>Performance-wise there is really no benefit for even i386 or x86-64
->>to move to local_t now either so I don't see what the fuss is about.
-> 
-> 
-> Actually P4 doesn't like CLI/STI. For AMD and P-M it's not that much an issue,
-> but NetBurst really doesn't like it.
-> 
-
-Yes, it was worth over a second of real time and ~ 7% total kernel
-time on kbuild on a P4.
-
-(git: a74609fafa2e5cc31d558012abaaa55ec9ad9da4)
-
-AMD and PM I didn't test but the improvement might still be noticable,
-if much smaller.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

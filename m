@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbWAGXin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbWAGXk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161066AbWAGXin (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 18:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161069AbWAGXin
+	id S1161069AbWAGXk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 18:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbWAGXk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 18:38:43 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:30620 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1161066AbWAGXil (ORCPT
+	Sat, 7 Jan 2006 18:40:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:26321 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161069AbWAGXk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 18:38:41 -0500
-Message-ID: <43C050FA.9040400@ens-lyon.org>
-Date: Sat, 07 Jan 2006 18:38:34 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
-       linux-acpi@vger.kernel.org
+	Sat, 7 Jan 2006 18:40:28 -0500
+Date: Sat, 7 Jan 2006 15:40:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, shemminger@osdl.org
 Subject: Re: 2.6.15-mm2
-References: <20060107052221.61d0b600.akpm@osdl.org>	<43C0172E.7040607@ens-lyon.org> <20060107145800.113d7de5.akpm@osdl.org>
-In-Reply-To: <20060107145800.113d7de5.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <20060107154006.6ade772d.akpm@osdl.org>
+In-Reply-To: <43C04B93.9020503@reub.net>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<43BFD8C1.9030404@reub.net>
+	<20060107133103.530eb889.akpm@osdl.org>
+	<43C03B4A.1060501@reub.net>
+	<43C04B93.9020503@reub.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
+> Replying to myself is not a good thing but:
+> 
+> On 8/01/2006 11:06 a.m., Reuben Farrelly wrote:
+> > 
+> > 
+> > On 8/01/2006 10:31 a.m., Andrew Morton wrote:
+> >> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> >>> ...
+> >>> QLogic Fibre Channel HBA Driver
+> >>> ahci: probe of 0000:00:1f.2 failed with error -12
+> >>
+> >> It's odd that the ahci driver returned -EBUSY.  Maybe this is due to "we
+> >> have legacy mode, but all ports are unavailable" in ata_pci_init_one().
+> > 
+> > I've now removed this driver from my .config via menuconfig, I certainly 
+> > don't have the hardware and have no idea whatsoever how it came to be 
+> > built in. Although I guess it shouldn't be blowing up even if that is 
+> > the case?
+> 
+> I thought I'd clear up that I only removed the QLogic driver, and not AHCI ;-)
+> 
 
->Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
->  
->
->>2) acpi-cpufreq does not load either, returns ENODEV too. It's probably
->> git-acpi. I tried to revert it but there are lots of other patches
->> depending on it, so I finally gave up.
->>    
->>
->
->OK, let me try to reproduce this.  acpi and cpufreq are fully merged up, so
->this bug may well be in mainline now.
->
->  
->
->> 3) wpa_supplicant does not find my WPA network anymore (while iwlist
->> scanning sees). I didn't see anything relevant in dmesg. My driver is
->> ipw2200.
->>    
->>
->
->It's things like this which make me consider a career in carpentry.
->
->I assume 2.6.15 works OK?
->  
->
-
-2.6.15 and 2.6.15-git3 both don't show any of these issues. Did acpi and
-cpufreq get merged after -git3 ?
-
-thanks,
-Brice
-
+That message was caused by the ahci driver.  

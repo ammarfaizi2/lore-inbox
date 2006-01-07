@@ -1,84 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbWAGK0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbWAGKin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932714AbWAGK0W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 05:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbWAGK0W
+	id S932711AbWAGKin (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 05:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWAGKin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 05:26:22 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6613 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932710AbWAGK0V (ORCPT
+	Sat, 7 Jan 2006 05:38:43 -0500
+Received: from mail.gmx.de ([213.165.64.21]:63963 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932711AbWAGKin (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 05:26:21 -0500
-Date: Sat, 7 Jan 2006 11:25:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Adam Belay <ambx1@neo.rr.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys	interface
-Message-ID: <20060107102554.GC9225@elf.ucw.cz>
-References: <20051227213439.GA1884@elf.ucw.cz> <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <20060107083602.GE3184@neo.rr.com>
+	Sat, 7 Jan 2006 05:38:43 -0500
+X-Authenticated: #24128601
+Date: Sat, 7 Jan 2006 11:39:01 +0100
+From: Sebastian <sebastian_ml@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+Message-ID: <20060107103901.GA17833@section_eight.mops.rwth-aachen.de>
+References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <43BE24F7.6070901@triplehelix.org> <20060106232522.GA31621@section_eight.mops.rwth-aachen.de> <5bdc1c8b0601061530l3a8f4378o3b9cb96c187a6049@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060107083602.GE3184@neo.rr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <5bdc1c8b0601061530l3a8f4378o3b9cb96c187a6049@mail.gmail.com>
+X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 07-01-06 03:36:02, Adam Belay wrote:
-> On Wed, Jan 04, 2006 at 10:34:05PM +0100, Pavel Machek wrote:
-> > On Út 27-12-05 20:22:04, Patrick Mochel wrote:
-> > We want _common_ values, anyway. So, we do not want "D0", "D1", "D2",
-> > "D3hot" in PCI cases. We probably want "on", "D1", "D2", "suspend",
-> > and I'm not sure about those "D1" and "D2" parts. Userspace should not
-> > have to know about details, it will mostly use "on"/"suspend" anyway.
-> > 
-> > > > One day, when we find device that needs it, we may want to add more
-> > > > states. I don't know about such device currently.
-> > > 
-> > > There are many devices already do - there are PCI, PCI-X, PCI Express,
-> > > ACPI devices, etc that do. But, you simply cannot create a single
-> > > decent
-> > 
-> > I asked for an example.
-> 
-> Look at the ACPI spec, it has several examples...
-> 
-> 1.) most sound cards have more than two states. (once again latency over
-> power savings trade offs)
 
-What is the latency in typical "most sound card" case?
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 2.) many PCI devices with wake support use different D-levels depending
-> on wake settings
+Hi everybody,
 
-...can be done internally in driver.
+On Fr, Jan 06, 2006 at 03:30:47 -0800, Mark Knecht wrote:
+> On 1/6/06, Sebastian <sebastian_ml@gmx.net> wrote:
+> > Hi all!
+> > On Fri, Jan 06, 2006 at 12:06:15AM -0800, Joshua Kwan wrote:
+> > > Hi Sebastian,
+> > >
+> > > On 01/03/2006 02:20 PM, Sebastian wrote:
+> > > > The second series was ripped with deprecated ide-scsi emulation and=
+ yielded the
+> > > > same results as EAC.
+> > >
+> > > What were you using? cdparanoia? cdda2wav? (Are there actually that m=
+any
+> > > other options on Linux?)
+> > I use cdparanoia.
+>=20
+> Try  cdparanoia -Bvz
+>=20
+> This will cause the rip to be extremely careful and make sure
+> everything is exactly right. It works well for me and was recommended
+> by someone I trust. I hop it works for you..
+>=20
+> Cheers,
+> Mark
+>=20
+I used cdparanoia -BzX -O48 for every rip.
+Just to be clear, I'm not writing to this list because I have problems
+with an application. :) Rather I like to know where to fix this problem, in
+kernelland or userspace, like, should I start getting into cdparanoia or
+reading the o'Reilly book about kernel drivers?
 
-> 4.) IDE hard drives and other storage media have "sleep", "suspend",
-> etc.
 
-Yep; but spindown takes 5 seconds, so if you need to reset ide bus or
-not to get it back is driver detail. Plus notice how power consuption
-in sleep and suspend is almost same; motor not running is big deal
-there. Ouch and hdparm already handles these.
+Thanks
 
-> 5.) SATA controllers have more states than just "on" and "off".  Also
-> these states are independent of the PCI d-states.
+Sebastian
+--=20
+"When the going gets weird, the weird turn pro." (HST)
 
-...so "bus provides list of states" ideas do not really work.
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> 6.) many video cards implement D1 and D2 as you've already seen.  This
-> is often more a matter of "we only know how to restore from such and such
-> states"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-Excatly, so "on"/"off" is enough for them.
+iD8DBQFDv5pFTWouIrjrWo4RAsmkAJ92Xb6yLcmOu0gesD+X1PLdvjrHTACdHIPg
+zN5f955IYLNHW1KkVXSybuM=
+=Vbz5
+-----END PGP SIGNATURE-----
 
-> 7.) Many processors support of wealth of different power states
+--r5Pyd7+fXNt84Ff3--
 
-Processors are handled specially, anyway.
-								Pavel
--- 
-Thanks, Sharp!

@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbWAGKU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbWAGKYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030394AbWAGKU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 05:20:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbWAGKU7
+	id S1030400AbWAGKYI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 05:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbWAGKYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 05:20:59 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40604 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030394AbWAGKU6 (ORCPT
+	Sat, 7 Jan 2006 05:24:08 -0500
+Received: from mail.gmx.de ([213.165.64.21]:49543 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030400AbWAGKYG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 05:20:58 -0500
-Date: Sat, 7 Jan 2006 11:20:13 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Adam Belay <ambx1@neo.rr.com>, Alan Stern <stern@rowland.harvard.edu>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys	interface
-Message-ID: <20060107102013.GB9225@elf.ucw.cz>
-References: <Pine.LNX.4.50.0601051729400.30092-100000@monsoon.he.net> <Pine.LNX.4.44L0.0601061035090.5127-100000@iolanthe.rowland.org> <20060107000826.GC20399@elf.ucw.cz> <20060107075851.GD3184@neo.rr.com>
+	Sat, 7 Jan 2006 05:24:06 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20060107112152.00c26298@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sat, 07 Jan 2006 11:23:50 +0100
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client   
+  on	interactive response
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200601072030.59445.kernel@kolivas.org>
+References: <5.2.1.1.2.20060107051229.00c42230@pop.gmx.net>
+ <5.2.1.1.2.20060106074738.00bbaeb8@pop.gmx.net>
+ <5.2.1.1.2.20060107051229.00c42230@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060107075851.GD3184@neo.rr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0601-0, 01/02/2006), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 07-01-06 02:58:51, Adam Belay wrote:
-> On Sat, Jan 07, 2006 at 01:08:26AM +0100, Pavel Machek wrote:
-> > On Pá 06-01-06 10:42:24, Alan Stern wrote:
-> > > On Thu, 5 Jan 2006, Patrick Mochel wrote:
-> > > It's a very bad idea to make bus drivers export and manage the syfs power 
-> > > interface.  It means that lots of code gets repeated and different buses 
-> > > do things differently.
-> > > 
-> > > Already we have PCI exporting "pm_possible_states" and "pm_state" while 
-> > > PCMCIA exports "suspend".  How many other different schemes are going to 
-> > > crop up?  How much bus-specific information will have to be built into a 
-> > > user utility?
-> > > 
-> > > If possible states are represented as arrays of pointers to strings, then 
-> > > the PM core can easily supply the sysfs interface.  If Patrick's patch 
-> > > were re-written so that the sysfs interface were moved into the PM core, 
-> > > leaving only the PCI-specific portions in the PCI drivers, I would be much 
-> > > happier.  This would also mean that Dominik's patch could be replaced by 
-> > > something a good deal smaller.
-> > > 
-> > > And it wouldn't hurt to add some mechanism for indicating which of the 
-> > > possible states is the generic "suspend" state (usually D3 for PCI 
-> > > devices, but not necessarily).
-> > 
-> > I think we should start with string-based interface, with just two
-> > states ("on" and "off"). That is easily extensible into future, and
-> > suits current PCMCIA nicely. It also allows us to experiment with PCI
-> > power management... I can cook up a patch, but it will be simple
-> > reintroduction of .../power file under different name.
-> 
-> The driver core can provide some infustructure, but let's leave the states
-> up to the drivers.  Afterall, some drivers might only be interested in "on"
-> during runtime.  Also, drivers might support some sort of partial-off
-> but not "off".
+At 08:30 PM 1/7/2006 +1100, Con Kolivas wrote:
+>On Saturday 07 January 2006 16:27, Mike Galbraith wrote:
+> > >   Personally, I think that all TASK_UNINTERRUPTIBLE sleeps should be
+> > > treated as non interactive rather than just be heavily discounted (and
+> > > that TASK_NONINTERACTIVE shouldn't be needed in conjunction with it) BUT
+> > > I may be wrong especially w.r.t. media streamers such as audio and video
+> > > players and the mechanisms they use to do sleeps between cpu bursts.
+> >
+> > Try it, you won't like it.  When I first examined sleep_avg woes, my
+> > reaction was to nuke uninterruptible sleep too... boy did that ever _suck_
+> > :)
+>
+>Glad you've seen why I put the uninterruptible sleep logic in there.
 
-Then they map "off" to "as much off as I can". Big deal.
+Yeah, if there's one thing worse than too much preemption, it's too little 
+preemption.
 
-> And no, this does not allow us to experiment with PCI power
-> management.
+         -Mike
 
-Well, suse was already doing experiments with 2.6.14 sysfs...
-
-> Also there's nothing "runtime" about the PCMCIA PM API.  It's much more
-> like calling ->remove() as it disabled the device all together.  
-
-It looks enough runtime to me.
-
-> I'm more
-> interested in saving power without crippling functionality.
-
-You are on wrong mailing list, then. Seriously. If you can save power
-without affecting functionality, then just doing, you don't need any
-userland interface.
-							Pavel
-
--- 
-Thanks, Sharp!

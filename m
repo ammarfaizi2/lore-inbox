@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWAGW0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWAGW1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161031AbWAGW0m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 17:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWAGW0m
+	id S1161028AbWAGW1R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 17:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWAGW1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 17:26:42 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:921 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1161028AbWAGW0l (ORCPT
+	Sat, 7 Jan 2006 17:27:17 -0500
+Received: from quechua.inka.de ([193.197.184.2]:54463 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1161028AbWAGW1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 17:26:41 -0500
-Message-ID: <43C0401E.5010800@ens-lyon.org>
-Date: Sat, 07 Jan 2006 17:26:38 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-mm2
-References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org> <20060107214208.GR9402@redhat.com> <43C037B8.8080401@ens-lyon.org> <20060107221317.GT9402@redhat.com>
-In-Reply-To: <20060107221317.GT9402@redhat.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Jan 2006 17:27:16 -0500
+Date: Sat, 7 Jan 2006 23:27:13 +0100
+From: Bernd Eckenfels <be-mail2006@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: oops pauser. / boot_delayer
+Message-ID: <20060107222713.GA22450@lina.inka.de>
+References: <20060104221023.10249eb3.rdunlap@xenotime.net> <E1EuPZg-0008Kw-00@calista.inka.de> <20060105111105.GK20809@redhat.com> <20060107214439.GA13433@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060107214439.GA13433@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Sat, Jan 07, 2006 at 01:44:39PM -0800, Kurtis D. Rader wrote:
+> Great! Only problem is the info we really need has already scrolled of the
+> screen. An option to pause briefly after each boot time printk would be very
+> useful.
 
->On Sat, Jan 07, 2006 at 04:50:48PM -0500, Brice Goglin wrote:
-> > Dave Jones wrote:
-> > 
-> > > > Should I prevent my initscript from loading agpgart (actually intel_agp)
-> > > > at all ? (I guess udev or hotplug is trying to load it here). Is there
-> > > > something like agpgart for PCI express ? Or is it useless ?
-> > >
-> > >it's useless. though the loading of it shouldn't harm anything.
-> > >Does it spew warnings during your boot ?
-> > >  
-> > >
-> > No, I don't see any warning/problem.
->
->I'm curious how you noticed this change of behaviour at all then :-)
->(The only user visible change is that it no longer prints anything
-> about agpgart during boot. Was that what tipped you off?)
->  
->
-I simply noticed modprobe saying that agpgart didn't get loaded ("No
-such device") during hardware detection. Nothing else. Nothing bad then.
+I dont think so. It is too much to read to an supporter by phone, and
+somebody who can diag that self knows exactly where the root is searched in
+his config. After all it can only be a hardware or driver problem.
 
-Brice
+I think it makes much more sense to allow scrollback than to delay
+printouts. (And I am quite sure scrollback works in this case)
 
+Gruss
+Bernd
+-- 
+  (OO)     -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )    ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o   1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+49721151516129
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

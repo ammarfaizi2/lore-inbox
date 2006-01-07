@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030594AbWAGVlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030598AbWAGVor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030594AbWAGVlq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 16:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030595AbWAGVlq
+	id S1030598AbWAGVor (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 16:44:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWAGVor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 16:41:46 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45452 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030594AbWAGVlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 16:41:46 -0500
-Subject: Re: 2.6.15-mm2
-From: Arjan van de Ven <arjan@infradead.org>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <43C03214.5080201@ens-lyon.org>
-References: <20060107052221.61d0b600.akpm@osdl.org>
-	 <43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com>
-	 <43C03214.5080201@ens-lyon.org>
-Content-Type: text/plain
-Date: Sat, 07 Jan 2006 22:41:40 +0100
-Message-Id: <1136670100.2936.42.camel@laptopd505.fenrus.org>
+	Sat, 7 Jan 2006 16:44:47 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:20196 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030598AbWAGVoq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 16:44:46 -0500
+Date: Sat, 7 Jan 2006 13:44:39 -0800
+From: "Kurtis D. Rader" <kdrader@us.ibm.com>
+To: Dave Jones <davej@redhat.com>, Bernd Eckenfels <be-news06@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: oops pauser. / boot_delayer
+Message-ID: <20060107214439.GA13433@us.ibm.com>
+References: <20060104221023.10249eb3.rdunlap@xenotime.net> <E1EuPZg-0008Kw-00@calista.inka.de> <20060105111105.GK20809@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060105111105.GK20809@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-01-05 06:11:05, Dave Jones wrote:
+> On Thu, Jan 05, 2006 at 08:30:16AM +0100, Bernd Eckenfels wrote:
+>  > Randy.Dunlap <rdunlap@xenotime.net> wrote:
+>  > > This one delays each printk() during boot by a variable time
+>  > > (from kernel command line), while system_state == SYSTEM_BOOTING.
+>  >
+>  > This sounds a bit like a aprils fool joke, what it is meant to do? You can
+>  > read the messages in the bootlog and use the scrollback keys, no?
+> 
+> could be handy for those 'I see a few messages that scroll, and the
+> box instantly reboots' bugs.  Quite rare, but they do happen.
 
-> Assuming this is a PCI Express card, then what is the proper fix ?
-> Should I prevent my initscript from loading agpgart (actually intel_agp)
-> at all ? (I guess udev or hotplug is trying to load it here). Is there
-> something like agpgart for PCI express ? Or is it useless ?
+Another very common situation is a system which fails to boot due to
+failures to find the root filesystem. This can happen because of device name
+slippage, root disk not being found, the proper HBA driver isn't present in
+the initrd image, etc. The customer calls us and reports the last thing they
+see on the screen:
 
-PCI express neither needs nor can use AGP.
+    Mounting root filesystem
+    Kmod : failed to exec /sbin/modprobe -s -k block-major-8 , error = 2
+    mount : error 6 mounting ext3
+    pivotroot : pivot_root(/sysroot,.sysroot/initrd) failed : 2
+    Freeing unused memory
+    Kernel panic : No init found . Try passing init= option to kernel
 
-(and to be honest, AGP is one of those things that is best compiled into
-the kernel if you need it. AGP deals with system/memory resources, and
-some bioses fuck that up. If agp is built in, it'll be fixed in time.
-There have been a series of bugs about it against fedora, until it we
-made it compiled in .. and poof.. bugs gone)
-
-
+Great! Only problem is the info we really need has already scrolled of the
+screen. An option to pause briefly after each boot time printk would be very
+useful.

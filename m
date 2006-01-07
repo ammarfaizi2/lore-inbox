@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbWAGUqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161096AbWAGUty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161091AbWAGUqr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 15:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbWAGUqr
+	id S1161096AbWAGUty (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 15:49:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbWAGUty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 15:46:47 -0500
-Received: from pat.uio.no ([129.240.130.16]:34790 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1161091AbWAGUqr (ORCPT
+	Sat, 7 Jan 2006 15:49:54 -0500
+Received: from uproxy.gmail.com ([66.249.92.197]:14388 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161096AbWAGUtx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 15:46:47 -0500
-Subject: Re: NFS processes gettting stuck in D with currrent git
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Benjamin LaHaise <bcrl@kvack.org>
+	Sat, 7 Jan 2006 15:49:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=dHZZxare0cMxpCkg1RLnMDbEqQmQH+6nK7ESIvljwPbOBz25nBV9VrWpIObIF+4f2ngHKKP982IdlKoMlJmq3kUr9kLrSd1NoGx5NS3a/N9yVnTNrnTKVuij/VTJwGoc/m4E3SzpSDCw8Rdnj5SwNVU9NXXTtEjz7k02OYRqjXA=
+Date: Sun, 8 Jan 2006 00:06:46 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060107050313.GA16451@kvack.org>
-References: <20060107050313.GA16451@kvack.org>
-Content-Type: text/plain
-Date: Sat, 07 Jan 2006 15:46:34 -0500
-Message-Id: <1136666794.7860.12.camel@lade.trondhjem.org>
+Subject: 2.6.15-mm2: alpha broken
+Message-ID: <20060107210646.GA26124@mipter.zuzino.mipt.ru>
+References: <20060107052221.61d0b600.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.05, required 12,
-	autolearn=disabled, AWL 1.76, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060107052221.61d0b600.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-07 at 00:03 -0500, Benjamin LaHaise wrote:
-> Hi Trond,
-> 
-> One of the NFS patches seems to have introduced a problem with the nfs 
-> client, as my test box now seems to be hanging processes in D somewhat 
-> randomly (RHEL4 box for the server).  I'll try to bisect it if there 
-> aren't any obvious candidates for the problem.  Cheers, 
-
-Does a magic sysrq-t give any useful clues as to where they are hanging?
-
-Cheers,
-  Trond
+alpha Just Broken (TM)
+----------------------------------------------------------------------------
+  CC      arch/alpha/kernel/asm-offsets.s
+In file included from include/asm/user.h:5,
+                 from include/linux/user.h:1,
+                 from include/linux/kernel.h:16,
+                 from include/linux/spinlock.h:54,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from arch/alpha/kernel/asm-offsets.c:9:
+include/linux/ptrace.h: In function `ptrace_link':
+include/linux/ptrace.h:100: error: dereferencing pointer to incomplete type
+include/linux/ptrace.h: In function `ptrace_unlink':
+include/linux/ptrace.h:105: error: dereferencing pointer to incomplete type
+make[1]: *** [arch/alpha/kernel/asm-offsets.s] Error 1
 

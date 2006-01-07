@@ -1,156 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWAGHjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWAGHkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbWAGHjU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 02:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbWAGHjU
+	id S932298AbWAGHkq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 02:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWAGHkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 02:39:20 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:26013 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1030328AbWAGHjT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 02:39:19 -0500
-Date: Sat, 7 Jan 2006 02:41:46 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Alan Stern <stern@rowland.harvard.edu>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys	interface
-Message-ID: <20060107074146.GC3184@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	Pavel Machek <pavel@ucw.cz>
-References: <Pine.LNX.4.50.0601051729400.30092-100000@monsoon.he.net> <Pine.LNX.4.44L0.0601061035090.5127-100000@iolanthe.rowland.org>
+	Sat, 7 Jan 2006 02:40:46 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:59281 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932298AbWAGHkp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 02:40:45 -0500
+Message-ID: <43BF7075.3060703@cosmosbay.com>
+Date: Sat, 07 Jan 2006 08:40:37 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0601061035090.5127-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+To: Andrew Morton <akpm@osdl.org>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/4] Series to allow a "const" file_operations struct
+References: <1136583937.2940.90.camel@laptopd505.fenrus.org>	<1136584539.2940.105.camel@laptopd505.fenrus.org>	<43BEF338.3010403@cosmosbay.com> <20060106162913.7621895c.akpm@osdl.org>
+In-Reply-To: <20060106162913.7621895c.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 10:42:24AM -0500, Alan Stern wrote:
-> On Thu, 5 Jan 2006, Patrick Mochel wrote:
+Andrew Morton a écrit :
+> Eric Dumazet <dada1@cosmosbay.com> wrote:
+>> On my x86_64 machine, I managed to reduce by 10% .data section by moving all 
+>> file_operations, but also 'address_space_operations', 'inode_operations, 
+>> super_operations, dentry_operations, seq_operations, ... to rodata section.
+>>
+>> size vmlinux*
+>>     text    data     bss     dec     hex filename
+>> 2476156  522236  244868 3243260  317cfc vmlinux
+>> 2588685  571348  246692 3406725  33fb85 vmlinux.old
+>>
 > 
-> > On Fri, 6 Jan 2006, Pavel Machek wrote:
-> > 
-> > > On 05-01-06 16:04:07, Patrick Mochel wrote:
-> > 
-> > > > A better point, and one that would actually be useful, would be to remove
-> > > > the file altogether. Let Dominik export a power file, with complete
-> > > > control over the values, for each pcmcia device. Then you never have to
-> > > > worry about breaking PCMCIA again.
-> > >
-> > > Fine with me.
-> > 
-> > ACK, you beat me to it.
-> > 
-> > And, appended is a patch to export PM controls for PCI devices. The file
-> > "pm_possible_states" exports the states a device supports, and "pm_state"
-> > exports the current state (and provides the interface for entering a
-> > state).
-> > 
-> > Eventually, some drivers will want to fix up those values so that it can
-> > mask of states that it doesn't support, as well as offer possible device-
-> > specific states.
-> > 
-> > What's interesting is that with this patch, I can see that two more
-> > devices on my system support D1 and D2 -- the cardbus controllers, which
-> > are actually bridges whose PM capabilities aren't exported via lspci.
+> Confused.   Why should this result in an aggregate reduction in vmlinux size?
 > 
-> This trend is extremely alarming!!
 > 
-> It's a very bad idea to make bus drivers export and manage the syfs power 
-> interface.  It means that lots of code gets repeated and different buses 
-> do things differently.
 
-In my opinion, the vast and often fundamentally different power
-management specifications contribute greatly to the problem of
-coordinated operating system controlled power management.  ACPI has
-defined D0 - D3, and frankly, on x86 platforms, limiting the core interface
-to those four states can be very functional.  Of course this isn't
-pratical for the Linux PM layer because there several other important
-platforms.  With that in mind, any generic representation of power
-states has a tendency to be either overly complex or unacceptably limiting.
+Sorry, vmlinux.old was with CONFIG_FRAME_POINTER and CONFIG_MODULES, not 'vmlinux'
 
-Considering these factors, I think allowing each bus to define its own
-power management states and capabilities is a sensible option.  However,
-I'm not convinced that it is necessary for these bus specific interfaces
-to provide direct control of a device's power management states in most
-situations.  That's not to say that some platforms won't need this
-functionality but rather that PCI, USB, ACPI, and many others may not
-want to provide userspace control of these low-level details.
+If I add back CONFIG_FRAME_POINTER / CONFIG_MODULES on my config I get :
 
-As an alternative, it might be possible to allow each driver to export a
-list of runtime power management states.  These states might revolve around
-high level device class definitions rather than bus and platform interfaces.
-The mechanism of reading and controlling these states could be similar to
-the one you previously proposed for bus-level states.
+# size vmlinux
+    text    data     bss     dec     hex filename
+2627717  523988  244868 3396573  33d3dd vmlinux
 
-As an example, a typical ethernet driver might export "on" and "off".
-It doesn't matter if the ethernet device is PCI, ACPI, USB, etc.  The
-key matter is that, for the "net" device class, most drivers will want 
-to providee "on" and "off" as they correspond to "up" and "down". For the
-PCI case, "off" will mean the highest (most off) D-state capable of
-supporting the user's current wake settings.  This might be D2 if link
-detect is enabled or D3 if it is disabled.  The actual PCI state can
-be changed by the driver at any time, but the driver level state
-dictates the drivers current intentions ("off" meaning save as much
-power as would be possible while satisfying constraints).
 
-Most sound card drivers will probably have more complex states.
-They might be "on", "sleep", and "off".  "sleep" could be invoked as a
-low latency state when the input and output lines have been quiet for
-a certain uesr specified timeout period.  "off" could be be much higher
-latency (some output might be lost i.e. skipping) and only invoked when
-the audio interface has been closed from the userspace end.  Once again,
-these states are not required to have a direct relation to bus level states.
-A PCI sound card might remain in "D0" during the "sleep" state but turn off
-many sub-components of the card and still save some power.
+Aggregate reduction might be possible because of 'const' : Compiler (gcc-3.4.4 
+here) is free to make further optimizations ?
 
-I think runtime power management is really all about what functionality
-the drivers are willing provide.  If we focus on presenting bus-level power
-management capabilities under a unified interface, then at best we are
-ignoring the various subtleties of each specification (even ACPI and PCI
-have minor differences), and at worst we're preventing drivers from revealing
-the states that are actually important.  In other words, power management
-can also be seen as a behavior, not just a power level.  Afterall, even
-devices without bus level PM suport can save power just by doing things like
-stopping DMA.  Even "virtual" devices can be seen as power-managable.
+# size -A vmlinux
+vmlinux  :
+section                      size                   addr
+.text                     2128492   18446744071563116544
+__ex_table                  15408   18446744071565245040
+.rodata                    256486   18446744071565260448
+.pci_fixup                   2112   18446744071565516944
+__ksymtab                   34336   18446744071565519056
+__ksymtab_gpl                5488   18446744071565553392
+__kcrctab                       0   18446744071565558880
+__kcrctab_gpl                   0   18446744071565558880
+__ksymtab_strings           54978   18446744071565558880
+__param                      2560   18446744071565613864
+.data                      408392   18446744071565616448
+.bss                       244868   18446744071566024896
+.data.cacheline_aligned     23936   18446744071566270464
+.data.read_mostly            7296   18446744071566294400
+.vsyscall_0                   319   18446744073699065856
+.xtime_lock                     8   18446744073699066176
+.vxtime                        48   18446744073699066192
+.wall_jiffies                   8   18446744073699066240
+.sys_tz                         8   18446744073699066256
+.sysctl_vsyscall                4   18446744073699066272
+.xtime                         16   18446744073699066288
+.jiffies                        8   18446744073699066304
+.vsyscall_1                    47   18446744073699066880
+.vsyscall_2                    13   18446744073699067904
+.vsyscall_3                    13   18446744073699068928
+.data.init_task              8192   18446744071566311424
+.init.text                 124192   18446744071566319616
+.init.data                  42584   18446744071566443808
+.init.setup                  2184   18446744071566486400
+.initcall.init               1240   18446744071566488584
+.con_initcall.init             24   18446744071566489824
+.security_initcall.init         0   18446744071566489848
+.altinstructions              139   18446744071566489848
+.altinstr_replacement          93   18446744071566489987
+.exit.text                   2907   18446744071566490080
+.init.ramfs                   134   18446744071566495744
+.data.percpu                30040   18446744071566495936
+.comment                    11808                      0
+.note.GNU-stack                 0                      0
+Total                     3408381
 
-In short I'm suggesting the following:
 
-1.) Every bus and device has its own unique PM mechanisms and specifications.
-Representing this in a single unified model of any sort is nearly impossible.
-Therefore, it may be best to allow each bus to define its own PM
-infustructure and sysfs files (perhaps in a way similar to Pat's recent
-patch).
+# size -A vmlinux.old
+vmlinux.4  :
+section                      size                   addr
+.text                     2131420   18446744071563116544
+__ex_table                  15408   18446744071565247968
+.rodata                    214318   18446744071565263392
+.pci_fixup                   2112   18446744071565477712
+__ksymtab                   34368   18446744071565479824
+__ksymtab_gpl                5488   18446744071565514192
+__kcrctab                       0   18446744071565519680
+__kcrctab_gpl                   0   18446744071565519680
+__ksymtab_strings           55010   18446744071565519680
+__param                      2560   18446744071565574696
+.data                      451848   18446744071565577280
+.bss                       246692   18446744071566029184
+.data.cacheline_aligned     23744   18446744071566278656
+.data.read_mostly           11328   18446744071566302400
+.vsyscall_0                   319   18446744073699065856
+.xtime_lock                     8   18446744073699066176
+.vxtime                        48   18446744073699066192
+.wall_jiffies                   8   18446744073699066240
+.sys_tz                         8   18446744073699066256
+.sysctl_vsyscall                4   18446744073699066272
+.xtime                         16   18446744073699066288
+.jiffies                        8   18446744073699066304
+.vsyscall_1                    47   18446744073699066880
+.vsyscall_2                    13   18446744073699067904
+.vsyscall_3                    13   18446744073699068928
+.data.init_task              8192   18446744071566319616
+.init.text                 124352   18446744071566327808
+.init.data                  42616   18446744071566452160
+.init.setup                  2208   18446744071566494784
+.initcall.init               1248   18446744071566496992
+.con_initcall.init             24   18446744071566498240
+.security_initcall.init         0   18446744071566498264
+.altinstructions              139   18446744071566498264
+.altinstr_replacement          93   18446744071566498403
+.exit.text                   2891   18446744071566498496
+.init.ramfs                   134   18446744071566503936
+.data.percpu                30040   18446744071566504128
+.comment                    11844                      0
+.note.GNU-stack                 0                      0
+Total                     3418569
 
-2.) Device drivers on the other hand exist at a more abstract level and,
-as a result, we have greater flexability and more options.  Therefore, I
-think this is an excellent place to define power states and driver core PM
-infustructure.
 
-3.) System suspend and runtime power management are not even close to
-similar.  Trying to use the same ->suspend and ->resume API is
-ridiculious because it prevents intermediate power states and doesn't
-properly perpare devices and device classes for a runtime environment.
-Therefore, I'm in favor of a seperate interface tailored specifically for
-runtime power management.
 
-4.) If we're going to make any meaningful progress, we need to also
-focus on device classes and class orriented power policy.  For example,
-the "net" device class should provide infustructure and helper functions
-for runtime power management of that flavor.  This might include some
-generic "net" PM sysfs files.
-
-Thanks,
-Adam
+Eric
 

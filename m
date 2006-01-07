@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWAGGip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWAGHBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWAGGip (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 01:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965343AbWAGGip
+	id S964864AbWAGHBh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 02:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWAGHBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 01:38:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:44301 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964859AbWAGGio convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 01:38:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ItuNuGZzdIrDYAbCbG/ATjPMS0cOvIxj9iWlbBelVDrnLC+TcbR1dukSa2JRSF1LDeAxWvYjM/Sxudp15Fq92d+nKgqf13OzW79NUh/cnsmUjEKwLUaOqzhmaVGVMLduMYBb21RQqTOE8mhtEN/ARsOaG5hilxIj9uLVYWlhxJI=
-Message-ID: <86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
-Date: Fri, 6 Jan 2006 22:38:43 -0800
-From: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@muc.de>, ebiederm@xmission.com
-Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>
-In-Reply-To: <86802c440601061832m4898e20fw4c9a8360e85cfa17@mail.gmail.com>
+	Sat, 7 Jan 2006 02:01:37 -0500
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:39345 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S964824AbWAGHBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 02:01:36 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.0.7
+cc: linux-kernel@vger.kernel.org
+Date: Fri, 06 Jan 2006 23:01:34 -0800
+Message-ID: <7vhd8go71t.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6F7DA19D05F3CF40B890C7CA2DB13A42030949CB@ssvlexmb2.amd.com>
-	 <86802c440601061832m4898e20fw4c9a8360e85cfa17@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andi,
+GIT 1.0.7 is available at http://www.kernel.org/pub/software/scm/git/
 
-in the smpboot.c, why you need to use 0x467, and 0x469 ....
+Just bunch of cleanups, documentation formatting and spelling
+fixes, among them notable are:
 
-        Dprintk("1.\n");
-        *((volatile unsigned short *) phys_to_virt(0x469)) = start_rip >> 4;
-        Dprintk("2.\n");
-        *((volatile unsigned short *) phys_to_virt(0x467)) = start_rip & 0xf;
-        Dprintk("3.\n");
+ - git-format-patch and git-commit now handles author names with
+   ' (ASCII 0x27, single quote) character in them properly.
 
-YH
+ - approxidate parser does not get confused when we say "10 days
+   ago" immediately after new year.
+
+
+The master branch has accumulated enough enhancements, and I
+plan to do GIT 1.1.0 (and start 1.1.X maintenance series) over
+the weekend.  What will be there are listed here, but those who
+have been running the "master" branch must be familiar with most
+of them.
+
+
+Johannes Schindelin:
+      git-clone: Support changing the origin branch with -o
+      Introduce core.sharedrepository
+      git-init-db: initialize shared repositories with --shared
+
+John Ellson:
+      Make GIT-VERSION-GEN tolerate missing git describe command
+
+Junio C Hamano:
+      Versioning scheme changes.
+      merge-recursive: conflicting rename case.
+      whatchanged: customize diff-tree output
+      rev-parse: --show-cdup
+      check_packed_git_idx(): check integrity of the idx file itself.
+      checkout: sometimes work from a subdirectory.
+      ls-tree: chomp leading directories when run from a subdirectory
+      git-clone: do not special case dumb http.
+      Tutorial: mention shared repository management.
+      git-describe: really prefer tags only.
+      git-describe: use find_unique_abbrev()
+      git-describe: --tags and --abbrev
+      git-describe: still prefer annotated tag under --all and --tags
+      git-describe: documentation.
+      Makefile: use git-describe to mark the git version.
+      send-pack/receive-pack: allow errors to be reported back to pusher.
+
+Linus Torvalds:
+      Add a "git-describe" command
+
+Lukas Sandstrom:
+      git-pack-redundant: speed and memory usage improvements
+
+YOSHIFUJI Hideaki:
+      GIT: Support [address] in URLs
+
+

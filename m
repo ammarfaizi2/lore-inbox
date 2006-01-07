@@ -1,231 +1,247 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbWAGTNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030559AbWAGTNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030558AbWAGTNH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 14:13:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030548AbWAGTMn
+	id S1030559AbWAGTNG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 14:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030558AbWAGTMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:12:43 -0500
-Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:62063 "HELO
-	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030559AbWAGTIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 14:12:45 -0500
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:16062 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030554AbWAGTIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 7 Jan 2006 14:08:23 -0500
-Message-Id: <20060107172101.864646000.dtor_core@ameritech.net>
+Message-Id: <20060107172101.389344000.dtor_core@ameritech.net>
 References: <20060107171559.593824000.dtor_core@ameritech.net>
-Date: Sat, 07 Jan 2006 12:16:19 -0500
+Date: Sat, 07 Jan 2006 12:16:15 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 20/24] Wistron: switch to the new platform device interface
-Content-Disposition: inline; filename=wistron-new-platform-code.patch
+Subject: [PATCH 16/24] i8042: convert to the new platform device interface
+Content-Disposition: inline; filename=i8042-convert-platform-intf.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: wistron - convert to the new platform device interface
+Input: i8042 - convert to the new platform device interface
 
 Do not use platform_device_register_simple() as it is going away,
 implement ->probe() and ->remove() functions so manual binding and
-unbinding would work.
+unbinding will work with this driver.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/misc/wistron_btns.c |  114 ++++++++++++++++++++++----------------
- 1 files changed, 68 insertions(+), 46 deletions(-)
-
-Index: work/drivers/input/misc/wistron_btns.c
+Index: work/drivers/input/serio/i8042.c
 ===================================================================
---- work.orig/drivers/input/misc/wistron_btns.c
-+++ work/drivers/input/misc/wistron_btns.c
-@@ -174,7 +174,7 @@ static u16 bios_pop_queue(void)
- 	return regs.eax;
+--- work.orig/drivers/input/serio/i8042.c
++++ work/drivers/input/serio/i8042.c
+@@ -572,7 +572,7 @@ static int i8042_enable_mux_ports(void)
+  * LCS/Telegraphics.
+  */
+ 
+-static int __init i8042_check_mux(void)
++static int __devinit i8042_check_mux(void)
+ {
+ 	unsigned char mux_version;
+ 
+@@ -600,7 +600,7 @@ static int __init i8042_check_mux(void)
+  * the presence of an AUX interface.
+  */
+ 
+-static int __init i8042_check_aux(void)
++static int __devinit i8042_check_aux(void)
+ {
+ 	unsigned char param;
+ 	static int i8042_check_aux_cookie;
+@@ -678,7 +678,7 @@ static int __init i8042_check_aux(void)
+  * registers it, and reports to the user.
+  */
+ 
+-static int __init i8042_port_register(struct i8042_port *port)
++static int __devinit i8042_port_register(struct i8042_port *port)
+ {
+ 	i8042_ctr &= ~port->disable;
+ 
+@@ -956,7 +956,6 @@ static int i8042_resume(struct platform_
+ 	panic_blink = i8042_panic_blink;
+ 
+ 	return 0;
+-
  }
  
--static void __init bios_attach(void)
-+static void __devinit bios_attach(void)
- {
- 	struct regs regs;
- 
-@@ -194,7 +194,7 @@ static void bios_detach(void)
- 	call_bios(&regs);
+ /*
+@@ -969,16 +968,7 @@ static void i8042_shutdown(struct platfo
+ 	i8042_controller_cleanup();
  }
  
--static u8 __init bios_get_cmos_address(void)
-+static u8 __devinit bios_get_cmos_address(void)
+-static struct platform_driver i8042_driver = {
+-	.suspend	= i8042_suspend,
+-	.resume		= i8042_resume,
+-	.shutdown	= i8042_shutdown,
+-	.driver		= {
+-		.name	= "i8042",
+-	},
+-};
+-
+-static int __init i8042_create_kbd_port(void)
++static int __devinit i8042_create_kbd_port(void)
  {
- 	struct regs regs;
- 
-@@ -206,7 +206,7 @@ static u8 __init bios_get_cmos_address(v
- 	return regs.ecx;
+ 	struct serio *serio;
+ 	struct i8042_port *port = &i8042_ports[I8042_KBD_PORT_NO];
+@@ -1003,7 +993,7 @@ static int __init i8042_create_kbd_port(
+ 	return i8042_port_register(port);
  }
  
--static u16 __init bios_get_default_setting(u8 subsys)
-+static u16 __devinit bios_get_default_setting(u8 subsys)
+-static int __init i8042_create_aux_port(void)
++static int __devinit i8042_create_aux_port(void)
  {
- 	struct regs regs;
- 
-@@ -367,7 +367,7 @@ static int __init select_keymap(void)
- 
- static struct input_dev *input_dev;
- 
--static int __init setup_input_dev(void)
-+static int __devinit setup_input_dev(void)
- {
- 	const struct key_entry *key;
- 	int error;
-@@ -466,6 +466,52 @@ static void poll_bios(unsigned long disc
- 	mod_timer(&poll_timer, jiffies + HZ / POLL_FREQUENCY);
+ 	struct serio *serio;
+ 	struct i8042_port *port = &i8042_ports[I8042_AUX_PORT_NO];
+@@ -1028,7 +1018,7 @@ static int __init i8042_create_aux_port(
+ 	return i8042_port_register(port);
  }
  
-+static int __devinit wistron_probe(struct platform_device *dev)
+-static int __init i8042_create_mux_port(int index)
++static int __devinit i8042_create_mux_port(int index)
+ {
+ 	struct serio *serio;
+ 	struct i8042_port *port = &i8042_ports[I8042_MUX_PORT_NO + index];
+@@ -1057,37 +1047,16 @@ static int __init i8042_create_mux_port(
+ 	return i8042_port_register(port);
+ }
+ 
+-static int __init i8042_init(void)
++static int __devinit i8042_probe(struct platform_device *dev)
+ {
+ 	int i, have_ports = 0;
+ 	int err;
+ 
+-	dbg_init();
+-
+ 	init_timer(&i8042_timer);
+ 	i8042_timer.function = i8042_timer_func;
+ 
+-	err = i8042_platform_init();
+-	if (err)
+-		return err;
+-
+-	i8042_ports[I8042_AUX_PORT_NO].irq = I8042_AUX_IRQ;
+-	i8042_ports[I8042_KBD_PORT_NO].irq = I8042_KBD_IRQ;
+-
+-	if (i8042_controller_init()) {
+-		err = -ENODEV;
+-		goto err_platform_exit;
+-	}
+-
+-	err = platform_driver_register(&i8042_driver);
+-	if (err)
+-		goto err_controller_cleanup;
+-
+-	i8042_platform_device = platform_device_register_simple("i8042", -1, NULL, 0);
+-	if (IS_ERR(i8042_platform_device)) {
+-		err = PTR_ERR(i8042_platform_device);
+-		goto err_unregister_driver;
+-	}
++	if (i8042_controller_init())
++		return -ENODEV;
+ 
+ 	if (!i8042_noaux && !i8042_check_aux()) {
+ 		if (!i8042_nomux && !i8042_check_mux()) {
+@@ -1113,30 +1082,23 @@ static int __init i8042_init(void)
+ 
+ 	if (!have_ports) {
+ 		err = -ENODEV;
+-		goto err_unregister_device;
++		goto err_controller_cleanup;
+ 	}
+ 
+ 	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
+-
+ 	return 0;
+ 
+  err_unregister_ports:
+ 	for (i = 0; i < I8042_NUM_PORTS; i++)
+ 		if (i8042_ports[i].serio)
+ 			serio_unregister_port(i8042_ports[i].serio);
+- err_unregister_device:
+-	platform_device_unregister(i8042_platform_device);
+- err_unregister_driver:
+-	platform_driver_unregister(&i8042_driver);
+  err_controller_cleanup:
+ 	i8042_controller_cleanup();
+- err_platform_exit:
+-	i8042_platform_exit();
+ 
+ 	return err;
+ }
+ 
+-static void __exit i8042_exit(void)
++static int __devexit i8042_remove(struct platform_device *dev)
+ {
+ 	int i;
+ 
+@@ -1148,6 +1110,62 @@ static void __exit i8042_exit(void)
+ 
+ 	del_timer_sync(&i8042_timer);
+ 
++	return 0;
++}
++
++static struct platform_driver i8042_driver = {
++	.driver		= {
++		.name	= "i8042",
++		.owner	= THIS_MODULE,
++	},
++	.probe		= i8042_probe,
++	.remove		= __devexit_p(i8042_remove),
++	.suspend	= i8042_suspend,
++	.resume		= i8042_resume,
++	.shutdown	= i8042_shutdown,
++};
++
++static int __init i8042_init(void)
 +{
-+	int err = setup_input_dev();
++	int err;
++
++	dbg_init();
++
++	err = i8042_platform_init();
 +	if (err)
 +		return err;
 +
-+	bios_attach();
-+	cmos_address = bios_get_cmos_address();
++	i8042_ports[I8042_AUX_PORT_NO].irq = I8042_AUX_IRQ;
++	i8042_ports[I8042_KBD_PORT_NO].irq = I8042_KBD_IRQ;
 +
-+	if (have_wifi) {
-+		u16 wifi = bios_get_default_setting(WIFI);
-+		if (wifi & 1)
-+			wifi_enabled = (wifi & 2) ? 1 : 0;
-+		else
-+			have_wifi = 0;
++	err = platform_driver_register(&i8042_driver);
++	if (err)
++		goto err_platform_exit;
 +
-+		if (have_wifi)
-+			bios_set_state(WIFI, wifi_enabled);
-+	}
-+
-+	if (have_bluetooth) {
-+		u16 bt = bios_get_default_setting(BLUETOOTH);
-+		if (bt & 1)
-+			bluetooth_enabled = (bt & 2) ? 1 : 0;
-+		else
-+			have_bluetooth = 0;
-+
-+		if (have_bluetooth)
-+			bios_set_state(BLUETOOTH, bluetooth_enabled);
-+	}
-+
-+	poll_bios(1); /* Flush stale event queue and arm timer */
-+
-+	return 0;
-+}
-+
-+static int __devexit wistron_remove(struct platform_device *dev)
-+{
-+	del_timer_sync(&poll_timer);
-+	input_unregister_device(input_dev);
-+	bios_detach();
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
- static int wistron_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	del_timer_sync(&poll_timer);
-@@ -491,13 +537,20 @@ static int wistron_resume(struct platfor
- 
- 	return 0;
- }
-+#else
-+#define wistron_suspend		NULL
-+#define wistron_resume		NULL
-+#endif
- 
- static struct platform_driver wistron_driver = {
--	.suspend	= wistron_suspend,
--	.resume		= wistron_resume,
- 	.driver		= {
- 		.name	= "wistron-bios",
-+		.owner	= THIS_MODULE,
- 	},
-+	.probe		= wistron_probe,
-+	.remove		= __devexit_p(wistron_remove),
-+	.suspend	= wistron_suspend,
-+	.resume		= wistron_resume,
- };
- 
- static int __init wb_module_init(void)
-@@ -512,55 +565,27 @@ static int __init wb_module_init(void)
- 	if (err)
- 		return err;
- 
--	bios_attach();
--	cmos_address = bios_get_cmos_address();
--
- 	err = platform_driver_register(&wistron_driver);
- 	if (err)
--		goto err_detach_bios;
-+		goto err_unmap_bios;
- 
--	wistron_device = platform_device_register_simple("wistron-bios", -1, NULL, 0);
--	if (IS_ERR(wistron_device)) {
--		err = PTR_ERR(wistron_device);
-+	wistron_device = platform_device_alloc("wistron-bios", -1);
-+	if (!wistron_device) {
++	i8042_platform_device = platform_device_alloc("i8042", -1);
++	if (!i8042_platform_device) {
 +		err = -ENOMEM;
- 		goto err_unregister_driver;
- 	}
- 
--	if (have_wifi) {
--		u16 wifi = bios_get_default_setting(WIFI);
--		if (wifi & 1)
--			wifi_enabled = (wifi & 2) ? 1 : 0;
--		else
--			have_wifi = 0;
--
--		if (have_wifi)
--			bios_set_state(WIFI, wifi_enabled);
--	}
--
--	if (have_bluetooth) {
--		u16 bt = bios_get_default_setting(BLUETOOTH);
--		if (bt & 1)
--			bluetooth_enabled = (bt & 2) ? 1 : 0;
--		else
--			have_bluetooth = 0;
--
--		if (have_bluetooth)
--			bios_set_state(BLUETOOTH, bluetooth_enabled);
--	}
--
--	err = setup_input_dev();
-+	err = platform_device_add(wistron_device);
- 	if (err)
--		goto err_unregister_device;
--
--	poll_bios(1); /* Flush stale event queue and arm timer */
++		goto err_unregister_driver;
++	}
++
++	err = platform_device_add(i8042_platform_device);
++	if (err)
 +		goto err_free_device;
- 
- 	return 0;
- 
-- err_unregister_device:
--	platform_device_unregister(wistron_device);
++
++	return 0;
++
 + err_free_device:
-+	platform_device_put(wistron_device);
-  err_unregister_driver:
- 	platform_driver_unregister(&wistron_driver);
-- err_detach_bios:
--	bios_detach();
-+ err_unmap_bios:
- 	unmap_bios();
- 
- 	return err;
-@@ -568,11 +593,8 @@ static int __init wb_module_init(void)
- 
- static void __exit wb_module_exit(void)
- {
--	del_timer_sync(&poll_timer);
--	input_unregister_device(input_dev);
- 	platform_device_unregister(wistron_device);
- 	platform_driver_unregister(&wistron_driver);
--	bios_detach();
- 	unmap_bios();
- }
++	platform_device_put(i8042_platform_device);
++ err_unregister_driver:
++	platform_driver_unregister(&i8042_driver);
++ err_platform_exit:
++	i8042_platform_exit();
++
++	return err;
++}
++
++static void __exit i8042_exit(void)
++{
+ 	platform_device_unregister(i8042_platform_device);
+ 	platform_driver_unregister(&i8042_driver);
  
 

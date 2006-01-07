@@ -1,82 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752326AbWAGPYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWAGPXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752326AbWAGPYw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 10:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752314AbWAGPYw
+	id S1750760AbWAGPXs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 10:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWAGPXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 10:24:52 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:19466 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1750767AbWAGPYv (ORCPT
+	Sat, 7 Jan 2006 10:23:48 -0500
+Received: from nsm.pl ([62.111.143.37]:48157 "EHLO nsm.pl")
+	by vger.kernel.org with ESMTP id S1750760AbWAGPXs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 10:24:51 -0500
-Date: Sat, 7 Jan 2006 10:24:49 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Adam Belay <ambx1@neo.rr.com>
-cc: Patrick Mochel <mochel@digitalimplant.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
- interface
-In-Reply-To: <20060107074146.GC3184@neo.rr.com>
-Message-ID: <Pine.LNX.4.44L0.0601071016160.8527-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Jan 2006 10:23:48 -0500
+Date: Sat, 7 Jan 2006 16:23:25 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Almost 80% of UDP packets dropped
+Message-ID: <20060107152325.GC9197@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <f69849430601062303n331ab0aaue8635f69d75d8510@mail.gmail.com> <200601071704.52833.vda@ilport.com.ua>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M38YqGLZlgb6RLPS"
+Content-Disposition: inline
+In-Reply-To: <200601071704.52833.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jan 2006, Adam Belay wrote:
 
-> In short I'm suggesting the following:
-> 
-> 1.) Every bus and device has its own unique PM mechanisms and specifications.
-> Representing this in a single unified model of any sort is nearly impossible.
-> Therefore, it may be best to allow each bus to define its own PM
-> infustructure and sysfs files (perhaps in a way similar to Pat's recent
-> patch).
+--M38YqGLZlgb6RLPS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Bus and/or driver.  However even though the mechanisms and specifications 
-are all different, that doesn't mean the user interfaces have to be 
-different.  Using simple character string names (like Pat did and like I 
-did several months ago) should be general enough to work everywhere.
+On Sat, Jan 07, 2006 at 05:04:52PM +0200, Denis Vlasenko wrote:
+> On Saturday 07 January 2006 09:03, kernel coder wrote:
+> > hi,
+> >     I was trying to measure the UDP reception speed on my borad which
+> > has MIPS 4kc processor with 133 MHZ speed.I was transfering 10mb file
+> > from intel pentium 4 machine to MIPS board,but the recieved file was
+> > only 900kB.
+>=20
+> UDP is connectionless. There is no way for sender to know that it must
+> stop sending UDP packets because receiver cannot keep up. If sender
+> and your network is producing and delivering UDP packets faster
+> than receiver can consume them, packets will be lost.
+>=20
+> Use TCP instead.
 
-Similarly, the sysfs files themselves should be uniform (even if their
-contents aren't).  The core should provide the user interface mechanism
-and infrastructure, while leaving it up to the bus and the device drivers
-to interpret the meanings of the strings.
+ Or DCCP.
 
-> 2.) Device drivers on the other hand exist at a more abstract level and,
-> as a result, we have greater flexability and more options.  Therefore, I
-> think this is an excellent place to define power states and driver core PM
-> infustructure.
+--=20
+Tomasz Torcz                 "God, root, what's the difference?"
+zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
 
-It's a good place to define and implement power states.  But the driver 
-core PM infrastructure obviously should be defined and implemented in the 
-core, not in the drivers.
 
-> 3.) System suspend and runtime power management are not even close to
-> similar.  Trying to use the same ->suspend and ->resume API is
-> ridiculious because it prevents intermediate power states and doesn't
-> properly perpare devices and device classes for a runtime environment.
-> Therefore, I'm in favor of a seperate interface tailored specifically for
-> runtime power management.
+--M38YqGLZlgb6RLPS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Personally I don't care much one way or another.  The APIs can be kept 
-separate or overlapped somehow; it doesn't really matter.  Just so long as 
-it's done the same way in all drivers and in the core.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
 
-> 4.) If we're going to make any meaningful progress, we need to also
-> focus on device classes and class orriented power policy.  For example,
-> the "net" device class should provide infustructure and helper functions
-> for runtime power management of that flavor.  This might include some
-> generic "net" PM sysfs files.
+iD8DBQFDv9ztThhlKowQALQRAgAnAKDoDmaK/3pcWCcCiLBnXa7Rrht2CQCggc1x
+bS01B9S4xIh2jihgK+6foDU=
+=r0BR
+-----END PGP SIGNATURE-----
 
-Can you think of device classes other than "net" requiring this special
-approach?  Network interfaces already get special treatment in some ways
-(for example, they don't have entries in /dev).  This could just be
-another form of special treatment for them.
-
-Alan Stern
-
+--M38YqGLZlgb6RLPS--

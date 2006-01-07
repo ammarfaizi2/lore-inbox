@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbWAGHsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbWAGHyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030436AbWAGHsG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 02:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWAGHsF
+	id S1030492AbWAGHyB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 02:54:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWAGHyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 02:48:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8629 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030436AbWAGHsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 02:48:04 -0500
-Date: Fri, 6 Jan 2006 23:47:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 0/3] updated *at function patch
-Message-Id: <20060106234738.2445520e.akpm@osdl.org>
-In-Reply-To: <200601061904.k06J4T3r027891@devserv.devel.redhat.com>
-References: <200601061904.k06J4T3r027891@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Jan 2006 02:54:01 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:20541 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1030345AbWAGHyB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 02:54:01 -0500
+Message-ID: <43BF7390.6050005@cosmosbay.com>
+Date: Sat, 07 Jan 2006 08:53:52 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+Cc: ak@suse.de, paulmck@us.ibm.com, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       manfred@colorfullife.com, netdev@vger.kernel.org
+Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
+References: <20060106.161721.124249301.davem@davemloft.net>	<200601070209.02157.ak@suse.de>	<43BF6F0B.4060108@cosmosbay.com> <20060106.234440.53993868.davem@davemloft.net>
+In-Reply-To: <20060106.234440.53993868.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller a écrit :
+> From: Eric Dumazet <dada1@cosmosbay.com>
+> Date: Sat, 07 Jan 2006 08:34:35 +0100
+> 
+>> I agree, I do use a hashed spinlock array on my local tree for TCP,
+>> mainly to reduce the hash table size by a 2 factor.
+> 
+> So what do you think about going to a single spinlock for the
+> routing cache?
 
-I renumbered the syscalls due to the queued-up sys_migrate_pages.
+I have no problem with this, since the biggest server I have is 4 way, but are 
+you sure big machines wont suffer from this single spinlock ?
 
-We don't have changelogs for these patches.  Apart from the usual
-what-it-does and how-it-does it I'd really like to be reminded of the
-"why".  Adding a bunch of stuff to the core kernel codepaths needs to have
-a good reason and I've forgotten your rationale.
+Also I dont understand what you want to do after this single spinlock patch.
+How is it supposed to help the 'ip route flush cache' problem ?
 
-We'll need Signed-off_by:'s for all these patches.
+In my case, I have about 600.000 dst-entries :
 
-In future, please avoid sending multiple patches under the same Subject:,
-thanks.
+# grep ip_dst /proc/slabinfo
+ip_dst_cache      616250 622440    320   12    1 : tunables   54   27    8 : 
+slabdata  51870  51870      0
 
+
+Eric

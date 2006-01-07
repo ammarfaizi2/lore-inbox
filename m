@@ -1,94 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030514AbWAGRlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030513AbWAGRte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030514AbWAGRlf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 12:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbWAGRlf
+	id S1030513AbWAGRte (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 12:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030517AbWAGRte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 12:41:35 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:35979 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030514AbWAGRle (ORCPT
+	Sat, 7 Jan 2006 12:49:34 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:59278 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030513AbWAGRtd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 12:41:34 -0500
-Message-ID: <43BFFC40.1050307@us.ibm.com>
-Date: Sat, 07 Jan 2006 12:37:04 -0500
-From: JANAK DESAI <janak@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+	Sat, 7 Jan 2006 12:49:33 -0500
+Message-ID: <43BFFF1D.7030007@austin.ibm.com>
+Date: Sat, 07 Jan 2006 11:49:17 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: simon schuler <simon.schuler@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.6.15-mm1
-References: <20060105062249.4bc94697.akpm@osdl.org>	<43BE8495.8050907@gmx.net> <20060106151215.106fd0ca.akpm@osdl.org>
-In-Reply-To: <20060106151215.106fd0ca.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Olof Johansson <olof@lixom.net>
+CC: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>,
+       PPC64-dev <linuxppc64-dev@ozlabs.org>
+Subject: PowerPC fastpaths for mutex subsystem
+References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <20060106002919.GA29190@pb15.lixom.net>
+In-Reply-To: <20060106002919.GA29190@pb15.lixom.net>
+Content-Type: multipart/mixed;
+ boundary="------------020807010105030907030001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+This is a multi-part message in MIME format.
+--------------020807010105030907030001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->simon schuler <simon.schuler@gmx.net> wrote:
->  
->
->>I'm getting an oops sometimes (about 70% probability) when I try to 
->>start a wine application.
->>last working kernel version: 2.6.15-rc5-mm1
->>not working: 2.6.15-mm1, 2.6.15-rc5-mm3
->>not tested: 2.6.15-rc5-mm2
->>
->>.config is attached.
->>I don't know if this is a known issue...
->>If you need more information, let me know.
->>
->>Unable to handle kernel NULL pointer dereference at virtual address 00000004
->> printing eip:
->>c0118755
->>*pde = 00000000
->>Oops: 0000 [#1]
->>last sysfs file: /class/vc/vcsa1/dev
->>Modules linked in:
->>CPU:    0
->>EIP:    0060:[<c0118755>]    Not tainted VLI
->>EFLAGS: 00210282   (2.6.15-mm1)
->>EIP is at dup_fd+0x25/0x290
->>eax: eff40c20   ebx: eff40c28   ecx: eff40c20   edx: eff40c58
->>esi: ead0e000   edi: 00000000   ebp: eff7aaa0   esp: ead0fe48
->>ds: 007b   es: 007b   ss: 0068
->>Process wine (pid: 769, threadinfo=ead0e000 task=eb468ab0)
->>Stack: <0>00000000 ebbe8854 00000001 ec1abd0c eff40c20 c015b937 ec1abd0c 
->>00000001
->>       <0>00000000 eb468ab0 ead0e000 c0423ebe eff7aaa0 c0118a1c eb468ab0 
->>ead0fe88
->>       <0>fffffff4 eff40ce0 c0118a73 00000000 eb468ab0 00000060 ead0e000 
->>c01867e4
->>Call Trace:
->> [<c015b937>] vfs_read+0x127/0x190
->> [<c0118a1c>] copy_files+0x5c/0x80
->> [<c0118a73>] unshare_files+0x33/0x70
->> [<c01867e4>] load_elf_binary+0x174/0xe10
->> [<c014102f>] get_page_from_freelist+0x7f/0xd0
->> [<c0259d0f>] copy_from_user+0x3f/0xa0
->> [<c0259d0f>] copy_from_user+0x3f/0xa0
->> [<c0166063>] copy_strings+0x163/0x230
->> [<c0167160>] search_binary_handler+0x50/0x180
->> [<c0167414>] do_execve+0x184/0x220
->> [<c0101c4c>] sys_execve+0x3c/0x80
->> [<c010300b>] sysenter_past_esp+0x54/0x75
->>Code: bc 27 00 00 00 00 55 57 56 53 83 ec 24 8b 44 24 38 8b b8 64 04 00 
->>00 e8 6a ff ff ff 85 c0 89 44 24 10 0f 84 b6 01 00 00 8b 58 04 <8b> 77 
->>04 89 34 24 e8 d0 fe ff ff 89 44 24 18 31 c0 8b 54 24 18
->>
->>    
->>
->
->OK, thanks.  It looks like a problem in the new unsharing code...
->
->
->  
->
-Thanks. I am investigating the problem now and will send updated patches
-as soon as I fix the problem. I am also writing up detailed 
-justification, design
-considerations and test plan. I will include it in the patch set as well.
+This is the second pass at optimizing the fastpath for the new mutex subsystem 
+on PowerPC.  I think it is ready to be included in the series with the other 
+mutex patches now.  Tested on a 4 core (2 SMT threads/core) Power5 machine with 
+gcc 3.3.2.
 
--Janak
+Test results from synchro-test.ko:
+
+All tests run for default 5 seconds
+Threads semaphores  mutexes     mutexes+attached
+1       63,465,364  58,404,630  62,109,571
+4       58,424,282  35,541,297  37,820,794
+8       40,731,668  35,541,297  40,281,768
+16      38,372,769  37,256,298  41,751,764
+32      38,406,895  36,933,675  38,731,571
+64      37,232,017  36,222,480  40,766,379
+
+Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
+
+--------------020807010105030907030001
+Content-Type: text/plain;
+ name="powerpcmutex.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="powerpcmutex.patch"
+
+Index: 2.6.15-mutex14/include/asm-powerpc/mutex.h
+===================================================================
+--- 2.6.15-mutex14.orig/include/asm-powerpc/mutex.h	2006-01-04 14:46:31.%N -0600
++++ 2.6.15-mutex14/include/asm-powerpc/mutex.h	2006-01-06 17:36:09.%N -0600
+@@ -1,9 +1,84 @@
+ /*
+- * Pull in the generic implementation for the mutex fastpath.
++ * include/asm-powerpc/mutex.h
+  *
+- * TODO: implement optimized primitives instead, or leave the generic
+- * implementation in place, or pick the atomic_xchg() based generic
+- * implementation. (see asm-generic/mutex-xchg.h for details)
++ * PowerPC optimized mutex locking primitives
++ *
++ * Please look into asm-generic/mutex-xchg.h for a formal definition.
++ * Copyright (C) 2006 Joel Schopp <jschopp@austin.ibm.com>, IBM
+  */
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
++#define __mutex_fastpath_lock(count, fail_fn)\
++do{					\
++	int tmp;			\
++	__asm__ __volatile__(		\
++"1:	lwarx		%0,0,%1\n"	\
++"	addic		%0,%0,-1\n"	\
++"	stwcx.		%0,0,%1\n"	\
++"	bne-		1b\n"		\
++	ISYNC_ON_SMP			\
++	: "=&r" (tmp)			\
++	: "r" (&(count)->counter)	\
++	: "cr0", "memory");		\
++	if (unlikely(tmp < 0))		\
++		fail_fn(count);		\
++} while (0)
++
++#define __mutex_fastpath_unlock(count, fail_fn)\
++do{					\
++	int tmp;			\
++	__asm__ __volatile__(SYNC_ON_SMP\
++"1:	lwarx		%0,0,%1\n"	\
++"	addic		%0,%0,1\n"	\
++"	stwcx.		%0,0,%1\n"	\
++"	bne-		1b\n"		\
++	: "=&r" (tmp)			\
++	: "r" (&(count)->counter)	\
++	: "cr0", "memory");		\
++	if (unlikely(tmp <= 0))		\
++		fail_fn(count);		\
++} while (0)
++
++
++static inline int
++__mutex_fastpath_trylock(atomic_t* count, int (*fail_fn)(atomic_t*))
++{
++	int tmp;
++	__asm__ __volatile__(
++"1:	lwarx		%0,0,%1\n"
++"	cmpwi		0,%0,1\n"
++"	bne-		2f\n"
++"	addic		%0,%0,-1\n"
++"	stwcx.		%0,0,%1\n"
++"	bne-		1b\n"
++"	isync\n"
++"2:"
++	: "=&r" (tmp)
++	: "r" (&(count)->counter)
++	: "cr0", "memory");
++
++	return (int)tmp;
++
++}
++
++#define __mutex_slowpath_needs_to_unlock()		1
+ 
+-#include <asm-generic/mutex-dec.h>
++static inline int
++__mutex_fastpath_lock_retval(atomic_t* count, int (*fail_fn)(atomic_t *))
++{
++	int tmp;
++	__asm__ __volatile__(
++"1:	lwarx		%0,0,%1\n"
++"	addic		%0,%0,-1\n"
++"	stwcx.		%0,0,%1\n"
++"	bne-		1b\n"
++"	isync		\n"
++	: "=&r" (tmp)
++	: "r" (&(count)->counter)
++	: "cr0", "memory");
++	if (unlikely(tmp < 0))
++		return fail_fn(count);
++	else
++		return 0;
++}
++#endif
+
+--------------020807010105030907030001--

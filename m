@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWAGHUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWAGHez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbWAGHUl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 02:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbWAGHUl
+	id S932240AbWAGHez (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 02:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWAGHez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 02:20:41 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:36901 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030252AbWAGHUl convert rfc822-to-8bit
+	Sat, 7 Jan 2006 02:34:55 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:45427 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932240AbWAGHez
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 02:20:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EQ5mzIooWQOaKg394NdEkH53o+BolNPxjoHWYDFh47hHBcJUxMEiYhC9PEw9H4QWaDC4l0pTqvQVOu/gmhcf6jfTqNtsGS0GV1Gn6cCHBmnmvIHyNMWNpHsltAkhYOOXN8Rluii1NVdWDnztLqUPA4AjiJNv1/1FZoFJtk3dc/I=
-Message-ID: <86802c440601062320r597d6970i3b120ec90f96abce@mail.gmail.com>
-Date: Fri, 6 Jan 2006 23:20:40 -0800
-From: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@muc.de>, ebiederm@xmission.com
-Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>
-In-Reply-To: <86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
+	Sat, 7 Jan 2006 02:34:55 -0500
+Message-ID: <43BF6F0B.4060108@cosmosbay.com>
+Date: Sat, 07 Jan 2006 08:34:35 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6F7DA19D05F3CF40B890C7CA2DB13A42030949CB@ssvlexmb2.amd.com>
-	 <86802c440601061832m4898e20fw4c9a8360e85cfa17@mail.gmail.com>
-	 <86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "David S. Miller" <davem@davemloft.net>, paulmck@us.ibm.com,
+       alan@lxorguk.ukuu.org.uk, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       manfred@colorfullife.com, netdev@vger.kernel.org
+Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
+References: <43BEA693.5010509@cosmosbay.com> <200601062157.42470.ak@suse.de> <20060106.161721.124249301.davem@davemloft.net> <200601070209.02157.ak@suse.de>
+In-Reply-To: <200601070209.02157.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems the i386 is the same.
+Andi Kleen a écrit :
+> 
+> I always disliked the per chain spinlocks even for other hash tables like
+> TCP/UDP multiplex - it would be much nicer to use a much smaller separately 
+> hashed lock table and save cache. In this case the special case of using
+> a one entry only lock hash table makes sense.
+> 
 
-also why the addr (0x467) is not word align....?
+I agree, I do use a hashed spinlock array on my local tree for TCP, mainly to 
+reduce the hash table size by a 2 factor.
 
-YH
+Eric

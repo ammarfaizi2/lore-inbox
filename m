@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030487AbWAGHrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbWAGHsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030487AbWAGHrD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 02:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWAGHrD
+	id S1030436AbWAGHsG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 02:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWAGHsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 02:47:03 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:47530
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030348AbWAGHq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 02:46:59 -0500
-Date: Fri, 06 Jan 2006 23:44:40 -0800 (PST)
-Message-Id: <20060106.234440.53993868.davem@davemloft.net>
-To: dada1@cosmosbay.com
-Cc: ak@suse.de, paulmck@us.ibm.com, alan@lxorguk.ukuu.org.uk,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
-       manfred@colorfullife.com, netdev@vger.kernel.org
-Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43BF6F0B.4060108@cosmosbay.com>
-References: <20060106.161721.124249301.davem@davemloft.net>
-	<200601070209.02157.ak@suse.de>
-	<43BF6F0B.4060108@cosmosbay.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 7 Jan 2006 02:48:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8629 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030436AbWAGHsE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 02:48:04 -0500
+Date: Fri, 6 Jan 2006 23:47:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 0/3] updated *at function patch
+Message-Id: <20060106234738.2445520e.akpm@osdl.org>
+In-Reply-To: <200601061904.k06J4T3r027891@devserv.devel.redhat.com>
+References: <200601061904.k06J4T3r027891@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric Dumazet <dada1@cosmosbay.com>
-Date: Sat, 07 Jan 2006 08:34:35 +0100
 
-> I agree, I do use a hashed spinlock array on my local tree for TCP,
-> mainly to reduce the hash table size by a 2 factor.
+I renumbered the syscalls due to the queued-up sys_migrate_pages.
 
-So what do you think about going to a single spinlock for the
-routing cache?
+We don't have changelogs for these patches.  Apart from the usual
+what-it-does and how-it-does it I'd really like to be reminded of the
+"why".  Adding a bunch of stuff to the core kernel codepaths needs to have
+a good reason and I've forgotten your rationale.
+
+We'll need Signed-off_by:'s for all these patches.
+
+In future, please avoid sending multiple patches under the same Subject:,
+thanks.
+

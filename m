@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbWAGFBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWAGFCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbWAGFBf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 00:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWAGFBf
+	id S1030351AbWAGFCu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 00:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbWAGFCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 00:01:35 -0500
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:54876 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030350AbWAGFBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 00:01:35 -0500
+	Sat, 7 Jan 2006 00:02:50 -0500
+Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:34386 "HELO
+	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030351AbWAGFCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 00:02:49 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vernon Mauery <vernux@us.ibm.com>
-Subject: Re: dynamic input_dev allocation for ibmasm driver
-Date: Sat, 7 Jan 2006 00:01:32 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: request for opinion on synaptics, adb and powerpc
+Date: Sat, 7 Jan 2006 00:02:46 -0500
 User-Agent: KMail/1.8.3
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Max Asbock <amax@us.ibm.com>
-References: <43BF0463.7010700@us.ibm.com>
-In-Reply-To: <43BF0463.7010700@us.ibm.com>
+Cc: Peter Osterlund <petero2@telia.com>, Luca Bigliardi <shammash@artha.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <20060106231301.GG4732@kamaji.shammash.lan> <1136609048.4840.210.camel@localhost.localdomain> <200601062346.30987.dtor_core@ameritech.net>
+In-Reply-To: <200601062346.30987.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200601070001.33125.dtor_core@ameritech.net>
+Message-Id: <200601070002.47255.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 January 2006 18:59, Vernon Mauery wrote:
-> This patch updates the ibmasm driver to use the dynamic allocation of input_dev
-> structs to work with the sysfs subsystem.  I have tested it on my machine and it
-> seems to work fine.
+On Friday 06 January 2006 23:46, Dmitry Torokhov wrote:
+> On Friday 06 January 2006 23:44, Benjamin Herrenschmidt wrote:
+> > On Fri, 2006-01-06 at 23:36 -0500, Dmitry Torokhov wrote:
+> > > On Friday 06 January 2006 23:33, Benjamin Herrenschmidt wrote:
+> > > > 
+> > > > > Why would you want to switch to relative mode when leaving X? As far as
+> > > > > I know the only other mouse "user" out there is GPM and there are patches
+> > > > > available for it to use event device:
+> > > > > 
+> > > > > 	http://geocities.com/dt_or/gpm/gpm.html
+> > > > > 
+> > > > > Unfortunately the maintainer can't find time to merge these so they were
+> > > > > sitting there for over 2 years. FWIW Fedora patches their GPM with these.
+> > > > 
+> > > > gpm among other legacy things ...
+> > > > 
+> > > 
+> > > What other legacy things? And in that case I think manually forcing protocol
+> > > back to relative would be an option.
+> > > 
+> > > The thing is that Synaptics in absolute and relative mode is 2 completely
+> > > different devices with different capabilities. If you want to switch mode
+> > > you really need to kill old input device and create a brand new one.
+> > 
+> > Ok, so what method should we use to "switch" ? sysfs isn't quite an
+> > option yet as the ADB bus isn't yet represented there (unless we add
+> > attributes to the input object, but that's a bit awkward as it would be
+> > destroyed and re-created if I follow you). A module option would work
+> > but adbhid isn't a module, thus that would basically end up as a static
+> > kernel argument, unless the driver "polls" the module param regulary to
+> > trigger the change.. I don't think there is a way for a driver to get a
+> > callback when /sys/module/<driver>/parameters/* changes is there ?
+> > 
 > 
-> Signed-off-by: Vernon Mauery <vernux@us.ibm.com>
+> Yes, there is, but I'd imagine static option would be just fine. After
+> all you either use legacy applications or you don't. And if mousedev
+> does not provide adequate emulation you switch to relative mothod.
 > 
->  ibmasm.h |    6 ++---
->  remote.c |   72 ++++++++++++++++++++++++++++++++++-----------------------------
->  2 files changed, 42 insertions(+), 36 deletions(-)
-> 
-> 
-...
-> -	input_register_device(&remote->mouse_dev);
-> -	input_register_device(&remote->keybd_dev);
-> +	if ((ret = input_register_device(mouse_dev)))
-> +		goto error_alloc;
-> +	if ((ret = input_register_device(keybd_dev)))
-> +		goto error_alloc;
-> +
-> +	sp->remote.mouse_dev = mouse_dev;
-> +	sp->remote.keybd_dev = keybd_dev;
->  	enable_mouse_interrupts(sp);
->  
->  	printk(KERN_INFO "ibmasm remote responding to events on RSA card %d\n", sp->number);
->  
->  	return 0;
-> +
-> +error_alloc:
-> +	input_free_device(mouse_dev);
-> +	input_free_device(keybd_dev);
-> +	return ret;
 
-Error handling is rotten here. If 2nd input_register_device fails you will
-whack fully registered remote->mouse_dev. You are missing call to
-input_unregister_device() there.
-
-Please fix it up and send it my way - I'll add it to the input tree.
-
-Thanks!
+Oh, yes, another option for legacy applications would be to use GPM's
+repeater mode.
 
 -- 
 Dmitry

@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWAGBp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWAGByE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWAGBp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 20:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWAGBp0
+	id S1750798AbWAGByE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 20:54:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752487AbWAGByE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 20:45:26 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:2229 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S964810AbWAGBpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 20:45:25 -0500
-Date: Fri, 6 Jan 2006 21:37:13 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Rob Landley <rob@landley.net>
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] Re: [PATCH 4/9] UML - Better diagnostics for broken configs
-Message-ID: <20060107023713.GA13285@ccure.user-mode-linux.org>
-References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org> <20060105161436.GA4426@ccure.user-mode-linux.org> <Pine.LNX.4.61.0601052258350.27662@yvahk01.tjqt.qr> <200601061801.17497.rob@landley.net>
-Mime-Version: 1.0
+	Fri, 6 Jan 2006 20:54:04 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:56199 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750798AbWAGByC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 20:54:02 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, jesper.juhl@gmail.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       davej@codemonkey.org.uk, airlied@linux.ie
+Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
+Date: Sat, 07 Jan 2006 12:53:43 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <jg7ur153n4stkjip13fva21345kqfqiufr@4ax.com>
+References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com> <20060105162714.6ad6d374.akpm@osdl.org> <9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com> <20060105165946.1768f3d5.akpm@osdl.org> <9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com> <20060107002833.GB9402@redhat.com> <20060106164012.041e14b2.akpm@osdl.org>
+In-Reply-To: <20060106164012.041e14b2.akpm@osdl.org>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601061801.17497.rob@landley.net>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 06:01:13PM -0600, Rob Landley wrote:
-> Unfortunately, stock kernels don't let you just discard a system call, so you
-> have to pass _something_ on to the underlying OS before you can resume from 
-> the ptrace.  But you can change all the information both on the way in and on
-> the way out, so what UML did was it turned all system calls into "getpid", 
-> which it then ignored the return value of in favor of doing its own system 
-> call handling.  Stock kernels also don't allow one process to remap another 
-> process's memory, which is kind of important in context switching and meant 
-> that each process being traced had to be a separate PID on the host, because 
-> the UML kernel couldn't remap that process's page tables.
-> 
-> Doing both of these things (a seperate host process for each UML process, and
-> calling getpid() for all system calls), is what "Tracing Thread" mode did.  
-> The UML kernel was one thread among several, and it was kinda slow.
+On Fri, 6 Jan 2006 16:40:12 -0800, Andrew Morton <akpm@osdl.org> wrote:
 
-The skas vs tt distinction is the address space part of this.  How we nullify
-system calls is separate.  That's the PTRACE_SYSCALL vs PTRACE_SYSEMU (which
-is now in mainline) thing.
+>Dave Jones <davej@redhat.com> wrote:
+>> If only someone did a patch to pause the text output after the first oops..
+>> 
+>> Oh wait! Someone did!
+>> 
+...
+>I think I did one of those too.  It required a new kernel boot option
+>`halt-after-oops' or some such.  Sounds like a good idea?
 
-> Then somebody got drunk and came up with something extremely clever that I'm 
-> _still_ trying to get a clear explanation of, but they found out a way to run
-> SKAS mode on an unmodified kernel by sacrificing a chicken or something, and 
-> this became known as "SKAS0" mode.  
+I'd prefer the halt after oops option, since I often reboot remotely 
+(ssh) and may not notice boot failed until I get around to opening 
+new ssh session to target.  It's only then that I'll go front the 
+sulking target's console ;)
 
-Hehe, that would be Blaisorblade - I've refrained from asking what he had
-to sacrifice.
-
-> It's not as fast as SKAS3 mode 
-> (sacrificing chickens takes time), but it's faster than TT mode and a lot 
-> less cluttered because you don't need a separate process on the host for each
-> process running under User Mode Linux kernel. 
-
-skas0 still requires one host process per UML process.  That's how it gets
-host address spaces, which skas3 does using /proc/mm.  In this sense, skas0
-is sort of a cross between tt and skas3 modes.
-
-				Jeff
+Grant.

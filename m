@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965376AbWAGA1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965387AbWAGA2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965376AbWAGA1D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 19:27:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965372AbWAGAZ5
+	id S965387AbWAGA2O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 19:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965382AbWAGA1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 19:25:57 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:63403 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S965381AbWAGAZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 19:25:49 -0500
-X-IronPort-AV: i="3.99,341,1131350400"; 
-   d="scan'208"; a="388438784:sNHT29931748"
-Subject: [git patch review 7/8] IB/uverbs: Fix reference counting on error
-	paths
-From: Roland Dreier <rolandd@cisco.com>
-Date: Sat, 07 Jan 2006 00:25:42 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1136593543000-bf2926ca65fa9af8@cisco.com>
-In-Reply-To: <1136593543000-c8b76b848fc384d6@cisco.com>
-X-OriginalArrivalTime: 07 Jan 2006 00:25:46.0086 (UTC) FILETIME=[E6EDC060:01C61320]
+	Fri, 6 Jan 2006 19:27:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64230 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965387AbWAGA12 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 19:27:28 -0500
+Date: Fri, 6 Jan 2006 16:29:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/4] Series to allow a "const" file_operations struct
+Message-Id: <20060106162913.7621895c.akpm@osdl.org>
+In-Reply-To: <43BEF338.3010403@cosmosbay.com>
+References: <1136583937.2940.90.camel@laptopd505.fenrus.org>
+	<1136584539.2940.105.camel@laptopd505.fenrus.org>
+	<43BEF338.3010403@cosmosbay.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If an operation fails after incrementing an object's reference count,
-then it should decrement the reference count on the error path.
+Eric Dumazet <dada1@cosmosbay.com> wrote:
+>
+> Arjan van de Ven a écrit :
+> > On Fri, 2006-01-06 at 22:45 +0100, Arjan van de Ven wrote:
+> >> Hi,
+> >>
+> >> this series allows drivers to have "const" file_operations, by making
+> >> the f_ops field in the inode const. This has another benefit, there have
+> > 
+> > ok there was a sentence missing here. The first benefit is that this
+> > moves these hot datastructures to the rodata section, which means they
+> > won't accidentally be doing false cacheline sharing.
+> > 
+> 
+> Definitly a good thing I agree.
+> 
+> But your patches miss to really declare all 'struct file_operations' as const, 
+> dont they ?
+> 
+> 
+> On my x86_64 machine, I managed to reduce by 10% .data section by moving all 
+> file_operations, but also 'address_space_operations', 'inode_operations, 
+> super_operations, dentry_operations, seq_operations, ... to rodata section.
+> 
+> size vmlinux*
+>     text    data     bss     dec     hex filename
+> 2476156  522236  244868 3243260  317cfc vmlinux
+> 2588685  571348  246692 3406725  33fb85 vmlinux.old
+> 
 
-Signed-off-by: Jack Morgenstein <jackm@mellanox.co.il>
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
-
----
-
- drivers/infiniband/core/uverbs_cmd.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
-
-b4ca1a3f8ca24033d7b7ef595faef97d9f8b2326
-diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
-index a57d021..6985a57 100644
---- a/drivers/infiniband/core/uverbs_cmd.c
-+++ b/drivers/infiniband/core/uverbs_cmd.c
-@@ -489,6 +489,7 @@ err_idr:
- 
- err_unreg:
- 	ib_dereg_mr(mr);
-+	atomic_dec(&pd->usecnt);
- 
- err_up:
- 	up(&ib_uverbs_idr_mutex);
-@@ -935,6 +936,11 @@ err_idr:
- 
- err_destroy:
- 	ib_destroy_qp(qp);
-+	atomic_dec(&pd->usecnt);
-+	atomic_dec(&attr.send_cq->usecnt);
-+	atomic_dec(&attr.recv_cq->usecnt);
-+	if (attr.srq)
-+		atomic_dec(&attr.srq->usecnt);
- 
- err_up:
- 	up(&ib_uverbs_idr_mutex);
-@@ -1729,6 +1735,7 @@ err_idr:
- 
- err_destroy:
- 	ib_destroy_srq(srq);
-+	atomic_dec(&pd->usecnt);
- 
- err_up:
- 	up(&ib_uverbs_idr_mutex);
--- 
-0.99.9n
+Confused.   Why should this result in an aggregate reduction in vmlinux size?

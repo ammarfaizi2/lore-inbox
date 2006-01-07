@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752307AbWAGPN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752301AbWAGPNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752307AbWAGPN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 10:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752309AbWAGPN2
+	id S1752301AbWAGPNK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 10:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752303AbWAGPNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 10:13:28 -0500
-Received: from jubileegroup.co.uk ([217.147.177.250]:4073 "EHLO
-	mail3.jubileegroup.co.uk") by vger.kernel.org with ESMTP
-	id S1752303AbWAGPN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 10:13:27 -0500
-Date: Sat, 7 Jan 2006 15:13:25 +0000 (GMT)
-From: "G.W. Haywood" <ged@jubileegroup.co.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ne2k PCI/ISA documentation: improved cross-reference.
-In-Reply-To: <200512292149.55237.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.58.0601071504270.8957@mail3.jubileegroup.co.uk>
-References: <Pine.LNX.4.58.0512291301420.2118@mail3.jubileegroup.co.uk>
- <9a8748490512290553g448d1e28w65dad834cd08e1a7@mail.gmail.com>
- <Pine.LNX.4.58.0512291520250.6219@mail3.jubileegroup.co.uk>
- <200512292149.55237.jesper.juhl@gmail.com>
+	Sat, 7 Jan 2006 10:13:09 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:27040 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1752258AbWAGPNI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 10:13:08 -0500
+Date: Sat, 7 Jan 2006 16:12:50 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jeff Dike <jdike@addtoit.com>
+cc: Rob Landley <rob@landley.net>, user-mode-linux-devel@lists.sourceforge.net,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [PATCH 4/9] UML - Better diagnostics for broken
+ configs
+In-Reply-To: <20060107023713.GA13285@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.61.0601071612030.3578@yvahk01.tjqt.qr>
+References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org>
+ <20060105161436.GA4426@ccure.user-mode-linux.org>
+ <Pine.LNX.4.61.0601052258350.27662@yvahk01.tjqt.qr> <200601061801.17497.rob@landley.net>
+ <20060107023713.GA13285@ccure.user-mode-linux.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (mail3.jubileegroup.co.uk [0.0.0.0]); Sat, 07 Jan 2006 15:13:25 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ged Haywood <ged@jubileegroup.co.uk>
+>> Doing both of these things (a seperate host process for each UML process, and
+>> calling getpid() for all system calls), is what "Tracing Thread" mode did.  
+>> The UML kernel was one thread among several, and it was kinda slow.
+>
+>The skas vs tt distinction is the address space part of this.  How we nullify
+>system calls is separate.  That's the PTRACE_SYSCALL vs PTRACE_SYSEMU (which
+>is now in mainline) thing.
+>
 
-Improved reference to PCI ne2k support in ISA ne2k documentation.
+...
+So there is no way to get UML compile on non-Linux.
 
-Signed-off-by: Ged Haywood <ged@jubileegroup.co.uk>
----
 
- drivers/net/Kconfig |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
---- linux-2.6.15-rc7-git3-orig/drivers/net/Kconfig      2005-12-29 21:15:54.000000000 +0100
-+++ linux-2.6.15-rc7-git3/drivers/net/Kconfig   2005-12-29 21:33:26.000000000 +0100
-@@ -1076,7 +1076,8 @@
-          without a specific driver are compatible with NE2000.
-
-          If you have a PCI NE2000 card however, say N here and Y to "PCI
--         NE2000 support", above. If you have a NE2000 card and are running on
-+         NE2000 and clone support" under "EISA, VLB, PCI and on board
-+         controllers" below. If you have a NE2000 card and are running on
-          an MCA system (a bus system used on some IBM PS/2 computers and
-          laptops), say N here and Y to "NE/2 (ne2000 MCA version) support",
-          below.
+Jan Engelhardt
+-- 

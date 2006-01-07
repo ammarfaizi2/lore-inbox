@@ -1,100 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752495AbWAGCK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965395AbWAGCN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752495AbWAGCK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 21:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752493AbWAGCK0
+	id S965395AbWAGCN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 21:13:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965399AbWAGCN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 21:10:26 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:59088 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1752492AbWAGCKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 21:10:25 -0500
-Subject: Re: sched.c:659 dec_rt_tasks BUG with patch-2.6.15-rt1
-	(realtime-preempt)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Nedko Arnaudov <nedko@arnaudov.name>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1136595936.12468.168.camel@localhost.localdomain>
-References: <87ek3ug314.fsf@arnaudov.name> <87mzie2tzu.fsf@arnaudov.name>
-	 <20060102214516.GA12850@elte.hu> <87lkxyrzby.fsf_-_@arnaudov.name>
-	 <87u0cj5riq.fsf_-_@arnaudov.name>
-	 <1136436273.12468.113.camel@localhost.localdomain>
-	 <87u0cj3saf.fsf@arnaudov.name>
-	 <1136463552.12468.119.camel@localhost.localdomain>
-	 <87k6deg2z6.fsf@arnaudov.name>
-	 <Pine.LNX.4.58.0601050936340.10361@gandalf.stny.rr.com>
-	 <874q4ig0zj.fsf@arnaudov.name>
-	 <1136595936.12468.168.camel@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-YRmFFph3A7obXZsrtEBK"
-Date: Fri, 06 Jan 2006 21:10:18 -0500
-Message-Id: <1136599818.12468.172.camel@localhost.localdomain>
+	Fri, 6 Jan 2006 21:13:26 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:55449 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965395AbWAGCN0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 21:13:26 -0500
+Subject: Re: [PATCH] slab: Adds missing kmalloc() checks.
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060106133051.367f2d9b.lcapitulino@mandriva.com.br>
+References: <20060106131246.0b9fde8c.lcapitulino@mandriva.com.br>
+	 <1136561087.2940.39.camel@laptopd505.fenrus.org>
+	 <20060106133051.367f2d9b.lcapitulino@mandriva.com.br>
+Date: Sat, 07 Jan 2006 04:12:50 +0200
+Message-Id: <1136599971.7163.3.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-YRmFFph3A7obXZsrtEBK
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Fri, 2006-01-06 at 13:12 -0200, Luiz Fernando Capitulino wrote:
+> | >  Adds two missing kmalloc() checks in kmem_cache_init(). Note that if the
+> | > allocation fails, there is nothing to do, so we panic();
 
-On Fri, 2006-01-06 at 20:05 -0500, Steven Rostedt wrote:
-> On Thu, 2006-01-05 at 17:15 +0200, Nedko Arnaudov wrote:
-> > Will try to crash SMP ASAP, I'm not able to do tests now.
-> > 
-> > I do erase/burn of 210 MiB rw disk. Erase is done without crash.
-> > I use version 2.01.01a03 of cdrecord.
-> > It crashes when burning:
-> > 
-> > http://nedko.arnaudov.name/tmp/rt-cdrecord-crash.jpg
-> > 
-> > Same crash occurs when I run oss2jack with -d option.
-> > It does not occur when running without -d option (daemonize).
-> > 
-> 
-> Nedko,
-> 
-> Could you try either the patch below, or the link
-> http://home.stny.rr.com/rostedt/patches/patch-2.6.15-rt2-sr2
-> which has the patch included, to see if this fixes your problem.
+On Fri, 06 Jan 2006 16:24:47 +0100
+Arjan van de Ven <arjan@infradead.org> wrote:
+> | ok so what good does this do? if you die this early.. you are in deeper
+> | problems, and can't boot. while this makes the code bigger...
 
-OK, I think this is it.  Without the patch, the attached program crashes
-the system. With the patch, it runs fine. I believe that cdrecord and
-friends were forking processes with RT priorities. Which would crash the
-system.
+On Fri, 2006-01-06 at 13:30 -0200, Luiz Fernando Capitulino wrote:
+>  Well, you'll get a panic with a message saying you have no memory to
+> boot, instead of a OOPS with a kernel NULL pointer derefecence, which
+> will make you look for a bug.
 
--- Steve
+The code is in init section so I don't think size is an issue. A plain
+BUG_ON would be better though as it can be disabled by the embedded
+folk.
 
-
---=-YRmFFph3A7obXZsrtEBK
-Content-Disposition: attachment; filename=forkme.c
-Content-Type: text/x-csrc; name=forkme.c; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sched.h>
-
-int main(int argc, char **argv)
-{
-	int pid;
-	struct sched_param sp = { .sched_priority = 5 };
-
-	sched_setscheduler(getpid(), SCHED_FIFO, &sp);
-
-	if ((pid = fork()) < 0) {
-		perror("fork");
-		exit(0);
-	} else if (!pid) {
-		printf("child!\n");
-		exit(0);
-	}
-
-	printf("parent\n");
-	exit(0);
-}
-			
-
---=-YRmFFph3A7obXZsrtEBK--
+			Pekka
 

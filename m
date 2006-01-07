@@ -1,195 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbWAGXCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbWAGXBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161048AbWAGXCP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 18:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWAGXCP
+	id S1161046AbWAGXBt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 18:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWAGXBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 18:02:15 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:49345 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1161048AbWAGXCN (ORCPT
+	Sat, 7 Jan 2006 18:01:49 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:25873 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1161046AbWAGXBs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 18:02:13 -0500
-From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH] [MMC] wbsd pnp suspend
-Date: Sun, 08 Jan 2006 00:02:01 +0100
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>
-To: rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060107230201.28473.19968.stgit@poseidon.drzeus.cx>
+	Sat, 7 Jan 2006 18:01:48 -0500
+Date: Sun, 8 Jan 2006 00:01:30 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Cc: walt <wa1ter@myrealbox.com>, Git Mailing List <git@vger.kernel.org>
+Subject: Re: Does git belong in root's $PATH?
+Message-ID: <20060107230130.GA8335@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0601070838470.6317@x2.ybpnyarg> <Pine.LNX.4.64.0601071023250.3169@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601071023250.3169@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow the wbsd driver to use the new suspend/resume functions added to
-the PnP layer.
+On Sat, Jan 07, 2006 at 10:31:52AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 7 Jan 2006, walt wrote:
+> >
+> > When updated my kernel this morning, the same way I've been doing
+> > it for many months, I noticed that the -gxxxxxxx localversion
+> > string was missing from the new kernel's name.
+> > 
+> > I finally figured out that this happened because /usr/local/bin
+> > is not in my root's $PATH, and the setlocalversion script depends
+> > on git.  (The only thing I do as root is 'make install').
+> 
+> Ok, sounds like a build buglet to me. If you've done a "make" as a regular 
+> user, and just do a "make install" as root, I'd argue that the "make 
+> install" should do as little as humanly possible, and literally just 
+> install the kernel. If it starts changing the version, that sounds a bit 
+> fishy.
+> 
+> Sam, anything we can do?
+Today kbuild uses same method to build KERNELRELEASE no matter what
+target is used, and I recently committed a change that used git tools as
+replacement for direct manipulation with .git/*
+What I did not realise was that we now require git during make install
+time - which is obviously plain wrong.
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
+I will try to look into a cleaner solution tomorrow where KERNELRELEASE
+is fetched somewhere else during make install time.
 
- drivers/mmc/wbsd.c |  106 ++++++++++++++++++++++++++++++++++++++++++++--------
- 1 files changed, 90 insertions(+), 16 deletions(-)
+> 
+> That said:
+> 
+> > I suppose I'm asking a philosophical question here:  do you
+> > guys install git where root can find it (as a system tool)?
+> 
+> I don't, but I don't use "make install" anyway, I just do "make 
+> modules_install". I install the kernel by hand, I always have.
+> 
+> Of course, that's partly because I've always felt that "make install" does 
+> too much (I think "make modules_install" is better - it really only 
+> installs the already-built modules).
+The big difference here is that "make modules_install" is part of
+kbuild, whereas "make install" almost just call installkernel which is
+distribution specific - and the distributions does all sort of stuff in
+installkernel :-(
 
-diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
-index 4f13bd2..60afc12 100644
---- a/drivers/mmc/wbsd.c
-+++ b/drivers/mmc/wbsd.c
-@@ -1980,37 +1980,53 @@ static void __devexit wbsd_pnp_remove(st
- 
- #ifdef CONFIG_PM
- 
--static int wbsd_suspend(struct platform_device *dev, pm_message_t state)
-+static int wbsd_suspend(struct wbsd_host *host, pm_message_t state)
-+{
-+	BUG_ON(host == NULL);
-+
-+	return mmc_suspend_host(host->mmc, state);
-+}
-+
-+static int wbsd_resume(struct wbsd_host *host)
-+{
-+	BUG_ON(host == NULL);
-+
-+	wbsd_init_device(host);
-+
-+	return mmc_resume_host(host->mmc);
-+}
-+
-+static int wbsd_platform_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	struct mmc_host *mmc = platform_get_drvdata(dev);
- 	struct wbsd_host *host;
- 	int ret;
- 
--	if (!mmc)
-+	if (mmc == NULL)
- 		return 0;
- 
--	DBG("Suspending...\n");
--
--	ret = mmc_suspend_host(mmc, state);
--	if (!ret)
--		return ret;
-+	DBGF("Suspending...\n");
- 
- 	host = mmc_priv(mmc);
- 
-+	ret = wbsd_suspend(host, state);
-+	if (ret)
-+		return ret;
-+
- 	wbsd_chip_poweroff(host);
- 
- 	return 0;
- }
- 
--static int wbsd_resume(struct platform_device *dev)
-+static int wbsd_platform_resume(struct platform_device *dev)
- {
- 	struct mmc_host *mmc = platform_get_drvdata(dev);
- 	struct wbsd_host *host;
- 
--	if (!mmc)
-+	if (mmc == NULL)
- 		return 0;
- 
--	DBG("Resuming...\n");
-+	DBGF("Resuming...\n");
- 
- 	host = mmc_priv(mmc);
- 
-@@ -2021,15 +2037,70 @@ static int wbsd_resume(struct platform_d
- 	 */
- 	mdelay(5);
- 
--	wbsd_init_device(host);
-+	return wbsd_resume(host);
-+}
-+
-+#ifdef CONFIG_PNP
-+
-+static int wbsd_pnp_suspend(struct pnp_dev *pnp_dev, pm_message_t state)
-+{
-+	struct mmc_host *mmc = dev_get_drvdata(&pnp_dev->dev);
-+	struct wbsd_host *host;
-+
-+	if (mmc == NULL)
-+		return 0;
-+
-+	DBGF("Suspending...\n");
-+
-+	host = mmc_priv(mmc);
- 
--	return mmc_resume_host(mmc);
-+	return wbsd_suspend(host, state);
- }
- 
-+static int wbsd_pnp_resume(struct pnp_dev *pnp_dev)
-+{
-+	struct mmc_host *mmc = dev_get_drvdata(&pnp_dev->dev);
-+	struct wbsd_host *host;
-+
-+	if (mmc == NULL)
-+		return 0;
-+
-+	DBGF("Resuming...\n");
-+
-+	host = mmc_priv(mmc);
-+
-+	/*
-+	 * See if chip needs to be configured.
-+	 */
-+	if (host->config != 0)
-+	{
-+		if (!wbsd_chip_validate(host))
-+		{
-+			printk(KERN_WARNING DRIVER_NAME
-+				": PnP active but chip not configured! "
-+				"You probably have a buggy BIOS. "
-+				"Configuring chip manually.\n");
-+			wbsd_chip_config(host);
-+		}
-+	}
-+
-+	/*
-+	 * Allow device to initialise itself properly.
-+	 */
-+	mdelay(5);
-+
-+	return wbsd_resume(host);
-+}
-+
-+#endif /* CONFIG_PNP */
-+
- #else /* CONFIG_PM */
- 
--#define wbsd_suspend NULL
--#define wbsd_resume NULL
-+#define wbsd_platform_suspend NULL
-+#define wbsd_platform_resume NULL
-+
-+#define wbsd_pnp_suspend NULL
-+#define wbsd_pnp_resume NULL
- 
- #endif /* CONFIG_PM */
- 
-@@ -2039,8 +2110,8 @@ static struct platform_driver wbsd_drive
- 	.probe		= wbsd_probe,
- 	.remove		= __devexit_p(wbsd_remove),
- 
--	.suspend	= wbsd_suspend,
--	.resume		= wbsd_resume,
-+	.suspend	= wbsd_platform_suspend,
-+	.resume		= wbsd_platform_resume,
- 	.driver		= {
- 		.name	= DRIVER_NAME,
- 	},
-@@ -2053,6 +2124,9 @@ static struct pnp_driver wbsd_pnp_driver
- 	.id_table	= pnp_dev_table,
- 	.probe		= wbsd_pnp_probe,
- 	.remove		= __devexit_p(wbsd_pnp_remove),
-+
-+	.suspend	= wbsd_pnp_suspend,
-+	.resume		= wbsd_pnp_resume,
- };
- 
- #endif /* CONFIG_PNP */
+> 
+> Maybe it would be best to remove the "vmlinux" dependency from "make 
+> install" (so that "make install" will do exactly that: just install).  I 
+> think all the documentation already tells you to do a "make" and then a 
+> "make install".
 
+I had a short chat with David Miller about something similar.
+What I really liked to do was to tell user if vmlinux needed an update.
+But the implmentation of kbuild does make this almost impossible - I
+have at least not seen how to do it.
+
+When I during early 2.6.12 removed the dependency on vmlinux from
+the install target people were complaining that there scripts broke and
+the solution that was implmented was a new target:
+"make kernel_install" and "make install" got back the vmlinux
+dependency.
+
+Only difference between the two are that "make kernel_install" does NOT
+have vmlinux as prerequisite. This was btw only done for i386 and
+the only other architecture that have kernel_install is parisc with a
+vmlinux dependency.
+
+
+So no, I'm very unlikely to remove the vmlinux dependency from the
+"make install" target - it results in too many suprises.
+
+> 
+> The other make targets really _are_ different: "make fdimage" depends on 
+> vmlinux, but that's because it literally just builds the image. "make 
+> install" is special.
+> 
+> Sam, what say you? I forget what the kbuild mailing list is, but maybe 
+> you can forward this suggestion there..
+
+These days it is named linux-kernel@vger.kernel.org ;-)
+kbuild-devel@lists.sourceforge.net is seldom used though I still monitor
+it. Talked with mec about discontinue it but he liked to keep it
+araound. He is btw still moderator on that list filtering away all spam.
+
+	Sam

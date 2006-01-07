@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030597AbWAGVtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030601AbWAGVu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030597AbWAGVtu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 16:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWAGVtu
+	id S1030601AbWAGVu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 16:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030603AbWAGVu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 16:49:50 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52998 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030597AbWAGVtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 16:49:49 -0500
-Date: Sat, 7 Jan 2006 22:49:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: kurt.hackel@oracle.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] OCFS2: __init / __exit problem
-Message-ID: <20060107214947.GW3774@stusta.de>
-References: <20060107132008.GE820@lug-owl.de> <20060107190702.GT3774@stusta.de> <20060107213821.GD3313@ca-server1.us.oracle.com>
+	Sat, 7 Jan 2006 16:50:58 -0500
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:20375 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1030601AbWAGVu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 16:50:57 -0500
+Message-ID: <43C037B8.8080401@ens-lyon.org>
+Date: Sat, 07 Jan 2006 16:50:48 -0500
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060107213821.GD3313@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.11
+To: Dave Jones <davej@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-mm2
+References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org> <20060107214208.GR9402@redhat.com>
+In-Reply-To: <20060107214208.GR9402@redhat.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 01:38:21PM -0800, Mark Fasheh wrote:
-> On Sat, Jan 07, 2006 at 08:07:02PM +0100, Adrian Bunk wrote:
-> > It's a real problem that due to the fact that these errors have become 
-> > runtime errors on i386 in kernel 2.6, we do no longer have a big testing 
-> > coverage for them.  :-(
-> Indeed. Those function declarations have been in there for a while,
-> without any issue until now. Thanks for the patch Adrian.
+Dave Jones wrote:
 
-The runtime error on architectures like i386 occurs in the error path of 
-ocfs2_init().
+> > Should I prevent my initscript from loading agpgart (actually intel_agp)
+> > at all ? (I guess udev or hotplug is trying to load it here). Is there
+> > something like agpgart for PCI express ? Or is it useless ?
+>
+>it's useless. though the loading of it shouldn't harm anything.
+>Does it spew warnings during your boot ?
+>  
+>
+No, I don't see any warning/problem.
 
-This is the common problem that such error paths are only used once 
-every dozen years and therefore get no real testing coverage...
-
-> 	--Mark
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Thanks.
+Brice
 

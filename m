@@ -1,68 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030563AbWAGTty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbWAGU3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030563AbWAGTty (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 14:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030567AbWAGTty
+	id S1161100AbWAGU3h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 15:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161096AbWAGU3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:49:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17134 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030563AbWAGTtx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 14:49:53 -0500
-Message-ID: <43C01B3E.5030101@redhat.com>
-Date: Sat, 07 Jan 2006 11:49:18 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mail/News 1.5 (X11/20060103)
-MIME-Version: 1.0
-To: dsingleton@mvista.com
-CC: robustmutexes@lists.osdl.org, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: robust futex deadlock detection patch
-References: <Pine.LNX.4.44L0.0601051820000.3110-100000@lifa02.phys.au.dk>	 <EB15893A-7F26-11DA-9F72-000A959BB91E@mvista.com> <a36005b50601071145y7e2ead9an4a4ca7896f35a85e@mail.gmail.com>
-In-Reply-To: <a36005b50601071145y7e2ead9an4a4ca7896f35a85e@mail.gmail.com>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2E4C01C9A65E9D766B446CE6"
+	Sat, 7 Jan 2006 15:29:37 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:15324 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161094AbWAGU3f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 15:29:35 -0500
+Date: Sat, 7 Jan 2006 12:30:03 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: dada1@cosmosbay.com, ak@suse.de, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       manfred@colorfullife.com, netdev@vger.kernel.org
+Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
+Message-ID: <20060107203003.GA8574@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43BF6F0B.4060108@cosmosbay.com> <20060106.234440.53993868.davem@davemloft.net> <43BF7390.6050005@cosmosbay.com> <20060107.003625.50986701.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060107.003625.50986701.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2E4C01C9A65E9D766B446CE6
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Sat, Jan 07, 2006 at 12:36:25AM -0800, David S. Miller wrote:
+> From: Eric Dumazet <dada1@cosmosbay.com>
+> Date: Sat, 07 Jan 2006 08:53:52 +0100
+> 
+> > I have no problem with this, since the biggest server I have is 4
+> > way, but are you sure big machines wont suffer from this single
+> > spinlock ?
+> 
+> It is the main question.
+> 
+> > Also I dont understand what you want to do after this single
+> > spinlock patch.  How is it supposed to help the 'ip route flush
+> > cache' problem ?  In my case, I have about 600.000 dst-entries :
+> 
+> I don't claim to have a solution to this problem currently.
+> 
+> Doing RCU and going through the whole DST GC machinery is overkill for
+> an active system.  So, perhaps a very simple solution will do:
+> 
+> 1) On rt_run_flush(), do not rt_free(), instead collect all active
+>    routing cache entries onto a global list, begin a timer to
+>    fire in 10 seconds (or some sysctl configurable amount).
+> 
+> 2) When a new routing cache entry is needed, check the global
+>    list appended to in #1 above first, failing that do dst_alloc()
+>    as is done currently.
+> 
+> 3) If timer expires, rt_free() any entries in the global list.
+> 
+> The missing trick is how to ensure RCU semantics when reallocating
+> from the global list.
 
-> Robust futexes will have -EDEADLK returned to them since there is no
-> POSIX specification for
-> robust mutexes,  yet, and  returning -EDEADLK is more in the spirit of
-> robustness.
+The straightforward ways of doing this require a per-entry lock in
+addition to the dst_entry reference count -- lots of read-side overhead.
 
-I disagree.  Robustness is only an additional mutex attribute on top of
-the mutex type.  I.e., there can be robust
-normal/error-checking/recursive mutexes.  What kind it is can be told to
-the kernel at the time the robust mutex is registered with the kernel.
+More complex approaches use a generation number that is incremented
+when adding to or removing from the global list.  When the generation
+number overflows, unconditionally rt_free() it rather than adding
+to the global list again.  Then there needs to be some clever code
+on the read side to detect the case when the generation number
+changes while acquiring a reference.  And memory barriers.  Also
+lots of read-side overhead.  Also, it is now -always- necessary to
+acquire a reference on the read-side.
 
-This is the way I'll write up the proposal for robust mutexes for
-inclusion in the next POSIX revision.
+> The idea is that an active system will immediately repopulate itself
+> with all of these entries just flushed from the table.
+> 
+> RCU really doesn't handle this kind of problem very well.  It truly
+> excels when work is generated by process context work, not interrupt
+> work.
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+Sounds like a challenge to me.  ;-)
 
+Well, one possible way to attack Eric's workload might be the following:
 
---------------enig2E4C01C9A65E9D766B446CE6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+o	Size the hash table to strike the appropriate balance between
+	read-side search overhead and memory consumption.  Call the
+	number of hash-chain headers N.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+o	Create a hashed array of locks sized to allow the update to
+	proceed sufficiently quickly.  Call the number of locks M,
+	probably a power of two.  This means that M CPUs can be doing
+	the update in parallel.
 
-iD8DBQFDwBtD2ijCOnn/RHQRAv4gAJ47Hj4zFL8LhxkNTny6bXkNHNTpQwCfa07M
-M/f737cdYLkivM6InnwPszA=
-=q5tl
------END PGP SIGNATURE-----
+o	Create an array of M^2 list headers (call it xfer[][]), but
+	since this is only needed during an update, it can be allocated
+	and deallocated if need be.  (Me, with my big-server experience,
+	would probably just create the array, since M is not likely to
+	be too large.  But your mileage may vary.  And you really only
+	need M*(M-1) list headers, but that makes the index calculation
+	a bit more annoying.)
 
---------------enig2E4C01C9A65E9D766B446CE6--
+o	Use a two-phase update.  In the first phase, each updating
+	CPU acquires the corresponding lock and removes entries from
+	the corresponding partition of the hash table.  If the new
+	location of a given entry falls into the same partition, it
+	is added back to the appropriate hash chain of that partition.
+	Otherwise, add the entry to xfer[dst][src], where "src" and 
+	"dst" are indexes of the corresponding partitions.
+
+o	When all CPUs finish removing entries from their partition,
+	they check into a barrier.  Once all have checked in, they
+	can start the second phase of the update.
+
+o	In the second phase, each CPU removes the entries from the
+	xfer array that are destined for its partition and adds them
+	to the hash chain that they are destined for.
+
+Some commentary and variations, in the hope that this inspires someone
+to come up with an even better idea:
+
+o	Unless M is at least three, there is no performance gain
+	over a single global lock with a single CPU doing the update,
+	since each element must now undergo four list operations rather
+	than just two.
+
+o	The xfer[][] array must have each entry cache-aligned, or
+	you lose big on cacheline effects.  Note that it is -not-
+	sufficient to simply align the rows or the columns, since
+	each CPU has its own column when inserting and its own
+	row when removing from xfer[][].
+
+o	And the data-skew effects are less severe if this procedure
+	runs from process context.  A spinning barrier must be used
+	otherwise.  But note that the per-partition locks could remain
+	spinlocks, only the barrier need involve sleeping (in case
+	that helps, am getting a bit ahead of my understanding of
+	this part of the kernel).
+
+	So I half-agree with Dave -- this works better if the bulk
+	update is done in process context, however, updates involving
+	single entries being individually added and removed from the
+	hash table can be done from interrupt context.
+
+o	One (more complex!) way to reduce the effect of data skew to
+	partition the array based on the number of elements in each
+	partition rather than by the number of chains, but this would
+	require a second barrier that is completed before dropping locks
+	in order to avoid messing up concurrent single-element updates.
+
+	And this only handles the phase-1 data-skew effects. It is
+	possible to handle phase-2 data skew as well, but it takes an
+	up-front full-table scan and so it is not clear how it could
+	possibly be a performance win.
+
+o	Note that routing slows down significantly while an update is
+	in progress, because on average only half of the entries are
+	in the hash table during the update.  I have no idea whether
+	or not this is acceptable.  I am assuming that the same
+	mechanism that prevents two concurrent route-cache misses
+	from inserting two entries from the same route would also
+	prevent adding a new entry when one was already in the
+	xfer array.
+
+Thoughts?
+
+							Thanx, Paul

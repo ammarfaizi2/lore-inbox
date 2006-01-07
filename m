@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030565AbWAGTow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030568AbWAGTpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030565AbWAGTow (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 14:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbWAGTow
+	id S1030568AbWAGTpb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 14:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030567AbWAGTpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:44:52 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15808 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030565AbWAGTov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 14:44:51 -0500
-Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-In-Reply-To: <20060107190531.GB8990@kurtwerks.com>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
-	 <1136544309.2940.25.camel@laptopd505.fenrus.org>
-	 <20060107190531.GB8990@kurtwerks.com>
-Content-Type: text/plain
-Date: Sat, 07 Jan 2006 20:44:48 +0100
-Message-Id: <1136663088.2936.36.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 7 Jan 2006 14:45:31 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65237 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030568AbWAGTpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 14:45:30 -0500
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: Andi Kleen <ak@muc.de>, Vivek Goyal <vgoyal@in.ibm.com>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>
+Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
+References: <6F7DA19D05F3CF40B890C7CA2DB13A42030949CB@ssvlexmb2.amd.com>
+	<86802c440601061832m4898e20fw4c9a8360e85cfa17@mail.gmail.com>
+	<86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
+	<86802c440601062320r597d6970i3b120ec90f96abce@mail.gmail.com>
+	<86802c440601070143v44ee9f4dua2dcef2a536d4c73@mail.gmail.com>
+	<m1ek3k2ojo.fsf@ebiederm.dsl.xmission.com>
+	<86802c440601071136n14a0851we97f6db04f940d68@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 07 Jan 2006 12:44:17 -0700
+In-Reply-To: <86802c440601071136n14a0851we97f6db04f940d68@mail.gmail.com> (yhlu.kernel@gmail.com's
+ message of "Sat, 7 Jan 2006 11:36:31 -0800")
+Message-ID: <m17j9b3jse.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-07 at 14:05 -0500, Kurt Wall wrote:
+yhlu <yhlu.kernel@gmail.com> writes:
 
-> 
-> This patch was applied on top of the previous 6 in the series from
-> Arjan. NB that it _did_ build with 3.4.4 and -Os enabled. I'm
-> rechecking, but this is the second time I've encountered this failure.
+> MPTABLE in LinuxBIOS is put from 0x20, if the system has too many cpu
+> and devices (slots)  the mptable will get bigger than 0x464, so it
+> will use 0x40:67....
 
+Then you or someone moved it.  The base in low memory was originally
+at 0x500, to avoid just these kinds of problems.
 
-Does this fix it?
+> We need to put mptable to [0xf0000:0x100000] together with acpi
+> tables.
 
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Or move it up a few bytes.
 
---- linux-2.6.15/include/asm-x86_64/fixmap.h~	2006-01-07 20:42:31.000000000 +0100
-+++ linux-2.6.15/include/asm-x86_64/fixmap.h	2006-01-07 20:42:31.000000000 +0100
-@@ -76,7 +76,7 @@
-  * directly without translation, we catch the bug with a NULL-deference
-  * kernel oops. Illegal ranges of incoming indices are caught too.
-  */
--static inline unsigned long fix_to_virt(const unsigned int idx)
-+static __always_inline unsigned long fix_to_virt(const unsigned int idx)
- {
- 	/*
- 	 * this branch gets completely eliminated after inlining,
+> and if it is bigger than 64k, then we have to put it on special
+> postion ...from 1K, and pass the posstion of mptable to the kernel via
+> command line.
+>
+> I will update the code in LinuxBIOS.
 
+Thanks.  It is always a good idea not to assign legacy regions of the
+address space new meanings.
 
+Eric

@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752533AbWAGOt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWAGOus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752533AbWAGOt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 09:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752540AbWAGOtz
+	id S1030472AbWAGOus (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 09:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030469AbWAGOur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 09:49:55 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:57223 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1752533AbWAGOtz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 09:49:55 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: State of the Union: Wireless
-Date: Sat, 7 Jan 2006 16:49:35 +0200
-User-Agent: KMail/1.8.2
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <20060106042218.GA18974@havoc.gtf.org> <1136547084.4037.41.camel@localhost>
-In-Reply-To: <1136547084.4037.41.camel@localhost>
+	Sat, 7 Jan 2006 09:50:47 -0500
+Received: from [202.67.154.148] ([202.67.154.148]:40093 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S1030471AbWAGOuq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 09:50:46 -0500
+Message-ID: <43BFD54A.2080805@ns666.com>
+Date: Sat, 07 Jan 2006 15:50:50 +0100
+From: Mark v Wolher <trilight@ns666.com>
+User-Agent: Night Owl 3.12V
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Badness in as_insert_request at drivers/block/as-iosched.c:1519
+References: <43BFC3FF.5080908@ns666.com> <20060107143447.GF3389@suse.de>
+In-Reply-To: <20060107143447.GF3389@suse.de>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601071649.35321.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 January 2006 13:31, Johannes Berg wrote:
-> On Fri, 2006-01-06 at 12:00 +0100, Michael Buesch wrote:
+Jens Axboe wrote:
+> On Sat, Jan 07 2006, Mark v Wolher wrote:
 > 
-> > * "master" interface as real device node
-> > * Virtual interfaces (net_devices)
+>>Hiya all,
+>>
+>>I was just playing a cd as usual and i noticed suddenly the errors
+>>below, they repeated like 8 times.
+>>
+>>kernel: 2.6.14.5
 > 
-> I didn't want to spam the netdev wiki with this (yet) so I collected
-> some more structured things outside. Anyone feel free to edit:
-> http://softmac.sipsolutions.net/802.11
-
-I am confused.
-
-There is
-http://softmac.sipsolutions.net/softmac-snapshot.tar.bz2
-at http://softmac.sipsolutions.net/SoftMAC,
-page also says "Projects using this layer: * Broadcom 43xx driver"
-
-but Broadcom driver page at ftp://ftp.berlios.de/pub/bcm43xx/snapshots/softmac/
-has ftp://ftp.berlios.de/pub/bcm43xx/snapshots/softmac/ieee80211softmac-20060107.tar.bz2
-which is not the same. For example, ieee80211softmac.h file exists in both
-tarballs but is not identical.
-
-Suppose one wants to use softmac in a project. What tarball contains
-the bleeding edge of softmac?
-
-> I'll move that content to the netdev wiki if anyone else thinks it would
-> be a good way forward to start with requirements, API issues and
-> similar.
 > 
-> Until we get there, we'll fix up softmac to make it usable for most
-> people in basic station mode without any kind of virtual devices, which
-> will need some slight changes to the current ieee80211.
---
-vda
+> Should be fixed in newer 2.6.14.x, and in 2.6.15.
+> 
+
+Looks like it isn't :( , well in 2.6.14.5

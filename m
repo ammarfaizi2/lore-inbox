@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161130AbWAHBtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161131AbWAHBtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161130AbWAHBtE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 20:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbWAHBtD
+	id S1161131AbWAHBtW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 20:49:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWAHBtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 20:49:03 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51681 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161130AbWAHBtC (ORCPT
+	Sat, 7 Jan 2006 20:49:22 -0500
+Received: from hera.kernel.org ([140.211.167.34]:37812 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1161131AbWAHBtV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 20:49:02 -0500
-Date: Sat, 7 Jan 2006 17:45:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN and
- remove broken MTD_OBSOLETE_CHIPS drivers
-Message-Id: <20060107174523.460f1849.akpm@osdl.org>
-In-Reply-To: <1136680734.30348.34.camel@pmac.infradead.org>
-References: <20060107220702.GZ3774@stusta.de>
-	<1136678409.30348.26.camel@pmac.infradead.org>
-	<20060108002457.GE3774@stusta.de>
-	<1136680734.30348.34.camel@pmac.infradead.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 7 Jan 2006 20:49:21 -0500
+Date: Fri, 6 Jan 2006 23:00:29 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] use local_t for page statistics
+Message-ID: <20060107010029.GA5087@dmt.cnet>
+References: <20060106215332.GH8979@kvack.org> <20060106163313.38c08e37.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060106163313.38c08e37.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
->
-> > > 2. What was the reason for marking them obsolete?
->  > 
->  > The changelog says:
->  >  - David Woodhouse: large MTD and JFFS[2] update
+On Fri, Jan 06, 2006 at 04:33:13PM -0800, Andrew Morton wrote:
+> Benjamin LaHaise <bcrl@kvack.org> wrote:
+> >
+> > The patch below converts the mm page_states counters to use local_t.  
+> > mod_page_state shows up in a few profiles on x86 and x86-64 due to the 
+> > disable/enable interrupts operations touching the flags register.  On 
+> > both my laptop (Pentium M) and P4 test box this results in about 10 
+> > additional /bin/bash -c exit 0 executions per second (P4 went from ~759/s 
+> > to ~771/s).  Tested on x86 and x86-64.  Oh, also add a pgcow statistic 
+> > for the number of COW page faults.
 > 
->  I didn't ask who; I knew that. I asked you _why_. Admittedly, I happen
->  to know that too - but I want to know if _you_ know it.
-> 
->  Since you've taken it upon yourself to decide the timescale of the
->  removal, surely it's reasonable to expect that you do actually know what
->  you're removing and why it's obsolescent?
->
+> Bah.  I think this is a better approach than the just-merged
+> mm-page_state-opt.patch, so I should revert that patch first?
 
-Hey, Adrian isn't an MTD developer - give him a break.
+Don't think so - local_t operations are performed atomically, which is
+not required for most hotpath page statistics operations since proper
+locks are already held.
 
-What he's doing here is to poke other maintainers into getting the tree
-cleaned up.  It's a useful thing to do.
+What is wanted for these cases are simple inc/dec (non-atomic)
+instructions, which is what Nick's patch does by introducing
+__mod_page_state.
 
-If you, an MTD maintainer, can tell him what we _should_ be doing, I'm sure
-Adrian would help.
+Ben, have you tested mm-page_state-opt.patch? It should get rid of
+most "flags" save/restore on stack.
+
+

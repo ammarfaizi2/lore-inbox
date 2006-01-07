@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWAGA5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWAGBA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWAGA5W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 19:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWAGA5W
+	id S1030263AbWAGBA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 20:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWAGBA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 19:57:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60633 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932469AbWAGA5V (ORCPT
+	Fri, 6 Jan 2006 20:00:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:749 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030263AbWAGBA1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 19:57:21 -0500
-Date: Fri, 6 Jan 2006 19:57:12 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, airlied@linux.ie
-Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
-Message-ID: <20060107005712.GF9402@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com,
-	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-	airlied@linux.ie
-References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com> <20060105162714.6ad6d374.akpm@osdl.org> <9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com> <20060105165946.1768f3d5.akpm@osdl.org> <9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com> <20060107002833.GB9402@redhat.com> <20060106164012.041e14b2.akpm@osdl.org>
+	Fri, 6 Jan 2006 20:00:27 -0500
+Date: Fri, 6 Jan 2006 17:01:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, arjan@infradead.org,
+       nico@cam.org, jes@trained-monkey.org, viro@ftp.linux.org.uk,
+       oleg@tv-sign.ru, dhowells@redhat.com, alan@lxorguk.ukuu.org.uk,
+       hch@infradead.org, ak@suse.de, rmk+lkml@arm.linux.org.uk
+Subject: Re: [patch 17/21] mutex subsystem, semaphore to mutex: automatic
+ conversion of simpler cases
+Message-Id: <20060106170146.7e19a968.akpm@osdl.org>
+In-Reply-To: <20060105153903.GR31013@elte.hu>
+References: <20060105153903.GR31013@elte.hu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060106164012.041e14b2.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 04:40:12PM -0800, Andrew Morton wrote:
- > Dave Jones <davej@redhat.com> wrote:
- > >
- > > On Sat, Jan 07, 2006 at 01:25:22AM +0100, Jesper Juhl wrote:
- > >  > On 1/6/06, Andrew Morton <akpm@osdl.org> wrote:
- > >  > > Jesper Juhl <jesper.juhl@gmail.com> wrote:
- > >  > >
- > >  > > >  Reverted that one patch, then rebuild/reinstalled the kernel
- > >  > > >  (with the same .config) and booted it - no change. It still locks up
- > >  > > >  in the exact same spot.
- > >  > > >  X starts & runs fine (sort of) since I can play around at the kdm
- > >  > > >  login screen all I want, it's only once I actually login and KDE
- > >  > > >  proper starts that it locks up.
- > >  > >
- > >  > > Oh bugger.  No serial console/netconsole or such?
- > >  > >
- > >  > > Or are you able log in and then quickly do the alt-ctrl-F1 thing, see if we
- > >  > > get an oops?
- > >  > >
- > >  > I switched to tty1 right after logging in, and after a few seconds
- > >  > (corresponding pretty well with the time it takes to hit the same spot
- > >  > where it crashed all previous times) I got a lot of nice crash info
- > >  > scrolling by.
- > >  > Actually a *lot* scrolled by, a rough guestimate says some 4-6 (maybe
- > >  > more) screens scrolled by, and since the box locks up solid I couldn't
- > >  > scroll up to get at the initial parts :(  So all I have for you is the
- > >  > final block - hand copied from the screen using pen and paper
- > >  > ...
- > >  > It never makes it to the logs, and as mentioned previously I don't
- > >  > have another machine to capture on via netconsole or serial, so if you
- > >  > have any good ideas as to how to capture it all, then I'm all ears.
- > > 
- > > If only someone did a patch to pause the text output after the first oops..
- > > 
- > > Oh wait! Someone did!
- > > 
- > 
- > umm, it'd be more helpful if you'd actually sent the patch so Jesper could
- > apply it so we can find this bug.
- > 
- > I think I did one of those too.  It required a new kernel boot option
- > `halt-after-oops' or some such.  Sounds like a good idea?
 
-I thought Jesper had made a comment in that thread, so was aware of it.
-Looking at the archive, I see was mistaken.
 
-Jesper: http://lkml.org/lkml/2006/1/4/534
-(unmunged diff is at http://lkml.org/lkml/diff/2006/1/4/534/1)
+2 out of 7 hunks FAILED -- saving rejects to file drivers/md/dm.c.rej
+1 out of 4 hunks FAILED -- saving rejects to file drivers/md/md.c.rej
+2 out of 20 hunks FAILED -- saving rejects to file drivers/pcmcia/rsrc_nonstatic.c.rej
+1 out of 5 hunks FAILED -- saving rejects to file fs/nfs/callback.c.rej
+1 out of 10 hunks FAILED -- saving rejects to file security/selinux/selinuxfs.c.rej
+2 out of 6 hunks FAILED -- saving rejects to file sound/arm/pxa2xx-ac97.c.rej
+6 out of 9 hunks FAILED -- saving rejects to file sound/core/hwdep.c.rej
+1 out of 8 hunks FAILED -- saving rejects to file sound/core/info.c.rej
+5 out of 13 hunks FAILED -- saving rejects to file sound/core/pcm.c.rej
+5 out of 8 hunks FAILED -- saving rejects to file sound/core/rawmidi.c.rej
+1 out of 7 hunks FAILED -- saving rejects to file sound/core/seq/oss/seq_oss.c.rej
+3 out of 10 hunks FAILED -- saving rejects to file sound/core/seq/seq_device.c.rej
+1 out of 8 hunks FAILED -- saving rejects to file sound/core/seq/seq_midi.c.rej
+5 out of 8 hunks FAILED -- saving rejects to file sound/core/sound.c.rej
+6 out of 8 hunks FAILED -- saving rejects to file sound/core/sound_oss.c.rej
+1 out of 22 hunks FAILED -- saving rejects to file sound/core/timer.c.rej
+1 out of 6 hunks FAILED -- saving rejects to file sound/usb/usbaudio.c.rej
 
-		Dave
+I think I'll duck this one for now.
 
+Perhaps it should be split up a bit?

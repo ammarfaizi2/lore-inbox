@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030611AbWAGWKD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030615AbWAGWN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030611AbWAGWKD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 17:10:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030613AbWAGWKC
+	id S1030615AbWAGWN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 17:13:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWAGWN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 17:10:02 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63750 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030611AbWAGWKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 17:10:01 -0500
-Date: Sat, 7 Jan 2006 23:09:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-git2: CONFIGFS_FS shows up as M/y choice, help says "if unsure, say N"
-Message-ID: <20060107220959.GA3774@stusta.de>
-References: <5a4c581d0601061310j3f4eb310o1d68c0b87c278685@mail.gmail.com> <20060106223032.GZ18439@ca-server1.us.oracle.com>
-MIME-Version: 1.0
+	Sat, 7 Jan 2006 17:13:28 -0500
+Received: from spooner.celestial.com ([192.136.111.35]:21138 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S1030615AbWAGWN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 17:13:27 -0500
+Date: Sat, 7 Jan 2006 17:13:24 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
+Message-ID: <20060107221324.GB11606@kurtwerks.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136544309.2940.25.camel@laptopd505.fenrus.org> <20060107190531.GB8990@kurtwerks.com> <1136663088.2936.36.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060106223032.GZ18439@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1136663088.2936.36.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.15krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 02:30:32PM -0800, Joel Becker wrote:
-> On Fri, Jan 06, 2006 at 10:10:13PM +0100, Alessandro Suardi wrote:
-> > If unsure, say N.
-> > ===========
-> > 
-> > I think I'll say M - for now ;)
+On Sat, Jan 07, 2006 at 08:44:48PM +0100, Arjan van de Ven took 25 lines to write:
+> On Sat, 2006-01-07 at 14:05 -0500, Kurt Wall wrote:
 > 
-> 	If you choose something depending on CONFIGFS_FS, you of course
-> don't get the choice of 'N'.  Here's a cleanup also available at
-> http://oss.oracle.com/git/ocfs2-dev.git
+> > 
+> > This patch was applied on top of the previous 6 in the series from
+> > Arjan. NB that it _did_ build with 3.4.4 and -Os enabled. I'm
+> > rechecking, but this is the second time I've encountered this failure.
+> 
+> 
+> Does this fix it?
 
-I don't know whether I already asked this question (if I did it seems 
-I've forgotten the answer...):
+Yes. It compiles and links. I'll have some numbers to post shortly that
+demonstrate the cumulative effect of this patch series, which will
+include this patch because it is necessary to get the kernel to link
+with gcc 4.0.2.
 
-Why is CONFIGFS_FS a user-visible option?
-
-> Joel
->...
-
-cu
-Adrian
-
+Kurt
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+"Honesty is the best policy, but insanity is a better defense"

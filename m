@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752573AbWAGSVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752580AbWAGSWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752573AbWAGSVR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 13:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752577AbWAGSVR
+	id S1752580AbWAGSWp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 13:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752578AbWAGSWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 13:21:17 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39941 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752573AbWAGSVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 13:21:17 -0500
-Date: Sat, 7 Jan 2006 19:21:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] kernel/synchro-test.c: make 5 functions static
-Message-ID: <20060107182115.GR3774@stusta.de>
-References: <20060107052221.61d0b600.akpm@osdl.org>
+	Sat, 7 Jan 2006 13:22:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:10145 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752577AbWAGSWo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 13:22:44 -0500
+Date: Sat, 7 Jan 2006 10:22:40 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Len Brown <len.brown@intel.com>
+cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: git pull on Linux/ACPI release tree
+In-Reply-To: <200601071054.37741.len.brown@intel.com>
+Message-ID: <Pine.LNX.4.64.0601071017280.3169@g5.osdl.org>
+References: <200512010305.43469.len.brown@intel.com> <200512060317.53925.len.brown@intel.com>
+ <200512230042.17903.len.brown@intel.com> <200601071054.37741.len.brown@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060107052221.61d0b600.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 05:22:21AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.15-mm1:
->...
-> +mutex-subsystem-synchro-test-module.patch
->...
->  mutex stuff
->...
-
-This patch makes fives needlessly global functions static.
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Sat, 7 Jan 2006, Len Brown wrote:
+> 
+> please pull this batch of trivial patches from: 
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
 
----
+Len,
 
- kernel/synchro-test.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+I _really_ wish you wouldn't have those automatic merges.
 
---- linux-2.6.15-mm2-full/kernel/synchro-test.c.old	2006-01-07 17:26:30.000000000 +0100
-+++ linux-2.6.15-mm2-full/kernel/synchro-test.c	2006-01-07 17:27:11.000000000 +0100
-@@ -221,7 +221,7 @@
- 		schedule();
- }
- 
--int mutexer(void *arg)
-+static int mutexer(void *arg)
- {
- 	unsigned int N = (unsigned long) arg;
- 
-@@ -243,7 +243,7 @@
- 	complete_and_exit(&mx_comp[N], 0);
- }
- 
--int semaphorer(void *arg)
-+static int semaphorer(void *arg)
- {
- 	unsigned int N = (unsigned long) arg;
- 
-@@ -265,7 +265,7 @@
- 	complete_and_exit(&sm_comp[N], 0);
- }
- 
--int reader(void *arg)
-+static int reader(void *arg)
- {
- 	unsigned int N = (unsigned long) arg;
- 
-@@ -289,7 +289,7 @@
- 	complete_and_exit(&rd_comp[N], 0);
- }
- 
--int writer(void *arg)
-+static int writer(void *arg)
- {
- 	unsigned int N = (unsigned long) arg;
- 
-@@ -313,7 +313,7 @@
- 	complete_and_exit(&wr_comp[N], 0);
- }
- 
--int downgrader(void *arg)
-+static int downgrader(void *arg)
- {
- 	unsigned int N = (unsigned long) arg;
- 
+Why do you do them? They add nothing but ugly and unnecessary history, and 
+in this pull, I think almost exactly half of the commits were just these 
+empty merges.
 
+There's just no point, except to make the history harder to read.
+
+So please stop it. You have some of the ugliest history around, and it's 
+all just because you have some automated process that merges unnecessarily 
+all the time.
+
+If you do merges because you want to _test_ the development with a merged 
+tree, that doesn't have to happen in the development branch itself. Nobody 
+else cares about such a merge except the tester (unless the test fails of 
+course, and you need to fix up the result - at which point it's not an 
+automated merge any more).
+
+		Linus

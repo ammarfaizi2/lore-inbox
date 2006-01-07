@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWAGTLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWAGTLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161011AbWAGTLY (ORCPT <rfc822;willy@w.ods.org>);
+	id S1161010AbWAGTLY (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 7 Jan 2006 14:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWAGTLD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030551AbWAGTIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:11:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:17303 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161007AbWAGTKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 14:10:35 -0500
-Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-In-Reply-To: <20060107190531.GB8990@kurtwerks.com>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
-	 <1136544309.2940.25.camel@laptopd505.fenrus.org>
-	 <20060107190531.GB8990@kurtwerks.com>
-Content-Type: text/plain
-Date: Sat, 07 Jan 2006 20:10:31 +0100
-Message-Id: <1136661031.2936.34.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 7 Jan 2006 14:08:51 -0500
+Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:62609 "HELO
+	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030564AbWAGTI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 14:08:26 -0500
+Message-Id: <20060107172101.271809000.dtor_core@ameritech.net>
+References: <20060107171559.593824000.dtor_core@ameritech.net>
+Date: Sat, 07 Jan 2006 12:16:14 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: [PATCH 15/24] logips2pp: add signature of MouseMan Wheel Mouse (87)
+Content-Disposition: inline; filename=logips2pp-add-signature-87.patch
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-07 at 14:05 -0500, Kurt Wall wrote:
-> On Fri, Jan 06, 2006 at 11:45:09AM +0100, Arjan van de Ven took 0 lines to write:
-> > Subject: when CONFIG_CC_OPTIMIZE_FOR_SIZE, allow gcc4 to control inlining
-> > From: Ingo Molnar <mingo@elte.hu>
-> > 
-> > if optimizing for size (CONFIG_CC_OPTIMIZE_FOR_SIZE), allow gcc4 compilers
-> > to decide what to inline and what not - instead of the kernel forcing gcc
-> > to inline all the time. This requires several places that require to be 
-> > inlined to be marked as such, previous patches in this series do that.
-> > This is probably the most flame-worthy patch of the series.
-> 
-> Hmm. This failed when using -Os while linking vmlinux (gcc 4.0.2):
+Input: logips2pp - add signature of MouseMan Wheel Mouse (87)
 
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-hmm can you change it to be an __always_inline? it is already that on
-x86...
+ drivers/input/mouse/logips2pp.c |    1 +
+ 1 files changed, 1 insertion(+)
 
+Index: work/drivers/input/mouse/logips2pp.c
+===================================================================
+--- work.orig/drivers/input/mouse/logips2pp.c
++++ work/drivers/input/mouse/logips2pp.c
+@@ -228,6 +228,7 @@ static struct ps2pp_info *get_model_info
+ 		{ 83,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+ 		{ 85,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+ 		{ 86,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
++		{ 87,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+ 		{ 88,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+ 		{ 96,	0,			0 },
+ 		{ 97,	PS2PP_KIND_TP3,		PS2PP_WHEEL | PS2PP_HWHEEL },
 

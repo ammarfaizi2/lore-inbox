@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030606AbWAGWAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030607AbWAGWD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030606AbWAGWAP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 17:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbWAGWAP
+	id S1030607AbWAGWD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 17:03:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbWAGWD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 17:00:15 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:37519 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030606AbWAGWAN
+	Sat, 7 Jan 2006 17:03:28 -0500
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:32015 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1030607AbWAGWD1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 17:00:13 -0500
-Date: Sat, 7 Jan 2006 14:00:05 -0800
-From: "Kurtis D. Rader" <kdrader@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Dave Jones <davej@redhat.com>, Bernd Eckenfels <be-news06@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: oops pauser. / boot_delayer
-Message-ID: <20060107220005.GB13433@us.ibm.com>
-References: <20060104221023.10249eb3.rdunlap@xenotime.net> <E1EuPZg-0008Kw-00@calista.inka.de> <20060105111105.GK20809@redhat.com> <20060107214439.GA13433@us.ibm.com> <1136670488.2936.44.camel@laptopd505.fenrus.org>
+	Sat, 7 Jan 2006 17:03:27 -0500
+Date: Sat, 7 Jan 2006 23:03:28 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Subject: [PATCH] vr41xx: section tags fix
+Message-Id: <20060107230328.1ce0da37.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136670488.2936.44.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-07 22:48:08, Arjan van de Ven wrote:
-> On Sat, 2006-01-07 at 13:44 -0800, Kurtis D. Rader wrote:
-> > 
-> > Another very common situation is a system which fails to boot due to
-> > failures to find the root filesystem. This can happen because of device name
-> > slippage, root disk not being found, the proper HBA driver isn't present in
-> 
-> mount by label fixes some of that but not all
+Hi Andrew,
 
-The "not all" case is important. Especially since the potential causes
-of being unable to find the root filesystem keep increasing with each
-new capability.  And it isn't just failures involving finding the rootfs
-that can be problematic to debug without more context than is on the
-final screen image.
+Can you please pick this patch for -mm? I sent it to Yoichi Yuasa one
+month ago but didn't get any answer. Thanks.
 
-> > the initrd image, etc. The customer calls us and reports the last thing they
-> > see on the screen:
-> 
-> fwiw it would make sense (at least for distros) to make this print a
-> more helpful text about potential causes etc, rather than just making
-> people say "the kernel paniced".
+Content-Disposition: inline; filename=vr41xx-section-tags-fix.patch
 
-That might be useful for people who don't have support contracts. It
-wouldn't help customer support teams like I'm a member of. We know what
-those potential reasons are. The challenge is having enough context to
-quickly determine which possible explanation accounts for the failure.
-Ideally every customer would have a serial console configured. But a)
-most customers don't/won't/can't configure one and b) on many systems a
-serial console is not available.
+module_init functions must be tagged __init rather than __devinit;
+likewise, module_exit functions must be tagged __exit rather than
+__devexit.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/char/vr41xx_giu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.15-rc5.orig/drivers/char/vr41xx_giu.c	2005-11-12 15:49:50.000000000 +0100
++++ linux-2.6.15-rc5/drivers/char/vr41xx_giu.c	2005-12-11 17:12:58.000000000 +0100
+@@ -718,7 +718,7 @@
+ 	},
+ };
+ 
+-static int __devinit vr41xx_giu_init(void)
++static int __init vr41xx_giu_init(void)
+ {
+ 	int retval;
+ 
+@@ -733,7 +733,7 @@
+ 	return retval;
+ }
+ 
+-static void __devexit vr41xx_giu_exit(void)
++static void __exit vr41xx_giu_exit(void)
+ {
+ 	platform_driver_unregister(&giu_device_driver);
+ 
+
+
+-- 
+Jean Delvare

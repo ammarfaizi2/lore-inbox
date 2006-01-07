@@ -1,113 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbWAGXBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWAGXPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161046AbWAGXBt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 18:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWAGXBt
+	id S1161045AbWAGXPc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 18:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWAGXPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 18:01:49 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:25873 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161046AbWAGXBs (ORCPT
+	Sat, 7 Jan 2006 18:15:32 -0500
+Received: from tornado.reub.net ([202.89.145.182]:33769 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1161045AbWAGXPc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 18:01:48 -0500
-Date: Sun, 8 Jan 2006 00:01:30 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Cc: walt <wa1ter@myrealbox.com>, Git Mailing List <git@vger.kernel.org>
-Subject: Re: Does git belong in root's $PATH?
-Message-ID: <20060107230130.GA8335@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0601070838470.6317@x2.ybpnyarg> <Pine.LNX.4.64.0601071023250.3169@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601071023250.3169@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+	Sat, 7 Jan 2006 18:15:32 -0500
+Message-ID: <43C04B93.9020503@reub.net>
+Date: Sun, 08 Jan 2006 12:15:31 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060107)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: 2.6.15-mm2
+References: <20060107052221.61d0b600.akpm@osdl.org>	<43BFD8C1.9030404@reub.net> <20060107133103.530eb889.akpm@osdl.org> <43C03B4A.1060501@reub.net>
+In-Reply-To: <43C03B4A.1060501@reub.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 10:31:52AM -0800, Linus Torvalds wrote:
+Replying to myself is not a good thing but:
+
+On 8/01/2006 11:06 a.m., Reuben Farrelly wrote:
 > 
 > 
-> On Sat, 7 Jan 2006, walt wrote:
-> >
-> > When updated my kernel this morning, the same way I've been doing
-> > it for many months, I noticed that the -gxxxxxxx localversion
-> > string was missing from the new kernel's name.
-> > 
-> > I finally figured out that this happened because /usr/local/bin
-> > is not in my root's $PATH, and the setlocalversion script depends
-> > on git.  (The only thing I do as root is 'make install').
+> On 8/01/2006 10:31 a.m., Andrew Morton wrote:
+>> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>>> ...
+>>> QLogic Fibre Channel HBA Driver
+>>> ahci: probe of 0000:00:1f.2 failed with error -12
+>>
+>> It's odd that the ahci driver returned -EBUSY.  Maybe this is due to "we
+>> have legacy mode, but all ports are unavailable" in ata_pci_init_one().
 > 
-> Ok, sounds like a build buglet to me. If you've done a "make" as a regular 
-> user, and just do a "make install" as root, I'd argue that the "make 
-> install" should do as little as humanly possible, and literally just 
-> install the kernel. If it starts changing the version, that sounds a bit 
-> fishy.
-> 
-> Sam, anything we can do?
-Today kbuild uses same method to build KERNELRELEASE no matter what
-target is used, and I recently committed a change that used git tools as
-replacement for direct manipulation with .git/*
-What I did not realise was that we now require git during make install
-time - which is obviously plain wrong.
+> I've now removed this driver from my .config via menuconfig, I certainly 
+> don't have the hardware and have no idea whatsoever how it came to be 
+> built in. Although I guess it shouldn't be blowing up even if that is 
+> the case?
 
-I will try to look into a cleaner solution tomorrow where KERNELRELEASE
-is fetched somewhere else during make install time.
+I thought I'd clear up that I only removed the QLogic driver, and not AHCI ;-)
 
-> 
-> That said:
-> 
-> > I suppose I'm asking a philosophical question here:  do you
-> > guys install git where root can find it (as a system tool)?
-> 
-> I don't, but I don't use "make install" anyway, I just do "make 
-> modules_install". I install the kernel by hand, I always have.
-> 
-> Of course, that's partly because I've always felt that "make install" does 
-> too much (I think "make modules_install" is better - it really only 
-> installs the already-built modules).
-The big difference here is that "make modules_install" is part of
-kbuild, whereas "make install" almost just call installkernel which is
-distribution specific - and the distributions does all sort of stuff in
-installkernel :-(
-
-> 
-> Maybe it would be best to remove the "vmlinux" dependency from "make 
-> install" (so that "make install" will do exactly that: just install).  I 
-> think all the documentation already tells you to do a "make" and then a 
-> "make install".
-
-I had a short chat with David Miller about something similar.
-What I really liked to do was to tell user if vmlinux needed an update.
-But the implmentation of kbuild does make this almost impossible - I
-have at least not seen how to do it.
-
-When I during early 2.6.12 removed the dependency on vmlinux from
-the install target people were complaining that there scripts broke and
-the solution that was implmented was a new target:
-"make kernel_install" and "make install" got back the vmlinux
-dependency.
-
-Only difference between the two are that "make kernel_install" does NOT
-have vmlinux as prerequisite. This was btw only done for i386 and
-the only other architecture that have kernel_install is parisc with a
-vmlinux dependency.
-
-
-So no, I'm very unlikely to remove the vmlinux dependency from the
-"make install" target - it results in too many suprises.
-
-> 
-> The other make targets really _are_ different: "make fdimage" depends on 
-> vmlinux, but that's because it literally just builds the image. "make 
-> install" is special.
-> 
-> Sam, what say you? I forget what the kbuild mailing list is, but maybe 
-> you can forward this suggestion there..
-
-These days it is named linux-kernel@vger.kernel.org ;-)
-kbuild-devel@lists.sourceforge.net is seldom used though I still monitor
-it. Talked with mec about discontinue it but he liked to keep it
-araound. He is btw still moderator on that list filtering away all spam.
-
-	Sam
+reuben

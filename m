@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030506AbWAGRX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030515AbWAGRnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030506AbWAGRX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 12:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbWAGRX6
+	id S1030515AbWAGRnW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 12:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030517AbWAGRnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 12:23:58 -0500
-Received: from mail.gmx.net ([213.165.64.21]:38291 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030506AbWAGRX5 (ORCPT
+	Sat, 7 Jan 2006 12:43:21 -0500
+Received: from wasp.net.au ([203.190.192.17]:42371 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S1030515AbWAGRnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 12:23:57 -0500
-X-Authenticated: #24128601
-Date: Sat, 7 Jan 2006 18:24:18 +0100
-From: Sebastian <sebastian_ml@gmx.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 7 Jan 2006 12:43:21 -0500
+Message-ID: <43BFFE08.70808@wasp.net.au>
+Date: Sat, 07 Jan 2006 21:44:40 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Sebastian <sebastian_ml@gmx.net>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Message-ID: <20060107172418.GA8855@section_eight.mops.rwth-aachen.de>
-References: <20060106232522.GA31621@section_eight.mops.rwth-aachen.de> <5bdc1c8b0601061530l3a8f4378o3b9cb96c187a6049@mail.gmail.com> <20060107103901.GA17833@section_eight.mops.rwth-aachen.de> <20060107105649.GT3389@suse.de> <20060107112443.GA18749@section_eight.mops.rwth-aachen.de> <20060107115340.GW3389@suse.de> <20060107115449.GB20748@section_eight.mops.rwth-aachen.de> <20060107115947.GY3389@suse.de> <20060107140843.GA23699@section_eight.mops.rwth-aachen.de> <20060107142201.GC3389@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
-Content-Disposition: inline
-In-Reply-To: <20060107142201.GC3389@suse.de>
-X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+References: <20060106232522.GA31621@section_eight.mops.rwth-aachen.de> <5bdc1c8b0601061530l3a8f4378o3b9cb96c187a6049@mail.gmail.com> <20060107103901.GA17833@section_eight.mops.rwth-aachen.de> <20060107105649.GT3389@suse.de> <20060107112443.GA18749@section_eight.mops.rwth-aachen.de> <20060107115340.GW3389@suse.de> <20060107115449.GB20748@section_eight.mops.rwth-aachen.de> <20060107115947.GY3389@suse.de> <20060107140843.GA23699@section_eight.mops.rwth-aachen.de> <20060107142201.GC3389@suse.de> <20060107160622.GA25918@section_eight.mops.rwth-aachen.de>
+In-Reply-To: <20060107160622.GA25918@section_eight.mops.rwth-aachen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sebastian wrote:
+> 
+> Yay, problem solved!
+> 
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-You can find the ebuild at
-https://bugs.gentoo.org/show_bug.cgi?id=3D118189 in case you're interested
-:)
+> 
+> P.S.: I already reripped the test disc using ide-cd and the
+> SG_IO-patched cdparanoia and the results are perfect. OMG, I bought Win
+> XP Home 2 months ago because of this (so I can use Exact Audio Copy). I
+> guess I can remove XP from my drive now and sell it to some wretched guy :)
+> Harhar.
+> 
+> S.
 
-Sebastian
---=20
-"When the going gets weird, the weird turn pro." (HST)
+Yes, but now we need to find out why one interface fails while another works.. I have the same 
+problem here using cdrdao when ripping entire disk images. I'd love to fix the real issue rather 
+than work around it by having userspace use another interface.
+I would have thought that both interfaces should return the same data..
 
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDv/lCTWouIrjrWo4RAuP/AJ9eZB4tiSwG/gJkjVtDXZhsfgIZrQCeLOQO
-jjKGmBB3XzI6KVPLEhYMv0g=
-=nxot
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
-
+Brad
+-- 
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

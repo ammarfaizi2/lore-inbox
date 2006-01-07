@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbWAGTWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWAGTZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbWAGTWU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 14:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWAGTWT
+	id S1161009AbWAGTZF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 14:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161014AbWAGTZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:22:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7684 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161007AbWAGTWS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 14:22:18 -0500
-Date: Fri, 6 Jan 2006 04:24:22 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Adam Belay <ambx1@neo.rr.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys	interface
-Message-ID: <20060106042422.GB2496@ucw.cz>
-References: <20051227213439.GA1884@elf.ucw.cz> <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com> <20051227220533.GA1914@elf.ucw.cz> <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net> <20060104213405.GC1761@elf.ucw.cz> <20060107083602.GE3184@neo.rr.com> <20060107102554.GC9225@elf.ucw.cz> <20060107124544.GA3972@neo.rr.com>
+	Sat, 7 Jan 2006 14:25:05 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:32748 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161009AbWAGTZC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 14:25:02 -0500
+Date: Sat, 7 Jan 2006 11:24:58 -0800
+From: "Kurtis D. Rader" <kdrader@us.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Platform device matching, & weird strncmp usage
+Message-ID: <20060107192458.GA12409@us.ibm.com>
+References: <1136527179.4840.120.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060107124544.GA3972@neo.rr.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1136527179.4840.120.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > 1.) most sound cards have more than two states. (once again latency over
-> > > power savings trade offs)
-> > 
-> > What is the latency in typical "most sound card" case?
+On Fri, 2006-01-06 16:59:39, Benjamin Herrenschmidt wrote:
+> In 2.6.15, platform device matching works according to this comment in
+> the code, or rather are supposed to:
 > 
-> ACPI requires within 100ms for D1 and D2.  D3 can be longer.
-
-Spec is useless here. 1usec is <100msec. Do you know any
-soundcard that takes >10msec from D3?
+>  *	Platform device IDs are assumed to be encoded like this:
+>  *	"<name><instance>", where <name> is a short description of the
+>  *	type of device, like "pci" or "floppy", and <instance> is the
+>  *	enumerated instance of the device, like '0' or '42'.
 > 
-> > > 4.) IDE hard drives and other storage media have "sleep", "suspend",
-> > > etc.
-> > 
-> > Yep; but spindown takes 5 seconds, so if you need to reset ide bus or
-> > not to get it back is driver detail. Plus notice how power consuption
-> > in sleep and suspend is almost same; motor not running is big deal
-> > there. Ouch and hdparm already handles these.
+> However, looking a few lines below, I see the actual implemetation:
 > 
-> 5 seconds is more of an upper bound.  My laptop hardrive can do spindown
-> and spinup in around 1 second.  hdparm doesn't handle the deeper suspend
-> case (it can enter but not recover).  Kernel level support is required.
-
-...but this has very little to do with framework we are trying to
-build.
-(and no support is needed for hdparm -y).
-
-> > > 6.) many video cards implement D1 and D2 as you've already seen.  This
-> > > is often more a matter of "we only know how to restore from such and such
-> > > states"
-> > 
-> > Excatly, so "on"/"off" is enough for them.
+> static int platform_match(struct device * dev, struct device_driver * drv)
+> {
+> 	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
 > 
-> Not really.  The ACPI spec suggests latency requirements for each state.
-> If we had better drivers, we might enter a lower latency video card
-> state when the screen is blanked that's not quite an "off" state.
+> 	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
+> }
+> 
+> As far as I know, strncmp() is _NOT_ supposed to return 0 if one string
+> is shorter than the other and they match until that point. Thus the
+> above will never match unless the <name> portion of pdev->name is
+> exactly of size BUS_ID_SIZE which is obviously not the case...
+> 
+> Did I miss something or do we expect a "special" semantic for strncmp in
+> the kernel ?
 
-Backlight takes ages, anyway.
+I can't speak to the correctness of that code but your understanding of
+strncmp() is incorrect. From "GNU C Library Application Fundamentals":
 
+    This function is the [sic] similar to strcmp, except that no more
+    than size wide characters are compared. In other words, if the two
+    strings are the same in their first size wide characters, the return
+    value is zero.
 
--- 
-Thanks, Sharp!
+And this has been may experience for the past 20 years and is confirmed by
+this trivial program which prints zero in both cases:
+
+#include <string.h>
+#include <stdio.h>
+int main() {
+    printf("%d\n", strncmp("abc","abcd",3));
+    printf("%d\n", strncmp("abcd","abc",3));
+}

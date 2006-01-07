@@ -1,73 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWAGAip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWAGAk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWAGAip (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 19:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWAGAip
+	id S1030254AbWAGAk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 19:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWAGAk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 19:38:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8169 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030237AbWAGAio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 19:38:44 -0500
-Date: Fri, 6 Jan 2006 16:40:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, davej@codemonkey.org.uk, airlied@linux.ie
-Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
-Message-Id: <20060106164012.041e14b2.akpm@osdl.org>
-In-Reply-To: <20060107002833.GB9402@redhat.com>
-References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com>
-	<20060105162714.6ad6d374.akpm@osdl.org>
-	<9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com>
-	<20060105165946.1768f3d5.akpm@osdl.org>
-	<9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com>
-	<20060107002833.GB9402@redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 Jan 2006 19:40:56 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:23233 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S1030245AbWAGAkz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 19:40:55 -0500
+In-Reply-To: <Pine.LNX.4.61.0601061938390.10811@tm8103.perex-int.cz>
+References: <20060103215654.GH3831@stusta.de> <9a8748490601031411p17d4417fyffbfee00ca85ac82@mail.gmail.com> <s5hpsn8md1j.wl%tiwai@suse.de> <Pine.LNX.4.61.0601041545580.5750@yvahk01.tjqt.qr> <F082489C-B664-472C-8215-BE05875EAF7D@dalecki.de> <Pine.LNX.4.61.0601051154500.21555@yvahk01.tjqt.qr> <0D76E9E1-7FB0-41FD-8FAC-E4B3C6E9C902@dalecki.de> <1136486021.31583.26.camel@mindpipe> <E09E5A76-7743-4E0E-9DF6-6FB4045AA3CF@dalecki.de> <20060106034026.c37c1ed9.diegocg@gmail.com> <20060106145723.GA73361@dspnet.fr.eu.org> <Pine.LNX.4.61.0601061938390.10811@tm8103.perex-int.cz>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <1CE30648-5101-4A2D-A240-64381770A9A6@dalecki.de>
+Cc: Olivier Galibert <galibert@pobox.com>, Diego Calleja <diegocg@gmail.com>,
+       rlrevell@joe-job.com, jengelh@linux01.gwdg.de,
+       Takashi Iwai <tiwai@suse.de>, jesper.juhl@gmail.com, bunk@stusta.de,
+       zdzichu@irc.pl, s0348365@sms.ed.ac.uk, ak@suse.de,
+       ALSA development <alsa-devel@alsa-project.org>,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       linux@thorsten-knabe.de, zwane@commfireservices.com, zaitcev@yahoo.com,
+       LKML <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Sat, 7 Jan 2006 01:40:27 +0100
+To: Jaroslav Kysela <perex@suse.cz>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
+
+On 2006-01-06, at 21:26, Jaroslav Kysela wrote:
 >
-> On Sat, Jan 07, 2006 at 01:25:22AM +0100, Jesper Juhl wrote:
->  > On 1/6/06, Andrew Morton <akpm@osdl.org> wrote:
->  > > Jesper Juhl <jesper.juhl@gmail.com> wrote:
->  > >
->  > > >  Reverted that one patch, then rebuild/reinstalled the kernel
->  > > >  (with the same .config) and booted it - no change. It still locks up
->  > > >  in the exact same spot.
->  > > >  X starts & runs fine (sort of) since I can play around at the kdm
->  > > >  login screen all I want, it's only once I actually login and KDE
->  > > >  proper starts that it locks up.
->  > >
->  > > Oh bugger.  No serial console/netconsole or such?
->  > >
->  > > Or are you able log in and then quickly do the alt-ctrl-F1 thing, see if we
->  > > get an oops?
->  > >
->  > I switched to tty1 right after logging in, and after a few seconds
->  > (corresponding pretty well with the time it takes to hit the same spot
->  > where it crashed all previous times) I got a lot of nice crash info
->  > scrolling by.
->  > Actually a *lot* scrolled by, a rough guestimate says some 4-6 (maybe
->  > more) screens scrolled by, and since the box locks up solid I couldn't
->  > scroll up to get at the initial parts :(  So all I have for you is the
->  > final block - hand copied from the screen using pen and paper
->  > ...
->  > It never makes it to the logs, and as mentioned previously I don't
->  > have another machine to capture on via netconsole or serial, so if you
->  > have any good ideas as to how to capture it all, then I'm all ears.
-> 
-> If only someone did a patch to pause the text output after the first oops..
-> 
-> Oh wait! Someone did!
-> 
+> I got the point, but the audio is very specific that it requires  
+> realtime
+> scheduling. Even graphics is not so tied with realtime, because a
+> scheduling gap does not end with error or very ugly misbehaviour  
+> (pops)
+> like in audio.
 
-umm, it'd be more helpful if you'd actually sent the patch so Jesper could
-apply it so we can find this bug.
+Nonsense. You just got too used to utterly bad behavior imposed by  
+the inherently defective
+X11 graphics system. Like stuttering mouse movements. Like race  
+conditions between popup menus
+and background menus and so on and so forth... Hick-ups when suddenly  
+the system starts to do some paging...
+More staggering examples simply don't occur that obviously in praxis  
+because the interface
+designers refrain from using some effects like subtly animated icon  
+change and menu animations
+redrawing. But it's by no way an argument which could be used to  
+justify the deficiency of
+some audio system. And BTW. A proper user interface system requires  
+synchronization between
+audio and video.
 
-I think I did one of those too.  It required a new kernel boot option
-`halt-after-oops' or some such.  Sounds like a good idea?
+So there you are - all over the pill - soft real time requirements.  
+Actually not that soft at all.
+It always surprises me how efficient and demanding the perceptive  
+system of a hunter and
+gatherer is, which only just recently got the sudden idea that it may  
+be nice to spend
+his time in front of an engine generating animated images.
+
+>> At least OSS, with all its flaws, is a documented kernel interface.
+>> You can static link a oss-using program, whether it uses it directly
+>> or through interfaces like sdl-audio, and it will just work.
+>
+> Please, see your words. You're simply anarchistic. You replaced
+> flexibility of dynamic library with a possibility to have static  
+> binary.
+
+> Also note, that if OSS had the API in userspace from the first days,
+> the emulation or redirection of this API to another API or user space
+> drivers wouldn't be so much complicated nowadays. Bummer.
+
+You simply don't get it. On unix like systems the definitive  
+interface level is not
+a library. It's the system call. Libraries can be helpful as a means  
+to make some common
+actions a tad bit easier. However even so simple things like state- 
+full behavior there
+is a complete no go. Get over it. Libraries are just too affine to
+compiler releases particular programming languages and many other  
+side conditions.
+Do your homework and take a serious look at other operating systems  
+to see how "fine" the
+APIs defined by DLLs (ups) are. As an exercise ask yourself why on  
+earth it takes
+usually about 2 or 4 times longer to write a windows driver.

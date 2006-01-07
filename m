@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030617AbWAGWPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWAGWZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030617AbWAGWPS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 17:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030620AbWAGWPR
+	id S1161026AbWAGWZa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 17:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbWAGWZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 17:15:17 -0500
-Received: from gate.crashing.org ([63.228.1.57]:2709 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030617AbWAGWPP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 17:15:15 -0500
-Subject: Re: request for opinion on synaptics, adb and powerpc
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Peter Osterlund <petero2@telia.com>,
-       Luca Bigliardi <shammash@artha.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060107184024.GA11183@corona.suse.cz>
-References: <20060106231301.GG4732@kamaji.shammash.lan>
-	 <1136608396.4840.206.camel@localhost.localdomain>
-	 <20060107082523.GA6276@corona.ucw.cz>
-	 <200601071104.53188.dtor_core@ameritech.net>
-	 <20060107184024.GA11183@corona.suse.cz>
-Content-Type: text/plain
-Date: Sun, 08 Jan 2006 09:15:47 +1100
-Message-Id: <1136672147.30123.13.camel@localhost.localdomain>
+	Sat, 7 Jan 2006 17:25:30 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:59067 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1161026AbWAGWZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 17:25:30 -0500
+Date: Sat, 7 Jan 2006 18:17:18 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Rob Landley <rob@landley.net>, user-mode-linux-devel@lists.sourceforge.net,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [PATCH 4/9] UML - Better diagnostics for broken configs
+Message-ID: <20060107231718.GA12226@ccure.user-mode-linux.org>
+References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org> <20060105161436.GA4426@ccure.user-mode-linux.org> <Pine.LNX.4.61.0601052258350.27662@yvahk01.tjqt.qr> <200601061801.17497.rob@landley.net> <20060107023713.GA13285@ccure.user-mode-linux.org> <Pine.LNX.4.61.0601071612030.3578@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0601071612030.3578@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 07, 2006 at 04:12:50PM +0100, Jan Engelhardt wrote:
+> So there is no way to get UML compile on non-Linux.
 
-> I know, but this will not be possible if the Synaptics pad is connected
-> over ADB, which is the case I believe we are discussing here. 
-> 
-> On the other hand, if it's just PS/2 over ADB, a serio driver instead of
-> an input driver would make more sense.
+Umm, no.  We're describing how it works on Linux.  That doesn't mean it
+only can work on Linux.
 
-No, it's ADB protocol down to the communication with the PMU.
+The libc-dependent code movement which has been going into mainline is part
+of making UML use VT (Intel hardware virtualization support), where the
+runtime environment is different enough that it makes sense to handle this
+as a port to a new OS.
 
-Ben.
+There was also a nearly complete Windows port a few years ago which has
+bitrotted since.
 
-
+				Jeff

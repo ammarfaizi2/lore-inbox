@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbWAGKin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbWAGKxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932711AbWAGKin (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 05:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWAGKin
+	id S1030404AbWAGKxb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 05:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWAGKxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 05:38:43 -0500
-Received: from mail.gmx.de ([213.165.64.21]:63963 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932711AbWAGKin (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 05:38:43 -0500
-X-Authenticated: #24128601
-Date: Sat, 7 Jan 2006 11:39:01 +0100
-From: Sebastian <sebastian_ml@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Message-ID: <20060107103901.GA17833@section_eight.mops.rwth-aachen.de>
-References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <43BE24F7.6070901@triplehelix.org> <20060106232522.GA31621@section_eight.mops.rwth-aachen.de> <5bdc1c8b0601061530l3a8f4378o3b9cb96c187a6049@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+	Sat, 7 Jan 2006 05:53:31 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16146 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030404AbWAGKxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 05:53:31 -0500
+Date: Sat, 7 Jan 2006 11:53:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Message-ID: <20060107105329.GG3774@stusta.de>
+References: <20060106132749.GC12131@stusta.de> <20060107015143.65477920.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5bdc1c8b0601061530l3a8f4378o3b9cb96c187a6049@mail.gmail.com>
-X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
+In-Reply-To: <20060107015143.65477920.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 07, 2006 at 01:51:43AM -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
+> >  on i386.
+> 
+> This spews screenfuls of crap at me.  Crap which nobody is going to fix.
+> 
+> Sorry, nope.
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is the usual chicken and egg problem:
 
-Hi everybody,
+Without a warning noone will fix the code.
 
-On Fr, Jan 06, 2006 at 03:30:47 -0800, Mark Knecht wrote:
-> On 1/6/06, Sebastian <sebastian_ml@gmx.net> wrote:
-> > Hi all!
-> > On Fri, Jan 06, 2006 at 12:06:15AM -0800, Joshua Kwan wrote:
-> > > Hi Sebastian,
-> > >
-> > > On 01/03/2006 02:20 PM, Sebastian wrote:
-> > > > The second series was ripped with deprecated ide-scsi emulation and=
- yielded the
-> > > > same results as EAC.
-> > >
-> > > What were you using? cdparanoia? cdda2wav? (Are there actually that m=
-any
-> > > other options on Linux?)
-> > I use cdparanoia.
->=20
-> Try  cdparanoia -Bvz
->=20
-> This will cause the rip to be extremely careful and make sure
-> everything is exactly right. It works well for me and was recommended
-> by someone I trust. I hop it works for you..
->=20
-> Cheers,
-> Mark
->=20
-I used cdparanoia -BzX -O48 for every rip.
-Just to be clear, I'm not writing to this list because I have problems
-with an application. :) Rather I like to know where to fix this problem, in
-kernelland or userspace, like, should I start getting into cdparanoia or
-reading the o'Reilly book about kernel drivers?
+And yes, some of the drivers affected seem to be maintained (and 
+49 warnings come from OSS drivers with ALSA replacements another patch 
+I sent removes from the kernel).
 
+They might not show up in your all*config builds that set SMP=y, but the 
+warnings with my patch aren't worse than the one's BROKEN_ON_SMP drivers 
+are spitting.
 
-Thanks
+cu
+Adrian
 
-Sebastian
---=20
-"When the going gets weird, the weird turn pro." (HST)
+-- 
 
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDv5pFTWouIrjrWo4RAsmkAJ92Xb6yLcmOu0gesD+X1PLdvjrHTACdHIPg
-zN5f955IYLNHW1KkVXSybuM=
-=Vbz5
------END PGP SIGNATURE-----
-
---r5Pyd7+fXNt84Ff3--
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

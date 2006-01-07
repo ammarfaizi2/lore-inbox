@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbWAGD4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWAGEDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030331AbWAGD4G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 22:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbWAGD4F
+	id S932279AbWAGEDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 23:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbWAGEDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 22:56:05 -0500
-Received: from rtr.ca ([64.26.128.89]:7560 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1030331AbWAGD4E (ORCPT
+	Fri, 6 Jan 2006 23:03:25 -0500
+Received: from ns2.suse.de ([195.135.220.15]:59818 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932279AbWAGEDY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 22:56:04 -0500
-Message-ID: <43BF3BB5.6060201@rtr.ca>
-Date: Fri, 06 Jan 2006 22:55:33 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Fri, 6 Jan 2006 23:03:24 -0500
+From: Andi Kleen <ak@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] use local_t for page statistics
+Date: Sat, 7 Jan 2006 05:03:13 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, Benjamin LaHaise <bcrl@kvack.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20060106215332.GH8979@kvack.org> <200601070425.24810.ak@suse.de> <43BF3A06.10502@yahoo.com.au>
+In-Reply-To: <43BF3A06.10502@yahoo.com.au>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove drivers/net/tulip/xircom_tulip_cb.c
-References: <20060106192123.GB12131@stusta.de> <1136575714.2940.73.camel@laptopd505.fenrus.org>
-In-Reply-To: <1136575714.2940.73.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601070503.14336.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Fri, 2006-01-06 at 20:21 +0100, Adrian Bunk wrote:
+On Saturday 07 January 2006 04:48, Nick Piggin wrote:
+
 > 
->>This patch removes the obsolete drivers/net/tulip/xircom_tulip_cb.c 
->>driver.
-..
-> NACK... xircom_cb (while written by me and thus purrrrrfect, doesn't
-> work for everyone). This chip is so f*cked up that it may not even be
-> possible to get all the variants working with only 1 driver ;-(
+> At a 3x cache footprint cost? (and probably more than 3x for icache, though
+> I haven't checked) And I think hardware trends are against us. (Also, does
+> it have race issues with nested interrupts that Andrew noticed?)
 
-Agreed (regretably).
+Well the alternative would be to just let them turn off interrupts.
+If that's cheap for them that's fine too. And would be equivalent
+to what the current high level code does.
 
-The cardbus Xircom 10/100 + (real)modem cards only ever worked
-for me using the xircom_tulip_cb driver.  Best to keep both drivers.
+If you worry about icache footprint it can be even done out of line.
 
-Sadly, I recently sold my ancient notebook, and the card went with it.
-
--ml
+-Andi

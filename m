@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWAGEZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWAGEcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWAGEZy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 23:25:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWAGEZy
+	id S932313AbWAGEcu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 23:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbWAGEcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 23:25:54 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:36742 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S932288AbWAGEZx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 23:25:53 -0500
-Date: Sat, 7 Jan 2006 05:25:47 +0100
-From: Petr Vandrovec <petr@vmware.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Pass proper device from BusLogic to SCSI layer
-Message-ID: <20060107042547.GA4255@vana.vc.cvut.cz>
-MIME-Version: 1.0
+	Fri, 6 Jan 2006 23:32:50 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:3766 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932313AbWAGEct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 23:32:49 -0500
+Date: Sat, 7 Jan 2006 00:22:46 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] UML - Prevent MODE_SKAS=n and MODE_TT=n
+Message-ID: <20060107052246.GA15654@ccure.user-mode-linux.org>
+References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org> <20060104152433.7304ec75.akpm@osdl.org> <20060105022129.GA13183@ccure.user-mode-linux.org> <20060106124438.GB12131@stusta.de> <20060106163948.GA4340@ccure.user-mode-linux.org> <20060106161831.GH12131@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060106161831.GH12131@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-  
-While trying to get SUSE's SLES9 working on system with more than 4GB
-we've noticed that SCSI layer happilly passes addresses over 4GB to
-the buslogic driver, which is quite a big problem as buslogic can
-generate only 32bit busmastering cycles.
+On Fri, Jan 06, 2006 at 05:18:31PM +0100, Adrian Bunk wrote:
+> That is already implemented in my patch:
+> 
+> MODE_TT=n forces MODE_SKAS=y.
+> MODE_TT=y allows any setting of MODE_SKAS.
+> 
+> MODE_SKAS=n is therefore impossible if MODE_TT=n.
 
-Fortunately in the current kernels this problem does not exist anymore
-as SCSI layer now assumes 4GB capable device by default, but it is
-still good idea to pass correct device structure to the SCSI layer.
-If nothing else, /sys/block/sda/device now points to
-/sys/devices/pci0000:00/0000:00:10.0/host0/... instead of
-/sys/devices/platform/host0/... like it did in the past.
+Right you are.
 
-Change does nothing for ISA based BusLogic adapters, they'll still
-end under platform (and they are probably broken for long time as
-I do not see anything forcing ISA 16MB limit for them).
-
-					Thanks,
-						Petr Vandrovec
-
-
-diff -urdN linux/drivers/scsi/BusLogic.c linux/drivers/scsi/BusLogic.c
---- linux/drivers/scsi/BusLogic.c	2006-01-01 16:22:50.000000000 +0100
-+++ linux/drivers/scsi/BusLogic.c	2006-01-01 16:34:43.000000000 +0100
-@@ -2216,6 +2216,7 @@
- 		HostAdapter->PCI_Address = ProbeInfo->PCI_Address;
- 		HostAdapter->Bus = ProbeInfo->Bus;
- 		HostAdapter->Device = ProbeInfo->Device;
-+		HostAdapter->PCI_Device = ProbeInfo->PCI_Device;
- 		HostAdapter->IRQ_Channel = ProbeInfo->IRQ_Channel;
- 		HostAdapter->AddressCount = BusLogic_HostAdapterAddressCount[HostAdapter->HostAdapterType];
- 		/*
-@@ -2296,7 +2297,7 @@
- 				scsi_host_put(Host);
- 			} else {
- 				BusLogic_InitializeHostStructure(HostAdapter, Host);
--				scsi_add_host(Host, NULL);
-+				scsi_add_host(Host, HostAdapter->PCI_Device ? &HostAdapter->PCI_Device->dev : NULL);
- 				scsi_scan_host(Host);
- 				BusLogicHostAdapterCount++;
- 			}
+		Jeff

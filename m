@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWAGFp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbWAGFsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWAGFp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 00:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWAGFp1
+	id S1030481AbWAGFsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 00:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030480AbWAGFsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 00:45:27 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:22429 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1030267AbWAGFp1 (ORCPT
+	Sat, 7 Jan 2006 00:48:21 -0500
+Received: from gate.crashing.org ([63.228.1.57]:34445 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030478AbWAGFsU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 00:45:27 -0500
-Date: Sat, 7 Jan 2006 00:47:52 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys	interface
-Message-ID: <20060107054752.GA3184@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Pavel Machek <pavel@suse.cz>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>
-References: <20060105221334.GA925@isilmar.linta.de> <20060105222338.GG2095@elf.ucw.cz> <20060105222705.GA12242@isilmar.linta.de> <20060105230849.GN2095@elf.ucw.cz> <20060105234629.GA7298@isilmar.linta.de> <20060105235838.GC3339@elf.ucw.cz> <Pine.LNX.4.50.0601051602560.10428-100000@monsoon.he.net> <20060106001252.GE3339@elf.ucw.cz> <Pine.LNX.4.50.0601051729400.30092-100000@monsoon.he.net> <20060106085920.GI3339@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060106085920.GI3339@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+	Sat, 7 Jan 2006 00:48:20 -0500
+Subject: Re: request for opinion on synaptics, adb and powerpc
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Peter Osterlund <petero2@telia.com>, Luca Bigliardi <shammash@artha.org>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <200601062346.30987.dtor_core@ameritech.net>
+References: <20060106231301.GG4732@kamaji.shammash.lan>
+	 <200601062336.26035.dtor_core@ameritech.net>
+	 <1136609048.4840.210.camel@localhost.localdomain>
+	 <200601062346.30987.dtor_core@ameritech.net>
+Content-Type: text/plain
+Date: Sat, 07 Jan 2006 16:49:03 +1100
+Message-Id: <1136612944.4840.212.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 09:59:21AM +0100, Pavel Machek wrote:
-> On ??t 05-01-06 17:37:30, Patrick Mochel wrote:
-> > +static ssize_t pm_possible_states_show(struct device * d,
-> > +				       struct device_attribute * a,
-> > +				       char * buffer)
-> > +{
-> > +	struct pci_dev * dev = to_pci_dev(d);
-> > +	char * s = buffer;
-> > +
-> > +	s += sprintf(s, "d0");
-> > +	if (dev->poss_states[PCI_D1])
-> > +		s += sprintf(s, " d1");
-> > +	if (dev->poss_states[PCI_D2])
-> > +		s += sprintf(s, " d2");
-> > +	if (dev->poss_states[PCI_D3hot])
-> > +		s += sprintf(s, " d3");
+
+> > Ok, so what method should we use to "switch" ? sysfs isn't quite an
+> > option yet as the ADB bus isn't yet represented there (unless we add
+> > attributes to the input object, but that's a bit awkward as it would be
+> > destroyed and re-created if I follow you). A module option would work
+> > but adbhid isn't a module, thus that would basically end up as a static
+> > kernel argument, unless the driver "polls" the module param regulary to
+> > trigger the change.. I don't think there is a way for a driver to get a
+> > callback when /sys/module/<driver>/parameters/* changes is there ?
+> > 
 > 
-> Could we use same states as rest of code, i.e. "D2" instead of "d2"
-> and "D3hot" instead of "d3"?
+> Yes, there is, but I'd imagine static option would be just fine. After
+> all you either use legacy applications or you don't. And if mousedev
+> does not provide adequate emulation you switch to relative mothod.
 
-"D3hot" and "D3cold" most likely going to be removed and replaced with just
-"D3" in my next set of changes.  Although this distinction is mentioned in
-the spec, d3cold cannot actually be specified.  Rather, D3cold is entered when
-the parent bridge is powered off.
+I still don't like static options... it's always wrong to require
+rebooting for whatever reason ...
 
-Thanks,
-Adam
+Ben.
+
 

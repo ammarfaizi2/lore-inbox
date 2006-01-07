@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWAGA0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965379AbWAGA1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWAGA0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 19:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965386AbWAGA0A
+	id S965379AbWAGA1B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 19:27:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965376AbWAGA1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 19:26:00 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:17335 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S965376AbWAGAZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 19:25:48 -0500
-Subject: [git patch review 8/8] IB/uverbs: set ah_flags when creating address
-	handle
-From: Roland Dreier <rolandd@cisco.com>
-Date: Sat, 07 Jan 2006 00:25:43 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1136593543000-e3ddf87c14250050@cisco.com>
-In-Reply-To: <1136593543000-bf2926ca65fa9af8@cisco.com>
-X-OriginalArrivalTime: 07 Jan 2006 00:25:46.0058 (UTC) FILETIME=[E6E97AA0:01C61320]
+	Fri, 6 Jan 2006 19:27:00 -0500
+Received: from waste.org ([64.81.244.121]:48342 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932296AbWAGA0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 19:26:53 -0500
+Date: Fri, 6 Jan 2006 18:20:06 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
+Message-ID: <20060107002006.GA23554@waste.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136543914.2940.11.camel@laptopd505.fenrus.org> <43BEA672.4010309@pobox.com> <20060106184841.GA13917@mars.ravnborg.org> <p73k6dcykar.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73k6dcykar.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AH attribute's ah_flags need to be set according to the is_global flag
-passed in from userspace.
+On Sat, Jan 07, 2006 at 01:05:16AM +0100, Andi Kleen wrote:
+> And gcc is really picky about type compatibility between source files
+> with program-at-a-time.  If any types of the same symbols are
+> incompatible even in minor ways you get an ICE. That's technically
+> illegal, but tends to happen often in practice (e.g. when people
+> use extern) It might end up being quite a lot of work to clean this up.
 
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+If it gave a useful error message rather than an ICE, that'd be a
+feature.
 
----
-
- drivers/infiniband/core/uverbs_cmd.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-ea5d4a6ad2bfd1006790666981645cab43d3afbd
-diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
-index 6985a57..12d6cc0 100644
---- a/drivers/infiniband/core/uverbs_cmd.c
-+++ b/drivers/infiniband/core/uverbs_cmd.c
-@@ -1454,6 +1454,7 @@ ssize_t ib_uverbs_create_ah(struct ib_uv
- 	attr.sl 	       = cmd.attr.sl;
- 	attr.src_path_bits     = cmd.attr.src_path_bits;
- 	attr.static_rate       = cmd.attr.static_rate;
-+	attr.ah_flags          = cmd.attr.is_global ? IB_AH_GRH : 0;
- 	attr.port_num 	       = cmd.attr.port_num;
- 	attr.grh.flow_label    = cmd.attr.grh.flow_label;
- 	attr.grh.sgid_index    = cmd.attr.grh.sgid_index;
 -- 
-0.99.9n
+Mathematics is the supreme nostalgia of our time.

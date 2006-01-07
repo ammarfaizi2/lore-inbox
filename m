@@ -1,205 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932684AbWAGAUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965362AbWAGAZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932684AbWAGAUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 19:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWAGAUW
+	id S965362AbWAGAZX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 19:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965368AbWAGAZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 19:20:22 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41441
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965368AbWAGAUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 19:20:20 -0500
-Date: Fri, 06 Jan 2006 16:17:21 -0800 (PST)
-Message-Id: <20060106.161721.124249301.davem@davemloft.net>
-To: ak@suse.de
-Cc: paulmck@us.ibm.com, dada1@cosmosbay.com, alan@lxorguk.ukuu.org.uk,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
-       manfred@colorfullife.com, netdev@vger.kernel.org
-Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200601062157.42470.ak@suse.de>
-References: <43BEA693.5010509@cosmosbay.com>
-	<20060106202626.GA5677@us.ibm.com>
-	<200601062157.42470.ak@suse.de>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 19:25:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:23315 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965362AbWAGAZX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 19:25:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HbZV2JO6MveSuUIH1lgwV0y/RbH0eSGzZEJYs/77y66jsV1P72bnKr9i6wZ0gC4dXaHdAdxhszkGqdd/ptMeA703B4Obx0EJ13XMzSpNad3hqb5XOUMPfWxAEtZzgGku0w0Z4oh6hh3s8yBWaHXBXNmKqpf1tHsT1vHkXMjMjkM=
+Message-ID: <9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com>
+Date: Sat, 7 Jan 2006 01:25:22 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       davej@codemonkey.org.uk, airlied@linux.ie
+In-Reply-To: <20060105165946.1768f3d5.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com>
+	 <20060105162714.6ad6d374.akpm@osdl.org>
+	 <9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com>
+	 <20060105165946.1768f3d5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: Fri, 6 Jan 2006 21:57:41 +0100
+On 1/6/06, Andrew Morton <akpm@osdl.org> wrote:
+> Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>
+> >  Reverted that one patch, then rebuild/reinstalled the kernel
+> >  (with the same .config) and booted it - no change. It still locks up
+> >  in the exact same spot.
+> >  X starts & runs fine (sort of) since I can play around at the kdm
+> >  login screen all I want, it's only once I actually login and KDE
+> >  proper starts that it locks up.
+>
+> Oh bugger.  No serial console/netconsole or such?
+>
+> Or are you able log in and then quickly do the alt-ctrl-F1 thing, see if we
+> get an oops?
+>
+I switched to tty1 right after logging in, and after a few seconds
+(corresponding pretty well with the time it takes to hit the same spot
+where it crashed all previous times) I got a lot of nice crash info
+scrolling by.
+Actually a *lot* scrolled by, a rough guestimate says some 4-6 (maybe
+more) screens scrolled by, and since the box locks up solid I couldn't
+scroll up to get at the initial parts :(  So all I have for you is the
+final block - hand copied from the screen using pen and paper, so
+please excuse any typos I may have made :
 
-> Perhaps a better way would be to just exclude dst entries in RCU state
-> from the normal accounting and assume that if the system
-> really runs short of memory because of this the results would
-> trigger quiescent states more quickly, freeing the memory again.
+Bad page state in process 'kded'
+page:c16a39e0 flags:0x00000000 mapping:00000000 mapcount:1 count:1
+Trying to fix it up, but a reboot is needed
+Backtrace:
+ [<c0103e77>] dump_stack+0x17/0x20
+ [<c0146f89>] bad_page+0x69/0x110
+ [<c01473d2>] __free_pages_ok+0x82/0xd0
+ [<c014818d>] __free_pages+0x3d/0x50
+ [<c02a6663>] sg_page_free+0x23/0x30
+ [<c02a5913>] sg_remove_scat+0x63/0xe0
+ [<c02a62fd>] __sg_remove_sfp+0x4d/0xc0
+ [<c02a6417>] sg_remove_sf+0xa7/0x120
+ [<c02a26d6>] sg_release+0x46/0xc0
+ [<c0163637>] __fput+0x167/0x1b0
+ [<c01634bb>] fput+0x3b/0x50
+ [<c0161bcc>] filp_close+0x3c/0x80
+ [<c0161c79>] sys_close+0x69/0x90
+ [<c0103009>] syscall_call+0x7/0xb
+Hexdump:
+000: 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00
+010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+020: 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00
+030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-That's one idea...
+Hope that helps a bit even though it's the last and thus least
+interresting block of info.
 
-Eric, how important do you honestly think the per-hashchain spinlocks
-are?  That's the big barrier from making rt_secret_rebuild() a simple
-rehash instead of flushing the whole table as it does now.
+It never makes it to the logs, and as mentioned previously I don't
+have another machine to capture on via netconsole or serial, so if you
+have any good ideas as to how to capture it all, then I'm all ears.
 
-The lock is only grabbed for updates, and the access to these locks is
-random and as such probably non-local when taken anyways.  Back before
-we used RCU for reads, this array-of-spinlock thing made a lot more
-sense.
-
-I mean something like this patch:
-
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index f701a13..f9436c7 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -204,36 +204,8 @@ __u8 ip_tos2prio[16] = {
- struct rt_hash_bucket {
- 	struct rtable	*chain;
- };
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
--/*
-- * Instead of using one spinlock for each rt_hash_bucket, we use a table of spinlocks
-- * The size of this table is a power of two and depends on the number of CPUS.
-- */
--#if NR_CPUS >= 32
--#define RT_HASH_LOCK_SZ	4096
--#elif NR_CPUS >= 16
--#define RT_HASH_LOCK_SZ	2048
--#elif NR_CPUS >= 8
--#define RT_HASH_LOCK_SZ	1024
--#elif NR_CPUS >= 4
--#define RT_HASH_LOCK_SZ	512
--#else
--#define RT_HASH_LOCK_SZ	256
--#endif
- 
--static spinlock_t	*rt_hash_locks;
--# define rt_hash_lock_addr(slot) &rt_hash_locks[(slot) & (RT_HASH_LOCK_SZ - 1)]
--# define rt_hash_lock_init()	{ \
--		int i; \
--		rt_hash_locks = kmalloc(sizeof(spinlock_t) * RT_HASH_LOCK_SZ, GFP_KERNEL); \
--		if (!rt_hash_locks) panic("IP: failed to allocate rt_hash_locks\n"); \
--		for (i = 0; i < RT_HASH_LOCK_SZ; i++) \
--			spin_lock_init(&rt_hash_locks[i]); \
--		}
--#else
--# define rt_hash_lock_addr(slot) NULL
--# define rt_hash_lock_init()
--#endif
-+static DEFINE_SPINLOCK(rt_hash_lock);
- 
- static struct rt_hash_bucket 	*rt_hash_table;
- static unsigned			rt_hash_mask;
-@@ -627,7 +599,7 @@ static void rt_check_expire(unsigned lon
- 
- 		if (*rthp == 0)
- 			continue;
--		spin_lock(rt_hash_lock_addr(i));
-+		spin_lock(&rt_hash_lock);
- 		while ((rth = *rthp) != NULL) {
- 			if (rth->u.dst.expires) {
- 				/* Entry is expired even if it is in use */
-@@ -660,7 +632,7 @@ static void rt_check_expire(unsigned lon
-  			rt_free(rth);
- #endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
- 		}
--		spin_unlock(rt_hash_lock_addr(i));
-+		spin_unlock(&rt_hash_lock);
- 
- 		/* Fallback loop breaker. */
- 		if (time_after(jiffies, now))
-@@ -683,11 +655,11 @@ static void rt_run_flush(unsigned long d
- 	get_random_bytes(&rt_hash_rnd, 4);
- 
- 	for (i = rt_hash_mask; i >= 0; i--) {
--		spin_lock_bh(rt_hash_lock_addr(i));
-+		spin_lock_bh(&rt_hash_lock);
- 		rth = rt_hash_table[i].chain;
- 		if (rth)
- 			rt_hash_table[i].chain = NULL;
--		spin_unlock_bh(rt_hash_lock_addr(i));
-+		spin_unlock_bh(&rt_hash_lock);
- 
- 		for (; rth; rth = next) {
- 			next = rth->u.rt_next;
-@@ -820,7 +792,7 @@ static int rt_garbage_collect(void)
- 
- 			k = (k + 1) & rt_hash_mask;
- 			rthp = &rt_hash_table[k].chain;
--			spin_lock_bh(rt_hash_lock_addr(k));
-+			spin_lock_bh(&rt_hash_lock);
- 			while ((rth = *rthp) != NULL) {
- 				if (!rt_may_expire(rth, tmo, expire)) {
- 					tmo >>= 1;
-@@ -852,7 +824,7 @@ static int rt_garbage_collect(void)
- 				goal--;
- #endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
- 			}
--			spin_unlock_bh(rt_hash_lock_addr(k));
-+			spin_unlock_bh(&rt_hash_lock);
- 			if (goal <= 0)
- 				break;
- 		}
-@@ -922,7 +894,7 @@ restart:
- 
- 	rthp = &rt_hash_table[hash].chain;
- 
--	spin_lock_bh(rt_hash_lock_addr(hash));
-+	spin_lock_bh(&rt_hash_lock);
- 	while ((rth = *rthp) != NULL) {
- #ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
- 		if (!(rth->u.dst.flags & DST_BALANCED) &&
-@@ -948,7 +920,7 @@ restart:
- 			rth->u.dst.__use++;
- 			dst_hold(&rth->u.dst);
- 			rth->u.dst.lastuse = now;
--			spin_unlock_bh(rt_hash_lock_addr(hash));
-+			spin_unlock_bh(&rt_hash_lock);
- 
- 			rt_drop(rt);
- 			*rp = rth;
-@@ -989,7 +961,7 @@ restart:
- 	if (rt->rt_type == RTN_UNICAST || rt->fl.iif == 0) {
- 		int err = arp_bind_neighbour(&rt->u.dst);
- 		if (err) {
--			spin_unlock_bh(rt_hash_lock_addr(hash));
-+			spin_unlock_bh(&rt_hash_lock);
- 
- 			if (err != -ENOBUFS) {
- 				rt_drop(rt);
-@@ -1030,7 +1002,7 @@ restart:
- 	}
- #endif
- 	rt_hash_table[hash].chain = rt;
--	spin_unlock_bh(rt_hash_lock_addr(hash));
-+	spin_unlock_bh(&rt_hash_lock);
- 	*rp = rt;
- 	return 0;
- }
-@@ -1098,7 +1070,7 @@ static void rt_del(unsigned hash, struct
- {
- 	struct rtable **rthp;
- 
--	spin_lock_bh(rt_hash_lock_addr(hash));
-+	spin_lock_bh(&rt_hash_lock);
- 	ip_rt_put(rt);
- 	for (rthp = &rt_hash_table[hash].chain; *rthp;
- 	     rthp = &(*rthp)->u.rt_next)
-@@ -1107,7 +1079,7 @@ static void rt_del(unsigned hash, struct
- 			rt_free(rt);
- 			break;
- 		}
--	spin_unlock_bh(rt_hash_lock_addr(hash));
-+	spin_unlock_bh(&rt_hash_lock);
- }
- 
- void ip_rt_redirect(u32 old_gw, u32 daddr, u32 new_gw,
-@@ -3155,7 +3127,6 @@ int __init ip_rt_init(void)
- 					&rt_hash_mask,
- 					0);
- 	memset(rt_hash_table, 0, (rt_hash_mask + 1) * sizeof(struct rt_hash_bucket));
--	rt_hash_lock_init();
- 
- 	ipv4_dst_ops.gc_thresh = (rt_hash_mask + 1);
- 	ip_rt_max_size = (rt_hash_mask + 1) * 16;
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

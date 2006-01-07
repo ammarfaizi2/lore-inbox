@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWAGHQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWAGHUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWAGHQk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 02:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWAGHQk
+	id S1030252AbWAGHUl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 02:20:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbWAGHUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 02:16:40 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32742
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751217AbWAGHQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 02:16:39 -0500
-Date: Fri, 06 Jan 2006 23:15:37 -0800 (PST)
-Message-Id: <20060106.231537.121898608.davem@davemloft.net>
-To: joecool1029@gmail.com
-Cc: bunk@stusta.de, wensong@linux-vs.org, horms@verge.net.au, ja@ssi.bg,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix ipvs compilation
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <d4757e600601061930v3fc113c1t9d71c951613abf09@mail.gmail.com>
-References: <d4757e600601052043u647658f1yaa15b0f396b4ad3c@mail.gmail.com>
-	<20060106.131536.88566896.davem@davemloft.net>
-	<d4757e600601061930v3fc113c1t9d71c951613abf09@mail.gmail.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Jan 2006 02:20:41 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:36901 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030252AbWAGHUl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 02:20:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EQ5mzIooWQOaKg394NdEkH53o+BolNPxjoHWYDFh47hHBcJUxMEiYhC9PEw9H4QWaDC4l0pTqvQVOu/gmhcf6jfTqNtsGS0GV1Gn6cCHBmnmvIHyNMWNpHsltAkhYOOXN8Rluii1NVdWDnztLqUPA4AjiJNv1/1FZoFJtk3dc/I=
+Message-ID: <86802c440601062320r597d6970i3b120ec90f96abce@mail.gmail.com>
+Date: Fri, 6 Jan 2006 23:20:40 -0800
+From: yhlu <yhlu.kernel@gmail.com>
+To: Andi Kleen <ak@muc.de>, ebiederm@xmission.com
+Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
+Cc: Vivek Goyal <vgoyal@in.ibm.com>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>
+In-Reply-To: <86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <6F7DA19D05F3CF40B890C7CA2DB13A42030949CB@ssvlexmb2.amd.com>
+	 <86802c440601061832m4898e20fw4c9a8360e85cfa17@mail.gmail.com>
+	 <86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Joe Kappus <joecool1029@gmail.com>
-Date: Fri, 6 Jan 2006 22:30:56 -0500
+It seems the i386 is the same.
 
-> Why not then, we'll do this one as well since it needs it.
-> 
-> Signed-off-by: Joe Kappus <joecool1029@gmail.com>
+also why the addr (0x467) is not word align....?
 
-Your email client corrupted the patch, I fixed it up manually
-this time, but next time I won't be so nice so please get this
-working.
-
-Thanks.
+YH

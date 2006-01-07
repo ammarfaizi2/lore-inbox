@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWAGXo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbWAGXtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161073AbWAGXo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 18:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWAGXo5
+	id S1161072AbWAGXtA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 18:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbWAGXtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 18:44:57 -0500
-Received: from stinky.trash.net ([213.144.137.162]:21705 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1161068AbWAGXo4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 18:44:56 -0500
-Message-ID: <43C0524F.1030602@trash.net>
-Date: Sun, 08 Jan 2006 00:44:15 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: Kernel Netdev Mailing List <netdev@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [W1]: Remove incorrect MODULE_ALIAS
-Content-Type: multipart/mixed;
- boundary="------------020006040501050104000605"
+	Sat, 7 Jan 2006 18:49:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20691 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161072AbWAGXs7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 18:48:59 -0500
+Date: Sat, 7 Jan 2006 15:48:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2: alpha broken
+Message-Id: <20060107154842.5832af75.akpm@osdl.org>
+In-Reply-To: <20060107210646.GA26124@mipter.zuzino.mipt.ru>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<20060107210646.GA26124@mipter.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020006040501050104000605
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
+>
+> alpha Just Broken (TM)
+> ----------------------------------------------------------------------------
+>   CC      arch/alpha/kernel/asm-offsets.s
+> In file included from include/asm/user.h:5,
+>                  from include/linux/user.h:1,
+>                  from include/linux/kernel.h:16,
+>                  from include/linux/spinlock.h:54,
+>                  from include/linux/capability.h:45,
+>                  from include/linux/sched.h:7,
+>                  from arch/alpha/kernel/asm-offsets.c:9:
+> include/linux/ptrace.h: In function `ptrace_link':
+> include/linux/ptrace.h:100: error: dereferencing pointer to incomplete type
+> include/linux/ptrace.h: In function `ptrace_unlink':
+> include/linux/ptrace.h:105: error: dereferencing pointer to incomplete type
+> make[1]: *** [arch/alpha/kernel/asm-offsets.s] Error 1
 
+This is caused by the inclusion of user.h in kernel.h added by
+dump_thread-cleanup.patch.
 
---------------020006040501050104000605
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+Fix:
 
-[W1]: Remove incorrect MODULE_ALIAS
-
-The w1 netlink socket is created by a hardware specific driver calling
-w1_add_master_device, so there is no point in including a module alias
-for netlink autoloading in the core.
-
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-
----
-commit a8657adb8c04bbe30544306ec55005a635ba65fd
-tree 2c029cf104239958220629d34c76c7290bd99e43
-parent b73952761225e41cb81afe157cb312a594a95693
-author Patrick McHardy <kaber@trash.net> Sun, 08 Jan 2006 00:42:42 +0100
-committer Patrick McHardy <kaber@trash.net> Sun, 08 Jan 2006 00:42:42 +0100
-
- drivers/w1/w1_int.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
-index c3f67ea..e2920f0 100644
---- a/drivers/w1/w1_int.c
-+++ b/drivers/w1/w1_int.c
-@@ -217,5 +217,3 @@ void w1_remove_master_device(struct w1_b
+--- 25-alpha/include/linux/kernel.h~dump_thread-cleanup-fix	2006-01-07 15:46:50.000000000 -0800
++++ 25-alpha-akpm/include/linux/kernel.h	2006-01-07 15:47:20.000000000 -0800
+@@ -13,7 +13,6 @@
+ #include <linux/types.h>
+ #include <linux/compiler.h>
+ #include <linux/bitops.h>
+-#include <linux/user.h>
+ #include <asm/byteorder.h>
+ #include <asm/bug.h>
  
- EXPORT_SYMBOL(w1_add_master_device);
- EXPORT_SYMBOL(w1_remove_master_device);
--
--MODULE_ALIAS_NET_PF_PROTO(PF_NETLINK, NETLINK_W1);
+@@ -48,6 +47,8 @@ extern int console_printk[];
+ #define default_console_loglevel (console_printk[3])
+ 
+ struct completion;
++struct pt_regs;
++struct user;
+ 
+ /**
+  * might_sleep - annotation for functions that can sleep
+@@ -124,7 +125,6 @@ extern int __kernel_text_address(unsigne
+ extern int kernel_text_address(unsigned long addr);
+ extern int session_of_pgrp(int pgrp);
+ 
+-struct pt_regs;
+ extern void dump_thread(struct pt_regs *regs, struct user *dump);
+ 
+ #ifdef CONFIG_PRINTK
+_
 
---------------020006040501050104000605--

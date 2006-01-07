@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030527AbWAGSHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030526AbWAGSJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030527AbWAGSHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 13:07:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbWAGSHQ
+	id S1030526AbWAGSJo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 13:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030528AbWAGSJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 13:07:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55196 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030524AbWAGSHO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 13:07:14 -0500
-Date: Sat, 7 Jan 2006 10:07:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-sparse@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: sparse triggers OOM killer
-In-Reply-To: <20060107111827.GA16133@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.64.0601071004130.3169@g5.osdl.org>
-References: <20060107111827.GA16133@mars.ravnborg.org>
+	Sat, 7 Jan 2006 13:09:44 -0500
+Received: from adicia.telenet-ops.be ([195.130.132.56]:35736 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1030526AbWAGSJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 13:09:43 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: Matthew Dharm <mdharm-usb@one-eyed-alien.net>
+Subject: Re: [Linux-usb-users] USB floppy drive no longer works under 2.6.15-rc6
+Date: Sat, 7 Jan 2006 19:09:49 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200512281251.03236.lkml@kcore.org> <20051228165157.GA13712@one-eyed-alien.net>
+In-Reply-To: <20051228165157.GA13712@one-eyed-alien.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601071909.50258.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 28 December 2005 17:51, Matthew Dharm wrote:
+> Can you try without ehci_hcd loaded?  The device is only full-speed anyway,
+> so there should be no performance loss (like floppy has any performance to
+> lose...)
 
+Sorry for the delay, I was on some hard-needed vacation :)
 
-On Sat, 7 Jan 2006, Sam Ravnborg wrote:
-> 
-> There was no oops or similar and sparse just exited after a while with
-> an errorcode (137).
+I've tried it with ehci_hcd unloaded, but it shows the same problems, only 
+with the same style of messages.
 
-That's just SIGKILL (128+9). Which is normal for the OOM killer.
+Anything else to try?
 
-> Now I wonder if I have hit a bug in sparse or this is what I should
-> expect.
+Jan
 
-Well, sparse does keep a _lot_ of stuff in memory, and the "do many files 
-at once" will basically keep every single one (with full types, full 
-linearization etc) in memory at the same time.
-
-It's probably fairly easy to fix: I should just make sparse release all 
-the linearizations and symbols when they go out of file scope.
-
-The "do many files at once" thing really was just a quick hack, so the 
-lack of memory release is not that susprising.
-
-I'll see what I can do.
-
-		Linus
+-- 
+The real purpose of books is to trap the mind into doing its own thinking.
+		-- Christopher Morley

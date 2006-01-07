@@ -1,155 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWAGDNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbWAGDTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbWAGDNp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 22:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbWAGDNp
+	id S965174AbWAGDTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 22:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbWAGDTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 22:13:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5779 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932682AbWAGDNo (ORCPT
+	Fri, 6 Jan 2006 22:19:08 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:52744 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S965174AbWAGDTH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 22:13:44 -0500
-Date: Fri, 6 Jan 2006 19:13:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       davej@codemonkey.org.uk, airlied@linux.ie
-Subject: Re: 2.6.15-mm1 - locks solid when starting KDE (EDAC errors)
-Message-Id: <20060106191301.2beaebd5.akpm@osdl.org>
-In-Reply-To: <9a8748490601061851p7ecfab9fua866fc2a79153b0@mail.gmail.com>
-References: <9a8748490601051552x4c8315e7n3c61860283a95716@mail.gmail.com>
-	<20060105162714.6ad6d374.akpm@osdl.org>
-	<9a8748490601051640s5a384dddga46d8106442d10c@mail.gmail.com>
-	<20060105165946.1768f3d5.akpm@osdl.org>
-	<9a8748490601061625q14d0ac04ica527821cf246427@mail.gmail.com>
-	<20060107002833.GB9402@redhat.com>
-	<20060106164012.041e14b2.akpm@osdl.org>
-	<9a8748490601061851p7ecfab9fua866fc2a79153b0@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jan 2006 22:19:07 -0500
+Date: Fri, 6 Jan 2006 22:19:03 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Pavel Machek <pavel@ucw.cz>
+cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
+ interface
+In-Reply-To: <20060107000826.GC20399@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L0.0601062208510.22627-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <jesper.juhl@gmail.com> wrote:
->
-> On 1/7/06, Andrew Morton <akpm@osdl.org> wrote:
-> > Dave Jones <davej@redhat.com> wrote:
-> > >
-> > > On Sat, Jan 07, 2006 at 01:25:22AM +0100, Jesper Juhl wrote:
-> > >  > On 1/6/06, Andrew Morton <akpm@osdl.org> wrote:
-> > >  > > Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > >  > >
-> > >  > > >  Reverted that one patch, then rebuild/reinstalled the kernel
-> > >  > > >  (with the same .config) and booted it - no change. It still locks up
-> > >  > > >  in the exact same spot.
-> > >  > > >  X starts & runs fine (sort of) since I can play around at the kdm
-> > >  > > >  login screen all I want, it's only once I actually login and KDE
-> > >  > > >  proper starts that it locks up.
-> > >  > >
-> > >  > > Oh bugger.  No serial console/netconsole or such?
-> > >  > >
-> > >  > > Or are you able log in and then quickly do the alt-ctrl-F1 thing, see if we
-> > >  > > get an oops?
-> > >  > >
-> > >  > I switched to tty1 right after logging in, and after a few seconds
-> > >  > (corresponding pretty well with the time it takes to hit the same spot
-> > >  > where it crashed all previous times) I got a lot of nice crash info
-> > >  > scrolling by.
-> > >  > Actually a *lot* scrolled by, a rough guestimate says some 4-6 (maybe
-> > >  > more) screens scrolled by, and since the box locks up solid I couldn't
-> > >  > scroll up to get at the initial parts :(  So all I have for you is the
-> > >  > final block - hand copied from the screen using pen and paper
-> > >  > ...
-> > >  > It never makes it to the logs, and as mentioned previously I don't
-> > >  > have another machine to capture on via netconsole or serial, so if you
-> > >  > have any good ideas as to how to capture it all, then I'm all ears.
-> > >
-> > > If only someone did a patch to pause the text output after the first oops..
-> > >
-> > > Oh wait! Someone did!
-> > >
-> >
-> > umm, it'd be more helpful if you'd actually sent the patch so Jesper could
-> > apply it so we can find this bug.
-> >
+On Sat, 7 Jan 2006, Pavel Machek wrote:
+
+> > This trend is extremely alarming!!
 > 
-> Ok, this is with a pristine 2.6.15-mm1 + Dave's oops-pausing-patch
-> Captured by switching to tty1 just after logging in via kdm.
-> A *lot* of info still scrolls down when the problem hits before Daves
-> patch stops it at a BUG dump, it scrolls by too fast for me to see
-> what it is, but I guess it must be warning/error messages other than
-> Oops's or BUG()'s ???
+> It scares me a bit, too. 
 
-There might be something wrong with Dave's patch.  Or yes, this might be
-the first oops.
+> I think we should start with string-based interface, with just two
+> states ("on" and "off"). That is easily extensible into future, and
+> suits current PCMCIA nicely. It also allows us to experiment with PCI
+> power management... I can cook up a patch, but it will be simple
+> reintroduction of .../power file under different name.
 
-> Anyway, here's the entire contents of my screen after Daves patch
-> stops the output - again written down by hand and then typed in from
-> my handwritten notes, so there may be typos, but I've tried to be
-> accurate.
-> 
+That sounds good to me, provided you add to dev_pm_info a pointer to an
+array of string pointers, the names of the available states.  For now all
+devices can share a single array with just two entries ("on" and "off",
+or even "0" and "2").  In the future, bus drivers will be able to
+substitute a pointer to a private array with device-specific state names.
 
-Gad.  That's a lot of work, thanks.  Serial console is easier...
+Of course, this change will require you to add something like
 
-Is your screen set to 50 rows?  That helps.   As does a digital camera.
+	const char *name;
 
-> 
-> 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 0a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 0b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> ------------{ cut here ]------------
-> kernel BUG at include/linux/list.h:166!
-> invalid opcode: 0000 [#1]
-> PREEMPT SMP
-> Last sysfs file: /class/vc/vcsa2/dev
-> Modules linked in: snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss
-> snd_mixer_oss uhci_hcd usbcore snd_emu10k1 snd_rawmidi snd_ac97_codec
-> snd_ac97_bus snd_pcm snd_seq_device snd_timer snd_page_alloc
-> snd_util_mem snd_hwdep snd agpgart
-> CPU:    0
-> EIP:    0060:[<c01475f5>]    Tainted: G    B VLI
-> EFLAGS: 00010017    (2.6.15-mm1)
-> EIP is at __rmqueue+0xe5/0x100
-> eax: c0374dd4 ebx: c16ea018 ecx: 00000007 edx: c16ef018
-> esi: c0374e9c edi: c0374d80 ebp: f7ad0dac esp: f7ad0d90
-> ds: 007b es: 007b ss: 0068
-> Process syslogd (pid: 1038, threadinfo=f7ad0000 task=c21dfa90)
-> Stack: <0>00000001 c16ef000 c0374e9c 00000000 00000000 c0374dcc
-> 0000001f f7ad0dcc
->        <0>c0147642 c0374e40 00000000 c0374d80 c0374d80 c0374d80
-> c0374dc0 f7ad0e00
->        <0>c0147b1a c0374dcc c0179682 c21ce4d0 f7af1090 00000000
-> f7ad0f34 00000256
-> Call Trace:
->  [<c0103e4a>] show_stack+0x8a/0xa0
->  [<c0104060>] show_registers+0x1e0/0x250
->  [<c0104272>] die+0x112/0x1a0
->  [<c010437f>] do_trap+0x7f/0xc0
->  [<c0104693>] do_invalid_op+0xa3/0xb0
->  [<c0103b0b>] error_code+0x4f/0x54
->  [<c0147642>] rmqueue_bulk+0x32/0x60
->  [<c0147b1a>] buffered_rmqueue+0x12a/0x270
->  [<c0147db3>] get_page_from_freelist+0xa3/0xd0
->  [<c0147e2e>] __alloc_pages+0x4e/0x320
->  [<c015e00b>] kmem_getpages+0x3b/0xa0
->  [<c015eee2>] cache_grow+0xb2/0x170
->  [<c015f1a8>] cache_alloc_refill+0x208/0x250
->  [<c015f426>] kmem_cache_alloc+0x66/0x70
->  [<c011dc6b>] dup_task_struct+0x3b/0xf0
->  [<c011ea22>] copy_process+0x62/0xe70
->  [<c011f922>] do_fork+0x62/0x1a0
->  [<c0101b5f>] sys_clone+0x2f/0x40
->  [<c0103009>] syscall_call+0x7/0xb
-> Code: 13 89 5a 04 ff 43 08 89 70 0c 0f ba 28 0b 3b 75 f0 7f d3 8b 45
-> e8 83 c4 10 5b 5e 5f c9 c3 0f 0b a5 00 91 bd 32 c0 e9 7a ff ff ff <0f>
-> 0b a6 00 91 bd 32 c0 e9 74 ff ff ff 8d b4 26 00 00 00 00 8d
+to the pm_message_t struct.  PM-aware drivers will be able to use it to
+see which state was requested, and other drivers can ignore it.
 
-Ugh.  Corrupted page allocator free lists.  Could be anything.
+In fact, for PM-aware drivers the name field makes the event field 
+unnecessary.  But until all drivers are PM-aware we can't get rid of it.
 
-Can you send the .config?
+Alan Stern
+

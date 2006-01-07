@@ -1,112 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030392AbWAGKKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWAGKNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030392AbWAGKKV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 05:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWAGKKV
+	id S1030393AbWAGKNi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 05:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWAGKNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 05:10:21 -0500
-Received: from mail.gmx.de ([213.165.64.21]:39376 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030392AbWAGKKU (ORCPT
+	Sat, 7 Jan 2006 05:13:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42950 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030393AbWAGKNh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 05:10:20 -0500
-X-Authenticated: #4368190
-Message-ID: <43BF938A.1080209@gmx.de>
-Date: Sat, 07 Jan 2006 11:10:18 +0100
-From: =?ISO-8859-1?Q?Hans-J=FCrgen_Lange?= <Hans-Juergen.Lange@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.x on IBM thin client 8363
-References: <43BD0E1C.9060705@gmx.de>	<20060105191819.594767e0.rdunlap@xenotime.net>	<43BE34BB.70309@gmx.de> <20060106152121.18f2afe0.rdunlap@xenotime.net>
-In-Reply-To: <20060106152121.18f2afe0.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Sat, 7 Jan 2006 05:13:37 -0500
+Date: Sat, 7 Jan 2006 02:13:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
+Message-Id: <20060107021310.6153e9b5.akpm@osdl.org>
+In-Reply-To: <20060107100356.GA15664@mars.ravnborg.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+	<1136543914.2940.11.camel@laptopd505.fenrus.org>
+	<20060107010757.2e853f77.akpm@osdl.org>
+	<20060107100356.GA15664@mars.ravnborg.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Fri, 06 Jan 2006 10:13:31 +0100 Hans-Jürgen Lange wrote:
-> 
-> 
->>Randy.Dunlap wrote:
->>
->>>On Thu, 05 Jan 2006 13:16:28 +0100 Hans-Jürgen Lange wrote:
->>>
->>>
->>>
->>>>Hello,
->>>>
->>>>I would like to run a 2.6.x kernel on a IBM thin client 8363. There are 
->>>>patches available for the 2.4 series of kernels.
->>>>I had a look on these patches and the only thing they do is to expand 
->>>>the kernel commandline size to 512 Bytes and a change in 
->>>>arch/i386/kernel/head.S that changed the pointer to the commandline to a 
->>>>fixed address.
->>>
->>>
->>>Where are these 2.4 patches that you are referring to?
->>>
->>
->>O.K. this is the very important one. Because without it the 8363 wont start.
-> 
-> 
-> Sorry, I have no idea about this patch.
-> Where did you get these 2.4 patches?  are there others?
+Sam Ravnborg <sam@ravnborg.org> wrote:
 >
+> On Sat, Jan 07, 2006 at 01:07:57AM -0800, Andrew Morton wrote:
+>  
+> > From: Andrew Morton <akpm@osdl.org>
+> > 
+> > Set GCC_VERSION up-front rather than in arch Makefiles.  This reduces ordering
+> > problems and generally consolidates things.
+> 
+> This will fail if arch/Makefile for some reason redefine CC to something
+> else. I recall one arch did that in the past.
 
-These are original IBM patches to the linux kernel to get the kernel 
-running on there thin client. There are some others, which fixes some 
-oddities in the hardware. The thin client is about 99% pc compatible. It 
-  lacks of a realtime clock, so IBM has a patch to get the time from 
-within the NFS protocol.
-There are some more but they are not importent to get the kernel up and 
-running.
-
-> It looks a little like it may be dependent on your boot loader.
-> What boot loader are you using?
-> 
-
-The boot process is very different and has nothing to do with that one 
-on a PC. The method I use mounts a NFS share, downloads the kernel and 
-does the unmount. Afterwards the kernel gets started.
-The kernel commandline parameters are passed  from within the firmware.
-Besides, the firmware itself is aware that it has to load a linux kernel.
-The patch below sets a fixed value for the address where the commandline 
-resides. This is not my problem to understand.
-
-But to transfer this handling to the 2.6. kernel I need a real 
-understanding of how the 2.4 kernel does commandline handling and how it 
-has changed in 2.6 kernels. Then it seems possible to change the 2.6 
-startup code to get the 2.6 kernel running on a 8363 Thin-Client.
-
-> 
-> 
->>--- linux/arch/i386/kernel/head.S.orig	Mon Jul 16 16:13:11 2001
->>+++ linux/arch/i386/kernel/head.S	Mon Jul 16 16:14:26 2001
->>@@ -158,7 +158,10 @@
->>  	movl $512,%ecx
->>  	rep
->>  	stosl
->>-	movl SYMBOL_NAME(empty_zero_page)+NEW_CL_POINTER,%esi
->>+/* NetVista */
->>+/*	movl SYMBOL_NAME(empty_zero_page)+NEW_CL_POINTER,%esi */
->>+	movl $0x98000, %esi
->>+
->>  	andl %esi,%esi
->>  	jnz 2f			# New command line protocol
->>  	cmpw $(OLD_CL_MAGIC),OLD_CL_MAGIC_ADDR
-> 
-> 
-> 
-> ---
-> ~Randy
-> 
-> 
+Only sparc64 appears to do that now.  If someone wants to reintroduce such
+a dopey thing then they need to remember to reevaluate GCC_VERSION
+afterwards?  Like:
 
 
+From: Andrew Morton <akpm@osdl.org>
 
-BR
-Hans-Juergen Lange
+Set GCC_VERSION up-front rather than in arch Makefiles.  This reduces ordering
+problems and generally consolidates things.
+
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Arjan van de Ven <arjan@infradead.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ Makefile              |    2 +-
+ arch/ia64/Makefile    |    1 -
+ arch/parisc/Makefile  |    4 ----
+ arch/powerpc/Makefile |    2 --
+ arch/ppc/Makefile     |    1 -
+ arch/sparc64/Makefile |    1 +
+ 6 files changed, 2 insertions(+), 9 deletions(-)
+
+diff -puN arch/ia64/Makefile~kbuild-call-gcc_version-earlier arch/ia64/Makefile
+--- devel/arch/ia64/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 02:11:42.000000000 -0800
++++ devel-akpm/arch/ia64/Makefile	2006-01-07 02:11:42.000000000 -0800
+@@ -25,7 +25,6 @@ cflags-y	:= -pipe $(EXTRA) -ffixed-r13 -
+ 		   -falign-functions=32 -frename-registers -fno-optimize-sibling-calls
+ CFLAGS_KERNEL	:= -mconstant-gp
+ 
+-GCC_VERSION     := $(call cc-version)
+ GAS_STATUS	= $(shell $(srctree)/arch/ia64/scripts/check-gas "$(CC)" "$(OBJDUMP)")
+ CPPFLAGS += $(shell $(srctree)/arch/ia64/scripts/toolchain-flags "$(CC)" "$(OBJDUMP)" "$(READELF)")
+ 
+diff -puN arch/parisc/Makefile~kbuild-call-gcc_version-earlier arch/parisc/Makefile
+--- devel/arch/parisc/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 02:11:42.000000000 -0800
++++ devel-akpm/arch/parisc/Makefile	2006-01-07 02:11:42.000000000 -0800
+@@ -35,10 +35,6 @@ FINAL_LD=$(CROSS_COMPILE)ld --warn-commo
+ 
+ OBJCOPY_FLAGS =-O binary -R .note -R .comment -S
+ 
+-GCC_VERSION     := $(call cc-version)
+-ifneq ($(shell if [ -z $(GCC_VERSION) ] ; then echo "bad"; fi ;),)
+-$(error Sorry, couldn't find ($(cc-version)).)
+-endif
+ ifneq ($(shell if [ $(GCC_VERSION) -lt 0303 ] ; then echo "bad"; fi ;),)
+ $(error Sorry, your compiler is too old ($(GCC_VERSION)).  GCC v3.3 or above is required.)
+ endif
+diff -puN arch/powerpc/Makefile~kbuild-call-gcc_version-earlier arch/powerpc/Makefile
+--- devel/arch/powerpc/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 02:11:42.000000000 -0800
++++ devel-akpm/arch/powerpc/Makefile	2006-01-07 02:11:42.000000000 -0800
+@@ -76,7 +76,6 @@ LINUXINCLUDE    += $(LINUXINCLUDE-y)
+ CHECKFLAGS	+= -m$(SZ) -D__powerpc__ -D__powerpc$(SZ)__
+ 
+ ifeq ($(CONFIG_PPC64),y)
+-GCC_VERSION     := $(call cc-version)
+ GCC_BROKEN_VEC	:= $(shell if [ $(GCC_VERSION) -lt 0400 ] ; then echo "y"; fi)
+ 
+ ifeq ($(CONFIG_POWER4_ONLY),y)
+@@ -189,7 +188,6 @@ TOUT	:= .tmp_gas_check
+ # Ensure this is binutils 2.12.1 (or 2.12.90.0.7) or later for altivec
+ # instructions.
+ # gcc-3.4 and binutils-2.14 are a fatal combination.
+-GCC_VERSION	:= $(call cc-version)
+ 
+ checkbin:
+ 	@if test "$(GCC_VERSION)" = "0304" ; then \
+diff -puN arch/ppc/Makefile~kbuild-call-gcc_version-earlier arch/ppc/Makefile
+--- devel/arch/ppc/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 02:11:42.000000000 -0800
++++ devel-akpm/arch/ppc/Makefile	2006-01-07 02:11:42.000000000 -0800
+@@ -128,7 +128,6 @@ TOUT	:= .tmp_gas_check
+ # Ensure this is binutils 2.12.1 (or 2.12.90.0.7) or later for altivec
+ # instructions.
+ # gcc-3.4 and binutils-2.14 are a fatal combination.
+-GCC_VERSION	:= $(call cc-version)
+ 
+ checkbin:
+ 	@if test "$(GCC_VERSION)" = "0304" ; then \
+diff -puN Makefile~kbuild-call-gcc_version-earlier Makefile
+--- Makefile~kbuild-call-gcc_version-earlier	2006-01-07 02:11:42.000000000 -0800
++++ devel-akpm/Makefile	2006-01-07 02:11:42.000000000 -0800
+@@ -300,7 +300,7 @@ cc-option-align = $(subst -functions=0,,
+ # Usage gcc-ver := $(call cc-version $(CC))
+ cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
+               $(if $(1), $(1), $(CC)))
+-
++GCC_VERSION	:= $(call cc-version)
+ 
+ # Look for make include files relative to root of kernel src
+ MAKEFLAGS += --include-dir=$(srctree)
+diff -puN arch/sparc64/Makefile~kbuild-call-gcc_version-earlier arch/sparc64/Makefile
+--- devel/arch/sparc64/Makefile~kbuild-call-gcc_version-earlier	2006-01-07 02:11:46.000000000 -0800
++++ devel-akpm/arch/sparc64/Makefile	2006-01-07 02:12:21.000000000 -0800
+@@ -13,6 +13,7 @@ CHECKFLAGS	+= -D__sparc__ -D__sparc_v9__
+ CPPFLAGS_vmlinux.lds += -Usparc
+ 
+ CC		:= $(shell if $(CC) -m64 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo $(CC); else echo sparc64-linux-gcc; fi )
++GCC_VERSION	:= $(call cc-version)
+ 
+ NEW_GCC := $(call cc-option-yn, -m64 -mcmodel=medlow)
+ NEW_GAS := $(shell if $(LD) -V 2>&1 | grep 'elf64_sparc' > /dev/null; then echo y; else echo n; fi)
+_
+

@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWAGJbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWAGJnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWAGJbj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 04:31:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbWAGJbj
+	id S1030381AbWAGJnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 04:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbWAGJnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 04:31:39 -0500
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:4747 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932337AbWAGJbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 04:31:38 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] sched: Fix adverse effects of NFS client    =?iso-8859-1?q?on=09interactive?= response
-Date: Sat, 7 Jan 2006 20:30:58 +1100
-User-Agent: KMail/1.9
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <5.2.1.1.2.20060106074738.00bbaeb8@pop.gmx.net> <5.2.1.1.2.20060107051229.00c42230@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20060107051229.00c42230@pop.gmx.net>
+	Sat, 7 Jan 2006 04:43:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:26038 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932709AbWAGJnX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 04:43:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VZST0giG1s1AIB++aLST1pTDmxDFe2XU1/BU9ppIPTtS3vQl4AwudNvjMnfSlf/O+gW0AZgwsiInLu1hysRbbw6h/eVoTo6FCyN1rCZPwjZ5T3tgjwDDw3S9VBWHob5XdgrQBzCFMdrUlxhIFr2gdEnT2wKvzgSxRsT3CdLprkg=
+Message-ID: <86802c440601070143v44ee9f4dua2dcef2a536d4c73@mail.gmail.com>
+Date: Sat, 7 Jan 2006 01:43:22 -0800
+From: yhlu <yhlu.kernel@gmail.com>
+To: Andi Kleen <ak@muc.de>, ebiederm@xmission.com
+Subject: Re: Inclusion of x86_64 memorize ioapic at bootup patch
+Cc: Vivek Goyal <vgoyal@in.ibm.com>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>
+In-Reply-To: <86802c440601062320r597d6970i3b120ec90f96abce@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200601072030.59445.kernel@kolivas.org>
+References: <6F7DA19D05F3CF40B890C7CA2DB13A42030949CB@ssvlexmb2.amd.com>
+	 <86802c440601061832m4898e20fw4c9a8360e85cfa17@mail.gmail.com>
+	 <86802c440601062238r1b304cd4j2d9c8e14a8324618@mail.gmail.com>
+	 <86802c440601062320r597d6970i3b120ec90f96abce@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 07 January 2006 16:27, Mike Galbraith wrote:
-> >   Personally, I think that all TASK_UNINTERRUPTIBLE sleeps should be
-> > treated as non interactive rather than just be heavily discounted (and
-> > that TASK_NONINTERACTIVE shouldn't be needed in conjunction with it) BUT
-> > I may be wrong especially w.r.t. media streamers such as audio and video
-> > players and the mechanisms they use to do sleeps between cpu bursts.
->
-> Try it, you won't like it.  When I first examined sleep_avg woes, my
-> reaction was to nuke uninterruptible sleep too... boy did that ever _suck_
-> :)
+andi,
 
-Glad you've seen why I put the uninterruptible sleep logic in there. In 
-essence this is why the NFS client interactive case is not as nice - the NFS 
-code doesn't do "work on behalf of" a cpu hog with the TASK_UNINTERRUPTIBLE 
-state. The uninterruptible sleep detection logic made a massive difference to 
-interactivity when cpu bound tasks do disk I/O.
+In LinuxBIOS, we don't set the MPS 0x467 and the AP still can be started by BSP.
 
-Cheers,
-Con
+are these really needed for x86_64?
+
+        Dprintk("Setting warm reset code and vector.\n");
+
+        CMOS_WRITE(0xa, 0xf);
+        local_flush_tlb();
+        Dprintk("1.\n");
+        *((volatile unsigned short *) phys_to_virt(0x469)) = start_rip >> 4;
+        Dprintk("2.\n");
+        *((volatile unsigned short *) phys_to_virt(0x467)) = start_rip & 0xf;
+        Dprintk("3.\n");
+
+the STARTUP IPI should work well with MPS v1.4
+
+YH

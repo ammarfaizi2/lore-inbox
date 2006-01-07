@@ -1,72 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWAGIrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWAGIyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030364AbWAGIrY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 03:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbWAGIrY
+	id S1030366AbWAGIyp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 03:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWAGIyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 03:47:24 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:37136 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030364AbWAGIrX (ORCPT
+	Sat, 7 Jan 2006 03:54:45 -0500
+Received: from mail.gmx.de ([213.165.64.21]:26505 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030366AbWAGIyo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 03:47:23 -0500
-Date: Sat, 7 Jan 2006 09:47:04 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
-Message-ID: <20060107084704.GA10557@mars.ravnborg.org>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136543914.2940.11.camel@laptopd505.fenrus.org> <43BEA672.4010309@pobox.com> <20060106184841.GA13917@mars.ravnborg.org> <p73k6dcykar.fsf@verdi.suse.de>
+	Sat, 7 Jan 2006 03:54:44 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20060107085929.00c24f98@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sat, 07 Jan 2006 09:54:27 +0100
+To: Peter Williams <pwil3058@bigpond.net.au>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client    
+  on	interactive response
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <43BF60EE.70909@bigpond.net.au>
+References: <5.2.1.1.2.20060107051229.00c42230@pop.gmx.net>
+ <5.2.1.1.2.20060106074738.00bbaeb8@pop.gmx.net>
+ <5.2.1.1.2.20060105143705.00be85c8@pop.gmx.net>
+ <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net>
+ <43BB2414.6060400@bigpond.net.au>
+ <43A8EF87.1080108@bigpond.net.au>
+ <1135145341.7910.17.camel@lade.trondhjem.org>
+ <43A8F714.4020406@bigpond.net.au>
+ <20060102110145.GA25624@aitel.hist.no>
+ <43B9BD19.5050408@bigpond.net.au>
+ <43BB2414.6060400@bigpond.net.au>
+ <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net>
+ <5.2.1.1.2.20060105143705.00be85c8@pop.gmx.net>
+ <5.2.1.1.2.20060106074738.00bbaeb8@pop.gmx.net>
+ <5.2.1.1.2.20060107051229.00c42230@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73k6dcykar.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0601-0, 01/02/2006), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 01:05:16AM +0100, Andi Kleen wrote:
-> 
-> The feature also has some drawbacks - last time I checked it
-> was still quite green (as in bananas). First it causes gcc 
-> to eat a lot more memory because it has to hold completely directories
-> worth of source in memory. This might slow things down if setups
-> that didn't swap before start doing this now.
-kbuild rely on the gcc feature that generates a dependency file
-using: -Wp,-MD,<file>
-This is broken when adding several .c files.
-It looks like gcc generate a new dependency file for each and every
-input file overwriting the old one. Obviously caused by gcc being
-invoked once for each input file in my version of gcc.
+At 05:34 PM 1/7/2006 +1100, Peter Williams wrote:
+>Mike Galbraith wrote:
+>
+>>I'm trying to think of ways to quell the nasty side of sleep_avg without 
+>>destroying the good.  One method I've tinkered with in the past with 
+>>encouraging results is to compute a weighted slice_avg, which is a 
+>>measure of how long it takes you to use your slice, and scale it to match 
+>>MAX_SLEEPAVG for easy comparison.  A possible use thereof:  In order to 
+>>be classified interactive, you need the sleep_avg, but that's not 
+>>enough... you also have to have a record of sharing the cpu. When your 
+>>slice_avg degrades enough as you burn cpu, you no longer get to loop in 
+>>the active queue.  Being relegated to the expired array though will 
+>>improve your slice_avg and let you regain your status.  Your priority 
+>>remains, so you can still preempt, but you become mortal and have to 
+>>share.  When there is a large disparity between sleep_avg and slice_avg, 
+>>it can be used as a general purpose throttle to trigger 
+>>TASK_NONINTERACTIVE flagging in schedule() as negative feedback for the 
+>>ill behaved.  Thoughts?
+>
+>Sounds like the kind of thing that's required.  I think the deferred shift 
+>from active to expired is safe as long as CPU hogs can't exploit it and 
+>your scheme sounds like it might provide that assurance.  One problem this 
+>solution will experience is that when the system gets heavily loaded every 
+>task will have small CPU usage rates (even the CPU hogs) and this makes it 
+>harder to detect the CPU hogs.
 
-gcc --version:
-gcc (GCC) 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)
-Copyright (C) 2004 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+True.  A gaggle of more or less equally well (or not) behaving tasks will 
+have their 'hogginess' diluted.   I'll have to think more about scaling 
+with nr_running or maybe starting the clock at first tick of a new slice... 
+that should still catch most of the guys who are burning hard without being 
+preempted, or only sleeping for short intervals only to keep coming right 
+back to beat up poor cc1.  I think the real problem children should stick 
+out enough for a proof of concept even without additional complexity.
 
-Anyone that knows how I can enable gcc 4.x for kernel builds on a gentoo
-box without changing gcc for everything else?
-I could install a vanilla gcc but too bored to do so.
+>   One slight variation of your scheme would be to measure the average 
+> length of the CPU runs that the task does (i.e. how long it runs without 
+> voluntarily relinquishing the CPU) and not allowing them to defer the 
+> shift to the expired array if this average run length is greater than 
+> some specified value.  The length of this average for each task shouldn't 
+> change with system load.  (This is more or less saying that it's ok for a 
+> task to stay on the active array provided it's unlikely to delay the 
+> switch between the active and expired arrays for very long.)
 
-> I suspect it'll also run slower with this because it has some algorithms
-> that scale with the size of the input source and some of the
-> directories in the kernel can be quite big (e.g. i'm not 
-> sure letting a optimizer lose on all of xfs at the same 
-> time is a good idea)
-The most noticeable difference will be when it has to compile all files
-for a module when a single file changes. And cccache will not save us in
-this case.
+Average burn time would indeed probably be a better metric, but that would 
+require doing bookkeeping is the fast path.  I'd like to stick to tick time 
+or even better, slice renewal time if possible to keep it down on the 'dead 
+simple and dirt cheap' shelf.  After all, this kind of thing is supposed to 
+accomplish absolutely nothing meaningful the vast majority of the time :)
 
-> And gcc is really picky about type compatibility between source files
-> with program-at-a-time.  If any types of the same symbols are
-> incompatible even in minor ways you get an ICE. That's technically
-> illegal, but tends to happen often in practice (e.g. when people
-> use extern) It might end up being quite a lot of work to clean this up.
+         Thanks for the feedback,
 
-Even with an ICE it may be wortwhile to do a allmodconfig build just to
-get an overview of type inconsistencies - no?
-A quick grep shows that we have 3300 extern functions in .c files in the
-kernel :-(
+         -Mike 
 
-	Sam

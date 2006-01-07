@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965395AbWAGCN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752507AbWAGCSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965395AbWAGCN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 21:13:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965399AbWAGCN0
+	id S1752507AbWAGCSG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 21:18:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752504AbWAGCSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 21:13:26 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:55449 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965395AbWAGCN0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 21:13:26 -0500
-Subject: Re: [PATCH] slab: Adds missing kmalloc() checks.
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060106133051.367f2d9b.lcapitulino@mandriva.com.br>
-References: <20060106131246.0b9fde8c.lcapitulino@mandriva.com.br>
-	 <1136561087.2940.39.camel@laptopd505.fenrus.org>
-	 <20060106133051.367f2d9b.lcapitulino@mandriva.com.br>
-Date: Sat, 07 Jan 2006 04:12:50 +0200
-Message-Id: <1136599971.7163.3.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 6 Jan 2006 21:18:06 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:33188 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752500AbWAGCSE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 21:18:04 -0500
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
+Date: Sat, 7 Jan 2006 02:09:01 +0100
+User-Agent: KMail/1.8.2
+Cc: paulmck@us.ibm.com, dada1@cosmosbay.com, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       manfred@colorfullife.com, netdev@vger.kernel.org
+References: <43BEA693.5010509@cosmosbay.com> <200601062157.42470.ak@suse.de> <20060106.161721.124249301.davem@davemloft.net>
+In-Reply-To: <20060106.161721.124249301.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Disposition: inline
+Message-Id: <200601070209.02157.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Saturday 07 January 2006 01:17, David S. Miller wrote:
 
-On Fri, 2006-01-06 at 13:12 -0200, Luiz Fernando Capitulino wrote:
-> | >  Adds two missing kmalloc() checks in kmem_cache_init(). Note that if the
-> | > allocation fails, there is nothing to do, so we panic();
+> 
+> I mean something like this patch:
 
-On Fri, 06 Jan 2006 16:24:47 +0100
-Arjan van de Ven <arjan@infradead.org> wrote:
-> | ok so what good does this do? if you die this early.. you are in deeper
-> | problems, and can't boot. while this makes the code bigger...
+Looks like a good idea to me.
 
-On Fri, 2006-01-06 at 13:30 -0200, Luiz Fernando Capitulino wrote:
->  Well, you'll get a panic with a message saying you have no memory to
-> boot, instead of a OOPS with a kernel NULL pointer derefecence, which
-> will make you look for a bug.
+I always disliked the per chain spinlocks even for other hash tables like
+TCP/UDP multiplex - it would be much nicer to use a much smaller separately 
+hashed lock table and save cache. In this case the special case of using
+a one entry only lock hash table makes sense.
 
-The code is in init section so I don't think size is an issue. A plain
-BUG_ON would be better though as it can be disabled by the embedded
-folk.
-
-			Pekka
-
+-Andi

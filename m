@@ -1,106 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWAGBJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWAGBLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWAGBJc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jan 2006 20:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWAGBJc
+	id S1030281AbWAGBLK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jan 2006 20:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWAGBLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 20:09:32 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:39873 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932301AbWAGBJb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 20:09:31 -0500
-Message-ID: <43BF14C6.2000209@drzeus.cx>
-Date: Sat, 07 Jan 2006 02:09:26 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20060103)
+	Fri, 6 Jan 2006 20:11:10 -0500
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:49591 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965390AbWAGBLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jan 2006 20:11:09 -0500
+Message-ID: <43BF152A.80509@bigpond.net.au>
+Date: Sat, 07 Jan 2006 12:11:06 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jordan Crouse <jordan.crouse@amd.com>
-CC: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Minimise protocol awareness in Au1x00 driver
-References: <20060106234012.31480.88314.stgit@poseidon.drzeus.cx> <43BF00A4.8070606@drzeus.cx> <20060107010159.GC17575@cosmic.amd.com>
-In-Reply-To: <20060107010159.GC17575@cosmic.amd.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Mike Galbraith <efault@gmx.de>
+CC: Helge Hafting <helgehaf@aitel.hist.no>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client    on	interactive
+ response
+References: <5.2.1.1.2.20060105143705.00be85c8@pop.gmx.net> <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net> <43BB2414.6060400@bigpond.net.au> <43A8EF87.1080108@bigpond.net.au> <1135145341.7910.17.camel@lade.trondhjem.org> <43A8F714.4020406@bigpond.net.au> <20060102110145.GA25624@aitel.hist.no> <43B9BD19.5050408@bigpond.net.au> <43BB2414.6060400@bigpond.net.au> <5.2.1.1.2.20060105070601.026b21f0@pop.gmx.net> <5.2.1.1.2.20060105143705.00be85c8@pop.gmx.net> <5.2.1.1.2.20060106074738.00bbaeb8@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20060106074738.00bbaeb8@pop.gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 7 Jan 2006 01:11:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jordan Crouse wrote:
->> Whilst doing this I also noticed how horribly broken this driver is with
->> regard to sending the stop command. Instead of sending the requested
->> command it sends a hard coded opcode!! Jordan, please fix this ASAP.
->>     
->
-> I recognize that this is a bad thing, but bear with me for a second while
-> I digress.
->
-> The current thinking, as far as I can tell is that that the drivers need to
-> be aware that that data->stop opcode may be something other then CMD12.
->
-> If that is true, then I'm worried about this snippet from your patch:
->
-> +       if (host->mrq->data && (host->mrq->data->stop == cmd))
->                 mmccmd |= SD_CMD_CT_7;
-> -               break;
-> +       else if (!cmd->data)
-> +               mmccmd |= SD_CMD_CT_0;
->
-> Because, as the AMD specification states that CT_7 means (page 420 of
-> the AU1200 data book):
->
->   * Terminate transfer of a multiple block write or read. Use when 
->   * doing a STOP_TRANSMISSION (CMD12) command.
->
->   
+Mike Galbraith wrote:
+> At 10:13 AM 1/6/2006 +1100, Peter Williams wrote:
+> 
+>> Mike Galbraith wrote:
+>>
+>>> At 10:31 PM 1/5/2006 +1100, Peter Williams wrote:
+>>>
+>>>> Mike Galbraith wrote:
+>>>>
+>>>>> At 08:51 AM 1/5/2006 +1100, Peter Williams wrote:
+>>>>>
+>>>>>> I think that some of the harder to understand parts of the 
+>>>>>> scheduler code are actually attempts to overcome the undesirable 
+>>>>>> effects (such as those I've described) of inappropriately 
+>>>>>> identifying tasks as interactive.  I think that it would have been 
+>>>>>> better to attempt to fix the inappropriate identifications rather 
+>>>>>> than their effects and I think the prudent use of 
+>>>>>> TASK_NONINTERACTIVE is an important tool for achieving this.
+>>>>>
+>>>>>
+>>>>>
+>>>>> IMHO, that's nothing but a cover for the weaknesses induced by 
+>>>>> using exclusively sleep time as an information source for the 
+>>>>> priority calculation.  While this heuristic does work pretty darn 
+>>>>> well, it's easily fooled (intentionally or otherwise).  The 
+>>>>> challenge is to find the right low cost informational component, 
+>>>>> and to stir it in at O(1).
+>>>>
+>>>>
+>>>>
+>>>> TASK_NONINTERACTIVE helps in this regard, is no cost in the code 
+>>>> where it's used and probably decreases the costs in the scheduler 
+>>>> code by enabling some processing to be skipped.  If by its judicious 
+>>>> use the heuristic is only fed interactive sleep data the heuristics 
+>>>> accuracy in identifying interactive tasks should be improved.  It 
+>>>> may also allow the heuristic to be simplified.
+>>>
+>>>
+>>> I disagree.  You can nip and tuck all the bits of sleep time you 
+>>> want, and it'll just shift the lumpy spots around (btdt).
+>>
+>>
+>> Yes, but there's a lot of (understandable) reluctance to do any major 
+>> rework of this part of the scheduler so we're stuck with nips and 
+>> tucks for the time being.  This patch is a zero cost nip and tuck.
+> 
+> 
+> Color me skeptical, but nonetheless, it looks to me like the mechanism 
+> might need the attached.
 
-Quite correct. A test for the opcode and an error if it's "wrong" would
-be the safest approach. Usually these types of command types are there
-to kick the controller's state machine in the correct direction. So it
-probably doesn't care what the command is (CMD12 happens to be the only
-valid command for this transition ATM). Only those who know the
-hardware's internal workings can answer this. So we either get in touch
-with one of these people or we create a test case to determine this.
+Is that patch complete?  (This is all I got.)
 
-> The reason why I was so protocol heavy in the original version of this
-> driver was because the spec is very specific in this regard.  CT_7 *means*
-> a CMD12, CT_3 *mean* a CMD25, so on and so forth.  Your code does an
-> excellent job of removing these dependencies, but it opens up the door
-> for scary behavior if the command opcode behind the command type is ever
-> changed.
->
-> That said, I recognize that my decision to hard code the stop command
-> was a stupid one (it was done for speed reasons - if you assume that a CMD12
-> always stops the transaction, then why bother parsing the cmd structure)?
->
-> So let me be blunt - why are we trying to be so generic?  Is it because
-> we want to keep the door open for future versions of the SD specification
-> that may change things up (which is an admirable goal, I admit).
->
->   
+--- linux-2.6.15/kernel/sched.c.org	Fri Jan  6 08:44:09 2006
++++ linux-2.6.15/kernel/sched.c	Fri Jan  6 08:51:03 2006
+@@ -1353,7 +1353,7 @@
 
-Yes. The hardware should be an interface to the MMC/SD bus. No more.
-Anything else will eventually create a maintenance nightmare.
+  out_activate:
+  #endif /* CONFIG_SMP */
+-	if (old_state == TASK_UNINTERRUPTIBLE) {
++	if (old_state & TASK_UNINTERRUPTIBLE) {
+  		rq->nr_uninterruptible--;
+  		/*
+  		 * Tasks on involuntary sleep don't earn
+@@ -3010,7 +3010,7 @@
+  				unlikely(signal_pending(prev))))
+  			prev->state = TASK_RUNNING;
+  		else {
+-			if (prev->state == TASK_UNINTERRUPTIBLE)
++			if (prev->state & TASK_UNINTERRUPTIBLE)
+  				rq->nr_uninterruptible++;
+  			deactivate_task(prev, rq);
+  		}
 
-> If that is the case however, then perhaps we need to have some sort of 
-> version control mechanism in place - since the AU1200 SD controller clearly
-> states that:
->
->   * The SD controllers comply with version 1.1 of the SD card specification.
->   * References in this section are to that version of the specification.
->
->   
+In the absence of any use of TASK_NONINTERACTIVE in conjunction with 
+TASK_UNINTERRUPTIBLE it will have no effect.  Personally, I think that 
+all TASK_UNINTERRUPTIBLE sleeps should be treated as non interactive 
+rather than just be heavily discounted (and that TASK_NONINTERACTIVE 
+shouldn't be needed in conjunction with it) BUT I may be wrong 
+especially w.r.t. media streamers such as audio and video players and 
+the mechanisms they use to do sleeps between cpu bursts.
 
-I do not think we should cater to the laziness of hardware manufacturers
-(even if we happen to work for said manufacturer). The hardware has no
-business caring about the opcodes, only their semantics. If the spec.
-keeps referring to specific opcodes then we have to try and see past
-those through guessing and testing. I am convinced that the hardware has
-no requirements on the SD spec on a protocol layer. Only the
-specification suffers from such a limitation. Let's try and overcome
-that limitation in the driver.
+> 
+> On the subject of nip and tuck, take a look at the little proggy posted 
+> in thread [SCHED] wrong priority calc - SIMPLE test case.  That testcase 
+> was the result of Paolo Ornati looking into a real problem on his 
+> system.  I just 'fixed' that nanosleep() problem by judicious 
+> application of TASK_NONINTERACTIVE to the schedule_timeout().  Sure, it 
+> works, but it doesn't look like anything but a bandaid (tourniquet in 
+> this case:) to me.
+> 
+>         -Mike
 
-What it boils down to is that layers and abstractions are there for a
-reason. Let's try and not to break them because of short gains since it
-usually ends up costing us in the long run.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Rgds
-Pierre
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

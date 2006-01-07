@@ -1,1527 +1,1560 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWAGUvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030567AbWAGUy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWAGUvi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 15:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752585AbWAGUvi
+	id S1030567AbWAGUy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 15:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752585AbWAGUy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 15:51:38 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:55079 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750984AbWAGUvh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 15:51:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:message-id:from;
-        b=q7wo4s1e024fXAK3AgUflNIA3j47o2utUQHsrt5A3YsghkcRZImud21im1nqP9lbFtneBamm+hh/NhgCqSgwnuy3HdB013AeRgMZqxdtke+Om/SvbRvRrpm7FEAsiUHPnniav/FMzdegUr8X9iAwTUa4Ac7rCmtI8w+hNnFv8RE=
-Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+	Sat, 7 Jan 2006 15:54:57 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:20879 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1030567AbWAGUyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 15:54:55 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Badness in __mutex_unlock_slowpath
-Date: Sat, 7 Jan 2006 15:51:19 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-References: <20060107052221.61d0b600.akpm@osdl.org>
-In-Reply-To: <20060107052221.61d0b600.akpm@osdl.org>
+Subject: Re: [PATCH -mm 1/2] swsusp: low level interface
+Date: Sat, 7 Jan 2006 21:56:25 +0100
+User-Agent: KMail/1.9
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+References: <200601071328.39707.rjw@sisk.pl> <20060107052049.43ded9fd.akpm@osdl.org> <200601071457.54112.rjw@sisk.pl>
+In-Reply-To: <200601071457.54112.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_InCwDr7Aj1Csm/p"
-Message-Id: <200601071551.20344.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
---Boundary-00=_InCwDr7Aj1Csm/p
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-
-Hello,
-
-I got this when "amaroK" started playing:
-
-Badness in __mutex_unlock_slowpath at kernel/mutex.c:214
- [<c03538e8>] __mutex_unlock_slowpath+0x56/0x1a2
- [<c0302f08>] snd_pcm_oss_write+0x0/0x1e0
- [<c0302f3c>] snd_pcm_oss_write+0x34/0x1e0
- [<c0302f08>] snd_pcm_oss_write+0x0/0x1e0
- [<c0148221>] vfs_write+0x83/0x122
- [<c0148a36>] sys_write+0x3c/0x63
- [<c0102ba3>] sysenter_past_esp+0x54/0x75
-
-(2.6.15-mm2)
-
-The sound was garbled with amaroK, but fine with xmms.
-Note: I'm underclocking by a couple of percent.
-
-HTH,
-Andrew Wade
-
---Boundary-00=_InCwDr7Aj1Csm/p
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name=".config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename=".config"
-
-#
-# Automatically generated make config: don't edit
-# Linux kernel version: 2.6.15-mm2
-# Sat Jan  7 11:13:17 2006
-#
-CONFIG_X86_32=y
-CONFIG_GENERIC_TIME=y
-CONFIG_SEMAPHORE_SLEEPERS=y
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_ARCH_MAY_HAVE_PC_FDC=y
-CONFIG_DMI=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-
-#
-# General setup
-#
-CONFIG_LOCALVERSION=""
-CONFIG_LOCALVERSION_AUTO=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-# CONFIG_AUDIT is not set
-# CONFIG_IKCONFIG is not set
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_UID16=y
-CONFIG_VM86=y
-CONFIG_CC_OPTIMIZE_FOR_SIZE=y
-# CONFIG_EMBEDDED is not set
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS_ALL is not set
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_HOTPLUG=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_DOUBLEFAULT=y
-CONFIG_ELF_CORE=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_SLAB=y
-CONFIG_SERIAL_PCI=y
-# CONFIG_TINY_SHMEM is not set
-CONFIG_BASE_SMALL=0
-# CONFIG_SLOB is not set
-
-#
-# Loadable module support
-#
-# CONFIG_MODULES is not set
-
-#
-# Block layer
-#
-CONFIG_LBD=y
-# CONFIG_BLK_DEV_IO_TRACE is not set
-
-#
-# IO Schedulers
-#
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-# CONFIG_DEFAULT_AS is not set
-# CONFIG_DEFAULT_DEADLINE is not set
-CONFIG_DEFAULT_CFQ=y
-# CONFIG_DEFAULT_NOOP is not set
-CONFIG_DEFAULT_IOSCHED="cfq"
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_ELAN is not set
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUMM is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-CONFIG_MK7=y
-# CONFIG_MK8 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MEFFICEON is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MGEODEGX1 is not set
-# CONFIG_MGEODE_LX is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-# CONFIG_X86_GENERIC is not set
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_CMPXCHG64=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_TSC=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-# CONFIG_SMP is not set
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-# CONFIG_X86_MCE_P4THERMAL is not set
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_X86_REBOOTFIXUPS is not set
-# CONFIG_MICROCODE is not set
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-
-#
-# Firmware Drivers
-#
-# CONFIG_EDD is not set
-# CONFIG_DELL_RBU is not set
-# CONFIG_DCDBAS is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-CONFIG_ARCH_FLATMEM_ENABLE=y
-CONFIG_ARCH_SPARSEMEM_ENABLE=y
-CONFIG_ARCH_SELECT_MEMORY_MODEL=y
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-# CONFIG_DISCONTIGMEM_MANUAL is not set
-# CONFIG_SPARSEMEM_MANUAL is not set
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_SPARSEMEM_STATIC=y
-CONFIG_SPLIT_PTLOCK_CPUS=4
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-# CONFIG_EFI is not set
-CONFIG_REGPARM=y
-CONFIG_SECCOMP=y
-# CONFIG_HZ_100 is not set
-CONFIG_HZ_250=y
-# CONFIG_HZ_1000 is not set
-CONFIG_HZ=250
-# CONFIG_KEXEC is not set
-CONFIG_PHYSICAL_START=0x100000
-
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-# CONFIG_PM_LEGACY is not set
-# CONFIG_PM_DEBUG is not set
-# CONFIG_SOFTWARE_SUSPEND is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-# CONFIG_ACPI_SLEEP_PROC_SLEEP is not set
-# CONFIG_ACPI_AC is not set
-# CONFIG_ACPI_BATTERY is not set
-CONFIG_ACPI_BUTTON=y
-# CONFIG_ACPI_VIDEO is not set
-# CONFIG_ACPI_HOTKEY is not set
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-# CONFIG_ACPI_THERMAL is not set
-# CONFIG_ACPI_ASUS is not set
-# CONFIG_ACPI_IBM is not set
-# CONFIG_ACPI_TOSHIBA is not set
-# CONFIG_ACPI_SONY is not set
-CONFIG_ACPI_BLACKLIST_YEAR=0
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_SYSTEM=y
-# CONFIG_ACPI_CONTAINER is not set
-
-#
-# APM (Advanced Power Management) BIOS Support
-#
-# CONFIG_APM is not set
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GOMMCONFIG is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-# CONFIG_PCIEPORTBUS is not set
-CONFIG_PCI_MSI=y
-# CONFIG_PCI_LEGACY_PROC is not set
-# CONFIG_PCI_DEBUG is not set
-CONFIG_ISA_DMA_API=y
-# CONFIG_ISA is not set
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
-
-#
-# PCCARD (PCMCIA/CardBus) support
-#
-# CONFIG_PCCARD is not set
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_BINFMT_ELF=y
-# CONFIG_BINFMT_AOUT is not set
-CONFIG_BINFMT_MISC=y
-
-#
-# Networking
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-# CONFIG_NET_KEY is not set
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-# CONFIG_IP_ADVANCED_ROUTER is not set
-CONFIG_IP_FIB_HASH=y
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_ARPD is not set
-# CONFIG_SYN_COOKIES is not set
-# CONFIG_INET_AH is not set
-# CONFIG_INET_ESP is not set
-# CONFIG_INET_IPCOMP is not set
-# CONFIG_INET_TUNNEL is not set
-CONFIG_INET_DIAG=y
-CONFIG_INET_TCP_DIAG=y
-# CONFIG_TCP_CONG_ADVANCED is not set
-CONFIG_TCP_CONG_BIC=y
-# CONFIG_IPV6 is not set
-# CONFIG_NETFILTER is not set
-
-#
-# DCCP Configuration (EXPERIMENTAL)
-#
-# CONFIG_IP_DCCP is not set
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_DECNET is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-# CONFIG_HAMRADIO is not set
-# CONFIG_IRDA is not set
-# CONFIG_BT is not set
-# CONFIG_IEEE80211 is not set
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=y
-# CONFIG_DEBUG_DRIVER is not set
-
-#
-# Connector - unified userspace <-> kernelspace linker
-#
-# CONFIG_CONNECTOR is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-# CONFIG_PNP_DEBUG is not set
-
-#
-# Protocols
-#
-CONFIG_PNPACPI=y
-
-#
-# Block devices
-#
-# CONFIG_BLK_DEV_FD is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-# CONFIG_BLK_DEV_COW_COMMON is not set
-CONFIG_BLK_DEV_LOOP=y
-# CONFIG_BLK_DEV_CRYPTOLOOP is not set
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_SX8 is not set
-# CONFIG_BLK_DEV_UB is not set
-# CONFIG_BLK_DEV_RAM is not set
-CONFIG_BLK_DEV_RAM_COUNT=16
-# CONFIG_CDROM_PKTCDVD is not set
-# CONFIG_ATA_OVER_ETH is not set
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_IDE_SATA is not set
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_IDE_GENERIC=y
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_BLK_DEV_GENERIC=y
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_ATIIXP is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_CS5535 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_IT821X is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_ARM is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# SCSI device support
-#
-# CONFIG_RAID_ATTRS is not set
-CONFIG_SCSI=y
-# CONFIG_SCSI_PROC_FS is not set
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-# CONFIG_BLK_DEV_SR is not set
-# CONFIG_CHR_DEV_SG is not set
-# CONFIG_CHR_DEV_SCH is not set
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_MULTI_LUN is not set
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI Transports
-#
-# CONFIG_SCSI_SPI_ATTRS is not set
-# CONFIG_SCSI_FC_ATTRS is not set
-# CONFIG_SCSI_ISCSI_ATTRS is not set
-# CONFIG_SCSI_SAS_ATTRS is not set
-# CONFIG_SAS_CLASS is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_ISCSI_TCP is not set
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_ARCMSR is not set
-# CONFIG_MEGARAID_NEWGEN is not set
-# CONFIG_MEGARAID_LEGACY is not set
-# CONFIG_MEGARAID_SAS is not set
-# CONFIG_SCSI_SATA is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_QLA2XXX is not set
-# CONFIG_SCSI_LPFC is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-# CONFIG_FUSION_SPI is not set
-# CONFIG_FUSION_FC is not set
-# CONFIG_FUSION_SAS is not set
-
-#
-# IEEE 1394 (FireWire) support
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-
-#
-# PHY device support
-#
-# CONFIG_PHYLIB is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_CASSINI is not set
-# CONFIG_NET_VENDOR_3COM is not set
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-# CONFIG_HP100 is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_AMD8111_ETH is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_B44 is not set
-# CONFIG_FORCEDETH is not set
-# CONFIG_DGRS is not set
-# CONFIG_EEPRO100 is not set
-# CONFIG_E100 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-# CONFIG_8139CP is not set
-CONFIG_8139TOO=y
-# CONFIG_8139TOO_PIO is not set
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-# CONFIG_8139TOO_8129 is not set
-# CONFIG_8139_OLD_RX_RESET is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-# CONFIG_VIA_RHINE is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SIS190 is not set
-# CONFIG_SKGE is not set
-# CONFIG_SKY2 is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_VIA_VELOCITY is not set
-# CONFIG_TIGON3 is not set
-# CONFIG_BNX2 is not set
-
-#
-# Ethernet (10000 Mbit)
-#
-# CONFIG_CHELSIO_T1 is not set
-# CONFIG_IXGB is not set
-# CONFIG_S2IO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-# CONFIG_NET_FC is not set
-# CONFIG_SHAPER is not set
-# CONFIG_NETCONSOLE is not set
-# CONFIG_KGDBOE is not set
-# CONFIG_NETPOLL is not set
-# CONFIG_NETPOLL_RX is not set
-# CONFIG_NETPOLL_TRAP is not set
-# CONFIG_NET_POLL_CONTROLLER is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-# CONFIG_INPUT_MOUSEDEV_PSAUX is not set
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=y
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-# CONFIG_MOUSE_PS2 is not set
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_VSXXXAA is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-# CONFIG_INPUT_MISC is not set
-
-#
-# Hardware I/O ports
-#
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-# CONFIG_SERIO_SERPORT is not set
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PCIPS2 is not set
-CONFIG_SERIO_LIBPS2=y
-# CONFIG_SERIO_RAW is not set
-# CONFIG_GAMEPORT is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-# CONFIG_SERIAL_8250_ACPI is not set
-CONFIG_SERIAL_8250_NR_UARTS=4
-# CONFIG_SERIAL_8250_EXTENDED is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-# CONFIG_LEGACY_PTYS is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_HW_RANDOM is not set
-# CONFIG_NVRAM is not set
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_ATI is not set
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_AMD64 is not set
-# CONFIG_AGP_INTEL is not set
-# CONFIG_AGP_NVIDIA is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_SWORKS is not set
-CONFIG_AGP_VIA=y
-# CONFIG_AGP_EFFICEON is not set
-CONFIG_DRM=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_R128 is not set
-CONFIG_DRM_RADEON=y
-# CONFIG_DRM_MGA is not set
-# CONFIG_DRM_SIS is not set
-# CONFIG_DRM_VIA is not set
-# CONFIG_DRM_SAVAGE is not set
-# CONFIG_MWAVE is not set
-# CONFIG_CS5535_GPIO is not set
-# CONFIG_RAW_DRIVER is not set
-CONFIG_HPET=y
-# CONFIG_HPET_RTC_IRQ is not set
-CONFIG_HPET_MMAP=y
-CONFIG_HANGCHECK_TIMER=y
-
-#
-# TPM devices
-#
-# CONFIG_TCG_TPM is not set
-# CONFIG_TELCLOCK is not set
-
-#
-# I2C support
-#
-CONFIG_I2C=y
-# CONFIG_I2C_CHARDEV is not set
-
-#
-# I2C Algorithms
-#
-CONFIG_I2C_ALGOBIT=y
-# CONFIG_I2C_ALGOPCF is not set
-# CONFIG_I2C_ALGOPCA is not set
-
-#
-# I2C Hardware Bus support
-#
-# CONFIG_I2C_ALI1535 is not set
-# CONFIG_I2C_ALI1563 is not set
-# CONFIG_I2C_ALI15X3 is not set
-# CONFIG_I2C_AMD756 is not set
-# CONFIG_I2C_AMD8111 is not set
-# CONFIG_I2C_I801 is not set
-# CONFIG_I2C_I810 is not set
-# CONFIG_I2C_PIIX4 is not set
-# CONFIG_I2C_NFORCE2 is not set
-# CONFIG_I2C_PARPORT_LIGHT is not set
-# CONFIG_I2C_PROSAVAGE is not set
-# CONFIG_I2C_SAVAGE4 is not set
-# CONFIG_SCx200_ACB is not set
-# CONFIG_I2C_SIS5595 is not set
-# CONFIG_I2C_SIS630 is not set
-# CONFIG_I2C_SIS96X is not set
-# CONFIG_I2C_VIA is not set
-CONFIG_I2C_VIAPRO=y
-# CONFIG_I2C_VOODOO3 is not set
-# CONFIG_I2C_PCA_ISA is not set
-
-#
-# Miscellaneous I2C Chip support
-#
-# CONFIG_SENSORS_DS1337 is not set
-# CONFIG_SENSORS_DS1374 is not set
-# CONFIG_SENSORS_EEPROM is not set
-# CONFIG_SENSORS_PCF8574 is not set
-# CONFIG_SENSORS_PCA9539 is not set
-# CONFIG_SENSORS_PCF8591 is not set
-# CONFIG_SENSORS_RTC8564 is not set
-# CONFIG_SENSORS_MAX6875 is not set
-# CONFIG_RTC_X1205_I2C is not set
-# CONFIG_I2C_DEBUG_CORE is not set
-# CONFIG_I2C_DEBUG_ALGO is not set
-# CONFIG_I2C_DEBUG_BUS is not set
-# CONFIG_I2C_DEBUG_CHIP is not set
-
-#
-# SPI support
-#
-CONFIG_SPI_ARCH_HAS_MASTER=y
-# CONFIG_SPI is not set
-# CONFIG_SPI_MASTER is not set
-
-#
-# Dallas's 1-wire bus
-#
-# CONFIG_W1 is not set
-
-#
-# Hardware Monitoring support
-#
-CONFIG_HWMON=y
-CONFIG_HWMON_VID=y
-# CONFIG_SENSORS_ADM1021 is not set
-# CONFIG_SENSORS_ADM1025 is not set
-# CONFIG_SENSORS_ADM1026 is not set
-# CONFIG_SENSORS_ADM1031 is not set
-# CONFIG_SENSORS_ADM9240 is not set
-CONFIG_SENSORS_ASB100=y
-# CONFIG_SENSORS_ATXP1 is not set
-# CONFIG_SENSORS_DS1621 is not set
-# CONFIG_SENSORS_FSCHER is not set
-# CONFIG_SENSORS_FSCPOS is not set
-# CONFIG_SENSORS_GL518SM is not set
-# CONFIG_SENSORS_GL520SM is not set
-# CONFIG_SENSORS_IT87 is not set
-# CONFIG_SENSORS_LM63 is not set
-# CONFIG_SENSORS_LM75 is not set
-# CONFIG_SENSORS_LM77 is not set
-# CONFIG_SENSORS_LM78 is not set
-# CONFIG_SENSORS_LM80 is not set
-# CONFIG_SENSORS_LM83 is not set
-# CONFIG_SENSORS_LM85 is not set
-# CONFIG_SENSORS_LM87 is not set
-# CONFIG_SENSORS_LM90 is not set
-# CONFIG_SENSORS_LM92 is not set
-# CONFIG_SENSORS_MAX1619 is not set
-# CONFIG_SENSORS_PC87360 is not set
-# CONFIG_SENSORS_SIS5595 is not set
-# CONFIG_SENSORS_SMSC47M1 is not set
-# CONFIG_SENSORS_SMSC47B397 is not set
-# CONFIG_SENSORS_VIA686A is not set
-# CONFIG_SENSORS_VT8231 is not set
-# CONFIG_SENSORS_W83781D is not set
-# CONFIG_SENSORS_W83792D is not set
-# CONFIG_SENSORS_W83L785TS is not set
-# CONFIG_SENSORS_W83627HF is not set
-# CONFIG_SENSORS_W83627EHF is not set
-# CONFIG_SENSORS_HDAPS is not set
-# CONFIG_HWMON_DEBUG_CHIP is not set
-
-#
-# Misc devices
-#
-# CONFIG_IBM_ASM is not set
-
-#
-# Multimedia Capabilities Port drivers
-#
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-
-#
-# Graphics support
-#
-CONFIG_FB=y
-CONFIG_FB_CFB_FILLRECT=y
-CONFIG_FB_CFB_COPYAREA=y
-CONFIG_FB_CFB_IMAGEBLIT=y
-# CONFIG_FB_MACMODES is not set
-CONFIG_FB_MODE_HELPERS=y
-# CONFIG_FB_TILEBLITTING is not set
-# CONFIG_FB_CIRRUS is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_ARC is not set
-# CONFIG_FB_ASILIANT is not set
-# CONFIG_FB_IMSTT is not set
-# CONFIG_FB_VGA16 is not set
-# CONFIG_FB_VESA is not set
-# CONFIG_VIDEO_SELECT is not set
-# CONFIG_FB_HGA is not set
-# CONFIG_FB_S1D13XXX is not set
-# CONFIG_FB_NVIDIA is not set
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_I810 is not set
-# CONFIG_FB_INTEL is not set
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON_OLD is not set
-CONFIG_FB_RADEON=y
-CONFIG_FB_RADEON_I2C=y
-# CONFIG_FB_RADEON_DEBUG is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SAVAGE is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_KYRO is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_CYBLA is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_GEODE is not set
-# CONFIG_FB_VIRTUAL is not set
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-# CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
-CONFIG_FONTS=y
-# CONFIG_FONT_8x8 is not set
-CONFIG_FONT_8x16=y
-# CONFIG_FONT_6x11 is not set
-# CONFIG_FONT_7x14 is not set
-# CONFIG_FONT_PEARL_8x8 is not set
-# CONFIG_FONT_ACORN_8x8 is not set
-# CONFIG_FONT_MINI_4x6 is not set
-# CONFIG_FONT_SUN8x16 is not set
-# CONFIG_FONT_SUN12x22 is not set
-# CONFIG_FONT_10x18 is not set
-
-#
-# Logo configuration
-#
-# CONFIG_LOGO is not set
-# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_HWDEP=y
-CONFIG_SND_RAWMIDI=y
-# CONFIG_SND_SEQUENCER is not set
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_RTCTIMER=y
-# CONFIG_SND_DYNAMIC_MINORS is not set
-CONFIG_SND_SUPPORT_OLD_API=y
-# CONFIG_SND_VERBOSE_PRINTK is not set
-# CONFIG_SND_DEBUG is not set
-
-#
-# Generic devices
-#
-CONFIG_SND_MPU401_UART=y
-CONFIG_SND_OPL3_LIB=y
-# CONFIG_SND_DUMMY is not set
-# CONFIG_SND_MTPAV is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-# CONFIG_SND_MPU401 is not set
-
-#
-# PCI devices
-#
-# CONFIG_SND_AD1889 is not set
-# CONFIG_SND_ALS4000 is not set
-# CONFIG_SND_ALI5451 is not set
-# CONFIG_SND_ATIIXP is not set
-# CONFIG_SND_ATIIXP_MODEM is not set
-# CONFIG_SND_AU8810 is not set
-# CONFIG_SND_AU8820 is not set
-# CONFIG_SND_AU8830 is not set
-# CONFIG_SND_AZT3328 is not set
-# CONFIG_SND_BT87X is not set
-# CONFIG_SND_CA0106 is not set
-CONFIG_SND_CMIPCI=y
-# CONFIG_SND_CS4281 is not set
-# CONFIG_SND_CS46XX is not set
-# CONFIG_SND_CS5535AUDIO is not set
-# CONFIG_SND_EMU10K1 is not set
-# CONFIG_SND_EMU10K1X is not set
-# CONFIG_SND_ENS1370 is not set
-# CONFIG_SND_ENS1371 is not set
-# CONFIG_SND_ES1938 is not set
-# CONFIG_SND_ES1968 is not set
-# CONFIG_SND_FM801 is not set
-# CONFIG_SND_HDA_INTEL is not set
-# CONFIG_SND_HDSP is not set
-# CONFIG_SND_HDSPM is not set
-# CONFIG_SND_ICE1712 is not set
-# CONFIG_SND_ICE1724 is not set
-# CONFIG_SND_INTEL8X0 is not set
-# CONFIG_SND_INTEL8X0M is not set
-# CONFIG_SND_KORG1212 is not set
-# CONFIG_SND_MAESTRO3 is not set
-# CONFIG_SND_MIXART is not set
-# CONFIG_SND_NM256 is not set
-# CONFIG_SND_PCXHR is not set
-# CONFIG_SND_RME32 is not set
-# CONFIG_SND_RME96 is not set
-# CONFIG_SND_RME9652 is not set
-# CONFIG_SND_SONICVIBES is not set
-# CONFIG_SND_TRIDENT is not set
-# CONFIG_SND_VIA82XX is not set
-# CONFIG_SND_VIA82XX_MODEM is not set
-# CONFIG_SND_VX222 is not set
-# CONFIG_SND_YMFPCI is not set
-
-#
-# USB devices
-#
-# CONFIG_SND_USB_AUDIO is not set
-# CONFIG_SND_USB_USX2Y is not set
-
-#
-# Open Sound System
-#
-# CONFIG_SOUND_PRIME is not set
-
-#
-# USB support
-#
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_SUSPEND is not set
-# CONFIG_USB_OTG is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=y
-# CONFIG_USB_EHCI_SPLIT_ISO is not set
-# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
-# CONFIG_USB_ISP116X_HCD is not set
-# CONFIG_USB_OHCI_HCD is not set
-CONFIG_USB_UHCI_HCD=y
-# CONFIG_USB_SL811_HCD is not set
-# CONFIG_USB_IP is not set
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_ACM is not set
-CONFIG_USB_PRINTER=y
-
-#
-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
-#
-
-#
-# may also be needed; see USB_STORAGE Help for more information
-#
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_ISD200 is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_USBAT is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-# CONFIG_USB_STORAGE_ALAUDA is not set
-# CONFIG_USB_LIBUSUAL is not set
-
-#
-# USB Input Devices
-#
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-# CONFIG_HID_FF is not set
-# CONFIG_USB_HIDDEV is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_ACECAD is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_MTOUCH is not set
-# CONFIG_USB_ITMTOUCH is not set
-# CONFIG_USB_EGALAX is not set
-# CONFIG_USB_YEALINK is not set
-# CONFIG_USB_XPAD is not set
-# CONFIG_USB_ATI_REMOTE is not set
-# CONFIG_USB_ATI_REMOTE2 is not set
-# CONFIG_USB_KEYSPAN_REMOTE is not set
-# CONFIG_USB_APPLETOUCH is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_MICROTEK is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-# Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network Adapters
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-# CONFIG_USB_MON is not set
-
-#
-# USB port drivers
-#
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI62 is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_LED is not set
-# CONFIG_USB_CYTHERM is not set
-# CONFIG_USB_GOTEMP is not set
-# CONFIG_USB_PHIDGETKIT is not set
-# CONFIG_USB_PHIDGETSERVO is not set
-# CONFIG_USB_IDMOUSE is not set
-# CONFIG_USB_SISUSBVGA is not set
-# CONFIG_USB_LD is not set
-# CONFIG_USB_TEST is not set
-
-#
-# USB DSL modem support
-#
-
-#
-# USB Gadget Support
-#
-# CONFIG_USB_GADGET is not set
-
-#
-# MMC/SD Card support
-#
-# CONFIG_MMC is not set
-
-#
-# InfiniBand support
-#
-# CONFIG_INFINIBAND is not set
-
-#
-# SN Devices
-#
-
-#
-# EDAC - error detection and reporting (RAS)
-#
-# CONFIG_EDAC is not set
-
-#
-# Distributed Lock Manager
-#
-# CONFIG_DLM is not set
-
-#
-# File systems
-#
-# CONFIG_EXT2_FS is not set
-# CONFIG_EXT3_FS is not set
-CONFIG_REISER4_FS=y
-# CONFIG_REISER4_DEBUG is not set
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_REISERFS_FS_XATTR is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_FS_POSIX_ACL is not set
-# CONFIG_XFS_FS is not set
-# CONFIG_OCFS2_FS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_INOTIFY=y
-# CONFIG_QUOTA is not set
-CONFIG_DNOTIFY=y
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-# CONFIG_FUSE_FS is not set
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-# CONFIG_ZISOFS is not set
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=y
-# CONFIG_NTFS_DEBUG is not set
-# CONFIG_NTFS_RW is not set
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-# CONFIG_RELAYFS_FS is not set
-# CONFIG_CONFIGFS_FS is not set
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_ASFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-# CONFIG_NFS_FS is not set
-# CONFIG_NFSD is not set
-# CONFIG_SMB_FS is not set
-CONFIG_CIFS=y
-# CONFIG_CIFS_STATS is not set
-# CONFIG_CIFS_XATTR is not set
-# CONFIG_CIFS_EXPERIMENTAL is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_AFS_FS is not set
-# CONFIG_9P_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="utf8"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ASCII is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-CONFIG_NLS_UTF8=y
-
-#
-# Instrumentation Support
-#
-# CONFIG_PROFILING is not set
-# CONFIG_KPROBES is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_PRINTK_TIME is not set
-CONFIG_DEBUG_SHIRQ=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_DETECT_SOFTLOCKUP=y
-# CONFIG_SCHEDSTATS is not set
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_MUTEXES=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_BUGVERBOSE=y
-# CONFIG_DEBUG_INFO is not set
-# CONFIG_PAGE_OWNER is not set
-# CONFIG_DEBUG_FS is not set
-CONFIG_DEBUG_VM=y
-# CONFIG_FRAME_POINTER is not set
-CONFIG_FORCED_INLINING=y
-# CONFIG_RCU_TORTURE_TEST is not set
-# CONFIG_DEBUG_SYNCHRO_TEST is not set
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-# CONFIG_DEBUG_STACK_USAGE is not set
-# CONFIG_DEBUG_PAGEALLOC is not set
-CONFIG_DEBUG_RODATA=y
-CONFIG_4KSTACKS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-# CONFIG_KGDB is not set
-
-#
-# Security options
-#
-# CONFIG_KEYS is not set
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-# CONFIG_CRYPTO is not set
-
-#
-# Hardware crypto devices
-#
-
-#
-# Library routines
-#
-# CONFIG_CRC_CCITT is not set
-# CONFIG_CRC16 is not set
-CONFIG_CRC32=y
-# CONFIG_LIBCRC32C is not set
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_KTIME_SCALAR=y
-
---Boundary-00=_InCwDr7Aj1Csm/p--
+Message-Id: <200601072156.25876.rjw@sisk.pl>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+On Saturday, 7 January 2006 14:57, Rafael J. Wysocki wrote:
+> On Saturday, 7 January 2006 14:20, Andrew Morton wrote:
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > >
+> > >  This patch introduces the low level interface that can be used for handling
+> > >  the snapshot of the system memory by the in-kernel swap-writing/reading
+> > >  code of swsusp and the userland interface code (to be introduced shortly).
+> > 
+> > It's a bit sad the way this code goes poking around in swap internals.
+> 
+> Actually swsusp does it anyway ...
+> 
+> > Would it be neater to create a few helper functions over in mm/ and call
+> > them?
+> 
+> ... but of course it can be changed as you say.  I'll try to prepare something
+> like that.
+
+The result is appended.  I also removed the vast majority of inlines as you
+requested (actually I left two of them, but I think they really make sense ;-)).
+
+Could you please see if this looks better than the previous one?
+
+Rafael
+
+
+ include/linux/swap.h    |    4 
+ kernel/power/disk.c     |   12 
+ kernel/power/power.h    |   25 +
+ kernel/power/snapshot.c |  324 +++++++++++++++++++++
+ kernel/power/swsusp.c   |  719 ++++++++++++++++--------------------------------
+ mm/swapfile.c           |   54 +++
+ 6 files changed, 653 insertions(+), 485 deletions(-)
+
+Index: linux-2.6.15-mm2/kernel/power/disk.c
+===================================================================
+--- linux-2.6.15-mm2.orig/kernel/power/disk.c	2006-01-07 21:02:15.000000000 +0100
++++ linux-2.6.15-mm2/kernel/power/disk.c	2006-01-07 21:02:30.000000000 +0100
+@@ -27,9 +27,9 @@ extern suspend_disk_method_t pm_disk_mod
+ 
+ extern int swsusp_shrink_memory(void);
+ extern int swsusp_suspend(void);
+-extern int swsusp_write(struct pbe *pblist, unsigned int nr_pages);
++extern int swsusp_write(void);
+ extern int swsusp_check(void);
+-extern int swsusp_read(struct pbe **pblist_ptr);
++extern int swsusp_read(void);
+ extern void swsusp_close(void);
+ extern int swsusp_resume(void);
+ 
+@@ -71,10 +71,6 @@ static void power_down(suspend_disk_meth
+ 	while(1);
+ }
+ 
+-
+-static int in_suspend __nosavedata = 0;
+-
+-
+ static inline void platform_finish(void)
+ {
+ 	if (pm_disk_mode == PM_DISK_PLATFORM) {
+@@ -146,7 +142,7 @@ int pm_suspend_disk(void)
+ 	if (in_suspend) {
+ 		device_resume();
+ 		pr_debug("PM: writing image.\n");
+-		error = swsusp_write(pagedir_nosave, nr_copy_pages);
++		error = swsusp_write();
+ 		if (!error)
+ 			power_down(pm_disk_mode);
+ 		else {
+@@ -217,7 +213,7 @@ static int software_resume(void)
+ 
+ 	pr_debug("PM: Reading swsusp image.\n");
+ 
+-	if ((error = swsusp_read(&pagedir_nosave))) {
++	if ((error = swsusp_read())) {
+ 		swsusp_free();
+ 		goto Thaw;
+ 	}
+Index: linux-2.6.15-mm2/kernel/power/power.h
+===================================================================
+--- linux-2.6.15-mm2.orig/kernel/power/power.h	2006-01-07 21:02:15.000000000 +0100
++++ linux-2.6.15-mm2/kernel/power/power.h	2006-01-07 21:02:30.000000000 +0100
+@@ -54,15 +54,26 @@ extern struct pbe *pagedir_nosave;
+ /* Preferred image size in MB (default 500) */
+ extern unsigned int image_size;
+ 
++extern int in_suspend;
++
+ extern asmlinkage int swsusp_arch_suspend(void);
+ extern asmlinkage int swsusp_arch_resume(void);
+ 
+ extern unsigned int count_data_pages(void);
+-extern void free_pagedir(struct pbe *pblist);
+-extern void release_eaten_pages(void);
+-extern struct pbe *alloc_pagedir(unsigned nr_pages, gfp_t gfp_mask, int safe_needed);
+ extern void swsusp_free(void);
+-extern int alloc_data_pages(struct pbe *pblist, gfp_t gfp_mask, int safe_needed);
+-extern unsigned int snapshot_nr_pages(void);
+-extern struct pbe *snapshot_pblist(void);
+-extern void snapshot_pblist_set(struct pbe *pblist);
++
++struct snapshot_handle {
++	loff_t		offset;
++	unsigned int	page;
++	unsigned int	page_offset;
++	unsigned int	prev;
++	struct pbe	*pbe;
++	void		*buffer;
++	unsigned int	buf_offset;
++};
++
++#define data_of(handle)	((handle).buffer + (handle).buf_offset)
++
++extern int snapshot_read_next(struct snapshot_handle *handle, size_t count);
++extern int snapshot_write_next(struct snapshot_handle *handle, size_t count);
++int snapshot_image_loaded(struct snapshot_handle *handle);
+Index: linux-2.6.15-mm2/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.15-mm2.orig/kernel/power/swsusp.c	2006-01-07 21:02:15.000000000 +0100
++++ linux-2.6.15-mm2/kernel/power/swsusp.c	2006-01-07 21:02:30.000000000 +0100
+@@ -77,6 +77,8 @@
+  */
+ unsigned int image_size = 500;
+ 
++int in_suspend __nosavedata = 0;
++
+ #ifdef CONFIG_HIGHMEM
+ unsigned int count_highmem_pages(void);
+ int save_highmem(void);
+@@ -98,8 +100,6 @@ static struct swsusp_header {
+ 	char	sig[10];
+ } __attribute__((packed, aligned(PAGE_SIZE))) swsusp_header;
+ 
+-static struct swsusp_info swsusp_info;
+-
+ /*
+  * Saving part...
+  */
+@@ -129,255 +129,261 @@ static int mark_swapfiles(swp_entry_t st
+ 	return error;
+ }
+ 
+-/*
+- * Check whether the swap device is the specified resume
+- * device, irrespective of whether they are specified by
+- * identical names.
+- *
+- * (Thus, device inode aliasing is allowed.  You can say /dev/hda4
+- * instead of /dev/ide/host0/bus0/target0/lun0/part4 [if using devfs]
+- * and they'll be considered the same device.  This is *necessary* for
+- * devfs, since the resume code can only recognize the form /dev/hda4,
+- * but the suspend code would see the long name.)
++/**
++ *	swsusp_swap_check - check if the resume device is a swap device
++ *	and get its index (if so)
+  */
+-static inline int is_resume_device(const struct swap_info_struct *swap_info)
+-{
+-	struct file *file = swap_info->swap_file;
+-	struct inode *inode = file->f_dentry->d_inode;
+-
+-	return S_ISBLK(inode->i_mode) &&
+-		swsusp_resume_device == MKDEV(imajor(inode), iminor(inode));
+-}
+ 
+ static int swsusp_swap_check(void) /* This is called before saving image */
+ {
+-	int i;
++	int res = swap_type_of(swsusp_resume_device);
+ 
+-	if (!swsusp_resume_device)
+-		return -ENODEV;
+-	spin_lock(&swap_lock);
+-	for (i = 0; i < MAX_SWAPFILES; i++) {
+-		if (!(swap_info[i].flags & SWP_WRITEOK))
+-			continue;
+-		if (is_resume_device(swap_info + i)) {
+-			spin_unlock(&swap_lock);
+-			root_swap = i;
+-			return 0;
+-		}
++	if (res >= 0) {
++		root_swap = res;
++		return 0;
+ 	}
+-	spin_unlock(&swap_lock);
+-	return -ENODEV;
++	return res;
+ }
+ 
+ /**
+- *	write_page - Write one page to a fresh swap location.
+- *	@addr:	Address we're writing.
+- *	@loc:	Place to store the entry we used.
++ *	The bitmap is used for tracing allocated swap pages
+  *
+- *	Allocate a new swap entry and 'sync' it. Note we discard -EIO
+- *	errors. That is an artifact left over from swsusp. It did not
+- *	check the return of rw_swap_page_sync() at all, since most pages
+- *	written back to swap would return -EIO.
+- *	This is a partial improvement, since we will at least return other
+- *	errors, though we need to eventually fix the damn code.
++ *	The entire bitmap consists of a number of bitmap_page
++ *	structures linked with the help of the .next member.
++ *	Thus each page can be allocated individually, so we only
++ *	need to make 0-order memory allocations to create
++ *	the bitmap.
+  */
+-static int write_page(unsigned long addr, swp_entry_t *loc)
+-{
+-	swp_entry_t entry;
+-	int error = -ENOSPC;
+ 
+-	entry = get_swap_page_of_type(root_swap);
+-	if (swp_offset(entry)) {
+-		error = rw_swap_page_sync(WRITE, entry, virt_to_page(addr));
+-		if (!error || error == -EIO)
+-			*loc = entry;
+-	}
+-	return error;
+-}
++#define BITMAP_PAGE_SIZE	(PAGE_SIZE - sizeof(void *))
++#define BITMAP_PAGE_CHUNKS	(BITMAP_PAGE_SIZE / sizeof(long))
++#define BITS_PER_CHUNK		(sizeof(long) * 8)
++#define BITMAP_PAGE_BITS	(BITMAP_PAGE_CHUNKS * BITS_PER_CHUNK)
++
++struct bitmap_page {
++	unsigned long		chunks[BITMAP_PAGE_CHUNKS];
++	struct bitmap_page	*next;
++};
+ 
+ /**
+- *	Swap map-handling functions
+- *
+- *	The swap map is a data structure used for keeping track of each page
+- *	written to the swap.  It consists of many swap_map_page structures
+- *	that contain each an array of MAP_PAGE_SIZE swap entries.
+- *	These structures are linked together with the help of either the
+- *	.next (in memory) or the .next_swap (in swap) member.
+- *
+- *	The swap map is created during suspend.  At that time we need to keep
+- *	it in memory, because we have to free all of the allocated swap
+- *	entries if an error occurs.  The memory needed is preallocated
+- *	so that we know in advance if there's enough of it.
+- *
+- *	The first swap_map_page structure is filled with the swap entries that
+- *	correspond to the first MAP_PAGE_SIZE data pages written to swap and
+- *	so on.  After the all of the data pages have been written, the order
+- *	of the swap_map_page structures in the map is reversed so that they
+- *	can be read from swap in the original order.  This causes the data
+- *	pages to be loaded in exactly the same order in which they have been
+- *	saved.
++ *	The following functions are used for tracing the allocated
++ *	swap pages, so that they can be freed in case of an error.
+  *
+- *	During resume we only need to use one swap_map_page structure
+- *	at a time, which means that we only need to use two memory pages for
+- *	reading the image - one for reading the swap_map_page structures
+- *	and the second for reading the data pages from swap.
++ *	The functions operate on a linked bitmap structure defined
++ *	above
+  */
+ 
+-#define MAP_PAGE_SIZE	((PAGE_SIZE - sizeof(swp_entry_t) - sizeof(void *)) \
+-			/ sizeof(swp_entry_t))
+-
+-struct swap_map_page {
+-	swp_entry_t		entries[MAP_PAGE_SIZE];
+-	swp_entry_t		next_swap;
+-	struct swap_map_page	*next;
+-};
+-
+-static inline void free_swap_map(struct swap_map_page *swap_map)
++static void free_bitmap(struct bitmap_page *bitmap)
+ {
+-	struct swap_map_page *swp;
++	struct bitmap_page *bp;
+ 
+-	while (swap_map) {
+-		swp = swap_map->next;
+-		free_page((unsigned long)swap_map);
+-		swap_map = swp;
++	while (bitmap) {
++		bp = bitmap->next;
++		free_page((unsigned long)bitmap);
++		bitmap = bp;
+ 	}
+ }
+ 
+-static struct swap_map_page *alloc_swap_map(unsigned int nr_pages)
++static struct bitmap_page *alloc_bitmap(unsigned int nr_bits)
+ {
+-	struct swap_map_page *swap_map, *swp;
+-	unsigned n = 0;
++	struct bitmap_page *bitmap, *bp;
++	unsigned int n;
+ 
+-	if (!nr_pages)
++	if (!nr_bits)
+ 		return NULL;
+ 
+-	pr_debug("alloc_swap_map(): nr_pages = %d\n", nr_pages);
+-	swap_map = (struct swap_map_page *)get_zeroed_page(GFP_ATOMIC);
+-	swp = swap_map;
+-	for (n = MAP_PAGE_SIZE; n < nr_pages; n += MAP_PAGE_SIZE) {
+-		swp->next = (struct swap_map_page *)get_zeroed_page(GFP_ATOMIC);
+-		swp = swp->next;
+-		if (!swp) {
+-			free_swap_map(swap_map);
++	bitmap = (struct bitmap_page *)get_zeroed_page(GFP_KERNEL);
++	bp = bitmap;
++	for (n = BITMAP_PAGE_BITS; n < nr_bits; n += BITMAP_PAGE_BITS) {
++		bp->next = (struct bitmap_page *)get_zeroed_page(GFP_KERNEL);
++		bp = bp->next;
++		if (!bp) {
++			free_bitmap(bitmap);
+ 			return NULL;
+ 		}
+ 	}
+-	return swap_map;
++	return bitmap;
+ }
+ 
+-/**
+- *	reverse_swap_map - reverse the order of pages in the swap map
+- *	@swap_map
+- */
+-
+-static inline struct swap_map_page *reverse_swap_map(struct swap_map_page *swap_map)
++static int bitmap_set(struct bitmap_page *bitmap, unsigned long bit)
+ {
+-	struct swap_map_page *prev, *next;
++	unsigned int n;
+ 
+-	prev = NULL;
+-	while (swap_map) {
+-		next = swap_map->next;
+-		swap_map->next = prev;
+-		prev = swap_map;
+-		swap_map = next;
++	n = BITMAP_PAGE_BITS;
++	while (bitmap && n <= bit) {
++		n += BITMAP_PAGE_BITS;
++		bitmap = bitmap->next;
++	}
++	if (!bitmap)
++		return -EINVAL;
++	n -= BITMAP_PAGE_BITS;
++	bit -= n;
++	n = 0;
++	while (bit >= BITS_PER_CHUNK) {
++		bit -= BITS_PER_CHUNK;
++		n++;
+ 	}
+-	return prev;
++	bitmap->chunks[n] |= (1UL << bit);
++	return 0;
+ }
+ 
+-/**
+- *	free_swap_map_entries - free the swap entries allocated to store
+- *	the swap map @swap_map (this is only called in case of an error)
+- */
+-static inline void free_swap_map_entries(struct swap_map_page *swap_map)
++static unsigned long alloc_swap_page(int swap, struct bitmap_page *bitmap)
+ {
+-	while (swap_map) {
+-		if (swap_map->next_swap.val)
+-			swap_free(swap_map->next_swap);
+-		swap_map = swap_map->next;
++	unsigned long offset;
++
++	offset = swp_offset(get_swap_page_of_type(swap));
++	if (offset) {
++		if (bitmap_set(bitmap, offset)) {
++			swap_free(swp_entry(swap, offset));
++			offset = 0;
++		}
+ 	}
++	return offset;
+ }
+ 
+-/**
+- *	save_swap_map - save the swap map used for tracing the data pages
+- *	stored in the swap
+- */
+-
+-static int save_swap_map(struct swap_map_page *swap_map, swp_entry_t *start)
++static void free_all_swap_pages(int swap, struct bitmap_page *bitmap)
+ {
+-	swp_entry_t entry = (swp_entry_t){0};
+-	int error;
++	unsigned int bit, n;
++	unsigned long test;
+ 
+-	while (swap_map) {
+-		swap_map->next_swap = entry;
+-		if ((error = write_page((unsigned long)swap_map, &entry)))
+-			return error;
+-		swap_map = swap_map->next;
++	bit = 0;
++	while (bitmap) {
++		for (n = 0; n < BITMAP_PAGE_CHUNKS; n++)
++			for (test = 1UL; test; test <<= 1) {
++				if (bitmap->chunks[n] & test)
++					swap_free(swp_entry(swap, bit));
++				bit++;
++			}
++		bitmap = bitmap->next;
+ 	}
+-	*start = entry;
+-	return 0;
+ }
+ 
+ /**
+- *	free_image_entries - free the swap entries allocated to store
+- *	the image data pages (this is only called in case of an error)
++ *	write_page - Write one page to given swap location.
++ *	@buf:		Address we're writing.
++ *	@offset:	Offset of the swap page we're writing to.
+  */
+ 
+-static inline void free_image_entries(struct swap_map_page *swp)
++static int write_page(void *buf, unsigned long offset)
+ {
+-	unsigned k;
++	swp_entry_t entry;
++	int error = -ENOSPC;
+ 
+-	while (swp) {
+-		for (k = 0; k < MAP_PAGE_SIZE; k++)
+-			if (swp->entries[k].val)
+-				swap_free(swp->entries[k]);
+-		swp = swp->next;
++	if (offset) {
++		entry = swp_entry(root_swap, offset);
++		error = rw_swap_page_sync(WRITE, entry, virt_to_page(buf));
+ 	}
++	return error;
+ }
+ 
++/*
++ *	The swap map is a data structure used for keeping track of each page
++ *	written to a swap partition.  It consists of many swap_map_page
++ *	structures that contain each an array of MAP_PAGE_SIZE swap entries.
++ *	These structures are stored on the swap and linked together with the
++ *	help of the .next_swap member.
++ *
++ *	The swap map is created during suspend.  The swap map pages are
++ *	allocated and populated one at a time, so we only need one memory
++ *	page to set up the entire structure.
++ *
++ *	During resume we also only need to use one swap_map_page structure
++ *	at a time.
++ */
++
++#define MAP_PAGE_ENTRIES	(PAGE_SIZE / sizeof(long) - 1)
++
++struct swap_map_page {
++	unsigned long		entries[MAP_PAGE_ENTRIES];
++	unsigned long		next_swap;
++};
++
+ /**
+- *	The swap_map_handle structure is used for handling the swap map in
++ *	The swap_map_handle structure is used for handling swap in
+  *	a file-alike way
+  */
+ 
+ struct swap_map_handle {
+ 	struct swap_map_page *cur;
++	unsigned long cur_swap;
++	struct bitmap_page *bitmap;
+ 	unsigned int k;
+ };
+ 
+-static inline void init_swap_map_handle(struct swap_map_handle *handle,
+-                                        struct swap_map_page *map)
++static void release_swap_writer(struct swap_map_handle *handle)
+ {
+-	handle->cur = map;
++	if (handle->cur)
++		free_page((unsigned long)handle->cur);
++	handle->cur = NULL;
++	if (handle->bitmap)
++		free_bitmap(handle->bitmap);
++	handle->bitmap = NULL;
++}
++
++static int get_swap_writer(struct swap_map_handle *handle)
++{
++	handle->cur = (struct swap_map_page *)get_zeroed_page(GFP_KERNEL);
++	if (!handle->cur)
++		return -ENOMEM;
++	handle->bitmap = alloc_bitmap(count_swap_pages(root_swap, 0));
++	if (!handle->bitmap) {
++		release_swap_writer(handle);
++		return -ENOMEM;
++	}
++	handle->cur_swap = alloc_swap_page(root_swap, handle->bitmap);
++	if (!handle->cur_swap) {
++		release_swap_writer(handle);
++		return -ENOSPC;
++	}
+ 	handle->k = 0;
++	return 0;
+ }
+ 
+-static inline int swap_map_write_page(struct swap_map_handle *handle,
+-                                      unsigned long addr)
++static int swap_write_page(struct swap_map_handle *handle, void *buf)
+ {
+ 	int error;
++	unsigned long offset;
+ 
+-	error = write_page(addr, handle->cur->entries + handle->k);
++	if (!handle->cur)
++		return -EINVAL;
++	offset = alloc_swap_page(root_swap, handle->bitmap);
++	error = write_page(buf, offset);
+ 	if (error)
+ 		return error;
+-	if (++handle->k >= MAP_PAGE_SIZE) {
+-		handle->cur = handle->cur->next;
++	handle->cur->entries[handle->k++] = offset;
++	if (handle->k >= MAP_PAGE_ENTRIES) {
++		offset = alloc_swap_page(root_swap, handle->bitmap);
++		if (!offset)
++			return -ENOSPC;
++		handle->cur->next_swap = offset;
++		error = write_page(handle->cur, handle->cur_swap);
++		if (error)
++			return error;
++		memset(handle->cur, 0, PAGE_SIZE);
++		handle->cur_swap = offset;
+ 		handle->k = 0;
+ 	}
+ 	return 0;
+ }
+ 
++static int flush_swap_writer(struct swap_map_handle *handle)
++{
++	if (handle->cur && handle->cur_swap)
++		return write_page(handle->cur, handle->cur_swap);
++	else
++		return -EINVAL;
++}
++
+ /**
+- *	save_image_data - save the data pages pointed to by the PBEs
+- *	from the list @pblist using the swap map handle @handle
+- *	(assume there are @nr_pages data pages to save)
++ *	save_image - save the suspend image data
+  */
+ 
+-static int save_image_data(struct pbe *pblist,
+-                           struct swap_map_handle *handle,
+-                           unsigned int nr_pages)
++static int save_image(struct swap_map_handle *handle,
++                      struct snapshot_handle *snapshot,
++                      unsigned int nr_pages)
+ {
+ 	unsigned int m;
+-	struct pbe *p;
++	int ret;
+ 	int error = 0;
+ 
+ 	printk("Saving image data pages (%u pages) ...     ", nr_pages);
+@@ -385,98 +391,22 @@ static int save_image_data(struct pbe *p
+ 	if (!m)
+ 		m = 1;
+ 	nr_pages = 0;
+-	for_each_pbe (p, pblist) {
+-		error = swap_map_write_page(handle, p->address);
+-		if (error)
+-			break;
+-		if (!(nr_pages % m))
+-			printk("\b\b\b\b%3d%%", nr_pages / m);
+-		nr_pages++;
+-	}
++	do {
++		ret = snapshot_read_next(snapshot, PAGE_SIZE);
++		if (ret > 0) {
++			error = swap_write_page(handle, data_of(*snapshot));
++			if (error)
++				break;
++			if (!(nr_pages % m))
++				printk("\b\b\b\b%3d%%", nr_pages / m);
++			nr_pages++;
++		}
++	} while (ret > 0);
+ 	if (!error)
+ 		printk("\b\b\b\bdone\n");
+ 	return error;
+ }
+ 
+-static void dump_info(void)
+-{
+-	pr_debug(" swsusp: Version: %u\n",swsusp_info.version_code);
+-	pr_debug(" swsusp: Num Pages: %ld\n",swsusp_info.num_physpages);
+-	pr_debug(" swsusp: UTS Sys: %s\n",swsusp_info.uts.sysname);
+-	pr_debug(" swsusp: UTS Node: %s\n",swsusp_info.uts.nodename);
+-	pr_debug(" swsusp: UTS Release: %s\n",swsusp_info.uts.release);
+-	pr_debug(" swsusp: UTS Version: %s\n",swsusp_info.uts.version);
+-	pr_debug(" swsusp: UTS Machine: %s\n",swsusp_info.uts.machine);
+-	pr_debug(" swsusp: UTS Domain: %s\n",swsusp_info.uts.domainname);
+-	pr_debug(" swsusp: CPUs: %d\n",swsusp_info.cpus);
+-	pr_debug(" swsusp: Image: %ld Pages\n",swsusp_info.image_pages);
+-	pr_debug(" swsusp: Total: %ld Pages\n", swsusp_info.pages);
+-}
+-
+-static void init_header(unsigned int nr_pages)
+-{
+-	memset(&swsusp_info, 0, sizeof(swsusp_info));
+-	swsusp_info.version_code = LINUX_VERSION_CODE;
+-	swsusp_info.num_physpages = num_physpages;
+-	memcpy(&swsusp_info.uts, &system_utsname, sizeof(system_utsname));
+-
+-	swsusp_info.cpus = num_online_cpus();
+-	swsusp_info.image_pages = nr_pages;
+-	swsusp_info.pages = nr_pages +
+-		((nr_pages * sizeof(long) + PAGE_SIZE - 1) >> PAGE_SHIFT) + 1;
+-}
+-
+-/**
+- *	pack_orig_addresses - the .orig_address fields of the PBEs from the
+- *	list starting at @pbe are stored in the array @buf[] (1 page)
+- */
+-
+-static inline struct pbe *pack_orig_addresses(unsigned long *buf,
+-                                              struct pbe *pbe)
+-{
+-	int j;
+-
+-	for (j = 0; j < PAGE_SIZE / sizeof(long) && pbe; j++) {
+-		buf[j] = pbe->orig_address;
+-		pbe = pbe->next;
+-	}
+-	if (!pbe)
+-		for (; j < PAGE_SIZE / sizeof(long); j++)
+-			buf[j] = 0;
+-	return pbe;
+-}
+-
+-/**
+- *	save_image_metadata - save the .orig_address fields of the PBEs
+- *	from the list @pblist using the swap map handle @handle
+- */
+-
+-static int save_image_metadata(struct pbe *pblist,
+-                               struct swap_map_handle *handle)
+-{
+-	unsigned long *buf;
+-	unsigned int n = 0;
+-	struct pbe *p;
+-	int error = 0;
+-
+-	printk("Saving image metadata ... ");
+-	buf = (unsigned long *)get_zeroed_page(GFP_ATOMIC);
+-	if (!buf)
+-		return -ENOMEM;
+-	p = pblist;
+-	while (p) {
+-		p = pack_orig_addresses(buf, p);
+-		error = swap_map_write_page(handle, (unsigned long)buf);
+-		if (error)
+-			break;
+-		n++;
+-	}
+-	free_page((unsigned long)buf);
+-	if (!error)
+-		printk("done (%u pages saved)\n", n);
+-	return error;
+-}
+-
+ /**
+  *	enough_swap - Make sure we have enough swap to save the image.
+  *
+@@ -486,8 +416,7 @@ static int save_image_metadata(struct pb
+ 
+ static int enough_swap(unsigned int nr_pages)
+ {
+-	unsigned int free_swap = swap_info[root_swap].pages -
+-		swap_info[root_swap].inuse_pages;
++	unsigned int free_swap = count_swap_pages(root_swap, 1);
+ 
+ 	pr_debug("swsusp: free swap pages: %u\n", free_swap);
+ 	return free_swap > (nr_pages + PAGES_FOR_IO +
+@@ -503,57 +432,44 @@ static int enough_swap(unsigned int nr_p
+  *	correctly, we'll mark system clean, anyway.)
+  */
+ 
+-int swsusp_write(struct pbe *pblist, unsigned int nr_pages)
++int swsusp_write(void)
+ {
+-	struct swap_map_page *swap_map;
+ 	struct swap_map_handle handle;
+-	swp_entry_t start;
++	struct snapshot_handle snapshot;
++	struct swsusp_info *header;
++	unsigned long start;
+ 	int error;
+ 
+ 	if ((error = swsusp_swap_check())) {
+ 		printk(KERN_ERR "swsusp: Cannot find swap device, try swapon -a.\n");
+ 		return error;
+ 	}
+-	if (!enough_swap(nr_pages)) {
++	memset(&snapshot, 0, sizeof(struct snapshot_handle));
++	error = snapshot_read_next(&snapshot, PAGE_SIZE);
++	if (error < PAGE_SIZE)
++		return error < 0 ? error : -EFAULT;
++	header = (struct swsusp_info *)data_of(snapshot);
++	if (!enough_swap(header->pages)) {
+ 		printk(KERN_ERR "swsusp: Not enough free swap\n");
+ 		return -ENOSPC;
+ 	}
+-
+-	init_header(nr_pages);
+-	swap_map = alloc_swap_map(swsusp_info.pages);
+-	if (!swap_map)
+-		return -ENOMEM;
+-	init_swap_map_handle(&handle, swap_map);
+-
+-	error = swap_map_write_page(&handle, (unsigned long)&swsusp_info);
+-	if (!error)
+-		error = save_image_metadata(pblist, &handle);
++	error = get_swap_writer(&handle);
++	if (!error) {
++		start = handle.cur_swap;
++		error = swap_write_page(&handle, header);
++	}
+ 	if (!error)
+-		error = save_image_data(pblist, &handle, nr_pages);
+-	if (error)
+-		goto Free_image_entries;
+-
+-	swap_map = reverse_swap_map(swap_map);
+-	error = save_swap_map(swap_map, &start);
+-	if (error)
+-		goto Free_map_entries;
+-
+-	dump_info();
+-	printk( "S" );
+-	error = mark_swapfiles(start);
+-	printk( "|\n" );
++		error = save_image(&handle, &snapshot, header->pages - 1);
++	if (!error) {
++		flush_swap_writer(&handle);
++		printk("S");
++		error = mark_swapfiles(swp_entry(root_swap, start));
++		printk("|\n");
++	}
+ 	if (error)
+-		goto Free_map_entries;
+-
+-Free_swap_map:
+-	free_swap_map(swap_map);
++		free_all_swap_pages(root_swap, handle.bitmap);
++	release_swap_writer(&handle);
+ 	return error;
+-
+-Free_map_entries:
+-	free_swap_map_entries(swap_map);
+-Free_image_entries:
+-	free_image_entries(swap_map);
+-	goto Free_swap_map;
+ }
+ 
+ /**
+@@ -663,45 +579,6 @@ int swsusp_resume(void)
+ 	return error;
+ }
+ 
+-/**
+- *	mark_unsafe_pages - mark the pages that cannot be used for storing
+- *	the image during resume, because they conflict with the pages that
+- *	had been used before suspend
+- */
+-
+-static void mark_unsafe_pages(struct pbe *pblist)
+-{
+-	struct zone *zone;
+-	unsigned long zone_pfn;
+-	struct pbe *p;
+-
+-	if (!pblist) /* a sanity check */
+-		return;
+-
+-	/* Clear page flags */
+-	for_each_zone (zone) {
+-		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
+-			if (pfn_valid(zone_pfn + zone->zone_start_pfn))
+-				ClearPageNosaveFree(pfn_to_page(zone_pfn +
+-					zone->zone_start_pfn));
+-	}
+-
+-	/* Mark orig addresses */
+-	for_each_pbe (p, pblist)
+-		SetPageNosaveFree(virt_to_page(p->orig_address));
+-
+-}
+-
+-static void copy_page_backup_list(struct pbe *dst, struct pbe *src)
+-{
+-	/* We assume both lists contain the same number of elements */
+-	while (src) {
+-		dst->orig_address = src->orig_address;
+-		dst = dst->next;
+-		src = src->next;
+-	}
+-}
+-
+ /*
+  *	Using bio to read from swap.
+  *	This code requires a bit more work than just using buffer heads
+@@ -781,14 +658,14 @@ static int bio_write_page(pgoff_t page_o
+  *	in a file-alike way
+  */
+ 
+-static inline void release_swap_map_reader(struct swap_map_handle *handle)
++static void release_swap_reader(struct swap_map_handle *handle)
+ {
+ 	if (handle->cur)
+ 		free_page((unsigned long)handle->cur);
+ 	handle->cur = NULL;
+ }
+ 
+-static inline int get_swap_map_reader(struct swap_map_handle *handle,
++static int get_swap_reader(struct swap_map_handle *handle,
+                                       swp_entry_t start)
+ {
+ 	int error;
+@@ -800,149 +677,80 @@ static inline int get_swap_map_reader(st
+ 		return -ENOMEM;
+ 	error = bio_read_page(swp_offset(start), handle->cur);
+ 	if (error) {
+-		release_swap_map_reader(handle);
++		release_swap_reader(handle);
+ 		return error;
+ 	}
+ 	handle->k = 0;
+ 	return 0;
+ }
+ 
+-static inline int swap_map_read_page(struct swap_map_handle *handle, void *buf)
++static int swap_read_page(struct swap_map_handle *handle, void *buf)
+ {
+ 	unsigned long offset;
+ 	int error;
+ 
+ 	if (!handle->cur)
+ 		return -EINVAL;
+-	offset = swp_offset(handle->cur->entries[handle->k]);
++	offset = handle->cur->entries[handle->k];
+ 	if (!offset)
+-		return -EINVAL;
++		return -EFAULT;
+ 	error = bio_read_page(offset, buf);
+ 	if (error)
+ 		return error;
+-	if (++handle->k >= MAP_PAGE_SIZE) {
++	if (++handle->k >= MAP_PAGE_ENTRIES) {
+ 		handle->k = 0;
+-		offset = swp_offset(handle->cur->next_swap);
++		offset = handle->cur->next_swap;
+ 		if (!offset)
+-			release_swap_map_reader(handle);
++			release_swap_reader(handle);
+ 		else
+ 			error = bio_read_page(offset, handle->cur);
+ 	}
+ 	return error;
+ }
+ 
+-static int check_header(void)
+-{
+-	char *reason = NULL;
+-
+-	dump_info();
+-	if (swsusp_info.version_code != LINUX_VERSION_CODE)
+-		reason = "kernel version";
+-	if (swsusp_info.num_physpages != num_physpages)
+-		reason = "memory size";
+-	if (strcmp(swsusp_info.uts.sysname,system_utsname.sysname))
+-		reason = "system type";
+-	if (strcmp(swsusp_info.uts.release,system_utsname.release))
+-		reason = "kernel release";
+-	if (strcmp(swsusp_info.uts.version,system_utsname.version))
+-		reason = "version";
+-	if (strcmp(swsusp_info.uts.machine,system_utsname.machine))
+-		reason = "machine";
+-	if (reason) {
+-		printk(KERN_ERR "swsusp: Resume mismatch: %s\n", reason);
+-		return -EPERM;
+-	}
+-	return 0;
+-}
+-
+ /**
+- *	load_image_data - load the image data using the swap map handle
+- *	@handle and store them using the page backup list @pblist
++ *	load_image - load the image using the swap map handle
++ *	@handle and the snapshot handle @snapshot
+  *	(assume there are @nr_pages pages to load)
+  */
+ 
+-static int load_image_data(struct pbe *pblist,
+-                           struct swap_map_handle *handle,
+-                           unsigned int nr_pages)
++static int load_image(struct swap_map_handle *handle,
++                      struct snapshot_handle *snapshot,
++                      unsigned int nr_pages)
+ {
+-	int error;
+ 	unsigned int m;
+-	struct pbe *p;
++	int ret;
++	int error = 0;
+ 
+-	if (!pblist)
+-		return -EINVAL;
+ 	printk("Loading image data pages (%u pages) ...     ", nr_pages);
+ 	m = nr_pages / 100;
+ 	if (!m)
+ 		m = 1;
+ 	nr_pages = 0;
+-	p = pblist;
+-	while (p) {
+-		error = swap_map_read_page(handle, (void *)p->address);
+-		if (error)
+-			break;
+-		p = p->next;
+-		if (!(nr_pages % m))
+-			printk("\b\b\b\b%3d%%", nr_pages / m);
+-		nr_pages++;
+-	}
++	do {
++		ret = snapshot_write_next(snapshot, PAGE_SIZE);
++		if (ret > 0) {
++			error = swap_read_page(handle, data_of(*snapshot));
++			if (error)
++				break;
++			if (!(nr_pages % m))
++				printk("\b\b\b\b%3d%%", nr_pages / m);
++			nr_pages++;
++		}
++	} while (ret > 0);
+ 	if (!error)
+ 		printk("\b\b\b\bdone\n");
++	if (!snapshot_image_loaded(snapshot))
++		error = -ENODATA;
+ 	return error;
+ }
+ 
+-/**
+- *	unpack_orig_addresses - copy the elements of @buf[] (1 page) to
+- *	the PBEs in the list starting at @pbe
+- */
+-
+-static inline struct pbe *unpack_orig_addresses(unsigned long *buf,
+-                                                struct pbe *pbe)
+-{
+-	int j;
+-
+-	for (j = 0; j < PAGE_SIZE / sizeof(long) && pbe; j++) {
+-		pbe->orig_address = buf[j];
+-		pbe = pbe->next;
+-	}
+-	return pbe;
+-}
+-
+-/**
+- *	load_image_metadata - load the image metadata using the swap map
+- *	handle @handle and put them into the PBEs in the list @pblist
+- */
+-
+-static int load_image_metadata(struct pbe *pblist, struct swap_map_handle *handle)
+-{
+-	struct pbe *p;
+-	unsigned long *buf;
+-	unsigned int n = 0;
+-	int error = 0;
+-
+-	printk("Loading image metadata ... ");
+-	buf = (unsigned long *)get_zeroed_page(GFP_ATOMIC);
+-	if (!buf)
+-		return -ENOMEM;
+-	p = pblist;
+-	while (p) {
+-		error = swap_map_read_page(handle, buf);
+-		if (error)
+-			break;
+-		p = unpack_orig_addresses(buf, p);
+-		n++;
+-	}
+-	free_page((unsigned long)buf);
+-	if (!error)
+-		printk("done (%u pages loaded)\n", n);
+-	return error;
+-}
+-
+-int swsusp_read(struct pbe **pblist_ptr)
++int swsusp_read(void)
+ {
+ 	int error;
+-	struct pbe *p, *pblist;
+ 	struct swap_map_handle handle;
++	struct snapshot_handle snapshot;
++	struct swsusp_info *header;
+ 	unsigned int nr_pages;
+ 
+ 	if (IS_ERR(resume_bdev)) {
+@@ -950,38 +758,19 @@ int swsusp_read(struct pbe **pblist_ptr)
+ 		return PTR_ERR(resume_bdev);
+ 	}
+ 
+-	error = get_swap_map_reader(&handle, swsusp_header.image);
++	memset(&snapshot, 0, sizeof(struct snapshot_handle));
++	error = snapshot_write_next(&snapshot, PAGE_SIZE);
++	if (error < PAGE_SIZE)
++		return error < 0 ? error : -EFAULT;
++	header = (struct swsusp_info *)data_of(snapshot);
++	error = get_swap_reader(&handle, swsusp_header.image);
+ 	if (!error)
+-		error = swap_map_read_page(&handle, &swsusp_info);
+-	if (!error)
+-		error = check_header();
+-	if (error)
+-		return error;
+-	nr_pages = swsusp_info.image_pages;
+-	p = alloc_pagedir(nr_pages, GFP_ATOMIC, 0);
+-	if (!p)
+-		return -ENOMEM;
+-	error = load_image_metadata(p, &handle);
++		error = swap_read_page(&handle, header);
+ 	if (!error) {
+-		mark_unsafe_pages(p);
+-		pblist = alloc_pagedir(nr_pages, GFP_ATOMIC, 1);
+-		if (pblist)
+-			copy_page_backup_list(pblist, p);
+-		free_pagedir(p);
+-		if (!pblist)
+-			error = -ENOMEM;
+-
+-		/* Allocate memory for the image and read the data from swap */
+-		if (!error)
+-			error = alloc_data_pages(pblist, GFP_ATOMIC, 1);
+-		if (!error) {
+-			release_eaten_pages();
+-			error = load_image_data(pblist, &handle, nr_pages);
+-		}
+-		if (!error)
+-			*pblist_ptr = pblist;
++		nr_pages = header->image_pages;
++		error = load_image(&handle, &snapshot, nr_pages);
+ 	}
+-	release_swap_map_reader(&handle);
++	release_swap_reader(&handle);
+ 
+ 	blkdev_put(resume_bdev);
+ 
+Index: linux-2.6.15-mm2/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.15-mm2.orig/kernel/power/snapshot.c	2006-01-07 21:02:15.000000000 +0100
++++ linux-2.6.15-mm2/kernel/power/snapshot.c	2006-01-07 21:02:30.000000000 +0100
+@@ -10,6 +10,7 @@
+  */
+ 
+ 
++#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/suspend.h>
+@@ -35,6 +36,7 @@
+ 
+ struct pbe *pagedir_nosave;
+ unsigned int nr_copy_pages;
++unsigned int nr_meta_pages;
+ 
+ #ifdef CONFIG_HIGHMEM
+ unsigned int count_highmem_pages(void)
+@@ -237,7 +239,7 @@ static void copy_data_pages(struct pbe *
+  *	free_pagedir - free pages allocated with alloc_pagedir()
+  */
+ 
+-void free_pagedir(struct pbe *pblist)
++static void free_pagedir(struct pbe *pblist)
+ {
+ 	struct pbe *pbe;
+ 
+@@ -303,7 +305,7 @@ struct eaten_page {
+ 
+ static struct eaten_page *eaten_pages = NULL;
+ 
+-void release_eaten_pages(void)
++static void release_eaten_pages(void)
+ {
+ 	struct eaten_page *p, *q;
+ 
+@@ -378,7 +380,6 @@ struct pbe *alloc_pagedir(unsigned int n
+ 	if (!nr_pages)
+ 		return NULL;
+ 
+-	pr_debug("alloc_pagedir(): nr_pages = %d\n", nr_pages);
+ 	pblist = alloc_image_page(gfp_mask, safe_needed);
+ 	/* FIXME: rewrite this ugly loop */
+ 	for (pbe = pblist, num = PBES_PER_PAGE; pbe && num < nr_pages;
+@@ -416,6 +417,9 @@ void swsusp_free(void)
+ 				}
+ 			}
+ 	}
++	nr_copy_pages = 0;
++	nr_meta_pages = 0;
++	pagedir_nosave = NULL;
+ }
+ 
+ 
+@@ -439,7 +443,7 @@ static int enough_free_mem(unsigned int 
+ 		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
+ }
+ 
+-int alloc_data_pages(struct pbe *pblist, gfp_t gfp_mask, int safe_needed)
++static int alloc_data_pages(struct pbe *pblist, gfp_t gfp_mask, int safe_needed)
+ {
+ 	struct pbe *p;
+ 
+@@ -506,7 +510,319 @@ asmlinkage int swsusp_save(void)
+ 	 */
+ 
+ 	nr_copy_pages = nr_pages;
++	nr_meta_pages = (nr_pages * sizeof(long) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 
+ 	printk("swsusp: critical section/: done (%d pages copied)\n", nr_pages);
+ 	return 0;
+ }
++
++static void init_header(struct swsusp_info *info)
++{
++	memset(info, 0, sizeof(struct swsusp_info));
++	info->version_code = LINUX_VERSION_CODE;
++	info->num_physpages = num_physpages;
++	memcpy(&info->uts, &system_utsname, sizeof(system_utsname));
++	info->cpus = num_online_cpus();
++	info->image_pages = nr_copy_pages;
++	info->pages = nr_copy_pages + nr_meta_pages + 1;
++}
++
++/**
++ *	pack_orig_addresses - the .orig_address fields of the PBEs from the
++ *	list starting at @pbe are stored in the array @buf[] (1 page)
++ */
++
++static inline struct pbe *pack_orig_addresses(unsigned long *buf, struct pbe *pbe)
++{
++	int j;
++
++	for (j = 0; j < PAGE_SIZE / sizeof(long) && pbe; j++) {
++		buf[j] = pbe->orig_address;
++		pbe = pbe->next;
++	}
++	if (!pbe)
++		for (; j < PAGE_SIZE / sizeof(long); j++)
++			buf[j] = 0;
++	return pbe;
++}
++
++/**
++ *	snapshot_read_next - used for reading the system memory snapshot.
++ *
++ *	On the first call to it @handle should point to a zeroed
++ *	snapshot_handle structure.  The structure gets updated and a pointer
++ *	to it should be passed to this function every next time.
++ *
++ *	The @count parameter should contain the number of bytes the caller
++ *	wants to read from the snapshot.  It must not be zero.
++ *
++ *	On success the function returns a positive number.  Then, the caller
++ *	is allowed to read up to the returned number of bytes from the memory
++ *	location computed by the data_of() macro.  The number returned
++ *	may be smaller than @count, but this only happens if the read would
++ *	cross a page boundary otherwise.
++ *
++ *	The function returns 0 to indicate the end of data stream condition,
++ *	and a negative number is returned on error.  In such cases the
++ *	structure pointed to by @handle is not updated and should not be used
++ *	any more.
++ */
++
++int snapshot_read_next(struct snapshot_handle *handle, size_t count)
++{
++	static unsigned long *buffer;
++
++	if (handle->page > nr_meta_pages + nr_copy_pages)
++		return 0;
++	if (!buffer) {
++		/* This makes the buffer be freed by swsusp_free() */
++		buffer = alloc_image_page(GFP_ATOMIC, 0);
++		if (!buffer)
++			return -ENOMEM;
++	}
++	if (!handle->offset) {
++		init_header((struct swsusp_info *)buffer);
++		handle->buffer = buffer;
++		handle->pbe = pagedir_nosave;
++	}
++	if (handle->prev < handle->page) {
++		if (handle->page <= nr_meta_pages) {
++			handle->pbe = pack_orig_addresses(buffer, handle->pbe);
++			if (!handle->pbe)
++				handle->pbe = pagedir_nosave;
++		} else {
++			handle->buffer = (void *)handle->pbe->address;
++			handle->pbe = handle->pbe->next;
++		}
++		handle->prev = handle->page;
++	}
++	handle->buf_offset = handle->page_offset;
++	if (handle->page_offset + count >= PAGE_SIZE) {
++		count = PAGE_SIZE - handle->page_offset;
++		handle->page_offset = 0;
++		handle->page++;
++	} else {
++		handle->page_offset += count;
++	}
++	handle->offset += count;
++	return count;
++}
++
++/**
++ *	mark_unsafe_pages - mark the pages that cannot be used for storing
++ *	the image during resume, because they conflict with the pages that
++ *	had been used before suspend
++ */
++
++static int mark_unsafe_pages(struct pbe *pblist)
++{
++	struct zone *zone;
++	unsigned long zone_pfn;
++	struct pbe *p;
++
++	if (!pblist) /* a sanity check */
++		return -EINVAL;
++
++	/* Clear page flags */
++	for_each_zone (zone) {
++		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
++			if (pfn_valid(zone_pfn + zone->zone_start_pfn))
++				ClearPageNosaveFree(pfn_to_page(zone_pfn +
++					zone->zone_start_pfn));
++	}
++
++	/* Mark orig addresses */
++	for_each_pbe (p, pblist) {
++		if (virt_addr_valid(p->orig_address))
++			SetPageNosaveFree(virt_to_page(p->orig_address));
++		else
++			return -EFAULT;
++	}
++
++	return 0;
++}
++
++static void copy_page_backup_list(struct pbe *dst, struct pbe *src)
++{
++	/* We assume both lists contain the same number of elements */
++	while (src) {
++		dst->orig_address = src->orig_address;
++		dst = dst->next;
++		src = src->next;
++	}
++}
++
++static int check_header(struct swsusp_info *info)
++{
++	char *reason = NULL;
++
++	if (info->version_code != LINUX_VERSION_CODE)
++		reason = "kernel version";
++	if (info->num_physpages != num_physpages)
++		reason = "memory size";
++	if (strcmp(info->uts.sysname,system_utsname.sysname))
++		reason = "system type";
++	if (strcmp(info->uts.release,system_utsname.release))
++		reason = "kernel release";
++	if (strcmp(info->uts.version,system_utsname.version))
++		reason = "version";
++	if (strcmp(info->uts.machine,system_utsname.machine))
++		reason = "machine";
++	if (reason) {
++		printk(KERN_ERR "swsusp: Resume mismatch: %s\n", reason);
++		return -EPERM;
++	}
++	return 0;
++}
++
++/**
++ *	load header - check the image header and copy data from it
++ */
++
++static int load_header(struct snapshot_handle *handle,
++                              struct swsusp_info *info)
++{
++	int error;
++	struct pbe *pblist;
++
++	error = check_header(info);
++	if (!error) {
++		pblist = alloc_pagedir(info->image_pages, GFP_ATOMIC, 0);
++		if (!pblist)
++			return -ENOMEM;
++		pagedir_nosave = pblist;
++		handle->pbe = pblist;
++		nr_copy_pages = info->image_pages;
++		nr_meta_pages = info->pages - info->image_pages - 1;
++	}
++	return error;
++}
++
++/**
++ *	unpack_orig_addresses - copy the elements of @buf[] (1 page) to
++ *	the PBEs in the list starting at @pbe
++ */
++
++static inline struct pbe *unpack_orig_addresses(unsigned long *buf,
++                                                struct pbe *pbe)
++{
++	int j;
++
++	for (j = 0; j < PAGE_SIZE / sizeof(long) && pbe; j++) {
++		pbe->orig_address = buf[j];
++		pbe = pbe->next;
++	}
++	return pbe;
++}
++
++/**
++ *	create_image - use metadata contained in the PBE list
++ *	pointed to by pagedir_nosave to mark the pages that will
++ *	be overwritten in the process of restoring the system
++ *	memory state from the image and allocate memory for
++ *	the image avoiding these pages
++ */
++
++static int create_image(struct snapshot_handle *handle)
++{
++	int error = 0;
++	struct pbe *p, *pblist;
++
++	p = pagedir_nosave;
++	error = mark_unsafe_pages(p);
++	if (!error) {
++		pblist = alloc_pagedir(nr_copy_pages, GFP_ATOMIC, 1);
++		if (pblist)
++			copy_page_backup_list(pblist, p);
++		free_pagedir(p);
++		if (!pblist)
++			error = -ENOMEM;
++	}
++	if (!error)
++		error = alloc_data_pages(pblist, GFP_ATOMIC, 1);
++	if (!error) {
++		release_eaten_pages();
++		pagedir_nosave = pblist;
++	} else {
++		pagedir_nosave = NULL;
++		handle->pbe = NULL;
++		nr_copy_pages = 0;
++		nr_meta_pages = 0;
++	}
++	return error;
++}
++
++/**
++ *	snapshot_write_next - used for writing the system memory snapshot.
++ *
++ *	On the first call to it @handle should point to a zeroed
++ *	snapshot_handle structure.  The structure gets updated and a pointer
++ *	to it should be passed to this function every next time.
++ *
++ *	The @count parameter should contain the number of bytes the caller
++ *	wants to write to the image.  It must not be zero.
++ *
++ *	On success the function returns a positive number.  Then, the caller
++ *	is allowed to write up to the returned number of bytes to the memory
++ *	location computed by the data_of() macro.  The number returned
++ *	may be smaller than @count, but this only happens if the write would
++ *	cross a page boundary otherwise.
++ *
++ *	The function returns 0 to indicate the "end of file" condition,
++ *	and a negative number is returned on error.  In such cases the
++ *	structure pointed to by @handle is not updated and should not be used
++ *	any more.
++ */
++
++int snapshot_write_next(struct snapshot_handle *handle, size_t count)
++{
++	static unsigned long *buffer;
++	int error = 0;
++
++	if (handle->prev && handle->page > nr_meta_pages + nr_copy_pages)
++		return 0;
++	if (!buffer) {
++		/* This makes the buffer be freed by swsusp_free() */
++		buffer = alloc_image_page(GFP_ATOMIC, 0);
++		if (!buffer)
++			return -ENOMEM;
++	}
++	if (!handle->offset)
++		handle->buffer = buffer;
++	if (handle->prev < handle->page) {
++		if (!handle->prev) {
++			error = load_header(handle, (struct swsusp_info *)buffer);
++			if (error)
++				return error;
++		} else if (handle->prev <= nr_meta_pages) {
++			handle->pbe = unpack_orig_addresses(buffer, handle->pbe);
++			if (!handle->pbe) {
++				error = create_image(handle);
++				if (error)
++					return error;
++				handle->pbe = pagedir_nosave;
++				handle->buffer = (void *)handle->pbe->address;
++			}
++		} else {
++			handle->pbe = handle->pbe->next;
++			handle->buffer = (void *)handle->pbe->address;
++		}
++		handle->prev = handle->page;
++	}
++	handle->buf_offset = handle->page_offset;
++	if (handle->page_offset + count >= PAGE_SIZE) {
++		count = PAGE_SIZE - handle->page_offset;
++		handle->page_offset = 0;
++		handle->page++;
++	} else {
++		handle->page_offset += count;
++	}
++	handle->offset += count;
++	return count;
++}
++
++int snapshot_image_loaded(struct snapshot_handle *handle)
++{
++	return !(!handle->pbe || handle->pbe->next || !nr_copy_pages ||
++		handle->page <= nr_meta_pages + nr_copy_pages);
++}
+Index: linux-2.6.15-mm2/include/linux/swap.h
+===================================================================
+--- linux-2.6.15-mm2.orig/include/linux/swap.h	2006-01-07 21:02:15.000000000 +0100
++++ linux-2.6.15-mm2/include/linux/swap.h	2006-01-07 21:06:47.000000000 +0100
+@@ -216,11 +216,13 @@ extern unsigned int nr_swapfiles;
+ extern struct swap_info_struct swap_info[];
+ extern void si_swapinfo(struct sysinfo *);
+ extern swp_entry_t get_swap_page(void);
+-extern swp_entry_t get_swap_page_of_type(int type);
++extern swp_entry_t get_swap_page_of_type(int);
+ extern int swap_duplicate(swp_entry_t);
+ extern int valid_swaphandles(swp_entry_t, unsigned long *);
+ extern void swap_free(swp_entry_t);
+ extern void free_swap_and_cache(swp_entry_t);
++extern int swap_type_of(dev_t);
++extern unsigned int count_swap_pages(int, int);
+ extern sector_t map_swap_page(struct swap_info_struct *, pgoff_t);
+ extern struct swap_info_struct *get_swap_info_struct(unsigned);
+ extern int can_share_swap_page(struct page *);
+Index: linux-2.6.15-mm2/mm/swapfile.c
+===================================================================
+--- linux-2.6.15-mm2.orig/mm/swapfile.c	2006-01-07 21:02:15.000000000 +0100
++++ linux-2.6.15-mm2/mm/swapfile.c	2006-01-07 21:03:36.000000000 +0100
+@@ -416,6 +416,60 @@ void free_swap_and_cache(swp_entry_t ent
+ }
+ 
+ /*
++ * swap_type_of - find the swap type that corresponds to given device
++ * (if any)
++ *
++ * This is needed for software suspend and is done in such a way that inode
++ * aliasing is allowed.
++ */
++
++int swap_type_of(dev_t device)
++{
++	int i;
++
++	if (!device)
++		return -EINVAL;
++	spin_lock(&swap_lock);
++	for (i = 0; i < nr_swapfiles; i++) {
++		struct inode *inode;
++
++		if (!(swap_info[i].flags & SWP_WRITEOK))
++			continue;
++		inode = swap_info->swap_file->f_dentry->d_inode;
++		if (S_ISBLK(inode->i_mode) &&
++		    device == MKDEV(imajor(inode), iminor(inode))) {
++			spin_unlock(&swap_lock);
++			return i;
++		}
++	}
++	spin_unlock(&swap_lock);
++	return -ENODEV;
++}
++
++/*
++ * count_swap_pages - return either the total number of swap pages of given
++ * type, or the number of free pages of that type (depending on @free)
++ *
++ * This is needed for software suspend
++ */
++
++unsigned int count_swap_pages(int type, int free)
++{
++	unsigned int n = 0;
++
++	if (type < nr_swapfiles) {
++		spin_lock(&swap_lock);
++		if (swap_info[type].flags & SWP_WRITEOK) {
++			n = swap_info[type].pages;
++			if (free)
++				n -= swap_info[type].inuse_pages;
++		}
++		spin_unlock(&swap_lock);
++	}
++	return n;
++}
++
++/*
+  * No need to decide whether this PTE shares the swap entry with others,
+  * just let do_wp_page work it out if a write is requested later - to
+  * force COW, vm_page_prot omits write permission from any private vma.

@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWAGWpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWAGW6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161037AbWAGWpE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 17:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161038AbWAGWpE
+	id S1161042AbWAGW6T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 17:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWAGW6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 17:45:04 -0500
-Received: from nsm.pl ([62.111.143.37]:55566 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S1161037AbWAGWpC (ORCPT
+	Sat, 7 Jan 2006 17:58:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7116 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161042AbWAGW6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 17:45:02 -0500
-Date: Sat, 7 Jan 2006 23:44:56 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Almost 80% of UDP packets dropped
-Message-ID: <20060107224455.GD9197@irc.pl>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	linux-kernel@vger.kernel.org
-References: <f69849430601062303n331ab0aaue8635f69d75d8510@mail.gmail.com> <200601071704.52833.vda@ilport.com.ua> <20060107152325.GC9197@irc.pl> <Pine.LNX.4.61.0601072219480.8085@yvahk01.tjqt.qr>
+	Sat, 7 Jan 2006 17:58:18 -0500
+Date: Sat, 7 Jan 2006 14:58:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
+       linux-acpi@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+Message-Id: <20060107145800.113d7de5.akpm@osdl.org>
+In-Reply-To: <43C0172E.7040607@ens-lyon.org>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<43C0172E.7040607@ens-lyon.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bi5JUZtvcfApsciF"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601072219480.8085@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+>
+> 2) acpi-cpufreq does not load either, returns ENODEV too. It's probably
+>  git-acpi. I tried to revert it but there are lots of other patches
+>  depending on it, so I finally gave up.
 
---bi5JUZtvcfApsciF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+OK, let me try to reproduce this.  acpi and cpufreq are fully merged up, so
+this bug may well be in mainline now.
 
-On Sat, Jan 07, 2006 at 10:19:56PM +0100, Jan Engelhardt wrote:
->=20
-> >> Use TCP instead.
-> >
-> > Or DCCP.
->=20
-> Don't you mean SCTP?
+>  3) wpa_supplicant does not find my WPA network anymore (while iwlist
+>  scanning sees). I didn't see anything relevant in dmesg. My driver is
+>  ipw2200.
 
-  No, DCCP, UDP-like protocol with TCP-like congestion control. In
-mainline kernel since 2.6.14. DCCPv6 in the works.
-http://www.wlug.org.nz/DCCP   http://lwn.net/Articles/149756/
+It's things like this which make me consider a career in carpentry.
 
---=20
-Tomasz Torcz                 "God, root, what's the difference?"
-zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
+I assume 2.6.15 works OK?
 
+Unfortunately I don't know diddly about wpa_supplicant (how come FC5-test1
+doesn't ship it?)
 
---bi5JUZtvcfApsciF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFDwERnThhlKowQALQRAg1xAJ99s+C8J8IXKj5oDVeroaF34yxO+ACeOECy
-cPGS3O+Z0MJ8sQ8RqTwoO4k=
-=H/Jc
------END PGP SIGNATURE-----
-
---bi5JUZtvcfApsciF--

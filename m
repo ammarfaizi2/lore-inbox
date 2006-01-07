@@ -1,58 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030589AbWAGV2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752588AbWAGVad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030589AbWAGV2y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 16:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752589AbWAGV2y
+	id S1752588AbWAGVad (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 16:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752587AbWAGVad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 16:28:54 -0500
-Received: from ns1.suse.de ([195.135.220.2]:4998 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752587AbWAGV2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 16:28:53 -0500
-Date: Sat, 7 Jan 2006 22:28:51 +0100
-From: Olaf Hering <olh@suse.de>
-To: linas <linas@austin.ibm.com>
-Cc: paulus@samba.org, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 14/22] ppc64: RPA PHP to EEH code movement
-Message-ID: <20060107212851.GA31731@suse.de>
-References: <20051006232032.GA29826@austin.ibm.com> <20051006234624.GO29826@austin.ibm.com>
+	Sat, 7 Jan 2006 16:30:33 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43462
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030590AbWAGVad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 16:30:33 -0500
+Date: Sat, 07 Jan 2006 13:29:47 -0800 (PST)
+Message-Id: <20060107.132947.115761649.davem@davemloft.net>
+To: Brice.Goglin@ens-lyon.org
+Cc: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43C03214.5080201@ens-lyon.org>
+References: <43C0172E.7040607@ens-lyon.org>
+	<20060107210413.GL9402@redhat.com>
+	<43C03214.5080201@ens-lyon.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20051006234624.GO29826@austin.ibm.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Oct 06, Linas Vepstas wrote:
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Date: Sat, 07 Jan 2006 16:26:44 -0500
 
-> 
-> 14-rpaphp-migrate.patch
-> 
-> This patch moves some pci device add & remove code from the PCI
-> hotplug directory to the arch/ppc64/kernel directory, and cleans 
-> it up a tad. The primary reason for this is that the code performs
-> some fairly generic operations that are shared with the PCI error
-> recovery code (living in the arch/ppc64/kernel directory).
+> It might be a PCI Express, I'm not sure.
 
-> +++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dlpar.c	2005-10-06 17:54:00.306445890 -0500
-
-> +pcibios_add_pci_devices(struct pci_bus * bus)
-
-> +	eeh_add_device_tree_early(dn);
-
-eeh_add_device_tree_early is in eeh.c, which depends on CONFIG_EEH. but
-pci_dlpar.c is compiled unconditionally. Current powerpc.git gives:
-
-arch/powerpc/platforms/built-in.o(.text+0x99b8): In function `.pcibios_add_pci_devices':
-: undefined reference to `.eeh_add_device_tree_early'
-arch/powerpc/platforms/built-in.o(.text+0x9b40): In function `.pcibios_remove_pci_devices':
-: undefined reference to `.eeh_remove_bus_device'
-
-
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+It is PCI Express, I have the same thing in my T43p.

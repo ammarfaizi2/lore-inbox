@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030601AbWAGVu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030603AbWAGVvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030601AbWAGVu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 16:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030603AbWAGVu6
+	id S1030603AbWAGVvh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 16:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030604AbWAGVvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 16:50:58 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:20375 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1030601AbWAGVu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 16:50:57 -0500
-Message-ID: <43C037B8.8080401@ens-lyon.org>
-Date: Sat, 07 Jan 2006 16:50:48 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Sat, 7 Jan 2006 16:51:36 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:54022 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030603AbWAGVvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 16:51:35 -0500
+Date: Sat, 7 Jan 2006 22:51:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/libfs.c: unexport simple_rename
+Message-ID: <20060107215134.GX3774@stusta.de>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-mm2
-References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org> <20060107214208.GR9402@redhat.com>
-In-Reply-To: <20060107214208.GR9402@redhat.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+This patch removes the unused EXPORT_SYMBOL(simple_rename).
 
-> > Should I prevent my initscript from loading agpgart (actually intel_agp)
-> > at all ? (I guess udev or hotplug is trying to load it here). Is there
-> > something like agpgart for PCI express ? Or is it useless ?
->
->it's useless. though the loading of it shouldn't harm anything.
->Does it spew warnings during your boot ?
->  
->
-No, I don't see any warning/problem.
 
-Thanks.
-Brice
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-mm2-full/fs/libfs.c.old	2006-01-07 22:02:31.000000000 +0100
++++ linux-2.6.15-mm2-full/fs/libfs.c	2006-01-07 22:02:38.000000000 +0100
+@@ -635,7 +635,6 @@
+ EXPORT_SYMBOL(simple_prepare_write);
+ EXPORT_SYMBOL(simple_readpage);
+ EXPORT_SYMBOL(simple_release_fs);
+-EXPORT_SYMBOL(simple_rename);
+ EXPORT_SYMBOL(simple_rmdir);
+ EXPORT_SYMBOL(simple_statfs);
+ EXPORT_SYMBOL(simple_sync_file);
 

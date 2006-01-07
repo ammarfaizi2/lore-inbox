@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752574AbWAGSkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030535AbWAGSms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752574AbWAGSkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 13:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752583AbWAGSkT
+	id S1030535AbWAGSms (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 13:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbWAGSmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 13:40:19 -0500
-Received: from styx.suse.cz ([82.119.242.94]:4524 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1752574AbWAGSkS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 13:40:18 -0500
-Date: Sat, 7 Jan 2006 19:40:24 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Peter Osterlund <petero2@telia.com>,
-       Luca Bigliardi <shammash@artha.org>, linux-kernel@vger.kernel.org
-Subject: Re: request for opinion on synaptics, adb and powerpc
-Message-ID: <20060107184024.GA11183@corona.suse.cz>
-References: <20060106231301.GG4732@kamaji.shammash.lan> <1136608396.4840.206.camel@localhost.localdomain> <20060107082523.GA6276@corona.ucw.cz> <200601071104.53188.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 7 Jan 2006 13:42:47 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:41760 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030535AbWAGSmr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 13:42:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nGY3fhTf+NJuQ7ZPwRgjUCEmDzUw552qLyWOdegezFm+sggvVGWRLf0A0qRN1R1X/dXcqCqPVsxyyEowcUAifKMlM9KOC3GYJkEcOClQ3VeAym1sY1dWLDoFAzPOX1CotQgKhY/r0U6uCAxuYSk4NUJLwI5TV8cVZs4MZqGWvE4=
+Message-ID: <37219a840601071042m157d1bb7k4a18105e038e9fad@mail.gmail.com>
+Date: Sat, 7 Jan 2006 13:42:46 -0500
+From: Michael Krufky <mkrufky@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [linux-dvb-maintainer] [RFC: 2.6 patch] drivers/media/dvb/: possible cleanups
+Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060107181258.GM3774@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200601071104.53188.dtor_core@ameritech.net>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+References: <20060107181258.GM3774@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 11:04:52AM -0500, Dmitry Torokhov wrote:
-> On Saturday 07 January 2006 03:25, Vojtech Pavlik wrote:
-> > 
-> > If a relative mode is an absolute must, then a kernel option is IMO
-> > sufficient (we have psmouse.proto=imps for the classic PS/2 Synaptics
-> > pads), although a sysfs attribute would likely be better.
-> > 
-> 
-> Just FYI, writing into /sys/bus/serio/devices/serioX/protcol allows
-> swicthing ptorocol dynamically (this involves teardown of old input
-> device and creation of a new one).
+On 1/7/06, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch contains the following possible cleanups:
+> - make needlessly global code static
+> - #if 0 the following unused global functions:
+>   - b2c2/flexcop-dma.c: flexcop_dma_control_packet_irq()
+>   - b2c2/flexcop-dma.c: flexcop_dma_config_packet_count()
+>
+> Please review which of these changes do make sense and which conflict
+> with pending patches.
+>
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> ---
+>
+>  drivers/media/dvb/b2c2/flexcop-common.h      |    2 -
+>  drivers/media/dvb/b2c2/flexcop-dma.c         |    4 ++
+>  drivers/media/dvb/b2c2/flexcop-misc.c        |    6 ++--
+>  drivers/media/dvb/b2c2/flexcop-reg.h         |    4 --
+>  drivers/media/dvb/bt8xx/dst.c                |   19 +++++--------
+>  drivers/media/dvb/bt8xx/dst_common.h         |    5 ---
+>  drivers/media/dvb/dvb-usb/cxusb.c            |    2 -
+>  drivers/media/dvb/dvb-usb/dvb-usb-firmware.c |    8 +++--
+>  drivers/media/dvb/dvb-usb/dvb-usb.h          |    1
+>  drivers/media/dvb/dvb-usb/vp702x.c           |    6 ++--
+>  drivers/media/dvb/dvb-usb/vp702x.h           |    2 -
+>  drivers/media/dvb/ttpci/av7110.h             |    2 -
+>  drivers/media/dvb/ttpci/av7110_ir.c          |   26 +++++++++----------
+>  13 files changed, 38 insertions(+), 49 deletions(-)
 
-I know, but this will not be possible if the Synaptics pad is connected
-over ADB, which is the case I believe we are discussing here. 
 
-On the other hand, if it's just PS/2 over ADB, a serio driver instead of
-an input driver would make more sense.
+Adrian,
 
-> > In theory, we could use EV_SYN, SYN_CONFIG for notifying applications
-> > that the device has changed its capabilities, but a
-> > disconnect/recreation will work better, since no applications support
-> > the SYN_CONFIG notification ATM.
-> 
-> I could see SYN_CONFIG being used to signal changes in limits (like min
-> and max X coordinates) but not to basic device capabilities.
+At first glance, I already see many collisions with pending
+patchsets...  Mauro is getting ready to push a whole bunch of patches
+onto the v4l-dvb git tree.
 
-Yes, that's probably more sensible.
+Could you please wait until after those get merged?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Also, I'm not sure about some of the changes here... Hopefully some of
+the other DVB guys will have some comments.  I think it's better to
+postphone reviewing this until after we merge our new v4l / dvb stuff.
+
+Regards,
+Michael Krufky

@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932706AbWAGIgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWAGIrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932706AbWAGIgq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 03:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbWAGIgq
+	id S1030364AbWAGIrY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 03:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbWAGIrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 03:36:46 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28838
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932702AbWAGIgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 03:36:45 -0500
-Date: Sat, 07 Jan 2006 00:36:25 -0800 (PST)
-Message-Id: <20060107.003625.50986701.davem@davemloft.net>
-To: dada1@cosmosbay.com
-Cc: ak@suse.de, paulmck@us.ibm.com, alan@lxorguk.ukuu.org.uk,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
-       manfred@colorfullife.com, netdev@vger.kernel.org
-Subject: Re: [PATCH, RFC] RCU : OOM avoidance and lower latency
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43BF7390.6050005@cosmosbay.com>
-References: <43BF6F0B.4060108@cosmosbay.com>
-	<20060106.234440.53993868.davem@davemloft.net>
-	<43BF7390.6050005@cosmosbay.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 7 Jan 2006 03:47:24 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:37136 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030364AbWAGIrX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 03:47:23 -0500
+Date: Sat, 7 Jan 2006 09:47:04 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu
+Subject: Re: [patch 2/7]  enable unit-at-a-time optimisations for gcc4
+Message-ID: <20060107084704.GA10557@mars.ravnborg.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136543914.2940.11.camel@laptopd505.fenrus.org> <43BEA672.4010309@pobox.com> <20060106184841.GA13917@mars.ravnborg.org> <p73k6dcykar.fsf@verdi.suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73k6dcykar.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric Dumazet <dada1@cosmosbay.com>
-Date: Sat, 07 Jan 2006 08:53:52 +0100
+On Sat, Jan 07, 2006 at 01:05:16AM +0100, Andi Kleen wrote:
+> 
+> The feature also has some drawbacks - last time I checked it
+> was still quite green (as in bananas). First it causes gcc 
+> to eat a lot more memory because it has to hold completely directories
+> worth of source in memory. This might slow things down if setups
+> that didn't swap before start doing this now.
+kbuild rely on the gcc feature that generates a dependency file
+using: -Wp,-MD,<file>
+This is broken when adding several .c files.
+It looks like gcc generate a new dependency file for each and every
+input file overwriting the old one. Obviously caused by gcc being
+invoked once for each input file in my version of gcc.
 
-> I have no problem with this, since the biggest server I have is 4
-> way, but are you sure big machines wont suffer from this single
-> spinlock ?
+gcc --version:
+gcc (GCC) 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)
+Copyright (C) 2004 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-It is the main question.
+Anyone that knows how I can enable gcc 4.x for kernel builds on a gentoo
+box without changing gcc for everything else?
+I could install a vanilla gcc but too bored to do so.
 
-> Also I dont understand what you want to do after this single
-> spinlock patch.  How is it supposed to help the 'ip route flush
-> cache' problem ?  In my case, I have about 600.000 dst-entries :
+> I suspect it'll also run slower with this because it has some algorithms
+> that scale with the size of the input source and some of the
+> directories in the kernel can be quite big (e.g. i'm not 
+> sure letting a optimizer lose on all of xfs at the same 
+> time is a good idea)
+The most noticeable difference will be when it has to compile all files
+for a module when a single file changes. And cccache will not save us in
+this case.
 
-I don't claim to have a solution to this problem currently.
+> And gcc is really picky about type compatibility between source files
+> with program-at-a-time.  If any types of the same symbols are
+> incompatible even in minor ways you get an ICE. That's technically
+> illegal, but tends to happen often in practice (e.g. when people
+> use extern) It might end up being quite a lot of work to clean this up.
 
-Doing RCU and going through the whole DST GC machinery is overkill for
-an active system.  So, perhaps a very simple solution will do:
+Even with an ICE it may be wortwhile to do a allmodconfig build just to
+get an overview of type inconsistencies - no?
+A quick grep shows that we have 3300 extern functions in .c files in the
+kernel :-(
 
-1) On rt_run_flush(), do not rt_free(), instead collect all active
-   routing cache entries onto a global list, begin a timer to
-   fire in 10 seconds (or some sysctl configurable amount).
-
-2) When a new routing cache entry is needed, check the global
-   list appended to in #1 above first, failing that do dst_alloc()
-   as is done currently.
-
-3) If timer expires, rt_free() any entries in the global list.
-
-The missing trick is how to ensure RCU semantics when reallocating
-from the global list.
-
-The idea is that an active system will immediately repopulate itself
-with all of these entries just flushed from the table.
-
-RCU really doesn't handle this kind of problem very well.  It truly
-excels when work is generated by process context work, not interrupt
-work.
+	Sam

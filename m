@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161012AbWAGTMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030546AbWAGTIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161012AbWAGTMc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 14:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161006AbWAGTMb
+	id S1030546AbWAGTIt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 14:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbWAGTI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:12:31 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:27283 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1161012AbWAGTMO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 14:12:14 -0500
-Subject: Re: Changes in SATA, IDE and ATAPI configuration
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: andyliebman@aol.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8C7E1BF63B9F5F4-AC8-506C@FWM-M45.sysops.aol.com>
-References: <8C7E1BF63B9F5F4-AC8-506C@FWM-M45.sysops.aol.com>
-Content-Type: text/plain
+	Sat, 7 Jan 2006 14:08:27 -0500
+Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:59759 "HELO
+	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030550AbWAGTIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 14:08:22 -0500
+Message-Id: <20060107172100.559329000.dtor_core@ameritech.net>
+References: <20060107171559.593824000.dtor_core@ameritech.net>
+Date: Sat, 07 Jan 2006 12:16:08 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: [PATCH 09/24] i8042: disable MUX mode for Sharp MM20
+Content-Disposition: inline; filename=i8042-sharp-mm20-nomux.patch
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sat, 07 Jan 2006 19:14:49 +0000
-Message-Id: <1136661289.3748.70.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2006-01-07 at 11:34 -0500, andyliebman@aol.com wrote:
-> -- BIOS settings for the ICH5 SATA controller on my Xeon motherboard 
-> (Auto, SATA, PATA?)
-> -- Whether the CD is connected to the Primary or Secondary IDE channel
+Input: i8042 - disable MUX mode for Sharp MM20
 
-Secondary slave is broken in 2.6.15 and all earlier SATA releases I've
-seen for ICH5. ATAPI prefetch handling is incorrect on PIIX/ICH5. If the
-CD is anywhere but the secondary slave it should be fine.
+Add yet another entry to the ever-growing list of boxes with
+non-working MUX implementation.
 
-> -- Use (or NOT) of "options libata atapi_enabled=1" in modprobe.conf
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-If its modular. Otherwise it needs to be a boot time option for libata
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> -- Order of loading modules
-
-Shouldn't be
-
-> -- Use (or NOT) of the AHCI module. When making fresh installs onto 
-> SATA drives, some distributions seem to load the AHCI module and some 
-> don't, on exactly the same hardware with the same kernel.
-
-AHCI mode is an option for the ICH5-R and later controllers and BIOS
-side.
-
-Basically ICH5 supports
-
-'Pretend we are one device' (Combined mode) which will see the PATA
-ATAPI ports appear as non DMA IDE ports (old style) and in its full
-functional mode where PATA and SATA ports are properly seperated out.
-
-> Whatever it is, I haven't found the magic formula for making the 
-> transfer from IDE to SATA work. 
-
-Insert CD, install, sync over data. Actually for Fedora and anything
-using initrd root device labels you should only need to make the right
-initrd and set the options.
-
-Alan
+Index: linux/drivers/input/serio/i8042-x86ia64io.h
+===================================================================
+--- linux.orig/drivers/input/serio/i8042-x86ia64io.h
++++ linux/drivers/input/serio/i8042-x86ia64io.h
+@@ -158,6 +158,13 @@ static struct dmi_system_id __initdata i
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Sentia"),
+ 		},
+ 	},
++	{
++		.ident = "Sharp Actius MM20",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "SHARP"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "PC-MM20 Series"),
++		},
++	},
+ 	{ }
+ };
+ 
 

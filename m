@@ -1,47 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbWAGXaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWAGXax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161053AbWAGXaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 18:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWAGXaW
+	id S1161052AbWAGXax (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 18:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWAGXaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 18:30:22 -0500
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:48534 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S1161053AbWAGXaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 18:30:21 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: Komuro <komurojun-mbn@nifty.com>
-Subject: Re: [KERNEL 2.6.15]  All files have -rw-rw-rw- permission.
-References: <20060105191736.1ac95e4b.rdunlap@xenotime.net>
-	<1986219.1136463311449.komurojun-mbn@nifty.com>
-	<3378320.1136549095236.komurojun-mbn@nifty.com>
-cc: linux-kernel@vger.kernel.org
-Date: Sat, 07 Jan 2006 15:30:18 -0800
-Message-ID: <7vmzi78vlh.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 7 Jan 2006 18:30:52 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:31408 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161052AbWAGXav
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 18:30:51 -0500
+Date: Sat, 7 Jan 2006 23:30:46 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/libfs.c: unexport simple_rename
+Message-ID: <20060107233046.GE27946@ftp.linux.org.uk>
+References: <20060107215134.GX3774@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060107215134.GX3774@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Komuro <komurojun-mbn@nifty.com> writes:
+On Sat, Jan 07, 2006 at 10:51:34PM +0100, Adrian Bunk wrote:
+> This patch removes the unused EXPORT_SYMBOL(simple_rename).
 
-> But, is there any reason to set -----w--w- bit
-> by default?
+fatal error: engage your brain or sod off.
 
-Yes.
-
-Please do not extract the kernel tarball as the root user,
-especially if you do not know how tar command works for root
-user by default (hint: --no-same-permissions).
-
-Setting g-w in the archive forces arbitrary policy on people who
-work with umask 002 as a non-root user.  We can let that policy
-to be controlled by user's umask by being lenient in the
-tarball.  For the same reason, if somebody has umask 0, there is
-no reason for us (as tarball creator) to impose o-w as a policy
-on him either, hence git-tar-tree output has 0666 or 0777 modes.
-
-
-
-
+Let me put it that way: libfs is a fscking _library_.  Exported symbols
+there are exported for purpose; presense or absense of current modular
+users does not matter.

@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbWAGIdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWAGIeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030360AbWAGIdz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 03:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWAGIdz
+	id S1030359AbWAGIeX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 03:34:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWAGIeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 03:33:55 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49111 "EHLO
+	Sat, 7 Jan 2006 03:34:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61319 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030360AbWAGIdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 03:33:54 -0500
-Subject: Re: [patch 0/4] Series to allow a "const" file_operations struct
+	id S1030359AbWAGIeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 03:34:21 -0500
+Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
 From: Arjan van de Ven <arjan@infradead.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060106162913.7621895c.akpm@osdl.org>
-References: <1136583937.2940.90.camel@laptopd505.fenrus.org>
-	 <1136584539.2940.105.camel@laptopd505.fenrus.org>
-	 <43BEF338.3010403@cosmosbay.com>  <20060106162913.7621895c.akpm@osdl.org>
+Cc: jgarzik@pobox.com, mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20060106223311.134d76d4.akpm@osdl.org>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+	 <1136544309.2940.25.camel@laptopd505.fenrus.org>
+	 <43BEA970.4050704@pobox.com>
+	 <1136576160.2940.76.camel@laptopd505.fenrus.org>
+	 <20060106223311.134d76d4.akpm@osdl.org>
 Content-Type: text/plain
-Date: Sat, 07 Jan 2006 09:33:46 +0100
-Message-Id: <1136622827.2936.4.camel@laptopd505.fenrus.org>
+Date: Sat, 07 Jan 2006 09:34:15 +0100
+Message-Id: <1136622855.2936.6.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -34,11 +36,17 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Fri, 2006-01-06 at 22:33 -0800, Andrew Morton wrote:
+> Arjan van de Ven <arjan@infradead.org> wrote:
+> >
+> > if optimizing for size (CONFIG_CC_OPTIMIZE_FOR_SIZE), allow gcc4 compilers
+> >  to decide what to inline and what not - instead of the kernel forcing gcc
+> >  to inline all the time. This requires several places that require to be 
+> >  inlined to be marked as such, previous patches in this series do that.
 > 
-> Confused.   Why should this result in an aggregate reduction in vmlinux size?
+> This one stomps all over more-updates-for-the-gcc-=-32-requirement.patch. 
+> PLease redo against 2.6.15-mm1 or next -mm?
 
-there shouldn't be. It's just moving these things from the .data section
-(where cachelines get dirtied all the time) to .rodata (where they're
-not)
+Will do.
+
 

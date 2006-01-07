@@ -1,70 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030542AbWAGTFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030545AbWAGTHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030542AbWAGTFn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 14:05:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbWAGTFn
+	id S1030545AbWAGTHF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 14:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030548AbWAGTHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 14:05:43 -0500
-Received: from spooner.celestial.com ([192.136.111.35]:28304 "EHLO
-	spooner.celestial.com") by vger.kernel.org with ESMTP
-	id S1030542AbWAGTFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 14:05:42 -0500
-Date: Sat, 7 Jan 2006 14:05:31 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
-Message-ID: <20060107190531.GB8990@kurtwerks.com>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136544309.2940.25.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
+	Sat, 7 Jan 2006 14:07:05 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56837 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030545AbWAGTHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 14:07:04 -0500
+Date: Sat, 7 Jan 2006 20:07:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: mark.fasheh@oracle.com, kurt.hackel@oracle.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] OCFS2: __init / __exit problem
+Message-ID: <20060107190702.GT3774@stusta.de>
+References: <20060107132008.GE820@lug-owl.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136544309.2940.25.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.15krw
-X-Woot: Woot!
+In-Reply-To: <20060107132008.GE820@lug-owl.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 11:45:09AM +0100, Arjan van de Ven took 0 lines to write:
-> Subject: when CONFIG_CC_OPTIMIZE_FOR_SIZE, allow gcc4 to control inlining
-> From: Ingo Molnar <mingo@elte.hu>
+On Sat, Jan 07, 2006 at 02:20:08PM +0100, Jan-Benedict Glaw wrote:
+> Hi!
 > 
-> if optimizing for size (CONFIG_CC_OPTIMIZE_FOR_SIZE), allow gcc4 compilers
-> to decide what to inline and what not - instead of the kernel forcing gcc
-> to inline all the time. This requires several places that require to be 
-> inlined to be marked as such, previous patches in this series do that.
-> This is probably the most flame-worthy patch of the series.
+> $ make ARCH=vax CROSS_COMPILE=vax-linux-uclibc- mopboot
+> :
+>   LD      .tmp_vmlinux1
+> `exit_ocfs2_uptodate_cache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+> `exit_ocfs2_extent_maps' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+> make: *** [.tmp_vmlinux1] Error 1
+>...
 
-Hmm. This failed when using -Os while linking vmlinux (gcc 4.0.2):
+Thanks for your report.
 
-  AS      arch/x86_64/lib/putuser.o
-  CC      arch/x86_64/lib/usercopy.o
-  AR      arch/x86_64/lib/lib.a
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-arch/x86_64/kernel/built-in.o(.text+0x506a): In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/x86_64/kernel/built-in.o(.text+0xbffd): In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/x86_64/kernel/built-in.o(.text+0xdba0): In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/x86_64/kernel/built-in.o(.text+0xdc1c): In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-arch/x86_64/kernel/built-in.o(.text+0xdde8): In function `fix_to_virt':
-: undefined reference to `__this_fixmap_does_not_exist'
-make: *** [.tmp_vmlinux1] Error 1
+It's a real problem that due to the fact that these errors have become 
+runtime errors on i386 in kernel 2.6, we do no longer have a big testing 
+coverage for them.  :-(
 
-This patch was applied on top of the previous 6 in the series from
-Arjan. NB that it _did_ build with 3.4.4 and -Os enabled. I'm
-rechecking, but this is the second time I've encountered this failure.
+Patch below.
 
-Kurt
--- 
-Sauron is alive in Argentina!
+> MfG, JBG
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+Functions called by __init funtions mustn't be __exit.
+
+Reported by Jan-Benedict Glaw <jbglaw@lug-owl.de>.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ fs/ocfs2/extent_map.c |    2 +-
+ fs/ocfs2/uptodate.c   |    2 +-
+ fs/ocfs2/uptodate.h   |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+--- linux-2.6.15-mm2-full/fs/ocfs2/uptodate.h.old	2006-01-07 19:45:11.000000000 +0100
++++ linux-2.6.15-mm2-full/fs/ocfs2/uptodate.h	2006-01-07 19:45:19.000000000 +0100
+@@ -27,7 +27,7 @@
+ #define OCFS2_UPTODATE_H
+ 
+ int __init init_ocfs2_uptodate_cache(void);
+-void __exit exit_ocfs2_uptodate_cache(void);
++void exit_ocfs2_uptodate_cache(void);
+ 
+ void ocfs2_metadata_cache_init(struct inode *inode);
+ void ocfs2_metadata_cache_purge(struct inode *inode);
+--- linux-2.6.15-mm2-full/fs/ocfs2/uptodate.c.old	2006-01-07 19:45:35.000000000 +0100
++++ linux-2.6.15-mm2-full/fs/ocfs2/uptodate.c	2006-01-07 19:45:44.000000000 +0100
+@@ -537,7 +537,7 @@
+ 	return 0;
+ }
+ 
+-void __exit exit_ocfs2_uptodate_cache(void)
++void exit_ocfs2_uptodate_cache(void)
+ {
+ 	if (ocfs2_uptodate_cachep)
+ 		kmem_cache_destroy(ocfs2_uptodate_cachep);
+--- linux-2.6.15-mm2-full/fs/ocfs2/extent_map.c.old	2006-01-07 19:46:08.000000000 +0100
++++ linux-2.6.15-mm2-full/fs/ocfs2/extent_map.c	2006-01-07 19:46:40.000000000 +0100
+@@ -988,7 +988,7 @@
+ 	return 0;
+ }
+ 
+-void __exit exit_ocfs2_extent_maps(void)
++void exit_ocfs2_extent_maps(void)
+ {
+ 	kmem_cache_destroy(ocfs2_em_ent_cachep);
+ }
+

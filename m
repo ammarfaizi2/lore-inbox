@@ -1,169 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbWAGXAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbWAGXCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161044AbWAGXAT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 18:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWAGXAS
+	id S1161048AbWAGXCP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 18:02:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWAGXCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 18:00:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15623 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161044AbWAGXAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 18:00:17 -0500
-Date: Sun, 8 Jan 2006 00:00:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 7 Jan 2006 18:02:15 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:49345 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1161048AbWAGXCN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 18:02:13 -0500
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [MMC] wbsd pnp suspend
+Date: Sun, 08 Jan 2006 00:02:01 +0100
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: rmk+lkml@arm.linux.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] the scheduled removal of obsolete OSS drivers (v4)
-Message-ID: <20060107230012.GC3774@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <20060107230201.28473.19968.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the scheduled removal of obsolete OSS drivers with 
-ALSA replacements.
+Allow the wbsd driver to use the new suspend/resume functions added to
+the PnP layer.
 
-The SOUND_NM256 driver was not removed since the ALSA driver for this 
-hardware has known issues.
-
-The SOUND_YM3812 option stays since it's required as a helper option for 
-some sound drivers (the opl3 driver would have anyways not been 
-removed since it's also used by other sound drivers).
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
 ---
 
-In this version, the SOUND_YM3812 option is no longer removed.
+ drivers/mmc/wbsd.c |  106 ++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 files changed, 90 insertions(+), 16 deletions(-)
 
-This batch of scheduled removals does _not_ include the SOUND_ICH driver 
-whose possible removal Andi objected to.
-
-Due to it's size, the patch is available at
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/misc/patch-oss-removal-4.gz
-
- Documentation/feature-removal-schedule.txt |    7 
- Documentation/sound/oss/AWE32              |   76 
- Documentation/sound/oss/CMI8338            |   85 
- Documentation/sound/oss/CS4232             |   23 
- Documentation/sound/oss/MAD16              |   56 
- Documentation/sound/oss/Maestro            |  123 
- Documentation/sound/oss/Maestro3           |   92 
- Documentation/sound/oss/NEWS               |   42 
- Documentation/sound/oss/OPL3-SA            |   52 
- Documentation/sound/oss/Wavefront          |  339 -
- Documentation/sound/oss/btaudio            |   92 
- Documentation/sound/oss/es1370             |   70 
- Documentation/sound/oss/es1371             |   64 
- Documentation/sound/oss/rme96xx            |  767 --
- Documentation/sound/oss/solo1              |   70 
- Documentation/sound/oss/sonicvibes         |   81 
- MAINTAINERS                                |   36 
- arch/ppc/platforms/prep_setup.c            |   81 
- include/asm-powerpc/dma.h                  |   39 
- include/linux/ac97_codec.h                 |    5 
- include/linux/sound.h                      |    2 
- include/sound/wavefront.h                  |  695 --
- include/sound/wavefront_fx.h               |    9 
- sound/oss/Kconfig                          |  385 -
- sound/oss/Makefile                         |   65 
- sound/oss/ac97_codec.c                     |   89 
- sound/oss/ac97_plugin_ad1980.c             |  126 
- sound/oss/ad1848.c                         |    5 
- sound/oss/ad1848.h                         |    1 
- sound/oss/ali5455.c                        | 3733 ------------
- sound/oss/au1000.c                         | 2214 -------
- sound/oss/audio_syms.c                     |    3 
- sound/oss/awe_hw.h                         |   99 
- sound/oss/awe_wave.c                       | 6147 ---------------------
- sound/oss/awe_wave.h                       |   77 
- sound/oss/btaudio.c                        | 1136 ---
- sound/oss/cmpci.c                          | 3379 -----------
- sound/oss/cs4232.c                         |  522 -
- sound/oss/cs4281/Makefile                  |    6 
- sound/oss/cs4281/cs4281_hwdefs.h           | 1234 ----
- sound/oss/cs4281/cs4281_wrapper-24.c       |   41 
- sound/oss/cs4281/cs4281m.c                 | 4487 ---------------
- sound/oss/cs4281/cs4281pm-24.c             |   45 
- sound/oss/cs4281/cs4281pm.h                |   74 
- sound/oss/dm.h                             |   79 
- sound/oss/dmabuf.c                         |   46 
- sound/oss/emu10k1/8010.h                   |  737 --
- sound/oss/emu10k1/Makefile                 |   17 
- sound/oss/emu10k1/audio.c                  | 1588 -----
- sound/oss/emu10k1/audio.h                  |   44 
- sound/oss/emu10k1/cardmi.c                 |  832 --
- sound/oss/emu10k1/cardmi.h                 |   97 
- sound/oss/emu10k1/cardmo.c                 |  229 
- sound/oss/emu10k1/cardmo.h                 |   62 
- sound/oss/emu10k1/cardwi.c                 |  373 -
- sound/oss/emu10k1/cardwi.h                 |   91 
- sound/oss/emu10k1/cardwo.c                 |  643 --
- sound/oss/emu10k1/cardwo.h                 |   90 
- sound/oss/emu10k1/ecard.c                  |  157 
- sound/oss/emu10k1/ecard.h                  |  113 
- sound/oss/emu10k1/efxmgr.c                 |  220 
- sound/oss/emu10k1/efxmgr.h                 |  270 
- sound/oss/emu10k1/emuadxmg.c               |  104 
- sound/oss/emu10k1/hwaccess.c               |  507 -
- sound/oss/emu10k1/hwaccess.h               |  247 
- sound/oss/emu10k1/icardmid.h               |  163 
- sound/oss/emu10k1/icardwav.h               |   53 
- sound/oss/emu10k1/irqmgr.c                 |  113 
- sound/oss/emu10k1/irqmgr.h                 |   52 
- sound/oss/emu10k1/main.c                   | 1475 -----
- sound/oss/emu10k1/midi.c                   |  611 --
- sound/oss/emu10k1/midi.h                   |   78 
- sound/oss/emu10k1/mixer.c                  |  690 --
- sound/oss/emu10k1/passthrough.c            |  235 
- sound/oss/emu10k1/passthrough.h            |   99 
- sound/oss/emu10k1/recmgr.c                 |  147 
- sound/oss/emu10k1/recmgr.h                 |   48 
- sound/oss/emu10k1/timer.c                  |  176 
- sound/oss/emu10k1/timer.h                  |   54 
- sound/oss/emu10k1/voicemgr.c               |  398 -
- sound/oss/emu10k1/voicemgr.h               |  103 
- sound/oss/es1370.c                         | 2818 ---------
- sound/oss/es1371.c                         | 3129 ----------
- sound/oss/esssolo1.c                       | 2514 --------
- sound/oss/forte.c                          | 2137 -------
- sound/oss/gus.h                            |   24 
- sound/oss/gus_card.c                       |  293 -
- sound/oss/gus_hw.h                         |   50 
- sound/oss/gus_linearvol.h                  |   18 
- sound/oss/gus_midi.c                       |  256 
- sound/oss/gus_vol.c                        |  153 
- sound/oss/gus_wave.c                       | 3464 -----------
- sound/oss/harmony.c                        | 1330 ----
- sound/oss/ics2101.c                        |  247 
- sound/oss/mad16.c                          | 1113 ---
- sound/oss/maestro.c                        | 3684 ------------
- sound/oss/maestro.h                        |   60 
- sound/oss/maestro3.c                       | 2973 ----------
- sound/oss/maestro3.h                       |  821 --
- sound/oss/maui.c                           |  478 -
- sound/oss/mpu401.c                         |   13 
- sound/oss/mpu401.h                         |    2 
- sound/oss/opl3sa.c                         |  329 -
- sound/oss/rme96xx.c                        | 1856 ------
- sound/oss/rme96xx.h                        |   78 
- sound/oss/sequencer_syms.c                 |    7 
- sound/oss/sgalaxy.c                        |  207 
- sound/oss/sonicvibes.c                     | 2807 ---------
- sound/oss/sound_calls.h                    |    3 
- sound/oss/sscape.c                         | 1479 -----
- sound/oss/tuning.h                         |   10 
- sound/oss/via82cxxx_audio.c                | 3616 ------------
- sound/oss/wavfront.c                       | 3554 ------------
- sound/oss/wf_midi.c                        |  880 ---
- sound/oss/ymfpci.c                         | 2692 ---------
- sound/oss/ymfpci.h                         |  360 -
- sound/oss/ymfpci_image.h                   | 1565 -----
- sound/oss/yss225.c                         |  319 -
- sound/oss/yss225.h                         |   24 
- sound/sound_core.c                         |   34 
- 120 files changed, 13 insertions(+), 83199 deletions(-)
+diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
+index 4f13bd2..60afc12 100644
+--- a/drivers/mmc/wbsd.c
++++ b/drivers/mmc/wbsd.c
+@@ -1980,37 +1980,53 @@ static void __devexit wbsd_pnp_remove(st
+ 
+ #ifdef CONFIG_PM
+ 
+-static int wbsd_suspend(struct platform_device *dev, pm_message_t state)
++static int wbsd_suspend(struct wbsd_host *host, pm_message_t state)
++{
++	BUG_ON(host == NULL);
++
++	return mmc_suspend_host(host->mmc, state);
++}
++
++static int wbsd_resume(struct wbsd_host *host)
++{
++	BUG_ON(host == NULL);
++
++	wbsd_init_device(host);
++
++	return mmc_resume_host(host->mmc);
++}
++
++static int wbsd_platform_suspend(struct platform_device *dev, pm_message_t state)
+ {
+ 	struct mmc_host *mmc = platform_get_drvdata(dev);
+ 	struct wbsd_host *host;
+ 	int ret;
+ 
+-	if (!mmc)
++	if (mmc == NULL)
+ 		return 0;
+ 
+-	DBG("Suspending...\n");
+-
+-	ret = mmc_suspend_host(mmc, state);
+-	if (!ret)
+-		return ret;
++	DBGF("Suspending...\n");
+ 
+ 	host = mmc_priv(mmc);
+ 
++	ret = wbsd_suspend(host, state);
++	if (ret)
++		return ret;
++
+ 	wbsd_chip_poweroff(host);
+ 
+ 	return 0;
+ }
+ 
+-static int wbsd_resume(struct platform_device *dev)
++static int wbsd_platform_resume(struct platform_device *dev)
+ {
+ 	struct mmc_host *mmc = platform_get_drvdata(dev);
+ 	struct wbsd_host *host;
+ 
+-	if (!mmc)
++	if (mmc == NULL)
+ 		return 0;
+ 
+-	DBG("Resuming...\n");
++	DBGF("Resuming...\n");
+ 
+ 	host = mmc_priv(mmc);
+ 
+@@ -2021,15 +2037,70 @@ static int wbsd_resume(struct platform_d
+ 	 */
+ 	mdelay(5);
+ 
+-	wbsd_init_device(host);
++	return wbsd_resume(host);
++}
++
++#ifdef CONFIG_PNP
++
++static int wbsd_pnp_suspend(struct pnp_dev *pnp_dev, pm_message_t state)
++{
++	struct mmc_host *mmc = dev_get_drvdata(&pnp_dev->dev);
++	struct wbsd_host *host;
++
++	if (mmc == NULL)
++		return 0;
++
++	DBGF("Suspending...\n");
++
++	host = mmc_priv(mmc);
+ 
+-	return mmc_resume_host(mmc);
++	return wbsd_suspend(host, state);
+ }
+ 
++static int wbsd_pnp_resume(struct pnp_dev *pnp_dev)
++{
++	struct mmc_host *mmc = dev_get_drvdata(&pnp_dev->dev);
++	struct wbsd_host *host;
++
++	if (mmc == NULL)
++		return 0;
++
++	DBGF("Resuming...\n");
++
++	host = mmc_priv(mmc);
++
++	/*
++	 * See if chip needs to be configured.
++	 */
++	if (host->config != 0)
++	{
++		if (!wbsd_chip_validate(host))
++		{
++			printk(KERN_WARNING DRIVER_NAME
++				": PnP active but chip not configured! "
++				"You probably have a buggy BIOS. "
++				"Configuring chip manually.\n");
++			wbsd_chip_config(host);
++		}
++	}
++
++	/*
++	 * Allow device to initialise itself properly.
++	 */
++	mdelay(5);
++
++	return wbsd_resume(host);
++}
++
++#endif /* CONFIG_PNP */
++
+ #else /* CONFIG_PM */
+ 
+-#define wbsd_suspend NULL
+-#define wbsd_resume NULL
++#define wbsd_platform_suspend NULL
++#define wbsd_platform_resume NULL
++
++#define wbsd_pnp_suspend NULL
++#define wbsd_pnp_resume NULL
+ 
+ #endif /* CONFIG_PM */
+ 
+@@ -2039,8 +2110,8 @@ static struct platform_driver wbsd_drive
+ 	.probe		= wbsd_probe,
+ 	.remove		= __devexit_p(wbsd_remove),
+ 
+-	.suspend	= wbsd_suspend,
+-	.resume		= wbsd_resume,
++	.suspend	= wbsd_platform_suspend,
++	.resume		= wbsd_platform_resume,
+ 	.driver		= {
+ 		.name	= DRIVER_NAME,
+ 	},
+@@ -2053,6 +2124,9 @@ static struct pnp_driver wbsd_pnp_driver
+ 	.id_table	= pnp_dev_table,
+ 	.probe		= wbsd_pnp_probe,
+ 	.remove		= __devexit_p(wbsd_pnp_remove),
++
++	.suspend	= wbsd_pnp_suspend,
++	.resume		= wbsd_pnp_resume,
+ };
+ 
+ #endif /* CONFIG_PNP */
 

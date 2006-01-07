@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWAGOIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWAGONN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbWAGOIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 09:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030456AbWAGOIZ
+	id S1030452AbWAGONN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 09:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030456AbWAGONN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 09:08:25 -0500
-Received: from mail.gmx.de ([213.165.64.21]:54183 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030451AbWAGOIZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 09:08:25 -0500
-X-Authenticated: #24128601
-Date: Sat, 7 Jan 2006 15:08:43 +0100
-From: Sebastian <sebastian_ml@gmx.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Message-ID: <20060107140843.GA23699@section_eight.mops.rwth-aachen.de>
-References: <20060103222044.GA17682@section_eight.mops.rwth-aachen.de> <43BE24F7.6070901@triplehelix.org> <20060106232522.GA31621@section_eight.mops.rwth-aachen.de> <5bdc1c8b0601061530l3a8f4378o3b9cb96c187a6049@mail.gmail.com> <20060107103901.GA17833@section_eight.mops.rwth-aachen.de> <20060107105649.GT3389@suse.de> <20060107112443.GA18749@section_eight.mops.rwth-aachen.de> <20060107115340.GW3389@suse.de> <20060107115449.GB20748@section_eight.mops.rwth-aachen.de> <20060107115947.GY3389@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-In-Reply-To: <20060107115947.GY3389@suse.de>
-X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Sat, 7 Jan 2006 09:13:13 -0500
+Received: from web32911.mail.mud.yahoo.com ([68.142.206.58]:43435 "HELO
+	web32911.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030452AbWAGONM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 09:13:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=kZNLWDKRw+RBqrVrK1RQi/cTpEBvSoETrEvpe/sMr3AA273FYTrWuqnOmnoh9m2fau36PDfvXVz3YSMVcoGqPs5d9S3Zvcwr2uYJJPYSjt9Z+NDceSXJ4NgVjpqI22amBPUBfk/nQBxbRjzOLhGekxmpNexrvzmV/558gtroumk=  ;
+Message-ID: <20060107141311.21713.qmail@web32911.mail.mud.yahoo.com>
+Date: Sat, 7 Jan 2006 06:13:11 -0800 (PST)
+From: Komal Shah <komal_shah802003@yahoo.com>
+Subject: Re: [spi-devel-general] [patch 2.6.14-rc6-git 2/6] SPI ads7846 protocol driver
+To: David Brownell <david-b@pacbell.net>,
+       spi-devel-general@lists.sourceforge.net
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200601031941.48787.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- David Brownell <david-b@pacbell.net> wrote:
+> 
+> I was thinking of replacing the hacks with spi_bitbang stuff;
+> the txrx_bufs() method is appropriate for MicroWire since it
+> needs to know whether to read _or_ write, and txrx_word() calls
+> assume the full-service shift register is available.
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please post the patch once you replace it spi_bitbang. Thanx.
 
-(please, don't drop me from the cc list!!)
+> 
+> 
+> > Also use input_allocate_device() instead of init_input_dev().
+> Thanx.
+> 
+> Got patch?  :)
 
-On Sa, Jan 07, 2006 at 14:57:55 +0100, Jens Axboe wrote:
->(please, don't drop me from the cc list!!)
->
->it might be using the older sg interface, opening read/write to /dev/sgX
->char devices directly. In which case you can't test it with ide-cd,
->sadly.
+I will do it with latest -mm next week.
 
-You wrote about accessing the drive with SG_IO while using ide-cd. So it
-is possible to use scsi commands though using ide-cd? I can't find any
-documentation on that, though. Could you point me towards it? I can try
-to adapt cdparanoia.
+> 
+> Cool.  tsc2101 + uwire will handle H2 (and H3?) also.  The only
+> API change I know of (== necessariy affects your code) will be
+> the "spi_transfer.transfer_list" patch, which I'll get out soon.
 
-Cheers
+Ok, I will rebase it with -mm code. I have posted the patch to
+linux-omap mailing list, which is not yet complete for OMAP2 SPI master
+controller. As I want to avoid duplicate work done by someone in the
+another part of world with same fwk for OMAP2 :)
 
-Sebastian
---=20
-"When the going gets weird, the weird turn pro." (HST)
+---Komal Shah
+http://komalshah.blogspot.com/
 
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDv8trTWouIrjrWo4RAl62AJ47vMB0PN5sivVxBLheDcl6Y6567gCeJ/lG
-zL/hiToofoQrDO7EplAu2iQ=
-=seeV
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+		
+__________________________________________ 
+Yahoo! DSL – Something to write home about. 
+Just $16.99/mo. or less. 
+dsl.yahoo.com 
 

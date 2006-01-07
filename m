@@ -1,59 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932723AbWAGMZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWAGMmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932723AbWAGMZi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 07:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbWAGMZi
+	id S1030427AbWAGMmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 07:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbWAGMmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 07:25:38 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:33454 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932723AbWAGMZh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 07:25:37 -0500
-Date: Sat, 7 Jan 2006 13:25:34 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Message-ID: <20060107122534.GA20442@osiris.boeblingen.de.ibm.com>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
+	Sat, 7 Jan 2006 07:42:07 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:58839 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030427AbWAGMmF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 07:42:05 -0500
+Date: Sat, 7 Jan 2006 13:42:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] sound: remove BKL from sound/core/info.c
+Message-ID: <20060107124210.GA24601@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
-User-Agent: mutt-ng/devel (Linux)
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here's a new version of my shared page tables patch.
-> 
-> The primary purpose of sharing page tables is improved performance for
-> large applications that share big memory areas between multiple processes.
-> It eliminates the redundant page tables and significantly reduces the
-> number of minor page faults.  Tests show significant performance
-> improvement for large database applications, including those using large
-> pages.  There is no measurable performance degradation for small processes.
+remove the final instance of BKL use within the sound code, by converting
+snd_info_entry_ioctl to an unlocked ioctl. It is obviously safe, because
+the sound code already dropped the BKL in this function.
 
-Tried to get this running with CONFIG_PTSHARE and CONFIG_PTSHARE_PTE on
-s390x. Unfortunately it crashed on boot, because pt_share_pte
-returned a broken pte pointer:
+built and booted on x86.
 
-> +pte_t *pt_share_pte(struct vm_area_struct *vma, unsigned long address, pmd_t *pmd,
-> + ...
-> +	pmd_val(spmde) = 0;
-> + ...
-> +		if (pmd_present(spmde)) {
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-This is wrong. A pmd_val of 0 will make pmd_present return true on s390x
-which is not what you want.
-Should be pmd_clear(&spmde).
+----
 
-> +pmd_t *pt_share_pmd(struct vm_area_struct *vma, unsigned long address, pud_t *pud,
-> + ...
-> +	pud_val(spude) = 0;
+ sound/core/info.c |   33 +++++++++++----------------------
+ 1 files changed, 11 insertions(+), 22 deletions(-)
 
-Should be pud_clear, I guess :)
-
-Thanks,
-Heiko
+Index: linux/sound/core/info.c
+===================================================================
+--- linux.orig/sound/core/info.c
++++ linux/sound/core/info.c
+@@ -444,8 +444,8 @@ static unsigned int snd_info_entry_poll(
+ 	return mask;
+ }
+ 
+-static inline int _snd_info_entry_ioctl(struct inode *inode, struct file *file,
+-					unsigned int cmd, unsigned long arg)
++static long snd_info_entry_ioctl(struct file *file, unsigned int cmd,
++				unsigned long arg)
+ {
+ 	struct snd_info_private_data *data;
+ 	struct snd_info_entry *entry;
+@@ -465,17 +465,6 @@ static inline int _snd_info_entry_ioctl(
+ 	return -ENOTTY;
+ }
+ 
+-/* FIXME: need to unlock BKL to allow preemption */
+-static int snd_info_entry_ioctl(struct inode *inode, struct file *file,
+-				unsigned int cmd, unsigned long arg)
+-{
+-	int err;
+-	unlock_kernel();
+-	err = _snd_info_entry_ioctl(inode, file, cmd, arg);
+-	lock_kernel();
+-	return err;
+-}
+-
+ static int snd_info_entry_mmap(struct file *file, struct vm_area_struct *vma)
+ {
+ 	struct inode *inode = file->f_dentry->d_inode;
+@@ -499,15 +488,15 @@ static int snd_info_entry_mmap(struct fi
+ 
+ static struct file_operations snd_info_entry_operations =
+ {
+-	.owner =	THIS_MODULE,
+-	.llseek =	snd_info_entry_llseek,
+-	.read =		snd_info_entry_read,
+-	.write =	snd_info_entry_write,
+-	.poll =		snd_info_entry_poll,
+-	.ioctl =	snd_info_entry_ioctl,
+-	.mmap =		snd_info_entry_mmap,
+-	.open =		snd_info_entry_open,
+-	.release =	snd_info_entry_release,
++	.owner =		THIS_MODULE,
++	.llseek =		snd_info_entry_llseek,
++	.read =			snd_info_entry_read,
++	.write =		snd_info_entry_write,
++	.poll =			snd_info_entry_poll,
++	.unlocked_ioctl =	snd_info_entry_ioctl,
++	.mmap =			snd_info_entry_mmap,
++	.open =			snd_info_entry_open,
++	.release =		snd_info_entry_release,
+ };
+ 
+ /**

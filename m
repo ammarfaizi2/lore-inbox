@@ -1,79 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbWAGWEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030612AbWAGWGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030609AbWAGWEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 17:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWAGWEp
+	id S1030612AbWAGWGF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 17:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030611AbWAGWGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 17:04:45 -0500
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:65173 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1030609AbWAGWEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 17:04:44 -0500
-Date: Sat, 7 Jan 2006 17:01:31 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.15-mm2
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200601071704_MC3-1-B57D-AAFF@compuserve.com>
+	Sat, 7 Jan 2006 17:06:05 -0500
+Received: from tornado.reub.net ([202.89.145.182]:3482 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1030612AbWAGWGD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 17:06:03 -0500
+Message-ID: <43C03B4A.1060501@reub.net>
+Date: Sun, 08 Jan 2006 11:06:02 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060106)
 MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: 2.6.15-mm2
+References: <20060107052221.61d0b600.akpm@osdl.org>	<43BFD8C1.9030404@reub.net> <20060107133103.530eb889.akpm@osdl.org>
+In-Reply-To: <20060107133103.530eb889.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-printk-levels-for-i386-oops-code.patch has two minor problems:
 
-> @@ -178,14 +178,15 @@ void show_stack(struct task_struct *task
->         }
+
+On 8/01/2006 10:31 a.m., Andrew Morton wrote:
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>> ...
+>> QLogic Fibre Channel HBA Driver
+>> ahci: probe of 0000:00:1f.2 failed with error -12
 > 
->         stack = esp;
-> +       printk(KERN_EMERG);
->         for(i = 0; i < kstack_depth_to_print; i++) {
->                 if (kstack_end(stack))
->                         break;
->                 if (i && ((i % 8) == 0))
-> -                       printk("\n       ");
-> +                       printk("\n       " KERN_EMERG);
+> It's odd that the ahci driver returned -EBUSY.  Maybe this is due to "we
+> have legacy mode, but all ports are unavailable" in ata_pci_init_one().
 
-Should be:
-+                       printk("\n" KERN_EMERG "       ");
+I've now removed this driver from my .config via menuconfig, I certainly don't 
+have the hardware and have no idea whatsoever how it came to be built in. 
+Although I guess it shouldn't be blowing up even if that is the case?
 
->                 printk("%08lx ", *stack++);
->         }
-> -       printk("\nCall Trace:\n");
-> +       printk("\n" KERN_EMERG "Call Trace:\n");
->         show_trace(task, esp);
->  }
-
-
-And:
-
-> @@ -236,17 +237,17 @@ void show_registers(struct pt_regs *regs
->         if (in_kernel) {
->                 u8 __user *eip;
+>> ata1: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x0 irq 0
+>> ata2: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x8 irq 0
+>> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>>   printing eip:
+>> c0234702
+>> *pde = 00000000
+>> Oops: 0000 [#1]
+>> SMP
+>> last sysfs file:
+>> Modules linked in:
+>> CPU:    1
+>> EIP:    0060:[<c0234702>]    Not tainted VLI
+>> EFLAGS: 00010206   (2.6.15-mm2)
+>> EIP is at make_class_name+0x28/0x8d
+>> eax: 00000000   ebx: ffffffff   ecx: ffffffff   edx: c19d9224
+>> esi: 00000009   edi: 00000000   ebp: 00000000   esp: c1921d9c
+>> ds: 007b   es: 007b   ss: 0068
+>> Process swapper (pid: 1, threadinfo=c1921000 task=c1920a70)
+>> Stack: <0>c19d9224 c03a9158 c19d9224 c03a9158 c03a9160 c0234925 c03a90e0 00000000
+>>         <0>00000246 c19d9224 c19d9000 c19d9030 00000002 c02349db c19d90e4 c0253218
+>>         <0>c19d92c0 00000000 00000000 c0276693 00000000 c0279391 c035749f c1961640
+>> Call Trace:
+>>   [<c0234925>] class_device_del+0x9f/0x14d
+>>   [<c02349db>] class_device_unregister+0x8/0x10
+>>   [<c0253218>] scsi_remove_host+0xb8/0xf8
+>>   [<c0276693>] ata_host_remove+0xe/0x18
+>>   [<c0279391>] ata_device_add+0x2d3/0xb99
+>>   [<c02b6fb0>] pci_mmcfg_write+0xd3/0x103
+>>   [<c01eb713>] pci_bus_write_config_byte+0x4e/0x58
+>>   [<c02b67d3>] pcibios_set_master+0x74/0x8c
+>>   [<c027a2e5>] ata_pci_init_one+0x32c/0x38e
+>>   [<c01eb7ea>] pci_bus_read_config_word+0x62/0x6c
+>>   [<c01ef8bd>] pci_get_subsys+0x6c/0xe0
+>>   [<c027e334>] piix_init_one+0x18e/0x33a
+>>   [<c01ef259>] pci_device_probe+0x40/0x5b
+>>   [<c0233ed7>] driver_probe_device+0x35/0x98
+>>   [<c0234038>] __driver_attach+0x8a/0x8c
+>>   [<c02339a7>] bus_for_each_dev+0x39/0x57
+>>   [<c0233e4c>] driver_attach+0x16/0x1a
+>>   [<c0233fae>] __driver_attach+0x0/0x8c
+>>   [<c023365b>] bus_add_driver+0x6f/0x126
+>>   [<c01ef3f1>] __pci_register_driver+0x7d/0xac
+>>   [<c04023e9>] piix_init+0xc/0x1e
+>>   [<c01003c8>] init+0xff/0x324
+>>   [<c01002c9>] init+0x0/0x324
+>>   [<c0100d35>] kernel_thread_helper+0x5/0xb
+>> Code: 89 c8 c3 55 57 56 53 83 ec 04 89 04 24 89 c2 8b 40 48 8b 38 31 ed bb ff ff 
+>> ff ff 89 d9 89 e8 f2 ae f7 d1 49 89 ce 8b 7a 08 89 d9 <f2> ae f7 d1 49 89 ca 8d 
+>> 4e 02 8d 04 0a ba d0 00 00 00 e8 22 cf
 > 
-> -               printk("\nStack: ");
-> +               printk("\n" KERN_EMERG "Stack: ");
->                 show_stack(NULL, (unsigned long*)esp);
+> ata_device_add() has given up, has called ata_host_remove() and then we
+> presumably oopsed over incompletely initialised class stuff.  It's likely
+> that this oops is a second bug - a consequence of the -EBUSY.
 > 
-> -               printk("Code: ");
-> +               printk(KERN_EMERG "Code: ");
+>>
+>> 2. Notice above how the sky2 driver is being bailed out:
+>>
+>> ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 17 (level, low) -> IRQ 177
+>> sky2 Cannot find PowerManagement capability, aborting.
+>> sky2: probe of 0000:04:00.0 failed with error -5
+>>
+>> This has happened a number of times in the last few days, and I suspect is 
+>> unrelated to the oops that followed above.
+>>
+>> This driver worked fine in 2.6.15-rc5-mm3, and seems to work OK when built as a 
+>> module.  But most of the time (not all the time) it doesn't like being 
+>> statically built in and fails with the above error.  Changes to this driver have 
+>> been fairly small lately so I'm not sure if it's the driver or something else 
+>> like ACPI that is the root cause.
 > 
->                 eip = (u8 __user *)regs->eip - 43;
->                 for (i = 0; i < 64; i++, eip++) {
->                         unsigned char c;
+> Could be acpi, yes.
 > 
->                         if (eip < (u8 __user *)PAGE_OFFSET || __get_user(c, eip)) {
-> -                               printk(" Bad EIP value.");
-> +                               printk(KERN_EMERG " Bad EIP value.");
+> Parenthetically, I wouldn't have thought that this error should be fatal
+> for the driver.
 
-The above one-line change should not be made -- it's in the middle of a line.
+lspci -vv shows that when the driver fails we see this:
 
->                                 break;
->                         }
->                         if (eip == (u8 __user *)regs->eip)
--- 
-Chuck
-Currently reading: _Sleepside: The Collected Fantasies Of Greg Bear_
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- 
+ >SERR+ <PERR-
+
+and when it works we see this:
+
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- 
+ >SERR- <PERR-
+
+I'm not sure if that's a consequence of the fail, or the cause of it.
+
+>> 3.  The boot up process with -mm2 was pretty lengthy, I had two periods of time 
+>> when the whole system just came to a crawl, first time was when starting cups, 
+>> and it came back to life and continued booting about 30s later.  Next when 
+>> starting hpijs it didn't come to life at all and I had to reboot.  No output to 
+>> the console for either, unfortunately.
+> 
+> Don't know, sorry.  But this kernel had oopsed, hadn't it?
+
+I reloaded multiple times, the oopsing only occurred till I did a full cold 
+boot, and then it came right (but until then I had the oops twice in a row 
+across a warm reboot).
+
+If I have time to play later on today I'll see if I can get more info.
+
+reuben
+
+

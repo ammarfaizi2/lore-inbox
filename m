@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161080AbWAHAZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbWAHA3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161080AbWAHAZA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 19:25:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWAHAZA
+	id S1161083AbWAHA3E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 19:29:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWAHA3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 19:25:00 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41479 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030501AbWAHAY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 19:24:59 -0500
-Date: Sun, 8 Jan 2006 01:24:57 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN and remove broken MTD_OBSOLETE_CHIPS drivers
-Message-ID: <20060108002457.GE3774@stusta.de>
-References: <20060107220702.GZ3774@stusta.de> <1136678409.30348.26.camel@pmac.infradead.org>
-MIME-Version: 1.0
+	Sat, 7 Jan 2006 19:29:04 -0500
+Received: from uproxy.gmail.com ([66.249.92.204]:9662 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030501AbWAHA3C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 19:29:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=RdiIe0t6ink4oMxADZIrKnW4gKagfJ6c25Y3EE33PDZ5UFlXD2DEAc5v+5dIpBeu1Ak0OEYpxYo+7Q7b3kGx6dezNI6mLHahqIhENfk4bkJ8QdTDZCsOl7vwnnw+3cf101gZ11nwkUt1TgYUT5nxdv8pfrNKJFHU9nE8bF1QC70=
+Date: Sun, 8 Jan 2006 03:45:57 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
+Subject: [PATCH -mm] fixup *at syscalls additions (alpha, sparc64)
+Message-ID: <20060108004557.GA21553@mipter.zuzino.mipt.ru>
+References: <20060107052221.61d0b600.akpm@osdl.org> <20060107210646.GA26124@mipter.zuzino.mipt.ru> <20060107154842.5832af75.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136678409.30348.26.camel@pmac.infradead.org>
+In-Reply-To: <20060107154842.5832af75.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 12:00:09AM +0000, David Woodhouse wrote:
-> On Sat, 2006-01-07 at 23:07 +0100, Adrian Bunk wrote:
-> > This patch brings the MTD_SHARP driver back into life and removes the 
-> > non-compiling MTD_AMDSTD and MTD_JEDEC with everything depending on 
-> > them.
-> 
-> Please provide further background on your reasoning. I'll enumerate my
-> questions to make it easy for you to answer each one fully.
-> 
-> 1. Precisely when were these chip drivers marked obsolete?
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Since kernel 2.4.11-pre4, released Thu, 4 Oct 2001 20:47:23 -0700.
+ Apply after dump_thread-cleanup.patch fixup.
 
-> 2. What was the reason for marking them obsolete?
-
-The changelog says:
- - David Woodhouse: large MTD and JFFS[2] update
-
-> 3. What are the factors which led you to conclude that _now_ is the time
-> to actually remove them?
-
-http://lkml.org/lkml/2005/12/12/43
-
-> 4. What are the factors which led you to _remove_ the map drivers which
-> currently use the obsolete chip drivers, rather than taking the obvious
-> alternative solution for those map drivers?
-
-It seems that for one and a half years noone considered it a problem 
-that they were no longer available...
-
-> dwmw2
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6.15-mm2/arch/alpha/kernel/osf_sys.c
++++ linux-1/arch/alpha/kernel/osf_sys.c
+@@ -960,7 +960,7 @@ osf_utimes(char __user *filename, struct
+ 			return -EFAULT;
+ 	}
+ 
+-	return do_utimes(filename, tvs ? ktvs : NULL);
++	return do_utimes(AT_FDCWD, filename, tvs ? ktvs : NULL);
+ }
+ 
+ #define MAX_SELECT_SECONDS \
+--- linux-2.6.15-mm2/arch/sparc64/kernel/sys_sparc32.c
++++ linux-1/arch/sparc64/kernel/sys_sparc32.c
+@@ -820,7 +820,7 @@ asmlinkage long sys32_utimes(char __user
+ 			return -EFAULT;
+ 	}
+ 
+-	return do_utimes(filename, (tvs ? &ktvs[0] : NULL));
++	return do_utimes(AT_FDCWD, filename, (tvs ? &ktvs[0] : NULL));
+ }
+ 
+ /* These are here just in case some old sparc32 binary calls it. */
 

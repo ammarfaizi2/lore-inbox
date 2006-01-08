@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWAHNGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752621AbWAHNN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWAHNGs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 08:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752621AbWAHNGs
+	id S1752621AbWAHNN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 08:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752622AbWAHNN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 08:06:48 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:11179 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751393AbWAHNGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 08:06:47 -0500
-Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN and
-	remove broken MTD_OBSOLETE_CHIPS drivers
-From: David Woodhouse <dwmw2@infradead.org>
+	Sun, 8 Jan 2006 08:13:27 -0500
+Received: from adsl-63-194-232-126.dsl.lsan03.pacbell.net ([63.194.232.126]:53509
+	"EHLO alpha.ovcam.org") by vger.kernel.org with ESMTP
+	id S1752621AbWAHNN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 08:13:26 -0500
+Message-ID: <43C10FF1.4000200@ovcam.org>
+Date: Sun, 08 Jan 2006 05:13:21 -0800
+From: Mark McClelland <mark@ovcam.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20051219 SeaMonkey/1.0b
+MIME-Version: 1.0
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20060108125700.GI3774@stusta.de>
-References: <20060107220702.GZ3774@stusta.de>
-	 <1136678409.30348.26.camel@pmac.infradead.org>
-	 <20060108002457.GE3774@stusta.de>
-	 <1136680734.30348.34.camel@pmac.infradead.org>
-	 <20060107174523.460f1849.akpm@osdl.org>
-	 <1136724072.30348.66.camel@pmac.infradead.org>
-	 <20060108125700.GI3774@stusta.de>
-Content-Type: text/plain
-Date: Sun, 08 Jan 2006 13:06:20 +0000
-Message-Id: <1136725580.30348.69.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+CC: linux-usb-devel@lists.sourceforge.net, gregkh@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/usb/media/ov511.c: remove hooks for the decomp
+ module
+References: <20060106022852.GW12313@stusta.de>
+In-Reply-To: <20060106022852.GW12313@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 13:57 +0100, Adrian Bunk wrote:
-> What I want for 2.6.16 is to remove the wrong dependency of MTD_SHARP on 
-> BROKEN and the non-compiling drivers either still hidden under BROKEN or 
-> removed.
+Adrian Bunk wrote:
+> - the decomp module is not intended for inclusion into the kernel
+> - people using the decomp module from upstream will usually simply use
+>   the complete upstream 2.xx driver
 > 
-> If there is any way I can submit a patch achieving this that would be 
-> acceptable for you simply tell how exactly you want this patch.
+> Therefore, there seems to be no good reason spending some bytes of 
+> kernel memory for hooks for this module.
 
-Remove the incorrect BROKEN dependency from MTD_OBSOLETE_CHIPS.
+I've tested this patch and it seems to work OK. Thanks for doing it!
 
-If you then want to add it again to any chip driver which really doesn't
-compile, feel free. But leave the map drivers alone. Those can be
-switched to use different chip back-ends. 
+Greg, please apply.
+
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+Signed-off-by: Mark McClelland <mark@ovcam.org>
 
 -- 
-dwmw2
+Mark McClelland
+mark@ovcam.org
 

@@ -1,28 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161040AbWAHNsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161062AbWAHNx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161040AbWAHNsy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 08:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWAHNsy
+	id S1161062AbWAHNx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 08:53:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbWAHNx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 08:48:54 -0500
-Received: from xenotime.net ([66.160.160.81]:6287 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161040AbWAHNsy (ORCPT
+	Sun, 8 Jan 2006 08:53:27 -0500
+Received: from xenotime.net ([66.160.160.81]:61076 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161062AbWAHNx1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 08:48:54 -0500
-Date: Sun, 8 Jan 2006 05:48:51 -0800
+	Sun, 8 Jan 2006 08:53:27 -0500
+Date: Sun, 8 Jan 2006 05:53:22 -0800
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: mbuesch@freenet.de, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 1/4] move capable() to capability.h
-Message-Id: <20060108054851.57c0f408.rdunlap@xenotime.net>
-In-Reply-To: <200601080745.k087j3mU016114@turing-police.cc.vt.edu>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
-	<200601061218.17369.mbuesch@freenet.de>
-	<1136546539.2940.28.camel@laptopd505.fenrus.org>
-	<200601061226.42416.mbuesch@freenet.de>
-	<20060107215106.38d58bb9.rdunlap@xenotime.net>
-	<200601080745.k087j3mU016114@turing-police.cc.vt.edu>
+To: vherva@vianova.fi
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops pauser.
+Message-Id: <20060108055322.18d4236e.rdunlap@xenotime.net>
+In-Reply-To: <20060108133822.GD31624@vianova.fi>
+References: <20060105045212.GA15789@redhat.com>
+	<Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
+	<20060105103339.GG20809@redhat.com>
+	<20060108133822.GD31624@vianova.fi>
 Organization: YPO4
 X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -31,24 +28,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 08 Jan 2006 02:45:02 -0500 Valdis.Kletnieks@vt.edu wrote:
+On Sun, 8 Jan 2006 15:38:22 +0200 Ville Herva wrote:
 
-> On Sat, 07 Jan 2006 21:51:06 PST, "Randy.Dunlap" said:
-> 
-> > From: Randy Dunlap <rdunlap@xenotime.net>
+> On Thu, Jan 05, 2006 at 05:33:39AM -0500, you [Dave Jones] wrote:
 > > 
-> > headers + core:
-> > - Move capable() from sched.h to capability.h;
-> > - Use <linux/capability.h> where capable() is used
-> > 	(in include/, block/, ipc/, kernel/, a few drivers/,
-> > 	mm/, security/, & sound/;
-> > 	many more drivers/ to go)
+> > If I had any faith in the sturdyness of the floppy driver, I'd
+> > recommend someone looked into a 'dump oops to floppy' patch, but
+> > it too relies on a large part of the system being in a sane
+> > enough state to write blocks out to disk.
 > 
-> Are there plans for a second patch series to remove sched.h from those
-> files that only needed it for capable()?
+> I believe kmsgdump (http://www.xenotime.net/linux/kmsgdump/) uses its own
+> minimal 16-bit floppy driver to save the oops dump. 
 
-I thought of that but I don't have a good way of checking it.
-What (how) do you suggest going about doing that?
+It just switches to real mode and uses BIOS calls.
+
+> Kmsgdump has been around for ages and still works with 2.6.x. I almost
+> always use it (all of my boxes still have floppy drives.)
+
 
 ---
 ~Randy

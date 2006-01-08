@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWAHDuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161156AbWAHD4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWAHDuq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 22:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752595AbWAHDuq
+	id S1161156AbWAHD4f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 22:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752596AbWAHD4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 22:50:46 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:34756
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750894AbWAHDuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 22:50:46 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [uml-devel] Re: [PATCH 4/9] UML - Better diagnostics for broken configs
-Date: Sat, 7 Jan 2006 21:50:14 -0600
-User-Agent: KMail/1.8
-Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200601042151.k04LpxbH009237@ccure.user-mode-linux.org> <20060107023713.GA13285@ccure.user-mode-linux.org> <Pine.LNX.4.61.0601071612030.3578@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601071612030.3578@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Jan 2006 22:56:35 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:43973 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S1752595AbWAHD4e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 22:56:34 -0500
+Date: Sat, 7 Jan 2006 19:56:22 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
+Message-ID: <20060108035622.GP27284@gaz.sfgoth.com>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136544309.2940.25.camel@laptopd505.fenrus.org> <20060107190531.GB8990@kurtwerks.com> <1136663088.2936.36.camel@laptopd505.fenrus.org> <20060108031605.GB26614@kurtwerks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601072150.14855.rob@landley.net>
+In-Reply-To: <20060108031605.GB26614@kurtwerks.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Sat, 07 Jan 2006 19:56:23 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 07 January 2006 09:12, Jan Engelhardt wrote:
-> >The skas vs tt distinction is the address space part of this.  How we
-> > nullify system calls is separate.  That's the PTRACE_SYSCALL vs
-> > PTRACE_SYSEMU (which is now in mainline) thing.
->
-> ...
-> So there is no way to get UML compile on non-Linux.
+Kurt Wall wrote:
+>    text	   data	    bss	    dec	    hex	filename
+> 2577982	 462352	 479920	3520254	 35b6fe	vmlinux.344.NO_OPT
+> 2620255	 462336	 479984	3562575	 365c4f	vmlinux.442.NO_OPT
+> 2326785	 462352	 479920	3269057	 31e1c1	vmlinux.344.OPT
+> 2227294	 502680	 479984	3209958	 30fae6	vmlinux.442.OPT
 
-Not out of the box, no.  You need some equivalent debugging facility, but 
-that's not too high a barrier.  It's really that there's no way for a 
-userspace process to fiddle around with the MMU the way an OS wants to, 
-unless you A) put hooks in the OS, or B) have multiple processes with 
-different memory contexts, which means debugging hooks if you want one thread 
-to intercept the syscalls made by another thread.
+And idea what's up with the .data size there?  The first three are almost
+exactly the same (as you'd expect) and then the last one jumps up by 40K.
+Is there something normally in a different section that goes into normal
+.data only in that congiguration?  Might be worth looking at with:
+	objdump -h vmlinux | egrep -v 'CONTENTS|ALLOC'
 
-There have been occasional attempts at doing this, by the way.  (If I had 
-gotten a mac mini I was going to give it a try, but about two _hours_ before 
-I had scheduled an extra long lunch hour to go visit the Apple store in the 
-barton creek mall, I heard about Jobs' announcement of the switchover to 
-Intel processors, so I didn't.  Not like I really _need_ another todo item 
-that's going to wind up taking up six months of my free time.  Just use 
-qemu...)
-
-> Jan Engelhardt
-
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+-Mitch

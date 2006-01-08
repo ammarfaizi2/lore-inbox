@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbWAHGWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWAHGkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161163AbWAHGWU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 01:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161164AbWAHGWU
+	id S1751165AbWAHGkc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 01:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWAHGkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 01:22:20 -0500
-Received: from xenotime.net ([66.160.160.81]:20365 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161163AbWAHGWT (ORCPT
+	Sun, 8 Jan 2006 01:40:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58822 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751165AbWAHGkc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 01:22:19 -0500
-Date: Sat, 7 Jan 2006 22:22:17 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: jeff shia <tshxiayu@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: where is the source of FAT32 filesystem
-Message-Id: <20060107222217.43f67396.rdunlap@xenotime.net>
-In-Reply-To: <7cd5d4b40601072208m6984ba52qf11f1986900987e6@mail.gmail.com>
-References: <7cd5d4b40601072208m6984ba52qf11f1986900987e6@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Jan 2006 01:40:32 -0500
+Message-ID: <43C0B3BF.5050100@volny.cz>
+Date: Sun, 08 Jan 2006 07:39:59 +0100
+From: Miloslav Trmac <mitr@volny.cz>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] wistron_btns: Fix missing BIOS signature handling
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------010901030707090601080600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006 14:08:36 +0800 jeff shia wrote:
+This is a multi-part message in MIME format.
+--------------010901030707090601080600
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> Hello,
-> 
-> where is the source of FAT32 filesystem in the kernel source tree?
-> or where can I get the source?
+offset can never be < 0 because it has type size_t.  The driver
+currently oopses on insmod if BIOS does not support the interface,
+instead of refusing to load.
 
-If you have the kernel tree, look in
+--------------010901030707090601080600
+Content-Type: text/x-patch;
+ name="wistron-no-entry.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="wistron-no-entry.patch"
 
-fs/fat + fs/msdos + fs/vfat
+offset can never be < 0 because it has type size_t.  The driver
+currently oopses on insmod if BIOS does not support the interface,
+instead of refusing to load.
 
-They have some interdependencies.
+Signed-off-by: Miloslav Trmac <mitr@volny.cz>
 
----
-~Randy
+diff -r 88ae680122c0 wistron_btns.c
+--- a/drivers/input/misc/wistron_btns.c	Sun Dec 11 21:18:28 2005
++++ b/drivers/input/misc/wistron_btns.c	Sun Jan  8 07:24:44 2006
+@@ -114,7 +114,7 @@
+ 
+ 	base = ioremap(0xF0000, 0x10000); /* Can't fail */
+ 	offset = locate_wistron_bios(base);
+-	if (offset < 0) {
++	if (offset == (size_t)-1) {
+ 		printk(KERN_ERR "wistron_btns: BIOS entry point not found\n");
+ 		iounmap(base);
+ 		return -ENODEV;
+
+--------------010901030707090601080600--

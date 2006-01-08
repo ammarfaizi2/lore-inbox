@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWAHHSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbWAHHUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWAHHSn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 02:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWAHHSn
+	id S1030338AbWAHHUE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 02:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWAHHUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 02:18:43 -0500
-Received: from quechua.inka.de ([193.197.184.2]:22147 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S932199AbWAHHSm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 02:18:42 -0500
-From: be-news06@lina.inka.de (Bernd Eckenfels)
+	Sun, 8 Jan 2006 02:20:04 -0500
+Received: from science.horizon.com ([192.35.100.1]:2124 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932343AbWAHHUD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 02:20:03 -0500
+Date: 8 Jan 2006 02:19:53 -0500
+Message-ID: <20060108071953.17892.qmail@science.horizon.com>
+From: linux@horizon.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <d9def9db0601072258v39ac4334kccc843838b436bba@mail.gmail.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1EvUp6-0008Ni-00@calista.inka.de>
-Date: Sun, 08 Jan 2006 08:18:40 +0100
+Subject: Re: [OT] ALSA userspace API complexity
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Rechberger <mrechberger@gmail.com> wrote:
-> Hi,
-> 
-> what does hdparm show up?
-> Were there any other processes running during the test?
-> what does "vmstat 1" show up during the test?
+hannu@opensound.com wrote:
+> To get (say) 10 ms latencies you have to tell the sound subsystem 
+> to allocate to buffer that is smaller than 10 ms. This in turn means that 
+> the application must be able to run it's processing loop within less than 10 
+> ms with 100.000...0% confidence. This is true regardless of how advanced 
+> or primitive the audio subsystem (API) is.
 
-also also retry with redirection to /dev/null, this could be a console
-problem since there is 5 minutes wait time.
+Only if you need 10 ms latencies 100.000...0% of the time.  Which isn't
+always the case.
 
-Gruss
-Bernd
+The rest of the time, you can do very well by providing a way to supply
+"tentative" data in advance of need, but cancel it and replace it with
+better data when something happens... something explodes in a game, or
+a new person speaks up in an audio conferencing application, or a new MIDI
+event arrives.
+
+
+Real-time DSP is a different matter, but the point I'm trying to make
+is that there is a non-zero set of applications for which additional
+API festures allow low average latency and guaranteed lack of total
+dropouts.
+
+Simply writing to /dev/dsp doesn't give you that, but e.g. DMA out of
+user-space buffers does.

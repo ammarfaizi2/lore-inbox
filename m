@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932775AbWAHVIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbWAHVLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932775AbWAHVIE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 16:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932774AbWAHVIE
+	id S1161201AbWAHVLe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161202AbWAHVLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 16:08:04 -0500
-Received: from herkules.vianova.fi ([194.100.28.129]:24784 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S932775AbWAHVID
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 16:08:03 -0500
-Date: Sun, 8 Jan 2006 23:07:56 +0200
-From: Ville Herva <vherva@vianova.fi>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <tapas@affenbande.org>,
-       Tomasz =?iso-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20060108210756.GD1686@vianova.fi>
-Reply-To: vherva@vianova.fi
-References: <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl> <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <20060104113726.3bd7a649@mango.fruits.de> <1136445395.24475.17.camel@mindpipe> <20060105124317.2d12a85c@mango.fruits.de> <1136483330.31583.5.camel@mindpipe>
+	Sun, 8 Jan 2006 16:11:34 -0500
+Received: from gate.crashing.org ([63.228.1.57]:33950 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1161201AbWAHVLe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 16:11:34 -0500
+Subject: Re: i2c/ smbus question
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <20060108113013.34fe5447.khali@linux-fr.org>
+References: <1136673364.30123.20.camel@localhost.localdomain>
+	 <20060108113013.34fe5447.khali@linux-fr.org>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 08:10:08 +1100
+Message-Id: <1136754608.30123.57.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136483330.31583.5.camel@mindpipe>
-X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 12:48:49PM -0500, you [Lee Revell] wrote:
-> On Thu, 2006-01-05 at 12:43 +0100, Florian Schmidt wrote:
-> > BTW: Don't expect people to always write bug reports. We all know,
-> > people are lazy. More often than not, they simply give up and say
-> > "linux sucks" to their friends. Or if they can differentiate a little
-> > more, they'll say "ALSA sucks" ;) [<- smiley, indicates humor].
-> > Especially those who use closed source apps ;) 
-> 
-> Of course I don't expect every end user with a problem to file a bug
-> report (although Mantis makes it much easier than Bugzilla) but I sure
-> as hell expect people who complain about ALSA on LKML to.
-> 
-> Unless we get some useful bug reports out of it this thread is much ado
-> about nothing.  Come on people, put up or shut up.
-> 
-> https://bugtrack.alsa-project.org/alsa-bug/main_page.php
+On Sun, 2006-01-08 at 11:30 +0100, Jean Delvare wrote:
 
-I would love to make a useful bug report of dmix not working with M-Audio
-Revolution 5.1 (it stutters so badly that it's unusable), but after hours of
-twiddling with asoundrc I still can't figure out if I have it set up
-correctly. Also, I can't get any sound out of headphone output. To me this
-is a sign that perhaps the ALSA config scheme is a bit too complex, although
-more probably, it's just me being too stupid to use it.
+> I suspect that these drivers which do I2C block writes do so by calling
+> i2c_master_send (or even i2c_transfer) directly, rather than relying on
+> the SMBus compatibility layer.
 
-In perfect world, both headphone out and dmix should "just work". They do
-"just work" with the OSS binary blob (as does mixing with applications that
-use OSS API.)
+Ok. Well, it's much more simple for me to implement smbus (with a few extensions
+like block transfer) than the low level i2c at the host driver level.
+In order to implement subaddress access with repeat start (very common in pretty
+much everything nowadays), I need two messages. However, my low level hardware
+can't implement everything that can be done with multiple messages. Thus
+implementing the stuff using i2c_xfer needs a lot of test & validation all over
+the place to coerce those 2 messages into a subaddress + data setup that my low
+level hw understands. Implementing only smbus is simpler and fits most of my needs.
+ 
+> The i2c_smbus_write_i2c_block_data wrapper function used to be defined,
+> but was removed in 2.6.10-rc2 together with a couple other similar
+> wrappers [1] on request by Adrian Bunk, the reason being that they had
+> no user back then. I was a bit reluctant at first, but we finally agreed
+> with Adrian to remove the functions, and to reintroduce them later if
+> they were ever needed.
 
-With Intel i815 integrated sound, ALSA dmix does work.
+I find that weird but heh...
+
+> So, if you need i2c_smbus_write_i2c_block_data(), we can easily
+> resurrect it. See the patch below. I made the new version a bit faster
+> (I hope) than the original by using memcpy, please confirm it works for
+> you.
+
+Ok, I'll test with those, I did an equivalent local to my sound drivers
+but a wrapper in the i2c layer is probably better. Thanks.
 
 
--- v -- 
-
-v@iki.fi
 

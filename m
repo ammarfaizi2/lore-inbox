@@ -1,76 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbWAHUWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWAHU24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932767AbWAHUWN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 15:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWAHUWM
+	id S932512AbWAHU24 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 15:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbWAHU24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 15:22:12 -0500
-Received: from outgoing.smtp.agnat.pl ([193.239.44.83]:38410 "EHLO
-	outgoing.smtp.agnat.pl") by vger.kernel.org with ESMTP
-	id S932767AbWAHUWL convert rfc822-to-8bit (ORCPT
+	Sun, 8 Jan 2006 15:28:56 -0500
+Received: from uproxy.gmail.com ([66.249.92.205]:45209 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932512AbWAHU2z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 15:22:11 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: 2.6.14.x and weird things with interrupts on smp machines
-Date: Sun, 8 Jan 2006 21:22:02 +0100
-User-Agent: KMail/1.9.1
-References: <200601081931.31686.arekm@pld-linux.org> <200601081949.12566.arekm@pld-linux.org>
-In-Reply-To: <200601081949.12566.arekm@pld-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Sun, 8 Jan 2006 15:28:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=KtWEw/Xc2Yp3IGvGJYfqWzwaCIU9nf0vxHCcGvWmP5aG67Zcpm5Svvajk8O3P0pYNDFXRhDcI4nxAYX/2izLpoEnnomEsqDkbr+yIECCnI9Rb4FNi6W1pjZodNtBTSjyWDJ692/jcIHsAn4WkrXHGnteWdsqPpE02sQ4AiVHYVM=
+Date: Sun, 8 Jan 2006 23:45:49 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Kees Cook <kees@outflux.net>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: MODULE_VERSION useless? (was Re: [KJ] adding missing MODULE_* stuffs)
+Message-ID: <20060108204549.GB5864@mipter.zuzino.mipt.ru>
+References: <20051230000400.GS18040@outflux.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601082122.03555.arekm@pld-linux.org>
-X-Authenticated-Id: arekm
+In-Reply-To: <20051230000400.GS18040@outflux.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 January 2006 19:49, Arkadiusz Miskiewicz wrote:
-> On Sunday 08 January 2006 19:31, Arkadiusz Miskiewicz wrote:
-> > I've recently noticed that something weird is happening on my SMP
-> > machines. Both machines are 2 x Xeon CPU with HT enabled.
-> > /proc/interrupts shows that only CPU#0 is used which is very weird (and
-> > CPU#1 on one of the machines). I'm running userspace irqbalance, too. I'm
-> > unable to alter affinity settings for irqs - these are always the same as
-> > below.
-> >
-> > Has anyone noticed such problems?
+On Thu, Dec 29, 2005 at 04:04:00PM -0800, Kees Cook wrote:
+> Would patches towards adding missing MODULE_DESCRIPTION, MODULE_VERSION,
+> and MODULE_AUTHOR stuff be taken?  While these aren't covered in the
+> CodingStyle document, I did find reference to their preferred order in
+> Documentation/i2c/porting-clients.txt where Greg KH said the order
+> should be:
 >
-> Seems that not only me:
+> MODULE_AUTHOR
+> MODULE_DESCRIPTION
+> MODULE_LICENSE /* last line of source */
 >
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=172909
+> I'm curious where MODULE_VERSION should go, as well as
+> MODULE_PARAM_DESC.
 >
->
-> Is this related?
-> http://www.nabble.com/smp_affinity-weirdness-in-LK-2.6.14-t496221.html
->
-> (since one of users here reports that the problem for him seems to be fixed
-> in 2.6.15). If it is then I would love to see it in stable 2.6.14.x
-> release.
+> Notably, AUTHOR, DESCRIPTION, and VERSION seem to be missing from the
+> various examples in Documention/
 
-That patch
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=fe655d3a06488c8a188461bca493e9f23fc8c448;hp=b0b623c3b22d57d6941b200321779d56c4e79e6b
-seems to fix the problem:
+I hate MODULE_VERSION. It stops making sense after the following
+definition:
 
-# cat /proc/interrupts
-           CPU0       CPU1       CPU2       CPU3
-  0:       5580       4005       4004       3100    IO-APIC-edge  timer
-  4:        488         93          3        231    IO-APIC-edge  serial
-  8:          1          0          0          0    IO-APIC-edge  rtc
-  9:          0          0          0          0   IO-APIC-level  acpi
-169:       2698          0      11062      16885   IO-APIC-level  qla2300
-177:      63677          0          0          0   IO-APIC-level  eth0
-185:          6          0      17417          0   IO-APIC-level  eth1
-NMI:      16778      16762      16758      16760
-LOC:      16515      16561      16680      16704
-ERR:          0
-MIS:          0
+	Version of a module is a version of kernel it was shipped with.
 
-Please put in in stable 2.6.14.x since it's quite important bugfix.
+Given:	module 8139too version 0.9.27 is buggy in somesuch way.
+Question: which one?
 
--- 
-Arkadiusz Mi¶kiewicz                    PLD/Linux Team
-http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/
+There were quite a few nontrivial changes made since transition to git:
+-----------------------------------------------------------------------
+Christoph Lameter:
+      Cleanup patch for process freezing
+
+Jeff Garzik:
+      [netdrvr 8139too] replace hand-crafted kernel thread with workqueue
+      [netdrvr 8139too] use cancel_rearming_delayed_work() to cancel thread
+      [netdrvr 8139too] use rtnl_shlock_nowait() rather than rtnl_lock_interruptible()
+      [netdrvr 8139too] fast poll for thread, if an unlikely race occurs
+
+John W. Linville:
+      8139too: support ETHTOOL_GPERMADDR
+      8139too: fix resume for Realtek 8100B/8139D
+
+Olaf Hering:
+      turn many #if $undefined_string into #ifdef $undefined_string
+
+Pekka Enberg:
+        8139too: use iomap for pio/mmio
+-----------------------------------------------------------------------
+None of the above changes touched MODULE_VERSION. It's still 0.9.27.
+
+MODULE_VERSION is almost always outdated. You can't rely on it in
+bugreports. All you can rely on is kernel version, be it 2.6.15-git1 or
+2.6.15-0aec63e67c69545ca757a73a66f5dcf05fa484bf.
+

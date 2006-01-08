@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752621AbWAHNN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWAHNVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752621AbWAHNN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 08:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752622AbWAHNN1
+	id S1030247AbWAHNVc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 08:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752625AbWAHNVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 08:13:27 -0500
-Received: from adsl-63-194-232-126.dsl.lsan03.pacbell.net ([63.194.232.126]:53509
-	"EHLO alpha.ovcam.org") by vger.kernel.org with ESMTP
-	id S1752621AbWAHNN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 08:13:26 -0500
-Message-ID: <43C10FF1.4000200@ovcam.org>
-Date: Sun, 08 Jan 2006 05:13:21 -0800
-From: Mark McClelland <mark@ovcam.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20051219 SeaMonkey/1.0b
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-usb-devel@lists.sourceforge.net, gregkh@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/usb/media/ov511.c: remove hooks for the decomp
- module
-References: <20060106022852.GW12313@stusta.de>
-In-Reply-To: <20060106022852.GW12313@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Jan 2006 08:21:32 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:52490 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1752624AbWAHNVb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 08:21:31 -0500
+Date: Sun, 8 Jan 2006 14:21:22 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Martin Drab <drab@kepler.fjfi.cvut.cz>
+Cc: Takashi Iwai <tiwai@suse.de>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+Message-ID: <20060108132122.GB96834@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Martin Drab <drab@kepler.fjfi.cvut.cz>,
+	Takashi Iwai <tiwai@suse.de>,
+	ALSA development <alsa-devel@alsa-project.org>,
+	linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+References: <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de> <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de> <20060108020335.GA26114@dspnet.fr.eu.org> <Pine.LNX.4.60.0601080317040.22583@kepler.fjfi.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0601080317040.22583@kepler.fjfi.cvut.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> - the decomp module is not intended for inclusion into the kernel
-> - people using the decomp module from upstream will usually simply use
->   the complete upstream 2.xx driver
+On Sun, Jan 08, 2006 at 03:26:18AM +0100, Martin Drab wrote:
+> On Sun, 8 Jan 2006, Olivier Galibert wrote:
 > 
-> Therefore, there seems to be no good reason spending some bytes of 
-> kernel memory for hooks for this module.
+> > > And if the application doesn't support, who and where converts it?
+> > > With OSS API, it's a job of the kernel.
+> > 
+> > Once again no.  Nothing prevents the kernel to forward the data to
+> > userland daemons depending on a userspace-uploaded configuration.
+> 
+> I think that the point was, that switching from userspace to kernelspace 
+> then to userspace again and back to kernelspace in order to do something, 
+> that could have been done directly in the userspace, and though could save 
+> those two unnecessary switches, is an unnecessary overhead, which may not 
+> necessarily be that insignificant if it's done so often (which for 
+> streaming audio is the case).
 
-I've tested this patch and it seems to work OK. Thanks for doing it!
+You all seem to forget that dmix is in userspace in a different task
+too.
 
-Greg, please apply.
 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Why doing things complicated when there is no evident gain from it,
+> or is there?
 
-Signed-off-by: Mark McClelland <mark@ovcam.org>
+No evident gain?  Wow.  What about:
+- stopping crippling the OSS api
 
--- 
-Mark McClelland
-mark@ovcam.org
+- having a real kernel api for which you can make different libraries
+  depending on the need of the users
 
+- stop making a fundamentally unsecure shared library mandatory
+
+- opening the possibility of writing plugins to people without a PhD
+  in lattice QCD.
+
+and that's just a start.
+
+  OG.

@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161241AbWAHX06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161247AbWAHXaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161241AbWAHX06 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 18:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161242AbWAHX06
+	id S1161247AbWAHXaE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 18:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161245AbWAHXaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 18:26:58 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:60394 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1161241AbWAHX05 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 18:26:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jzS2Alw1RAJTDBdkpQbPYFAqSZpjoLL/imL0SSE+ujM9tt0KF5ll4SN84L1JlooAW3/WacAs8E9hlhgYO2hgK6+2h1TWP9X3VsDZ7PdH5a6Kt9Zw2mFFwWgtb7fn4TRiIAUXSRmhgZ9cABQPn3q45xVgEnhLAAuRUHMGnt5TU7k=
-Message-ID: <69304d110601081524v37b15ff2tfed8341eaffbe07@mail.gmail.com>
-Date: Mon, 9 Jan 2006 00:24:52 +0100
-From: Antonio Vargas <windenntw@gmail.com>
-To: Meelis Roos <mroos@linux.ee>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
-In-Reply-To: <Pine.SOC.4.61.0512291011320.28176@math.ut.ee>
+	Sun, 8 Jan 2006 18:30:04 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:12978 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1161242AbWAHXaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 18:30:03 -0500
+Date: Sun, 8 Jan 2006 15:29:26 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: "Kurtis D. Rader" <kdrader@us.ibm.com>, Dave Jones <davej@redhat.com>,
+       Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: oops pauser. / boot_delayer
+In-Reply-To: <1136670488.2936.44.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.62.0601081527170.2907@qynat.qvtvafvgr.pbz>
+References: <20060104221023.10249eb3.rdunlap@xenotime.net><E1EuPZg-0008Kw-00@calista.inka.de>
+ <20060105111105.GK20809@redhat.com><20060107214439.GA13433@us.ibm.com>
+ <1136670488.2936.44.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051214172445.GF7124@flint.arm.linux.org.uk>
-	 <Pine.SOC.4.61.0512221231430.6200@math.ut.ee>
-	 <20051222130744.GA31339@flint.arm.linux.org.uk>
-	 <Pine.SOC.4.61.0512231117560.25532@math.ut.ee>
-	 <20051223093343.GA22506@flint.arm.linux.org.uk>
-	 <Pine.SOC.4.61.0512231204290.8311@math.ut.ee>
-	 <20051223104146.GB22506@flint.arm.linux.org.uk>
-	 <Pine.SOC.4.61.0512271553480.7835@math.ut.ee>
-	 <20051228195509.GA12307@flint.arm.linux.org.uk>
-	 <Pine.SOC.4.61.0512291011320.28176@math.ut.ee>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/29/05, Meelis Roos <mroos@linux.ee> wrote:
-> > Can I assume that the bug has disappeared?  Does the patch make it
-> > disappear?
+On Sat, 7 Jan 2006, Arjan van de Ven wrote:
+
+> On Sat, 2006-01-07 at 13:44 -0800, Kurtis D. Rader wrote:
+>> On Thu, 2006-01-05 06:11:05, Dave Jones wrote:
+>>> On Thu, Jan 05, 2006 at 08:30:16AM +0100, Bernd Eckenfels wrote:
+>>> > Randy.Dunlap <rdunlap@xenotime.net> wrote:
+>>> >> This one delays each printk() during boot by a variable time
+>>> >> (from kernel command line), while system_state == SYSTEM_BOOTING.
+>>> >
+>>> > This sounds a bit like a aprils fool joke, what it is meant to do? You can
+>>> > read the messages in the bootlog and use the scrollback keys, no?
+>>>
+>>> could be handy for those 'I see a few messages that scroll, and the
+>>> box instantly reboots' bugs.  Quite rare, but they do happen.
+>>
+>> Another very common situation is a system which fails to boot due to
+>> failures to find the root filesystem. This can happen because of device name
+>> slippage, root disk not being found, the proper HBA driver isn't present in
 >
-> Yes, seems so.
->
-> --
-> Meelis Roos (mroos@linux.ee)
+> mount by label fixes some of that but not all
 
-Please notice official linus 2.6.15 tree doesn't have this fix... I've
-just installed a virtual machine (qemu-system-i386 with linus 2.6.15 +
-plain debian 3r0, console output to xterm via emulated serial console)
-and trying to use any curses program (top for example) produces
-exactly this type of error.
+there appears to be a limit on how many disks get checked for their label. 
+I've got one system where I've got 2xraid cards each with 8 drives on them 
+and then another raid card with my boot disk on it.
 
-QEMU_AUDIO_DRV=none \
-  nice /home/qemu/bin/qemu \
-    -nographic \
-    -hda debian-30r0-i386-rootfs.ext2 \
-    -kernel bzImage-2.6.15 \
-    -append "console=ttyS0,9600n8 lpj=10000 noapic root=/dev/hda"
+depending on how I have the two raid cards the boot disk can be anything 
+from sdc to sdq, mounting by label works for sdc, but not for sdq.
 
-I'm now recompiling with this lower limit to test...
+David Lang
 
---
-Greetz, Antonio Vargas aka winden of network
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 
-http://wind.codepixel.com/
-windNOenSPAMntw@gmail.com
-thesameasabove@amigascne.org
-
-Every day, every year
-you have to work
-you have to study
-you have to scene.

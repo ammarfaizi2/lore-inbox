@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWAHWEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932776AbWAHWIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161122AbWAHWEx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 17:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbWAHWEx
+	id S932776AbWAHWIi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 17:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbWAHWIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 17:04:53 -0500
-Received: from server5.web4a.de ([82.149.231.244]:32988 "EHLO server5.web4a.de")
-	by vger.kernel.org with ESMTP id S1161122AbWAHWEw (ORCPT
+	Sun, 8 Jan 2006 17:08:38 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:54068 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932776AbWAHWIh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 17:04:52 -0500
-Date: Sun, 8 Jan 2006 22:23:26 +0100
-From: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>
-To: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-In-Reply-To: <E1EuVds-0000n9-00@mars.bretschneidernet.de>
-References: <E1EuVds-0000n9-00@mars.bretschneidernet.de>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.8; i486-pc-linux-gnu)
+	Sun, 8 Jan 2006 17:08:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=b6oV/a1oCseMYZkHNskixddnzb/CfEXc8eMl6vfo4rZyAH+3nDB8FWZNIbj3dVRbI8W3dEUlVcVCZoeIZEybGddVW885MfNMvHClgXPxHI5n9vnJk9Lv74jn8wrHaeK3ZryuajOJeLopV/NMFU+oKeyyf93aBFaEHnte9t1t/V4=
+Date: Mon, 9 Jan 2006 01:25:29 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] It's UTF-8
+Message-ID: <20060108222529.GC7488@mipter.zuzino.mipt.ru>
+References: <20060108203851.GA5864@mipter.zuzino.mipt.ru> <Pine.LNX.4.61.0601082245090.17804@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E1Evi0c-0002mt-00@mars.bretschneidernet.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0601082245090.17804@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Jan 08, 2006 at 10:46:22PM +0100, Jan Engelhardt wrote:
+> > iocharset=name	Character set to use for converting from Unicode to
+> > 		ASCII.  The default is to do no conversion.  Use
+> >-		iocharset=utf8 for UTF8 translations.  This requires
+> >+		iocharset=utf8 for UTF-8 translations.  This requires
+> > 		CONFIG_NLS_UTF8 to be set in the kernel .config file.
+>
+> If you are really nitpicky about the "-", then it should also be
+> "iocharset=utf-8" (and whereever else). Or what's the real purpose of
+> adding the dashes in only half of the places, then?
 
-Jens Nödler who has got the same motheboard (Gigabyte GA-K8NF-9 with
-nforce4 chipset) can confirm my problem. But he found out that the
-keyboard connected to the ps/2 port does work with kernel 2.6.15 if
-"USB keyboard support" is disabled in the BIOS.
+I don't want to be shot by everyone who has "iocharset=utf8" in
+/etc/fstab.
 
-Martin
--- 
-http://www.bretschneidernet.de        OpenPGP-key: 0x4EA52583
-              (*_            Jean-Luc Picard (Star Trek TNG):
-  $ cd /pub/  //\      Sometimes it's possible to make no mistakes
-  $ more beer V_/_  and still lose. It is not a weakness. It is life.

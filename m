@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030533AbWAHIxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWAHJIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030533AbWAHIxe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 03:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030569AbWAHIxe
+	id S1751181AbWAHJIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 04:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWAHJII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 03:53:34 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:5518 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030533AbWAHIxd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 03:53:33 -0500
-Date: Sun, 8 Jan 2006 09:53:32 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       perex@suse.cz, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: Badness in __mutex_unlock_slowpath
-Message-ID: <20060108085332.GA12084@elte.hu>
-References: <20060107052221.61d0b600.akpm@osdl.org> <200601071551.20344.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <1136668423.2936.39.camel@laptopd505.fenrus.org>
+	Sun, 8 Jan 2006 04:08:08 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42514 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751181AbWAHJIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 04:08:06 -0500
+Date: Sun, 8 Jan 2006 09:08:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jason Dravet <dravet@hotmail.com>
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org, xavier.bestel@free.fr
+Subject: Re: wrong number of serial port detected
+Message-ID: <20060108090759.GA31219@flint.arm.linux.org.uk>
+Mail-Followup-To: Jason Dravet <dravet@hotmail.com>, davej@redhat.com,
+	linux-kernel@vger.kernel.org, xavier.bestel@free.fr
+References: <20060107210544.GM9402@redhat.com> <BAY103-F39233F9F5FF4FEFA175808DF230@phx.gbl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136668423.2936.39.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <BAY103-F39233F9F5FF4FEFA175808DF230@phx.gbl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Arjan van de Ven <arjan@infradead.org> wrote:
-
-> this looks like a really evil alsa bug:
+On Sat, Jan 07, 2006 at 07:23:46PM -0600, Jason Dravet wrote:
+> Not to keep complaining, but I now have the following issue.  I running 
+> Fedora Cores  2.6.15-1.1826 kernel.  When I run dmesg I now see this:
 > 
-> (pre mutex code below)
+> Serial: 8250/16550 driver $Revision: 1.90 $ 2 ports, IRQ sharing enabled
+> serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> 00:06: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> 
+> before 2.6.15 I saw
+> Serial: 8250/16550 driver $Revision: 1.90 $ 32 ports, IRQ sharing enabled
+> 
+> The serial driver now correctly reports that I have two serial ports 
+> instead of 32.  So shouldn't the patch register the minimum of 
+> CONFIG_SERIAL_8250_NR_UARTS and the number of serial ports detected by the 
+> serial driver?
 
->         up(&file->f_dentry->d_inode->i_sem);
->         result = snd_pcm_oss_write1(substream, buf, count);
->         down(&file->f_dentry->d_inode->i_sem);
+It's a classic chicken and egg problem.  If you can solve such problems,
+please feel free to send a patch.
 
-> this is a .write method of a driver, which doesn't run with i_sem held 
-> at all. Best guess I have is that this code has up() and down() 
-> confused and switched...
-
-well snd_pcm_oss_read1() is not using the mutex at all - nor any other 
-functions here. So the patch below removes the i_mutex use. _If_ some 
-synchronization is needed it would be needed in the read1 case too: it 
-is destructive to a sound stream when it is 'read' and when it is 
-'written' just as much.
-
-the bug could cause inode corruption on the VFS level: one thread 
-unlocks an inode it doesnt own - this could surprise another thread 
-holding that mutex and could allow a third thread to lock it and thus 
-two threads would be in a critical section - bad.
-
-	Ingo
-
---
-remove bogus i_mutex use from sound/core/oss/pcm_oss.c.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-----
-
- sound/core/oss/pcm_oss.c |    2 --
- 1 files changed, 2 deletions(-)
-
-Index: linux/sound/core/oss/pcm_oss.c
-===================================================================
---- linux.orig/sound/core/oss/pcm_oss.c
-+++ linux/sound/core/oss/pcm_oss.c
-@@ -2135,9 +2135,7 @@ static ssize_t snd_pcm_oss_write(struct 
- 	substream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
- 	if (substream == NULL)
- 		return -ENXIO;
--	mutex_unlock(&file->f_dentry->d_inode->i_mutex);
- 	result = snd_pcm_oss_write1(substream, buf, count);
--	mutex_lock(&file->f_dentry->d_inode->i_mutex);
- #ifdef OSS_DEBUG
- 	printk("pcm_oss: write %li bytes (wrote %li bytes)\n", (long)count, (long)result);
- #endif
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

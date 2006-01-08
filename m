@@ -1,164 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752603AbWAHQ2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752615AbWAHQdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752603AbWAHQ2a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 11:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752605AbWAHQ2a
+	id S1752615AbWAHQdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 11:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752619AbWAHQdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 11:28:30 -0500
-Received: from main.gmane.org ([80.91.229.2]:39625 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1752603AbWAHQ2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 11:28:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Help track down a freezing machine, libata or hardware
-Date: Mon, 09 Jan 2006 01:28:17 +0900
-Message-ID: <dprej1$qmb$1@sea.gmane.org>
-References: <dnp4t9$srl$1@sea.gmane.org> <81b0412b0512140625i7cc5779ar224de3d64c615fbc@mail.gmail.com> <dnuutm$v10$1@sea.gmane.org> <dor1is$9bo$1@sea.gmane.org>
+	Sun, 8 Jan 2006 11:33:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57032 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752615AbWAHQdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 11:33:25 -0500
+Subject: Re: [PATCH]: How to be a kernel driver maintainer
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <1136736455.24378.3.camel@grayson>
+References: <1136736455.24378.3.camel@grayson>
+Content-Type: text/plain
+Date: Sun, 08 Jan 2006 17:33:17 +0100
+Message-Id: <1136737997.2955.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060103)
-X-Accept-Language: en-us, en
-In-Reply-To: <dor1is$9bo$1@sea.gmane.org>
-X-Enigmail-Version: 0.93.0.0
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kalin KOZHUHAROV wrote:
-> Kalin KOZHUHAROV wrote:
+On Sun, 2006-01-08 at 11:07 -0500, Ben Collins wrote:
 > 
->>Alex Riesen wrote:
->>
->>
->>>On 12/14/05, Kalin KOZHUHAROV <kalin@thinrope.net> wrote:
->>>
->>>
->>>
->>>>Now that I get a repetitive freeze, is there anything to debug the problem?
->>>>I guess, the point when kernel is still responsive to keyboard, but I cannot login.
->>>
->>>
->>>try to connect a serial console to it and press Alt+SysRq+t
->>
->>
->>Thank you for the suggestio, Alex.
->>
->>I was always trying to avoid the serial console till now (it just seems difficult, and I DO know it
->>is not), and didn't even bother with the netconsole...
-> 
-> 
-> It is, I as have to go and buy a null modem cable... will do it.
-> 
-> 
->>So until now, here is an oops, the first I saw in a few months, captured by my camera and then
->>digitally enhanced: http://linux.tar.bz/reports/oopses/char/2.6.14.3-K01_char__oops1.jpg
->>
->>The OCRed/handwritten text ( http://linux.tar.bz/reports/oopses/char/2.6.14.3-K01_char__oops1.txt )
->>says:
->>
->>Call trace:
->>SCSI device sda: 145226112 512-byte hdwr sectors (74356 MB)
->>SCSI device sda: drive cache: write back
->>[<c01ec22f>] kobject_put+0x1f/0x30
->>[<c028c8fd>] scsi_end_request+0xdd/0xf0
->>[<c028ccae>] scsi_io_completion+0x26e/0x570
->>[<c011b623>] load_balance_newidle+0x43/0x110
->>[<c028d255>] scsi_generic_done+0x35/0x50
->>[<c02873ee>] scsi_finish_command+0x8e/0xd0
->>[<c0318dea>] schedule+0x4da/0xd50
->>[<c0318e1d>] schedule+0x50d/0xd50
->>[<c028728f>] scsi_sortirq+0xdf/0x160
->>[<c0125836>] __do_softirq+0xd6/0xf0
->>[<c0125885>] do_softirq+0x35/0x40
->>[<c0125e35>] ksoftirqd+0x95/0xe0
->>[<c0125da0>] ksoftirqd+0x0/0xe0
->>[<c0135b9a>] kthread+0xba/0xc0
->>[<c0135ae0>] kthread+0x0/0xc0
->>[<c0101245>] kernel_thread_helper+0x5/0x10
->>Code: e1 08 00 89 44 24 04 89 1c 24 e8 27 b0 ff ff eb a5 90 8d 74 26 00 55 57 56
->> 53 83 ec 08 8b 44 24 1c 89 44 24 04 8b 80 ec 00 00 00 <8b> 38 f6 80 79 01 00 00
->> 80 0f 85 98 00 00 00 8b 47 2c 8d 6f 20
->><0>Kernel panic - not syncing: Fatal exception in interrupt
->>
->>Unfortunately everything was frozen (KBD too), so I couldn't scroll up to see the beginning. As you
->>may guess, it was not written to the disk.
->>
->>The oops happened on boot (after a hard power-off) and is probbably related to the SATA system.
-> 
-> 
-> All right, the above started to be reproducible, about once every 3 boots: the system freezes when
-> tries to initialize the ata sybsystem. (still don't have cable for the serial console, sorry)
-> 
-> 
->>The .config is available at http://linux.tar.bz/reports/oopses/char/2.6.14.3-K01_char.config
-> 
-> 
-> Now this is 2.6.14.4 and the new config is:
-> http://linux.tar.bz/reports/oopses/char/2.6.14.4-K01_char.config
-> 
-> I added another 250GB SATA HDD and changed the PSU, but it does not seem to be related for that bug.
-> Will try to tweak the IDE parameters in BIOS.
+> +The other side of the coin is keeping changes in the kernel synced to
+> your
+> +code. Often times, it is necessary to change a kernel API (driver
+> model,
+> +USB stack changes, networking subsystem change, etc). These sorts of
+> +changes usually affect a large number of drivers. It is not feasible
+> for
+> +these changes to be individually submitted to the driver maintainers.
+> So
+> +instead, the changes are made together in the kernel tree. If your
+> driver
+> +is affected, you are expected to pick up these changes and merge them
+> with
+> +your primary code (e.g. if you have a CVS repo for maintaining your
+> code).
+> +Usually this job is made easier if you use the same source control
+> system
+> +that the kernel maintainers use (currently, git), but this is not
+> +required.
 
-OK, now this looks like hardware failure... I run 2.6.15 the other day and I was happy to see 2d
-uptime :-) However... everything was borked, root was mounted RO, and fs was generally screwed.
-
-I don't have physical acces to the box right now, so I will post more details tomorrow, but this is
-what I got as dmesg:
+I don't quite agree with this part. This encourages cvs use, and "cvs
+mentality". I *much* rather have something written as "the primary
+location of your driver becomes the kernel.org git tree. This may feel
+like you're giving away control, but it's not really. If you maintain
+your driver there, people will still send patches via you for
+approval/review. Of course you can keep a master copy in your own
+version control repository, however be aware that most users will see
+the kernel.org tree one as THE drivers. In addition, merging changes and
+keeping uptodate is a lot harder that way. And worse, keeping the "main"
+version outside the kernel.org tree tends to cause huge deviations and
+backlogs between your main tree and the "real" kernel.org tree, with the
+result that it becomes impossible to find regressions when you DO merge
+the changes over. 
 
 
-ata1: port reset, p_is 40000001 is 1 pis 0 cmd c017 tf 471 ss 113 se 0
-ata1: translated ATA stat/err 0x71/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-ata1: status=0x71 { DriveReady DeviceFault SeekComplete Error }
-ata1: error=0x04 { DriveStatusError }
-ata1: port reset, p_is 40000001 is 1 pis 0 cmd c017 tf 471 ss 113 se 0
-ata1: translated ATA stat/err 0x71/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-ata1: status=0x71 { DriveReady DeviceFault SeekComplete Error }
-ata1: error=0x04 { DriveStatusError }
-ata1: port reset, p_is 40000001 is 1 pis 0 cmd c017 tf 471 ss 113 se 0
-ata1: translated ATA stat/err 0x71/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-ata1: status=0x71 { DriveReady DeviceFault SeekComplete Error }
-ata1: error=0x04 { DriveStatusError }
-ata1: port reset, p_is 40000001 is 1 pis 0 cmd c017 tf 471 ss 113 se 0
-ata1: translated ATA stat/err 0x71/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-ata1: status=0x71 { DriveReady DeviceFault SeekComplete Error }
-ata1: error=0x04 { DriveStatusError }
-ata1: port reset, p_is 40000001 is 1 pis 0 cmd c017 tf 471 ss 113 se 0
-ata1: translated ATA stat/err 0x71/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-ata1: status=0x71 { DriveReady DeviceFault SeekComplete Error }
-ata1: error=0x04 { DriveStatusError }
-sd 0:0:0:0: SCSI error: return code = 0x8000002
-sda: Current: sense key=0xb
-    ASC=0x0 ASCQ=0x0
-end_request: I/O error, dev sda, sector 10803956
-Buffer I/O error on device sda3, logical block 362497
-
-
-The above was repeated many times (buffer was full, so I don't know how many), cannot tell the time,
-as trying to `cat /var/log/everything` resulted in IO error.
-I also got a bunch of these:
-
-ReiserFS: sda3: warning: clm-6006: writing inode 56216 on readonly FS
-ReiserFS: sda3: warning: clm-6006: writing inode 56216 on readonly FS
-ReiserFS: sda3: warning: vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find
-stat data of [25971 27180 0x0 SD]
-ReiserFS: sda3: warning: vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find
-stat data of [9064 25871 0x0 SD]
-ReiserFS: sda3: warning: vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find
-stat data of [25971 27180 0x0 SD]
-
-Do you see this as hardware problem?
-
-The drive in question is a WD740GD (SATA, 10k RPM) and I will run the WD tools on it in a day or two
-to check if it is a hardware failure.
-
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
 

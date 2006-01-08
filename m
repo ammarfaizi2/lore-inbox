@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161173AbWAHKbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161176AbWAHKda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161173AbWAHKbK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 05:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbWAHKbK
+	id S1161176AbWAHKda (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 05:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161177AbWAHKda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 05:31:10 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:14820 "EHLO
-	orac.home") by vger.kernel.org with ESMTP id S1161173AbWAHKbJ (ORCPT
+	Sun, 8 Jan 2006 05:33:30 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:6609 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1161176AbWAHKd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 05:31:09 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sanitized kernel headers
-Date: Sun, 8 Jan 2006 10:31:02 +0000
-User-Agent: KMail/1.8.2
-References: <43BF9114.7040102@gmail.com>
-In-Reply-To: <43BF9114.7040102@gmail.com>
+	Sun, 8 Jan 2006 05:33:29 -0500
+Message-ID: <43C0FC4B.567D18DC@tv-sign.ru>
+Date: Sun, 08 Jan 2006 14:49:31 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single 
+ threadedprocess at getrusage()
+References: <43AD8AF6.387B357A@tv-sign.ru> <Pine.LNX.4.62.0512271220380.27174@schroedinger.engr.sgi.com> <43B2874F.F41A9299@tv-sign.ru> <20051228183345.GA3755@localhost.localdomain> <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru> <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601081031.02563.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 07 January 2006 09:59, Alexander E. Patrakov wrote:
->
-> What is the recommended (non-dead) alternative implementation of such
-> "sanitized" headers? Where is the roadmap for this area?
+Sorry for delay,
 
-I still don't buy the arguments of the kernel maintainers who shun 
-responsibility for this. My undoubtedly naive position is that
+Ravikiran G Thirumalai wrote:
+> 
+>  static void k_getrusage(struct task_struct *p, int who, struct rusage *r)
+> @@ -1681,14 +1697,22 @@ static void k_getrusage(struct task_stru
+>         struct task_struct *t;
+>         unsigned long flags;
+>         cputime_t utime, stime;
+> +       int need_lock = 0;
 
-1) The kernel does a load of really clever low level stuff, and presents a 
-stable API that the rest of the world (userspace) can use
+Unneeded initialization
 
-2) Every part of that API that userspace needs should be presented to 
-userspace in a consistent and reliably useable way
+>         memset((char *) r, 0, sizeof *r);
+> -
+> -       if (unlikely(!p->signal))
+> -               return;
+> -
+>         utime = stime = cputime_zero;
+> 
+> +       need_lock = !(p == current && thread_group_empty(p));
+> +       if (need_lock) {
+> +               read_lock(&tasklist_lock);
+> +               if (unlikely(!p->signal)) {
+> +                       read_unlock(&tasklist_lock);
+> +                       return;
+> +               }
+> +       } else
+> +               /* See locking comments above */
+> +               smp_rmb();
 
-3) Any part of the kernel to which userspace absolutely needs access _must_ be 
-part of that consistently and reliably presented API.
+This patch doesn't try to optimize ->sighand.siglock locking,
+and I think this is right. But this also means we don't need
+rmb() here. It was needed to protect against "another thread
+just exited, cpu can read ->c* values before thread_group_empty()
+without taking siglock" case, now it is not possible.
 
-This 'sanitized kernel headers' mess (the single biggest _PITA_ for all small 
-independent  linux distro creators/maintainers) should either
-
-1) be unnecessary
-2) be included as part of the kernel sources and acknowledged as specifically 
-for use by userspace
-
-Currently affected userspace packages include stuff like glibc, directfb, 
-netfilter, iproute2, alsa, iputils, pcmcia-cs, udev and wireless-tools.
-
-Andrew Walrond
-[thumbs nose, dons hardhat, dives into hastily prepared bunker]
+Oleg.

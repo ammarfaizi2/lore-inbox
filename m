@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWAHOXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752625AbWAHOZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWAHOXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 09:23:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752610AbWAHOXZ
+	id S1752625AbWAHOZF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 09:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752627AbWAHOZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 09:23:25 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60943 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750729AbWAHOXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 09:23:25 -0500
-Date: Sun, 8 Jan 2006 14:23:18 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus@drzeus.cx>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Support MMC version 4 cards.
-Message-ID: <20060108142318.GA10927@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus@drzeus.cx>,
-	Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-References: <20060108114846.4507.9475.stgit@poseidon.drzeus.cx>
+	Sun, 8 Jan 2006 09:25:05 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:7375 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1752625AbWAHOZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 09:25:03 -0500
+Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+In-Reply-To: <20060108141430.GJ3774@stusta.de>
+References: <20060107220702.GZ3774@stusta.de>
+	 <1136678409.30348.26.camel@pmac.infradead.org>
+	 <20060108002457.GE3774@stusta.de>
+	 <1136680734.30348.34.camel@pmac.infradead.org>
+	 <20060107174523.460f1849.akpm@osdl.org>
+	 <1136724072.30348.66.camel@pmac.infradead.org>
+	 <20060108125700.GI3774@stusta.de>
+	 <1136725580.30348.69.camel@pmac.infradead.org>
+	 <20060108141430.GJ3774@stusta.de>
+Content-Type: text/plain
+Date: Sun, 08 Jan 2006 14:24:40 +0000
+Message-Id: <1136730280.30348.78.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060108114846.4507.9475.stgit@poseidon.drzeus.cx>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.2 (/)
+X-Spam-Report: SpamAssassin version 3.0.4 on canuck.infradead.org summary:
+	Content analysis details:   (0.2 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.2 UPPERCASE_25_50        message body is 25-50% uppercase
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 12:48:47PM +0100, Pierre Ossman wrote:
-> Version 4 of the MMC specification increased the version number of the
-> CID structure. None of the fields changed though so the only required
-> change is adding '4' to the approved list.
+On Sun, 2006-01-08 at 15:14 +0100, Adrian Bunk wrote:
+> This patch removes the wrong dependency of MTD_OBSOLETE_CHIPS on BROKEN 
+> and marks the non-compiling MTD_AMDSTD and MTD_JEDEC drivers as BROKEN.
 
-Applied, thanks.
+Looks better; thanks.
+
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+Signed-off-by: David Woodhouse <dwmw2@infradead.org>
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+dwmw2
+

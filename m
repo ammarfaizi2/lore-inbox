@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932772AbWAHU7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWAHVBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932772AbWAHU7I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 15:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932773AbWAHU7I
+	id S1161198AbWAHVBp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932774AbWAHVBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 15:59:08 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:27346 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932772AbWAHU7H (ORCPT
+	Sun, 8 Jan 2006 16:01:45 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:23559 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932773AbWAHVBo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 15:59:07 -0500
-Date: Sun, 8 Jan 2006 21:59:07 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Ben Collins <ben.collins@ubuntu.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-In-Reply-To: <1136746381.1043.10.camel@grayson>
-Message-ID: <Pine.LNX.4.61.0601082158310.8860@spit.home>
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com> <200601081734.30349.zippel@linux-m68k.org>
- <1136746381.1043.10.camel@grayson>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 8 Jan 2006 16:01:44 -0500
+Date: Sun, 8 Jan 2006 22:01:27 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernelrelase only recomputed when necessary
+Message-ID: <20060108210127.GA8545@mars.ravnborg.org>
+References: <20060108203749.GA7193@mars.ravnborg.org> <Pine.LNX.4.64.0601081250441.3169@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601081250441.3169@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 08, 2006 at 12:51:37PM -0800, Linus Torvalds wrote:
+> This part looks bogus:
+> 
+> > diff --git a/arch/x86_64/Makefile b/arch/x86_64/Makefile
+> > index a9cd42e..663dbdb 100644
+> > --- a/arch/x86_64/Makefile
+> > +++ b/arch/x86_64/Makefile
+> > @@ -80,7 +80,7 @@ bzlilo: vmlinux
+> >  bzdisk: vmlinux
+> >  	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) zdisk
+> >  
+> > -install fdimage fdimage144 fdimage288: vmlinux
+> > +install fdimage fdimage144 fdimage288:
+> >  	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) $@
+> >  
+> >  archclean:
+> 
+> 
+> That rule should probably be:
+> 
+> 	fdimage fdimage144 fdimage288: vmlinux
+> 	install:
+> 		$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) $@
+> 
+> since the fdimages should still depend on vmlinux.
+> 
+> No?
 
-On Sun, 8 Jan 2006, Ben Collins wrote:
+I failed to apply the path from hpa before starting on the
+kernelrelesase stuff - so what you see above was just a
+quick hack allowing me to test "make install" and should have been
+deleted before I sent out the mail - sorry.
 
-> Anyway, the problem is that if there is no terminal (e.g. stdout is
-> redirected to a file, and stdin is closed), then kconf loops forever
-> trying to get an answer (NULL is not the same as "").
+hpa already do the right thing in his patch - similar to what you
+suggest.
 
-Then let's fix the real problem.
-
-bye, Roman
-
-     scripts/kconfig/conf.c |    3 +--
-     1 file changed, 1 insertion(+), 2 deletions(-)
-
-Index: linux-2.6.14/scripts/kconfig/conf.c
-===================================================================
---- linux-2.6.14.orig/scripts/kconfig/conf.c	2006-01-08 21:52:54.000000000 +0100
-+++ linux-2.6.14/scripts/kconfig/conf.c	2006-01-08 21:54:02.000000000 +0100
-@@ -314,8 +314,7 @@ static int conf_choice(struct menu *menu
-     		printf("%*s%s\n", indent - 1, "", menu_get_prompt(menu));
-     		def_sym = sym_get_choice_value(sym);
-     		cnt = def = 0;
--		line[0] = '0';
--		line[1] = 0;
-+		line[0] = 0;
-     		for (child = menu->list; child; child = child->next) {
-     			if (!menu_is_visible(child))
-     				continue;
+	Sam

@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbWAHNqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161040AbWAHNsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161047AbWAHNqE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 08:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWAHNqE
+	id S1161040AbWAHNsy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 08:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWAHNsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 08:46:04 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13534 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161008AbWAHNqD (ORCPT
+	Sun, 8 Jan 2006 08:48:54 -0500
+Received: from xenotime.net ([66.160.160.81]:6287 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161040AbWAHNsy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 08:46:03 -0500
-Date: Sun, 8 Jan 2006 14:21:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, David Lang <dlang@digitalinsight.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: oops pauser. / boot_delayer
-Message-ID: <20060108132132.GA1952@elf.ucw.cz>
-References: <E1EuPZg-0008Kw-00@calista.inka.de> <Pine.LNX.4.61.0601050905250.10161@yvahk01.tjqt.qr> <Pine.LNX.4.62.0601051726290.973@qynat.qvtvafvgr.pbz> <20060106053609.GB32105@redhat.com>
+	Sun, 8 Jan 2006 08:48:54 -0500
+Date: Sun, 8 Jan 2006 05:48:51 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: mbuesch@freenet.de, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/4] move capable() to capability.h
+Message-Id: <20060108054851.57c0f408.rdunlap@xenotime.net>
+In-Reply-To: <200601080745.k087j3mU016114@turing-police.cc.vt.edu>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+	<200601061218.17369.mbuesch@freenet.de>
+	<1136546539.2940.28.camel@laptopd505.fenrus.org>
+	<200601061226.42416.mbuesch@freenet.de>
+	<20060107215106.38d58bb9.rdunlap@xenotime.net>
+	<200601080745.k087j3mU016114@turing-police.cc.vt.edu>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060106053609.GB32105@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 06-01-06 00:36:09, Dave Jones wrote:
-> On Thu, Jan 05, 2006 at 05:28:59PM -0800, David Lang wrote:
->  > On Thu, 5 Jan 2006, Jan Engelhardt wrote:
->  > 
->  > >Also note that the kernel generates a lot of noise^W text - if now the
->  > >start scripts from $YOUR_FAVORITE_DISTRO also fill up, I can barely reach
->  > >the top of the kernel when it says
->  > > Linux version 2.6.15 (jengelh@gwdg-wb04.gwdg.de) (gcc version 4.0.2
->  > > 20050901 (prerelease) (SUSE Linux)) #1 Tue Jan 3 09:21:27 CET 2006
->  > 
->  > enable a few different types of encryption and you have to enlarge the 
->  > buffer (by quite a bit). the fact that all the encryption tests print 
->  > several lines each out and can't be turned off (short of a quiet boot 
->  > where you loose everything) is one of the more annoying things to me right 
->  > now.
->  > 
->  > this large boot message issue also slows your boot significantly if you 
->  > have a fast box that has a serial console, it takes a long time to dump 
->  > all that info out the serial port.
-> 
-> So disable CONFIG_CRYPTO_TEST. There's no reason to test this stuff every boot.
+On Sun, 08 Jan 2006 02:45:02 -0500 Valdis.Kletnieks@vt.edu wrote:
 
-Maybe even with CRYPTO_TEST enabled we could only report _failures_?
-									Pavel
--- 
-Thanks, Sharp!
+> On Sat, 07 Jan 2006 21:51:06 PST, "Randy.Dunlap" said:
+> 
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> > 
+> > headers + core:
+> > - Move capable() from sched.h to capability.h;
+> > - Use <linux/capability.h> where capable() is used
+> > 	(in include/, block/, ipc/, kernel/, a few drivers/,
+> > 	mm/, security/, & sound/;
+> > 	many more drivers/ to go)
+> 
+> Are there plans for a second patch series to remove sched.h from those
+> files that only needed it for capable()?
+
+I thought of that but I don't have a good way of checking it.
+What (how) do you suggest going about doing that?
+
+---
+~Randy

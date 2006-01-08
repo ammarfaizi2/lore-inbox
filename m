@@ -1,123 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWAHTNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbWAHTTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161060AbWAHTNt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 14:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161084AbWAHTNt
+	id S1161084AbWAHTTw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 14:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbWAHTTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 14:13:49 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29883 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161060AbWAHTNs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 14:13:48 -0500
-Date: Sun, 8 Jan 2006 20:11:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Thinkpad docking station: pci hotplug questions
-Message-ID: <20060108191159.GA1880@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Jan 2006 14:19:52 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:7241 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161086AbWAHTTu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 14:19:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e/O7xCaZvulBG3YPXEE5HsUtnLDn9LlKoO+ksT2Vb9QXvhiB7aIMIGTZ0VDB4ME8haKpLfXfe+ZXqt1f8yws6m86UaCDtXyO8wGcqYmQ6OINJWvQWSxvWkfX3cXpnNqSOKZ4JS3GSlwaqMZzLZyHoLBBmNs/PS7Owd3UxOwd4yc=
+Message-ID: <46a038f90601081119r39014fbi995cc8b6e95774da@mail.gmail.com>
+Date: Mon, 9 Jan 2006 08:19:50 +1300
+From: Martin Langhoff <martin.langhoff@gmail.com>
+To: "Brown, Len" <len.brown@intel.com>
+Subject: Re: git pull on Linux/ACPI release tree
+Cc: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       git@vger.kernel.org
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 1/9/06, Brown, Len <len.brown@intel.com> wrote:
+> Perhaps the tools should try to support what "a lot of people"
+> expect, rather than making "a lot of people" do extra work
+> because of the tools?
 
-I'm trying to get PCI hotplug to work on thinkpad x32 -- it is
-apparently neccessary for proper docking station support. What needs
-to be done to get it running?
+I think it does. All the tricky stuff that David and Junio have been
+discussing is actually done very transparently by
 
-I noticed some strangenesses:
+    git-rebase <upstream>
 
-pcihpfs is mentioned in Kconfig, but I can't find it anywhere in
-kernel
+Now, git-rebase uses git-format-patch <options> | git-am <options> so
+it sometimes has problems merging. In that case, you can choose to
+either resolve the problem (see the doco for how to signal to git-am
+that you've resolved a conflict) or to cancel the rebase. If you
+choose to cancel the rebase, do
 
-CONFIG_HOTPLUG_PCI_PCIE exists in Makefile but not in Kconfig.
+   cp .git/refs/heads/{<headname>,<headnamebadrebase>}
+   cat .git/HEAD_ORIG > .git/refs/heads/<headname>
+   git-reset --hard
+   rm -fr .dotest
 
-And here are some coding style fixes:
+and you'll be back to where you started. Perhaps this could be rolled
+into something like git-rebase --cancel to make it easier, but that's
+about it. The toolchain definitely supports it.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
-diff --git a/drivers/pci/hotplug/acpiphp_ibm.c b/drivers/pci/hotplug/acpiphp_ibm.c
---- a/drivers/pci/hotplug/acpiphp_ibm.c
-+++ b/drivers/pci/hotplug/acpiphp_ibm.c
-@@ -302,7 +302,7 @@ static int ibm_get_table_from_acpi(char 
- 	}
- 
- 	package = (union acpi_object *) buffer.pointer;
--	if(!(package) ||
-+	if (!(package) ||
- 			(package->type != ACPI_TYPE_PACKAGE) ||
- 			!(package->package.elements)) {
- 		err("%s:  Invalid APCI object\n", __FUNCTION__);
-@@ -405,7 +405,7 @@ static acpi_status __init ibm_find_acpi_
- 	}
- 	info.hardware_id.value[sizeof(info.hardware_id.value) - 1] = '\0';
- 
--	if(info.current_status && (info.valid & ACPI_VALID_HID) &&
-+	if (info.current_status && (info.valid & ACPI_VALID_HID) &&
- 			(!strcmp(info.hardware_id.value, IBM_HARDWARE_ID1) ||
- 			!strcmp(info.hardware_id.value, IBM_HARDWARE_ID2))) {
- 		dbg("found hardware: %s, handle: %p\n", info.hardware_id.value,
-@@ -449,13 +449,11 @@ static int __init ibm_acpiphp_init(void)
- 	}
- 
- 	ibm_note.device = device;
--	status = acpi_install_notify_handler(
--			ibm_acpi_handle,
--			ACPI_DEVICE_NOTIFY,
--			ibm_handle_events,
-+	status = acpi_install_notify_handler(ibm_acpi_handle,
-+			ACPI_DEVICE_NOTIFY, ibm_handle_events,
- 			&ibm_note);
- 	if (ACPI_FAILURE(status)) {
--		err("%s:  Failed to register notification handler\n",
-+		err("%s: Failed to register notification handler\n",
- 				__FUNCTION__);
- 		retval = -EBUSY;
- 		goto init_cleanup;
-@@ -482,14 +480,13 @@ static void __exit ibm_acpiphp_exit(void
- 	if (acpiphp_unregister_attention(&ibm_attention_info))
- 		err("%s: attention info deregistration failed", __FUNCTION__);
- 
--	   status = acpi_remove_notify_handler(
-+	status = acpi_remove_notify_handler(
- 			   ibm_acpi_handle,
- 			   ACPI_DEVICE_NOTIFY,
- 			   ibm_handle_events);
--	   if (ACPI_FAILURE(status))
--		   err("%s:  Notification handler removal failed\n",
--				   __FUNCTION__);
--	// remove the /sys entries
-+	if (ACPI_FAILURE(status))
-+		err("%s: Notification handler removal failed\n", __FUNCTION__);
-+	/* remove the /sys entries */
- 	if (sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr))
- 		err("%s: removal of sysfs file apci_table failed\n",
- 				__FUNCTION__);
-diff --git a/drivers/pci/hotplug/ibmphp_core.c b/drivers/pci/hotplug/ibmphp_core.c
---- a/drivers/pci/hotplug/ibmphp_core.c
-+++ b/drivers/pci/hotplug/ibmphp_core.c
-@@ -235,12 +235,12 @@ static int set_attention_status(struct h
- {
- 	int rc = 0;
- 	struct slot *pslot;
--	u8 cmd;
-+	u8 cmd = 0x00;     /* avoid compiler warning */
- 
- 	debug("set_attention_status - Entry hotplug_slot[%lx] value[%x]\n",
- 			(ulong) hotplug_slot, value);
- 	ibmphp_lock_operations();
--	cmd = 0x00;     // avoid compiler warning
-+
- 
- 	if (hotplug_slot) {
- 		switch (value) {
+cheers,
 
 
-
-
--- 
-Thanks, Sharp!
+martin

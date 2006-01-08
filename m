@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752667AbWAHSEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752659AbWAHSJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752667AbWAHSEV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752670AbWAHSEV
+	id S1752659AbWAHSJO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752668AbWAHSJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:04:21 -0500
-Received: from mail18.bluewin.ch ([195.186.19.64]:3238 "EHLO mail18.bluewin.ch")
-	by vger.kernel.org with ESMTP id S1752667AbWAHSET (ORCPT
+	Sun, 8 Jan 2006 13:09:14 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:55486 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1752659AbWAHSJO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:04:19 -0500
-Date: Sun, 8 Jan 2006 19:03:52 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.15: via-rhine + link loss + autoneg off == trouble
-Message-ID: <20060108180352.GA8778@k3.hellgate.ch>
-References: <200601071820.16092.vda@ilport.com.ua> <1136659670.8750.14.camel@mindpipe> <20060107210417.GA32681@k3.hellgate.ch> <200601081957.14136.vda@ilport.com.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601081957.14136.vda@ilport.com.ua>
-X-Operating-System: Linux 2.6.13 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.11
+	Sun, 8 Jan 2006 13:09:14 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.6.15-mm2
+Date: Sun, 8 Jan 2006 13:08:53 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005A134F9@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.15-mm2
+Thread-Index: AcYUN79K5s0ULn1oQWuuDviTmMxF1gARjb0g
+From: "Brown, Len" <len.brown@intel.com>
+To: "Reuben Farrelly" <reuben-lkml@reub.net>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "Jeff Garzik" <jgarzik@pobox.com>,
+       "Stephen Hemminger" <shemminger@osdl.org>
+X-OriginalArrivalTime: 08 Jan 2006 18:08:56.0214 (UTC) FILETIME=[97389360:01C6147E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 08 Jan 2006 19:57:14 +0200, Denis Vlasenko wrote:
-> On Saturday 07 January 2006 23:04, Roger Luethi wrote:
-> > As long as you mention via-rhine, I am going to see it (thanks, procmail).
-> > I don't remember seeing vda post a patch before. First he posted a problem
-> > description, then an analysis (that I commented on), now a patch. Finally,
-> 
-> It's my second patch for this (really trivial) problem.
+>> Any difference if you boot with "acpi=off" or "pci=noacpi"?
+>> If that fixes it, then ACPI is shomehow involved in the problem.
+>> If it doesn't fix it, then ACPI is not involved.
 
-Duly noted :-). Sorry I missed it the first time around.
+>Big difference, but probably not the sort of difference you 
+>were hoping for ;)
 
-Roger
+>PCI: No IRQ known for interrupt pin C of device 0000:00:1c.2. 
+>Probably buggy MP table.
+
+Yeah, that that's no help.  Sorry, debugging the legacy MPS
+code is where I draw the line:-)  I guess if you want to compare
+with and without ACPI you have to go all the way down to
+UP/PIC mode,  (maxcpus=1 noapic, with and with out acpi=off)
+but unless that fails with acpi and works without, we may
+not be able to tell much about the failure from it.
+
+thanks
+-Len

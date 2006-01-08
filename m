@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161243AbWAHXbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbWAHXez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161243AbWAHXbX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 18:31:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWAHXbX
+	id S1161233AbWAHXez (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 18:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161245AbWAHXey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 18:31:23 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30180 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161243AbWAHXbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 18:31:22 -0500
-Subject: Re: reiserfs mount time
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0601082320520.2801@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0601082320520.2801@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sun, 08 Jan 2006 18:31:17 -0500
-Message-Id: <1136763077.2997.4.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Jan 2006 18:34:54 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:48792 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S1161233AbWAHXey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 18:34:54 -0500
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch 0/2] Tmpfs acls
+In-Reply-To: <200601090023.16956.agruen@suse.de>
+References: <200601090023.16956.agruen@suse.de>
+Date: Sun, 8 Jan 2006 23:34:50 +0000
+Message-Id: <E1Evk3m-00043Y-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 23:24 +0100, Jan Engelhardt wrote:
-> Hi,
-> 
-> 
-> brought to attentino on an irc channel, reiser seems to have the largest 
-> mount times for big partitions. I see this behavior on at least two 
-> machines (160G, 250G) and one specially-crafted virtual machine
-> (a 1.9TB disk / 1.9TB partition - took somewhere over 120 seconds).
-> Here's a dig http://linuxgazette.net/122/misc/piszcz/group001/image002.png 
-> from http://linuxgazette.net/122/TWDT.html#piszcz
-> So, any hint from the reiserfs developers how come reiserfs takes so long?
-> Standard mkreiserfs options (none extra passed).
-> 
+Andreas Gruenbacher <agruen@suse.de> wrote:
+> This is an update of the tmpfs acl patches against 2.6.15-git4. (The
+> first version of these patches was posted on 2 February 2005.) We'll
+> have our /dev tree on tmpfs in the future, and we need acls there to
+> manage device inode permissions of logged-in users. Other distributions
+> will be in exactly the same situation, and need this patchset as well.
 
-reiser3 or reiser4?
+Hmm. Do you have any infrastructure for revoking open file descriptors
+when a user logs out?
 
-Lee
-
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

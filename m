@@ -1,57 +1,24 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030524AbWAGSO7 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 7 Jan 2006 13:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030534AbWAGSO7
+	id S1161136AbWAHCOM (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 7 Jan 2006 21:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbWAHCOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 13:14:59 -0500
-Received: from vsmtp1.tin.it ([212.216.176.141]:31415 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S1030524AbWAGSO6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 13:14:58 -0500
-Message-ID: <21724389.1136657088661.JavaMail.root@pswm1>
-Date: Sat, 7 Jan 2006 19:04:48 +0100 (GMT+01:00)
-From: PAUL CAMPBELL <paul_camp@virgilio.it>
-Reply-To: paul_campbell@excite.com
-Subject: Enquiry
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: 62.56.145.2
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 7 Jan 2006 21:14:12 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:21957 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161136AbWAHCOL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 21:14:11 -0500
+Message-ID: <9a9abfb40601071814h24441661iaaf7411cee61d6f7@mail.gmail.com>
+Date: Sun, 8 Jan 2006 07:44:10 +0530
+From: Chaitanya Hazarey <c.v.hazarey@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030524AbWAGSO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1161136AbWAHCOM@vger.kernel.org>
 
-Dear Friend,
-
-My name is Paul Campbell, a senior staff and executive of 
-a 
-bank here in Scotland, United Kingdom.I have only written to seek 
-your 
-indulgence and assistance.
-
-I wish to make a transfer involving a 
-huge amount.
-I am proposing to make this transfer to a designated bank 
-account of your choice.Thus,  for your indulgence and support, I 
-propose an offer of 25% of the total amount to be yours after the 
-transfer has been successfully concluded.
-
-Kindly reply me stating your 
-interest, and I shall furnish you with the details and necessary 
-proceedure with which to make the transfer.
-
-I anxiously await your 
-response.Thanks and Godbless.
-
-Sincerely yours,
-
-PAUL
-.......................................
-PAUL CAMPBELL
-
-Email: 
-paul_campbell@email.ro
-
-
-
+subscribe linux-kernel

@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161176AbWAHKda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161178AbWAHKoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161176AbWAHKda (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 05:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161177AbWAHKda
+	id S1161178AbWAHKoP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 05:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161180AbWAHKoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 05:33:30 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:6609 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1161176AbWAHKd3 (ORCPT
+	Sun, 8 Jan 2006 05:44:15 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:58320 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161178AbWAHKoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 05:33:29 -0500
-Message-ID: <43C0FC4B.567D18DC@tv-sign.ru>
-Date: Sun, 08 Jan 2006 14:49:31 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single 
- threadedprocess at getrusage()
-References: <43AD8AF6.387B357A@tv-sign.ru> <Pine.LNX.4.62.0512271220380.27174@schroedinger.engr.sgi.com> <43B2874F.F41A9299@tv-sign.ru> <20051228183345.GA3755@localhost.localdomain> <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru> <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Jan 2006 05:44:14 -0500
+Date: Sun, 8 Jan 2006 11:43:57 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Joel Schopp <jschopp@austin.ibm.com>
+Cc: Olof Johansson <olof@lixom.net>, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Anton Blanchard <anton@samba.org>,
+       PPC64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: PowerPC fastpaths for mutex subsystem
+Message-ID: <20060108104357.GB31359@elte.hu>
+References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <20060106002919.GA29190@pb15.lixom.net> <43BFFF1D.7030007@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43BFFF1D.7030007@austin.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for delay,
 
-Ravikiran G Thirumalai wrote:
-> 
->  static void k_getrusage(struct task_struct *p, int who, struct rusage *r)
-> @@ -1681,14 +1697,22 @@ static void k_getrusage(struct task_stru
->         struct task_struct *t;
->         unsigned long flags;
->         cputime_t utime, stime;
-> +       int need_lock = 0;
+looks good to me. Minor nit:
 
-Unneeded initialization
+> +"	isync\n"
 
->         memset((char *) r, 0, sizeof *r);
-> -
-> -       if (unlikely(!p->signal))
-> -               return;
-> -
->         utime = stime = cputime_zero;
-> 
-> +       need_lock = !(p == current && thread_group_empty(p));
-> +       if (need_lock) {
-> +               read_lock(&tasklist_lock);
-> +               if (unlikely(!p->signal)) {
-> +                       read_unlock(&tasklist_lock);
-> +                       return;
-> +               }
-> +       } else
-> +               /* See locking comments above */
-> +               smp_rmb();
+> +"	isync		\n"
 
-This patch doesn't try to optimize ->sighand.siglock locking,
-and I think this is right. But this also means we don't need
-rmb() here. It was needed to protect against "another thread
-just exited, cpu can read ->c* values before thread_group_empty()
-without taking siglock" case, now it is not possible.
+shouldnt these two be ISYNC_ON_SMP?
 
-Oleg.
+	Ingo

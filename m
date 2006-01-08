@@ -1,40 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161227AbWAHXSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161238AbWAHXVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161227AbWAHXSu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 18:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161236AbWAHXSt
+	id S1161238AbWAHXVv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 18:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161237AbWAHXVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 18:18:49 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35515 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161227AbWAHXSt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 18:18:49 -0500
-Date: Mon, 9 Jan 2006 00:18:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Olivier Galibert <galibert@pobox.com>,
-       Martin Drab <drab@kepler.fjfi.cvut.cz>, Takashi Iwai <tiwai@suse.de>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-Message-ID: <20060108231818.GA1789@elf.ucw.cz>
-References: <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de> <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de> <20060108020335.GA26114@dspnet.fr.eu.org> <Pine.LNX.4.60.0601080317040.22583@kepler.fjfi.cvut.cz> <20060108132122.GB96834@dspnet.fr.eu.org> <Pine.LNX.4.61.0601081424560.10981@tm8103.perex-int.cz>
+	Sun, 8 Jan 2006 18:21:50 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:44303 "EHLO
+	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S1161228AbWAHXVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 18:21:50 -0500
+Date: Mon, 9 Jan 2006 10:22:17 +1100
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Subject: network code assertion failed
+Message-ID: <20060108232217.GQ18905@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601081424560.10981@tm8103.perex-int.cz>
-X-Warning: Reading this can be dangerous to your mental health.
+Organisation: Furball Inc.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 08-01-06 14:32:40, Jaroslav Kysela wrote:
-> ALSA kernel API is real and binary compatible. If someone require to
-> write an own library, we will document this API, of course, too.
+I've been looking through logfiles for strange things that may have
+occoured whilst I was away and I spotted this:
 
-The documentation would be nice, regardless of other libraries. It is
-kernel API and that really should be documented.
-								Pavel
+UDP: bad checksum. From 68.56.220.203:19520 to x.x.x.x:33435 ulen 8
+printk: 22 messages suppressed.
+UDP: bad checksum. From 68.56.220.203:19520 to x.x.x.x:33438 ulen 8
+KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c (279)
+KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c (148)
+cdrom: open failed.
+cdrom: open failed.
+KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c (279)
+KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c (148)
+TCP: Treason uncloaked! Peer 61.69.94.12:60121/80 shrinks window 146488137:146489597. Repaired.
+
+Can't really give more info on it as the messages were not logged to
+syslog and so I can't check out the timing and hence check for
+strangeness elsewhere. I am wondering if it would've caused the
+webserver to not be able to get a listen socket as it failed during the
+break though.
+
+Kernel is 2.6.14.3.
+
+Network part of the .config is:
+
+CONFIG_NET=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+CONFIG_NETFILTER=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NETDEVICES=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_ASK_IP_FIB_HASH=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_MATCH_ADDRTYPE=y
+CONFIG_IP_NF_MATCH_REALM=y
+CONFIG_IP_NF_MATCH_SCTP=y
+CONFIG_IP_NF_MATCH_DCCP=y
+CONFIG_IP_NF_MATCH_COMMENT=y
+CONFIG_IP_NF_MATCH_HASHLIMIT=y
+CONFIG_IP_NF_MATCH_STRING=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_TARGET_NFQUEUE=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_TARGET_TTL=y
+CONFIG_IP_NF_RAW=y
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+
+There are two routing tables (created with 'ip rule add') for two interfaces
+also. Both interfaces are e1000s.
 
 -- 
-Thanks, Sharp!
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

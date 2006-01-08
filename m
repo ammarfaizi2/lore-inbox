@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161188AbWAHTmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932754AbWAHT5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161188AbWAHTmD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 14:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWAHTmB
+	id S932754AbWAHT5a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 14:57:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932761AbWAHT5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 14:42:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19356 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161141AbWAHTl5 (ORCPT
+	Sun, 8 Jan 2006 14:57:30 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4511 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932754AbWAHT52 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 14:41:57 -0500
-Date: Sun, 8 Jan 2006 11:41:28 -0800 (PST)
+	Sun, 8 Jan 2006 14:57:28 -0500
+Date: Sun, 8 Jan 2006 11:56:21 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: "Brown, Len" <len.brown@intel.com>
-cc: "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+To: Martin Langhoff <martin.langhoff@gmail.com>
+cc: "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
        linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-Subject: RE: git pull on Linux/ACPI release tree
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.64.0601081111190.3169@g5.osdl.org>
+Subject: Re: git pull on Linux/ACPI release tree
+In-Reply-To: <46a038f90601081119r39014fbi995cc8b6e95774da@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0601081141450.3169@g5.osdl.org>
 References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
+ <46a038f90601081119r39014fbi995cc8b6e95774da@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,91 +27,70 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 8 Jan 2006, Brown, Len wrote:
->
-> Perhaps the tools should try to support what "a lot of people"
-> expect, rather than making "a lot of people" do extra work
-> because of the tools?
+On Mon, 9 Jan 2006, Martin Langhoff wrote:
 > 
-> Call me old fashioned, but I believe that tools are supposed to
-> make work easier, not harder.
+> I think it does. All the tricky stuff that David and Junio have been
+> discussing is actually done very transparently by
+> 
+>     git-rebase <upstream>
 
-They DO.
+Yes, it's fairly easy to do. That said, I would actually discourage it. I 
+haven't said anything to David, because he is obviously very comfy with 
+the git usage, and it _does_ result in cleaner trees, so especially since 
+the networking code ends up being the source of a lot of changes, the 
+extra cleanup stage that David does might actually be worth it for that 
+case.
 
-Len, you're doing EXTRA WORK that is pointless.
+But git is actually designed to have parallel development, and what David 
+does is to basically artificially linearize it. We merge between us often 
+enough that it doesn't really end up losing any historical information 
+(since David can't linearize the stuff that we already merged), but in 
+_theory_ what David does actually does remove the historical context.
 
-Just stop doing the automated merges. Problems solved. It really is that 
-easy. Don't do what David suggests - he does it because he's apparently 
-_so_ comfortable with things that he prefers to do extra work just to keep 
-his trees extra clean (I actually would disagree - but git makes that 
-fairly easy to do, so if you prefer to have as linear a history as 
-possible, you can do it with git pretty easily).
+So "git-rebase" is a tool that is designed to allow maintainers to (as the 
+command says) rebase their own development and re-linearize it, so that 
+they don't see the real history. It's basically the reverse of what Len is 
+doing - Len mixes up his history with other peoples history in order to 
+keep them in sync, while David bassically "re-does" his history to be on 
+top of mine (to keep it _separate_).
 
-Now, I'm only complaining about _automated_ merges. If you have a reason 
-to worry about my tree having clashes with your tree, do a real merge. For 
-example, in your latest pull, you had a 
+The "git-rebase" means that David will always see the development he has 
+done/merged as being "on top" of whatever my most recent tree is. It's 
+actually a bit scary, because if something goes wrong when David re-bases 
+things, he'll have to clean things up by hand, and git won't help him 
+much, but hey, it works for him because (a) things seldom go wrong and (b) 
+he appears so comfortable with the tool that he _can_ fix things up when 
+they do go wrong.
 
-	"pull linus into release branch"
+And yes, git-rebase can be very convenient. It has some problems too 
+(which is the other reason I don't try to convince other maintainers to 
+use it): because it re-writes history, a change that _might_ have worked 
+in its original place in history might no longer work after a rebase if it 
+depended on something subtle that used to be true but no longer is in the 
+new place that it has been rebased to.
 
-merge, where you merged my v2.6.15 tree. That makes perfect sense.
+Which just means that a commit that was tested and found to be working 
+might suddenly not work any more, which can be very surprising ("But I 
+didn't change anything!").
 
-What I object to is that there were _also_ two automated merges within ten 
-hours or each other, with absolutely _zero_ development in your tree in 
-between. Why did you do that in your development tree? By _definition_ you 
-had done zero development. You just tracked the development in _my_ tree.
+On the other hand, this is no different from doing a merge of two 
+independent streams of development, and getting a new bug that didn't 
+exist in either of the two, just because they changed the assumptions of 
+each other (ie not a _mismerge_, but simply two developers changing 
+something that the other depended on it, and the bug only appears when 
+both the working trees are merged and the end result no longer works).
 
-In case you wonder, the two commits I'm talking about are:
+So my suggested git usage is to _not_ play games. Neither do too-frequent
+merges _nor_ play games with git-rebase.
 
-	add5b5ee992e40c9cd8697ea94c223628be162a7
-	25da0974601fc8096461f3d3f7ca3aab8e79adfb
+That said, git-rebase (and associated tools like "git-cherry-pick" etc) 
+can be a very powerful tool, especially if you've screwed something up, 
+and want to clean things up. Re-doing history because you realized that a 
+you did something stupid that you don't want to admit to anybody else.
 
-and neither of them have any reason to be in a development tree. You 
-didn't develop them.
+So trying out git-rebase and git-cherry-pick just in case you decide to 
+want to use them might be worthwhile. Making it part of your daily routine 
+like David has done? Somewhat questionable, but hey, it seems to be 
+working for David, and it does make some things much easier, so..
 
-They are real merges, because you had a trivial patch in your tree 
-(changing the acpi-devel mailing list address) that I didn't have, so when 
-you pulled, your end result was thus always different from something I had 
-(so you did a real "merge", even though it was totally trivial), but the 
-point is that there is a difference between "the ACPI development tree" 
-and "the tree that has random ACPI patches and then tracks Linus' tree as 
-closely as possible".
-
-See?
-
-That's the most egregious example. There's two unnecessary pulls on 
-December 28 and 29th too (commits 0a5296dc and c1a959d8).
-
-You can do
-
-	gitk 0aec63e..f9a204e1 
-
-to see exactly what I see when I pulled from you. 11 commits, 5 of which 
-are just trivial merges that are no development, just tracking _my_ tree. 
-Of those, one makes sense (tracking a release).
-
-(NOTE NOTE NOTE! It does make sense to track my tree in case you do big 
-changes and you worry about clashes. Then you would want to synchronize 
-those big changes with my changes, so that you can resolve any clashes 
-early. So I'm not saying that tracking trees is always bad: I'm saying 
-that doing so _unnecessarily_ is bad, because it adds no value, and it 
-just makes the history harder to read).
-
-Now, most people don't read the history. It gets messy enough quickly 
-enough that it's hard to read anyway over time. My tree has tons of _real_ 
-merges anyway, since it's by definition the one that is used for most 
-synchronization, so my tree is always pretty hard to follow.
-
-But my guess is that this probably makes it harder for _you_ to see what 
-you've done too. If you didn't merge with me, then "git log" would show 
-just your own changes at the top, and that's likely what you care most 
-about anyway, no?
-
-Also, if you didn't pull from me, and you decided that you needed to re-do 
-your tree (let's say that you notice that one of your commits was bad 
-_before_ you ask me to pull from your tree), then you'd also have an 
-easier time re-creating your own development without that buggy change, 
-exactly because _your_ tree wouldn't have my changed mixed up in it.
-
-So your merges likely make git harder to use for you, not easier.
-
-		Linus
+			Linus

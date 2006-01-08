@@ -1,50 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161154AbWAHTlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161188AbWAHTmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161154AbWAHTlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 14:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWAHTlF
+	id S1161188AbWAHTmD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 14:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWAHTmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 14:41:05 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:8102 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1161154AbWAHTlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 14:41:04 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: vherva@vianova.fi, linux-kernel@vger.kernel.org
-Subject: Re: oops pauser.
-Date: Mon, 09 Jan 2006 06:40:57 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <6cq2s1d3glnj56pcrqlj84s8ltilmo6jfp@4ax.com>
-References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr> <20060105103339.GG20809@redhat.com> <20060108133822.GD31624@vianova.fi> <20060108055322.18d4236e.rdunlap@xenotime.net>
-In-Reply-To: <20060108055322.18d4236e.rdunlap@xenotime.net>
-X-Mailer: Forte Agent 2.0/32.652
+	Sun, 8 Jan 2006 14:42:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:19356 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161141AbWAHTl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 14:41:57 -0500
+Date: Sun, 8 Jan 2006 11:41:28 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Brown, Len" <len.brown@intel.com>
+cc: "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+Subject: RE: git pull on Linux/ACPI release tree
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.64.0601081111190.3169@g5.osdl.org>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006 05:53:22 -0800, "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
 
->On Sun, 8 Jan 2006 15:38:22 +0200 Ville Herva wrote:
+
+On Sun, 8 Jan 2006, Brown, Len wrote:
 >
->> On Thu, Jan 05, 2006 at 05:33:39AM -0500, you [Dave Jones] wrote:
->> > 
->> > If I had any faith in the sturdyness of the floppy driver, I'd
->> > recommend someone looked into a 'dump oops to floppy' patch, but
->> > it too relies on a large part of the system being in a sane
->> > enough state to write blocks out to disk.
->> 
->> I believe kmsgdump (http://www.xenotime.net/linux/kmsgdump/) uses its own
->> minimal 16-bit floppy driver to save the oops dump. 
->
->It just switches to real mode and uses BIOS calls.
+> Perhaps the tools should try to support what "a lot of people"
+> expect, rather than making "a lot of people" do extra work
+> because of the tools?
+> 
+> Call me old fashioned, but I believe that tools are supposed to
+> make work easier, not harder.
 
-So would it be viable to take over the screen in similar fashion?
+They DO.
 
-Set it to 80x50 in BIOS and dump there --> call it the Penguin Oops 
-screen, or Poops for short :o)
+Len, you're doing EXTRA WORK that is pointless.
 
-Grant.
+Just stop doing the automated merges. Problems solved. It really is that 
+easy. Don't do what David suggests - he does it because he's apparently 
+_so_ comfortable with things that he prefers to do extra work just to keep 
+his trees extra clean (I actually would disagree - but git makes that 
+fairly easy to do, so if you prefer to have as linear a history as 
+possible, you can do it with git pretty easily).
+
+Now, I'm only complaining about _automated_ merges. If you have a reason 
+to worry about my tree having clashes with your tree, do a real merge. For 
+example, in your latest pull, you had a 
+
+	"pull linus into release branch"
+
+merge, where you merged my v2.6.15 tree. That makes perfect sense.
+
+What I object to is that there were _also_ two automated merges within ten 
+hours or each other, with absolutely _zero_ development in your tree in 
+between. Why did you do that in your development tree? By _definition_ you 
+had done zero development. You just tracked the development in _my_ tree.
+
+In case you wonder, the two commits I'm talking about are:
+
+	add5b5ee992e40c9cd8697ea94c223628be162a7
+	25da0974601fc8096461f3d3f7ca3aab8e79adfb
+
+and neither of them have any reason to be in a development tree. You 
+didn't develop them.
+
+They are real merges, because you had a trivial patch in your tree 
+(changing the acpi-devel mailing list address) that I didn't have, so when 
+you pulled, your end result was thus always different from something I had 
+(so you did a real "merge", even though it was totally trivial), but the 
+point is that there is a difference between "the ACPI development tree" 
+and "the tree that has random ACPI patches and then tracks Linus' tree as 
+closely as possible".
+
+See?
+
+That's the most egregious example. There's two unnecessary pulls on 
+December 28 and 29th too (commits 0a5296dc and c1a959d8).
+
+You can do
+
+	gitk 0aec63e..f9a204e1 
+
+to see exactly what I see when I pulled from you. 11 commits, 5 of which 
+are just trivial merges that are no development, just tracking _my_ tree. 
+Of those, one makes sense (tracking a release).
+
+(NOTE NOTE NOTE! It does make sense to track my tree in case you do big 
+changes and you worry about clashes. Then you would want to synchronize 
+those big changes with my changes, so that you can resolve any clashes 
+early. So I'm not saying that tracking trees is always bad: I'm saying 
+that doing so _unnecessarily_ is bad, because it adds no value, and it 
+just makes the history harder to read).
+
+Now, most people don't read the history. It gets messy enough quickly 
+enough that it's hard to read anyway over time. My tree has tons of _real_ 
+merges anyway, since it's by definition the one that is used for most 
+synchronization, so my tree is always pretty hard to follow.
+
+But my guess is that this probably makes it harder for _you_ to see what 
+you've done too. If you didn't merge with me, then "git log" would show 
+just your own changes at the top, and that's likely what you care most 
+about anyway, no?
+
+Also, if you didn't pull from me, and you decided that you needed to re-do 
+your tree (let's say that you notice that one of your commits was bad 
+_before_ you ask me to pull from your tree), then you'd also have an 
+easier time re-creating your own development without that buggy change, 
+exactly because _your_ tree wouldn't have my changed mixed up in it.
+
+So your merges likely make git harder to use for you, not easier.
+
+		Linus

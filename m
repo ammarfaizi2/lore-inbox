@@ -1,111 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWAHBLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbWAHBXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161120AbWAHBLm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 20:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbWAHBLm
+	id S1161124AbWAHBXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 20:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161125AbWAHBXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 20:11:42 -0500
-Received: from uproxy.gmail.com ([66.249.92.199]:12604 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161120AbWAHBLl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 20:11:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=KAq5gs21jq19ArxCcmqSaD3OD4bY9dGGJvLDavVawfSo/V8k9wgnBbHuBIyLJDu7fDHk41QxstdzVHivkP/NsdLcgno3Zy7aFSUoJPxQszWDnh4+iOLxBh92/Lw2Zl7mpvhRNTbQvATBvAKM3x7TrYmmf+h0zSeIR1+PB6fm6AY=
-Date: Sun, 8 Jan 2006 04:28:35 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Pierre Ossman <drzeus@drzeus.cx>
-Cc: rmk+lkml@arm.linux.org.uk, Pierre Ossman <drzeus-list@drzeus.cx>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Lindent wbsd driver
-Message-ID: <20060108012835.GA9815@mipter.zuzino.mipt.ru>
-References: <20060107231747.29389.80042.stgit@poseidon.drzeus.cx>
+	Sat, 7 Jan 2006 20:23:47 -0500
+Received: from bay103-f39.bay103.hotmail.com ([65.54.174.49]:36879 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1161124AbWAHBXr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 20:23:47 -0500
+Message-ID: <BAY103-F39233F9F5FF4FEFA175808DF230@phx.gbl>
+X-Originating-IP: [70.131.120.122]
+X-Originating-Email: [dravet@hotmail.com]
+In-Reply-To: <20060107210544.GM9402@redhat.com>
+From: "Jason Dravet" <dravet@hotmail.com>
+To: davej@redhat.com, linux-kernel@vger.kernel.org, xavier.bestel@free.fr
+Subject: Re: wrong number of serial port detected
+Date: Sat, 07 Jan 2006 19:23:46 -0600
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060107231747.29389.80042.stgit@poseidon.drzeus.cx>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 08 Jan 2006 01:23:46.0563 (UTC) FILETIME=[2BDE2530:01C613F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 12:17:48AM +0100, Pierre Ossman wrote:
-> Fix the coding style in the wbsd driver once and for all.
-
-> --- a/drivers/mmc/wbsd.c
-> +++ b/drivers/mmc/wbsd.c
-> @@ -61,21 +61,21 @@
->  #ifdef CONFIG_PNP
->  
->  static const struct pnp_device_id pnp_dev_table[] = {
-> -	{ "WEC0517", 0 },
-> -	{ "WEC0518", 0 },
-> -	{ "", 0 },
-> +	{"WEC0517", 0},
-> +	{"WEC0518", 0},
-> +	{"", 0},
-
-Was OK.
-
-> -#endif /* CONFIG_PNP */
-> +#endif				/* CONFIG_PNP */
-
-Was OK.
-
-> +static inline char *wbsd_kmap_sg(struct wbsd_host *host)
->  {
->  	host->mapped_sg = kmap_atomic(host->cur_sg->page, KM_BIO_SRC_IRQ) +
-> -		host->cur_sg->offset;
-> +	    host->cur_sg->offset;
-
-Doesn't make sense.
-
-> +	for (i = 0; i < 4; i++) {
->  		cmd->resp[i] =
-> -			wbsd_read_index(host, WBSD_IDX_RESP1 + i * 4) << 24;
-> +		    wbsd_read_index(host, WBSD_IDX_RESP1 + i * 4) << 24;
->  		cmd->resp[i] |=
-> -			wbsd_read_index(host, WBSD_IDX_RESP2 + i * 4) << 16;
-> +		    wbsd_read_index(host, WBSD_IDX_RESP2 + i * 4) << 16;
->  		cmd->resp[i] |=
-> -			wbsd_read_index(host, WBSD_IDX_RESP3 + i * 4) << 8;
-> +		    wbsd_read_index(host, WBSD_IDX_RESP3 + i * 4) << 8;
->  		cmd->resp[i] |=
-> -			wbsd_read_index(host, WBSD_IDX_RESP4 + i * 4) << 0;
-> +		    wbsd_read_index(host, WBSD_IDX_RESP4 + i * 4) << 0;
-
-Doesn't make sense.
-
-> @@ -967,15 +924,15 @@ static void wbsd_request(struct mmc_host
->  		return;
->  	}
+>Make the number of UARTs registered configurable.
+>Also add a nr_uarts module option to the 8250 code
+>to override this, up to a maximum of CONFIG_SERIAL_8250_NR_UARTS
 >
-> -done:
-> +      done:
-
-Was OK. GNU indent is broken wrt labels.
-
-"Was OK" for all labels below.
-
-
->  	dma_unmap_single(host->mmc->dev, host->dma_addr, WBSD_DMA_SIZE,
-> -		DMA_BIDIRECTIONAL);
-> -	host->dma_addr = (dma_addr_t)NULL;
-> +			 DMA_BIDIRECTIONAL);
-> +	host->dma_addr = (dma_addr_t) NULL;
-
-Leave space after cast or not?
-
-> @@ -2112,9 +2049,9 @@ static struct platform_driver wbsd_drive
+>This should appease people who complain about a proliferation
+>of /dev/ttyS & /sysfs nodes whilst at the same time allowing
+>a single kernel image to support the rarer occasions of
+>lots of devices.
 >
->  	.suspend	= wbsd_platform_suspend,
->  	.resume		= wbsd_platform_resume,
-> -	.driver		= {
-> -		.name	= DRIVER_NAME,
-> -	},
-> +	.driver 	= {
-> +				.name	= DRIVER_NAME,
-> +			},
+Not to keep complaining, but I now have the following issue.  I running 
+Fedora Cores  2.6.15-1.1826 kernel.  When I run dmesg I now see this:
 
-Was OK.
+Serial: 8250/16550 driver $Revision: 1.90 $ 2 ports, IRQ sharing enabled
+serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+00:06: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+
+before 2.6.15 I saw
+Serial: 8250/16550 driver $Revision: 1.90 $ 32 ports, IRQ sharing enabled
+
+The serial driver now correctly reports that I have two serial ports instead 
+of 32.  So shouldn't the patch register the minimum of 
+CONFIG_SERIAL_8250_NR_UARTS and the number of serial ports detected by the 
+serial driver?
+
+Thanks,
+Jason Dravet
+
 

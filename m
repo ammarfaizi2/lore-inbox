@@ -1,181 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161127AbWAHBit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161130AbWAHBtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161127AbWAHBit (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 20:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161128AbWAHBit
+	id S1161130AbWAHBtE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 20:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbWAHBtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 20:38:49 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:35719 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161127AbWAHBit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 20:38:49 -0500
-Message-ID: <43C06D1F.2020702@zytor.com>
-Date: Sat, 07 Jan 2006 17:38:39 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Drop vmlinux dependency from "make install" (take 2)
-References: <43C06420.1080300@zytor.com> <Pine.LNX.4.64.0601071707160.3169@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601071707160.3169@g5.osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------060701030109050609070601"
+	Sat, 7 Jan 2006 20:49:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51681 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161130AbWAHBtC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 20:49:02 -0500
+Date: Sat, 7 Jan 2006 17:45:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN and
+ remove broken MTD_OBSOLETE_CHIPS drivers
+Message-Id: <20060107174523.460f1849.akpm@osdl.org>
+In-Reply-To: <1136680734.30348.34.camel@pmac.infradead.org>
+References: <20060107220702.GZ3774@stusta.de>
+	<1136678409.30348.26.camel@pmac.infradead.org>
+	<20060108002457.GE3774@stusta.de>
+	<1136680734.30348.34.camel@pmac.infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060701030109050609070601
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> > > 2. What was the reason for marking them obsolete?
+>  > 
+>  > The changelog says:
+>  >  - David Woodhouse: large MTD and JFFS[2] update
+> 
+>  I didn't ask who; I knew that. I asked you _why_. Admittedly, I happen
+>  to know that too - but I want to know if _you_ know it.
+> 
+>  Since you've taken it upon yourself to decide the timescale of the
+>  removal, surely it's reasonable to expect that you do actually know what
+>  you're removing and why it's obsolescent?
+>
 
+Hey, Adrian isn't an MTD developer - give him a break.
 
---------------060701030109050609070601
-Content-Type: text/plain;
- name="clean-install"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="clean-install"
+What he's doing here is to poke other maintainers into getting the tree
+cleaned up.  It's a useful thing to do.
 
-[i386, x86_64] Remove the dependency vmlinux -> install
-
-This removes the dependency from vmlinux to install, thus avoiding the
-current situation where "make install" has a nasty tendency to leave
-root-turds in the working directory.
-
-It also updates x86-64 to be in sync with i386.
-
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
-
-diff --git a/arch/i386/Makefile b/arch/i386/Makefile
-index d121ea1..77bb67b 100644
---- a/arch/i386/Makefile
-+++ b/arch/i386/Makefile
-@@ -125,7 +125,6 @@ zdisk bzdisk: vmlinux
- fdimage fdimage144 fdimage288: vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) $@
- 
--install: vmlinux
- install kernel_install:
- 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) install
- 
-diff --git a/arch/i386/boot/Makefile b/arch/i386/boot/Makefile
-index 1e71382..0fea75d 100644
---- a/arch/i386/boot/Makefile
-+++ b/arch/i386/boot/Makefile
-@@ -100,5 +100,5 @@ zlilo: $(BOOTIMAGE)
- 	cp System.map $(INSTALL_PATH)/
- 	if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
- 
--install: $(BOOTIMAGE)
-+install:
- 	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $< System.map "$(INSTALL_PATH)"
-diff --git a/arch/i386/boot/install.sh b/arch/i386/boot/install.sh
-index f17b40d..7c88c9b 100644
---- a/arch/i386/boot/install.sh
-+++ b/arch/i386/boot/install.sh
-@@ -19,6 +19,18 @@
- #   $4 - default install path (blank if root directory)
- #
- 
-+verify () {
-+	if [ ! -f "$1" ]; then
-+		echo "Missing file: $1" 1>&2
-+		echo 'You need to run "make" before "make install".' 1>&2
-+		exit 1
-+ 	fi
-+}
-+
-+# Make sure the files actually exist
-+verify "$2"
-+verify "$3"
-+
- # User may have a custom install script
- 
- if [ -x ~/bin/${CROSS_COMPILE}installkernel ]; then exec ~/bin/${CROSS_COMPILE}installkernel "$@"; fi
-diff --git a/arch/x86_64/Makefile b/arch/x86_64/Makefile
-index a9cd42e..1d6e735 100644
---- a/arch/x86_64/Makefile
-+++ b/arch/x86_64/Makefile
-@@ -80,9 +80,12 @@ bzlilo: vmlinux
- bzdisk: vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) zdisk
- 
--install fdimage fdimage144 fdimage288: vmlinux
-+fdimage fdimage144 fdimage288: vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) $@
- 
-+install kernel_install:
-+	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) install
-+
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
- 
-diff --git a/arch/x86_64/boot/Makefile b/arch/x86_64/boot/Makefile
-index 18c6e91..29f8396 100644
---- a/arch/x86_64/boot/Makefile
-+++ b/arch/x86_64/boot/Makefile
-@@ -98,5 +98,5 @@ zlilo: $(BOOTIMAGE)
- 	cp System.map $(INSTALL_PATH)/
- 	if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
- 
--install: $(BOOTIMAGE)
-+install:
- 	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $(BOOTIMAGE) System.map "$(INSTALL_PATH)"
-diff --git a/arch/x86_64/boot/install.sh b/arch/x86_64/boot/install.sh
-deleted file mode 100644
-index 198af15..9c99df6
---- a/arch/x86_64/boot/install.sh
-+++ /dev/null
-@@ -1,40 +0,0 @@
--#!/bin/sh
--#
--# arch/x86_64/boot/install.sh
--#
--# This file is subject to the terms and conditions of the GNU General Public
--# License.  See the file "COPYING" in the main directory of this archive
--# for more details.
--#
--# Copyright (C) 1995 by Linus Torvalds
--#
--# Adapted from code in arch/i386/boot/Makefile by H. Peter Anvin
--#
--# "make install" script for i386 architecture
--#
--# Arguments:
--#   $1 - kernel version
--#   $2 - kernel image file
--#   $3 - kernel map file
--#   $4 - default install path (blank if root directory)
--#
--
--# User may have a custom install script
--
--if [ -x ~/bin/${CROSS_COMPILE}installkernel ]; then exec ~/bin/${CROSS_COMPILE}installkernel "$@"; fi
--if [ -x /sbin/${CROSS_COMPILE}installkernel ]; then exec /sbin/${CROSS_COMPILE}installkernel "$@"; fi
--
--# Default install - same as make zlilo
--
--if [ -f $4/vmlinuz ]; then
--	mv $4/vmlinuz $4/vmlinuz.old
--fi
--
--if [ -f $4/System.map ]; then
--	mv $4/System.map $4/System.old
--fi
--
--cat $2 > $4/vmlinuz
--cp $3 $4/System.map
--
--if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
-diff --git a/arch/x86_64/boot/install.sh b/arch/x86_64/boot/install.sh
-new file mode 120000
-index 198af15..9c99df6
---- /dev/null
-+++ b/arch/x86_64/boot/install.sh
-@@ -0,0 +1 @@
-+../../i386/boot/install.sh
-\ No newline at end of file
-
---------------060701030109050609070601--
+If you, an MTD maintainer, can tell him what we _should_ be doing, I'm sure
+Adrian would help.

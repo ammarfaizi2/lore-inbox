@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161077AbWAHT15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbWAHTaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161077AbWAHT15 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 14:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161102AbWAHT15
+	id S1161104AbWAHTaT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 14:30:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbWAHTaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 14:27:57 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:24993 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1161077AbWAHT14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 14:27:56 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Octavio Alvarez Piza <alvarezp@alvarezp.ods.org>
-Cc: linux-kernel@vger.kernel.org, Willy Tarreau <willy@w.ods.org>,
-       Markus Rechberger <mrechberger@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
-Date: Mon, 09 Jan 2006 06:27:52 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <shp2s11s37hesljm15qej3s0fq9qal2d32@4ax.com>
-References: <l6b1s152vo49j7dmthvbhoqej1modrs2k7@4ax.com> <d9def9db0601072258v39ac4334kccc843838b436bba@mail.gmail.com> <gre1s1lkr687o2npgom26gqq3etgjdjgpo@4ax.com> <20060108095741.GH7142@w.ods.org> <eto1s19q78qg34o5uq37o46t30f3adfn0q@4ax.com> <20060108102101.770a395f@octavio.alvarezp.pri>
-In-Reply-To: <20060108102101.770a395f@octavio.alvarezp.pri>
-X-Mailer: Forte Agent 2.0/32.652
+	Sun, 8 Jan 2006 14:30:19 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:29353 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161104AbWAHTaS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 14:30:18 -0500
+Date: Sun, 8 Jan 2006 20:29:43 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Greg KH <greg@kroah.com>
+cc: Adrian Bunk <bunk@stusta.de>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-git2: CONFIGFS_FS shows up as M/y choice, help says "if
+ unsure, say N"
+In-Reply-To: <20060108162743.GA27234@kroah.com>
+Message-ID: <Pine.LNX.4.61.0601082029030.15902@yvahk01.tjqt.qr>
+References: <5a4c581d0601061310j3f4eb310o1d68c0b87c278685@mail.gmail.com>
+ <20060106223032.GZ18439@ca-server1.us.oracle.com> <20060107220959.GA3774@stusta.de>
+ <20060108021630.GA3771@kroah.com> <Pine.LNX.4.61.0601081247150.30148@yvahk01.tjqt.qr>
+ <20060108162743.GA27234@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006 10:21:01 -0800, Octavio Alvarez Piza <alvarezp@alvarezp.ods.org> wrote:
-
->On Sun, 08 Jan 2006 22:05:43 +1100
->Grant Coady <gcoady@gmail.com> wrote:
+>> >> Why is CONFIGFS_FS a user-visible option?
+>> >
+>> >I think it should be the same as SYSFS, only changable from the EMBEDDED
+>> >portion.
+>> >
+>> At its present state, no distribution uses configfs afaik, so I'd love to 
+>> have that turned off to not enlarge the kernel binary unnecessary.
 >
->> On Sun, 8 Jan 2006 10:57:41 +0100, Willy Tarreau <willy@w.ods.org> wrote:
->> 
->> > Could you please retest :
->> >  - without the pipe (remove '| cut ...') to avoid inter-process
->> >    communications
->> 
->> I thought it made a difference, then delay back again, I'll try 
->> again tomorrow when I'm more awake.
->> 
->> >You should be able to find one simple pattern which makes the problem
->> >appear/disappear on 2.6. At least, 'cat x.log >/dev/null' should not
->> >take time or that time should be spent in I/O.
->> 
->> Yes, done that and the time went down by ~five seconds.
->
->Just make sure you first read all the file with cat (I'd retry all from
->the initial tests) so you don't add hd-read time to the first command.
+>Well, ocfs2 needs it, and as that just hit mainline, it's a bit unfair
+>to state that no distro uses it (and I think that it's even untrue, look
+>for the distros that ship ocfs2...)
 
-I do notice occasional pauses (just a slight jerkiness) in output 
-from log file, perhaps when it is appended to.  As I wrote earlier, 
-this one liner is something I do fairly often to see what is hitting 
-the web server, the 'cut -c -96' is because I run 96 character 
-wide ssh terminals.
+Well ok. What I mean is: I don't want to have configfs if I do not also 
+want ocfs2.
 
-Grant.
+
+Jan Engelhardt
+-- 

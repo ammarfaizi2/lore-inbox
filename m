@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWAHWZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161153AbWAHWcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWAHWZg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 17:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWAHWZg
+	id S1161153AbWAHWcR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 17:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbWAHWcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 17:25:36 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:683 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S964836AbWAHWZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 17:25:35 -0500
-X-IronPort-AV: i="3.99,344,1131350400"; 
-   d="scan'208"; a="388997880:sNHT18493128986"
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [git pull] InfiniBand updates
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 08 Jan 2006 14:25:25 -0800
-Message-ID: <adaek3i9x2i.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 08 Jan 2006 22:25:25.0997 (UTC) FILETIME=[6C3F19D0:01C614A2]
+	Sun, 8 Jan 2006 17:32:17 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:20559 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S1161153AbWAHWcQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 17:32:16 -0500
+Date: Sun, 8 Jan 2006 16:32:00 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Greg KH <greg@kroah.com>
+Cc: Carlos Manuel Duclos Vergara <carlos@embedded.cl>,
+       kernel-janitors@lists.osdl.org, Kees Cook <kees@outflux.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: MODULE_VERSION useless? (was Re: [KJ] adding missing MODULE_* stuffs)
+Message-ID: <20060108223200.GA14784@lists.us.dell.com>
+References: <20051230000400.GS18040@outflux.net> <20060108204549.GB5864@mipter.zuzino.mipt.ru> <200601081855.17723.carlos@embedded.cl> <20060108215800.GA31398@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060108215800.GA31398@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+On Sun, Jan 08, 2006 at 01:58:00PM -0800, Greg KH wrote:
+> On Sun, Jan 08, 2006 at 06:55:16PM -0300, Carlos Manuel Duclos Vergara wrote:
+> > Hi everyone,
+> > 
+> > I have two ideas about what to do with MODULE_VERSION:
+> > 1.- Defining MODULE_VERSION = KERNEL_VERSION
+> 
+> No.
+> 
+> > 2.- Schedule it for removal in one or two more versions, and automagically use 
+> > the KERNEL_VERSION as module's version.
+> 
+> No, just let the authors of the different drivers that want to use
+> MODULE_VERSION use it (for some people it does matter, and they keep it
+> up to date.)  Everyone else, just don't add it if you don't care about
+> it.
 
-    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+DKMS (http://linux.dell.com/dkms/) uses it to tell if one version is
+newer than another.  For the couple dozen modules Dell regularly cares
+about, the module authors have been doing a good job of keeping
+MODULE_VERSION correct, for exactly this reason.
 
-This tree is also available from kernel.org mirrors at:
+> In short, leave it alone :)
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+Please!
 
-The pull will get the following changes:
-
-Dotan Barak:
-      IB/mthca: Add support for automatic path migration (APM)
-
-Jack Morgenstein:
-      IB/mthca: fix QP size limits for mem-free HCAs
-      IB/umad: fix memory leaks
-      IB/mthca: fix memory user DB table leak
-      IB/mthca: check RDMA limits
-      IB/mthca: correct log2 calculation
-      IB/mthca: don't change driver's copy of attributes if modify QP fails
-      IB/mthca: Fix SRQ cleanup during QP destroy
-      IB/mthca: Fix IB_QP_ACCESS_FLAGS handling.
-      IB/mthca: Fix corner cases in max_rd_atomic value handling in modify QP
-      IB/mthca: fix WQE size calculation in create-srq
-      IB/mthca: check return value in mthca_dev_lim call
-      IB/mthca: check port validity in modify_qp
-      IB/mthca: max_inline_data handling tweaks
-      IB/mthca: fix for SQEr-to-RTS transition in modify QP
-      IB/mthca: fix for RTR-to-RTS transition in modify QP
-      IB/mthca: multiple fixes for multicast group handling
-      IB/uverbs: Fix reference counting on error paths
-      IB/uverbs: Release event file reference on ib_uverbs_create_cq() error
-
-Michael S. Tsirkin:
-      IB/mthca: Fix thinko in mthca_table_find()
-      IB/mthca: create_eq with size not a power of 2
-      IB/mthca: Fill in vendor_err field in completion with error
-
-Ralph Campbell:
-      IB/uverbs: set ah_flags when creating address handle
-      IB: Set GIDs correctly in ib_create_ah_from_wc()
-
-Sean Hefty:
-      IB/cm: correct reported reject code
-      IB/cm: avoid reusing local ID
-
- drivers/infiniband/core/cm.c                |   16 +-
- drivers/infiniband/core/user_mad.c          |    4 
- drivers/infiniband/core/uverbs_cmd.c        |   21 ++
- drivers/infiniband/core/verbs.c             |    4 
- drivers/infiniband/hw/mthca/mthca_cmd.c     |   12 +
- drivers/infiniband/hw/mthca/mthca_cq.c      |   23 ++
- drivers/infiniband/hw/mthca/mthca_eq.c      |    4 
- drivers/infiniband/hw/mthca/mthca_main.c    |    4 
- drivers/infiniband/hw/mthca/mthca_mcg.c     |   54 ++++--
- drivers/infiniband/hw/mthca/mthca_memfree.c |    4 
- drivers/infiniband/hw/mthca/mthca_qp.c      |  265 +++++++++++++++------------
- drivers/infiniband/hw/mthca/mthca_srq.c     |    2 
- 12 files changed, 250 insertions(+), 163 deletions(-)
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbWAHTTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161101AbWAHTUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161084AbWAHTTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 14:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbWAHTTw
+	id S1161101AbWAHTUr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 14:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161102AbWAHTUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 14:19:52 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:7241 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161086AbWAHTTu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 14:19:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e/O7xCaZvulBG3YPXEE5HsUtnLDn9LlKoO+ksT2Vb9QXvhiB7aIMIGTZ0VDB4ME8haKpLfXfe+ZXqt1f8yws6m86UaCDtXyO8wGcqYmQ6OINJWvQWSxvWkfX3cXpnNqSOKZ4JS3GSlwaqMZzLZyHoLBBmNs/PS7Owd3UxOwd4yc=
-Message-ID: <46a038f90601081119r39014fbi995cc8b6e95774da@mail.gmail.com>
-Date: Mon, 9 Jan 2006 08:19:50 +1300
-From: Martin Langhoff <martin.langhoff@gmail.com>
-To: "Brown, Len" <len.brown@intel.com>
-Subject: Re: git pull on Linux/ACPI release tree
-Cc: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       git@vger.kernel.org
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
+	Sun, 8 Jan 2006 14:20:47 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:64926 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1161101AbWAHTUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 14:20:46 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
+Date: Mon, 09 Jan 2006 06:20:41 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <aap2s1diakl9dg7noa8a4p4kr688lhc1b5@4ax.com>
+References: <d9def9db0601072258v39ac4334kccc843838b436bba@mail.gmail.com> <E1EvUp6-0008Ni-00@calista.inka.de> <irf1s1hdoqbsf9cin627gh9tgrsb51htoe@4ax.com> <Pine.LNX.4.61.0601081303140.30148@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0601081303140.30148@yvahk01.tjqt.qr>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/9/06, Brown, Len <len.brown@intel.com> wrote:
-> Perhaps the tools should try to support what "a lot of people"
-> expect, rather than making "a lot of people" do extra work
-> because of the tools?
+On Sun, 8 Jan 2006 13:04:22 +0100 (MET), Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-I think it does. All the tricky stuff that David and Junio have been
-discussing is actually done very transparently by
+>
+>>grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log |cut -c-96
+>>
+>>real    0m1.671s
+>>user    0m0.550s
+>>sys     0m0.300s
+>>grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log |cut -c-96 >/dev/null
+>>
+>>real    0m0.510s
+>>user    0m0.420s
+>>sys     0m0.080s
+>
+>Given that the first command is the first one accessing access_log at 
+>all, then: the second time, access_log is already cached and 
+>therefore can be accessed faster.
 
-    git-rebase <upstream>
+I did repeat measurements to check for variation due to caching, 
+and that is not what is happening, we comparing going out over 
+ssh terminal to dumping output locally.
 
-Now, git-rebase uses git-format-patch <options> | git-am <options> so
-it sometimes has problems merging. In that case, you can choose to
-either resolve the problem (see the doco for how to signal to git-am
-that you've resolved a conflict) or to cancel the rebase. If you
-choose to cancel the rebase, do
-
-   cp .git/refs/heads/{<headname>,<headnamebadrebase>}
-   cat .git/HEAD_ORIG > .git/refs/heads/<headname>
-   git-reset --hard
-   rm -fr .dotest
-
-and you'll be back to where you started. Perhaps this could be rolled
-into something like git-rebase --cancel to make it easier, but that's
-about it. The toolchain definitely supports it.
-
-cheers,
-
-
-martin
+Grant.

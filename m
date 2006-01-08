@@ -1,239 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932773AbWAHVFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932775AbWAHVIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932773AbWAHVFX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 16:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932775AbWAHVFX
+	id S932775AbWAHVIE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932774AbWAHVIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 16:05:23 -0500
-Received: from customers.imt.ru ([212.16.0.33]:27416 "HELO smtp.direct.ru")
-	by vger.kernel.org with SMTP id S932773AbWAHVFV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 16:05:21 -0500
-Date: Mon, 9 Jan 2006 00:06:12 +0300
-From: Crazy AMD K7 <100megabit@mail.ru>
-X-Mailer: The Bat! (v1.46d)
-Reply-To: Crazy AMD K7 <100megabit@mail.ru>
-X-Priority: 3 (Normal)
-Message-ID: <13543542701.20060109000612@mail.ru>
-To: sct@redhat.com
-CC: linux-kernel@vger.kernel.org
-Subject: Oops with process kjournald
+	Sun, 8 Jan 2006 16:08:04 -0500
+Received: from herkules.vianova.fi ([194.100.28.129]:24784 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S932775AbWAHVID
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 16:08:03 -0500
+Date: Sun, 8 Jan 2006 23:07:56 +0200
+From: Ville Herva <vherva@vianova.fi>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <tapas@affenbande.org>,
+       Tomasz =?iso-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060108210756.GD1686@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <20060103231009.GI3831@stusta.de> <Pine.BSO.4.63.0601040048010.29027@rudy.mif.pg.gda.pl> <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <20060104113726.3bd7a649@mango.fruits.de> <1136445395.24475.17.camel@mindpipe> <20060105124317.2d12a85c@mango.fruits.de> <1136483330.31583.5.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------75F71DD9942EB5"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136483330.31583.5.camel@mindpipe>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------------75F71DD9942EB5
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thu, Jan 05, 2006 at 12:48:49PM -0500, you [Lee Revell] wrote:
+> On Thu, 2006-01-05 at 12:43 +0100, Florian Schmidt wrote:
+> > BTW: Don't expect people to always write bug reports. We all know,
+> > people are lazy. More often than not, they simply give up and say
+> > "linux sucks" to their friends. Or if they can differentiate a little
+> > more, they'll say "ALSA sucks" ;) [<- smiley, indicates humor].
+> > Especially those who use closed source apps ;) 
+> 
+> Of course I don't expect every end user with a problem to file a bug
+> report (although Mantis makes it much easier than Bugzilla) but I sure
+> as hell expect people who complain about ALSA on LKML to.
+> 
+> Unless we get some useful bug reports out of it this thread is much ado
+> about nothing.  Come on people, put up or shut up.
+> 
+> https://bugtrack.alsa-project.org/alsa-bug/main_page.php
 
-Hello Stephen and all others.
-I am using RedHat Linux 7.3 (kernel 2.4.32) on pentium machine.
-A feew days ago I have installed a Promise sataII150tx2plus (20575 chipset)
-card and a new 250Gb HDD.
-Periodically I have Ooopses in
-/var/log/messages the ksymoops report on then is attached.
-The filesystem is ext3. Is any ideas why did this happened?
-How to reproduce the Ooops I do not know.
+I would love to make a useful bug report of dmix not working with M-Audio
+Revolution 5.1 (it stutters so badly that it's unusable), but after hours of
+twiddling with asoundrc I still can't figure out if I have it set up
+correctly. Also, I can't get any sound out of headphone output. To me this
+is a sign that perhaps the ALSA config scheme is a bit too complex, although
+more probably, it's just me being too stupid to use it.
 
-What to do?
-------------75F71DD9942EB5
-Content-Type: text/plain; name="oops003.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="oops003.txt"
+In perfect world, both headphone out and dmix should "just work". They do
+"just work" with the OSS binary blob (as does mixing with applications that
+use OSS API.)
 
-a3N5bW9vcHMgMi40LjQgb24gaTU4NiAyLjQuMzIuICBPcHRpb25zIHVzZWQKICAgICAtViAoZGVm
-YXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9tb2R1bGVz
-IChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMzIvIChkZWZhdWx0KQogICAgIC1t
-IC9ib290L1N5c3RlbS5tYXAtMi40LjMyIChkZWZhdWx0KQoKV2FybmluZzogWW91IGRpZCBub3Qg
-dGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbAphc3N1bWUg
-dGhhdCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9kdWxlcyB0aGF0IGFyZSBydW5u
-aW5nCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Ig
-c3ltYm9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBk
-byBub3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBnZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkg
-dGVsbGluZyBtZSB0aGUga2VybmVsIHZlcnNpb24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1
-bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KCkphbiAg
-OCAwMDozMDoyMyBTRVJWRVItMzkga2VybmVsOiBVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxM
-IHBvaW50ZXIgZGVyZWZlcmVuY2UgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAwMDE5CkphbiAgOCAw
-MDozMDoyMyBTRVJWRVItMzkga2VybmVsOiBjMDE2Mjg0NwpKYW4gIDggMDA6MzA6MjMgU0VSVkVS
-LTM5IGtlcm5lbDogKnBkZSA9IDAwMDAwMDAwCkphbiAgOCAwMDozMDoyMyBTRVJWRVItMzkga2Vy
-bmVsOiBPb3BzOiAwMDAwCkphbiAgOCAwMDozMDoyMyBTRVJWRVItMzkga2VybmVsOiBDUFU6ICAg
-IDAKSmFuICA4IDAwOjMwOjIzIFNFUlZFUi0zOSBrZXJuZWw6IEVJUDogICAgMDAxMDpbPGMwMTYy
-ODQ3Pl0gICAgTm90IHRhaW50ZWQKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
-Mi1pMzg2IC1hIGkzODYKSmFuICA4IDAwOjMwOjIzIFNFUlZFUi0zOSBrZXJuZWw6IEVGTEFHUzog
-MDAwMTAyMDYKSmFuICA4IDAwOjMwOjIzIFNFUlZFUi0zOSBrZXJuZWw6IGVheDogYzNhOWZlYjAg
-ICBlYng6IDAwMDAwMDAxICAgZWN4OiBjMzMyNmNlMCAgIGVkeDogMDAwMDAwMDMKSmFuICA4IDAw
-OjMwOjIzIFNFUlZFUi0zOSBrZXJuZWw6IGVzaTogYzA5MzBjZDggICBlZGk6IDAwMDAwMDAwICAg
-ZWJwOiBjMDkzMGJlMCAgIGVzcDogYzNhOWZlNDQKSmFuICA4IDAwOjMwOjIzIFNFUlZFUi0zOSBr
-ZXJuZWw6IGRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOApKYW4gIDggMDA6MzA6MjMgU0VS
-VkVSLTM5IGtlcm5lbDogUHJvY2VzcyBram91cm5hbGQgKHBpZDogMTI2LCBzdGFja3BhZ2U9YzNh
-OWYwMDApCkphbiAgOCAwMDozMDoyMyBTRVJWRVItMzkga2VybmVsOiBTdGFjazogMDAwMDAwMDAg
-MDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDMgYzMzMjZjZTAgYzA3ZWJhOTAgMDAwMDFhMmMgYzEx
-ZjkzNzQgCkphbiAgOCAwMDozMDoyMyBTRVJWRVItMzkga2VybmVsOiAgICAgICAgMDAwMDAyMDIg
-YzAxZDA3MjggMDAwMDAyMDIgMDAwMDAwMDAgYzExZjkzNzQgMDAwMDAwMDEgYzExY2NjMDAgYzAx
-ZDA5OWMgCkphbiAgOCAwMDozMDoyNCBTRVJWRVItMzkga2VybmVsOiAgICAgICAgYzExZjkzNzQg
-MDAwMDAwMDAgYzExZjkzNzQgYzA5ZTkwMDAgYzA5ZTkwMDAgMDAwMDAwMDggYzAxZDBjNDIgYzEx
-Y2NjMDAgCkphbiAgOCAwMDozMDoyNCBTRVJWRVItMzkga2VybmVsOiBDYWxsIFRyYWNlOiAgICBb
-PGMwMWQwNzI4Pl0gWzxjMDFkMDk5Yz5dIFs8YzAxZDBjNDI+XSBbPGMwMTY1OTk2Pl0gWzxjMDE2
-NTgwMD5dCkphbiAgOCAwMDozMDoyNCBTRVJWRVItMzkga2VybmVsOiAgIFs8YzAxMDU1NzY+XSBb
-PGMwMTY1ODIwPl0KSmFuICA4IDAwOjMwOjI0IFNFUlZFUi0zOSBrZXJuZWw6IENvZGU6IDhiIDQz
-IDE4IGE5IDA0IDAwIDAwIDAwIDc1IDQxIDgzIGUwIDAyIDc0IDFhIGZmIDQzIDEwIDhiIDU0IAoK
-Pj5FSVA7IGMwMTYyODQ3IDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszMjcvMTJjYz4gICA8
-PT09PT0KVHJhY2U7IGMwMWQwNzI4IDxzY3NpX3F1ZXVlX25leHRfcmVxdWVzdCszOC9mMD4KVHJh
-Y2U7IGMwMWQwOTljIDxfX3Njc2lfZW5kX3JlcXVlc3QrMWJjLzFkMD4KVHJhY2U7IGMwMWQwYzQy
-IDxzY3NpX2lvX2NvbXBsZXRpb24rMWEyLzQ1MD4KVHJhY2U7IGMwMTY1OTk2IDxram91cm5hbGQr
-MTc2LzJkMD4KVHJhY2U7IGMwMTY1ODAwIDxjb21taXRfdGltZW91dCswLzEwPgpUcmFjZTsgYzAx
-MDU1NzYgPGFyY2hfa2VybmVsX3RocmVhZCsyNi8zMD4KVHJhY2U7IGMwMTY1ODIwIDxram91cm5h
-bGQrMC8yZDA+CkNvZGU7ICBjMDE2Mjg0NyA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzI3
-LzEyY2M+CjAwMDAwMDAwIDxfRUlQPjoKQ29kZTsgIGMwMTYyODQ3IDxqb3VybmFsX2NvbW1pdF90
-cmFuc2FjdGlvbiszMjcvMTJjYz4gICA8PT09PT0KICAgMDogICA4YiA0MyAxOCAgICAgICAgICAg
-ICAgICAgIG1vdiAgICAweDE4KCVlYngpLCVlYXggICA8PT09PT0KQ29kZTsgIGMwMTYyODRhIDxq
-b3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszMmEvMTJjYz4KICAgMzogICBhOSAwNCAwMCAwMCAw
-MCAgICAgICAgICAgIHRlc3QgICAkMHg0LCVlYXgKQ29kZTsgIGMwMTYyODRmIDxqb3VybmFsX2Nv
-bW1pdF90cmFuc2FjdGlvbiszMmYvMTJjYz4KICAgODogICA3NSA0MSAgICAgICAgICAgICAgICAg
-ICAgIGpuZSAgICA0YiA8X0VJUCsweDRiPiBjMDE2Mjg5MiA8am91cm5hbF9jb21taXRfdHJhbnNh
-Y3Rpb24rMzcyLzEyY2M+CkNvZGU7ICBjMDE2Mjg1MSA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rp
-b24rMzMxLzEyY2M+CiAgIGE6ICAgODMgZTAgMDIgICAgICAgICAgICAgICAgICBhbmQgICAgJDB4
-MiwlZWF4CkNvZGU7ICBjMDE2Mjg1NCA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzM0LzEy
-Y2M+CiAgIGQ6ICAgNzQgMWEgICAgICAgICAgICAgICAgICAgICBqZSAgICAgMjkgPF9FSVArMHgy
-OT4gYzAxNjI4NzAgPGpvdXJuYWxfY29tbWl0X3RyYW5zYWN0aW9uKzM1MC8xMmNjPgpDb2RlOyAg
-YzAxNjI4NTYgPGpvdXJuYWxfY29tbWl0X3RyYW5zYWN0aW9uKzMzNi8xMmNjPgogICBmOiAgIGZm
-IDQzIDEwICAgICAgICAgICAgICAgICAgaW5jbCAgIDB4MTAoJWVieCkKQ29kZTsgIGMwMTYyODU5
-IDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszMzkvMTJjYz4KICAxMjogICA4YiA1NCAwMCAw
-MCAgICAgICAgICAgICAgIG1vdiAgICAweDAoJWVheCwlZWF4LDEpLCVlZHgKCgoxIHdhcm5pbmcg
-aXNzdWVkLiAgUmVzdWx0cyBtYXkgbm90IGJlIHJlbGlhYmxlLgo=
+With Intel i815 integrated sound, ALSA dmix does work.
 
-------------75F71DD9942EB5
-Content-Type: text/plain; name="oops002.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="oops002.txt"
 
-a3N5bW9vcHMgMi40LjQgb24gaTU4NiAyLjQuMzIuICBPcHRpb25zIHVzZWQKICAgICAtViAoZGVm
-YXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9tb2R1bGVz
-IChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMzIvIChkZWZhdWx0KQogICAgIC1t
-IC9ib290L1N5c3RlbS5tYXAtMi40LjMyIChkZWZhdWx0KQoKV2FybmluZzogWW91IGRpZCBub3Qg
-dGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbAphc3N1bWUg
-dGhhdCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9kdWxlcyB0aGF0IGFyZSBydW5u
-aW5nCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Ig
-c3ltYm9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBk
-byBub3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBnZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkg
-dGVsbGluZyBtZSB0aGUga2VybmVsIHZlcnNpb24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1
-bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KCkphbiAg
-NiAyMzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiBVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxM
-IHBvaW50ZXIgZGVyZWZlcmVuY2UgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAwMDE5CkphbiAgNiAy
-Mzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiBjMDE2Mjg0NwpKYW4gIDYgMjM6NTY6MTkgU0VSVkVS
-LTM5IGtlcm5lbDogKnBkZSA9IDAwMDAwMDAwCkphbiAgNiAyMzo1NjoxOSBTRVJWRVItMzkga2Vy
-bmVsOiBPb3BzOiAwMDAwCkphbiAgNiAyMzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiBDUFU6ICAg
-IDAKSmFuICA2IDIzOjU2OjE5IFNFUlZFUi0zOSBrZXJuZWw6IEVJUDogICAgMDAxMDpbPGMwMTYy
-ODQ3Pl0gICAgTm90IHRhaW50ZWQKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
-Mi1pMzg2IC1hIGkzODYKSmFuICA2IDIzOjU2OjE5IFNFUlZFUi0zOSBrZXJuZWw6IEVGTEFHUzog
-MDAwMTAyODMKSmFuICA2IDIzOjU2OjE5IFNFUlZFUi0zOSBrZXJuZWw6IGVheDogMDAwMDAwMDEg
-ICBlYng6IDAwMDAwMDAxICAgZWN4OiBjMmM4YjkyMCAgIGVkeDogYzJjOGI5MjAKSmFuICA2IDIz
-OjU2OjE5IFNFUlZFUi0zOSBrZXJuZWw6IGVzaTogYzA5MzBjZDggICBlZGk6IDAwMDAwMDAwICAg
-ZWJwOiBjMjE5YmUyMCAgIGVzcDogYzM3NWZlNDQKSmFuICA2IDIzOjU2OjE5IFNFUlZFUi0zOSBr
-ZXJuZWw6IGRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOApKYW4gIDYgMjM6NTY6MTkgU0VS
-VkVSLTM5IGtlcm5lbDogUHJvY2VzcyBram91cm5hbGQgKHBpZDogMTI2LCBzdGFja3BhZ2U9YzM3
-NWYwMDApCkphbiAgNiAyMzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiBTdGFjazogMDAwMDAwMDAg
-MDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgYzA2MmU4YzAgYzBkYmJkOTAgMDAwMDEyZjEgMDAw
-MDAwMDAgCkphbiAgNiAyMzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiAgICAgICAgYzExZjkzNzQg
-YzExZjkzNzQgMDAwMDAyMDIgYzAxZDA3MjggMDAwMDAyMDIgMDAwMDAwMDAgYzExZjkzNzQgMDAw
-MDAwMDEgCkphbiAgNiAyMzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiAgICAgICAgYzExY2NjMDAg
-YzAxZDA5OWMgYzExZjkzNzQgMDAwMDAwMDAgYzExZjkzNzQgYzExY2NjYjggYzExZjkzNzQgMDAw
-MDAwMDggCkphbiAgNiAyMzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiBDYWxsIFRyYWNlOiAgICBb
-PGMwMWQwNzI4Pl0gWzxjMDFkMDk5Yz5dIFs8YzAxMTBmZWQ+XSBbPGMwMTY1OTk2Pl0gWzxjMDE2
-NTgwMD5dCkphbiAgNiAyMzo1NjoxOSBTRVJWRVItMzkga2VybmVsOiAgIFs8YzAxMDU1NzY+XSBb
-PGMwMTY1ODIwPl0KSmFuICA2IDIzOjU2OjE5IFNFUlZFUi0zOSBrZXJuZWw6IENvZGU6IDhiIDQz
-IDE4IGE5IDA0IDAwIDAwIDAwIDc1IDQxIDgzIGUwIDAyIDc0IDFhIGZmIDQzIDEwIDhiIDU0IAoK
-Pj5FSVA7IGMwMTYyODQ3IDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszMjcvMTJjYz4gICA8
-PT09PT0KVHJhY2U7IGMwMWQwNzI4IDxzY3NpX3F1ZXVlX25leHRfcmVxdWVzdCszOC9mMD4KVHJh
-Y2U7IGMwMWQwOTljIDxfX3Njc2lfZW5kX3JlcXVlc3QrMWJjLzFkMD4KVHJhY2U7IGMwMTEwZmVk
-IDxzY2hlZHVsZSsyZGQvMzEwPgpUcmFjZTsgYzAxNjU5OTYgPGtqb3VybmFsZCsxNzYvMmQwPgpU
-cmFjZTsgYzAxNjU4MDAgPGNvbW1pdF90aW1lb3V0KzAvMTA+ClRyYWNlOyBjMDEwNTU3NiA8YXJj
-aF9rZXJuZWxfdGhyZWFkKzI2LzMwPgpUcmFjZTsgYzAxNjU4MjAgPGtqb3VybmFsZCswLzJkMD4K
-Q29kZTsgIGMwMTYyODQ3IDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszMjcvMTJjYz4KMDAw
-MDAwMDAgPF9FSVA+OgpDb2RlOyAgYzAxNjI4NDcgPGpvdXJuYWxfY29tbWl0X3RyYW5zYWN0aW9u
-KzMyNy8xMmNjPiAgIDw9PT09PQogICAwOiAgIDhiIDQzIDE4ICAgICAgICAgICAgICAgICAgbW92
-ICAgIDB4MTgoJWVieCksJWVheCAgIDw9PT09PQpDb2RlOyAgYzAxNjI4NGEgPGpvdXJuYWxfY29t
-bWl0X3RyYW5zYWN0aW9uKzMyYS8xMmNjPgogICAzOiAgIGE5IDA0IDAwIDAwIDAwICAgICAgICAg
-ICAgdGVzdCAgICQweDQsJWVheApDb2RlOyAgYzAxNjI4NGYgPGpvdXJuYWxfY29tbWl0X3RyYW5z
-YWN0aW9uKzMyZi8xMmNjPgogICA4OiAgIDc1IDQxICAgICAgICAgICAgICAgICAgICAgam5lICAg
-IDRiIDxfRUlQKzB4NGI+IGMwMTYyODkyIDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszNzIv
-MTJjYz4KQ29kZTsgIGMwMTYyODUxIDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszMzEvMTJj
-Yz4KICAgYTogICA4MyBlMCAwMiAgICAgICAgICAgICAgICAgIGFuZCAgICAkMHgyLCVlYXgKQ29k
-ZTsgIGMwMTYyODU0IDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbiszMzQvMTJjYz4KICAgZDog
-ICA3NCAxYSAgICAgICAgICAgICAgICAgICAgIGplICAgICAyOSA8X0VJUCsweDI5PiBjMDE2Mjg3
-MCA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzUwLzEyY2M+CkNvZGU7ICBjMDE2Mjg1NiA8
-am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzM2LzEyY2M+CiAgIGY6ICAgZmYgNDMgMTAgICAg
-ICAgICAgICAgICAgICBpbmNsICAgMHgxMCglZWJ4KQpDb2RlOyAgYzAxNjI4NTkgPGpvdXJuYWxf
-Y29tbWl0X3RyYW5zYWN0aW9uKzMzOS8xMmNjPgogIDEyOiAgIDhiIDU0IDAwIDAwICAgICAgICAg
-ICAgICAgbW92ICAgIDB4MCglZWF4LCVlYXgsMSksJWVkeAoKCjEgd2FybmluZyBpc3N1ZWQuICBS
-ZXN1bHRzIG1heSBub3QgYmUgcmVsaWFibGUuCg==
+-- v -- 
 
-------------75F71DD9942EB5
-Content-Type: text/plain; name="oops001.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="oops001.txt"
-
-a3N5bW9vcHMgMi40LjQgb24gaTU4NiAyLjQuMzIuICBPcHRpb25zIHVzZWQKICAgICAtViAoZGVm
-YXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9tb2R1bGVz
-IChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMzIvIChkZWZhdWx0KQogICAgIC1t
-IC9ib290L1N5c3RlbS5tYXAtMi40LjMyIChkZWZhdWx0KQoKV2FybmluZzogWW91IGRpZCBub3Qg
-dGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbAphc3N1bWUg
-dGhhdCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9kdWxlcyB0aGF0IGFyZSBydW5u
-aW5nCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Ig
-c3ltYm9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBk
-byBub3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBnZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkg
-dGVsbGluZyBtZSB0aGUga2VybmVsIHZlcnNpb24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1
-bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KCkphbiAg
-NiAxODowNDo0NiBTRVJWRVItMzkga2VybmVsOiBVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdp
-bmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgNWI1YjViNzMKSmFuICA2IDE4OjA0OjQ2IFNF
-UlZFUi0zOSBrZXJuZWw6IGMwMTYyODQ3CkphbiAgNiAxODowNDo0NiBTRVJWRVItMzkga2VybmVs
-OiAqcGRlID0gMDAwMDAwMDAKSmFuICA2IDE4OjA0OjQ2IFNFUlZFUi0zOSBrZXJuZWw6IE9vcHM6
-IDAwMDAKSmFuICA2IDE4OjA0OjQ2IFNFUlZFUi0zOSBrZXJuZWw6IENQVTogICAgMApKYW4gIDYg
-MTg6MDQ6NDYgU0VSVkVSLTM5IGtlcm5lbDogRUlQOiAgICAwMDEwOls8YzAxNjI4NDc+XSAgICBO
-b3QgdGFpbnRlZApVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkzODYgLWEg
-aTM4NgpKYW4gIDYgMTg6MDQ6NDYgU0VSVkVSLTM5IGtlcm5lbDogRUZMQUdTOiAwMDAxMDI4NwpK
-YW4gIDYgMTg6MDQ6NDYgU0VSVkVSLTM5IGtlcm5lbDogZWF4OiAwMDAwMDAwMSAgIGVieDogNWI1
-YjViNWIgICBlY3g6IGMzYWIwNzQwICAgZWR4OiBjM2FiMDc0MApKYW4gIDYgMTg6MDQ6NDYgU0VS
-VkVSLTM5IGtlcm5lbDogZXNpOiBjMDkzMGNkOCAgIGVkaTogNWI1YjViNWIgICBlYnA6IGMxNzhj
-NjcwICAgZXNwOiBjM2E1YmU0NApKYW4gIDYgMTg6MDQ6NDYgU0VSVkVSLTM5IGtlcm5lbDogZHM6
-IDAwMTggICBlczogMDAxOCAgIHNzOiAwMDE4CkphbiAgNiAxODowNDo0NiBTRVJWRVItMzkga2Vy
-bmVsOiBQcm9jZXNzIGtqb3VybmFsZCAocGlkOiAxMjYsIHN0YWNrcGFnZT1jM2E1YjAwMCkKSmFu
-ICA2IDE4OjA0OjQ2IFNFUlZFUi0zOSBrZXJuZWw6IFN0YWNrOiAwMDAwMDAwMCAwMDAwMDAwMCAw
-MDAwMDAwMCAwMDAwMDAwMCBjMWQxMzdlMCBjMDUxMmU4MCAwMDAwMWE5ZiAwMDAwMDAwMCAKSmFu
-ICA2IDE4OjA0OjQ2IFNFUlZFUi0zOSBrZXJuZWw6ICAgICAgICAwMDAwMDAwMSAwMDAwMDAwMSAw
-MDAwMDAwMCAwMDAwMDAwMCBjMDMyMTAwMCBjMTFjY2NiOCBjMTFmOTM3NCAwMDAwMDAzOCAKSmFu
-ICA2IDE4OjA0OjQ2IFNFUlZFUi0zOSBrZXJuZWw6ICAgICAgICAwMDAwMDAwMCAwMDAwMDAwMSAw
-MDAwMDAzOCAwMDAwMDI0NiBjMTFjY2MwMCAwMDAwMDAwMSAwMDAwMDAzOCBjMDFlMjQxZSAKSmFu
-ICA2IDE4OjA0OjQ2IFNFUlZFUi0zOSBrZXJuZWw6IENhbGwgVHJhY2U6ICAgIFs8YzAxZTI0MWU+
-XSBbPGMwMTEwZmVkPl0gWzxjMDE2NTk5Nj5dIFs8YzAxNjU4MDA+XSBbPGMwMTA1NTc2Pl0KSmFu
-ICA2IDE4OjA0OjQ2IFNFUlZFUi0zOSBrZXJuZWw6ICAgWzxjMDE2NTgyMD5dCkphbiAgNiAxODow
-NDo0NiBTRVJWRVItMzkga2VybmVsOiBDb2RlOiA4YiA0MyAxOCBhOSAwNCAwMCAwMCAwMCA3NSA0
-MSA4MyBlMCAwMiA3NCAxYSBmZiA0MyAxMCA4YiA1NCAKCj4+RUlQOyBjMDE2Mjg0NyA8am91cm5h
-bF9jb21taXRfdHJhbnNhY3Rpb24rMzI3LzEyY2M+ICAgPD09PT09ClRyYWNlOyBjMDFlMjQxZSA8
-cndfaW50cisxYmUvMWQwPgpUcmFjZTsgYzAxMTBmZWQgPHNjaGVkdWxlKzJkZC8zMTA+ClRyYWNl
-OyBjMDE2NTk5NiA8a2pvdXJuYWxkKzE3Ni8yZDA+ClRyYWNlOyBjMDE2NTgwMCA8Y29tbWl0X3Rp
-bWVvdXQrMC8xMD4KVHJhY2U7IGMwMTA1NTc2IDxhcmNoX2tlcm5lbF90aHJlYWQrMjYvMzA+ClRy
-YWNlOyBjMDE2NTgyMCA8a2pvdXJuYWxkKzAvMmQwPgpDb2RlOyAgYzAxNjI4NDcgPGpvdXJuYWxf
-Y29tbWl0X3RyYW5zYWN0aW9uKzMyNy8xMmNjPgowMDAwMDAwMCA8X0VJUD46CkNvZGU7ICBjMDE2
-Mjg0NyA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzI3LzEyY2M+ICAgPD09PT09CiAgIDA6
-ICAgOGIgNDMgMTggICAgICAgICAgICAgICAgICBtb3YgICAgMHgxOCglZWJ4KSwlZWF4ICAgPD09
-PT09CkNvZGU7ICBjMDE2Mjg0YSA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzJhLzEyY2M+
-CiAgIDM6ICAgYTkgMDQgMDAgMDAgMDAgICAgICAgICAgICB0ZXN0ICAgJDB4NCwlZWF4CkNvZGU7
-ICBjMDE2Mjg0ZiA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzJmLzEyY2M+CiAgIDg6ICAg
-NzUgNDEgICAgICAgICAgICAgICAgICAgICBqbmUgICAgNGIgPF9FSVArMHg0Yj4gYzAxNjI4OTIg
-PGpvdXJuYWxfY29tbWl0X3RyYW5zYWN0aW9uKzM3Mi8xMmNjPgpDb2RlOyAgYzAxNjI4NTEgPGpv
-dXJuYWxfY29tbWl0X3RyYW5zYWN0aW9uKzMzMS8xMmNjPgogICBhOiAgIDgzIGUwIDAyICAgICAg
-ICAgICAgICAgICAgYW5kICAgICQweDIsJWVheApDb2RlOyAgYzAxNjI4NTQgPGpvdXJuYWxfY29t
-bWl0X3RyYW5zYWN0aW9uKzMzNC8xMmNjPgogICBkOiAgIDc0IDFhICAgICAgICAgICAgICAgICAg
-ICAgamUgICAgIDI5IDxfRUlQKzB4Mjk+IGMwMTYyODcwIDxqb3VybmFsX2NvbW1pdF90cmFuc2Fj
-dGlvbiszNTAvMTJjYz4KQ29kZTsgIGMwMTYyODU2IDxqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlv
-biszMzYvMTJjYz4KICAgZjogICBmZiA0MyAxMCAgICAgICAgICAgICAgICAgIGluY2wgICAweDEw
-KCVlYngpCkNvZGU7ICBjMDE2Mjg1OSA8am91cm5hbF9jb21taXRfdHJhbnNhY3Rpb24rMzM5LzEy
-Y2M+CiAgMTI6ICAgOGIgNTQgMDAgMDAgICAgICAgICAgICAgICBtb3YgICAgMHgwKCVlYXgsJWVh
-eCwxKSwlZWR4CgoKMSB3YXJuaW5nIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJs
-ZS4K
-
-------------75F71DD9942EB5--
-
+v@iki.fi
 

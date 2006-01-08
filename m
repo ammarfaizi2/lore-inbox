@@ -1,130 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752617AbWAHMlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932730AbWAHM6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752617AbWAHMlV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 07:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752618AbWAHMlV
+	id S932730AbWAHM6J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 07:58:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWAHM6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 07:41:21 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45578 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752617AbWAHMlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 07:41:21 -0500
-Date: Sun, 8 Jan 2006 13:41:19 +0100
+	Sun, 8 Jan 2006 07:58:09 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:18576 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932730AbWAHM6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 07:58:08 -0500
+Date: Sun, 8 Jan 2006 13:57:00 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [-mm patch] more UID16 fixes
-Message-ID: <20060108124119.GH3774@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN and remove broken MTD_OBSOLETE_CHIPS drivers
+Message-ID: <20060108125700.GI3774@stusta.de>
+References: <20060107220702.GZ3774@stusta.de> <1136678409.30348.26.camel@pmac.infradead.org> <20060108002457.GE3774@stusta.de> <1136680734.30348.34.camel@pmac.infradead.org> <20060107174523.460f1849.akpm@osdl.org> <1136724072.30348.66.camel@pmac.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1136724072.30348.66.camel@pmac.infradead.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems the "make UID16 support optional" patch was checked when it 
-edited the -tiny tree some time ago, but it wasn't checked whether it
-still matches the current situation when it was submitted for inclusion 
-in -mm. This patch fixes the following bugs:
-- ARCH_S390X does no longer exist, nowadays this has to be expressed
-  through (S390 && 64BIT)
-- in five architecture specific Kconfig files the UID16 options
-  weren't removed
+On Sun, Jan 08, 2006 at 12:41:12PM +0000, David Woodhouse wrote:
+> On Sat, 2006-01-07 at 17:45 -0800, Andrew Morton wrote:
+> > Hey, Adrian isn't an MTD developer
+> 
+> Indeed he is not. And while his minor nitpicks can sometimes be worth
+> the effort, it's less useful for him to start making value judgements
+> about removing drivers which have _theoretically_ been replaced by new
+> code, but which are actually still being used in some cases.
 
-Additionally, it changes the fragile negative dependencies of UID16 to 
-positive dependencies (new architectures are more likely to not 
-require UID16 support).
+I interpreted your "or just removed" in [1] as your approval for a patch 
+to remove the non-compiling drivers.
 
+I'm not a native English speaker, and therefore I might have 
+misunderstood your email.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+What I want for 2.6.16 is to remove the wrong dependency of MTD_SHARP on 
+BROKEN and the non-compiling drivers either still hidden under BROKEN or 
+removed.
 
----
+If there is any way I can submit a patch achieving this that would be 
+acceptable for you simply tell how exactly you want this patch.
 
- arch/frv/Kconfig    |    4 ----
- arch/m32r/Kconfig   |    4 ----
- arch/s390/Kconfig   |    5 -----
- arch/sh64/Kconfig   |    4 ----
- arch/xtensa/Kconfig |    4 ----
- init/Kconfig        |    4 +---
- 6 files changed, 1 insertion(+), 24 deletions(-)
+> > What he's doing here is to poke other maintainers into getting the tree
+> > cleaned up.  It's a useful thing to do.
+> 
+> I know what needs doing to clean the tree up -- and removing the older
+> chip drivers is very far from the top of my todo list. If you really
+> want to accelerate their demise, add a #warning and a printk saying "You
+> should no longer be using this driver -- try using jedec_probe or
+> cfi_probe instead and contact the linux-mtd list if that fails". 
+>...
 
---- linux-2.6.15-mm2-full/init/Kconfig.old	2006-01-08 13:23:18.000000000 +0100
-+++ linux-2.6.15-mm2-full/init/Kconfig	2006-01-08 13:29:38.000000000 +0100
-@@ -230,9 +230,7 @@
- 
- config UID16
- 	bool "Enable 16-bit UID system calls" if EMBEDDED
--	depends !ALPHA && !PPC && !PPC64 && !PARISC && !V850 && !ARCH_S390X
--	depends !X86_64 || IA32_EMULATION
--	depends !SPARC64 || SPARC32_COMPAT
-+	depends on ARM || CRIS || FRV || H8300 || X86_32 || M68K || (S390 && !64BIT) || SUPERH || SPARC32 || (SPARC64 && SPARC32_COMPAT) || UML || (X86_64 && IA32_EMULATION)
- 	default y
- 	help
- 	  This enables the legacy 16-bit UID syscall wrappers.
---- linux-2.6.15-mm2-full/arch/frv/Kconfig.old	2006-01-08 13:27:51.000000000 +0100
-+++ linux-2.6.15-mm2-full/arch/frv/Kconfig	2006-01-08 13:28:00.000000000 +0100
-@@ -6,10 +6,6 @@
- 	bool
- 	default y
- 
--config UID16
--	bool
--	default y
--
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
---- linux-2.6.15-mm2-full/arch/m32r/Kconfig.old	2006-01-08 13:28:18.000000000 +0100
-+++ linux-2.6.15-mm2-full/arch/m32r/Kconfig	2006-01-08 13:28:24.000000000 +0100
-@@ -12,10 +12,6 @@
- config SBUS
- 	bool
- 
--config UID16
--	bool
--	default n
--
- config GENERIC_ISA_DMA
- 	bool
- 	default y
---- linux-2.6.15-mm2-full/arch/s390/Kconfig.old	2006-01-08 13:28:32.000000000 +0100
-+++ linux-2.6.15-mm2-full/arch/s390/Kconfig	2006-01-08 13:28:49.000000000 +0100
-@@ -27,11 +27,6 @@
- 	bool
- 	default y
- 
--config UID16
--	bool
--	default y
--	depends on !64BIT
--
- source "init/Kconfig"
- 
- menu "Base setup"
---- linux-2.6.15-mm2-full/arch/sh64/Kconfig.old	2006-01-08 13:30:08.000000000 +0100
-+++ linux-2.6.15-mm2-full/arch/sh64/Kconfig	2006-01-08 13:30:15.000000000 +0100
-@@ -17,10 +17,6 @@
- 	bool
- 	default y
- 
--config UID16
--	bool
--	default y
--
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
---- linux-2.6.15-mm2-full/arch/xtensa/Kconfig.old	2006-01-08 13:30:36.000000000 +0100
-+++ linux-2.6.15-mm2-full/arch/xtensa/Kconfig	2006-01-08 13:30:42.000000000 +0100
-@@ -18,10 +18,6 @@
- 	  with reasonable minimum requirements.  The Xtensa Linux project has
- 	  a home page at <http://xtensa.sourceforge.net/>.
- 
--config UID16
--	bool
--	default n
--
- config RWSEM_XCHGADD_ALGORITHM
- 	bool
- 	default y
+We are talking about drivers marked as BROKEN for one and a half years 
+that do no longer compile.
+
+> dwmw2
+
+cu
+Adrian
+
+[1] http://lkml.org/lkml/2005/12/12/43
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

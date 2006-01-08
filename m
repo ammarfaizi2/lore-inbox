@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752595AbWAHEDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWAHFW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752595AbWAHEDz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 23:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752596AbWAHEDz
+	id S1751098AbWAHFW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 00:22:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWAHFW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 23:03:55 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:18309 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752595AbWAHEDy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 23:03:54 -0500
+	Sun, 8 Jan 2006 00:22:57 -0500
+Received: from pxy2nd.nifty.com ([202.248.175.14]:48529 "HELO pxy2nd.nifty.com")
+	by vger.kernel.org with SMTP id S1751098AbWAHFW4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 00:22:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=bqaba1Hay3HG/JcJkMqeCQOl65B60MaLyHrjuTeOT4bzlzFNXqdfoxXLhAk4QRu1lbzSZXZUGENUObA+F9UUfhXKbGcKXaVT+/+abdTar7lQUWNM4N0OhsS2ENZTOkXzO1e+kbEZuPlSl2w5kV7RBdHVpgh/spvY5NXuxOjDUyI=
-Message-ID: <7282dfaf0601072003r61733f7erb55a27b8d302dc9b@mail.gmail.com>
-Date: Sat, 7 Jan 2006 21:03:53 -0700
-From: Jesus Arango <jesus.arango@gmail.com>
-Reply-To: jarango@cs.arizona.edu
-To: linux-kernel@vger.kernel.org
-Subject: Qdisc API
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+  s=pxy2nd-default; d=nifty.com;
+  b=0HBhmHju1HDEj86KzIaVXgf7BzPPjMocCHA0MZzTQtosShYf4gKdtS+RtL39BMONWdGBxj8zliyirvk1c8FyEQ==  ;
+Message-ID: <5313771.1136697761289.komurojun-mbn@nifty.com>
+Date: Sun, 8 Jan 2006 14:22:41 +0900 (JST)
+From: Komuro <komurojun-mbn@nifty.com>
+To: Junio C Hamano <junkio@cox.net>
+Subject: Re: Re: [KERNEL 2.6.15]  All files have -rw-rw-rw- permission.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7vmzi78vlh.fsf@assigned-by-dhcp.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: @nifty Webmail 2.0
+References: <7vmzi78vlh.fsf@assigned-by-dhcp.cox.net>
+ <20060105191736.1ac95e4b.rdunlap@xenotime.net>
+	<1986219.1136463311449.komurojun-mbn@nifty.com>
+	<3378320.1136549095236.komurojun-mbn@nifty.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When implementing a queuing discipline, which functions in struct
-Qdisc_ops must be implemeted ? By looking in net/sched I see that not
-all queuing disciplines implement all functions. For example, the
-default pfifo_fast_ops does not implement destroy, change, drop and
-dump_stats. Could someone please elaborate on this topic: When and why
-is each of these functions needed.
+Hello,
 
-Thanks
-Jesus
+>> But, is there any reason to set -----w--w- bit
+>> by default?
+>
+>Yes.
+>
+>Please do not extract the kernel tarball as the root user,
+>especially if you do not know how tar command works for root
+>user by default (hint: --no-same-permissions).
+>
+>Setting g-w in the archive forces arbitrary policy on people who
+>work with umask 002 as a non-root user.  We can let that policy
+>to be controlled by user's umask by being lenient in the
+>tarball.  For the same reason, if somebody has umask 0, there is
+>no reason for us (as tarball creator) to impose o-w as a policy
+>on him either, hence git-tar-tree output has 0666 or 0777 modes.
+>
+
+O.K.
+
+Thanks,
+Komuro
+
+

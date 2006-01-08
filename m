@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030584AbWAHJlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbWAHJmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030584AbWAHJlB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 04:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWAHJlA
+	id S1030622AbWAHJmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 04:42:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWAHJmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 04:41:00 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:51332 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1030582AbWAHJk7 (ORCPT
+	Sun, 8 Jan 2006 04:42:06 -0500
+Received: from gate.perex.cz ([85.132.177.35]:40653 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S1030582AbWAHJmE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 04:40:59 -0500
-Date: Sun, 8 Jan 2006 12:40:54 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Kernel Netdev Mailing List <netdev@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       GregKH <greg@kroah.com>
-Subject: Re: [W1]: Remove incorrect MODULE_ALIAS
-Message-ID: <20060108094054.GA21124@2ka.mipt.ru>
-References: <43C0524F.1030602@trash.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C0524F.1030602@trash.net>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 08 Jan 2006 12:40:55 +0300 (MSK)
+	Sun, 8 Jan 2006 04:42:04 -0500
+Date: Sun, 8 Jan 2006 10:42:02 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Takashi Iwai <tiwai@suse.de>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <20060108020335.GA26114@dspnet.fr.eu.org>
+Message-ID: <Pine.LNX.4.61.0601081039520.9470@tm8103.perex-int.cz>
+References: <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+ <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
+ <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de>
+ <20060108020335.GA26114@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 12:44:15AM +0100, Patrick McHardy (kaber@trash.net) wrote:
+On Sun, 8 Jan 2006, Olivier Galibert wrote:
 
-> [W1]: Remove incorrect MODULE_ALIAS
+> On Sat, Jan 07, 2006 at 03:32:27PM +0100, Takashi Iwai wrote:
+> > Yes, it's a known problem to be fixed.  But, it's no excuse to do
+> > _everything_ in the kernel (which OSS requires).
 > 
-> The w1 netlink socket is created by a hardware specific driver calling
-> w1_add_master_device, so there is no point in including a module alias
-> for netlink autoloading in the core.
+> OSS does not require to do anything in the kernel except an entry
+> point.
 > 
-> Signed-off-by: Patrick McHardy <kaber@trash.net>
-
-ACK.
-Thanks, Patrick.
-
-> ---
-> commit a8657adb8c04bbe30544306ec55005a635ba65fd
-> tree 2c029cf104239958220629d34c76c7290bd99e43
-> parent b73952761225e41cb81afe157cb312a594a95693
-> author Patrick McHardy <kaber@trash.net> Sun, 08 Jan 2006 00:42:42 +0100
-> committer Patrick McHardy <kaber@trash.net> Sun, 08 Jan 2006 00:42:42 +0100
 > 
->  drivers/w1/w1_int.c |    2 --
->  1 files changed, 0 insertions(+), 2 deletions(-)
+> > And if the application doesn't support, who and where converts it?
+> > With OSS API, it's a job of the kernel.
 > 
-> diff --git a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
-> index c3f67ea..e2920f0 100644
-> --- a/drivers/w1/w1_int.c
-> +++ b/drivers/w1/w1_int.c
-> @@ -217,5 +217,3 @@ void w1_remove_master_device(struct w1_b
->  
->  EXPORT_SYMBOL(w1_add_master_device);
->  EXPORT_SYMBOL(w1_remove_master_device);
-> -
-> -MODULE_ALIAS_NET_PF_PROTO(PF_NETLINK, NETLINK_W1);
+> Once again no.  Nothing prevents the kernel to forward the data to
+> userland daemons depending on a userspace-uploaded configuration.
 
+But it's quite ineffecient. The kernel must switch tasks at least twice
+or more. It's the major problem with the current OSS API.
 
--- 
-	Evgeniy Polyakov
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

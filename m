@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbWAHTbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbWAHTdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbWAHTbV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 14:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWAHTbV
+	id S1161086AbWAHTdy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 14:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161106AbWAHTdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 14:31:21 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:51745 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161113AbWAHTbU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 14:31:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=WULRsW+duCdhiYJzvxbL7Qzl9ClbGOmsqkAWjmZm1UGve4GQ6tbLLXT7rFxlgZC0PJ3nHgpovVoY1T0zVNQWPDtHwalBsdLHLD3l0jcNeIvGIKKroffHZLu6KiWJDDLnlxMGAFvNvtAC6RuU5xBc2KjXEprksFHg4cdDyWFCl+0=
-Message-ID: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
-Date: Mon, 9 Jan 2006 01:01:19 +0530
-From: Chaitanya Hazarey <cvh.tcs@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Back to the Future ? or some thing sinister ?
+	Sun, 8 Jan 2006 14:33:54 -0500
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:4034 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S1161086AbWAHTdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 14:33:52 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: Martin Langhoff <martin.langhoff@gmail.com>
+Cc: "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       git@vger.kernel.org
+Subject: Re: git pull on Linux/ACPI release tree
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
+	<46a038f90601081119r39014fbi995cc8b6e95774da@mail.gmail.com>
+Date: Sun, 08 Jan 2006 11:33:49 -0800
+In-Reply-To: <46a038f90601081119r39014fbi995cc8b6e95774da@mail.gmail.com>
+	(Martin Langhoff's message of "Mon, 9 Jan 2006 08:19:50 +1300")
+Message-ID: <7vace61plu.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this is a problem that does not come along quite frequently.
+Martin Langhoff <martin.langhoff@gmail.com> writes:
 
-We have got a machine, lets say X , make is IBM and the CPU is Intel
-Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
-2.6.27-4 Kernel the distribution is Debian Sagre.
+> On 1/9/06, Brown, Len <len.brown@intel.com> wrote:
+>> Perhaps the tools should try to support what "a lot of people"
+>> expect, rather than making "a lot of people" do extra work
+>> because of the tools?
+>
+> I think it does. All the tricky stuff that David and Junio have been
+> discussing is actually done very transparently by
+>
+>     git-rebase <upstream>
+>
+> Now, git-rebase uses git-format-patch <options> | git-am <options> so
+> it sometimes has problems merging.
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.60GHz
-stepping        : 9
-cpu MHz         : 2591.888
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-xtpr
-bogomips        : 5188.79
+Careful.  I do not think rebase works across merges at all.
 
-
-
-
-The problem is that, after a some time ( fuzzy , but I think like 2
-hours ) of inactivity or because of some esoteric factor which triggers
-a state in which the time on the machine starts going around in a loop.
-if I do cat /proc/uptime, it goes 4  ticks ahead and again rewinds back
-to the starting count ( not zero, but the moment in time when the event
-was triggred. )
-
-The problem seems to be specific to the 2.6 series of kernel, not the
-2.4 series.
-
-I  would like to know how to go about the debugging of the problem, and
-that which specific part of the kernel will be directly interacting with
-the rtc / system clock.
-
-Thanks,
-
-Chaitanya

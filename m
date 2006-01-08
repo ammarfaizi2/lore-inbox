@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752623AbWAHNE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWAHNGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752623AbWAHNE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 08:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752621AbWAHNE5
+	id S1751393AbWAHNGs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 08:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752621AbWAHNGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 08:04:57 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:18191 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1752619AbWAHNE4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 08:04:56 -0500
-Date: Sun, 8 Jan 2006 14:04:47 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Takashi Iwai <tiwai@suse.de>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-Message-ID: <20060108130447.GA96834@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-	ALSA development <alsa-devel@alsa-project.org>,
-	linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-References: <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de> <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de> <20060108020335.GA26114@dspnet.fr.eu.org> <Pine.LNX.4.61.0601081039520.9470@tm8103.perex-int.cz>
+	Sun, 8 Jan 2006 08:06:48 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:11179 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1751393AbWAHNGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 08:06:47 -0500
+Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN and
+	remove broken MTD_OBSOLETE_CHIPS drivers
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+In-Reply-To: <20060108125700.GI3774@stusta.de>
+References: <20060107220702.GZ3774@stusta.de>
+	 <1136678409.30348.26.camel@pmac.infradead.org>
+	 <20060108002457.GE3774@stusta.de>
+	 <1136680734.30348.34.camel@pmac.infradead.org>
+	 <20060107174523.460f1849.akpm@osdl.org>
+	 <1136724072.30348.66.camel@pmac.infradead.org>
+	 <20060108125700.GI3774@stusta.de>
+Content-Type: text/plain
+Date: Sun, 08 Jan 2006 13:06:20 +0000
+Message-Id: <1136725580.30348.69.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601081039520.9470@tm8103.perex-int.cz>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 10:42:02AM +0100, Jaroslav Kysela wrote:
-> On Sun, 8 Jan 2006, Olivier Galibert wrote:
+On Sun, 2006-01-08 at 13:57 +0100, Adrian Bunk wrote:
+> What I want for 2.6.16 is to remove the wrong dependency of MTD_SHARP on 
+> BROKEN and the non-compiling drivers either still hidden under BROKEN or 
+> removed.
 > 
-> > On Sat, Jan 07, 2006 at 03:32:27PM +0100, Takashi Iwai wrote:
-> > > Yes, it's a known problem to be fixed.  But, it's no excuse to do
-> > > _everything_ in the kernel (which OSS requires).
-> > 
-> > OSS does not require to do anything in the kernel except an entry
-> > point.
-> > 
-> > 
-> > > And if the application doesn't support, who and where converts it?
-> > > With OSS API, it's a job of the kernel.
-> > 
-> > Once again no.  Nothing prevents the kernel to forward the data to
-> > userland daemons depending on a userspace-uploaded configuration.
-> 
-> But it's quite ineffecient. The kernel must switch tasks at least twice
-> or more. It's the major problem with the current OSS API.
+> If there is any way I can submit a patch achieving this that would be 
+> acceptable for you simply tell how exactly you want this patch.
 
-Once.  U->K or K->U is not task switching and accordingly has a very
-low cost.  It's changing of userspace task that is costly.  And dmix
-_is_ a task switch, there is no performance difference between talking
-with it through shared memory and semaphores and who knows what else
-and talking with it through a kernel interface.
+Remove the incorrect BROKEN dependency from MTD_OBSOLETE_CHIPS.
 
-You should count how many U-U switches and U-K syscalls communicating
-with dmix represents.  Hard to do for a simple user, since the
-protocol is not documented.
+If you then want to add it again to any chip driver which really doesn't
+compile, feel free. But leave the map drivers alone. Those can be
+switched to use different chip back-ends. 
 
-  OG.
+-- 
+dwmw2
 

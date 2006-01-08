@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932737AbWAHSWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbWAHSWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932737AbWAHSWg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932738AbWAHSWg
+	id S932733AbWAHSWM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932742AbWAHSWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:22:36 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:28383 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S932737AbWAHSWe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:22:34 -0500
-Message-ID: <43C158CD.6000008@didntduck.org>
-Date: Sun, 08 Jan 2006 13:24:13 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mail/News 1.5 (X11/20060103)
+	Sun, 8 Jan 2006 13:22:11 -0500
+Received: from [139.30.44.16] ([139.30.44.16]:40270 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S932733AbWAHSWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:22:01 -0500
+Date: Sun, 8 Jan 2006 19:22:00 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH 2/4] capable/capability.h (fs/)
+In-Reply-To: <20060107215115.7e6cb2a2.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.63.0601081915580.6962@gockel.physik3.uni-rostock.de>
+References: <20060107215115.7e6cb2a2.rdunlap@xenotime.net>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: rusty@rustcorp.com.au, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] modpost: Fix typo
-References: <43C13593.6080509@didntduck.org> <20060108174537.GC10990@mars.ravnborg.org>
-In-Reply-To: <20060108174537.GC10990@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Sun, Jan 08, 2006 at 10:53:55AM -0500, Brian Gerst wrote:
->> SND_MAX should be FF_MAX
->>
->> Signed-off-by: Brian Gerst <bgerst@didntduck.org>
-> 
-> Applied, though I have not found a way to actually check this one is
-> correct.
-> 
+On Sat, 7 Jan 2006, Randy.Dunlap wrote:
 
-id->ffbit is defined as kernel_ulong_t ffbit[FF_MAX/BITS_PER_LONG+1]
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> fs: Use <linux/capability.h> where capable() is used.
 
---
-				Brian Gerst
+Acked-by: Tim Schmielau <tim@physik3.uni-rostock.de>
+
+Note that sched.h, which currently holds capable(), already includes 
+<linux/capability.h>. So these patches are completely optional.
+
+Still I do appreciate these patches, since they reduce the amount of work 
+I need to do when removing unnecessary sched.h includes. :-)
+
+Tim

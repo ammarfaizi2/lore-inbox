@@ -1,79 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161105AbWAHAjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbWAHAkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161105AbWAHAjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 19:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbWAHAjQ
+	id S1161108AbWAHAkU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 19:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWAHAkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 19:39:16 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:64156 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1161105AbWAHAjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 19:39:15 -0500
-Subject: Re: [2.6 patch] no longer mark MTD_OBSOLETE_CHIPS as BROKEN and
-	remove broken MTD_OBSOLETE_CHIPS drivers
-From: David Woodhouse <dwmw2@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20060108002457.GE3774@stusta.de>
-References: <20060107220702.GZ3774@stusta.de>
-	 <1136678409.30348.26.camel@pmac.infradead.org>
-	 <20060108002457.GE3774@stusta.de>
-Content-Type: text/plain
-Date: Sun, 08 Jan 2006 00:38:54 +0000
-Message-Id: <1136680734.30348.34.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 7 Jan 2006 19:40:20 -0500
+Received: from hs-grafik.net ([80.237.205.72]:13329 "EHLO hs-grafik.net")
+	by vger.kernel.org with ESMTP id S1161108AbWAHAkR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 19:40:17 -0500
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+User-Agent: KMail/1.8.3
+References: <20060107052221.61d0b600.akpm@osdl.org>
+In-Reply-To: <20060107052221.61d0b600.akpm@osdl.org>
+X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?iso-8859-15?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-?=
+ =?iso-8859-15?q?=7E=24ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
+ =?iso-8859-15?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8?=
+ =?iso-8859-15?q?CNh*4?=<
+MIME-Version: 1.0
+Date: Sun, 8 Jan 2006 01:40:08 +0100
+Content-Type: multipart/signed;
+  boundary="nextPart9170946.VogYaOpYJq";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200601080140.08460@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 01:24 +0100, Adrian Bunk wrote:
-> > 1. Precisely when were these chip drivers marked obsolete?
-> 
-> Since kernel 2.4.11-pre4, released Thu, 4 Oct 2001 20:47:23 -0700.
+--nextPart9170946.VogYaOpYJq
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Good. That's when they were first marked 'theoretically obsolete', at
-least. Now, when did they _actually_ become obsolete, and why?
+Am Samstag, 7. Januar 2006 14:22 schrieben Sie:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.=
+15
+>-mm2/
+>
+> This should be somewhat less buggy than 2.6.15-mm1.
 
-> > 2. What was the reason for marking them obsolete?
-> 
-> The changelog says:
->  - David Woodhouse: large MTD and JFFS[2] update
+Yep. I can boot and use X. You're getting that mail from 2.6.15-mm2.
+However I still get these
+EDAC PCI- Detected Parity Error on 0000:00:1e.0
+And the system is quite sluggish
+Dunno why, perhaps because of EDAC.
 
-I didn't ask who; I knew that. I asked you _why_. Admittedly, I happen
-to know that too - but I want to know if _you_ know it.
+regards
+Alex
 
-Since you've taken it upon yourself to decide the timescale of the
-removal, surely it's reasonable to expect that you do actually know what
-you're removing and why it's obsolescent?
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-> > 3. What are the factors which led you to conclude that _now_ is the time
-> > to actually remove them?
-> 
-> http://lkml.org/lkml/2005/12/12/43
+--nextPart9170946.VogYaOpYJq
+Content-Type: application/pgp-signature
 
-That's also an insufficient answer. Why now? What are the factors you
-weighed up in favour of removal, and against it? I assume you gave it
-some serious consideration?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-> > 4. What are the factors which led you to _remove_ the map drivers which
-> > currently use the obsolete chip drivers, rather than taking the obvious
-> > alternative solution for those map drivers?
-> 
-> It seems that for one and a half years noone considered it a problem 
-> that they were no longer available...
+iD8DBQBDwF9o/aHb+2190pERAsJUAJ9KVCYd8cYAnmww4CRvTX+O4M/O3wCgmGnt
+pqAT5/IMLcrPiAtG/9vILOk=
+=v2i7
+-----END PGP SIGNATURE-----
 
-Even if the chip drivers in question really been unavailable for that
-period of time, rather than merely hidden behind an extra config option
--- people with embedded systems are often slow to update. That isn't
-really sufficient reason for removing those map drivers rather than
-taking the obvious alternative solution. You do know enough about the
-code you're changing to know what that alternative solution is, right?
- 
--- 
-dwmw2
-
+--nextPart9170946.VogYaOpYJq--

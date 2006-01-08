@@ -1,275 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbWAHXWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161241AbWAHX06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161236AbWAHXWV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 18:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161237AbWAHXWU
+	id S1161241AbWAHX06 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 18:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161242AbWAHX06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 18:22:20 -0500
-Received: from mx2.suse.de ([195.135.220.15]:43140 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161236AbWAHXWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 18:22:19 -0500
-Message-Id: <20060108231235.273553000@blunzn.suse.de>
-References: <20060108230116.073177000@blunzn.suse.de>
-User-Agent: quilt/0.42-12
-Date: Mon, 09 Jan 2006 00:01:17 +0100
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [patch 1/2] Generic infrastructure for acls
-Content-Disposition: inline; filename=generic-acl.diff
+	Sun, 8 Jan 2006 18:26:58 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:60394 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1161241AbWAHX05 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 18:26:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jzS2Alw1RAJTDBdkpQbPYFAqSZpjoLL/imL0SSE+ujM9tt0KF5ll4SN84L1JlooAW3/WacAs8E9hlhgYO2hgK6+2h1TWP9X3VsDZ7PdH5a6Kt9Zw2mFFwWgtb7fn4TRiIAUXSRmhgZ9cABQPn3q45xVgEnhLAAuRUHMGnt5TU7k=
+Message-ID: <69304d110601081524v37b15ff2tfed8341eaffbe07@mail.gmail.com>
+Date: Mon, 9 Jan 2006 00:24:52 +0100
+From: Antonio Vargas <windenntw@gmail.com>
+To: Meelis Roos <mroos@linux.ee>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+In-Reply-To: <Pine.SOC.4.61.0512291011320.28176@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051214172445.GF7124@flint.arm.linux.org.uk>
+	 <Pine.SOC.4.61.0512221231430.6200@math.ut.ee>
+	 <20051222130744.GA31339@flint.arm.linux.org.uk>
+	 <Pine.SOC.4.61.0512231117560.25532@math.ut.ee>
+	 <20051223093343.GA22506@flint.arm.linux.org.uk>
+	 <Pine.SOC.4.61.0512231204290.8311@math.ut.ee>
+	 <20051223104146.GB22506@flint.arm.linux.org.uk>
+	 <Pine.SOC.4.61.0512271553480.7835@math.ut.ee>
+	 <20051228195509.GA12307@flint.arm.linux.org.uk>
+	 <Pine.SOC.4.61.0512291011320.28176@math.ut.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add some infrastructure for access control lists on in-memory
-filesystems such as tmpfs.
+On 12/29/05, Meelis Roos <mroos@linux.ee> wrote:
+> > Can I assume that the bug has disappeared?  Does the patch make it
+> > disappear?
+>
+> Yes, seems so.
+>
+> --
+> Meelis Roos (mroos@linux.ee)
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Please notice official linus 2.6.15 tree doesn't have this fix... I've
+just installed a virtual machine (qemu-system-i386 with linus 2.6.15 +
+plain debian 3r0, console output to xterm via emulated serial console)
+and trying to use any curses program (top for example) produces
+exactly this type of error.
 
-Index: linux-2.6.15-git4/fs/Kconfig
-===================================================================
---- linux-2.6.15-git4.orig/fs/Kconfig
-+++ linux-2.6.15-git4/fs/Kconfig
-@@ -1821,6 +1821,10 @@ config 9P_FS
- 
- 	  If unsure, say N.
- 
-+config GENERIC_ACL
-+	bool
-+	select FS_POSIX_ACL
-+
- endmenu
- 
- menu "Partition Types"
-Index: linux-2.6.15-git4/fs/Makefile
-===================================================================
---- linux-2.6.15-git4.orig/fs/Makefile
-+++ linux-2.6.15-git4/fs/Makefile
-@@ -34,6 +34,7 @@ obj-$(CONFIG_BINFMT_FLAT)	+= binfmt_flat
- obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
- obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o xattr_acl.o
- obj-$(CONFIG_NFS_COMMON)	+= nfs_common/
-+obj-$(CONFIG_GENERIC_ACL)	+= generic_acl.o
- 
- obj-$(CONFIG_QUOTA)		+= dquot.o
- obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
-Index: linux-2.6.15-git4/include/linux/generic_acl.h
-===================================================================
---- /dev/null
-+++ linux-2.6.15-git4/include/linux/generic_acl.h
-@@ -0,0 +1,30 @@
-+/*
-+ * fs/generic_acl.c
-+ *
-+ * (C) 2006 Andreas Gruenbacher <agruen@suse.de>
-+ *
-+ * This file is released under the GPL.
-+ */
-+
-+#ifndef GENERIC_ACL_H
-+#define GENERIC_ACL_H
-+
-+#include <linux/posix_acl.h>
-+#include <linux/posix_acl_xattr.h>
-+
-+struct generic_acl_operations {
-+	struct posix_acl *(*getacl)(struct inode *, int);
-+	void (*setacl)(struct inode *, int, struct posix_acl *);
-+};
-+
-+size_t generic_acl_list(struct inode *, struct generic_acl_operations *, int,
-+			char *, size_t);
-+int generic_acl_get(struct inode *, struct generic_acl_operations *, int,
-+		    void *, size_t);
-+int generic_acl_set(struct inode *, struct generic_acl_operations *, int,
-+		    const void *, size_t);
-+int generic_acl_init(struct inode *, struct inode *,
-+		     struct generic_acl_operations *);
-+int generic_acl_chmod(struct inode *, struct generic_acl_operations *);
-+
-+#endif
-Index: linux-2.6.15-git4/fs/generic_acl.c
-===================================================================
---- /dev/null
-+++ linux-2.6.15-git4/fs/generic_acl.c
-@@ -0,0 +1,175 @@
-+/*
-+ * fs/generic_acl.c
-+ *
-+ * Infrastructure for access control lists on in-memory filesystems
-+ * such as tmpfs.
-+ *
-+ * (C) 2006 Andreas Gruenbacher <agruen@suse.de>
-+ *
-+ * This file is released under the GPL.
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/fs.h>
-+#include <linux/generic_acl.h>
-+
-+size_t
-+generic_acl_list(struct inode *inode, struct generic_acl_operations *ops,
-+		 int type, char *list, size_t list_size)
-+{
-+	struct posix_acl *acl;
-+	const char *name;
-+	size_t size;
-+
-+	acl = ops->getacl(inode, type);
-+	if (!acl)
-+		return 0;
-+	posix_acl_release(acl);
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			name = POSIX_ACL_XATTR_ACCESS;
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			name = POSIX_ACL_XATTR_DEFAULT;
-+			break;
-+
-+		default:
-+			return 0;
-+	}
-+	size = strlen(name) + 1;
-+	if (list && size <= list_size)
-+		memcpy(list, name, size);
-+	return size;
-+}
-+
-+int
-+generic_acl_get(struct inode *inode, struct generic_acl_operations *ops,
-+		int type, void *buffer, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	acl = ops->getacl(inode, type);
-+	if (!acl)
-+		return -ENODATA;
-+	error = posix_acl_to_xattr(acl, buffer, size);
-+	posix_acl_release(acl);
-+
-+	return error;
-+}
-+
-+int
-+generic_acl_set(struct inode *inode, struct generic_acl_operations *ops,
-+		int type, const void *value, size_t size)
-+{
-+	struct posix_acl *acl = NULL;
-+	int error;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-+		return -EPERM;
-+	if (value) {
-+		acl = posix_acl_from_xattr(value, size);
-+		if (IS_ERR(acl))
-+			return PTR_ERR(acl);
-+	}
-+	if (acl) {
-+		mode_t mode;
-+
-+		error = posix_acl_valid(acl);
-+		if (error)
-+			goto failed;
-+		switch(type) {
-+			case ACL_TYPE_ACCESS:
-+				mode = inode->i_mode;
-+				error = posix_acl_equiv_mode(acl, &mode);
-+				if (error < 0)
-+					goto failed;
-+				inode->i_mode = mode;
-+				if (error == 0) {
-+					posix_acl_release(acl);
-+					acl = NULL;
-+				}
-+				break;
-+
-+			case ACL_TYPE_DEFAULT:
-+				if (!S_ISDIR(inode->i_mode)) {
-+					error = -EINVAL;
-+					goto failed;
-+				}
-+				break;
-+		}
-+	}
-+	ops->setacl(inode, type, acl);
-+	error = 0;
-+failed:
-+	posix_acl_release(acl);
-+	return error;
-+}
-+
-+int
-+generic_acl_init(struct inode *inode, struct inode *dir,
-+		 struct generic_acl_operations *ops)
-+{
-+	struct posix_acl *acl = NULL;
-+	mode_t mode = inode->i_mode;
-+	int error;
-+
-+	inode->i_mode = mode & ~current->fs->umask;
-+	if (!S_ISLNK(inode->i_mode))
-+		acl = ops->getacl(dir, ACL_TYPE_DEFAULT);
-+	if (acl) {
-+		struct posix_acl *clone;
-+
-+		if (S_ISDIR(inode->i_mode)) {
-+			clone = posix_acl_clone(acl, GFP_KERNEL);
-+			error = -ENOMEM;
-+			if (!clone)
-+				goto cleanup;
-+			ops->setacl(inode, ACL_TYPE_DEFAULT, clone);
-+			posix_acl_release(clone);
-+		}
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (!clone)
-+			goto cleanup;
-+		error = posix_acl_create_masq(clone, &mode);
-+		if (error >= 0) {
-+			inode->i_mode = mode;
-+			if (error > 0) {
-+				ops->setacl(inode, ACL_TYPE_ACCESS, clone);
-+			}
-+		}
-+		posix_acl_release(clone);
-+	}
-+	error = 0;
-+
-+cleanup:
-+	posix_acl_release(acl);
-+	return error;
-+}
-+
-+int
-+generic_acl_chmod(struct inode *inode, struct generic_acl_operations *ops)
-+{
-+	struct posix_acl *acl, *clone;
-+	int error = 0;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	acl = ops->getacl(inode, ACL_TYPE_ACCESS);
-+	if (acl) {
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		posix_acl_release(acl);
-+		if (!clone)
-+			return -ENOMEM;
-+		error = posix_acl_chmod_masq(clone, inode->i_mode);
-+		if (!error)
-+			ops->setacl(inode, ACL_TYPE_ACCESS, clone);
-+		posix_acl_release(clone);
-+	}
-+	return error;
-+}
+QEMU_AUDIO_DRV=none \
+  nice /home/qemu/bin/qemu \
+    -nographic \
+    -hda debian-30r0-i386-rootfs.ext2 \
+    -kernel bzImage-2.6.15 \
+    -append "console=ttyS0,9600n8 lpj=10000 noapic root=/dev/hda"
+
+I'm now recompiling with this lower limit to test...
 
 --
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX Products GmbH / Novell Inc.
+Greetz, Antonio Vargas aka winden of network
 
+http://wind.codepixel.com/
+windNOenSPAMntw@gmail.com
+thesameasabove@amigascne.org
+
+Every day, every year
+you have to work
+you have to study
+you have to scene.

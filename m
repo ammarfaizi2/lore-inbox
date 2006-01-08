@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932749AbWAHSmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932753AbWAHSq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932749AbWAHSmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWAHSmW
+	id S932753AbWAHSq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932755AbWAHSq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:42:22 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:57359 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932749AbWAHSmW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:42:22 -0500
-Date: Sun, 8 Jan 2006 19:42:34 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: linux-kernel@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>
-Subject: [PATCH] ide-disk: Restore missing space in message
-Message-Id: <20060108194234.708a11ea.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 8 Jan 2006 13:46:56 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:11218 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932753AbWAHSq4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:46:56 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+Date: Sun, 8 Jan 2006 17:34:27 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
+In-Reply-To: <0ISL003ZI97GCY@a34-mta01.direcway.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601081734.30349.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I've noticed a strange message log change in the current git tree (2.6.15-git4):
+On Wednesday 04 January 2006 23:01, Ben Collins wrote:
 
-Restore a missing space in a log message, which was accidentally
-removed by a prevous change: 3e087b575496b8aa445192f58e7d996b1cdfa121
+> +static char *fgets_check_stream(char *s, int size, FILE *stream)
+> +{
+> +	char *ret = fgets(s, size, stream);
+> +
+> +	if (ret == NULL && feof(stream)) {
+> +		printf(_("aborted!\n\n"));
+> +		printf(_("Console input is closed. "));
+> +		printf(_("Run 'make oldconfig' to update configuration.\n\n"));
+> +		exit(1);
+> +	}
+> +
+> +	return ret;
+> +}
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Cc: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>
----
- drivers/ide/ide-disk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+What problem does this solve? conf should finish normally anyway and just set 
+everything to the default.
 
---- linux-2.6.15-git.orig/drivers/ide/ide-disk.c	2006-01-08 10:55:58.000000000 +0100
-+++ linux-2.6.15-git/drivers/ide/ide-disk.c	2006-01-08 19:33:18.000000000 +0100
-@@ -776,7 +776,7 @@
- 			 ide_id_has_flush_cache_ext(id));
- 
- 		printk(KERN_INFO "%s: cache flushes %ssupported\n",
--		       drive->name, barrier ? "" : "not");
-+		       drive->name, barrier ? "" : "not ");
- 
- 		if (barrier) {
- 			ordered = QUEUE_ORDERED_DRAIN_FLUSH;
+bye, Roman
 
--- 
-Jean Delvare

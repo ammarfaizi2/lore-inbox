@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932750AbWAHSoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932749AbWAHSmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932750AbWAHSoD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:44:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932751AbWAHSoD
+	id S932749AbWAHSmW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWAHSmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:44:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:6322 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932750AbWAHSoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:44:01 -0500
-Subject: Re: [PATCH]: How to be a kernel driver maintainer
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1136744870.1043.4.camel@grayson>
-References: <1136736455.24378.3.camel@grayson>
-	 <1136737997.2955.10.camel@laptopd505.fenrus.org>
-	 <1136744870.1043.4.camel@grayson>
-Content-Type: text/plain
-Date: Sun, 08 Jan 2006 19:43:58 +0100
-Message-Id: <1136745838.2955.17.camel@laptopd505.fenrus.org>
+	Sun, 8 Jan 2006 13:42:22 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:57359 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932749AbWAHSmW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:42:22 -0500
+Date: Sun, 8 Jan 2006 19:42:34 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: linux-kernel@vger.kernel.org
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>
+Subject: [PATCH] ide-disk: Restore missing space in message
+Message-Id: <20060108194234.708a11ea.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-> But this isn't at al true. Almost all subsystems maintain the primary
-> tree outside of the kernel, with the kernel being the primary _stable_
-> tree. USB, Netdev,
+I've noticed a strange message log change in the current git tree (2.6.15-git4):
 
-patches yes. but usually only small stuff
+Restore a missing space in a log message, which was accidentally
+removed by a prevous change: 3e087b575496b8aa445192f58e7d996b1cdfa121
 
->  Alsa, etc. All changes go someplace else before being
-> pushed to the primary kernel tree. 99% of the time, patches are going
-> somewhere else before going into the main kernel. 
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Cc: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>
+---
+ drivers/ide/ide-disk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-that's different... that's a patch queue. That's not the same as being
-the prime repository.
+--- linux-2.6.15-git.orig/drivers/ide/ide-disk.c	2006-01-08 10:55:58.000000000 +0100
++++ linux-2.6.15-git/drivers/ide/ide-disk.c	2006-01-08 19:33:18.000000000 +0100
+@@ -776,7 +776,7 @@
+ 			 ide_id_has_flush_cache_ext(id));
+ 
+ 		printk(KERN_INFO "%s: cache flushes %ssupported\n",
+-		       drive->name, barrier ? "" : "not");
++		       drive->name, barrier ? "" : "not ");
+ 
+ 		if (barrier) {
+ 			ordered = QUEUE_ORDERED_DRAIN_FLUSH;
 
-> So the above
-> paragraphs is really misleading.
-
-I guess neither is good then. I certainly would absolutely not want to
-encourage developers to have a main "real driver" outside the kernel
-source. Linus calls that "the cvs mentality" and time after time that
-has proven to be really bad. You mention alsa, and to some degree alsa
-is suffering from this ;(
-(this is different from net/usb/scsi where changes are queued but merged
-regularly and near immediately in case of bugfixes, unlike things like
-alsa and firewire where basically the only choice is "all or nothing"
-where "all" is bugfixes and new bugs)
-
+-- 
+Jean Delvare

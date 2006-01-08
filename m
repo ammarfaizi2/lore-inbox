@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWAHBwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161138AbWAHCDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161132AbWAHBwj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 20:52:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161134AbWAHBwj
+	id S1161138AbWAHCDp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 21:03:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbWAHCDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 20:52:39 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:48324 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1161132AbWAHBwi (ORCPT
+	Sat, 7 Jan 2006 21:03:45 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:4104 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1161135AbWAHCDo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 20:52:38 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Dave Jones <davej@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: reference_discarded addition 
-In-reply-to: Your message of "Fri, 06 Jan 2006 02:40:19 CDT."
-             <20060106074019.GA1226@redhat.com> 
+	Sat, 7 Jan 2006 21:03:44 -0500
+Date: Sun, 8 Jan 2006 03:03:35 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: ALSA development <alsa-devel@alsa-project.org>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+Message-ID: <20060108020335.GA26114@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	ALSA development <alsa-devel@alsa-project.org>,
+	linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+References: <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> <mailman.1136368805.14661.linux-kernel2news@redhat.com> <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de> <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 08 Jan 2006 12:52:35 +1100
-Message-ID: <31103.1136685155@ocs3.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <s5h8xtshzwk.wl%tiwai@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones (on Fri, 6 Jan 2006 02:40:19 -0500) wrote:
->Error: ./fs/quota_v2.o .opd refers to 0000000000000020 R_PPC64_ADDR64    .exit.text
->
->Been carrying this for some time in Red Hat trees.
->
->Signed-off-by: Dave Jones <davej@redhat.com>
->
->diff -urNp --exclude-from=/home/davej/.exclude linux-3022/scripts/reference_discarded.pl linux-10000/scripts/reference_discarded.pl
->--- linux-3022/scripts/reference_discarded.pl
->+++ linux-10000/scripts/reference_discarded.pl
->@@ -88,6 +88,7 @@ foreach $object (keys(%object)) {
-> 		    ($from !~ /\.text\.exit$/ &&
-> 		     $from !~ /\.exit\.text$/ &&
-> 		     $from !~ /\.data\.exit$/ &&
->+		     $from !~ /\.opd$/ &&
-> 		     $from !~ /\.exit\.data$/ &&
-> 		     $from !~ /\.altinstructions$/ &&
-> 		     $from !~ /\.pdr$/ &&
+On Sat, Jan 07, 2006 at 03:32:27PM +0100, Takashi Iwai wrote:
+> Yes, it's a known problem to be fixed.  But, it's no excuse to do
+> _everything_ in the kernel (which OSS requires).
 
-For our future {in}sanity, add a comment that this is the ppc .opd
-section, not the ia64 .opd section.  ia64 .opd should not point to
-discarded sections.
+OSS does not require to do anything in the kernel except an entry
+point.
 
-Any idea why ppc .opd points to discarded sections when ia64 does not?
-AFAICT no ia64 object has a useful .opd section, they are all empty or
-(sometimes) a dummy entry which is 1 byte long.  ia64 .opd data is
-built at link time, not compile time.
 
-It is a pity that ppc is generating .opd entries at compile time.  It
-makes it impossible to detect a real reference to a discarded function.
+> And if the application doesn't support, who and where converts it?
+> With OSS API, it's a job of the kernel.
 
+Once again no.  Nothing prevents the kernel to forward the data to
+userland daemons depending on a userspace-uploaded configuration.
+
+  OG.

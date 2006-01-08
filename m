@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752597AbWAHFdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752598AbWAHFme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752597AbWAHFdN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 00:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752598AbWAHFdN
+	id S1752598AbWAHFme (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 00:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752600AbWAHFme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 00:33:13 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:50736 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752596AbWAHFdM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 00:33:12 -0500
+	Sun, 8 Jan 2006 00:42:34 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:6795 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1752598AbWAHFmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 00:42:33 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WvQnic1UuPYldvAUahUgOkxYy7aHKS6POjf9ZTf0wB1K5XWD1AQL/tV8Rz9xn77poH3osgPO/ZsXV2zcDRib72e5/Tuq7+BYYScr51LWJNFAZ4PhhI6RCNX2ldxzaUDFmdb6vaDBNkPR42okyh07u+Sa7YrBQPLkClfX+5iZIAg=
-Message-ID: <4807377b0601072133r4f079226r11001fae500c9569@mail.gmail.com>
-Date: Sat, 7 Jan 2006 21:33:10 -0800
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: "ODonnell, Michael" <Michael.ODonnell@stratus.com>
-Subject: Re: (2nd try) [PATCH] corruption during e100 MDI register access
-Cc: bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       NetDEV list <netdev@vger.kernel.org>
-In-Reply-To: <92952AEF1F064042B6EF2522E0EEF43703225312@EXNA.corp.stratus.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1lSejWQgjM08nWywm2JlXf5mcAQZx+6TNXbumuUw2ca78R3vVFV02GYOR6hftj/4PSyBmR1PienwgB/mcB6nZAM2Jk89RrlM0yL5tTpFBqOy/uM5ByQDiKSif9ErZbJl4r0Eaw7GPyGW1GN2fgcGS1iGpa+NhZDdQuQ4RXqCbJw=  ;
+Message-ID: <43C0A64A.20608@yahoo.com.au>
+Date: Sun, 08 Jan 2006 16:42:34 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <92952AEF1F064042B6EF2522E0EEF43703225312@EXNA.corp.stratus.com>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/4] mm: de-skew page_count
+References: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
+In-Reply-To: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/6/06, ODonnell, Michael <Michael.ODonnell@stratus.com> wrote:
->  [ 2nd transmission.  Microsoft mailer "helpfully"
->   reformatted the patch in the last one... :-(    ]
->
-> Greetings,
->
-> We have identified two related bugs in the e100 driver and we request
-> that they be repaired in the official Intel version of the driver.
->
-> Both bugs are related to manipulation of the MDI control register.
->
-> The first problem is that the Ready bit is being ignored when
-> writing to the Control register; we noticed this because the Linux
-> bonding driver would occasionally come to the spurious conclusion
-> that the link was down when querying Link State.  It turned out
-> that by failing to wait for a previous command to complete it was
-> selecting what was essentially a random register in the MDI register
-> set.  When we added code that waits for the Ready bit (as shown in
-> the patch file below) all such problems ceased.
+Nick Piggin wrote:
+> The following patchset (against 2.6.15-rc5ish)
 
-damn, you know I had seen this on one machine only, and the machine
-had other problems, so i thought it wasn't e100.  I can't quite figure
-out why we haven't seen this more often given how long the bug appears
-to have existed.
+Sorry, that should read 2.6.15-git3 (latest git).
 
-> The second problem is that, although access to the MDI registers
-> involves multiple steps which must not be intermixed, nothing was
-> defending against two or more threads attempting simultaneous access.
-> The most obvious situation where such interference could occur
-> involves the watchdog versus ioctl paths, but there are probably
-> others, so we recommend the locking shown in our patch file.
+-- 
+SUSE Labs, Novell Inc.
 
-Agreed, but once again I am simply amazed this has been there so long.
-
-I think these are both good patches and I'll ack this and absorb it
-for our next release.  It will be a bit before its completely through
-our process but its okay with me if this goes into the kernel now.
-
-Jesse
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbWAHHrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWAHHws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030496AbWAHHrp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 02:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbWAHHrn
+	id S1030397AbWAHHws (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 02:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030505AbWAHHws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 02:47:43 -0500
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:11393 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1030496AbWAHHrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 02:47:41 -0500
-Date: Sun, 8 Jan 2006 02:43:15 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Badness in __mutex_unlock_slowpath
-To: Andrew James Wade <andrew.j.wade@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200601080246_MC3-1-B57D-BAA5@compuserve.com>
+	Sun, 8 Jan 2006 02:52:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57305 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030397AbWAHHws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 02:52:48 -0500
+Message-ID: <43C0C4BA.8000800@volny.cz>
+Date: Sun, 08 Jan 2006 08:52:26 +0100
+From: Miloslav Trmac <mitr@volny.cz>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+To: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] wistron_btns: Fix missing BIOS signature handling, take 2
+References: <43C0B3BF.5050100@volny.cz> <200601080158.04175.dtor_core@ameritech.net>
+In-Reply-To: <200601080158.04175.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------020402050005020801000107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200601071551.20344.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+This is a multi-part message in MIME format.
+--------------020402050005020801000107
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sat, 7 Jan 2006 at 15:51:19 -0500 Andrew James Wade wrote:
+Dmitry Torokhov wrote:
+> On Sunday 08 January 2006 01:39, Miloslav Trmac wrote:
+> 
+>>offset can never be < 0 because it has type size_t.  The driver
+>>currently oopses on insmod if BIOS does not support the interface,
+>>instead of refusing to load.
+> 
+> I don't really like that casting, should we just change offset to ssize_t?
+Sure.
+	Mirek
 
+--------------020402050005020801000107
+Content-Type: text/x-patch;
+ name="wistron-no-entry.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="wistron-no-entry.patch"
 
-> I got this when "amaroK" started playing:
->
-> Badness in __mutex_unlock_slowpath at kernel/mutex.c:214
->  [<c03538e8>] __mutex_unlock_slowpath+0x56/0x1a2
->  [<c0302f08>] snd_pcm_oss_write+0x0/0x1e0
->  [<c0302f3c>] snd_pcm_oss_write+0x34/0x1e0
->  [<c0302f08>] snd_pcm_oss_write+0x0/0x1e0
->  [<c0148221>] vfs_write+0x83/0x122
->  [<c0148a36>] sys_write+0x3c/0x63
->  [<c0102ba3>] sysenter_past_esp+0x54/0x75
+offset can never be < 0 because it has type size_t.  The driver
+currently oopses on insmod if BIOS does not support the interface,
+instead of refusing to load.
 
+Signed-off-by: Miloslav Trmac <mitr@volny.cz>
 
- The thread doing the unlock does not own the mutex.
+--- a/drivers/input/misc/wistron_btns.c	Sun Jan  8 06:30:59 2006
++++ b/drivers/input/misc/wistron_btns.c	Sun Jan  8 08:46:26 2006
+@@ -92,11 +92,11 @@
+ 	preempt_enable();
+ }
+ 
+-static size_t __init locate_wistron_bios(void __iomem *base)
++static ssize_t __init locate_wistron_bios(void __iomem *base)
+ {
+ 	static const unsigned char __initdata signature[] =
+ 		{ 0x42, 0x21, 0x55, 0x30 };
+-	size_t offset;
++	ssize_t offset;
+ 
+ 	for (offset = 0; offset < 0x10000; offset += 0x10) {
+ 		if (check_signature(base + offset, signature,
+@@ -109,7 +109,7 @@
+ static int __init map_bios(void)
+ {
+ 	void __iomem *base;
+-	size_t offset;
++	ssize_t offset;
+ 	u32 entry_point;
+ 
+ 	base = ioremap(0xF0000, 0x10000); /* Can't fail */
 
- Same exact check is made a few lines later in debug_mutex_unlock().
-
-And debugging gets turned off after the first debug message prints,
-so there could be other problems that are not reported.
-
- -- 
-Chuck
-Currently reading: _Thud!_ by Terry Pratchett
+--------------020402050005020801000107--

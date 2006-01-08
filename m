@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752627AbWAHOZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752630AbWAHOZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752627AbWAHOZv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 09:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752632AbWAHOZv
+	id S1752630AbWAHOZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 09:25:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752631AbWAHOZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 09:25:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62991 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1752630AbWAHOZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 09:25:49 -0500
-Date: Sun, 8 Jan 2006 14:25:35 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus@drzeus.cx>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Lindent wbsd driver
-Message-ID: <20060108142535.GC10927@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus@drzeus.cx>,
-	Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-References: <20060107231747.29389.80042.stgit@poseidon.drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060107231747.29389.80042.stgit@poseidon.drzeus.cx>
-User-Agent: Mutt/1.4.1i
+	Sun, 8 Jan 2006 09:25:56 -0500
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:46787 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1752630AbWAHOZy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 09:25:54 -0500
+Message-ID: <43C12071.5010208@ens-lyon.org>
+Date: Sun, 08 Jan 2006 09:23:45 -0500
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Brown, Len" <len.brown@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A1348A@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005A1348A@hdsmsx401.amr.corp.intel.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 12:17:48AM +0100, Pierre Ossman wrote:
-> @@ -1079,9 +1030,9 @@ static int wbsd_get_ro(struct mmc_host* 
->  }
+Brown, Len wrote:
+
+> 
 >  
->  static struct mmc_host_ops wbsd_ops = {
-> -	.request	= wbsd_request,
-> -	.set_ios	= wbsd_set_ios,
-> -	.get_ro		= wbsd_get_ro,
-> +	.request = wbsd_request,
-> +	.set_ios = wbsd_set_ios,
-> +	.get_ro = wbsd_get_ro,
+>
+>>2) acpi-cpufreq does not load either, returns ENODEV too. It's probably
+>>git-acpi. I tried to revert it but there are lots of other patches
+>>depending on it, so I finally gave up.
+>>    
+>>
+>
+>Brice,
+>Can you try the converse?
+>Apply the acpi patch (which is included in -mm)
+>without the rest of the mm tree to see if that broke acpi-cpufreq?:
+>
+>http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/test/2.6.15/acpi-test-20051216-2.6.15.diff.bz2
+>
+>thanks,
+>-Len
+>  
+>
 
-In addition to Alexey's comments, I think this was better before being
-"reindented".  If you agree, could you produce a new patch please?
+Len,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This patch applied on top of 2.6.15 breaks acpi-cpufreq in the same way.
+
+Brice
+

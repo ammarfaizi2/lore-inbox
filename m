@@ -1,91 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030627AbWAHNcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932713AbWAHNeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030627AbWAHNcn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 08:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWAHNcn
+	id S932713AbWAHNeo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 08:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWAHNeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 08:32:43 -0500
-Received: from gate.perex.cz ([85.132.177.35]:46720 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S932713AbWAHNcm (ORCPT
+	Sun, 8 Jan 2006 08:34:44 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52379 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932731AbWAHNen (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 08:32:42 -0500
-Date: Sun, 8 Jan 2006 14:32:40 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Martin Drab <drab@kepler.fjfi.cvut.cz>, Takashi Iwai <tiwai@suse.de>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-In-Reply-To: <20060108132122.GB96834@dspnet.fr.eu.org>
-Message-ID: <Pine.LNX.4.61.0601081424560.10981@tm8103.perex-int.cz>
-References: <20060104030034.6b780485.zaitcev@redhat.com>
- <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
- <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
- <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de>
- <20060108020335.GA26114@dspnet.fr.eu.org> <Pine.LNX.4.60.0601080317040.22583@kepler.fjfi.cvut.cz>
- <20060108132122.GB96834@dspnet.fr.eu.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Jan 2006 08:34:43 -0500
+Date: Sun, 8 Jan 2006 14:34:25 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Spitalnik <lkml@spitalnik.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Disable swsusp on CONFIG_HIGHMEM64
+Message-ID: <20060108133425.GA1711@elf.ucw.cz>
+References: <200601061945.09466.lkml@spitalnik.net> <200601071604.03846.lkml@spitalnik.net> <20060106043019.GA2545@ucw.cz> <200601072042.07337.lkml@spitalnik.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601072042.07337.lkml@spitalnik.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006, Olivier Galibert wrote:
 
-> On Sun, Jan 08, 2006 at 03:26:18AM +0100, Martin Drab wrote:
-> > On Sun, 8 Jan 2006, Olivier Galibert wrote:
-> > 
-> > > > And if the application doesn't support, who and where converts it?
-> > > > With OSS API, it's a job of the kernel.
-> > > 
-> > > Once again no.  Nothing prevents the kernel to forward the data to
-> > > userland daemons depending on a userspace-uploaded configuration.
-> > 
-> > I think that the point was, that switching from userspace to kernelspace 
-> > then to userspace again and back to kernelspace in order to do something, 
-> > that could have been done directly in the userspace, and though could save 
-> > those two unnecessary switches, is an unnecessary overhead, which may not 
-> > necessarily be that insignificant if it's done so often (which for 
-> > streaming audio is the case).
+> > > > > fixes Kconfig to disallow such combination. I'm not 100% sure about
+> > > > > the ACPI_SLEEP part, as it might be disabling some working setup -
+> > > > > but i think that s2r and s2d are the only acpi sleeps allowed, no?
+> > > >
+> > > > s2ram probably works. Try getting it working without highmem64,
+> > > > then turn it on.
+> > >
+> > > It works with HIGHMEM but not HIGHMEM64G. You can find the oops from
+> > > HIGHMEM64G below. It crashes very reliably on little stress after resume.
+> >
+> > s2ram should not depend on ammount of memory. Try debugging
+> > it, but do not disable feature just because it does not work
+> > for you. I'd start with minimum drivers...
 > 
-> You all seem to forget that dmix is in userspace in a different task
-> too.
+> Well, I've tried it with the bare minimum that was needed to run the system, 
+> but it did the same. I'm sorry but i lack the knowledge to properly debug it 
+> on source level.  Do you see something that perhaps i don't see in the oops? 
+> Maybe some clues as what might be going wrong?
 
-Because it is really not. The mixing is done directly to the mmaped DMA 
-buffer.
+I tried highmem64 on -mm2 here, and machine did not even boot :-(. I
+may try it again on latest -git a bit later.
+								Pavel
 
-> > Why doing things complicated when there is no evident gain from it,
-> > or is there?
-> 
-> No evident gain?  Wow.  What about:
-> - stopping crippling the OSS api
+--- clean-mm/.config	2006-01-08 13:55:53.000000000 +0100
++++ linux-mm/.config	2006-01-08 14:18:22.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+ # Linux kernel version: 2.6.15-mm2
+-# Sun Jan  8 13:55:53 2006
++# Sun Jan  8 14:18:22 2006
+ #
+ CONFIG_X86_32=y
+ CONFIG_GENERIC_TIME=y
+@@ -165,9 +165,10 @@
+ # CONFIG_DELL_RBU is not set
+ # CONFIG_DCDBAS is not set
+ # CONFIG_NOHIGHMEM is not set
+-CONFIG_HIGHMEM4G=y
+-# CONFIG_HIGHMEM64G is not set
++# CONFIG_HIGHMEM4G is not set
++CONFIG_HIGHMEM64G=y
+ CONFIG_HIGHMEM=y
++CONFIG_X86_PAE=y
+ CONFIG_ARCH_FLATMEM_ENABLE=y
+ CONFIG_ARCH_SPARSEMEM_ENABLE=y
+ CONFIG_ARCH_SELECT_MEMORY_MODEL=y
+@@ -179,7 +180,7 @@
+ CONFIG_FLAT_NODE_MEM_MAP=y
+ CONFIG_SPARSEMEM_STATIC=y
+ CONFIG_SPLIT_PTLOCK_CPUS=4
+-# CONFIG_HIGHPTE is not set
++CONFIG_HIGHPTE=y
+ # CONFIG_MATH_EMULATION is not set
+ CONFIG_MTRR=y
+ # CONFIG_EFI is not set
 
-We're not doing that. We're just showing that OSS API and useability has 
-it's own problems, too.
-
-> - having a real kernel api for which you can make different libraries
->   depending on the need of the users
-> 
-> - stop making a fundamentally unsecure shared library mandatory
-
-ALSA kernel API is real and binary compatible. If someone require to
-write an own library, we will document this API, of course, too.
-
-> - opening the possibility of writing plugins to people without a PhD
->   in lattice QCD.
-
-Already done. We have official plugin SDK in alsa-lib to create user space 
-drivers. If you have some questions or bug-reports (missing docs etc), 
-please, fill a bug report.
-
-Also, you can use very simple LADSPA plugin style, because alsa-lib can 
-use LADSPA plugins directly, too.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+-- 
+Thanks, Sharp!

@@ -1,52 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161178AbWAHKoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161183AbWAHKyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161178AbWAHKoP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 05:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161180AbWAHKoP
+	id S1161183AbWAHKyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 05:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWAHKyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 05:44:15 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:58320 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1161178AbWAHKoO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 05:44:14 -0500
-Date: Sun, 8 Jan 2006 11:43:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Joel Schopp <jschopp@austin.ibm.com>
-Cc: Olof Johansson <olof@lixom.net>, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Anton Blanchard <anton@samba.org>,
-       PPC64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: PowerPC fastpaths for mutex subsystem
-Message-ID: <20060108104357.GB31359@elte.hu>
-References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <20060106002919.GA29190@pb15.lixom.net> <43BFFF1D.7030007@austin.ibm.com>
+	Sun, 8 Jan 2006 05:54:09 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:40460 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1161183AbWAHKyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 05:54:08 -0500
+Date: Sun, 8 Jan 2006 11:54:01 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Bernd Eckenfels <be-news06@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org, gcoady@gmail.com
+Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
+Message-ID: <20060108105401.GI7142@w.ods.org>
+References: <20060108095741.GH7142@w.ods.org> <E1EvXi5-0000kv-00@calista.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43BFFF1D.7030007@austin.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <E1EvXi5-0000kv-00@calista.inka.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 08, 2006 at 11:23:37AM +0100, Bernd Eckenfels wrote:
+> Willy Tarreau <willy@w.ods.org> wrote:
+> > It's rather strange that 2.6 *eats* CPU apparently doing nothing !
+> 
+> it eats it in high interrupt load.
 
-looks good to me. Minor nit:
+*high* ? he never goes far beyond 1000/s !
 
-> +"	isync\n"
+> And it is caused by the pty-ssh-tcp output,
 
-> +"	isync		\n"
+quite possibly, but I'd rather think it's more precisely related
+to the ping-pong in the scheduler between grep, cut and ssh. I
+had the same symptom with 'ls' in xterm with lots of files. It
+took tens of seconds to list 2000 files while 'ls |cat' gave
+the same result instantly.
 
-shouldnt these two be ISYNC_ON_SMP?
+I also have another example (2.6.15-rc5, dual athlon, logged in
+via SSH) :
+  willy@pcw:willy$ time ls -l
 
-	Ingo
+  real    0m0.150s
+  user    0m0.016s
+  sys     0m0.024s
+
+Now if I start 4 processes in background :
+  willy@pcw:willy$ time ls -l
+
+  real    0m4.432s
+  user    0m0.028s
+  sys     0m0.008s
+
+With 8 processes in background :
+  willy@pcw:willy$ time ls -l
+
+  real    0m49.817s
+  user    0m0.020s
+  sys     0m0.008s
+
+  willy@pcw:willy$ time ls -l | wc -l
+     1259
+
+  real    0m18.917s
+  user    0m0.016s
+  sys     0m0.012s
+
+I think my case with 4 processes on a dual CPU ressembles Grant's case
+with 2 processes on single CPU. The background processes are only ones
+which eat CPU half of their time, which might sometimes match an I/O
+bound process such as grep from a disk.
+
+> so most likely those are eepro100 interrupts.
+
+I don't think so.
+
+> Gruss
+> Bernd
+
+Regards,
+Willy
+
+PS: please don't remove people in CC:
+

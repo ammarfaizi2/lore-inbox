@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752600AbWAHFvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752601AbWAHFvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752600AbWAHFvU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 00:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752601AbWAHFvU
+	id S1752601AbWAHFvc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 00:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752604AbWAHFvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 00:51:20 -0500
-Received: from xenotime.net ([66.160.160.81]:56266 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1752600AbWAHFvT (ORCPT
+	Sun, 8 Jan 2006 00:51:31 -0500
+Received: from xenotime.net ([66.160.160.81]:7115 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1752602AbWAHFv2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 00:51:19 -0500
-Date: Sat, 7 Jan 2006 21:51:15 -0800
+	Sun, 8 Jan 2006 00:51:28 -0500
+Date: Sat, 7 Jan 2006 21:51:25 -0800
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH 2/4] capable/capability.h (fs/)
-Message-Id: <20060107215115.7e6cb2a2.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, davem@davemloft.net
+Subject: [PATCH 3/4] capable/capability.h (net/)
+Message-Id: <20060107215125.3ccb2f2c.rdunlap@xenotime.net>
 Organization: YPO4
 X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -25,519 +25,739 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-fs: Use <linux/capability.h> where capable() is used.
+net: Use <linux/capability.h> where capable() is used.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- fs/attr.c                      |    1 +
- fs/autofs/root.c               |    1 +
- fs/autofs4/root.c              |    1 +
- fs/buffer.c                    |    1 +
- fs/compat_ioctl.c              |    1 +
- fs/dcookies.c                  |    1 +
- fs/dquot.c                     |    1 +
- fs/ext2/acl.c                  |    1 +
- fs/ext2/balloc.c               |    1 +
- fs/ext2/ioctl.c                |    1 +
- fs/ext2/xattr_trusted.c        |    1 +
- fs/ext3/acl.c                  |    1 +
- fs/ext3/balloc.c               |    1 +
- fs/ext3/ioctl.c                |    1 +
- fs/ext3/xattr_trusted.c        |    1 +
- fs/fat/file.c                  |    1 +
- fs/fcntl.c                     |    1 +
- fs/file_table.c                |    1 +
- fs/hfsplus/ioctl.c             |    1 +
- fs/hugetlbfs/inode.c           |    1 +
- fs/ioctl.c                     |    1 +
- fs/ioprio.c                    |    1 +
- fs/jffs2/fs.c                  |    1 +
- fs/jfs/xattr.c                 |    1 +
- fs/namei.c                     |    1 +
- fs/namespace.c                 |    1 +
- fs/ncpfs/ioctl.c               |    1 +
- fs/ocfs2/file.c                |    1 +
- fs/open.c                      |    1 +
- fs/proc/base.c                 |    1 +
- fs/proc/kcore.c                |    1 +
- fs/quota.c                     |    1 +
- fs/reiserfs/ioctl.c            |    1 +
- fs/reiserfs/xattr.c            |    1 +
- fs/reiserfs/xattr_acl.c        |    1 +
- fs/reiserfs/xattr_trusted.c    |    1 +
- fs/smbfs/proc.c                |    1 +
- fs/sysfs/inode.c               |    1 +
- fs/udf/file.c                  |    1 +
- fs/ufs/balloc.c                |    1 +
- fs/xfs/linux-2.6/xfs_ioctl.c   |    1 +
- fs/xfs/linux-2.6/xfs_iops.c    |    1 +
- fs/xfs/quota/xfs_qm_syscalls.c |    3 +++
- fs/xfs/xfs_acl.c               |    1 +
- fs/xfs/xfs_attr.c              |    3 +++
- fs/xfs/xfs_vnodeops.c          |    3 +++
- 46 files changed, 52 insertions(+)
+ net/8021q/vlan.c                |    1 +
+ net/appletalk/ddp.c             |    1 +
+ net/atm/br2684.c                |    1 +
+ net/atm/clip.c                  |    1 +
+ net/atm/ioctl.c                 |    1 +
+ net/atm/lec.c                   |    1 +
+ net/atm/mpc.c                   |    1 +
+ net/atm/pppoatm.c               |    1 +
+ net/atm/raw.c                   |    1 +
+ net/atm/resources.c             |    1 +
+ net/ax25/af_ax25.c              |    1 +
+ net/ax25/ax25_route.c           |    2 ++
+ net/ax25/ax25_uid.c             |    2 ++
+ net/bluetooth/bnep/sock.c       |    1 +
+ net/bluetooth/cmtp/sock.c       |    1 +
+ net/bluetooth/hci_sock.c        |    1 +
+ net/bluetooth/hidp/sock.c       |    1 +
+ net/bluetooth/l2cap.c           |    1 +
+ net/bluetooth/rfcomm/tty.c      |    1 +
+ net/bridge/br_ioctl.c           |    1 +
+ net/bridge/br_sysfs_br.c        |    1 +
+ net/bridge/br_sysfs_if.c        |    1 +
+ net/core/dev.c                  |    1 +
+ net/core/dv.c                   |    1 +
+ net/core/ethtool.c              |    1 +
+ net/core/net-sysfs.c            |    1 +
+ net/core/pktgen.c               |    2 +-
+ net/core/scm.c                  |    1 +
+ net/core/sock.c                 |    1 +
+ net/decnet/af_decnet.c          |    1 +
+ net/decnet/dn_dev.c             |    1 +
+ net/ipv4/af_inet.c              |    1 +
+ net/ipv4/arp.c                  |    1 +
+ net/ipv4/devinet.c              |    1 +
+ net/ipv4/fib_frontend.c         |    1 +
+ net/ipv4/ip_gre.c               |    1 +
+ net/ipv4/ip_options.c           |    1 +
+ net/ipv4/ipip.c                 |    1 +
+ net/ipv4/ipmr.c                 |    1 +
+ net/ipv4/ipvs/ip_vs_ctl.c       |    1 +
+ net/ipv4/netfilter/arp_tables.c |    1 +
+ net/ipv4/netfilter/ip_tables.c  |    1 +
+ net/ipv6/addrconf.c             |    1 +
+ net/ipv6/af_inet6.c             |    1 +
+ net/ipv6/anycast.c              |    1 +
+ net/ipv6/datagram.c             |    1 +
+ net/ipv6/ip6_flowlabel.c        |    1 +
+ net/ipv6/ip6_tunnel.c           |    1 +
+ net/ipv6/ipv6_sockglue.c        |    1 +
+ net/ipv6/netfilter/ip6_tables.c |    2 ++
+ net/ipv6/route.c                |    1 +
+ net/ipv6/sit.c                  |    1 +
+ net/ipx/af_ipx.c                |    1 +
+ net/irda/af_irda.c              |    1 +
+ net/irda/irda_device.c          |    1 +
+ net/irda/irnet/irnet.h          |    1 +
+ net/key/af_key.c                |    1 +
+ net/netlink/af_netlink.c        |    1 +
+ net/netrom/af_netrom.c          |    1 +
+ net/packet/af_packet.c          |    1 +
+ net/rose/af_rose.c              |    2 ++
+ net/sctp/socket.c               |    1 +
+ net/wanrouter/af_wanpipe.c      |    1 +
+ net/wanrouter/wanmain.c         |    1 +
+ net/x25/af_x25.c                |    1 +
+ 65 files changed, 69 insertions(+), 1 deletion(-)
 
---- linux-2615-g3.orig/fs/attr.c
-+++ linux-2615-g3/fs/attr.c
-@@ -10,6 +10,7 @@
- #include <linux/mm.h>
- #include <linux/string.h>
- #include <linux/smp_lock.h>
-+#include <linux/capability.h>
- #include <linux/fsnotify.h>
- #include <linux/fcntl.h>
- #include <linux/quotaops.h>
---- linux-2615-g3.orig/fs/autofs/root.c
-+++ linux-2615-g3/fs/autofs/root.c
-@@ -10,6 +10,7 @@
-  *
-  * ------------------------------------------------------------------------- */
+--- linux-2615-g3.orig/net/8021q/vlan.c
++++ linux-2615-g3/net/8021q/vlan.c
+@@ -19,6 +19,7 @@
+  */
  
-+#include <linux/capability.h>
- #include <linux/errno.h>
- #include <linux/stat.h>
- #include <linux/param.h>
---- linux-2615-g3.orig/fs/autofs4/root.c
-+++ linux-2615-g3/fs/autofs4/root.c
-@@ -12,6 +12,7 @@
-  *
-  * ------------------------------------------------------------------------- */
- 
-+#include <linux/capability.h>
- #include <linux/errno.h>
- #include <linux/stat.h>
- #include <linux/param.h>
---- linux-2615-g3.orig/fs/buffer.c
-+++ linux-2615-g3/fs/buffer.c
-@@ -26,6 +26,7 @@
- #include <linux/percpu.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
-+#include <linux/capability.h>
- #include <linux/blkdev.h>
- #include <linux/file.h>
- #include <linux/quotaops.h>
---- linux-2615-g3.orig/fs/compat_ioctl.c
-+++ linux-2615-g3/fs/compat_ioctl.c
-@@ -15,6 +15,7 @@
- #include <linux/types.h>
- #include <linux/compat.h>
- #include <linux/kernel.h>
-+#include <linux/capability.h>
- #include <linux/compiler.h>
- #include <linux/sched.h>
- #include <linux/smp.h>
---- linux-2615-g3.orig/fs/dcookies.c
-+++ linux-2615-g3/fs/dcookies.c
-@@ -18,6 +18,7 @@
- #include <linux/slab.h>
- #include <linux/list.h>
- #include <linux/mount.h>
-+#include <linux/capability.h>
- #include <linux/dcache.h>
- #include <linux/mm.h>
- #include <linux/errno.h>
---- linux-2615-g3.orig/fs/dquot.c
-+++ linux-2615-g3/fs/dquot.c
-@@ -77,6 +77,7 @@
- #include <linux/kmod.h>
- #include <linux/namei.h>
- #include <linux/buffer_head.h>
-+#include <linux/capability.h>
- #include <linux/quotaops.h>
- 
- #include <asm/uaccess.h>
---- linux-2615-g3.orig/fs/fcntl.c
-+++ linux-2615-g3/fs/fcntl.c
-@@ -9,6 +9,7 @@
- #include <linux/mm.h>
- #include <linux/fs.h>
- #include <linux/file.h>
-+#include <linux/capability.h>
- #include <linux/dnotify.h>
- #include <linux/smp_lock.h>
- #include <linux/slab.h>
---- linux-2615-g3.orig/fs/file_table.c
-+++ linux-2615-g3/fs/file_table.c
-@@ -16,6 +16,7 @@
- #include <linux/eventpoll.h>
- #include <linux/rcupdate.h>
- #include <linux/mount.h>
-+#include <linux/capability.h>
- #include <linux/cdev.h>
- #include <linux/fsnotify.h>
- 
---- linux-2615-g3.orig/fs/ioctl.c
-+++ linux-2615-g3/fs/ioctl.c
-@@ -8,6 +8,7 @@
- #include <linux/syscalls.h>
- #include <linux/mm.h>
- #include <linux/smp_lock.h>
-+#include <linux/capability.h>
- #include <linux/file.h>
- #include <linux/fs.h>
- #include <linux/security.h>
---- linux-2615-g3.orig/fs/ioprio.c
-+++ linux-2615-g3/fs/ioprio.c
-@@ -22,6 +22,7 @@
- #include <linux/kernel.h>
- #include <linux/ioprio.h>
- #include <linux/blkdev.h>
-+#include <linux/capability.h>
- #include <linux/syscalls.h>
- 
- static int set_task_ioprio(struct task_struct *task, int ioprio)
---- linux-2615-g3.orig/fs/namei.c
-+++ linux-2615-g3/fs/namei.c
-@@ -28,6 +28,7 @@
- #include <linux/syscalls.h>
- #include <linux/mount.h>
- #include <linux/audit.h>
-+#include <linux/capability.h>
- #include <linux/file.h>
- #include <asm/namei.h>
- #include <asm/uaccess.h>
---- linux-2615-g3.orig/fs/namespace.c
-+++ linux-2615-g3/fs/namespace.c
-@@ -16,6 +16,7 @@
- #include <linux/init.h>
- #include <linux/quotaops.h>
- #include <linux/acct.h>
+ #include <asm/uaccess.h> /* for copy_from_user */
 +#include <linux/capability.h>
  #include <linux/module.h>
- #include <linux/seq_file.h>
- #include <linux/namespace.h>
---- linux-2615-g3.orig/fs/open.c
-+++ linux-2615-g3/fs/open.c
-@@ -16,6 +16,7 @@
- #include <linux/tty.h>
- #include <linux/namei.h>
- #include <linux/backing-dev.h>
-+#include <linux/capability.h>
- #include <linux/security.h>
- #include <linux/mount.h>
- #include <linux/vfs.h>
---- linux-2615-g3.orig/fs/quota.c
-+++ linux-2615-g3/fs/quota.c
-@@ -15,6 +15,7 @@
- #include <linux/security.h>
- #include <linux/syscalls.h>
- #include <linux/buffer_head.h>
-+#include <linux/capability.h>
- #include <linux/quotaops.h>
- 
- /* Check validity of generic quotactl commands */
---- linux-2615-g3.orig/fs/fat/file.c
-+++ linux-2615-g3/fs/fat/file.c
-@@ -6,6 +6,7 @@
-  *  regular file handling primitives for fat-based filesystems
-  */
- 
-+#include <linux/capability.h>
- #include <linux/module.h>
- #include <linux/time.h>
- #include <linux/msdos_fs.h>
---- linux-2615-g3.orig/fs/hfsplus/ioctl.c
-+++ linux-2615-g3/fs/hfsplus/ioctl.c
-@@ -12,6 +12,7 @@
-  * hfsplus ioctls
-  */
- 
-+#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/sched.h>
- #include <linux/xattr.h>
---- linux-2615-g3.orig/fs/hugetlbfs/inode.c
-+++ linux-2615-g3/fs/hugetlbfs/inode.c
-@@ -18,6 +18,7 @@
- #include <linux/highmem.h>
- #include <linux/init.h>
- #include <linux/string.h>
-+#include <linux/capability.h>
- #include <linux/backing-dev.h>
- #include <linux/hugetlb.h>
- #include <linux/pagevec.h>
---- linux-2615-g3.orig/fs/jffs2/fs.c
-+++ linux-2615-g3/fs/jffs2/fs.c
-@@ -11,6 +11,7 @@
-  *
-  */
- 
-+#include <linux/capability.h>
- #include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
---- linux-2615-g3.orig/fs/jfs/xattr.c
-+++ linux-2615-g3/fs/jfs/xattr.c
-@@ -17,6 +17,7 @@
-  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
- 
-+#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/xattr.h>
- #include <linux/posix_acl_xattr.h>
---- linux-2615-g3.orig/fs/ncpfs/ioctl.c
-+++ linux-2615-g3/fs/ncpfs/ioctl.c
-@@ -10,6 +10,7 @@
- #include <linux/config.h>
- 
- #include <asm/uaccess.h>
-+#include <linux/capability.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
- #include <linux/ioctl.h>
---- linux-2615-g3.orig/fs/proc/base.c
-+++ linux-2615-g3/fs/proc/base.c
-@@ -55,6 +55,7 @@
- #include <linux/proc_fs.h>
- #include <linux/stat.h>
- #include <linux/init.h>
-+#include <linux/capability.h>
- #include <linux/file.h>
- #include <linux/string.h>
- #include <linux/seq_file.h>
---- linux-2615-g3.orig/fs/proc/kcore.c
-+++ linux-2615-g3/fs/proc/kcore.c
-@@ -14,6 +14,7 @@
- #include <linux/proc_fs.h>
- #include <linux/user.h>
- #include <linux/a.out.h>
-+#include <linux/capability.h>
- #include <linux/elf.h>
- #include <linux/elfcore.h>
- #include <linux/vmalloc.h>
---- linux-2615-g3.orig/fs/reiserfs/ioctl.c
-+++ linux-2615-g3/fs/reiserfs/ioctl.c
-@@ -2,6 +2,7 @@
-  * Copyright 2000 by Hans Reiser, licensing governed by reiserfs/README
-  */
- 
-+#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/reiserfs_fs.h>
- #include <linux/time.h>
---- linux-2615-g3.orig/fs/reiserfs/xattr.c
-+++ linux-2615-g3/fs/reiserfs/xattr.c
-@@ -30,6 +30,7 @@
-  */
- 
- #include <linux/reiserfs_fs.h>
-+#include <linux/capability.h>
- #include <linux/dcache.h>
- #include <linux/namei.h>
- #include <linux/errno.h>
---- linux-2615-g3.orig/fs/reiserfs/xattr_acl.c
-+++ linux-2615-g3/fs/reiserfs/xattr_acl.c
-@@ -1,3 +1,4 @@
-+#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/posix_acl.h>
- #include <linux/reiserfs_fs.h>
---- linux-2615-g3.orig/fs/reiserfs/xattr_trusted.c
-+++ linux-2615-g3/fs/reiserfs/xattr_trusted.c
-@@ -1,4 +1,5 @@
- #include <linux/reiserfs_fs.h>
-+#include <linux/capability.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
- #include <linux/pagemap.h>
---- linux-2615-g3.orig/fs/smbfs/proc.c
-+++ linux-2615-g3/fs/smbfs/proc.c
-@@ -8,6 +8,7 @@
-  */
- 
- #include <linux/types.h>
-+#include <linux/capability.h>
- #include <linux/errno.h>
- #include <linux/slab.h>
- #include <linux/fs.h>
---- linux-2615-g3.orig/fs/sysfs/inode.c
-+++ linux-2615-g3/fs/sysfs/inode.c
-@@ -11,6 +11,7 @@
- #include <linux/pagemap.h>
- #include <linux/namei.h>
- #include <linux/backing-dev.h>
-+#include <linux/capability.h>
- #include "sysfs.h"
- 
- extern struct super_block * sysfs_sb;
---- linux-2615-g3.orig/fs/udf/file.c
-+++ linux-2615-g3/fs/udf/file.c
-@@ -31,6 +31,7 @@
- #include <asm/uaccess.h>
- #include <linux/kernel.h>
- #include <linux/string.h> /* memset */
-+#include <linux/capability.h>
- #include <linux/errno.h>
- #include <linux/smp_lock.h>
- #include <linux/pagemap.h>
---- linux-2615-g3.orig/fs/ocfs2/file.c
-+++ linux-2615-g3/fs/ocfs2/file.c
-@@ -23,6 +23,7 @@
-  * Boston, MA 021110-1307, USA.
-  */
- 
-+#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/types.h>
- #include <linux/slab.h>
---- linux-2615-g3.orig/fs/ufs/balloc.c
-+++ linux-2615-g3/fs/ufs/balloc.c
-@@ -13,6 +13,7 @@
- #include <linux/string.h>
- #include <linux/quotaops.h>
- #include <linux/buffer_head.h>
-+#include <linux/capability.h>
- #include <linux/sched.h>
- #include <linux/bitops.h>
- #include <asm/byteorder.h>
---- linux-2615-g3.orig/fs/xfs/xfs_acl.c
-+++ linux-2615-g3/fs/xfs/xfs_acl.c
-@@ -36,6 +36,7 @@
- #include "xfs_mac.h"
- #include "xfs_attr.h"
- 
-+#include <linux/capability.h>
- #include <linux/posix_acl_xattr.h>
- 
- STATIC int	xfs_acl_setmode(vnode_t *, xfs_acl_t *, int *);
---- linux-2615-g3.orig/fs/xfs/xfs_attr.c
-+++ linux-2615-g3/fs/xfs/xfs_attr.c
-@@ -15,6 +15,9 @@
-  * along with this program; if not, write the Free Software Foundation,
-  * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
-+
-+#include <linux/capability.h>
-+
- #include "xfs.h"
- #include "xfs_fs.h"
- #include "xfs_types.h"
---- linux-2615-g3.orig/fs/xfs/xfs_vnodeops.c
-+++ linux-2615-g3/fs/xfs/xfs_vnodeops.c
-@@ -15,6 +15,9 @@
-  * along with this program; if not, write the Free Software Foundation,
-  * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
-+
-+#include <linux/capability.h>
-+
- #include "xfs.h"
- #include "xfs_fs.h"
- #include "xfs_types.h"
---- linux-2615-g3.orig/fs/xfs/quota/xfs_qm_syscalls.c
-+++ linux-2615-g3/fs/xfs/quota/xfs_qm_syscalls.c
-@@ -15,6 +15,9 @@
-  * along with this program; if not, write the Free Software Foundation,
-  * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
-+
-+#include <linux/capability.h>
-+
- #include "xfs.h"
- #include "xfs_fs.h"
- #include "xfs_bit.h"
---- linux-2615-g3.orig/fs/xfs/linux-2.6/xfs_ioctl.c
-+++ linux-2615-g3/fs/xfs/linux-2.6/xfs_ioctl.c
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>
+--- linux-2615-g3.orig/net/appletalk/ddp.c
++++ linux-2615-g3/net/appletalk/ddp.c
 @@ -52,6 +52,7 @@
- #include "xfs_dfrag.h"
- #include "xfs_fsops.h"
- 
-+#include <linux/capability.h>
- #include <linux/dcache.h>
- #include <linux/mount.h>
- #include <linux/namei.h>
---- linux-2615-g3.orig/fs/xfs/linux-2.6/xfs_iops.c
-+++ linux-2615-g3/fs/xfs/linux-2.6/xfs_iops.c
-@@ -51,6 +51,7 @@
- #include "xfs_buf_item.h"
- #include "xfs_utils.h"
- 
-+#include <linux/capability.h>
- #include <linux/xattr.h>
- #include <linux/namei.h>
- 
---- linux-2615-g3.orig/fs/ext2/acl.c
-+++ linux-2615-g3/fs/ext2/acl.c
-@@ -4,6 +4,7 @@
-  * Copyright (C) 2001-2003 Andreas Gruenbacher, <agruen@suse.de>
   */
- 
-+#include <linux/capability.h>
- #include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
---- linux-2615-g3.orig/fs/ext2/balloc.c
-+++ linux-2615-g3/fs/ext2/balloc.c
-@@ -16,6 +16,7 @@
- #include <linux/quotaops.h>
- #include <linux/sched.h>
- #include <linux/buffer_head.h>
-+#include <linux/capability.h>
- 
- /*
-  * balloc.c contains the blocks allocation and deallocation routines
---- linux-2615-g3.orig/fs/ext2/ioctl.c
-+++ linux-2615-g3/fs/ext2/ioctl.c
-@@ -8,6 +8,7 @@
-  */
- 
- #include "ext2.h"
-+#include <linux/capability.h>
- #include <linux/time.h>
- #include <linux/sched.h>
- #include <asm/current.h>
---- linux-2615-g3.orig/fs/ext2/xattr_trusted.c
-+++ linux-2615-g3/fs/ext2/xattr_trusted.c
-@@ -7,6 +7,7 @@
- 
- #include <linux/module.h>
- #include <linux/string.h>
-+#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/smp_lock.h>
- #include <linux/ext2_fs.h>
---- linux-2615-g3.orig/fs/ext3/acl.c
-+++ linux-2615-g3/fs/ext3/acl.c
-@@ -7,6 +7,7 @@
- #include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-+#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/ext3_jbd.h>
- #include <linux/ext3_fs.h>
---- linux-2615-g3.orig/fs/ext3/balloc.c
-+++ linux-2615-g3/fs/ext3/balloc.c
-@@ -13,6 +13,7 @@
  
  #include <linux/config.h>
- #include <linux/time.h>
 +#include <linux/capability.h>
- #include <linux/fs.h>
- #include <linux/jbd.h>
- #include <linux/ext3_fs.h>
---- linux-2615-g3.orig/fs/ext3/ioctl.c
-+++ linux-2615-g3/fs/ext3/ioctl.c
-@@ -9,6 +9,7 @@
+ #include <linux/module.h>
+ #include <linux/if_arp.h>
+ #include <linux/termios.h>	/* For TIOCOUTQ/INQ */
+--- linux-2615-g3.orig/net/ax25/af_ax25.c
++++ linux-2615-g3/net/ax25/af_ax25.c
+@@ -14,6 +14,7 @@
+  * Copyright (C) Frederic Rible F1OAT (frible@teaser.fr)
+  */
+ #include <linux/config.h>
++#include <linux/capability.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ax25/ax25_route.c
++++ linux-2615-g3/net/ax25/ax25_route.c
+@@ -11,6 +11,8 @@
+  * Copyright (C) Hans-Joachim Hetscher DD8NE (dd8ne@bnv-bamberg.de)
+  * Copyright (C) Frederic Rible F1OAT (frible@teaser.fr)
+  */
++
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+ #include <linux/socket.h>
+--- linux-2615-g3.orig/net/ax25/ax25_uid.c
++++ linux-2615-g3/net/ax25/ax25_uid.c
+@@ -6,6 +6,8 @@
+  *
+  * Copyright (C) Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
+  */
++
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+ #include <linux/socket.h>
+--- linux-2615-g3.orig/net/bridge/br_ioctl.c
++++ linux-2615-g3/net/bridge/br_ioctl.c
+@@ -13,6 +13,7 @@
+  *	2 of the License, or (at your option) any later version.
+  */
  
- #include <linux/fs.h>
- #include <linux/jbd.h>
 +#include <linux/capability.h>
- #include <linux/ext3_fs.h>
- #include <linux/ext3_jbd.h>
+ #include <linux/kernel.h>
+ #include <linux/if_bridge.h>
+ #include <linux/netdevice.h>
+--- linux-2615-g3.orig/net/bridge/br_sysfs_br.c
++++ linux-2615-g3/net/bridge/br_sysfs_br.c
+@@ -11,6 +11,7 @@
+  *	2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
+ #include <linux/if_bridge.h>
+--- linux-2615-g3.orig/net/bridge/br_sysfs_if.c
++++ linux-2615-g3/net/bridge/br_sysfs_if.c
+@@ -11,6 +11,7 @@
+  *	2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
+ #include <linux/if_bridge.h>
+--- linux-2615-g3.orig/net/decnet/af_decnet.c
++++ linux-2615-g3/net/decnet/af_decnet.c
+@@ -122,6 +122,7 @@ Version 0.0.6    2.1.110   07-aug-98   E
+ #include <net/flow.h>
+ #include <asm/system.h>
+ #include <asm/ioctls.h>
++#include <linux/capability.h>
+ #include <linux/mm.h>
+ #include <linux/interrupt.h>
+ #include <linux/proc_fs.h>
+--- linux-2615-g3.orig/net/decnet/dn_dev.c
++++ linux-2615-g3/net/decnet/dn_dev.c
+@@ -25,6 +25,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <linux/capability.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
+--- linux-2615-g3.orig/net/ipx/af_ipx.c
++++ linux-2615-g3/net/ipx/af_ipx.c
+@@ -29,6 +29,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/if_arp.h>
+ #include <linux/if_ether.h>
+--- linux-2615-g3.orig/net/irda/af_irda.c
++++ linux-2615-g3/net/irda/af_irda.c
+@@ -43,6 +43,7 @@
+  ********************************************************************/
+ 
+ #include <linux/config.h>
++#include <linux/capability.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/socket.h>
+--- linux-2615-g3.orig/net/irda/irda_device.c
++++ linux-2615-g3/net/irda/irda_device.c
+@@ -33,6 +33,7 @@
+ #include <linux/string.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
++#include <linux/capability.h>
+ #include <linux/if.h>
+ #include <linux/if_ether.h>
+ #include <linux/if_arp.h>
+--- linux-2615-g3.orig/net/irda/irnet/irnet.h
++++ linux-2615-g3/net/irda/irnet/irnet.h
+@@ -248,6 +248,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/miscdevice.h>
+ #include <linux/poll.h>
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/ctype.h>	/* isspace() */
+ #include <asm/uaccess.h>
+--- linux-2615-g3.orig/net/key/af_key.c
++++ linux-2615-g3/net/key/af_key.c
+@@ -15,6 +15,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <linux/capability.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/socket.h>
+--- linux-2615-g3.orig/net/netlink/af_netlink.c
++++ linux-2615-g3/net/netlink/af_netlink.c
+@@ -24,6 +24,7 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ 
++#include <linux/capability.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/signal.h>
+--- linux-2615-g3.orig/net/netrom/af_netrom.c
++++ linux-2615-g3/net/netrom/af_netrom.c
+@@ -11,6 +11,7 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+ #include <linux/socket.h>
+--- linux-2615-g3.orig/net/packet/af_packet.c
++++ linux-2615-g3/net/packet/af_packet.c
+@@ -53,6 +53,7 @@
+ #include <linux/types.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
++#include <linux/capability.h>
+ #include <linux/fcntl.h>
+ #include <linux/socket.h>
+ #include <linux/in.h>
+--- linux-2615-g3.orig/net/rose/af_rose.c
++++ linux-2615-g3/net/rose/af_rose.c
+@@ -9,7 +9,9 @@
+  * Copyright (C) Terry Dawson VK2KTJ (terry@animats.net)
+  * Copyright (C) Tomi Manninen OH2BNS (oh2bns@sral.fi)
+  */
++
+ #include <linux/config.h>
++#include <linux/capability.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
+--- linux-2615-g3.orig/net/sctp/socket.c
++++ linux-2615-g3/net/sctp/socket.c
+@@ -63,6 +63,7 @@
+ #include <linux/wait.h>
  #include <linux/time.h>
---- linux-2615-g3.orig/fs/ext3/xattr_trusted.c
-+++ linux-2615-g3/fs/ext3/xattr_trusted.c
+ #include <linux/ip.h>
++#include <linux/capability.h>
+ #include <linux/fcntl.h>
+ #include <linux/poll.h>
+ #include <linux/init.h>
+--- linux-2615-g3.orig/net/wanrouter/af_wanpipe.c
++++ linux-2615-g3/net/wanrouter/af_wanpipe.c
+@@ -36,6 +36,7 @@
+ #include <linux/types.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
++#include <linux/capability.h>
+ #include <linux/fcntl.h>
+ #include <linux/socket.h>
+ #include <linux/in.h>
+--- linux-2615-g3.orig/net/wanrouter/wanmain.c
++++ linux-2615-g3/net/wanrouter/wanmain.c
+@@ -44,6 +44,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/stddef.h>	/* offsetof(), etc. */
++#include <linux/capability.h>
+ #include <linux/errno.h>	/* return codes */
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+--- linux-2615-g3.orig/net/x25/af_x25.c
++++ linux-2615-g3/net/x25/af_x25.c
+@@ -37,6 +37,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+--- linux-2615-g3.orig/net/atm/br2684.c
++++ linux-2615-g3/net/atm/br2684.c
+@@ -18,6 +18,7 @@ Author: Marcell GAL, 2000, XDSL Ltd, Hun
+ #include <net/arp.h>
+ #include <linux/atm.h>
+ #include <linux/atmdev.h>
++#include <linux/capability.h>
+ #include <linux/seq_file.h>
+ 
+ #include <linux/atmbr2684.h>
+--- linux-2615-g3.orig/net/atm/clip.c
++++ linux-2615-g3/net/atm/clip.c
+@@ -19,6 +19,7 @@
+ #include <linux/atmdev.h>
+ #include <linux/atmclip.h>
+ #include <linux/atmarp.h>
++#include <linux/capability.h>
+ #include <linux/ip.h> /* for net/route.h */
+ #include <linux/in.h> /* for struct sockaddr_in */
+ #include <linux/if.h> /* for IFF_UP */
+--- linux-2615-g3.orig/net/atm/ioctl.c
++++ linux-2615-g3/net/atm/ioctl.c
+@@ -12,6 +12,7 @@
+ #include <linux/atmdev.h>
+ #include <linux/atmclip.h>	/* CLIP_*ENCAP */
+ #include <linux/atmarp.h>	/* manifest constants */
++#include <linux/capability.h>
+ #include <linux/sonet.h>	/* for ioctls */
+ #include <linux/atmsvc.h>
+ #include <linux/atmmpc.h>
+--- linux-2615-g3.orig/net/atm/lec.c
++++ linux-2615-g3/net/atm/lec.c
 @@ -7,6 +7,7 @@
+ #include <linux/config.h>
+ #include <linux/kernel.h>
+ #include <linux/bitops.h>
++#include <linux/capability.h>
+ 
+ /* We are ethernet device */
+ #include <linux/if_ether.h>
+--- linux-2615-g3.orig/net/atm/mpc.c
++++ linux-2615-g3/net/atm/mpc.c
+@@ -3,6 +3,7 @@
+ #include <linux/timer.h>
+ #include <linux/init.h>
+ #include <linux/bitops.h>
++#include <linux/capability.h>
+ #include <linux/seq_file.h>
+ 
+ /* We are an ethernet device */
+--- linux-2615-g3.orig/net/atm/pppoatm.c
++++ linux-2615-g3/net/atm/pppoatm.c
+@@ -39,6 +39,7 @@
+ #include <linux/skbuff.h>
+ #include <linux/atm.h>
+ #include <linux/atmdev.h>
++#include <linux/capability.h>
+ #include <linux/ppp_defs.h>
+ #include <linux/if_ppp.h>
+ #include <linux/ppp_channel.h>
+--- linux-2615-g3.orig/net/atm/raw.c
++++ linux-2615-g3/net/atm/raw.c
+@@ -6,6 +6,7 @@
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/atmdev.h>
++#include <linux/capability.h>
+ #include <linux/kernel.h>
+ #include <linux/skbuff.h>
+ #include <linux/mm.h>
+--- linux-2615-g3.orig/net/atm/resources.c
++++ linux-2615-g3/net/atm/resources.c
+@@ -16,6 +16,7 @@
+ #include <linux/kernel.h> /* for barrier */
+ #include <linux/module.h>
+ #include <linux/bitops.h>
++#include <linux/capability.h>
+ #include <linux/delay.h>
+ #include <net/sock.h>	 /* for struct sock */
+ 
+--- linux-2615-g3.orig/net/bluetooth/bnep/sock.c
++++ linux-2615-g3/net/bluetooth/bnep/sock.c
+@@ -32,6 +32,7 @@
+ #include <linux/module.h>
+ 
+ #include <linux/types.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+--- linux-2615-g3.orig/net/bluetooth/cmtp/sock.c
++++ linux-2615-g3/net/bluetooth/cmtp/sock.c
+@@ -24,6 +24,7 @@
+ #include <linux/module.h>
+ 
+ #include <linux/types.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+--- linux-2615-g3.orig/net/bluetooth/hci_sock.c
++++ linux-2615-g3/net/bluetooth/hci_sock.c
+@@ -28,6 +28,7 @@
+ #include <linux/module.h>
+ 
+ #include <linux/types.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+--- linux-2615-g3.orig/net/bluetooth/hidp/sock.c
++++ linux-2615-g3/net/bluetooth/hidp/sock.c
+@@ -24,6 +24,7 @@
+ #include <linux/module.h>
+ 
+ #include <linux/types.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+--- linux-2615-g3.orig/net/bluetooth/l2cap.c
++++ linux-2615-g3/net/bluetooth/l2cap.c
+@@ -28,6 +28,7 @@
+ #include <linux/module.h>
+ 
+ #include <linux/types.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+--- linux-2615-g3.orig/net/bluetooth/rfcomm/tty.c
++++ linux-2615-g3/net/bluetooth/rfcomm/tty.c
+@@ -34,6 +34,7 @@
+ #include <linux/tty_driver.h>
+ #include <linux/tty_flip.h>
+ 
++#include <linux/capability.h>
+ #include <linux/slab.h>
+ #include <linux/skbuff.h>
+ 
+--- linux-2615-g3.orig/net/core/dev.c
++++ linux-2615-g3/net/core/dev.c
+@@ -75,6 +75,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+ #include <linux/bitops.h>
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/cpu.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/core/dv.c
++++ linux-2615-g3/net/core/dv.c
+@@ -24,6 +24,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+ #include <linux/skbuff.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <net/dst.h>
+--- linux-2615-g3.orig/net/core/ethtool.c
++++ linux-2615-g3/net/core/ethtool.c
+@@ -11,6 +11,7 @@
  
  #include <linux/module.h>
+ #include <linux/types.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/ethtool.h>
+ #include <linux/netdevice.h>
+--- linux-2615-g3.orig/net/core/net-sysfs.c
++++ linux-2615-g3/net/core/net-sysfs.c
+@@ -9,6 +9,7 @@
+  *	2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
+--- linux-2615-g3.orig/net/core/pktgen.c
++++ linux-2615-g3/net/core/pktgen.c
+@@ -116,13 +116,13 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+-#include <linux/sched.h>
+ #include <linux/unistd.h>
  #include <linux/string.h>
+ #include <linux/ptrace.h>
+ #include <linux/errno.h>
+ #include <linux/ioport.h>
+ #include <linux/interrupt.h>
++#include <linux/capability.h>
+ #include <linux/delay.h>
+ #include <linux/timer.h>
+ #include <linux/init.h>
+--- linux-2615-g3.orig/net/core/scm.c
++++ linux-2615-g3/net/core/scm.c
+@@ -11,6 +11,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/signal.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+--- linux-2615-g3.orig/net/core/sock.c
++++ linux-2615-g3/net/core/sock.c
+@@ -91,6 +91,7 @@
+  *		2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ipv4/af_inet.c
++++ linux-2615-g3/net/ipv4/af_inet.c
+@@ -79,6 +79,7 @@
+ #include <linux/string.h>
+ #include <linux/sockios.h>
+ #include <linux/net.h>
++#include <linux/capability.h>
+ #include <linux/fcntl.h>
+ #include <linux/mm.h>
+ #include <linux/interrupt.h>
+--- linux-2615-g3.orig/net/ipv4/arp.c
++++ linux-2615-g3/net/ipv4/arp.c
+@@ -79,6 +79,7 @@
+ #include <linux/string.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/socket.h>
+ #include <linux/sockios.h>
+--- linux-2615-g3.orig/net/ipv4/devinet.c
++++ linux-2615-g3/net/ipv4/devinet.c
+@@ -32,6 +32,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+ #include <linux/bitops.h>
++#include <linux/capability.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+--- linux-2615-g3.orig/net/ipv4/fib_frontend.c
++++ linux-2615-g3/net/ipv4/fib_frontend.c
+@@ -20,6 +20,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+ #include <linux/bitops.h>
++#include <linux/capability.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+--- linux-2615-g3.orig/net/ipv4/ip_gre.c
++++ linux-2615-g3/net/ipv4/ip_gre.c
+@@ -10,6 +10,7 @@
+  *
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ipv4/ip_options.c
++++ linux-2615-g3/net/ipv4/ip_options.c
+@@ -11,6 +11,7 @@
+  *		
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <asm/uaccess.h>
+--- linux-2615-g3.orig/net/ipv4/ipip.c
++++ linux-2615-g3/net/ipv4/ipip.c
+@@ -93,6 +93,7 @@
+  */
+ 
+  
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ipv4/ipmr.c
++++ linux-2615-g3/net/ipv4/ipmr.c
+@@ -33,6 +33,7 @@
+ #include <asm/uaccess.h>
+ #include <linux/types.h>
+ #include <linux/sched.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/timer.h>
+ #include <linux/mm.h>
+--- linux-2615-g3.orig/net/ipv4/ipvs/ip_vs_ctl.c
++++ linux-2615-g3/net/ipv4/ipvs/ip_vs_ctl.c
+@@ -23,6 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/types.h>
 +#include <linux/capability.h>
  #include <linux/fs.h>
- #include <linux/smp_lock.h>
- #include <linux/ext3_jbd.h>
+ #include <linux/sysctl.h>
+ #include <linux/proc_fs.h>
+--- linux-2615-g3.orig/net/ipv4/netfilter/arp_tables.c
++++ linux-2615-g3/net/ipv4/netfilter/arp_tables.c
+@@ -13,6 +13,7 @@
+ #include <linux/kernel.h>
+ #include <linux/skbuff.h>
+ #include <linux/netdevice.h>
++#include <linux/capability.h>
+ #include <linux/if_arp.h>
+ #include <linux/kmod.h>
+ #include <linux/vmalloc.h>
+--- linux-2615-g3.orig/net/ipv4/netfilter/ip_tables.c
++++ linux-2615-g3/net/ipv4/netfilter/ip_tables.c
+@@ -14,6 +14,7 @@
+  */
+ #include <linux/config.h>
+ #include <linux/cache.h>
++#include <linux/capability.h>
+ #include <linux/skbuff.h>
+ #include <linux/kmod.h>
+ #include <linux/vmalloc.h>
+--- linux-2615-g3.orig/net/ipv6/addrconf.c
++++ linux-2615-g3/net/ipv6/addrconf.c
+@@ -58,6 +58,7 @@
+ #ifdef CONFIG_SYSCTL
+ #include <linux/sysctl.h>
+ #endif
++#include <linux/capability.h>
+ #include <linux/delay.h>
+ #include <linux/notifier.h>
+ #include <linux/string.h>
+--- linux-2615-g3.orig/net/ipv6/af_inet6.c
++++ linux-2615-g3/net/ipv6/af_inet6.c
+@@ -22,6 +22,7 @@
+ 
+ 
+ #include <linux/module.h>
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ipv6/anycast.c
++++ linux-2615-g3/net/ipv6/anycast.c
+@@ -13,6 +13,7 @@
+  *      2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
+--- linux-2615-g3.orig/net/ipv6/datagram.c
++++ linux-2615-g3/net/ipv6/datagram.c
+@@ -13,6 +13,7 @@
+  *      2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+--- linux-2615-g3.orig/net/ipv6/ip6_flowlabel.c
++++ linux-2615-g3/net/ipv6/ip6_flowlabel.c
+@@ -9,6 +9,7 @@
+  *	Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ipv6/ip6_tunnel.c
++++ linux-2615-g3/net/ipv6/ip6_tunnel.c
+@@ -21,6 +21,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+ #include <linux/sockios.h>
+--- linux-2615-g3.orig/net/ipv6/ipv6_sockglue.c
++++ linux-2615-g3/net/ipv6/ipv6_sockglue.c
+@@ -26,6 +26,7 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ipv6/netfilter/ip6_tables.c
++++ linux-2615-g3/net/ipv6/netfilter/ip6_tables.c
+@@ -14,6 +14,8 @@
+  * 06 Jun 2002 Andras Kis-Szabo <kisza@sch.bme.hu>
+  *      - new extension header parser code
+  */
++
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/in.h>
+ #include <linux/skbuff.h>
+--- linux-2615-g3.orig/net/ipv6/route.c
++++ linux-2615-g3/net/ipv6/route.c
+@@ -24,6 +24,7 @@
+  *		reachable.  otherwise, round-robin the list.
+  */
+ 
++#include <linux/capability.h>
+ #include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+--- linux-2615-g3.orig/net/ipv6/sit.c
++++ linux-2615-g3/net/ipv6/sit.c
+@@ -20,6 +20,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/capability.h>
+ #include <linux/errno.h>
+ #include <linux/types.h>
+ #include <linux/socket.h>
 
 
 ---

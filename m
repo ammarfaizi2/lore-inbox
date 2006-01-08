@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbWAHIUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161168AbWAHIak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161161AbWAHIUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 03:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161168AbWAHIUP
+	id S1161168AbWAHIak (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 03:30:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWAHIak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 03:20:15 -0500
-Received: from fmr16.intel.com ([192.55.52.70]:641 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1161161AbWAHIUO convert rfc822-to-8bit (ORCPT
+	Sun, 8 Jan 2006 03:30:40 -0500
+Received: from ozlabs.org ([203.10.76.45]:60650 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1161168AbWAHIaj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 03:20:14 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sun, 8 Jan 2006 03:30:39 -0500
+Date: Sun, 8 Jan 2006 19:23:01 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jes@trained-monkey.org, rmk+lkml@arm.linux.org.uk, ak@suse.de,
+       linux-kernel@vger.kernel.org, hch@infradead.org, torvalds@osdl.org,
+       viro@ftp.linux.org.uk, linuxppc64-dev@ozlabs.org, mingo@elte.hu,
+       nico@cam.org, oleg@tv-sign.ru, alan@lxorguk.ukuu.org.uk,
+       arjan@infradead.org
+Subject: Re: PowerPC fastpaths for mutex subsystem
+Message-ID: <20060108082301.GN26499@krispykreme>
+References: <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <20060106002919.GA29190@pb15.lixom.net> <43BFFF1D.7030007@austin.ibm.com> <20060107143722.25afd85d.akpm@osdl.org> <20060108074356.GM26499@krispykreme> <20060108000021.588c6f5f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.6.15-mm2
-Date: Sun, 8 Jan 2006 03:19:45 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005A1348B@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.15-mm2
-Thread-Index: AcYT0iT1CmFQ3eCTT62tq0qa1wchFQAWcjrg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Reuben Farrelly" <reuben-lkml@reub.net>
-Cc: <linux-kernel@vger.kernel.org>, "Jeff Garzik" <jgarzik@pobox.com>,
-       "Stephen Hemminger" <shemminger@osdl.org>
-X-OriginalArrivalTime: 08 Jan 2006 08:19:48.0197 (UTC) FILETIME=[4A293950:01C6142C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060108000021.588c6f5f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
  
->> 2. Notice above how the sky2 driver is being bailed out:
->> 
->> ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 17 (level, low) -> IRQ 177
->> sky2 Cannot find PowerManagement capability, aborting.
->> sky2: probe of 0000:04:00.0 failed with error -5
->>
->> ...so I'm not sure if it's the driver or something else 
->> like ACPI that is the root cause.
->
->Could be acpi, yes.
+> What's "unfair"?  Mutexes are FIFO, as are x86 semaphores.
 
-Any difference if you boot with "acpi=off" or "pci=noacpi"?
-If that fixes it, then ACPI is shomehow involved in the problem.
-If it doesn't fix it, then ACPI is not involved.
+The ppc64 semaphores dont force everyone into the slow path under
+contention. So you could drop and pick up the semaphore even with
+someone waiting. I thought thats how the new mutex code worked.
 
-thanks,
--Len
+Anton

@@ -1,73 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161205AbWAHVVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161207AbWAHV3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161205AbWAHVVD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 16:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWAHVVC
+	id S1161207AbWAHV3h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWAHV3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 16:21:02 -0500
-Received: from web31815.mail.mud.yahoo.com ([68.142.206.168]:56227 "HELO
-	web31815.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161205AbWAHVVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 16:21:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=YKo7OshAB3SFS2M9+kEMqIpSmYviFSU+XFZnyU4lcAMZSrQnBQ7e8PZY5zcyBLR0hBWLkjaAsj1ZhhVMkFQ0qeJa3R8VkrLjCwdsZSF8DTvb8NmLZj3K1Bs+/YAq3Mi4sxb6XkALJKtP0dnqUJgVpABfooVBMRFUNPHZPzRw8z8=  ;
-Message-ID: <20060108212057.79825.qmail@web31815.mail.mud.yahoo.com>
-Date: Sun, 8 Jan 2006 13:20:57 -0800 (PST)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: git pull on Linux/ACPI release tree
-To: Linus Torvalds <torvalds@osdl.org>,
-       Martin Langhoff <martin.langhoff@gmail.com>
-Cc: "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0601081141450.3169@g5.osdl.org>
+	Sun, 8 Jan 2006 16:29:37 -0500
+Received: from lust.fud.no ([213.145.167.25]:41635 "EHLO lust.fud.no")
+	by vger.kernel.org with ESMTP id S1161207AbWAHV3g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 16:29:36 -0500
+Date: Sun, 8 Jan 2006 22:29:12 +0100
+From: Tore Anderson <tore@fud.no>
+To: sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] ext3: fix documentation of online resizing
+Message-ID: <20060108212912.GB5717@fud.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Linus Torvalds <torvalds@osdl.org> wrote:
-> So trying out git-rebase and git-cherry-pick just in case you decide to 
-> want to use them might be worthwhile. Making it part of your daily routine 
-> like David has done? Somewhat questionable, but hey, it seems to be 
-> working for David, and it does make some things much easier, so..
+Undocument the non-working resize= mount option in ext3, and add some
+references to the ext2resize package instead, which appears to be the
+only proper way of doing online resizing of ext3 filesystems.
 
-How about this usage (branch == tree):
+Signed-off-by: Tore Anderson <tore@fud.no>
 
-Tree A    (your tree)
-  Tree B     (project B, dependent on Tree A)
-     Tree C     (project C, dependent on project B)
+---
 
-(i.e. diff(C-A) = diff(C-B) + diff(B-A))
+I first thought online resizing was supposed to be done like in JFS
+(using mount -o remount,resize=nblocks), and fixed fs/ext3/super.c so
+the resize option was recognized properly.  However, the feature
+simply didn't work (mount ended up in blocking I/O sleep with nothing
+happening), so I assume the option is intentionally disabled.
 
-Your tree is pulled into Tree A as often as your tree
-changes and it just fast forwards.
+diff --git a/Documentation/filesystems/ext3.txt b/Documentation/filesystems/ext3.txt
+index 9840d5b..c665644 100644
+--- a/Documentation/filesystems/ext3.txt
++++ b/Documentation/filesystems/ext3.txt
+@@ -77,8 +77,6 @@ reservation
+ 
+ noreservation
+ 
+-resize=
+-
+ bsddf 		(*)	Make 'df' act like BSD.
+ minixdf			Make 'df' act like Minix.
+ 
+@@ -168,6 +166,7 @@ see manual pages to know more.
+ tune2fs: 	create a ext3 journal on a ext2 partition with the -j flags
+ mke2fs: 	create a ext3 partition with the -j flags
+ debugfs: 	ext2 and ext3 file system debugger
++ext2online:	online (mounted) ext2 and ext3 filesystem resizer
+ 
+ References
+ ==========
+@@ -176,6 +175,7 @@ kernel source:	file:/usr/src/linux/fs/ex
+ 		file:/usr/src/linux/fs/jbd
+ 
+ programs: 	http://e2fsprogs.sourceforge.net
++		http://ext2resize.sourceforge.net
+ 
+ useful link:
+ 		http://www.zip.com.au/~akpm/linux/ext3/ext3-usage.html
 
-If I want to run project B with your latest tree, then
-I resolve/merge from tree A to tree B, compile B
-and run it.
-
-If I want to run project C and project B with your
-latest tree, I resolve/merge from tree A to tree B
-and from tree B to tree C, compile C and run it.
-
-In such cases, are you saying that you'd prefer to
-pull from Tree B and Tree C (depending on your needs)?
-
-Another question:
-Sometimes, a fix for project B finds its way into
-tree C (project C) (since C depended on that fix in B).
-Now I'd like to pull that particular fix, identified by
-its SHA, into project B, and nothing else, for this I can
-use git-cherry-pick, right?
-
-And lastly, is there a tool whereby I can "see" changes
-between repos, kind of like git-diff but being able to
-give URLs too?
-
-    Luben
-
+-- 
+Tore Anderson

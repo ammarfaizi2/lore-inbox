@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161215AbWAHVnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161220AbWAHVqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161215AbWAHVnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 16:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161217AbWAHVnn
+	id S1161220AbWAHVqa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbWAHVqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 16:43:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56754 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161215AbWAHVnn (ORCPT
+	Sun, 8 Jan 2006 16:46:30 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:8594 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161220AbWAHVq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 16:43:43 -0500
-Date: Sun, 8 Jan 2006 13:43:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] mm: page refcount use atomic primitives
-Message-Id: <20060108134327.63c3afeb.akpm@osdl.org>
-In-Reply-To: <43C178D5.5010703@yahoo.com.au>
-References: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
-	<20060108052342.2996.33981.sendpatchset@didi.local0.net>
-	<20060107215413.560aa3a9.akpm@osdl.org>
-	<43C178D5.5010703@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Jan 2006 16:46:29 -0500
+Date: Sun, 8 Jan 2006 22:46:22 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] It's UTF-8
+In-Reply-To: <20060108203851.GA5864@mipter.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.61.0601082245090.17804@yvahk01.tjqt.qr>
+References: <20060108203851.GA5864@mipter.zuzino.mipt.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> > That's from a two-minute-peek.  I haven't thought about this dreadfully
->  > hard.  But I'd like to gain some confidence that you have, please.  This
->  > stuff is tricky.
->  > 
-> 
->  Right, no blam. This is how I avoid taking the LRU lock.
-> 
->    "Instead, use atomic_inc_not_zero to ensure we never **pick up a 0 refcount**
->     page from the LRU (ie. we guarantee the page will not be touched)."
-> 
->  I don't understand what you're asking?
 
-Well if you don't understand me, how do you expect me to?
+>Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-Ho hum.  Please redo the patches into something which vaguely applies and
-let's give them a spin.
+I'd say ACK. However,
 
-I would prefer that the BUG_ONs be split into a separate patch tho.  Or at
-least, let's take a real close look at whether they're really needed.
+> iocharset=name	Character set to use for converting from Unicode to
+> 		ASCII.  The default is to do no conversion.  Use
+>-		iocharset=utf8 for UTF8 translations.  This requires
+>+		iocharset=utf8 for UTF-8 translations.  This requires
+> 		CONFIG_NLS_UTF8 to be set in the kernel .config file.
+
+If you are really nitpicky about the "-", then it should also be 
+"iocharset=utf-8" (and whereever else). Or what's the real purpose of 
+adding the dashes in only half of the places, then?
+
+
+
+Jan Engelhardt
+-- 
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/

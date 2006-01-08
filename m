@@ -1,46 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752590AbWAHMEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752592AbWAHMHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752590AbWAHMEa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 07:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752592AbWAHMEa
+	id S1752592AbWAHMHR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 07:07:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWAHMHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 07:04:30 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:26061 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752590AbWAHME3 (ORCPT
+	Sun, 8 Jan 2006 07:07:16 -0500
+Received: from mail.gmx.net ([213.165.64.21]:8579 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1752592AbWAHMHP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 07:04:29 -0500
-Date: Sun, 8 Jan 2006 13:04:22 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Grant Coady <gcoady@gmail.com>
-cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
-In-Reply-To: <irf1s1hdoqbsf9cin627gh9tgrsb51htoe@4ax.com>
-Message-ID: <Pine.LNX.4.61.0601081303140.30148@yvahk01.tjqt.qr>
-References: <d9def9db0601072258v39ac4334kccc843838b436bba@mail.gmail.com>
- <E1EvUp6-0008Ni-00@calista.inka.de> <irf1s1hdoqbsf9cin627gh9tgrsb51htoe@4ax.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Jan 2006 07:07:15 -0500
+X-Authenticated: #656597
+Date: Sun, 8 Jan 2006 13:05:33 +0100
+From: Patrick Leslie Polzer <leslie.polzer@gmx.net>
+To: Mikado <mikado4vn@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, linux-c-programming@vger.kernel.org
+Subject: Re: Resend: Netlink socket problem
+Message-Id: <20060108130533.4cf244af.leslie.polzer@gmx.net>
+In-Reply-To: <20060108092505.62484.qmail@web53702.mail.yahoo.com>
+References: <20060108092505.62484.qmail@web53702.mail.yahoo.com>
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp."
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log |cut -c-96
->
->real    0m1.671s
->user    0m0.550s
->sys     0m0.300s
->grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log |cut -c-96 >/dev/null
->
->real    0m0.510s
->user    0m0.420s
->sys     0m0.080s
-
-Given that the first command is the first one accessing access_log at 
-all, then: the second time, access_log is already cached and 
-therefore can be accessed faster.
+--Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp.
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+Hi Mikado,
+
+On Sun, 8 Jan 2006 01:25:05 -0800 (PST)
+Mikado <Mikado <mikado4vn@yahoo.com>> wrote:
+
+ | Is there anything wrong in my codes? I think the problem is the
+ | netlink_unicast(), because when I didn't call it, everything work well.
+Check whether nl_sk equals NULL.
+I don't know whether there's an assert() macro available for you, so try th=
+is:
+
+/* [...] */
+    if (nl_sk =3D=3D NULL)
+    {
+        printk(KERN_ALERT "nltest: nl_sk is NULL!");
+        goto return_free;
+    }
+
+    netlink_unicast(nl_sk, nl_skb, pid, 0);
+return_free:
+    kfree_skb(nl_skb);
+}
+
+A gdb backtrace of the user space part won't give you much, since you
+found out the problem lies in kernel space.
+
+What does netlink_unicast() do?
+
+Leslie
+
+--=20
+gpg --keyserver pgp.mit.edu --recv-keys 0x52D70289
+
+--Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp.
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDwQAQn/ep3VLXAokRAlaFAKDAkvHMtO3BeJG///dsMYWq5AzcGACgq5Xz
+6f8LevCfKagdybzIaaWfkj8=
+=M3ZU
+-----END PGP SIGNATURE-----
+
+--Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp.--

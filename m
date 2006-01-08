@@ -1,99 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161116AbWAHBA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161118AbWAHBI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161116AbWAHBA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 20:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbWAHBA0
+	id S1161118AbWAHBI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 20:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWAHBI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 20:00:26 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:36027 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161116AbWAHBAZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 20:00:25 -0500
-Message-ID: <43C06420.1080300@zytor.com>
-Date: Sat, 07 Jan 2006 17:00:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 7 Jan 2006 20:08:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5597 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161118AbWAHBI2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 20:08:28 -0500
+Date: Sat, 7 Jan 2006 17:08:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Drop vmlinux dependency from "make install"
+In-Reply-To: <43C06420.1080300@zytor.com>
+Message-ID: <Pine.LNX.4.64.0601071707160.3169@g5.osdl.org>
+References: <43C06420.1080300@zytor.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Drop vmlinux dependency from "make install"
-Content-Type: multipart/mixed;
- boundary="------------000206070409020101030303"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000206070409020101030303
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
 
---------------000206070409020101030303
-Content-Type: text/plain;
- name="clean-install"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="clean-install"
+I think you should make the error messages a bit more informative. Like 
+saying
 
-W2kzODYsIHg4Nl82NF0gUmVtb3ZlIHRoZSBkZXBlbmRlbmN5IHZtbGludXggLT4gaW5zdGFs
-bAoKVGhpcyByZW1vdmVzIHRoZSBkZXBlbmRlbmN5IGZyb20gdm1saW51eCB0byBpbnN0YWxs
-LCB0aHVzIGF2b2lkaW5nIHRoZQpjdXJyZW50IHNpdHVhdGlvbiB3aGVyZSAibWFrZSBpbnN0
-YWxsIiBoYXMgYSBuYXN0eSB0ZW5kZW5jeSB0byBsZWF2ZQpyb290LXR1cmRzIGluIHRoZSB3
-b3JraW5nIGRpcmVjdG9yeS4KCkl0IGFsc28gdXBkYXRlcyB4ODYtNjQgdG8gYmUgaW4gc3lu
-YyB3aXRoIGkzODYuCgpTaWduZWQtb2ZmLWJ5OiBILiBQZXRlciBBbnZpbiA8aHBhQHp5dG9y
-LmNvbT4KCmRpZmYgLS1naXQgYS9hcmNoL2kzODYvTWFrZWZpbGUgYi9hcmNoL2kzODYvTWFr
-ZWZpbGUKaW5kZXggZDEyMWVhMS4uNzdiYjY3YiAxMDA2NDQKLS0tIGEvYXJjaC9pMzg2L01h
-a2VmaWxlCisrKyBiL2FyY2gvaTM4Ni9NYWtlZmlsZQpAQCAtMTI1LDcgKzEyNSw2IEBAIHpk
-aXNrIGJ6ZGlzazogdm1saW51eAogZmRpbWFnZSBmZGltYWdlMTQ0IGZkaW1hZ2UyODg6IHZt
-bGludXgKIAkkKFEpJChNQUtFKSAkKGJ1aWxkKT0kKGJvb3QpIEJPT1RJTUFHRT0kKEtCVUlM
-RF9JTUFHRSkgJEAKIAotaW5zdGFsbDogdm1saW51eAogaW5zdGFsbCBrZXJuZWxfaW5zdGFs
-bDoKIAkkKFEpJChNQUtFKSAkKGJ1aWxkKT0kKGJvb3QpIEJPT1RJTUFHRT0kKEtCVUlMRF9J
-TUFHRSkgaW5zdGFsbAogCmRpZmYgLS1naXQgYS9hcmNoL2kzODYvYm9vdC9NYWtlZmlsZSBi
-L2FyY2gvaTM4Ni9ib290L01ha2VmaWxlCmluZGV4IDFlNzEzODIuLjBmZWE3NWQgMTAwNjQ0
-Ci0tLSBhL2FyY2gvaTM4Ni9ib290L01ha2VmaWxlCisrKyBiL2FyY2gvaTM4Ni9ib290L01h
-a2VmaWxlCkBAIC0xMDAsNSArMTAwLDUgQEAgemxpbG86ICQoQk9PVElNQUdFKQogCWNwIFN5
-c3RlbS5tYXAgJChJTlNUQUxMX1BBVEgpLwogCWlmIFsgLXggL3NiaW4vbGlsbyBdOyB0aGVu
-IC9zYmluL2xpbG87IGVsc2UgL2V0Yy9saWxvL2luc3RhbGw7IGZpCiAKLWluc3RhbGw6ICQo
-Qk9PVElNQUdFKQoraW5zdGFsbDoKIAlzaCAkKHNyY3RyZWUpLyQoc3JjKS9pbnN0YWxsLnNo
-ICQoS0VSTkVMUkVMRUFTRSkgJDwgU3lzdGVtLm1hcCAiJChJTlNUQUxMX1BBVEgpIgpkaWZm
-IC0tZ2l0IGEvYXJjaC9pMzg2L2Jvb3QvaW5zdGFsbC5zaCBiL2FyY2gvaTM4Ni9ib290L2lu
-c3RhbGwuc2gKaW5kZXggZjE3YjQwZC4uZWUzMzZjYiAxMDA2NDQKLS0tIGEvYXJjaC9pMzg2
-L2Jvb3QvaW5zdGFsbC5zaAorKysgYi9hcmNoL2kzODYvYm9vdC9pbnN0YWxsLnNoCkBAIC0x
-OSw2ICsxOSwxNyBAQAogIyAgICQ0IC0gZGVmYXVsdCBpbnN0YWxsIHBhdGggKGJsYW5rIGlm
-IHJvb3QgZGlyZWN0b3J5KQogIwogCit2ZXJpZnkgKCkgeworCWlmIFsgISAtZiAiJDEiIF07
-IHRoZW4KKwkJZWNobyAiTWlzc2luZyBmaWxlOiAkMSIgMT4mMgorCQlleGl0IDEKKyAJZmkK
-K30KKworIyBNYWtlIHN1cmUgdGhlIGZpbGVzIGFjdHVhbGx5IGV4aXN0Cit2ZXJpZnkgIiQy
-IgordmVyaWZ5ICIkMyIKKwogIyBVc2VyIG1heSBoYXZlIGEgY3VzdG9tIGluc3RhbGwgc2Ny
-aXB0CiAKIGlmIFsgLXggfi9iaW4vJHtDUk9TU19DT01QSUxFfWluc3RhbGxrZXJuZWwgXTsg
-dGhlbiBleGVjIH4vYmluLyR7Q1JPU1NfQ09NUElMRX1pbnN0YWxsa2VybmVsICIkQCI7IGZp
-CmRpZmYgLS1naXQgYS9hcmNoL3g4Nl82NC9NYWtlZmlsZSBiL2FyY2gveDg2XzY0L01ha2Vm
-aWxlCmluZGV4IGE5Y2Q0MmUuLjFkNmU3MzUgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2XzY0L01h
-a2VmaWxlCisrKyBiL2FyY2gveDg2XzY0L01ha2VmaWxlCkBAIC04MCw5ICs4MCwxMiBAQCBi
-emxpbG86IHZtbGludXgKIGJ6ZGlzazogdm1saW51eAogCSQoUSkkKE1BS0UpICQoYnVpbGQp
-PSQoYm9vdCkgQk9PVElNQUdFPSQoQk9PVElNQUdFKSB6ZGlzawogCi1pbnN0YWxsIGZkaW1h
-Z2UgZmRpbWFnZTE0NCBmZGltYWdlMjg4OiB2bWxpbnV4CitmZGltYWdlIGZkaW1hZ2UxNDQg
-ZmRpbWFnZTI4ODogdm1saW51eAogCSQoUSkkKE1BS0UpICQoYnVpbGQpPSQoYm9vdCkgQk9P
-VElNQUdFPSQoQk9PVElNQUdFKSAkQAogCitpbnN0YWxsIGtlcm5lbF9pbnN0YWxsOgorCSQo
-USkkKE1BS0UpICQoYnVpbGQpPSQoYm9vdCkgQk9PVElNQUdFPSQoQk9PVElNQUdFKSBpbnN0
-YWxsCisKIGFyY2hjbGVhbjoKIAkkKFEpJChNQUtFKSAkKGNsZWFuKT0kKGJvb3QpCiAKZGlm
-ZiAtLWdpdCBhL2FyY2gveDg2XzY0L2Jvb3QvTWFrZWZpbGUgYi9hcmNoL3g4Nl82NC9ib290
-L01ha2VmaWxlCmluZGV4IDE4YzZlOTEuLjI5ZjgzOTYgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2
-XzY0L2Jvb3QvTWFrZWZpbGUKKysrIGIvYXJjaC94ODZfNjQvYm9vdC9NYWtlZmlsZQpAQCAt
-OTgsNSArOTgsNSBAQCB6bGlsbzogJChCT09USU1BR0UpCiAJY3AgU3lzdGVtLm1hcCAkKElO
-U1RBTExfUEFUSCkvCiAJaWYgWyAteCAvc2Jpbi9saWxvIF07IHRoZW4gL3NiaW4vbGlsbzsg
-ZWxzZSAvZXRjL2xpbG8vaW5zdGFsbDsgZmkKIAotaW5zdGFsbDogJChCT09USU1BR0UpCitp
-bnN0YWxsOgogCXNoICQoc3JjdHJlZSkvJChzcmMpL2luc3RhbGwuc2ggJChLRVJORUxSRUxF
-QVNFKSAkKEJPT1RJTUFHRSkgU3lzdGVtLm1hcCAiJChJTlNUQUxMX1BBVEgpIgpkaWZmIC0t
-Z2l0IGEvYXJjaC94ODZfNjQvYm9vdC9pbnN0YWxsLnNoIGIvYXJjaC94ODZfNjQvYm9vdC9p
-bnN0YWxsLnNoCmluZGV4IDE5OGFmMTUuLjFmODc1NDQgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2
-XzY0L2Jvb3QvaW5zdGFsbC5zaAorKysgYi9hcmNoL3g4Nl82NC9ib290L2luc3RhbGwuc2gK
-QEAgLTE5LDYgKzE5LDE3IEBACiAjICAgJDQgLSBkZWZhdWx0IGluc3RhbGwgcGF0aCAoYmxh
-bmsgaWYgcm9vdCBkaXJlY3RvcnkpCiAjCiAKK3ZlcmlmeSAoKSB7CisJaWYgWyAhIC1mICIk
-MSIgXTsgdGhlbgorCQllY2hvICJNaXNzaW5nIGZpbGU6ICQxIiAxPiYyCisJCWV4aXQgMQor
-IAlmaQorfQorCisjIE1ha2Ugc3VyZSB0aGUgZmlsZXMgYWN0dWFsbHkgZXhpc3QKK3Zlcmlm
-eSAiJDIiCit2ZXJpZnkgIiQzIgorCiAjIFVzZXIgbWF5IGhhdmUgYSBjdXN0b20gaW5zdGFs
-bCBzY3JpcHQKIAogaWYgWyAteCB+L2Jpbi8ke0NST1NTX0NPTVBJTEV9aW5zdGFsbGtlcm5l
-bCBdOyB0aGVuIGV4ZWMgfi9iaW4vJHtDUk9TU19DT01QSUxFfWluc3RhbGxrZXJuZWwgIiRA
-IjsgZmkK
---------------000206070409020101030303--
+	You need to build the tree before you can install it
+
+instead of saying "missing file: xyzzy".
+
+		Linus
+

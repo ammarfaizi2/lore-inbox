@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161131AbWAHBtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWAHBwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161131AbWAHBtW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 20:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWAHBtW
+	id S1161132AbWAHBwj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 20:52:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161134AbWAHBwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 20:49:22 -0500
-Received: from hera.kernel.org ([140.211.167.34]:37812 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1161131AbWAHBtV (ORCPT
+	Sat, 7 Jan 2006 20:52:39 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:48324 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1161132AbWAHBwi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 20:49:21 -0500
-Date: Fri, 6 Jan 2006 23:00:29 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] use local_t for page statistics
-Message-ID: <20060107010029.GA5087@dmt.cnet>
-References: <20060106215332.GH8979@kvack.org> <20060106163313.38c08e37.akpm@osdl.org>
+	Sat, 7 Jan 2006 20:52:38 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Dave Jones <davej@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: reference_discarded addition 
+In-reply-to: Your message of "Fri, 06 Jan 2006 02:40:19 CDT."
+             <20060106074019.GA1226@redhat.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060106163313.38c08e37.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Date: Sun, 08 Jan 2006 12:52:35 +1100
+Message-ID: <31103.1136685155@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 06, 2006 at 04:33:13PM -0800, Andrew Morton wrote:
-> Benjamin LaHaise <bcrl@kvack.org> wrote:
-> >
-> > The patch below converts the mm page_states counters to use local_t.  
-> > mod_page_state shows up in a few profiles on x86 and x86-64 due to the 
-> > disable/enable interrupts operations touching the flags register.  On 
-> > both my laptop (Pentium M) and P4 test box this results in about 10 
-> > additional /bin/bash -c exit 0 executions per second (P4 went from ~759/s 
-> > to ~771/s).  Tested on x86 and x86-64.  Oh, also add a pgcow statistic 
-> > for the number of COW page faults.
-> 
-> Bah.  I think this is a better approach than the just-merged
-> mm-page_state-opt.patch, so I should revert that patch first?
+Dave Jones (on Fri, 6 Jan 2006 02:40:19 -0500) wrote:
+>Error: ./fs/quota_v2.o .opd refers to 0000000000000020 R_PPC64_ADDR64    .exit.text
+>
+>Been carrying this for some time in Red Hat trees.
+>
+>Signed-off-by: Dave Jones <davej@redhat.com>
+>
+>diff -urNp --exclude-from=/home/davej/.exclude linux-3022/scripts/reference_discarded.pl linux-10000/scripts/reference_discarded.pl
+>--- linux-3022/scripts/reference_discarded.pl
+>+++ linux-10000/scripts/reference_discarded.pl
+>@@ -88,6 +88,7 @@ foreach $object (keys(%object)) {
+> 		    ($from !~ /\.text\.exit$/ &&
+> 		     $from !~ /\.exit\.text$/ &&
+> 		     $from !~ /\.data\.exit$/ &&
+>+		     $from !~ /\.opd$/ &&
+> 		     $from !~ /\.exit\.data$/ &&
+> 		     $from !~ /\.altinstructions$/ &&
+> 		     $from !~ /\.pdr$/ &&
 
-Don't think so - local_t operations are performed atomically, which is
-not required for most hotpath page statistics operations since proper
-locks are already held.
+For our future {in}sanity, add a comment that this is the ppc .opd
+section, not the ia64 .opd section.  ia64 .opd should not point to
+discarded sections.
 
-What is wanted for these cases are simple inc/dec (non-atomic)
-instructions, which is what Nick's patch does by introducing
-__mod_page_state.
+Any idea why ppc .opd points to discarded sections when ia64 does not?
+AFAICT no ia64 object has a useful .opd section, they are all empty or
+(sometimes) a dummy entry which is 1 byte long.  ia64 .opd data is
+built at link time, not compile time.
 
-Ben, have you tested mm-page_state-opt.patch? It should get rid of
-most "flags" save/restore on stack.
-
+It is a pity that ppc is generating .opd entries at compile time.  It
+makes it impossible to detect a real reference to a discarded function.
 

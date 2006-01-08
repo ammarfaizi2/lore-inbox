@@ -1,59 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWAHFW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWAHFYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWAHFW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 00:22:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWAHFW5
+	id S1751156AbWAHFYU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 00:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWAHFYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 00:22:57 -0500
-Received: from pxy2nd.nifty.com ([202.248.175.14]:48529 "HELO pxy2nd.nifty.com")
-	by vger.kernel.org with SMTP id S1751098AbWAHFW4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 00:22:56 -0500
+	Sun, 8 Jan 2006 00:24:20 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:63133 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751156AbWAHFYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 00:24:19 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=pxy2nd-default; d=nifty.com;
-  b=0HBhmHju1HDEj86KzIaVXgf7BzPPjMocCHA0MZzTQtosShYf4gKdtS+RtL39BMONWdGBxj8zliyirvk1c8FyEQ==  ;
-Message-ID: <5313771.1136697761289.komurojun-mbn@nifty.com>
-Date: Sun, 8 Jan 2006 14:22:41 +0900 (JST)
-From: Komuro <komurojun-mbn@nifty.com>
-To: Junio C Hamano <junkio@cox.net>
-Subject: Re: Re: [KERNEL 2.6.15]  All files have -rw-rw-rw- permission.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7vmzi78vlh.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: @nifty Webmail 2.0
-References: <7vmzi78vlh.fsf@assigned-by-dhcp.cox.net>
- <20060105191736.1ac95e4b.rdunlap@xenotime.net>
-	<1986219.1136463311449.komurojun-mbn@nifty.com>
-	<3378320.1136549095236.komurojun-mbn@nifty.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
+  b=PThJxOuPIBCI9YuTRkoHL4Iv6THs++qG/OIGUXBQFB9/JhGYhBtXX5ufazxjyOikM2MuklWNt7GMeG1i5VcHS0ghEyApURTk9nWJnl7Gk894LpLjcjtmMixmTWe+ihYNJVRl2OAr92/tiIOohYlV1Vw/MiU1cwvySPXcxwsI0Ho=  ;
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
+Message-Id: <20060108052420.2996.95996.sendpatchset@didi.local0.net>
+In-Reply-To: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
+References: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
+Subject: [patch 2/4] mm: PageLRU no testset
+Date: Sun, 8 Jan 2006 00:24:19 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+PG_lru is protected by zone->lru_lock. It does not need TestSet/TestClear
+operations.
 
->> But, is there any reason to set -----w--w- bit
->> by default?
->
->Yes.
->
->Please do not extract the kernel tarball as the root user,
->especially if you do not know how tar command works for root
->user by default (hint: --no-same-permissions).
->
->Setting g-w in the archive forces arbitrary policy on people who
->work with umask 002 as a non-root user.  We can let that policy
->to be controlled by user's umask by being lenient in the
->tarball.  For the same reason, if somebody has umask 0, there is
->no reason for us (as tarball creator) to impose o-w as a policy
->on him either, hence git-tar-tree output has 0666 or 0777 modes.
->
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-O.K.
-
-Thanks,
-Komuro
-
-
+Index: linux-2.6/mm/vmscan.c
+===================================================================
+--- linux-2.6.orig/mm/vmscan.c
++++ linux-2.6/mm/vmscan.c
+@@ -657,8 +657,8 @@ static void shrink_cache(struct zone *zo
+ 		 */
+ 		while (!list_empty(&page_list)) {
+ 			page = lru_to_page(&page_list);
+-			if (TestSetPageLRU(page))
+-				BUG();
++			BUG_ON(PageLRU(page));
++			SetPageLRU(page);
+ 			list_del(&page->lru);
+ 			if (PageActive(page))
+ 				add_page_to_active_list(zone, page);
+@@ -770,8 +770,8 @@ refill_inactive_zone(struct zone *zone, 
+ 	while (!list_empty(&l_inactive)) {
+ 		page = lru_to_page(&l_inactive);
+ 		prefetchw_prev_lru_page(page, &l_inactive, flags);
+-		if (TestSetPageLRU(page))
+-			BUG();
++		BUG_ON(PageLRU(page));
++		SetPageLRU(page);
+ 		if (!TestClearPageActive(page))
+ 			BUG();
+ 		list_move(&page->lru, &zone->inactive_list);
+@@ -799,8 +799,8 @@ refill_inactive_zone(struct zone *zone, 
+ 	while (!list_empty(&l_active)) {
+ 		page = lru_to_page(&l_active);
+ 		prefetchw_prev_lru_page(page, &l_active, flags);
+-		if (TestSetPageLRU(page))
+-			BUG();
++		BUG_ON(PageLRU(page));
++		SetPageLRU(page);
+ 		BUG_ON(!PageActive(page));
+ 		list_move(&page->lru, &zone->active_list);
+ 		pgmoved++;
+Index: linux-2.6/mm/swap.c
+===================================================================
+--- linux-2.6.orig/mm/swap.c
++++ linux-2.6/mm/swap.c
+@@ -185,8 +185,8 @@ void fastcall __page_cache_release(struc
+ 
+ 		struct zone *zone = page_zone(page);
+ 		spin_lock_irqsave(&zone->lru_lock, flags);
+-		if (!TestClearPageLRU(page))
+-			BUG();
++		BUG_ON(!PageLRU(page));
++		ClearPageLRU(page);
+ 		del_page_from_lru(zone, page);
+ 		spin_unlock_irqrestore(&zone->lru_lock, flags);
+ 	}
+@@ -230,8 +230,8 @@ void release_pages(struct page **pages, 
+ 				zone = pagezone;
+ 				spin_lock_irq(&zone->lru_lock);
+ 			}
+-			if (!TestClearPageLRU(page))
+-				BUG();
++			BUG_ON(!PageLRU(page));
++			ClearPageLRU(page);
+ 			del_page_from_lru(zone, page);
+ 		}
+ 		BUG_ON(page_count(page));
+@@ -311,8 +311,8 @@ void __pagevec_lru_add(struct pagevec *p
+ 			zone = pagezone;
+ 			spin_lock_irq(&zone->lru_lock);
+ 		}
+-		if (TestSetPageLRU(page))
+-			BUG();
++		BUG_ON(PageLRU(page));
++		SetPageLRU(page);
+ 		add_page_to_inactive_list(zone, page);
+ 	}
+ 	if (zone)
+@@ -338,8 +338,8 @@ void __pagevec_lru_add_active(struct pag
+ 			zone = pagezone;
+ 			spin_lock_irq(&zone->lru_lock);
+ 		}
+-		if (TestSetPageLRU(page))
+-			BUG();
++		BUG_ON(PageLRU(page));
++		SetPageLRU(page);
+ 		if (TestSetPageActive(page))
+ 			BUG();
+ 		add_page_to_active_list(zone, page);
+Index: linux-2.6/include/linux/page-flags.h
+===================================================================
+--- linux-2.6.orig/include/linux/page-flags.h
++++ linux-2.6/include/linux/page-flags.h
+@@ -244,10 +244,9 @@ extern void __mod_page_state_offset(unsi
+ #define __ClearPageDirty(page)	__clear_bit(PG_dirty, &(page)->flags)
+ #define TestClearPageDirty(page) test_and_clear_bit(PG_dirty, &(page)->flags)
+ 
+-#define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
+ #define PageLRU(page)		test_bit(PG_lru, &(page)->flags)
+-#define TestSetPageLRU(page)	test_and_set_bit(PG_lru, &(page)->flags)
+-#define TestClearPageLRU(page)	test_and_clear_bit(PG_lru, &(page)->flags)
++#define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
++#define ClearPageLRU(page)	clear_bit(PG_lru, &(page)->flags)
+ 
+ #define PageActive(page)	test_bit(PG_active, &(page)->flags)
+ #define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932751AbWAHSrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932756AbWAHSri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932751AbWAHSrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbWAHSrV
+	id S932756AbWAHSri (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932755AbWAHSrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:47:21 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:17935 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932751AbWAHSrU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:47:20 -0500
-Date: Sun, 8 Jan 2006 19:47:32 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: linux-kernel@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>
-Subject: [PATCH] ide-disk: Restore missing space in log message
-Message-Id: <20060108194732.55a402ed.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 8 Jan 2006 13:47:37 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:12498 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932756AbWAHSrd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:47:33 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH 08/41] m68k: fix macro syntax to make current binutils happy
+Date: Sun, 8 Jan 2006 18:11:55 +0100
+User-Agent: KMail/1.8.2
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-m68k@vger.kernel.org
+References: <E1EtvYX-0003Lo-Gf@ZenIV.linux.org.uk> <20060105035118.GS27946@ftp.linux.org.uk> <20060105113708.GT27946@ftp.linux.org.uk>
+In-Reply-To: <20060105113708.GT27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601081811.58669.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-(Please disregard my previous post, I messed up with the keyboard and
-sent it before it was ready...)
+On Thursday 05 January 2006 12:37, Al Viro wrote:
 
-I've noticed a strange message log change in the current git tree
-(2.6.15-git4):
-  hda: cache flushes notsupported
-instead of
-  hda: cache flushes not supported
+> > OK.  Nothing else depends on those; however, getuser.l stuff _is_
+> > documented.
 
-Here's the trivial patch fixing it.
+It actually was a nice feature and what I have seen so far look like bad 
+regression and makes the gas macros totally useless. Before it was possible 
+to define some pseudo assembly instructions, but if one can't pass some 
+simple address operand without quotes as an argument anymore...
 
-Restore a missing space in a log message, which was accidentally
-removed by a previous change: 3e087b575496b8aa445192f58e7d996b1cdfa121
+> > Frankly, my preference long-term would be to kill the .macro and just
+> > use C preprocessor for expansion.  Do you have any objections against
+> > such variant?
+>
+> Scratch that; too much PITA to implement the horrors you've got there
+> (vararg recursive macros <shudder>).
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Cc: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>
----
- drivers/ide/ide-disk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Well, at that the time I wrote it, it very nicely cleaned up the old code 
+(which was even worse) and made additions very simple. The recursive macros 
+avoided a lot of simple typos. I'm not really happy that I have to change 
+that, it worked fine so far.
+BTW I'm back in a few days and my online connectivity is rather limited right 
+now, so I hadn't really a good possibility to research the possible options 
+yet.
 
---- linux-2.6.15-git.orig/drivers/ide/ide-disk.c	2006-01-08 10:55:58.000000000 +0100
-+++ linux-2.6.15-git/drivers/ide/ide-disk.c	2006-01-08 19:33:18.000000000 +0100
-@@ -776,7 +776,7 @@
- 			 ide_id_has_flush_cache_ext(id));
- 
- 		printk(KERN_INFO "%s: cache flushes %ssupported\n",
--		       drive->name, barrier ? "" : "not");
-+		       drive->name, barrier ? "" : "not ");
- 
- 		if (barrier) {
- 			ordered = QUEUE_ORDERED_DRAIN_FLUSH;
+bye, Roman
 
--- 
-Jean Delvare

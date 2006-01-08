@@ -1,92 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030510AbWAHHrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbWAHHrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030510AbWAHHrm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 02:47:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030508AbWAHHrm
+	id S1030496AbWAHHrp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 02:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbWAHHrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 02:47:42 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:18820 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1030491AbWAHHrk convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 02:47:40 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sun, 8 Jan 2006 02:47:43 -0500
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:11393 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030496AbWAHHrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 02:47:41 -0500
+Date: Sun, 8 Jan 2006 02:43:15 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Badness in __mutex_unlock_slowpath
+To: Andrew James Wade <andrew.j.wade@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200601080246_MC3-1-B57D-BAA5@compuserve.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: git pull on Linux/ACPI release tree
-Date: Sun, 8 Jan 2006 02:47:30 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005A13489@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: git pull on Linux/ACPI release tree
-Thread-Index: AcYTt3od2y3F+1eER6SV8QyC6bgpNQAZPKLQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <akpm@osdl.org>, <git@vger.kernel.org>
-X-OriginalArrivalTime: 08 Jan 2006 07:47:32.0861 (UTC) FILETIME=[C89C62D0:01C61427]
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+In-Reply-To: <200601071551.20344.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
 
-adding git@vger.kernel.org...
+On Sat, 7 Jan 2006 at 15:51:19 -0500 Andrew James Wade wrote:
 
->> please pull this batch of trivial patches from: 
->> 
->> 
->git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
+
+> I got this when "amaroK" started playing:
 >
->Len,
->
->I _really_ wish you wouldn't have those automatic merges.
->
->Why do you do them? They add nothing but ugly and unnecessary 
->history, and in this pull, I think almost exactly half of the
->commits were just these empty merges.
+> Badness in __mutex_unlock_slowpath at kernel/mutex.c:214
+>  [<c03538e8>] __mutex_unlock_slowpath+0x56/0x1a2
+>  [<c0302f08>] snd_pcm_oss_write+0x0/0x1e0
+>  [<c0302f3c>] snd_pcm_oss_write+0x34/0x1e0
+>  [<c0302f08>] snd_pcm_oss_write+0x0/0x1e0
+>  [<c0148221>] vfs_write+0x83/0x122
+>  [<c0148a36>] sys_write+0x3c/0x63
+>  [<c0102ba3>] sysenter_past_esp+0x54/0x75
 
-Is it possible for it git, like bk, to simply ignore merge commits in its summary output?
 
-Note that "Auto-update from upstream" is just the place-holder comment
-embedded in the wrapper script in git/Documentation/howto/using-topic-branches.txt
-All instances of it here are from me manually updating --
-the only "auto" happening here is the automatic insertion of that comment:-)
+ The thread doing the unlock does not own the mutex.
 
-I think that Tony's howto above captures two key requirements
-from all kernel maintainers -- which the exception of you --
-who hang out  in the middle of the process rather than
-at the top of the tree.
+ Same exact check is made a few lines later in debug_mutex_unlock().
 
-1. It is important that we be able (and encouraged, not discouraged)
-to track the top of tree as closely as we have time to handle.
-Divergence and conflicts are best handled as soon as they are noticed
-and can be a huge pain if left to fester and discovered
-only when it is time to push patches upstream.
-Plus, tracking the top of tree means we force more folks to
-track the top of tree, and so it gets more testing.  This is goodness.
+And debugging gets turned off after the first debug message prints,
+so there could be other problems that are not reported.
 
-Earlier in your release cycle when changes are appearing faster,
-my need/desire to sync is greater than later in the cycle when changes
-are smaller and infrequent.  On average, I think that one sync/day
-from upstream is an entirely reasonable frequency.
-
-2. It is also important that we be able to cherry pick individual patches
-in our trees so that they don't block each other from going upstream.
-Tony's using-topic-branches.txt above is the best way I know of doing that.
-I think it is a big improvement over the bk model since I can have a simple
-branch for each patch or group of patches rather than an entire repository
-dedicatd to each.  But for this to work, I need to be able to update
-any and all of the topic branches from upstream, and to merge them with
-each other -- just like I could with BK.  Otherwise they become "dated"
-in the time they were first integrated, and it is not convenient to do
-simple apples/apples comparisons that are needed to debug and test.
-
-I'm probably a naïve git user -- but I expect I have a lot of company.
-If there is a better way of using the tool to get the job done,
-I'm certainly a willing customer with open ears.
-
-thanks,
--Len
+ -- 
+Chuck
+Currently reading: _Thud!_ by Terry Pratchett

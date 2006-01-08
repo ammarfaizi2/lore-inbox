@@ -1,54 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752658AbWAHSCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752665AbWAHSDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752658AbWAHSCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752659AbWAHSCZ
+	id S1752665AbWAHSDG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752664AbWAHSDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:02:25 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:54587 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1752658AbWAHSCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:02:24 -0500
-Date: Sun, 8 Jan 2006 19:02:23 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Valdis.Kletnieks@vt.edu
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Michael Buesch <mbuesch@freenet.de>,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 1/4] move capable() to capability.h 
-In-Reply-To: <200601080745.k087j3mU016114@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.63.0601081853020.6962@gockel.physik3.uni-rostock.de>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
- <200601061218.17369.mbuesch@freenet.de> <1136546539.2940.28.camel@laptopd505.fenrus.org>
- <200601061226.42416.mbuesch@freenet.de>            <20060107215106.38d58bb9.rdunlap@xenotime.net>
- <200601080745.k087j3mU016114@turing-police.cc.vt.edu>
+	Sun, 8 Jan 2006 13:03:06 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:27876 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1752666AbWAHSDE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:03:04 -0500
+Message-ID: <43C165B4.2FF3B78@tv-sign.ru>
+Date: Sun, 08 Jan 2006 22:19:16 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/5] rcu: uninline __rcu_pending()
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006, Valdis.Kletnieks@vt.edu wrote:
+__rcu_pending() is rather fat and called twice from rcu_pending().
 
-> On Sat, 07 Jan 2006 21:51:06 PST, "Randy.Dunlap" said:
-> 
-> > From: Randy Dunlap <rdunlap@xenotime.net>
-> > 
-> > headers + core:
-> > - Move capable() from sched.h to capability.h;
-> > - Use <linux/capability.h> where capable() is used
-> > 	(in include/, block/, ipc/, kernel/, a few drivers/,
-> > 	mm/, security/, & sound/;
-> > 	many more drivers/ to go)
-> 
-> Are there plans for a second patch series to remove sched.h from those
-> files that only needed it for capable()?
+rcu_pending() has multiple callers, and not that small too.
 
-Yes. I've written a set of (horrendously inefficient, but working) scripts 
-that detect whenever sched.h isn't needed in a file anymore.
-So I think it's ok if Randy just leaves the dangling references to 
-sched.h, I will clean them up afterwards.
+This patch uninlines both of them.
 
-I recently stopped posting patches because I will be offline for a month 
-or two and thus unable to look after problems that these patches might 
-cause. I hope to resume operation in March.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Tim
+--- 2.6.15/include/linux/rcupdate.h~1_OUTL	2006-01-03 21:15:58.000000000 +0300
++++ 2.6.15/include/linux/rcupdate.h	2006-01-08 21:36:07.000000000 +0300
+@@ -125,36 +125,7 @@ static inline void rcu_bh_qsctr_inc(int 
+ 	rdp->passed_quiesc = 1;
+ }
+ 
+-static inline int __rcu_pending(struct rcu_ctrlblk *rcp,
+-						struct rcu_data *rdp)
+-{
+-	/* This cpu has pending rcu entries and the grace period
+-	 * for them has completed.
+-	 */
+-	if (rdp->curlist && !rcu_batch_before(rcp->completed, rdp->batch))
+-		return 1;
+-
+-	/* This cpu has no pending entries, but there are new entries */
+-	if (!rdp->curlist && rdp->nxtlist)
+-		return 1;
+-
+-	/* This cpu has finished callbacks to invoke */
+-	if (rdp->donelist)
+-		return 1;
+-
+-	/* The rcu core waits for a quiescent state from the cpu */
+-	if (rdp->quiescbatch != rcp->cur || rdp->qs_pending)
+-		return 1;
+-
+-	/* nothing to do */
+-	return 0;
+-}
+-
+-static inline int rcu_pending(int cpu)
+-{
+-	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) ||
+-		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
+-}
++extern int rcu_pending(int cpu);
+ 
+ /**
+  * rcu_read_lock - mark the beginning of an RCU read-side critical section.
+--- 2.6.15/kernel/rcupdate.c~1_OUTL	2006-01-03 21:15:58.000000000 +0300
++++ 2.6.15/kernel/rcupdate.c	2006-01-08 21:35:21.000000000 +0300
+@@ -442,6 +442,36 @@ static void rcu_process_callbacks(unsign
+ 				&__get_cpu_var(rcu_bh_data));
+ }
+ 
++static int __rcu_pending(struct rcu_ctrlblk *rcp, struct rcu_data *rdp)
++{
++	/* This cpu has pending rcu entries and the grace period
++	 * for them has completed.
++	 */
++	if (rdp->curlist && !rcu_batch_before(rcp->completed, rdp->batch))
++		return 1;
++
++	/* This cpu has no pending entries, but there are new entries */
++	if (!rdp->curlist && rdp->nxtlist)
++		return 1;
++
++	/* This cpu has finished callbacks to invoke */
++	if (rdp->donelist)
++		return 1;
++
++	/* The rcu core waits for a quiescent state from the cpu */
++	if (rdp->quiescbatch != rcp->cur || rdp->qs_pending)
++		return 1;
++
++	/* nothing to do */
++	return 0;
++}
++
++int rcu_pending(int cpu)
++{
++	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) ||
++		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
++}
++
+ void rcu_check_callbacks(int cpu, int user)
+ {
+ 	if (user ||

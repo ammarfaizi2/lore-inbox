@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWAHDKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWAHDQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWAHDKw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jan 2006 22:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWAHDKw
+	id S1751150AbWAHDQL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jan 2006 22:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752595AbWAHDQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jan 2006 22:10:52 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:33987 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751127AbWAHDKw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jan 2006 22:10:52 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: linux-kernel@vger.kernel.org
-cc: Paulo Marques <pmarques@grupopie.com>
-Subject: [patch 2.6.15 v2] Tell kallsyms_lookup_name() to ignore type U entries
-In-reply-to: Your message of "Fri, 06 Jan 2006 15:18:46 -0000."
-             <43BE8A56.2070500@grupopie.com> 
+	Sat, 7 Jan 2006 22:16:11 -0500
+Received: from spooner.celestial.com ([192.136.111.35]:3221 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S1751150AbWAHDQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jan 2006 22:16:10 -0500
+Date: Sat, 7 Jan 2006 22:16:05 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 7/7] Make "inline" no longer mandatory for gcc 4.x
+Message-ID: <20060108031605.GB26614@kurtwerks.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org> <1136544309.2940.25.camel@laptopd505.fenrus.org> <20060107190531.GB8990@kurtwerks.com> <1136663088.2936.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 08 Jan 2006 14:10:50 +1100
-Message-ID: <32183.1136689850@ocs3.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <1136663088.2936.36.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.15krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When one module exports a function symbol and another module uses that
-symbol then kallsyms shows the symbol twice.  Once from the consumer
-with a type of 'U' and once from the provider with a type of 't' or
-'T'.  On most architectures, both entries have the same address so it
-does not matter which one is returned by kallsyms_lookup_name().  But
-on architectures with function descriptors, the 'U' entry points to the
-descriptor, not to the code body, which is not what we want.
+[CCs trimmed because Ingo's mail server says relay denied]
 
-IA64 # grep -w qla2x00_remove_one /proc/kallsyms
-a000000208c25ef8 U qla2x00_remove_one   [qla2300]   <= descriptor
-a000000208bf44c0 t qla2x00_remove_one   [qla2xxx]   <= function body
+On Sat, Jan 07, 2006 at 08:44:48PM +0100, Arjan van de Ven took 25 lines to write:
+> On Sat, 2006-01-07 at 14:05 -0500, Kurt Wall wrote:
+> 
+> > 
+> > This patch was applied on top of the previous 6 in the series from
+> > Arjan. NB that it _did_ build with 3.4.4 and -Os enabled. I'm
+> > rechecking, but this is the second time I've encountered this failure.
+> 
+> 
+> Does this fix it?
 
-Tell kallsyms_lookup_name() to ignore type U entries in modules.
+Quite. The results are interesting. For my vanilla desktop config with
+all patches applied, including the fixmap.h patch for x86_64,
+differences are pretty dramatic: 
 
-Signed-off-by: Keith Owens <kaos@sgi.com>
+   text	   data	    bss	    dec	    hex	filename
+2577982	 462352	 479920	3520254	 35b6fe	vmlinux.344.NO_OPT
+2620255	 462336	 479984	3562575	 365c4f	vmlinux.442.NO_OPT
+2326785	 462352	 479920	3269057	 31e1c1	vmlinux.344.OPT
+2227294	 502680	 479984	3209958	 30fae6	vmlinux.442.OPT
 
----
+344   : gcc 3.4.4
+402   : gcc 4.0.2
+NO_OPT: without -Os
+OPT   : with -Os
 
- module.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Based on .text size alone, if I was going to build and run a kernel
+with GCC 4.x, I'd definitely enable -Os.
 
-Index: linux/kernel/module.c
-===================================================================
---- linux.orig/kernel/module.c	2006-01-06 12:58:52.841135060 +1100
-+++ linux/kernel/module.c	2006-01-06 12:59:03.438308825 +1100
-@@ -2050,7 +2050,8 @@ static unsigned long mod_find_symname(st
- 	unsigned int i;
- 
- 	for (i = 0; i < mod->num_symtab; i++)
--		if (strcmp(name, mod->strtab+mod->symtab[i].st_name) == 0)
-+		if (strcmp(name, mod->strtab+mod->symtab[i].st_name) == 0 &&
-+		    mod->symtab[i].st_info != 'U')
- 			return mod->symtab[i].st_value;
- 	return 0;
- }
-
-
+Kurt
+-- 
+The plot was designed in a light vein that somehow became varicose.
+		-- David Lardner

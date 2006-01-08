@@ -1,80 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752592AbWAHMHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932724AbWAHMJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752592AbWAHMHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 07:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWAHMHQ
+	id S932724AbWAHMJz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 07:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbWAHMJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 07:07:16 -0500
-Received: from mail.gmx.net ([213.165.64.21]:8579 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752592AbWAHMHP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 07:07:15 -0500
-X-Authenticated: #656597
-Date: Sun, 8 Jan 2006 13:05:33 +0100
-From: Patrick Leslie Polzer <leslie.polzer@gmx.net>
-To: Mikado <mikado4vn@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-c-programming@vger.kernel.org
-Subject: Re: Resend: Netlink socket problem
-Message-Id: <20060108130533.4cf244af.leslie.polzer@gmx.net>
-In-Reply-To: <20060108092505.62484.qmail@web53702.mail.yahoo.com>
-References: <20060108092505.62484.qmail@web53702.mail.yahoo.com>
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.9; i686-pc-linux-gnu)
+	Sun, 8 Jan 2006 07:09:55 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:15299 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932724AbWAHMJy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 07:09:54 -0500
+Date: Sun, 8 Jan 2006 13:09:48 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH/RFC] Shared page tables
+Message-ID: <20060108120948.GA10688@osiris.ibm.com>
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <20060107122534.GA20442@osiris.boeblingen.de.ibm.com> <2796BAF66E63B415FF1929B8@[10.1.1.4]>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp."
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2796BAF66E63B415FF1929B8@[10.1.1.4]>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp.
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Tried to get this running with CONFIG_PTSHARE and CONFIG_PTSHARE_PTE on
+> > s390x. Unfortunately it crashed on boot, because pt_share_pte
+> > returned a broken pte pointer:
+> 
+> The patch as submitted only works on i386 and x86_64.  Sorry.
 
+That's why I added what seems to be needed for s390. For CONFIG_PTSHARE and
+CONFIG_PTSHARE_PTE it's just a slightly modified Kconfig file.
+For CONFIG_PTSHARE_PMD it involves adding a few more pud_* defines to
+asm-generic/4level-fixup.h.
+Seems to work with the pmd/pud_clear changes as far as I can tell.
 
-Hi Mikado,
+Just tested this out of curiousity :)
 
-On Sun, 8 Jan 2006 01:25:05 -0800 (PST)
-Mikado <Mikado <mikado4vn@yahoo.com>> wrote:
-
- | Is there anything wrong in my codes? I think the problem is the
- | netlink_unicast(), because when I didn't call it, everything work well.
-Check whether nl_sk equals NULL.
-I don't know whether there's an assert() macro available for you, so try th=
-is:
-
-/* [...] */
-    if (nl_sk =3D=3D NULL)
-    {
-        printk(KERN_ALERT "nltest: nl_sk is NULL!");
-        goto return_free;
-    }
-
-    netlink_unicast(nl_sk, nl_skb, pid, 0);
-return_free:
-    kfree_skb(nl_skb);
-}
-
-A gdb backtrace of the user space part won't give you much, since you
-found out the problem lies in kernel space.
-
-What does netlink_unicast() do?
-
-Leslie
-
---=20
-gpg --keyserver pgp.mit.edu --recv-keys 0x52D70289
-
---Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp.
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDwQAQn/ep3VLXAokRAlaFAKDAkvHMtO3BeJG///dsMYWq5AzcGACgq5Xz
-6f8LevCfKagdybzIaaWfkj8=
-=M3ZU
------END PGP SIGNATURE-----
-
---Signature=_Sun__8_Jan_2006_13_05_33_+0100_tiMiR_NrPL2qCZp.--
+Thanks,
+Heiko

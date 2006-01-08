@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWAHVt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbWAHVwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbWAHVt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 16:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbWAHVt3
+	id S965331AbWAHVwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965343AbWAHVwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 16:49:29 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:62086 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965028AbWAHVt2 (ORCPT
+	Sun, 8 Jan 2006 16:52:21 -0500
+Received: from mail07.powweb.com ([66.152.97.40]:8708 "EHLO mail07.powweb.com")
+	by vger.kernel.org with ESMTP id S965331AbWAHVwU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 16:49:28 -0500
-Date: Sun, 8 Jan 2006 22:49:21 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-cc: Mark Knecht <markknecht@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.15-rt2 - repeatable xrun - no good data in trace
-In-Reply-To: <43C17E50.4060404@stud.feec.vutbr.cz>
-Message-ID: <Pine.LNX.4.61.0601082247170.17804@yvahk01.tjqt.qr>
-References: <5bdc1c8b0601081252x59190f1ajcb5514364d78a4e@mail.gmail.com>
- <43C17E50.4060404@stud.feec.vutbr.cz>
+	Sun, 8 Jan 2006 16:52:20 -0500
+From: Carlos Manuel Duclos Vergara <carlos@embedded.cl>
+To: kernel-janitors@lists.osdl.org
+Subject: Re: MODULE_VERSION useless? (was Re: [KJ] adding missing MODULE_* stuffs)
+Date: Sun, 8 Jan 2006 18:55:16 -0300
+User-Agent: KMail/1.8.2
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <kees@outflux.net>,
+       linux-kernel@vger.kernel.org
+References: <20051230000400.GS18040@outflux.net> <20060108204549.GB5864@mipter.zuzino.mipt.ru>
+In-Reply-To: <20060108204549.GB5864@mipter.zuzino.mipt.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601081855.17723.carlos@embedded.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Hi,
->>   I did run across a way that I can create a repeatable xrun on my
->> AMD64 machine by burning a CD in k3b while Jack is running.
->> Unfortunately I do not see any good trace data in dmesg when I do it.
->
-> Maybe your cdrecord is running with realtime priority higher than Jack?
-> Michal
+Hi everyone,
 
-cdrecord does run with SCHED_RR/99 when started with proper privileges.
+I have two ideas about what to do with MODULE_VERSION:
+1.- Defining MODULE_VERSION = KERNEL_VERSION
+2.- Schedule it for removal in one or two more versions, and automagically use 
+the KERNEL_VERSION as module's version.
 
+Any comments?
 
-Jan Engelhardt
 -- 
+Carlos Manuel Duclos Vergara
+http://www.toolchains.com/personal/blog

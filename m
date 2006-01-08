@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWAHFZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752597AbWAHFdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWAHFZc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 00:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752596AbWAHFZb
+	id S1752597AbWAHFdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 00:33:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752598AbWAHFdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 00:25:31 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:16040 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751157AbWAHFZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 00:25:29 -0500
+	Sun, 8 Jan 2006 00:33:13 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:50736 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752596AbWAHFdM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 00:33:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
-  b=QjqSrEdJqG650wuJVGDb2Ykk9jDjBkYLSpSI5XAWhF/DKtseFKYOeggt1JHS0Ye6HMlU9cXki4OZFrGMjNlHVg5XnknMgDL3Ha/ZEr1iUI/I3rCqmuWlWdIbaf0+xK9NuukT2ZBpTQoRbdv6zd86fpy0gMZN8yKEo3fqT36Q2jQ=  ;
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20060108052531.2996.20958.sendpatchset@didi.local0.net>
-In-Reply-To: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
-References: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
-Subject: [patch 4/4] mm: less atomic ops
-Date: Sun, 8 Jan 2006 00:25:29 -0500
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WvQnic1UuPYldvAUahUgOkxYy7aHKS6POjf9ZTf0wB1K5XWD1AQL/tV8Rz9xn77poH3osgPO/ZsXV2zcDRib72e5/Tuq7+BYYScr51LWJNFAZ4PhhI6RCNX2ldxzaUDFmdb6vaDBNkPR42okyh07u+Sa7YrBQPLkClfX+5iZIAg=
+Message-ID: <4807377b0601072133r4f079226r11001fae500c9569@mail.gmail.com>
+Date: Sat, 7 Jan 2006 21:33:10 -0800
+From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+To: "ODonnell, Michael" <Michael.ODonnell@stratus.com>
+Subject: Re: (2nd try) [PATCH] corruption during e100 MDI register access
+Cc: bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       NetDEV list <netdev@vger.kernel.org>
+In-Reply-To: <92952AEF1F064042B6EF2522E0EEF43703225312@EXNA.corp.stratus.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <92952AEF1F064042B6EF2522E0EEF43703225312@EXNA.corp.stratus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the page release paths, we can be sure that nobody will mess with our
-page->flags because the refcount has dropped to 0. So no need for atomic
-operations here.
+On 1/6/06, ODonnell, Michael <Michael.ODonnell@stratus.com> wrote:
+>  [ 2nd transmission.  Microsoft mailer "helpfully"
+>   reformatted the patch in the last one... :-(    ]
+>
+> Greetings,
+>
+> We have identified two related bugs in the e100 driver and we request
+> that they be repaired in the official Intel version of the driver.
+>
+> Both bugs are related to manipulation of the MDI control register.
+>
+> The first problem is that the Ready bit is being ignored when
+> writing to the Control register; we noticed this because the Linux
+> bonding driver would occasionally come to the spurious conclusion
+> that the link was down when querying Link State.  It turned out
+> that by failing to wait for a previous command to complete it was
+> selecting what was essentially a random register in the MDI register
+> set.  When we added code that waits for the Ready bit (as shown in
+> the patch file below) all such problems ceased.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+damn, you know I had seen this on one machine only, and the machine
+had other problems, so i thought it wasn't e100.  I can't quite figure
+out why we haven't seen this more often given how long the bug appears
+to have existed.
 
-Index: linux-2.6/include/linux/page-flags.h
-===================================================================
---- linux-2.6.orig/include/linux/page-flags.h
-+++ linux-2.6/include/linux/page-flags.h
-@@ -247,10 +247,12 @@ extern void __mod_page_state_offset(unsi
- #define PageLRU(page)		test_bit(PG_lru, &(page)->flags)
- #define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
- #define ClearPageLRU(page)	clear_bit(PG_lru, &(page)->flags)
-+#define __ClearPageLRU(page)	__clear_bit(PG_lru, &(page)->flags)
- 
- #define PageActive(page)	test_bit(PG_active, &(page)->flags)
- #define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
- #define ClearPageActive(page)	clear_bit(PG_active, &(page)->flags)
-+#define __ClearPageActive(page)	__clear_bit(PG_active, &(page)->flags)
- 
- #define PageSlab(page)		test_bit(PG_slab, &(page)->flags)
- #define SetPageSlab(page)	set_bit(PG_slab, &(page)->flags)
-Index: linux-2.6/mm/swap.c
-===================================================================
---- linux-2.6.orig/mm/swap.c
-+++ linux-2.6/mm/swap.c
-@@ -186,7 +186,7 @@ void fastcall __page_cache_release(struc
- 		struct zone *zone = page_zone(page);
- 		spin_lock_irqsave(&zone->lru_lock, flags);
- 		BUG_ON(!PageLRU(page));
--		ClearPageLRU(page);
-+		__ClearPageLRU(page);
- 		del_page_from_lru(zone, page);
- 		spin_unlock_irqrestore(&zone->lru_lock, flags);
- 	}
-@@ -231,7 +231,7 @@ void release_pages(struct page **pages, 
- 				spin_lock_irq(&zone->lru_lock);
- 			}
- 			BUG_ON(!PageLRU(page));
--			ClearPageLRU(page);
-+			__ClearPageLRU(page);
- 			del_page_from_lru(zone, page);
- 		}
- 		BUG_ON(page_count(page));
-Index: linux-2.6/include/linux/mm_inline.h
-===================================================================
---- linux-2.6.orig/include/linux/mm_inline.h
-+++ linux-2.6/include/linux/mm_inline.h
-@@ -32,7 +32,7 @@ del_page_from_lru(struct zone *zone, str
- {
- 	list_del(&page->lru);
- 	if (PageActive(page)) {
--		ClearPageActive(page);
-+		__ClearPageActive(page);
- 		zone->nr_active--;
- 	} else {
- 		zone->nr_inactive--;
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> The second problem is that, although access to the MDI registers
+> involves multiple steps which must not be intermixed, nothing was
+> defending against two or more threads attempting simultaneous access.
+> The most obvious situation where such interference could occur
+> involves the watchdog versus ioctl paths, but there are probably
+> others, so we recommend the locking shown in our patch file.
+
+Agreed, but once again I am simply amazed this has been there so long.
+
+I think these are both good patches and I'll ack this and absorb it
+for our next release.  It will be a bit before its completely through
+our process but its okay with me if this goes into the kernel now.
+
+Jesse

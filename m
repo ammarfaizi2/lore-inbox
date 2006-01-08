@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752674AbWAHSSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWAHSVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752674AbWAHSSn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752672AbWAHSSn
+	id S932449AbWAHSVE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWAHSVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:18:43 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:29119 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1752671AbWAHSSm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:18:42 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.6.15-mm2
-Date: Sun, 8 Jan 2006 13:18:29 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005A134FE@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.15-mm2
-Thread-Index: AcYUTsDFLOzJOE8GQfafuaCXHtpDRAAMAATw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>,
-       "Brice Goglin" <Brice.Goglin@ens-lyon.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 08 Jan 2006 18:18:32.0261 (UTC) FILETIME=[EE925F50:01C6147F]
+	Sun, 8 Jan 2006 13:21:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4882 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932425AbWAHSVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:21:03 -0500
+Date: Sun, 8 Jan 2006 18:20:51 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus@drzeus.cx>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org,
+       adobriyan@gmail.com
+Subject: Re: [PATCH] [MMC] Lindent wbsd driver
+Message-ID: <20060108182051.GD10927@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus@drzeus.cx>,
+	Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org,
+	adobriyan@gmail.com
+References: <20060107231747.29389.80042.stgit@poseidon.drzeus.cx> <20060108142535.GC10927@flint.arm.linux.org.uk> <43C12319.2060604@drzeus.cx> <43C15052.7080706@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C15052.7080706@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->> 2.6.15 and 2.6.15-git3 both don't show any of these issues. 
->> Did acpi and cpufreq get merged after -git3 ?
->> 
->
->Well whatever bug it is, it's in Linus's tree now.  Happens for me too.
->
->I traced the failure down as far as acpi_processor_get_performance_info(),
->where it's failing here:
->
->	status = acpi_get_handle(pr->handle, "_PCT", &handle);
->	if (ACPI_FAILURE(status)) {
->		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
->				  "ACPI-based processor 
->performance control unavailable\n"));
->		return_VALUE(-ENODEV);
->	}
+On Sun, Jan 08, 2006 at 06:48:02PM +0100, Pierre Ossman wrote:
+> Let's have another go at this shall we.
 
-No, acpi was not merged after 2.6.15 -- see if cpufreq changed.
+Thanks, applied.
 
--Len
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

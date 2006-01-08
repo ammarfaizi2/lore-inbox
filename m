@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161212AbWAHVmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161215AbWAHVnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161212AbWAHVmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 16:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161215AbWAHVmJ
+	id S1161215AbWAHVnn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161217AbWAHVnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 16:42:09 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:34944 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1161212AbWAHVmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 16:42:08 -0500
-Date: Sun, 08 Jan 2006 16:41:34 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-In-reply-to: <Pine.LNX.4.61.0601082158310.8860@spit.home>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1136756494.1043.16.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
- <200601081734.30349.zippel@linux-m68k.org> <1136746381.1043.10.camel@grayson>
- <Pine.LNX.4.61.0601082158310.8860@spit.home>
+	Sun, 8 Jan 2006 16:43:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56754 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161215AbWAHVnn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 16:43:43 -0500
+Date: Sun, 8 Jan 2006 13:43:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/4] mm: page refcount use atomic primitives
+Message-Id: <20060108134327.63c3afeb.akpm@osdl.org>
+In-Reply-To: <43C178D5.5010703@yahoo.com.au>
+References: <20060108052307.2996.39444.sendpatchset@didi.local0.net>
+	<20060108052342.2996.33981.sendpatchset@didi.local0.net>
+	<20060107215413.560aa3a9.akpm@osdl.org>
+	<43C178D5.5010703@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 21:59 +0100, Roman Zippel wrote:
-> Hi,
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> > That's from a two-minute-peek.  I haven't thought about this dreadfully
+>  > hard.  But I'd like to gain some confidence that you have, please.  This
+>  > stuff is tricky.
+>  > 
 > 
-> On Sun, 8 Jan 2006, Ben Collins wrote:
+>  Right, no blam. This is how I avoid taking the LRU lock.
 > 
-> > Anyway, the problem is that if there is no terminal (e.g. stdout is
-> > redirected to a file, and stdin is closed), then kconf loops forever
-> > trying to get an answer (NULL is not the same as "").
+>    "Instead, use atomic_inc_not_zero to ensure we never **pick up a 0 refcount**
+>     page from the LRU (ie. we guarantee the page will not be touched)."
 > 
-> Then let's fix the real problem.
+>  I don't understand what you're asking?
 
-That's not entirely acceptable. The reason this shows up is if an
-automatic build is being done, and the config files are not up-to-date,
-the prefered action is a build failure, not selecting defaults. The
-reason for my fix was that instead of filling up diskspace with a
-logfile of kconf's infinite loop, we just exit with an error.
+Well if you don't understand me, how do you expect me to?
 
-Currently, this is the only way to ensure that these issues don't go
-unnoticed.
+Ho hum.  Please redo the patches into something which vaguely applies and
+let's give them a spin.
 
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
-
+I would prefer that the BUG_ONs be split into a separate patch tho.  Or at
+least, let's take a real close look at whether they're really needed.

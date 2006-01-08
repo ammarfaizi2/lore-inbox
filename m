@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbWAHStR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWAHSx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932745AbWAHStR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932746AbWAHStR
+	id S1161032AbWAHSx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:53:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWAHSx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:49:17 -0500
-Received: from outgoing.smtp.agnat.pl ([193.239.44.83]:51720 "EHLO
-	outgoing.smtp.agnat.pl") by vger.kernel.org with ESMTP
-	id S932745AbWAHStQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:49:16 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14.x and weird things with interrupts on smp machines
-Date: Sun, 8 Jan 2006 19:49:12 +0100
-User-Agent: KMail/1.9.1
-References: <200601081931.31686.arekm@pld-linux.org>
-In-Reply-To: <200601081931.31686.arekm@pld-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601081949.12566.arekm@pld-linux.org>
-X-Authenticated-Id: arekm
+	Sun, 8 Jan 2006 13:53:27 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:61242 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S1161032AbWAHSx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:53:26 -0500
+Date: Sun, 08 Jan 2006 13:53:01 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+In-reply-to: <200601081734.30349.zippel@linux-m68k.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1136746381.1043.10.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
+ <200601081734.30349.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 January 2006 19:31, Arkadiusz Miskiewicz wrote:
-> I've recently noticed that something weird is happening on my SMP machines.
-> Both machines are 2 x Xeon CPU with HT enabled. /proc/interrupts shows that
-> only CPU#0 is used which is very weird (and CPU#1 on one of the machines).
-> I'm running userspace irqbalance, too. I'm unable to alter affinity
-> settings for irqs - these are always the same as below.
->
-> Has anyone noticed such problems?
-Seems that not only me:
+On Sun, 2006-01-08 at 17:34 +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Wednesday 04 January 2006 23:01, Ben Collins wrote:
+> 
+> > +static char *fgets_check_stream(char *s, int size, FILE *stream)
+> > +{
+> > +	char *ret = fgets(s, size, stream);
+> > +
+> > +	if (ret == NULL && feof(stream)) {
+> > +		printf(_("aborted!\n\n"));
+> > +		printf(_("Console input is closed. "));
+> > +		printf(_("Run 'make oldconfig' to update configuration.\n\n"));
+> > +		exit(1);
+> > +	}
+> > +
+> > +	return ret;
+> > +}
+> 
+> What problem does this solve? conf should finish normally anyway and just set 
+> everything to the default.
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=172909
+It shouldn't, and it doesn't (that's what defconfig does, I believe).
 
-
-Is this related?
-http://www.nabble.com/smp_affinity-weirdness-in-LK-2.6.14-t496221.html
-
-(since one of users here reports that the problem for him seems to be fixed in 
-2.6.15). If it is then I would love to see it in stable 2.6.14.x release.
+Anyway, the problem is that if there is no terminal (e.g. stdout is
+redirected to a file, and stdin is closed), then kconf loops forever
+trying to get an answer (NULL is not the same as "").
 
 -- 
-Arkadiusz Mi¶kiewicz                    PLD/Linux Team
-http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
+

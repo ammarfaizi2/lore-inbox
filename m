@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752640AbWAHPiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752644AbWAHPxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752640AbWAHPiR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 10:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752641AbWAHPiR
+	id S1752644AbWAHPxE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 10:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752646AbWAHPxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 10:38:17 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:52494 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1752640AbWAHPiR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 10:38:17 -0500
-Date: Sun, 8 Jan 2006 16:38:29 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-Subject: Re: [lm-sensors] [GIT PATCH] I2C and hwmon patches for 2.6.15
-Message-Id: <20060108163829.49eb7eee.khali@linux-fr.org>
-In-Reply-To: <20060106220642.GA19212@kroah.com>
-References: <20060106220642.GA19212@kroah.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Sun, 8 Jan 2006 10:53:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7075 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752644AbWAHPxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 10:53:02 -0500
+Date: Sun, 8 Jan 2006 16:52:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Spitalnik <lkml@spitalnik.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Disable swsusp on CONFIG_HIGHMEM64
+Message-ID: <20060108155245.GA1683@elf.ucw.cz>
+References: <200601061945.09466.lkml@spitalnik.net> <200601071604.03846.lkml@spitalnik.net> <20060106043019.GA2545@ucw.cz> <200601072042.07337.lkml@spitalnik.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601072042.07337.lkml@spitalnik.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
-
-> Here are some i2c and hwmon patches.  They add a new hwmon driver and
-> fix a number of different bugs.  All of these have been in the last few
-> -mm releases.
+> > > > s2ram probably works. Try getting it working without highmem64,
+> > > > then turn it on.
+> > >
+> > > It works with HIGHMEM but not HIGHMEM64G. You can find the oops from
+> > > HIGHMEM64G below. It crashes very reliably on little stress after resume.
+> >
+> > s2ram should not depend on ammount of memory. Try debugging
+> > it, but do not disable feature just because it does not work
+> > for you. I'd start with minimum drivers...
 > 
-> Please pull from:
-> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
-> or from:
-> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
-> if it isn't synced up yet.
-> 
-> The full patch series will sent to the sensors mailing list, if anyone
-> wants to see them.
+> Well, I've tried it with the bare minimum that was needed to run the system, 
+> but it did the same. I'm sorry but i lack the knowledge to properly debug it 
+> on source level.  Do you see something that perhaps i don't see in the oops? 
+> Maybe some clues as what might be going wrong?
 
-I checked the patches and everything is in order :) Thanks!
-
-I also backported a few of these changes to i2c CVS and lm_sensors CVS.
-
+HIGHMEM64G breaks boot on my thinkpad (pretty recent git). I guess I'm
+not solving this one.
+								Pavel
 -- 
-Jean Delvare
+Thanks, Sharp!

@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbWAHVLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161205AbWAHVVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161201AbWAHVLe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 16:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161202AbWAHVLe
+	id S1161205AbWAHVVD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 16:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWAHVVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 16:11:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:33950 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161201AbWAHVLe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 16:11:34 -0500
-Subject: Re: i2c/ smbus question
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <20060108113013.34fe5447.khali@linux-fr.org>
-References: <1136673364.30123.20.camel@localhost.localdomain>
-	 <20060108113013.34fe5447.khali@linux-fr.org>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 08:10:08 +1100
-Message-Id: <1136754608.30123.57.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Jan 2006 16:21:02 -0500
+Received: from web31815.mail.mud.yahoo.com ([68.142.206.168]:56227 "HELO
+	web31815.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161205AbWAHVVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 16:21:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=YKo7OshAB3SFS2M9+kEMqIpSmYviFSU+XFZnyU4lcAMZSrQnBQ7e8PZY5zcyBLR0hBWLkjaAsj1ZhhVMkFQ0qeJa3R8VkrLjCwdsZSF8DTvb8NmLZj3K1Bs+/YAq3Mi4sxb6XkALJKtP0dnqUJgVpABfooVBMRFUNPHZPzRw8z8=  ;
+Message-ID: <20060108212057.79825.qmail@web31815.mail.mud.yahoo.com>
+Date: Sun, 8 Jan 2006 13:20:57 -0800 (PST)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: git pull on Linux/ACPI release tree
+To: Linus Torvalds <torvalds@osdl.org>,
+       Martin Langhoff <martin.langhoff@gmail.com>
+Cc: "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0601081141450.3169@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 11:30 +0100, Jean Delvare wrote:
+--- Linus Torvalds <torvalds@osdl.org> wrote:
+> So trying out git-rebase and git-cherry-pick just in case you decide to 
+> want to use them might be worthwhile. Making it part of your daily routine 
+> like David has done? Somewhat questionable, but hey, it seems to be 
+> working for David, and it does make some things much easier, so..
 
-> I suspect that these drivers which do I2C block writes do so by calling
-> i2c_master_send (or even i2c_transfer) directly, rather than relying on
-> the SMBus compatibility layer.
+How about this usage (branch == tree):
 
-Ok. Well, it's much more simple for me to implement smbus (with a few extensions
-like block transfer) than the low level i2c at the host driver level.
-In order to implement subaddress access with repeat start (very common in pretty
-much everything nowadays), I need two messages. However, my low level hardware
-can't implement everything that can be done with multiple messages. Thus
-implementing the stuff using i2c_xfer needs a lot of test & validation all over
-the place to coerce those 2 messages into a subaddress + data setup that my low
-level hw understands. Implementing only smbus is simpler and fits most of my needs.
- 
-> The i2c_smbus_write_i2c_block_data wrapper function used to be defined,
-> but was removed in 2.6.10-rc2 together with a couple other similar
-> wrappers [1] on request by Adrian Bunk, the reason being that they had
-> no user back then. I was a bit reluctant at first, but we finally agreed
-> with Adrian to remove the functions, and to reintroduce them later if
-> they were ever needed.
+Tree A    (your tree)
+  Tree B     (project B, dependent on Tree A)
+     Tree C     (project C, dependent on project B)
 
-I find that weird but heh...
+(i.e. diff(C-A) = diff(C-B) + diff(B-A))
 
-> So, if you need i2c_smbus_write_i2c_block_data(), we can easily
-> resurrect it. See the patch below. I made the new version a bit faster
-> (I hope) than the original by using memcpy, please confirm it works for
-> you.
+Your tree is pulled into Tree A as often as your tree
+changes and it just fast forwards.
 
-Ok, I'll test with those, I did an equivalent local to my sound drivers
-but a wrapper in the i2c layer is probably better. Thanks.
+If I want to run project B with your latest tree, then
+I resolve/merge from tree A to tree B, compile B
+and run it.
 
+If I want to run project C and project B with your
+latest tree, I resolve/merge from tree A to tree B
+and from tree B to tree C, compile C and run it.
 
+In such cases, are you saying that you'd prefer to
+pull from Tree B and Tree C (depending on your needs)?
+
+Another question:
+Sometimes, a fix for project B finds its way into
+tree C (project C) (since C depended on that fix in B).
+Now I'd like to pull that particular fix, identified by
+its SHA, into project B, and nothing else, for this I can
+use git-cherry-pick, right?
+
+And lastly, is there a tool whereby I can "see" changes
+between repos, kind of like git-diff but being able to
+give URLs too?
+
+    Luben
 

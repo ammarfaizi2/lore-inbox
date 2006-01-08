@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932756AbWAHSri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbWAHStR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932756AbWAHSri (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932755AbWAHSrh
+	id S932745AbWAHStR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932746AbWAHStR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:47:37 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:12498 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932756AbWAHSrd (ORCPT
+	Sun, 8 Jan 2006 13:49:17 -0500
+Received: from outgoing.smtp.agnat.pl ([193.239.44.83]:51720 "EHLO
+	outgoing.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S932745AbWAHStQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:47:33 -0500
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH 08/41] m68k: fix macro syntax to make current binutils happy
-Date: Sun, 8 Jan 2006 18:11:55 +0100
-User-Agent: KMail/1.8.2
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-m68k@vger.kernel.org
-References: <E1EtvYX-0003Lo-Gf@ZenIV.linux.org.uk> <20060105035118.GS27946@ftp.linux.org.uk> <20060105113708.GT27946@ftp.linux.org.uk>
-In-Reply-To: <20060105113708.GT27946@ftp.linux.org.uk>
+	Sun, 8 Jan 2006 13:49:16 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14.x and weird things with interrupts on smp machines
+Date: Sun, 8 Jan 2006 19:49:12 +0100
+User-Agent: KMail/1.9.1
+References: <200601081931.31686.arekm@pld-linux.org>
+In-Reply-To: <200601081931.31686.arekm@pld-linux.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200601081811.58669.zippel@linux-m68k.org>
+Message-Id: <200601081949.12566.arekm@pld-linux.org>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thursday 05 January 2006 12:37, Al Viro wrote:
-
-> > OK.  Nothing else depends on those; however, getuser.l stuff _is_
-> > documented.
-
-It actually was a nice feature and what I have seen so far look like bad 
-regression and makes the gas macros totally useless. Before it was possible 
-to define some pseudo assembly instructions, but if one can't pass some 
-simple address operand without quotes as an argument anymore...
-
-> > Frankly, my preference long-term would be to kill the .macro and just
-> > use C preprocessor for expansion.  Do you have any objections against
-> > such variant?
+On Sunday 08 January 2006 19:31, Arkadiusz Miskiewicz wrote:
+> I've recently noticed that something weird is happening on my SMP machines.
+> Both machines are 2 x Xeon CPU with HT enabled. /proc/interrupts shows that
+> only CPU#0 is used which is very weird (and CPU#1 on one of the machines).
+> I'm running userspace irqbalance, too. I'm unable to alter affinity
+> settings for irqs - these are always the same as below.
 >
-> Scratch that; too much PITA to implement the horrors you've got there
-> (vararg recursive macros <shudder>).
+> Has anyone noticed such problems?
+Seems that not only me:
 
-Well, at that the time I wrote it, it very nicely cleaned up the old code 
-(which was even worse) and made additions very simple. The recursive macros 
-avoided a lot of simple typos. I'm not really happy that I have to change 
-that, it worked fine so far.
-BTW I'm back in a few days and my online connectivity is rather limited right 
-now, so I hadn't really a good possibility to research the possible options 
-yet.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=172909
 
-bye, Roman
 
+Is this related?
+http://www.nabble.com/smp_affinity-weirdness-in-LK-2.6.14-t496221.html
+
+(since one of users here reports that the problem for him seems to be fixed in 
+2.6.15). If it is then I would love to see it in stable 2.6.14.x release.
+
+-- 
+Arkadiusz Mi¶kiewicz                    PLD/Linux Team
+http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/

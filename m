@@ -1,83 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752657AbWAHSPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752674AbWAHSSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752657AbWAHSPV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 13:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752670AbWAHSPV
+	id S1752674AbWAHSSn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752672AbWAHSSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 13:15:21 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:35914 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1752657AbWAHSPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 13:15:21 -0500
-Date: Sun, 8 Jan 2006 19:15:19 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: Michael Buesch <mbuesch@freenet.de>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 1/4] move capable() to capability.h
-In-Reply-To: <20060107215106.38d58bb9.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.63.0601081904170.6962@gockel.physik3.uni-rostock.de>
-References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
- <200601061218.17369.mbuesch@freenet.de> <1136546539.2940.28.camel@laptopd505.fenrus.org>
- <200601061226.42416.mbuesch@freenet.de> <20060107215106.38d58bb9.rdunlap@xenotime.net>
+	Sun, 8 Jan 2006 13:18:43 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:29119 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1752671AbWAHSSm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:18:42 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.6.15-mm2
+Date: Sun, 8 Jan 2006 13:18:29 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005A134FE@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.15-mm2
+Thread-Index: AcYUTsDFLOzJOE8GQfafuaCXHtpDRAAMAATw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>,
+       "Brice Goglin" <Brice.Goglin@ens-lyon.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 08 Jan 2006 18:18:32.0261 (UTC) FILETIME=[EE925F50:01C6147F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jan 2006, Randy.Dunlap wrote:
+ 
+>> 2.6.15 and 2.6.15-git3 both don't show any of these issues. 
+>> Did acpi and cpufreq get merged after -git3 ?
+>> 
+>
+>Well whatever bug it is, it's in Linus's tree now.  Happens for me too.
+>
+>I traced the failure down as far as acpi_processor_get_performance_info(),
+>where it's failing here:
+>
+>	status = acpi_get_handle(pr->handle, "_PCT", &handle);
+>	if (ACPI_FAILURE(status)) {
+>		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+>				  "ACPI-based processor 
+>performance control unavailable\n"));
+>		return_VALUE(-ENODEV);
+>	}
 
-> (nothing to do with inlining here)
-> 
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> headers + core:
-> - Move capable() from sched.h to capability.h;
-> - Use <linux/capability.h> where capable() is used
-> 	(in include/, block/, ipc/, kernel/, a few drivers/,
-> 	mm/, security/, & sound/;
-> 	many more drivers/ to go)
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+No, acpi was not merged after 2.6.15 -- see if cpufreq changed.
 
-> --- linux-2615-g3.orig/include/linux/capability.h
-> +++ linux-2615-g3/include/linux/capability.h
-> @@ -43,6 +43,7 @@ typedef struct __user_cap_data_struct {
->  #ifdef __KERNEL__
->  
->  #include <linux/spinlock.h>
-> +#include <asm/current.h>
->  
->  /* #define STRICT_CAP_T_TYPECHECKS */
->  
-> @@ -356,6 +357,20 @@ static inline kernel_cap_t cap_invert(ke
->  
->  #define cap_is_fs_cap(c)     (CAP_TO_MASK(c) & CAP_FS_MASK)
->  
-> +#ifdef CONFIG_SECURITY
-> +/* code is in security.c */
-> +extern int capable(int cap);
-> +#else
-> +static inline int capable(int cap)
-> +{
-> +	if (cap_raised(current->cap_effective, cap)) {
-> +		current->flags |= PF_SUPERPRIV;
-> +		return 1;
-> +	}
-> +	return 0;
-> +}
-> +#endif
-
-I wonder how this can actually work. For dereferencing current, it is not 
-enough to include <asm/current.h>. The actual layout of struct task_struct
-needs to be known to the compiler, which is given in <linux/sched.h>.
-
-Maybe you were just lucky with your .config and every file using capable()
-just by chance also included <linux/sched.h>?
-
-(Chances are not bad since currently about every other .c file includes 
-sched.h. However, I have patches pending to reduce this number to ~500..1000)
-
-Uninlining capable() might indeed help us here.
-
-Tim
+-Len

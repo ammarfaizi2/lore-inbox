@@ -1,117 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752656AbWAHR7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752658AbWAHSCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752656AbWAHR7u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 12:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752657AbWAHR7u
+	id S1752658AbWAHSCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 13:02:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752659AbWAHSCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 12:59:50 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:34578 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1752656AbWAHR7t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 12:59:49 -0500
-Date: Sun, 8 Jan 2006 18:59:34 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Keith Owens <kaos@sgi.com>
-Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reference_discarded addition
-Message-ID: <20060108175934.GA15445@mars.ravnborg.org>
-References: <20060106074019.GA1226@redhat.com> <31103.1136685155@ocs3.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <31103.1136685155@ocs3.ocs.com.au>
-User-Agent: Mutt/1.5.11
+	Sun, 8 Jan 2006 13:02:25 -0500
+Received: from [139.30.44.16] ([139.30.44.16]:54587 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1752658AbWAHSCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 13:02:24 -0500
+Date: Sun, 8 Jan 2006 19:02:23 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Valdis.Kletnieks@vt.edu
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Michael Buesch <mbuesch@freenet.de>,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/4] move capable() to capability.h 
+In-Reply-To: <200601080745.k087j3mU016114@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.63.0601081853020.6962@gockel.physik3.uni-rostock.de>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+ <200601061218.17369.mbuesch@freenet.de> <1136546539.2940.28.camel@laptopd505.fenrus.org>
+ <200601061226.42416.mbuesch@freenet.de>            <20060107215106.38d58bb9.rdunlap@xenotime.net>
+ <200601080745.k087j3mU016114@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 12:52:35PM +1100, Keith Owens wrote:
-> Dave Jones (on Fri, 6 Jan 2006 02:40:19 -0500) wrote:
-> >Error: ./fs/quota_v2.o .opd refers to 0000000000000020 R_PPC64_ADDR64    .exit.text
-> >
-> >Been carrying this for some time in Red Hat trees.
-> >
-> >Signed-off-by: Dave Jones <davej@redhat.com>
-> >
-> >diff -urNp --exclude-from=/home/davej/.exclude linux-3022/scripts/reference_discarded.pl linux-10000/scripts/reference_discarded.pl
-> >--- linux-3022/scripts/reference_discarded.pl
-> >+++ linux-10000/scripts/reference_discarded.pl
-> >@@ -88,6 +88,7 @@ foreach $object (keys(%object)) {
-> > 		    ($from !~ /\.text\.exit$/ &&
-> > 		     $from !~ /\.exit\.text$/ &&
-> > 		     $from !~ /\.data\.exit$/ &&
-> >+		     $from !~ /\.opd$/ &&
-> > 		     $from !~ /\.exit\.data$/ &&
-> > 		     $from !~ /\.altinstructions$/ &&
-> > 		     $from !~ /\.pdr$/ &&
+On Sun, 8 Jan 2006, Valdis.Kletnieks@vt.edu wrote:
+
+> On Sat, 07 Jan 2006 21:51:06 PST, "Randy.Dunlap" said:
 > 
-> For our future {in}sanity, add a comment that this is the ppc .opd
-> section, not the ia64 .opd section.  ia64 .opd should not point to
-> discarded sections.
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> > 
+> > headers + core:
+> > - Move capable() from sched.h to capability.h;
+> > - Use <linux/capability.h> where capable() is used
+> > 	(in include/, block/, ipc/, kernel/, a few drivers/,
+> > 	mm/, security/, & sound/;
+> > 	many more drivers/ to go)
 > 
-> Any idea why ppc .opd points to discarded sections when ia64 does not?
-> AFAICT no ia64 object has a useful .opd section, they are all empty or
-> (sometimes) a dummy entry which is 1 byte long.  ia64 .opd data is
-> built at link time, not compile time.
-> 
-> It is a pity that ppc is generating .opd entries at compile time.  It
-> makes it impossible to detect a real reference to a discarded function.
+> Are there plans for a second patch series to remove sched.h from those
+> files that only needed it for capable()?
 
-Thanks for the comments Keith.
-I have applied the following:
+Yes. I've written a set of (horrendously inefficient, but working) scripts 
+that detect whenever sched.h isn't needed in a file anymore.
+So I think it's ok if Randy just leaves the dangling references to 
+sched.h, I will clean them up afterwards.
 
+I recently stopped posting patches because I will be offline for a month 
+or two and thus unable to look after problems that these patches might 
+cause. I hope to resume operation in March.
 
-diff-tree 442ce844e139c1e3c23e8b4df13468041ae35721 (from 50aa88e2877f1375ba79d1be7a0ff4aa563741c7)
-Author: Dave Jones <davej@redhat.com>
-Date:   Fri Jan 6 02:40:19 2006 -0500
-
-    kbuild: reference_discarded addition
-    
-    Error: ./fs/quota_v2.o .opd refers to 0000000000000020 R_PPC64_ADDR64    .exit.text
-    
-    Been carrying this for some time in Red Hat trees.
-    
-    Keith Ownes <kaos@sgi.com> commented:
-    For our future {in}sanity, add a comment that this is the ppc .opd
-    section, not the ia64 .opd section.  ia64 .opd should not point to
-    discarded sections.
-    
-    Any idea why ppc .opd points to discarded sections when ia64 does not?
-    AFAICT no ia64 object has a useful .opd section, they are all empty or
-    (sometimes) a dummy entry which is 1 byte long.  ia64 .opd data is
-    built at link time, not compile time.
-    
-    Signed-off-by: Dave Jones <davej@redhat.com>
-    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-
-diff --git a/scripts/reference_discarded.pl b/scripts/reference_discarded.pl
-index c2d5414..4ee6ab2 100644
---- a/scripts/reference_discarded.pl
-+++ b/scripts/reference_discarded.pl
-@@ -69,10 +69,15 @@ foreach $object (keys(%object)) {
- 	}
- }
- # printf("ignoring %d conglomerate(s)\n", $ignore);
- 
- # printf("Scanning objects\n");
-+
-+# Keith Ownes <kaos@sgi.com> commented:
-+# For our future {in}sanity, add a comment that this is the ppc .opd
-+# section, not the ia64 .opd section.
-+# ia64 .opd should not point to discarded sections.
- $errorcount = 0;
- foreach $object (keys(%object)) {
- 	my $from;
- 	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
- 	while (defined($line = <OBJDUMP>)) {
-@@ -86,10 +91,11 @@ foreach $object (keys(%object)) {
- 		     $line =~ /\.exit\.data$/ ||
- 		     $line =~ /\.exitcall\.exit$/) &&
- 		    ($from !~ /\.text\.exit$/ &&
- 		     $from !~ /\.exit\.text$/ &&
- 		     $from !~ /\.data\.exit$/ &&
-+		     $from !~ /\.opd$/ &&
- 		     $from !~ /\.exit\.data$/ &&
- 		     $from !~ /\.altinstructions$/ &&
- 		     $from !~ /\.pdr$/ &&
- 		     $from !~ /\.debug_.*$/ &&
- 		     $from !~ /\.exitcall\.exit$/ &&
+Tim

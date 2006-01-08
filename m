@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752605AbWAHRLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752638AbWAHRPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752605AbWAHRLK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 12:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752619AbWAHRLK
+	id S1752638AbWAHRPu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 12:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752639AbWAHRPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 12:11:10 -0500
-Received: from waste.org ([64.81.244.121]:18332 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1752605AbWAHRLI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 12:11:08 -0500
-Date: Sun, 8 Jan 2006 11:03:57 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] more UID16 fixes
-Message-ID: <20060108170357.GC3356@waste.org>
-References: <20060108124119.GH3774@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Jan 2006 12:15:50 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:42898 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1752638AbWAHRPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 12:15:49 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH -mm 0/2] swsusp: low level interface (rev. 2)
+Date: Sun, 8 Jan 2006 18:07:22 +0100
+User-Agent: KMail/1.9
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060108124119.GH3774@stusta.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200601081807.22740.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 01:41:19PM +0100, Adrian Bunk wrote:
-> It seems the "make UID16 support optional" patch was checked when it 
-> edited the -tiny tree some time ago, but it wasn't checked whether it
-> still matches the current situation when it was submitted for inclusion 
-> in -mm. This patch fixes the following bugs:
-> - ARCH_S390X does no longer exist, nowadays this has to be expressed
->   through (S390 && 64BIT)
-> - in five architecture specific Kconfig files the UID16 options
->   weren't removed
-> 
-> Additionally, it changes the fragile negative dependencies of UID16 to 
-> positive dependencies (new architectures are more likely to not 
-> require UID16 support).
+Hi,
 
-Yeah, that's a better approach. Thanks.
+This is the second revision of the patches that prepare swsusp for the
+introduction of the userland interface.
 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Please consider for applying (Pavel, if you agree with the current version,
+please ack or sign off).
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+Greetings,
+Rafael
+
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin
+

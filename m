@@ -1,113 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWAIU4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWAIU7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWAIU4U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWAIU4T
+	id S1751335AbWAIU7s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWAIU7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:56:19 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:25048 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751340AbWAIU4S convert rfc822-to-8bit
+	Mon, 9 Jan 2006 15:59:47 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:31293 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751335AbWAIU7r convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:56:18 -0500
+	Mon, 9 Jan 2006 15:59:47 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FIOe9+/5iDLPdWRt3O29n1rlonpc5sTtnFdaErw+RhReqFmm+YvqSe/qAVwey81ax0CmS4qvXOS6YI7PFgijJTP/8ceQaNiW+8unvxyjkP9AH6BdY0iJGCc420iPISrChNA6tUeGHcWmyaNqt3R8Q6uLR9/63ZsWYfQ9IwcMo3I=
-Message-ID: <9a8748490601091256m6b2df7b4o985eb9a6a46c6d1f@mail.gmail.com>
-Date: Mon, 9 Jan 2006 21:56:18 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PV84WBkLm9wX+RBJ5zLj+pGMQFRmeLq5JQH+yoA1YBWCZ8Ey5SEixy/rM7NSjTnLZmZd0cLKNvOKShSHQYBZlykAl3LzOxMxk/IcqAHeloBEjkek5V5nCxeUTRN4QYuQZowzrZcs4Lkf2xwE5ErtOC1o82IbLKJZXepJM0ODyIo=
+Message-ID: <d120d5000601091259r46d22f51hf06e93ea4a0ecb33@mail.gmail.com>
+Date: Mon, 9 Jan 2006 15:59:45 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Jesper Juhl <jesper.juhl@gmail.com>
 Subject: Re: Mouse stalls (again) with 2.6.15-mm2
 Cc: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
        Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <9a8748490601091246m2adfa0a5pc455ed05758e43b6@mail.gmail.com>
+In-Reply-To: <9a8748490601091237s57071e57mbd2c4172a0e4dd@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
 References: <9a8748490601091237s57071e57mbd2c4172a0e4dd@mail.gmail.com>
-	 <9a8748490601091246m2adfa0a5pc455ed05758e43b6@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On 1/9/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 1/9/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > On 12/21/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > > On 12/21/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > > On 12/11/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > > > > On 12/11/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> On 12/21/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > On 12/21/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > On 12/11/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > > > On 12/11/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > > >
+> > > > > To stop resync attempts do:
 > > > > >
-> > > > > > To stop resync attempts do:
-> > > > > >
-> > > > > >         echo -n 0 > /sys/bus/serio/devices/serioX/resync_time
-> > > > > >
-> > > > > > where serioX is serio port asociated with your mouse.
-> > > > > >
-> > > > > This cures the problem nicely with no obvious ill effects with the
-> > > > > mouse plugged into the KVM...
+> > > > >         echo -n 0 > /sys/bus/serio/devices/serioX/resync_time
 > > > > >
+> > > > > where serioX is serio port asociated with your mouse.
+> > > > >
+> > > > This cures the problem nicely with no obvious ill effects with the
+> > > > mouse plugged into the KVM...
 > > > >
-> > > > Jesper,
-> > > >
-> > > > Could you please try applying the attached patch to -mm and see if you
-> > > > still have "resync failed" messages when you don't "echo 0" into
-> > > > resync_time attribute?
-> > > >
-> > > I applied the patch to 2.6.15-rc5-mm3, took out the "echo 0 to
-> > > resync_time" workaround that I had in rc.local and I no longer see the
-> > > "resync failed" messages in dmesg.
-> > > With this patch applied everything seems to be working OK with the
-> > > mouse attached to the KVM.
 > > >
+> > > Jesper,
+> > >
+> > > Could you please try applying the attached patch to -mm and see if you
+> > > still have "resync failed" messages when you don't "echo 0" into
+> > > resync_time attribute?
+> > >
+> > I applied the patch to 2.6.15-rc5-mm3, took out the "echo 0 to
+> > resync_time" workaround that I had in rc.local and I no longer see the
+> > "resync failed" messages in dmesg.
+> > With this patch applied everything seems to be working OK with the
+> > mouse attached to the KVM.
 > >
-> > Hi Dmitry,
-> >
-> > I'm sorry to report that this problem made a comeback :-(
 >
-> I guess I should mention that it's slightly different this time.
-> Last time the mouse would stall every 5 seconds regardless of it being
-> in motion or not. This time around the mouse doesn't stall if I keep
-> moving it. Only when I leave it still for ~10 seconds or more does it
-> stall when I then try to move it again. It stalls for something like 1
-> or 2 seconds, then moves fine until left alone for >= 10 sec again.
+> Hi Dmitry,
+>
+> I'm sorry to report that this problem made a comeback :-(
+> With 2.6.15-mm2 I again get the mouse stalls and these messages in dmesg :
 >
 
-Ohh and I should also mention, that once again
-echo -n 0 > /sys/bus/serio/devices/serio0/resync_time
-is a functional workaround for the problem for me.
+Jesper,
 
+I am sorry, I have not sent updated patch to Andrew yet - I am trying
+to figure some ALPS quicks with Frank. I think if you apply that patch
+I sent earlier your mouse will work fine.
 
->
-> > With 2.6.15-mm2 I again get the mouse stalls and these messages in dmesg :
-> >
-> > [   64.351000] psmouse.c: resync failed, issuing reconnect request
-> > [   94.210000] psmouse.c: resync failed, issuing reconnect request
-> > [  132.850000] psmouse.c: resync failed, issuing reconnect request
-> > [  148.498000] psmouse.c: resync failed, issuing reconnect request
-> > [  185.414000] psmouse.c: resync failed, issuing reconnect request
-> > [  220.509000] psmouse.c: resync failed, issuing reconnect request
-> > [  375.436000] psmouse.c: resync failed, issuing reconnect request
-> > [  406.410000] psmouse.c: resync failed, issuing reconnect request
-> > [  419.382000] psmouse.c: resync failed, issuing reconnect request
-> > [  432.016000] psmouse.c: resync failed, issuing reconnect request
-> > [  448.275000] psmouse.c: resync failed, issuing reconnect request
-> > [  462.244000] psmouse.c: resync failed, issuing reconnect request
-> > [  477.461000] psmouse.c: resync failed, issuing reconnect request
-> > [  490.851000] psmouse.c: resync failed, issuing reconnect request
-> > [  533.566000] psmouse.c: resync failed, issuing reconnect request
-> > [  563.348000] psmouse.c: resync failed, issuing reconnect request
-> > [  580.606000] psmouse.c: resync failed, issuing reconnect request
-> > [  620.961000] psmouse.c: resync failed, issuing reconnect request
-> > [  639.404000] psmouse.c: resync failed, issuing reconnect request
-> > [  690.256000] psmouse.c: resync failed, issuing reconnect request
-> > [  698.772000] psmouse.c: resync failed, issuing reconnect request
-> > [  716.679000] psmouse.c: resync failed, issuing reconnect request
-> >
-> > 2.6.15 is fine.
-> >
->
+Sorry about that.
 
 --
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Dmitry

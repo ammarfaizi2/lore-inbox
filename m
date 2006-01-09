@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWAINwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWAINyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWAINwS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWAINwR
+	id S932149AbWAINyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWAINyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:52:17 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:16833 "HELO
+	Mon, 9 Jan 2006 08:54:25 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:35777 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932145AbWAINwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:52:16 -0500
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+	id S932149AbWAINyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 08:54:24 -0500
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+	can't for a long time
 From: Lee Revell <rlrevell@joe-job.com>
-To: vherva@vianova.fi
-Cc: Florian Schmidt <tapas@affenbande.org>,
-       Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060109081646.GG21365@vianova.fi>
-References: <20060104000344.GJ3831@stusta.de>
-	 <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl>
-	 <20060104010123.GK3831@stusta.de>
-	 <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl>
-	 <20060104113726.3bd7a649@mango.fruits.de>
-	 <1136445395.24475.17.camel@mindpipe>
-	 <20060105124317.2d12a85c@mango.fruits.de>
-	 <1136483330.31583.5.camel@mindpipe> <20060108210756.GD1686@vianova.fi>
-	 <1136756669.2997.2.camel@mindpipe>  <20060109081646.GG21365@vianova.fi>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200601091403.46304.yarick@it-territory.ru>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	 <200601091207.14939.yarick@it-territory.ru>
+	 <200601091022.30758.s0348365@sms.ed.ac.uk>
+	 <200601091403.46304.yarick@it-territory.ru>
 Content-Type: text/plain
-Date: Mon, 09 Jan 2006 08:52:11 -0500
-Message-Id: <1136814731.9957.4.camel@mindpipe>
+Date: Mon, 09 Jan 2006 08:54:22 -0500
+Message-Id: <1136814862.9957.5.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-09 at 10:16 +0200, Ville Herva wrote:
-> On Sun, Jan 08, 2006 at 04:44:28PM -0500, you [Lee Revell] wrote:
+On Mon, 2006-01-09 at 14:03 +0300, Yaroslav Rastrigin wrote:
+> Hi, 
+> > > > money to the right people.
+> > >
+> > > Could or would you be so kind to provide at least moderately complete
+> > > pricelist ? Whom and how much should I pay to have correct support for
+> > > intel graphics chipset, 2200BG Wi-Fi, complete
+> > > suspend-to-disk/suspend-to-ram and to get an overall performance boost ?
 > > 
-> > No it's a sign that the Revolution 5.1 is not well supported yet.  It
-> > was not supported at all until a few weeks ago.
+> > Since these are all supported in 2.6.15, $0 would be my quote.
+> I've mentioned _correct_ support. Contrary to current rather sad state of things. 
+> 855GM still has no support for non-VESA videomodes (1280x800 can be enabled only via VBIOS hacks, and is not always properly restored on resume) 
+> (and don't supported with intelfb) (which, AFAIK, has no support for dualhead)
+> 2200BG sometimes starts to unacceptably lag and drop packets after going out of suspend (either STR or STD) and until reboot.
+> (And this is driver issue)
+> Suspend to ram works, more or less, but drains power like hungry cat drinks milk, and I just can't leave my laptop in STR for more than two days 
+> without worrying about my on-the-road availability. 
+> Suspend to disk has nasty tendency to ruin my whole hot live X session, since X can't properly restore VT on resume.
+> Overall performance isn't that bad, either, but I just can't understand, why KATE (Kde more or less advanced editor) takes twice as long to start 
+> as UltraEdit in _emulated_ (VMWare) Windows XP running on this same box.
 > 
-> Ok, I see. (It was just that the revo51 changelog entry revo51 was not
-> exactly verbose wrt. what's supported.)
+> So, the question remains the same - whom and how much I need to pay to solve abovementioned problems ?
 > 
-> You won't need the bug report just yet, then? 
-> 
-> I'll keep retesting the new releases.
 
-Sure, we'd like the bug report.  I just wanted to point out that many
-people who tell everyone that "ALSA sucks" like you and JWZ, have really
-just made the mistake of buying bleeding edge barely-supported hardware.
-
-If vendors gave us more docs so that reverse engineering drivers was not
-the norm, the situation would improve greatly.
+Where are the bug reports?  You didn't expect these to just fix
+themselves did you?
 
 Lee
 

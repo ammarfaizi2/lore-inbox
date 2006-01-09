@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWAIRgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWAIRjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWAIRgj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWAIRgi
+	id S1750880AbWAIRjG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWAIRjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:36:38 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:18077 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750787AbWAIRgi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:36:38 -0500
-Date: Mon, 9 Jan 2006 09:36:56 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       vatsa@in.ibm.com
-Subject: Re: [PATCH 5/5][RFC] rcu: start new grace period from rcu_pending()
-Message-ID: <20060109173656.GC14738@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <43C165D7.6EAB8E47@tv-sign.ru> <43C27417.AA1BA306@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C27417.AA1BA306@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+	Mon, 9 Jan 2006 12:39:05 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:29014 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S1750880AbWAIRjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 12:39:04 -0500
+Message-ID: <43C2A0A3.8070901@suse.com>
+Date: Mon, 09 Jan 2006 12:42:59 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-ia64@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ia64: including <asm/signal.h> alone causes compilation
+ errors
+References: <20060109171514.GA25096@locomotive.unixthugs.org> <20060109172149.GQ19769@parisc-linux.org>
+In-Reply-To: <20060109172149.GQ19769@parisc-linux.org>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 05:32:55PM +0300, Oleg Nesterov wrote:
-> Oleg Nesterov wrote:
-> >
-> > I think it is better to set ->qs_pending = 1 directly in __rcu_pending():
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Matthew Wilcox wrote:
+> On Mon, Jan 09, 2006 at 12:15:14PM -0500, Jeff Mahoney wrote:
+>> +++ linux-2.6.15-ocfs2/include/asm-ia64/signal.h	2006-01-09 11:08:16.404700640 -0500
+>> @@ -1,6 +1,8 @@
+>>  #ifndef _ASM_IA64_SIGNAL_H
+>>  #define _ASM_IA64_SIGNAL_H
+>>  
+>> +#include <linux/types.h>
+>> +
+>>  /*
+>>   * Modified 1998-2001, 2003
+>>   *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
+>> @@ -122,8 +124,6 @@
+>>  
+>>  # ifndef __ASSEMBLY__
+>>  
+>> -#  include <linux/types.h>
+>> -
+>>  /* Avoid too many header ordering problems.  */
+>>  struct siginfo;
 > 
-> This patch has a bug. I am sending a trivial fix, but now I am not
-> sure myself that 1 timer tick saved worth the code uglification.
-
-This is indeed an accident waiting to happen -- someone is bound to
-replace the "|" with an "||", a change that is too easy for someone
-to miss.  Once Vatsa is satisfied with the CPU-hotplug aspects of
-this set of patches, if __rcu_pending() still has side-effects, I would
-suggest something like the following:
-
-	int rcu_pending(int cpu)
-	{
-		int retval = 0;
-
-		if (__rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)))
-			retval = 1;
- 		if (__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu)))
-			retval = 1;
-		return retval;
-	}
-
-A few more lines, but the intent is much more clear.  And I bet that
-gcc generates reasonable code in either case.
-
-Or maybe this is just me...
-
-							Thanx, Paul
-
-> [PATCH 6/5] rcu: start new grace period from rcu_pending() fix
+> Is it still possible to include this file from assembly?  Do we still
+> need to do that?
 > 
-> We should not miss __rcu_pending(&rcu_bh_ctrlblk) in rcu_pending().
 > 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- 2.6.15/kernel/rcupdate.c~6_FIX	2006-01-09 00:26:44.000000000 +0300
-> +++ 2.6.15/kernel/rcupdate.c	2006-01-09 19:19:27.000000000 +0300
-> @@ -464,7 +464,7 @@ static int __rcu_pending(struct rcu_ctrl
->  
->  int rcu_pending(int cpu)
->  {
-> -	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) ||
-> +	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) |
->  		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
->  }
-> 
+
+Yes, actually, it is. :(
+
+Christoph also pointed out that including <linux/signal.h> is the better
+solution, so I'm submitting that patch to the OCFS2 folks instead.
+
+Sorry for the noise.
+
+- -Jeff
+
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDwqCjLPWxlyuTD7IRAj8PAJwLv2EghfMR9yPuaVhpTLQMGysKpwCfcVBq
+7ZT0LwuYEjKYVnJT/QeXmCw=
+=Yt8o
+-----END PGP SIGNATURE-----

@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWAINZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWAINaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWAINZi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWAINZi
+	id S1751431AbWAINaT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:30:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWAINaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:25:38 -0500
-Received: from h-64-105-110-66.cmbrmaor.covad.net ([64.105.110.66]:18468 "EHLO
-	mail.w1nr.net") by vger.kernel.org with ESMTP id S1751441AbWAINZh
+	Mon, 9 Jan 2006 08:30:19 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:16269 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1751431AbWAINaR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:25:37 -0500
-Message-ID: <001c01c61520$2cbba6b0$6d0ea8c0@LoJackOne.LoJack.com>
-From: "Mike McCarthy, W1NR" <lists@w1nr.net>
-To: "Stan Gammons" <s_gammons@charter.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <1136780835.6695.37.camel@falklands.home.pc>
-Subject: Re: 64 bit kernel
-Date: Mon, 9 Jan 2006 08:25:35 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2670
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+	Mon, 9 Jan 2006 08:30:17 -0500
+Subject: Re: Kernel Education
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Weber Ress <ress.weber@gmail.com>
+Cc: Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <9c2327970601090525v5548034fh780455513b50e8c0@mail.gmail.com>
+References: <9c2327970601090500i78fec178mb197c0fa5732e4a4@mail.gmail.com>
+	 <43C26357.9050301@liberouter.org>
+	 <9c2327970601090525v5548034fh780455513b50e8c0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 09 Jan 2006 14:30:15 +0100
+Message-Id: <1136813415.8412.0.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw a similar issue many years ago that turned out to be a chipset bug. 
-This was a PII system that used 16 bit wide modules.  When using only one 
-module, the chipset "fooled" the OS into thinking that it was doing 32 bit 
-wide operations.  However, it failed at full speed.  Reducing the memory bus 
-speed or installing modules in pairs "fixed" the problem.  I suspect a bus 
-or memory controller issue rather than the kernel.
-
-The failure mode was exactly as you describe.  It manifested itself as disk 
-errors or DMA failures.  Unfortunately the chipset vendor determined that it 
-was a silicon bug and said that they would NOT fix it!
-
-Mike
-
------ Original Message ----- 
-From: "Stan Gammons" <s_gammons@charter.net>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Sunday, January 08, 2006 11:27 PM
-Subject: 64 bit kernel
-
-
-> Hi everyone,
->
-> I was wondering if anyone can tell me if the following is a 64 bit
-> kernel problem or if it's a BIOS problem.
->
-> I have a Gigabyte K8NSC-939 with an AMD64 3200+ (Venice) CPU version F7
-> BIOS. When I first got this board, I put a single 512 Mb PC2700 DIMM in
-> it from an older Celeron board I had. 32 bit Suse 10.0 and 32 bit FC4
-> loaded fine. When I tried the 64 bit version of either, I kept getting
-> DMA errors on boot like the HD or controller was bad. After some
-> searching I found others with similar problems and they had to use
-> "noapic nolapic" kernel boot options to install and boot the OS. That
-> worked for me too and I was able to install the OS.
->
-> After I upgraded the memory and put 2 512Mb PC3200 DIMMS in the board. I
-> tried a 64 bit install again. This time I no longer had to use the
-> "noapic nolapic" options. With a single DIMM, BIOS (during boot)
-> reported "single channel" memory. With 2 DIMMS, BIOS (during boot)
-> reports "dual channel" memory. My question though is does the 64 bit
-> kernel require "dual channel" memory or is this a BIOS problem?
->
->
->
-> Stan
->
->
+On Mon, 2006-01-09 at 11:25 -0200, Weber Ress wrote:
+> When I say "more simple" kernel version, I would like say "more
+> didactics" to teach.
+> 
+> thank´s to all replies.
+> 
+> Best,
+> 
+> Weber Ress
+> 
+> On 1/9/06, Jiri Slaby <slaby@liberouter.org> wrote:
+> > Weber Ress napsal(a):
+> > > Hi guys,
+> > >
+> > > I´m starting a social project to teach kernel development for young
+> > > students, with objetive of include these people in job market.
+> > :)
+> > >
+> > > These studentes don´t have great skills in mathematical and computer
+> > > science areas, but have great interest in development area. Some
+> > > studentes have a little basic C language skills.
+> > >
+> > > Which are the first steps that I need in this project ?
+> > prepare slides for teaching them real-world-(gc)c, not basic.
+> > > Which´s the "more simple" kernel version to teach (2.2 ? 2.4 ? 2.6 ?).
+well.. if they were ever to do anything useful with it, it would
+basically have to be the newest, alot things have changed in 2.2 to 2.6.
+> > IMHO 2.6 has the clearest api (specific(a) rather than sth. like
+> > a->private->b->private.specific).
+> > But in general it's hard to say this is the simplest one. In 2.2 there is less
+> > code, than in 2.6 and so on
+> >
+> > regards,
+> > --
+> > Jiri Slaby         www.fi.muni.cz/~xslaby
+> > \_.-^-._   jirislaby@gmail.com   _.-^-._/
+> > B67499670407CE62ACC8 22A032CC55C339D47A7E
+> >
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

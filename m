@@ -1,91 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWAIShn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWAISoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWAIShn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWAIShn
+	id S1030246AbWAISoW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWAISoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:37:43 -0500
-Received: from server5.web4a.de ([82.149.231.244]:25229 "EHLO server5.web4a.de")
-	by vger.kernel.org with ESMTP id S1030239AbWAIShm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:37:42 -0500
-Date: Mon, 9 Jan 2006 19:36:31 +0100
-From: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, <linux-kernel@vger.kernel.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       <linux-usb-devel@lists.sourceforge.net>, Greg KH <gregkh@suse.de>,
-       Leonid <nouser@lpetrov.net>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-In-Reply-To: <Pine.LNX.4.44L0.0601091026200.5734-100000@iolanthe.rowland.org>
-References: <200601090126.56831.dtor_core@ameritech.net>
-	<Pine.LNX.4.44L0.0601091026200.5734-100000@iolanthe.rowland.org>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.8; i486-pc-linux-gnu)
+	Mon, 9 Jan 2006 13:44:22 -0500
+Received: from smtp11.wanadoo.fr ([193.252.22.31]:40469 "EHLO
+	smtp11.wanadoo.fr") by vger.kernel.org with ESMTP id S1030246AbWAISoV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 13:44:21 -0500
+X-ME-UUID: 20060109184420193.2F3741C0004D@mwinf1103.wanadoo.fr
+Subject: Re: [PATCH] It's UTF-8
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: "Alexander E. Patrakov" <patrakov@gmail.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <m3ek3hhbs0.fsf@defiant.localdomain>
+References: <20060108203851.GA5864@mipter.zuzino.mipt.ru>
+	 <43C21E9D.3070106@gmail.com>  <m3ek3hhbs0.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Mon, 09 Jan 2006 19:44:26 +0100
+Message-Id: <1136832266.10433.1.camel@bip.parateam.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E1Ew1sd-0000k3-00@mars.bretschneidernet.de>
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> wrote:
+Le lundi 09 janvier 2006 à 12:38 +0100, Krzysztof Halasa a écrit :
+> "Alexander E. Patrakov" <patrakov@gmail.com> writes:
 
-Hi Alan,
+> > FAT: this is not the recommended filesystem for use with UTF-8 filenames.
+> >
+> > Reason: the utf8 IO charset is the only IO charset that displays
+> > filenames properly in UTF-8 locales. So the choice is really between
+> > case-sensitive filenames (iocharset=utf8) and completely unreadable
+> > filenames (everything else).
+> 
+> And UTF-8 locale seems to be the only really sane today. I'd kill the
+> whole warning.
 
-> On Mon, 9 Jan 2006, Dmitry Torokhov wrote:
-> 
-> > On Sunday 08 January 2006 16:23, Martin Bretschneider wrote:
-> > > Hello,
-> > > 
-> > > Jens Nödler who has got the same motheboard (Gigabyte GA-K8NF-9
-> > > with nforce4 chipset) can confirm my problem. But he found out
-> > > that the keyboard connected to the ps/2 port does work with
-> > > kernel 2.6.15 if "USB keyboard support" is disabled in the BIOS.
-> > >
-> > 
-> > Ok, I an getting enough reports to conclude that the new
-> > usb-handoff code does not seem to be working. Let's try CCing USB
-> > list and other parties involved :)
-> > 
-> > Greg, Alan, any ideas?
-> 
-> It would be nice to know which part of the usb-handoff code causes
-> the problem.  In the 2.6.15 source file
-> drivers/usb/host/pci-quirks.c, at the end of the file is this
-> routine:
-> 
-> static void __devinit quirk_usb_early_handoff(struct pci_dev *pdev)
-> {
-> 	if (pdev->class == PCI_CLASS_SERIAL_USB_UHCI)
-> 		quirk_usb_handoff_uhci(pdev);
-> 	else if (pdev->class == PCI_CLASS_SERIAL_USB_OHCI)
-> 		quirk_usb_handoff_ohci(pdev);
-> 	else if (pdev->class == PCI_CLASS_SERIAL_USB_EHCI)
-> 		quirk_usb_disable_ehci(pdev);
-> }
-> 
-> If you comment out the call to quirk_usb_handoff_uhci and rename
-> the /lib/modules/2.6.15/kernel/drivers/usb/host/uhci-hcd.ko file so
-> that it doesn't get loaded automatically, does that fix things?
-> 
-> Similarly, if you comment out the call to quirk_usb_disable_ehci
-> and rename /lib/modules/.../ehci-hcd.ko so that it doesn't get
-> loaded, does that help?
-> 
-> Leonid's system log showed that he doesn't have an OHCI controller,
-> but if Martin does then he should do the same test with
-> quirk_usb_handoff_ohci.
+.. on unix. But FAT is a sort of lingua franca of filesystems, and is
+the only one understandable by every (embedded) OS. So you'd better stay
+compatible with everyone else.
 
-Yes, I also use the OHCI controller (I guessed that this is
-necessary for low speed USB devices...), I commented the calls of
-quirk_usb_disable_?hci and renamed the compiled modules so that they
-cannot be loaded. Thus, the PS/2 keyboard *does* work with "USB
-keyboard support" enabled in the BIOS with kernel 2.6.15. But - of
-cource - no USB device does work.
+	Xav
 
-Kind regards, Martin
--- 
-http://www.bretschneidernet.de        OpenPGP-key: 0x4EA52583
-             (o_                    Ernest Hemingway:
- (o_ (o_ (o_ //\      I like to listen. I have learned a great deal
- (\)_(\)_(\)_V_/_  from listening carefully. Most people never listen.
+

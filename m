@@ -1,139 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWAIQPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWAIQOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbWAIQPq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 11:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWAIQPq
+	id S932429AbWAIQOi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWAIQOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 11:15:46 -0500
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:56575 "EHLO
-	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
-	id S964792AbWAIQPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 11:15:45 -0500
-Date: Mon, 09 Jan 2006 17:15:29 +0100
-From: Clemens Ladisch <clemens@ladisch.de>
-Subject: Re: [PATCH] HPET RTC emulation: add watchdog timer
-In-reply-to: <20060109154350.GA22126@turing.informatik.uni-halle.de>
-To: Andrew Morton <akpm@osdl.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Andi Kleen <ak@muc.de>, Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <20060109161529.GA22353@turing.informatik.uni-halle.de>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.4i
-References: <20060109154350.GA22126@turing.informatik.uni-halle.de>
-X-Scan-Signature: 81c11b9146dff33ccf68a296a7d2e71b
+	Mon, 9 Jan 2006 11:14:38 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:61398 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932429AbWAIQOh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 11:14:37 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 17:14:27 +0100
+User-Agent: KMail/1.8
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <5t06S-7nB-15@gated-at.bofh.it> <200601091702.48955.oliver@neukum.org> <1136822646.9957.35.camel@mindpipe>
+In-Reply-To: <1136822646.9957.35.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601091714.27303.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, this time with Signed-off line ...
+Am Montag, 9. Januar 2006 17:04 schrieb Lee Revell:
+> On Mon, 2006-01-09 at 17:02 +0100, Oliver Neukum wrote:
+> > Am Montag, 9. Januar 2006 16:15 schrieb Lee Revell:
+> > > On Mon, 2006-01-09 at 15:28 +0100, Oliver Neukum wrote:
+> > > > Am Montag, 9. Januar 2006 15:18 schrieb Robert Hancock:
+> > > > > Yaroslav Rastrigin wrote:
+> > > > > > Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
+> > > > > > strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
+> > > > > > Whenever it is needed by apps I'm launching or working with. 
+> > > > > 
+> > > > > There is no different VM policy here, Windows behaves quite similarly. 
+> > > > > It does not leave memory around unused, it uses it for disk cache.
+> > > > 
+> > > > That doesn't mean that the rate of eviction is the same.
+> > > > Is it possible that read-ahead is not aggressive enough?
+> > > 
+> > > Enough for what?  What is the exact problem you are trying to solve?
+> > 
+> > Quicker application startup.
+> 
+> Why do you look to the kernel first?  The obvious explanation is that
+> Linux desktop apps are more bloated than their Windows counterparts.
 
+It is the most efficient place. An improvement to the kernel will improve
+all starting times.
 
-To prevent the emulated RTC timer from stopping when interrupts are
-disabled for too long, implement the watchdog timer to restart it when
-needed.
-
-Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
-
-Index: linux-2.6.15/arch/i386/kernel/time_hpet.c
-===================================================================
---- linux-2.6.15.orig/arch/i386/kernel/time_hpet.c	2006-01-06 16:11:10.000000000 +0100
-+++ linux-2.6.15/arch/i386/kernel/time_hpet.c	2006-01-08 21:31:55.000000000 +0100
-@@ -413,9 +413,45 @@ int hpet_set_periodic_freq(unsigned long
- 
- int hpet_rtc_dropped_irq(void)
- {
-+	unsigned int cnt, ticks_per_int, lost_ints;
-+
- 	if (!is_hpet_enabled())
- 		return 0;
- 
-+	if (UIE_on | PIE_on | AIE_on) {
-+		/*
-+		 * The interrupt handler schedules the next interrupt at a
-+		 * constant offset from the time the current interrupt was
-+		 * scheduled, without regard to the actual time. When the
-+		 * handler is delayed too long, it tries to schedule the next
-+		 * interrupt in the past and the hardware would not interrupt
-+		 * until the counter had wrapped around. We catch it here.
-+		 */
-+		cnt = hpet_readl(HPET_COUNTER);
-+		/* was the comparator set to a time in the past? */
-+		if ((int)(cnt - hpet_t1_cmp) > 0) {
-+			/* determine how many interrupts were actually lost */
-+			ticks_per_int = (hpet_tick * HZ) / hpet_rtc_int_freq;
-+			lost_ints = (cnt - hpet_t1_cmp) / ticks_per_int + 1;
-+			/*
-+			 * Make sure that, even with the time needed to execute
-+			 * this code, the next scheduled interrupt has been
-+			 * moved back to the future.
-+			 */
-+			lost_ints++;
-+
-+			cnt = hpet_t1_cmp + lost_ints * ticks_per_int;
-+			hpet_writel(cnt, HPET_T1_CMP);
-+			hpet_t1_cmp = cnt;
-+
-+			if (PIE_on)
-+				PIE_count += lost_ints;
-+
-+			printk(KERN_WARNING "rtc: lost some interrupts"
-+			       " at %ldHz.\n", hpet_rtc_int_freq);
-+		}
-+	}
-+
- 	return 1;
- }
- 
-Index: linux-2.6.15/arch/x86_64/kernel/time.c
-===================================================================
---- linux-2.6.15.orig/arch/x86_64/kernel/time.c	2006-01-06 16:11:13.000000000 +0100
-+++ linux-2.6.15/arch/x86_64/kernel/time.c	2006-01-08 21:42:16.000000000 +0100
-@@ -1234,9 +1234,45 @@ int hpet_set_periodic_freq(unsigned long
- 
- int hpet_rtc_dropped_irq(void)
- {
-+	unsigned int cnt, ticks_per_int, lost_ints;
-+
- 	if (!is_hpet_enabled())
- 		return 0;
- 
-+	if (UIE_on | PIE_on | AIE_on) {
-+		/*
-+		 * The interrupt handler schedules the next interrupt at a
-+		 * constant offset from the time the current interrupt was
-+		 * scheduled, without regard to the actual time. When the
-+		 * handler is delayed too long, it tries to schedule the next
-+		 * interrupt in the past and the hardware would not interrupt
-+		 * until the counter had wrapped around. We catch it here.
-+		 */
-+		cnt = hpet_readl(HPET_COUNTER);
-+		/* was the comparator set to a time in the past? */
-+		if ((int)(cnt - hpet_t1_cmp) > 0) {
-+			/* determine how many interrupts were actually lost */
-+			ticks_per_int = (hpet_tick * HZ) / hpet_rtc_int_freq;
-+			lost_ints = (cnt - hpet_t1_cmp) / ticks_per_int + 1;
-+			/*
-+			 * Make sure that, even with the time needed to execute
-+			 * this code, the next scheduled interrupt has been
-+			 * moved back to the future.
-+			 */
-+			lost_ints++;
-+
-+			cnt = hpet_t1_cmp + lost_ints * ticks_per_int;
-+			hpet_writel(cnt, HPET_T1_CMP);
-+			hpet_t1_cmp = cnt;
-+
-+			if (PIE_on)
-+				PIE_count += lost_ints;
-+
-+			printk(KERN_WARNING "rtc: lost some interrupts"
-+			       " at %ldHz.\n", hpet_rtc_int_freq);
-+		}
-+	}
-+
- 	return 1;
- }
- 
+	Regards
+		Oliver

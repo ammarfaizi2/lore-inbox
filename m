@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWAIBiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWAIBnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751499AbWAIBiL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 20:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWAIBiL
+	id S1751500AbWAIBnR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 20:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWAIBnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 20:38:11 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:16533 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751499AbWAIBiK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 20:38:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZOqQQwnS74dXu2pVxcrkAVcmCaOUDjO1lnsPDYLkVNGB6ZJwJi48FECUPxIfpt34d9GWJjSnrWV9Tsg+Ey0IjrjEHw+tAVLRFlddZe89DgIbtLg68AHL8BfVbKikw+m4w3DJXg7/aTAp9QbRWRwUrklpwJbj+dkbKpQfqF9ml1w=
-Message-ID: <2cd57c900601081737o2c6262e8m@mail.gmail.com>
-Date: Mon, 9 Jan 2006 09:37:06 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Deven Balani <devenbalani@gmail.com>
-Subject: Re: patch for splice system call.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7a37e95e0512122239p34d0f436k30227f7f62a2e437@mail.gmail.com>
-MIME-Version: 1.0
+	Sun, 8 Jan 2006 20:43:17 -0500
+Received: from xenotime.net ([66.160.160.81]:24479 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751500AbWAIBnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 20:43:16 -0500
+Date: Sun, 8 Jan 2006 17:43:14 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: vherva@vianova.fi, linux-kernel@vger.kernel.org
+Subject: Re: oops pauser.
+Message-Id: <20060108174314.49f0e2b3.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.61.0601082034150.15902@yvahk01.tjqt.qr>
+References: <20060105045212.GA15789@redhat.com>
+	<Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
+	<20060105103339.GG20809@redhat.com>
+	<20060108133822.GD31624@vianova.fi>
+	<20060108055322.18d4236e.rdunlap@xenotime.net>
+	<Pine.LNX.4.61.0601082034150.15902@yvahk01.tjqt.qr>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <7a37e95e0512122239p34d0f436k30227f7f62a2e437@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/13, Deven Balani <devenbalani@gmail.com>:
-> Hi All!
->
-> I am routing data from a tuner to harddisk.
-> I came to know splice() is something related to do real-time IO.
-> I believe direct IO doesn't address this scenario.
->
-> Can any one refer me the source to the patch of splice() system call.
->
+On Sun, 8 Jan 2006 20:35:08 +0100 (MET) Jan Engelhardt wrote:
 
-sendfile (2) ?
-
-> Regards,
-> Deven
->
-> On 12/9/05, Alex Riesen <raa.lkml@gmail.com> wrote:
-> > On 12/9/05, Deven Balani <devenbalani@gmail.com> wrote:
-> > > I am writing a libata-complaint SATA driver for an ARM board.
-> > >
-> > > I want to do data streaming from a tuner into the SATA hard disk.
-> > >
-> > > In other words, I am getting a buffer of stream in kernel space, which
-> > > I had to store it in SATA hard disk.
+> >> I believe kmsgdump (http://www.xenotime.net/linux/kmsgdump/) uses its own
+> >> minimal 16-bit floppy driver to save the oops dump. 
 > >
-> > can this be of interest:
+> >It just switches to real mode and uses BIOS calls.
 > >
-> > http://groups.google.de/group/fa.linux.kernel/browse_frm/thread/21b2b3215f35e21a/bcbc00b7a0151afd?tvc=1&q=linux-kernel+Make+pipe+data+structure+be+a+circular+list+of+pages#bcbc00b7a0151afd
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> 
+> This technique btw is what I suggested (switch to 80x50 vga mode
+> (if not in X)) in case of a longer oops trace.
 
+kmsgdump already shows all of the kernel log buffer that is in
+memory (has not been written to disk, basically).
 
---
-Coywolf Qi Hunt
+If I (or we) had some time and motivation, I have a
+contributed patch to kmsgdump that:
+
+a.  saves and dumps all of the kernel log buffer
+    (reminder:  current dump targets are display, parallel port
+    printer, and legacy floppy disk)
+b.  adds a hard disk dump target and attempts to make this safe
+    by pre-reserving and writing each block of it with a
+    signature + block number (and maybe more, I'm not sure
+    right now)
+c.  add x86-64 support
+
+but I have not merged this code into kmsgdump yet, nor have
+I even tested it.  I can't test the x86-64 support since I
+don't (yet) have an x86-64 system available for this.
+
+If anyone wants to work on this, I'll put the additional
+code on the web.
+
+---
+~Randy

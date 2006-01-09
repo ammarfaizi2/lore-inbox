@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751552AbWAIWQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751554AbWAIWSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751552AbWAIWQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 17:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWAIWQ1
+	id S1751554AbWAIWSo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 17:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWAIWSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 17:16:27 -0500
-Received: from mgw-ext04.nokia.com ([131.228.20.96]:59064 "EHLO
-	mgw-ext04.nokia.com") by vger.kernel.org with ESMTP
-	id S1751340AbWAIWQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 17:16:26 -0500
-Message-ID: <43C2E0E6.30600@indt.org.br>
-Date: Mon, 09 Jan 2006 18:17:10 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Mon, 9 Jan 2006 17:18:44 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:44494 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751550AbWAIWSn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 17:18:43 -0500
+From: Jason Gaston <jason.d.gaston@intel.com>
+Organization: Intel Corp.
+To: akpm@osdl.org, tiwai@suse.de, perex@suse.cz
+Subject: [PATCH 2.6.15 4/6] hda_intel: patch for Intel ICH8
+Date: Mon, 9 Jan 2006 11:05:52 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>
-CC: linux@arm.linux.org.uk, ext David Brownell <david-b@pacbell.net>,
-       Tony Lindgren <tony@atomide.com>, drzeus-list@drzeus.cx,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       Anderson Briglia <anderson.briglia@indt.org.br>
-Subject: [patch 5/5] Add MMC password protection (lock/unlock) support V3
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050803020203070408050701"
-X-OriginalArrivalTime: 09 Jan 2006 22:15:31.0472 (UTC) FILETIME=[344B8900:01C6156A]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601091105.52356.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050803020203070408050701
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hello,
 
+This patch adds the Intel ICH8 HD Audio DID to the hda_intel.c audio driver.  This patch was built against the 2.6.15 kernel.  
+If acceptable, please apply. 
 
+Thanks,
 
+Jason Gaston
 
+Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
 
-
-
---------------050803020203070408050701
-Content-Type: text/x-patch;
- name="mmc_omap_blklen.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc_omap_blklen.diff"
-
-The MMC_LOCK_UNLOCK command requires the block length to be exactly the
-password length + 2 bytes, but hardware-specific drivers force a "power of 2"
-block size.
-
-This patch sends the exact block size (password + 2 bytes) to the host. OMAP
-specific.
-
-Signed-off-by: Anderson Briglia <anderson.briglia@indt.org.br>
-Signed-off-by: Anderson Lizardo <anderson.lizardo@indt.org.br>
-Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>
-
-Index: linux-2.6.15-rc4/drivers/mmc/omap.c
-===================================================================
---- linux-2.6.15-rc4.orig/drivers/mmc/omap.c	2005-12-27 17:42:49.000000000 -0400
-+++ linux-2.6.15-rc4/drivers/mmc/omap.c	2005-12-27 17:43:57.000000000 -0400
-@@ -889,8 +889,12 @@ mmc_omap_prepare_data(struct mmc_omap_ho
- 		return;
- 	}
- 
--
--	block_size = 1 << data->blksz_bits;
-+	/*  password protection: we need to send the exact block size to the
-+	 *  card (password + 2), not a 2-exponent. */
-+	if (req->cmd->opcode == MMC_LOCK_UNLOCK)
-+		block_size = data->sg[0].length;
-+	else
-+		block_size = 1 << data->blksz_bits;
- 
- 	OMAP_MMC_WRITE(host->base, NBLK, data->blocks - 1);
- 	OMAP_MMC_WRITE(host->base, BLEN, block_size - 1);
-
---------------050803020203070408050701--
+--- linux-2.6.15/sound/pci/hda/hda_intel.c.orig	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15/sound/pci/hda/hda_intel.c	2006-01-09 08:18:08.017290864 -0800
+@@ -70,6 +70,7 @@
+ 			 "{Intel, ICH6M},"
+ 			 "{Intel, ICH7},"
+ 			 "{Intel, ESB2},"
++			 "{Intel, ICH8 },"
+ 			 "{ATI, SB450},"
+ 			 "{VIA, VT8251},"
+ 			 "{VIA, VT8237A},"
+@@ -1603,6 +1604,7 @@
+ 	{ 0x8086, 0x2668, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ICH }, /* ICH6 */
+ 	{ 0x8086, 0x27d8, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ICH }, /* ICH7 */
+ 	{ 0x8086, 0x269a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ICH }, /* ESB2 */
++	{ 0x8086, 0x284b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ICH }, /* ICH8 */
+ 	{ 0x1002, 0x437b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ATI }, /* ATI SB450 */
+ 	{ 0x1106, 0x3288, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_VIA }, /* VIA VT8251/VT8237A */
+ 	{ 0x1039, 0x7502, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_SIS }, /* SIS966 */

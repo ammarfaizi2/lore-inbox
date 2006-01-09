@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWAITQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWAITUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWAITQR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 14:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWAITQR
+	id S1750898AbWAITUw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 14:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWAITUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 14:16:17 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:18698 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750961AbWAITQP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 14:16:15 -0500
-Date: Mon, 9 Jan 2006 20:16:17 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: cs89x0 warning in 2.6.15-git5
-Message-Id: <20060109201617.6eaff677.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Mon, 9 Jan 2006 14:20:52 -0500
+Received: from mail.kroah.org ([69.55.234.183]:19372 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750898AbWAITUu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 14:20:50 -0500
+Date: Mon, 9 Jan 2006 11:20:15 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15
+Message-ID: <20060109192015.GB22881@kroah.com>
+References: <20060106063716.GA4425@kroah.com> <20060109040318.73e522af.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109040318.73e522af.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Lennert,
+On Mon, Jan 09, 2006 at 04:03:18AM -0800, Andrew Morton wrote:
+> Greg KH <gregkh@suse.de> wrote:
+> >
+> >  Jeff Garzik:
+> >        x86 PCI domain support: the meat
+> 
+> I have an old ad450nx quad Xeon which I (very) occasionally turn on.  This
+> patch kills it.
 
-Compiling cs89x0 as a module in 2.6.15-git5 produces the following
-warning for me:
+Yeah, I'm going to hold off on sending this to Linus until it gets
+sorted out (it also kills newer IBM boxes too :(
 
-  CC [M]  drivers/net/cs89x0.o
-drivers/net/cs89x0.c:186: warning: `netcard_portlist' defined but not used
+Jeff, care to work on fixing this?
 
-No warning if the driver is build into the kernel.
+thanks,
 
-I took a look at the code but it's a bit too, hm, messy for me to take
-my chance at a clean fix. Still I thought I'd report is so that you at
-least know about the problem.
-
-Thanks,
--- 
-Jean Delvare
+greg k-h

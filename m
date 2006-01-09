@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWAIT1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWAIT25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWAIT1j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 14:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWAIT1j
+	id S1751167AbWAIT25 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 14:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWAIT24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 14:27:39 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:44811 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750704AbWAIT1i
+	Mon, 9 Jan 2006 14:28:56 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:30860 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1751167AbWAIT2z convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 14:27:38 -0500
-Date: Mon, 9 Jan 2006 20:27:54 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Lennert Buytenhek <buytenh@wantstofly.org>
-Subject: [PATCH] cs89x0: Fix the Kconfig help text
-Message-Id: <20060109202754.4aa8ea54.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 14:28:55 -0500
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [patch 2/2] add x86-64 support for memory hot-add
+Date: Mon, 9 Jan 2006 11:28:19 -0800
+Message-ID: <6F7DA19D05F3CF40B890C7CA2DB13A42030949CF@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2/2] add x86-64 support for memory hot-add
+Thread-Index: AcYVUo1T2TLm6sjOTraSQJ7/PXzP6gAAB+sg
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "keith" <kmannth@us.ibm.com>
+cc: "Andi Kleen" <ak@suse.de>, "Matt Tolentino" <metolent@cs.vt.edu>,
+       akpm@osdl.org, discuss@x86-64.org, linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 09 Jan 2006 19:28:21.0544 (UTC)
+ FILETIME=[D9FDFA80:01C61552]
+X-WSS-ID: 6FDC66DF0T02750853-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, Lennert,
+I don't know, even yes, according to BKDG, you still need to update
+related Routing Table in NB.
 
-Fix the help text of the cs89x0 network driver Kconfig entry.
+YH
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/net/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+-----Original Message-----
+From: keith [mailto:kmannth@us.ibm.com] 
+Sent: Monday, January 09, 2006 11:25 AM
+To: Lu, Yinghai
+Cc: Andi Kleen; Matt Tolentino; akpm@osdl.org; discuss@x86-64.org;
+linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] add x86-64 support for memory hot-add
 
---- linux-2.6.15-git.orig/drivers/net/Kconfig	2006-01-09 18:29:50.000000000 +0100
-+++ linux-2.6.15-git/drivers/net/Kconfig	2006-01-09 20:17:33.000000000 +0100
-@@ -1384,7 +1384,7 @@
- 
- 	  To compile this driver as a module, choose M here and read
- 	  <file:Documentation/networking/net-modules.txt>.  The module will be
--	  called cs89x.
-+	  called cs89x0.
- 
- config TC35815
- 	tristate "TOSHIBA TC35815 Ethernet support"
+On Mon, 2006-01-09 at 10:51 -0800, Yinghai Lu wrote:
+> for Opteron NUMA, need to update
+> 0. stop the DCT on the node that will plug the new DIMM
+> 1. read spd_rom for the added dimm
+> 2. init the ram size and update the memory routing table...
+> 3. init the timing...
+> 4. update relate info in TOM and TOM2, and MTRR, and e820
+> 
+> It looks like we need to get some code about ram init from
+LinuxBIOS.....
+
+Is the AMD box not going to use the ACPI add-memory mechanism?
 
 
 -- 
-Jean Delvare
+keith <kmannth@us.ibm.com>
+
+
+

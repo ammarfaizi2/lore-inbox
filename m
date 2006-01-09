@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWAIJvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWAIJvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWAIJvO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 04:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWAIJvO
+	id S1751222AbWAIJvi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 04:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWAIJvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 04:51:14 -0500
-Received: from server5.web4a.de ([82.149.231.244]:5061 "EHLO server5.web4a.de")
-	by vger.kernel.org with ESMTP id S1751215AbWAIJvN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 04:51:13 -0500
-Date: Mon, 9 Jan 2006 10:50:57 +0100
-From: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-In-Reply-To: <200601081719.49032.dtor_core@ameritech.net>
-References: <E1EuVds-0000n9-00@mars.bretschneidernet.de>
-	<E1Evi0c-0002mt-00@mars.bretschneidernet.de>
-	<200601081719.49032.dtor_core@ameritech.net>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.8; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E1Evtg9-00013w-00@mars.bretschneidernet.de>
+	Mon, 9 Jan 2006 04:51:37 -0500
+Received: from rgminet01.oracle.com ([148.87.122.30]:61800 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751222AbWAIJvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 04:51:36 -0500
+Date: Mon, 9 Jan 2006 01:51:08 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ben Collins <ben.collins@ubuntu.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, mark.fasheh@oracle.com
+Subject: Re: [PATCH]: How to be a kernel driver maintainer
+Message-ID: <20060109095108.GH18439@ca-server1.us.oracle.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Ben Collins <ben.collins@ubuntu.com>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, mark.fasheh@oracle.com
+References: <1136736455.24378.3.camel@grayson> <1136737997.2955.10.camel@laptopd505.fenrus.org> <1136744870.1043.4.camel@grayson> <1136745838.2955.17.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136745838.2955.17.camel@laptopd505.fenrus.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-
-Hi Dmitry,
-
-> On Sunday 08 January 2006 16:23, Martin Bretschneider wrote:
-> > Hello,
-> > 
-> > Jens Nödler who has got the same motheboard (Gigabyte GA-K8NF-9
-> > with nforce4 chipset) can confirm my problem. But he found out
-> > that the keyboard connected to the ps/2 port does work with
-> > kernel 2.6.15 if "USB keyboard support" is disabled in the BIOS.
-> > 
+On Sun, Jan 08, 2006 at 07:43:58PM +0100, Arjan van de Ven wrote:
+> >  Alsa, etc. All changes go someplace else before being
+> > pushed to the primary kernel tree. 99% of the time, patches are going
+> > somewhere else before going into the main kernel. 
 > 
-> And what about your box? Does it also help you?
+> that's different... that's a patch queue. That's not the same as being
+> the prime repository.
 
-Yes, it does:) 
+	As a data point, ocfs2 is dropping its subversion repository and
+moving to exactly this model -- ocfs2 development is a set of patches
+pending for mainline, with mainline as the prime repository.  Really,
+there's no other way to do it.  Otherwise, you get way out of sync.
 
-Martin
+Joel
+
 -- 
-http://www.bretschneidernet.de        OpenPGP-key: 0x4EA52583
-           (o__o)                 Philip R. Zimmermann:
-           //\/\\                If privacy is outlawed,
-           V_/\_V            only outlaws will have privacy.
+
+"The suffering man ought really to consume his own smoke; there is no 
+ good in emitting smoke till you have made it into fire."
+			- thomas carlyle
+
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127
+

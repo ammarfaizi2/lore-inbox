@@ -1,63 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWAIQ5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWAIQ6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbWAIQ5R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 11:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbWAIQ5Q
+	id S964880AbWAIQ6W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:58:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbWAIQ6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 11:57:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:3001 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964878AbWAIQ5O (ORCPT
+	Mon, 9 Jan 2006 11:58:22 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:3499 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S964880AbWAIQ6V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 11:57:14 -0500
-Date: Mon, 9 Jan 2006 08:57:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Brown, Len" <len.brown@intel.com>
-cc: "Luck, Tony" <tony.luck@intel.com>, Junio C Hamano <junkio@cox.net>,
-       Martin Langhoff <martin.langhoff@gmail.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-Subject: RE: git pull on Linux/ACPI release tree
-In-Reply-To: <Pine.LNX.4.64.0601090835580.3169@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0601090850350.3169@g5.osdl.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13706@hdsmsx401.amr.corp.intel.com>
- <Pine.LNX.4.64.0601090835580.3169@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jan 2006 11:58:21 -0500
+Subject: PATCH: Fix typos, exclamation mark frenzy and missing device id on
+	messages
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 09 Jan 2006 17:01:19 +0000
+Message-Id: <1136826079.6659.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I sent this out a couple of months ago and the driver author said it
+he'd merge it. Nothing has happened since so I'm submitting it directly.
 
+No functionality changes just texts.
 
-On Mon, 9 Jan 2006, Linus Torvalds wrote:
->
-> One thing we could do is to make it easier to apply a patch to a 
-> _non_current_ branch.
->   [ ... ]
-> Do you think that kind of workflow would be more palatable to you? It 
-> shouldn't be /that/ hard to make git-apply branch-aware... (It was part of 
-> my original plan, but it is more work than just using the working 
-> directory, so I never finished the thought).
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Btw, this is true in a bigger sense: the things "git" does have largely 
-been driven by user needs. Initially mainly mine, but things like 
-"git-rebase" were from people who wanted to work as "sub-maintainers" (eg 
-Junio before he became the head honcho for git itself).
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-mm2/drivers/char/tlclk.c linux-2.6.15-mm2/drivers/char/tlclk.c
+--- linux.vanilla-2.6.15-mm2/drivers/char/tlclk.c	2006-01-09 14:31:46.000000000 +0000
++++ linux-2.6.15-mm2/drivers/char/tlclk.c	2006-01-09 14:40:29.000000000 +0000
+@@ -211,7 +211,7 @@
+ 	result = request_irq(telclk_interrupt, &tlclk_interrupt,
+ 			     SA_INTERRUPT, "telco_clock", tlclk_interrupt);
+ 	if (result == -EBUSY) {
+-		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
++		printk(KERN_ERR "telco_clock: Interrupt can't be reserved.\n");
+ 		return -EBUSY;
+ 	}
+ 	inb(TLCLK_REG6);	/* Clear interrupt events */
+@@ -741,7 +741,7 @@
+ 
+ 	ret = register_chrdev(tlclk_major, "telco_clock", &tlclk_fops);
+ 	if (ret < 0) {
+-		printk(KERN_ERR "telco_clock: can't get major! %d\n", tlclk_major);
++		printk(KERN_ERR "tlclk: can't get major %d.\n", tlclk_major);
+ 		return ret;
+ 	}
+ 	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
+@@ -750,7 +750,7 @@
+ 
+ 	/* Read telecom clock IRQ number (Set by BIOS) */
+ 	if (!request_region(TLCLK_BASE, 8, "telco_clock")) {
+-		printk(KERN_ERR "tlclk: request_region failed! 0x%X\n",
++		printk(KERN_ERR "tlclk: request_region 0x%X failed.\n",
+ 			TLCLK_BASE);
+ 		ret = -EBUSY;
+ 		goto out2;
+@@ -758,7 +758,7 @@
+ 	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
+ 
+ 	if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
+-		printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw\n",
++		printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw.\n",
+ 			telclk_interrupt);
+ 		ret = -ENXIO;
+ 		goto out3;
+@@ -768,7 +768,7 @@
+ 
+ 	ret = misc_register(&tlclk_miscdev);
+ 	if (ret < 0) {
+-		printk(KERN_ERR " misc_register retruns %d\n", ret);
++		printk(KERN_ERR "tlclk: misc_register returns %d.\n", ret);
+ 		ret = -EBUSY;
+ 		goto out3;
+ 	}
+@@ -776,8 +776,7 @@
+ 	tlclk_device = platform_device_register_simple("telco_clock",
+ 				-1, NULL, 0);
+ 	if (!tlclk_device) {
+-		printk(KERN_ERR " platform_device_register retruns 0x%X\n",
+-			(unsigned int) tlclk_device);
++		printk(KERN_ERR "tlclk: platform_device_register failed.\n");
+ 		ret = -EBUSY;
+ 		goto out4;
+ 	}
+@@ -785,7 +784,7 @@
+ 	ret = sysfs_create_group(&tlclk_device->dev.kobj,
+ 			&tlclk_attribute_group);
+ 	if (ret) {
+-		printk(KERN_ERR "failed to create sysfs device attributes\n");
++		printk(KERN_ERR "tlclk: failed to create sysfs device attributes.\n");
+ 		sysfs_remove_group(&tlclk_device->dev.kobj,
+ 			&tlclk_attribute_group);
+ 		goto out5;
 
-But if there are workflow problems, let's try to fix them. The "apply 
-patches directly to another branch" suggestion may not be sane (maybe it's 
-too confusing to apply a patch and not actually see it in the working 
-tree), but workflow suggestions in general are appreciated.
-
-We've made switching branches about as efficient as it can be (but if the 
-differences are huge, the cost of re-writing the working directory is 
-never going to be low). But switching branches has the "confusion factor" 
-(ie you forget which branch you're on, and apply a patch to your working 
-branch instead of your development branch), so maybe there are other ways 
-of doing the same thing that might be sensible..
-
-So send suggestions to the git lists. Maybe they're insane and can't be 
-done, but while I designed git to work with _my_ case (ie mostly merging 
-tons of different trees and then having occasional big batches of 
-patches), it's certainly _supposed_ to support other maintainers too..
-
-		Linus

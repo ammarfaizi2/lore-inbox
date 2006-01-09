@@ -1,113 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWAIKy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWAIK4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWAIKy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 05:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWAIKy6
+	id S932181AbWAIK4R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 05:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWAIK4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 05:54:58 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:4091 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932071AbWAIKy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 05:54:57 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: spereira@tusc.com.au
-Subject: Re: [PATCH] net: 32 bit (socket layer) ioctl emulation for 64 bit kernels
-Date: Mon, 9 Jan 2006 10:54:34 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kenel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>, Andi Kleen <ak@muc.de>,
-       SP <pereira.shaun@gmail.com>
-References: <1136789216.6653.17.camel@spereira05.tusc.com.au>
-In-Reply-To: <1136789216.6653.17.camel@spereira05.tusc.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 05:56:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5477 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932181AbWAIK4Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 05:56:16 -0500
+Date: Mon, 9 Jan 2006 11:58:01 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15 cfq oops
+Message-ID: <20060109105800.GT3389@suse.de>
+References: <20060106201928.GI4595@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601091054.35010.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <20060106201928.GI4595@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 January 2006 06:46, Shaun Pereira wrote:
-> Hi all,
-> The attached patch is a follow up to a post made earlier to this site
-> with regard to 32 bit (socket layer) ioctl emulation for 64 bit kernels.
-
-Ok, cool. Note that I also posted a longer series of patches that does
-this and much more. Unfortunately, I have suspended working on it for
-now, so it's probably better to first get your stuff in.
-
-> I needed to implement 32 bit userland ioctl support for modular (x.25)
-> socket ioctls in a 64 bit kernel. With the removal of the
-> register_ioctl32_conversion() function from the kernel, one of the
-> suggestions made by Andi was "to just extend the socket code to add a
-> compat_ioctl vector to the socket options"
+On Fri, Jan 06 2006, Dave Jones wrote:
+> Looks like some nice slab poison...
 > 
-> With Arnd's help (see previous mails with subject = 32 bit (socket
-> layer) ioctl emulation for 64 bit kernels) I have prepared the following
-> patchand tested with with x25 over tcp on a x26_64 kernel. 
+> 		Dave
 > 
-> Since we are interested in ioctl's from userspace I have not added the 
-> .compat_ioctl function pointer to struct net_device. The assumption
-> being once the userspace data has reached the kernel via the socket api,
-> if the socket layer protocol knows how to handle the data, it will
-> prepare it for the device.
+> Oops: 0000 [#1]
+> last sysfs file:
+> /devices/pci0000:00/0000:00:1d.7/usb1/1-0:1.0/bAlternateSettingModules linked
+> in: usb_storage ata_piix libata e1000 ohci1394 ieee1394 uhci_hcdsCPU:    0
+> EIP:    0060:[<c01c312e>]    Not tainted VLI
+> EFLAGS: 00010002   (2.6.15-1.1819_FC5)
+> EIP is at rb_next+0x9/0x22
+> eax: 6b6b6b6b   ebx: dfed01f8   ecx: c01bf65a   edx: 6b6b6b6b
+> esi: c1991e98   edi: 00000202   ebp: dfed403c   esp: c03c1f14
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 0, threadinfo=c03c1000 task=c0327ba0)
+> Stack: c01bf662 c01b5dfa dfed01f8 c01b85dc c040c284 00000004 c1991e98 c023c8ab
+>        c1991e98 00000000 c040c284 00000000 c023d3a4 000194d0 00000000 dfed403c
+>        c1991e98 c040c284 c1991e98 00000000 c0231f2d 000194d0 00000000 000194d0
+> Call Trace:
+>  [<c01bf662>] cfq_latter_request+0x8/0x14     [<c01b5dfa>] elv_latter_request+07
+> [<c01b85dc>] blk_attempt_remerge+0x1d/0x3c     [<c023c8ab>] cdrom_start_read+0e
+> [<c023d3a4>] ide_do_rw_cdrom+0xdd/0x14a     [<c0231f2d>] start_request+0x1b1/01
+> [<c023220f>] ide_do_request+0x2a0/0x2fb     [<c023265e>] ide_intr+0xf3/0x11b
+>  [<c023c1a7>] cdrom_read_intr+0x0/0x2a1     [<c013632a>] handle_IRQ_event+0x23/c
+> [<c01363cd>] __do_IRQ+0x7a/0xcd     [<c01054d0>] do_IRQ+0x5c/0x77
+>  =======================
+>  [<c0103cea>] common_interrupt+0x1a/0x20     [<c0101120>] mwait_idle+0x1a/0x2e
+>  [<c01010a3>] cpu_idle+0x38/0x4d     [<c0390635>] start_kernel+0x17a/0x17c
+> Code: 85 c0 74 0b 8b 50 0c 85 d2 74 04 89 d0 eb f5 c3 8b 00 85 c0 74 0b 8b 50 0
 
-I think we need to have it in the long run, but if you don't need it
-for x25, then it's not your call to implement net_device->compat_ioctl.
-I've been thinking about how to get it right before, but did not
-reach a proper conclusion, since dev_ioctl is called in so many places
-that would all need to be changed for this.
+The blk_attempt_remerge() is a bad interface to be honest, and it's hard
+to get to work reliably because it's done too late. I think the best
+option is just to kill it, this will cause problems with other io
+schedulers as well.
 
-> Am not too sure whether struct proto requires modification. Since it is 
-> allocated dynamically in the protocol layer I have left it alone;no
-> compat_ioctl. Also it seems like the socket layer would know how to
-> "ioctl" the transport layer, userspace does not need to know about
-> this? 
+I've merged this up for 2.6.16-rc inclusion, probably should go to
+stabel as well.
 
-The proto ioctls are all forwarded from sock ioctls, so in theory
-it would be needed. 
+---
 
-> But if any of this is incorrect and needs to be changed please advise 
-> and I will make the changes accordingly. If this patch is accepted I 
-> would be in a position to submit a patch for x25 (32 bit userspace 
-> for 64 bit kernel). 
+[PATCH] Kill blk_attempt_remerge()
 
-Please post that patch now as well, just make a series out of this
-socket compat_ioctl patch and your x25 patch so it becomes clear
-that they depend on each other. It should be easier to justify the
-infrastructure patch when there is an actual user for it ;-)
+It's a bad interface, and it's always done too late. Remove it.
 
-> @@ -143,6 +143,10 @@ struct proto_ops {
->                                       struct poll_table_struct *wait);
->         int             (*ioctl)     (struct socket *sock, unsigned int cmd,
->                                       unsigned long arg);
-> +#ifdef CONFIG_COMPAT
-> +       int             (*compat_ioctl) (struct socket *sock, unsigned int cmd,
-> +                                     unsigned long arg);
-> +#endif
->         int             (*listen)    (struct socket *sock, int len);
->         int             (*shutdown)  (struct socket *sock, int flags);
->         int             (*setsockopt)(struct socket *sock, int level,
-...
-> +
-> +#define SOCKOPS_COMPAT_WRAP(name, fam)					\
-> +SOCKCALL_WRAP(name, release, (struct socket *sock), (sock))	\
-> +SOCKCALL_WRAP(name, bind, (struct socket *sock, struct sockaddr *uaddr,
-> int addr_len), \
-> +	      (sock, uaddr, addr_len))		
+Signed-off-by: Jens Axboe <axboe@suse.de>
 
-I really don't like the way you are extending the SOCKCALL_WRAP
-mechanism like this. Ideally, you should convert the x25 layer to
-not need SOCKOPS_WRAP at all.
-Besides x25, only four other users of this remain, all others have
-gotten rid of it. If you have a really good reason to keep it, it's
-probably easier to add the compat_ioctl method unconditionally so
-you don't need two different version of SOCKOPS_WRAP.
-Making it unconditional would also help with those protocols that
-have only compatible ioctl handlers and could then also point
-.compat_ioctl to their native ioctl method without needing #ifdef
-around it.
+diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
+index 8e13645..c130519 100644
+--- a/block/ll_rw_blk.c
++++ b/block/ll_rw_blk.c
+@@ -2748,30 +2748,6 @@ static inline int attempt_front_merge(re
+ 	return 0;
+ }
+ 
+-/**
+- * blk_attempt_remerge  - attempt to remerge active head with next request
+- * @q:    The &request_queue_t belonging to the device
+- * @rq:   The head request (usually)
+- *
+- * Description:
+- *    For head-active devices, the queue can easily be unplugged so quickly
+- *    that proper merging is not done on the front request. This may hurt
+- *    performance greatly for some devices. The block layer cannot safely
+- *    do merging on that first request for these queues, but the driver can
+- *    call this function and make it happen any way. Only the driver knows
+- *    when it is safe to do so.
+- **/
+-void blk_attempt_remerge(request_queue_t *q, struct request *rq)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(q->queue_lock, flags);
+-	attempt_back_merge(q, rq);
+-	spin_unlock_irqrestore(q->queue_lock, flags);
+-}
+-
+-EXPORT_SYMBOL(blk_attempt_remerge);
+-
+ static void init_request_from_bio(struct request *req, struct bio *bio)
+ {
+ 	req->flags |= REQ_CMD;
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index 1539603..2e44d81 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -426,7 +426,7 @@ int register_cdrom(struct cdrom_device_i
+ 		cdi->exit = cdrom_mrw_exit;
+ 
+ 	if (cdi->disk)
+-		cdi->cdda_method = CDDA_BPC_FULL;
++		cdi->cdda_method = CDDA_BPC_SINGLE;
+ 	else
+ 		cdi->cdda_method = CDDA_OLD;
+ 
+diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+index d31117e..e4d55ad 100644
+--- a/drivers/ide/ide-cd.c
++++ b/drivers/ide/ide-cd.c
+@@ -1332,8 +1332,6 @@ static ide_startstop_t cdrom_start_read 
+ 	if (cdrom_read_from_buffer(drive))
+ 		return ide_stopped;
+ 
+-	blk_attempt_remerge(drive->queue, rq);
+-
+ 	/* Clear the local sector buffer. */
+ 	info->nsectors_buffered = 0;
+ 
+@@ -1874,14 +1872,6 @@ static ide_startstop_t cdrom_start_write
+ 		return ide_stopped;
+ 	}
+ 
+-	/*
+-	 * for dvd-ram and such media, it's a really big deal to get
+-	 * big writes all the time. so scour the queue and attempt to
+-	 * remerge requests, often the plugging will not have had time
+-	 * to do this properly
+-	 */
+-	blk_attempt_remerge(drive->queue, rq);
+-
+ 	info->nsectors_buffered = 0;
+ 
+ 	/* use dma, if possible. we don't need to check more, since we
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 804cc4e..02a585f 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -595,7 +595,6 @@ extern void generic_make_request(struct 
+ extern void blk_put_request(struct request *);
+ extern void __blk_put_request(request_queue_t *, struct request *);
+ extern void blk_end_sync_rq(struct request *rq, int error);
+-extern void blk_attempt_remerge(request_queue_t *, struct request *);
+ extern struct request *blk_get_request(request_queue_t *, int, gfp_t);
+ extern void blk_insert_request(request_queue_t *, struct request *, int, void *);
+ extern void blk_requeue_request(request_queue_t *, struct request *);
 
-	Arnd <><
+-- 
+Jens Axboe
+

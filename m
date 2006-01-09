@@ -1,41 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWAISR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWAISRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWAISR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWAISR6
+	id S964903AbWAISRo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWAISRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:17:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44952 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964907AbWAISR4 (ORCPT
+	Mon, 9 Jan 2006 13:17:44 -0500
+Received: from pat.qlogic.com ([198.70.193.2]:16 "EHLO avexch02.qlogic.com")
+	by vger.kernel.org with ESMTP id S964903AbWAISRn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:17:56 -0500
-Date: Mon, 9 Jan 2006 10:17:13 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: CaT <cat@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       zaitcev@redhat.com
-Subject: Re: 2.6.15: usb storage device not detected
-Message-Id: <20060109101713.469d3a7f.zaitcev@redhat.com>
-In-Reply-To: <20060109130540.GB2035@zip.com.au>
-References: <20060109130540.GB2035@zip.com.au>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
+	Mon, 9 Jan 2006 13:17:43 -0500
+Date: Mon, 9 Jan 2006 10:17:40 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/qla2xxx/Kconfig: two fixes
+Message-ID: <20060109181740.GD545@andrew-vasquezs-powerbook-g4-15.local>
+References: <20060106163401.GP12131@stusta.de> <20060106211241.GG13844@andrew-vasquezs-powerbook-g4-15.local> <20060106230935.GC3774@stusta.de> <20060107235009.GH19769@parisc-linux.org> <20060109175658.GC545@andrew-vasquezs-powerbook-g4-15.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109175658.GC545@andrew-vasquezs-powerbook-g4-15.local>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 09 Jan 2006 18:17:42.0649 (UTC) FILETIME=[FB69EE90:01C61548]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006 00:05:50 +1100, CaT <cat@zip.com.au> wrote:
+On Mon, 09 Jan 2006, Andrew Vasquez wrote:
 
-> kernel: [  111.330762] usb 1-5: new high speed USB device using ehci_hcd and address 3
-> kernel: [  112.180267] ub(1.3): Stall at GetMaxLUN, using 1 LUN
-> kernel: [  151.843141] usb 1-5: USB disconnect, address 3
+> On Sat, 07 Jan 2006, Matthew Wilcox wrote:
+> 
+> > On Sat, Jan 07, 2006 at 12:09:35AM +0100, Adrian Bunk wrote:
+> > > Due to the change of SCSI_QLA2XXX to a user-visible option that builds 
+> > > the driver, this means that suddenly after upgrading the kernel and 
+> > > running "make oldconfig" a SCSI driver gets built the user never 
+> > > selected.
+> > > 
+> > > Do you have any suggestions for a new name?
+> > > We could e.g. name it SCSI_QLAXXXX since the driver also supports 
+> > > 6312/6322, or name it simply SCSI_QLA.
+> > 
+> > SCSI_QLOGIC_FC?  Or does this driver handle SAS too?
+> 
+> There will be (shortly, I hope) an iSCSI driver for QLogic's qla4xxx
+> boards submitted for review...
+> 
+> Here's a composite patch with Adrian's original additions and
+> help-text with the new Kconfig variable SCSI_QLA_FC.
 
-This is very unusual. The quickest workaround is to unset CONFIG_BLK_DEV_UB,
-like Alan said. But it is very curious how this could happen. Care to
-collect a usbmon trace for me? There's a howto in
-Documentation/usb/usbmon.txt
+Sorry, my proficiency in Kconfig is... weak to say the least...
 
-Thanks,
--- Pete
+Here's one that should work...
+
+---
+
+diff --git a/drivers/scsi/Makefile b/drivers/scsi/Makefile
+index f062ea0..b9d2bb8 100644
+--- a/drivers/scsi/Makefile
++++ b/drivers/scsi/Makefile
+@@ -80,7 +80,7 @@ obj-$(CONFIG_SCSI_QLOGIC_FAS)	+= qlogicf
+ obj-$(CONFIG_PCMCIA_QLOGIC)	+= qlogicfas408.o
+ obj-$(CONFIG_SCSI_QLOGIC_FC)	+= qlogicfc.o 
+ obj-$(CONFIG_SCSI_QLOGIC_1280)	+= qla1280.o 
+-obj-$(CONFIG_SCSI_QLA2XXX)	+= qla2xxx/
++obj-$(CONFIG_SCSI_QLA_FC)	+= qla2xxx/
+ obj-$(CONFIG_SCSI_LPFC)		+= lpfc/
+ obj-$(CONFIG_SCSI_PAS16)	+= pas16.o
+ obj-$(CONFIG_SCSI_SEAGATE)	+= seagate.o
+diff --git a/drivers/scsi/qla2xxx/Kconfig b/drivers/scsi/qla2xxx/Kconfig
+index 5205c4e..02cc794 100644
+--- a/drivers/scsi/qla2xxx/Kconfig
++++ b/drivers/scsi/qla2xxx/Kconfig
+@@ -1,4 +1,4 @@
+-config SCSI_QLA2XXX
++config SCSI_QLA_FC
+ 	tristate "QLogic QLA2XXX Fibre Channel Support"
+ 	depends on PCI && SCSI
+ 	select SCSI_FC_ATTRS
+@@ -28,43 +28,47 @@ config SCSI_QLA2XXX
+ 
+ config SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+ 	bool "  Use firmware-loader modules (DEPRECATED)"
+-	depends on SCSI_QLA2XXX
++	depends on SCSI_QLA_FC
++	help
++	  This option offers you the deprecated firmware-loader
++	  modules that have been obsoleted by the usage of the
++	  Firmware Loader interface in the qla2xxx driver.
+ 
+ config SCSI_QLA21XX
+ 	tristate "  Build QLogic ISP2100 firmware-module"
+-	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
++	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+ 	---help---
+ 	This driver supports the QLogic 21xx (ISP2100) host adapter family.
+ 
+ config SCSI_QLA22XX
+ 	tristate "  Build QLogic ISP2200 firmware-module"
+-	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
++	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+ 	---help---
+ 	This driver supports the QLogic 22xx (ISP2200) host adapter family.
+ 
+ config SCSI_QLA2300
+ 	tristate "  Build QLogic ISP2300 firmware-module"
+-	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
++	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+ 	---help---
+ 	This driver supports the QLogic 2300 (ISP2300 and ISP2312) host
+ 	adapter family.
+ 
+ config SCSI_QLA2322
+ 	tristate "  Build QLogic ISP2322 firmware-module"
+-	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
++	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+ 	---help---
+ 	This driver supports the QLogic 2322 (ISP2322) host adapter family.
+ 
+ config SCSI_QLA6312
+ 	tristate "  Build QLogic ISP63xx firmware-module"
+-	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
++	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+ 	---help---
+ 	This driver supports the QLogic 63xx (ISP6312 and ISP6322) host
+ 	adapter family.
+ 
+ config SCSI_QLA24XX
+ 	tristate "  Build QLogic ISP24xx firmware-module"
+-	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
++	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
+ 	---help---
+ 	This driver supports the QLogic 24xx (ISP2422 and ISP2432) host
+ 	adapter family.
+diff --git a/drivers/scsi/qla2xxx/Makefile b/drivers/scsi/qla2xxx/Makefile
+index 40c0de1..d028bc5 100644
+--- a/drivers/scsi/qla2xxx/Makefile
++++ b/drivers/scsi/qla2xxx/Makefile
+@@ -3,7 +3,7 @@ EXTRA_CFLAGS += -DUNIQUE_FW_NAME
+ qla2xxx-y := qla_os.o qla_init.o qla_mbx.o qla_iocb.o qla_isr.o qla_gs.o \
+ 		qla_dbg.o qla_sup.o qla_rscn.o qla_attr.o
+ 
+-obj-$(CONFIG_SCSI_QLA2XXX) += qla2xxx.o
++obj-$(CONFIG_SCSI_QLA_FC) += qla2xxx.o
+ 
+ qla2100-y := ql2100.o ql2100_fw.o
+ qla2200-y := ql2200.o ql2200_fw.o

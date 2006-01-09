@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWAIEyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWAIE4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWAIEyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 23:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWAIEyN
+	id S1751233AbWAIE4E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 23:56:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWAIE4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 23:54:13 -0500
-Received: from i5-7.dnslinks.net ([66.98.167.159]:15336 "HELO ip01-web5.net")
-	by vger.kernel.org with SMTP id S1751268AbWAIEyN (ORCPT
+	Sun, 8 Jan 2006 23:56:04 -0500
+Received: from xenotime.net ([66.160.160.81]:34727 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751233AbWAIE4C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 23:54:13 -0500
-Message-ID: <63233.203.101.32.152.1136782788.squirrel@66.98.166.28>
-Date: Mon, 9 Jan 2006 04:59:48 -0000 (UTC)
-Subject: REG:problems 
-From: balamurugan@sahasrasolutions.com
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
+	Sun, 8 Jan 2006 23:56:02 -0500
+Date: Sun, 8 Jan 2006 20:56:00 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: vandrove@vc.cvut.cz, akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Documenation typo (hpet)
+Message-Id: <20060108205600.1c6ff51e.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sir,
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-i am cross compaling with arm-linux , i will face the following prombles
-,u pls rectified it as soon as possible
+Fix a typo.  Requested by Petr Vandrovec.
 
-1.Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/hpet.txt |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
- Q> scripts/Menuconfig: line 832: MCmenu0: command not found
+--- linux-2615-g3.orig/Documentation/hpet.txt
++++ linux-2615-g3/Documentation/hpet.txt
+@@ -2,7 +2,7 @@
+ 
+ The High Precision Event Timer (HPET) hardware is the future replacement
+ for the 8254 and Real Time Clock (RTC) periodic timer functionality.
+-Each HPET can have up two 32 timers.  It is possible to configure the
++Each HPET can have up to 32 timers.  It is possible to configure the
+ first two timers as legacy replacements for 8254 and RTC periodic timers.
+ A specification done by Intel and Microsoft can be found at
+ <http://www.intel.com/hardwaredesign/hpetspec.htm>.
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-
-thanks
-balamurugan
-
+---

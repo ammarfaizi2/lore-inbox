@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932905AbWAIGjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932907AbWAIGqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932905AbWAIGjd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 01:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932907AbWAIGjc
+	id S932907AbWAIGqM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 01:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932912AbWAIGqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 01:39:32 -0500
-Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:31638 "HELO
-	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932905AbWAIGjc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 01:39:32 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: [PATCH 5/8] RTC subsystem, dev interface
-Date: Mon, 9 Jan 2006 01:39:29 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060108231235.153748000@linux> <200601082150.22213.dtor_core@ameritech.net> <20060109041206.6115bafb@inspiron>
-In-Reply-To: <20060109041206.6115bafb@inspiron>
+	Mon, 9 Jan 2006 01:46:12 -0500
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:56733 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S932907AbWAIGqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 01:46:09 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Martin Langhoff <martin.langhoff@gmail.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+Subject: Re: git pull on Linux/ACPI release tree
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A136DD@hdsmsx401.amr.corp.intel.com>
+	<46a038f90601082208i95cd19fmda542da0da8cc9ef@mail.gmail.com>
+	<Pine.LNX.4.64.0601082212420.3169@g5.osdl.org>
+Date: Sun, 08 Jan 2006 22:46:06 -0800
+In-Reply-To: <Pine.LNX.4.64.0601082212420.3169@g5.osdl.org> (Linus Torvalds's
+	message of "Sun, 8 Jan 2006 22:13:49 -0800 (PST)")
+Message-ID: <7vlkxpucep.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601090139.29556.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 January 2006 22:12, Alessandro Zummo wrote:
-> > > +/* interface registration */
-> > > +
-> > > +struct class_interface rtc_dev_interface = {
-> > > +   .add = &rtc_dev_add_device,
-> > > +   .remove = &rtc_dev_remove_device,
-> > > +};
-> > > +
-> > 
-> > I wonder if doing rtc dev as a class device interface is a good idea.
-> > It may be cleaner to fold it into the core.
-> 
->  What the code implements is actually an interface, so this should
->  be the riht place. It is also fully optional, everything could work
->  without it. Probably the interface implementation hasn't all the primitives
->  to handle this kind of work, but I'm not willing to go into that right now ;)
-> 
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Yes, it is an interface. What I am trying to say - is it a main interface?
-What is the preferred, most efficient way to interface with RTC? If it is
-through this interface it may make sence to fold it into the core. Otherwise
-do what input layer does and have interface create another class device which
-reprsesents your /dev node.
+> To be fair, backtracking a "git-rebase" isn't obvious. One of the 
+> downsides of rebasing.
 
--- 
-Dmitry
+I thought "git reset --hard ORIG_HEAD" as usual would do.
+

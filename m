@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWAIU2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWAIU3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbWAIU2U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:28:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWAIU2U
+	id S1751319AbWAIU3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWAIU3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:28:20 -0500
-Received: from mail.suse.de ([195.135.220.2]:48323 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751279AbWAIU2T (ORCPT
+	Mon, 9 Jan 2006 15:29:10 -0500
+Received: from ns1.idleaire.net ([65.220.16.2]:15569 "EHLO iasrv1.idleaire.net")
+	by vger.kernel.org with ESMTP id S1751319AbWAIU3J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:28:19 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Subject: Re: [patch 2/2] add x86-64 support for memory hot-add
-Date: Mon, 9 Jan 2006 21:27:07 +0100
-User-Agent: KMail/1.8.2
-Cc: "Matt Tolentino" <metolent@cs.vt.edu>, akpm@osdl.org, discuss@x86-64.org,
-       kmannth@us.ibm.com, linux-kernel@vger.kernel.org
-References: <D36CE1FCEFD3524B81CA12C6FE5BCAB00C0B777A@fmsmsx406.amr.corp.intel.com>
-In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB00C0B777A@fmsmsx406.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 9 Jan 2006 15:29:09 -0500
+Subject: Re: Athlon 64 X2 cpuinfo oddities
+From: Dave Dillow <dave@thedillows.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: LKML List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
+References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 15:29:07 -0500
+Message-Id: <1136838548.6029.4.camel@dillow.idleaire.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601092127.07627.ak@suse.de>
+X-OriginalArrivalTime: 09 Jan 2006 20:28:52.0772 (UTC) FILETIME=[4E5F6640:01C6155B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 January 2006 20:55, Tolentino, Matthew E wrote:
+On Mon, 2006-01-09 at 21:18 +0100, Jesper Juhl wrote:
+> Second thing I find slightly odd is the lack of "sse3" in the "flags" list.
+> I was under the impression that all AMD Athlon 64 X2 CPU's featured SSE3?
+> Is it a case of:
+>  a) Me being wrong, not all Athlon 64 X2's feature SSE3?
+>  b) The CPU actually featuring SSE3 but Linux not taking advantage of it?
+>  c) The CPU features SSE3 and it's being utilized, but /proc/cpuinfo
+> doesn't show that fact?
+>  d) Something else?
 
-> I've looked at it in the past, but haven't pursued it to 
-> date, nor have I quantified the work involved.
-> The reason for the this approach thus far has been to 
-> enable machines that support hot-add today...which are 
-> non-NUMA.  
+Can't help you with the rest, but SSE3 is called "pni" in cpuinfo for
+historical reasons, IIRC.
+-- 
+Dave Dillow <dave@thedillows.org>
 
-Yes, but they'll be likely running NUMA kernels.
-
--Andi

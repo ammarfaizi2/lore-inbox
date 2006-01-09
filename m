@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWAIWla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWAIWmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751590AbWAIWla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 17:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWAIWla
+	id S1751587AbWAIWmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 17:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWAIWmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 17:41:30 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:37997 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751587AbWAIWl3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 17:41:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OoLR6Dk5xgwgyicHbMkP1xbZDbBspkfI5lJhKXUyo3h1ydLEEY5MAYS3uO0Z89lOJF9RhwhhVygdGVuO870w15SeWwaxVdZ/mdpqeoYH8e0yFB78yuKeQnRVvCpoQgKdh+nn8py4b3iqZWZ3TSiUiUtA851dpR2MiMQfeMGSrSA=
-Message-ID: <9a8748490601091441q1d6a688fr9efed06ab49dfba1@mail.gmail.com>
-Date: Mon, 9 Jan 2006 23:41:28 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Edmondo Tommasina <edmondo@eriadon.com>
-Subject: Re: Athlon 64 X2 cpuinfo oddities
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML List <linux-kernel@vger.kernel.org>,
-       Discuss x86-64 <discuss@x86-64.org>
-In-Reply-To: <200601092332.32681.edmondo@eriadon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 9 Jan 2006 17:42:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6161 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751589AbWAIWmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 17:42:12 -0500
+Date: Mon, 9 Jan 2006 22:42:04 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+Cc: linux-kernel@vger.kernel.org,
+       "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       linux@arm.linux.org.uk, ext David Brownell <david-b@PACBELL.NET>,
+       Tony Lindgren <tony@atomide.com>, drzeus-list@drzeus.cx,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>
+Subject: Re: [patch 3/5] Add MMC password protection (lock/unlock) support V3
+Message-ID: <20060109224204.GH19131@flint.arm.linux.org.uk>
+Mail-Followup-To: Anderson Briglia <anderson.briglia@indt.org.br>,
+	linux-kernel@vger.kernel.org,
+	"Linux-omap-open-source@linux.omap.com" <linux-omap-open-source@linux.omap.com>,
+	linux@arm.linux.org.uk, ext David Brownell <david-b@PACBELL.NET>,
+	Tony Lindgren <tony@atomide.com>, drzeus-list@drzeus.cx,
+	"Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+	"Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>
+References: <43C2E0A2.3090701@indt.org.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
-	 <200601092210.04186.rjw@sisk.pl>
-	 <200601092332.32681.edmondo@eriadon.com>
+In-Reply-To: <43C2E0A2.3090701@indt.org.br>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/9/06, Edmondo Tommasina <edmondo@eriadon.com> wrote:
-> On Monday 09-January-2006 22:10, Rafael J. Wysocki wrote:
-> > Hi,
-> >
->
-> Same here. cpu cores is 2.
->
-> Random try: Do you have CONFIG_NR_CPUS=2 in your config?
->
-Yup.
+On Mon, Jan 09, 2006 at 06:16:02PM -0400, Anderson Briglia wrote:
+> +	dev = bus_find_device(&mmc_bus_type, NULL, NULL, mmc_match_lockable);
+> +	if (!dev)
+> +		goto error;
+> +	card = dev_to_mmc_card(dev);
+> +	
+> +	if (operation == KEY_OP_INSTANTIATE) { /* KEY_OP_INSTANTIATE */
+> +               if (mmc_card_locked(card)) {
+> +                       ret = mmc_lock_unlock(card, key, MMC_LOCK_MODE_UNLOCK);
+> +                       mmc_remove_card(card);
+> +                       mmc_register_card(card);
+> +               }
+> +	       else
+> +		       ret = mmc_lock_unlock(card, key, MMC_LOCK_MODE_SET_PWD);
 
-$ zcat /proc/config.gz | grep NR_CPUS
-CONFIG_NR_CPUS=2
+I really don't like this - if the MMC card is not locked, we set a
+password on it.  If it's locked, we unlock it.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+That's a potential race condition if you're trying to unlock a card
+and the card is changed beneath you while you slept waiting for
+memory - you end up setting that password on the new card.
+
+It's far better to have separate "unlock this card" and "set a
+password on this card" commands rather than trying to combine the
+two operations.
+
+Also, removing and re-registering a card is an offence.  These
+things are ref-counted, and mmc_remove_card() will drop the last
+reference - so the memory associated with it will be freed.  Then
+you re-register it.  Whoops.
+
+If you merely want to try to attach a driver, use device_attach()
+instead.
+
+Also, what if you have multiple MMC cards?  I have a board here
+with two MMC slots.  I'd rather not have it try to set the same
+password on both devices.
+
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

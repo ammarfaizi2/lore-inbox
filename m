@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWAIQVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWAIQWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWAIQVN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 11:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWAIQVN
+	id S964865AbWAIQWO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWAIQWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 11:21:13 -0500
-Received: from herkules.vianova.fi ([194.100.28.129]:19332 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S964845AbWAIQVL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 11:21:11 -0500
-Date: Mon, 9 Jan 2006 18:21:06 +0200
-From: Ville Herva <vherva@vianova.fi>
-To: Lee Revell <rlrevell@joe-job.com>
+	Mon, 9 Jan 2006 11:22:14 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:5348 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964861AbWAIQWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 11:22:13 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: vherva@vianova.fi
 Cc: Florian Schmidt <tapas@affenbande.org>,
-       Tomasz =?iso-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
        Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
        Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
        Alistair John Strachan <s0348365@sms.ed.ac.uk>,
@@ -23,39 +23,30 @@ Cc: Florian Schmidt <tapas@affenbande.org>,
        kyle@parisc-linux.org, jgarzik@pobox.com,
        Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
        zaitcev@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20060109162106.GW21365@vianova.fi>
-Reply-To: vherva@vianova.fi
-References: <20060104113726.3bd7a649@mango.fruits.de> <1136445395.24475.17.camel@mindpipe> <20060105124317.2d12a85c@mango.fruits.de> <1136483330.31583.5.camel@mindpipe> <20060108210756.GD1686@vianova.fi> <1136756669.2997.2.camel@mindpipe> <20060109081646.GG21365@vianova.fi> <1136814731.9957.4.camel@mindpipe> <20060109142239.GR21365@vianova.fi> <1136819894.9957.16.camel@mindpipe>
+In-Reply-To: <20060109162106.GW21365@vianova.fi>
+References: <20060104113726.3bd7a649@mango.fruits.de>
+	 <1136445395.24475.17.camel@mindpipe>
+	 <20060105124317.2d12a85c@mango.fruits.de>
+	 <1136483330.31583.5.camel@mindpipe> <20060108210756.GD1686@vianova.fi>
+	 <1136756669.2997.2.camel@mindpipe> <20060109081646.GG21365@vianova.fi>
+	 <1136814731.9957.4.camel@mindpipe> <20060109142239.GR21365@vianova.fi>
+	 <1136819894.9957.16.camel@mindpipe>  <20060109162106.GW21365@vianova.fi>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 11:22:08 -0500
+Message-Id: <1136823729.9957.48.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136819894.9957.16.camel@mindpipe>
-X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 10:18:13AM -0500, you [Lee Revell] wrote:
-> 
-> Since ALSA 1.0.9 (alsa-lib and alsa-driver > 1.0.9 required) no special
-> configuration is required to get software mixing to work for i815 (and
-> other chipsets which lack hardware mixing), with a few exception like
-> ICE1712 and ICE1724 where a more complex configuration was required due
-> to hardware restrictions.
-> 
-> You should never have to touch an .asoundrc file to get software mixing
-> to work, if you do it's a bug.
+On Mon, 2006-01-09 at 18:21 +0200, Ville Herva wrote:
+> Revo51 is ICE1724 based. I gather I still need the asoundrc config to get
+> some kind of mixing, right? At least it doesn't work without (and with it,
+> it badly stutters right now.)
 
-When I tried with i815, my ALSA version might have been <= 1.0.9. 
+Try the latest ALSA CVS code.
 
-Revo51 is ICE1724 based. I gather I still need the asoundrc config to get
-some kind of mixing, right? At least it doesn't work without (and with it,
-it badly stutters right now.)
+Lee
 
-
-
--- v -- 
-
-v@iki.fi
 

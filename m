@@ -1,80 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWAIS73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWAITEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWAIS73 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWAIS70
+	id S1750701AbWAITEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 14:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWAITEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:59:26 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:38831 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030262AbWAIS7Y
+	Mon, 9 Jan 2006 14:04:09 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:62944 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750701AbWAITEI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:59:24 -0500
-Date: Mon, 9 Jan 2006 10:59:44 -0800
+	Mon, 9 Jan 2006 14:04:08 -0500
+Date: Mon, 9 Jan 2006 11:04:30 -0800
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: Oleg Nesterov <oleg@tv-sign.ru>
 Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
        Manfred Spraul <manfred@colorfullife.com>,
        Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
-Message-ID: <20060109185944.GB15083@us.ibm.com>
+Subject: Re: [PATCH 3/5] rcu: don't set ->next_pending in rcu_start_batch()
+Message-ID: <20060109190430.GC15083@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
-References: <43C165BC.F7C6DCF5@tv-sign.ru>
+References: <43C165C5.71EFC008@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43C165BC.F7C6DCF5@tv-sign.ru>
+In-Reply-To: <43C165C5.71EFC008@tv-sign.ru>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 10:19:24PM +0300, Oleg Nesterov wrote:
-> ->donelist becomes != NULL only in rcu_process_callbacks().
-> 
-> rcu_process_callbacks() always calls rcu_do_batch() when
-> ->donelist != NULL.
-> 
-> rcu_do_batch() schedules rcu_process_callbacks() again if
-> ->donelist was not flushed entirely.
-> 
-> So ->donelist != NULL means that rcu_tasklet is either
-> TASKLET_STATE_SCHED or TASKLET_STATE_RUN, we don't need to
-> check it in __rcu_pending().
+On Sun, Jan 08, 2006 at 10:19:33PM +0300, Oleg Nesterov wrote:
+> I think it is better to set ->next_pending in the caller, when
+> it is needed. This saves one parameter, and this coincides with
+> cpu_quiet() beahaviour, which sets ->completed = ->cur itself.
 
-As Vatsa noted, this is needed if the CPU-hotplug case moves
-from ->donelist to ->donelist.  It could be omitted if CPU-hotplug
-instead moves from ->donelist to ->nextlist, as is the case in Oleg's
-patch.  The extra grace-period delay should not be a problem for the
-presumably rare hotplug case, but:
+Makes sense to me!
 
-o	the extra test in __rcu_pending() should be quite inexpensive,
-	since the cacheline is already loaded given the earlier tests.
+							Thanx, Paul
 
-o	although tasklet_schedule() looks to be perfectly reliable
-	right now, and although any bugs in tasklet_schedule() must
-	be fixed, having RCU leakage be the major symptom of
-	tasklet_schedule() failure sounds quite unfriendly to me.
-
-So I am not (yet) convinced that this patch is the way to go.
-
-						Thanx, Paul
-
-> [ This patch was tested with rcutorture.ko, I don't understand
->   it's output, but it says "End of test: SUCCESS". So if this
->   patch incorrect blame Paul, not me! ]
-> 
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
 > Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 > 
-> --- 2.6.15/kernel/rcupdate.c~2_DONE	2006-01-08 21:35:21.000000000 +0300
-> +++ 2.6.15/kernel/rcupdate.c	2006-01-08 21:55:45.000000000 +0300
-> @@ -454,10 +454,6 @@ static int __rcu_pending(struct rcu_ctrl
->  	if (!rdp->curlist && rdp->nxtlist)
->  		return 1;
->  
-> -	/* This cpu has finished callbacks to invoke */
-> -	if (rdp->donelist)
-> -		return 1;
+> --- 2.6.15/kernel/rcupdate.c~3_NPEND	2006-01-08 21:55:45.000000000 +0300
+> +++ 2.6.15/kernel/rcupdate.c	2006-01-08 22:46:13.000000000 +0300
+> @@ -249,12 +249,8 @@ static void rcu_do_batch(struct rcu_data
+>   * active batch and the batch to be registered has not already occurred.
+>   * Caller must hold rcu_state.lock.
+>   */
+> -static void rcu_start_batch(struct rcu_ctrlblk *rcp, struct rcu_state *rsp,
+> -				int next_pending)
+> +static void rcu_start_batch(struct rcu_ctrlblk *rcp, struct rcu_state *rsp)
+>  {
+> -	if (next_pending)
+> -		rcp->next_pending = 1;
 > -
->  	/* The rcu core waits for a quiescent state from the cpu */
->  	if (rdp->quiescbatch != rcp->cur || rdp->qs_pending)
->  		return 1;
+>  	if (rcp->next_pending &&
+>  			rcp->completed == rcp->cur) {
+>  		rcp->next_pending = 0;
+> @@ -288,7 +284,7 @@ static void cpu_quiet(int cpu, struct rc
+>  	if (cpus_empty(rsp->cpumask)) {
+>  		/* batch completed ! */
+>  		rcp->completed = rcp->cur;
+> -		rcu_start_batch(rcp, rsp, 0);
+> +		rcu_start_batch(rcp, rsp);
+>  	}
+>  }
+>  
+> @@ -423,7 +419,8 @@ static void __rcu_process_callbacks(stru
+>  		if (!rcp->next_pending) {
+>  			/* and start it/schedule start if it's a new batch */
+>  			spin_lock(&rsp->lock);
+> -			rcu_start_batch(rcp, rsp, 1);
+> +			rcp->next_pending = 1;
+> +			rcu_start_batch(rcp, rsp);
+>  			spin_unlock(&rsp->lock);
+>  		}
+>  	} else {
 > 

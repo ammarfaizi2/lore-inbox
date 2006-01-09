@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWAIQht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWAIQjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWAIQht (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 11:37:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWAIQht
+	id S932437AbWAIQjk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWAIQjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 11:37:49 -0500
-Received: from node3.inaccessnetworks.com ([212.205.200.118]:20638 "EHLO
-	inaccessnetworks.com") by vger.kernel.org with ESMTP
-	id S932209AbWAIQhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 11:37:48 -0500
-Message-ID: <43C2914A.8080409@inaccessnetworks.com>
-Date: Mon, 09 Jan 2006 18:37:30 +0200
-From: Angelos Manousarides <amanous@inaccessnetworks.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 9 Jan 2006 11:39:40 -0500
+Received: from xenotime.net ([66.160.160.81]:43685 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932437AbWAIQjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 11:39:39 -0500
+Date: Mon, 9 Jan 2006 08:39:39 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, gcoady@gmail.com, vherva@vianova.fi,
+       linux-kernel@vger.kernel.org
+Subject: Re: oops pauser.
+In-Reply-To: <Pine.LNX.4.61.0601091714330.26210@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.58.0601090838490.952@shark.he.net>
+References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
+ <20060105103339.GG20809@redhat.com> <20060108133822.GD31624@vianova.fi>
+ <20060108055322.18d4236e.rdunlap@xenotime.net> <6cq2s1d3glnj56pcrqlj84s8ltilmo6jfp@4ax.com>
+ <20060108174505.6c9b7566.rdunlap@xenotime.net> <Pine.LNX.4.61.0601091714330.26210@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: I2C bus implementation
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am writting a driver for the I2C of the powerpc MPC82xx. I have read 
-various implementations of other busses and I2C drivers (drivers for I2C 
-devices that is). All the I2C drivers I have seen do something like this 
-on a read command:
+On Mon, 9 Jan 2006, Jan Engelhardt wrote:
 
-struct i2c_msg msgs[2] = {
-   {client->addr, 0, 1, addr},
-   {client->addr, I2C_M_RD, len, buf}
-};
+> >> So would it be viable to take over the screen in similar fashion?
+> >>
+> >> Set it to 80x50 in BIOS and dump there --> call it the Penguin Oops
+> >> screen, or Poops for short :o)
+> >
+> >It does take over the screen.  80x50 isn't needed since it knows how
+> >to scroll the kernel log buffer on 80x25.
+>
+> It's needed because scrolling back might be impossible (shift-up in panic
+> = no-go), not because it knows how to scroll.
 
-...
+Oh, I see.  You are talking about the kernel message(s), not
+kmsgdump.  Sorry, I switched to kmsgdump there somehow.
+Yes, more info on the screen from the kernel would be good.
 
-ret = i2c_transfer(client->adapter, msgs, 2);
-
-..
-
-This sequence implements a I2C read, with a 1-byte write for the slave 
-address and a subsequent read. This is ok for a device that does direct 
-low level communication with the bus.
-
-In the MPC82xx however, the I2C unit does almost all the work. All the 
-driver has to do is setup the buffers for input/output and wait for an 
-interrupt once the operation is over. In the example above it would just 
-setup a buffer for the outgoing data (1 byte wide), one buffer for the 
-incoming data and issue a "start" command.
-
-The problem is that since all I2C device drivers are written in the way 
-above, I am having trouble writting the code for this I2C bus. The 
-master_xfer function accepts a list of i2c_msg. So for a I2c read my 
-driver would get 2 messages one with the first byte (address write) and 
-one with the read buffer, although this is a single I2C transaction!
-
-How can I glue the I2C code to this interface?
-Is there a bus similar to the MPC82xx implemented already?
-
-Can I assume that the i2c_msg list passed to the master_xfer function 
-will always contain a single I2C transaction? This way I could setup the 
-buffers using the i2c_mgs elements and when the list finishes, I cound 
-issue the "I2C start" command.
-
---
-Manousaridis Angelos
+-- 
+~Randy

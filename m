@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWAIDOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWAIDS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbWAIDOE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 22:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWAIDOE
+	id S1751029AbWAIDS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 22:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWAIDS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 22:14:04 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:47634 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1750927AbWAIDOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 22:14:02 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <davidel@xmailserver.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH/RFC] POLLHUP tinkering ...
-Date: Sun, 8 Jan 2006 19:13:04 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKGEOJJDAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060108.160802.103497642.davem@davemloft.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sun, 08 Jan 2006 19:09:58 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sun, 08 Jan 2006 19:09:59 -0800
+	Sun, 8 Jan 2006 22:18:56 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:42693 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751029AbWAIDSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 22:18:55 -0500
+Message-Id: <200601090410.k094Auss001185@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 2/6] UML - Update Kconfig help
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 08 Jan 2006 23:10:56 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The MODE_TT help was a little outdated.  This updates it in light of the
+existence of skas0 mode.
+It's also turned off by default since it is mostly obsoleted by skas0 mode.
 
-> From: Davide Libenzi <davidel@xmailserver.org>
-> Date: Sun, 8 Jan 2006 16:02:10 -0800 (PST)
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-> > But if and hangup happened with some data (data + FIN), they won't
-> > receive any more events for the Linux poll subsystem (and epoll,
-> > when using the event triggered interface), so they are forced to
-> > issue an extra read() after the loop to detect the EOF
-> > condition. Besides from the extra read() overhead, the code does not
-> > come exactly pretty.
-
-> The extra last read is always necessary, it's an error synchronization
-> barrier.  Did you know that?
-
-	If there is an error, an error event must be returned. An edge-triggered
-interface must report every event that occurs with an indication of that
-type.
-
-> If a partial read or write hits an error, the successful amount of
-> bytes read or written before the error occurred is returned.  Then any
-> subsequent read or write will report the error immediately.
-
-	If the connection closes and the edge-triggered interface does not give a
-HUP indication, then it is broken.
-
-	A HUP is not a read event and signalling a read is not sufficient.
-
-	DS
-
+Index: linux-2.6.15-mm/arch/um/Kconfig
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/Kconfig	2006-01-06 21:05:23.000000000 -0500
++++ linux-2.6.15-mm/arch/um/Kconfig	2006-01-06 23:34:46.000000000 -0500
+@@ -35,12 +35,12 @@ menu "UML-specific options"
+ 
+ config MODE_TT
+ 	bool "Tracing thread support"
+-	default y
++	default n
+ 	help
+ 	This option controls whether tracing thread support is compiled
+-	into UML.  Normally, this should be set to Y.  If you intend to
+-	use only skas mode (and the host has the skas patch applied to it),
+-	then it is OK to say N here.
++	into UML.  This option is largely obsolete, given that skas0 provides
++	skas security and performance without needing to patch the host.
++	It is safe to say 'N' here.
+ 
+ config STATIC_LINK
+ 	bool "Force a static link"
 

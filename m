@@ -1,155 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWAIQ1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWAIQ3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWAIQ1H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 11:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWAIQ1G
+	id S964863AbWAIQ3W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWAIQ3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 11:27:06 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:25049 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964795AbWAIQ1F (ORCPT
+	Mon, 9 Jan 2006 11:29:22 -0500
+Received: from ns.firmix.at ([62.141.48.66]:58592 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S964863AbWAIQ3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 11:27:05 -0500
-Subject: Re: Oops with 2.6.15-mm1
-From: JANAK DESAI <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: simon schuler <simon.schuler@gmx.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <43BFFC40.1050307@us.ibm.com>
-References: <20060105062249.4bc94697.akpm@osdl.org>
-	 <43BE8495.8050907@gmx.net> <20060106151215.106fd0ca.akpm@osdl.org>
-	 <43BFFC40.1050307@us.ibm.com>
+	Mon, 9 Jan 2006 11:29:21 -0500
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+	can't for a long time
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1136823598.9957.43.camel@mindpipe>
+References: <5t06S-7nB-15@gated-at.bofh.it>
+	 <200601091702.48955.oliver@neukum.org> <1136822646.9957.35.camel@mindpipe>
+	 <200601091714.27303.oliver@neukum.org>  <1136823598.9957.43.camel@mindpipe>
 Content-Type: text/plain
-Message-Id: <1136823702.13054.12.camel@hobbs.atlanta.ibm.com>
+Organization: Firmix Software GmbH
+Date: Mon, 09 Jan 2006 17:29:09 +0100
+Message-Id: <1136824149.5785.75.camel@tara.firmix.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 09 Jan 2006 11:22:20 -0500
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-07 at 12:37, JANAK DESAI wrote:
-> Andrew Morton wrote:
+On Mon, 2006-01-09 at 11:19 -0500, Lee Revell wrote:
+> On Mon, 2006-01-09 at 17:14 +0100, Oliver Neukum wrote:
+> > Am Montag, 9. Januar 2006 17:04 schrieb Lee Revell:
+> > > On Mon, 2006-01-09 at 17:02 +0100, Oliver Neukum wrote:
+> > > > Am Montag, 9. Januar 2006 16:15 schrieb Lee Revell:
+> > > > > On Mon, 2006-01-09 at 15:28 +0100, Oliver Neukum wrote:
+> > > > > > Am Montag, 9. Januar 2006 15:18 schrieb Robert Hancock:
+> > > > > > > Yaroslav Rastrigin wrote:
+> > > > > > > > Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
+> > > > > > > > strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
+> > > > > > > > Whenever it is needed by apps I'm launching or working with. 
+> > > > > > > 
+> > > > > > > There is no different VM policy here, Windows behaves quite similarly. 
+> > > > > > > It does not leave memory around unused, it uses it for disk cache.
+> > > > > > 
+> > > > > > That doesn't mean that the rate of eviction is the same.
+> > > > > > Is it possible that read-ahead is not aggressive enough?
+> > > > > 
+> > > > > Enough for what?  What is the exact problem you are trying to solve?
+> > > > 
+> > > > Quicker application startup.
+> > > 
+> > > Why do you look to the kernel first?  The obvious explanation is that
+> > > Linux desktop apps are more bloated than their Windows counterparts.
+> > 
+> > It is the most efficient place. An improvement to the kernel will improve
+> > all starting times.
 > 
-> >simon schuler <simon.schuler@gmx.net> wrote:
-> >  
-> >
-> >>I'm getting an oops sometimes (about 70% probability) when I try to 
-> >>start a wine application.
-> >>last working kernel version: 2.6.15-rc5-mm1
-> >>not working: 2.6.15-mm1, 2.6.15-rc5-mm3
-> >>not tested: 2.6.15-rc5-mm2
-> >>
-> >>.config is attached.
-> >>I don't know if this is a known issue...
-> >>If you need more information, let me know.
-> >>
-> >>Unable to handle kernel NULL pointer dereference at virtual address 00000004
-> >> printing eip:
-> >>c0118755
-> >>*pde = 00000000
-> >>Oops: 0000 [#1]
-> >>last sysfs file: /class/vc/vcsa1/dev
-> >>Modules linked in:
-> >>CPU:    0
-> >>EIP:    0060:[<c0118755>]    Not tainted VLI
-> >>EFLAGS: 00210282   (2.6.15-mm1)
-> >>EIP is at dup_fd+0x25/0x290
-> >>eax: eff40c20   ebx: eff40c28   ecx: eff40c20   edx: eff40c58
-> >>esi: ead0e000   edi: 00000000   ebp: eff7aaa0   esp: ead0fe48
-> >>ds: 007b   es: 007b   ss: 0068
-> >>Process wine (pid: 769, threadinfo=ead0e000 task=eb468ab0)
-> >>Stack: <0>00000000 ebbe8854 00000001 ec1abd0c eff40c20 c015b937 ec1abd0c 
-> >>00000001
-> >>       <0>00000000 eb468ab0 ead0e000 c0423ebe eff7aaa0 c0118a1c eb468ab0 
-> >>ead0fe88
-> >>       <0>fffffff4 eff40ce0 c0118a73 00000000 eb468ab0 00000060 ead0e000 
-> >>c01867e4
-> >>Call Trace:
-> >> [<c015b937>] vfs_read+0x127/0x190
-> >> [<c0118a1c>] copy_files+0x5c/0x80
-> >> [<c0118a73>] unshare_files+0x33/0x70
-> >> [<c01867e4>] load_elf_binary+0x174/0xe10
-> >> [<c014102f>] get_page_from_freelist+0x7f/0xd0
-> >> [<c0259d0f>] copy_from_user+0x3f/0xa0
-> >> [<c0259d0f>] copy_from_user+0x3f/0xa0
-> >> [<c0166063>] copy_strings+0x163/0x230
-> >> [<c0167160>] search_binary_handler+0x50/0x180
-> >> [<c0167414>] do_execve+0x184/0x220
-> >> [<c0101c4c>] sys_execve+0x3c/0x80
-> >> [<c010300b>] sysenter_past_esp+0x54/0x75
-> >>Code: bc 27 00 00 00 00 55 57 56 53 83 ec 24 8b 44 24 38 8b b8 64 04 00 
-> >>00 e8 6a ff ff ff 85 c0 89 44 24 10 0f 84 b6 01 00 00 8b 58 04 <8b> 77 
-> >>04 89 34 24 e8 d0 fe ff ff 89 44 24 18 31 c0 8b 54 24 18
-> >>
-> >>    
-> >>
-> >
-> >OK, thanks.  It looks like a problem in the new unsharing code...
-> >
-> >
-> >  
-> >
-> Thanks. I am investigating the problem now and will send updated patches
-> as soon as I fix the problem. I am also writing up detailed 
-> justification, design
-> considerations and test plan. I will include it in the patch set as well.
-> 
-> -Janak
-> 
+> I think you'll get at most a 10% or 20% speedup by improving the kernel,
+> while some of these apps (think Nautilus vs Windows Explorer) will need
+> to be 1000% faster to seem reasonable to a Windows user.
 
-The following patch, applicable to 2.6.15-rc5-mm3 and 2.6.15-mm1,
-fixes the above oops introduced by the new unsharing code. Updated
-patch set, forward ported to the latest -mm and with detail
-documentation, will follow in the next few days. 
+That's easy: Just start nautilus, OOorg, Firefox, a java-vm and
+GNOME/KDE infrastructure at login time in the background (*eg* and
+mlockall() the more important ones so that the are surely in RAM) and
+"starting the app" is only a small program connecting to the respective
+process to get a fork() there (e.g. like the "-remote" parameter in the
+Mozilla family).
 
-Signed-off-by: Janak Desai <janak@us.ibm.com>
-
----
-
- fork.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
-
-diff -Naurp 2.6.15-rc5-mm3/kernel/fork.c 2.6.15-rc5-mm3+fix/kernel/fork.c
---- 2.6.15-rc5-mm3/kernel/fork.c	2006-01-09 15:29:12.000000000 +0000
-+++ 2.6.15-rc5-mm3+fix/kernel/fork.c	2006-01-09 15:32:52.000000000 +0000
-@@ -621,17 +621,15 @@ out:
- 
- /*
-  * Allocate a new files structure and copy contents from the
-- * files structure of the passed in task structure.
-+ * passed in files structure.
-  */
--static struct files_struct *dup_fd(struct task_struct *tsk, int *errorp)
-+static struct files_struct *dup_fd(struct files_struct *oldf, int *errorp)
- {
--	struct files_struct *oldf, *newf;
-+	struct files_struct *newf;
- 	struct file **old_fds, **new_fds;
- 	int open_files, size, i, expand;
- 	struct fdtable *old_fdt, *new_fdt;
- 
--	oldf = tsk->files;
--
- 	newf = alloc_files();
- 	if (!newf)
- 		goto out;
-@@ -746,7 +744,7 @@ static int copy_files(unsigned long clon
- 	 */
- 	tsk->files = NULL;
- 	error = -ENOMEM;
--	newf = dup_fd(current, &error);
-+	newf = dup_fd(oldf, &error);
- 	if (!newf)
- 		goto out;
- 
-@@ -1486,7 +1484,7 @@ static int unshare_fd(unsigned long unsh
- 
- 	if ((unshare_flags & CLONE_FILES) &&
- 	    (fd && atomic_read(&fd->count) > 1)) {
--		*new_fdp = dup_fd(current, &error);
-+		*new_fdp = dup_fd(fd, &error);
- 		if (!*new_fdp)
- 			return error;
- 	}
-
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

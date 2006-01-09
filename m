@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWAIWrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWAIWte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWAIWrN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 17:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWAIWrN
+	id S1751605AbWAIWte (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 17:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWAIWte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 17:47:13 -0500
-Received: from mxsf04.cluster1.charter.net ([209.225.28.204]:61313 "EHLO
-	mxsf04.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1751261AbWAIWrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 17:47:12 -0500
-X-IronPort-AV: i="3.99,347,1131339600"; 
-   d="scan'208"; a="1802242742:sNHT16510900"
-Subject: Re: 64 bit kernel
-From: Stan Gammons <s_gammons@charter.net>
-To: "Mike McCarthy, W1NR" <lists@w1nr.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <001c01c61520$2cbba6b0$6d0ea8c0@LoJackOne.LoJack.com>
-References: <1136780835.6695.37.camel@falklands.home.pc>
-	 <001c01c61520$2cbba6b0$6d0ea8c0@LoJackOne.LoJack.com>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 16:47:57 -0600
-Message-Id: <1136846877.6695.44.camel@falklands.home.pc>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 17:49:34 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:19290 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751605AbWAIWtd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 17:49:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TkrHZuVEIFV+5bV9te79wPSxo8zy1okZzA97f93rIvw7qxHSpTxK3mZFZovrQOvPsSVAspo911kBj/Eg6NJsd7zX+kn1m/O7OwNrO5+6IGZh/eSNZeCe6Xq4SCjr6cAl1thVna1GYX5CGXDp7MtpnBWBlYDwOaweyXN+UZvDVh4=
+Message-ID: <9a8748490601091449o23b18e52u76727caeab74747b@mail.gmail.com>
+Date: Mon, 9 Jan 2006 23:49:32 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Dave Dillow <dave@thedillows.org>
+Subject: Re: Athlon 64 X2 cpuinfo oddities
+Cc: LKML List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1136838548.6029.4.camel@dillow.idleaire.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
+	 <1136838548.6029.4.camel@dillow.idleaire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-09 at 08:25 -0500, Mike McCarthy, W1NR wrote:
-> I saw a similar issue many years ago that turned out to be a chipset bug. 
-> This was a PII system that used 16 bit wide modules.  When using only one 
-> module, the chipset "fooled" the OS into thinking that it was doing 32 bit 
-> wide operations.  However, it failed at full speed.  Reducing the memory bus 
-> speed or installing modules in pairs "fixed" the problem.  I suspect a bus 
-> or memory controller issue rather than the kernel.
-> 
-> The failure mode was exactly as you describe.  It manifested itself as disk 
-> errors or DMA failures.  Unfortunately the chipset vendor determined that it 
-> was a silicon bug and said that they would NOT fix it!
+On 1/9/06, Dave Dillow <dave@thedillows.org> wrote:
+> On Mon, 2006-01-09 at 21:18 +0100, Jesper Juhl wrote:
+> > Second thing I find slightly odd is the lack of "sse3" in the "flags" list.
+> > I was under the impression that all AMD Athlon 64 X2 CPU's featured SSE3?
+> > Is it a case of:
+> >  a) Me being wrong, not all Athlon 64 X2's feature SSE3?
+> >  b) The CPU actually featuring SSE3 but Linux not taking advantage of it?
+> >  c) The CPU features SSE3 and it's being utilized, but /proc/cpuinfo
+> > doesn't show that fact?
+> >  d) Something else?
+>
+> Can't help you with the rest, but SSE3 is called "pni" in cpuinfo for
+> historical reasons, IIRC.
 
-Hi Mike, 
+Ahh yes, PNI as in Prescot New Instructions - right?
+Hmm, someone really ought to rename that to sse3 these days.
 
-What chipset was that?  
-
-This board has an nVidia nForce 3 chipset on it.  This brings about
-another question. What is the consensus on using the amd74xx.c patch for
-the nForce 3/4 chipset that nVidia has on their website?  It's supposed
-to improve HD performance. Any comments on including that patch in the
-existing kernel?  How about the pros and or cons of adding that patch
-and rebuilding a system specific kernel?
-
-
-
-Stan
-
-
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

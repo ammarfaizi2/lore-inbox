@@ -1,85 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWAIRQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWAIRUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWAIRQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:16:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWAIRQ0
+	id S1751293AbWAIRUb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:20:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWAIRUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:16:26 -0500
-Received: from mx01.qsc.de ([213.148.129.14]:29854 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S964883AbWAIRQX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:16:23 -0500
-From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
-Organization: ExactCODE
-To: Hannu Savolainen <hannu@opensound.com>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-Date: Mon, 9 Jan 2006 18:12:55 +0100
-User-Agent: KMail/1.9
-Cc: Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       linux-sound@vger.kernel.org,
-       ALSA development <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de> <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi>
-In-Reply-To: <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 12:20:31 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:31979 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751293AbWAIRU3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 12:20:29 -0500
+Date: Mon, 9 Jan 2006 09:20:47 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/5] rcu: uninline __rcu_pending()
+Message-ID: <20060109172047.GA15083@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43C165B4.2FF3B78@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601091812.55943.rene@exactcode.de>
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Monday 09 January 2006 16:10, Hannu Savolainen
-	wrote: > > > I don't think so. The library can do such conversions (and
-	alsa-lib does) > > > quite easy. If we have a possibility to remove the
-	code from the kernel > > > space without any drawbacks, then it should
-	be removed. I don't see any > > > advantage to have such conversions in
-	the kernel. > > > > Also, when the data is already available as single
-	streams in a user-space > > multi track application, why should it be
-	forced interleaved, when the hardware > > could handle the format just
-	fine? > Because the conversion doesn't cost anything. Trying to avoid it
-	by > making the API more complicated (I would even say confusing) is
-	extreme > overkill. [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+In-Reply-To: <43C165B4.2FF3B78@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 08, 2006 at 10:19:16PM +0300, Oleg Nesterov wrote:
+> __rcu_pending() is rather fat and called twice from rcu_pending().
+> 
+> rcu_pending() has multiple callers, and not that small too.
+> 
+> This patch uninlines both of them.
 
-On Monday 09 January 2006 16:10, Hannu Savolainen wrote:
+Looks good -- I must defer to Dipankar on any performance problems, but
+I would not expect any this far off of the fastpaths.  Also makes
+handling multiple different RCU implementations a bit easier on the
+eyes.
 
-> > > I don't think so. The library can do such conversions (and alsa-lib does) 
-> > > quite easy. If we have a possibility to remove the code from the kernel 
-> > > space without any drawbacks, then it should be removed. I don't see any 
-> > > advantage to have such conversions in the kernel.
-> > 
-> > Also, when the data is already available as single streams in a user-space
-> > multi track application, why should it be forced interleaved, when the hardware
-> > could handle the format just fine?
-> Because the conversion doesn't cost anything. Trying to avoid it by 
-> making the API more complicated (I would even say confusing) is extreme 
-> overkill. 
+							Thanx, Paul
 
-Since when doesn't cost convesion anything? I'm able to count a lot of wasted
-CPU cycles in there ...
-
-> Even worse this kind of features weaken the device abstraction provided by 
-> the API. The applications will have to check for this and 
-> that and provide support for 100s of special cases that may be required by 
-> certain devices. 
-
-An lame write() only player can still open the default device and get the auto-convert
-chain it deserves ...
-
-Yours,
-  Rene Rebe
-
--- 
-ExactCODE Berlin
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> --- 2.6.15/include/linux/rcupdate.h~1_OUTL	2006-01-03 21:15:58.000000000 +0300
+> +++ 2.6.15/include/linux/rcupdate.h	2006-01-08 21:36:07.000000000 +0300
+> @@ -125,36 +125,7 @@ static inline void rcu_bh_qsctr_inc(int 
+>  	rdp->passed_quiesc = 1;
+>  }
+>  
+> -static inline int __rcu_pending(struct rcu_ctrlblk *rcp,
+> -						struct rcu_data *rdp)
+> -{
+> -	/* This cpu has pending rcu entries and the grace period
+> -	 * for them has completed.
+> -	 */
+> -	if (rdp->curlist && !rcu_batch_before(rcp->completed, rdp->batch))
+> -		return 1;
+> -
+> -	/* This cpu has no pending entries, but there are new entries */
+> -	if (!rdp->curlist && rdp->nxtlist)
+> -		return 1;
+> -
+> -	/* This cpu has finished callbacks to invoke */
+> -	if (rdp->donelist)
+> -		return 1;
+> -
+> -	/* The rcu core waits for a quiescent state from the cpu */
+> -	if (rdp->quiescbatch != rcp->cur || rdp->qs_pending)
+> -		return 1;
+> -
+> -	/* nothing to do */
+> -	return 0;
+> -}
+> -
+> -static inline int rcu_pending(int cpu)
+> -{
+> -	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) ||
+> -		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
+> -}
+> +extern int rcu_pending(int cpu);
+>  
+>  /**
+>   * rcu_read_lock - mark the beginning of an RCU read-side critical section.
+> --- 2.6.15/kernel/rcupdate.c~1_OUTL	2006-01-03 21:15:58.000000000 +0300
+> +++ 2.6.15/kernel/rcupdate.c	2006-01-08 21:35:21.000000000 +0300
+> @@ -442,6 +442,36 @@ static void rcu_process_callbacks(unsign
+>  				&__get_cpu_var(rcu_bh_data));
+>  }
+>  
+> +static int __rcu_pending(struct rcu_ctrlblk *rcp, struct rcu_data *rdp)
+> +{
+> +	/* This cpu has pending rcu entries and the grace period
+> +	 * for them has completed.
+> +	 */
+> +	if (rdp->curlist && !rcu_batch_before(rcp->completed, rdp->batch))
+> +		return 1;
+> +
+> +	/* This cpu has no pending entries, but there are new entries */
+> +	if (!rdp->curlist && rdp->nxtlist)
+> +		return 1;
+> +
+> +	/* This cpu has finished callbacks to invoke */
+> +	if (rdp->donelist)
+> +		return 1;
+> +
+> +	/* The rcu core waits for a quiescent state from the cpu */
+> +	if (rdp->quiescbatch != rcp->cur || rdp->qs_pending)
+> +		return 1;
+> +
+> +	/* nothing to do */
+> +	return 0;
+> +}
+> +
+> +int rcu_pending(int cpu)
+> +{
+> +	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) ||
+> +		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
+> +}
+> +
+>  void rcu_check_callbacks(int cpu, int user)
+>  {
+>  	if (user ||
+> 

@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWAIKSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWAIKWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWAIKSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 05:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWAIKSP
+	id S1751232AbWAIKWj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 05:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWAIKWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 05:18:15 -0500
-Received: from anubis.fi.muni.cz ([147.251.54.96]:57225 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1751145AbWAIKSP
+	Mon, 9 Jan 2006 05:22:39 -0500
+Received: from nutty.inf.ed.ac.uk ([129.215.216.3]:41920 "EHLO
+	nutty.inf.ed.ac.uk") by vger.kernel.org with ESMTP id S1751232AbWAIKWi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 05:18:15 -0500
-Date: Mon, 9 Jan 2006 11:18:05 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: intelfb
-Message-ID: <20060109101805.GK3001@mail.muni.cz>
-References: <20060108234839.GF3001@mail.muni.cz> <20060108235753.GR3774@stusta.de> <43C1ACB4.4030704@gmail.com> <20060109002912.GS3774@stusta.de>
+	Mon, 9 Jan 2006 05:22:38 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 10:22:30 +0000
+User-Agent: KMail/1.8.2
+Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <20060109080632.GA27915@codepoet.org> <200601091207.14939.yarick@it-territory.ru>
+In-Reply-To: <200601091207.14939.yarick@it-territory.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060109002912.GS3774@stusta.de>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11
+Message-Id: <200601091022.30758.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 01:29:12AM +0100, Adrian Bunk wrote:
-> > I maintain i810fb.  The author and maintainer of intelfb for 2.6 is Sylvain
-> > Meyer. For 2.4, the author is David Dawes.
-> >...
-> 
-> Sorry, this happens when you only look at the MAINTAINERS file...
-> 
-> Can you add a MAINTAINERS entry for Sylvain?
+On Monday 09 January 2006 09:07, Yaroslav Rastrigin wrote:
+> Hi, Eric,
+>
+> On 9 January 2006 11:06, Erik Andersen wrote:
+> > On Mon Jan 09, 2006 at 03:54:24PM +0800, Boxer Gnome wrote:
+> > > and the dos ntfs driver was not released by the MS offical.So,what'
+> > > wrong?
+> > >
+> > > Somebody who can explain this ?
+> >
+> > Sure, thats easy.  You havn't paid Anton and Richard to quit
+> > their jobs to work full time on finishing full linux ntfs
+> > support.  It is really quite amazing how many "linux can't do foo"
+> > type problems could be quickly solved by sending large amounts of
+> > money to the right people.
+>
+> Could or would you be so kind to provide at least moderately complete
+> pricelist ? Whom and how much should I pay to have correct support for
+> intel graphics chipset, 2200BG Wi-Fi, complete
+> suspend-to-disk/suspend-to-ram and to get an overall performance boost ?
 
-I wrote to Sylvain some time ago but no response...
+Since these are all supported in 2.6.15, $0 would be my quote.
 
 -- 
-Luká¹ Hejtmánek
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,148 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWAISRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWAISUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbWAISRo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWAISRo
+	id S964904AbWAISUL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWAISUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:17:44 -0500
-Received: from pat.qlogic.com ([198.70.193.2]:16 "EHLO avexch02.qlogic.com")
-	by vger.kernel.org with ESMTP id S964903AbWAISRn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:17:43 -0500
-Date: Mon, 9 Jan 2006 10:17:40 -0800
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-scsi@vger.kernel.org,
+	Mon, 9 Jan 2006 13:20:11 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:17802 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964904AbWAISUK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 13:20:10 -0500
+Subject: Re: [patch 1/2] add __meminit for memory hotplug
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Matt Tolentino <metolent@cs.vt.edu>
+Cc: ak@suse.de, akpm@osdl.org, discuss@x86-64.org, kmannth@us.ibm.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/scsi/qla2xxx/Kconfig: two fixes
-Message-ID: <20060109181740.GD545@andrew-vasquezs-powerbook-g4-15.local>
-References: <20060106163401.GP12131@stusta.de> <20060106211241.GG13844@andrew-vasquezs-powerbook-g4-15.local> <20060106230935.GC3774@stusta.de> <20060107235009.GH19769@parisc-linux.org> <20060109175658.GC545@andrew-vasquezs-powerbook-g4-15.local>
+In-Reply-To: <200601091519.k09FJUi3022305@ap1.cs.vt.edu>
+References: <200601091519.k09FJUi3022305@ap1.cs.vt.edu>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 10:20:08 -0800
+Message-Id: <1136830808.17903.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060109175658.GC545@andrew-vasquezs-powerbook-g4-15.local>
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 09 Jan 2006 18:17:42.0649 (UTC) FILETIME=[FB69EE90:01C61548]
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 09 Jan 2006, Andrew Vasquez wrote:
+On Mon, 2006-01-09 at 10:19 -0500, Matt Tolentino wrote:
+> Add __meminit to the __init lineup to ensure functions default
+> to __init when memory hotplug is not enabled.  Replace __devinit
+> with __meminit on functions that were changed when the memory
+> hotplug code was introduced.  
 
-> On Sat, 07 Jan 2006, Matthew Wilcox wrote:
-> 
-> > On Sat, Jan 07, 2006 at 12:09:35AM +0100, Adrian Bunk wrote:
-> > > Due to the change of SCSI_QLA2XXX to a user-visible option that builds 
-> > > the driver, this means that suddenly after upgrading the kernel and 
-> > > running "make oldconfig" a SCSI driver gets built the user never 
-> > > selected.
-> > > 
-> > > Do you have any suggestions for a new name?
-> > > We could e.g. name it SCSI_QLAXXXX since the driver also supports 
-> > > 6312/6322, or name it simply SCSI_QLA.
-> > 
-> > SCSI_QLOGIC_FC?  Or does this driver handle SAS too?
-> 
-> There will be (shortly, I hope) an iSCSI driver for QLogic's qla4xxx
-> boards submitted for review...
-> 
-> Here's a composite patch with Adrian's original additions and
-> help-text with the new Kconfig variable SCSI_QLA_FC.
+Ack.  Looks good.  There was a time when people didn't want __YYYYinit,
+but we might as well use one while they're proliferating.
 
-Sorry, my proficiency in Kconfig is... weak to say the least...
+-- Dave
 
-Here's one that should work...
-
----
-
-diff --git a/drivers/scsi/Makefile b/drivers/scsi/Makefile
-index f062ea0..b9d2bb8 100644
---- a/drivers/scsi/Makefile
-+++ b/drivers/scsi/Makefile
-@@ -80,7 +80,7 @@ obj-$(CONFIG_SCSI_QLOGIC_FAS)	+= qlogicf
- obj-$(CONFIG_PCMCIA_QLOGIC)	+= qlogicfas408.o
- obj-$(CONFIG_SCSI_QLOGIC_FC)	+= qlogicfc.o 
- obj-$(CONFIG_SCSI_QLOGIC_1280)	+= qla1280.o 
--obj-$(CONFIG_SCSI_QLA2XXX)	+= qla2xxx/
-+obj-$(CONFIG_SCSI_QLA_FC)	+= qla2xxx/
- obj-$(CONFIG_SCSI_LPFC)		+= lpfc/
- obj-$(CONFIG_SCSI_PAS16)	+= pas16.o
- obj-$(CONFIG_SCSI_SEAGATE)	+= seagate.o
-diff --git a/drivers/scsi/qla2xxx/Kconfig b/drivers/scsi/qla2xxx/Kconfig
-index 5205c4e..02cc794 100644
---- a/drivers/scsi/qla2xxx/Kconfig
-+++ b/drivers/scsi/qla2xxx/Kconfig
-@@ -1,4 +1,4 @@
--config SCSI_QLA2XXX
-+config SCSI_QLA_FC
- 	tristate "QLogic QLA2XXX Fibre Channel Support"
- 	depends on PCI && SCSI
- 	select SCSI_FC_ATTRS
-@@ -28,43 +28,47 @@ config SCSI_QLA2XXX
- 
- config SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	bool "  Use firmware-loader modules (DEPRECATED)"
--	depends on SCSI_QLA2XXX
-+	depends on SCSI_QLA_FC
-+	help
-+	  This option offers you the deprecated firmware-loader
-+	  modules that have been obsoleted by the usage of the
-+	  Firmware Loader interface in the qla2xxx driver.
- 
- config SCSI_QLA21XX
- 	tristate "  Build QLogic ISP2100 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 21xx (ISP2100) host adapter family.
- 
- config SCSI_QLA22XX
- 	tristate "  Build QLogic ISP2200 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 22xx (ISP2200) host adapter family.
- 
- config SCSI_QLA2300
- 	tristate "  Build QLogic ISP2300 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 2300 (ISP2300 and ISP2312) host
- 	adapter family.
- 
- config SCSI_QLA2322
- 	tristate "  Build QLogic ISP2322 firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 2322 (ISP2322) host adapter family.
- 
- config SCSI_QLA6312
- 	tristate "  Build QLogic ISP63xx firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 63xx (ISP6312 and ISP6322) host
- 	adapter family.
- 
- config SCSI_QLA24XX
- 	tristate "  Build QLogic ISP24xx firmware-module"
--	depends on SCSI_QLA2XXX_EMBEDDED_FIRMWARE
-+	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 24xx (ISP2422 and ISP2432) host
- 	adapter family.
-diff --git a/drivers/scsi/qla2xxx/Makefile b/drivers/scsi/qla2xxx/Makefile
-index 40c0de1..d028bc5 100644
---- a/drivers/scsi/qla2xxx/Makefile
-+++ b/drivers/scsi/qla2xxx/Makefile
-@@ -3,7 +3,7 @@ EXTRA_CFLAGS += -DUNIQUE_FW_NAME
- qla2xxx-y := qla_os.o qla_init.o qla_mbx.o qla_iocb.o qla_isr.o qla_gs.o \
- 		qla_dbg.o qla_sup.o qla_rscn.o qla_attr.o
- 
--obj-$(CONFIG_SCSI_QLA2XXX) += qla2xxx.o
-+obj-$(CONFIG_SCSI_QLA_FC) += qla2xxx.o
- 
- qla2100-y := ql2100.o ql2100_fw.o
- qla2200-y := ql2200.o ql2200_fw.o

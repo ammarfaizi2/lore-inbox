@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWAIBUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWAIBU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751506AbWAIBUy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 20:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWAIBUy
+	id S1751502AbWAIBU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 20:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWAIBU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 20:20:54 -0500
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:2481 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S1751501AbWAIBUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 20:20:53 -0500
+	Sun, 8 Jan 2006 20:20:58 -0500
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:10745 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S1751502AbWAIBU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 20:20:56 -0500
 From: Junio C Hamano <junkio@cox.net>
 To: git@vger.kernel.org
-Subject: [ANNOUCNE] GIT 1.1.0
+Subject: [ANNOUNCE] GIT 1.0.8
 cc: linux-kernel@vger.kernel.org
-Date: Sun, 08 Jan 2006 17:20:49 -0800
-Message-ID: <7v4q4eurgu.fsf@assigned-by-dhcp.cox.net>
+Date: Sun, 08 Jan 2006 17:20:53 -0800
+Message-ID: <7vy81qtcwa.fsf@assigned-by-dhcp.cox.net>
 User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest feature release GIT 1.1.0 is available at the usual places:
+The latest maintenance release GIT 1.0.8 is available at the usual places:
 
 	http://www.kernel.org/pub/software/scm/git/
 
-	git-1.1.0.tar.{gz,bz2}			(tarball)
-	RPMS/$arch/git-*-1.1.0-1.$arch.rpm	(RPM)
+	git-1.0.8.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.0.8-1.$arch.rpm	(RPM)
 
-This contains all the fixes present in 1.0.8, with the following
-enhancements:
+This is mostly "small fixes" release.
 
- - "git clone -o $name" can name a branch other than "origin" to
-   be used to keep track of upstream (Johannes).
+Changes since v1.0.7 are as follows:
 
- - Easier shared repository setup (Johannes).
+Joe English:
+      Substitute "/" with $opt_s in tag names as well as branch names
 
- - "git describe" command (Linus).
+Junio C Hamano:
+      unpack-objects: default to quiet if stderr is not a tty.
+      Retire debian/ directory.
+      prune: do not show error from pack-redundant when no packs are found.
+      Compilation: zero-length array declaration.
+      tar-tree: finish honoring extractor's umask in git-tar-tree.
+      revert/cherry-pick: handle single quote in author name.
+      mailsplit: allow empty input from stdin
+      GIT 1.0.8
 
- - "git --version" from an interim snapshot gives a more
-   descriptive version name than "1.0-GIT" (Linus).
+Yann Dirson:
+      Teach cvsexportcommit to add new files
+      Fix typo in debug stanza of t2001
+      Fix git-format-patch usage string wrt output modes.
 
- - "git whatchanged" shows abbreviated object names by default.
-
- - "git checkout -- paths" and "git checkout treeish paths" use
-   cwd relative pathname and work from a subdirectory.
-
- - "git checkout [-b newbranch] branch" works from a
-   subdirectory and works on the entire tree.
-
- - "git ls-tree" shows cwd relative pathnames by default; full
-   pathnames can be obtained with --full-name, just like "git
-   ls-files" (Linus and me).
-
- - "git send-pack" and "git push" notice when the remote end
-   refuses to update a ref (e.g. hooks/update) and exits with an
-   error.  This hopefully would help Cogito as well.
-
- - "git fetch" and "git pull" automatically follows remote tags
-   while tracking branches.
-
- - "git ls-files --others" can be used with "--directory" option
-   to omit the contents of directories without any tracked file
-   but instead to show the directories themselves (Linus).  "git
-   status" uses this to unclutter "Untracked files" section.
-
- - Optimized "git pack-redundant" (Lukas).
-
- - "git daemon --base-path=/pub/git" can reroot the directory
-   tree exposed to the outside world, similar to DOCUMENT_ROOT
-   (Pasky).
-
- - "git cherry" can be told not to show everything we have (Yann
-   Dirson).
-
- - git URL can use [IPv6address/IPvFuture] literal addresses
-   (Hideaki).
 

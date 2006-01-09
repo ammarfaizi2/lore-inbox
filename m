@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWAIIxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWAIIy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWAIIxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 03:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWAIIxQ
+	id S1751046AbWAIIy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 03:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWAIIy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 03:53:16 -0500
-Received: from hummeroutlaws.com ([12.161.0.3]:15888 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S1750955AbWAIIxQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 03:53:16 -0500
-Date: Mon, 9 Jan 2006 03:53:00 -0500
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: Boxer Gnome <aiko.sex@gmail.com>
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Message-ID: <20060109085300.GU11085@mail>
-Mail-Followup-To: Boxer Gnome <aiko.sex@gmail.com>,
-	andersen@codepoet.org, linux-kernel@vger.kernel.org
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <20060109080632.GA27915@codepoet.org> <174467f50601090021v53b33e31u@mail.gmail.com>
-MIME-Version: 1.0
+	Mon, 9 Jan 2006 03:54:59 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44816 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751046AbWAIIy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 03:54:59 -0500
+Date: Mon, 9 Jan 2006 08:54:52 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Antonio Vargas <windenntw@gmail.com>
+Cc: Meelis Roos <mroos@linux.ee>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+Message-ID: <20060109085452.GA9189@flint.arm.linux.org.uk>
+Mail-Followup-To: Antonio Vargas <windenntw@gmail.com>,
+	Meelis Roos <mroos@linux.ee>, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <Pine.SOC.4.61.0512221231430.6200@math.ut.ee> <20051222130744.GA31339@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512231117560.25532@math.ut.ee> <20051223093343.GA22506@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512231204290.8311@math.ut.ee> <20051223104146.GB22506@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512271553480.7835@math.ut.ee> <20051228195509.GA12307@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512291011320.28176@math.ut.ee> <69304d110601081524v37b15ff2tfed8341eaffbe07@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <174467f50601090021v53b33e31u@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <69304d110601081524v37b15ff2tfed8341eaffbe07@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/09/06 04:21:49PM +0800, Boxer Gnome wrote:
-> 2006/1/9, Erik Andersen <andersen@codepoet.org>:
-> > On Mon Jan 09, 2006 at 03:54:24PM +0800, Boxer Gnome wrote:
-> > > and the dos ntfs driver was not released by the MS offical.So,what' wrong?
-> > >
-> > > Somebody who can explain this ?
+On Mon, Jan 09, 2006 at 12:24:52AM +0100, Antonio Vargas wrote:
+> On 12/29/05, Meelis Roos <mroos@linux.ee> wrote:
+> > > Can I assume that the bug has disappeared?  Does the patch make it
+> > > disappear?
 > >
-> > Sure, thats easy.  You havn't paid Anton and Richard to quit
-> > their jobs to work full time on finishing full linux ntfs
-> > support.  It is really quite amazing how many "linux can't do foo"
-> > type problems could be quickly solved by sending large amounts of
-> > money to the right people.
-> >
-> >  -Erik
+> > Yes, seems so.
 > >
 > > --
-> > Erik B. Andersen             http://codepoet-consulting.com/
-> > --This message was written using 73% post-consumer electrons--
-> >
-> But the dos' ntfs drive was free software,no ne need pay.
+> > Meelis Roos (mroos@linux.ee)
+> 
+> Please notice official linus 2.6.15 tree doesn't have this fix... I've
+> just installed a virtual machine (qemu-system-i386 with linus 2.6.15 +
+> plain debian 3r0, console output to xterm via emulated serial console)
+> and trying to use any curses program (top for example) produces
+> exactly this type of error.
 
-Only the read-only version is monetarily free.
+That's because the patch just adds debugging seems to be sufficient to
+cause the bug to disappear.  It isn't a fix.
 
-> I see, the ntfs' spec is not so hard to know.I always think it hard to
-> be supported before, for the ntfs' spec belongs to MS.
+The only explaination I have at the moment is that it changes the timing
+- maybe there's a bug in these UARTs... I don't know at the moment.
+What I do know is that Alan's original premise seems wrong.
 
-Do you mean NTFSDOS from SysInternals? If so, look at it again and you'll
-see that it uses the NTFS.sys and NTOSKRNL.exe files from an NT
-installation. They worked around the need to understand the filesystem by
-just writing a wrapper for the NTFS driver that MS released. And if you
-care to trust that sort of wrapper take a look at CaptiveNTFS and you'll
-see the exact same thing for Linux, except you don't have to pay for write
-support with CaptiveNTFS. You just have to pray that it works right.
-
-Jim.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

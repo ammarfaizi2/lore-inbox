@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWAIJQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWAIJTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWAIJQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 04:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWAIJQP
+	id S1751133AbWAIJTI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 04:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWAIJTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 04:16:15 -0500
-Received: from fms.tor.istop.com ([66.11.182.43]:28885 "EHLO
-	resurrection.fullmotions.com") by vger.kernel.org with ESMTP
-	id S1751119AbWAIJQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 04:16:15 -0500
-Subject: Sluggish typing
-From: Danny Brow <dan@fullmotions.com>
-To: Kernel-List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 04:18:57 -0500
-Message-Id: <1136798337.30826.9.camel@localhost>
+	Mon, 9 Jan 2006 04:19:08 -0500
+Received: from jack.kinetikon.it ([62.152.125.81]:35730 "EHLO
+	mail.towertech.it") by vger.kernel.org with ESMTP id S1751133AbWAIJTI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 04:19:08 -0500
+Date: Mon, 9 Jan 2006 10:14:31 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/8] RTC subsystem, dev interface
+Message-ID: <20060109101431.16105996@inspiron>
+In-Reply-To: <200601090139.29556.dtor_core@ameritech.net>
+References: <20060108231235.153748000@linux>
+	<200601082150.22213.dtor_core@ameritech.net>
+	<20060109041206.6115bafb@inspiron>
+	<200601090139.29556.dtor_core@ameritech.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 Dropline GNOME 
-Content-Transfer-Encoding: 7bit
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
-X-yoursite-MailScanner-From: dan@fullmotions.com
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After trying numerous kernel versions I've had very sluggish typing in
-the console since 2.6.13-rcX (can't remember when it started). But I
-have to hit a key twice, cursor up or down does not show history, some
-times it does nothing, other times it acts like I hit tab-tab. I'm
-running 2.6.15 on 4 system, 2.6.15-rc2 on my laptop and they all have
-this problem. I have 2 servers right now with the same problem, I think
-they are 2.6.14.2. All custom configs. All the systems are intel
-p4/pd/centrino, various chipsets, i845, i875p, i925. Is their a patch or
-work around for this problem. I have spoke with a few other people with
-the same problem.
+On Mon, 9 Jan 2006 01:39:29 -0500
+Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
-Also sometimes it stops and all is fine for about 10 seconds, irq
-polling issue?
+> >  What the code implements is actually an interface, so this should
+> >  be the riht place. It is also fully optional, everything could work
+> >  without it. Probably the interface implementation hasn't all the primitives
+> >  to handle this kind of work, but I'm not willing to go into that right now ;)
+> > 
+> 
+> Yes, it is an interface. What I am trying to say - is it a main interface?
+> What is the preferred, most efficient way to interface with RTC? If it is
+> through this interface it may make sence to fold it into the core. Otherwise
+> do what input layer does and have interface create another class device which
+> reprsesents your /dev node.
 
-Please help,
-TIA,
-Dan.
+ I think it depends on what you want to do. On desktop systems is certainly
+ the dev interface, on some embedded you may want to go via sysfs.
 
-ps. please cc as I'm not subscribed to the list.
+ I would keep it that way until the system can react on a change of
+ the dev attribute.
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
 

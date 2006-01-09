@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWAIXZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751606AbWAIXel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbWAIXZz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 18:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWAIXZy
+	id S1751606AbWAIXel (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 18:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbWAIXel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 18:25:54 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:23699 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1750965AbWAIXZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 18:25:53 -0500
-Date: Mon, 9 Jan 2006 15:21:21 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: John Rigg <ad@sound-man.co.uk>
-cc: =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>,
-       Hannu Savolainen <hannu@opensound.com>, Jaroslav Kysela <perex@suse.cz>,
-       Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
-       ALSA development <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-In-Reply-To: <20060109232043.GA5013@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0601091515570.4005@qynat.qvtvafvgr.pbz>
-References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de>
- <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi> <200601091812.55943.rene@exactcode.de>
- <Pine.LNX.4.62.0601091355541.4005@qynat.qvtvafvgr.pbz>
- <20060109232043.GA5013@localhost.localdomain>
+	Mon, 9 Jan 2006 18:34:41 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:48275 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751320AbWAIXek convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 18:34:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fakAguRs4pwGHboUA4pikf/Let0YSnSwKeyNH2f6CpaaKT8/v0QM4juIHKerqZSYN0pZ5iFdG60eESY8iUny6OSLxN4s6lAfl71xeQjBYYYJcPXYqasAgeCOK1e2ZsK2jZtG3EmSJDhvnf1GfTnv/68a6+2Gur/d9yYKlmVOdy0=
+Message-ID: <46a038f90601091534s7f4b36a5he05778f1ed82f34@mail.gmail.com>
+Date: Tue, 10 Jan 2006 12:34:39 +1300
+From: Martin Langhoff <martin.langhoff@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: git pull on Linux/ACPI release tree
+Cc: Luben Tuikov <ltuikov@yahoo.com>, "Brown, Len" <len.brown@intel.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Junio C Hamano <junkio@cox.net>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0601091502200.5588@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com>
+	 <Pine.LNX.4.64.0601091502200.5588@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jan 2006, John Rigg wrote:
+On 1/10/06, Linus Torvalds <torvalds@osdl.org> wrote:
+> Using many branches in the same tree is
+> definitely the better approach for _distribution_, but that doesn't
+> necessarily mean that it's the better one for development.
+(...)
+> So git certainly supports that kind of behaviour, but nobody I know
+> actually does it that way
 
-> On Mon, Jan 09, 2006 at 01:58:00PM -0800, David Lang wrote:
->> On Mon, 9 Jan 2006, René Rebe wrote:
->>>>>
->>>>> Also, when the data is already available as single streams in a
->>>>> user-space
->>>>> multi track application, why should it be forced interleaved, when the
->>>>> hardware
->>>>> could handle the format just fine?
->>>> Because the conversion doesn't cost anything. Trying to avoid it by
->>>> making the API more complicated (I would even say confusing) is extreme
->>>> overkill.
->>>
->>> Since when doesn't cost convesion anything? I'm able to count a lot of
->>> wasted
->>> CPU cycles in there ...
->>
->> if the data needed to be accessed by the CPU anyway it's free becouse
->> otherwise the CPU would stall waiting for the next chunk of memory. you
->> can do quite a bit of work on data in cache while you are waiting for the
->> next cache line to load.
->>
->> in this same way, checksumming a network packet is free if the CPU needs
->> to copy the data anway, it only costs something if the data could bypass
->> the CPU.
->
-> Yes, but the CPU has plenty of other work to do. The sound cards that
-> would be worst affected by this are the big RME cards (non-interleaved) and
-> multiple ice1712 cards (non-interleaved blocks of interleaved data),
-> which AFAIK are the only cards capable of handling serious professional audio.
-> This could represent 48 or more channels of 96kHz audio, which
-> doesn't leave a lot of spare CPU capacity for running X, for example.
+Hrm! We do. http://locke.catalyst.net.nz/gitweb?p=moodle.git;a=heads
+shows a lot of heads that share 99% of the code. The repo is ~90MB --
+and we check each head out with cogito, develop and push. It is a
+shared team repo, using git+ssh and sticky gid and umask 002.
 
-does the CPU touch the data for these, or do you DMA directly from 
-userspace (i.e. "zero-copy")?
+Works pretty well I have to add. The only odd thing is that the
+fastest way to actually start working on a new branch is to ssh on to
+the server and cp moodle.git/refs/heads/{foo,bar} and then cg-clone
+that bar branch away. Perhaps I should code up an 'cg-branch-add
+--in-server' patch.
 
-if the cpu touches this data on it's way in and out of the system then you 
-are going to have a time period where you are maxing out the memory bus of 
-your CPU (this may be a short time, but since the bus is either active or 
-not there will be a time when it's active transfering audio data :-). 
-while the memory bus is busy transfering the audio data your cpu can only 
-work on data that's in the cache.
+regards,
 
-remember that as you keep reading the data from memory it will push other 
-stuff out of your cache.
 
-what magic do you pull to have the CPU busy on other things while the 
-cache (and memory bus) is being occupied by the audio data transfers?
-
-David Lang
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
-
+martin

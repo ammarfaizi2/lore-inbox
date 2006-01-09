@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWAIRl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWAIRqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWAIRl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWAIRl4
+	id S1030208AbWAIRqF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWAIRqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:41:56 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:45281 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030210AbWAIRlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:41:53 -0500
-From: Russ Anderson <rja@efs.americas.sgi.com>
-Message-Id: <200601091741.k09Hf4gI477712@efs.americas.sgi.com>
-Subject: Re: [PATCH v2:3/3]Export cpu topology by sysfs
-To: yanmin.zhang@intel.com (Zhang, Yanmin)
-Date: Mon, 9 Jan 2006 11:41:03 -0600 (CST)
-Cc: ntl@pobox.com (Nathan Lynch), ymzhang@unix-os.sc.intel.com (Yanmin Zhang),
-       greg@kroah.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, suresh.b.siddha@intel.com (Siddha Suresh B),
-       rajesh.shah@intel.com (Shah Rajesh),
-       venkatesh.pallipadi@intel.com (Pallipadi Venkatesh)
-In-Reply-To: <8126E4F969BA254AB43EA03C59F44E840469321C@pdsmsx404> from "Zhang, Yanmin" at Jan 09, 2006 02:35:36 PM
-X-Mailer: ELM [version 2.5 PL2]
+	Mon, 9 Jan 2006 12:46:05 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:27828 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1030208AbWAIRqE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 12:46:04 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 18:45:50 +0100
+User-Agent: KMail/1.8
+Cc: Lee Revell <rlrevell@joe-job.com>, Bernd Petrovitsch <bernd@firmix.at>,
+       Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <5t06S-7nB-15@gated-at.bofh.it> <200601091753.36485.oliver@neukum.org> <1136827900.6659.66.camel@localhost.localdomain>
+In-Reply-To: <1136827900.6659.66.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601091845.50458.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhang, Yanmin wrote:
+Am Montag, 9. Januar 2006 18:31 schrieb Alan Cox:
+> On Llu, 2006-01-09 at 17:53 +0100, Oliver Neukum wrote:
+> > Does the Windows Explorer draw icons based only on name and metadata?
 > 
-> >>In practice does the division of bits between core and thread in the
-> >>apic id differ between cpus in the same system?
->
-> 2) On ia64, ia64 manual says that cpu physical id/core id/thread id are got by pal call. It doesn't mention how to divide apic id to get physical id/core id/thread id.
+> Sort of. It also plays tricks on the human by working out what icons are
+> visible and loading those first then filling in while the user thinks it
+> is ready
 
-The socket_id, core_id, and thread_id are part of cpuinfo_ia64.
-They are set up in arch/ia64/kernel/smpboot.c: identify_siblings()
+That's lazy evaluation. Actually quite clever.
 
-You cannot make assumptions about "the division of bits", but must rely on
-the values returned by pal.
-
-
--- 
-Russ Anderson, OS RAS/Partitioning Project Lead  
-SGI - Silicon Graphics Inc          rja@sgi.com
+	Regards
+		Oliver

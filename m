@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932842AbWAIG3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932850AbWAIG3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932842AbWAIG3G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 01:29:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWAIG3G
+	id S932850AbWAIG3h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 01:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932849AbWAIG3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 01:29:06 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:60098 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932842AbWAIG3B convert rfc822-to-8bit
+	Mon, 9 Jan 2006 01:29:37 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:55187 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932850AbWAIG3g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 01:29:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=f6gYuy6CgqPgphuSer/upHutNuWseHez3QfDwKVuMZivYrQMoMeKLno0fIb+ihjVgUFcNMuHzyW4u7y4RMTMVNA9gSlOcrHeP+o803S+/5VX2H6yGiX3oOV/N3gUJFBp3e7MP7ebjTSdRa8cXUFlmnZWR72lZaPVpJjD2yras78=
-Message-ID: <f0309ff0601082229u3fc5e415m12be9dc921f4a099@mail.gmail.com>
-Date: Sun, 8 Jan 2006 22:29:00 -0800
-From: Nauman Tahir <nauman.tahir@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: X86_64 and X86_32 bit performance difference [Revisited]
-Cc: kernelnewbies@nl.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 9 Jan 2006 01:29:36 -0500
+Date: Mon, 9 Jan 2006 06:29:35 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Segin <segin2005@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Minix 3 filesystem support
+Message-ID: <20060109062935.GH27946@ftp.linux.org.uk>
+References: <43C1CE74.4000302@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <43C1CE74.4000302@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All
-I have posted this problem before. Now mailing again after testing as
-recommeded in previous replys.
-My configuration is:
+On Sun, Jan 08, 2006 at 09:46:12PM -0500, Segin wrote:
+> The attached email contains diffs for making the Minix version 3 
+> filesystem work with Linux.
+> 
+> Please note that I do not subscribe to the mailing list.
+> 
+> Also, please send all replies about this patch which would normally be 
+> emailed to me to the newsgroup comp.os.minix. I did not write this 
+> patch, I am just making it available to the Linux kernel mailing list.
 
-Hardware:
-HP Proliant DL145 (2 x AMD Optaron 144)
-14 GB RAM
+If/when author decides that patch is ready for review and asks for
+comments, he will be perfectly able to post the thing himself.
+As it is, you've just posted something that might be a beginning
+of such patch; WTF are we supposed to do with it?  Dump unsolicited
+comments on its author?  Bypass him completely and use that chunk
+to implement the entire thing?  Oh, wait - take discussion of
+Linux kernel internals to comp.os.minix.  _That's_ the ticket.
 
-OS:
-FC 4
+If the patch author has any questions, he's more than welcome here, on
+fsdevel or any appropriate newsgroup or IRC channel.
 
-Kernel
-2.6.xx
-
-As suggested by some friend, I compiled same kermel with maximum
-possible common configuration options both on 32 and 64 bit. Tested my
-deriver and got the same result.
-Let me explain in detail whats going on.
-I have a block device driver which uses my RAMDISK for caching the
-data for some Target disk.
-I have implemented two simple caching policies in it. I am running
-IOTEST to see the IO rate of my driver. My RAMDISK differs for 32 and
-64 bit versions. 32 bit version uses kmap family to read/write data
-to/from memory while 64 bit version uses __va function call to get the
-virtual address directly to avoid ioremap which sleeps and slows down
-the IO rate considerably.RAMDISK individually gives very high IO rate
-with IOTEST but perormance with my driver gets about one fourth. This
-only happens when I run the whole thing on X86_64 bit compiled kernel.
-Things works well on 32 bit version. Driver for both versions is same.
-I can also not figure out what kernel configuration option is making
-the difference if there is any.
-
-My code does not seems to have portablility issues. Like calculations
-are based on unsigned long. There are few threads involved based on
-kernel_thread as used in MD driver.
-
-Any ideas whats is the cause of performance difference? what areas to
-look for ??
-
-Nauman
+This is not a slashdot.  Posting an equivalent of "k3wl l1nk" will earn
+you nothing but a swift kick in the place where your head is, quite
+possibly followed by more elaborate treatment from patch author who has
+every right to be thoroughly pissed off at you.

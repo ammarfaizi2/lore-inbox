@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWAIMsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWAINAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWAIMsq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 07:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWAIMsq
+	id S1751263AbWAINAq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWAINAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 07:48:46 -0500
-Received: from main.gmane.org ([80.91.229.2]:63884 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932261AbWAIMsp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 07:48:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 9 Jan 2006 08:00:46 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:56083 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751263AbWAINAp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 08:00:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JPS7Tvw979W+gkZh9+mpXukvIWgOMoBj4zdeaov9HyCc6ZjGjFaUtrwd6N0SteM7WvP7mdf0ZHsPKVkR7gfC5L8IOrmu8JLItxI3HekQWGdOc4BwccxHSOrDqBmAYBgfcMfX2HvhpPVB83xoaYHh78meo8YntoxONbqkcgLY1u0=
+Message-ID: <9c2327970601090500i78fec178mb197c0fa5732e4a4@mail.gmail.com>
+Date: Mon, 9 Jan 2006 11:00:45 -0200
+From: Weber Ress <ress.weber@gmail.com>
 To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: [PATCH] It's UTF-8
-Date: Mon, 09 Jan 2006 21:48:25 +0900
-Message-ID: <dptm2p$56k$1@sea.gmane.org>
-References: <20060108203851.GA5864@mipter.zuzino.mipt.ru> <Pine.LNX.4.61.0601082245090.17804@yvahk01.tjqt.qr>
-Mime-Version: 1.0
+Subject: Kernel Education
+MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060103)
-X-Accept-Language: en-us, en
-In-Reply-To: <Pine.LNX.4.61.0601082245090.17804@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.93.0.0
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> 
-> 
-> I'd say ACK. However,
-> 
-> 
->>iocharset=name	Character set to use for converting from Unicode to
->>		ASCII.  The default is to do no conversion.  Use
->>-		iocharset=utf8 for UTF8 translations.  This requires
->>+		iocharset=utf8 for UTF-8 translations.  This requires
->>		CONFIG_NLS_UTF8 to be set in the kernel .config file.
-> 
-> 
-> If you are really nitpicky about the "-", then it should also be 
-> "iocharset=utf-8" (and whereever else). Or what's the real purpose of 
-> adding the dashes in only half of the places, then?
+Hi guys,
 
-glibc was the starter, AFAIR. So both utf8 and UTF-8 are generally accepted, but utf-8 is not that
-wide spread.
+I´m starting a social project to teach kernel development for young
+students, with objetive of include these people in job market.
 
-Kalin.
+These studentes don´t have great skills in mathematical and computer
+science areas, but have great interest in development area. Some
+studentes have a little basic C language skills.
 
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+Which are the first steps that I need in this project ?
+Which´s the "more simple" kernel version to teach (2.2 ? 2.4 ? 2.6 ?).
 
+I accept any suggestions.
+
+Best Regards !

@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWAIPEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWAIPGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWAIPEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWAIPEZ
+	id S932330AbWAIPGh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 10:06:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWAIPGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:04:25 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:18860 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S964787AbWAIPEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:04:25 -0500
-Date: Mon, 09 Jan 2006 10:04:17 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 64 bit kernel
-In-reply-to: <001c01c61520$2cbba6b0$6d0ea8c0@LoJackOne.LoJack.com>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizon.net
-Message-id: <200601091004.17918.gene.heskett@verizon.net>
-Organization: Absolutely none - usually detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1136780835.6695.37.camel@falklands.home.pc>
- <001c01c61520$2cbba6b0$6d0ea8c0@LoJackOne.LoJack.com>
-User-Agent: KMail/1.7
+	Mon, 9 Jan 2006 10:06:36 -0500
+Received: from ns2.suse.de ([195.135.220.15]:2517 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932330AbWAIPGg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 10:06:36 -0500
+From: Andi Kleen <ak@suse.de>
+To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+Subject: Re: [PATCH] i386/x86-64: Removes 'enable_timer_pin_1' command-line option.
+Date: Mon, 9 Jan 2006 16:03:13 +0100
+User-Agent: KMail/1.8.2
+Cc: akpm <akpm@osdl.org>, 76306.1226@compuserve.com, petero2@telia.com,
+       lkml <linux-kernel@vger.kernel.org>
+References: <20060109113953.2ebb56e3.lcapitulino@mandriva.com.br>
+In-Reply-To: <20060109113953.2ebb56e3.lcapitulino@mandriva.com.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601091603.14050.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 January 2006 08:25, Mike McCarthy, W1NR wrote:
->I saw a similar issue many years ago that turned out to be a chipset
-> bug. This was a PII system that used 16 bit wide modules.  When using
-> only one module, the chipset "fooled" the OS into thinking that it
-> was doing 32 bit wide operations.  However, it failed at full speed. 
-> Reducing the memory bus speed or installing modules in pairs "fixed"
-> the problem.  I suspect a bus or memory controller issue rather than
-> the kernel.
->
->The failure mode was exactly as you describe.  It manifested itself as
-> disk errors or DMA failures.  Unfortunately the chipset vendor
-> determined that it was a silicon bug and said that they would NOT fix
-> it!
->
-And that sucks the big one, Mike.  Will you share that vendors name so 
-we can bypass them in future purchase thinking?
+On Monday 09 January 2006 14:39, Luiz Fernando Capitulino wrote:
+>  Hi,
+> 
+>  Commit 66759a01adbfe8828dd063e32cf5ed3f46696181 added two new command-line
+> options, IIUC:
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Better keep it for now in case we change the defaults again.
+
+-Andi

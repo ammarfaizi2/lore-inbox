@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWAIPg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWAIPgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWAIPg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWAIPg3
+	id S964796AbWAIPgn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 10:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWAIPgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:36:29 -0500
-Received: from ns2.suse.de ([195.135.220.15]:1752 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751199AbWAIPg2 (ORCPT
+	Mon, 9 Jan 2006 10:36:43 -0500
+Received: from xenotime.net ([66.160.160.81]:28584 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964796AbWAIPgl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:36:28 -0500
-From: Andi Kleen <ak@suse.de>
-To: Matt Tolentino <metolent@cs.vt.edu>
-Subject: Re: [patch 2/2] add x86-64 support for memory hot-add
-Date: Mon, 9 Jan 2006 16:36:20 +0100
-User-Agent: KMail/1.8.2
-Cc: akpm@osdl.org, discuss@x86-64.org, kmannth@us.ibm.com,
+	Mon, 9 Jan 2006 10:36:41 -0500
+Date: Mon, 9 Jan 2006 07:36:37 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Yaroslav Rastrigin <yarick@it-territory.ru>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
        linux-kernel@vger.kernel.org
-References: <200601091521.k09FLU1t022321@ap1.cs.vt.edu>
-In-Reply-To: <200601091521.k09FLU1t022321@ap1.cs.vt.edu>
+Subject: Re: [OT?] Re: Why the DOS has many ntfs read and write driver,but
+ the linux can't for a long time
+In-Reply-To: <1136819703.9957.10.camel@mindpipe>
+Message-ID: <Pine.LNX.4.58.0601090735520.15949@shark.he.net>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> 
+ <200601091403.46304.yarick@it-territory.ru>  <1136814862.9957.5.camel@mindpipe>
+  <200601091751.27405.yarick@it-territory.ru> <1136819703.9957.10.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601091636.21118.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 January 2006 16:21, Matt Tolentino wrote:
-> Add x86-64 specific memory hot-add functions, Kconfig options,
-> and runtime kernel page table update functions to make
-> hot-add usable on x86-64 machines.  Also, fixup the nefarious
-> conditional locking and exports pointed out by Andi.
+On Mon, 9 Jan 2006, Lee Revell wrote:
 
-I'm trying to stabilize my tree for the 2.6.16 submission right now
-and this one comes a bit too late and is a bit too involved
-to slip through - sorry. I will consider it after Linus
-has merged the whole batch of changes for 2.6.16 - so hopefully
-in 2.6.17.
+> On Mon, 2006-01-09 at 17:51 +0300, Yaroslav Rastrigin wrote:
+> > Hi, Lee,
+> > On 9 January 2006 16:54, you wrote:
+> > > >
+> > >
+> > > Where are the bug reports?  You didn't expect these to just fix
+> > > themselves did you?
+> > Been there, done that. Bugreport about malfunctioning (due to ACPI) 3c556 in IBM ThinkPad T20 was looked at once in a few months without any progress,
+> > and I've finally lost track of it after changing hardware. In more than a year this problem wasn't solved, so I'm assuming bugreports aren't so effective.
+> > 2200BG ping and packet loss problem was reported in ipw2200-devel mailing list recently (by another user), and the only answer was
+> > "Switch to version 1.0.0" (which is tooo old and missing needed features and bugfixes, so recommentation was unacceptable). So I'm assuming addressing
+> > developers directly is not too effective either.
+> > Two other options I see are to debug/fix it by myself and try to stimulate others monetarily. First option isn't really affordable for me ,
+> > so I'm trying to research second.
+>
+> Bug reports certainly are effective, but if no one else can reproduce
+> your problem then obviously it can't be fixed.
 
-> +/* 
-> + * Memory hotplug specific functions
-> + * These are only for non-NUMA machines right now.
+That's not a good attitude IMO.  I'd bet that Linus and Andrew have fixed
+lots of bugs that they couldn't reproduce.
 
-How much work would it be to allow it for NUMA kernels too? 
+> A bug report that gets no responses is a good sign that you need to
+> provide more information or work a little harder to debug it yourself.
 
--Andi
+-- 
+~Randy

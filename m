@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbWAIX6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWAIX7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751643AbWAIX6q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 18:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWAIX6q
+	id S1751659AbWAIX7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 18:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWAIX7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 18:58:46 -0500
-Received: from ns2.suse.de ([195.135.220.15]:6814 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751635AbWAIX6p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 18:58:45 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Labs / Novell Inc.
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Subject: Re: [patch 0/2] Tmpfs acls
-Date: Tue, 10 Jan 2006 00:59:46 +0100
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-References: <200601090023.16956.agruen@suse.de> <E1Evk3m-00043Y-00@chiark.greenend.org.uk>
-In-Reply-To: <E1Evk3m-00043Y-00@chiark.greenend.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 9 Jan 2006 18:59:24 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:45757
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751659AbWAIX7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 18:59:22 -0500
+Date: Mon, 09 Jan 2006 15:54:53 -0800 (PST)
+Message-Id: <20060109.155453.02785248.davem@davemloft.net>
+To: kaber@trash.net
+Cc: dev@openvz.org, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, dim@sw.ru, st@sw.ru,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] netlink oops fix due to incorrect error code
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43C2F6DC.7040602@trash.net>
+References: <43C27662.2030400@openvz.org>
+	<43C2F6DC.7040602@trash.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601100059.47317.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 January 2006 00:34, Matthew Garrett wrote:
-> Andreas Gruenbacher <agruen@suse.de> wrote:
-> > This is an update of the tmpfs acl patches against 2.6.15-git4. (The
-> > first version of these patches was posted on 2 February 2005.) We'll
-> > have our /dev tree on tmpfs in the future, and we need acls there to
-> > manage device inode permissions of logged-in users. Other distributions
-> > will be in exactly the same situation, and need this patchset as well.
->
-> Hmm. Do you have any infrastructure for revoking open file descriptors
-> when a user logs out?
+From: Patrick McHardy <kaber@trash.net>
+Date: Tue, 10 Jan 2006 00:50:52 +0100
 
-Open file descriptors have nothing to do with it. The device permissions are 
-set by different pam modules on different distributions (pam_console, 
-pam_resmgr).
+> Kirill Korotaev wrote:
+> > Fixed oops after failed netlink socket creation.
+> > Wrong parathenses in if() statement caused err to be 1,
+> > instead of negative value.
+> > Trivial fix, not trivial to find though.
+> > 
+> > Signed-Off-By: Dmitry Mishin <dim@sw.ru>
+> > Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+> 
+> Good catch. Dave, please apply.
 
-Without acls, permissions are assigned by changing file ownership. With acls, 
-the respective user or users can be given access as appropriate, which is 
-more flexible. There are a few cases in which it is desirable to grant access 
-to a device to more than one locally logged in user. This also obsoletes the 
-resmgr hack of passing around open file descriptors and several hacks in 
-applications that use this mechanism, because permissions can be set as 
-appropriate.
-
-Andreas
+Already in Linus's tree, he applied it directly :-)

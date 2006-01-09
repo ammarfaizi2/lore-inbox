@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWAIQEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWAIQFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWAIQEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 11:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWAIQEJ
+	id S932408AbWAIQFD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:05:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWAIQFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 11:04:09 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:15838 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932373AbWAIQEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 11:04:08 -0500
+	Mon, 9 Jan 2006 11:05:03 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:61660 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932408AbWAIQFA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 11:05:00 -0500
 Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
 	can't for a long time
-From: Lee Revell <rlrevell@joe-job.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200601091702.48955.oliver@neukum.org>
-References: <5t06S-7nB-15@gated-at.bofh.it>
-	 <200601091528.19285.oliver@neukum.org> <1136819748.9957.12.camel@mindpipe>
-	 <200601091702.48955.oliver@neukum.org>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Cc: Kasper Sandberg <lkml@metanurb.dk>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200601091656.48355.yarick@it-territory.ru>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	 <200601091403.46304.yarick@it-territory.ru>
+	 <1136813783.8412.4.camel@localhost>
+	 <200601091656.48355.yarick@it-territory.ru>
 Content-Type: text/plain
-Date: Mon, 09 Jan 2006 11:04:06 -0500
-Message-Id: <1136822646.9957.35.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
+Date: Mon, 09 Jan 2006 16:07:07 +0000
+Message-Id: <1136822827.6659.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-09 at 17:02 +0100, Oliver Neukum wrote:
-> Am Montag, 9. Januar 2006 16:15 schrieb Lee Revell:
-> > On Mon, 2006-01-09 at 15:28 +0100, Oliver Neukum wrote:
-> > > Am Montag, 9. Januar 2006 15:18 schrieb Robert Hancock:
-> > > > Yaroslav Rastrigin wrote:
-> > > > > Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
-> > > > > strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
-> > > > > Whenever it is needed by apps I'm launching or working with. 
-> > > > 
-> > > > There is no different VM policy here, Windows behaves quite similarly. 
-> > > > It does not leave memory around unused, it uses it for disk cache.
-> > > 
-> > > That doesn't mean that the rate of eviction is the same.
-> > > Is it possible that read-ahead is not aggressive enough?
-> > 
-> > Enough for what?  What is the exact problem you are trying to solve?
-> 
-> Quicker application startup.
+On Llu, 2006-01-09 at 16:56 +0300, Yaroslav Rastrigin wrote:
+> No. Fully loaded KDE session (without kdesktop and kwin, since I don't
+> use first and using my own WM instead of second).
+> So almost all necessary libraries are hot and loaded, and all what's
+> missing is a dozen of Window's and Pixmap's to allocate and two
+> threads to 
+> handle events. And it takes seconds, not tens of a second, as in
+> UltraEdit case 
 
-Why do you look to the kernel first?  The obvious explanation is that
-Linux desktop apps are more bloated than their Windows counterparts.
 
-Lee
+Currently Linux performance loading large binaries is at least
+perceptually worse than Windows (some of that is perceptual tricks
+windows apps pull, some of it real). There is an openoffice.org related
+analysis project currently under way to sort that out.
+
+A second problem is the popularity of some very inefficiently written
+desktops which badly need a good optimise, a diet and/or stuffing where
+the sun doesn't shine. The kernel can only do so much of the work and
+comparing xfce4 with gnome/kde shows that the kernel isn't the only
+party involved in this....
+
+Alan
 

@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWAIEAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWAIEDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWAIEAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 23:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWAIEAE
+	id S1751245AbWAIEDa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 23:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWAIEDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 23:00:04 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:64807 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S1751236AbWAIEAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 23:00:02 -0500
-Date: Sun, 08 Jan 2006 22:59:13 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-In-reply-to: <200601090109.06051.zippel@linux-m68k.org>
-To: Roman Zippel <zippel@linux-m68k.org>
+	Sun, 8 Jan 2006 23:03:30 -0500
+Received: from thorn.pobox.com ([208.210.124.75]:49556 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S1751245AbWAIED3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 23:03:29 -0500
+Date: Sun, 8 Jan 2006 22:03:23 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Chaitanya Hazarey <cvh.tcs@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <1136779153.1043.26.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
- <Pine.LNX.4.61.0601082158310.8860@spit.home>
- <1136756494.1043.16.camel@grayson> <200601090109.06051.zippel@linux-m68k.org>
+Subject: Re: Back to the Future ? or some thing sinister ?
+Message-ID: <20060109040322.GA2683@localhost.localdomain>
+References: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-09 at 01:09 +0100, Roman Zippel wrote:
-> Hi,
+Chaitanya Hazarey wrote:
+>
+> We have got a machine, lets say X , make is IBM and the CPU is Intel
+> Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
+> 2.6.27-4 Kernel the distribution is Debian Sagre.
 > 
-> On Sunday 08 January 2006 22:41, Ben Collins wrote:
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 15
+> model           : 2
+> model name      : Intel(R) Pentium(R) 4 CPU 2.60GHz
+> stepping        : 9
+> cpu MHz         : 2591.888
+> cache size      : 512 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+> xtpr
+> bogomips        : 5188.79
 > 
-> > That's not entirely acceptable. The reason this shows up is if an
-> > automatic build is being done, and the config files are not up-to-date,
-> > the prefered action is a build failure, not selecting defaults. The
-> > reason for my fix was that instead of filling up diskspace with a
-> > logfile of kconf's infinite loop, we just exit with an error.
-> >
-> > Currently, this is the only way to ensure that these issues don't go
-> > unnoticed.
 > 
-> Then something is wrong with your automatic build. If the config needs to be 
-> updated and stdin is redirected during a kbuild, it will already abort.
+> 
+> 
+> The problem is that, after a some time ( fuzzy , but I think like 2
+> hours ) of inactivity or because of some esoteric factor which triggers
+> a state in which the time on the machine starts going around in a loop.
+> if I do cat /proc/uptime, it goes 4  ticks ahead and again rewinds back
+> to the starting count ( not zero, but the moment in time when the event
+> was triggred. )
+> 
+> The problem seems to be specific to the 2.6 series of kernel, not the
+> 2.4 series.
+> 
+> I  would like to know how to go about the debugging of the problem, and
+> that which specific part of the kernel will be directly interacting with
+> the rtc / system clock.
 
-And what should be directed into stdin? Nothing. There should be no
-input going into an automated build, exactly because it could produce
-incorrect results.
-
-BTW, this is the automatic build that Debian and Ubuntu both use (in
-Debian's case, used for quite a number of years). So this isn't
-something I whipped up.
-
-Still, the build system shouldn't have to do anything special with stdin
-to get the desired result. The code should also not react differently
-based on stdin being closed, or being pumped with nul data.
-
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
+Look into upgrading the BIOS on that machine; I've had similar
+problems on a IBM P4 workstation that were fixed in this way.
 

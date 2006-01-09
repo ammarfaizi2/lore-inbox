@@ -1,109 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWAIUSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWAIUUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWAIUSH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWAIUSH
+	id S1751308AbWAIUUM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWAIUUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:18:07 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:15054 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751307AbWAIUSG convert rfc822-to-8bit
+	Mon, 9 Jan 2006 15:20:12 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:30875 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751308AbWAIUUK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:18:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PvxKWtW0E6w72he9QGwv0bYT+8C6DXnTFZSeCXqnDQdrjOMx4ZAlZ7ZMRvzj5AOQjG338vwchOdeoaHD0GSOAtSAOEyqlnPHcnTzwTpVwGUVqwwOSOq3eiDjWPaPA1QU1PK/UzG+W7pbR66fgHLXyudafuhQWSORkSNykUviMoM=
-Message-ID: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
-Date: Mon, 9 Jan 2006 21:18:05 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: LKML List <linux-kernel@vger.kernel.org>
-Subject: Athlon 64 X2 cpuinfo oddities
+	Mon, 9 Jan 2006 15:20:10 -0500
+Date: Mon, 9 Jan 2006 21:16:33 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: David Singleton <dsingleton@mvista.com>
+cc: dino@in.ibm.com, <robustmutexes@lists.osdl.org>,
+       <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: robust futex deadlock detection patch
+In-Reply-To: <43C2C11F.4010408@mvista.com>
+Message-ID: <Pine.LNX.4.44L0.0601092109520.18240-100000@lifa01.phys.au.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently bought a Dual Core AMD Athlon 64 X2 4400+ CPU and dropped a
-2.6.15 kernel on the box and it runs very nice, but /proc/cpuinfo
-shows a few things that seem slightly odd to me (haven't tried earlier
-kernels on this so I don't know if cpuinfo looked different
-previously).
-It may be that it's absolutely correct and not odd at all, but I
-thought I'd just ask :)
+On Mon, 9 Jan 2006, David Singleton wrote:
 
-Here's what  cat /proc/cpuinfo  shows :
+> Esben Nielsen wrote:
+>
+> >
+> >I am a little bit confused when I read check_futex_deadlock():
+> >It takes a parameter struct thread_info *ti and immediately do
+> >struct task_struct *task = ti->task. Now we have the usual pair
+> >(thread_info *ti, task_t *task) corresponding to the same process. Later
+> >on in the function you do ti = lock_owner(lock), but do not update task.
+> >Was this intented?
+> >
+> >
+>
+> Whoops.  You are right.  I've fixed the update to the task structure.
+> The check_futex_deadlock()
+> code now mirrors the existing check_deadlock() code.
+>
+> >Anyway, I can't see that you have locked the necesary raw_spin_locks.
+> >Forinstance lock_owner(lock) must be called with the lock->wait_lock taken
+> >and task->blocked_on needs task->pi_lock locked.
+> >
+> >
+>
+> Actually those locks are grabbed in the down_try_futex code.  I hold
+> both of those
+> locks across the check for deadlocks and into __down_interruptible.
+> Those locks
+> need to be held for the check for deadlocks and holding
+> them from down_try_futex to down_interruptible garuantees that a thread
+> that enters the kernel to block on a lock will block on the lock.  There
+> is no
+> window any more between dropping the robust_sem and mmap_sem
+> and calling down_interruptible.
+>
 
-juhl@dragon:~$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 35
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-stepping        : 2
-cpu MHz         : 2200.260
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 1
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext
-fxsr_opt lm 3dnowext 3dnow pni lahf_lm cmp_legacy
-bogomips        : 4403.36
+You only take the spinlocks corresponding to the current lock. What about
+the next locks in the chain? Remember those locks might not be
+futexes but a lock inside the kernel, taken in system calls. I.e. the
+robust_sem might not protect you.
+If there are n locks you need to lock n lock->wait_lock and n
+owner->task->pi_lock as you traverse the locks. That is what I tried to
+sketch in the examble below.
 
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 35
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-stepping        : 2
-cpu MHz         : 2200.260
-cache size      : 1024 KB
-physical id     : 127
-siblings        : 1
-core id         : 1
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext
-fxsr_opt lm 3dnowext 3dnow pni lahf_lm cmp_legacy
-bogomips        : 4399.53
+Esben
 
 
-So, what's odd with that?
+> This also fixed an SMP problem that Dave Carlson has been seeing on earlier
+> patches.
+>
+> The new patch is at
+>
+>     http://source.mvista.com/~dsingleton/patch-2.6.15-rt2-rf2
+>
+> David
+>
+> >To avoid deadlocks in all the deadlock detection you have to do the loop
+> >something like
+> >
+> >for(owner = current; owner; ) {
+> > raw_spin_lock(&owner->pi_lock);
+> > if(owner->task->blocked_on) {
+> >   lock = owner->task->blocked_on->lock;
+> >   raw_spin_lock(&lock->wait_lock);
+> >   owner2 = lock_owner(lock);
+> >   if(owner2) {
+> >     get_task_struct(owner2->task);
+> >     raw_spin_unlock(&lock->wait_lock)
+> >     raw_spin_unlock(&owner->pi_lock);
+> >   }
+> > put_task_struct(owner->task);
+> > owner = owner2;
+> > if(owner2==current) DEADLOCK
+> >}
+> >
+> >
+> >Esben
+> >
+> >
+> >
+> >
+> >>David
+> >>
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>Please read the FAQ at  http://www.tux.org/lkml/
+> >>
+> >>
+> >>
+> >
+> >
+> >
+> >
+> >
+>
 
-Well, first of all you'll notice that the second core shows a
-"physical id" of 127 while the first core shows an id of 0.  Shouldn't
-the second core be id 1, just like the "core id" fields are 0 & 1?
-
-Second thing I find slightly odd is the lack of "sse3" in the "flags" list.
-I was under the impression that all AMD Athlon 64 X2 CPU's featured SSE3?
-Is it a case of:
- a) Me being wrong, not all Athlon 64 X2's feature SSE3?
- b) The CPU actually featuring SSE3 but Linux not taking advantage of it?
- c) The CPU features SSE3 and it's being utilized, but /proc/cpuinfo
-doesn't show that fact?
- d) Something else?
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

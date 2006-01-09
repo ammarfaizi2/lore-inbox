@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWAIP7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWAIQCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWAIP7g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWAIP7g
+	id S932324AbWAIQCs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWAIQCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:59:36 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:15066 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751209AbWAIP7f (ORCPT
+	Mon, 9 Jan 2006 11:02:48 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:44423 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932324AbWAIQCr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:59:35 -0500
-Subject: Re: kernel BUG at drivers/ide/ide.c:1384!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0601091025480.17766@chaos.analogic.com>
-References: <20060109095159.GE4535@charite.de>
-	 <1136816352.6659.10.camel@localhost.localdomain>
-	 <20060109141958.GM2767@charite.de>
-	 <Pine.LNX.4.61.0601091025480.17766@chaos.analogic.com>
-Content-Type: text/plain
+	Mon, 9 Jan 2006 11:02:47 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 17:02:47 +0100
+User-Agent: KMail/1.8
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <5t06S-7nB-15@gated-at.bofh.it> <200601091528.19285.oliver@neukum.org> <1136819748.9957.12.camel@mindpipe>
+In-Reply-To: <1136819748.9957.12.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 09 Jan 2006 16:02:22 +0000
-Message-Id: <1136822543.6659.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200601091702.48955.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-01-09 at 10:30 -0500, linux-os (Dick Johnson) wrote:
-> He might be able to do the same thing with `cat /dev/urandom > /dev/hda`.
+Am Montag, 9. Januar 2006 16:15 schrieb Lee Revell:
+> On Mon, 2006-01-09 at 15:28 +0100, Oliver Neukum wrote:
+> > Am Montag, 9. Januar 2006 15:18 schrieb Robert Hancock:
+> > > Yaroslav Rastrigin wrote:
+> > > > Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
+> > > > strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
+> > > > Whenever it is needed by apps I'm launching or working with. 
+> > > 
+> > > There is no different VM policy here, Windows behaves quite similarly. 
+> > > It does not leave memory around unused, it uses it for disk cache.
+> > 
+> > That doesn't mean that the rate of eviction is the same.
+> > Is it possible that read-ahead is not aggressive enough?
+> 
+> Enough for what?  What is the exact problem you are trying to solve?
 
-Or by taking the lid off and painting it purple with pink spots, but
-neither are relevant to the problem at hand.
+Quicker application startup.
 
-> There are not a lot of file-system checks against bad data in file-systems.
-
-Nothing to do with the file system
-
-> The '-w' reset will guarantee bad data, which may propagate to the
-> file-system(s) in use, causing all kinds of problems. So, the OOPS under
-> these conditions is expected.
-
-No. If the locking in the drivers is correct then -w is totally boringly
-safe. But the locking isn't. Follow ups should probably go to the
-linux-ide list. 
-
-Alan
-
+	Regards
+		Oliver

@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWAIRVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWAIRXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbWAIRVu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWAIRVu
+	id S1030199AbWAIRXH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWAIRXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:21:50 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:29668 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1030197AbWAIRVt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:21:49 -0500
-Date: Mon, 9 Jan 2006 10:21:49 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ia64: including <asm/signal.h> alone causes compilation errors
-Message-ID: <20060109172149.GQ19769@parisc-linux.org>
-References: <20060109171514.GA25096@locomotive.unixthugs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060109171514.GA25096@locomotive.unixthugs.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 9 Jan 2006 12:23:07 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:36281 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030199AbWAIRXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 12:23:05 -0500
+Date: Mon, 9 Jan 2006 12:23:04 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: dtor_core@ameritech.net
+cc: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
+       <linux-kernel@vger.kernel.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       <linux-usb-devel@lists.sourceforge.net>, Greg KH <gregkh@suse.de>,
+       Leonid <nouser@lpetrov.net>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+In-Reply-To: <d120d5000601090850k42cc1c1ft6ab4e197119cacd@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0601091215070.7432-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 12:15:14PM -0500, Jeff Mahoney wrote:
-> +++ linux-2.6.15-ocfs2/include/asm-ia64/signal.h	2006-01-09 11:08:16.404700640 -0500
-> @@ -1,6 +1,8 @@
->  #ifndef _ASM_IA64_SIGNAL_H
->  #define _ASM_IA64_SIGNAL_H
->  
-> +#include <linux/types.h>
-> +
->  /*
->   * Modified 1998-2001, 2003
->   *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
-> @@ -122,8 +124,6 @@
->  
->  # ifndef __ASSEMBLY__
->  
-> -#  include <linux/types.h>
-> -
->  /* Avoid too many header ordering problems.  */
->  struct siginfo;
+On Mon, 9 Jan 2006, Dmitry Torokhov wrote:
 
-Is it still possible to include this file from assembly?  Do we still
-need to do that?
+> > It would be nice to know which part of the usb-handoff code causes the
+> > problem.
+> 
+> Well, it's not handoff code causing problems per se, it's just that it
+> does not look like it performs handoff. If it did then disabling USB
+> legacy emulation in BIOS would have no effect, right?
+
+On the other hand, if the BIOS worked correctly then the ps/2 port would
+have no problems regardless of whether USB legacy emulation was on or off.  
+Given that the keyboard works during bootup, I see only two possibilities:
+
+	The USB handoff code somehow causes the BIOS to mess up the
+	state of the 8042;
+
+	The 8042 driver interacts badly with the firmware when USB
+	legacy emulation is on, and the USB handoff code doesn't
+	successfully turn off legacy emulation.
+
+My earlier suggestion was an attempt to test the first possibility.  The 
+second is harder to test because it implies problems in both the 8042 
+driver and the USB handoff code.
+
+Alan Stern
+

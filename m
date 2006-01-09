@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWAIJoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWAIJs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWAIJoR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 04:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWAIJoQ
+	id S1751213AbWAIJs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 04:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWAIJs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 04:44:16 -0500
-Received: from silver.veritas.com ([143.127.12.111]:13355 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751214AbWAIJoP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 04:44:15 -0500
-Date: Mon, 9 Jan 2006 09:44:26 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Ryan Richter <ryan@tau.solarneutrino.net>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
-References: <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
- <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net>
- <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
- <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
- <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
- <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
- <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jan 2006 09:44:11.0525 (UTC) FILETIME=[3E8D8350:01C61501]
+	Mon, 9 Jan 2006 04:48:56 -0500
+Received: from mail.gmx.de ([213.165.64.21]:63159 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751213AbWAIJs4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 04:48:56 -0500
+X-Authenticated: #24128601
+Date: Mon, 9 Jan 2006 10:49:23 +0100
+From: Sebastian <sebastian_ml@gmx.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+Message-ID: <20060109094923.GA8373@section_eight.mops.rwth-aachen.de>
+References: <20060107115340.GW3389@suse.de> <20060107115449.GB20748@section_eight.mops.rwth-aachen.de> <20060107115947.GY3389@suse.de> <20060107140843.GA23699@section_eight.mops.rwth-aachen.de> <20060107142201.GC3389@suse.de> <20060107160622.GA25918@section_eight.mops.rwth-aachen.de> <43BFFE08.70808@wasp.net.au> <20060107180211.GA12209@section_eight.mops.rwth-aachen.de> <43C00C32.9050002@wasp.net.au> <20060109093025.GO3389@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Disposition: inline
+In-Reply-To: <20060109093025.GO3389@suse.de>
+X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006, Linus Torvalds wrote:
-> 
-> Code like that should use "set_page_dirty()", which does the appropriate 
-> callbacks to the filesystem for that page. I wonder if the bug is simply 
-> because the ST code just sets the dirty bit without telling anybody else 
-> about it...
 
-Yes, it should be using set_page_dirty_lock(), and that is already known
-about (I have patches for this and similar sg.c, but the sg.c case is
-tougher and not yet finished); but entirely irrelevant to Ryan's case.
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Quite apart from the fact that he's doing backups to tape (not dirtying
-the memory from this driver), you'll find that it even passes dirty 0
-when reading into the memory (another bug; whereas sg.c conversely says
-it's always dirtying when it isn't).  So there's no point in Ryan
-fiddling with the SetPageDirty.
+On Mo, Jan 09, 2006 at 10:30:25 +0100, Jens Axboe wrote:
+> Sebastian, care to try one more thing? Patch your kernel with this
+> little patch and try ripping a known "faulty" track again _not_ using
+> SG_IO. See if that produces the same faulty results again, or if it
+> actually works.
+>=20
+> diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+> index 1539603..2e44d81 100644
+> --- a/drivers/cdrom/cdrom.c
+> +++ b/drivers/cdrom/cdrom.c
+> @@ -426,7 +426,7 @@ int register_cdrom(struct cdrom_device_i
+>  		cdi->exit =3D cdrom_mrw_exit;
+> =20
+>  	if (cdi->disk)
+> -		cdi->cdda_method =3D CDDA_BPC_FULL;
+> +		cdi->cdda_method =3D CDDA_BPC_SINGLE;
+>  	else
+>  		cdi->cdda_method =3D CDDA_OLD;
+> =20
+>=20
+> --=20
+> Jens Axboe
+>=20
+Hi Jens,
 
-It's an intriguing problem because it's signature is so regular,
-and I've spent many hours trying to work out how it might come about,
-but unsuccessfully so far.  Your adjustment to the put_page_testzero
-BUG_ON was a good idea, but it still hasn't shone a light.  I'm
-keeping quiet until I find something useful to add.
+I applied your patch, recompiled the kernel, rebooted and recompiled
+cdparanoia without the Red Hat patches. Extracting the first track of my
+test cd the result was the same as without the kernel patch with ide-cd
+using the cooked interface (md5 e8319ccc20d053557578b9ca3eb368dd).
 
-Perhaps we just need a few more people to add sgl[i].page = NULL ;)
+Sorry :)
 
-Hugh
+Sebastian
+--=20
+"When the going gets weird, the weird turn pro." (HST)
+
+--x+6KMIRAuhnl3hBn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDwjGjTWouIrjrWo4RAisWAKCQZsG+o4CTJ/TAH+SJr+XW2wJxEACfWN3r
+xsrvolSVZIYgOC53J0b02jQ=
+=hxZp
+-----END PGP SIGNATURE-----
+
+--x+6KMIRAuhnl3hBn--
+

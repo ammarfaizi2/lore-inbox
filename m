@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWAIVix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWAIVix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWAIVix (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750757AbWAIVix (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 9 Jan 2006 16:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWAIVim
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWAIVin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 16:38:42 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:42767 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750724AbWAIVif convert rfc822-to-8bit
+	Mon, 9 Jan 2006 16:38:43 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:51727 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750737AbWAIVik convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 16:38:35 -0500
-Subject: [PATCH 04/11] kbuild: In setlocalversion change -git_dirty to just -dirty
+	Mon, 9 Jan 2006 16:38:40 -0500
+Subject: [PATCH 05/11] kbuild: ensure mrproper removes .old_version
 In-Reply-To: <20060109211157.GA14477@mars.ravnborg.org>
 X-Mailer: gregkh_patchbomb-sam
-Date: Mon, 9 Jan 2006 22:38:19 +0100
-Message-Id: <11368426991067@foobar.com>
+Date: Mon, 9 Jan 2006 22:38:24 +0100
+Message-Id: <11368427044089@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -23,34 +23,35 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ryan Anderson <ryan@michonline.com>
-Date: 1136712936 -0500
+From: Tore Anderson <tore@fud.no>
+Date: 1136644480 +0100
 
-When building Debian packages directly from the git tree, the appended
-"git_dirty" is a problem due to the underscore.  In order to cause the
-least problems, change that just to "dirty".
+If the final linking of vmlinux fails, the file .old_version are left
+behind.  This patch ensures the mrproper target will remove it if
+present.
 
-Signed-off-by: Ryan Anderson <ryan@michonline.com>
+Signed-off-by: Tore Anderson <tore@fud.no>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- scripts/setlocalversion |    2 +-
+ Makefile |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-24d49756aa67322c2def5dc97344615572ac454e
-diff --git a/scripts/setlocalversion b/scripts/setlocalversion
-index f54dac8..9a23825 100644
---- a/scripts/setlocalversion
-+++ b/scripts/setlocalversion
-@@ -17,6 +17,6 @@ if head=`git rev-parse --verify HEAD 2>/
+50aa88e2877f1375ba79d1be7a0ff4aa563741c7
+diff --git a/Makefile b/Makefile
+index 599e744..50b07fa 100644
+--- a/Makefile
++++ b/Makefile
+@@ -984,7 +984,7 @@ CLEAN_FILES +=	vmlinux System.map \
  
- 	# Are there uncommitted changes?
- 	if git diff-files | read dummy; then
--		printf '%s' -git_dirty
-+		printf '%s' -dirty
- 	fi
- fi
+ # Directories & files removed with 'make mrproper'
+ MRPROPER_DIRS  += include/config include2
+-MRPROPER_FILES += .config .config.old include/asm .version \
++MRPROPER_FILES += .config .config.old include/asm .version .old_version \
+                   include/linux/autoconf.h include/linux/version.h \
+                   Module.symvers tags TAGS cscope*
+ 
 -- 
 1.0.GIT
 

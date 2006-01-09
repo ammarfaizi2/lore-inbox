@@ -1,58 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWAISYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWAISYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWAISYg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWAISYg
+	id S964914AbWAISYM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWAISYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:24:36 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:31149 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S1030229AbWAISYf (ORCPT
+	Mon, 9 Jan 2006 13:24:12 -0500
+Received: from gold.veritas.com ([143.127.12.110]:49340 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S964914AbWAISYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:24:35 -0500
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
-Date: Mon, 9 Jan 2006 19:24:26 +0100
-User-Agent: KMail/1.7.2
-Cc: dlang@digitalinsight.com, kaber@trash.net, marcel@holtmann.org,
-       mbuesch@freenet.de, jgarzik@pobox.com, bcm43xx-dev@lists.berlios.de,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1136549423.7429.88.camel@localhost> <Pine.LNX.4.62.0601061414570.334@qynat.qvtvafvgr.pbz> <20060106.141836.41371212.davem@davemloft.net>
-In-Reply-To: <20060106.141836.41371212.davem@davemloft.net>
+	Mon, 9 Jan 2006 13:24:10 -0500
+Date: Mon, 9 Jan 2006 18:24:21 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+In-Reply-To: <9a8748490601091001y74fba5q2cd7e08a324701c3@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0601091819160.14800@goblin.wat.veritas.com>
+References: <20060107052221.61d0b600.akpm@osdl.org> 
+ <9a8748490601070708p4353eb0ev9ea15edee132b13b@mail.gmail.com> 
+ <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com> 
+ <20060109175748.GD25102@redhat.com> <9a8748490601091001y74fba5q2cd7e08a324701c3@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601091924.26575.netdev@axxeo.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jan 2006 18:24:10.0056 (UTC) FILETIME=[E2538C80:01C61549]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> From: David Lang <dlang@digitalinsight.com>
-> Date: Fri, 6 Jan 2006 14:16:17 -0800 (PST)
+On Mon, 9 Jan 2006, Jesper Juhl wrote:
+> On 1/9/06, Dave Jones <davej@redhat.com> wrote:
+> > On Mon, Jan 09, 2006 at 06:47:01PM +0100, Jesper Juhl wrote:
+> >
+> >  > Here's what bad_page printed for me :
+> >  >
+> >  > Bad page state in process 'kded'
+> >  > [<c0103e77>] dump_stack+0x17/0x20
+> >  > [<c0148999>] bad_page+0x69/0x160
+> >
+> > Odd, there should be more state between the 'Bad page'
+> > and the backtrace.
+> >
+> >     printk(KERN_EMERG "Bad page state in process '%s'\n"
+> >                 "page:%p flags:0x%0*lx mapping:%p mapcount:%d count:%d\n"
+> >                 "Trying to fix it up, but a reboot is needed\n"
+> >
+> > Did you aggressively trim that, or did it for some
+> > reason not get printed ?
+> >
 > 
-> > character devices are far easier to script. this really sounds like the 
-> > type of configuration stuff that sysfs was designed for. can we avoid yet 
-> > another configuration tool that's required?
+> I did not trim that.
 > 
-> netlink is being recommended exactly because it can result
-> in only needing one tool for everything
+> All I did was add
+> 
+>  printk(KERN_EMERG "we hit bad page, looping forever\n");
+>  while (1) {
+>     mdelay(1000);
+>  }
+> 
+> to the end of bad_page()
 
-Yes, iproute2 rocks!
-
-I recently discovered that it can do "xfrm" stuff and was amazed to
-see that the developer(s) had a big clue about what we like to
-see (and what is human readable), if we type "ip xfrm state" 
-and "ip xfrm policy" as opposed to "setkey -D" and "setkey -PD".
-
-So I can only hope that netlink and iproute will be chosen as a way
-to represent it to the user, just because of the clueful developers of
-iproute2.
+I'm afraid someone has recently "tidied up" bad_page, and missed out
+the most interesting KERN_EMERG of all.  No promises that this will
+actually help us more than the backtrace you've sent, but please give
+it another go with patch below applied.  Andrew, please pass along...
 
 
-Regards
+Restore KERN_EMERG to each line printed by bad_page.
 
-Ingo Oeser
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
+--- 2.6.15-mm2/mm/page_alloc.c	2006-01-07 14:05:58.000000000 +0000
++++ linux/mm/page_alloc.c	2006-01-09 18:13:00.000000000 +0000
+@@ -137,9 +137,9 @@ static inline int bad_range(struct zone 
+ static void bad_page(struct page *page)
+ {
+ 	printk(KERN_EMERG "Bad page state in process '%s'\n"
+-		"page:%p flags:0x%0*lx mapping:%p mapcount:%d count:%d\n"
+-		"Trying to fix it up, but a reboot is needed\n"
+-		"Backtrace:\n",
++		KERN_EMERG "page:%p flags:0x%0*lx mapping:%p mapcount:%d count:%d\n"
++		KERN_EMERG "Trying to fix it up, but a reboot is needed\n"
++		KERN_EMERG "Backtrace:\n",
+ 		current->comm, page, (int)(2*sizeof(unsigned long)),
+ 		(unsigned long)page->flags, page->mapping,
+ 		page_mapcount(page), page_count(page));

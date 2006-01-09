@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWAIM2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWAIMb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWAIM2v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 07:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWAIM2v
+	id S1751290AbWAIMb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 07:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWAIMb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 07:28:51 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:3797 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751229AbWAIM2u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 07:28:50 -0500
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-Date: Mon, 9 Jan 2006 12:32:53 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com> <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
-In-Reply-To: <1136779153.1043.26.camel@grayson>
+	Mon, 9 Jan 2006 07:31:57 -0500
+Received: from wrzx35.rz.uni-wuerzburg.de ([132.187.3.35]:60311 "EHLO
+	wrzx35.rz.uni-wuerzburg.de") by vger.kernel.org with ESMTP
+	id S1751244AbWAIMb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 07:31:56 -0500
+Date: Mon, 9 Jan 2006 13:31:52 +0100 (CET)
+From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
+To: Martin Langhoff <martin.langhoff@gmail.com>
+Cc: "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       git@vger.kernel.org
+Subject: Re: git pull on Linux/ACPI release tree
+In-Reply-To: <46a038f90601090211j33479764q13c74df60033a061@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0601091320420.2503@wbgn013.biozentrum.uni-wuerzburg.de>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A136FE@hdsmsx401.amr.corp.intel.com>
+ <46a038f90601090211j33479764q13c74df60033a061@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601091232.56348.zippel@linux-m68k.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Monday 09 January 2006 04:59, Ben Collins wrote:
+On Mon, 9 Jan 2006, Martin Langhoff wrote:
 
-> > Then something is wrong with your automatic build. If the config needs to
-> > be updated and stdin is redirected during a kbuild, it will already
-> > abort.
->
-> And what should be directed into stdin? Nothing. There should be no
-> input going into an automated build, exactly because it could produce
-> incorrect results.
->
-> BTW, this is the automatic build that Debian and Ubuntu both use (in
-> Debian's case, used for quite a number of years). So this isn't
-> something I whipped up.
+> In a sense we are still exploring possible/desirable workflows and what 
+> the missing pieces are. And yes, some thing don't quite make sense from 
+> the outside, perhaps because they just don't or because we arent' 
+> explaining them very well.
 
-That just means Debian's automatic build for the kernel has been broken for 
-years. All normal config targets require user input and no input equals 
-default input. Only silentoldconfig will abort if input is not available.
+Maybe what is needed here is this:
 
-bye, Roman
+T1 - T2 .. Tn .. Tp
+  \         \      \
+   \         M1     M2
+    \       /      /
+     B1 .. Bm .. Bo
+
+where T1..Tp are the upstream commits, B1..Bo are the local commits, and
+M1.. are the test merges just to make sure nothing breaks?
+
+As long as the Mx commits resolve automatically, no need for an explicit 
+merge in the Bx commits, since a pull from B into T will just recreate an 
+Mx as next commit in T.
+
+Kind of "throw away merge".
+
+Ciao,
+Dscho

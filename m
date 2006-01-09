@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWAIKB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWAIKGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWAIKB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 05:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWAIKB0
+	id S1751227AbWAIKGc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 05:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWAIKGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 05:01:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40751 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751217AbWAIKBZ (ORCPT
+	Mon, 9 Jan 2006 05:06:32 -0500
+Received: from mail.charite.de ([160.45.207.131]:16284 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1751227AbWAIKGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 05:01:25 -0500
-Date: Mon, 9 Jan 2006 11:03:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sebastian <sebastian_ml@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-Message-ID: <20060109100322.GP3389@suse.de>
-References: <20060107115449.GB20748@section_eight.mops.rwth-aachen.de> <20060107115947.GY3389@suse.de> <20060107140843.GA23699@section_eight.mops.rwth-aachen.de> <20060107142201.GC3389@suse.de> <20060107160622.GA25918@section_eight.mops.rwth-aachen.de> <43BFFE08.70808@wasp.net.au> <20060107180211.GA12209@section_eight.mops.rwth-aachen.de> <43C00C32.9050002@wasp.net.au> <20060109093025.GO3389@suse.de> <20060109094923.GA8373@section_eight.mops.rwth-aachen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jan 2006 05:06:31 -0500
+Date: Mon, 9 Jan 2006 11:06:28 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at drivers/ide/ide.c:1384!
+Message-ID: <20060109100628.GA2767@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060109095159.GE4535@charite.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060109094923.GA8373@section_eight.mops.rwth-aachen.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060109095159.GE4535@charite.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09 2006, Sebastian wrote:
-> On Mo, Jan 09, 2006 at 10:30:25 +0100, Jens Axboe wrote:
-> > Sebastian, care to try one more thing? Patch your kernel with this
-> > little patch and try ripping a known "faulty" track again _not_ using
-> > SG_IO. See if that produces the same faulty results again, or if it
-> > actually works.
-> > 
-> > diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-> > index 1539603..2e44d81 100644
-> > --- a/drivers/cdrom/cdrom.c
-> > +++ b/drivers/cdrom/cdrom.c
-> > @@ -426,7 +426,7 @@ int register_cdrom(struct cdrom_device_i
-> >  		cdi->exit = cdrom_mrw_exit;
-> >  
-> >  	if (cdi->disk)
-> > -		cdi->cdda_method = CDDA_BPC_FULL;
-> > +		cdi->cdda_method = CDDA_BPC_SINGLE;
-> >  	else
-> >  		cdi->cdda_method = CDDA_OLD;
-> >  
-> > 
-> > -- 
-> > Jens Axboe
-> > 
-> Hi Jens,
+* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
+> I invoked "hdparm -w /dev/hda"
 > 
-> I applied your patch, recompiled the kernel, rebooted and recompiled
-> cdparanoia without the Red Hat patches. Extracting the first track of my
-> test cd the result was the same as without the kernel patch with ide-cd
-> using the cooked interface (md5 e8319ccc20d053557578b9ca3eb368dd).
+> # uname -a
+> Linux hummus.charite.de 2.6.15 #1 Tue Jan 3 09:30:04 CET 2006 i686 GNU/Linux
 > 
-> Sorry :)
+> Before you flame away at me for using the nvidia kernel module: I will
+> reproduce this WITHOUT the nvidia kernel module. At least I'll try.
 
-Well it's actually a good thing, because then at least it's not a bug
-with the multi-frame extraction. So my guess would still be at the error
-correction possibilities that the application has, in which case
-CDROMREADAUDIO is just an inferior interface for this sort of thing. It
-also doesn't give the issuer a chance to look at potential error
-reasons, since the extended status isn't available.
+And alas, it doens't reproduce. I'll now crawl under a rock and be
+ashamed of myself.
 
 -- 
-Jens Axboe
-
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

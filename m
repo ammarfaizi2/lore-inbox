@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWAITbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWAITdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWAITbD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 14:31:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWAITbC
+	id S1751219AbWAITdy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 14:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWAITdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 14:31:02 -0500
-Received: from silver.veritas.com ([143.127.12.111]:24104 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751226AbWAITa7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 14:30:59 -0500
-Date: Mon, 9 Jan 2006 19:31:11 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <20060109185350.GG283@tau.solarneutrino.net>
-Message-ID: <Pine.LNX.4.61.0601091922550.15426@goblin.wat.veritas.com>
-References: <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
- <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
- <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
- <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
- <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
- <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
- <20060109185350.GG283@tau.solarneutrino.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jan 2006 19:30:59.0403 (UTC) FILETIME=[381559B0:01C61553]
+	Mon, 9 Jan 2006 14:33:54 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:29856 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751219AbWAITdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 14:33:53 -0500
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+	can't for a long time
+From: Lee Revell <rlrevell@joe-job.com>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, yarick@it-territory.ru,
+       lkml@metanurb.dk, s0348365@sms.ed.ac.uk, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060109202454.7548b566.diegocg@gmail.com>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	 <200601091403.46304.yarick@it-territory.ru>
+	 <1136813783.8412.4.camel@localhost>
+	 <200601091656.48355.yarick@it-territory.ru>
+	 <1136822827.6659.25.camel@localhost.localdomain>
+	 <20060109202454.7548b566.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 09 Jan 2006 14:33:50 -0500
+Message-Id: <1136835231.9957.101.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jan 2006, Ryan Richter wrote:
+On Mon, 2006-01-09 at 20:24 +0100, Diego Calleja wrote:
+> El Mon, 09 Jan 2006 16:07:07 +0000,
+> Alan Cox <alan@lxorguk.ukuu.org.uk> escribió:
 > 
-> One thing I forgot to mention was that 2.6.11.3 had the problem too when
-> I reverted to it.  I remember now that the person who made the debian
-> bug report for this said it only happened with a 64-bit userspace - and
-> I switched from a 32- to 64-bit userspace when I did 2.6.11 -> 2.6.14
-> (and I'm too lazy to switch back).
+> > Currently Linux performance loading large binaries is at least
+> > perceptually worse than Windows (some of that is perceptual tricks
+> > windows apps pull, some of it real). There is an openoffice.org related
+> > analysis project currently under way to sort that out.
+> 
+> Desktop performance has become a such hot topic that I wonder if
+> it would be worth to setup a dedicated mailing list somewhere
+> where all the parts involved (kernel, kde/gnome, x.org, libc) can
+> analyze what are the real problems are.
 
-I remembered you reported it originally on 2.6.14.N, so I wasn't
-searching amongst the 2.6.15 changes at all.  Thanks for the info
-that it's at least as old as 2.6.11.3.
+There already is one:
 
-> To get the backups back, I just ran a recent kernel with
-> try_direct_io=0.  If there's nothing further for me to test at this
-> time, I guess I'll go back to doing that until there's something to try.
-> Is that OK?
+http://lists.osdl.org/pipermail/desktop_architects/2005-December/thread.html#522
 
-I think we'll allow you the luxury of making successful backups for now ;)
+Lee
 
-Thanks for all your work on this, I'm sure it's irritating to you that
-we haven't found the answer yet.  I'm still clueless about it (despite
-the excellent clues you've provided).  And personally I don't like
-asking someone "try this, try that" until I've a pretty good hypothesis
-to devise a patch to test out.  Still thinking it over.  Someone else
-may have a better idea of what to try next.
-
-Hugh

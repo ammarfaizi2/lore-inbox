@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWAIO2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWAIOc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWAIO2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 09:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWAIO2Q
+	id S932287AbWAIOc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 09:32:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWAIOc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 09:28:16 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:62350 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S932285AbWAIO2P (ORCPT
+	Mon, 9 Jan 2006 09:32:57 -0500
+Received: from ns.firmix.at ([62.141.48.66]:51424 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932287AbWAIOc5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 09:28:15 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Date: Mon, 9 Jan 2006 15:28:18 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <5t06S-7nB-15@gated-at.bofh.it> <5t5JU-7Sn-11@gated-at.bofh.it> <43C270B2.4050305@shaw.ca>
-In-Reply-To: <43C270B2.4050305@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 9 Jan 2006 09:32:57 -0500
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+	can't for a long time
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200601091403.46304.yarick@it-territory.ru>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	 <200601091207.14939.yarick@it-territory.ru>
+	 <200601091022.30758.s0348365@sms.ed.ac.uk>
+	 <200601091403.46304.yarick@it-territory.ru>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 09 Jan 2006 15:32:39 +0100
+Message-Id: <1136817159.5785.47.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601091528.19285.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 9. Januar 2006 15:18 schrieb Robert Hancock:
-> Yaroslav Rastrigin wrote:
-> > Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
-> > strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
-> > Whenever it is needed by apps I'm launching or working with. 
+On Mon, 2006-01-09 at 14:03 +0300, Yaroslav Rastrigin wrote:
+> Hi, 
+> > > > money to the right people.
+> > >
+> > > Could or would you be so kind to provide at least moderately complete
+> > > pricelist ? Whom and how much should I pay to have correct support for
+> > > intel graphics chipset, 2200BG Wi-Fi, complete
+> > > suspend-to-disk/suspend-to-ram and to get an overall performance boost ?
+> > 
+> > Since these are all supported in 2.6.15, $0 would be my quote.
+> I've mentioned _correct_ support. Contrary to current rather sad state of things. 
+> 855GM still has no support for non-VESA videomodes (1280x800 can be enabled only via VBIOS hacks, and is not always properly restored on resume) 
+> (and don't supported with intelfb) (which, AFAIK, has no support for dualhead)
+> 2200BG sometimes starts to unacceptably lag and drop packets after going out of suspend (either STR or STD) and until reboot.
+> (And this is driver issue)
+> Suspend to ram works, more or less, but drains power like hungry cat drinks milk, and I just can't leave my laptop in STR for more than two days 
+> without worrying about my on-the-road availability. 
+> Suspend to disk has nasty tendency to ruin my whole hot live X session, since X can't properly restore VT on resume.
+> Overall performance isn't that bad, either, but I just can't understand, why KATE (Kde more or less advanced editor) takes twice as long to start 
+> as UltraEdit in _emulated_ (VMWare) Windows XP running on this same box.
 > 
-> There is no different VM policy here, Windows behaves quite similarly. 
-> It does not leave memory around unused, it uses it for disk cache.
+> So, the question remains the same - whom and how much I need to pay to solve abovementioned problems ?
 
-That doesn't mean that the rate of eviction is the same.
-Is it possible that read-ahead is not aggressive enough?
+The best place to ask this question is IMHO the respective development
+lists and/or maintainers. If both of this does not exist, find recent
+patch submitters (who provided patches for more than whitespace and
+similar cleanups) and ask them.
 
-	Regards
-		Oliver
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

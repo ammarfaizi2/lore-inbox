@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWAIOQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWAIOSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbWAIOQs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 09:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWAIOQr
+	id S932275AbWAIOSr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 09:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWAIOSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 09:16:47 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:41647 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751043AbWAIOQq (ORCPT
+	Mon, 9 Jan 2006 09:18:47 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2878 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932257AbWAIOSq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 09:16:46 -0500
-Message-ID: <43C2822F.F26F855E@tv-sign.ru>
-Date: Mon, 09 Jan 2006 18:33:03 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
-References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109093141.GA10811@in.ibm.com> <43C2785C.4E937748@tv-sign.ru> <20060109134238.GA26700@in.ibm.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 09:18:46 -0500
+Date: Mon, 9 Jan 2006 15:20:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15 cfq oops
+Message-ID: <20060109142036.GW3389@suse.de>
+References: <20060106201928.GI4595@redhat.com> <20060109105800.GT3389@suse.de> <20060109171550.6e59c30c.vsu@altlinux.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109171550.6e59c30c.vsu@altlinux.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
+On Mon, Jan 09 2006, Sergey Vlasov wrote:
+> On Mon, 9 Jan 2006 11:58:01 +0100 Jens Axboe wrote:
 > 
-> On Mon, Jan 09, 2006 at 05:51:08PM +0300, Oleg Nesterov wrote:
-> > Srivatsa Vaddagiri wrote:
-> > >             If we have to do a rcu_move_batch of ->donelist also,
-> > > then perhaps the ->donelist != NULL check is required in
-> > > rcu_pending?
-> >
-> > rcu_move_batch() always adds entries to the ->nxttail, so I think
-> > this patch is correct.
+> [skip]
+> > I've merged this up for 2.6.16-rc inclusion, probably should go to
+> > stabel as well.
+> > 
+> > ---
+> > 
+> > [PATCH] Kill blk_attempt_remerge()
+> > 
+> > It's a bad interface, and it's always done too late. Remove it.
+> > 
+> > Signed-off-by: Jens Axboe <axboe@suse.de>
+> > 
+> [skip]
+> > diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+> > index 1539603..2e44d81 100644
+> > --- a/drivers/cdrom/cdrom.c
+> > +++ b/drivers/cdrom/cdrom.c
+> > @@ -426,7 +426,7 @@ int register_cdrom(struct cdrom_device_i
+> >  		cdi->exit = cdrom_mrw_exit;
+> >  
+> >  	if (cdi->disk)
+> > -		cdi->cdda_method = CDDA_BPC_FULL;
+> > +		cdi->cdda_method = CDDA_BPC_SINGLE;
+> >  	else
+> >  		cdi->cdda_method = CDDA_OLD;
 > 
-> Hmm ..adding entries on dead cpu's ->donelist to ->nxtlist of some other CPU
-> doesnt make sense (it re-triggers graceperiods for all those callbacks which is
-> not needed).
+> Does not seem to be related to the rest of patch...
 
-Yes, but this is rare event, so ...
+Indeed, dirty git tree...
 
->              Maybe rcu_move_batch should take that into account and instead add
-> to ->donelist of current CPU which is processing the CPU_DEAD callback.
+-- 
+Jens Axboe
 
-May be you are right,
-
-> In which case, ->donelist != NULL check is still reqd in rcu_pending ?
-
-Yes, in that case it is required. Do you think it is worth to optimize
-CPU_DEAD case?
-
-Oleg.

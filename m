@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWAIR57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWAIR54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWAIR57 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:57:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWAIR57
+	id S1030222AbWAIR54 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWAIR54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:57:59 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.26]:24764 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1030223AbWAIR56 (ORCPT
+	Mon, 9 Jan 2006 12:57:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12424 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030222AbWAIR5z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:57:58 -0500
-Date: Mon, 9 Jan 2006 09:57:29 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6-git: BITS_PER_LONG
-In-Reply-To: <20060107144940.GE31384@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.62.0601090956340.2202@schroedinger.engr.sgi.com>
-References: <20060107144940.GE31384@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jan 2006 12:57:55 -0500
+Date: Mon, 9 Jan 2006 12:57:48 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+Message-ID: <20060109175748.GD25102@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jesper Juhl <jesper.juhl@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060107052221.61d0b600.akpm@osdl.org> <9a8748490601070708p4353eb0ev9ea15edee132b13b@mail.gmail.com> <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jan 2006, Russell King wrote:
+On Mon, Jan 09, 2006 at 06:47:01PM +0100, Jesper Juhl wrote:
 
-> Hi.
-> 
-> With the latest git, I'm seeing a number of:
-> 
-> include/asm-generic/atomic.h:20:5: warning: "BITS_PER_LONG" is not defined
-> 
-> What's intended here?  Should asm-generic/atomic.h include asm/types.h?
+ > Here's what bad_page printed for me :
+ > 
+ > Bad page state in process 'kded'
+ > [<c0103e77>] dump_stack+0x17/0x20
+ > [<c0148999>] bad_page+0x69/0x160
 
-asm/types.h should be included by asm/atomic.h. Which arch is this?
+Odd, there should be more state between the 'Bad page'
+and the backtrace.
+
+    printk(KERN_EMERG "Bad page state in process '%s'\n"
+		"page:%p flags:0x%0*lx mapping:%p mapcount:%d count:%d\n"
+		"Trying to fix it up, but a reboot is needed\n"
+
+Did you aggressively trim that, or did it for some
+reason not get printed ?
+ 
+		Dave
 

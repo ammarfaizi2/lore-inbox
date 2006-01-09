@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWAIMSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWAIM2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWAIMSs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 07:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWAIMSs
+	id S1751229AbWAIM2v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 07:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWAIM2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 07:18:48 -0500
-Received: from [61.53.233.42] ([61.53.233.42]:54800 "HELO 209.132.176.167")
-	by vger.kernel.org with SMTP id S1751248AbWAIMSr (ORCPT
+	Mon, 9 Jan 2006 07:28:51 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:3797 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751229AbWAIM2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 07:18:47 -0500
-Date: Mon, 09 Jan 2006 08:18:40 -0400
-From: "Alton Sheehan" <MMIMJOLBNTQE@hotmail.com>
-Message-ID: <111.23e558d5.2a9CDM44@sol.com>
-To: linux-ia64@vger.kernel.org
-Subject: We Guuaranteees Bigger Pen-nis E5sl
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6)
+	Mon, 9 Jan 2006 07:28:50 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+Date: Mon, 9 Jan 2006 12:32:53 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com> <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
+In-Reply-To: <1136779153.1043.26.camel@grayson>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601091232.56348.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Suffering from short penniss?
-Introduce revolution "Thunder" formula which
-gauranteees sizes increase or moneey baack.
+On Monday 09 January 2006 04:59, Ben Collins wrote:
 
-Users reported:
-- 2 inches extra in size
-- 3x pleasurable orgasms
-- 27% thicker
+> > Then something is wrong with your automatic build. If the config needs to
+> > be updated and stdin is redirected during a kbuild, it will already
+> > abort.
+>
+> And what should be directed into stdin? Nothing. There should be no
+> input going into an automated build, exactly because it could produce
+> incorrect results.
+>
+> BTW, this is the automatic build that Debian and Ubuntu both use (in
+> Debian's case, used for quite a number of years). So this isn't
+> something I whipped up.
 
-Why waiting?
+That just means Debian's automatic build for the kernel has been broken for 
+years. All normal config targets require user input and no input equals 
+default input. Only silentoldconfig will abort if input is not available.
 
-http://thunder14.myherb.biz
-
-
-9wqUN
+bye, Roman

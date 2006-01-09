@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWAIR6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWAISAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbWAIR6a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWAIR63
+	id S964884AbWAISAF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWAISAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:58:29 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:64188 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1030227AbWAIR61 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:58:27 -0500
-Message-ID: <43C2B624.C70A4D6E@tv-sign.ru>
-Date: Mon, 09 Jan 2006 22:14:44 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Mon, 9 Jan 2006 13:00:01 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:3565 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S964884AbWAISAA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 13:00:00 -0500
+Message-ID: <43C2A48F.6030407@google.com>
+Date: Mon, 09 Jan 2006 09:59:43 -0800
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       vatsa@in.ibm.com
-Subject: Re: [PATCH 5/5][RFC] rcu: start new grace period from rcu_pending()
-References: <43C165D7.6EAB8E47@tv-sign.ru> <43C27417.AA1BA306@tv-sign.ru> <20060109173656.GC14738@us.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+To: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Problems with 2.6.15-mm1 and mm2.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" wrote:
-> 
-> On Mon, Jan 09, 2006 at 05:32:55PM +0300, Oleg Nesterov wrote:
-> > Oleg Nesterov wrote:
-> > >
-> > > I think it is better to set ->qs_pending = 1 directly in __rcu_pending():
-> >
-> > This patch has a bug. I am sending a trivial fix, but now I am not
-> > sure myself that 1 timer tick saved worth the code uglification.
-> 
-> This is indeed an accident waiting to happen -- someone is bound to
-> replace the "|" with an "||", a change that is too easy for someone
-> to miss.  Once Vatsa is satisfied with the CPU-hotplug aspects of
-> this set of patches, if __rcu_pending() still has side-effects, I would
-> suggest something like the following:
-> 
->         int rcu_pending(int cpu)
->         {
->                 int retval = 0;
-> 
->                 if (__rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)))
->                         retval = 1;
->                 if (__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu)))
->                         retval = 1;
->                 return retval;
->         }
-> 
-> A few more lines, but the intent is much more clear.  And I bet that
-> gcc generates reasonable code in either case.
-> 
-> Or maybe this is just me...
+OK, so on -mm1 we get:
 
-No, me too. For some reasons I can't re-send the patch today, will do
-tomorrow.
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+  printing eip:
+c01fccd2
+*pde = 0042d001
+*pte = 00000000
+Oops: 0000 [#1]
+SMP
+last sysfs file:
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c01fccd2>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.15-mm1-autokern1)
+EIP is at pci_call_probe+0x1a/0xa1
+eax: 00000000   ebx: ffffffed   ecx: e748a030   edx: c03a4680
+esi: e7767800   edi: c03a4680   ebp: ffffffff   esp: e749fef0
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=e749e000 task=e748a030)
+Stack: <0>ffffffed e7767800 c03a4680 c03a46ac c01fcd8c c03a4680 e7767800 
+c03a441c
+        <0>c03a4680 e7767800 c03a46ac c01fcdbf c03a4680 e7767800 
+e7767800 00000000
+        <0>e7767848 c021c265 e7767848 e7767848 00000000 c021c311 
+c021c34a c03a46ac
+Call Trace:
+  [<c01fcd8c>] __pci_device_probe+0x33/0x47
+  [<c01fcdbf>] pci_device_probe+0x1f/0x34
+  [<c021c265>] driver_probe_device+0x3a/0x84
+  [<c021c311>] __driver_attach+0x0/0x60
+  [<c021c34a>] __driver_attach+0x39/0x60
+  [<c021ba18>] bus_for_each_dev+0x47/0x6d
+  [<c01f4d5a>] kobject_add+0x76/0x95
+  [<c021c385>] driver_attach+0x14/0x18
+  [<c021c311>] __driver_attach+0x0/0x60
+  [<c021be30>] bus_add_driver+0x54/0x87
+  [<c021c72c>] driver_register+0x3b/0x3e
+  [<c01fcfa6>] __pci_register_driver+0x7e/0x8c
+  [<c03f646d>] qla1280_init+0xc/0xf
+  [<c03e4789>] do_initcalls+0x4b/0x99
+  [<c0100393>] init+0x98/0x195
+  [<c01002fb>] init+0x0/0x195
+  [<c0100ea9>] kernel_thread_helper+0x5/0xb
 
-However, I am not sure anymore that this patch is a good idea. Exactly
-because it adds side-effects to rcu_pending().
+from the NUMA-Q. http://test.kernel.org/19793/debug/console.log
 
-So, unless somebody on CC: list thinks it may be useful - let's forget
-it.
+------------------------------------------------------------------
 
-Oleg.
+on -mm2 I get the x86_64 seems to lock up (NFI why ... looking at it), 
+the NUMA-Q and x440 panic (very similar to the above).
+
+I think Andy figured out what was causing those panics. Can we drop 
+those patches until they're fixed?
+
+Thanks,
+
+M.

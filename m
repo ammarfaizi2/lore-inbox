@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWAIPaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWAIPbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWAIPaB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:30:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWAIPaA
+	id S964784AbWAIPbN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 10:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWAIPbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:30:00 -0500
-Received: from hera.kernel.org ([140.211.167.34]:40081 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932295AbWAIP37 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:29:59 -0500
-Date: Mon, 9 Jan 2006 11:06:55 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "G.W. Haywood" <ged@jubileegroup.co.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ne2k PCI/ISA documentation: improved cross-reference.
-Message-ID: <20060109130655.GA4687@dmt.cnet>
-References: <Pine.LNX.4.58.0512291301420.2118@mail3.jubileegroup.co.uk> <9a8748490512290553g448d1e28w65dad834cd08e1a7@mail.gmail.com> <Pine.LNX.4.58.0512291520250.6219@mail3.jubileegroup.co.uk> <200512292149.55237.jesper.juhl@gmail.com> <Pine.LNX.4.58.0601071459440.8957@mail3.jubileegroup.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601071459440.8957@mail3.jubileegroup.co.uk>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 9 Jan 2006 10:31:13 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:31243 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964784AbWAIPbM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 10:31:12 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20060109141958.GM2767@charite.de>
+X-OriginalArrivalTime: 09 Jan 2006 15:31:08.0136 (UTC) FILETIME=[B6384680:01C61531]
+Content-class: urn:content-classes:message
+Subject: Re: kernel BUG at drivers/ide/ide.c:1384!
+Date: Mon, 9 Jan 2006 10:30:47 -0500
+Message-ID: <Pine.LNX.4.61.0601091025480.17766@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel BUG at drivers/ide/ide.c:1384!
+Thread-Index: AcYVMbY/w17Jr+lVQduuaffJVNxP4A==
+References: <20060109095159.GE4535@charite.de> <1136816352.6659.10.camel@localhost.localdomain> <20060109141958.GM2767@charite.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Ralf Hildebrandt" <Ralf.Hildebrandt@charite.de>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 07, 2006 at 03:11:40PM +0000, G.W. Haywood wrote:
-> From: Ged Haywood <ged@jubileegroup.co.uk>
-> 
-> Improved reference to PCI ne2k support in ISA ne2k documentation.
-> 
-> Signed-off-by: Ged Haywood <ged@jubileegroup.co.uk>
-> ---
->  Configure.help |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> --- linux-2.4.32/Documentation/Configure.help.original  2006-01-07 14:48:23.000000000 +0000
-> +++ linux-2.4.32/Documentation/Configure.help   2006-01-07 14:56:32.000000000 +0000
-> @@ -12778,7 +12778,8 @@
->    without a specific driver are compatible with NE2000.
-> 
->    If you have a PCI NE2000 card however, say N here and Y to "PCI
-> -  NE2000 support", above. If you have a NE2000 card and are running on
-> +  NE2000 and clones support" under "EISA, VLB, PCI and on board
-> +  controllers" below.  If you have a NE2000 card and are running on
->    an MCA system (a bus system used on some IBM PS/2 computers and
->    laptops), say N here and Y to "NE/2 (ne2000 MCA version) support",
->    below.
 
-Hi Ged,
+On Mon, 9 Jan 2006, Ralf Hildebrandt wrote:
 
-Appreciate your efforts but the v2.4 tree is under deep maintenance mode
-with an acceptance criteria for critical bugfixes only.
+> * Alan Cox <alan@lxorguk.ukuu.org.uk>:
+>
+>> You should be able to reproduce it without the Nvidia code loaded if you
+>> do I/O on the disk and run hdparm -w in a tight loop while doing so.
+>>
+>> You might want to do it on a disk you have a backup of
+>
+> I think I'll pass :)
+> --
+> Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+> Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+> Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+> IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
 
+He might be able to do the same thing with `cat /dev/urandom > /dev/hda`.
+There are not a lot of file-system checks against bad data in file-systems.
+The '-w' reset will guarantee bad data, which may propagate to the
+file-system(s) in use, causing all kinds of problems. So, the OOPS under
+these conditions is expected.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

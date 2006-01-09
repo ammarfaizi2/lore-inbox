@@ -1,101 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWAIFK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWAIFNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbWAIFK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 00:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWAIFK0
+	id S1751281AbWAIFNq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 00:13:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWAIFNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 00:10:26 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:57286 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1751257AbWAIFKZ (ORCPT
+	Mon, 9 Jan 2006 00:13:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62351 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751259AbWAIFNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 00:10:25 -0500
-Date: Sun, 8 Jan 2006 23:10:07 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Yanmin Zhang <ymzhang@unix-os.sc.intel.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH v3]Export cpu topology by sysfs
-Message-ID: <20060109051006.GC2683@localhost.localdomain>
-References: <8126E4F969BA254AB43EA03C59F44E84045838F8@pdsmsx404> <20060104010658.A16342@unix-os.sc.intel.com>
+	Mon, 9 Jan 2006 00:13:44 -0500
+Date: Sun, 8 Jan 2006 21:13:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: ryan@tau.solarneutrino.net, Kai.Makisara@kolumbus.fi,
+       James.Bottomley@SteelEye.com, hugh@veritas.com, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+Message-Id: <20060108211321.49a78679.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
+References: <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
+	<1134411882.9994.18.camel@mulgrave>
+	<20051215190930.GA20156@tau.solarneutrino.net>
+	<1134705703.3906.1.camel@mulgrave>
+	<20051226234238.GA28037@tau.solarneutrino.net>
+	<Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
+	<20060104172727.GA320@tau.solarneutrino.net>
+	<Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
+	<20060105201249.GB1795@tau.solarneutrino.net>
+	<Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
+	<20060109033149.GC283@tau.solarneutrino.net>
+	<Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060104010658.A16342@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(sorry for the delay in response)
-
-Yanmin Zhang wrote:
-> Here is version 3. Based on Nathan's comments, the main changes are:
-> 1) Drop thread id, so the first 2 patches of version 2 are dropped;
-
-Thanks.
-
-> 2) Set consistent default values for the 4 attributes.
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> 
+> 
+> On Sun, 8 Jan 2006, Ryan Richter wrote:
+> >
+> > Kernel BUG at mm/swap.c:49
+> 
+> Well, it sure triggered.
+> 
+> > Process taper (pid: 4501, threadinfo ffff8101453d8000, task ffff81017d0143c0)
+> > Call Trace:<ffffffff8028c614>{sgl_unmap_user_pages+124}
+> >		 <ffffffff8028834d>{release_buffering+27}
+> 
+> and it's that same sgl_unmap_user_pages() that keeps on triggering it.
+> 
+> Which was not what I was hoping for. I was hoping we'd see somebody _else_ 
+> decrementing the page count below the map count, and get a new clue.
+> 
+> However, the page flags you show later on (0x1c) ended up making me take 
+> notice of something. That's "dirty", and maybe it's from
+> 
+> 	if (dirtied)
+> 		SetPageDirty(page);
+> 
+> in that same sgl_unmap_user_pages() routine.. And it strikes me that that 
+> is bogus.
+> 
+> Code like that should use "set_page_dirty()", which does the appropriate 
+> callbacks to the filesystem for that page. I wonder if the bug is simply 
+> because the ST code just sets the dirty bit without telling anybody else 
+> about it...
 > 
 
-<snip>
+It should be using set_page_dirty_lock().  As should st_unmap_user_pages().
+ I doubt if this would explain a refcounting problem though.
 
-> If one architecture wants to support this feature, it just needs to
-> implement 4 defines, typically in file include/asm-XXX/topology.h.
-> The 4 defines are:
-> #define topology_physical_package_id(cpu)
-> #define topology_core_id(cpu)
-> #define topology_thread_siblings(cpu)
-> #define topology_core_siblings(cpu)
-> 
-> The type of **_id is int.
-> The type of siblings is cpumask_t.
-> 
-> To be consistent on all architectures, the 4 attributes should have
-> deafult values if their values are unavailable. Below is the rule.
-> 1) physical_package_id: If cpu has no physical package id, -1 is the
-> default value.
-> 2) core_id: If cpu doesn't support multi-core, its core id is 0.
+Ryan, It might be worth poisoning the thing, see if the completion is being
+called twice:
 
-Why not -1 as with the physical package id?  0 could be a valid core
-id.
 
-> 3) thread_siblings: Just include itself, if the cpu doesn't support
-> HT/multi-thread.
-> 4) core_siblings: Just include itself, if the cpu doesn't support
-> multi-core and HT/Multi-thread.
+diff -puN drivers/scsi/st.c~a drivers/scsi/st.c
+--- devel/drivers/scsi/st.c~a	2006-01-08 21:11:47.000000000 -0800
++++ devel-akpm/drivers/scsi/st.c	2006-01-08 21:12:13.000000000 -0800
+@@ -4482,11 +4482,12 @@ static int sgl_unmap_user_pages(struct s
+ 		struct page *page = sgl[i].page;
+ 
+ 		if (dirtied)
+-			SetPageDirty(page);
++			set_page_dirty_lock(page);
+ 		/* FIXME: cache flush missing for rw==READ
+ 		 * FIXME: call the correct reference counting function
+ 		 */
+ 		page_cache_release(page);
++		sgl[i].page = NULL;
+ 	}
+ 
+ 	return 0;
+_
 
-Really, I think the least confusing interface would not export those
-attributes which are not relevant for the system.  E.g. if the system
-isn't multi-core, you don't see core_id and core_siblings attributes.
-
-Failing that, let's at least have consistent, unambiguous values for
-the ids which are not applicable.
-
-<snip>
-> +static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
-> +		unsigned long action, void *hcpu)
-> +{
-> +	unsigned int cpu = (unsigned long)hcpu;
-> +	struct sys_device *sys_dev;
-> +
-> +	sys_dev = get_cpu_sysdev(cpu);
-> +	switch (action) {
-> +		case CPU_ONLINE:
-> +			topology_add_dev(sys_dev);
-> +			break;
-> +		case CPU_DEAD:
-> +			topology_remove_dev(sys_dev);
-> +			break;
-> +	}
-> +	return NOTIFY_OK;
-> +}
-
-I still oppose this bit.  I want the attributes there for powerpc even
-for offline cpus -- the topology information (if obtainable, which it
-is on powerpc) is useful regardless of the cpu's online state.  The
-attributes should appear when a cpu is made present, and go away when
-a cpu is removed.
-
-This week I'll try to do an implementation for powerpc.

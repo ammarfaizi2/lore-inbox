@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965364AbWAIAgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161255AbWAIAgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965364AbWAIAgW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 19:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965371AbWAIAgW
+	id S1161255AbWAIAgP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 19:36:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965365AbWAIAgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 19:36:22 -0500
-Received: from host1.compusonic.fi ([195.238.198.242]:23408 "EHLO
-	minor.compusonic.fi") by vger.kernel.org with ESMTP id S965364AbWAIAgU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 19:36:20 -0500
-Date: Mon, 9 Jan 2006 02:33:43 +0200 (EET)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Olivier Galibert <galibert@pobox.com>,
-       Martin Drab <drab@kepler.fjfi.cvut.cz>, Takashi Iwai <tiwai@suse.de>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-In-Reply-To: <Pine.LNX.4.61.0601081424560.10981@tm8103.perex-int.cz>
-Message-ID: <Pine.LNX.4.61.0601090231260.32511@zeus.compusonic.fi>
-References: <20060104030034.6b780485.zaitcev@redhat.com>
- <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
- <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
- <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de>
- <20060108020335.GA26114@dspnet.fr.eu.org> <Pine.LNX.4.60.0601080317040.22583@kepler.fjfi.cvut.cz>
- <20060108132122.GB96834@dspnet.fr.eu.org> <Pine.LNX.4.61.0601081424560.10981@tm8103.perex-int.cz>
+	Sun, 8 Jan 2006 19:36:14 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:32725 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965364AbWAIAgN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 19:36:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=psAx0bOTcoPfh8jNm1nUGaJZeGa6963F3C/w8UXN2s0LC6EbLfZN+pl1+3ne+FmqI/NtturGRBfz4B51imkwX1h1Ju38XydCY6iBgI0CjwOpZgGXNUt4OF8DBj44i69bcGc/SmBc2ifgADJJEhf7kcTTMzyfi+ynEV4b6IIxMeU=
+Message-ID: <43C1AFD4.9090007@gmail.com>
+Date: Mon, 09 Jan 2006 08:35:32 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@stusta.de>
+CC: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: intelfb
+References: <20060108234839.GF3001@mail.muni.cz> <20060108235753.GR3774@stusta.de> <43C1ACB4.4030704@gmail.com> <20060109002912.GS3774@stusta.de>
+In-Reply-To: <20060109002912.GS3774@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006, Jaroslav Kysela wrote:
-
-> > - having a real kernel api for which you can make different libraries
-> >   depending on the need of the users
-> > 
-> > - stop making a fundamentally unsecure shared library mandatory
+Adrian Bunk wrote:
+> On Mon, Jan 09, 2006 at 08:22:12AM +0800, Antonino A. Daplas wrote:
+>> Adrian Bunk wrote:
+>>> On Mon, Jan 09, 2006 at 12:48:40AM +0100, Lukas Hejtmanek wrote:
+>>>
+>>>> Hello,
+>>> Hi Lukas,
+>>>
+>>>> is someone developing intelfb driver? Or is it some old (maybe functional) code?
+>>> the MAINTAINERS file in the kernel sources says:
+>>>
+>>> INTEL 810/815 FRAMEBUFFER DRIVER
+>>> P:      Antonino Daplas
+>>> M:      adaplas@pol.net
+>>> L:      linux-fbdev-devel@lists.sourceforge.net
+>>> S:      Maintained
+>>>
+>> I maintain i810fb.  The author and maintainer of intelfb for 2.6 is Sylvain
+>> Meyer. For 2.4, the author is David Dawes.
+>> ...
 > 
-> ALSA kernel API is real and binary compatible. 
-Less than an year ago you (or was it Takashi) told that the kernel API 
-cannot be used or documented because it may be changed any time without 
-notice.
+> Sorry, this happens when you only look at the MAINTAINERS file...
+> 
+> Can you add a MAINTAINERS entry for Sylvain?
 
-Best regards,
+Will do.
 
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM
+Tony

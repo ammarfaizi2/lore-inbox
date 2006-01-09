@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWAIOm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWAIOpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWAIOm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 09:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWAIOm0
+	id S964785AbWAIOpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 09:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWAIOpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 09:42:26 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:9495 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932294AbWAIOmZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 09:42:25 -0500
-Message-ID: <43C27662.2030400@openvz.org>
-Date: Mon, 09 Jan 2006 17:42:42 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, "Dmitry Mishin" <dim@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: [PATCH] netlink oops fix due to incorrect error code
-Content-Type: multipart/mixed;
- boundary="------------080505070207050802030609"
+	Mon, 9 Jan 2006 09:45:24 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:3743 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S964770AbWAIOpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 09:45:23 -0500
+Date: Mon, 9 Jan 2006 15:45:22 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.15] running tcpdump on 3c905b causes freeze (reproducable)
+Message-ID: <20060109144522.GB10955@vanheusden.com>
+References: <20060108114305.GA32425@vanheusden.com>
+	<20060109041114.6e797a9b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109041114.6e797a9b.akpm@osdl.org>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Tue Jan 10 15:23:51 CET 2006
+X-Message-Flag: www.vanheusden.com
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080505070207050802030609
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> > My system freezes (crashes) when I run tcpdump on the interface
+> >  connected to a 3c905b card.
+> Works for me with a 3c980-TX.  I can dig out a 905b.
+> Please send the exact commands which you're using to demonstrate this -
+> sufficient info for me to get as close as possible to what you're doing.
 
-Fixed oops after failed netlink socket creation.
-Wrong parathenses in if() statement caused err to be 1,
-instead of negative value.
-Trivial fix, not trivial to find though.
+The exact command is:
+tcpdump -i eth1
 
-Signed-Off-By: Dmitry Mishin <dim@sw.ru>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+Yes, it is that simple. Not only tcpdump gives this problem; iftop as
+well.
 
-Kirill
-P.S. against 2.6.15
+> Have you tried enabling the NMI watchdog?  Enable CONFIG_X86_LOCAL_APIC and
+> boot with `nmi_watchdog=1' on the command line, make sure that the NMI line
+> of /proc/interrupts is incrementing.
 
-
---------------080505070207050802030609
-Content-Type: text/plain;
- name="diff-ms-netlink-create-fix-20060109"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ms-netlink-create-fix-20060109"
-
---- ./net/netlink/af_netlink.c.nlfix	2006-01-06 18:37:28.000000000 +0300
-+++ ./net/netlink/af_netlink.c	2006-01-09 16:40:49.000000000 +0300
-@@ -416,7 +416,7 @@ static int netlink_create(struct socket 
- 	groups = nl_table[protocol].groups;
- 	netlink_unlock_table();
- 
--	if ((err = __netlink_create(sock, protocol) < 0))
-+	if ((err = __netlink_create(sock, protocol)) < 0)
- 		goto out_module;
- 
- 	nlk = nlk_sk(sock->sk);
+I'll give it a try. I've added it to the append-line in the lilo config.
+Am now compiling the kernel.
 
 
---------------080505070207050802030609--
+Folkert van Heusden
 
+-- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

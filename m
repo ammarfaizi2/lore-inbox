@@ -1,107 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWAIVIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWAIVIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWAIVIF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 16:08:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWAIVIF
+	id S1750764AbWAIVIs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 16:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWAIVIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 16:08:05 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:57243 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750741AbWAIVIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 16:08:04 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Athlon 64 X2 cpuinfo oddities
-Date: Mon, 9 Jan 2006 22:10:03 +0100
-User-Agent: KMail/1.9
-Cc: LKML List <linux-kernel@vger.kernel.org>,
-       "Discuss x86-64" <discuss@x86-64.org>
-References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
-In-Reply-To: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 9 Jan 2006 16:08:48 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:10208 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750764AbWAIVIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 16:08:47 -0500
+Subject: Re: robust futex deadlock detection patch
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       robustmutexes@lists.osdl.org, dino@in.ibm.com,
+       David Singleton <dsingleton@mvista.com>
+In-Reply-To: <Pine.LNX.4.44L0.0601092109520.18240-100000@lifa01.phys.au.dk>
+References: <Pine.LNX.4.44L0.0601092109520.18240-100000@lifa01.phys.au.dk>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 16:08:06 -0500
+Message-Id: <1136840886.6197.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601092210.04186.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-01-09 at 21:16 +0100, Esben Nielsen wrote:
 
-On Monday, 9 January 2006 21:18, Jesper Juhl wrote:
-> I recently bought a Dual Core AMD Athlon 64 X2 4400+ CPU and dropped a
-> 2.6.15 kernel on the box and it runs very nice, but /proc/cpuinfo
-> shows a few things that seem slightly odd to me (haven't tried earlier
-> kernels on this so I don't know if cpuinfo looked different
-> previously).
-> It may be that it's absolutely correct and not odd at all, but I
-> thought I'd just ask :)
-> 
-> Here's what  cat /proc/cpuinfo  shows :
-> 
-> juhl@dragon:~$ cat /proc/cpuinfo
-> processor       : 0
-> vendor_id       : AuthenticAMD
-> cpu family      : 15
-> model           : 35
-> model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-> stepping        : 2
-> cpu MHz         : 2200.260
-> cache size      : 1024 KB
-> physical id     : 0
-> siblings        : 1
-> core id         : 0
-> cpu cores       : 1
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 1
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-> mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext
-> fxsr_opt lm 3dnowext 3dnow pni lahf_lm cmp_legacy
-> bogomips        : 4403.36
-> 
-> processor       : 1
-> vendor_id       : AuthenticAMD
-> cpu family      : 15
-> model           : 35
-> model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-> stepping        : 2
-> cpu MHz         : 2200.260
-> cache size      : 1024 KB
-> physical id     : 127
-> siblings        : 1
-> core id         : 1
-> cpu cores       : 1
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 1
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-> mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext
-> fxsr_opt lm 3dnowext 3dnow pni lahf_lm cmp_legacy
-> bogomips        : 4399.53
-> 
-> 
-> So, what's odd with that?
-> 
-> Well, first of all you'll notice that the second core shows a
-> "physical id" of 127 while the first core shows an id of 0.  Shouldn't
-> the second core be id 1, just like the "core id" fields are 0 & 1?
+> You only take the spinlocks corresponding to the current lock. What about
+> the next locks in the chain? Remember those locks might not be
+> futexes but a lock inside the kernel, taken in system calls. I.e. the
+> robust_sem might not protect you.
+> If there are n locks you need to lock n lock->wait_lock and n
+> owner->task->pi_lock as you traverse the locks. That is what I tried to
+> sketch in the examble below.
 
-FWIW, I'm running 2.6.15 on Athlon X2 4200 and the second core's
-physical id is 0 (ie. same as of the frist one), the number of siblings
-for each core is 2, and the "cpu cores" value is 2 as well (yours is 1,
-apparently ;-)).
+The thing about this is that you can't (if the kernel is not buggy)
+deadlock on the kernel spin locks.  As long as you protect the locks in
+the futex from deadlocking you are fine.  This is because you don't grab
+a futex after grabbing a kernel spin lock.  All kernel spin locks
+__must__ be released before going back to user land, and that's where
+you grab the futexes.
 
-Greetings,
-Rafael
+-- Steve
+
+

@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWAISMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWAISOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbWAISMj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:12:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWAISMi
+	id S1030181AbWAISOE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWAISOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:12:38 -0500
-Received: from outgoing.tpinternet.pl ([193.110.120.20]:19137 "EHLO
-	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
-	id S964899AbWAISMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:12:38 -0500
-In-Reply-To: <1136828040.9957.79.camel@mindpipe>
-References: <5t06S-7nB-15@gated-at.bofh.it> <1136824149.5785.75.camel@tara.firmix.at> <1136824880.9957.55.camel@mindpipe>  <200601091753.36485.oliver@neukum.org> <1136827900.6659.66.camel@localhost.localdomain> <1136828040.9957.79.camel@mindpipe>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <BBF4E2B4-40D8-4293-8D87-2B89FE45ECFB@neostrada.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
-       Bernd Petrovitsch <bernd@firmix.at>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 9 Jan 2006 13:14:04 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:19843 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S964907AbWAISOD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 13:14:03 -0500
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+Date: Mon, 9 Jan 2006 11:21:54 -0700
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: linux-usb-devel@lists.sourceforge.net
+cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
+       info-linux@ldcmail.amd.com, thomas.dahlmann@amd.com
+Subject: Re: UDC support for MIPS/AU1200 and Geode/CS5536
+Message-ID: <20060109182154.GL17575@cosmic.amd.com>
+References: <20060109180356.GA8855@cosmic.amd.com>
+MIME-Version: 1.0
+In-Reply-To: <20060109180356.GA8855@cosmic.amd.com>
+User-Agent: Mutt/1.5.11
+X-WSS-ID: 6FDC78353982717051-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Date: Mon, 9 Jan 2006 19:11:09 +0100
-To: Lee Revell <rlrevell@joe-job.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Do most Linux GUI apps really render everything without regard to  
-> what's
-> obscured and what's visible?
+On 09/01/06 11:03 -0700, Jordan Crouse wrote:
 
-Yes. Naive usage of backing store is right now pretty much the norm.  
-However the
-problem isn't the fact that the rendering occurs. The problem is that  
-it occurs synchronously
-and that composition is serializing with event handling.
+> From the "two-birds-one-stone" department, I am pleased to present USB UDC
+> support for both the MIPS Au1200 SoC and the Geode CS5535 south bridge.  
+                                                     ^^^^^^
+Of course, I meant the CS5536 - this *won't* work for the CS5535.
+
+Jordan
+
+-- 
+Jordan Crouse
+Senior Linux Engineer
+AMD - Personal Connectivity Solutions Group
+<www.amd.com/embeddedprocessors>
+

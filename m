@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWAIRQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWAIRQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWAIRQO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:16:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWAIRQO
+	id S1030198AbWAIRQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWAIRQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:16:14 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:63631 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S964883AbWAIRQN (ORCPT
+	Mon, 9 Jan 2006 12:16:26 -0500
+Received: from mx01.qsc.de ([213.148.129.14]:29854 "EHLO mx01.qsc.de")
+	by vger.kernel.org with ESMTP id S964883AbWAIRQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:16:13 -0500
-Subject: PATCH: Remove dead project
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Content-Type: text/plain
+	Mon, 9 Jan 2006 12:16:23 -0500
+From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
+Organization: ExactCODE
+To: Hannu Savolainen <hannu@opensound.com>
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+Date: Mon, 9 Jan 2006 18:12:55 +0100
+User-Agent: KMail/1.9
+Cc: Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+       linux-sound@vger.kernel.org,
+       ALSA development <alsa-devel@alsa-project.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de> <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi>
+In-Reply-To: <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 09 Jan 2006 17:19:10 +0000
-Message-Id: <1136827150.6659.55.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200601091812.55943.rene@exactcode.de>
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, On Monday 09 January 2006 16:10, Hannu Savolainen
+	wrote: > > > I don't think so. The library can do such conversions (and
+	alsa-lib does) > > > quite easy. If we have a possibility to remove the
+	code from the kernel > > > space without any drawbacks, then it should
+	be removed. I don't see any > > > advantage to have such conversions in
+	the kernel. > > > > Also, when the data is already available as single
+	streams in a user-space > > multi track application, why should it be
+	forced interleaved, when the hardware > > could handle the format just
+	fine? > Because the conversion doesn't cost anything. Trying to avoid it
+	by > making the API more complicated (I would even say confusing) is
+	extreme > overkill. [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Hi,
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-mm2/MAINTAINERS linux-2.6.15-mm2/MAINTAINERS
---- linux.vanilla-2.6.15-mm2/MAINTAINERS	2006-01-09 14:33:47.000000000 +0000
-+++ linux-2.6.15-mm2/MAINTAINERS	2006-01-09 14:51:00.000000000 +0000
-@@ -2394,13 +2394,6 @@
- M:	nico@cam.org
- S:	Maintained
- 
--SNA NETWORK LAYER
--P:	Jay Schulist
--M:	jschlst@samba.org
--L:	linux-sna@turbolinux.com
--W:	http://www.linux-sna.org
--S:	Supported
--
- SOFTWARE RAID (Multiple Disks) SUPPORT
- P:	Ingo Molnar
- M:	mingo@redhat.com
+On Monday 09 January 2006 16:10, Hannu Savolainen wrote:
 
+> > > I don't think so. The library can do such conversions (and alsa-lib does) 
+> > > quite easy. If we have a possibility to remove the code from the kernel 
+> > > space without any drawbacks, then it should be removed. I don't see any 
+> > > advantage to have such conversions in the kernel.
+> > 
+> > Also, when the data is already available as single streams in a user-space
+> > multi track application, why should it be forced interleaved, when the hardware
+> > could handle the format just fine?
+> Because the conversion doesn't cost anything. Trying to avoid it by 
+> making the API more complicated (I would even say confusing) is extreme 
+> overkill. 
+
+Since when doesn't cost convesion anything? I'm able to count a lot of wasted
+CPU cycles in there ...
+
+> Even worse this kind of features weaken the device abstraction provided by 
+> the API. The applications will have to check for this and 
+> that and provide support for 100s of special cases that may be required by 
+> certain devices. 
+
+An lame write() only player can still open the default device and get the auto-convert
+chain it deserves ...
+
+Yours,
+  Rene Rebe
+
+-- 
+ExactCODE Berlin

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWAIALO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161257AbWAIAW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbWAIALO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 19:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965364AbWAIALO
+	id S1161257AbWAIAW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 19:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965356AbWAIAW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 19:11:14 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:61108 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S965158AbWAIALN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 19:11:13 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 8 Jan 2006 16:11:10 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@localhost.localdomain
-To: "David S. Miller" <davem@davemloft.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/RFC] POLLHUP tinkering ...
-In-Reply-To: <20060108.160802.103497642.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.63.0601081610130.6925@localhost.localdomain>
-References: <Pine.LNX.4.63.0601081528170.6925@localhost.localdomain>
- <20060108.160802.103497642.davem@davemloft.net>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Sun, 8 Jan 2006 19:22:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:38040 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965010AbWAIAWz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 19:22:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=bnpljoH16fK6MwUFdVySs5ql/CMP49wwl2CYvn1/cTaYa5b77qi8pPIUQIiQiBsHHhg/eSJBWYZjJBR9DSwO4ReV0rC9wOPpLrN5LiUVFWinCBAADAMxmdpP4NGa8scZU2cEtSKs2Rv8vi4E6MfNzgZ6ry9yxofU/y7O/5rDtAU=
+Message-ID: <43C1ACB4.4030704@gmail.com>
+Date: Mon, 09 Jan 2006 08:22:12 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Adrian Bunk <bunk@stusta.de>
+CC: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: intelfb
+References: <20060108234839.GF3001@mail.muni.cz> <20060108235753.GR3774@stusta.de>
+In-Reply-To: <20060108235753.GR3774@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006, David S. Miller wrote:
+Adrian Bunk wrote:
+> On Mon, Jan 09, 2006 at 12:48:40AM +0100, Lukas Hejtmanek wrote:
+> 
+>> Hello,
+> 
+> Hi Lukas,
+> 
+>> is someone developing intelfb driver? Or is it some old (maybe functional) code?
+> 
+> the MAINTAINERS file in the kernel sources says:
+> 
+> INTEL 810/815 FRAMEBUFFER DRIVER
+> P:      Antonino Daplas
+> M:      adaplas@pol.net
+> L:      linux-fbdev-devel@lists.sourceforge.net
+> S:      Maintained
+> 
 
-> From: Davide Libenzi <davidel@xmailserver.org>
-> Date: Sun, 8 Jan 2006 16:02:10 -0800 (PST)
->
->> But if and hangup happened with some data (data + FIN), they won't
->> receive any more events for the Linux poll subsystem (and epoll,
->> when using the event triggered interface), so they are forced to
->> issue an extra read() after the loop to detect the EOF
->> condition. Besides from the extra read() overhead, the code does not
->> come exactly pretty.
->
-> The extra last read is always necessary, it's an error synchronization
-> barrier.  Did you know that?
->
-> If a partial read or write hits an error, the successful amount of
-> bytes read or written before the error occurred is returned.  Then any
-> subsequent read or write will report the error immediately.
+I maintain i810fb.  The author and maintainer of intelfb for 2.6 is Sylvain
+Meyer. For 2.4, the author is David Dawes.
 
-Sorry for the missing info, but I was clearly talking about O_NONBLOCK 
-here.
+> 
+> Antonino is quite active and whatever your question/problem is he's the 
+> best contact for.
 
+Yes, I accept patches for this driver. I also make changes for this
+driver as long as the change does not deal with the hardware to deeply.
 
-
-- Davide
-
-
+Tony

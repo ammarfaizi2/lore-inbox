@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWAIVq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWAIVu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWAIVq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 16:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWAIVqZ
+	id S1750782AbWAIVu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 16:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWAIVu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 16:46:25 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:65512 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1750775AbWAIVqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 16:46:25 -0500
-Date: Mon, 9 Jan 2006 22:46:02 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Dave Jones <davej@redhat.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ATI 64-bit fglrx compile patches for 2.6.15-gitX
-In-Reply-To: <20060109174055.GB25102@redhat.com>
-Message-ID: <Pine.LNX.4.60.0601092241120.2685@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0601091734300.333@kepler.fjfi.cvut.cz>
- <20060109174055.GB25102@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jan 2006 16:50:58 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:56591 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750783AbWAIVu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 16:50:57 -0500
+Date: Mon, 9 Jan 2006 22:50:38 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 12/11] kbuild: re-export VERSION, PATCHLEVEL, SUBLEVEL
+Message-ID: <20060109215038.GB17315@mars.ravnborg.org>
+References: <20060109211157.GA14477@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109211157.GA14477@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jan 2006, Dave Jones wrote:
+One last minute patch added to the tree:
 
-> On Mon, Jan 09, 2006 at 05:47:01PM +0100, Martin Drab wrote:
->  > 
->  > I know this is a little bit OT here, and if you feel irritated by the 
->  > binary drivers, just ignore this. But in case anyone is interested, here 
->  > are some patches I did that make the the 64-bit fglrx module compile 
->  > (cleanly, at least for me) on 2.6.15-git3 and it seems to work here 
->  > (Mobile Radeon 9600, Athlon64), no guarantee though, you're just going to 
->  > have to try and see yourselfs. ;)
->  > .... 
->  > +#if 0
->  >  module_init(agp_via_init);
->  >  module_exit(agp_via_cleanup);
->  >  
->  >  MODULE_LICENSE("GPL");
->  >  MODULE_AUTHOR("Dave Jones <davej@codemonkey.org.uk>");
->  > +#endif
-> 
-> If you must assist ATI in continuing to abuse the GPL in code
-> that I've written, please do it somewhere that I don't have
-> to read about it.
+kbuild: re-export VERSION, PATCHLEVEL, SUBLEVEL
 
-Ah, yes, sorry, I was surprised myself to see this there. It wasn't and 
-isn't my intention to help ATI in this, sorry.
+Eric Sandeen <sandeen@sgi.com> pointed out that it is usefull to have
+access to VERSION, PATCHLEVEL, SUBLEVEL in external modules, and gooling
+a litte confirmed this.
+So re-export them.
+Usage within the kernel is still discouraged but possible.
 
-I'm going to have to think twice next time before doing something. :)
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-Martin
+---
+commit 4f0210b9c4889eede9f8f379f93570c01998ccb9
+tree 0883096acb3bc46e65a6873b777f01214d6a7852
+parent cb58455c48dc43536e5548bdba4e916b2f0cf13d
+author Sam Ravnborg <sam@mars.ravnborg.org> Mon, 09 Jan 2006 22:48:34 +0100
+committer Sam Ravnborg <sam@mars.ravnborg.org> Mon, 09 Jan 2006 22:48:34 +0100
+
+ Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index df60aa1..1d1afa5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -338,7 +338,7 @@ AFLAGS		:= -D__ASSEMBLY__
+ # Read KERNELRELEASE from .kernelrelease (if it exists)
+ KERNELRELEASE = $(shell cat .kernelrelease 2> /dev/null)
+ 
+-export	KERNELRELEASE \
++export	VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE \
+ 	ARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+ 	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
+ 	HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS

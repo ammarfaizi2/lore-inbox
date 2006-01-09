@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWAIR54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWAIR6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWAIR54 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWAIR54
+	id S1030230AbWAIR6a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:58:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWAIR63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:57:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12424 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030222AbWAIR5z (ORCPT
+	Mon, 9 Jan 2006 12:58:29 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:64188 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1030227AbWAIR61 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:57:55 -0500
-Date: Mon, 9 Jan 2006 12:57:48 -0500
-From: Dave Jones <davej@redhat.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060109175748.GD25102@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060107052221.61d0b600.akpm@osdl.org> <9a8748490601070708p4353eb0ev9ea15edee132b13b@mail.gmail.com> <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 9 Jan 2006 12:58:27 -0500
+Message-ID: <43C2B624.C70A4D6E@tv-sign.ru>
+Date: Mon, 09 Jan 2006 22:14:44 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: paulmck@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       vatsa@in.ibm.com
+Subject: Re: [PATCH 5/5][RFC] rcu: start new grace period from rcu_pending()
+References: <43C165D7.6EAB8E47@tv-sign.ru> <43C27417.AA1BA306@tv-sign.ru> <20060109173656.GC14738@us.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 06:47:01PM +0100, Jesper Juhl wrote:
+"Paul E. McKenney" wrote:
+> 
+> On Mon, Jan 09, 2006 at 05:32:55PM +0300, Oleg Nesterov wrote:
+> > Oleg Nesterov wrote:
+> > >
+> > > I think it is better to set ->qs_pending = 1 directly in __rcu_pending():
+> >
+> > This patch has a bug. I am sending a trivial fix, but now I am not
+> > sure myself that 1 timer tick saved worth the code uglification.
+> 
+> This is indeed an accident waiting to happen -- someone is bound to
+> replace the "|" with an "||", a change that is too easy for someone
+> to miss.  Once Vatsa is satisfied with the CPU-hotplug aspects of
+> this set of patches, if __rcu_pending() still has side-effects, I would
+> suggest something like the following:
+> 
+>         int rcu_pending(int cpu)
+>         {
+>                 int retval = 0;
+> 
+>                 if (__rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)))
+>                         retval = 1;
+>                 if (__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu)))
+>                         retval = 1;
+>                 return retval;
+>         }
+> 
+> A few more lines, but the intent is much more clear.  And I bet that
+> gcc generates reasonable code in either case.
+> 
+> Or maybe this is just me...
 
- > Here's what bad_page printed for me :
- > 
- > Bad page state in process 'kded'
- > [<c0103e77>] dump_stack+0x17/0x20
- > [<c0148999>] bad_page+0x69/0x160
+No, me too. For some reasons I can't re-send the patch today, will do
+tomorrow.
 
-Odd, there should be more state between the 'Bad page'
-and the backtrace.
+However, I am not sure anymore that this patch is a good idea. Exactly
+because it adds side-effects to rcu_pending().
 
-    printk(KERN_EMERG "Bad page state in process '%s'\n"
-		"page:%p flags:0x%0*lx mapping:%p mapcount:%d count:%d\n"
-		"Trying to fix it up, but a reboot is needed\n"
+So, unless somebody on CC: list thinks it may be useful - let's forget
+it.
 
-Did you aggressively trim that, or did it for some
-reason not get printed ?
- 
-		Dave
-
+Oleg.

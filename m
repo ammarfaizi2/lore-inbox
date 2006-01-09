@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWAIOSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWAIOSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWAIOSr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 09:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWAIOSr
+	id S932257AbWAIOSt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 09:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWAIOSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 09:18:47 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2878 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932257AbWAIOSq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 09:18:46 -0500
-Date: Mon, 9 Jan 2006 15:20:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15 cfq oops
-Message-ID: <20060109142036.GW3389@suse.de>
-References: <20060106201928.GI4595@redhat.com> <20060109105800.GT3389@suse.de> <20060109171550.6e59c30c.vsu@altlinux.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060109171550.6e59c30c.vsu@altlinux.ru>
+	Mon, 9 Jan 2006 09:18:49 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:45813 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932257AbWAIOSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 09:18:48 -0500
+Date: Mon, 09 Jan 2006 08:18:26 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+ can't for a long time
+In-reply-to: <5t5JU-7Sn-11@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43C270B2.4050305@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <5t06S-7nB-15@gated-at.bofh.it> <5t34G-3Zu-21@gated-at.bofh.it>
+ <5t5pU-7tD-37@gated-at.bofh.it> <5t5JU-7Sn-11@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09 2006, Sergey Vlasov wrote:
-> On Mon, 9 Jan 2006 11:58:01 +0100 Jens Axboe wrote:
-> 
-> [skip]
-> > I've merged this up for 2.6.16-rc inclusion, probably should go to
-> > stabel as well.
-> > 
-> > ---
-> > 
-> > [PATCH] Kill blk_attempt_remerge()
-> > 
-> > It's a bad interface, and it's always done too late. Remove it.
-> > 
-> > Signed-off-by: Jens Axboe <axboe@suse.de>
-> > 
-> [skip]
-> > diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-> > index 1539603..2e44d81 100644
-> > --- a/drivers/cdrom/cdrom.c
-> > +++ b/drivers/cdrom/cdrom.c
-> > @@ -426,7 +426,7 @@ int register_cdrom(struct cdrom_device_i
-> >  		cdi->exit = cdrom_mrw_exit;
-> >  
-> >  	if (cdi->disk)
-> > -		cdi->cdda_method = CDDA_BPC_FULL;
-> > +		cdi->cdda_method = CDDA_BPC_SINGLE;
-> >  	else
-> >  		cdi->cdda_method = CDDA_OLD;
-> 
-> Does not seem to be related to the rest of patch...
+Yaroslav Rastrigin wrote:
+> Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
+> strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
+> Whenever it is needed by apps I'm launching or working with. 
 
-Indeed, dirty git tree...
+There is no different VM policy here, Windows behaves quite similarly. 
+It does not leave memory around unused, it uses it for disk cache.
 
 -- 
-Jens Axboe
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

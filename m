@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWAIN4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWAIN5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWAIN4b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWAIN4b
+	id S964778AbWAIN5E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964770AbWAIN5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:56:31 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:50369 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932161AbWAIN4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:56:30 -0500
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
-	can't for a long time
-From: Lee Revell <rlrevell@joe-job.com>
-To: Yaroslav Rastrigin <yarick@it-territory.ru>
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200601091207.14939.yarick@it-territory.ru>
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
-	 <20060109080632.GA27915@codepoet.org>
-	 <200601091207.14939.yarick@it-territory.ru>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 08:56:28 -0500
-Message-Id: <1136814988.9957.7.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Mon, 9 Jan 2006 08:57:04 -0500
+Received: from terrhq.ru ([81.222.97.18]:29887 "EHLO mail.terrhq.ru")
+	by vger.kernel.org with ESMTP id S964778AbWAIN5C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 08:57:02 -0500
+From: Yaroslav Rastrigin <yarick@it-territory.ru>
+Organization: IT-Territory 
+To: Kasper Sandberg <lkml@metanurb.dk>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 16:56:48 +0300
+User-Agent: KMail/1.9
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091403.46304.yarick@it-territory.ru> <1136813783.8412.4.camel@localhost>
+In-Reply-To: <1136813783.8412.4.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601091656.48355.yarick@it-territory.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-09 at 12:07 +0300, Yaroslav Rastrigin wrote:
-> Hi, Eric, 
-> On 9 January 2006 11:06, Erik Andersen wrote:
-> > On Mon Jan 09, 2006 at 03:54:24PM +0800, Boxer Gnome wrote:
-> > > and the dos ntfs driver was not released by the MS offical.So,what' wrong?
-> > > 
-> > > Somebody who can explain this ?
+Hi, Kasper,
+> > without worrying about my on-the-road availability. 
+> > Suspend to disk has nasty tendency to ruin my whole hot live X session, since X can't properly restore VT on resume.
+> > Overall performance isn't that bad, either, but I just can't understand, why KATE (Kde more or less advanced editor) takes twice as long to start 
+> > as UltraEdit in _emulated_ (VMWare) Windows XP running on this same box.
+> i can not take this seriously.. on both my laptop and workstation, the
+> kate window is up in less than a second after i either run kate from a
+> terminal, or select it in the kde menu..
+Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
+strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
+Whenever it is needed by apps I'm launching or working with. 
+> 
+> unless ofcourse you are not using kde, and kate is the first kde
+> application you start, then it will need to load much more than simply
+> kate, at which point you cant really say what you are doing, since it
+> would be somewhat like comparing half of windows's startup time +
+> ultraedit startup time to kate startup time...
+No. Fully loaded KDE session (without kdesktop and kwin, since I don't use first and using my own WM instead of second).
+So almost all necessary libraries are hot and loaded, and all what's missing is a dozen of Window's and Pixmap's to allocate and two threads to 
+handle events. And it takes seconds, not tens of a second, as in UltraEdit case 
+> 
 > > 
-> > Sure, thats easy.  You havn't paid Anton and Richard to quit
-> > their jobs to work full time on finishing full linux ntfs
-> > support.  It is really quite amazing how many "linux can't do foo"
-> > type problems could be quickly solved by sending large amounts of
-> > money to the right people.
-> Could or would you be so kind to provide at least moderately complete pricelist ? Whom and how much should I pay to have correct support for
-> intel graphics chipset, 2200BG Wi-Fi, complete suspend-to-disk/suspend-to-ram and to get an overall performance boost ? 
+> > So, the question remains the same - whom and how much I need to pay to solve abovementioned problems ?
+> > 
+> 
 > 
 
-You do understand that most of these types of problem are due to
-incomplete hardware specs, and that no amount of money thrown at the
-developers can help - you need to talk to the vendors.
-
-Lee
-
+-- 
+Managing your Territory since the dawn of times ...

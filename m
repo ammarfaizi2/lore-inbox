@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWAIUWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWAIUXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWAIUWX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWAIUWX
+	id S1751312AbWAIUXH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWAIUXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:22:23 -0500
-Received: from smtp-2.smtp.ucla.edu ([169.232.47.136]:5321 "EHLO
-	smtp-2.smtp.ucla.edu") by vger.kernel.org with ESMTP
-	id S1751309AbWAIUWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:22:22 -0500
-Date: Mon, 9 Jan 2006 12:22:19 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: Roberto Nibali <ratz@drugphish.ch>
-cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-In-Reply-To: <43C2C482.6090904@drugphish.ch>
-Message-ID: <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu>
-References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu>
- <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu>
- <1136030901.28365.51.camel@localhost.localdomain> <20051231130151.GA15993@alpha.home.local>
- <Pine.LNX.4.64.0601041402340.28134@potato.cts.ucla.edu> <20060105054348.GA28125@w.ods.org>
- <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
- <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
+	Mon, 9 Jan 2006 15:23:07 -0500
+Received: from mail.linicks.net ([217.204.244.146]:32967 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1751312AbWAIUXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 15:23:05 -0500
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: ALSA - pnp OS bios option
+Date: Mon, 9 Jan 2006 20:22:56 +0000
+User-Agent: KMail/1.9
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Probable-Spam: no
-X-Spam-Report: none
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601092022.56244.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jan 2006, Roberto Nibali wrote:
+Hi all,
 
->>> What's the SCSI BIOS version?
->> 
->> The SCSI controller is an onboard AIC 7899 (in a Dell PowerEdge 2650), 
->> and reports itself as "25309".
->
-> What I meant was the SCSI Bios revision you get to see when you cold 
-> reset the system.
-
-That is the SCSI BIOS rev.  The machine is a Dell PowerEdge 2650 and 
-that's the onboard AIC 7899.  It comes up as "BIOS Build 25309".
+On New Years eve my CPU (Athlon 1200 ams3b) died.  I managed to get a 
+replacement off e-bay.  During my diagnosis of what happened, I reset BIOS, 
+so obviously when I got the replacement I had to set it all up again.
 
 
--Chris
+Info: 2.6.15, on base Slack 10 (updated a lot from source).
+
+PCI:
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 
+22)
+00:07.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 10)
+00:07.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] 
+(rev 10)
+00:07.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] 
+(rev 10)
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
+30)
+00:09.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 
+78)
+00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+00:0f.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
+07)
+01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX 440] 
+(rev a3)
+
+
+
+If I turn OFF PNP OS, when I boot, 'alsactl restore' (run from rc.local) 
+squinnies:
+
+Set_Control:894 Name mismatch ... Control #47
+896: Index mismatch (0/0) for Control #47
+1008: Bad control.47.value
+
+Then I messed with alsamixer/aslactl store~restore etc. and all appeared OK in 
+console - but sound is all messed as if no restore was done.  And I get the 
+same error on boot again.
+
+Turn ON PNP OS in BIOS, and all works again, alsactl restore works fine.
+
+Now, after the issue I had with my CPU dying, I hate keep rebooting to test 
+this, but the tests I done appear as above.
+
+So, is this something else?  Or do I need to set PNP OS in BIOS for ALSA?
+
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

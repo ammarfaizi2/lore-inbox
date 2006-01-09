@@ -1,89 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWAIPNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWAIPPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWAIPNh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWAIPNh
+	id S932372AbWAIPPv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 10:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWAIPPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:13:37 -0500
-Received: from host1.compusonic.fi ([195.238.198.242]:7026 "EHLO
-	minor.compusonic.fi") by vger.kernel.org with ESMTP id S932343AbWAIPNg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:13:36 -0500
-Date: Mon, 9 Jan 2006 17:10:58 +0200 (EET)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
-Cc: Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       linux-sound@vger.kernel.org,
-       ALSA development <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-In-Reply-To: <200601091405.23939.rene@exactcode.de>
-Message-ID: <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi>
-References: <20050726150837.GT3160@stusta.de> <Pine.LNX.4.61.0601080225500.17252@zeus.compusonic.fi>
- <Pine.LNX.4.61.0601081007550.9470@tm8103.perex-int.cz> <200601091405.23939.rene@exactcode.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463749119-582612059-1136819458=:21552"
+	Mon, 9 Jan 2006 10:15:51 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:18386 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932372AbWAIPPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 10:15:50 -0500
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+	can't for a long time
+From: Lee Revell <rlrevell@joe-job.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200601091528.19285.oliver@neukum.org>
+References: <5t06S-7nB-15@gated-at.bofh.it> <5t5JU-7Sn-11@gated-at.bofh.it>
+	 <43C270B2.4050305@shaw.ca>  <200601091528.19285.oliver@neukum.org>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 10:15:47 -0500
+Message-Id: <1136819748.9957.12.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 2006-01-09 at 15:28 +0100, Oliver Neukum wrote:
+> Am Montag, 9. Januar 2006 15:18 schrieb Robert Hancock:
+> > Yaroslav Rastrigin wrote:
+> > > Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
+> > > strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
+> > > Whenever it is needed by apps I'm launching or working with. 
+> > 
+> > There is no different VM policy here, Windows behaves quite similarly. 
+> > It does not leave memory around unused, it uses it for disk cache.
+> 
+> That doesn't mean that the rate of eviction is the same.
+> Is it possible that read-ahead is not aggressive enough?
 
----1463749119-582612059-1136819458=:21552
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Enough for what?  What is the exact problem you are trying to solve?
 
-On Mon, 9 Jan 2006, Ren=E9 Rebe wrote:
+Lee
 
-> > I don't think so. The library can do such conversions (and alsa-lib doe=
-s)=20
-> > quite easy. If we have a possibility to remove the code from the kernel=
-=20
-> > space without any drawbacks, then it should be removed. I don't see any=
-=20
-> > advantage to have such conversions in the kernel.
->=20
-> Also, when the data is already available as single streams in a user-spac=
-e
-> multi track application, why should it be forced interleaved, when the ha=
-rdware
-> could handle the format just fine?
-Because the conversion doesn't cost anything. Trying to avoid it by=20
-making the API more complicated (I would even say confusing) is extreme=20
-overkill.=20
-
-Each feature of this kind requires two additional API=20
-calls (one for checking in which way the hardware works and another to=20
-set the device to use the feature). It's also possible to implement the=20
-feature in a way that requires more new calls. By adding support for=20
-dozens of features like this it's easy to create an API that has 1500+=20
-calls.
-
-Even worse this kind of features weaken the device abstraction provided by=
-=20
-the API. The applications will have to check for this and=20
-that and provide support for 100s of special cases that may be required by=
-=20
-certain devices.=20
-
-IMHO this has already happened with ALSA. Normal=20
-programmers (other than few of the world class gurus) have no way to=20
-understand the API. I would consider myself at least moderately=20
-experienced sound programmer (25+ years of programming experience and more=
-=20
-than half of it on sound). However even after two years of more or less=20
-intense learning I don't know what is the preferred way to use ALSA. I=20
-think this is a general problem because practically all ALSA applications u=
-se=20
-different ALSA API calls.
-
-Best regards,
-
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM
----1463749119-582612059-1136819458=:21552--

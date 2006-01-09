@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWAIUhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWAIUl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWAIUhu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWAIUhu
+	id S1751323AbWAIUl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWAIUl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:37:50 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:51945 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751322AbWAIUht convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:37:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=uDaM7yMWTIjR5jF3rzuZwVGoG4tYz5T1i+wzhsGXXTbRYpk3O3uuToL/zeJ5T37WfwLqh01t5hGaOr9e0x4He5b2JdzFmoTu/0rddsSWZlw+ovNBF2MkaoqIfdTiBAZQzHzfhNPYOX36c7kJIM5wCzA2TydBQWjevizrnQVf9vU=
-Message-ID: <9a8748490601091237s57071e57mbd2c4172a0e4dd@mail.gmail.com>
-Date: Mon, 9 Jan 2006 21:37:49 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Mouse stalls (again) with 2.6.15-mm2
-Cc: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
+	Mon, 9 Jan 2006 15:41:27 -0500
+Received: from gold.veritas.com ([143.127.12.110]:29107 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751323AbWAIUl0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 15:41:26 -0500
+Date: Mon, 9 Jan 2006 20:41:37 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Doug Gilbert <dougg@torque.net>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Mike Christie <michaelc@cs.wisc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm
+In-Reply-To: <9a8748490601091230g5ed68e07rc379e52ef06ec31a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0601092039010.16368@goblin.wat.veritas.com>
+References: <20060107052221.61d0b600.akpm@osdl.org> 
+ <9a8748490601070708p4353eb0ev9ea15edee132b13b@mail.gmail.com> 
+ <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com> 
+ <20060109175748.GD25102@redhat.com>  <9a8748490601091001y74fba5q2cd7e08a324701c3@mail.gmail.com>
+  <Pine.LNX.4.61.0601091819160.14800@goblin.wat.veritas.com> 
+ <9a8748490601091048x46716e25u2fe2ebe9b5fbc9bb@mail.gmail.com> 
+ <Pine.LNX.4.61.0601091857430.15219@goblin.wat.veritas.com> 
+ <9a8748490601091139pf5fb6a0v3c8b3bcb41b85940@mail.gmail.com> 
+ <Pine.LNX.4.61.0601092005510.16057@goblin.wat.veritas.com>
+ <9a8748490601091230g5ed68e07rc379e52ef06ec31a@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jan 2006 20:41:26.0278 (UTC) FILETIME=[0F7F4A60:01C6155D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/21/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 12/21/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On 12/11/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > > On 12/11/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > >
-> > > > To stop resync attempts do:
-> > > >
-> > > >         echo -n 0 > /sys/bus/serio/devices/serioX/resync_time
-> > > >
-> > > > where serioX is serio port asociated with your mouse.
-> > > >
-> > > This cures the problem nicely with no obvious ill effects with the
-> > > mouse plugged into the KVM...
-> > >
+On Mon, 9 Jan 2006, Jesper Juhl wrote:
+> On 1/9/06, Hugh Dickins <hugh@veritas.com> wrote:
 > >
-> > Jesper,
-> >
-> > Could you please try applying the attached patch to -mm and see if you
-> > still have "resync failed" messages when you don't "echo 0" into
-> > resync_time attribute?
-> >
-> I applied the patch to 2.6.15-rc5-mm3, took out the "echo 0 to
-> resync_time" workaround that I had in rc.local and I no longer see the
-> "resync failed" messages in dmesg.
-> With this patch applied everything seems to be working OK with the
-> mouse attached to the KVM.
->
+> > sg_page_malloc clear the data buffer, not that extent of mem_map.
+> 
+> Hugh, you're a genious!
+> I added your small patch on top of your previous one and now
+> 2.6.15-mm2 doesn't crash any more  :-)
 
-Hi Dmitry,
+Great, thanks a lot for trying it.  I'll rush that one to Linus now
+(the __GFP_COMP patch can wait and go through the proper channels).
 
-I'm sorry to report that this problem made a comeback :-(
-With 2.6.15-mm2 I again get the mouse stalls and these messages in dmesg :
-
-[   64.351000] psmouse.c: resync failed, issuing reconnect request
-[   94.210000] psmouse.c: resync failed, issuing reconnect request
-[  132.850000] psmouse.c: resync failed, issuing reconnect request
-[  148.498000] psmouse.c: resync failed, issuing reconnect request
-[  185.414000] psmouse.c: resync failed, issuing reconnect request
-[  220.509000] psmouse.c: resync failed, issuing reconnect request
-[  375.436000] psmouse.c: resync failed, issuing reconnect request
-[  406.410000] psmouse.c: resync failed, issuing reconnect request
-[  419.382000] psmouse.c: resync failed, issuing reconnect request
-[  432.016000] psmouse.c: resync failed, issuing reconnect request
-[  448.275000] psmouse.c: resync failed, issuing reconnect request
-[  462.244000] psmouse.c: resync failed, issuing reconnect request
-[  477.461000] psmouse.c: resync failed, issuing reconnect request
-[  490.851000] psmouse.c: resync failed, issuing reconnect request
-[  533.566000] psmouse.c: resync failed, issuing reconnect request
-[  563.348000] psmouse.c: resync failed, issuing reconnect request
-[  580.606000] psmouse.c: resync failed, issuing reconnect request
-[  620.961000] psmouse.c: resync failed, issuing reconnect request
-[  639.404000] psmouse.c: resync failed, issuing reconnect request
-[  690.256000] psmouse.c: resync failed, issuing reconnect request
-[  698.772000] psmouse.c: resync failed, issuing reconnect request
-[  716.679000] psmouse.c: resync failed, issuing reconnect request
-
-2.6.15 is fine.
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Hugh

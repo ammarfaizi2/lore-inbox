@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbWAIAKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWAIALO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965144AbWAIAKb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 19:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWAIAKb
+	id S965158AbWAIALO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 19:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965364AbWAIALO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 19:10:31 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:13779 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965144AbWAIAKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 19:10:31 -0500
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-Date: Mon, 9 Jan 2006 01:09:04 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com> <Pine.LNX.4.61.0601082158310.8860@spit.home> <1136756494.1043.16.camel@grayson>
-In-Reply-To: <1136756494.1043.16.camel@grayson>
+	Sun, 8 Jan 2006 19:11:14 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:61108 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S965158AbWAIALN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 19:11:13 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 8 Jan 2006 16:11:10 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@localhost.localdomain
+To: "David S. Miller" <davem@davemloft.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] POLLHUP tinkering ...
+In-Reply-To: <20060108.160802.103497642.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.63.0601081610130.6925@localhost.localdomain>
+References: <Pine.LNX.4.63.0601081528170.6925@localhost.localdomain>
+ <20060108.160802.103497642.davem@davemloft.net>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601090109.06051.zippel@linux-m68k.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 8 Jan 2006, David S. Miller wrote:
 
-On Sunday 08 January 2006 22:41, Ben Collins wrote:
-
-> That's not entirely acceptable. The reason this shows up is if an
-> automatic build is being done, and the config files are not up-to-date,
-> the prefered action is a build failure, not selecting defaults. The
-> reason for my fix was that instead of filling up diskspace with a
-> logfile of kconf's infinite loop, we just exit with an error.
+> From: Davide Libenzi <davidel@xmailserver.org>
+> Date: Sun, 8 Jan 2006 16:02:10 -0800 (PST)
 >
-> Currently, this is the only way to ensure that these issues don't go
-> unnoticed.
+>> But if and hangup happened with some data (data + FIN), they won't
+>> receive any more events for the Linux poll subsystem (and epoll,
+>> when using the event triggered interface), so they are forced to
+>> issue an extra read() after the loop to detect the EOF
+>> condition. Besides from the extra read() overhead, the code does not
+>> come exactly pretty.
+>
+> The extra last read is always necessary, it's an error synchronization
+> barrier.  Did you know that?
+>
+> If a partial read or write hits an error, the successful amount of
+> bytes read or written before the error occurred is returned.  Then any
+> subsequent read or write will report the error immediately.
 
-Then something is wrong with your automatic build. If the config needs to be 
-updated and stdin is redirected during a kbuild, it will already abort.
+Sorry for the missing info, but I was clearly talking about O_NONBLOCK 
+here.
 
-bye, Roman
+
+
+- Davide
+
+

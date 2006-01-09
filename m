@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965145AbWAIAfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965364AbWAIAgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965145AbWAIAfi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 19:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965364AbWAIAfi
+	id S965364AbWAIAgW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 19:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965371AbWAIAgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 19:35:38 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:63156 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S965145AbWAIAfi
+	Sun, 8 Jan 2006 19:36:22 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:23408 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP id S965364AbWAIAgU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 19:35:38 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 8 Jan 2006 16:35:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@localhost.localdomain
-To: "David S. Miller" <davem@davemloft.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/RFC] POLLHUP tinkering ...
-In-Reply-To: <20060108.162017.97708180.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.63.0601081627340.6925@localhost.localdomain>
-References: <Pine.LNX.4.63.0601081528170.6925@localhost.localdomain>
- <20060108.160802.103497642.davem@davemloft.net>
- <Pine.LNX.4.63.0601081610130.6925@localhost.localdomain>
- <20060108.162017.97708180.davem@davemloft.net>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Sun, 8 Jan 2006 19:36:20 -0500
+Date: Mon, 9 Jan 2006 02:33:43 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Olivier Galibert <galibert@pobox.com>,
+       Martin Drab <drab@kepler.fjfi.cvut.cz>, Takashi Iwai <tiwai@suse.de>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+In-Reply-To: <Pine.LNX.4.61.0601081424560.10981@tm8103.perex-int.cz>
+Message-ID: <Pine.LNX.4.61.0601090231260.32511@zeus.compusonic.fi>
+References: <20060104030034.6b780485.zaitcev@redhat.com>
+ <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
+ <Pine.BSO.4.63.0601052022560.15077@rudy.mif.pg.gda.pl> <s5h8xtshzwk.wl%tiwai@suse.de>
+ <20060108020335.GA26114@dspnet.fr.eu.org> <Pine.LNX.4.60.0601080317040.22583@kepler.fjfi.cvut.cz>
+ <20060108132122.GB96834@dspnet.fr.eu.org> <Pine.LNX.4.61.0601081424560.10981@tm8103.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006, David S. Miller wrote:
+On Sun, 8 Jan 2006, Jaroslav Kysela wrote:
 
-> From: Davide Libenzi <davidel@xmailserver.org>
-> Date: Sun, 8 Jan 2006 16:11:10 -0800 (PST)
->
->> On Sun, 8 Jan 2006, David S. Miller wrote:
->>
->>> The extra last read is always necessary, it's an error synchronization
->>> barrier.  Did you know that?
->>>
->>> If a partial read or write hits an error, the successful amount of
->>> bytes read or written before the error occurred is returned.  Then any
->>> subsequent read or write will report the error immediately.
->>
->> Sorry for the missing info, but I was clearly talking about O_NONBLOCK
->> here.
->
-> What I said still applies to O_NONBLOCK.
+> > - having a real kernel api for which you can make different libraries
+> >   depending on the need of the users
+> > 
+> > - stop making a fundamentally unsecure shared library mandatory
+> 
+> ALSA kernel API is real and binary compatible. 
+Less than an year ago you (or was it Takashi) told that the kernel API 
+cannot be used or documented because it may be changed any time without 
+notice.
 
-I thought you said in _not_ necessary, sorry. The extra read() for error 
-discovery is just bogus, w/out proper Linux poll reporting. The epoll 
-interface will have wait queue heads dropped inside the monitored devices 
-wait queue, so I assume that an error condition would trigger a wakeup -> 
-epoll event. If this is not true (but I'm pretty much sure it is), look at 
-the extra read() for error reporting:
+Best regards,
 
-1) Good
-
-read_loop();
---> Error happen on device
-if (read() == ERROR)
- 	gotcha();
-
-2)
-
-read_loop();
-if (read() == ERROR)
- 	whoops();
---> Error happen on device
-
-
-
-
-- Davide
-
-
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

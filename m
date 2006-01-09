@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWAIOpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWAIOvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWAIOpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 09:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWAIOpY
+	id S932307AbWAIOvu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 09:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWAIOvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 09:45:24 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:3743 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S964770AbWAIOpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 09:45:23 -0500
-Date: Mon, 9 Jan 2006 15:45:22 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15] running tcpdump on 3c905b causes freeze (reproducable)
-Message-ID: <20060109144522.GB10955@vanheusden.com>
-References: <20060108114305.GA32425@vanheusden.com>
-	<20060109041114.6e797a9b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jan 2006 09:51:50 -0500
+Received: from terrhq.ru ([81.222.97.18]:54507 "EHLO mail.terrhq.ru")
+	by vger.kernel.org with ESMTP id S932307AbWAIOvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 09:51:49 -0500
+From: Yaroslav Rastrigin <yarick@it-territory.ru>
+Organization: IT-Territory 
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: [OT?] Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 17:51:27 +0300
+User-Agent: KMail/1.9
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091403.46304.yarick@it-territory.ru> <1136814862.9957.5.camel@mindpipe>
+In-Reply-To: <1136814862.9957.5.camel@mindpipe>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060109041114.6e797a9b.akpm@osdl.org>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Tue Jan 10 15:23:51 CET 2006
-X-Message-Flag: www.vanheusden.com
-User-Agent: Mutt/1.5.10i
+Message-Id: <200601091751.27405.yarick@it-territory.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > My system freezes (crashes) when I run tcpdump on the interface
-> >  connected to a 3c905b card.
-> Works for me with a 3c980-TX.  I can dig out a 905b.
-> Please send the exact commands which you're using to demonstrate this -
-> sufficient info for me to get as close as possible to what you're doing.
-
-The exact command is:
-tcpdump -i eth1
-
-Yes, it is that simple. Not only tcpdump gives this problem; iftop as
-well.
-
-> Have you tried enabling the NMI watchdog?  Enable CONFIG_X86_LOCAL_APIC and
-> boot with `nmi_watchdog=1' on the command line, make sure that the NMI line
-> of /proc/interrupts is incrementing.
-
-I'll give it a try. I've added it to the append-line in the lilo config.
-Am now compiling the kernel.
-
-
-Folkert van Heusden
-
+Hi, Lee,
+On 9 January 2006 16:54, you wrote:
+> > 
+> 
+> Where are the bug reports?  You didn't expect these to just fix
+> themselves did you?
+Been there, done that. Bugreport about malfunctioning (due to ACPI) 3c556 in IBM ThinkPad T20 was looked at once in a few months without any progress, 
+and I've finally lost track of it after changing hardware. In more than a year this problem wasn't solved, so I'm assuming bugreports aren't so effective.
+2200BG ping and packet loss problem was reported in ipw2200-devel mailing list recently (by another user), and the only answer was 
+"Switch to version 1.0.0" (which is tooo old and missing needed features and bugfixes, so recommentation was unacceptable). So I'm assuming addressing 
+developers directly is not too effective either. 
+Two other options I see are to debug/fix it by myself and try to stimulate others monetarily. First option isn't really affordable for me , 
+so I'm trying to research second. 
 -- 
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Managing your Territory since the dawn of times ...

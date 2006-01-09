@@ -1,157 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWAIWlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbWAIWnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWAIWlD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 17:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWAIWlC
+	id S1751594AbWAIWnB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 17:43:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751597AbWAIWnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 17:41:02 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:47252 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751284AbWAIWlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 17:41:01 -0500
-Date: Mon, 9 Jan 2006 14:40:41 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: akpm@osdl.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-       Jim Keniston <jkenisto@us.ibm.com>,
-       Systemtap <systemtap@sources.redhat.com>
-Subject: [PATCH]Kprobes:Fix unloading of self probed module
-Message-ID: <20060109144041.A29700@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Mon, 9 Jan 2006 17:43:00 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:9368 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751595AbWAIWm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 17:42:59 -0500
+Message-ID: <43C2E6EF.40903@us.ibm.com>
+Date: Mon, 09 Jan 2006 14:42:55 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: Alexis Bruemmer <alexisb@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: cpusets: BUG: cpuset_excl_nodes_overlap() may sleep under tasklist_lock
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig213A01FE4501B8AB3E864E35"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Fix unloading of self probed module
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig213A01FE4501B8AB3E864E35
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-When a kprobes modules is written in such a way that
-probes are inserted on itself, then unload of that
-moudle was not possible due to reference couning on
-the same module.
+Hi Mr. Jackson,
 
-The below patch makes a check and incrementes
-the module refcount only if it is not a self
-probed module.
+I've been stress testing 2.6.15 on an IntelliStation Z20 in our lab, and
+have seen the same complaints that were described earlier in this thread
+(sleeping in the cpuset code under OOM conditions):
 
-We need to allow modules to probe themself -e.g.
-kprobes performance measurements
+Debug: sleeping function called from invalid context at
+include/asm/semaphore.h:105
+in_atomic():1, irqs_disabled():0
 
-This patch has been tested on several x86_64, ppc64
-and IA64 architectures.
+Call Trace:<ffffffff80130640>{__might_sleep+179}
+<ffffffff8015bb68>{cpuset_excl_nodes_overlap+31}
+       <ffffffff80164d9f>{out_of_memory+123}
+<ffffffff801676c4>{__alloc_pages+564}
+       <ffffffff8017ec41>{alloc_pages_current+160}
+<ffffffff8016873f>{__do_page_cache_readahead+197}
+       <ffffffff8010e5c3>{__switch_to+50}
+<ffffffff8031c547>{_spin_unlock_irqrestore+52}
+       <ffffffff80166604>{free_pages_bulk+674}
+<ffffffff80168a00>{do_page_cache_readahead+82}
+       <ffffffff8016355a>{filemap_nopage+332}
+<ffffffff8017378f>{__handle_mm_fault+1162}
+       <ffffffff8031c547>{_spin_unlock_irqrestore+52}
+<ffffffff8031df02>{do_page_fault+1096}
+       <ffffffff801991ee>{sys_select+839} <ffffffff8011078d>{error_exit+0}
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy>
--------------------------------------------------------
+Since we seem to be able to reproduce this with some regularity, let me
+know if you'd like us to test out any cpuset patch(es).
 
- include/linux/kprobes.h |    3 +++
- kernel/kprobes.c        |   42 ++++++++++++++++++++++++++++++++----------
- 2 files changed, 35 insertions(+), 10 deletions(-)
+--Darrick
 
-Index: linux-2.6.15-mm1/include/linux/kprobes.h
-===================================================================
---- linux-2.6.15-mm1.orig/include/linux/kprobes.h
-+++ linux-2.6.15-mm1/include/linux/kprobes.h
-@@ -67,6 +67,9 @@ struct kprobe {
- 
- 	/* list of kprobes for multi-handler support */
- 	struct list_head list;
-+	
-+	/* Indicates that the corresponding module has been ref counted */
-+	unsigned int mod_refcounted;
- 
- 	/*count the number of times this probe was temporarily disarmed */
- 	unsigned long nmissed;
-Index: linux-2.6.15-mm1/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-mm1.orig/kernel/kprobes.c
-+++ linux-2.6.15-mm1/kernel/kprobes.c
-@@ -449,19 +449,32 @@ static int __kprobes in_kprobes_function
- 	return 0;
- }
- 
--int __kprobes register_kprobe(struct kprobe *p)
-+static int __kprobes __register_kprobe(struct kprobe *p,
-+	unsigned long called_from)
- {
- 	int ret = 0;
- 	struct kprobe *old_p;
--	struct module *mod;
-+	struct module *probed_mod;
- 
- 	if ((!kernel_text_address((unsigned long) p->addr)) ||
- 		in_kprobes_functions((unsigned long) p->addr))
- 		return -EINVAL;
- 
--	if ((mod = module_text_address((unsigned long) p->addr)) &&
--			(unlikely(!try_module_get(mod))))
--		return -EINVAL;
-+	p->mod_refcounted = 0;
-+	/* Check are we probing a module */
-+	if ((probed_mod = module_text_address((unsigned long) p->addr))) {
-+		struct module *calling_mod = module_text_address(called_from);
-+		/* We must allow modules to probe themself and
-+		 * in this case avoid incrementing the module refcount,
-+		 * so as to allow unloading of self probing modules.
-+		 */
-+		if (calling_mod && (calling_mod != probed_mod)) {
-+			if (unlikely(!try_module_get(probed_mod)))
-+				return -EINVAL;
-+			p->mod_refcounted = 1;
-+		} else
-+			probed_mod = NULL;
-+	}
- 
- 	p->nmissed = 0;
- 	down(&kprobe_mutex);
-@@ -483,11 +496,17 @@ int __kprobes register_kprobe(struct kpr
- out:
- 	up(&kprobe_mutex);
- 
--	if (ret && mod)
--		module_put(mod);
-+	if (ret && probed_mod)
-+		module_put(probed_mod);
- 	return ret;
- }
- 
-+int __kprobes register_kprobe(struct kprobe *p)
-+{
-+	return __register_kprobe(p,
-+		(unsigned long)__builtin_return_address(0));
-+}
-+
- void __kprobes unregister_kprobe(struct kprobe *p)
- {
- 	struct module *mod;
-@@ -524,7 +543,8 @@ valid_p:
- 	up(&kprobe_mutex);
- 
- 	synchronize_sched();
--	if ((mod = module_text_address((unsigned long)p->addr)))
-+	if (p->mod_refcounted &&
-+	    (mod = module_text_address((unsigned long)p->addr)))
- 		module_put(mod);
- 
- 	if (cleanup_p) {
-@@ -547,7 +567,8 @@ int __kprobes register_jprobe(struct jpr
- 	jp->kp.pre_handler = setjmp_pre_handler;
- 	jp->kp.break_handler = longjmp_break_handler;
- 
--	return register_kprobe(&jp->kp);
-+	return __register_kprobe(&jp->kp,
-+		(unsigned long)__builtin_return_address(0));
- }
- 
- void __kprobes unregister_jprobe(struct jprobe *jp)
-@@ -587,7 +608,8 @@ int __kprobes register_kretprobe(struct 
- 
- 	rp->nmissed = 0;
- 	/* Establish function entry probe point */
--	if ((ret = register_kprobe(&rp->kp)) != 0)
-+	if ((ret = __register_kprobe(&rp->kp, 
-+		(unsigned long)__builtin_return_address(0))) != 0)
- 		free_rp_inst(rp);
- 	return ret;
- }
+> Kirill Korotaev wrote:
+>> FYI, there is an obvious bug in cpusets in 2.6.15-rcX:
+>> cpuset_excl_nodes_overlap() may sleep (as it takes semaphore), but is 
+>> called from atomic context - select_bad_process() under tasklist_lock.
+>> BUG. Found by Denis Lunev.
+> 
+> Sorry for not responding sooner - I was off the air for a week.
+> 
+> Thanks for finding and reporting this.
+> 
+> Apparently, from KUROSAWA Takahiro's report, this bug was also in
+> 2.6.14.  My initial reading of the code in 2.6.14 and 2.6.15-* agrees,
+> and finds that this bug was present since the cpuset_excl_nodes_overlap
+> call was added, Sept 8, 2005 (in Linus's tree.)
+> 
+> 
+>> the same actually applies to cpuset_zone_allowed() which is called e.g. 
+>> from __alloc_pages()->get_page_from_freelist() and doesn't check for 
+>> GPF_NOATOMIC anyhow...
+> 
+> I don't think so.  Please read the comments in kernel/cpuset.c above
+> the routine cpuset_zone_allowed().  Either that routine is called with
+> the __GFP_HARDWALL flag set, so returns before it gets to the semaphore
+> call, or it is not called at all, due to the check for ATOMIC (!wait)
+> in mm/page_alloc.c.
+> 
+> I don't see any bugs like this, in the cpuset_zone_allowed code path.
+> 
+> 
+> ==> My initial analysis - I have one bug, in the oom_kill path,
+>     where the code takes callback_sem while holding tasklist_ lock,
+>     that has been in the main line kernel since 2.6.14.
+> 
+> My first guess is that it will take me about a week, with testing and
+> other priorities (including a few more days vacation), to respond with a
+> patch.  Speak up if that doesn't meet your needs.
+
+
+--------------enig213A01FE4501B8AB3E864E35
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDwubxa6vRYYgWQuURAox1AKCwbsctHjo1os3M4Z9H2CY2BQ3LgwCeO4AH
+JQzRup5WaMqLkQQbqw6TorQ=
+=7dm4
+-----END PGP SIGNATURE-----
+
+--------------enig213A01FE4501B8AB3E864E35--

@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWAIQek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWAIQfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWAIQek (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 11:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWAIQek
+	id S964866AbWAIQfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 11:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWAIQfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 11:34:40 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:63492 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S964866AbWAIQej (ORCPT
+	Mon, 9 Jan 2006 11:35:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60854 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964866AbWAIQfO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 11:34:39 -0500
-Date: Mon, 9 Jan 2006 17:34:38 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Yaroslav Rastrigin <yarick@it-territory.ru>,
-       Kasper Sandberg <lkml@metanurb.dk>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Message-ID: <20060109163437.GA67773@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Yaroslav Rastrigin <yarick@it-territory.ru>,
-	Kasper Sandberg <lkml@metanurb.dk>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	andersen@codepoet.org, linux-kernel@vger.kernel.org
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091403.46304.yarick@it-territory.ru> <1136813783.8412.4.camel@localhost> <200601091656.48355.yarick@it-territory.ru> <1136822827.6659.25.camel@localhost.localdomain> <1136823313.9957.37.camel@mindpipe>
+	Mon, 9 Jan 2006 11:35:14 -0500
+Date: Mon, 9 Jan 2006 11:35:07 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: vm related lock up in 2.6.15
+Message-ID: <20060109163507.GA20205@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060109021230.GA23750@redhat.com> <20060109154957.GA9766@redhat.com> <Pine.LNX.4.64.0601090830040.3169@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136823313.9957.37.camel@mindpipe>
+In-Reply-To: <Pine.LNX.4.64.0601090830040.3169@g5.osdl.org>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 11:15:12AM -0500, Lee Revell wrote:
-> On Mon, 2006-01-09 at 16:07 +0000, Alan Cox wrote:
-> > Currently Linux performance loading large binaries is at least
-> > perceptually worse than Windows (some of that is perceptual tricks
-> > windows apps pull, some of it real). 
-> 
-> Would you care to elaborate on this statement?  It's not clear to me how
-> perception could differ from reality in this case.  If it seems faster
-> doesn't that mean it is faster?
+On Mon, Jan 09, 2006 at 08:32:20AM -0800, Linus Torvalds wrote:
+ 
+ > >  Turns out this was your BUG_ON(page_count(p) <= page_mapcount(p));
+ > > addition to putpage_test_zero, which I added a few days ago and promptly
+ > > forgot about.
+ > > 
+ > > Triggering this isn't too difficult it seems :-/
+ > 
+ > Well, as I warned in the message that had the patch, the test _is_ racy. 
+ > The reads of the page counts have no serialization, so if another process 
+ > is changing them, I don't guarantee that the test is correct.
+ > 
+ > IOW, it was meant as a special case debug test for one particular problem 
+ > where I hoped it would give more information, rather than a real patch.
 
-You can have a window opened without being ready to accept input yet
-for instance.  XEmacs does that[1] when it opens its window before
-parsing the user's configuration which can load a number of things and
-hence take a while to run.  "Ok I'm going to open your application"
-animations allow to win some perceptual time too.
+ok, that explains. I'll go back to chasing the real cause of the corruption
+I was seeing :-/
 
-Humans are fundamentally easy to fool for 1-2 seconds as long as they
-have feedback.  Longer gets harder :-)
+		Dave
 
-  OG.
-
-[1] For technical reasons, not perceptual.

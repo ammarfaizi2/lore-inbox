@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751526AbWAINmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWAINmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751526AbWAINmt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:42:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWAINmt
+	id S1751531AbWAINmm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWAINmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:42:49 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:22735 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751526AbWAINms
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:42:48 -0500
-Date: Mon, 9 Jan 2006 19:12:39 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
-Message-ID: <20060109134238.GA26700@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109093141.GA10811@in.ibm.com> <43C2785C.4E937748@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C2785C.4E937748@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+	Mon, 9 Jan 2006 08:42:42 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:5863 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S1751530AbWAINmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 08:42:42 -0500
+Date: Mon, 09 Jan 2006 08:42:06 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+In-reply-to: <200601091232.56348.zippel@linux-m68k.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1136814126.1043.36.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
+ <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
+ <200601091232.56348.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 05:51:08PM +0300, Oleg Nesterov wrote:
-> Srivatsa Vaddagiri wrote:
-> >             If we have to do a rcu_move_batch of ->donelist also,
-> > then perhaps the ->donelist != NULL check is required in
-> > rcu_pending?
+On Mon, 2006-01-09 at 12:32 +0100, Roman Zippel wrote:
+> Hi,
 > 
-> rcu_move_batch() always adds entries to the ->nxttail, so I think
-> this patch is correct.
+> On Monday 09 January 2006 04:59, Ben Collins wrote:
+> 
+> > > Then something is wrong with your automatic build. If the config needs to
+> > > be updated and stdin is redirected during a kbuild, it will already
+> > > abort.
+> >
+> > And what should be directed into stdin? Nothing. There should be no
+> > input going into an automated build, exactly because it could produce
+> > incorrect results.
+> >
+> > BTW, this is the automatic build that Debian and Ubuntu both use (in
+> > Debian's case, used for quite a number of years). So this isn't
+> > something I whipped up.
+> 
+> That just means Debian's automatic build for the kernel has been broken for 
+> years. All normal config targets require user input and no input equals 
+> default input. Only silentoldconfig will abort if input is not available.
 
-Hmm ..adding entries on dead cpu's ->donelist to ->nxtlist of some other CPU 
-doesnt make sense (it re-triggers graceperiods for all those callbacks which is 
-not needed). Maybe rcu_move_batch should take that into account and instead add
-to ->donelist of current CPU which is processing the CPU_DEAD callback.
+I think that's broken (because I don't see where that behavior is
+described). IMO, based on the code, it should only go with defaults when
+-n -y or -m is passed. Anything else should detect when stdin is not
+valid and abort. If stdin is valid, and empty string is read, then
+that's a valid "give me the default" response.
 
-In which case, ->donelist != NULL check is still reqd in rcu_pending ?
+Why is it so hard to error when stdin is closed? It's not like that will
+break anything.
 
+Since silentoldconfig does this, then oldconfig should aswell. The only
+naming difference is that silentoldconfig is quiet, and oldconfig is
+not. Why should the two act any differently with a closed stdin?
 
 -- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

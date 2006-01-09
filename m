@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWAIReE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWAIRgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWAIReE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWAIReD
+	id S1750801AbWAIRgm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWAIRgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:34:03 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:12677 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964888AbWAIReC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:34:02 -0500
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
-	can't for a long time
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Oliver Neukum <oliver@neukum.org>, Bernd Petrovitsch <bernd@firmix.at>,
-       Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1136827900.6659.66.camel@localhost.localdomain>
-References: <5t06S-7nB-15@gated-at.bofh.it>
-	 <1136824149.5785.75.camel@tara.firmix.at>
-	 <1136824880.9957.55.camel@mindpipe>  <200601091753.36485.oliver@neukum.org>
-	 <1136827900.6659.66.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 12:33:59 -0500
-Message-Id: <1136828040.9957.79.camel@mindpipe>
+	Mon, 9 Jan 2006 12:36:42 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:26710 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S1750801AbWAIRgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 12:36:41 -0500
+Date: Mon, 9 Jan 2006 12:36:40 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+To: ocfs2-devel@oss.oracle.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ocfs2/dlm: fix compilation on ia64
+Message-ID: <20060109173640.GA25744@locomotive.unixthugs.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.5-7.201-smp (i686)
+X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
+X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-09 at 17:31 +0000, Alan Cox wrote:
-> On Llu, 2006-01-09 at 17:53 +0100, Oliver Neukum wrote:
-> > Does the Windows Explorer draw icons based only on name and metadata?
-> 
-> Sort of. It also plays tricks on the human by working out what icons are
-> visible and loading those first then filling in while the user thinks it
-> is ready
-> 
 
-See, I don't think that's a trick, isn't it just a form of demand
-paging?  It seems silly to make the user wait to see the visible icons
-until it's done rendering the hidden stuff.  Otherwise navigating the
-file system speeds up and slows down based on how many files are in each
-directory, even if the number of visible icons remains constant.
+ Including <asm/signal.h> results in compilation failure on ia64 due to
+ not including <linux/compiler.h>
 
-Do most Linux GUI apps really render everything without regard to what's
-obscured and what's visible?
+ Including <linux/signal.h> corrects the problem.
 
-Lee
+ Please apply.
 
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+
+diff -ruNpX dontdiff linux-2.6.15/fs/ocfs2/dlm/userdlm.c linux-2.6.15-fix/fs/ocfs2/dlm/userdlm.c
+--- linux-2.6.15/fs/ocfs2/dlm/userdlm.c	2006-01-08 23:19:50.000000000 -0500
++++ linux-2.6.15-fix/fs/ocfs2/dlm/userdlm.c	2006-01-09 12:31:08.056894624 -0500
+@@ -27,7 +27,7 @@
+  * Boston, MA 021110-1307, USA.
+  */
+ 
+-#include <asm/signal.h>
++#include <linux/signal.h>
+ 
+ #include <linux/module.h>
+ #include <linux/fs.h>
+-- 
+Jeff Mahoney
+SuSE Labs

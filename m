@@ -1,217 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932906AbWAIGpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWAIGr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932906AbWAIGpq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 01:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWAIGpq
+	id S1751528AbWAIGr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 01:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751530AbWAIGr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 01:45:46 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:13105 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S1751164AbWAIGpp (ORCPT
+	Mon, 9 Jan 2006 01:47:57 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:38824 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751527AbWAIGr4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 01:45:45 -0500
-Subject: [PATCH] net: 32 bit (socket layer) ioctl emulation for 64 bit
-	kernels
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: Arnd Bergmann <arnd@arndb.de>, linux-kenel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>, Andi Kleen <ak@muc.de>
-Cc: SP <pereira.shaun@gmail.com>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 17:46:56 +1100
-Message-Id: <1136789216.6653.17.camel@spereira05.tusc.com.au>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 01:47:56 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="GB2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH v3]Export cpu topology by sysfs
+Date: Mon, 9 Jan 2006 14:47:48 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E8404693250@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH v3]Export cpu topology by sysfs
+Thread-Index: AcYU2z03iaIZr9pgQu6PNbqA33QnmgAC61Jg
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: "Nathan Lynch" <ntl@pobox.com>,
+       "Yanmin Zhang" <ymzhang@unix-os.sc.intel.com>
+Cc: <linux-kernel@vger.kernel.org>, <greg@kroah.com>, <discuss@x86-64.org>,
+       <linux-ia64@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+X-OriginalArrivalTime: 09 Jan 2006 06:47:49.0542 (UTC) FILETIME=[9B330C60:01C614E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-The attached patch is a follow up to a post made earlier to this site
-with regard to 32 bit (socket layer) ioctl emulation for 64 bit kernels.
-
-I needed to implement 32 bit userland ioctl support for modular (x.25)
-socket ioctls in a 64 bit kernel. With the removal of the
-register_ioctl32_conversion() function from the kernel, one of the
-suggestions made by Andi was "to just extend the socket code to add a
-compat_ioctl vector to the socket options"
-
-With Arnd's help (see previous mails with subject = 32 bit (socket
-layer) ioctl emulation for 64 bit kernels) I have prepared the following
-patchand tested with with x25 over tcp on a x26_64 kernel. 
-
-Since we are interested in ioctl's from userspace I have not added the 
-.compat_ioctl function pointer to struct net_device. The assumption
-being once the userspace data has reached the kernel via the socket api,
-if the socket layer protocol knows how to handle the data, it will
-prepare it for the device. 
-
-Am not too sure whether struct proto requires modification. Since it is 
-allocated dynamically in the protocol layer I have left it alone;no
-compat_ioctl. Also it seems like the socket layer would know how to
-"ioctl" the transport layer, userspace does not need to know about
-this? 
-
-But if any of this is incorrect and needs to be changed please advise 
-and I will make the changes accordingly. If this patch is accepted I 
-would be in a position to submit a patch for x25 (32 bit userspace 
-for 64 bit kernel). 
-
-Many thanks for your help
-Regards
-Shaun
+>>-----Original Message-----
+>>From: linux-ia64-owner@vger.kernel.org [mailto:linux-ia64-owner@vger.kernel.org] On Behalf Of Nathan Lynch
+>>Sent: 2006Äê1ÔÂ9ÈÕ 13:10
+>>To: Yanmin Zhang
+>>Cc: linux-kernel@vger.kernel.org; greg@kroah.com; discuss@x86-64.org; linux-ia64@vger.kernel.org; Siddha, Suresh B; Shah, Rajesh;
+>>Pallipadi, Venkatesh
+>>Subject: Re: [PATCH v3]Export cpu topology by sysfs
+>>> 2) Set consistent default values for the 4 attributes.
+>>>
+>>
+>><snip>
+>>
+>>> If one architecture wants to support this feature, it just needs to
+>>> implement 4 defines, typically in file include/asm-XXX/topology.h.
+>>> The 4 defines are:
+>>> #define topology_physical_package_id(cpu)
+>>> #define topology_core_id(cpu)
+>>> #define topology_thread_siblings(cpu)
+>>> #define topology_core_siblings(cpu)
+>>>
+>>> The type of **_id is int.
+>>> The type of siblings is cpumask_t.
+>>>
+>>> To be consistent on all architectures, the 4 attributes should have
+>>> deafult values if their values are unavailable. Below is the rule.
+>>> 1) physical_package_id: If cpu has no physical package id, -1 is the
+>>> default value.
+>>> 2) core_id: If cpu doesn't support multi-core, its core id is 0.
+>>
+>>Why not -1 as with the physical package id?  0 could be a valid core
+>>id.
+If the cpu has only 1 core, we could call it single-core, so it's reasonable to use 0 as its core id.
 
 
-diff -uprN -X dontdiff linux-2.6.15-vanilla/include/linux/net.h
-linux-2.6.15/include/linux/net.h
---- linux-2.6.15-vanilla/include/linux/net.h	2006-01-03
-14:21:10.000000000 +1100
-+++ linux-2.6.15/include/linux/net.h	2006-01-09 15:59:49.000000000 +1100
-@@ -143,6 +143,10 @@ struct proto_ops {
- 				      struct poll_table_struct *wait);
- 	int		(*ioctl)     (struct socket *sock, unsigned int cmd,
- 				      unsigned long arg);
-+#ifdef CONFIG_COMPAT
-+	int	 	(*compat_ioctl) (struct socket *sock, unsigned int cmd,
-+				      unsigned long arg);
-+#endif
- 	int		(*listen)    (struct socket *sock, int len);
- 	int		(*shutdown)  (struct socket *sock, int flags);
- 	int		(*setsockopt)(struct socket *sock, int level,
-@@ -205,6 +209,7 @@ extern int   	     kernel_recvmsg(struct
- #ifndef CONFIG_SMP
- #define SOCKOPS_WRAPPED(name) name
- #define SOCKOPS_WRAP(name, fam)
-+#define SOCKOPS_COMPAT_WRAP(name, fam)
- #else
- 
- #define SOCKOPS_WRAPPED(name) __unlocked_##name
-@@ -279,6 +284,60 @@ static struct proto_ops name##_ops = {		
- 	.recvmsg	= __lock_##name##_recvmsg,	\
- 	.mmap		= __lock_##name##_mmap,		\
- };
-+
-+#define SOCKOPS_COMPAT_WRAP(name, fam)					\
-+SOCKCALL_WRAP(name, release, (struct socket *sock), (sock))	\
-+SOCKCALL_WRAP(name, bind, (struct socket *sock, struct sockaddr *uaddr,
-int addr_len), \
-+	      (sock, uaddr, addr_len))				\
-+SOCKCALL_WRAP(name, connect, (struct socket *sock, struct sockaddr *
-uaddr, \
-+			      int addr_len, int flags), 	\
-+	      (sock, uaddr, addr_len, flags))			\
-+SOCKCALL_WRAP(name, socketpair, (struct socket *sock1, struct socket
-*sock2), \
-+	      (sock1, sock2))					\
-+SOCKCALL_WRAP(name, accept, (struct socket *sock, struct socket
-*newsock, \
-+			 int flags), (sock, newsock, flags)) \
-+SOCKCALL_WRAP(name, getname, (struct socket *sock, struct sockaddr
-*uaddr, \
-+			 int *addr_len, int peer), (sock, uaddr, addr_len, peer)) \
-+SOCKCALL_UWRAP(name, poll, (struct file *file, struct socket *sock,
-struct poll_table_struct *wait), \
-+	      (file, sock, wait)) \
-+SOCKCALL_WRAP(name, ioctl, (struct socket *sock, unsigned int cmd, \
-+			 unsigned long arg), (sock, cmd, arg)) \
-+SOCKCALL_WRAP(name, compat_ioctl, (struct socket *sock, unsigned int
-cmd, \
-+			 unsigned long arg), (sock, cmd, arg)) \
-+SOCKCALL_WRAP(name, listen, (struct socket *sock, int len), (sock,
-len)) \
-+SOCKCALL_WRAP(name, shutdown, (struct socket *sock, int flags), (sock,
-flags)) \
-+SOCKCALL_WRAP(name, setsockopt, (struct socket *sock, int level, int
-optname, \
-+			 char __user *optval, int optlen), (sock, level, optname, optval,
-optlen)) \
-+SOCKCALL_WRAP(name, getsockopt, (struct socket *sock, int level, int
-optname, \
-+			 char __user *optval, int __user *optlen), (sock, level, optname,
-optval, optlen)) \
-+SOCKCALL_WRAP(name, sendmsg, (struct kiocb *iocb, struct socket *sock,
-struct msghdr *m, size_t len), \
-+	      (iocb, sock, m, len)) \
-+SOCKCALL_WRAP(name, recvmsg, (struct kiocb *iocb, struct socket *sock,
-struct msghdr *m, size_t len, int flags), \
-+	      (iocb, sock, m, len, flags)) \
-+SOCKCALL_WRAP(name, mmap, (struct file *file, struct socket *sock,
-struct vm_area_struct *vma), \
-+	      (file, sock, vma)) \
-+	      \
-+static struct proto_ops name##_ops = {			\
-+	.family		= fam,				\
-+	.owner		= THIS_MODULE,			\
-+	.release	= __lock_##name##_release,	\
-+	.bind		= __lock_##name##_bind,		\
-+	.connect	= __lock_##name##_connect,	\
-+	.socketpair	= __lock_##name##_socketpair,	\
-+	.accept		= __lock_##name##_accept,	\
-+	.getname	= __lock_##name##_getname,	\
-+	.poll		= __lock_##name##_poll,		\
-+	.ioctl		= __lock_##name##_ioctl,	\
-+	.compat_ioctl	= __lock_##name##_compat_ioctl,	\
-+	.listen		= __lock_##name##_listen,	\
-+	.shutdown	= __lock_##name##_shutdown,	\
-+	.setsockopt	= __lock_##name##_setsockopt,	\
-+	.getsockopt	= __lock_##name##_getsockopt,	\
-+	.sendmsg	= __lock_##name##_sendmsg,	\
-+	.recvmsg	= __lock_##name##_recvmsg,	\
-+	.mmap		= __lock_##name##_mmap,		\
-+};
-+
- #endif
- 
- #define MODULE_ALIAS_NETPROTO(proto) \
-diff -uprN -X dontdiff linux-2.6.15-vanilla/net/socket.c
-linux-2.6.15/net/socket.c
---- linux-2.6.15-vanilla/net/socket.c	2006-01-03 14:21:10.000000000
-+1100
-+++ linux-2.6.15/net/socket.c	2006-01-09 15:59:49.000000000 +1100
-@@ -109,6 +109,10 @@ static unsigned int sock_poll(struct fil
- 			      struct poll_table_struct *wait);
- static long sock_ioctl(struct file *file,
- 		      unsigned int cmd, unsigned long arg);
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file,
-+		      unsigned int cmd, unsigned long arg);
-+#endif
- static int sock_fasync(int fd, struct file *filp, int on);
- static ssize_t sock_readv(struct file *file, const struct iovec
-*vector,
- 			  unsigned long count, loff_t *ppos);
-@@ -130,6 +134,9 @@ static struct file_operations socket_fil
- 	.aio_write =	sock_aio_write,
- 	.poll =		sock_poll,
- 	.unlocked_ioctl = sock_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl = compat_sock_ioctl,
-+#endif
- 	.mmap =		sock_mmap,
- 	.open =		sock_no_open,	/* special open code to disallow open via /proc
-*/
- 	.release =	sock_close,
-@@ -2084,6 +2091,20 @@ void socket_seq_show(struct seq_file *se
- }
- #endif /* CONFIG_PROC_FS */
- 
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file, unsigned cmd, unsigned
-long arg)
-+{
-+	struct socket *sock;
-+	sock = file->private_data;
-+
-+	int ret = -ENOIOCTLCMD;
-+	if(sock->ops->compat_ioctl) {
-+		ret = sock->ops->compat_ioctl(sock,cmd,arg);
-+	}
-+	return ret;
-+}
-+#endif
-+
- /* ABI emulation layers need these two */
- EXPORT_SYMBOL(move_addr_to_kernel);
- EXPORT_SYMBOL(move_addr_to_user);
+>>
+>>> 3) thread_siblings: Just include itself, if the cpu doesn't support
+>>> HT/multi-thread.
+>>> 4) core_siblings: Just include itself, if the cpu doesn't support
+>>> multi-core and HT/Multi-thread.
+>>
+>>Really, I think the least confusing interface would not export those
+>>attributes which are not relevant for the system.  E.g. if the system
+>>isn't multi-core, you don't see core_id and core_siblings attributes.
+>>
+>>Failing that, let's at least have consistent, unambiguous values for
+>>the ids which are not applicable.
+Current kernel will output core id by /proc/cpuinfo if a physical cpu has 2 threads, no matter if it's a multi-core, or just a multi-thread. To be consistent with /proc/cpuinfo, I think we need export core id and its default value is 0.
 
+>>
+>><snip>
+>>> +static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
+>>> +		unsigned long action, void *hcpu)
+>>> +{
+>>> +	unsigned int cpu = (unsigned long)hcpu;
+>>> +	struct sys_device *sys_dev;
+>>> +
+>>> +	sys_dev = get_cpu_sysdev(cpu);
+>>> +	switch (action) {
+>>> +		case CPU_ONLINE:
+>>> +			topology_add_dev(sys_dev);
+>>> +			break;
+>>> +		case CPU_DEAD:
+>>> +			topology_remove_dev(sys_dev);
+>>> +			break;
+>>> +	}
+>>> +	return NOTIFY_OK;
+>>> +}
+>>
+>>I still oppose this bit.  I want the attributes there for powerpc even
+>>for offline cpus -- the topology information (if obtainable, which it
+>>is on powerpc) is useful regardless of the cpu's online state.  The
+>>attributes should appear when a cpu is made present, and go away when
+>>a cpu is removed.
+As my previous email says, there are concerns/issues to do so. A compromise is that the patch could register a sysdev driver. When the cpu becomes offline from online, we don't delete the topology kobj. The compromise has a defect. If the cpu is never online since machine boots, the topology info of the cpu is incorrect. 
 
-
-
+>>
+>>This week I'll try to do an implementation for powerpc.

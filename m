@@ -1,65 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWAIPR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWAIPSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWAIPR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWAIPR3
+	id S932443AbWAIPSe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 10:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWAIPSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:17:29 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:6553 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932374AbWAIPR2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:17:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SU3tDqqBV9KE3KRjPAlkr7tDEgq9ow032tn7qzKbE62fMfSSMxp3vB/6CGN3fugvlOQxl7eFmyGB6Llq1/Y2O4hp6OZrBrM6+E5pM3LxrgjxGXjLSWon/EP8uJjoJHadQkV0ZvyPq8hG+MJPbm+620/L7yrFwrKpA3R8a8JT3Rw=
-Message-ID: <84144f020601090717pec211a3hc2125fe90196dbef@mail.gmail.com>
-Date: Mon, 9 Jan 2006 17:17:24 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Yaroslav Rastrigin <yarick@it-territory.ru>
-Subject: Re: [OT?] Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200601091751.27405.yarick@it-territory.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
-	 <200601091403.46304.yarick@it-territory.ru>
-	 <1136814862.9957.5.camel@mindpipe>
-	 <200601091751.27405.yarick@it-territory.ru>
+	Mon, 9 Jan 2006 10:18:33 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:12499 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932429AbWAIPSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 10:18:32 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: vherva@vianova.fi
+Cc: Florian Schmidt <tapas@affenbande.org>,
+       Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060109142239.GR21365@vianova.fi>
+References: <20060104010123.GK3831@stusta.de>
+	 <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl>
+	 <20060104113726.3bd7a649@mango.fruits.de>
+	 <1136445395.24475.17.camel@mindpipe>
+	 <20060105124317.2d12a85c@mango.fruits.de>
+	 <1136483330.31583.5.camel@mindpipe> <20060108210756.GD1686@vianova.fi>
+	 <1136756669.2997.2.camel@mindpipe> <20060109081646.GG21365@vianova.fi>
+	 <1136814731.9957.4.camel@mindpipe>  <20060109142239.GR21365@vianova.fi>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 10:18:13 -0500
+Message-Id: <1136819894.9957.16.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-01-09 at 16:22 +0200, Ville Herva wrote:
+> On Mon, Jan 09, 2006 at 08:52:11AM -0500, you [Lee Revell] wrote:
+> > 
+> > Sure, we'd like the bug report.  
+> 
+> I will try to come up with one.
+> 
+> > I just wanted to point out that many people who tell everyone that "ALSA
+> > sucks" like you and JWZ, have really just made the mistake of buying
+> > bleeding edge barely-supported hardware.
+> 
+> Yes.
+> 
+> I'll happily admit I definetely made just that mistake.
+> 
+> Before I bought the new card, I did some quick asking around, and heard that
+> M-Audio was supposedly good. I just wanted better sound quality than the
+> integrated I815 sound (shouldn't be much to ask), and preferably HW mixing.
+> I checked that revo7.1 was supported, but when I went to the reseller, they
+> were out of stock for that one. So I made a quick and unconsidered decision
+> to buy revo5.1 instead.
+> 
+> So it was definetely bad research on my part. 
+> 
+> But I still maintain that the asoundrc required for swmixing is not as
+> trivial as "just works". It wasn't even with i815 audio.
 
-On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
-> Been there, done that. Bugreport about malfunctioning (due to ACPI)
-> 3c556 in IBM ThinkPad T20 was looked at once in a few months
-> without any progress, and I've finally lost track of it after changing
-> hardware. In more than a year this problem wasn't solved, so I'm
-> assuming bugreports aren't so effective.
+Since ALSA 1.0.9 (alsa-lib and alsa-driver > 1.0.9 required) no special
+configuration is required to get software mixing to work for i815 (and
+other chipsets which lack hardware mixing), with a few exception like
+ICE1712 and ICE1724 where a more complex configuration was required due
+to hardware restrictions.
 
-Unfortunately bug reports are sometimes lost in the noise. How many
-times did you resend the bug report? Did you report all the required
-information? Were you able to isolate the failing subsystem? Was there
-a working kernel version? Did you try to isolate the changeset that
-introduced the bug? Sometimes you have to complain many times and do a
-bit of investigative work yourself. There are plenty of bug reports on
-LKML which are being ignored because the original reported fails to
-follow up on the problem.
+You should never have to touch an .asoundrc file to get software mixing
+to work, if you do it's a bug.
 
-On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
-> 2200BG ping and packet loss problem was reported in ipw2200-devel
-> mailing list recently (by another user), and the only answer was
-> "Switch to version 1.0.0" (which is tooo old and missing needed features
-> and bugfixes, so recommentation was unacceptable). So I'm assuming
-> addressing developers directly is not too effective either.
+Lee
 
-IPW2200 hardware documentation is closed which narrows down the amount
-of people who can help you out, sorry. Perhaps you could complain to
-your vendor?
-
-                                    Pekka

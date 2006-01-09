@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWAIKLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWAIKSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbWAIKLW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 05:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWAIKLW
+	id S1751145AbWAIKSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 05:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWAIKSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 05:11:22 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:32919 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751229AbWAIKLV convert rfc822-to-8bit
+	Mon, 9 Jan 2006 05:18:15 -0500
+Received: from anubis.fi.muni.cz ([147.251.54.96]:57225 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1751145AbWAIKSP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 05:11:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UuF6pYCZyAxTf8CccMeZ3HD9T/jXu3gCxMcA6BiEoKpr8EjOJDiGckC0EUCQkEWdoTuJ3enk6vKCUNjcPCcMuDEYxwnA+RoTRll+L15Ooyypm0kQQoqSz7kfG5DyAGe5tbQ/dHbfLBS6kOtMYz39pzaeKy/QjIoe1eHdKidwvn4=
-Message-ID: <46a038f90601090211j33479764q13c74df60033a061@mail.gmail.com>
-Date: Mon, 9 Jan 2006 23:11:20 +1300
-From: Martin Langhoff <martin.langhoff@gmail.com>
-To: "Brown, Len" <len.brown@intel.com>
-Subject: Re: git pull on Linux/ACPI release tree
-Cc: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       git@vger.kernel.org
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005A136FE@hdsmsx401.amr.corp.intel.com>
+	Mon, 9 Jan 2006 05:18:15 -0500
+Date: Mon, 9 Jan 2006 11:18:05 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: intelfb
+Message-ID: <20060109101805.GK3001@mail.muni.cz>
+References: <20060108234839.GF3001@mail.muni.cz> <20060108235753.GR3774@stusta.de> <43C1ACB4.4030704@gmail.com> <20060109002912.GS3774@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A136FE@hdsmsx401.amr.corp.intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060109002912.GS3774@stusta.de>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/9/06, Brown, Len <len.brown@intel.com> wrote:
-> I appologize for using the phrase "completely insane".
-> The rebase proposal caught me somewhat off-guard and
-> I was expressing surprise -- hopefully not taken as insult.
->
-> Further, I thank you for your thoughful follow-up.
+On Mon, Jan 09, 2006 at 01:29:12AM +0100, Adrian Bunk wrote:
+> > I maintain i810fb.  The author and maintainer of intelfb for 2.6 is Sylvain
+> > Meyer. For 2.4, the author is David Dawes.
+> >...
+> 
+> Sorry, this happens when you only look at the MAINTAINERS file...
+> 
+> Can you add a MAINTAINERS entry for Sylvain?
 
-No worries... and no offence taken! In a sense we are still exploring
-possible/desirable workflows and what the missing pieces are. And yes,
-some thing don't quite make sense from the outside, perhaps because
-they just don't or because we arent' explaining them very well.
+I wrote to Sylvain some time ago but no response...
 
-In a sense, we do have a bit of a challenge explaining what how all
-the parts fit together, even to bk old timers it seems.
-
-> While I don't expect it to become a routine occurnece for me,
-> I do see that rebase has utility in some situations.
-
-As long as you've got enough tools to use a workflow that fits you,
-it's all good.
-
-cheers,
-
-
-martin
+-- 
+Luká¹ Hejtmánek

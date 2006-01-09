@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWAIN5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWAIN5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWAIN5E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964770AbWAIN5E
+	id S932174AbWAIN5w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:57:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWAIN5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:57:04 -0500
-Received: from terrhq.ru ([81.222.97.18]:29887 "EHLO mail.terrhq.ru")
-	by vger.kernel.org with ESMTP id S964778AbWAIN5C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:57:02 -0500
-From: Yaroslav Rastrigin <yarick@it-territory.ru>
-Organization: IT-Territory 
-To: Kasper Sandberg <lkml@metanurb.dk>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Date: Mon, 9 Jan 2006 16:56:48 +0300
-User-Agent: KMail/1.9
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091403.46304.yarick@it-territory.ru> <1136813783.8412.4.camel@localhost>
-In-Reply-To: <1136813783.8412.4.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601091656.48355.yarick@it-territory.ru>
+	Mon, 9 Jan 2006 08:57:52 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:14323 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S964770AbWAIN5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 08:57:51 -0500
+Date: Mon, 09 Jan 2006 08:57:14 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: Is Sony violating Linux GPL?
+In-reply-to: <dpto0m$ck3$1@sea.gmane.org>
+To: Salvador Fandino <sfandino@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1136815034.1043.42.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <dpto0m$ck3$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Kasper,
-> > without worrying about my on-the-road availability. 
-> > Suspend to disk has nasty tendency to ruin my whole hot live X session, since X can't properly restore VT on resume.
-> > Overall performance isn't that bad, either, but I just can't understand, why KATE (Kde more or less advanced editor) takes twice as long to start 
-> > as UltraEdit in _emulated_ (VMWare) Windows XP running on this same box.
-> i can not take this seriously.. on both my laptop and workstation, the
-> kate window is up in less than a second after i either run kate from a
-> terminal, or select it in the kde menu..
-Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
-strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
-Whenever it is needed by apps I'm launching or working with. 
+On Mon, 2006-01-09 at 14:22 +0100, Salvador Fandino wrote:
+> Then I started mailing Vaio technical support (support@vaio-link.com),
+> asking for the drivers source code, and after several mails they just
+> refused to give me the drivers source code because "These drivers are
+> directly delivered to us by the manufacturers of the hardware and
+> modified by us and therefore we are not obliged to supply any source
+> code for these drivers".
 > 
-> unless ofcourse you are not using kde, and kate is the first kde
-> application you start, then it will need to load much more than simply
-> kate, at which point you cant really say what you are doing, since it
-> would be somewhat like comparing half of windows's startup time +
-> ultraedit startup time to kate startup time...
-No. Fully loaded KDE session (without kdesktop and kwin, since I don't use first and using my own WM instead of second).
-So almost all necessary libraries are hot and loaded, and all what's missing is a dozen of Window's and Pixmap's to allocate and two threads to 
-handle events. And it takes seconds, not tens of a second, as in UltraEdit case 
-> 
-> > 
-> > So, the question remains the same - whom and how much I need to pay to solve abovementioned problems ?
-> > 
-> 
-> 
+> I am not an expert on Linux internals but I doubt a driver for this kind
+> of device could be developed independently enough of the kernel to not
+> be considered a derived work, so is Sony violating the Linux license?
+
+They are correct. The deal with modules is they don't have to GPL them.
+
+It's also not entirely impossible for them to use stock kernel source to
+build a simple boot system for just a media player.
+
+What would be nice is if Sony or someone would push this hardware
+manufacturer to open up their drivers.
 
 -- 
-Managing your Territory since the dawn of times ...
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
+

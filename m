@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWAIEe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWAIEwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWAIEe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 23:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWAIEe3
+	id S1751266AbWAIEwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 23:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWAIEwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 23:34:29 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:49073 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751262AbWAIEe2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 23:34:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kbULiWnHtXsuB7VSscYoIn6PZjUUHUt5gOen6OmMFCRdc+dOfkG479+Aj5OpZjgNv62TOfhesV1MRdqNawX/yQ4lbuetwlvwrmmSGGTCI0VOTv3wr5+hU3KDiLjjGjjiAol5S65jClW+8UYSrRrCuBQ6Oi6jmBh531TcYdpSNZc=
-Message-ID: <46a038f90601082034g2865b26ftc344c599e29a4655@mail.gmail.com>
-Date: Mon, 9 Jan 2006 17:34:25 +1300
-From: Martin Langhoff <martin.langhoff@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: git pull on Linux/ACPI release tree
-Cc: Adrian Bunk <bunk@stusta.de>, "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0601081909250.3169@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 8 Jan 2006 23:52:11 -0500
+Received: from thorn.pobox.com ([208.210.124.75]:48825 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S1751266AbWAIEwJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 23:52:09 -0500
+Date: Sun, 8 Jan 2006 22:51:54 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: Yanmin Zhang <ymzhang@unix-os.sc.intel.com>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       linux-ia64@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH v2:3/3]Export cpu topology by sysfs
+Message-ID: <20060109045153.GB2683@localhost.localdomain>
+References: <8126E4F969BA254AB43EA03C59F44E84045838F8@pdsmsx404>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
-	 <Pine.LNX.4.64.0601081111190.3169@g5.osdl.org>
-	 <20060108230611.GP3774@stusta.de>
-	 <Pine.LNX.4.64.0601081909250.3169@g5.osdl.org>
+In-Reply-To: <8126E4F969BA254AB43EA03C59F44E84045838F8@pdsmsx404>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/9/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> And then do
+Zhang, Yanmin wrote:
+> >>> >>I don't think it makes much sense to add and remove the attribute
+> >>> >>group for cpu online/offline events.  The topology information for an
+> >>> >>offline cpu is potentially valuable -- it could help the admin decide
+> >>> >>which processor to online at runtime, for example.
+> >>> >>
+> >>> >>I believe the correct time to update the topology information is when
+> >>> >>the topology actually changes (e.g. physical addition or removal of a
+> >>> >>processor) -- this is independent of online/offline operations.
+> >>>
+> >>> Currently, on i386/x86_64/ia64, a cpu gets its own topology by
+> >>> itself and fills into a global array. If the cpu is offline since
+> >>> the machine is booted, we can't get its topology info.
+> >>
+> >>Hmm, is this a limitation of those architectures?  On ppc64 (where
+> >>this feature would be applicable) Open Firmware provides such topology
+> >>information regardless of the cpus' states; does the firmware or ACPI
+> >>on these platforms not do the same?
 >
->         git-rebase linus
->
-> to rebase your development branch to mine.
->
-> THIS is what "rebase" is for. It sounds like what you really want to do is
-> not have a development branch at all, but you just want to track my tree
-> and then keep track of a few branches of your own. In other words, you
-> don't really have a "real" branch - you've got an odd collection of
-> patches that you really want to carry around on top of _my_ branch. No?
+> On I386/x86_64/IA64, MADT, an ACPI table, provides apic id for all
+> cpus. But we can't divide it to get core id and thread id becasue we
+> couldn't know how many bits of apic id are for core id and how many
+> bits are for thread id. These info are got only by executing cupid
+> (on i386/x86_64) or PAL call (on ia64) by the online cpu itself.
 
-FWIW, I determine whether I should rebase or merge based on
-
- + Whether the branch/head I maintain is public. For public repos, I
-*must* merge carefully as rebase "rewinds" the head and that makes a
-mess of any repositor tracking me.
-
- + Whether the changes on my both sides are significant, and it is
-semantically meaningful to have a merge. If either side had just a
-couple of minor commits, rebase makes life a lot easier down the path.
-If both side clearly saw parallel development, it is more sincere to
-merge and let that be recorded.
-
- + If my attempt to rebase leads to any non-trivial conflicts or
-co-dependencies, then I definitely cancel the rebase and merge.
-
-> Now, in this model, you're not really using git as a distributed system.
-
-I'd argue that it is not about distributed or not. It's all in what
-you want to record in your history. As such, it is a communication
-device -- and I want to make effective use of it. I guess the question
-I ask myself is: what will communicate what's happened here most
-clearly? What will be useful for people to read? In that context, a
-white-lie here and there simplifying the history a bit where it's not
-interesting counts as a good thing.
-
-cheers,
-
-
-martin
+In practice does the division of bits between core and thread in the
+apic id differ between cpus in the same system?  Is there really no
+way to discover a cpu's core and thread id without onlining it on
+these platforms?

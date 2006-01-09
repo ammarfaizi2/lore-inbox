@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbWAIWVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751559AbWAIWWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751567AbWAIWVw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 17:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751570AbWAIWVw
+	id S1751559AbWAIWWW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 17:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWAIWWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 17:21:52 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:28079 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751567AbWAIWVu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 17:21:50 -0500
-From: Jason Gaston <jason.d.gaston@intel.com>
-Organization: Intel Corp.
-To: jgarzik@redhat.com
-Subject: [PATCH 2.6.15 6/6] ahci: AHCI mode SATA patch for Intel ICH8
-Date: Mon, 9 Jan 2006 11:09:13 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
+	Mon, 9 Jan 2006 17:22:22 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:65291 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751559AbWAIWWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 17:22:21 -0500
+Date: Mon, 9 Jan 2006 23:22:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: spyro@f2s.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix arm26 THREAD_SIZE
+Message-ID: <20060109222220.GT3774@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601091109.14105.jason.d.gaston@intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+arm26 currently has a 256 kB THREAD_SIZE (sic).
 
-This patch adds the Intel ICH8 DID's to the ahci.c file for AHCI mode SATA support.  This patch was built against the 2.6.15 kernel.  
-If acceptable, please apply. 
+Looking at the comment in the code, this seems to be based on a 
+misunderstanding.
 
-Thanks,
+The comment says:
+this needs attention (see kernel/fork.c which gets a nice div by zero if 
+this is lower than 8*32768
 
-Jason Gaston
+kernel/fork.c does:
+  max_threads = mempages / (8 * THREAD_SIZE / PAGE_SIZE)
 
-Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+Therefore, a division by 0 is impossible for all reasonable cases with
+THREAD_SIZE >= PAGE_SIZE.
 
---- linux-2.6.15/drivers/scsi/ahci.c.orig	2006-01-02 19:21:10.000000000 -0800
-+++ linux-2.6.15/drivers/scsi/ahci.c	2006-01-09 08:18:08.014291320 -0800
-@@ -277,6 +277,16 @@
- 	  board_ahci }, /* ESB2 */
- 	{ PCI_VENDOR_ID_INTEL, 0x27c6, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 	  board_ahci }, /* ICH7-M DH */
-+	{ PCI_VENDOR_ID_INTEL, 0x2821, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH8 */
-+	{ PCI_VENDOR_ID_INTEL, 0x2822, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH8 */
-+	{ PCI_VENDOR_ID_INTEL, 0x2824, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH8 */
-+	{ PCI_VENDOR_ID_INTEL, 0x2829, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH8M */
-+	{ PCI_VENDOR_ID_INTEL, 0x282a, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH8M */
- 	{ }	/* terminate list */
- };
+Since the minimum PAGE_SIZE Linux uses on the arm26 architecture is 16k, 
+PAGE_SIZE should be sufficient for THREAD_SIZE.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Ian Molton <spyro@f2s.com>
+
+---
+
+This patch was already sent on:
+- Fri, 6 Jan 2006
+
+--- linux-2.6.15-mm1-full/include/asm-arm26/thread_info.h.old	2006-01-06 16:45:40.000000000 +0100
++++ linux-2.6.15-mm1-full/include/asm-arm26/thread_info.h	2006-01-06 16:46:07.000000000 +0100
+@@ -80,8 +80,7 @@
+ 	return (struct thread_info *)(sp & ~0x1fff);
+ }
  
+-/* FIXME - PAGE_SIZE < 32K */
+-#define THREAD_SIZE		(8*32768) // FIXME - this needs attention (see kernel/fork.c which gets a nice div by zero if this is lower than 8*32768
++#define THREAD_SIZE	PAGE_SIZE
+ #define task_pt_regs(task) ((struct pt_regs *)(task_stack_page(task) + THREAD_SIZE - 8) - 1)
+ 
+ extern struct thread_info *alloc_thread_info(struct task_struct *task);
+

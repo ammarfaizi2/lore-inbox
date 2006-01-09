@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWAIMpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWAIMpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWAIMpn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 07:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWAIMpm
+	id S932071AbWAIMpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 07:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWAIMpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 07:45:42 -0500
-Received: from nessie.weebeastie.net ([220.233.7.36]:15119 "EHLO
-	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S932091AbWAIMpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 07:45:41 -0500
-Date: Mon, 9 Jan 2006 23:45:45 +1100
-From: CaT <cat@zip.com.au>
-To: Yaroslav Rastrigin <yarick@it-territory.ru>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Message-ID: <20060109124545.GA2035@zip.com.au>
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091207.14939.yarick@it-territory.ru> <200601091022.30758.s0348365@sms.ed.ac.uk> <200601091403.46304.yarick@it-territory.ru>
+	Mon, 9 Jan 2006 07:45:19 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:46476 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932071AbWAIMpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 07:45:18 -0500
+Date: Mon, 9 Jan 2006 10:44:45 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: Adds missing kmalloc() checks.
+Message-Id: <20060109104445.22dde5d5.lcapitulino@mandriva.com.br>
+In-Reply-To: <1136599971.7163.3.camel@localhost>
+References: <20060106131246.0b9fde8c.lcapitulino@mandriva.com.br>
+	<1136561087.2940.39.camel@laptopd505.fenrus.org>
+	<20060106133051.367f2d9b.lcapitulino@mandriva.com.br>
+	<1136599971.7163.3.camel@localhost>
+Organization: Mandriva
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.9; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601091403.46304.yarick@it-territory.ru>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 02:03:46PM +0300, Yaroslav Rastrigin wrote:
-> Suspend to disk has nasty tendency to ruin my whole hot live X session, since X can't properly restore VT on resume.
 
-Not necessarily a solution but have you thought of putting chvt in the
-suspend/resume sequence? chvt to a terminal before suspending and chvt
-to X after resume.
+ Hi Pekka,
 
-This was one of the things I used to do when I had BIOS suspend to disk
-working (it was nice but then gateway *spit* decided to remove it in a
-bios upgrade).
+On Sat, 07 Jan 2006 04:12:50 +0200
+Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-Still, the above might help you until you find someone to throw money
-at. ;)
+| Hi,
+| 
+| On Fri, 2006-01-06 at 13:12 -0200, Luiz Fernando Capitulino wrote:
+| > | >  Adds two missing kmalloc() checks in kmem_cache_init(). Note that if the
+| > | > allocation fails, there is nothing to do, so we panic();
+| 
+| On Fri, 06 Jan 2006 16:24:47 +0100
+| Arjan van de Ven <arjan@infradead.org> wrote:
+| > | ok so what good does this do? if you die this early.. you are in deeper
+| > | problems, and can't boot. while this makes the code bigger...
+| 
+| On Fri, 2006-01-06 at 13:30 -0200, Luiz Fernando Capitulino wrote:
+| >  Well, you'll get a panic with a message saying you have no memory to
+| > boot, instead of a OOPS with a kernel NULL pointer derefecence, which
+| > will make you look for a bug.
+| 
+| The code is in init section so I don't think size is an issue. A plain
+| BUG_ON would be better though as it can be disabled by the embedded
+| folk.
+
+ Okay, but a quick look at the initialization functions called from
+'init/main.c' shows that some of them does the same thing (test an
+error condition, and panic() if necessary).
+
+ Should they be changed to call BUG_ON() instead?
+
+PS: I'm asking becuase I also found several untested returns, I'll
+send patches for they too.
 
 -- 
-    "To the extent that we overreact, we proffer the terrorists the
-    greatest tribute."
-    	- High Court Judge Michael Kirby
+Luiz Fernando N. Capitulino

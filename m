@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWAITEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWAITHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWAITEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 14:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWAITEJ
+	id S1750703AbWAITHm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 14:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWAITHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 14:04:09 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:62944 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750701AbWAITEI
+	Mon, 9 Jan 2006 14:07:42 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:44531 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750703AbWAITHl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 14:04:08 -0500
-Date: Mon, 9 Jan 2006 11:04:30 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 3/5] rcu: don't set ->next_pending in rcu_start_batch()
-Message-ID: <20060109190430.GC15083@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <43C165C5.71EFC008@tv-sign.ru>
+	Mon, 9 Jan 2006 14:07:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=V7EWJz8uWIExSkQ70C/Nhvy9AdVbuUM7nbuwBHUzD9CapxpiADeHNUQuNWeUZdDWpJuQeRy3z3QLA9iv9IecU/Fpl7iamdEhzu/78BlD26BrUChTwbY3gH7B5Ujt4aQi9ZfzIh11l/7WyXIMs/qYV9Y5nup6aGyDNPJx8VdF7Po=
+Date: Mon, 9 Jan 2006 20:07:28 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Cc: s0348365@sms.ed.ac.uk, andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+ can't for a long time
+Message-Id: <20060109200728.fc83190d.diegocg@gmail.com>
+In-Reply-To: <200601091403.46304.yarick@it-territory.ru>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	<200601091207.14939.yarick@it-territory.ru>
+	<200601091022.30758.s0348365@sms.ed.ac.uk>
+	<200601091403.46304.yarick@it-territory.ru>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C165C5.71EFC008@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 10:19:33PM +0300, Oleg Nesterov wrote:
-> I think it is better to set ->next_pending in the caller, when
-> it is needed. This saves one parameter, and this coincides with
-> cpu_quiet() beahaviour, which sets ->completed = ->cur itself.
+El Mon, 9 Jan 2006 14:03:46 +0300,
+Yaroslav Rastrigin <yarick@it-territory.ru> escribió:
 
-Makes sense to me!
 
-							Thanx, Paul
-
-Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> Overall performance isn't that bad, either, but I just can't understand, why KATE (Kde more or less advanced editor) takes twice as long to start 
+> as UltraEdit in _emulated_ (VMWare) Windows XP running on this same box.
 > 
-> --- 2.6.15/kernel/rcupdate.c~3_NPEND	2006-01-08 21:55:45.000000000 +0300
-> +++ 2.6.15/kernel/rcupdate.c	2006-01-08 22:46:13.000000000 +0300
-> @@ -249,12 +249,8 @@ static void rcu_do_batch(struct rcu_data
->   * active batch and the batch to be registered has not already occurred.
->   * Caller must hold rcu_state.lock.
->   */
-> -static void rcu_start_batch(struct rcu_ctrlblk *rcp, struct rcu_state *rsp,
-> -				int next_pending)
-> +static void rcu_start_batch(struct rcu_ctrlblk *rcp, struct rcu_state *rsp)
->  {
-> -	if (next_pending)
-> -		rcp->next_pending = 1;
-> -
->  	if (rcp->next_pending &&
->  			rcp->completed == rcp->cur) {
->  		rcp->next_pending = 0;
-> @@ -288,7 +284,7 @@ static void cpu_quiet(int cpu, struct rc
->  	if (cpus_empty(rsp->cpumask)) {
->  		/* batch completed ! */
->  		rcp->completed = rcp->cur;
-> -		rcu_start_batch(rcp, rsp, 0);
-> +		rcu_start_batch(rcp, rsp);
->  	}
->  }
->  
-> @@ -423,7 +419,8 @@ static void __rcu_process_callbacks(stru
->  		if (!rcp->next_pending) {
->  			/* and start it/schedule start if it's a new batch */
->  			spin_lock(&rsp->lock);
-> -			rcu_start_batch(rcp, rsp, 1);
-> +			rcp->next_pending = 1;
-> +			rcu_start_batch(rcp, rsp);
->  			spin_unlock(&rsp->lock);
->  		}
->  	} else {
-> 
+> So, the question remains the same - whom and how much I need to pay to solve abovementioned problems ?
+
+
+X.org and related freedesktop projects would be a good start. There's
+a _lot_ of things that need to be done for X.org and nobody is doing
+them, and they benefit all the desktops not just KDE. Fontconfig eats
+1/3 of the time it takes to start a kde app (with warm caches), for
+example.

@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWAIPXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWAIP0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWAIPXO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWAIPXO
+	id S1751045AbWAIP0s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 10:26:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWAIP0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:23:14 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:46241 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932370AbWAIPXN
+	Mon, 9 Jan 2006 10:26:48 -0500
+Received: from nproxy.gmail.com ([64.233.182.194]:43318 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751045AbWAIP0r convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:23:13 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Yaroslav Rastrigin <yarick@it-territory.ru>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Date: Mon, 9 Jan 2006 17:22:59 +0200
-User-Agent: KMail/1.8.2
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091022.30758.s0348365@sms.ed.ac.uk> <200601091403.46304.yarick@it-territory.ru>
-In-Reply-To: <200601091403.46304.yarick@it-territory.ru>
+	Mon, 9 Jan 2006 10:26:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cUNNgiZ+lfqNv75h5P79sZiWyXLH1Qwxv6oZxdGUDOs2VeIy6FbBh9zf7yTwpy0PwzIZl43qaJQLzTijL39e8bC7HWL1oJLwZLMdgb7SeYZceANGoWn0nmvgx232crUA08ADUJ6wS+PxjBiG7m6rlvNm/PeW+Ps0d9GnUcPskiA=
+Message-ID: <728201270601090726i256cf19bj48be55621b86931f@mail.gmail.com>
+Date: Mon, 9 Jan 2006 09:26:36 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: Nathan Lynch <ntl@pobox.com>
+Subject: Re: Back to the Future ? or some thing sinister ?
+Cc: Chaitanya Hazarey <cvh.tcs@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060109040322.GA2683@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200601091723.00093.vda@ilport.com.ua>
+References: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
+	 <20060109040322.GA2683@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 January 2006 13:03, Yaroslav Rastrigin wrote:
-> Hi, 
-> > > > money to the right people.
-> > >
-> > > Could or would you be so kind to provide at least moderately complete
-> > > pricelist ? Whom and how much should I pay to have correct support for
-> > > intel graphics chipset, 2200BG Wi-Fi, complete
-> > > suspend-to-disk/suspend-to-ram and to get an overall performance boost ?
-> > 
-> > Since these are all supported in 2.6.15, $0 would be my quote.
->
-> I've mentioned _correct_ support. Contrary to current rather sad state of things. 
-> 855GM still has no support for non-VESA videomodes (1280x800 can be enabled
-> only via VBIOS hacks, and is not always properly restored on resume)  
-> (and don't supported with intelfb) (which, AFAIK, has no support for dualhead)
-> 2200BG sometimes starts to unacceptably lag and drop packets after going out
-> of suspend (either STR or STD) and until reboot. 
-> (And this is driver issue)
+On 1/8/06, Nathan Lynch <ntl@pobox.com> wrote:
+> Chaitanya Hazarey wrote:
+> >
+> > We have got a machine, lets say X , make is IBM and the CPU is Intel
+> > Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
 
-> Suspend to ram works, more or less, but drains power like hungry cat drinks milk,
-> and I just can't leave my laptop in STR for more than two days  
-> without worrying about my on-the-road availability. 
-> Suspend to disk has nasty tendency to ruin my whole hot live X session,
-> since X can't properly restore VT on resume. 
 
-> Overall performance isn't that bad, either, but I just can't understand,
-> why KATE (Kde more or less advanced editor) takes twice as long to start  
-> as UltraEdit in _emulated_ (VMWare) Windows XP running on this same box.
+Is this machine's time is synchronized with some server using ntp. I
+had seen some very similar issue when the clock deviation was more
+than a second .If clock is adjusted and time difference becomes more
+than 2 sec the diffence becomes negative because timeval has its
+members as signed int.It think that issue might be playing a role
+here.
 
-stracing kate with -t, -tt, -ttt and/or -T options may help. man strace.
-(Do you have such tool in Windows?)
- 
-> So, the question remains the same - whom and how much I need to pay
-> to solve abovementioned problems? 
-
-Maybe RedHat, or Suse, or some other commercial distro.
---
-vda
+Ram

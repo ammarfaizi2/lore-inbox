@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWAJNta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWAJNti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbWAJNta (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWAJNt3
+	id S1751022AbWAJNti (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWAJNti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:49:29 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24234 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751073AbWAJNt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:49:29 -0500
-Subject: Re: 2.6.15-rt2 - repeatable xrun - no good data in trace
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Mark Knecht <markknecht@gmail.com>
-In-Reply-To: <20060110100517.GA23255@elte.hu>
-References: <5bdc1c8b0601081252x59190f1ajcb5514364d78a4e@mail.gmail.com>
-	 <43C17E50.4060404@stud.feec.vutbr.cz>
-	 <Pine.LNX.4.61.0601082247170.17804@yvahk01.tjqt.qr>
-	 <5bdc1c8b0601081404n2a163ce1ya21919800546dfc8@mail.gmail.com>
-	 <20060110100517.GA23255@elte.hu>
-Content-Type: text/plain
-Date: Tue, 10 Jan 2006 08:49:10 -0500
-Message-Id: <1136900950.6197.33.camel@localhost.localdomain>
+	Tue, 10 Jan 2006 08:49:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57805 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751042AbWAJNth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 08:49:37 -0500
+Date: Mon, 9 Jan 2006 20:26:44 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH]: How to be a kernel driver maintainer
+Message-ID: <20060109192644.GA18175@elf.ucw.cz>
+References: <1136736455.24378.3.camel@grayson>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136736455.24378.3.camel@grayson>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 11:05 +0100, Ingo Molnar wrote:
-> * Mark Knecht <markknecht@gmail.com> wrote:
+Hi!
+
+> Since this discussion of getting driver authors to submit their driver
+> for inclusion I started writing a document to send them. I think it's
+> best included in the kernel tree.
 > 
-> > > cdrecord does run with SCHED_RR/99 when started with proper privileges.
-> >
-> > Ah, then it's likely that this isn't a real problem and it would be 
-> > expected to cause an xrun?
-> > 
-> > Anyway, it seems strange that the trace doesn't show anything. I 
-> > suppose that's because cdrecord just grabs a lot of time at a higher 
-> > priority than Jack and Jack ends up not getting serivces at all for 
-> > 5-10mS?
-> 
-> the tracer will only detect undue delays in the 'highest prio' task in 
-> the system - but it cannot detect whether all priorities in the system 
-> are given out properly. In this particular case it was cdrecord that had 
-> the highest priorities, and the delays you saw in Jackd were due to 
-> cdrecord trumping Jackd's priority.
-> 
-> One way to make such scenarios easier to notice & debug would be for 
-> jackd to warn if there are tasks in the system that have higher
-> priorities. (maybe it could even do it at xrun time, from a lower-prio 
-> thread.)
+> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-Hmm, this reminds me. This system isn't a SMP machine is it?  SMP has
-threads that run at priority 99 to handle things like swapping tasks
-from one CPU to another.  These will never show up in the tracer since
-they are the highest priority.  But I have seen these threads cause
-latencies in some of my own code.
+Well, nice document, but it does not really match the title. I
+expected something like "how to be Jeff Garzik" and it is more "how to
+get your driver into kernel and keep it there". It does not deal with
+taking patches from other people, etc... I think it should go into
+submitting driver howto or something like that.
 
--- Steve
+							Pavel
+
+> --- /dev/null	2006-01-05 16:54:17.144000000 -0500
+> +++ b/Documentation/HOWTO-KernelMaintainer	2006-01-08 11:02:34.000000000 -0500
+> @@ -0,0 +1,150 @@
+> +                  How to be a kernel driver maintainer
+> +                  ------------------------------------
+> +
+> +
+> +This document explains what you must know before becoming the maintainer
+> +of a portion of the Linux kernel. Please read SubmittingPatches and
+> +SubmittingDrivers and CodingStyle, also in the Documentation/ directory.
 
 
+-- 
+Thanks, Sharp!

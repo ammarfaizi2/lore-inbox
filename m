@@ -1,445 +1,243 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWAICu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWAICuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWAICu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 21:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWAICu0
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 21:50:26 -0500
-Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:6515 "HELO
-	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750827AbWAICuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750711AbWAICuZ (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 8 Jan 2006 21:50:25 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH 5/8] RTC subsystem, dev interface
-Date: Sun, 8 Jan 2006 21:50:21 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060108231235.153748000@linux> <20060108231255.609424000@linux>
-In-Reply-To: <20060108231255.609424000@linux>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWAICuZ
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 8 Jan 2006 21:50:25 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:20299 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750711AbWAICuY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 21:50:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
+        b=NIttoZ2BD7kBBU7wvlr1rPkDrymr3UPzB/Ygv7tcsLCn3etw0BHROlZYvU4OBSmoP1i/Sx41lYHUnUG1JLi04HM7aehTlefCkK9ygL4f9VuY/2qBlCuh4Gr0oWNhDnoU0/Kl5miBDrkpXiUilrpCa2xzMkyeyWXaL1uQv/0berA=
+Message-ID: <43C1CE74.4000302@gmail.com>
+Date: Sun, 08 Jan 2006 21:46:12 -0500
+From: Segin <segin2005@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051202)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601082150.22213.dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Minix 3 filesystem support
+Content-Type: multipart/mixed;
+ boundary="------------030502080202090202000403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 January 2006 18:12, Alessandro Zummo wrote:
-> +
-> +static int rtc_dev_open(struct inode *inode, struct file *file)
-> +{
-> +	int err;
-> +	struct rtc_device *rtc = container_of(inode->i_cdev,
-> +					struct rtc_device, char_dev);
-> +	struct rtc_class_ops *ops = rtc->ops;
-> +
-> +	/* We keep the lock as long as the device is in use
-> +	 * and return immediately if busy
-> +	 */
-> +	if (down_trylock(&rtc->char_sem))
-> +		return -EBUSY;
-> +
+This is a multi-part message in MIME format.
+--------------030502080202090202000403
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Does the device have to be opened for exclusively? Can it support
-concurrent reads?
+The attached email contains diffs for making the Minix version 3 
+filesystem work with Linux.
+
+Please note that I do not subscribe to the mailing list.
+
+Also, please send all replies about this patch which would normally be 
+emailed to me to the newsgroup comp.os.minix. I did not write this 
+patch, I am just making it available to the Linux kernel mailing list.
+
+The patch author's email address is <danarag@gmail.com>
+
+--------------030502080202090202000403
+Content-Type: message/rfc822;
+ name="Re: Anyone successfully mounted the Minix3 filesystem from Linux?"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Re: Anyone successfully mounted the Minix3 filesystem from Linux?"
+
+Path: news-wrt-01.tampabay.rr.com!be1.texas.rr.com!cyclone.austin.rr.com!news.rr.com!border2.nntp.dca.giganews.com!border1.nntp.dca.giganews.com!nntp.giganews.com!postnews.google.com!f14g2000cwb.googlegroups.com!not-for-mail
+From: "Daniel" <danarag@gmail.com>
+Newsgroups: comp.os.minix
+Subject: Re: Anyone successfully mounted the Minix3 filesystem from Linux?
+Date: 5 Jan 2006 06:29:24 -0800
+Organization: http://groups.google.com
+Message-ID: <1136471364.571771.90670@f14g2000cwb.googlegroups.com>
+References: <0D0vf.73$oD4.17791@news.uswest.net>
+   <Ym5vf.518$2i3.392@tornado.tampabay.rr.com>
+NNTP-Posting-Host: 62.57.76.12
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+X-Trace: posting.google.com 1136471369 23380 127.0.0.1 (5 Jan 2006 14:29:29 GMT)
+X-Complaints-To: groups-abuse@google.com
+NNTP-Posting-Date: Thu, 5 Jan 2006 14:29:29 +0000 (UTC)
+User-Agent: G2/0.2
+X-HTTP-UserAgent: Mozilla/5.0 (Windows; U; Win 9x 4.90; es-ES; rv:1.7.12) Gecko/20050919 Firefox/1.0.7,gzip(gfe),gzip(gfe)
+Complaints-To: groups-abuse@google.com
+Injection-Info: f14g2000cwb.googlegroups.com; posting-host=62.57.76.12;
+   posting-account=8dhvHw0AAAAQ9vUW-tbNxLhRauOXVnjn
+Xref: news-wrt-01.tampabay.rr.com comp.os.minix:18210
+
+I have half succeeded. Read Only by now. I am working on the patch.
+Here it is:
+
+diff -ur linux-2.6.14.5/fs/minix/inode.c
+modified_linux-2.6.14.5/fs/minix/inode.c
+--- linux-2.6.14.5/fs/minix/inode.c	2005-12-27 01:26:33.000000000 +0100
++++ modified_linux-2.6.14.5/fs/minix/inode.c	2006-01-05
+14:57:25.000000000 +0100
+@@ -7,6 +7,7 @@
+  *	Minix V2 fs support.
+  *
+  *  Modified for 680x0 by Andreas Schwab
++ *  Wrongly updated to version V3 by Daniel. January 5 2006
+  */
+
+ #include <linux/module.h>
+@@ -24,7 +25,6 @@
+
+ static void minix_delete_inode(struct inode *inode)
+ {
+-	truncate_inode_pages(&inode->i_data, 0);
+ 	inode->i_size = 0;
+ 	minix_truncate(inode);
+ 	minix_free_inode(inode);
+@@ -35,7 +35,7 @@
+ 	int i;
+ 	struct minix_sb_info *sbi = minix_sb(sb);
+
+-	if (!(sb->s_flags & MS_RDONLY)) {
++	if (!(sb->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
+ 		sbi->s_ms->s_state = sbi->s_mount_state;
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 	}
+@@ -118,19 +118,22 @@
+ 			return 0;
+ 		/* Mounting a rw partition read-only. */
+ 		ms->s_state = sbi->s_mount_state;
+-		mark_buffer_dirty(sbi->s_sbh);
++			if (sbi->s_version != MINIX_V3)
++			mark_buffer_dirty(sbi->s_sbh);
+ 	} else {
+ 	  	/* Mount a partition which is read-only, read-write. */
+ 		sbi->s_mount_state = ms->s_state;
+ 		ms->s_state &= ~MINIX_VALID_FS;
+-		mark_buffer_dirty(sbi->s_sbh);
++			if (sbi->s_version != MINIX_V3)
++			mark_buffer_dirty(sbi->s_sbh);
++
++		if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version !=
+MINIX_V3))
++			printk ("MINIX-fs warning: remounting unchecked V%i fs, "
++				"running fsck is recommended.\n", sbi->s_version);
++		else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version !=
+MINIX_V3))
++			printk ("MINIX-fs warning: remounting  V%i fs with errors, "
++				"running fsck is recommended.\n", sbi->s_version);
+
+-		if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-			printk ("MINIX-fs warning: remounting unchecked fs, "
+-				"running fsck is recommended.\n");
+-		else if ((sbi->s_mount_state & MINIX_ERROR_FS))
+-			printk ("MINIX-fs warning: remounting fs with errors, "
+-				"running fsck is recommended.\n");
+ 	}
+ 	return 0;
+ }
+@@ -197,6 +200,23 @@
+ 		sbi->s_dirsize = 32;
+ 		sbi->s_namelen = 30;
+ 		sbi->s_link_max = MINIX2_LINK_MAX;
++	} else if ( *(__u16 *)(bh->b_data + 24) == MINIX3_SUPER_MAGIC) {
++
++		s->s_magic = MINIX3_SUPER_MAGIC;
++		sbi->s_imap_blocks = *(__u16 *)(bh->b_data + 6);
++		sbi->s_zmap_blocks = *(__u16 *)(bh->b_data + 8);
++		sbi->s_firstdatazone = *(__u16 *)(bh->b_data + 10);
++		sbi->s_log_zone_size = *(__u16 *)(bh->b_data + 12);
++		sbi->s_max_size = *(__u32 *)(bh->b_data + 16);
++		sbi->s_nzones = *(__u32 *)(bh->b_data + 20);
++		sbi->s_dirsize = 64;
++		sbi->s_namelen = 60;
++		sbi->s_version = MINIX_V3;
++		sbi->s_link_max = MINIX2_LINK_MAX;
++			if ( *(__u16 *)(bh->b_data + 28) != 1024) {
++				if (!sb_set_blocksize(s,( *(__u16 *)(bh->b_data + 28))))
++ 				goto out_bad_hblock;
++		}
+ 	} else
+ 		goto out_no_fs;
+
+@@ -239,16 +259,16 @@
+ 	if (!NO_TRUNCATE)
+ 		s->s_root->d_op = &minix_dentry_operations;
+
+-	if (!(s->s_flags & MS_RDONLY)) {
++	if (!(s->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
+ 		ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(bh);
+ 	}
+-	if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-		printk ("MINIX-fs: mounting unchecked file system, "
+-			"running fsck is recommended.\n");
+- 	else if (sbi->s_mount_state & MINIX_ERROR_FS)
+-		printk ("MINIX-fs: mounting file system with errors, "
+-			"running fsck is recommended.\n");
++	if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version !=
+MINIX_V3))
++		printk ("MINIX-fs: mounting unchecked  V%i file system, "
++			"running fsck is recommended.\n", sbi->s_version);
++ 	else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version !=
+MINIX_V3))
++		printk ("MINIX-fs: mounting  V%i file system with errors, "
++			"running fsck is recommended.\n", sbi->s_version);
+ 	return 0;
+
+ out_iput:
+@@ -277,7 +297,7 @@
+
+ out_no_fs:
+ 	if (!silent)
+-		printk("VFS: Can't find a Minix or Minix V2 filesystem on device "
++		printk("VFS: Can't find a Minix V1|V2|V3 filesystem on device "
+ 		       "%s.\n", s->s_id);
+     out_release:
+ 	brelse(bh);
+diff -ur linux-2.6.14.5/fs/minix/minix.h
+modified_linux-2.6.14.5/fs/minix/minix.h
+--- linux-2.6.14.5/fs/minix/minix.h	2005-12-27 01:26:33.000000000 +0100
++++ modified_linux-2.6.14.5/fs/minix/minix.h	2006-01-05
+14:55:00.000000000 +0100
+@@ -12,6 +12,7 @@
+
+ #define MINIX_V1		0x0001		/* original minix fs */
+ #define MINIX_V2		0x0002		/* minix V2 fs */
++#define MINIX_V3		0x0003		/* minix V3 fs */
+
+ /*
+  * minix fs inode data in memory
+diff -ur linux-2.6.14.5/include/linux/minix_fs.h
+modified_linux-2.6.14.5/include/linux/minix_fs.h
+--- linux-2.6.14.5/include/linux/minix_fs.h	2005-12-27
+01:26:33.000000000 +0100
++++ modified_linux-2.6.14.5/include/linux/minix_fs.h	2006-01-05
+14:54:06.000000000 +0100
+@@ -23,6 +23,7 @@
+ #define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
+ #define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
+ #define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
++#define MINIX3_SUPER_MAGIC	0x4d5a		/* minix V3 fs */
+ #define MINIX_VALID_FS		0x0001		/* Clean fs. */
+ #define MINIX_ERROR_FS		0x0002		/* fs has errors. */
+
+@@ -78,7 +79,7 @@
+ };
+
+ struct minix_dir_entry {
+-	__u16 inode;
++	__u32 inode;
+ 	char name[0];
+ };
 
 
-> +	file->private_data = &rtc->class_dev;
-> +
-> +	err = ops->open ? ops->open(rtc->class_dev.dev) : 0;
-> +	if (err == 0) {
-> +
-> +		spin_lock_irq(&rtc->irq_lock);
-> +		rtc->irq_data = 0;
-> +		spin_unlock_irq(&rtc->irq_lock);
-> +
-> +		return 0;
-> +	}
-> +
-> +	/* something has gone wrong, release the lock */
-> +	up(&rtc->char_sem);
-> +	return err;
-> +}
-> +
-> +
-> +static ssize_t
-> +rtc_dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
-> +{
-> +	struct rtc_device *rtc = to_rtc_device(file->private_data);
-> +
-> +	DECLARE_WAITQUEUE(wait, current);
-> +	unsigned long data;
-> +	ssize_t ret;
-> +
-> +	if (count < sizeof(unsigned long))
-> +		return -EINVAL;
-> +
-> +	add_wait_queue(&rtc->irq_queue, &wait);
-> +	do {
-> +		__set_current_state(TASK_INTERRUPTIBLE);
-> +
-> +		spin_lock_irq(&rtc->irq_lock);
-> +		data = rtc->irq_data;
-> +		rtc->irq_data = 0;
-> +		spin_unlock_irq(&rtc->irq_lock);
-> +
-> +		if (data != 0) {
-> +			ret = 0;
-> +			break;
-> +		}
-> +		if (file->f_flags & O_NONBLOCK) {
-> +			ret = -EAGAIN;
-> +			break;
-> +		}
-> +		if (signal_pending(current)) {
-> +			ret = -ERESTARTSYS;
-> +			break;
-> +		}
-> +		schedule();
-> +	} while (1);
-> +	set_current_state(TASK_RUNNING);
-> +	remove_wait_queue(&rtc->irq_queue, &wait);
-> +
+The remaining work is just here at the end in the structure
+minix_dir_entry: How to merge the 16 bit pointers to the directories in
+the old version with the 32 bit pointers in the new one.
+
+Something will have to be patched also in dir.c
 
 
-The above looks very much like open-coded wait_event_interruptible();
-
-> +	if (ret == 0) {
-> +		ret = put_user(data, (unsigned long __user *)buf);
-> +		if (ret == 0)
-> +			ret = sizeof(unsigned long);
-> +	}
-> +	return ret;
-> +}
-> +
-> +static unsigned int rtc_dev_poll(struct file *file, poll_table *wait)
-> +{
-> +	struct rtc_device *rtc = to_rtc_device(file->private_data);
-> +	unsigned long data;
-> +
-> +	poll_wait(file, &rtc->irq_queue, wait);
-> +
-> +	spin_lock_irq(&rtc->irq_lock);
-> +	data = rtc->irq_data;
-> +	spin_unlock_irq(&rtc->irq_lock);
-> +
-> +	return data != 0 ? POLLIN | POLLRDNORM : 0;
-> +}
-
-What does the lock above protect? Once it is released rtc->irq_data may
-change so reader that was woken up may not see any data anyway.
-
-> +static int rtc_dev_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
-> +		     unsigned long arg)
-> +{
-> +	int err = 0;
-> +	struct class_device *class_dev = file->private_data;
-> +	struct rtc_device *rtc = to_rtc_device(class_dev);
-> +	struct rtc_class_ops *ops = rtc->ops;
-> +	struct rtc_time tm;
-> +	struct rtc_wkalrm alarm;
-> +	void __user *uarg = (void __user *) arg;
-> +
-> +	/* avoid conflicting IRQ users */
-> +	if (cmd == RTC_PIE_ON || cmd == RTC_PIE_OFF || cmd == RTC_IRQP_SET) {
-> +		spin_lock(&rtc->irq_task_lock);
-> +		if (rtc->irq_task)
-> +			err = -EBUSY;
-> +		spin_unlock(&rtc->irq_task_lock);
-> +
-> +		if (err < 0)
-> +			return err;
-> +	}
-> +
-> +	/* try the driver's ioctl interface */
-> +	if (ops->ioctl) {
-> +		err = ops->ioctl(class_dev->dev, cmd, arg);
-> +		if (err < 0 && err != -EINVAL)
-> +			return err;
-> +	}
-> +
-> +	/* if the driver does not provide the ioctl interface
-> +	 * or if that particular ioctl was not implemented
-> +	 * (-EINVAL), we will try to emulate here.
-> +	 */
-> +
-> +	switch (cmd) {
-> +	case RTC_ALM_READ:
-> +		if ((err = rtc_read_alarm(class_dev, &alarm)) < 0)
-> +			return err;
-> +
-> +		if ((err = copy_to_user(uarg, &alarm.time, sizeof(tm))))
-> +			return -EFAULT;
-> +		break;
-> +
-> +	case RTC_ALM_SET:
-> +		if ((err = copy_from_user(&alarm.time, uarg, sizeof(tm))))
-> +			return -EFAULT;
-> +
-> +		alarm.enabled = 0;
-> +		alarm.pending = 0;
-> +		alarm.time.tm_mday = -1;
-> +		alarm.time.tm_mon = -1;
-> +		alarm.time.tm_year = -1;
-> +		alarm.time.tm_wday = -1;
-> +		alarm.time.tm_yday = -1;
-> +		alarm.time.tm_isdst = -1;
-> +		err = rtc_set_alarm(class_dev, &alarm);
-> +		break;
-> +
-> +	case RTC_RD_TIME:
-> +		if ((err = rtc_read_time(class_dev, &tm)) < 0)
-> +			return err;
-> +
-> +		if ((err = copy_to_user(uarg, &tm, sizeof(tm))))
-> +			return -EFAULT;
-> +		break;
-> +
-> +	case RTC_SET_TIME:
-> +		if (!capable(CAP_SYS_TIME))
-> +			return -EACCES;
-> +
-> +		if ((err = copy_from_user(&tm, uarg, sizeof(tm))))
-> +			return -EFAULT;
-> +
-> +		err = rtc_set_time(class_dev, &tm);
-> +		break;
-> +#if 0
-> +	case RTC_EPOCH_SET:
-> +#ifndef rtc_epoch
-> +		/*
-> +		 * There were no RTC clocks before 1900.
-> +		 */
-> +		if (arg < 1900) {
-> +			err = -EINVAL;
-> +			break;
-> +		}
-> +		if (!capable(CAP_SYS_TIME)) {
-> +			err = -EACCES;
-> +			break;
-> +		}
-> +		rtc_epoch = arg;
-> +		err = 0;
-> +#endif
-> +		break;
-> +
-> +	case RTC_EPOCH_READ:
-> +		err = put_user(rtc_epoch, (unsigned long __user *)uarg);
-> +		break;
-> +#endif
-> +	case RTC_WKALM_SET:
-> +		if ((err = copy_from_user(&alarm, uarg, sizeof(alarm))))
-> +			return -EFAULT;
-> +
-> +		err = rtc_set_alarm(class_dev, &alarm);
-> +		break;
-> +
-> +	case RTC_WKALM_RD:
-> +		if ((err = rtc_read_alarm(class_dev, &alarm)) < 0)
-> +			return err;
-> +
-> +		if ((err = copy_to_user(uarg, &alarm, sizeof(alarm))))
-> +			return -EFAULT;
-> +		break;
-> +
-> +	default:
-> +		err = -EINVAL;
-> +		break;
-> +	}
-> +
-> +	return err;
-> +}
-> +
-> +static int rtc_dev_release(struct inode *inode, struct file *file)
-> +{
-> +	struct rtc_device *rtc = to_rtc_device(file->private_data);
-> +
-> +	if (rtc->ops->release)
-> +		rtc->ops->release(rtc->class_dev.dev);
-> +
-> +	spin_lock_irq(&rtc->irq_lock);
-> +	rtc->irq_data = 0;
-> +	spin_unlock_irq(&rtc->irq_lock);
-> +
-
-Why is the above needed?
-
-> +	up(&rtc->char_sem);
-> +	return 0;
-> +}
-> +
-> +static int rtc_dev_fasync(int fd, struct file *file, int on)
-> +{
-> +	struct rtc_device *rtc = to_rtc_device(file->private_data);
-> +	return fasync_helper(fd, file, on, &rtc->async_queue);
-> +}
-> +
-> +static struct file_operations rtc_dev_fops = {
-> +	.owner		= THIS_MODULE,
-> +	.llseek		= no_llseek,
-> +	.read		= rtc_dev_read,
-> +	.poll		= rtc_dev_poll,
-> +	.ioctl		= rtc_dev_ioctl,
-> +	.open		= rtc_dev_open,
-> +	.release	= rtc_dev_release,
-> +	.fasync		= rtc_dev_fasync,
-> +};
-> +
-> +static ssize_t rtc_dev_show_dev(struct class_device *class_dev, char *buf)
-> +{
-> +        return print_dev_t(buf, class_dev->devt);
-> +}
-> +static CLASS_DEVICE_ATTR(dev, S_IRUGO, rtc_dev_show_dev, NULL);
-> +
-> +/* insertion/removal hooks */
-> +
-> +static int rtc_dev_add_device(struct class_device *class_dev,
-> +				struct class_interface *class_intf)
-> +{
-> +	struct rtc_device *rtc = to_rtc_device(class_dev);
-> +
-> +	if (rtc->id >= RTC_DEV_MAX) {
-> +		dev_err(class_dev->dev, "too many RTCs\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	init_MUTEX(&rtc->char_sem);
-> +	spin_lock_init(&rtc->irq_lock);
-> +	init_waitqueue_head(&rtc->irq_queue);
-> +
-> +	cdev_init(&rtc->char_dev, &rtc_dev_fops);
-> +	rtc->char_dev.owner = rtc->owner;
-> +	class_dev->devt = MKDEV(MAJOR(rtc_devt), rtc->id);
-> +
-> +	if (cdev_add(&rtc->char_dev, class_dev->devt, 1)) {
-> +		cdev_del(&rtc->char_dev);
-> +
-> +		dev_err(class_dev->dev,
-> +			"failed to add char device %d:%d\n",
-> +			MAJOR(class_dev->devt),
-> +			MINOR(class_dev->devt));
-> +
-> +		class_dev->devt = MKDEV(0, 0);
-> +		return -ENODEV;
-> +	}
-> +
-> +	class_device_create_file(class_dev, &class_device_attr_dev);
-> +
-> +	dev_info(class_dev->dev, "rtc intf: dev (%d:%d)\n",
-> +		MAJOR(class_dev->devt),
-> +		MINOR(class_dev->devt));
-> +
-> +	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
-> +
-
-This is kobject_hotplug abuse; you are not adding a new object here.
-
-> +	return 0;
-> +}
-> +
-> +static void rtc_dev_remove_device(struct class_device *class_dev,
-> +					struct class_interface *class_intf)
-> +{
-> +	struct rtc_device *rtc = to_rtc_device(class_dev);
-> +
-> +	class_device_remove_file(class_dev, &class_device_attr_dev);
-> +
-> +	if (MAJOR(class_dev->devt)) {
-> +		dev_dbg(class_dev->dev, "removing char %d:%d\n",
-> +			MAJOR(class_dev->devt),
-> +			MINOR(class_dev->devt));
-> +		cdev_del(&rtc->char_dev);
-> +
-> +		kobject_hotplug(&class_dev->kobj, KOBJ_REMOVE);
-> +
-
-Same here...
-
-> +		class_dev->devt = MKDEV(0, 0);
-> +	}
-> +}
-> +
-> +/* interface registration */
-> +
-> +struct class_interface rtc_dev_interface = {
-> +	.add = &rtc_dev_add_device,
-> +	.remove = &rtc_dev_remove_device,
-> +};
-> +
-
-I wonder if doing rtc dev as a class device interface is a good idea.
-It may be cleaner to fold it into the core.
-
-> +static int __init rtc_dev_init(void)
-> +{
-> +	int err;
-> +
-> +	if ((err = alloc_chrdev_region(&rtc_devt, 0, RTC_DEV_MAX, "rtc")) < 0) {
-> +		printk(KERN_ERR "%s: failed to allocate char dev region\n",
-> +			__FILE__);
-> +		return err;
-> +	}
-> +
-> +	if ((err = rtc_interface_register(&rtc_dev_interface)) < 0) {
-> +		printk(KERN_ERR "%s: failed to register the interface\n",
-> +			__FILE__);
-> +		unregister_chrdev_region(rtc_devt, RTC_DEV_MAX);
-> +		return err;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void __exit rtc_dev_exit(void)
-> +{
-> +	class_interface_unregister(&rtc_dev_interface);
-> +
-> +	unregister_chrdev_region(rtc_devt, RTC_DEV_MAX);
-> +}
-> +
-> +module_init(rtc_dev_init);
-> +module_exit(rtc_dev_exit);
-> +
-> +MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
-> +MODULE_DESCRIPTION("RTC class dev interface");
-> +MODULE_LICENSE("GPL");
-> --- linux-nslu2.orig/drivers/rtc/Kconfig	2006-01-04 01:27:14.000000000 +0100
-> +++ linux-nslu2/drivers/rtc/Kconfig	2006-01-04 01:27:15.000000000 +0100
-> @@ -41,6 +41,17 @@ config RTC_INTF_PROC
->  	  This driver can also be built as a module. If so, the module
->  	  will be called rtc-proc.
->  
-> +config RTC_INTF_DEV
-> +	tristate "dev"
-> +	depends on RTC_CLASS
-> +	default RTC_CLASS
-> +	help
-> +	  Say yes here if you want to use your RTC using the dev
-> +	  interface, /dev/rtc .
-> +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called rtc-dev.
-> +
->  comment "RTC drivers"
->  	depends on RTC_CLASS
->  
-> --- linux-nslu2.orig/drivers/rtc/Makefile	2006-01-04 01:27:14.000000000 +0100
-> +++ linux-nslu2/drivers/rtc/Makefile	2006-01-04 01:27:15.000000000 +0100
-> @@ -7,3 +7,4 @@ obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
->  rtc-core-y			:= class.o interface.o
->  obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
->  obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
-> +obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
-> 
-> --
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-Dmitry
+--------------030502080202090202000403--

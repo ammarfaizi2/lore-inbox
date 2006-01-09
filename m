@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWAINAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWAINGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWAINAu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWAINAu
+	id S1751405AbWAINGF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWAINGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:00:50 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19178 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751244AbWAINAt (ORCPT
+	Mon, 9 Jan 2006 08:06:05 -0500
+Received: from mx02.qsc.de ([213.148.130.14]:65214 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S1751287AbWAINGC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:00:49 -0500
-Date: Mon, 9 Jan 2006 05:00:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "ODonnell, Michael" <Michael.ODonnell@stratus.com>
-Cc: adapter_support@intel.com, bonding-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-netdev@lists.sourceforge.net,
-       John Ronciak <john.ronciak@intel.com>,
-       Ganesh Venkatesan <ganesh.venkatesan@intel.com>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>
-Subject: Re: [PATCH] corruption during e100 MDI register access
-Message-Id: <20060109050030.77a3104d.akpm@osdl.org>
-In-Reply-To: <92952AEF1F064042B6EF2522E0EEF437032252ED@EXNA.corp.stratus.com>
-References: <92952AEF1F064042B6EF2522E0EEF437032252ED@EXNA.corp.stratus.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 9 Jan 2006 08:06:02 -0500
+From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
+Organization: ExactCODE
+To: Jaroslav Kysela <perex@suse.cz>
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+Date: Mon, 9 Jan 2006 14:05:23 +0100
+User-Agent: KMail/1.9
+Cc: Hannu Savolainen <hannu@opensound.com>, Takashi Iwai <tiwai@suse.de>,
+       linux-sound@vger.kernel.org,
+       ALSA development <alsa-devel@alsa-project.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <20050726150837.GT3160@stusta.de> <Pine.LNX.4.61.0601080225500.17252@zeus.compusonic.fi> <Pine.LNX.4.61.0601081007550.9470@tm8103.perex-int.cz>
+In-Reply-To: <Pine.LNX.4.61.0601081007550.9470@tm8103.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601091405.23939.rene@exactcode.de>
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, On Sunday 08 January 2006 10:24, Jaroslav Kysela
+	wrote: > > > > > - PCM with non-interleaved formats > > > > There is no
+	need to handle non-interleaved data in kernel level drivers > > > >
+	because all the devices use interleaved formats. > > > > > > Many RME
+	boards support only non-intereleave data. > > In such cases it's better
+	to do interleavin/deinterleaving in the kernel > > rather than forcing
+	the apps to check which method they should use. > > I don't think so.
+	The library can do such conversions (and alsa-lib does) > quite easy. If
+	we have a possibility to remove the code from the kernel > space without
+	any drawbacks, then it should be removed. I don't see any > advantage to
+	have such conversions in the kernel. [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"ODonnell, Michael" <Michael.ODonnell@stratus.com> wrote:
->
-> We have identified two related bugs in the e100 driver and we request
->  that they be repaired in the official Intel version of the driver.
+Hi,
+
+On Sunday 08 January 2006 10:24, Jaroslav Kysela wrote:
+
+> > > > > - PCM with non-interleaved formats
+> > > > There is no need to handle non-interleaved data in kernel level drivers 
+> > > > because all the devices use interleaved formats.
+> > > 
+> > > Many RME boards support only non-intereleave data.
+> > In such cases it's better to do interleavin/deinterleaving in the kernel 
+> > rather than forcing the apps to check which method they should use.
 > 
->  Both bugs are related to manipulation of the MDI control register.
-> 
->  The first problem is that the Ready bit is being ignored when
->  writing to the Control register; we noticed this because the Linux
->  bonding driver would occasionally come to the spurious conclusion
->  that the link was down when querying Link State.  It turned out
->  that by failing to wait for a previous command to complete it was
->  selecting what was essentially a random register in the MDI register
->  set.  When we added code that waits for the Ready bit (as shown in
->  the patch file below) all such problems ceased.
-> 
->  The second problem is that, although access to the MDI registers
->  involves multiple steps which must not be intermixed, nothing was
->  defending against two or more threads attempting simultaneous access.
->  The most obvious situation where such interference could occur
->  involves the watchdog versus ioctl paths, but there are probably
->  others, so we recommend the locking shown in our patch file.
+> I don't think so. The library can do such conversions (and alsa-lib does) 
+> quite easy. If we have a possibility to remove the code from the kernel 
+> space without any drawbacks, then it should be removed. I don't see any 
+> advantage to have such conversions in the kernel.
 
-Your patches are coming through wordwrapped.  Please fix your email client
-in future.
+Also, when the data is already available as single streams in a user-space
+multi track application, why should it be forced interleaved, when the hardware
+could handle the format just fine?
 
-Please also prepare patches in `patch -p1' form. 
-http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt may prove useful.
+Yours,
+  Rene
 
-This patch potentially spins for four milliseconds with interrupts off,
-which will be unpopular.  Is there no alternative?
-
-Anyway, I queued the patch in my kernel so the issue won't be forgotten
-about.  I also queued a patch which makes your patch comply with kernel
-coding style - it wasn't very close at all.
-
-Thanks.
+-- 
+ExactCODE, Berlin

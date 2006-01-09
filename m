@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWAIPbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWAIPc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWAIPbN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 10:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWAIPbN
+	id S964791AbWAIPc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 10:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWAIPc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 10:31:13 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:31243 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964784AbWAIPbM convert rfc822-to-8bit
+	Mon, 9 Jan 2006 10:32:57 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:11479 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964791AbWAIPc4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 10:31:12 -0500
+	Mon, 9 Jan 2006 10:32:56 -0500
+Date: Mon, 9 Jan 2006 10:32:48 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
+       <linux-kernel@vger.kernel.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       <linux-usb-devel@lists.sourceforge.net>, Greg KH <gregkh@suse.de>,
+       Leonid <nouser@lpetrov.net>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+In-Reply-To: <200601090126.56831.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.44L0.0601091026200.5734-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20060109141958.GM2767@charite.de>
-X-OriginalArrivalTime: 09 Jan 2006 15:31:08.0136 (UTC) FILETIME=[B6384680:01C61531]
-Content-class: urn:content-classes:message
-Subject: Re: kernel BUG at drivers/ide/ide.c:1384!
-Date: Mon, 9 Jan 2006 10:30:47 -0500
-Message-ID: <Pine.LNX.4.61.0601091025480.17766@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel BUG at drivers/ide/ide.c:1384!
-Thread-Index: AcYVMbY/w17Jr+lVQduuaffJVNxP4A==
-References: <20060109095159.GE4535@charite.de> <1136816352.6659.10.camel@localhost.localdomain> <20060109141958.GM2767@charite.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ralf Hildebrandt" <Ralf.Hildebrandt@charite.de>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Jan 2006, Dmitry Torokhov wrote:
 
-On Mon, 9 Jan 2006, Ralf Hildebrandt wrote:
+> On Sunday 08 January 2006 16:23, Martin Bretschneider wrote:
+> > Hello,
+> > 
+> > Jens Nödler who has got the same motheboard (Gigabyte GA-K8NF-9 with
+> > nforce4 chipset) can confirm my problem. But he found out that the
+> > keyboard connected to the ps/2 port does work with kernel 2.6.15 if
+> > "USB keyboard support" is disabled in the BIOS.
+> >
+> 
+> Ok, I an getting enough reports to conclude that the new usb-handoff
+> code does not seem to be working. Let's try CCing USB list and other
+> parties involved :)
+> 
+> Greg, Alan, any ideas?
 
-> * Alan Cox <alan@lxorguk.ukuu.org.uk>:
->
->> You should be able to reproduce it without the Nvidia code loaded if you
->> do I/O on the disk and run hdparm -w in a tight loop while doing so.
->>
->> You might want to do it on a disk you have a backup of
->
-> I think I'll pass :)
-> --
-> Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-> Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-> Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-> IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+It would be nice to know which part of the usb-handoff code causes the 
+problem.  In the 2.6.15 source file drivers/usb/host/pci-quirks.c, at the 
+end of the file is this routine:
 
-He might be able to do the same thing with `cat /dev/urandom > /dev/hda`.
-There are not a lot of file-system checks against bad data in file-systems.
-The '-w' reset will guarantee bad data, which may propagate to the
-file-system(s) in use, causing all kinds of problems. So, the OOPS under
-these conditions is expected.
+static void __devinit quirk_usb_early_handoff(struct pci_dev *pdev)
+{
+	if (pdev->class == PCI_CLASS_SERIAL_USB_UHCI)
+		quirk_usb_handoff_uhci(pdev);
+	else if (pdev->class == PCI_CLASS_SERIAL_USB_OHCI)
+		quirk_usb_handoff_ohci(pdev);
+	else if (pdev->class == PCI_CLASS_SERIAL_USB_EHCI)
+		quirk_usb_disable_ehci(pdev);
+}
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+If you comment out the call to quirk_usb_handoff_uhci and rename the 
+/lib/modules/2.6.15/kernel/drivers/usb/host/uhci-hcd.ko file so that it 
+doesn't get loaded automatically, does that fix things?
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Similarly, if you comment out the call to quirk_usb_disable_ehci and 
+rename /lib/modules/.../ehci-hcd.ko so that it doesn't get loaded, does 
+that help?
 
-Thank you.
+Leonid's system log showed that he doesn't have an OHCI controller, but if 
+Martin does then he should do the same test with quirk_usb_handoff_ohci.
+
+Alan Stern
+

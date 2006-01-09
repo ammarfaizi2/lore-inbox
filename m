@@ -1,65 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWAIRIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWAIRLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbWAIRIe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 12:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWAIRIe
+	id S1030190AbWAIRLH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 12:11:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWAIRLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 12:08:34 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:46753 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S964883AbWAIRIe (ORCPT
+	Mon, 9 Jan 2006 12:11:06 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:9107 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1030183AbWAIRLE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 12:08:34 -0500
-Subject: PATCH: EDAC - change default, also handle pulled hardware
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 09 Jan 2006 17:11:29 +0000
-Message-Id: <1136826689.6659.46.camel@localhost.localdomain>
+	Mon, 9 Jan 2006 12:11:04 -0500
+Date: Mon, 9 Jan 2006 12:11:04 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patch] 2.6.x libata fix
+Message-ID: <20060109171104.GA25793@havoc.gtf.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If a card reports 0xFFFF check if the devid is also all 0xFFFFFFFF and
-if so assume the card was pulled rather than showing parity errors. This
-avoids us spewing errors when a card is yanked and hotplug hasn't caught
-up with it.
 
-Also default PCI scan to off as it has a performance impact and is
-relevant to a minority of users only. Users can enable it when they need
-it.
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-Alan
+to receive the following updates:
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-mm2/drivers/edac/edac_mc.c linux-2.6.15-mm2/drivers/edac/edac_mc.c
---- linux.vanilla-2.6.15-mm2/drivers/edac/edac_mc.c	2006-01-09 14:33:44.000000000 +0000
-+++ linux-2.6.15-mm2/drivers/edac/edac_mc.c	2006-01-09 14:54:10.000000000 +0000
-@@ -53,7 +53,7 @@
- static int panic_on_ue = 1;
- static int poll_msec = 1000;
- 
--static int check_pci_parity = 1;	/* default YES check PCI parity */
-+static int check_pci_parity = 0;	/* default NO check PCI parity */
- static int panic_on_pci_parity = 0;	/* default no panic on PCI Parity */
- static atomic_t pci_parity_count = ATOMIC_INIT(0);
- 
-@@ -1755,6 +1755,17 @@
- 
- 	where = secondary ? PCI_SEC_STATUS : PCI_STATUS;
- 	pci_read_config_word(dev, where, &status);
-+	
-+	/* If we get back 0xFFFF then we must suspect that the card has been pulled but
-+	   the Linux PCI layer has not yet finished cleaning up. We don't want to report
-+	   on such devices */
-+	   
-+	if (status == 0xFFFF) {
-+		u32 sanity;
-+		pci_read_config_dword(dev, 0, &sanity);
-+		if (sanity == 0xFFFFFFFF)
-+			return 0;
-+	}
- 	status &= PCI_STATUS_DETECTED_PARITY | PCI_STATUS_SIG_SYSTEM_ERROR |
- 		  PCI_STATUS_PARITY;
- 
+ drivers/scsi/sata_nv.c |   30 ++++++++++++++++++++++++------
+ 1 files changed, 24 insertions(+), 6 deletions(-)
 
+Andrew Chew:
+      sata_nv, spurious interrupts at system startup with MAXTOR 6H500F0 drive
+
+diff --git a/drivers/scsi/sata_nv.c b/drivers/scsi/sata_nv.c
+index c0cf52c..bbbb55e 100644
+--- a/drivers/scsi/sata_nv.c
++++ b/drivers/scsi/sata_nv.c
+@@ -29,6 +29,12 @@
+  *  NV-specific details such as register offsets, SATA phy location,
+  *  hotplug info, etc.
+  *
++ *  0.10
++ *     - Fixed spurious interrupts issue seen with the Maxtor 6H500F0 500GB
++ *       drive.  Also made the check_hotplug() callbacks return whether there
++ *       was a hotplug interrupt or not.  This was not the source of the
++ *       spurious interrupts, but is the right thing to do anyway.
++ *
+  *  0.09
+  *     - Fixed bug introduced by 0.08's MCP51 and MCP55 support.
+  *
+@@ -124,10 +130,10 @@ static void nv_scr_write (struct ata_por
+ static void nv_host_stop (struct ata_host_set *host_set);
+ static void nv_enable_hotplug(struct ata_probe_ent *probe_ent);
+ static void nv_disable_hotplug(struct ata_host_set *host_set);
+-static void nv_check_hotplug(struct ata_host_set *host_set);
++static int nv_check_hotplug(struct ata_host_set *host_set);
+ static void nv_enable_hotplug_ck804(struct ata_probe_ent *probe_ent);
+ static void nv_disable_hotplug_ck804(struct ata_host_set *host_set);
+-static void nv_check_hotplug_ck804(struct ata_host_set *host_set);
++static int nv_check_hotplug_ck804(struct ata_host_set *host_set);
+ 
+ enum nv_host_type
+ {
+@@ -176,7 +182,7 @@ struct nv_host_desc
+ 	enum nv_host_type	host_type;
+ 	void			(*enable_hotplug)(struct ata_probe_ent *probe_ent);
+ 	void			(*disable_hotplug)(struct ata_host_set *host_set);
+-	void			(*check_hotplug)(struct ata_host_set *host_set);
++	int			(*check_hotplug)(struct ata_host_set *host_set);
+ 
+ };
+ static struct nv_host_desc nv_device_tbl[] = {
+@@ -309,12 +315,16 @@ static irqreturn_t nv_interrupt (int irq
+ 			qc = ata_qc_from_tag(ap, ap->active_tag);
+ 			if (qc && (!(qc->tf.ctl & ATA_NIEN)))
+ 				handled += ata_host_intr(ap, qc);
++			else
++				// No request pending?  Clear interrupt status
++				// anyway, in case there's one pending.
++				ap->ops->check_status(ap);
+ 		}
+ 
+ 	}
+ 
+ 	if (host->host_desc->check_hotplug)
+-		host->host_desc->check_hotplug(host_set);
++		handled += host->host_desc->check_hotplug(host_set);
+ 
+ 	spin_unlock_irqrestore(&host_set->lock, flags);
+ 
+@@ -497,7 +507,7 @@ static void nv_disable_hotplug(struct at
+ 	outb(intr_mask, host_set->ports[0]->ioaddr.scr_addr + NV_INT_ENABLE);
+ }
+ 
+-static void nv_check_hotplug(struct ata_host_set *host_set)
++static int nv_check_hotplug(struct ata_host_set *host_set)
+ {
+ 	u8 intr_status;
+ 
+@@ -522,7 +532,11 @@ static void nv_check_hotplug(struct ata_
+ 		if (intr_status & NV_INT_STATUS_SDEV_REMOVED)
+ 			printk(KERN_WARNING "nv_sata: "
+ 				"Secondary device removed\n");
++
++		return 1;
+ 	}
++
++	return 0;
+ }
+ 
+ static void nv_enable_hotplug_ck804(struct ata_probe_ent *probe_ent)
+@@ -560,7 +574,7 @@ static void nv_disable_hotplug_ck804(str
+ 	pci_write_config_byte(pdev, NV_MCP_SATA_CFG_20, regval);
+ }
+ 
+-static void nv_check_hotplug_ck804(struct ata_host_set *host_set)
++static int nv_check_hotplug_ck804(struct ata_host_set *host_set)
+ {
+ 	u8 intr_status;
+ 
+@@ -585,7 +599,11 @@ static void nv_check_hotplug_ck804(struc
+ 		if (intr_status & NV_INT_STATUS_SDEV_REMOVED)
+ 			printk(KERN_WARNING "nv_sata: "
+ 				"Secondary device removed\n");
++
++		return 1;
+ 	}
++
++	return 0;
+ }
+ 
+ static int __init nv_init(void)

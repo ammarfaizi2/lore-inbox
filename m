@@ -1,56 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWAIHvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWAIHyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWAIHvY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 02:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWAIHvY
+	id S1750740AbWAIHyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 02:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWAIHyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 02:51:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:64731 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750709AbWAIHvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 02:51:24 -0500
-Subject: Re: X86_64 and X86_32 bit performance difference [Revisited]
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nauman Tahir <nauman.tahir@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.kernel.org
-In-Reply-To: <f0309ff0601082229u3fc5e415m12be9dc921f4a099@mail.gmail.com>
-References: <f0309ff0601082229u3fc5e415m12be9dc921f4a099@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 08:51:20 +0100
-Message-Id: <1136793080.2936.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 9 Jan 2006 02:54:25 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:4341 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750740AbWAIHyZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 02:54:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=N67jphX2hzZbPcIIfvaDJ9A+X+3VFq0h2HUBqQYgTpDSFE6tVgrRbEG3KvSeOWzsqSLKHENqK07NYyj0Eo+KE4/TZtlNvW4Qwd+pgIJXMXlro3s7QNhH+MN4bEXfx2P7x+uLc/lVXup6uU/JMCwG1pSPdkbnnUFKVXinNOzOm34=
+Message-ID: <174467f50601082354y7ca871c7k@mail.gmail.com>
+Date: Mon, 9 Jan 2006 15:54:24 +0800
+From: Boxer Gnome <aiko.sex@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 22:29 -0800, Nauman Tahir wrote:
-> Hello All
-> I have posted this problem before. Now mailing again after testing as
-> recommeded in previous replys.
-> My configuration is:
-> 
-> Hardware:
-> HP Proliant DL145 (2 x AMD Optaron 144)
-> 14 GB RAM
-> 
-> OS:
-> FC 4
-> 
-> Kernel
-> 2.6.xx
+and the dos ntfs driver was not released by the MS offical.So,what' wrong?
 
-You *STILL* have not posted the URL to your source code.
-How is anyone supposed to help you without that?????
-
-
-
-
+Somebody who can explain this ?

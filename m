@@ -1,67 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWAIUoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWAIUqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWAIUoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWAIUoe
+	id S1751330AbWAIUqU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWAIUqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:44:34 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59300
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751328AbWAIUoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:44:34 -0500
-Date: Mon, 09 Jan 2006 12:44:44 -0800 (PST)
-Message-Id: <20060109.124444.115603028.davem@davemloft.net>
-To: mroos@linux.ee
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15+git: undefined reference to `pm_power_off'
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.SOC.4.61.0601091329540.14603@math.ut.ee>
-References: <Pine.SOC.4.61.0601091329540.14603@math.ut.ee>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 15:46:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:16331 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751330AbWAIUqT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 15:46:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iHS2zSF0mcdTizJlwXW9PbcHy484v+f56FEw5vpe7ycL5+LxYxLgNX5bgrFnMhnhxdIl58wZsR0/fJac69zdI6Dc678iFXyLLpNWZ82gyQFfxMFVmhBlX1wrgdOOLV6/NbIsV+PCqNWK6lnx6ZcMfco24lnaZYOXE8QwEjoDYAs=
+Message-ID: <9a8748490601091246m2adfa0a5pc455ed05758e43b6@mail.gmail.com>
+Date: Mon, 9 Jan 2006 21:46:19 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Mouse stalls (again) with 2.6.15-mm2
+Cc: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <9a8748490601091237s57071e57mbd2c4172a0e4dd@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9a8748490601091237s57071e57mbd2c4172a0e4dd@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Meelis Roos <mroos@linux.ee>
-Date: Mon, 9 Jan 2006 13:30:35 +0200 (EET)
+On 1/9/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 12/21/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > On 12/21/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > On 12/11/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > > > On 12/11/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > > >
+> > > > > To stop resync attempts do:
+> > > > >
+> > > > >         echo -n 0 > /sys/bus/serio/devices/serioX/resync_time
+> > > > >
+> > > > > where serioX is serio port asociated with your mouse.
+> > > > >
+> > > > This cures the problem nicely with no obvious ill effects with the
+> > > > mouse plugged into the KVM...
+> > > >
+> > >
+> > > Jesper,
+> > >
+> > > Could you please try applying the attached patch to -mm and see if you
+> > > still have "resync failed" messages when you don't "echo 0" into
+> > > resync_time attribute?
+> > >
+> > I applied the patch to 2.6.15-rc5-mm3, took out the "echo 0 to
+> > resync_time" workaround that I had in rc.local and I no longer see the
+> > "resync failed" messages in dmesg.
+> > With this patch applied everything seems to be working OK with the
+> > mouse attached to the KVM.
+> >
+>
+> Hi Dmitry,
+>
+> I'm sorry to report that this problem made a comeback :-(
 
-> Todays git update does not link on sparc64:
-> 
->    LD      .tmp_vmlinux1
-> kernel/built-in.o: In function `sys_reboot': undefined reference to `pm_power_off'
-> kernel/built-in.o: In function `sys_reboot': undefined reference to `pm_power_off'
+I guess I should mention that it's slightly different this time.
+Last time the mouse would stall every 5 seconds regardless of it being
+in motion or not. This time around the mouse doesn't stall if I keep
+moving it. Only when I leave it still for ~10 seconds or more does it
+stall when I then try to move it again. It stalls for something like 1
+or 2 seconds, then moves fine until left alone for >= 10 sec again.
 
-I have a fix on it's way already:
 
-diff-tree 760c6246d9bc61e2cdee828e12617ac8696d31fd (from 5367f2d67c7d0bf1faae90e6e7b4e2ac3c9b5e0f)
-Author: David S. Miller <davem@sunset.davemloft.net>
-Date:   Sun Jan 8 22:54:39 2006 -0800
+> With 2.6.15-mm2 I again get the mouse stalls and these messages in dmesg :
+>
+> [   64.351000] psmouse.c: resync failed, issuing reconnect request
+> [   94.210000] psmouse.c: resync failed, issuing reconnect request
+> [  132.850000] psmouse.c: resync failed, issuing reconnect request
+> [  148.498000] psmouse.c: resync failed, issuing reconnect request
+> [  185.414000] psmouse.c: resync failed, issuing reconnect request
+> [  220.509000] psmouse.c: resync failed, issuing reconnect request
+> [  375.436000] psmouse.c: resync failed, issuing reconnect request
+> [  406.410000] psmouse.c: resync failed, issuing reconnect request
+> [  419.382000] psmouse.c: resync failed, issuing reconnect request
+> [  432.016000] psmouse.c: resync failed, issuing reconnect request
+> [  448.275000] psmouse.c: resync failed, issuing reconnect request
+> [  462.244000] psmouse.c: resync failed, issuing reconnect request
+> [  477.461000] psmouse.c: resync failed, issuing reconnect request
+> [  490.851000] psmouse.c: resync failed, issuing reconnect request
+> [  533.566000] psmouse.c: resync failed, issuing reconnect request
+> [  563.348000] psmouse.c: resync failed, issuing reconnect request
+> [  580.606000] psmouse.c: resync failed, issuing reconnect request
+> [  620.961000] psmouse.c: resync failed, issuing reconnect request
+> [  639.404000] psmouse.c: resync failed, issuing reconnect request
+> [  690.256000] psmouse.c: resync failed, issuing reconnect request
+> [  698.772000] psmouse.c: resync failed, issuing reconnect request
+> [  716.679000] psmouse.c: resync failed, issuing reconnect request
+>
+> 2.6.15 is fine.
+>
 
-    [SPARC64]: Add needed pm_power_off symbol.
-    
-    Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/arch/sparc64/kernel/power.c b/arch/sparc64/kernel/power.c
-index 9e8362e..30bcaf5 100644
---- a/arch/sparc64/kernel/power.c
-+++ b/arch/sparc64/kernel/power.c
-@@ -14,6 +14,7 @@
- #include <linux/signal.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
-+#include <linux/pm.h>
- 
- #include <asm/system.h>
- #include <asm/ebus.h>
-@@ -70,6 +71,9 @@ void machine_power_off(void)
- 	machine_halt();
- }
- 
-+void (*pm_power_off)(void) = machine_power_off;
-+EXPORT_SYMBOL(pm_power_off);
-+
- #ifdef CONFIG_PCI
- static int powerd(void *__unused)
- {
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

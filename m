@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWAISoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWAISnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbWAISoW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:44:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWAISoW
+	id S1030242AbWAISnu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWAISnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:44:22 -0500
-Received: from smtp11.wanadoo.fr ([193.252.22.31]:40469 "EHLO
-	smtp11.wanadoo.fr") by vger.kernel.org with ESMTP id S1030246AbWAISoV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:44:21 -0500
-X-ME-UUID: 20060109184420193.2F3741C0004D@mwinf1103.wanadoo.fr
-Subject: Re: [PATCH] It's UTF-8
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: "Alexander E. Patrakov" <patrakov@gmail.com>,
-       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <m3ek3hhbs0.fsf@defiant.localdomain>
-References: <20060108203851.GA5864@mipter.zuzino.mipt.ru>
-	 <43C21E9D.3070106@gmail.com>  <m3ek3hhbs0.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 09 Jan 2006 19:44:26 +0100
-Message-Id: <1136832266.10433.1.camel@bip.parateam.prv>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8BIT
+	Mon, 9 Jan 2006 13:43:50 -0500
+Received: from mx1.suse.de ([195.135.220.2]:18615 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030242AbWAISnu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 13:43:50 -0500
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Console debugging wishlist was: Re: oops pauser.
+References: <20060105045212.GA15789@redhat.com>
+From: Andi Kleen <ak@suse.de>
+Date: 09 Jan 2006 19:43:46 +0100
+In-Reply-To: <20060105045212.GA15789@redhat.com>
+Message-ID: <p73vewtw8bh.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lundi 09 janvier 2006 à 12:38 +0100, Krzysztof Halasa a écrit :
-> "Alexander E. Patrakov" <patrakov@gmail.com> writes:
+Dave Jones <davej@redhat.com> writes:
 
-> > FAT: this is not the recommended filesystem for use with UTF-8 filenames.
-> >
-> > Reason: the utf8 IO charset is the only IO charset that displays
-> > filenames properly in UTF-8 locales. So the choice is really between
-> > case-sensitive filenames (iocharset=utf8) and completely unreadable
-> > filenames (everything else).
+> In my quest to get better debug data from users in Fedora bug reports,
+> I came up with this patch.  A majority of users don't have serial
+> consoles, so when an oops scrolls off the top of the screen,
+> and locks up, they usually end up reporting a 2nd (or later) oops
+> that isn't particularly helpful (or worse, some inconsequential
+> info like 'sleeping whilst atomic' warnings)
+
+Ok - here's my personal wishlist. If someone is interested ...
+
+What I would like to have is a "more" option for the kernel that makes
+it page kernel output like "more" and asks you before scrolling
+to the next page.
+
+What would be also cool would be to fix the VGA console to have 
+a larger scroll back buffer.  The standard kernel boot output 
+is far larger than the default scrollback, so if you get a hang
+late you have no way to look back to all the earlier 
+messages.
+
+(it is hard to understand that with 128MB+ graphic cards and 512+MB
+computers the scroll back must be still so short...) 
+
+And fixing sysrq to work after panics would be also nice.
+
+And maybe a sysrq key to switch the font to the smallest one available
+so as much as possible would fit onto a digital photo.
 > 
-> And UTF-8 locale seems to be the only really sane today. I'd kill the
-> whole warning.
+> The one case this doesn't catch is the problem of oopses whilst
+> in X. Previously a non-fatal oops would stall X momentarily,
+> and then things continue. Now those cases will lock up completely
+> for two minutes. Future patches could add some additional feedback
+> during this 'stall' such as the blinky keyboard leds, or periodic speaker beeps.
 
-.. on unix. But FAT is a sort of lingua franca of filesystems, and is
-the only one understandable by every (embedded) OS. So you'd better stay
-compatible with everyone else.
+That's the killer issues why this patch is a bad idea.
 
-	Xav
-
-
+-Andi

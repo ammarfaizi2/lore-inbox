@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWAISZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWAISZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWAISZd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 13:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWAISZd
+	id S964911AbWAISZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 13:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWAISZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 13:25:33 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:34963 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S964913AbWAISZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 13:25:32 -0500
-Message-ID: <43C29316.4080300@wolfmountaingroup.com>
-Date: Mon, 09 Jan 2006 09:45:10 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 9 Jan 2006 13:25:27 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:6379 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964911AbWAISZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 13:25:26 -0500
+To: Stan Gammons <s_gammons@charter.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 64 bit kernel
+References: <1136780835.6695.37.camel@falklands.home.pc>
+From: Andi Kleen <ak@suse.de>
+Date: 09 Jan 2006 19:25:21 +0100
+In-Reply-To: <1136780835.6695.37.camel@falklands.home.pc>
+Message-ID: <p738xtpxnqm.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Oliver Neukum <oliver@neukum.org>, Lee Revell <rlrevell@joe-job.com>,
-       Bernd Petrovitsch <bernd@firmix.at>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
- can't for a long time
-References: <5t06S-7nB-15@gated-at.bofh.it>	 <1136824149.5785.75.camel@tara.firmix.at>	 <1136824880.9957.55.camel@mindpipe>  <200601091753.36485.oliver@neukum.org> <1136827900.6659.66.camel@localhost.localdomain>
-In-Reply-To: <1136827900.6659.66.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Stan Gammons <s_gammons@charter.net> writes:
 
->On Llu, 2006-01-09 at 17:53 +0100, Oliver Neukum wrote:
->  
->
->>Does the Windows Explorer draw icons based only on name and metadata?
->>    
->>
->
->Sort of. It also plays tricks on the human by working out what icons are
->visible and loading those first then filling in while the user thinks it
->is ready
->
->  
->
+First you get the price of the day for meaningless subjects. Gratulations.
 
-And the mouse driver is biased to always get access to CPU cycles so the 
-cursor will always be visible
-and working even when the system is totally locked up.  NTFS performance 
-is also totally abysimal
-when volumes reach 2TB sizes due to fragmentation of the NTFS 
-archtiecture.  A problem not shared
-with EXT3 FS's.
+> I was wondering if anyone can tell me if the following is a 64 bit
+> kernel problem or if it's a BIOS problem.
+> 
+> I have a Gigabyte K8NSC-939 with an AMD64 3200+ (Venice) CPU version F7
+> BIOS. When I first got this board, I put a single 512 Mb PC2700 DIMM in
+> it from an older Celeron board I had. 32 bit Suse 10.0 and 32 bit FC4
+> loaded fine. When I tried the 64 bit version of either, I kept getting
+> DMA errors on boot like the HD or controller was bad. After some
+> searching I found others with similar problems and they had to use
+> "noapic nolapic" kernel boot options to install and boot the OS. That
+> worked for me too and I was able to install the OS.
 
-J
+That's usually an ACPI problem. Put full boot log of the failure
+and acpidmp output into bugzilla.kernel.org
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+The difference between 32bit and 64bit distro is that the later
+use the APIC by default so they are more sensitive to ACPI issues.
 
+> 
+> After I upgraded the memory and put 2 512Mb PC3200 DIMMS in the board. I
+> tried a 64 bit install again. This time I no longer had to use the
+> "noapic nolapic" options. With a single DIMM, BIOS (during boot)
+> reported "single channel" memory. With 2 DIMMS, BIOS (during boot)
+> reports "dual channel" memory. My question though is does the 64 bit
+> kernel require "dual channel" memory or is this a BIOS problem?  
+
+That sounds weird. Most likely a BIOS problem of some sort.
+
+Dual or single channel memory shouldn't make a difference to the kernel.
+ 
+-Andi

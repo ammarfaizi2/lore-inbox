@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWAIIGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWAIIQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWAIIGg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 03:06:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWAIIGf
+	id S1750895AbWAIIQw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 03:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWAIIQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 03:06:35 -0500
-Received: from codepoet.org ([166.70.99.138]:10663 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S1750787AbWAIIGd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 03:06:33 -0500
-Date: Mon, 9 Jan 2006 01:06:32 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Boxer Gnome <aiko.sex@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Message-ID: <20060109080632.GA27915@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	Boxer Gnome <aiko.sex@gmail.com>, linux-kernel@vger.kernel.org
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	Mon, 9 Jan 2006 03:16:51 -0500
+Received: from herkules.vianova.fi ([194.100.28.129]:19678 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1750895AbWAIIQv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 03:16:51 -0500
+Date: Mon, 9 Jan 2006 10:16:47 +0200
+From: Ville Herva <vherva@vianova.fi>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <tapas@affenbande.org>,
+       Tomasz =?iso-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20060109081646.GG21365@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <20060104000344.GJ3831@stusta.de> <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl> <20060104010123.GK3831@stusta.de> <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl> <20060104113726.3bd7a649@mango.fruits.de> <1136445395.24475.17.camel@mindpipe> <20060105124317.2d12a85c@mango.fruits.de> <1136483330.31583.5.camel@mindpipe> <20060108210756.GD1686@vianova.fi> <1136756669.2997.2.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <174467f50601082354y7ca871c7k@mail.gmail.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1136756669.2997.2.camel@mindpipe>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jan 09, 2006 at 03:54:24PM +0800, Boxer Gnome wrote:
-> and the dos ntfs driver was not released by the MS offical.So,what' wrong?
+On Sun, Jan 08, 2006 at 04:44:28PM -0500, you [Lee Revell] wrote:
 > 
-> Somebody who can explain this ?
+> No it's a sign that the Revolution 5.1 is not well supported yet.  It
+> was not supported at all until a few weeks ago.
 
-Sure, thats easy.  You havn't paid Anton and Richard to quit
-their jobs to work full time on finishing full linux ntfs
-support.  It is really quite amazing how many "linux can't do foo"
-type problems could be quickly solved by sending large amounts of
-money to the right people.
+Ok, I see. (It was just that the revo51 changelog entry revo51 was not
+exactly verbose wrt. what's supported.)
 
- -Erik
+You won't need the bug report just yet, then? 
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+I'll keep retesting the new releases.
+
+
+-- v -- 
+
+v@iki.fi
+

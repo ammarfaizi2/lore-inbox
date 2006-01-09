@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWAINf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWAINex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751522AbWAINf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWAINfZ
+	id S1751456AbWAINex (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWAINex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:35:25 -0500
-Received: from terrhq.ru ([81.222.97.18]:51848 "EHLO mail.terrhq.ru")
-	by vger.kernel.org with ESMTP id S1751465AbWAINfI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:35:08 -0500
-From: Yaroslav Rastrigin <yarick@it-territory.ru>
-Organization: IT-Territory 
-To: CaT <cat@zip.com.au>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Date: Mon, 9 Jan 2006 16:34:51 +0300
-User-Agent: KMail/1.9
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091403.46304.yarick@it-territory.ru> <20060109124545.GA2035@zip.com.au>
-In-Reply-To: <20060109124545.GA2035@zip.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601091634.52107.yarick@it-territory.ru>
+	Mon, 9 Jan 2006 08:34:53 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:26670 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1751465AbWAINew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 08:34:52 -0500
+Date: Mon, 09 Jan 2006 08:34:09 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH updated]: How to be a kernel driver maintainer
+In-reply-to: <1136792769.2936.13.camel@laptopd505.fenrus.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Message-id: <1136813649.1043.30.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <1136736455.24378.3.camel@grayson>
+ <1136756756.1043.20.camel@grayson>
+ <1136792769.2936.13.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-On 9 January 2006 15:45, CaT wrote:
-> On Mon, Jan 09, 2006 at 02:03:46PM +0300, Yaroslav Rastrigin wrote:
-> > Suspend to disk has nasty tendency to ruin my whole hot live X session, since X can't properly restore VT on resume.
+On Mon, 2006-01-09 at 08:46 +0100, Arjan van de Ven wrote:
+> On Sun, 2006-01-08 at 16:45 -0500, Ben Collins wrote:
+> > Here's an updated document. I integrated the suggestions. For Arjan, I
+> > added a new section at the end. Hopefully that addresses the concerns
+> > for cvs-mentality.
 > 
-> Not necessarily a solution but have you thought of putting chvt in the
-> suspend/resume sequence? chvt to a terminal before suspending and chvt
-> to X after resume.
-Yes, of course. I've spent countless hours trying to figure solution for this particular problem. Tried generic Linux suspend-to-disk and swsusp2, 
-changing terminals before/after suspend, delay sleeps, vbetool and all that fuss and jazz. Looks like race condition somewhere between kernel and X driver.
+> it doesn't enough ;(
 > 
-> Still, the above might help you until you find someone to throw money
-> at. ;)
-Ahhh. Sweet dream - to be able to offer money to fix extremely annoying bugs or to add missing features. 
-Unfortunately, bounties doesn't work :-/ 
+> you still do a major suggestion to keep the code in a repo outside the
+> kernel. For a single driver really that's at best "optional" and
+> shouldn't be the prime recommendation. 
 > 
+> "If your driver is affected, you are expected to pick up these changes
+> and merge them with your primary code (e.g. if you have a CVS repo for
+> maintaining your code)."
+> 
+> that sentence is just really the one that I hate. It's bogus. It still
+> calls the private CVS copy "primary".
+> If you do the right thing (and store deltas against mainline and not
+> full code except for scratch stuff) then this is no question of "merging
+> back from mainline" at all. 
+
+But it says "your primary code". I'm not sure of another way to put it.
+Obviously, they have to do their work, and their development on
+something that isn't in Linus tree. If they are doing this work, they
+need to make sure that when they diff for patches, that they merge
+changes before diffing. The only way this is close to automatic is with
+git. Any other method requires manually merging.
+
+How else would you explain this without telling them that git is
+required?
 
 -- 
-Managing your Territory since the dawn of times ...
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
+

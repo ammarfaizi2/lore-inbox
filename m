@@ -1,221 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWAIDwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWAID61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWAIDwp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 22:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWAIDwp
+	id S1751239AbWAID61 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 22:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWAID61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 22:52:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9092 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751230AbWAIDwo (ORCPT
+	Sun, 8 Jan 2006 22:58:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32689 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751239AbWAID60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 22:52:44 -0500
-Date: Sun, 8 Jan 2006 19:50:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-Subject: Re: git pull on Linux/ACPI release tree
-In-Reply-To: <20060109004844.GG27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0601081927520.3169@g5.osdl.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13489@hdsmsx401.amr.corp.intel.com>
- <Pine.LNX.4.64.0601081100220.3169@g5.osdl.org> <20060109004844.GG27946@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Jan 2006 22:58:26 -0500
+Date: Sun, 8 Jan 2006 19:53:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jean Delvare <khali@linux-fr.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: i2c/ smbus question
+Message-ID: <20060109035323.GA2824@kroah.com>
+References: <1136673364.30123.20.camel@localhost.localdomain> <20060108113013.34fe5447.khali@linux-fr.org> <1136761102.30123.87.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136761102.30123.87.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 9 Jan 2006, Al Viro wrote:
+On Mon, Jan 09, 2006 at 09:58:22AM +1100, Benjamin Herrenschmidt wrote:
+> On Sun, 2006-01-08 at 11:30 +0100, Jean Delvare wrote:
 > 
-> How do you deal with conflict resolution?  That's a genuine question -
-> I'm not talking about deliberate misuse to hide an attack, just a normal
-> situation when you have to resolve something like
+> > The i2c_smbus_write_i2c_block_data wrapper function used to be defined,
+> > but was removed in 2.6.10-rc2 together with a couple other similar
+> > wrappers [1] on request by Adrian Bunk, the reason being that they had
+> > no user back then. I was a bit reluctant at first, but we finally agreed
+> > with Adrian to remove the functions, and to reintroduce them later if
+> > they were ever needed.
 > 
-> A:
-> 	if (foo)
-> 		bar
+> Argh... Adrian, sometimes I hate you ;-)
 > 
-> B:
-> 	if (foo & baz)
-> 		bar
+> > So, if you need i2c_smbus_write_i2c_block_data(), we can easily
+> > resurrect it. See the patch below. I made the new version a bit faster
+> > (I hope) than the original by using memcpy, please confirm it works for
+> > you.
 > 
-> A':
-> #ifdef X
-> 	if (foo)
-> 		bar
-> 	...
-> #endif
-> 
-> merge of A' and B: trivial conflict
+> Seems to work. Greg, would you mean boucing that to Linus asap (if you
+> are ok with it of course) ? I have a pile of patch about to hit him via
+> the powerpc merge git tree and I'll "fix" some of the mac drivers in
+> there to use that wrapper, so without that patch, g5 won't build ;)
 
-Actually, these days git is pretty good at it. Much better than CVS, 
-certainly. You can see the "conflict against my old tree", or "conflict 
-against the remote tree" by using the "--ours" or "--theirs" flag to "git 
-diff" respectively.
+Sure, Jean, care to resend it to me, as it's now lost in my archives
+somewhere :)
 
-(Or "diff conflict against common base": "git diff --base").
+thanks,
 
-So for your particular example with a trivial base file:
-
-	line    1
-	        2
-	        3
-	        if (foo)
-	                bar
-	        6
-	        7
-	        8
-
-and then the changes you had as an example in the A' and B branches, if I 
-from A' do a "git pull . B", I get:
-
-	Trying really trivial in-index merge...
-	fatal: Merge requires file-level merging
-	Nope.
-	Merging HEAD with ad56343c578785b8d932224a8676615e7a3e191f
-	Merging: 
-	9d619225e3adecee6432a36d67d140e29b0acf62 A' case 
-	ad56343c578785b8d932224a8676615e7a3e191f B: case 
-	found 1 common ancestor(s): 
-	93765ba3f64e9c73438e52683fffa68e5a493df7 Base commit 
-	Auto-merging A 
-	CONFLICT (content): Merge conflict in A 
-
-	Automatic merge failed; fix up by hand
-
-and then the file contains the contents
-
-	line    1
-	        2
-	        3
-	<<<<<<< HEAD/A
-	#ifdef X
-	        if (foo)
-	=======
-	        if (foo && baz)
-	>>>>>>> ad56343c578785b8d932224a8676615e7a3e191f/A
-	                bar
-	        6
-	#endif
-	        7
-	        8
-
-ie it will have does a CVS-like merge for me, and I need to fix this up. 
-However, to _help_ me fix it up, I can now see what the diff is aganst my 
-original version (A'), with "git diff --ours" (the "--ours" is default, so 
-it's unnecessary, but just to make it explicit):
-
-	* Unmerged path A
-	diff --git a/A b/A
-	index 06dd3bc..7334364 100644
-	--- a/A
-	+++ b/A
-	@@ -1,8 +1,12 @@
-	 line   1
-	        2
-	        3
-	+<<<<<<< HEAD/A
-	 #ifdef X
-	        if (foo)
-	+=======
-	+       if (foo && baz)
-	+>>>>>>> ad56343c578785b8d932224a8676615e7a3e191f/A
-	                bar
-	        6
-	 #endif
-
-which is very helpful especially once I have resolved it. IOW, I just edit 
-the file and do the trivial resolve, and now I can do a "git diff" again 
-to make sure that it looks ok:
-
-	* Unmerged path A
-	diff --git a/A b/A
-	index 06dd3bc..924fc97 100644
-	--- a/A
-	+++ b/A
-	@@ -2,7 +2,7 @@ line    1
-	        2
-	        3
-	 #ifdef X
-	-       if (foo)
-	+       if (foo && baz)
-	                bar
-	        6
-	 #endif
-
-ahh, looks good, so I just do "git commit A" and that creates the 
-resolved merge.
-
->  The obvious way (edit file in question, update-index, commit) will not 
-> only leave zero information about said conflict and actions needed to 
-> deal with it, but will lead to situation when git whatchanged will not 
-> show anything useful.
-
-Now, this is a real issue. 
-
-The resolve part is pretty easy, but the fact that it's hard to see in 
-"git-whatchanged" is a limitation of git-whatchanged. 
-
-You need to use "gitk", which _does_ know how to show merges as a diff 
-(and yes, I just checked).
-
-> Is there any SOP I'm missing here?
-
-You're just missing the fact that git-whatchanged (or rather, 
-"git-diff-tree") isn't smart enough to show merges nicely. It really 
-_should_. It doesn't. You can choose to show merges with the "-m" flag, 
-but that will show diffs against each parent, which really isn't what you 
-want. 
-
-I should do the same thing gitk does in git-diff-tree.
-
-> Worse (for my use), format-patch on such tree will not give a useful patchset.
-> You get a series of patches that won't apply to _any_ tree. 
-
-Now, git-diff-tree _does_ do that. Use the "-m" flag, and choose the tree 
-you want.
-
-And btw, that works with "git-whatchanged" too. You _can_ pass the "-m" 
-flag to git-whatchanged, and it will show you each side of the merge 
-correctly. So it _works_. It's just such a horrible format that by default 
-it prefers to shut up about merges entirely. 
-
-(I don't know of a good three-way diff format. "gitk" can do it, because 
-gitk can show colors. That's a big deal when you do three-way - or 
-more-way - diffs).
-
-> And that's a fundamental problem behind all that rebase activity, AFAICS.
-
-You do _not_ want to rebase a merge. It not only won't work, it's against 
-the whole point of rebasing.
-
-Rebasing is really only a valid operation when you have a few patches OF 
-YOUR OWN that you want to move up to a new version of somebody elses tree 
-that you are tracking. You fundamentally _cannot_ rebase if you've done 
-anything but a linear set of patches. And that has nothing to do with the 
-patch difficulty - it simply isn't an operation that makes sense.
-
-(Btw, not making sense doesn't mean it might not work. It sometimes might 
-actually work and do what you _hoped_ it would do, but it's basically by 
-pure luck, and not because it is a sensible operation. Even stupid 
-people hit on the right solution every once in a while - not because 
-they thought about things right, but just because they happened to try 
-something that worked. The same is true of "git rebase" with merges ;^).
-
-The fundamental reason a rebase doesn't make sense is that if you've done 
-a merge, it obviously means that some other branch has done development, 
-and already has the commits that you're trying to rebase. And you CANNOT 
-rebase for them.
-
-So instead of rebasing across a merge, what you can do is to not do the 
-merge at all, but instead rebase one of the two branches against the 
-other. Then you can rebase the result against the thing that you wanted to 
-rebase them both against. Now you've never rebased a merge - you've just
-linearised branches that were linear in themselves against each other.
-
-Basically, a merge ties two branches together. Once you've merged, you 
-can't make a linear history any more. The merge fundamentally is not 
-linear.
-
-		Linus
+greg k-h

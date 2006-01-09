@@ -1,65 +1,915 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWAIDbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWAIDb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWAIDbh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 22:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWAIDbg
+	id S1751224AbWAIDb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 22:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWAIDb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 22:31:36 -0500
-Received: from mail.kroah.org ([69.55.234.183]:56996 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751207AbWAIDbg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 22:31:36 -0500
-Date: Sun, 8 Jan 2006 19:30:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, Paul Mackerras <paulus@samba.org>
-Subject: Re: [GIT PATCH] PCI patches for 2.6.15
-Message-ID: <20060109033057.GA2214@kroah.com>
-References: <20060106063716.GA4425@kroah.com> <20060106180833.GA14235@kroah.com> <1136774203.30123.103.camel@localhost.localdomain> <1136774659.30123.107.camel@localhost.localdomain>
+	Sun, 8 Jan 2006 22:31:59 -0500
+Received: from solarneutrino.net ([66.199.224.43]:9220 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1751224AbWAIDb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 22:31:56 -0500
+Date: Sun, 8 Jan 2006 22:31:50 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       ryan@tau.solarneutrino.net
+Subject: Re: Fw: crash on x86_64 - mm related?
+Message-ID: <20060109033149.GC283@tau.solarneutrino.net>
+References: <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org> <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net> <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net> <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local> <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local> <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1136774659.30123.107.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 01:44:18PM +1100, Benjamin Herrenschmidt wrote:
+On Thu, Jan 05, 2006 at 01:18:57PM -0800, Linus Torvalds wrote:
 > 
-> > Hi Greg, what patches specifically have problems ? Paul is just back
-> > from vacation and we are trying to catch up with merging the tons of
-> > pending powerpc stuffs, but we have a couple of requirements with things
-> > in this list, notably my small export of pci_cfg_space_size() which
-> > should be trivial, but also Linas error recovery stuff... So if one of
-> > these is causing problems, we need to know right now as it means we have
-> > to rebase.
 > 
-> BTW. I looked a linux-pci and only saw 2 complaints about the e1000 and
-> sym2 driver patches to implement error recovery. I suppose you could
-> just drop those 2 and keep the infrastructure in. However, I'm a bit
-> annoyed because Linas did post those patches (and several times I think)
-> to the relevant lists, and possibly the maintainers (not sure about
-> that) and no comment was ever made...
+> On Thu, 5 Jan 2006, Ryan Richter wrote:
+> > 
+> > Another one.  I can't keep running this kernel - nearly all of our
+> > backup tapes are erased now.  If a drive were to fail today, we would
+> > lose hundreds of GB of irreplacible data.  I'm going back to 2.6.11.3
+> > until we have a full set of backups again.
+> 
+> Yeah, don't trash your backups.
+> 
+> If/when you try something again, how about these two trivial one-liners?
 
-I also got complaints about a number of the pci_register_driver()
-changes, and I was reminded that some of the other patches break some
-big IBM boxes in bad ways.
+Here's what I get:
 
-> I find it fairly annoying (and that's not the first time that happens)
-> that a major piece of work gets posted publically several times, nobody
-> bothers to comment, and by the time it gets send for merging upstream,
-> suddenly, people wakeup from all over the place NAK'ing it for all sort
-> of reasons, mostly claiming it wasn't properly reviewed by the
-> appropriate maintainers...
 
-Heh, it's not the first time, and will not be the last :)
+ st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:59059
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931269
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931299
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931297
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931270
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931271
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931293
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931292
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1363318
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1316938
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1094504
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1206029
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1567257
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1161075
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1097099
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1532602
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1363318
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1316938
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1094504
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1206029
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1567257
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1161075
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1097099
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1532602
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1363318
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1316938
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1094504
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1206029
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1567257
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1161075
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1097099
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1532602
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1363318
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1316938
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1094504
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1206029
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1567257
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1161075
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1097099
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1532602
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930553
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930554
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930555
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930556
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930557
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930558
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930559
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930368
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1004900
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:929996
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1487794
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1482747
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1490011
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559513
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559672
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531152
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1004900
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:929996
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1487794
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1482747
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1490011
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559513
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559672
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531152
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1004900
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:929996
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1487794
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1482747
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1490011
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559513
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559672
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531152
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1004900
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:929996
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1487794
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1482747
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1490011
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559513
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559672
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531152
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:990157
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931663
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931296
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931434
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931288
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931289
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930934
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930935
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:990157
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931663
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931296
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931434
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931288
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931289
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930934
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930935
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:990157
+ 1: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931663
+ 2: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931296
+ 3: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931434
+ 4: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931288
+ 5: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:931289
+ 6: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930934
+ 7: flags:0x010000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:930935
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1559143
+ 1: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1531129
+ 2: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1554810
+ 3: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1151109
+ 4: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1102551
+ 5: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1096291
+ 6: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1364840
+ 7: flags:0x060000000000006c mapping:ffff81000c34db30 mapcount:2 count:4 pfn:1271161
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:578294
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91168
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:93080
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:738043
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:91194
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:622028
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:145120
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219869
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:585737
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:748879
+ 2: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1104048
+ 3: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1370594
+ 4: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1065893
+ 5: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1425661
+ 6: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1525898
+ 7: flags:0x060000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:1295844
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:677238
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:628761
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:427387
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:564253
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:378426
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:268240
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:29652
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:875401
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+st: page attributes before page_release 8
+ 0: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:227805
+ 1: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:219103
+ 2: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:126968
+ 3: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:601873
+ 4: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:393638
+ 5: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:96658
+ 6: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:930644
+ 7: flags:0x010000000000006c mapping:ffff81000c34d278 mapcount:2 count:4 pfn:694582
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at mm/swap.c:49
+invalid operand: 0000 [1] SMP
+CPU 0
+Modules linked in: bonding
+Pid: 4501, comm: taper Not tainted 2.6.15 #2
+RIP: 0010:[<ffffffff80157596>] <ffffffff80157596>{put_page+178}
+RSP: 0018:ffff8101453d9e18  EFLAGS: 00010246
+RAX: 0000000000000002 RBX: 00000000000000e0 RCX: ffff810002f1ea10
+RDX: 0000000000000002 RSI: 0000000000000008 RDI: ffff810002f1ea10
+RBP: 0000000000000007 R08: ffff8101453d8000 R09: 0000000000000001
+R10: ffff8100f6f3daa0 R11: 0000000000000046 R12: 0000000000000008
+R13: ffff8100f6f9e068 R14: 0000000000000000 R15: 0000000000008000
+FS:  00002aaaab53d880(0000) GS:ffffffff804a9800(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002aaaaaac2000 CR3: 000000014d29c000 CR4: 00000000000006e0
+Process taper (pid: 4501, threadinfo ffff8101453d8000, task ffff81017d0143c0)
+Stack: ffff810002f1ea10 ffffffff8028c614 0000000000008000 0000000000008000
+       ffff8100f6f9e000 ffff8100f6f2a200 0000000000008000 0000000000000040
+       0000000000008000 ffffffff8028834d
+Call Trace:<ffffffff8028c614>{sgl_unmap_user_pages+124} <ffffffff8028834d>{release_buffering+27}
+       <ffffffff802889d9>{st_write+1670} <ffffffff8016da90>{vfs_write+173}
+       <ffffffff8016db9c>{sys_write+69} <ffffffff8010d762>{system_call+126}
 
-I'll be reposting the series to Linus tomorrow.  I'll include your
-export patch, and the core pci error handling changes, so you don't need
-to worry about your tree.
 
-thanks,
+Code: 0f 0b 68 8e b2 36 80 c2 31 00 f0 83 41 08 ff 0f 98 c0 84 c0
+RIP <ffffffff80157596>{put_page+178} RSP <ffff8101453d9e18>
+ <0>Bad page state at free_hot_cold_page (in process 'taper', page ffff810002f1ea10)
+flags:0x010000000000001c mapping:ffff810102bba238 mapcount:0 count:0
+Backtrace:
 
-greg k-h
+Call Trace:<ffffffff80150234>{bad_page+116} <ffffffff80150c3f>{free_hot_cold_page+105}
+       <ffffffff80151393>{__pagevec_free+28} <ffffffff80157a8d>{release_pages+393}
+       <ffffffff80165239>{free_pages_and_swap_cache+108} <ffffffff80161795>{exit_mmap+184}
+       <ffffffff8012d638>{mmput+34} <ffffffff8013214a>{do_exit+489}
+       <ffffffff80132472>{sys_exit_group+0} <ffffffff8010d762>{system_call+126}
+
+Trying to fix it up, but a reboot is needed
+
+-ryan

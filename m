@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWAIUQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWAIUQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWAIUQI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWAIUQH
+	id S1751304AbWAIUQv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWAIUQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:16:07 -0500
-Received: from drugphish.ch ([69.55.226.176]:52153 "EHLO www.drugphish.ch")
-	by vger.kernel.org with ESMTP id S1751307AbWAIUQG (ORCPT
+	Mon, 9 Jan 2006 15:16:51 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:29530 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S1751304AbWAIUQu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:16:06 -0500
-Message-ID: <43C2C482.6090904@drugphish.ch>
-Date: Mon, 09 Jan 2006 21:16:02 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu> <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu> <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu> <1136030901.28365.51.camel@localhost.localdomain> <20051231130151.GA15993@alpha.home.local> <Pine.LNX.4.64.0601041402340.28134@potato.cts.ucla.edu> <20060105054348.GA28125@w.ods.org> <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu> <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch> <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu>
-In-Reply-To: <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 9 Jan 2006 15:16:50 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-ide@vger.kernel.org
+Subject: [PATCH]trivial: add CDC_RAM to ide-cd capabilities mask
+Date: Mon, 9 Jan 2006 23:16:47 +0300
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601092316.47938.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> CONFIG_DEBUG_KERNEL=y
->> CONFIG_DEBUG_SLAB=y
->> CONFIG_MAGIC_SYSRQ=y
->> CONFIG_FRAME_POINTER=y
-> 
-> kernel, sysrq, and frame_pointer were already enabled.  I'll enable 
-> debug_slab, as well.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Excellent.
+Add CDC-RAM to capability mask. This prevents udev incorrectly reporting RAM 
+capabilities for device.
 
->>> booting with "nosmp acpi=off" did not help.  The box hung as before, at
->>
->> Could you boot with pci=noacpi and report again? The difference is 
->> that ACPI will still be used but not for IRQ routing. I have a few 
->> boxes out with 2.4.x kernels and Adaptec HBAs that need this to work 
->> reliably.
-> 
-> Are you interested in results from "pci=noacpi" by itself or in 
-> conjunction with nosmp?
+Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
 
-With SMP, please.
+- ---
 
->> What's the SCSI BIOS version?
-> 
-> The SCSI controller is an onboard AIC 7899 (in a Dell PowerEdge 2650), 
-> and reports itself as "25309".
+- --- linux-2.6.15/drivers/ide/ide-cd.c.orig	2006-01-03 06:21:10.000000000 +0300
++++ linux-2.6.15/drivers/ide/ide-cd.c	2006-01-09 00:31:32.000000000 +0300
+@@ -2905,6 +2905,8 @@ static int ide_cdrom_register (ide_drive
+ 		devinfo->mask |= CDC_CLOSE_TRAY;
+ 	if (!CDROM_CONFIG_FLAGS(drive)->mo_drive)
+ 		devinfo->mask |= CDC_MO_DRIVE;
++	if (!CDROM_CONFIG_FLAGS(drive)->ram)
++		devinfo->mask |= CDC_RAM;
+ 
+ 	devinfo->disk = info->disk;
+ 	return register_cdrom(devinfo);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-What I meant was the SCSI Bios revision you get to see when you cold 
-reset the system.
-
->> If you find time, send me your BIOS settings and your .config in 
->> private email. I didn't track this thread from the beginning, so I 
->> don't know if you've already done this.
-> 
-> <http://hashbrown.cts.ucla.edu/pub/oops-200512/> has the .config, lspci 
-> -v, and /proc/interrupts for 2.6.14.4 and 2.4.32.
-
-Thanks, I'll skim over these and get back to you if I can correlate 
-anything with the issues we were having using this controller.
-
-Regards,
-Roberto Nibali, ratz
--- 
-echo 
-'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc
+iD8DBQFDwsSvR6LMutpd94wRAuyRAKDVr66aA5cGLoQAliK20dz7FbTP+wCfb8C3
+qCm1Sur7eFjCh2i1J95qI68=
+=i3pt
+-----END PGP SIGNATURE-----

@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWAIJwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWAIKB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWAIJwE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 04:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWAIJwE
+	id S1751217AbWAIKB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 05:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWAIKB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 04:52:04 -0500
-Received: from mail.charite.de ([160.45.207.131]:44417 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1751210AbWAIJwC (ORCPT
+	Mon, 9 Jan 2006 05:01:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:40751 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751217AbWAIKBZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 04:52:02 -0500
-Date: Mon, 9 Jan 2006 10:51:59 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at drivers/ide/ide.c:1384!
-Message-ID: <20060109095159.GE4535@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 9 Jan 2006 05:01:25 -0500
+Date: Mon, 9 Jan 2006 11:03:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Sebastian <sebastian_ml@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+Message-ID: <20060109100322.GP3389@suse.de>
+References: <20060107115449.GB20748@section_eight.mops.rwth-aachen.de> <20060107115947.GY3389@suse.de> <20060107140843.GA23699@section_eight.mops.rwth-aachen.de> <20060107142201.GC3389@suse.de> <20060107160622.GA25918@section_eight.mops.rwth-aachen.de> <43BFFE08.70808@wasp.net.au> <20060107180211.GA12209@section_eight.mops.rwth-aachen.de> <43C00C32.9050002@wasp.net.au> <20060109093025.GO3389@suse.de> <20060109094923.GA8373@section_eight.mops.rwth-aachen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060109094923.GA8373@section_eight.mops.rwth-aachen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I invoked "hdparm -w /dev/hda"
+On Mon, Jan 09 2006, Sebastian wrote:
+> On Mo, Jan 09, 2006 at 10:30:25 +0100, Jens Axboe wrote:
+> > Sebastian, care to try one more thing? Patch your kernel with this
+> > little patch and try ripping a known "faulty" track again _not_ using
+> > SG_IO. See if that produces the same faulty results again, or if it
+> > actually works.
+> > 
+> > diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+> > index 1539603..2e44d81 100644
+> > --- a/drivers/cdrom/cdrom.c
+> > +++ b/drivers/cdrom/cdrom.c
+> > @@ -426,7 +426,7 @@ int register_cdrom(struct cdrom_device_i
+> >  		cdi->exit = cdrom_mrw_exit;
+> >  
+> >  	if (cdi->disk)
+> > -		cdi->cdda_method = CDDA_BPC_FULL;
+> > +		cdi->cdda_method = CDDA_BPC_SINGLE;
+> >  	else
+> >  		cdi->cdda_method = CDDA_OLD;
+> >  
+> > 
+> > -- 
+> > Jens Axboe
+> > 
+> Hi Jens,
+> 
+> I applied your patch, recompiled the kernel, rebooted and recompiled
+> cdparanoia without the Red Hat patches. Extracting the first track of my
+> test cd the result was the same as without the kernel patch with ide-cd
+> using the cooked interface (md5 e8319ccc20d053557578b9ca3eb368dd).
+> 
+> Sorry :)
 
-# uname -a
-Linux hummus.charite.de 2.6.15 #1 Tue Jan 3 09:30:04 CET 2006 i686 GNU/Linux
-
-Before you flame away at me for using the nvidia kernel module: I will
-reproduce this WITHOUT the nvidia kernel module. At least I'll try.
-
-Thanks.
-
-Jan  9 09:32:01 hummus kernel: end_request: I/O error, dev hda, sector 22604679
-Jan  9 09:32:01 hummus kernel: ------------[ cut here ]------------
-Jan  9 09:32:01 hummus kernel: kernel BUG at drivers/ide/ide.c:1384!
-Jan  9 09:32:01 hummus kernel: invalid operand: 0000 [#1]
-Jan  9 09:32:01 hummus kernel: Modules linked in: nvidia agpgart binfmt_misc lp thermal fan button processor ac battery pcmcia af_packet 8250_pnp rtc eth1394 ipw2200 ieee80211 ieee80211_crypt firmware_class ohci1394 ieee1394 yenta_socket rsrc_nonstatic pcmcia_core tg3 snd_intel8x0m 8250_pci 8250 serial_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc usbhid ehci_hcd hci_usb bluetooth uhci_hcd usbcore deflate zlib_deflate zlib_inflate twofish serpent aes blowfish des sha256 sha1 md5 crypto_null af_key dm_mod
-Jan  9 09:32:01 hummus kernel: CPU:    0
-Jan  9 09:32:01 hummus kernel: EIP:    0060:[<c02064a1>]    Tainted: P      VLI
-Jan  9 09:32:01 hummus kernel: EFLAGS: 00210086   (2.6.15)
-Jan  9 09:32:01 hummus kernel: EIP is at generic_ide_ioctl+0x4e6/0x5b1
-Jan  9 09:32:01 hummus kernel: eax: c1b8e0c0   ebx: 00200206   ecx: 00000002   edx: 00000001
-Jan  9 09:32:01 hummus kernel: esi: c0379614   edi: c020e1ee   ebp: f61f0080   esp: c8f99ec0
-Jan  9 09:32:01 hummus kernel: ds: 007b   es: 007b   ss: 0068
-Jan  9 09:32:01 hummus kernel: Process hdparm (pid: 16818, threadinfo=c8f99000 task=ce026070)
-Jan  9 09:32:01 hummus kernel: Stack: c02c9ee0 00000abc 000000c8 ebb1164c c1709ec0 c0132f0d 00000001 c01bacee
-Jan  9 09:32:01 hummus kernel: c8f99f3c dd5d4c24 f693d440 f693d484 ebb115ac 00000000 00000002 c02c9ee0
-Jan  9 09:32:01 hummus kernel: 00000abc c1709ec0 00000abc 00000000 0000031c c18e3b24 f61f0080 c0211e11
-Jan  9 09:32:01 hummus kernel: Call Trace:
-Jan  9 09:32:01 hummus kernel: [<c0132f0d>] filemap_nopage+0x2b3/0x363
-Jan  9 09:32:01 hummus kernel: [<c01bacee>] bit_cursor+0x0/0x5b4
-Jan  9 09:32:01 hummus kernel: [<c0211e11>] idedisk_ioctl+0x26/0x2c
-Jan  9 09:32:01 hummus kernel: [<c0211deb>] idedisk_ioctl+0x0/0x2c
-Jan  9 09:32:01 hummus kernel: [<c019e051>] blkdev_driver_ioctl+0x42/0x44
-Jan  9 09:32:01 hummus kernel: [<c019e15f>] blkdev_ioctl+0x10c/0x143
-Jan  9 09:32:01 hummus kernel: [<c0152ef5>] block_ioctl+0x18/0x1d
-Jan  9 09:32:01 hummus kernel: [<c0152edd>] block_ioctl+0x0/0x1d
-Jan  9 09:32:01 hummus kernel: [<c015aef9>] do_ioctl+0x19/0x55
-Jan  9 09:32:01 hummus kernel: [<c01137e8>] do_page_fault+0x24f/0x5b3
-Jan  9 09:32:01 hummus kernel: [<c015b02f>] vfs_ioctl+0x50/0x19e
-Jan  9 09:32:01 hummus kernel: [<c015b1b1>] sys_ioctl+0x34/0x53
-Jan  9 09:32:01 hummus kernel: [<c0102bcb>] sysenter_past_esp+0x54/0x75
-Jan  9 09:32:01 hummus kernel: Code: 00 00 20 0f 84 fd fc ff ff 81 48 0c 00 01 00 00 9c 5b fa ba 70 35 2a c0 89 f0 e8 21 0c 00 00 8b 46 6c 8b 40 08 8b 38 85 ff 74 08 <0f> 0b 68 05 f7 34 2a c0 c7 40 08 01 00 00 00 53 9d 89 f0 e8 f5
+Well it's actually a good thing, because then at least it's not a bug
+with the multi-frame extraction. So my guess would still be at the error
+correction possibilities that the application has, in which case
+CDROMREADAUDIO is just an inferior interface for this sort of thing. It
+also doesn't give the issuer a chance to look at potential error
+reasons, since the extended status isn't available.
 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Jens Axboe
+

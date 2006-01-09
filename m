@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWAJTZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWAJTW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWAJTZX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 14:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWAJTZX
+	id S1751327AbWAJTW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 14:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWAJTW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 14:25:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:61201 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932293AbWAJTZW (ORCPT
+	Tue, 10 Jan 2006 14:22:26 -0500
+Received: from hera.kernel.org ([140.211.167.34]:30152 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751325AbWAJTWZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 14:25:22 -0500
-Date: Tue, 10 Jan 2006 20:27:09 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linus Torvalds <torvalds@osdl.org>, Byron Stanoszek <gandalf@winds.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-Message-ID: <20060110192708.GZ3389@suse.de>
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca>
+	Tue, 10 Jan 2006 14:22:25 -0500
+Date: Mon, 9 Jan 2006 14:35:01 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "G.W. Haywood" <ged@jubileegroup.co.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ne2k PCI/ISA documentation: improved cross-reference.
+Message-ID: <20060109163501.GA7029@dmt.cnet>
+References: <Pine.LNX.4.58.0512291301420.2118@mail3.jubileegroup.co.uk> <9a8748490512290553g448d1e28w65dad834cd08e1a7@mail.gmail.com> <Pine.LNX.4.58.0512291520250.6219@mail3.jubileegroup.co.uk> <200512292149.55237.jesper.juhl@gmail.com> <Pine.LNX.4.58.0601071459440.8957@mail3.jubileegroup.co.uk> <20060109130655.GA4687@dmt.cnet> <Pine.LNX.4.58.0601091642160.20758@mail3.jubileegroup.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43C40803.2000106@rtr.ca>
+In-Reply-To: <Pine.LNX.4.58.0601091642160.20758@mail3.jubileegroup.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10 2006, Mark Lord wrote:
-> Okay, fixed the ordering of the "default" lines
-> so that the Kconfig actually works correctly.
+On Mon, Jan 09, 2006 at 04:46:09PM +0000, G.W. Haywood wrote:
+> Hi Marcelo,
 > 
-> Best for Andrew to soak this one in -mm.
+> On Mon, 9 Jan 2006, Marcelo Tosatti wrote:
 > 
-> Signed-off-by:  Mark Lord <mlord@pobox.com>
+> > On Sat, Jan 07, 2006 at 03:11:40PM +0000, G.W. Haywood wrote:
+> > > From: Ged Haywood <ged@jubileegroup.co.uk>
+> > >
+> > > Improved reference to PCI ne2k support in ISA ne2k documentation.
+> 
+> > Appreciate your efforts but the v2.4 tree is under deep maintenance mode
+> 
+> Sorry, I didn't know.  (And evidently several other people on the LKML
+> didn't know either... :)  Does that mean that development is finished
+> on the 2.4 tree, or will it switch back to accepting patches at some
+> future time?  
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+Development is definately finished. The maintenance of the stable tree 
+at this point should be done to fix critical problems.
 
--- 
-Jens Axboe
+So, its accepting patches, but only for critical problems/real bugs.
+
+> There's quite a lot in the Documentation/ directory that could be
+> improved (as you probably know:).
+
+Definately - the community has concentrated efforts on the v2.6 tree
+for more than 3, 4 years.
+
+linux-2.6.14/drivers/net/Kconfig has the exact same text: 
+
+    If you have a PCI NE2000 card however, say N here and Y to "PCI
+    NE2000 support", above. If you have a NE2000 card and are running on
+    an MCA system (a bus system used on some IBM PS/2 computers and
+    laptops), say N here and Y to "NE/2 (ne2000 MCA version) support",
+    below.
+
+Send a patch :)
 

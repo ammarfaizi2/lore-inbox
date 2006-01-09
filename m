@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWAIJEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWAIJHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWAIJEw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 04:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbWAIJEw
+	id S1751120AbWAIJHe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 04:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWAIJHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 04:04:52 -0500
-Received: from styx.suse.cz ([82.119.242.94]:42931 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751035AbWAIJEv (ORCPT
+	Mon, 9 Jan 2006 04:07:34 -0500
+Received: from terrhq.ru ([81.222.97.18]:14297 "EHLO mail.terrhq.ru")
+	by vger.kernel.org with ESMTP id S1751115AbWAIJHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 04:04:51 -0500
-Date: Mon, 9 Jan 2006 10:04:48 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] It's UTF-8
-Message-ID: <20060109090448.GA8505@ucw.cz>
-References: <20060108203851.GA5864@mipter.zuzino.mipt.ru> <Pine.LNX.4.61.0601082245090.17804@yvahk01.tjqt.qr> <200601082210.09536.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jan 2006 04:07:33 -0500
+From: Yaroslav Rastrigin <yarick@it-territory.ru>
+Organization: IT-Territory 
+To: andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 12:07:14 +0300
+User-Agent: KMail/1.9
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <20060109080632.GA27915@codepoet.org>
+In-Reply-To: <20060109080632.GA27915@codepoet.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200601082210.09536.s0348365@sms.ed.ac.uk>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+Message-Id: <200601091207.14939.yarick@it-territory.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 10:10:09PM +0000, Alistair John Strachan wrote:
-
-> On Sunday 08 January 2006 21:46, Jan Engelhardt wrote:
-> > >Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> >
-> > I'd say ACK. However,
-> >
-> > > iocharset=name	Character set to use for converting from Unicode to
-> > > 		ASCII.  The default is to do no conversion.  Use
-> > >-		iocharset=utf8 for UTF8 translations.  This requires
-> > >+		iocharset=utf8 for UTF-8 translations.  This requires
-> > > 		CONFIG_NLS_UTF8 to be set in the kernel .config file.
-> >
-> > If you are really nitpicky about the "-", then it should also be
-> > "iocharset=utf-8" (and whereever else). Or what's the real purpose of
-> > adding the dashes in only half of the places, then?
+Hi, Eric, 
+On 9 January 2006 11:06, Erik Andersen wrote:
+> On Mon Jan 09, 2006 at 03:54:24PM +0800, Boxer Gnome wrote:
+> > and the dos ntfs driver was not released by the MS offical.So,what' wrong?
+> > 
+> > Somebody who can explain this ?
 > 
-> Also what's "Unicode 16" as used in several places in the kernel. Surely this 
-> should be changed to UTF-16, which is the _encoding_ for the unicode 
-> character space.
- 
-It might also be UCS-2 and not UTF-16 in some places. They do differ.
+> Sure, thats easy.  You havn't paid Anton and Richard to quit
+> their jobs to work full time on finishing full linux ntfs
+> support.  It is really quite amazing how many "linux can't do foo"
+> type problems could be quickly solved by sending large amounts of
+> money to the right people.
+Could or would you be so kind to provide at least moderately complete pricelist ? Whom and how much should I pay to have correct support for
+intel graphics chipset, 2200BG Wi-Fi, complete suspend-to-disk/suspend-to-ram and to get an overall performance boost ? 
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Managing your Territory since the dawn of times ...

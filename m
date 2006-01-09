@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWAIVBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWAIVEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWAIVBW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 16:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWAIVBW
+	id S1751347AbWAIVEL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 16:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWAIVEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 16:01:22 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:53007 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751342AbWAIVBV (ORCPT
+	Mon, 9 Jan 2006 16:04:11 -0500
+Received: from gold.veritas.com ([143.127.12.110]:18296 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751347AbWAIVEJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 16:01:21 -0500
-Date: Mon, 9 Jan 2006 22:01:05 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: xfs: Makefile-linux-2.6 => Makefile?
-Message-ID: <20060109210105.GA13853@mars.ravnborg.org>
-References: <20060109164214.GA10367@mars.ravnborg.org> <20060109164611.GA1382@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060109164611.GA1382@infradead.org>
-User-Agent: Mutt/1.5.11
+	Mon, 9 Jan 2006 16:04:09 -0500
+Date: Mon, 9 Jan 2006 21:04:21 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Mike Christie <michaelc@cs.wisc.edu>
+cc: Jesper Juhl <jesper.juhl@gmail.com>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Doug Gilbert <dougg@torque.net>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm
+In-Reply-To: <43C2CB3E.3070208@cs.wisc.edu>
+Message-ID: <Pine.LNX.4.61.0601092057150.16617@goblin.wat.veritas.com>
+References: <20060107052221.61d0b600.akpm@osdl.org> 
+ <9a8748490601070708p4353eb0ev9ea15edee132b13b@mail.gmail.com> 
+ <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com> 
+ <20060109175748.GD25102@redhat.com>  <9a8748490601091001y74fba5q2cd7e08a324701c3@mail.gmail.com>
+  <Pine.LNX.4.61.0601091819160.14800@goblin.wat.veritas.com> 
+ <9a8748490601091048x46716e25u2fe2ebe9b5fbc9bb@mail.gmail.com> 
+ <Pine.LNX.4.61.0601091857430.15219@goblin.wat.veritas.com>
+ <9a8748490601091139pf5fb6a0v3c8b3bcb41b85940@mail.gmail.com>
+ <Pine.LNX.4.61.0601092005510.16057@goblin.wat.veritas.com> <43C2CB3E.3070208@cs.wisc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jan 2006 21:04:09.0613 (UTC) FILETIME=[3C1BB3D0:01C61560]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 04:46:11PM +0000, Christoph Hellwig wrote:
-> On Mon, Jan 09, 2006 at 05:42:14PM +0100, Sam Ravnborg wrote:
-> > Hi hch.
-> > 
-> > Any specific reason why xfs uses a indirection for the Makefile?
-> > It is planned to drop export of VERSION, PATCHLEVEL etc. from
-> > main makefile and it is OK except for xfs due to the funny
-> > Makefile indirection.
-> > 
-> > I suggest:
-> > git mv fs/xfs/Makefile-linux-2.6 fs/xfs/Makefile
+On Mon, 9 Jan 2006, Mike Christie wrote:
 > 
-> I'd be all for it, but the SGI people like this layout to keep a common
-> fs/xfs for both 2.4 and 2.6 (with linux-2.4 and linux-2.6 subdirs respectively)
+> Oops yeah, that is right. We switched from __get_free_pages to alloc_pages.
 > 
-> p.s. and no, I'm not official xfs maintainer and never have been, so cc set
-> to linux-xfs were all interested parties hang around.
-Following is what I have committed in my tree to avod using the now
-un-exported symbols.
+> Will alloc_pages() always return lowmem pages or can it return highmem pages?
+> Just wondering becuase I guess if it can return highmem pages I need to
+> replace the page_adress calls to kmap/kunmap ones right?
 
-	Sam
+Good thinking, but the page_address patch is safe for now.  You can only
+get highmem from alloc_pages if you say __GFP_HIGHMEM to it (perhaps
+inside GFP_HIGHUSER), and at present you're not.  You probably should,
+depending on what the underlying device can handle: at present there's
+lowDma choosing GFP_DMA, and that probably should be extended to cover
+other possibilities.  I'm not familiar with the driver end of these
+things, James would give much better advice on how to proceed there:
+or perhaps he'll advise that it's best left simply as is (with the
+page_address fix) after all.
 
-diff-tree a9aa1ffaac7c8d6f093bb8f7cdeea761a5e25f53 (from 0d20babd86b40fa5ac55d9ebf31d05f6f7082161)
-Author: Sam Ravnborg <sam@mars.ravnborg.org>
-Date:   Mon Jan 9 20:48:03 2006 +0100
-
-    kbuild/xfs: introduce fs/xfs/Kbuild
-    
-    In kbuild the file named 'Kbuild' has precedence over the file named
-    Makefile. Utilise a file named Kbuild to include the 2.6 Makefile for xfs
-    - since the xfs people likes to keep their arch specific Makefiles separate.
-    
-    With this patch xfs does no longer rely on the KERNELRELEASE components to be global.
-    
-    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-
-diff --git a/fs/xfs/Kbuild b/fs/xfs/Kbuild
-new file mode 100644
-index 0000000..2566e96
---- /dev/null
-+++ b/fs/xfs/Kbuild
-@@ -0,0 +1,6 @@
-+#
-+# The xfs people like to share Makefile with 2.6 and 2.4.
-+# Utilise file named Kbuild file which has precedence over Makefile.
-+#
-+
-+include $(srctree)/$(obj)/Makefile-linux-2.6
+Hugh

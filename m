@@ -1,227 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWAITRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWAITQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWAITRH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 14:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWAITRF
+	id S1750887AbWAITQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 14:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWAITQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 14:17:05 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:56497 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751059AbWAITRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 14:17:02 -0500
-Subject: Re: [PATCH] protect remove_proc_entry
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <20060107033637.458c4716.akpm@osdl.org>
-References: <1135973075.6039.63.camel@localhost.localdomain>
-	 <1135978110.6039.81.camel@localhost.localdomain>
-	 <20060107033637.458c4716.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 14:16:50 -0500
-Message-Id: <1136834210.6197.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 14:16:08 -0500
+Received: from gold.veritas.com ([143.127.12.110]:6047 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750887AbWAITQG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 14:16:06 -0500
+Date: Mon, 9 Jan 2006 19:16:17 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Doug Gilbert <dougg@torqe.net>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+In-Reply-To: <9a8748490601091048x46716e25u2fe2ebe9b5fbc9bb@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0601091857430.15219@goblin.wat.veritas.com>
+References: <20060107052221.61d0b600.akpm@osdl.org> 
+ <9a8748490601070708p4353eb0ev9ea15edee132b13b@mail.gmail.com> 
+ <9a8748490601090947i524d5f73uf5ccd06d8c693cae@mail.gmail.com> 
+ <20060109175748.GD25102@redhat.com>  <9a8748490601091001y74fba5q2cd7e08a324701c3@mail.gmail.com>
+  <Pine.LNX.4.61.0601091819160.14800@goblin.wat.veritas.com>
+ <9a8748490601091048x46716e25u2fe2ebe9b5fbc9bb@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jan 2006 19:16:06.0188 (UTC) FILETIME=[23AF8EC0:01C61551]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-07 at 03:36 -0800, Andrew Morton wrote:
+On Mon, 9 Jan 2006, Jesper Juhl wrote:
+> Ok, with that patch the page, flags, mapping, mapcount & count
+> information prints again.
 
-> 
-> Aren't there other places where we need to take this lock?  Code which
-> traverses that list, code which adds things to it?
-> 
+Good, thanks.
 
-Andrew,
+> I get the exact same backtrace as before though, but a slightly
+> different hexdump :
 
-How's this patch look?  I tested this with the following module:
+(I find -mm's hexdump addition really irritating.  Perhaps it could
+be helpful if properly formatted, but not that dump of bytes.)
 
-http://www.kihontech.com/tests/proc/proc_stress.c
+> Bad page state in process 'kded'
+> page:c1e75400 flags:0x00000000 mapping:00000000 mapcount:1 count:0
+> Trying to fix it up, but a reboot is needed
+> Backtrace:
+> [<c0103e77>] dump_stack+0x17/0x20
+> [<c0148999>] bad_page+0x69/0x160
+> [<c0148e92>] __free_pages_ok+0xa2/0x120
+> [<c0149c7f>] __free_pages+0x2f/0x60
+> [<c02acb63>] sg_page_free+0x23/0x30
+> [<c02abdb3>] sg_remove_scat+0x63/0xe0
+....
 
-Without the patch, I could hang the processes (the processes would
-either crash, or just get stuck spinning inside the list).  With the
-patch, the module ran to completion each time.
+Having sent you the patch to restore the KERN_EMERGs, I then took a
+look at drivers/scsi/sg.c, and it looks as if changes have gone into
+2.6.15-git which might make more urgent a fix we knew would be needed
+in some cases.  Could you try the patch below and let us know if it
+fixes your problems?  Thanks...
 
-I don't believe any of the calls are called from interrupt context, so I
-held off from using the _irqsave versions of spin_lock.
 
--- Steve
+Remove sg_rb_correct4mmap() and its nasty __put_page()s, which are liable
+to do quite the wrong thing.  Instead allocate pages with __GFP_COMP, then
+high-orders should be safe for exposure to userspace by sg_vma_nopage(),
+without any further manipulations.  Based on original patch by Nick Piggin.
 
-Index: linux-2.6.15/fs/proc/generic.c
-===================================================================
---- linux-2.6.15.orig/fs/proc/generic.c	2006-01-09 13:58:23.000000000 -0500
-+++ linux-2.6.15/fs/proc/generic.c	2006-01-09 13:58:34.000000000 -0500
-@@ -19,6 +19,7 @@
- #include <linux/idr.h>
- #include <linux/namei.h>
- #include <linux/bitops.h>
-+#include <linux/spinlock.h>
- #include <asm/uaccess.h>
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.15-mm2/drivers/scsi/sg.c	2006-01-09 11:36:26.000000000 +0000
++++ linux/drivers/scsi/sg.c	2006-01-09 18:46:17.000000000 +0000
+@@ -1140,32 +1140,6 @@ sg_fasync(int fd, struct file *filp, int
+ 	return (retval < 0) ? retval : 0;
+ }
  
- static ssize_t proc_file_read(struct file *file, char __user *buf,
-@@ -27,6 +28,8 @@
- 			       size_t count, loff_t *ppos);
- static loff_t proc_file_lseek(struct file *, loff_t, int);
- 
-+DEFINE_SPINLOCK(proc_subdir_lock);
-+
- int proc_match(int len, const char *name, struct proc_dir_entry *de)
+-/* When startFinish==1 increments page counts for pages other than the 
+-   first of scatter gather elements obtained from alloc_pages().
+-   When startFinish==0 decrements ... */
+-static void
+-sg_rb_correct4mmap(Sg_scatter_hold * rsv_schp, int startFinish)
+-{
+-	struct scatterlist *sg = rsv_schp->buffer;
+-	struct page *page;
+-	int k, m;
+-
+-	SCSI_LOG_TIMEOUT(3, printk("sg_rb_correct4mmap: startFinish=%d, scatg=%d\n", 
+-				   startFinish, rsv_schp->k_use_sg));
+-	/* N.B. correction _not_ applied to base page of each allocation */
+-	for (k = 0; k < rsv_schp->k_use_sg; ++k, ++sg) {
+-		for (m = PAGE_SIZE; m < sg->length; m += PAGE_SIZE) {
+-			page = sg->page;
+-			if (startFinish)
+-				get_page(page);
+-			else {
+-				if (page_count(page) > 0)
+-					__put_page(page);
+-			}
+-		}
+-	}
+-}
+-
+ static struct page *
+ sg_vma_nopage(struct vm_area_struct *vma, unsigned long addr, int *type)
  {
- 	if (de->namelen != len)
-@@ -275,7 +278,9 @@
- 	const char     		*cp = name, *next;
- 	struct proc_dir_entry	*de;
- 	int			len;
-+	int 			rtn = 0;
- 
-+	spin_lock(&proc_subdir_lock);
- 	de = &proc_root;
- 	while (1) {
- 		next = strchr(cp, '/');
-@@ -287,13 +292,17 @@
- 			if (proc_match(len, cp, de))
- 				break;
- 		}
--		if (!de)
--			return -ENOENT;
-+		if (!de) {
-+			rtn = -ENOENT;
-+			goto out;
-+		}
- 		cp += len + 1;
+@@ -1237,10 +1211,7 @@ sg_mmap(struct file *filp, struct vm_are
+ 		sa += len;
  	}
- 	*residual = cp;
- 	*ret = de;
--	return 0;
-+out:
-+	spin_unlock(&proc_subdir_lock);
-+	return rtn;
- }
  
- static DEFINE_IDR(proc_inum_idr);
-@@ -378,6 +387,7 @@
- 	int error = -ENOENT;
- 
- 	lock_kernel();
-+	spin_lock(&proc_subdir_lock);
- 	de = PDE(dir);
- 	if (de) {
- 		for (de = de->subdir; de ; de = de->next) {
-@@ -386,12 +396,15 @@
- 			if (!memcmp(dentry->d_name.name, de->name, de->namelen)) {
- 				unsigned int ino = de->low_ino;
- 
-+				spin_unlock(&proc_subdir_lock);
- 				error = -EINVAL;
- 				inode = proc_get_inode(dir->i_sb, ino, de);
-+				spin_lock(&proc_subdir_lock);
- 				break;
- 			}
- 		}
+-	if (0 == sfp->mmap_called) {
+-		sg_rb_correct4mmap(rsv_schp, 1);	/* do only once per fd lifetime */
+-		sfp->mmap_called = 1;
+-	}
++	sfp->mmap_called = 1;
+ 	vma->vm_flags |= VM_RESERVED;
+ 	vma->vm_private_data = sfp;
+ 	vma->vm_ops = &sg_mmap_vm_ops;
+@@ -2395,8 +2366,6 @@ __sg_remove_sfp(Sg_device * sdp, Sg_fd *
+ 		SCSI_LOG_TIMEOUT(6, 
+ 			printk("__sg_remove_sfp:    bufflen=%d, k_use_sg=%d\n",
+ 			(int) sfp->reserve.bufflen, (int) sfp->reserve.k_use_sg));
+-		if (sfp->mmap_called)
+-			sg_rb_correct4mmap(&sfp->reserve, 0);	/* undo correction */
+ 		sg_remove_scat(&sfp->reserve);
  	}
-+	spin_unlock(&proc_subdir_lock);
- 	unlock_kernel();
+ 	sfp->parentdp = NULL;
+@@ -2478,9 +2447,9 @@ sg_page_malloc(int rqSz, int lowDma, int
+ 		return resp;
  
- 	if (inode) {
-@@ -445,11 +458,13 @@
- 			filp->f_pos++;
- 			/* fall through */
- 		default:
-+			spin_lock(&proc_subdir_lock);
- 			de = de->subdir;
- 			i -= 2;
- 			for (;;) {
- 				if (!de) {
- 					ret = 1;
-+					spin_unlock(&proc_subdir_lock);
- 					goto out;
- 				}
- 				if (!i)
-@@ -459,12 +474,16 @@
- 			}
+ 	if (lowDma)
+-		page_mask = GFP_ATOMIC | GFP_DMA | __GFP_NOWARN;
++		page_mask = GFP_ATOMIC | GFP_DMA | __GFP_NOWARN | __GFP_COMP;
+ 	else
+-		page_mask = GFP_ATOMIC | __GFP_NOWARN;
++		page_mask = GFP_ATOMIC | __GFP_NOWARN | __GFP_COMP;
  
- 			do {
-+				/* filldir passes info to user space */
-+				spin_unlock(&proc_subdir_lock);
- 				if (filldir(dirent, de->name, de->namelen, filp->f_pos,
- 					    de->low_ino, de->mode >> 12) < 0)
- 					goto out;
-+				spin_lock(&proc_subdir_lock);
- 				filp->f_pos++;
- 				de = de->next;
- 			} while (de);
-+			spin_unlock(&proc_subdir_lock);
- 	}
- 	ret = 1;
- out:	unlock_kernel();
-@@ -498,9 +517,13 @@
- 	if (i == 0)
- 		return -EAGAIN;
- 	dp->low_ino = i;
-+
-+	spin_lock(&proc_subdir_lock);
- 	dp->next = dir->subdir;
- 	dp->parent = dir;
- 	dir->subdir = dp;
-+	spin_unlock(&proc_subdir_lock);
-+
- 	if (S_ISDIR(dp->mode)) {
- 		if (dp->proc_iops == NULL) {
- 			dp->proc_fops = &proc_dir_operations;
-@@ -692,6 +715,8 @@
- 	if (!parent && xlate_proc_name(name, &parent, &fn) != 0)
- 		goto out;
- 	len = strlen(fn);
-+
-+	spin_lock(&proc_subdir_lock);
- 	for (p = &parent->subdir; *p; p=&(*p)->next ) {
- 		if (!proc_match(len, fn, *p))
- 			continue;
-@@ -712,6 +737,7 @@
- 		}
- 		break;
- 	}
-+	spin_unlock(&proc_subdir_lock);
- out:
- 	return;
- }
-Index: linux-2.6.15/fs/proc/proc_devtree.c
-===================================================================
---- linux-2.6.15.orig/fs/proc/proc_devtree.c	2006-01-09 13:58:23.000000000 -0500
-+++ linux-2.6.15/fs/proc/proc_devtree.c	2006-01-09 14:05:10.000000000 -0500
-@@ -112,9 +112,11 @@
- 		 * properties are quite unimportant for us though, thus we
- 		 * simply "skip" them here, but we do have to check.
- 		 */
-+		spin_lock(&proc_subdir_lock);
- 		for (ent = de->subdir; ent != NULL; ent = ent->next)
- 			if (!strcmp(ent->name, pp->name))
- 				break;
-+		spin_unlock(&proc_subdir_lock);
- 		if (ent != NULL) {
- 			printk(KERN_WARNING "device-tree: property \"%s\" name"
- 			       " conflicts with node in %s\n", pp->name,
-Index: linux-2.6.15/include/linux/proc_fs.h
-===================================================================
---- linux-2.6.15.orig/include/linux/proc_fs.h	2006-01-09 08:59:13.000000000 -0500
-+++ linux-2.6.15/include/linux/proc_fs.h	2006-01-09 14:07:09.000000000 -0500
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/slab.h>
- #include <linux/fs.h>
-+#include <linux/spinlock.h>
- #include <asm/atomic.h>
- 
- /*
-@@ -92,6 +93,8 @@
- extern struct proc_dir_entry *proc_root_driver;
- extern struct proc_dir_entry *proc_root_kcore;
- 
-+extern spinlock_t proc_subdir_lock;
-+
- extern void proc_root_init(void);
- extern void proc_misc_init(void);
- 
-
-
+ 	for (order = 0, a_size = PAGE_SIZE; a_size < rqSz;
+ 	     order++, a_size <<= 1) ;

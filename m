@@ -1,69 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWAIEHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWAIEUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWAIEHS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 23:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWAIEHR
+	id S1751246AbWAIEUf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 23:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWAIEUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 23:07:17 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30342 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751227AbWAIEHQ (ORCPT
+	Sun, 8 Jan 2006 23:20:35 -0500
+Received: from gate.crashing.org ([63.228.1.57]:30882 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751246AbWAIEUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 23:07:16 -0500
-Date: Sun, 8 Jan 2006 20:07:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <20060109033149.GC283@tau.solarneutrino.net>
-Message-ID: <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
-References: <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
- <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net>
- <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
- <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
- <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
- <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
- <20060109033149.GC283@tau.solarneutrino.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Jan 2006 23:20:34 -0500
+Subject: Re: i2c/ smbus question
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Jean Delvare <khali@linux-fr.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <20060109035323.GA2824@kroah.com>
+References: <1136673364.30123.20.camel@localhost.localdomain>
+	 <20060108113013.34fe5447.khali@linux-fr.org>
+	 <1136761102.30123.87.camel@localhost.localdomain>
+	 <20060109035323.GA2824@kroah.com>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 15:19:18 +1100
+Message-Id: <1136780358.14374.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Resurrect i2c_smbus_write_i2c_block_data.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+> Sure, Jean, care to resend it to me, as it's now lost in my archives
+> somewhere :)
+
+here it is :-)
+
+ drivers/i2c/i2c-core.c |   15 +++++++++++++++
+ include/linux/i2c.h    |    3 +++
+ 2 files changed, 18 insertions(+)
+
+--- linux-2.6.15-git.orig/drivers/i2c/i2c-core.c	2006-01-08 10:55:58.000000000 +0100
++++ linux-2.6.15-git/drivers/i2c/i2c-core.c	2006-01-08 11:17:57.000000000 +0100
+@@ -948,6 +948,20 @@
+ 	}
+ }
+ 
++s32 i2c_smbus_write_i2c_block_data(struct i2c_client *client, u8 command,
++				   u8 length, u8 *values)
++{
++	union i2c_smbus_data data;
++
++	if (length > I2C_SMBUS_BLOCK_MAX)
++		length = I2C_SMBUS_BLOCK_MAX;
++	data.block[0] = length;
++	memcpy(data.block + 1, values, length);
++	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			      I2C_SMBUS_WRITE, command,
++			      I2C_SMBUS_I2C_BLOCK_DATA, &data);
++}
++
+ /* Simulate a SMBus command using the i2c protocol 
+    No checking of parameters is done!  */
+ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr, 
+@@ -1152,6 +1166,7 @@
+ EXPORT_SYMBOL(i2c_smbus_write_word_data);
+ EXPORT_SYMBOL(i2c_smbus_write_block_data);
+ EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
++EXPORT_SYMBOL(i2c_smbus_write_i2c_block_data);
+ 
+ MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+ MODULE_DESCRIPTION("I2C-Bus main module");
+--- linux-2.6.15-git.orig/include/linux/i2c.h	2006-01-08 10:56:08.000000000 +0100
++++ linux-2.6.15-git/include/linux/i2c.h	2006-01-08 11:02:00.000000000 +0100
+@@ -100,6 +100,9 @@
+ /* Returns the number of read bytes */
+ extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
+ 					 u8 command, u8 *values);
++extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client * client,
++					  u8 command, u8 length,
++					  u8 *values);
+ 
+ /*
+  * A driver is capable of handling one or more physical devices present on
+
+-- 
+Jean Delvare
 
 
-On Sun, 8 Jan 2006, Ryan Richter wrote:
->
-> Kernel BUG at mm/swap.c:49
-
-Well, it sure triggered.
-
-> Process taper (pid: 4501, threadinfo ffff8101453d8000, task ffff81017d0143c0)
-> Call Trace:<ffffffff8028c614>{sgl_unmap_user_pages+124}
->		 <ffffffff8028834d>{release_buffering+27}
-
-and it's that same sgl_unmap_user_pages() that keeps on triggering it.
-
-Which was not what I was hoping for. I was hoping we'd see somebody _else_ 
-decrementing the page count below the map count, and get a new clue.
-
-However, the page flags you show later on (0x1c) ended up making me take 
-notice of something. That's "dirty", and maybe it's from
-
-	if (dirtied)
-		SetPageDirty(page);
-
-in that same sgl_unmap_user_pages() routine.. And it strikes me that that 
-is bogus.
-
-Code like that should use "set_page_dirty()", which does the appropriate 
-callbacks to the filesystem for that page. I wonder if the bug is simply 
-because the ST code just sets the dirty bit without telling anybody else 
-about it...
-
-Gaah. Hugh, Nick?
-
-		Linus

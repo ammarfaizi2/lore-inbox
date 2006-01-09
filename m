@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWAIOW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWAIO2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbWAIOW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 09:22:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWAIOW4
+	id S932285AbWAIO2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 09:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWAIO2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 09:22:56 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:665 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S964770AbWAIOWz (ORCPT
+	Mon, 9 Jan 2006 09:28:16 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:62350 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932285AbWAIO2P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 09:22:55 -0500
-Subject: Re: setrlimit for RLIMIT_RSS not enforced
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <728201270601041329r64ee9fb5h3ff015533c762924@mail.gmail.com>
-References: <728201270601041329r64ee9fb5h3ff015533c762924@mail.gmail.com>
-Content-Type: text/plain
+	Mon, 9 Jan 2006 09:28:15 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Mon, 9 Jan 2006 15:28:18 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <5t06S-7nB-15@gated-at.bofh.it> <5t5JU-7Sn-11@gated-at.bofh.it> <43C270B2.4050305@shaw.ca>
+In-Reply-To: <43C270B2.4050305@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 09 Jan 2006 14:25:47 +0000
-Message-Id: <1136816747.6659.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200601091528.19285.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-01-04 at 15:29 -0600, Ram Gupta wrote:
-> I am wondering why setrlimit for RLIMIT_RSS is  not enforced? Is 
-> there any particular reason for not implementing it? Is there any
-> taker if I implement it & submit patch for it?
+Am Montag, 9. Januar 2006 15:18 schrieb Robert Hancock:
+> Yaroslav Rastrigin wrote:
+> > Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
+> > strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
+> > Whenever it is needed by apps I'm launching or working with. 
+> 
+> There is no different VM policy here, Windows behaves quite similarly. 
+> It does not leave memory around unused, it uses it for disk cache.
 
+That doesn't mean that the rate of eviction is the same.
+Is it possible that read-ahead is not aggressive enough?
 
-I had a long long dig back through my mail archive in search of
-RLIMIT_RSS. The original mm for Linux didn't enforce it as it did not
-have any way to track RSS that was not computationally expensive. The
-current mm is probably capable of implementing RSS limits although
-questions then still remain about what effect this has if a user sets a
-low RSS limit and then causes a lot of swap thrashing. 
-
-If you can see a way to implement it efficiently then go for it.
-
-Alan
-
+	Regards
+		Oliver

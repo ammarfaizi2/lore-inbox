@@ -1,155 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWAIUG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWAIUJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWAIUG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWAIUGz
+	id S1751295AbWAIUJg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWAIUJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:06:55 -0500
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:17620 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S1751283AbWAIUGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:06:53 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Brown, Len" <len.brown@intel.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Martin Langhoff <martin.langhoff@gmail.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-Subject: Re: git pull on Linux/ACPI release tree
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13706@hdsmsx401.amr.corp.intel.com>
-	<Pine.LNX.4.64.0601090835580.3169@g5.osdl.org>
-Date: Mon, 09 Jan 2006 12:06:50 -0800
-In-Reply-To: <Pine.LNX.4.64.0601090835580.3169@g5.osdl.org> (Linus Torvalds's
-	message of "Mon, 9 Jan 2006 08:47:39 -0800 (PST)")
-Message-ID: <7vu0cdjhd1.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jan 2006 15:09:36 -0500
+Received: from server5.web4a.de ([82.149.231.244]:59030 "EHLO server5.web4a.de")
+	by vger.kernel.org with ESMTP id S1751295AbWAIUJg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 15:09:36 -0500
+Date: Mon, 9 Jan 2006 21:08:10 +0100
+From: Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, Alan Stern <stern@rowland.harvard.edu>,
+       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       Leonid <nouser@lpetrov.net>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+In-Reply-To: <d120d5000601090954k3e35c3c7n31d4d6796ac760bf@mail.gmail.com>
+References: <d120d5000601090850k42cc1c1ft6ab4e197119cacd@mail.gmail.com>
+	<Pine.LNX.4.44L0.0601091215070.7432-100000@iolanthe.rowland.org>
+	<d120d5000601090954k3e35c3c7n31d4d6796ac760bf@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.8; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1Ew3JK-0000kP-00@mars.bretschneidernet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-> One thing we could do is to make it easier to apply a patch to a 
-> _non_current_ branch.
->...
-> And one way to do that might be to teach "git-apply" to apply patches to a 
-> non-active branch,...
->
-> 	git diff | git-apply -b development
->
-> or something similar..)
->
-> Then you could always do "git pull . development" to pull in the 
-> development stuff into your working branch - keeping the development 
-> branch clean all the time.
+Hi Dmitry,
 
-I had to do something like that last night, when I hacked on
-gitweb.  gitweb as shipped does not work for anybody but kay
-(e.g. it has /home/kay hardcoded in it).  So I did:
+> My experience is that USB legacy emulation in BIOS + ACPI works as
+> long as you do not touch it and gets terribly confused if someone
+> tries to actually use i8042 (like enable active multiplexing mode
+> with 4 AUX ports). As soon as BIOS takes its dirty hands off i8042
+> everything works fine.
+> 
+> The problem it seems that when usb-handoff code was moved from pci
+> quirks and enabled inconditionally something happened so it stopped
+> doing handoff.
 
-	$ git clone git://git.kernel.org/pub/scm/git/gitweb gitweb
-        $ cd gitweb
-        $ git checkout -b custom
-        $ edit gitweb.cgi ;# adjust /home/kay -> somewhere else etc.
-        $ git commit -a -m "customization for junio's home"
+This words made me think about upgrading the BIOS. My former version
+that caused the problem and made me start this thread was F6 from july
+2005 and the most recent version is from december 2005[1]. Using this
+BIOS the former problem is gone! Jens who has go the same motherboard
+had the same idea and can confirm this "success" with the newer
+BIOS. That is to say that I can use the keyboard (and mouse) using the
+ps/2 ports with kernel 2.6.15 and enabled "USB keyboard support" in
+the BIOS. The keyboard and mouse do also work -- as expected --
+conncected to the USB.
 
-Then I started preparing a proposed fix for Kay:
+Thus, I do not know what you kernel developers should do now. You can
+say to the guys who have the ps/2 problem that they should update
+their BIOS. But what should they do if their motherboard supplier
+has not fixed the problem or does not provide BIOS updates at all?
+And what exactly was the problem?
 
-	$ git checkout -b symref master
-        $ edit gitweb.cgi
-        $ git commit -a -s -m "make it work on symref repository"
+Honestly, I do not want to reflash the BIOS of my motherboard to the
+older version for later debugging of modified kernel source code
+since a power blackout during flashing the BIOS could destroy my
+motherboard...
 
-Now the thing is that I cannot test symref branch as is.  I
-deliberately omitted the change necessary to make the upstream
-work on my local machine from that branch, because I want to
-keep my home-machine customization separate from what I will
-eventually feed Kay.  So I do a throwaway test branch:
+Kind regards from Martin
 
-	$ git checkout -b test master
-        $ git pull . custom symref ;# an octopus ;-)
-        # I could have done two separate pulls, custom then symref.
-
-The interesting part starts here.  Inevitably, I find bugs and
-bugs and bugs in the test branch, and I fix them in the working
-tree, without committing.  Eventually things starts working.
-I did not commit here in the test branch, because the symref
-branch is where I intend to keep this set of changes.  So
-instead, I did this:
-
-	$ git diff HEAD >P.diff
-        $ git checkout -f symref
-        $ git reset --soft HEAD^
-        $ git apply P.diff
-        $ git commit -a -C ORIG_HEAD
-
-Usually I strongly discourage people to use "checkout -f"
-because it will leave files that are in the current branch but
-not in the new branch behind in the working tree.  Here I used
-"checkout -f symref" because I knew this is a one-file project.
-
-Instead of fixing the symref commit in place like this, I could
-have committed P.diff as a separate "fixup" commit on top of the
-symref branch, in which case the above sequence would have been:
-
-	$ git diff HEAD >P.diff
-        $ git checkout -f symref
-        $ git apply P.diff
-        $ git commit -a -m 'fixup bugs in the previous.'
-
-but I did not --- it would have been more disgusting than
-honest.
-
-And after that, the usual format-patch:
-
-	$ git format-patch origin..symref
-
-In either case, this *was* cumbersome.  And I did it twice for
-two independent topics.  Admittedly, these topic branches were
-both single-commit topics, and in real life your subsystem
-maintainers must be facing bigger mess than this toy experience
-of mine, but the principle is the same.
-
-I think there are a couple of ways to improve what I had to do.
-I'll think aloud here.  The fictitious transcripts all start
-after I got things working in the test branch working tree, with
-a clean index file (i.e. changes are in the working tree only).
-
-1. Make a commit in the "test" branch, and then cherry-pick the
-   commit back to the topic branch:
-
-	$ git commit -a -m "Fix symref fix"
-        $ git checkout symref
-        $ git cherry-pick -r test
-
-2. Fix "git checkout <branch>" so that it does a reasonable thing
-   even when a dirty path is different in current HEAD and
-   destination branch.  Then I could:
-
-	$ git checkout symref ;# this would not work in the current git
-	    # it would die like this:
-            # $ git checkout symref
-            # fatal: Entry 'gitweb.cgi' not uptodate. Cannot merge.
-	$ git diff ;# just to make sure inevitable automated merge
-		    # did the right thing
-        $ git commit -a -m "Fix symref fix"
-	    # I could collapse them into one instead, like this:
-	    # $ git reset --soft HEAD^
-	    # $ git commit -a -C ORIG_HEAD
-
-To retest (possibly with latest from Kay), we can rebuild the
-test branch from scratch since it is by definition a throwaway
-branch and never is exposed to public:
-
-        $ git fetch origin
-	$ git checkout test
-        $ git reset --head origin
-        $ git pull . custom symref
-
-Obviously I prefer to have #2 work well, but #1 would work today.
-
-I am not sure if making "git-apply" to take different branch is
-a sane approach.  It might make sense to teach git-applymbox and
-git-am about branches, though.  So is teaching git-merge about
-merging into different branch.
-
+[1]
+http://tw.giga-byte.com/Motherboard/Support/BIOS/BIOS_GA-K8NF-9.htm
+-- 
+http://www.bretschneidernet.de        OpenPGP-key: 0x4EA52583
+             (*_                    Ernest Hemingway:
+ $ cd /pub/  //\      I like to listen. I have learned a great deal
+ $ more beer V_/_  from listening carefully. Most people never listen.

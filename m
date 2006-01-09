@@ -1,114 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWAIGr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWAIG4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751528AbWAIGr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 01:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751530AbWAIGr5
+	id S1751529AbWAIG4r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 01:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWAIG4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 01:47:57 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:38824 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751527AbWAIGr4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 01:47:56 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 9 Jan 2006 01:56:47 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:60088 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751193AbWAIG4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 01:56:46 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+Cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org,
+       Willy Tarreau <willy@w.ods.org>
+Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
+Date: Mon, 09 Jan 2006 17:56:42 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <fm14s11j35163al7lcrnpoudh7lvnh91o3@4ax.com>
+References: <20060108095741.GH7142@w.ods.org> <E1EvXi5-0000kv-00@calista.inka.de> <igs1s1lje7b7kkbmb9t6d06n8425i1b1i4@4ax.com> <4807377b0601081837u2c1d50b3w218d5ef9e3dc662@mail.gmail.com>
+In-Reply-To: <4807377b0601081837u2c1d50b3w218d5ef9e3dc662@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="GB2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH v3]Export cpu topology by sysfs
-Date: Mon, 9 Jan 2006 14:47:48 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E8404693250@pdsmsx404>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH v3]Export cpu topology by sysfs
-Thread-Index: AcYU2z03iaIZr9pgQu6PNbqA33QnmgAC61Jg
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: "Nathan Lynch" <ntl@pobox.com>,
-       "Yanmin Zhang" <ymzhang@unix-os.sc.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <greg@kroah.com>, <discuss@x86-64.org>,
-       <linux-ia64@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-X-OriginalArrivalTime: 09 Jan 2006 06:47:49.0542 (UTC) FILETIME=[9B330C60:01C614E8]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>-----Original Message-----
->>From: linux-ia64-owner@vger.kernel.org [mailto:linux-ia64-owner@vger.kernel.org] On Behalf Of Nathan Lynch
->>Sent: 2006Äê1ÔÂ9ÈÕ 13:10
->>To: Yanmin Zhang
->>Cc: linux-kernel@vger.kernel.org; greg@kroah.com; discuss@x86-64.org; linux-ia64@vger.kernel.org; Siddha, Suresh B; Shah, Rajesh;
->>Pallipadi, Venkatesh
->>Subject: Re: [PATCH v3]Export cpu topology by sysfs
->>> 2) Set consistent default values for the 4 attributes.
->>>
->>
->><snip>
->>
->>> If one architecture wants to support this feature, it just needs to
->>> implement 4 defines, typically in file include/asm-XXX/topology.h.
->>> The 4 defines are:
->>> #define topology_physical_package_id(cpu)
->>> #define topology_core_id(cpu)
->>> #define topology_thread_siblings(cpu)
->>> #define topology_core_siblings(cpu)
->>>
->>> The type of **_id is int.
->>> The type of siblings is cpumask_t.
->>>
->>> To be consistent on all architectures, the 4 attributes should have
->>> deafult values if their values are unavailable. Below is the rule.
->>> 1) physical_package_id: If cpu has no physical package id, -1 is the
->>> default value.
->>> 2) core_id: If cpu doesn't support multi-core, its core id is 0.
->>
->>Why not -1 as with the physical package id?  0 could be a valid core
->>id.
-If the cpu has only 1 core, we could call it single-core, so it's reasonable to use 0 as its core id.
+On Sun, 8 Jan 2006 18:37:52 -0800, Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
 
+Added Willy to Cc: -- I see a problem with 2 e100 NICs' accounting 
+under 2.4.32...  See near and of this report.
 
->>
->>> 3) thread_siblings: Just include itself, if the cpu doesn't support
->>> HT/multi-thread.
->>> 4) core_siblings: Just include itself, if the cpu doesn't support
->>> multi-core and HT/Multi-thread.
->>
->>Really, I think the least confusing interface would not export those
->>attributes which are not relevant for the system.  E.g. if the system
->>isn't multi-core, you don't see core_id and core_siblings attributes.
->>
->>Failing that, let's at least have consistent, unambiguous values for
->>the ids which are not applicable.
-Current kernel will output core id by /proc/cpuinfo if a physical cpu has 2 threads, no matter if it's a multi-core, or just a multi-thread. To be consistent with /proc/cpuinfo, I think we need export core id and its default value is 0.
+>> Are rx checksums not turned on in 2.6' e100 driver?
+>> CPU is only pentium/mmx 233
+>
+>Hey Grant, to answer your question, checksums are not offloaded with
+>the current e100 driver but that really shouldn't make that much of a
+>difference.  I'm actually going to go with interrupt load due to e100
+>being at least related to the problem.
+>
+>The netdev-2.6 git tree currently has a driver that supports microcode
+>loading for your rev 8 PRO/100 and that microcode may help your
+>interrupt load due to e100.  however, it may already be loading. 
+>Also, what do you have HZ set to? (250 is default in 2.6, 1000 in 2.4)
+>so you could try running your 2.6 kernel with HZ=1000
+>
+>while you're running your test you could try (if you have sysstat)
+>sar -I <e100 interrupt> 1 10
+>
+>or a simpler version, 10 loops of cat /proc/interrupts; sleep 1;
 
->>
->><snip>
->>> +static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
->>> +		unsigned long action, void *hcpu)
->>> +{
->>> +	unsigned int cpu = (unsigned long)hcpu;
->>> +	struct sys_device *sys_dev;
->>> +
->>> +	sys_dev = get_cpu_sysdev(cpu);
->>> +	switch (action) {
->>> +		case CPU_ONLINE:
->>> +			topology_add_dev(sys_dev);
->>> +			break;
->>> +		case CPU_DEAD:
->>> +			topology_remove_dev(sys_dev);
->>> +			break;
->>> +	}
->>> +	return NOTIFY_OK;
->>> +}
->>
->>I still oppose this bit.  I want the attributes there for powerpc even
->>for offline cpus -- the topology information (if obtainable, which it
->>is on powerpc) is useful regardless of the cpu's online state.  The
->>attributes should appear when a cpu is made present, and go away when
->>a cpu is removed.
-As my previous email says, there are concerns/issues to do so. A compromise is that the patch could register a sysdev driver. When the cpu becomes offline from online, we don't delete the topology kobj. The compromise has a defect. If the cpu is never online since machine boots, the topology info of the cpu is incorrect. 
+No sar, now I'm running a separate link from the other e100 eth1 
+from deltree to another box so measurement and test traffic are 
+separated.  I do everything via ssh so I can copy/paste from 
+terminals ;)
 
->>
->>This week I'll try to do an implementation for powerpc.
+This run is 2.6.15a, with 100Hz and voluntary preempt:
+
+grant@deltree:~$ cat /proc/interrupts
+           CPU0
+  0:     106221          XT-PIC  timer
+  1:          8          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  3:      11443          XT-PIC  eth2      <<== ADSL modem
+  8:          1          XT-PIC  rtc
+ 11:      20402          XT-PIC  eth0      <<== localnet
+ 12:      21860          XT-PIC  eth1      <<== spare -> test
+ 14:       3260          XT-PIC  ide0
+NMI:          0
+ERR:          0
+grant@deltree:~$
+
+grant@deltree:~$ while true; do grep eth1 /proc/interrupts; sleep 1; done
+ 12:      26357          XT-PIC  eth1
+ 12:      26357          XT-PIC  eth1 \
+ 12:      26573          XT-PIC  eth1  |
+ 12:      27039          XT-PIC  eth1   > time grep -v 192\.168\. \
+ 12:      27514          XT-PIC  eth1  |   /var/log/apache/access_log \
+ 12:      28320          XT-PIC  eth1  |   | cut -c-96
+ 12:      29090          XT-PIC  eth1  |  real    0m6.205s
+ 12:      30017          XT-PIC  eth1  |  user    0m0.620s
+ 12:      30434          XT-PIC  eth1 /   sys     0m0.730s
+ 12:      30434          XT-PIC  eth1
+
+grant@deltree:~$ while true; do grep eth1 /proc/interrupts; sleep 1; done
+ 12:      30650          XT-PIC  eth1
+ 12:      30651          XT-PIC  eth1 \
+ 12:      30657          XT-PIC  eth1  |
+ 12:      30661          XT-PIC  eth1   > time cat /var/log/apache/access_log
+ 12:      30936          XT-PIC  eth1  |  real    0m2.383s
+ 12:      31343          XT-PIC  eth1  |  user    0m0.010s
+ 12:      31593          XT-PIC  eth1 /   sys     0m0.480s
+ 12:      31593          XT-PIC  eth1
+
+This run is 2.6.15b, with 1000Hz and voluntary preempt:
+
+grant@deltree:~$ while true; do grep eth1 /proc/interrupts; sleep 1; done
+ 12:       4386          XT-PIC  eth1
+ 12:       4386          XT-PIC  eth1 \
+ 12:       4427          XT-PIC  eth1  |
+ 12:       4904          XT-PIC  eth1   > time grep -v 192\.168\. \
+ 12:       5350          XT-PIC  eth1  |   /var/log/apache/access_log \
+ 12:       6065          XT-PIC  eth1  |   | cut -c-96
+ 12:       6906          XT-PIC  eth1  |  real    0m6.649s
+ 12:       7693          XT-PIC  eth1  |  user    0m0.841s
+ 12:       8450          XT-PIC  eth1 /   sys     0m1.047s
+ 12:       8548          XT-PIC  eth1
+ 12:       8548          XT-PIC  eth1
+
+ran above a few times to gauge repeatability, variation ~200ms in real.
+
+grant@deltree:~$ while true; do grep eth1 /proc/interrupts; sleep 1; done
+ 12:      18347          XT-PIC  eth1
+ 12:      18348          XT-PIC  eth1 \
+ 12:      18417          XT-PIC  eth1  |
+ 12:      18794          XT-PIC  eth1   > time cat /var/log/apache/access_log
+ 12:      19181          XT-PIC  eth1  |  real    0m2.573s
+ 12:      19283          XT-PIC  eth1 /   user    0m0.005s
+ 12:      19284          XT-PIC  eth1     sys     0m0.547s
+
+No joy with 1000Hz, turn off preempt?
+
+This run is 2.6.15c, with 1000Hz and no preempt:
+
+grant@deltree:~$ while true; do grep eth1 /proc/interrupts; sleep 1; done
+ 12:       4400          XT-PIC  eth1 
+ 12:       4400          XT-PIC  eth1 \
+ 12:       4614          XT-PIC  eth1  |
+ 12:       5053          XT-PIC  eth1   > time grep -v 192\.168\. \
+ 12:       5495          XT-PIC  eth1  |   /var/log/apache/access_log \
+ 12:       6686          XT-PIC  eth1  |   | cut -c-96
+ 12:       7394          XT-PIC  eth1  |  real    0m6.696s
+ 12:       8258          XT-PIC  eth1  |  user    0m0.841s
+ 12:       8456          XT-PIC  eth1 /   sys     0m0.994s
+ 12:       8457          XT-PIC  eth1
+ 12:       8457          XT-PIC  eth1
+
+grant@deltree:~$ while true; do grep eth1 /proc/interrupts; sleep 1; done
+ 12:       8544          XT-PIC  eth1 \
+ 12:       8814          XT-PIC  eth1  |  time cat /var/log/apache/access_log
+ 12:       9485          XT-PIC  eth1   > real    0m2.511s
+ 12:       9486          XT-PIC  eth1  |  user    0m0.004s
+ 12:       9486          XT-PIC  eth1 /   sys     0m0.529s
+
+Still no joy?
+
+Confirm 2.4 timings, this is with 2.4.32-hf32.1:
+
+grant@deltree:~$ while true; do egrep 'eth0|eth1' /proc/interrupts; sleep 1; done
+ 11:       6744          XT-PIC  eth0
+ 12:          4          XT-PIC  eth1
+ 11:       6746          XT-PIC  eth0 \
+ 12:          4          XT-PIC  eth1  |
+ 11:       7178          XT-PIC  eth0   > time grep -v 192\.168\. \
+ 12:          4          XT-PIC  eth1  |   /var/log/apache/access_log \
+ 11:       7552          XT-PIC  eth0  |   | cut -c-96
+ 12:          4          XT-PIC  eth1 /   real    0m1.565s
+ 11:       7554          XT-PIC  eth0     user    0m0.510s
+ 12:          4          XT-PIC  eth1     sys     0m0.340s
+
+grant@deltree:~$ while true; do egrep 'eth0|eth1' /proc/interrupts; sleep 1; done
+ 11:       9136          XT-PIC  eth0 \
+ 12:          4          XT-PIC  eth1  |
+ 11:       9516          XT-PIC  eth0   > time cat /var/log/apache/access_log
+ 12:          4          XT-PIC  eth1  |  real    0m1.946s
+ 11:      10146          XT-PIC  eth0  |  user    0m0.000s
+ 12:          4          XT-PIC  eth1 /   sys     0m0.200s
+ 11:      10321          XT-PIC  eth0
+ 12:          4          XT-PIC  eth1
+
+Odd, with 2.4, the two e100 NICs are not being accounted properly:
+
+root@deltree:~# ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:90:27:42:AA:77
+          inet addr:192.168.1.1  Bcast:192.168.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:4840 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:8825 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:341812 (333.8 Kb)  TX bytes:9931009 (9.4 Mb)
+          Interrupt:11 Base address:0xdcc0 Memory:fd201000-fd201038
+
+eth1      Link encap:Ethernet  HWaddr 00:90:27:58:32:D4
+          inet addr:192.168.2.1  Bcast:192.168.2.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Interrupt:12 Base address:0xdc80 Memory:fd200000-fd200038
+
+dmesg says:
+Intel(R) PRO/100 Network Driver - version 2.3.43-k1
+Copyright (c) 2004 Intel Corporation
+
+e100: selftest OK.
+e100: eth0: Intel(R) PRO/100 Network Connection
+  Hardware receive checksums enabled
+  cpu cycle saver enabled
+
+e100: selftest OK.
+e100: eth1: Intel(R) PRO/100 Network Connection
+  Hardware receive checksums enabled
+  cpu cycle saver enabled
+
+smc-ultra.c:v2.02 2/3/98 Donald Becker (becker@cesdis.gsfc.nasa.gov)
+eth2: SMC Ultra at 0x280, 00 00 C0 5D 46 B5,assigned  IRQ 3 memory 0xd0000-0xd3fff.
+e100: eth0 NIC Link is Up 100 Mbps Full duplex
+e100: eth1 NIC Link is Up 100 Mbps Full duplex
+
+Cheers,
+Grant.

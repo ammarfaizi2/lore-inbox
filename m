@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWAIOSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWAIOUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWAIOSt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 09:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWAIOSt
+	id S932180AbWAIOUI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 09:20:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWAIOUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 09:18:49 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:45813 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932257AbWAIOSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 09:18:48 -0500
-Date: Mon, 09 Jan 2006 08:18:26 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
- can't for a long time
-In-reply-to: <5t5JU-7Sn-11@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43C270B2.4050305@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <5t06S-7nB-15@gated-at.bofh.it> <5t34G-3Zu-21@gated-at.bofh.it>
- <5t5pU-7tD-37@gated-at.bofh.it> <5t5JU-7Sn-11@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Mon, 9 Jan 2006 09:20:08 -0500
+Received: from mail.charite.de ([160.45.207.131]:6784 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S932180AbWAIOUG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 09:20:06 -0500
+Date: Mon, 9 Jan 2006 15:19:58 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at drivers/ide/ide.c:1384!
+Message-ID: <20060109141958.GM2767@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060109095159.GE4535@charite.de> <1136816352.6659.10.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1136816352.6659.10.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yaroslav Rastrigin wrote:
-> Well, I could find more or less reasonable explanation of this behaviour - different VM policies of two OSes and 
-> strangely strong and persistent belief "Free RAM is a wasted RAM" among kernel devs. Free RAM is not a wasted RAM, its a memory waiting to be used ! 
-> Whenever it is needed by apps I'm launching or working with. 
+* Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
-There is no different VM policy here, Windows behaves quite similarly. 
-It does not leave memory around unused, it uses it for disk cache.
+> You should be able to reproduce it without the Nvidia code loaded if you
+> do I/O on the disk and run hdparm -w in a tight loop while doing so.
+> 
+> You might want to do it on a disk you have a backup of
 
+I think I'll pass :)
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

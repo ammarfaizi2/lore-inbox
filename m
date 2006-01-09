@@ -1,27 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWAIBpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWAIBzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWAIBpK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 20:45:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWAIBpJ
+	id S1751505AbWAIBzy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 20:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWAIBzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 20:45:09 -0500
-Received: from xenotime.net ([66.160.160.81]:36769 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751504AbWAIBpI (ORCPT
+	Sun, 8 Jan 2006 20:55:54 -0500
+Received: from xenotime.net ([66.160.160.81]:22701 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751505AbWAIBzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 20:45:08 -0500
-Date: Sun, 8 Jan 2006 17:45:05 -0800
+	Sun, 8 Jan 2006 20:55:53 -0500
+Date: Sun, 8 Jan 2006 17:55:51 -0800
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: gcoady@gmail.com
-Cc: vherva@vianova.fi, linux-kernel@vger.kernel.org
-Subject: Re: oops pauser.
-Message-Id: <20060108174505.6c9b7566.rdunlap@xenotime.net>
-In-Reply-To: <6cq2s1d3glnj56pcrqlj84s8ltilmo6jfp@4ax.com>
-References: <20060105045212.GA15789@redhat.com>
-	<Pine.LNX.4.61.0601050907510.10161@yvahk01.tjqt.qr>
-	<20060105103339.GG20809@redhat.com>
-	<20060108133822.GD31624@vianova.fi>
-	<20060108055322.18d4236e.rdunlap@xenotime.net>
-	<6cq2s1d3glnj56pcrqlj84s8ltilmo6jfp@4ax.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: Valdis.Kletnieks@vt.edu, mbuesch@freenet.de, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/4] move capable() to capability.h
+Message-Id: <20060108175551.50a6059e.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.63.0601081853020.6962@gockel.physik3.uni-rostock.de>
+References: <1136543825.2940.8.camel@laptopd505.fenrus.org>
+	<200601061218.17369.mbuesch@freenet.de>
+	<1136546539.2940.28.camel@laptopd505.fenrus.org>
+	<200601061226.42416.mbuesch@freenet.de>
+	<20060107215106.38d58bb9.rdunlap@xenotime.net>
+	<200601080745.k087j3mU016114@turing-police.cc.vt.edu>
+	<Pine.LNX.4.63.0601081853020.6962@gockel.physik3.uni-rostock.de>
 Organization: YPO4
 X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -30,31 +32,34 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 09 Jan 2006 06:40:57 +1100 Grant Coady wrote:
+On Sun, 8 Jan 2006 19:02:23 +0100 (CET) Tim Schmielau wrote:
 
-> On Sun, 8 Jan 2006 05:53:22 -0800, "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> On Sun, 8 Jan 2006, Valdis.Kletnieks@vt.edu wrote:
 > 
-> >On Sun, 8 Jan 2006 15:38:22 +0200 Ville Herva wrote:
-> >
-> >> On Thu, Jan 05, 2006 at 05:33:39AM -0500, you [Dave Jones] wrote:
-> >> > 
-> >> > If I had any faith in the sturdyness of the floppy driver, I'd
-> >> > recommend someone looked into a 'dump oops to floppy' patch, but
-> >> > it too relies on a large part of the system being in a sane
-> >> > enough state to write blocks out to disk.
-> >> 
-> >> I believe kmsgdump (http://www.xenotime.net/linux/kmsgdump/) uses its own
-> >> minimal 16-bit floppy driver to save the oops dump. 
-> >
-> >It just switches to real mode and uses BIOS calls.
+> > On Sat, 07 Jan 2006 21:51:06 PST, "Randy.Dunlap" said:
+> > 
+> > > From: Randy Dunlap <rdunlap@xenotime.net>
+> > > 
+> > > headers + core:
+> > > - Move capable() from sched.h to capability.h;
+> > > - Use <linux/capability.h> where capable() is used
+> > > 	(in include/, block/, ipc/, kernel/, a few drivers/,
+> > > 	mm/, security/, & sound/;
+> > > 	many more drivers/ to go)
+> > 
+> > Are there plans for a second patch series to remove sched.h from those
+> > files that only needed it for capable()?
 > 
-> So would it be viable to take over the screen in similar fashion?
-> 
-> Set it to 80x50 in BIOS and dump there --> call it the Penguin Oops 
-> screen, or Poops for short :o)
+> Yes. I've written a set of (horrendously inefficient, but working) scripts 
+> that detect whenever sched.h isn't needed in a file anymore.
+> So I think it's ok if Randy just leaves the dangling references to 
+> sched.h, I will clean them up afterwards.
 
-It does take over the screen.  80x50 isn't needed since it knows how
-to scroll the kernel log buffer on 80x25.
+Glad to hear all of that.
+
+> I recently stopped posting patches because I will be offline for a month 
+> or two and thus unable to look after problems that these patches might 
+> cause. I hope to resume operation in March.
 
 ---
 ~Randy

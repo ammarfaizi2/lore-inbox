@@ -1,95 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWAIUYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWAIU2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWAIUYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 15:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWAIUYW
+	id S1751279AbWAIU2U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 15:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWAIU2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 15:24:22 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:63723
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751315AbWAIUYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 15:24:22 -0500
-Subject: [PATCH] synclink_gt remove unnecessary page alignment
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1136838251.5489.3.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 09 Jan 2006 14:24:12 -0600
+	Mon, 9 Jan 2006 15:28:20 -0500
+Received: from mail.suse.de ([195.135.220.2]:48323 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751279AbWAIU2T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 15:28:19 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+Subject: Re: [patch 2/2] add x86-64 support for memory hot-add
+Date: Mon, 9 Jan 2006 21:27:07 +0100
+User-Agent: KMail/1.8.2
+Cc: "Matt Tolentino" <metolent@cs.vt.edu>, akpm@osdl.org, discuss@x86-64.org,
+       kmannth@us.ibm.com, linux-kernel@vger.kernel.org
+References: <D36CE1FCEFD3524B81CA12C6FE5BCAB00C0B777A@fmsmsx406.amr.corp.intel.com>
+In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB00C0B777A@fmsmsx406.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601092127.07627.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unnecessary and incorrectly implemented page
-alignment of register base address before calling ioremap()
+On Monday 09 January 2006 20:55, Tolentino, Matthew E wrote:
 
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+> I've looked at it in the past, but haven't pursued it to 
+> date, nor have I quantified the work involved.
+> The reason for the this approach thus far has been to 
+> enable machines that support hot-add today...which are 
+> non-NUMA.  
 
---- linux-2.6.15/drivers/char/synclink_gt.c	2006-01-09 14:16:40.000000000 -0600
-+++ linux-2.6.15-mg/drivers/char/synclink_gt.c	2006-01-09 14:16:10.000000000 -0600
-@@ -1,5 +1,5 @@
- /*
-- * $Id: synclink_gt.c,v 4.20 2005/11/08 19:51:55 paulkf Exp $
-+ * $Id: synclink_gt.c,v 4.22 2006/01/09 20:16:06 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink GT serial adapters.
-  *
-@@ -93,7 +93,7 @@
-  * module identification
-  */
- static char *driver_name     = "SyncLink GT";
--static char *driver_version  = "$Revision: 4.20 $";
-+static char *driver_version  = "$Revision: 4.22 $";
- static char *tty_driver_name = "synclink_gt";
- static char *tty_dev_prefix  = "ttySLG";
- MODULE_LICENSE("GPL");
-@@ -289,7 +289,6 @@ struct slgt_info {
- 
- 	unsigned char __iomem * reg_addr;  /* memory mapped registers address */
- 	u32 phys_reg_addr;
--	u32 reg_offset;
- 	int reg_addr_requested;
- 
- 	MGSL_PARAMS params;       /* communications parameters */
-@@ -2978,14 +2977,13 @@ static int claim_resources(struct slgt_i
- 	else
- 		info->reg_addr_requested = 1;
- 
--	info->reg_addr = ioremap(info->phys_reg_addr, PAGE_SIZE);
-+	info->reg_addr = ioremap(info->phys_reg_addr, SLGT_REG_SIZE);
- 	if (!info->reg_addr) {
- 		DBGERR(("%s cant map device registers, addr=%08X\n",
- 			info->device_name, info->phys_reg_addr));
- 		info->init_error = DiagStatus_CantAssignPciResources;
- 		goto errout;
- 	}
--	info->reg_addr += info->reg_offset;
- 	return 0;
- 
- errout:
-@@ -3006,7 +3004,7 @@ static void release_resources(struct slg
- 	}
- 
- 	if (info->reg_addr) {
--		iounmap(info->reg_addr - info->reg_offset);
-+		iounmap(info->reg_addr);
- 		info->reg_addr = NULL;
- 	}
- }
-@@ -3110,12 +3108,6 @@ static struct slgt_info *alloc_dev(int a
- 		info->irq_level = pdev->irq;
- 		info->phys_reg_addr = pci_resource_start(pdev,0);
- 
--		/* veremap works on page boundaries
--		 * map full page starting at the page boundary
--		 */
--		info->reg_offset    = info->phys_reg_addr & (PAGE_SIZE-1);
--		info->phys_reg_addr &= ~(PAGE_SIZE-1);
--
- 		info->bus_type = MGSL_BUS_TYPE_PCI;
- 		info->irq_flags = SA_SHIRQ;
- 
+Yes, but they'll be likely running NUMA kernels.
 
-
+-Andi

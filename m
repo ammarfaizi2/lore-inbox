@@ -1,83 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWAINcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWAINex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbWAINcB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWAINcB
+	id S932131AbWAINex (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWAINew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:32:01 -0500
-Received: from host217-46-213-187.in-addr.btopenworld.com ([217.46.213.187]:55143
-	"EHLO help.basilica.co.uk") by vger.kernel.org with ESMTP
-	id S1751456AbWAINcA convert rfc822-to-8bit (ORCPT
+	Mon, 9 Jan 2006 08:34:52 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:9134 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751456AbWAINew (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:32:00 -0500
+	Mon, 9 Jan 2006 08:34:52 -0500
+Message-ID: <43C2785C.4E937748@tv-sign.ru>
+Date: Mon, 09 Jan 2006 17:51:08 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Kernel Education
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Date: Mon, 9 Jan 2006 13:35:20 -0000
-Message-ID: <8941BE5F6A42CC429DA3BC4189F9D442014FB5@bashdad01.hd.basilica.co.uk>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel Education
-Thread-Index: AcYVILUxYMNWrWkgTYGjDNTIA+P4BQAALGlQ
-From: "Khushil Dep" <khushil.dep@help.basilica.co.uk>
-To: "Weber Ress" <ress.weber@gmail.com>, "Jiri Slaby" <slaby@liberouter.org>
-Cc: <linux-kernel@vger.kernel.org>
+To: vatsa@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
+References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109093141.GA10811@in.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before you start in on the Linux kernel I'd suggest you get you students well grounded in operating systems theory. It's a rather huge field of study but just teaching people bits of the kernel is going to be a waste of time if they don't have the comprehension of the whole.
-
------------------------
-Khushil Dep
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Weber Ress
-Sent: 09 January 2006 13:25
-To: Jiri Slaby
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Education
-
-When I say "more simple" kernel version, I would like say "more
-didactics" to teach.
-
-thank´s to all replies.
-
-Best,
-
-Weber Ress
-
-On 1/9/06, Jiri Slaby <slaby@liberouter.org> wrote:
-> Weber Ress napsal(a):
-> > Hi guys,
+Srivatsa Vaddagiri wrote:
+> On Sun, Jan 08, 2006 at 10:19:24PM +0300, Oleg Nesterov wrote:
+> > ->donelist becomes != NULL only in rcu_process_callbacks().
 > >
-> > I´m starting a social project to teach kernel development for young
-> > students, with objetive of include these people in job market.
-> :)
+> > rcu_process_callbacks() always calls rcu_do_batch() when
+> > ->donelist != NULL.
 > >
-> > These studentes don´t have great skills in mathematical and computer
-> > science areas, but have great interest in development area. Some
-> > studentes have a little basic C language skills.
+> > rcu_do_batch() schedules rcu_process_callbacks() again if
+> > ->donelist was not flushed entirely.
 > >
-> > Which are the first steps that I need in this project ?
-> prepare slides for teaching them real-world-(gc)c, not basic.
-> > Which´s the "more simple" kernel version to teach (2.2 ? 2.4 ? 2.6 ?).
-> IMHO 2.6 has the clearest api (specific(a) rather than sth. like
-> a->private->b->private.specific).
-> But in general it's hard to say this is the simplest one. In 2.2 there is less
-> code, than in 2.6 and so on
+> > So ->donelist != NULL means that rcu_tasklet is either
+> > TASKLET_STATE_SCHED or TASKLET_STATE_RUN, we don't need to
+> > check it in __rcu_pending().
 >
-> regards,
-> --
-> Jiri Slaby         www.fi.muni.cz/~xslaby
-> \_.-^-._   jirislaby@gmail.com   _.-^-._/
-> B67499670407CE62ACC8 22A032CC55C339D47A7E
->
+> Do I smell a bug wrt CPU Hotplug here? Basically, I see that we do
+> a rcu_move_batch of ->curlist and ->nxtlist of the dead CPU. Why not
+> ->donelist?
+
+After the quick reading CPU Hotplug code I think you are right, there
+is a bug in rcu_offline_cpu(). It should also move ->donelist, it is
+lost otherwise.
+
+>             If we have to do a rcu_move_batch of ->donelist also,
+> then perhaps the ->donelist != NULL check is required in
+> rcu_pending?
+
+rcu_move_batch() always adds entries to the ->nxttail, so I think
+this patch is correct.
+
+>               This is considering that the RCU tasklet of the dead
+> CPU is killed (rather than moved over to a different CPU).
+
+Yes, it is killed explicitly in rcu_offline_cpu() via tasklet_kill_immediate().
+
+Note that we can't remove this tasklet_kill_immediate() and rely on
+takeover_tasklets(). rcu_process_callbacks() does __get_cpu_var(),
+so it can't find orphaned rcu_data anyway if the tasklet was moved
+to another cpu.
+
+So, do we need something like this (untested, uncompiled) patch or not?
+
+--- 2.6.15/kernel/rcupdate.c~	2006-01-09 20:23:32.000000000 +0300
++++ 2.6.15/kernel/rcupdate.c	2006-01-09 20:26:20.000000000 +0300
+@@ -355,8 +355,9 @@ static void __rcu_offline_cpu(struct rcu
+ 	spin_unlock_bh(&rcp->lock);
+ 	rcu_move_batch(this_rdp, rdp->curlist, rdp->curtail);
+ 	rcu_move_batch(this_rdp, rdp->nxtlist, rdp->nxttail);
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
++	rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
+ }
++
+ static void rcu_offline_cpu(int cpu)
+ {
+ 	struct rcu_data *this_rdp = &get_cpu_var(rcu_data);
+
+Oleg.

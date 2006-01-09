@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWAITaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWAITbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWAITaY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 14:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWAITaX
+	id S1751226AbWAITbD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 14:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWAITbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 14:30:23 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:46988 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1751252AbWAITaW convert rfc822-to-8bit
+	Mon, 9 Jan 2006 14:31:02 -0500
+Received: from silver.veritas.com ([143.127.12.111]:24104 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751226AbWAITa7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 14:30:22 -0500
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 9 Jan 2006 14:30:59 -0500
+Date: Mon, 9 Jan 2006 19:31:11 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <20060109185350.GG283@tau.solarneutrino.net>
+Message-ID: <Pine.LNX.4.61.0601091922550.15426@goblin.wat.veritas.com>
+References: <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
+ <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
+ <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
+ <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
+ <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
+ <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
+ <20060109185350.GG283@tau.solarneutrino.net>
 MIME-Version: 1.0
-Subject: RE: [patch 2/2] add x86-64 support for memory hot-add
-Date: Mon, 9 Jan 2006 11:29:43 -0800
-Message-ID: <6F7DA19D05F3CF40B890C7CA2DB13A42030949D0@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2/2] add x86-64 support for memory hot-add
-Thread-Index: AcYVUo1T2TLm6sjOTraSQJ7/PXzP6gAAGiAg
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "keith" <kmannth@us.ibm.com>
-cc: "Andi Kleen" <ak@suse.de>, "Matt Tolentino" <metolent@cs.vt.edu>,
-       akpm@osdl.org, discuss@x86-64.org, linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 09 Jan 2006 19:29:44.0663 (UTC)
- FILETIME=[0B88EE70:01C61553]
-X-WSS-ID: 6FDC66223982737129-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jan 2006 19:30:59.0403 (UTC) FILETIME=[381559B0:01C61553]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you mean use acpi run-time asl code to update these reg?
-
-YH
-
------Original Message-----
-From: keith [mailto:kmannth@us.ibm.com] 
-Sent: Monday, January 09, 2006 11:25 AM
-To: Lu, Yinghai
-Cc: Andi Kleen; Matt Tolentino; akpm@osdl.org; discuss@x86-64.org;
-linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] add x86-64 support for memory hot-add
-
-On Mon, 2006-01-09 at 10:51 -0800, Yinghai Lu wrote:
-> for Opteron NUMA, need to update
-> 0. stop the DCT on the node that will plug the new DIMM
-> 1. read spd_rom for the added dimm
-> 2. init the ram size and update the memory routing table...
-> 3. init the timing...
-> 4. update relate info in TOM and TOM2, and MTRR, and e820
+On Mon, 9 Jan 2006, Ryan Richter wrote:
 > 
-> It looks like we need to get some code about ram init from
-LinuxBIOS.....
+> One thing I forgot to mention was that 2.6.11.3 had the problem too when
+> I reverted to it.  I remember now that the person who made the debian
+> bug report for this said it only happened with a 64-bit userspace - and
+> I switched from a 32- to 64-bit userspace when I did 2.6.11 -> 2.6.14
+> (and I'm too lazy to switch back).
 
-Is the AMD box not going to use the ACPI add-memory mechanism?
+I remembered you reported it originally on 2.6.14.N, so I wasn't
+searching amongst the 2.6.15 changes at all.  Thanks for the info
+that it's at least as old as 2.6.11.3.
 
+> To get the backups back, I just ran a recent kernel with
+> try_direct_io=0.  If there's nothing further for me to test at this
+> time, I guess I'll go back to doing that until there's something to try.
+> Is that OK?
 
--- 
-keith <kmannth@us.ibm.com>
+I think we'll allow you the luxury of making successful backups for now ;)
 
+Thanks for all your work on this, I'm sure it's irritating to you that
+we haven't found the answer yet.  I'm still clueless about it (despite
+the excellent clues you've provided).  And personally I don't like
+asking someone "try this, try that" until I've a pretty good hypothesis
+to devise a patch to test out.  Still thinking it over.  Someone else
+may have a better idea of what to try next.
 
-
+Hugh

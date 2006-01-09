@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWAIVlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWAIVjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWAIVlh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 16:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWAIVlU
+	id S1750758AbWAIVjK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 16:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWAIViy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 16:41:20 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:64744 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1750776AbWAIVk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 16:40:56 -0500
-Date: Mon, 9 Jan 2006 22:40:54 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ATI 64-bit fglrx compile patches for 2.6.15-gitX
-In-Reply-To: <1136828007.6659.69.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.60.0601092227270.2685@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0601091734300.333@kepler.fjfi.cvut.cz>
- <1136828007.6659.69.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jan 2006 16:38:54 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:58895 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750725AbWAIVip convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 16:38:45 -0500
+Subject: [PATCH 06/11] kbuild: reference_discarded addition
+In-Reply-To: <20060109211157.GA14477@mars.ravnborg.org>
+X-Mailer: gregkh_patchbomb-sam
+Date: Mon, 9 Jan 2006 22:38:29 +0100
+Message-Id: <11368427093804@foobar.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jan 2006, Alan Cox wrote:
+From: Dave Jones <davej@redhat.com>
+Date: 1136533219 -0500
 
-> On Llu, 2006-01-09 at 17:47 +0100, Martin Drab wrote:
-> > I know this is a little bit OT here, and if you feel irritated by the 
-> > binary drivers, just ignore this. 
-> 
-> Not just offtopic but completely unacceptable in this case.
+Error: ./fs/quota_v2.o .opd refers to 0000000000000020 R_PPC64_ADDR64    .exit.text
 
-OK, understood, my appologies.
+Been carrying this for some time in Red Hat trees.
 
-> There are people on these lists who work on free software R300 reverse
-> engineering work. They do not look at and do not want to be exposed in
-> any way to proprietary ATI code.
+Keith Ownes <kaos@sgi.com> commented:
+For our future {in}sanity, add a comment that this is the ppc .opd
+section, not the ia64 .opd section.  ia64 .opd should not point to
+discarded sections.
 
-OK (BTW: These were just patches to the open source wrapper of the binary 
-drivers, which has to be GPL, since it's a deriver work - at least to my 
-knowlege, though IANAL, so there should be no part of a proprietary code.)
+Any idea why ppc .opd points to discarded sections when ia64 does not?
+AFAICT no ia64 object has a useful .opd section, they are all empty or
+(sometimes) a dummy entry which is 1 byte long.  ia64 .opd data is
+built at link time, not compile time.
 
-> Please don't do this again or if you do post the patches somewhere and
-> send a message indicating where they can be found.
+Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-OK, sorry, won't do that again.
+---
 
-(I did so only because not long ago there were some postings here from 
-people unable to compile it with 2.6.15 kernels, so now that I was forced 
-to patch it (for various irrelevant reasons) I thought someone else may 
-want to try it as well. But, OK, wouldn't post it again, no problem.)
+ scripts/reference_discarded.pl |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
-Martin
+442ce844e139c1e3c23e8b4df13468041ae35721
+diff --git a/scripts/reference_discarded.pl b/scripts/reference_discarded.pl
+index c2d5414..4ee6ab2 100644
+--- a/scripts/reference_discarded.pl
++++ b/scripts/reference_discarded.pl
+@@ -71,6 +71,11 @@ foreach $object (keys(%object)) {
+ # printf("ignoring %d conglomerate(s)\n", $ignore);
+ 
+ # printf("Scanning objects\n");
++
++# Keith Ownes <kaos@sgi.com> commented:
++# For our future {in}sanity, add a comment that this is the ppc .opd
++# section, not the ia64 .opd section.
++# ia64 .opd should not point to discarded sections.
+ $errorcount = 0;
+ foreach $object (keys(%object)) {
+ 	my $from;
+@@ -88,6 +93,7 @@ foreach $object (keys(%object)) {
+ 		    ($from !~ /\.text\.exit$/ &&
+ 		     $from !~ /\.exit\.text$/ &&
+ 		     $from !~ /\.data\.exit$/ &&
++		     $from !~ /\.opd$/ &&
+ 		     $from !~ /\.exit\.data$/ &&
+ 		     $from !~ /\.altinstructions$/ &&
+ 		     $from !~ /\.pdr$/ &&
+-- 
+1.0.GIT
+

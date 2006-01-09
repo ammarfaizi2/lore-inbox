@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWAINmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWAINwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWAINmm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 08:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWAINmm
+	id S932143AbWAINwS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 08:52:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWAINwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 08:42:42 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:5863 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1751530AbWAINmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 08:42:42 -0500
-Date: Mon, 09 Jan 2006 08:42:06 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-In-reply-to: <200601091232.56348.zippel@linux-m68k.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1136814126.1043.36.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
- <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
- <200601091232.56348.zippel@linux-m68k.org>
+	Mon, 9 Jan 2006 08:52:17 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:16833 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932145AbWAINwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 08:52:16 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: vherva@vianova.fi
+Cc: Florian Schmidt <tapas@affenbande.org>,
+       Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Adrian Bunk <bunk@stusta.de>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Takashi Iwai <tiwai@suse.de>, Olivier Galibert <galibert@pobox.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060109081646.GG21365@vianova.fi>
+References: <20060104000344.GJ3831@stusta.de>
+	 <Pine.BSO.4.63.0601040113340.29027@rudy.mif.pg.gda.pl>
+	 <20060104010123.GK3831@stusta.de>
+	 <Pine.BSO.4.63.0601040242190.29027@rudy.mif.pg.gda.pl>
+	 <20060104113726.3bd7a649@mango.fruits.de>
+	 <1136445395.24475.17.camel@mindpipe>
+	 <20060105124317.2d12a85c@mango.fruits.de>
+	 <1136483330.31583.5.camel@mindpipe> <20060108210756.GD1686@vianova.fi>
+	 <1136756669.2997.2.camel@mindpipe>  <20060109081646.GG21365@vianova.fi>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 08:52:11 -0500
+Message-Id: <1136814731.9957.4.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-09 at 12:32 +0100, Roman Zippel wrote:
-> Hi,
+On Mon, 2006-01-09 at 10:16 +0200, Ville Herva wrote:
+> On Sun, Jan 08, 2006 at 04:44:28PM -0500, you [Lee Revell] wrote:
+> > 
+> > No it's a sign that the Revolution 5.1 is not well supported yet.  It
+> > was not supported at all until a few weeks ago.
 > 
-> On Monday 09 January 2006 04:59, Ben Collins wrote:
+> Ok, I see. (It was just that the revo51 changelog entry revo51 was not
+> exactly verbose wrt. what's supported.)
 > 
-> > > Then something is wrong with your automatic build. If the config needs to
-> > > be updated and stdin is redirected during a kbuild, it will already
-> > > abort.
-> >
-> > And what should be directed into stdin? Nothing. There should be no
-> > input going into an automated build, exactly because it could produce
-> > incorrect results.
-> >
-> > BTW, this is the automatic build that Debian and Ubuntu both use (in
-> > Debian's case, used for quite a number of years). So this isn't
-> > something I whipped up.
+> You won't need the bug report just yet, then? 
 > 
-> That just means Debian's automatic build for the kernel has been broken for 
-> years. All normal config targets require user input and no input equals 
-> default input. Only silentoldconfig will abort if input is not available.
+> I'll keep retesting the new releases.
 
-I think that's broken (because I don't see where that behavior is
-described). IMO, based on the code, it should only go with defaults when
--n -y or -m is passed. Anything else should detect when stdin is not
-valid and abort. If stdin is valid, and empty string is read, then
-that's a valid "give me the default" response.
+Sure, we'd like the bug report.  I just wanted to point out that many
+people who tell everyone that "ALSA sucks" like you and JWZ, have really
+just made the mistake of buying bleeding edge barely-supported hardware.
 
-Why is it so hard to error when stdin is closed? It's not like that will
-break anything.
+If vendors gave us more docs so that reverse engineering drivers was not
+the norm, the situation would improve greatly.
 
-Since silentoldconfig does this, then oldconfig should aswell. The only
-naming difference is that silentoldconfig is quiet, and oldconfig is
-not. Why should the two act any differently with a closed stdin?
-
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
+Lee
 

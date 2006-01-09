@@ -1,36 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWAICqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWAICu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWAICqL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 21:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWAICqL
+	id S1750883AbWAICu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 21:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWAICu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 21:46:11 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:38804 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750826AbWAICqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 21:46:10 -0500
-Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: gcoady@gmail.com, Bernd Eckenfels <be-news06@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4807377b0601081837u2c1d50b3w218d5ef9e3dc662@mail.gmail.com>
-References: <20060108095741.GH7142@w.ods.org>
-	 <E1EvXi5-0000kv-00@calista.inka.de>
-	 <igs1s1lje7b7kkbmb9t6d06n8425i1b1i4@4ax.com>
-	 <4807377b0601081837u2c1d50b3w218d5ef9e3dc662@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 08 Jan 2006 21:46:07 -0500
-Message-Id: <1136774768.2997.8.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Jan 2006 21:50:59 -0500
+Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:16270 "HELO
+	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750910AbWAICu5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 21:50:57 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [PATCH 4/8] RTC subsystem, proc interface
+Date: Sun, 8 Jan 2006 21:50:55 -0500
+User-Agent: KMail/1.8.3
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org
+References: <20060108231235.153748000@linux> <200601082056.30227.dtor_core@ameritech.net> <20060109030433.581c49e7@inspiron>
+In-Reply-To: <20060109030433.581c49e7@inspiron>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601082150.55926.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 18:37 -0800, Jesse Brandeburg wrote:
-> Also, what do you have HZ set to? (250 is default in 2.6, 1000 in 2.4)
-> so you could try running your 2.6 kernel with HZ=1000 
+On Sunday 08 January 2006 21:04, Alessandro Zummo wrote:
+> On Sun, 8 Jan 2006 20:56:29 -0500
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> 
+> > > +static void rtc_proc_remove_device(struct class_device *class_dev,
+> > > +                                             struct class_interface *class_intf)
+> > > +{
+> > > +       down(&rtc_sem);
+> > > +       if (rtc_dev == class_dev) {
+> > > +               remove_proc_entry("driver/rtc", NULL);
+> > > +               rtc_dev = NULL;
+> > > +       }
+> > > +       up(&rtc_sem);
+> > > +}
+> > 
+> > What if I happen to remove (unregister) rtc devices in order other
+> > than they were registered in? You need a counter there instead of
+> > storing the first device created.
+> 
+>  Only the first device that registers will get the /proc/driver/rtc
+>  entry, which will be removed when the driver unregisters.
+> 
+>  /proc/driver/rtc is a legacy interface, thus supporting it
+>  for more than one RTC is useless. Any system that uses
+>  more than one RTCs should access them via /dev/rtcX or
+>  via sysfs.
+> 
 
-s/1000/100/
+Oh, I see. Ignore me then... 
 
+-- 
+Dmitry

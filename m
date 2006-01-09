@@ -1,168 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWAIJgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWAIJoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbWAIJgb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 04:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWAIJgb
+	id S1751218AbWAIJoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 04:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWAIJoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 04:36:31 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:32670 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751203AbWAIJgb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 04:36:31 -0500
-Date: Mon, 9 Jan 2006 10:36:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrea Arcangeli <andrea@cpushare.com>
-Subject: [patch] make CONFIG_SECCOMP default=n
-Message-ID: <20060109093633.GA20877@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 9 Jan 2006 04:44:16 -0500
+Received: from silver.veritas.com ([143.127.12.111]:13355 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751214AbWAIJoP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 04:44:15 -0500
+Date: Mon, 9 Jan 2006 09:44:26 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Ryan Richter <ryan@tau.solarneutrino.net>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
+References: <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
+ <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net>
+ <1134705703.3906.1.camel@mulgrave> <20051226234238.GA28037@tau.solarneutrino.net>
+ <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
+ <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
+ <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
+ <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jan 2006 09:44:11.0525 (UTC) FILETIME=[3E8D8350:01C61501]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i was profiling the scheduler on x86 and noticed some overhead related 
-to SECCOMP, and indeed, SECCOMP runs disable_tsc() at _every_ 
-context-switch:
+On Sun, 8 Jan 2006, Linus Torvalds wrote:
+> 
+> Code like that should use "set_page_dirty()", which does the appropriate 
+> callbacks to the filesystem for that page. I wonder if the bug is simply 
+> because the ST code just sets the dirty bit without telling anybody else 
+> about it...
 
-        if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
-                handle_io_bitmap(next, tss);
+Yes, it should be using set_page_dirty_lock(), and that is already known
+about (I have patches for this and similar sg.c, but the sg.c case is
+tougher and not yet finished); but entirely irrelevant to Ryan's case.
 
-        disable_tsc(prev_p, next_p);
+Quite apart from the fact that he's doing backups to tape (not dirtying
+the memory from this driver), you'll find that it even passes dirty 0
+when reading into the memory (another bug; whereas sg.c conversely says
+it's always dirtying when it isn't).  So there's no point in Ryan
+fiddling with the SetPageDirty.
 
-        return prev_p;
+It's an intriguing problem because it's signature is so regular,
+and I've spent many hours trying to work out how it might come about,
+but unsuccessfully so far.  Your adjustment to the put_page_testzero
+BUG_ON was a good idea, but it still hasn't shone a light.  I'm
+keeping quiet until I find something useful to add.
 
-these are a couple of instructions in the hottest scheduler codepath!
+Perhaps we just need a few more people to add sgl[i].page = NULL ;)
 
-x86_64 already removed disable_tsc() from switch_to(), but i think the 
-right solution is to turn SECCOMP off by default.
-
-besides the runtime overhead, there are a couple of other reasons as 
-well why this should be done:
-
- - CONFIG_SECCOMP=y adds 836 bytes of bloat to the kernel:
-
-       text    data     bss     dec     hex filename
-    4185360  867112  391012 5443484  530f9c vmlinux-noseccomp
-    4185992  867316  391012 5444320  5312e0 vmlinux-seccomp
-
- - virtually nobody seems to be using it (but cpushare.com, which seems
-   pretty inactive)
-
- - users/distributions can still turn it on if they want it
-
- - http://www.cpushare.com/legal seems to suggest that it is pursuing a
-   software patent to utilize the seccomp concept in a distributed 
-   environment, and seems to give a promise that 'end users' will not be
-   affected by that patent. How about non-end-users [i.e. server-side]?
-   Has the Linux kernel become a vehicle for a propriety server-side
-   feature, with every Linux user paying the price of it?
-
-so the patch below just does the minimal common-sense change: turn it 
-off by default.
-
-	Ingo
-
---
-
-turn SECCOMP off by default - it adds runtime per-context-switch 
-overhead on x86, and bloats the kernel.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-----
- arch/i386/Kconfig    |    2 +-
- arch/mips/Kconfig    |    2 +-
- arch/powerpc/Kconfig |    2 +-
- arch/ppc/Kconfig     |    2 +-
- arch/sparc64/Kconfig |    2 +-
- arch/x86_64/Kconfig  |    2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
-
-Index: linux/arch/i386/Kconfig
-===================================================================
---- linux.orig/arch/i386/Kconfig
-+++ linux/arch/i386/Kconfig
-@@ -637,7 +637,7 @@ config REGPARM
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
-+	default n
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/mips/Kconfig
-===================================================================
---- linux.orig/arch/mips/Kconfig
-+++ linux/arch/mips/Kconfig
-@@ -1787,7 +1787,7 @@ config BINFMT_ELF32
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS && BROKEN
--	default y
-+	default n
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/powerpc/Kconfig
-===================================================================
---- linux.orig/arch/powerpc/Kconfig
-+++ linux/arch/powerpc/Kconfig
-@@ -666,7 +666,7 @@ endif
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
-+	default n
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/ppc/Kconfig
-===================================================================
---- linux.orig/arch/ppc/Kconfig
-+++ linux/arch/ppc/Kconfig
-@@ -1127,7 +1127,7 @@ endif
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
-+	default n
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/sparc64/Kconfig
-===================================================================
---- linux.orig/arch/sparc64/Kconfig
-+++ linux/arch/sparc64/Kconfig
-@@ -64,7 +64,7 @@ endchoice
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
-+	default n
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/x86_64/Kconfig
-===================================================================
---- linux.orig/arch/x86_64/Kconfig
-+++ linux/arch/x86_64/Kconfig
-@@ -466,7 +466,7 @@ config PHYSICAL_START
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
-+	default n
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
+Hugh

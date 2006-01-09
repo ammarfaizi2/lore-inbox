@@ -1,95 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWAIC6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWAIDLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWAIC6x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jan 2006 21:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWAIC6x
+	id S1750851AbWAIDLj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jan 2006 22:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWAIDLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jan 2006 21:58:53 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:52381 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750866AbWAIC6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jan 2006 21:58:53 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
-Date: Mon, 09 Jan 2006 13:59:01 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <icj3s110dltnt6hh5tt1etrfomhvr8a7v4@4ax.com>
-References: <20060108095741.GH7142@w.ods.org> <E1EvXi5-0000kv-00@calista.inka.de> <igs1s1lje7b7kkbmb9t6d06n8425i1b1i4@4ax.com> <4807377b0601081837u2c1d50b3w218d5ef9e3dc662@mail.gmail.com>
-In-Reply-To: <4807377b0601081837u2c1d50b3w218d5ef9e3dc662@mail.gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Jan 2006 22:11:39 -0500
+Received: from jack.kinetikon.it ([62.152.125.81]:54147 "EHLO
+	mail.towertech.it") by vger.kernel.org with ESMTP id S1750851AbWAIDLj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jan 2006 22:11:39 -0500
+Date: Mon, 9 Jan 2006 04:12:06 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/8] RTC subsystem, dev interface
+Message-ID: <20060109041206.6115bafb@inspiron>
+In-Reply-To: <200601082150.22213.dtor_core@ameritech.net>
+References: <20060108231235.153748000@linux>
+	<20060108231255.609424000@linux>
+	<200601082150.22213.dtor_core@ameritech.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jan 2006 18:37:52 -0800, Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
+On Sun, 8 Jan 2006 21:50:21 -0500
+Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
->On 1/8/06, Grant Coady <gcoady@gmail.com> wrote:
->> On Sun, 08 Jan 2006 11:23:37 +0100, be-news06@lina.inka.de (Bernd Eckenfels) wrote:
->>
->> >Willy Tarreau <willy@w.ods.org> wrote:
->> >> It's rather strange that 2.6 *eats* CPU apparently doing nothing !
->> >
->> >it eats it in high interrupt load. And it is caused by the pty-ssh-tcp
->> >output, so most likely those are eepro100 interrupts.
->>
->> That would be true for either 2.4 or 2.6, no?  Also it runs e100
->> driver, but...
->>
->> 2.4 dmesg:
->> Intel(R) PRO/100 Network Driver - version 2.3.43-k1
->> Copyright (c) 2004 Intel Corporation
->>
->> e100: selftest OK.
->> e100: eth0: Intel(R) PRO/100 Network Connection
->>   Hardware receive checksums enabled
->>   cpu cycle saver enabled
->>
->> 2.6 dmesg:
->> [   31.977945] e100: Intel(R) PRO/100 Network Driver, 3.4.14-k2-NAPI
->> [   31.978007] e100: Copyright(c) 1999-2005 Intel Corporation
->> [   32.002928] e100: eth0: e100_probe: addr 0xfd201000, irq 11, MAC addr 00:90:27:42:AA:77
->> [   32.026992] e100: eth1: e100_probe: addr 0xfd200000, irq 12, MAC addr 00:90:27:58:32:D4
->> [   32.186941] e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
->>
->> Are rx checksums not turned on in 2.6' e100 driver?
->> CPU is only pentium/mmx 233
->
->Hey Grant, to answer your question, checksums are not offloaded with
->the current e100 driver but that really shouldn't make that much of a
->difference.  I'm actually going to go with interrupt load due to e100
->being at least related to the problem.
+ Hi,
 
-Okay, that may make a difference with a slow CPU.
+   I will reply in two different emails as I need
+ to do some research on some questions of yours.
 
->BTW I get access denied when hitting
->http://bugsplatter.mine.nu/test/boxen/deltree/
+> > +	if (down_trylock(&rtc->char_sem))
+> > +		return -EBUSY;
+> > +
+> 
+> Does the device have to be opened for exclusively? Can it support
+> concurrent reads?
 
-OMG!  Not the red screen?  Hmmm, collateral damage ;)  Just turned it 
-off, unless you're masquerading as a web crawler :p
+ I'm trying to make the things work the same way as with the old
+ interface. Once this new code will be as stable as the old one, new
+ features can be added. 
 
->The netdev-2.6 git tree currently has a driver that supports microcode
->loading for your rev 8 PRO/100 and that microcode may help your
->interrupt load due to e100.  however, it may already be loading. 
+ Concurrent reads are certainly possible, but we'd need to lock
+ out writes in proper places, and I do not feel safe
+ to do it at this stage.
 
->Also, what do you have HZ set to? (250 is default in 2.6, 1000 in 2.4)
->so you could try running your 2.6 kernel with HZ=1000
+ [..]
 
-Running it with 100Hz, isn't 2.4 == 100Hz?  I can try 1000Hz,
-but not for some hours now, other stuff on.
+> > +			ret = -ERESTARTSYS;
+> > +			break;
+> > +		}
+> > +		schedule();
+> > +	} while (1);
+> > +	set_current_state(TASK_RUNNING);
+> > +	remove_wait_queue(&rtc->irq_queue, &wait);
+> > +
+> 
+> 
+> The above looks very much like open-coded wait_event_interruptible();
 
->while you're running your test you could try (if you have sysstat)
->sar -I <e100 interrupt> 1 10
->
->or a simpler version, 10 loops of cat /proc/interrupts; sleep 1;
->
->Lets see if its e100,
+ Ditto, plus there's the irq data inside 
 
-Yes, lets.  More later.
+> > +	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
+> > +
+> 
+> This is kobject_hotplug abuse; you are not adding a new object here.
 
-Cheers,
-Grant.
+ Yes. But I've checked the code and should not harm. I've asked
+ for that a couple of weeks ago in this same mailing list
+ and got no answer. If there's a working alternative to obtain
+ the same result, I'm obviously willing to try.
+
+> > +/* interface registration */
+> > +
+> > +struct class_interface rtc_dev_interface = {
+> > +	.add = &rtc_dev_add_device,
+> > +	.remove = &rtc_dev_remove_device,
+> > +};
+> > +
+> 
+> I wonder if doing rtc dev as a class device interface is a good idea.
+> It may be cleaner to fold it into the core.
+
+ What the code implements is actually an interface, so this should
+ be the riht place. It is also fully optional, everything could work
+ without it. Probably the interface implementation hasn't all the primitives
+ to handle this kind of work, but I'm not willing to go into that right now ;)
+
+ Thank you for your hard work Dmitry, after weeks viewing the same
+ code I'm going to be lost in all of those locks issues ;)
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

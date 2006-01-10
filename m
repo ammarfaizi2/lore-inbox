@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWAJAoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWAJArP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751800AbWAJAoa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 19:44:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWAJAoa
+	id S1751801AbWAJArP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 19:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWAJArP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 19:44:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38605 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751800AbWAJAo3 (ORCPT
+	Mon, 9 Jan 2006 19:47:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:57806 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751801AbWAJArO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 19:44:29 -0500
-Date: Mon, 9 Jan 2006 16:44:10 -0800
+	Mon, 9 Jan 2006 19:47:14 -0500
+Date: Mon, 9 Jan 2006 16:46:53 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
-Message-Id: <20060109164410.3304a0f6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>
-References: <20060109203711.GA25023@kroah.com>
-	<Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>
+To: Martin Bligh <mbligh@google.com>
+Cc: linux-kernel@vger.kernel.org, apw@shadowen.org, greg@kroah.com
+Subject: Re: Problems with 2.6.15-mm1 and mm2.
+Message-Id: <20060109164653.23b2676e.akpm@osdl.org>
+In-Reply-To: <43C2FA2E.2040704@google.com>
+References: <43C2A48F.6030407@google.com>
+	<20060109154127.6a7e6972.akpm@osdl.org>
+	<43C2FA2E.2040704@google.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,42 +26,51 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+Martin Bligh <mbligh@google.com> wrote:
 >
+> >>from the NUMA-Q. http://test.kernel.org/19793/debug/console.log
+>  >>
+>  > 
+>  > 
+>  > Yes, I asked Greg about that - we don't know what's causing it yet.  I have
+>  > a bad feeling that this bug will go into Linus's tree if we don't fix it
+>  > quick.
+>  > 
+>  > I had problems with gregkh-pci-x86-pci-domain-support-the-meat.patch.  It
+>  > might be worth reverting that.
 > 
+>  Andy figured out what caused it.
 > 
-> On Mon, 9 Jan 2006, Greg KH wrote:
-> >
-> > Here are some PCI patches against your latest git tree.  They have all
-> > been in the -mm tree for a while with no problems.  I've pulled out all
-> > of the offending patches that people objected to, or ones that crashed
-> > older machines from the last series I sent you.
+>  >>on -mm2 I get the x86_64 seems to lock up (NFI why ... looking at it), 
+>  >>the NUMA-Q and x440 panic (very similar to the above).
+>  >>
+>  >>I think Andy figured out what was causing those panics. Can we drop 
+>  >>those patches until they're fixed?
+>  >>
+>  > 
+>  > 
+>  > I'm not aware of any buggy x86_64 patches in -mm2 :(
+>  > 
+>  > I guess you don't have the time to sit down and do a bisection search. 
+>  > It'd take a solid few hours...
 > 
-> Before I pull this, I'd like to get some confirmation that some of the 
-> other problems that seem to be PCI-related in the -mm tree are also 
-> understood, or at least known to be part of the stuff that you're _not_ 
-> sending me..
+>  It's more that I don't have direct access to the machines in question
+>  any more. The x86_64 one might just be a machine issue ... trying to 
+>  confirm that still ... but the PCI one was real.
+> 
+>  M.
+> 
+>  Below is cut & pasted, so not applyable, and maybe it shouldn't be 
+>  applied. But ... it worked before whatever is in -mm ... so my personal 
+>  feeling is that if we don't have a fix for whatever is currently in -mm, 
+>  it should get dropped until we do ? Going backwards = bad.
+> 
+>  Perhaps I'm in a time loop, and just confused. but I don't think so ?
 
-It's really hard to keep track of all this, so it's likely that some things
-will still sneak through.
+This isn't at all clear, sorry.
 
-- Reuben Farrelly's oops in make_class_name().  Could be libata, or scsi
-  or driver core.
+Does the patch you sent fix things in 2.6.15-mm2?  On NUMAQ and on x86_64? 
+Does it fix a bug which was introduced in a patch which in in 2.6.15-mm2? 
+If so, which one?
 
-- A few problems with ehci.  For example Grant Coady went oops loading
-  the module.  Probably USB, maybe solved now, but there are
-  interactions...
-
-- gregkh-pci-x86-pci-domain-support-the-meat.patch is a problem, but
-  wasn't in this tree.
-
-> [ There's at least a pci_call_probe() NULL ptr dereference report by 
->   Martin Bligh, I think Andrew has a few others he's tracked.. ]
-
-Yes, Martin is reporting failures on a few machines.  Hopefully he's
-working out whether gregkh-pci-x86-pci-domain-support-the-meat.patch was
-the culprit here.  If so, I'd say we're good to go.  If that's _not_ the
-source then we just don't know where the failure is coming from.
-
-All very vague, sorry.
-
+etc ;)

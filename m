@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWAJMVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWAJMZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWAJMVR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 07:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWAJMVQ
+	id S1750719AbWAJMZE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 07:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWAJMZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 07:21:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:64230 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750742AbWAJMVP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 07:21:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=HarvSSqReRPRlTw0zbKoZpGq2qgLJQyZ9UHcggMxyb2MLoCTqzdAaWvYBUEAJvxpSbAnaNqltHidu4l7hl0bv4t9a1bkUcpOcOxh7oXLFlg9BxXWmr54bqwBBsVu7SWvRDR3AHd2sGQs5sLJqDePAlCvyzKHgPC12wFi2Tq0Qcw=
-Message-ID: <81083a450601100421t5f8fcc4am2c0ec666feccc4ca@mail.gmail.com>
-Date: Tue, 10 Jan 2006 17:51:15 +0530
-From: Ashutosh Naik <ashutosh.naik@gmail.com>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       James.Bottomley@steeleye.com, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] scsi/aha1740.c Handle scsi_add_host failure
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_92_15703604.1136895675020"
+	Tue, 10 Jan 2006 07:25:04 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:32268 "EHLO
+	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S1750719AbWAJMZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 07:25:03 -0500
+Date: Tue, 10 Jan 2006 23:25:31 +1100
+From: CaT <cat@zip.com.au>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.15: usb storage device not detected
+Message-ID: <20060110122531.GE2035@zip.com.au>
+References: <20060109130540.GB2035@zip.com.au> <20060109101713.469d3a7f.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109101713.469d3a7f.zaitcev@redhat.com>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_92_15703604.1136895675020
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Jan 09, 2006 at 10:17:13AM -0800, Pete Zaitcev wrote:
+> On Tue, 10 Jan 2006 00:05:50 +1100, CaT <cat@zip.com.au> wrote:
+> 
+> > kernel: [  111.330762] usb 1-5: new high speed USB device using ehci_hcd and address 3
+> > kernel: [  112.180267] ub(1.3): Stall at GetMaxLUN, using 1 LUN
+> > kernel: [  151.843141] usb 1-5: USB disconnect, address 3
+> 
+> This is very unusual. The quickest workaround is to unset CONFIG_BLK_DEV_UB,
+> like Alan said. But it is very curious how this could happen. Care to
 
-Add scsi_add_host() failure handling for Adaptec aha1740 driver.
+Well I'll leave it in there if it'll help find the bug. :)
 
-Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+> collect a usbmon trace for me? There's a howto in
+> Documentation/usb/usbmon.txt
 
-------=_Part_92_15703604.1136895675020
-Content-Type: text/plain; name=aha1740.txt; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="aha1740.txt"
+Will do probably in a few days. Have to be not tired enough when I get
+hom to remember to do it. :)
 
-diff -Naurp linux-2.6.15-git5-vanilla/drivers/scsi/aha1740.c linux-2.6.15-git5/drivers/scsi/aha1740.c
---- linux-2.6.15-git5-vanilla/drivers/scsi/aha1740.c	2006-01-03 08:51:10.000000000 +0530
-+++ linux-2.6.15-git5/drivers/scsi/aha1740.c	2006-01-10 16:22:13.000000000 +0530
-@@ -587,7 +587,7 @@ static struct scsi_host_template aha1740
- 
- static int aha1740_probe (struct device *dev)
- {
--	int slotbase;
-+	int slotbase, retval;
- 	unsigned int irq_level, irq_type, translation;
- 	struct Scsi_Host *shpnt;
- 	struct aha1740_hostdata *host;
-@@ -642,7 +642,13 @@ static int aha1740_probe (struct device 
- 	}
- 
- 	eisa_set_drvdata (edev, shpnt);
--	scsi_add_host (shpnt, dev); /* XXX handle failure */
-+	retval = scsi_add_host (shpnt, dev);
-+	if (retval) {
-+		printk(KERN_WARNING "aha1740: scsi_add_host failed\n");
-+		scsi_host_put (shpnt);
-+		return retval;
-+	}
-+		
- 	scsi_scan_host (shpnt);
- 	return 0;
- 
-
-------=_Part_92_15703604.1136895675020--
+-- 
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

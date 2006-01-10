@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWAKMl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWAKMl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWAKMl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 07:41:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWAKMl2
+	id S1751468AbWAKMl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 07:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWAKMlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:41:28 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31237 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751420AbWAKMl1
+	Wed, 11 Jan 2006 07:41:32 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32773 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751339AbWAKMla
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:41:27 -0500
-Date: Fri, 6 Jan 2006 20:28:24 +0000
+	Wed, 11 Jan 2006 07:41:30 -0500
+Date: Tue, 10 Jan 2006 12:00:40 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][-mm]kedac not stopped at suspend
-Message-ID: <20060106202824.GA2736@ucw.cz>
-References: <1136862067.5435.4.camel@sli10-desk.sh.intel.com>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Message-ID: <20060110120039.GA2814@ucw.cz>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091207.14939.yarick@it-territory.ru> <200601091022.30758.s0348365@sms.ed.ac.uk> <200601091403.46304.yarick@it-territory.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136862067.5435.4.camel@sli10-desk.sh.intel.com>
+In-Reply-To: <200601091403.46304.yarick@it-territory.ru>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 10-01-06 11:01:01, Shaohua Li wrote:
-> kedac thread doesn't stop at suspend time.
-> http://bugzilla.kernel.org/show_bug.cgi?id=5849
-> 
-> Thanks,
-> Shaohua
-> ---
-> 
->  linux-2.6.15-root/drivers/edac/edac_mc.c |    2 ++
->  1 files changed, 2 insertions(+)
-> 
-> diff -puN drivers/edac/edac_mc.c~edac drivers/edac/edac_mc.c
-> --- linux-2.6.15/drivers/edac/edac_mc.c~edac	2006-01-09 09:47:18.000000000 +0800
-> +++ linux-2.6.15-root/drivers/edac/edac_mc.c	2006-01-09 09:59:26.000000000 +0800
-> @@ -2072,6 +2072,8 @@ static int edac_kernel_thread(void *arg)
->  		if(signal_pending(current))
->  			flush_signals(current);
->  
-> +		try_to_freeze();
-> +
->  		/* ensure we are interruptable */
->  		set_current_state(TASK_INTERRUPTIBLE);
+Hi!
 
-Should be already fixed....
+> > > > money to the right people.
+> > >
+> > > Could or would you be so kind to provide at least moderately complete
+> > > pricelist ? Whom and how much should I pay to have correct support for
+> > > intel graphics chipset, 2200BG Wi-Fi, complete
+> > > suspend-to-disk/suspend-to-ram and to get an overall performance boost ?
+> > 
+> > Since these are all supported in 2.6.15, $0 would be my quote.
+> I've mentioned _correct_ support. Contrary to current rather sad state of things. 
+> 855GM still has no support for non-VESA videomodes (1280x800 can be enabled only via VBIOS hacks, and is not always properly restored on resume) 
+> (and don't supported with intelfb) (which, AFAIK, has no support for dualhead)
+> 2200BG sometimes starts to unacceptably lag and drop packets after going out of suspend (either STR or STD) and until reboot.
+> (And this is driver issue)
+> Suspend to ram works, more or less, but drains power like hungry cat drinks milk, and I just can't leave my laptop in STR for more than two days 
+> without worrying about my on-the-road availability. 
+> Suspend to disk has nasty tendency to ruin my whole hot live X session, since X can't properly restore VT on resume.
+> Overall performance isn't that bad, either, but I just can't understand, why KATE (Kde more or less advanced editor) takes twice as long to start 
+> as UltraEdit in _emulated_ (VMWare) Windows XP running on this same box.
+> 
+> So, the question remains the same - whom and how much I need to pay to solve abovementioned problems ?
 
-								Pavel
+Buy SLES with support contract. We should be able to help with
+s-t-disk and ipw2200... 2 days in s-t-ram sounds quite ok, why
+do you think anytink is wrong there?
+						Pavel
 -- 
 Thanks, Sharp!

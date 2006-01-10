@@ -1,50 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWAJKaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWAJKbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWAJKaU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 05:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWAJKaU
+	id S1750901AbWAJKbP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 05:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWAJKbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 05:30:20 -0500
-Received: from cs1.cs.huji.ac.il ([132.65.16.10]:11268 "EHLO cs1.cs.huji.ac.il")
-	by vger.kernel.org with ESMTP id S1750829AbWAJKaT (ORCPT
+	Tue, 10 Jan 2006 05:31:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5851 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750901AbWAJKbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 05:30:19 -0500
-Date: Tue, 10 Jan 2006 12:30:15 +0200 (IST)
-From: Amnon Aaronsohn <bla@cs.huji.ac.il>
-To: netdev@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] net: fix PRIO qdisc bands init
-Message-ID: <Pine.LNX.4.56.0601101217290.1420@duke.cs.huji.ac.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jan 2006 05:31:14 -0500
+Date: Tue, 10 Jan 2006 02:30:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+Message-Id: <20060110023052.0d60a8ea.akpm@osdl.org>
+In-Reply-To: <43C38932.7070302@reub.net>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<43BFD8C1.9030404@reub.net>
+	<20060107133103.530eb889.akpm@osdl.org>
+	<43C38932.7070302@reub.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The PRIO queuing discipline currently initializes only the bands
-that appear in the priomap. It should instead initialize all the
-configured bands.
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
+> Is there any other information I can gather to help narrow this one down?
 
-Signed-off-by: Amnon Aaronsohn <bla@cs.huji.ac.il>
-
----
-
---- linux-2.6.14/net/sched/sch_prio.c	2005-10-28 02:02:08.000000000 +0200
-+++ work-2.6.14/net/sched/sch_prio.c	2006-01-10 12:02:20.000000000 +0200
-@@ -227,14 +227,13 @@ static int prio_tune(struct Qdisc *sch,
- 	}
- 	sch_tree_unlock(sch);
-
--	for (i=0; i<=TC_PRIO_MAX; i++) {
--		int band = q->prio2band[i];
--		if (q->queues[band] == &noop_qdisc) {
-+	for (i=0; i<q->bands; i++) {
-+		if (q->queues[i] == &noop_qdisc) {
- 			struct Qdisc *child;
- 			child = qdisc_create_dflt(sch->dev, &pfifo_qdisc_ops);
- 			if (child) {
- 				sch_tree_lock(sch);
--				child = xchg(&q->queues[band], child);
-+				child = xchg(&q->queues[i], child);
-
- 				if (child != &noop_qdisc)
- 					qdisc_destroy(child);
+sysrq-t, please.

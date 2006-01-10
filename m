@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWAJBRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWAJBXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWAJBRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 20:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWAJBRD
+	id S1750853AbWAJBXI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 20:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbWAJBXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 20:17:03 -0500
-Received: from mail3.uklinux.net ([80.84.72.33]:50562 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1750781AbWAJBRC (ORCPT
+	Mon, 9 Jan 2006 20:23:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21978 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750853AbWAJBXH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 20:17:02 -0500
-Date: Tue, 10 Jan 2006 01:27:18 +0000
-From: John Rigg <ad@sound-man.co.uk>
-To: David Lang <dlang@digitalinsight.com>
-Cc: John Rigg <ad@sound-man.co.uk>,
-       =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>,
-       Hannu Savolainen <hannu@opensound.com>, Jaroslav Kysela <perex@suse.cz>,
-       Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
-       ALSA development <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-Message-ID: <20060110012718.GA5375@localhost.localdomain>
-References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de> <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi> <200601091812.55943.rene@exactcode.de> <Pine.LNX.4.62.0601091355541.4005@qynat.qvtvafvgr.pbz> <20060109232043.GA5013@localhost.localdomain> <Pine.LNX.4.62.0601091515570.4005@qynat.qvtvafvgr.pbz> <20060110001617.GA5154@localhost.localdomain> <Pine.LNX.4.62.0601091628340.4005@qynat.qvtvafvgr.pbz>
+	Mon, 9 Jan 2006 20:23:07 -0500
+Date: Mon, 9 Jan 2006 17:22:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Gran <alex@zodiac.dnsalias.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+Message-Id: <20060109172251.0c457a95.akpm@osdl.org>
+In-Reply-To: <200601100130.12227@zodiac.zodiac.dnsalias.org>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<200601080139.34774@zodiac.zodiac.dnsalias.org>
+	<20060107175056.3d7a2895.akpm@osdl.org>
+	<200601100130.12227@zodiac.zodiac.dnsalias.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0601091628340.4005@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 04:29:45PM -0800, David Lang wrote:
-> On Tue, 10 Jan 2006, John Rigg wrote:
+Alexander Gran <alex@zodiac.dnsalias.org> wrote:
+>
+> Am Sonntag, 8. Januar 2006 02:50 schrieben Sie:
+> > Can you try removing EDAC from .config?
 > 
-> >>does the CPU touch the data for these, or do you DMA directly from
-> >>userspace (i.e. "zero-copy")?
-> >
-> >The cards I mentioned use DMA. RME actually advertises that some of their
-> >cards can handle 52 channels with zero CPU load. Their onboard DSPs can
-> >also do routing and mixing, again without touching the CPU.
+> Just did.
 > 
-> I was under the (apparently mistaken) impression that you couldn't DMA 
-> from userspace (something to do with the possibility that the userspace 
-> memory pages could be swapped out in the middle of the DMA)
+> > I doubt if the cause is EDAC really.  If you could investigate a bit
+> > further it'd help.  mtrr?  Run top?  Generate a kernel profile?  Is it just
+> > X being sluggish?  (DRM/AGP?) etc.
+> 
+> 
+> EDAC errors are gone. System isn't sluggish ;)
 
-Hmm. Maybe I've been paying too much attention to card vendors'
-sales talk :)
+You're saying that enabling the EDAC driver made the system sluggish?
 
-John
+Did you look at the `top' output, or generate a kernel profile?  That would
+really help.
+
+> However one new erro:
+> serial8250: too much work for irq3
+> serial8250: too much work for irq3
+
+Was the serial port in use at the time?  Does it work?

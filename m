@@ -1,96 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWAJVqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWAJVvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWAJVqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWAJVqJ
+	id S932442AbWAJVvK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWAJVvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:46:09 -0500
-Received: from mgw-ext01.nokia.com ([131.228.20.93]:17234 "EHLO
-	mgw-ext01.nokia.com") by vger.kernel.org with ESMTP id S932365AbWAJVqI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:46:08 -0500
-Message-ID: <43C42B00.60206@indt.org.br>
-Date: Tue, 10 Jan 2006 17:45:36 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>,
-       linux@arm.linux.org.uk, ext David Brownell <david-b@PACBELL.NET>,
-       Tony Lindgren <tony@atomide.com>, drzeus-list@drzeus.cx,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>
-Subject: Re: [patch 3/5] Add MMC password protection (lock/unlock) support
- V3
-References: <43C2E0A2.3090701@indt.org.br> <20060109224204.GH19131@flint.arm.linux.org.uk>
-In-Reply-To: <20060109224204.GH19131@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Tue, 10 Jan 2006 16:51:09 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:17829 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932442AbWAJVvI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 16:51:08 -0500
+Date: Tue, 10 Jan 2006 13:51:22 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: dipankar@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com
+Subject: Re: [PATCH 4/5] rcu: join rcu_ctrlblk and rcu_state
+Message-ID: <20060110215121.GH18252@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43C165CE.AF913697@tv-sign.ru> <20060110002818.GD15083@us.ibm.com> <20060110180954.GA5387@in.ibm.com> <43C41CC8.8000203@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Jan 2006 21:43:54.0989 (UTC) FILETIME=[F450F1D0:01C6162E]
+Content-Disposition: inline
+In-Reply-To: <43C41CC8.8000203@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Tue, Jan 10, 2006 at 09:44:56PM +0100, Manfred Spraul wrote:
+> [I haven't read the diff, just a short comment]
+> 
+> Dipankar Sarma wrote:
+> 
+> >rcu_state came over from Manfred's RCU_HUGE patch IIRC. I don't
+> >think it is necessary to allocate rcu_state separately in the
+> >current mainline RCU code. So, the patch looks OK to me, but
+> >Manfred might see something that I am not seeing.
+> >
+> > 
+> >
+> The two-level rcu code was never merged, I still plan to clean it up.
+> 
+> But the idea of splitting the control block and the state is used in the 
+> current code:
+> - __rcu_pending() is the hot path, it only performs a read access to 
+> rcu_ctrlblk.
+> - write accesses to the rcu_ctrlblk are really rare, they only happen 
+> when a new batch is started. Especially: independant from the number of 
+> cpus.
+> 
+> Write access to the rcu_state are common:
+> - each cpu must write once in each cycle to update it's cpu mask.
+> - The last cpu then completes the quiescent cycle.
+> 
+> The idea is that rcu_state is more or less write-only and rcu_state is 
+> read-only. Theoretically, rcu_state could be shared in all cpus caches, 
+> and there will be only one invalidate when a new batch is started. Thus 
+> no cacheline trashing due to rcu_pending calls.
+> I think it would be safer to keep the two state counters in a separate 
+> cacheline from the spinlock and the cpu mask, but I don't have any hard 
+> numbers. IIRC the problems with the large SGI systems disappered, and 
+> everyone was happy. No real benchmark comparisons were made.
 
->On Mon, Jan 09, 2006 at 06:16:02PM -0400, Anderson Briglia wrote:
->  
->
->>+	dev = bus_find_device(&mmc_bus_type, NULL, NULL, mmc_match_lockable);
->>+	if (!dev)
->>+		goto error;
->>+	card = dev_to_mmc_card(dev);
->>+	
->>+	if (operation == KEY_OP_INSTANTIATE) { /* KEY_OP_INSTANTIATE */
->>+               if (mmc_card_locked(card)) {
->>+                       ret = mmc_lock_unlock(card, key, MMC_LOCK_MODE_UNLOCK);
->>+                       mmc_remove_card(card);
->>+                       mmc_register_card(card);
->>+               }
->>+	       else
->>+		       ret = mmc_lock_unlock(card, key, MMC_LOCK_MODE_SET_PWD);
->>    
->>
->
->I really don't like this - if the MMC card is not locked, we set a
->password on it.  If it's locked, we unlock it.
->
->That's a potential race condition if you're trying to unlock a card
->and the card is changed beneath you while you slept waiting for
->memory - you end up setting that password on the new card.
->
->It's far better to have separate "unlock this card" and "set a
->password on this card" commands rather than trying to combine the
->two operations.
->  
->
-Ok.
+Good point!
 
->Also, removing and re-registering a card is an offence.  These
->things are ref-counted, and mmc_remove_card() will drop the last
->reference - so the memory associated with it will be freed.  Then
->you re-register it.  Whoops.
->
->If you merely want to try to attach a driver, use device_attach()
->instead.
->  
->
-If we use device_attach(), the mmc_block driver is not informed about
-the card's unlocking. I did some tests, using device_attach() instead of
-those mmc functions and seems that the mmc_block driver tries to use a
-invalid device reference. What do you suggest on this case?
+But doesn't the ____cacheline_maxaligned_in_smp directive on the "lock"
+field take care of this?  Here is the structure:
 
->Also, what if you have multiple MMC cards?  I have a board here
->with two MMC slots.  I'd rather not have it try to set the same
->password on both devices.
->  
->
-Sorry, but this series of patches only support one mmc host. I'll update
-the TODO section of the summary e-mail.
+/* Global control variables for rcupdate callback mechanism. */
+struct rcu_ctrlblk {
+        long    cur;            /* Current batch number.                      */
+        long    completed;      /* Number of the last completed batch         */
+        int     next_pending;   /* Is the next batch already waiting?         */
 
-Anderson Briglia
-INdT - Manaus
+	spinlock_t      lock    ____cacheline_internodealigned_in_smp;
+	cpumask_t       cpumask; /* CPUs that need to switch in order    */
+				 /* for current batch to proceed.        */
+} ____cacheline_internodealigned_in_smp;
+
+If this does not cover this case, what more is needed?
+
+							Thanx, Paul

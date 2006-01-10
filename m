@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWAJSpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWAJSp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWAJSpW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 13:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWAJSpW
+	id S1751168AbWAJSp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 13:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWAJSp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 13:45:22 -0500
-Received: from mail.gmx.net ([213.165.64.21]:8626 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751147AbWAJSpU (ORCPT
+	Tue, 10 Jan 2006 13:45:28 -0500
+Received: from rtr.ca ([64.26.128.89]:41149 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751168AbWAJSp1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 13:45:20 -0500
-X-Authenticated: #1490710
-Date: Tue, 10 Jan 2006 19:45:11 +0100 (CET)
-From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
-X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kyle Moffett <mrmacman_g4@mac.com>,
-       Martin Langhoff <martin.langhoff@gmail.com>,
-       Luben Tuikov <ltuikov@yahoo.com>, "Brown, Len" <len.brown@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Junio C Hamano <junkio@cox.net>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Git Mailing List <git@vger.kernel.org>
-Subject: Re: git pull on Linux/ACPI release tree
-In-Reply-To: <Pine.LNX.4.64.0601101015260.4939@g5.osdl.org>
-Message-ID: <Pine.LNX.4.63.0601101938420.26999@wbgn013.biozentrum.uni-wuerzburg.de>
-References: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com>
- <Pine.LNX.4.64.0601091845160.5588@g5.osdl.org> <99D82C29-4F19-4DD3-A961-698C3FC0631D@mac.com>
- <46a038f90601092238r3476556apf948bfe5247da484@mail.gmail.com>
- <252A408D-0B42-49F3-92BC-B80F94F19F40@mac.com> <Pine.LNX.4.64.0601101015260.4939@g5.osdl.org>
+	Tue, 10 Jan 2006 13:45:27 -0500
+Message-ID: <43C400C4.2090504@rtr.ca>
+Date: Tue, 10 Jan 2006 13:45:24 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2G memory split
+References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3F986.4090209@mbligh.org> <Pine.LNX.4.64.0601101028360.4939@g5.osdl.org> <43C3E74D.7060309@wolfmountaingroup.com>
+In-Reply-To: <43C3E74D.7060309@wolfmountaingroup.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 10 Jan 2006, Linus Torvalds wrote:
-
+Jeff V. Merkey wrote:
+> Linus Torvalds wrote:
+>> On Tue, 10 Jan 2006, Martin Bligh wrote:
+>>> The non-1GB-aligned ones need to be disbarred when PAE is on, I think.
+>> Well, right now _all_ the non-3:1 cases need to be disbarred. I think 
+>> we depend on the kernel mapping only ever being the _one_ last entry 
+>> in the top-level page table, which is only true with the 3:1 mapping.
+>>
+>> But I didn't check.
+..
 > 
-> On Tue, 10 Jan 2006, Kyle Moffett wrote:
-> >
-> > On Jan 10, 2006, at 01:38, Martin Langhoff wrote:
-> > > 
-> > > The more complex your tree structure is, the more the interactions are
-> > > likely to be part of the problem. Is git-bisect not useful in this scenario?
-> > 
-> > IIRC git-bisect just does an outright linearization of the whole tree anyways,
-> > which makes git-bisect work everywhere, even in the presence of difficult
-> > cross-merges.
-> 
-> It's not really a linearization - at no time does git-bisect _order_ the 
-> commits. After all, no linear order actually exists. 
-> 
-> Instead, it really cuts the tree up into successively smaller parts. 
-> 
-> Think of it as doing a binary search in a 2-dimensional surface - you 
-> can't linearize the plane, but you can decide to test first one half of 
-> the surface, and then depending on whether it was there, you can halve 
-> that surface etc.. 
+> No. It works fine (or seems to) with 2:2 mapping. I've tested with these 
+> extensively
+..
 
-How?
+The boundary for 2:2 with the current patch is 0x78000000, not 0x80000000.
+It may still work, but nobody's checked yet.
 
-If you bisect, you test a commit. If the commit is bad, you assume *all* 
-commits before that as bad. If it is good, you assume *all* commits after 
-that as good.
-
-Now, if you have a 2-dimensional surface, you don't have a *point*, but 
-typically a *line* separating good from bad.
-
-Further, the comparison with 2 dimensions is particularly bad. You 
-*have* partially linear development lines, it got *nothing* to do with 
-an area. The commits still make up a *list*, and it depends how you 
-*order* that list for bisect. (And don't tell me they are not ordered: 
-they are.)
-
-If you order the commits by date, you don't get anything meaningful point 
-before which it is bad, and after which it is good.
-
-So, how is bisect supposed to work if you don't have one straight 
-development line from bad to good?
-
-Ciao,
-Dscho
-
-
+cheers

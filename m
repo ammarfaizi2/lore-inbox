@@ -1,85 +1,315 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWAJSOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWAJSPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWAJSOc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 13:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWAJSOc
+	id S932506AbWAJSPn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 13:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWAJSPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 13:14:32 -0500
-Received: from dvhart.com ([64.146.134.43]:897 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932453AbWAJSOc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 13:14:32 -0500
-Message-ID: <43C3F986.4090209@mbligh.org>
-Date: Tue, 10 Jan 2006 10:14:30 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+	Tue, 10 Jan 2006 13:15:42 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:16535 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S932506AbWAJSPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 13:15:42 -0500
+Message-ID: <43C3E142.1080206@wolfmountaingroup.com>
+Date: Tue, 10 Jan 2006 09:30:58 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2G memory split
-References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Bernd Eckenfels <be-news06@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: 2G memory split
+References: <E1EwNc8-00063F-00@calista.inka.de>
+In-Reply-To: <E1EwNc8-00063F-00@calista.inka.de>
+Content-Type: multipart/mixed;
+ boundary="------------070705020608000904060100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 10 Jan 2006, Jens Axboe wrote:
-> 
->>A newer version, trying to cater to the various comments in here.
->>Changes:
-> 
-> 
-> Can we do one final cleanup? Do all the magic in _one_ place, namely the 
-> x86 Kconfig file.
-> 
-> Also, I don't think the NOHIGHMEM dependency is necessarily correct. A 
-> 2G/2G split can be advantageous with a 16GB setup (you'll have more room 
-> for dentries etc), but you obviously want to have HIGHMEM for that..
-> 
-> Do it something like this:
-> 
-> 	choice
-> 		depends on EXPERIMENTAL
-> 		prompt "Memory split"
-> 		default DEFAULT_3G
-> 		help
-> 		  Select the wanted split between kernel and user memory.
-> 		  If the address range available to the kernel is less than the
-> 		  physical memory installed, the remaining memory will be available
-> 		  as "high memory". Accessing high memory is a little more costly
-> 		  than low memory, as it needs to be mapped into the kernel first.
-> 		  Note that selecting anything but the default 3G/1G split will make
-> 		  your kernel incompatible with binary only modules.
-> 
-> 		config DEFAULT_3G
-> 			bool "3G/1G user/kernel split"
-> 		config DEFAULT_3G_OPT
-> 			bool "3G/1G user/kernel split (for full 1G low memory)"
-> 		config DEFAULT_2G
-> 			bool "2G/2G user/kernel split"
-> 		config DEFAULT_1G
-> 			bool "1G/3G user/kernel split"
-> 	endchoice
-> 
-> 	config PAGE_OFFSET
-> 		hex
-> 		default 0xC0000000
-> 		default 0xB0000000 if DEFAULT_3G_OPT
-> 		default 0x78000000 if DEFAULT_2G
-> 		default 0x40000000 if DEFAULT_1G
-> 
-> and then asm-i386/page.h can just do
-> 
-> 	#define __PAGE_OFFSET ((unsigned long)CONFIG_PAGE_OFFSET)
-> 
-> and you're done.
+This is a multi-part message in MIME format.
+--------------070705020608000904060100
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The non-1GB-aligned ones need to be disbarred when PAE is on, I think.
+Bernd Eckenfels wrote:
 
-M.
+
+Here are the patches I use for the splitting.  They work well.    The 
+methods employed in Red Hat ES are far better and I am surprised
+no one has simply integrated those patches into the kernel which are 4GB 
+/ 4GB  kernel/user. 
+
+Jeff
+
+>Mark Lord <lkml@rtr.ca> wrote:
+>  
+>
+>>So, the patch would now look like this:
+>>    
+>>
+>
+>can we please state something what the 3G_OPT is suppsoed to do? Is this "optimzed for 1GB Real RAM"? Should this be something like "2.5G" instead?
+>
+>  
+>
+>>+       config VMSPLIT_3G_OPT
+>>+               bool "3G/1G user/kernel split (for full 1G low memory)"
+>>    
+>>
+>
+>  
+>
+>>+       default 0xC0000000
+>>+       default 0xB0000000 if VMSPLIT_3G_OPT
+>>+       default 0x78000000 if VMSPLIT_2G
+>>+       default 0x40000000 if VMSPLIT_1G
+>>    
+>>
+>
+>  
+>
+
+
+--------------070705020608000904060100
+Content-Type: text/x-patch;
+ name="linux-highmem-2.6.10-01-18-05.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-highmem-2.6.10-01-18-05.patch"
+
+diff -Naur ./arch/i386/Kconfig ../linux-2.6.10-ds/./arch/i386/Kconfig
+--- ./arch/i386/Kconfig	2004-12-24 14:34:01.000000000 -0700
++++ ../linux-2.6.10-ds/./arch/i386/Kconfig	2005-01-18 11:43:27.096386256 -0700
+@@ -730,6 +730,25 @@
+ 	depends on HIGHMEM64G
+ 	default y
+ 
++choice
++	prompt "User address space size"
++
++config USER_3GB
++        depends on X86
++	bool "3GB User Address Space"
++	default y if (X86)
++
++config USER_2GB
++        depends on X86
++	bool "2GB User Address Space"
++
++config USER_1GB
++        depends on X86
++	bool "1GB User Address Space"
++
++endchoice
++
++
+ # Common NUMA Features
+ config NUMA
+ 	bool "Numa Memory Allocation and Scheduler Support"
+diff -Naur ./include/asm-generic/page_offset.h ../linux-2.6.10-ds/./include/asm-generic/page_offset.h
+--- ./include/asm-generic/page_offset.h	1969-12-31 17:00:00.000000000 -0700
++++ ../linux-2.6.10-ds/./include/asm-generic/page_offset.h	2005-01-18 11:43:27.000000000 -0700
+@@ -0,0 +1,24 @@
++
++#include <linux/config.h>
++
++#ifdef __ASSEMBLY__
++
++#if defined(CONFIG_USER_1GB)
++#define PAGE_OFFSET_RAW 0x40000000
++#elif defined(CONFIG_USER_2GB)
++#define PAGE_OFFSET_RAW 0x80000000
++#elif defined(CONFIG_USER_3GB)
++#define PAGE_OFFSET_RAW 0xC0000000
++#endif
++
++#else
++
++#if defined(CONFIG_USER_1GB)
++#define PAGE_OFFSET_RAW 0x40000000UL
++#elif defined(CONFIG_USER_2GB)
++#define PAGE_OFFSET_RAW 0x80000000UL
++#elif defined(CONFIG_USER_3GB)
++#define PAGE_OFFSET_RAW 0xC0000000UL
++#endif
++
++#endif
+diff -Naur ./include/asm-generic/vmlinux.lds.h ../linux-2.6.10-ds/./include/asm-generic/vmlinux.lds.h
+--- ./include/asm-generic/vmlinux.lds.h	2004-12-24 14:33:50.000000000 -0700
++++ ../linux-2.6.10-ds/./include/asm-generic/vmlinux.lds.h	2005-01-18 11:43:27.000000000 -0700
+@@ -1,3 +1,6 @@
++
++#include <asm-generic/page_offset.h>
++
+ #ifndef LOAD_OFFSET
+ #define LOAD_OFFSET 0
+ #endif
+diff -Naur ./include/asm-i386/page.h ../linux-2.6.10-ds/./include/asm-i386/page.h
+--- ./include/asm-i386/page.h	2004-12-24 14:34:01.000000000 -0700
++++ ../linux-2.6.10-ds/./include/asm-i386/page.h	2005-01-18 11:43:27.000000000 -0700
+@@ -121,9 +121,11 @@
+ #endif /* __ASSEMBLY__ */
+ 
+ #ifdef __ASSEMBLY__
+-#define __PAGE_OFFSET		(0xC0000000)
++#include <asm-generic/page_offset.h>
++#define __PAGE_OFFSET		(PAGE_OFFSET_RAW)
+ #else
+-#define __PAGE_OFFSET		(0xC0000000UL)
++#include <asm-generic/page_offset.h>
++#define __PAGE_OFFSET		(PAGE_OFFSET_RAW)
+ #endif
+ 
+ 
+diff -Naur ./mem.err ../linux-2.6.10-ds/./mem.err
+--- ./mem.err	1969-12-31 17:00:00.000000000 -0700
++++ ../linux-2.6.10-ds/./mem.err	2005-01-18 11:43:27.000000000 -0700
+@@ -0,0 +1,7 @@
++patching file arch/i386/Kconfig
++Hunk #1 succeeded at 730 (offset 6 lines).
++patching file include/asm-generic/page_offset.h
++patching file include/asm-generic/vmlinux.lds.h
++patching file include/asm-i386/page.h
++patching file mm/memory.c
++Hunk #1 succeeded at 120 (offset 1 line).
+diff -Naur ./mm/memory.c ../linux-2.6.10-ds/./mm/memory.c
+--- ./mm/memory.c	2005-01-18 11:25:26.000000000 -0700
++++ ../linux-2.6.10-ds/./mm/memory.c	2005-01-18 11:43:27.000000000 -0700
+@@ -120,8 +120,7 @@
+ 
+ static inline void free_one_pgd(struct mmu_gather *tlb, pgd_t * dir)
+ {
+-	int j;
+-	pmd_t * pmd;
++	pmd_t *pmd, *md, *emd;
+ 
+ 	if (pgd_none(*dir))
+ 		return;
+@@ -132,8 +131,8 @@
+ 	}
+ 	pmd = pmd_offset(dir, 0);
+ 	pgd_clear(dir);
+-	for (j = 0; j < PTRS_PER_PMD ; j++)
+-		free_one_pmd(tlb, pmd+j);
++	for (md = pmd, emd = pmd + PTRS_PER_PMD; md < emd; md++) 
++	   free_one_pmd(tlb, md);
+ 	pmd_free_tlb(tlb, pmd);
+ }
+ 
+
+--------------070705020608000904060100
+Content-Type: text/x-patch;
+ name="linux-highmem-split-2.6.9-10-18-04.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-highmem-split-2.6.9-10-18-04.patch"
+
+diff -Naur ./arch/i386/Kconfig ../linux-2.6.9-mdb/./arch/i386/Kconfig
+--- ./arch/i386/Kconfig	2004-10-18 15:53:22.000000000 -0600
++++ ../linux-2.6.9-mdb/./arch/i386/Kconfig	2004-10-18 11:52:51.529009552 -0600
+@@ -724,6 +724,25 @@
+ 	depends on HIGHMEM64G
+ 	default y
+ 
++choice
++	prompt "User address space size"
++
++config USER_3GB
++        depends on X86
++	bool "3GB User Address Space"
++	default y if (X86)
++
++config USER_2GB
++        depends on X86
++	bool "2GB User Address Space"
++
++config USER_1GB
++        depends on X86
++	bool "1GB User Address Space"
++
++endchoice
++
++
+ # Common NUMA Features
+ config NUMA
+ 	bool "Numa Memory Allocation and Scheduler Support"
+diff -Naur ./include/asm-generic/page_offset.h ../linux-2.6.9-mdb/./include/asm-generic/page_offset.h
+--- ./include/asm-generic/page_offset.h	1969-12-31 17:00:00.000000000 -0700
++++ ../linux-2.6.9-mdb/./include/asm-generic/page_offset.h	2004-10-18 11:52:51.530009400 -0600
+@@ -0,0 +1,24 @@
++
++#include <linux/config.h>
++
++#ifdef __ASSEMBLY__
++
++#if defined(CONFIG_USER_1GB)
++#define PAGE_OFFSET_RAW 0x40000000
++#elif defined(CONFIG_USER_2GB)
++#define PAGE_OFFSET_RAW 0x80000000
++#elif defined(CONFIG_USER_3GB)
++#define PAGE_OFFSET_RAW 0xC0000000
++#endif
++
++#else
++
++#if defined(CONFIG_USER_1GB)
++#define PAGE_OFFSET_RAW 0x40000000UL
++#elif defined(CONFIG_USER_2GB)
++#define PAGE_OFFSET_RAW 0x80000000UL
++#elif defined(CONFIG_USER_3GB)
++#define PAGE_OFFSET_RAW 0xC0000000UL
++#endif
++
++#endif
+diff -Naur ./include/asm-generic/vmlinux.lds.h ../linux-2.6.9-mdb/./include/asm-generic/vmlinux.lds.h
+--- ./include/asm-generic/vmlinux.lds.h	2004-10-18 15:53:08.000000000 -0600
++++ ../linux-2.6.9-mdb/./include/asm-generic/vmlinux.lds.h	2004-10-18 11:52:51.545007120 -0600
+@@ -1,3 +1,6 @@
++
++#include <asm-generic/page_offset.h>
++
+ #ifndef LOAD_OFFSET
+ #define LOAD_OFFSET 0
+ #endif
+diff -Naur ./include/asm-i386/page.h ../linux-2.6.9-mdb/./include/asm-i386/page.h
+--- ./include/asm-i386/page.h	2004-10-18 15:53:22.000000000 -0600
++++ ../linux-2.6.9-mdb/./include/asm-i386/page.h	2004-10-18 11:52:51.545007120 -0600
+@@ -121,9 +121,11 @@
+ #endif /* __ASSEMBLY__ */
+ 
+ #ifdef __ASSEMBLY__
+-#define __PAGE_OFFSET		(0xC0000000)
++#include <asm-generic/page_offset.h>
++#define __PAGE_OFFSET		(PAGE_OFFSET_RAW)
+ #else
+-#define __PAGE_OFFSET		(0xC0000000UL)
++#include <asm-generic/page_offset.h>
++#define __PAGE_OFFSET		(PAGE_OFFSET_RAW)
+ #endif
+ 
+ 
+diff -Naur ./mm/memory.c ../linux-2.6.9-mdb/./mm/memory.c
+--- ./mm/memory.c	2004-10-18 11:46:59.000000000 -0600
++++ ../linux-2.6.9-mdb/./mm/memory.c	2004-10-18 11:52:51.547006816 -0600
+@@ -119,8 +119,7 @@
+ 
+ static inline void free_one_pgd(struct mmu_gather *tlb, pgd_t * dir)
+ {
+-	int j;
+-	pmd_t * pmd;
++	pmd_t *pmd, *md, *emd;
+ 
+ 	if (pgd_none(*dir))
+ 		return;
+@@ -131,8 +130,8 @@
+ 	}
+ 	pmd = pmd_offset(dir, 0);
+ 	pgd_clear(dir);
+-	for (j = 0; j < PTRS_PER_PMD ; j++)
+-		free_one_pmd(tlb, pmd+j);
++	for (md = pmd, emd = pmd + PTRS_PER_PMD; md < emd; md++) 
++	   free_one_pmd(tlb, md);
+ 	pmd_free_tlb(tlb, pmd);
+ }
+ 
+
+--------------070705020608000904060100--

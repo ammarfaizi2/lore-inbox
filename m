@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030675AbWAJXBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030677AbWAJXDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030675AbWAJXBO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 18:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030676AbWAJXBO
+	id S1030677AbWAJXDc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 18:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030678AbWAJXDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 18:01:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:26055 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030675AbWAJXBN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 18:01:13 -0500
-Date: Tue, 10 Jan 2006 15:00:09 -0800
-From: Greg KH <greg@kroah.com>
+	Tue, 10 Jan 2006 18:03:32 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41966 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1030677AbWAJXDb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 18:03:31 -0500
+Subject: 2.6.15-rt3 + Open Posix Test Suite
+From: Daniel Walker <dwalker@mvista.com>
 To: linux-kernel@vger.kernel.org
-Subject: latest -git kernels available for Gentoo
-Message-ID: <20060110230009.GA24268@kroah.com>
+Cc: mingo@elte.hu
+Content-Type: text/plain
+Date: Tue, 10 Jan 2006 15:03:29 -0800
+Message-Id: <1136934210.5756.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Like I mentioned in the middle of another thread here on lkml, I was
-going to work on providing easy access to the latest kernel -git tree
-for Gentoo users.
 
-Well, now there is a kernel package called 'git-sources' that you can
-install that will provide this.  It should be updated every morning (my
-time zone, not necessarily yours), with the latest nightly -git kernel
-snapshot.
+	It's worth noting that a few tests in the current Open Posix Test Suite
+hang RT systems. 
 
-If you have any problems with the ebuild itself, please let me know.  If
-you have problems with the kernel that you build from this package,
-address that info to this list like any other kernel issue/bug.
+Specifically this test (hope this url comes through),
 
-thanks,
+http://cvs.sourceforge.net/viewcvs.py/*checkout*/posixtest/posixtestsuite/conformance/interfaces/sched_setparam/10-1.c?rev=1.2
 
-greg k-h
+sched_setparam test 10-1.c and I think 9-1.c .
+
+The 10-1 test spawns some children at SCHED_FIFO priority 99 , then runs
+the following,
+
+void child_process(){
+	alarm(2);
+
+	while(1) {
+		(*shmptr)++;
+		sched_yield();
+	}
+}
+
+I'm sure this is what's hanging the system, the yield() is one issue.
+Another is why the alarm() is never delivered .
+
+Daniel
+

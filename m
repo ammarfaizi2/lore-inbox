@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWAJOQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWAJORY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWAJOQL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 09:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWAJOQL
+	id S932176AbWAJORY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWAJORY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 09:16:11 -0500
-Received: from relay01.pair.com ([209.68.5.15]:57863 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S932132AbWAJOQK (ORCPT
+	Tue, 10 Jan 2006 09:17:24 -0500
+Received: from gate.perex.cz ([85.132.177.35]:51349 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932148AbWAJORX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 09:16:10 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-To: Tim Tassonis <timtas@cubic.ch>
-Subject: Re: State of the Union: Wireless
-Date: Tue, 10 Jan 2006 08:16:26 -0600
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <43C3AAE2.1090900@cubic.ch>
-In-Reply-To: <43C3AAE2.1090900@cubic.ch>
-Organization: Clientec, Inc.
+	Tue, 10 Jan 2006 09:17:23 -0500
+Date: Tue, 10 Jan 2006 15:17:21 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Hannu Savolainen <hannu@opensound.com>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       ALSA development <alsa-devel@alsa-project.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+In-Reply-To: <Pine.LNX.4.61.0601101550390.24146@zeus.compusonic.fi>
+Message-ID: <Pine.LNX.4.61.0601101508560.10330@tm8103.perex-int.cz>
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
+ <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+ <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
+ <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <s5h7j9chzat.wl%tiwai@suse.de>
+ <Pine.LNX.4.61.0601080225500.17252@zeus.compusonic.fi>
+ <Pine.LNX.4.61.0601081007550.9470@tm8103.perex-int.cz>
+ <Pine.LNX.4.61.0601090010090.31763@zeus.compusonic.fi>
+ <Pine.LNX.4.61.0601101144130.10330@tm8103.perex-int.cz>
+ <Pine.LNX.4.61.0601101550390.24146@zeus.compusonic.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601100816.26975.chase.venters@clientec.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 January 2006 06:38, Tim Tassonis wrote:
-> This is exactly the opposite of what Linus proposes in his management
-> style document: "Avoid making decisions". At the moment, nobody seems to
-> know what the "right" direction is, because the right direction is the
-> one that will produce the better wireless support, and not the one that
-> sounds better at the moment.
+On Tue, 10 Jan 2006, Hannu Savolainen wrote:
 
-I won't try to speak for Linus (perhaps he'd like to pipe up at some point), 
-but I think you're pulling that concept wayy out of context here.
+> On Tue, 10 Jan 2006, Jaroslav Kysela wrote:
+> 
+> > > 
+> > > Then you can include a libOSSlib.o library in ALSA with all the OSS 
+> > > emulation stuf inside.
+> > 
+> > You should do the clear statement that the direct using of syscalls is not 
+> > recommented for application developers. Unfortunately at this time, I 
+> > admit, it would be very difficult to change the existing applications.
 
-Quoting ManagementStyle:
+> Sorry. That breaks backward compatibility with systems that don't have 
+> libOSSlib (all current and past Linux distros, all BSD variants, 
+> everything but systems with our official OSS package installed). Such 
+> statement can be added in 2010 but provided that all Linux distros and 
+> other environments having OSS compatible implementations add the osslib_* 
+> routines within this year.
 
-> Btw, another way to avoid a decision is to plaintively just whine "can't
-> we just do both?" and look pitiful.  Trust me, it works.  If it's not
-> clear which approach is better, they'll eventually figure it out.  The
-> answer may end up being that both teams get so frustrated by the
-> situation that they just give up.
+I meant that you can originate to move the OSS entry point to somewhere 
+else (library) and try to persuade developers to use library than direct 
+calls.
 
-Built into that paragraph, I think, is the assumption that you never 'do 
-both'. 
+Of course, we cannot change current applications, but we can start the 
+movement now. I just ask you to do it now. Nothing else. It will be a slow 
+process but it should be started now.
 
-Also, referring to OSS/Alsa is just a great way to illustrate the problem with 
-your idea. There is, today, finally a "dominant" solution, but how long did 
-it take us to get there? By my count, a really long time! And along the way 
-we've had to deal with all kinds of applications that just support the first 
-and not the other. And it seems like far too many people still have just one 
-foot in the door - take for instance the README files shipped with commercial 
-game ports that advise using OSS at the first hint of trouble with Alsa.
+Also, I don't think that it will break something. The application 
+developers can use your code in their applications directly when the 
+distribution does not have the OSS access library package.
 
-Is this what we want for wireless?
+Note that your words clearly states your attitude to change something.
 
->
-> Tim
->
+						Jaroslav
 
-Chase
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

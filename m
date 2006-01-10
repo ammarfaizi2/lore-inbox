@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWAJPhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWAJP7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWAJPhe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAJPhd
+	id S1751132AbWAJP7c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWAJP7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:37:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:32085 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932226AbWAJPhd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:37:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G4PqTgK1BCgzfS21LDQ1q/ITiB+o+0kyk24AiBloK3vNlSvrB6RPWbZfBDEZ6JiS8mpDA+zP1TaLtgfv54P5k0mp0UPIQC6kvujLkvYNp/Fc/4JTn/1DBv5Ih+08C5a/qBjkITO1lgoevpzQE6ZrNLhtUlerWgzWPpCsGYsvyZQ=
-Message-ID: <d120d5000601100737r7b1e12edy6d4eedc4b12960fc@mail.gmail.com>
-Date: Tue, 10 Jan 2006 10:37:31 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Leonid <nouser@lpetrov.net>
-In-Reply-To: <20060110152807.GB22371@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060110074336.GA7462@suse.cz>
-	 <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
-	 <20060110152807.GB22371@suse.cz>
+	Tue, 10 Jan 2006 10:59:32 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:51860 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751132AbWAJP7b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:59:31 -0500
+Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060110011844.7a4a1f90.akpm@osdl.org>
+References: <patchbomb.1136579193@eng-12.pathscale.com>
+	 <d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
+	 <20060110011844.7a4a1f90.akpm@osdl.org>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Tue, 10 Jan 2006 07:59:21 -0800
+Message-Id: <1136908761.32183.18.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/10/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Tue, Jan 10, 2006 at 10:12:21AM -0500, Alan Stern wrote:
-> > On Tue, 10 Jan 2006, Vojtech Pavlik wrote:
+On Tue, 2006-01-10 at 01:18 -0800, Andrew Morton wrote:
+> "Bryan O'Sullivan" <bos@pathscale.com> wrote:
 > >
-> > > It's usually that the BIOS does an incomplete emulation of the i8042
-> > > chip, while still getting in the way to the real i8042. Usually GRUB and
-> > > DOS don't care about sending any commands to the i8042, and so they
-> > > work. The Linux i8042.c driver needs to use them to enable the PS/2
-> > > mouse port and do other probing, and if the commans are not working, it
-> > > just bails out.
-> > >
-> > > The question of course is why the handoff code doesn't work on that
-> > > platform.
-> >
-> > It turned out that a BIOS upgrade fixed the problem, but this doesn't
-> > answer your question.
-> >
-> > The problem wasn't an incomplete emulation of the i8042, because when the
-> > USB handoff code was commented out the PS/2 keyboard worked okay.  This
-> > means the handoff, when enabled, wasn't being done correctly.  That could
-> > be the fault of the USB drivers or the BIOS (or both).  We have no way to
-> > tell which, because the users have all switched to the newer BIOS.
->
-> As usual with BIOS interaction problems.
->
+> > This arch-independent routine copies data to a memory-mapped I/O region,
+> >  using 32-bit accesses.  It does not guarantee access ordering, nor does
+> >  it perform a memory barrier afterwards.  This style of access is required
+> >  by some devices.
+> 
+> Not providing orderingor barriers makes this a rather risky thing to export
+> - people might use it, find their driver "works" on one architecture, but
+> fails on another.
 
-We'll just have to wait for another report. "Sluggish typing" report
-looks promising.
+The kdoc comments for the routine clearly state these limitations, so I
+hope that between the comments and the naming, the risk is minimal.
 
---
-Dmitry
+> I guess the "__" is a decent warning of this, and the patch anticipates a
+> higher-level raw_memcpy_toio32() which implements those things, yes?
+
+It leaves room for it, yes, though I don't see much reason to add such a
+routine until a driver specifically needs it.
+
+> How come __raw_memcpy_toio32() is inlined?
+
+There's no technical reason for it to be.  I'm simply trying to find an
+acceptable way to get the code into the tree that accommodates per-arch
+implementations.
+
+So let me rewind a little and state my problem.
+
+My driver needs a copy routine that works in 32-bit chunks, writes to
+MMIO space, doesn't care about ordering, and doesn't guarantee a memory
+barrier.  It also very much wants individual arches to be able to
+implement this routine themselves; even though it's a small, simple
+loop, we've benchmarked our x86_64 version as giving us 5% better
+performance overall (i.e. visible to apps, not just microbenchmarks)
+when doing reasonably large copies.  I'd expect other arches to have
+similar benefits.
+
+I'm more than willing to recast the code into whatever form makes people
+happy, but it would be greatly beneficial to me if it also met my
+requirements.
+
+So far, my attempts have been thus:
+
+      * out of line, with __HAVE_ARCH_XXX to avoid bloat on arches that
+        have specialised implementations - __HAVE_ARCH_XXX is out of
+        style
+      * out of line, unconditional - made people unhappy on bloat
+        grounds, since arches that have specialised implementations end
+        up with an extra unneeded routine
+      * inline, apparently in Linus's preferred style - an inline that
+        isn't really necessary
+
+For a routine whose C implementation is six lines long, it's had an
+impressive submission history :-)
+
+What do you suggest I try next?  I'll be happy to try a different tack.
+
+	<b
+

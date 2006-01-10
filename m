@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWAJOEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWAJOI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWAJOEr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 09:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWAJOEr
+	id S1751058AbWAJOI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWAJOIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 09:04:47 -0500
-Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:27082 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S932114AbWAJOEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 09:04:46 -0500
-Message-ID: <43C3BF00.9000901@stud.feec.vutbr.cz>
-Date: Tue, 10 Jan 2006 15:04:48 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Tue, 10 Jan 2006 09:08:25 -0500
+Received: from gate.perex.cz ([85.132.177.35]:43157 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S1751048AbWAJOIY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 09:08:24 -0500
+Date: Tue, 10 Jan 2006 15:08:23 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Hannu Savolainen <hannu@opensound.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Takashi Iwai <tiwai@suse.de>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <Pine.LNX.4.61.0601101520360.24146@zeus.compusonic.fi>
+Message-ID: <Pine.LNX.4.61.0601101455140.10330@tm8103.perex-int.cz>
+References: <20050726150837.GT3160@stusta.de>  <20060103193736.GG3831@stusta.de>
+  <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> 
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com> 
+ <20060104030034.6b780485.zaitcev@redhat.com>  <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+  <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> 
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> 
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>  <s5hmziaird8.wl%tiwai@suse.de>
+  <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <1136504460.847.91.camel@mindpipe>
+ <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
+ <Pine.LNX.4.61.0601101040430.10330@tm8103.perex-int.cz>
+ <Pine.LNX.4.61.0601101520360.24146@zeus.compusonic.fi>
 MIME-Version: 1.0
-To: Mark Knecht <markknecht@gmail.com>
-CC: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: 2.6.15-rt2 - repeatable xrun - no good data in trace
-References: <5bdc1c8b0601081252x59190f1ajcb5514364d78a4e@mail.gmail.com>	 <43C17E50.4060404@stud.feec.vutbr.cz>	 <Pine.LNX.4.61.0601082247170.17804@yvahk01.tjqt.qr>	 <5bdc1c8b0601081404n2a163ce1ya21919800546dfc8@mail.gmail.com>	 <20060110100517.GA23255@elte.hu>	 <1136900950.6197.33.camel@localhost.localdomain> <5bdc1c8b0601100555k7538924cx7a17b3e405771691@mail.gmail.com>
-In-Reply-To: <5bdc1c8b0601100555k7538924cx7a17b3e405771691@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Knecht wrote:
->    While I have to agree that *if* cdrecord is running at a higher
-> priority then Jack would get trumped, I'm not positive yet that we
-> know that's true in this specific case. I have not yet received any
-> response from the developer of k3b, and while cdrecord is listed in
-> the setup of k3b I'm not sure how to test that it is really causing
-> the specific failure I saw.
+On Tue, 10 Jan 2006, Hannu Savolainen wrote:
 
-That shouldn't be too hard. While burning a CD, see the priority 
-cdrecord is running at. You can use:
-ps -eo pid,user,args,pri | grep cdrecord
+> On Tue, 10 Jan 2006, Jaroslav Kysela wrote:
+> 
+> > Overloading interrupt handlers with extra things is evil (and I bet you're 
+> > mixing samples in the interrupt handler). Even the network stack uses 
+> > interrupts only for DMA management and not for any extra operations.
+> You mean it's evil because nobody else is doing it? Then it must be  
+> evil or rather voodoo.
 
-Also see if you have cdrecord installed suid root:
-ls -l `which cdrecord`
-If you do, you can be pretty sure that it runs at the highest possible 
-realtime priority. This is hardcoded in cdrecord. It does it if it runs 
-priviledged.
+No, I mean that it's quite obvious bad design, because you might increase 
+interrupt latencies for other drivers.
 
-Michal
+						Jaroslav
 
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

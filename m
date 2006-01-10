@@ -1,125 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbWAJX7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030695AbWAKAA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932729AbWAJX7k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 18:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbWAJX7k
+	id S1030695AbWAKAA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030694AbWAKAA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 18:59:40 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:3498 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932729AbWAJX7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 18:59:39 -0500
-Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution
-	patches
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: George Anzinger <george@mvista.com>, tglx@linutronix.de,
-       john stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051214084333.GA20284@elte.hu>
-References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-	 <1134507927.18921.26.camel@localhost.localdomain>
-	 <20051214084019.GA18708@elte.hu>  <20051214084333.GA20284@elte.hu>
-Content-Type: text/plain
-Date: Tue, 10 Jan 2006 18:59:07 -0500
-Message-Id: <1136937547.6197.73.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 19:00:26 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:11443 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1030695AbWAKAAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:00:24 -0500
+Date: Tue, 10 Jan 2006 17:59:16 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: PCI DMA Interrupt latency
+In-reply-to: <5trA6-6MD-39@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43C44A54.5070702@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en-us, en
+References: <5trA6-6MD-39@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 09:43 +0100, Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
+Burkhard Schölpen wrote:
+> Hello,
 > 
-> > hm, in that case it should be base->running that protects against this 
-> > case. Did you run an UP PREEMPT_RT kernel? In that case could you 
-> > check whether the fix below resolves the crash too?
-> 
-> try the patch below instead. (Thomas pointed out that the correct 
-> dependency in this case is PREEMPT_SOFTIRQS)
-> 
-> 	Ingo
-> 
-> Index: linux/kernel/hrtimer.c
-> ===================================================================
-> --- linux.orig/kernel/hrtimer.c
-> +++ linux/kernel/hrtimer.c
-> @@ -118,7 +118,7 @@ static DEFINE_PER_CPU(struct hrtimer_bas
->   * Functions and macros which are different for UP/SMP systems are kept in a
->   * single place
->   */
-> -#ifdef CONFIG_SMP
-> +#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
->  
->  #define set_curr_timer(b, t)		do { (b)->curr_timer = (t); } while (0)
->  
+> I'm writing a driver for a custom pci card with an FPGA 
+> (Xilinx Spartan 2 (XC2S150-6) with PCI 32 LogiCore), 
+> which  can act as a pci bus master. The device is designed 
+> to do DMA transfers with high bandwidth. One task is to 
+> send image data to a printer which already works quite 
+> well, but sometimes there are randomly occuring 
+> problems concerning the timing between two DMA 
+> transfers. The issue seems to be something like interrupt 
+> latency in hardware. Measuring some signals with an 
+> oscilloscope shows, that the delay from generating the 
+> interrupt, which signals a finished transfer, to the time 
+> when the interrupt register on the card is reset (i.e. the 
+> beginning of the ISR) sometimes increases to more 
+> than 500 microseconds, which is dimensions too high. 
 
-OK Thomas and Ingo, I hit the bug again! And this time I found the other
-race. Again let me explain where in the code I have a problem, and I
-feel really uncomfortable with the "implied logic" to protect the race.
+Most likely some driver is disabling interrupts for that period, which 
+is really longer than it should be. However, if your card/driver require 
+such tight interrupt latency to function correctly, that seems too 
+fragile and may not be reliable. Some kind of ringbuffer arrangement 
+would likely work better, so that the interrupt does not have to be 
+serviced so soon.
 
-In __remove_hrtimer we have:
-
-#ifdef CONFIG_HIGH_RES_TIMERS
-	if (timer->state == HRTIMER_PENDING_CALLBACK) {
-		list_del(&timer->list);
-		return;
-	}
-#endif
-
-And in run_hrtimer_hres_queue (and something similar with
-run_hrtimer_queue) we have:
-
-		set_curr_timer(base, timer);
-		list_del(&timer->list);
-		spin_unlock_irq(&base->lock);
-
-__remove_hrtimer is protected with the base-lock, so in this case we
-have the logic of set_curr_timer to protect against
-hrtimer_try_to_cancel which has:
-
-	if (base->curr_timer != timer)
-		ret = remove_hrtimer(timer, base);
-
-And this _is_ protected, but I just discovered that this does _not_
-protect against hrtimer_start!
-
-In hrtimer_start we have:
-
-	base = lock_hrtimer_base(timer, &flags);
-
-	/* Remove an active timer from the queue: */
-	remove_hrtimer(timer, base);
-
-Which can be called after that spin_unlock_irq is done by the
-run_hrtimer_queue, and we will hit a bug (as I did).  This is not an
-easy race to hit.  Here's an example of a race for this problem:
-
-In posix-timers.c: commen_timer_set:
-
-   If we get preempted between hrtimer_try_to_cancel and
-   hrtimer_restart.
-
-   Then a new thread adds the timer back (by a threaded program).
-
-   Now the timer goes off for the softirq, and the softirq runs
-   and just after it removes the timer and unlocks the base spinlock, it
-   gets preempted by some high prio task that blocks on the original
-   thread and boosts it's priority higher than the softirq.
-
-   Now the first thread runs and then calls hrtimer_start, and the timer
-   is now in the state PENDING_CALLBACK but is _not_ on the list. So
-   this will error when it tries to delete the timer again.
-
-This is a really hard race to hit. But it is possible, and I hit it with
-my kernel because I have some crazy dynamic scheduling going on.
-
-Now the question is what's the right solution?  Can hrtimer_start
-schedule?  Probably not, maybe we should add something to check this and
-have hrtimer_start return -1 if it is running, and let who ever called
-it figure out what to do?  Maybe have a hrtimer_cancel_start atomic
-operation? As well as a hrtimer_try_to_cancel_start?
-
--- Steve
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

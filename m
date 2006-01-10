@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWAJGeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWAJGiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWAJGeE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 01:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAJGeE
+	id S932076AbWAJGiM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 01:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWAJGiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 01:34:04 -0500
-Received: from smtpout.mac.com ([17.250.248.86]:41427 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750878AbWAJGeC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 01:34:02 -0500
-In-Reply-To: <Pine.LNX.4.64.0601091845160.5588@g5.osdl.org>
-References: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com> <Pine.LNX.4.64.0601091845160.5588@g5.osdl.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <99D82C29-4F19-4DD3-A961-698C3FC0631D@mac.com>
-Cc: "Brown, Len" <len.brown@intel.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Junio C Hamano <junkio@cox.net>,
-       Martin Langhoff <martin.langhoff@gmail.com>,
+	Tue, 10 Jan 2006 01:38:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:24598 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932076AbWAJGiK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 01:38:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lnVgYZ52hxhgH2ZrKRq3Xtkw4GNh/mfc39/L/K1ViQ0gCa7+cATWFdVSXsLdbVrh15au2zMUN/ylfhfLAQJBUDJ5ldJnC+4nE2SyrXxnkok7NvUrztJz2ITYdGmUKUPIAv2SSUvF60MxBDLdOyrU3xIYGQWXnvpOvRNPUteyrr4=
+Message-ID: <46a038f90601092238r3476556apf948bfe5247da484@mail.gmail.com>
+Date: Tue, 10 Jan 2006 19:38:07 +1300
+From: Martin Langhoff <martin.langhoff@gmail.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: git pull on Linux/ACPI release tree
+Cc: Luben Tuikov <ltuikov@yahoo.com>, "Brown, Len" <len.brown@intel.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Junio C Hamano <junkio@cox.net>,
        Linus Torvalds <torvalds@osdl.org>,
        "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
        LKML Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Git Mailing List <git@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: git pull on Linux/ACPI release tree
-Date: Tue, 10 Jan 2006 01:33:27 -0500
-To: Luben Tuikov <ltuikov@yahoo.com>
-X-Mailer: Apple Mail (2.746.2)
+In-Reply-To: <99D82C29-4F19-4DD3-A961-698C3FC0631D@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com>
+	 <Pine.LNX.4.64.0601091845160.5588@g5.osdl.org>
+	 <99D82C29-4F19-4DD3-A961-698C3FC0631D@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 09, 2006, at 21:50, Linus Torvalds wrote:
-> if we  have three independent features/development trees, they can  
-> be debugged independently too, while any linkages inevitably also  
-> mean that any bugs end up being interlinked..
+On 1/10/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> If they all work, then we know precisely that it's the
+> interactions between them, which also makes debugging a lot easier.
 
-One example:
+The more complex your tree structure is, the more the interactions are
+likely to be part of the problem. Is git-bisect not useful in this
+scenario?
 
-If I have ACPI, netdev, and swsusp trees change between an older  
-version and a newer one, and my net driver starts breaking during  
-suspend, I would be happiest debugging with the following set of  
-patches/trees (Heavily simplified):
-
-            ^
-            |
-           [5]
-            |
-          broken
-         ^  ^   ^
-       [2] [3]  [4]
-       /    |     \
-netdev3  acpi3   swsusp3
-    ^       ^        ^
-    |       |        |
-netdev2  acpi2   swsusp2
-    ^       ^        ^
-    |       |        |
-netdev1  acpi1   swsusp1
-       ^    ^    ^
-        \   |   /
-         \  |  /
-          \ | /
-           \|/
-            |
-           [1]
-            |
-          works
+cheers,
 
 
-If the old version [1] works and the new one [5] doesn't, then I can  
-immediately test [2], [3], and [4].  If one of those doesn't work,  
-I've identified the problematic patchset and cut the debugging by  
-2/3.  If they all work, then we know precisely that it's the  
-interactions between them, which also makes debugging a lot easier.
-
-Cheers,
-Kyle Moffett
-
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.  The first method is far more difficult.
-   -- C.A.R. Hoare
-
-
+martin

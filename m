@@ -1,330 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWAJUTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWAJUXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbWAJUTK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWAJUTJ
+	id S932558AbWAJUXO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:23:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWAJUXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:19:09 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:57529 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S932563AbWAJUTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:19:07 -0500
-Subject: [PATCH] [4/6] Handle TIF_RESTORE_SIGMASK for FRV
-From: David Woodhouse <dwmw2@infradead.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com
-In-Reply-To: <1136923488.3435.78.camel@localhost.localdomain>
-References: <1136923488.3435.78.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 10 Jan 2006 20:19:05 +0000
-Message-Id: <1136924345.3435.106.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 10 Jan 2006 15:23:13 -0500
+Received: from Mail.MNSU.EDU ([134.29.1.12]:30951 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S932558AbWAJUXN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 15:23:13 -0500
+Message-ID: <43C417A5.6070104@mnsu.edu>
+Date: Tue, 10 Jan 2006 14:23:01 -0600
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: 64-bit vs 32-bit userspace/kernel benchmark? Was: Athlon 64 X2 cpuinfo
+ oddities
+References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>	 <p73r77gx36u.fsf@verdi.suse.de>	 <9a8748490601091812x24aefae3oc0c6750c5321c3ab@mail.gmail.com>	 <200601100336.31677.ak@suse.de> <9a8748490601100129h2ce343f5kc9bc22885f01831a@mail.gmail.com>
+In-Reply-To: <9a8748490601100129h2ce343f5kc9bc22885f01831a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch handles TIF_RESTORE_SIGMASK as added by David Woodhouse's
-patch entitled:
+Jesper Juhl wrote:
 
-        [PATCH] 2/3 Add TIF_RESTORE_SIGMASK support for arch/powerpc
-        [PATCH] 3/3 Generic sys_rt_sigsuspend
+>On 1/10/06, Andi Kleen <ak@suse.de> wrote:
+>  
+>
+>>On Tuesday 10 January 2006 03:12, Jesper Juhl wrote:
+>>    
+>>
+...
 
-It does the following:
+>>Ah - how legacy.
+>>
+>>    
+>>
+>Yeah, but since my distro of choice is 32bit only and I don't much
+>feel like porting it myself or using an unofficial port (slamd64) I'm
+>sticking with a 32bit userspace. And as long as userspace is pure
+>32bit there doesn't seem to be much point in building a 64bit kernel.
+>And I only have 2GB of RAM, so I don't have a use for the larger 64bit
+>address space.
+>I also don't run any apps that do a lot of math on >32bit numbers, so
+>there's not much gain there either.
+>I guess I would bennefit from the extra GPR's, but then I would at the
+>same time loose a bit by all pointers being 64bit - both lose some
+>disk space due to larger binaries and I'd have increased memory use
+>and less efficient L1/L2 cache use.
+>
+>I don't think there would actually be much gain for me in switching to
+>a 64bit kernel with a 64bit userspace atm.
+>But if I'm wrong I'd of course love to hear about it :)
+>
+>  
+>
 
- (1) Declares TIF_RESTORE_SIGMASK for FRV.
-
- (2) Invokes it over to do_signal() when TIF_RESTORE_SIGMASK is set.
-
- (3) Makes do_signal() support TIF_RESTORE_SIGMASK, using the signal mask saved
-     in current->saved_sigmask.
-
- (4) Discards sys_rt_sigsuspend() from the arch, using the generic one instead.
-
- (5) Makes sys_sigsuspend() save the signal mask and set TIF_RESTORE_SIGMASK
-     rather than attempting to fudge the return registers.
-
- (6) Makes sys_sigsuspend() return -ERESTARTNOHAND rather than looping
-     intrinsically.
-
- (7) Makes setup_frame(), setup_rt_frame() and handle_signal() return 0 or
-     -EFAULT rather than true/false to be consistent with the rest of the
-      kernel.
-
-Due to the fact do_signal() is then only called from one place:
-
- (8) Make do_signal() no longer have a return value is it was just being
-     ignored; force_sig() takes care of this.
-
- (9) Discards the old sigmask argument to do_signal() as it's no longer
-     necessary.
-
-This patch depends on the FRV signalling patches as well as the
-sys_rt_sigsuspend patch.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-
- arch/frv/kernel/signal.c      |  120 +++++++++++++++---------------------------
- include/asm-frv/thread_info.h |    2 
- include/asm-frv/unistd.h      |    1 
- 3 files changed, 47 insertions(+), 76 deletions(-)
-
-diff --git a/arch/frv/kernel/signal.c b/arch/frv/kernel/signal.c
-index 5b7146f..679c1d5 100644
---- a/arch/frv/kernel/signal.c
-+++ b/arch/frv/kernel/signal.c
-@@ -35,74 +35,22 @@ struct fdpic_func_descriptor {
- 	unsigned long	GOT;
- };
- 
--static int do_signal(sigset_t *oldset);
--
- /*
-  * Atomically swap in the new signal mask, and wait for a signal.
-  */
- asmlinkage int sys_sigsuspend(int history0, int history1, old_sigset_t mask)
- {
--	sigset_t saveset;
--
- 	mask &= _BLOCKABLE;
- 	spin_lock_irq(&current->sighand->siglock);
--	saveset = current->blocked;
-+	current->saved_sigmask = current->blocked;
- 	siginitset(&current->blocked, mask);
- 	recalc_sigpending();
- 	spin_unlock_irq(&current->sighand->siglock);
- 
--	__frame->gr8 = -EINTR;
--	while (1) {
--		current->state = TASK_INTERRUPTIBLE;
--		schedule();
--		if (do_signal(&saveset))
--			/* return the signal number as the return value of this function
--			 * - this is an utterly evil hack. syscalls should not invoke do_signal()
--			 *   as entry.S sets regs->gr8 to the return value of the system call
--			 * - we can't just use sigpending() as we'd have to discard SIG_IGN signals
--			 *   and call waitpid() if SIGCHLD needed discarding
--			 * - this only works on the i386 because it passes arguments to the signal
--			 *   handler on the stack, and the return value in EAX is effectively
--			 *   discarded
--			 */
--			return __frame->gr8;
--	}
--}
--
--asmlinkage int sys_rt_sigsuspend(sigset_t __user *unewset, size_t sigsetsize)
--{
--	sigset_t saveset, newset;
--
--	/* XXX: Don't preclude handling different sized sigset_t's.  */
--	if (sigsetsize != sizeof(sigset_t))
--		return -EINVAL;
--
--	if (copy_from_user(&newset, unewset, sizeof(newset)))
--		return -EFAULT;
--	sigdelsetmask(&newset, ~_BLOCKABLE);
--
--	spin_lock_irq(&current->sighand->siglock);
--	saveset = current->blocked;
--	current->blocked = newset;
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
--
--	__frame->gr8 = -EINTR;
--	while (1) {
--		current->state = TASK_INTERRUPTIBLE;
--		schedule();
--		if (do_signal(&saveset))
--			/* return the signal number as the return value of this function
--			 * - this is an utterly evil hack. syscalls should not invoke do_signal()
--			 *   as entry.S sets regs->gr8 to the return value of the system call
--			 * - we can't just use sigpending() as we'd have to discard SIG_IGN signals
--			 *   and call waitpid() if SIGCHLD needed discarding
--			 * - this only works on the i386 because it passes arguments to the signal
--			 *   handler on the stack, and the return value in EAX is effectively
--			 *   discarded
--			 */
--			return __frame->gr8;
--	}
-+	current->state = TASK_INTERRUPTIBLE;
-+	schedule();
-+	set_thread_flag(TIF_RESTORE_SIGMASK);
-+	return -ERESTARTNOHAND;
- }
- 
- asmlinkage int sys_sigaction(int sig,
-@@ -372,11 +320,11 @@ static int setup_frame(int sig, struct k
- 	       frame->pretcode);
- #endif
- 
--	return 1;
-+	return 0;
- 
- give_sigsegv:
- 	force_sig(SIGSEGV, current);
--	return 0;
-+	return -EFAULT;
- 
- } /* end setup_frame() */
- 
-@@ -471,11 +419,11 @@ static int setup_rt_frame(int sig, struc
- 	       frame->pretcode);
- #endif
- 
--	return 1;
-+	return 0;
- 
- give_sigsegv:
- 	force_sig(SIGSEGV, current);
--	return 0;
-+	return -EFAULT;
- 
- } /* end setup_rt_frame() */
- 
-@@ -516,7 +464,7 @@ static int handle_signal(unsigned long s
- 	else
- 		ret = setup_frame(sig, ka, oldset);
- 
--	if (ret) {
-+	if (ret == 0) {
- 		spin_lock_irq(&current->sighand->siglock);
- 		sigorsets(&current->blocked, &current->blocked,
- 			  &ka->sa.sa_mask);
-@@ -536,10 +484,11 @@ static int handle_signal(unsigned long s
-  * want to handle. Thus you cannot kill init even with a SIGKILL even by
-  * mistake.
-  */
--static int do_signal(sigset_t *oldset)
-+static void do_signal(void)
- {
- 	struct k_sigaction ka;
- 	siginfo_t info;
-+	sigset_t *oldset;
- 	int signr;
- 
- 	/*
-@@ -549,43 +498,62 @@ static int do_signal(sigset_t *oldset)
- 	 * if so.
- 	 */
- 	if (!user_mode(__frame))
--		return 1;
-+		return;
- 
- 	if (try_to_freeze())
- 		goto no_signal;
- 
--	if (!oldset)
-+	if (test_thread_flag(TIF_RESTORE_SIGMASK))
-+		oldset = &current->saved_sigmask;
-+	else
- 		oldset = &current->blocked;
- 
- 	signr = get_signal_to_deliver(&info, &ka, __frame, NULL);
--	if (signr > 0)
--		return handle_signal(signr, &info, &ka, oldset);
-+	if (signr > 0) {
-+		if (handle_signal(signr, &info, &ka, oldset) == 0) {
-+			/* a signal was successfully delivered; the saved
-+			 * sigmask will have been stored in the signal frame,
-+			 * and will be restored by sigreturn, so we can simply
-+			 * clear the TIF_RESTORE_SIGMASK flag */
-+			if (test_thread_flag(TIF_RESTORE_SIGMASK))
-+				clear_thread_flag(TIF_RESTORE_SIGMASK);
-+		}
-+
-+		return;
-+	}
- 
- no_signal:
- 	/* Did we come from a system call? */
- 	if (__frame->syscallno >= 0) {
- 		/* Restart the system call - no handlers present */
--		if (__frame->gr8 == -ERESTARTNOHAND ||
--		    __frame->gr8 == -ERESTARTSYS ||
--		    __frame->gr8 == -ERESTARTNOINTR) {
-+		switch (__frame->gr8) {
-+		case -ERESTARTNOHAND:
-+		case -ERESTARTSYS:
-+		case -ERESTARTNOINTR:
- 			__frame->gr8 = __frame->orig_gr8;
- 			__frame->pc -= 4;
--		}
-+			break;
- 
--		if (__frame->gr8 == -ERESTART_RESTARTBLOCK){
-+		case -ERESTART_RESTARTBLOCK:
- 			__frame->gr8 = __NR_restart_syscall;
- 			__frame->pc -= 4;
-+			break;
- 		}
- 	}
- 
--	return 0;
-+	/* if there's no signal to deliver, we just put the saved sigmask
-+	 * back */
-+	if (test_thread_flag(TIF_RESTORE_SIGMASK)) {
-+		clear_thread_flag(TIF_RESTORE_SIGMASK);
-+		sigprocmask(SIG_SETMASK, &current->saved_sigmask, NULL);
-+	}
- 
- } /* end do_signal() */
- 
- /*****************************************************************************/
- /*
-  * notification of userspace execution resumption
-- * - triggered by current->work.notify_resume
-+ * - triggered by the TIF_WORK_MASK flags
-  */
- asmlinkage void do_notify_resume(__u32 thread_info_flags)
- {
-@@ -594,7 +562,7 @@ asmlinkage void do_notify_resume(__u32 t
- 		clear_thread_flag(TIF_SINGLESTEP);
- 
- 	/* deal with pending signal delivery */
--	if (thread_info_flags & _TIF_SIGPENDING)
--		do_signal(NULL);
-+	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK))
-+		do_signal();
- 
- } /* end do_notify_resume() */
-diff --git a/include/asm-frv/thread_info.h b/include/asm-frv/thread_info.h
-index 60f6b2a..0429ca7 100644
---- a/include/asm-frv/thread_info.h
-+++ b/include/asm-frv/thread_info.h
-@@ -131,6 +131,7 @@ register struct thread_info *__current_t
- #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
- #define TIF_SINGLESTEP		4	/* restore singlestep on return to user mode */
- #define TIF_IRET		5	/* return with iret */
-+#define TIF_RESTORE_SIGMASK	6	/* restore signal mask in do_signal() */
- #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
- #define TIF_MEMDIE		17	/* OOM killer killed process */
- 
-@@ -140,6 +141,7 @@ register struct thread_info *__current_t
- #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
- #define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
- #define _TIF_IRET		(1 << TIF_IRET)
-+#define _TIF_RESTORE_SIGMASK	(1 << TIF_RESTORE_SIGMASK)
- #define _TIF_POLLING_NRFLAG	(1 << TIF_POLLING_NRFLAG)
- 
- #define _TIF_WORK_MASK		0x0000FFFE	/* work to do on interrupt/exception return */
-diff --git a/include/asm-frv/unistd.h b/include/asm-frv/unistd.h
-index cde376a..4d994d2 100644
---- a/include/asm-frv/unistd.h
-+++ b/include/asm-frv/unistd.h
-@@ -486,6 +486,7 @@ static inline pid_t wait(int * wait_stat
- /* #define __ARCH_WANT_SYS_SIGPENDING */
- #define __ARCH_WANT_SYS_SIGPROCMASK
- #define __ARCH_WANT_SYS_RT_SIGACTION
-+#define __ARCH_WANT_SYS_RT_SIGSUSPEND
- #endif
- 
- /*
+Has anyone done any actual benchmark tests that show 64-bit vs 32-bit 
+environments/distributions with Athlon64 processors.  If so, I love to 
+see the results.  I too elected to stick with 32-bit, using the same 
+reasoning/guessing above.
 
 -- 
-dwmw2
+Jeffrey Hundstad
 

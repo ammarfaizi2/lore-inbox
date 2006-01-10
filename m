@@ -1,93 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWAJVm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWAJVqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWAJVm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWAJVm6
+	id S932365AbWAJVqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWAJVqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:42:58 -0500
-Received: from mx.laposte.net ([81.255.54.11]:37038 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S932362AbWAJVm5 convert rfc822-to-8bit
+	Tue, 10 Jan 2006 16:46:09 -0500
+Received: from mgw-ext01.nokia.com ([131.228.20.93]:17234 "EHLO
+	mgw-ext01.nokia.com") by vger.kernel.org with ESMTP id S932365AbWAJVqI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:42:57 -0500
-Date: Tue, 10 Jan 2006 22:41:08 +0100
-Message-Id: <ISWC8K$B14D076AABEAA715E4BC889EAAA17D8B@laposte.net>
-Subject: Re: panic with AIC7xxx
+	Tue, 10 Jan 2006 16:46:08 -0500
+Message-ID: <43C42B00.60206@indt.org.br>
+Date: Tue, 10 Jan 2006 17:45:36 -0400
+From: Anderson Briglia <anderson.briglia@indt.org.br>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "emmanuel\.fuste" <emmanuel.fuste@laposte.net>
-To: "bunk" <bunk@stusta.de>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "James\.Bottomley" <James.Bottomley@SteelEye.com>,
-       "linux-scsi" <linux-scsi@vger.kernel.org>
-X-XaM3-API-Version: 4.1 (B103)
-X-SenderIP: 127.0.0.1
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org,
+       "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       linux@arm.linux.org.uk, ext David Brownell <david-b@PACBELL.NET>,
+       Tony Lindgren <tony@atomide.com>, drzeus-list@drzeus.cx,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>
+Subject: Re: [patch 3/5] Add MMC password protection (lock/unlock) support
+ V3
+References: <43C2E0A2.3090701@indt.org.br> <20060109224204.GH19131@flint.arm.linux.org.uk>
+In-Reply-To: <20060109224204.GH19131@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Jan 2006 21:43:54.0989 (UTC) FILETIME=[F450F1D0:01C6162E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somme good and somme bad news :
+Russell King wrote:
 
-> Hello,
-> > > I recently made the switch from 2.4.26 to 2.6.13 and
-> 2.6.14rc5 on my old
-> > > dual 586mmx 233mhz.
-> > 
-> > are your problems still present in 2.6.15?
-> > 
-> > > I've got many problems with SMP on 2.6.13 (bad irq
-> balancing/routing
-> > > very bad performance on IDE and SCSI) but I tried to use
-> the long
-> > > awaited CDRW support.
-....
-> > -- 
-> 
-> I was waiting the merge of the patch serie from Hannes
-> Reinecke <hare () suse ! de>, because of the sequencer fixes.
-> I did'nt try this patch serie myself because the sequencer
-> fixes one ([PATCH 5/6]] never reach lkml or linux-scsi.
-> 
-> I will compile a clean 2.6.15 today and give it a try this
-> evening.
+>On Mon, Jan 09, 2006 at 06:16:02PM -0400, Anderson Briglia wrote:
+>  
+>
+>>+	dev = bus_find_device(&mmc_bus_type, NULL, NULL, mmc_match_lockable);
+>>+	if (!dev)
+>>+		goto error;
+>>+	card = dev_to_mmc_card(dev);
+>>+	
+>>+	if (operation == KEY_OP_INSTANTIATE) { /* KEY_OP_INSTANTIATE */
+>>+               if (mmc_card_locked(card)) {
+>>+                       ret = mmc_lock_unlock(card, key, MMC_LOCK_MODE_UNLOCK);
+>>+                       mmc_remove_card(card);
+>>+                       mmc_register_card(card);
+>>+               }
+>>+	       else
+>>+		       ret = mmc_lock_unlock(card, key, MMC_LOCK_MODE_SET_PWD);
+>>    
+>>
+>
+>I really don't like this - if the MMC card is not locked, we set a
+>password on it.  If it's locked, we unlock it.
+>
+>That's a potential race condition if you're trying to unlock a card
+>and the card is changed beneath you while you slept waiting for
+>memory - you end up setting that password on the new card.
+>
+>It's far better to have separate "unlock this card" and "set a
+>password on this card" commands rather than trying to combine the
+>two operations.
+>  
+>
+Ok.
 
-So, good news, kernel boot and raw hardisk perfs (hdparm -t)
-are event a little better.
+>Also, removing and re-registering a card is an offence.  These
+>things are ref-counted, and mmc_remove_card() will drop the last
+>reference - so the memory associated with it will be freed.  Then
+>you re-register it.  Whoops.
+>
+>If you merely want to try to attach a driver, use device_attach()
+>instead.
+>  
+>
+If we use device_attach(), the mmc_block driver is not informed about
+the card's unlocking. I did some tests, using device_attach() instead of
+those mmc functions and seems that the mmc_block driver tries to use a
+invalid device reference. What do you suggest on this case?
 
-Bad news : 
-- irq balancing/routing is one more time broken
-rafale:~# cat /proc/interrupts 
-           CPU0       CPU1       
-  0:     209712        167    IO-APIC-edge  timer
-  1:        861         10    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  5:          0          0    IO-APIC-edge  SoundBlaster
-  7:          1          2    IO-APIC-edge  parport0
-  8:          3          1    IO-APIC-edge  rtc
- 12:      17770          3    IO-APIC-edge  i8042
-145:       2362          1   IO-APIC-level  eth0
-161:      24282          1   IO-APIC-level  aic7xxx, uhci_hcd:usb1
-NMI:          0          0 
-LOC:     209769     209768 
-ERR:          0
-MIS:          0
+>Also, what if you have multiple MMC cards?  I have a board here
+>with two MMC slots.  I'd rather not have it try to set the same
+>password on both devices.
+>  
+>
+Sorry, but this series of patches only support one mmc host. I'll update
+the TODO section of the summary e-mail.
 
-- when I try to format my cdrw with cdrwtool -d /dev/sr0 -q,
-the red led of the scsi bus activity ligth on, scsi bus lock
-(I could switch console and try to log in but without succes
-since hdd could not be reach), all without any message on the
-console and few seconds later, the machine is killed with a
-kernel panic : "Fatal exception in Interrupt" in 
-ahc_handle_seqint +0x371/0x1055 [aic7xxx]
-If you want, I could send you a screen-shot of the panic taken
-with my phone tomorow (I need a windows computer to get the
-picture out of my phone).
-
-Regards,
-Emmanuel.
-
-Accédez au courrier électronique de La Poste : www.laposte.net ; 
-3615 LAPOSTENET (0,34 €/mn) ; tél : 08 92 68 13 50 (0,34€/mn)
-
-
-
+Anderson Briglia
+INdT - Manaus

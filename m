@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751764AbWAJAMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWAJANs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751764AbWAJAMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 19:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751722AbWAJAMP
+	id S1751297AbWAJANs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 19:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWAJANs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 19:12:15 -0500
-Received: from khc.piap.pl ([195.187.100.11]:22797 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751297AbWAJAMP (ORCPT
+	Mon, 9 Jan 2006 19:13:48 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11755 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751722AbWAJANs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 19:12:15 -0500
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: "Alexander E. Patrakov" <patrakov@gmail.com>,
-       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] It's UTF-8
-References: <20060108203851.GA5864@mipter.zuzino.mipt.ru>
-	<43C21E9D.3070106@gmail.com> <m3ek3hhbs0.fsf@defiant.localdomain>
-	<1136832266.10433.1.camel@bip.parateam.prv>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 10 Jan 2006 01:12:05 +0100
-In-Reply-To: <1136832266.10433.1.camel@bip.parateam.prv> (Xavier Bestel's message of "Mon, 09 Jan 2006 19:44:26 +0100")
-Message-ID: <m31wzhgcve.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Mon, 9 Jan 2006 19:13:48 -0500
+Date: Tue, 10 Jan 2006 01:13:57 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [GIT PATCHES] mutex subsystem, -V16
+Message-ID: <20060110001356.GA16122@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel <xavier.bestel@free.fr> writes:
 
->> And UTF-8 locale seems to be the only really sane today. I'd kill the
->> whole warning.
->
-> .. on unix. But FAT is a sort of lingua franca of filesystems, and is
-> the only one understandable by every (embedded) OS. So you'd better stay
-> compatible with everyone else.
+this is the latest version of the generic mutex subsystem, against 
+Linus-curr. The GIT tree can be pulled from:
 
-You stay compatible. And you can even read files with national
-characters in names.
--- 
-Krzysztof Halasa
+  master.kernel.org:/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
+
+or:
+
+  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
+
+(once master has resynced)
+
+or the patch-queue can be downloaded from:
+
+  http://redhat.com/~mingo/generic-mutex-subsystem/
+
+this code is identical to the mutex code in 2.6.15-mm2. There's been 
+little changes since -V15:
+
+ - added the extra smp_mb()s to the generic headers, pointed out by 
+   Linus.
+
+ - finished the i_mutex conversion.
+
+ - fixed the ALSA i_mutex related bug that the mutex debugging code 
+   uncovered in -mm2 (part of the i_mutex conversion patch).
+
+ - dropped the small-misc-conversions patch, will go through 
+   maintainers, if the mutex core is upstream.
+
+	Ingo

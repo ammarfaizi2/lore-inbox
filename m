@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWAJBuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWAJBuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWAJBuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 20:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWAJBuE
+	id S932139AbWAJBuK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 20:50:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWAJBuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 20:50:04 -0500
-Received: from mail3.uklinux.net ([80.84.72.33]:41603 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1750931AbWAJBuB (ORCPT
+	Mon, 9 Jan 2006 20:50:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56543 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932139AbWAJBuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 20:50:01 -0500
-Date: Tue, 10 Jan 2006 02:00:17 +0000
-From: John Rigg <ad@sound-man.co.uk>
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: John Rigg <ad@sound-man.co.uk>, David Lang <dlang@digitalinsight.com>,
-       =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       linux-sound@vger.kernel.org,
-       ALSA development <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-Message-ID: <20060110020017.GB5375@localhost.localdomain>
-References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de> <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi> <200601091812.55943.rene@exactcode.de> <Pine.LNX.4.62.0601091355541.4005@qynat.qvtvafvgr.pbz> <20060109232043.GA5013@localhost.localdomain> <Pine.LNX.4.61.0601100212290.26233@zeus.compusonic.fi>
+	Mon, 9 Jan 2006 20:50:08 -0500
+Date: Mon, 9 Jan 2006 17:49:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@osdl.org, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Reuben Farrelly <reuben-lkml@reub.net>
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
+Message-Id: <20060109174941.41b617f6.akpm@osdl.org>
+In-Reply-To: <1136857742.14532.0.camel@localhost.localdomain>
+References: <20060109203711.GA25023@kroah.com>
+	<Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>
+	<20060109164410.3304a0f6.akpm@osdl.org>
+	<1136857742.14532.0.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601100212290.26233@zeus.compusonic.fi>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 02:48:35AM +0200, Hannu Savolainen wrote:
-> On Mon, 9 Jan 2006, John Rigg wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> On Llu, 2006-01-09 at 16:44 -0800, Andrew Morton wrote:
+> > - Reuben Farrelly's oops in make_class_name().  Could be libata, or scsi
+> >   or driver core.
 > 
-> > Yes, but the CPU has plenty of other work to do. The sound cards that
-> > would be worst affected by this are the big RME cards (non-interleaved) and
-> > multiple ice1712 cards (non-interleaved blocks of interleaved data),
-> ice1712 uses normal interleaving. There are no "non-interleaved blocks".
+> libata I think. I reproduced it on 2.6.14-mm2 by accident with a buggy
+> pata driver.
 
-With two ice1712 cards I had to patch jackd for MMAP_COMPLEX
-support to make them work together. My understanding was that the
-individual cards use interleaved data, but when several are combined
-the resulting blocks of data are not interleaved together. I realise the
-usual way of dealing with this is to use the alsa route plugin with
-ttable to interleave them, but I couldn't get it to work with these
-cards.
+Well that's all merged up now.  Reuben, could you please test 2.6.15git6
+tomorrow?
 
-John

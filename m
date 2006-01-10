@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWAJCm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWAJCu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWAJCm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 21:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWAJCm1
+	id S1750993AbWAJCu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 21:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWAJCu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 21:42:27 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:4036 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932289AbWAJCm0 (ORCPT
+	Mon, 9 Jan 2006 21:50:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11393 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750794AbWAJCuZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 21:42:26 -0500
-Message-ID: <43C31F08.304@pobox.com>
-Date: Mon, 09 Jan 2006 21:42:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 9 Jan 2006 21:50:25 -0500
+Date: Mon, 9 Jan 2006 18:50:14 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Luben Tuikov <ltuikov@yahoo.com>
+cc: "Brown, Len" <len.brown@intel.com>, "Luck, Tony" <tony.luck@intel.com>,
+       Junio C Hamano <junkio@cox.net>,
+       Martin Langhoff <martin.langhoff@gmail.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+Subject: RE: git pull on Linux/ACPI release tree
+In-Reply-To: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com>
+Message-ID: <Pine.LNX.4.64.0601091845160.5588@g5.osdl.org>
+References: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com>
 MIME-Version: 1.0
-To: mingo@elte.hu, rostedt@goodmis.org
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mutex subsystem, semaphore to completion: SX8
-References: <200601100207.k0A27B4J007573@hera.kernel.org>
-In-Reply-To: <200601100207.k0A27B4J007573@hera.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Linux Kernel Mailing List wrote: > tree
-	c45749fcb6f8f22d9e2666135b528c885856aaed > parent
-	7892f2f48d165a34b0b8130c8a195dfd807b8cb6 > author Steven Rostedt
-	<rostedt@goodmis.org> Tue, 10 Jan 2006 07:59:26 -0800 > committer Ingo
-	Molnar <mingo@hera.kernel.org> Tue, 10 Jan 2006 07:59:26 -0800 > >
-	[PATCH] mutex subsystem, semaphore to completion: SX8 > > change SX8
-	semaphores to completions. > > Signed-off-by: Ingo Molnar
-	<mingo@elte.hu> [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> tree c45749fcb6f8f22d9e2666135b528c885856aaed
-> parent 7892f2f48d165a34b0b8130c8a195dfd807b8cb6
-> author Steven Rostedt <rostedt@goodmis.org> Tue, 10 Jan 2006 07:59:26 -0800
-> committer Ingo Molnar <mingo@hera.kernel.org> Tue, 10 Jan 2006 07:59:26 -0800
+
+
+On Mon, 9 Jan 2006, Luben Tuikov wrote:
 > 
-> [PATCH] mutex subsystem, semaphore to completion: SX8
+> A very general workflow I've seen people use is more/less as
+> I outlined in my previous email:
 > 
-> change SX8 semaphores to completions.
+>   tree A  (linus' or trunk)
+>      Project B  (Tree B)
+>         Project C  (Tree C, depending on stuff in Project B)
 > 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> Now this could be how the "managers" see things, but development,
+> could've "cloned" from Tree B and Tree C further, as is often
+> customary to have a a) per user tree, or b) per bug tree.
+> 
+> So pull/merge/fetch/whatever follows Tree A->B->C.
+> 
+> It is sensible to have another tree say, called something
+> like "for_linus" or "upstream" or "product" which includes
+> what has accumulated in C from B and in B from A, (eq diff(C-A)).
+> I.e. a "push" tree.  So that I can tell you, "hey,
+> pull/fetch/merge/whatever the current verb en vogue is, from
+> here to get latest xyz".
+> 
+> What I also wanted to mention is that Tree B undeniably
+> depends on the _latest_ state of Tree A, since Project B
+> uses API/behaviour of the code in Tree A, so one cannot just
+> say they are independent.  Similarly for Tree C/Project C,
+> is dependent on B, and dependent on A.
 
-Please at least CC the maintainer (me) _sometime_ before pushing 
-upstream, when you modify a driver...
+Note that in the case where the _latest_ state of the tre you are tracking 
+really matters, then doing a "git pull" is absolutely and unquestionably 
+the right thing to do. 
 
-	Jeff
+So if people thought that I don't want to have sub-maintainers pulling 
+from my tree _at_all_, then that was a mis-communication. I don't in any 
+way require a linear history, and criss-cross merges are supported 
+perfectly well by git, and even encouraged in those situations.
 
+After all, if tree B starts using features that are new to tree A, then 
+the merge from A->B is required for functionality, and the synchronization 
+is a fundamental part of the history of development. In that cases, the 
+history complexity of the resulting tree is a result of real development 
+complexity.
 
+Now, obviously, for various reasons we want to avoid having those kinds of 
+linkages as much as possible. We like to have develpment of different 
+subsystems as independent as possible, not because it makes for a "more 
+readable history", but because it makes it a lot easier to debug - if we 
+have three independent features/development trees, they can be debugged 
+independently too, while any linkages inevitably also mean that any bugs 
+end up being interlinked..
+
+		Linus

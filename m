@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbWAJXb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932708AbWAJXsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932636AbWAJXb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 18:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWAJXb0
+	id S932708AbWAJXsk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 18:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbWAJXsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 18:31:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43229 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932636AbWAJXbZ (ORCPT
+	Tue, 10 Jan 2006 18:48:40 -0500
+Received: from igw2.zrnko.cz ([81.31.45.164]:29414 "EHLO anubis.fi.muni.cz")
+	by vger.kernel.org with ESMTP id S932708AbWAJXsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 18:31:25 -0500
-Date: Tue, 10 Jan 2006 15:32:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: hch@infradead.org, rdreier@cisco.com, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-Message-Id: <20060110153257.1aac5370.akpm@osdl.org>
-In-Reply-To: <1136932162.6294.31.camel@serpentine.pathscale.com>
-References: <patchbomb.1136579193@eng-12.pathscale.com>
-	<d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
-	<20060110011844.7a4a1f90.akpm@osdl.org>
-	<adaslrw3zfu.fsf@cisco.com>
-	<1136909276.32183.28.camel@serpentine.pathscale.com>
-	<20060110170722.GA3187@infradead.org>
-	<1136915386.6294.8.camel@serpentine.pathscale.com>
-	<20060110175131.GA5235@infradead.org>
-	<1136915714.6294.10.camel@serpentine.pathscale.com>
-	<20060110140557.41e85f7d.akpm@osdl.org>
-	<1136932162.6294.31.camel@serpentine.pathscale.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 18:48:39 -0500
+Date: Wed, 11 Jan 2006 00:48:32 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: yarick@it-territory.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Message-ID: <20060110234832.GM12559@mail.muni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bryan O'Sullivan" <bos@pathscale.com> wrote:
->
-> On Tue, 2006-01-10 at 14:05 -0800, Andrew Morton wrote:
-> 
-> > It's kinda fun playing Brian along like this ;)
-> 
-> A regular barrel of monkeys, indeed...
-> 
-> > One option is to just stick the thing in an existing lib/ or kernel/ file
-> > and mark it __attribute__((weak)).  That way architectures can override it
-> > for free with no ifdefs, no Makefile trickery, no Kconfig trickery, etc.
-> 
-> I'm easy.  Would you prefer to take that, or the Kconfig-trickery-based
-> patch series I already posted earlier?
-> 
+Hello,
 
-Unless someone can think of a problem with attribute(weak), I think you'll
-find that it's the simplest-by-far solution.
+On 9 January 2006 9:07, Yaroslav Rastrigin wrote:
+
+> Whom and how much should I pay to have correct support for intel graphics
+> chipset, 2200BG Wi-Fi, complete suspend-to-disk/suspend-to-ram and to get an 
+> overall performance boost ? 
+
+what kind of problems do you have with 2200BG? I think, that ip2200.sf.net
+project is pretty good. For me, it works nicely (2915ABG).
+
+For intel graphics - use your money and force Intel to release docs at least 
+about setting graphics mode on 830-945 chipsets. I'm open to contribute code
+then. (As I did some hacking into X driver without docs just guessing).
+Or gain NDA and docs from local Intel authorize reseller.
+
+I was asking local Intel representatives to sign NDA and receiving docs for i915
+graphics to provide free closed source driver at least. But no success, they
+told me, if Intel will not gain profit from it, no interest...
+
+-- 
+Luká¹ Hejtmánek

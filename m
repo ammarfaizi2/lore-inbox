@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWAJHfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWAJHeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbWAJHfG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 02:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWAJHfF
+	id S1750833AbWAJHeg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 02:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWAJHeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 02:35:05 -0500
-Received: from dslsmtp.struer.net ([62.242.36.21]:31251 "EHLO
-	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S1750861AbWAJHfE
+	Tue, 10 Jan 2006 02:34:36 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:26798 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1750833AbWAJHef
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 02:35:04 -0500
-Message-ID: <48011.194.237.142.7.1136878498.squirrel@194.237.142.7>
-In-Reply-To: <20060109.220836.105435044.davem@davemloft.net>
-References: <20060109.220836.105435044.davem@davemloft.net>
-Date: Tue, 10 Jan 2006 08:34:58 +0100 (CET)
-Subject: Re: CONFIG_LOCALVERSION_AUTO recently broken
-From: sam@ravnborg.org
-To: "David S. Miller" <davem@davemloft.net>
-Cc: sam@mars.ravnborg.org, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Tue, 10 Jan 2006 02:34:35 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Tue, 10 Jan 2006 09:33:47 +0200
+User-Agent: KMail/1.8.2
+Cc: Yaroslav Rastrigin <yarick@it-territory.ru>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091207.14939.yarick@it-territory.ru> <20060109231313.2d455d5f.akpm@osdl.org>
+In-Reply-To: <20060109231313.2d455d5f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601100933.48022.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> For some reason it isn't post-pending the local GIT version
-> string to the destination module directory so the modules
-> get installed in the wrong place and upon reboot are not found.
->
-> This started happening some time within the last 2 days.
->
-> Any ideas? :-)
-You do not have git installed so root can find them, and you install
-modules as root - this causes the wrong KERNELRELEASE to be defined.
-Obviously it is not the right fix to install git in a 'root' location so
-I have implemented a solution in my tree where we only update
-KERNELRELEASE when we build a kernel.
-This solution required that "make install" do not try to update vmlinux -
-so this dependency is now zapped.
-I do not have access to my linux box atm, but you can find the patches in
-lkml archieves and at:
-git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+On Tuesday 10 January 2006 09:13, Andrew Morton wrote:
+> Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
+> > On 9 January 2006 11:06, Erik Andersen wrote:
+> > > On Mon Jan 09, 2006 at 03:54:24PM +0800, Boxer Gnome wrote:
+> > > > and the dos ntfs driver was not released by the MS offical.So,what' wrong?
+> > > > 
+> > > > Somebody who can explain this ?
+> > > 
+> > > Sure, thats easy.  You havn't paid Anton and Richard to quit
+> > > their jobs to work full time on finishing full linux ntfs
+> > > support.  It is really quite amazing how many "linux can't do foo"
+> > > type problems could be quickly solved by sending large amounts of
+> > > money to the right people.
+> > Could or would you be so kind to provide at least moderately complete pricelist ? Whom and how much should I pay to have correct support for
+> > intel graphics chipset, 2200BG Wi-Fi, complete suspend-to-disk/suspend-to-ram and to get an overall performance boost ? 
+> 
+> A quick grep indicates that you reported zero bugs to this mailing list in
+> 2005.
+> 
+> Please preapre quality bug reports (preferably in less-than-80-column
+> emails) and direct them to the relevant maintainers and be prepared to work
+> with those maintainers in the resolution of the bugs.
 
-I've asked Linus to pull so we get this fix propagated soonish.
+Andrew, I think this is a rare (on lkml at least) case when guy
+does not want to participate in development in a Linux way
+but wants to just pay for development instead:
+"I want this <hardware> to work good under Linux. I want to pay
+up to <sum> to whoever will agree to do that. Anybody?"
 
-     Sam
+Do not dismiss him lightly. There are LOTS of people which aren't
+hackish at all. An order of magniture more than 'us' computer geeks.
+M$ is successful because it uses this resource.
+We may want to think how can we use it too.
 
-
+No, I don't think you, or someone else on this list can efficiently
+use it, but distros, being more commercially oriented, maybe can.
+--
+vda

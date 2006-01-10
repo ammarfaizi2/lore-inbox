@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWAJCNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWAJCTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWAJCNA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 21:13:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWAJCNA
+	id S932268AbWAJCTl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 21:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWAJCTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 21:13:00 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:41970 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750940AbWAJCM7 convert rfc822-to-8bit
+	Mon, 9 Jan 2006 21:19:41 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:41843 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP id S932262AbWAJCTk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 21:12:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NlhFWasdhrlhUJM0I1HlGDCUZcXACTvTo9RZh8NwFTg3FXx3m8I4VILSTPg5oBa9LjaJhy03TuBCc25gG70S9l874X8r8E5wyAUd8X7z9HiE21hxbQ23nzPMjUNYYzZbar68UI/fHbzeAKD+itoNuO/VSJlvmtfE2im1jpNSSik=
-Message-ID: <9a8748490601091812x24aefae3oc0c6750c5321c3ab@mail.gmail.com>
-Date: Tue, 10 Jan 2006 03:12:58 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Athlon 64 X2 cpuinfo oddities
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p73r77gx36u.fsf@verdi.suse.de>
+	Mon, 9 Jan 2006 21:19:40 -0500
+Date: Tue, 10 Jan 2006 04:17:03 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: John Rigg <ad@sound-man.co.uk>
+Cc: David Lang <dlang@digitalinsight.com>,
+       =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+       linux-sound@vger.kernel.org,
+       ALSA development <alsa-devel@alsa-project.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+In-Reply-To: <20060110020017.GB5375@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0601100408480.18971@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de>
+ <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi> <200601091812.55943.rene@exactcode.de>
+ <Pine.LNX.4.62.0601091355541.4005@qynat.qvtvafvgr.pbz>
+ <20060109232043.GA5013@localhost.localdomain> <Pine.LNX.4.61.0601100212290.26233@zeus.compusonic.fi>
+ <20060110020017.GB5375@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>
-	 <p73r77gx36u.fsf@verdi.suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Jan 2006 02:49:13 +0100, Andi Kleen <ak@suse.de> wrote:
-> Jesper Juhl <jesper.juhl@gmail.com> writes:
-> >
-> > Well, first of all you'll notice that the second core shows a
-> > "physical id" of 127 while the first core shows an id of 0.  Shouldn't
-> > the second core be id 1, just like the "core id" fields are 0 & 1?
->
-> In theory it could be an uninitialized phys_proc_id (0xff >> 1),
-> but it could be also the BIOS just setting the local APIC of CPU 1
-> to 0xff for some reason.
->
-> If you add a printk("PHYSCPU %d %x\n", smp_processor_id(), phys_proc_id[smp_processor_id()])
-> at the end of arch/x86_64/kernel/setup.c:early_identify_cpu() what does
-> dmesg | grep PHYSCPU output?
->
-Not a thing since I'm using arch/i386 here (32bit distribution
-(Slackware), just building a 32bit kernel optimized for K8).
-But, I stuck that printk into identify_cpu() in
-arch/i386/kernel/cpu/common.c instead, and this is what I get :
-$ dmesg | grep PHYSCPU
-[   30.323965] PHYSCPU 0 0
-[   30.402588] PHYSCPU 1 7f
+On Tue, 10 Jan 2006, John Rigg wrote:
 
+> On Tue, Jan 10, 2006 at 02:48:35AM +0200, Hannu Savolainen wrote:
+> > On Mon, 9 Jan 2006, John Rigg wrote:
+> > 
+> > > Yes, but the CPU has plenty of other work to do. The sound cards that
+> > > would be worst affected by this are the big RME cards (non-interleaved) and
+> > > multiple ice1712 cards (non-interleaved blocks of interleaved data),
+> > ice1712 uses normal interleaving. There are no "non-interleaved blocks".
+> 
+> With two ice1712 cards I had to patch jackd for MMAP_COMPLEX
+> support to make them work together. My understanding was that the
+> individual cards use interleaved data, but when several are combined
+> the resulting blocks of data are not interleaved together. I realise the
+> usual way of dealing with this is to use the alsa route plugin with
+> ttable to interleave them, but I couldn't get it to work with these
+> cards.
+Right. If you use two cards then both of them have independently 
+interleaved blocks. However if this kind of mapping belongs to the lowest 
+level audio API or not is yet another API feature to argue about.  Higher 
+level libraries like Jack could do this themselves.
 
-> >
-> > Second thing I find slightly odd is the lack of "sse3" in the "flags" list.
-> > I was under the impression that all AMD Athlon 64 X2 CPU's featured SSE3?
-> > Is it a case of:
-> >  a) Me being wrong, not all Athlon 64 X2's feature SSE3?
-> >  b) The CPU actually featuring SSE3 but Linux not taking advantage of it?
-> >  c) The CPU features SSE3 and it's being utilized, but /proc/cpuinfo
-> > doesn't show that fact?
-> >  d) Something else?
->
-> It's called pni (prescott new instructions) for historical reasons. We added
-> the bit too early before Intel's marketing department could make up its
-> mind fully, so Linux is stuck with the old codename.
->
-Does anything actually parse the /proc/cpuinfo flags field? are we
-really stuck with it?
-Ohh well, no big deal.
+Best regards,
 
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWAJUZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWAJU0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932583AbWAJUZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbWAJUZ7
+	id S932587AbWAJU0X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWAJU0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:25:59 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:28092 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932583AbWAJUZ6 (ORCPT
+	Tue, 10 Jan 2006 15:26:23 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:28986 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932592AbWAJU0W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:25:58 -0500
-Date: Tue, 10 Jan 2006 21:25:46 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andi Kleen <ak@suse.de>
-cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Console debugging wishlist was: Re: oops pauser.
-In-Reply-To: <p73vewtw8bh.fsf@verdi.suse.de>
-Message-ID: <Pine.LNX.4.61.0601102121400.16049@yvahk01.tjqt.qr>
-References: <20060105045212.GA15789@redhat.com> <p73vewtw8bh.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jan 2006 15:26:22 -0500
+Date: Tue, 10 Jan 2006 21:28:20 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bernd Eckenfels <be-mail2006@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2G memory split
+Message-ID: <20060110202819.GJ3389@suse.de>
+References: <43C3E9C2.1000309@rtr.ca> <E1EwNc8-00063F-00@calista.inka.de> <20060110194200.GD3389@suse.de> <20060110201747.GA26433@lina.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060110201747.GA26433@lina.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Ok - here's my personal wishlist. If someone is interested ...
->
->What I would like to have is a "more" option for the kernel that makes
->it page kernel output like "more" and asks you before scrolling
->to the next page.
+On Tue, Jan 10 2006, Bernd Eckenfels wrote:
+> On Tue, Jan 10, 2006 at 08:42:00PM +0100, Jens Axboe wrote:
+> > Hmm I thought it was obvious with the description in paranthesis after
+> > the option. Basically the option is just an optimized default for 1GB of
+> > RAM, like the 2G option is tailored for 2GB of low mem on a 2GB machine.
+> 
+> The description was (for full 1Gb Low Memory) and not (optimized for 1GB
+> physical RAM) which would be more obvious, yes. However the text could still
+> explain the consequences.
 
-An oops is usually a condition you can recover from in some/most/depends 
-cases (e.g. a null deref in a filesystem "only" makes that vfsmount 
-(filesystem at all?) blocked), so if the kernel is waiting for user input 
-on a non-panic condition, this means userspace stops too, which is not 
-too good if the kernel is still 'alive'.
-It's like we are entering kdb although everything is fine enough to go 
-through a proper `init 6`.
+To me the former is clearer, it tells you that you have one full gig of
+low memory. But maybe that's just me.
 
->What would be also cool would be to fix the VGA console to have 
->a larger scroll back buffer.  The standard kernel boot output 
->is far larger than the default scrollback, so if you get a hang
->late you have no way to look back to all the earlier 
->messages.
->
->(it is hard to understand that with 128MB+ graphic cards and 512+MB
->computers the scroll back must be still so short...) 
-
-I doubt this scrollback buffer is implemented as part of the video cards. 
-It is rather a kernel invention, and therefore uses standard RAM. But the 
-idea is good, preferably make it a CONFIG_ option.
-
->And fixing sysrq to work after panics would be also nice.
-
-I am not sure, but would enabling interrupts be enough?
-
->And maybe a sysrq key to switch the font to the smallest one available
->so as much as possible would fit onto a digital photo.
-
-And analog photos? ;)
-
->> The one case this doesn't catch is the problem of oopses whilst
->> in X. Previously a non-fatal oops would stall X momentarily,
->> and then things continue. Now those cases will lock up completely
->> for two minutes. Future patches could add some additional feedback
->> during this 'stall' such as the blinky keyboard leds, or periodic speaker beeps.
->
->That's the killer issues why this patch is a bad idea.
->
-
-Whilst few can be done in X situations, let's at least improve consoles.
-
-
-Jan Engelhardt
 -- 
+Jens Axboe
+

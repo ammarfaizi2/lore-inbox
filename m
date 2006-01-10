@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWAJOTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWAJOUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWAJOTh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 09:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWAJOTh
+	id S932164AbWAJOUE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWAJOUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 09:19:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:181 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932163AbWAJOTh (ORCPT
+	Tue, 10 Jan 2006 09:20:01 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:791 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932164AbWAJOUA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 09:19:37 -0500
-From: David Howells <dhowells@redhat.com>
-To: mingo@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: Mutex compilation error
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Tue, 10 Jan 2006 14:19:27 +0000
-Message-ID: <2758.1136902767@warthog.cambridge.redhat.com>
+	Tue, 10 Jan 2006 09:20:00 -0500
+Date: Tue, 10 Jan 2006 15:21:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Gerd Hoffmann <kraxel@suse.de>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2G memory split
+Message-ID: <20060110142151.GI3389@suse.de>
+References: <20060110125852.GA3389@suse.de> <17347.47882.735057.154898@alkaid.it.uu.se> <20060110135404.GF3389@suse.de> <43C3C023.9040308@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C3C023.9040308@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 10 2006, Gerd Hoffmann wrote:
+>   Hi,
+> 
+> >0xb0000000 is a much better default, but I didn't think that would fly
+> >as a patch.
+> 
+> I think that will not fly with CONFIG_X86_PAE.  In PAE mode the 3rd pmd 
+>  (for the 0xc0000000 => 0xffffffff kernel address range) is shared, 
+> anything but 0xc000000 most likely needs some more hackery than just 
+> changing PAGE_OFFSET.  As the whole point of this split patchery is to 
+> avoid highmem in the first place it maybe makes sense to have some 
+> "optimize for 1/2/4/more GB main memory" config option which in turn 
+> picks sane PAGE_OFFSET+HIGHMEM+PAE settings?
 
-Hi Ingo,
+The patch depends on NOHIGHMEM atm, so you can't select PAE and move the
+page offset anyways.
 
-I've found a compilation error in mutexes when using the null variety:
+-- 
+Jens Axboe
 
-	In file included from kernel/mutex-debug.c:25:
-	kernel/mutex-debug.h:23:1: warning: "__IP__" redefined
-	In file included from include/asm/mutex.h:9,
-			 from kernel/mutex-debug.c:23:
-	include/asm-generic/mutex-null.h:15:1: warning: this is the location of the previous definition
-
-It seems that mutex-null.h defined __IP__ before mutex-debug.h because in
-mutex-debug.c:
-
-	#include <asm/mutex.h>
-
-	#include "mutex-debug.h"
-
-is the ordering of the includes.
-
-Whilst mutex-null.h defends against multiple inclusions of __IP__,
-mutex-debug.h does not.
-
-David

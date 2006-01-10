@@ -1,355 +1,337 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWAJWby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWAJWmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWAJWby (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 17:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWAJWby
+	id S1030265AbWAJWmj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 17:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWAJWmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 17:31:54 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:31696 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030253AbWAJWbx (ORCPT
+	Tue, 10 Jan 2006 17:42:09 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63723 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030265AbWAJWlr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 17:31:53 -0500
-Message-ID: <43C435B9.5080409@austin.ibm.com>
-Date: Tue, 10 Jan 2006 16:31:21 -0600
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Olof Johansson <olof@lixom.net>, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Anton Blanchard <anton@samba.org>,
-       PPC64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: PowerPC fastpaths for mutex subsystem
-References: <20060104144151.GA27646@elte.hu> <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <20060106002919.GA29190@pb15.lixom.net> <43BFFF1D.7030007@austin.ibm.com> <20060108094839.GA16887@elte.hu>
-In-Reply-To: <20060108094839.GA16887@elte.hu>
-Content-Type: multipart/mixed;
- boundary="------------040909090808000904050707"
+	Tue, 10 Jan 2006 17:41:47 -0500
+Date: Tue, 10 Jan 2006 14:41:40 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Cliff Wickman <cpw@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net,
+       Hirokazu Takahashi <taka@valinux.co.jp>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20060110224140.19138.84122.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20060110224114.19138.10463.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060110224114.19138.10463.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 5/5] Direct Migration V9: Avoid writeback / page_migrate() method
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040909090808000904050707
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Migrate a page with buffers without requiring writeback
 
-> interesting. Could you try two things? Firstly, could you add some 
-> minimal delays to the lock/unlock path, of at least 1 usec? E.g.  
-> "synchro-test.ko load=1 interval=1". [but you could try longer delays 
-> too, 10 usecs is still realistic.]
+This introduces a new address space operation migratepage() that
+may be used by a filesystem to implement its own version of page migration.
 
-Graphs attached.  The summary for those who don't like to look at attachments is 
-that the mutex fastpath (threads 1) that I sent the optimized patch for is 
-comparable within the margin of error to semaphores.  The mutex common path 
-(threads > 1) gets embarrassed by semaphores. So mutexes common paths are not 
-yet ready as far as ppc64 is concerned.
+A version is provided that migrates buffers attached to pages. Some
+filesystems (ext2, ext3, xfs) are modified to utilize this feature.
 
-> 
-> secondly, could you try the VFS creat+unlink test via the test-mutex.c 
-> code below, with something like:
-> 
-> 	./test-mutex V 16 10
+The swapper address space operation are modified so that a regular
+migrate_page() will occur for anonymous pages without writeback
+(migrate_pages forces every anonymous page to have a swap entry).
 
-Queued into my todo list.
+V7->V8:
+- Export more functions in order for loadable filesystems to be able
+  to define their own migration function.
 
-> 
-> thirdly, could you run 'vmstat 1' during the tests, and post those lines 
-> too? Here i'm curious about two things: the average runqueue length 
-> (whether we have overscheduling), and CPU utilization and idle time left 
-> (how efficiently cycles are preserved in contention). [btw., does ppc 
-> have an idle=poll equivalent mode of idling?]
+V2->V3:
+- export functions for filesystems that are modules and for modules that
+  perform migration by calling migrate_pages().
+- Fix macro name clash. Fix build on UP and systems without CONFIG_MIGRATION
 
-Also queued in my todo list.
+V1->V2:
+- Fix CONFIG_MIGRATION handling
 
-> 
-> also, there seems to be some fluctuation in the numbers - could you try 
-> to run a few more to see how stable the numbers are?
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-For the graphs the line is the average of 5 runs, and the 5 runs are scatter 
-plotted as well.
-
---------------040909090808000904050707
-Content-Type: image/png;
- name="semvsmux2.png"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="semvsmux2.png"
-
-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
-
---------------040909090808000904050707
-Content-Type: image/png;
- name="semvsmux3.png"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="semvsmux3.png"
-
-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
---------------040909090808000904050707
-Content-Type: image/png;
- name="semvsmux.png"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="semvsmux.png"
-
-iVBORw0KGgoAAAANSUhEUgAAAoAAAAHgCAMAAAACDyzWAAAAA3NCSVQICAjb4U/gAAABKVBM
-VEX///8AAACgoKD/AAAAwAAAgP/AAP8A7u7AQADu7gAgIMD/wCAAgECggP+AQAD/gP8AwGAA
-wMAAYIDAYIAAgABA/4AwYICAYABAQEBAgAAAAICAYBCAYGCAYIAAAMAAAP8AYADjsMBAwIBg
-oMBgwABgwKCAAACAAIBgIIBgYGAgICAgQEAgQIBggCBggGBggICAgEAggCCAgICgoKCg0ODA
-ICAAgIDAYACAwODAYMDAgADAgGD/QAD/QECAwP//gGD/gIDAoADAwMDA/8D/AAD/AP//gKDA
-wKD/YGAA/wD/gAD/oACA4OCg4OCg/yDAAADAAMCgICCgIP+AIACAICCAQCCAQICAYMCAYP+A
-gADAwAD/gED/oED/oGD/oHD/wMD//wD//4D//8BUJrxzAAAAAXRSTlMAQObYZgAAAER0RVh0
-U29mdHdhcmUAZ251cGxvdCB2ZXJzaW9uIDQuMCBwYXRjaGxldmVsIDAgb24gTGludXggMi42
-LjEyLTEuMTM4MV9GQzPPn6ePAAAQ60lEQVR4nO2dibajKhQFZSX//83duXEARCbRTaTqrX65
-cQCilQMqgWkCAAAAAAAAAAAAAAAAAABogJn/2e9PpGZS+1ekb+w/khkUZWX2W5rdH1NZtsF8
-DnbPTdVE3pXk1yH/i2qaCejbfLDJmeQLEsgXMLio9KTXlKUu1boP1inm779FHWO+MWz+//Lv
-q6ix45u1zl04bbubyVjvJvvFXRjMYU3ULC+WgO6G3/3cInkfxQTOybaJlcNSTq8sTrZu4f3j
-aX+iyO7BMoV3n5e5JfMOq3OqflZA63/zp9ve7SPCbqEr7pz0vPWsyPIyhd4dFXHb2CugtcE+
-FeMsDBnoVMFLcYy1574Q+8L7R8DeJLj7tKayFzi6u1Oy4BF01v4G7jFdP6ox+3fOt9L/ytkr
-zBKRjB2RnIxcWbwcvCTdk+cWcN0/UCR7y60s+6SDduUIuOYXOZ6hz+AH7MLdvQ9m7zc5J+4n
-2D7xGue34hv/SDh/mt1CT6vJrd0jAnrlCZ97LwLuPsc+CuzKsk/aSdP2YnJDZkhAEyhuhkHe
-Ia8RcH/onMrqBwXcGiTL18tZZ3+57D39hX4byfnCh9J09jNO7Nqlae03+QHQKsxWpEBZ/DNj
-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
---------------040909090808000904050707--
+Index: linux-2.6.15/include/linux/fs.h
+===================================================================
+--- linux-2.6.15.orig/include/linux/fs.h	2006-01-10 09:43:04.000000000 -0800
++++ linux-2.6.15/include/linux/fs.h	2006-01-10 14:31:54.000000000 -0800
+@@ -369,6 +369,8 @@ struct address_space_operations {
+ 			loff_t offset, unsigned long nr_segs);
+ 	struct page* (*get_xip_page)(struct address_space *, sector_t,
+ 			int);
++	/* migrate the contents of a page to the specified target */
++	int (*migratepage) (struct page *, struct page *);
+ };
+ 
+ struct backing_dev_info;
+@@ -1713,6 +1715,12 @@ extern void simple_release_fs(struct vfs
+ 
+ extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
+ 
++#ifdef CONFIG_MIGRATION
++extern int buffer_migrate_page(struct page *, struct page *);
++#else
++#define buffer_migrate_page NULL
++#endif
++
+ extern int inode_change_ok(struct inode *, struct iattr *);
+ extern int __must_check inode_setattr(struct inode *, struct iattr *);
+ 
+Index: linux-2.6.15/mm/swap_state.c
+===================================================================
+--- linux-2.6.15.orig/mm/swap_state.c	2006-01-10 09:43:04.000000000 -0800
++++ linux-2.6.15/mm/swap_state.c	2006-01-10 14:31:54.000000000 -0800
+@@ -27,6 +27,7 @@ static struct address_space_operations s
+ 	.writepage	= swap_writepage,
+ 	.sync_page	= block_sync_page,
+ 	.set_page_dirty	= __set_page_dirty_nobuffers,
++	.migratepage	= migrate_page,
+ };
+ 
+ static struct backing_dev_info swap_backing_dev_info = {
+Index: linux-2.6.15/fs/xfs/linux-2.6/xfs_aops.c
+===================================================================
+--- linux-2.6.15.orig/fs/xfs/linux-2.6/xfs_aops.c	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15/fs/xfs/linux-2.6/xfs_aops.c	2006-01-10 14:31:54.000000000 -0800
+@@ -1347,4 +1347,5 @@ struct address_space_operations linvfs_a
+ 	.commit_write		= generic_commit_write,
+ 	.bmap			= linvfs_bmap,
+ 	.direct_IO		= linvfs_direct_IO,
++	.migratepage		= buffer_migrate_page,
+ };
+Index: linux-2.6.15/fs/buffer.c
+===================================================================
+--- linux-2.6.15.orig/fs/buffer.c	2006-01-10 09:43:04.000000000 -0800
++++ linux-2.6.15/fs/buffer.c	2006-01-10 14:31:54.000000000 -0800
+@@ -3049,6 +3049,71 @@ asmlinkage long sys_bdflush(int func, lo
+ }
+ 
+ /*
++ * Migration function for pages with buffers. This function can only be used
++ * if the underlying filesystem guarantees that no other references to "page"
++ * exist.
++ */
++#ifdef CONFIG_MIGRATION
++int buffer_migrate_page(struct page *newpage, struct page *page)
++{
++	struct address_space *mapping = page->mapping;
++	struct buffer_head *bh, *head;
++
++	if (!mapping)
++		return -EAGAIN;
++
++	if (!page_has_buffers(page))
++		return migrate_page(newpage, page);
++
++	head = page_buffers(page);
++
++	if (migrate_page_remove_references(newpage, page, 3))
++		return -EAGAIN;
++
++	spin_lock(&mapping->private_lock);
++
++	bh = head;
++	do {
++		get_bh(bh);
++		lock_buffer(bh);
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++
++	ClearPagePrivate(page);
++	set_page_private(newpage, page_private(page));
++	set_page_private(page, 0);
++	put_page(page);
++	get_page(newpage);
++
++	bh = head;
++	do {
++		set_bh_page(bh, newpage, bh_offset(bh));
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++
++	SetPagePrivate(newpage);
++	spin_unlock(&mapping->private_lock);
++
++	migrate_page_copy(newpage, page);
++
++	spin_lock(&mapping->private_lock);
++	bh = head;
++	do {
++		unlock_buffer(bh);
++ 		put_bh(bh);
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++	spin_unlock(&mapping->private_lock);
++
++	return 0;
++}
++EXPORT_SYMBOL(buffer_migrate_page);
++#endif
++
++/*
+  * Buffer-head allocation
+  */
+ static kmem_cache_t *bh_cachep;
+Index: linux-2.6.15/fs/ext3/inode.c
+===================================================================
+--- linux-2.6.15.orig/fs/ext3/inode.c	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15/fs/ext3/inode.c	2006-01-10 14:31:54.000000000 -0800
+@@ -1559,6 +1559,7 @@ static struct address_space_operations e
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
++	.migratepage	= buffer_migrate_page,
+ };
+ 
+ static struct address_space_operations ext3_writeback_aops = {
+@@ -1572,6 +1573,7 @@ static struct address_space_operations e
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
++	.migratepage	= buffer_migrate_page,
+ };
+ 
+ static struct address_space_operations ext3_journalled_aops = {
+Index: linux-2.6.15/fs/ext2/inode.c
+===================================================================
+--- linux-2.6.15.orig/fs/ext2/inode.c	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15/fs/ext2/inode.c	2006-01-10 14:31:54.000000000 -0800
+@@ -706,6 +706,7 @@ struct address_space_operations ext2_aop
+ 	.bmap			= ext2_bmap,
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
++	.migratepage		= buffer_migrate_page,
+ };
+ 
+ struct address_space_operations ext2_aops_xip = {
+@@ -723,6 +724,7 @@ struct address_space_operations ext2_nob
+ 	.bmap			= ext2_bmap,
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
++	.migratepage		= buffer_migrate_page,
+ };
+ 
+ /*
+Index: linux-2.6.15/fs/xfs/linux-2.6/xfs_buf.c
+===================================================================
+--- linux-2.6.15.orig/fs/xfs/linux-2.6/xfs_buf.c	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15/fs/xfs/linux-2.6/xfs_buf.c	2006-01-10 14:31:54.000000000 -0800
+@@ -1568,6 +1568,7 @@ xfs_mapping_buftarg(
+ 	struct address_space	*mapping;
+ 	static struct address_space_operations mapping_aops = {
+ 		.sync_page = block_sync_page,
++		.migratepage = fail_migrate_page,
+ 	};
+ 
+ 	inode = new_inode(bdev->bd_inode->i_sb);
+Index: linux-2.6.15/mm/vmscan.c
+===================================================================
+--- linux-2.6.15.orig/mm/vmscan.c	2006-01-10 14:31:45.000000000 -0800
++++ linux-2.6.15/mm/vmscan.c	2006-01-10 14:31:54.000000000 -0800
+@@ -604,6 +604,15 @@ int putback_lru_pages(struct list_head *
+ }
+ 
+ /*
++ * Non migratable page
++ */
++int fail_migrate_page(struct page *newpage, struct page *page)
++{
++	return -EIO;
++}
++EXPORT_SYMBOL(fail_migrate_page);
++
++/*
+  * swapout a single page
+  * page is locked upon entry, unlocked on exit
+  */
+@@ -648,6 +657,8 @@ unlock_retry:
+ retry:
+ 	return -EAGAIN;
+ }
++EXPORT_SYMBOL(swap_page);
++
+ /*
+  * Page migration was first developed in the context of the memory hotplug
+  * project. The main authors of the migration code are:
+@@ -748,6 +759,7 @@ int migrate_page_remove_references(struc
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(migrate_page_remove_references);
+ 
+ /*
+  * Copy the page to its new location
+@@ -787,6 +799,7 @@ void migrate_page_copy(struct page *newp
+ 	if (PageWriteback(newpage))
+ 		end_page_writeback(newpage);
+ }
++EXPORT_SYMBOL(migrate_page_copy);
+ 
+ /*
+  * Common logic to directly migrate a single page suitable for
+@@ -814,6 +827,7 @@ int migrate_page(struct page *newpage, s
+ 	remove_from_swap(newpage);
+ 	return 0;
+ }
++EXPORT_SYMBOL(migrate_page);
+ 
+ /*
+  * migrate_pages
+@@ -913,6 +927,11 @@ redo:
+ 		if (!mapping)
+ 			goto unlock_both;
+ 
++		if (mapping->a_ops->migratepage) {
++			rc = mapping->a_ops->migratepage(newpage, page);
++			goto unlock_both;
++                }
++
+ 		/*
+ 		 * Trigger writeout if page is dirty
+ 		 */
+@@ -982,6 +1001,7 @@ next:
+ 
+ 	return nr_failed + retry;
+ }
++EXPORT_SYMBOL(migrate_pages);
+ 
+ static void lru_add_drain_per_cpu(void *dummy)
+ {
+@@ -1024,6 +1044,7 @@ redo:
+ 	}
+ 	return rc;
+ }
++EXPORT_SYMBOL(isolate_lru_page);
+ #endif
+ 
+ /*
+Index: linux-2.6.15/include/linux/swap.h
+===================================================================
+--- linux-2.6.15.orig/include/linux/swap.h	2006-01-10 14:31:45.000000000 -0800
++++ linux-2.6.15/include/linux/swap.h	2006-01-10 14:31:54.000000000 -0800
+@@ -183,6 +183,11 @@ extern int migrate_page_remove_reference
+ extern void migrate_page_copy(struct page *, struct page *);
+ extern int migrate_pages(struct list_head *l, struct list_head *t,
+ 		struct list_head *moved, struct list_head *failed);
++extern int fail_migrate_page(struct page *, struct page *);
++#else
++/* Possible settings for the migrate_page() method in address_operations */
++#define migrate_page NULL
++#define fail_migrate_page NULL
+ #endif
+ 
+ #ifdef CONFIG_MMU
+Index: linux-2.6.15/mm/rmap.c
+===================================================================
+--- linux-2.6.15.orig/mm/rmap.c	2006-01-10 14:31:45.000000000 -0800
++++ linux-2.6.15/mm/rmap.c	2006-01-10 14:31:54.000000000 -0800
+@@ -232,6 +232,7 @@ void remove_from_swap(struct page *page)
+ 
+ 	delete_from_swap_cache(page);
+ }
++EXPORT_SYMBOL(remove_from_swap);
+ #endif
+ 
+ /*

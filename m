@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWAJS4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWAJS53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWAJS4f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 13:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWAJS4e
+	id S932311AbWAJS53 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 13:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWAJS53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 13:56:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56686 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751179AbWAJS4e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 13:56:34 -0500
-Date: Tue, 10 Jan 2006 19:58:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2G memory split
-Message-ID: <20060110185811.GV3389@suse.de>
-References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3F986.4090209@mbligh.org> <Pine.LNX.4.64.0601101028360.4939@g5.osdl.org> <43C3E74D.7060309@wolfmountaingroup.com>
+	Tue, 10 Jan 2006 13:57:29 -0500
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:6362 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932309AbWAJS51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 13:57:27 -0500
+Subject: Re: [2.6 patch] VIDEO_SAA7134_ALSA shouldn't select SND_PCM_OSS
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Ricardo Cerqueira <v4l@cerqueira.org>, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060110040605.GA3911@stusta.de>
+References: <20060110040605.GA3911@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 10 Jan 2006 16:56:59 -0200
+Message-Id: <1136919419.6782.117.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C3E74D.7060309@wolfmountaingroup.com>
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10 2006, Jeff V. Merkey wrote:
-> RH ES uses 4:4 which is ideal and superior to this hack.
+Em Ter, 2006-01-10 às 05:06 +0100, Adrian Bunk escreveu:
+> There's no reason for an ALSA driver to select an OSS legacy userspace 
+> interface.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.15-mm2/drivers/media/video/saa7134/Kconfig.old	2006-01-10 02:59:30.000000000 +0100
+> +++ linux-2.6.15-mm2/drivers/media/video/saa7134/Kconfig	2006-01-10 03:02:57.000000000 +0100
+> @@ -15,7 +15,7 @@
+>  config VIDEO_SAA7134_ALSA
+>  	tristate "Philips SAA7134 DMA audio support"
+>  	depends on VIDEO_SAA7134 && SND
+> -	select SND_PCM_OSS
+> +	select SND_PCM
+>  	---help---
+>  	  This is a video4linux driver for direct (DMA) audio in
+>  	  Philips SAA713x based TV cards using ALSA
+Acked-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 
-This isn't a hack, it's just making the offset configurable so you can
-get the best of what you want.
-
-And 4:4 may be ideal in a peyote haze, so whatever.
-
--- 
-Jens Axboe
+	I'll apply at v4l-dvb git tree.
+> 
+> 
+Cheers, 
+Mauro.
 

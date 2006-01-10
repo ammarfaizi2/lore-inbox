@@ -1,115 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWAJNz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWAJOAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWAJNz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWAJNz1
+	id S932125AbWAJOAk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:00:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWAJOAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:55:27 -0500
-Received: from 213-140-2-70.ip.fastwebnet.it ([213.140.2.70]:13287 "EHLO
-	aa003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932097AbWAJNz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:55:26 -0500
-Date: Tue, 10 Jan 2006 14:53:21 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
-Message-ID: <20060110145321.00aa7040@localhost>
-In-Reply-To: <5.2.1.1.2.20060110135846.00bfd0a8@pop.gmx.net>
-References: <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
-	<20060109210035.3f6adafc@localhost>
-	<5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
-	<5.2.1.1.2.20060102092903.00bde090@pop.gmx.net>
-	<20060101123902.27a10798@localhost>
-	<5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
-	<5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
-	<200512281027.00252.kernel@kolivas.org>
-	<20051227190918.65c2abac@localhost>
-	<20051227224846.6edcff88@localhost>
-	<200512281027.00252.kernel@kolivas.org>
-	<5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
-	<5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
-	<5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
-	<5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
-	<5.2.1.1.2.20060110135846.00bfd0a8@pop.gmx.net>
-X-Mailer: Sylpheed-Claws 2.0.0-rc1 (GTK+ 2.6.10; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 10 Jan 2006 09:00:40 -0500
+Received: from ns2.suse.de ([195.135.220.15]:30947 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932125AbWAJOAk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 09:00:40 -0500
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Labs / Novell Inc.
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [patch 2/2] Access Control Lists for tmpfs
+Date: Tue, 10 Jan 2006 15:01:32 +0100
+User-Agent: KMail/1.8.2
+Cc: James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+References: <20060108230116.073177000@blunzn.suse.de> <20060108231235.440671000@blunzn.suse.de> <1136897452.19934.125.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1136897452.19934.125.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601101501.33298.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006 14:01:36 +0100
-Mike Galbraith <efault@gmx.de> wrote:
-
-> > > Can you please try this version?  It tries harder to correct any
+On Tuesday 10 January 2006 13:50, Stephen Smalley wrote:
+> On Mon, 2006-01-09 at 00:01 +0100, Andreas Gruenbacher wrote:
+> > plain text document attachment (tmpfs-acl.diff)
+> > Add access control lists for tmpfs.
 > >
-> >It seems that you have forgotten the to attach the patch...
-> 
-> Drat.  At least I'm not the first to ever do so :)
+> > Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+> >
+> > Index: linux-2.6.15-git4/mm/shmem.c
+> > ===================================================================
+> > --- linux-2.6.15-git4.orig/mm/shmem.c
+> > +++ linux-2.6.15-git4/mm/shmem.c
+> > @@ -1843,6 +1852,50 @@ static struct inode_operations shmem_sym
+> >  	.put_link	= shmem_put_link,
+> >  };
+> >
+> > +#ifdef CONFIG_TMPFS_POSIX_ACL
+> > +/* The vfs implements defaults for the security.* xattr namespace for
+> > inodes + * that don't have xattr iops. We have xattr iops for the acls,
+> > so we must + * also implement the security.* defaults here.
+> > + */
+> > +static size_t shmem_xattr_security_list(struct inode *inode, char *list,
+> > +					size_t list_len, const char *name,
+> > +					size_t name_len)
+> > +{
+> > +	return security_inode_listsecurity(inode, list, list_len);
+> > +}
+> > +
+> > +static int shmem_xattr_security_get(struct inode *inode, const char
+> > *name, +				    void *buffer, size_t size)
+> > +{
+> > +	if (strcmp(name, "") == 0)
+> > +		return -EINVAL;
+> > +	return security_inode_getsecurity(inode, name, buffer, size,
+> > +					  -EOPNOTSUPP);
+> > +}
+> > +
+> > +static int shmem_xattr_security_set(struct inode *inode, const char
+> > *name, +				    const void *value, size_t size, int flags)
+> > +{
+> > +	if (strcmp(name, "") == 0)
+> > +		return -EINVAL;
+> > +	return security_inode_setsecurity(inode, name, value, size, flags);
+> > +}
+> > +
+> > +struct xattr_handler shmem_xattr_security_handler = {
+> > +	.prefix = XATTR_SECURITY_PREFIX,
+> > +	.list   = shmem_xattr_security_list,
+> > +	.get    = shmem_xattr_security_get,
+> > +	.set    = shmem_xattr_security_set,
+> > +};
+>
+> This seems like a regression, given that this code was just removed in
+> 2.6.14 by the generic VFS fallback support for security xattrs,
+> http://marc.theaimsgroup.com/?l=git-commits-head&m=112597810414161&w=2
+>
+> Could you instead provide a generic VFS fallback for ACLs as well?
 
-This version basically works like the the previous, except that it makes
-the priority adjustment faster (that is fine).
+Correct, this was when tmpfs only supported security.* xattrs. I didn't like 
+this cleanup very much: it removed some reasonably clean abstractions and 
+piled up more crap in fs/xattr.c instead. The security.* xattr code in 
+fs/xattr.c is not extensible, which is why this patch needs to bring back 
+some of the code that was removed. It would be possible to change that code 
+so that it works no matter if an inode has xattr iops, but this would require 
+a super_block flag that indicates if an inode's xattr ops implement the 
+security.* namespace.
 
-However I can fool it the same way.
+Generic acl support would amount to adding i_acl and i_default_acl pointers to 
+generic inodes. I'm not sure if this is acceptable: Ext2, ext3, reiserfs, jfs 
+have those pointers in their in-memory inodes but others don't, and generic 
+acls only makes sense for memory-based filesystems. The wiring code needed in 
+filesystems doesn't seem so horrible to me.
 
-"./a.out 7000"
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5459 paolo     22   0  2392  288  228 S 71.3  0.1   0:09.47 a.out
+ACLs are slightly different from security labels, too: labeled security 
+protection needs a label on everything, ACLs are not needed everywhere.
 
-"./a.out 3000"
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5493 paolo     19   0  2396  292  228 R 49.8  0.1   0:14.42 a.out
-
-"./a.out 1500"
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5495 paolo     18   0  2396  288  228 S 33.4  0.1   0:09.60 a.out
-
-
-Fooling it:
-
-"./a.out 7000 & ./a.out 6537 & ./a.out 6347 & ./a.out 5873 &"
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5502 paolo     19   0  2392  288  228 R 27.0  0.1   0:05.64 a.out
- 5503 paolo     19   0  2396  288  228 R 26.0  0.1   0:07.50 a.out
- 5505 paolo     19   0  2396  292  228 R 25.6  0.1   0:07.24 a.out
- 5504 paolo     18   0  2392  288  228 R 21.0  0.1   0:06.78 a.out
-
-(priorities fluctuate between 18/19)
-
-
-Again with more of them:
-
-./a.out 7000 & ./a.out 6537 & ./a.out 6347 & ./a.out 5873& ./a.out 6245 & ./a.out 5467 &
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5525 paolo     18   0  2396  288  228 R 26.4  0.1   0:07.48 a.out
- 5521 paolo     19   0  2396  288  228 R 22.0  0.1   0:09.00 a.out
- 5524 paolo     19   0  2392  288  228 R 19.6  0.1   0:07.21 a.out
- 5523 paolo     19   0  2392  288  228 R 13.0  0.1   0:10.60 a.out
- 5520 paolo     19   0  2392  288  228 R 11.0  0.1   0:08.46 a.out
- 5522 paolo     19   0  2396  288  228 R  7.8  0.1   0:07.14 a.out
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5528 paolo     18   0  2392  288  228 R 19.7  0.1   0:18.15 a.out
- 5533 paolo     15   0  2396  288  228 S 19.3  0.1   0:19.12 a.out
- 5531 paolo     18   0  2396  288  228 R 18.5  0.1   0:19.23 a.out
- 5532 paolo     17   0  2392  288  228 R 15.1  0.1   0:18.55 a.out
- 5529 paolo     18   0  2396  288  228 R 14.7  0.1   0:13.05 a.out
- 5530 paolo     18   0  2392  288  228 R 12.5  0.1   0:20.42 a.out
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5530 paolo     18   0  2392  288  228 R 21.0  0.1   0:25.42 a.out
- 5533 paolo     18   0  2396  288  228 R 20.2  0.1   0:24.75 a.out
- 5529 paolo     18   0  2396  288  228 R 16.2  0.1   0:17.68 a.out
- 5532 paolo     18   0  2392  288  228 R 14.8  0.1   0:23.33 a.out
- 5531 paolo     18   0  2396  288  228 R 14.4  0.1   0:23.96 a.out
- 5528 paolo     18   0  2392  288  228 R 13.6  0.1   0:23.03 a.out
-
-
--- 
-	Paolo Ornati
-	Linux 2.6.15-sched_trottle2 on x86_64
+Thanks,
+Andreas.

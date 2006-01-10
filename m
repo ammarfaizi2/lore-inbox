@@ -1,131 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWAJPSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWAJPZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWAJPSX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWAJPSX
+	id S1751123AbWAJPZB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:25:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWAJPZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:18:23 -0500
-Received: from mail.gmx.de ([213.165.64.21]:1773 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751114AbWAJPSW (ORCPT
+	Tue, 10 Jan 2006 10:25:01 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:43406 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1751123AbWAJPZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:18:22 -0500
-X-Authenticated: #14349625
-Message-Id: <5.2.1.1.2.20060110153406.00be63e8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Tue, 10 Jan 2006 16:18:14 +0100
-To: Paolo Ornati <ornati@fastwebnet.it>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-In-Reply-To: <20060110145321.00aa7040@localhost>
-References: <5.2.1.1.2.20060110135846.00bfd0a8@pop.gmx.net>
- <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
- <20060109210035.3f6adafc@localhost>
- <5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
- <5.2.1.1.2.20060102092903.00bde090@pop.gmx.net>
- <20060101123902.27a10798@localhost>
- <5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
- <5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
- <200512281027.00252.kernel@kolivas.org>
- <20051227190918.65c2abac@localhost>
- <20051227224846.6edcff88@localhost>
- <200512281027.00252.kernel@kolivas.org>
- <5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
- <5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
- <5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
- <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
- <5.2.1.1.2.20060110135846.00bfd0a8@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Antivirus: avast! (VPS 0601-0, 01/02/2006), Outbound message
-X-Antivirus-Status: Clean
-X-Y-GMX-Trusted: 0
+	Tue, 10 Jan 2006 10:25:00 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17347.53668.266546.344752@alkaid.it.uu.se>
+Date: Tue, 10 Jan 2006 16:24:20 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Jens Axboe <axboe@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Byron Stanoszek <gandalf@winds.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Address space split configuration
+In-Reply-To: <20060110150331.GN3389@suse.de>
+References: <20060110125852.GA3389@suse.de>
+	<20060110132957.GA28666@elte.hu>
+	<20060110133728.GB3389@suse.de>
+	<Pine.LNX.4.63.0601100840400.9511@winds.org>
+	<20060110143931.GM3389@suse.de>
+	<20060110144412.GA9295@elte.hu>
+	<20060110150331.GN3389@suse.de>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:53 PM 1/10/2006 +0100, Paolo Ornati wrote:
->On Tue, 10 Jan 2006 14:01:36 +0100
->Mike Galbraith <efault@gmx.de> wrote:
->
-> > > > Can you please try this version?  It tries harder to correct any
-> > >
-> > >It seems that you have forgotten the to attach the patch...
-> >
-> > Drat.  At least I'm not the first to ever do so :)
->
->This version basically works like the the previous, except that it makes
->the priority adjustment faster (that is fine).
->
->However I can fool it the same way.
->
->"./a.out 7000"
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5459 paolo     22   0  2392  288  228 S 71.3  0.1   0:09.47 a.out
->
->"./a.out 3000"
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5493 paolo     19   0  2396  292  228 R 49.8  0.1   0:14.42 a.out
->
->"./a.out 1500"
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5495 paolo     18   0  2396  288  228 S 33.4  0.1   0:09.60 a.out
->
->
->Fooling it:
->
->"./a.out 7000 & ./a.out 6537 & ./a.out 6347 & ./a.out 5873 &"
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5502 paolo     19   0  2392  288  228 R 27.0  0.1   0:05.64 a.out
->  5503 paolo     19   0  2396  288  228 R 26.0  0.1   0:07.50 a.out
->  5505 paolo     19   0  2396  292  228 R 25.6  0.1   0:07.24 a.out
->  5504 paolo     18   0  2392  288  228 R 21.0  0.1   0:06.78 a.out
->
->(priorities fluctuate between 18/19)
->
->
->Again with more of them:
->
->./a.out 7000 & ./a.out 6537 & ./a.out 6347 & ./a.out 5873& ./a.out 6245 & 
->./a.out 5467 &
->
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5525 paolo     18   0  2396  288  228 R 26.4  0.1   0:07.48 a.out
->  5521 paolo     19   0  2396  288  228 R 22.0  0.1   0:09.00 a.out
->  5524 paolo     19   0  2392  288  228 R 19.6  0.1   0:07.21 a.out
->  5523 paolo     19   0  2392  288  228 R 13.0  0.1   0:10.60 a.out
->  5520 paolo     19   0  2392  288  228 R 11.0  0.1   0:08.46 a.out
->  5522 paolo     19   0  2396  288  228 R  7.8  0.1   0:07.14 a.out
->
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5528 paolo     18   0  2392  288  228 R 19.7  0.1   0:18.15 a.out
->  5533 paolo     15   0  2396  288  228 S 19.3  0.1   0:19.12 a.out
->  5531 paolo     18   0  2396  288  228 R 18.5  0.1   0:19.23 a.out
->  5532 paolo     17   0  2392  288  228 R 15.1  0.1   0:18.55 a.out
->  5529 paolo     18   0  2396  288  228 R 14.7  0.1   0:13.05 a.out
->  5530 paolo     18   0  2392  288  228 R 12.5  0.1   0:20.42 a.out
->
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5530 paolo     18   0  2392  288  228 R 21.0  0.1   0:25.42 a.out
->  5533 paolo     18   0  2396  288  228 R 20.2  0.1   0:24.75 a.out
->  5529 paolo     18   0  2396  288  228 R 16.2  0.1   0:17.68 a.out
->  5532 paolo     18   0  2392  288  228 R 14.8  0.1   0:23.33 a.out
->  5531 paolo     18   0  2396  288  228 R 14.4  0.1   0:23.96 a.out
->  5528 paolo     18   0  2392  288  228 R 13.6  0.1   0:23.03 a.out
+Jens Axboe writes:
+ > Thanks! Updated patch below.
+ > 
+ > ---
+ > 
+ > Add option for configuring the page offset, to better optimize the
+ > kernel for higher memory machines. Enables users to get rid of high
+ > memory for eg a 1GiB machine.
+ > 
+ > Signed-off-by: Jens Axboe <axboe@suse.de>
+ > Acked-by: Ingo Molnar <mingo@elte.hu>
 
-I don't think it's being fooled, it's pulling these guys down, it's just 
-that the plausible limit goes up the more tasks you're sharing the cpu 
-with, so they hit the throttle less.  If you start a bunch of tasks who 
-only do a short burn such that their individual cpu usage isn't much, but 
-together they use all available cpu, you can still severely starve 
-non-sleeping == low priority tasks.  This patch won't help for that... 
-that's an entirely different problem, and fortunately one that doesn't seem 
-to happen much in real life otherwise folks would be bitching like 
-crazy.  To guard against it, there are a lot of different things you can 
-do.  All of the ways that I know of are very bad for the desktop user, and 
-fortunately for me, beyond the intended scope of this patch :)
+Acked-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-         -Mike 
-
+ > diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+ > index d849c68..20d1423 100644
+ > --- a/arch/i386/Kconfig
+ > +++ b/arch/i386/Kconfig
+ > @@ -444,6 +464,35 @@ config HIGHMEM64G
+ >  
+ >  endchoice
+ >  
+ > +choice
+ > +	depends on NOHIGHMEM && EXPERIMENTAL
+ > +	prompt "Memory split"
+ > +	default DEFAULT_3G
+ > +	help
+ > +	  Select the wanted split between kernel and user memory.
+ > +
+ > +	  If the address range available to the kernel is less than the
+ > +	  physical memory installed, the remaining memory will be available
+ > +	  as "high memory". Accessing high memory is a little more costly
+ > +	  than low memory, as it needs to be mapped into the kernel first.
+ > +	  Note that increasing the kernel address space limits the range
+ > +	  available to user programs, making the address space there
+ > +	  tighter.
+ > +
+ > +	  If you are not absolutely sure what you are doing, leave this
+ > +	  option alone!
+ > +
+ > +	config DEFAULT_3G
+ > +		bool "3G/1G user/kernel split"
+ > +	config DEFAULT_3G_OPT
+ > +		bool "3G/1G user/kernel split (for full 1G low memory)"
+ > +	config DEFAULT_2G
+ > +		bool "2G/2G user/kernel split"
+ > +	config DEFAULT_1G
+ > +		bool "1G/3G user/kernel split"
+ > +
+ > +endchoice
+ > +
+ >  config HIGHMEM
+ >  	bool
+ >  	depends on HIGHMEM64G || HIGHMEM4G
+ > diff --git a/arch/i386/mm/init.c b/arch/i386/mm/init.c
+ > index 7df494b..67f1da0 100644
+ > --- a/arch/i386/mm/init.c
+ > +++ b/arch/i386/mm/init.c
+ > @@ -597,6 +597,12 @@ void __init mem_init(void)
+ >  	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE - 1) + 1;
+ >  #endif
+ >  
+ > +#if !defined(CONFIG_DEFAULT_3G)
+ > +	/* if the user has less than 960MB of RAM, he should use the default */
+ > +	if (max_low_pfn < (960 * 1024 * 1024 / PAGE_SIZE))
+ > +		printk(KERN_INFO "Memory: less than 960MiB of RAM, you should use the default memory split setting\n");
+ > +#endif
+ > +
+ >  	/* this will put all low memory onto the freelists */
+ >  	totalram_pages += free_all_bootmem();
+ >  
+ > diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
+ > index 73296d9..7da50a1 100644
+ > --- a/include/asm-i386/page.h
+ > +++ b/include/asm-i386/page.h
+ > @@ -109,11 +109,23 @@ extern int page_is_ram(unsigned long pag
+ >  
+ >  #endif /* __ASSEMBLY__ */
+ >  
+ > +#if defined(CONFIG_DEFAULT_3G)
+ > +#define __PAGE_OFFSET_RAW	(0xC0000000)
+ > +#elif defined(CONFIG_DEFAULT_3G_OPT)
+ > +#define	__PAGE_OFFSET_RAW	(0xB0000000)
+ > +#elif defined(CONFIG_DEFAULT_2G)
+ > +#define __PAGE_OFFSET_RAW	(0x78000000)
+ > +#elif defined(CONFIG_DEFAULT_1G)
+ > +#define __PAGE_OFFSET_RAW	(0x40000000)
+ > +#else
+ > +#error "Bad user/kernel offset"
+ > +#endif
+ > +
+ >  #ifdef __ASSEMBLY__
+ > -#define __PAGE_OFFSET		(0xC0000000)
+ > +#define __PAGE_OFFSET		__PAGE_OFFSET_RAW
+ >  #define __PHYSICAL_START	CONFIG_PHYSICAL_START
+ >  #else
+ > -#define __PAGE_OFFSET		(0xC0000000UL)
+ > +#define __PAGE_OFFSET		((unsigned long)__PAGE_OFFSET_RAW)
+ >  #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
+ >  #endif
+ >  #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
+ > 
+ > -- 
+ > Jens Axboe
+ > 
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
+ > 

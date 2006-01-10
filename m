@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWAJP7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWAJQGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWAJP7c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWAJP7c
+	id S1751139AbWAJQGE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 11:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWAJQGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:59:32 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:51860 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751132AbWAJP7b (ORCPT
+	Tue, 10 Jan 2006 11:06:04 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:35688 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751139AbWAJQGD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:59:31 -0500
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060110011844.7a4a1f90.akpm@osdl.org>
-References: <patchbomb.1136579193@eng-12.pathscale.com>
-	 <d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
-	 <20060110011844.7a4a1f90.akpm@osdl.org>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Tue, 10 Jan 2006 07:59:21 -0800
-Message-Id: <1136908761.32183.18.camel@serpentine.pathscale.com>
+	Tue, 10 Jan 2006 11:06:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=BdqAtUp29kW9od6q4OHouCYnu23iZB1QEXmxzOkxw2OgbMfO6zaj1TzSQqBcZ9/5YyaN/UbrG94eaR56bXWDt8/pgrIkYROvokAmE/rbe5MrvJYnT7cVeNC/HKGpS9eBk7/wlIamD7aIQGtXD1+zvj4JJMoWRHAWlbo7uQVCClg=
+Date: Tue, 10 Jan 2006 19:23:06 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.15-$SHA1: VT <-> X sometimes odd
+Message-ID: <20060110162305.GA7886@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 01:18 -0800, Andrew Morton wrote:
-> "Bryan O'Sullivan" <bos@pathscale.com> wrote:
-> >
-> > This arch-independent routine copies data to a memory-mapped I/O region,
-> >  using 32-bit accesses.  It does not guarantee access ordering, nor does
-> >  it perform a memory barrier afterwards.  This style of access is required
-> >  by some devices.
-> 
-> Not providing orderingor barriers makes this a rather risky thing to export
-> - people might use it, find their driver "works" on one architecture, but
-> fails on another.
+Approximate sequence of event:
 
-The kdoc comments for the routine clearly state these limitations, so I
-hope that between the comments and the naming, the risk is minimal.
+1. script which builds allmodconfig on 11 targets is left on otherwise
+   idle machine. Logged in on VT1. Logged of X.
+2. After 5 hours I return, ensure script behaves OK, switch to X and see
+   black screen.
+3. Now, trying to switch between VTs and X gives nothing but black
+   screen.
+4. Alt+SysRq+K. After several seconds black screen switches to black
+   screen with text cursor in the upper-left corner.
+5. Futher attempts to switch and SysRq+Ki'ing gave nothing.
+6. In a minute or so X login prompt reappeared. Mouse os OK. Keyboard is
+   not. In particular, typing username doesn't work.
+7. By some miracle, typing became OK (probably after I hit Ctrl, not
+   sure). I login to X successfully and fire up mutt to mail bugreport.
+8. Devil turned me to switch to VT again...
+9. goto #5.
+10. Cold reboot.
 
-> I guess the "__" is a decent warning of this, and the patch anticipates a
-> higher-level raw_memcpy_toio32() which implements those things, yes?
+The overall feeling is that X left without human interaction starts to
+reacts slooowly (probably after blanking kicks in?).
 
-It leaves room for it, yes, though I don't see much reason to add such a
-routine until a driver specifically needs it.
+This is semi-reproducable, as in, I can't reproduce it at will but the
+very same thing occured yesterday.
 
-> How come __raw_memcpy_toio32() is inlined?
+Now version numbers. All the above happened with
+2.6.15-977127174a7dff52d17faeeb4c4949a54221881f
 
-There's no technical reason for it to be.  I'm simply trying to find an
-acceptable way to get the code into the tree that accommodates per-arch
-implementations.
-
-So let me rewind a little and state my problem.
-
-My driver needs a copy routine that works in 32-bit chunks, writes to
-MMIO space, doesn't care about ordering, and doesn't guarantee a memory
-barrier.  It also very much wants individual arches to be able to
-implement this routine themselves; even though it's a small, simple
-loop, we've benchmarked our x86_64 version as giving us 5% better
-performance overall (i.e. visible to apps, not just microbenchmarks)
-when doing reasonably large copies.  I'd expect other arches to have
-similar benefits.
-
-I'm more than willing to recast the code into whatever form makes people
-happy, but it would be greatly beneficial to me if it also met my
-requirements.
-
-So far, my attempts have been thus:
-
-      * out of line, with __HAVE_ARCH_XXX to avoid bloat on arches that
-        have specialised implementations - __HAVE_ARCH_XXX is out of
-        style
-      * out of line, unconditional - made people unhappy on bloat
-        grounds, since arches that have specialised implementations end
-        up with an extra unneeded routine
-      * inline, apparently in Linus's preferred style - an inline that
-        isn't really necessary
-
-For a routine whose C implementation is six lines long, it's had an
-impressive submission history :-)
-
-What do you suggest I try next?  I'll be happy to try a different tack.
-
-	<b
+Yesterday it was 2.6.15-5367f2d67c7d0bf1faae90e6e7b4e2ac3c9b5e0f or
+2.6.15-0aec63e67c69545ca757a73a66f5dcf05fa484bf, I don't remember. These
+are just top entries in grub.conf.
 

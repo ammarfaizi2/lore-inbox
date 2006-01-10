@@ -1,72 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWAJRrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWAJRr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWAJRrP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 12:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWAJRrP
+	id S932286AbWAJRr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 12:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWAJRr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 12:47:15 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:15307 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932126AbWAJRrO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 12:47:14 -0500
-Message-ID: <43C40507.D1A85679@tv-sign.ru>
-Date: Tue, 10 Jan 2006 22:03:35 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 10 Jan 2006 12:47:57 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:37639 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932286AbWAJRrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 12:47:53 -0500
+Date: Tue, 10 Jan 2006 18:47:52 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Michal Semler <cijoml@volny.cz>
+Cc: linux-dvb@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: oops when playing using pluto2 driver
+Message-ID: <20060110174752.GR3911@stusta.de>
+References: <200509222232.57878.cijoml@volny.cz>
 MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single 
- threadedprocess at getrusage()
-References: <43B2874F.F41A9299@tv-sign.ru> <20051228183345.GA3755@localhost.localdomain> <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru> <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <43C0FC4B.567D18DC@tv-sign.ru> <20060108195848.GA4124@localhost.localdomain> <43C2B1B7.635DDF0B@tv-sign.ru> <20060109205442.GB3691@localhost.localdomain>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509222232.57878.cijoml@volny.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai wrote:
+Hi Michal,
+
+is this problem still present in kernel 2.6.15?
+
+cu
+Adrian
+
+
+On Thu, Sep 22, 2005 at 10:32:55PM +0200, Michal Semler wrote:
+> Sending oops occured playing using pluto2 driver
 > 
-> On Mon, Jan 09, 2006 at 09:55:51PM +0300, Oleg Nesterov wrote:
-> > Ravikiran G Thirumalai wrote:
-> > >
-> > >
-> > > Don't we still need rmb for the RUSAGE_SELF case? we do not take the
-> > > siglock for rusage self and the non c* signal fields are written to
-> > > at __exit_signal...
-> >
-> > I think it is unneeded because RUSAGE_SELF case is "racy" anyway even
-> > if we held both locks, task_struct->xxx counters can change at any
-> > moment.
-> >
-> > But may be you are right.
+> tda1004x: found firmware revision ff -- invalid
+> tda1004x: waiting for firmware upload...
+> tda1004x: found firmware revision 20 -- ok
+> tda1004x: found firmware revision 20 -- ok
+> pluto2 0000:03:00.0: overflow irq (6)
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> pluto2 0000:03:00.0: card hung up :(
+> ACPI: PCI interrupt for device 0000:03:00.0 disabled
+> Unable to handle kernel NULL pointer dereference at virtual address 0000016c
+>  printing eip:
+> f8856ed0
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT
+> Modules linked in: rfcomm hidp l2cap pcspkr cdc_acm sd_mod snd_intel8x0m 
+> 8250_pci 8250 serial_core snd_intel8x0 snd_ac97_codec snd_pcm_oss 
+> snd_mixer_oss snd_pcm snd_timer snd snd_page_alloc i2c_i801 ehci_hcd hci_usb 
+> eth1394 usb_storage bluetoothuhci_hcd ipw2200 ieee80211 ieee80211_crypt 
+> 8139too mii ohci1394 sr_mod sbp2 scsi_mod ieee1394 ide_cd cdrom genrtc pluto2 
+> dvb_core tda1004x
+> CPU:    0
+> EIP:    0060:[<f8856ed0>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.13)
+> EIP is at dvb_frontend_poll+0x40/0xb0 [dvb_core]
+> eax: 00000000   ebx: 00000000   ecx: 00000174   edx: 00000001
+> esi: 00000000   edi: f21ff700   ebp: 00000001   esp: f569df10
+> ds: 007b   es: 007b   ss: 0068
+> Process kaffeine (pid: 5034, threadinfo=f569c000 task=efd5f060)
+> Stack: f569df1c 00393b58 f569df98 00000145 f74bb188 f21ff700 c017a871 f21ff700
+>        00000000 f74bb180 00000000 f569df5c f569df60 c017a8ec 00000001 f74bb188
+>        f569df5c f569df60 f569c000 00000000 00000000 00000000 f74bb180 bf88fe08
+> Call Trace:
+>  [<c017a871>] do_pollfd+0x91/0xa0
+>  [<c017a8ec>] do_poll+0x6c/0xe0
+>  [<c017ab30>] sys_poll+0x1d0/0x230
+>  [<c0179e90>] __pollwait+0x0/0xd0
+>  [<c01031e5>] syscall_call+0x7/0xb
+> Code: 24 0c 8b 47 78 8b 40 28 8b 58 0c a1 d0 23 86 f8 85 c0 75 47 85 f6 89 d9 
+> 0f 95 c0 81 c1 74 01 00 00 0f 95 c2 0f b6 d285 d0 75 60 <8b> 93 6c 01 00 00 
+> b8 43 00 00 00 8b 74 24 10 39 93 68 01 00 00
+>  <1>Unable to handle kernel paging request at virtual address f882c050
+>  printing eip:
+> f8850467
+> *pde = 017ec067
+> *pte = 00000000
+> Oops: 0000 [#2]
+> PREEMPT
+> Modules linked in: rfcomm hidp l2cap pcspkr cdc_acm sd_mod snd_intel8x0m 
+> 8250_pci 8250 serial_core snd_intel8x0 snd_ac97_codec snd_pcm_oss 
+> snd_mixer_oss snd_pcm snd_timer snd snd_page_alloc i2c_i801 ehci_hcd hci_usb 
+> eth1394 usb_storage bluetoothuhci_hcd ipw2200 ieee80211 ieee80211_crypt 
+> 8139too mii ohci1394 sr_mod sbp2 scsi_mod ieee1394 ide_cd cdrom genrtc pluto2 
+> dvb_core tda1004x
+> CPU:    0
+> EIP:    0060:[<f8850467>]    Not tainted VLI
+> EFLAGS: 00010286   (2.6.13)
+> EIP is at dvb_demux_release+0x7/0x20 [dvb_core]
+> eax: f882c000   ebx: 00000008   ecx: 00000000   edx: f8850460
+> esi: ef05c780   edi: c17e0e80   ebp: f61eb314   esp: ee0ede28
+> ds: 007b   es: 007b   ss: 0068
+> Process kaffeine (pid: 5064, threadinfo=ee0ec000 task=ee09e580)
+> Stack: c0165a6e f61eb314 ef05c780 00000000 00000000 f639840c ef05c780 f6ac5040
+>        00000000 00000001 c0163db6 ef05c780 f6ac5040 0000168f 0000000a f6ac5040
+>        c011fa72 ef05c780 f6ac5040 ee0ec000 ee09e580 f6ac5040 00000009 c01207a5
+> Call Trace:
+>  [<c0165a6e>] __fput+0x15e/0x1a0
+>  [<c0163db6>] filp_close+0x46/0x90
+>  [<c011fa72>] put_files_struct+0x62/0xd0
+>  [<c01207a5>] do_exit+0x105/0x420
+>  [<c0120b34>] do_group_exit+0x34/0xa0
+>  [<c012a80b>] get_signal_to_deliver+0x20b/0x330
+>  [<c0102f9c>] do_signal+0x6c/0x150
+>  [<c0179e90>] __pollwait+0x0/0xd0
+>  [<c017a5a0>] sys_select+0x210/0x450
+>  [<c0164898>] vfs_read+0x1a8/0x1b0
+>  [<c01030b7>] do_notify_resume+0x37/0x3c
+>  [<c0103276>] work_notifysig+0x13/0x15
+> Code: 74 24 10 8b 7c 24 14 8b 6c 24 18 83 c4 1c c3 90 8d 74 26 00 89 74 24 08 
+> 89 4c 24 04 89 2c 24 ff 16 eb ae 90 8b 44 2408 8b 40 78 <8b> 50 50 89 44 24 
+> 08 89 54 24 04 e9 69 f8 ff ff 89 f6 8d bc 27
+>  <1>Fixing recursive fault but reboot is needed!
 > 
-> Hmm...access to task_struct->xxx has been racy, but accessing the
-> signal->* counters were not.  What if read of the signal->utime  was  a
-> hoisted read and signal->stime was a read after the counter is updated?
-> This was not a possibility earlier no?
-
-Sorry, I can't undestand. Could you please be more verbose ?
-
-> >
-> > > What is wrong with optimizing by not taking the siglock in RUSAGE_BOTH
-> > > and RUSAGE_CHILDREN?  I would like to add that in too unless  I am
-> > > missing something and the optimization is incorrect.
-> >
-> > We can't have contention on ->siglock when need_lock == 0, so why should
-> > we optimize this case?
 > 
-> We would be saving 1 buslocked operation in that case (on some arches), a
-> cacheline fetch for exclusive (since signal and sighand are on different memory
-> locations), and disabling/enabling onchip interrupts.  But yes, this would be a
-> smaller optimization....Unless you have strong objections this can also
-> go in?
-
-I don't have strong objections, but I am not a maintainer.
-
-However, do you have any numbers or thoughts why this optimization
-can make any _visible_ effect?
-
-Oleg.
+> vanilla kernel 2.6.13, debian sarge
+> 
+> Michal

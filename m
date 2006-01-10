@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWAJJUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWAJJWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbWAJJUW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 04:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWAJJUW
+	id S932145AbWAJJWn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 04:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWAJJWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 04:20:22 -0500
-Received: from terrhq.ru ([81.222.97.18]:4023 "EHLO mail.terrhq.ru")
-	by vger.kernel.org with ESMTP id S1751021AbWAJJUV (ORCPT
+	Tue, 10 Jan 2006 04:22:43 -0500
+Received: from gate.perex.cz ([85.132.177.35]:40339 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932145AbWAJJWm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 04:20:21 -0500
-From: Yaroslav Rastrigin <yarick@it-territory.ru>
-Organization: IT-Territory 
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Date: Tue, 10 Jan 2006 12:20:03 +0300
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, Denis Vlasenko <vda@ilport.com.ua>
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091207.14939.yarick@it-territory.ru> <20060109231313.2d455d5f.akpm@osdl.org>
-In-Reply-To: <20060109231313.2d455d5f.akpm@osdl.org>
+	Tue, 10 Jan 2006 04:22:42 -0500
+Date: Tue, 10 Jan 2006 10:22:40 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Heikki Orsila <shd@modeemi.cs.tut.fi>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <20060105144521.GF757@jolt.modeemi.cs.tut.fi>
+Message-ID: <Pine.LNX.4.61.0601101018580.10330@tm8103.perex-int.cz>
+References: <20060105140155.GC757@jolt.modeemi.cs.tut.fi>
+ <Pine.LNX.4.61.0601051518370.10350@tm8103.perex-int.cz>
+ <20060105144521.GF757@jolt.modeemi.cs.tut.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601101220.03848.yarick@it-territory.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew, 
-On 10 January 2006 10:13, Andrew Morton wrote:
-> 
-> A quick grep indicates that you reported zero bugs to this mailing list in
-> 2005.
-> 
-> Please preapre quality bug reports (preferably in less-than-80-column
-> emails) and direct them to the relevant maintainers and be prepared to work
-> with those maintainers in the resolution of the bugs.
-Bug #1188 . See for yourself about quality of reported data, relevant maintainers and my prepareness to work with them to resolve.
-(P.S. Two fscking years.)
+On Thu, 5 Jan 2006, Heikki Orsila wrote:
 
--- 
-Managing your Territory since the dawn of times ...
+> > > 	err = alsa_simple_pcm_open(nchannels, sampleformat, samplingrate, frames_in_period /* 0 for automated default */ );
+> > > 	err = alsa_simple_writei(); /* handless signal brokeness automagically */
+> > > 	alsa_simple_close();
+> > 
+> > Well, it's better to create only "fast parameter setup" and "default error 
+> > recovery" functions.
+> 
+> As long as all applications PCM code can be written into 10-20 C lines. 
+> That includes: opening device, writing pcm data and closing the device. 
+
+I've added snd_pcm_set_params() and snd_pcm_recover() functions into 
+alsa-lib (they're a bit experimental and I'm still waiting for any 
+feedback from others).
+
+The "minimal example" can be reached at:
+
+http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-lib/test/pcm_min.c?rev=1.2&view=markup
+
+> > > Basically ogg123/mpg123 like applications would only need 3 alsa calls. 
+> > > Now everyone reimplementing their own buggy versions of simple mechanisms.
+> > 
+> > While "official" examples exists for a long time.
+> 
+> btw. your official examples don't work on simple PCM playback didn't 
+> work when I last time tried. Sorry, I can't remember details because it 
+> is so long ago.
+
+Any bug report? We don't have a crystal ball to fix bugs without any 
+information.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

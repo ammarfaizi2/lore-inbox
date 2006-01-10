@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030677AbWAJXDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030678AbWAJXEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030677AbWAJXDc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 18:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030678AbWAJXDc
+	id S1030678AbWAJXEz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 18:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030679AbWAJXEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 18:03:32 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:41966 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1030677AbWAJXDb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 18:03:31 -0500
-Subject: 2.6.15-rt3 + Open Posix Test Suite
-From: Daniel Walker <dwalker@mvista.com>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu
-Content-Type: text/plain
-Date: Tue, 10 Jan 2006 15:03:29 -0800
-Message-Id: <1136934210.5756.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 10 Jan 2006 18:04:54 -0500
+Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:37539 "EHLO
+	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1030678AbWAJXEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 18:04:54 -0500
+Message-ID: <43C43DC3.4050008@keyaccess.nl>
+Date: Wed, 11 Jan 2006 00:05:39 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Jens Axboe <axboe@suse.de>, Sebastian <sebastian_ml@gmx.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
+References: <20060107115449.GB20748@section_eight.mops.rwth-aachen.de>	 <20060107115947.GY3389@suse.de>	 <20060107140843.GA23699@section_eight.mops.rwth-aachen.de>	 <20060107142201.GC3389@suse.de>	 <20060107160622.GA25918@section_eight.mops.rwth-aachen.de>	 <43BFFE08.70808@wasp.net.au>	 <20060107180211.GA12209@section_eight.mops.rwth-aachen.de>	 <43C00C32.9050002@wasp.net.au> <20060109093025.GO3389@suse.de>	 <20060109094923.GA8373@section_eight.mops.rwth-aachen.de>	 <20060109100322.GP3389@suse.de>  <43C4388B.4060905@keyaccess.nl> <1136933539.2007.88.camel@mindpipe>
+In-Reply-To: <1136933539.2007.88.camel@mindpipe>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lee Revell wrote:
 
-	It's worth noting that a few tests in the current Open Posix Test Suite
-hang RT systems. 
+>>One thing that _is_ different is that the SG_IO version very
+>>frequently (soft) locks up the machine, with: 
+> 
+> 
+> So you are saying that once you see the BUG: softlockup message the
+> system is unresponsive and must be rebooted?
 
-Specifically this test (hope this url comes through),
+Well, a bit before that -- it takes a while for the softlockup timer to 
+trigger. Yes and no, the machine's 'dead' while this is happening but in 
+the end (minutes) it does recover in so far that it's no longer trying 
+(but does leave around a cdparanoia in D state). Yes, I reboot, and then 
+  things work again, until... well, they do not, which is quickly with 
+the SG_IO patched cdparanoia.
 
-http://cvs.sourceforge.net/viewcvs.py/*checkout*/posixtest/posixtestsuite/conformance/interfaces/sched_setparam/10-1.c?rev=1.2
+It's probably more useful to test with a very minimal CDDA extraction 
+tool using SG_IO, if Jens has any such tool lying around, and if anyone 
+_wants_ me to test. As said, I personally just switched back to using 
+regular cdparanoia, which is working fine for me.
 
-sched_setparam test 10-1.c and I think 9-1.c .
-
-The 10-1 test spawns some children at SCHED_FIFO priority 99 , then runs
-the following,
-
-void child_process(){
-	alarm(2);
-
-	while(1) {
-		(*shmptr)++;
-		sched_yield();
-	}
-}
-
-I'm sure this is what's hanging the system, the yield() is one issue.
-Another is why the alarm() is never delivered .
-
-Daniel
-
+Rene.

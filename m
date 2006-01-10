@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWAJNti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWAJNwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbWAJNti (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWAJNti
+	id S932067AbWAJNwO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWAJNwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:49:38 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57805 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751042AbWAJNth (ORCPT
+	Tue, 10 Jan 2006 08:52:14 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:36932 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932067AbWAJNwN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:49:37 -0500
-Date: Mon, 9 Jan 2006 20:26:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Tue, 10 Jan 2006 08:52:13 -0500
+Date: Tue, 10 Jan 2006 14:54:05 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH]: How to be a kernel driver maintainer
-Message-ID: <20060109192644.GA18175@elf.ucw.cz>
-References: <1136736455.24378.3.camel@grayson>
+Subject: Re: 2G memory split
+Message-ID: <20060110135404.GF3389@suse.de>
+References: <20060110125852.GA3389@suse.de> <17347.47882.735057.154898@alkaid.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1136736455.24378.3.camel@grayson>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <17347.47882.735057.154898@alkaid.it.uu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Since this discussion of getting driver authors to submit their driver
-> for inclusion I started writing a document to send them. I think it's
-> best included in the kernel tree.
+On Tue, Jan 10 2006, Mikael Pettersson wrote:
+> Jens Axboe writes:
+>  > Hi,
+>  > 
+>  > It does annoy me that any 1G i386 machine will end up with 1/8th of the
+>  > memory as highmem. A patch like this one has been used in various places
+>  > since the early 2.4 days at least, is there a reason why it isn't merged
+>  > yet? Note I just hacked this one up, but similar patches abound I'm
+>  > sure. Bugs are mine.
+>  > 
+>  > Signed-off-by: Jens Axboe <axboe@suse.de>
+>  > 
+>  > diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+>  > index d849c68..0b2457b 100644
+>  > --- a/arch/i386/Kconfig
+>  > +++ b/arch/i386/Kconfig
+>  > @@ -444,6 +464,24 @@ config HIGHMEM64G
+>  >  
+>  >  endchoice
+>  >  
+>  > +choice
+>  > +	depends on NOHIGHMEM
+>  > +	prompt "Memory split"
+>  > +	default DEFAULT_3G
+>  > +	help
+>  > +	  Select the wanted split between kernel and user memory. On a 1G
+>  > +	  machine, the 3G/1G default split will result in 128MiB of high
+>  > +	  memory. Selecting a 2G/2G split will make all of memory available
+>  > +	  as low memory. Note that this will make your kernel incompatible
+>  > +	  with binary only kernel modules.
 > 
-> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> 2G/2G is not the only viable alternative. On my 1GB x86 box I'm
 
-Well, nice document, but it does not really match the title. I
-expected something like "how to be Jeff Garzik" and it is more "how to
-get your driver into kernel and keep it there". It does not deal with
-taking patches from other people, etc... I think it should go into
-submitting driver howto or something like that.
+Yes I know, as I wrote to Ingo I wanted to keep it really simple. It can
+easily be extended, of course.
 
-							Pavel
+> using "lowmem1g" patches for both 2.4 and 2.6, which results in
+> 2.75G for user-space. I'm sure others have other preferences.
+> Any standard option for this should either have several hard-coded
+> alternatives, or should support arbitrary values (within reason).
 
-> --- /dev/null	2006-01-05 16:54:17.144000000 -0500
-> +++ b/Documentation/HOWTO-KernelMaintainer	2006-01-08 11:02:34.000000000 -0500
-> @@ -0,0 +1,150 @@
-> +                  How to be a kernel driver maintainer
-> +                  ------------------------------------
-> +
-> +
-> +This document explains what you must know before becoming the maintainer
-> +of a portion of the Linux kernel. Please read SubmittingPatches and
-> +SubmittingDrivers and CodingStyle, also in the Documentation/ directory.
+That's just asking for trouble, imho. We should provide some defaults
+(that work well on 1G and 2G machines, for instance) and stick to that.
 
+> (See http://www.csd.uu.se/~mikpe/linux/patches/*/patch-i386-lowmem1g-*
+> if you're interested.)
+
+It's similar to what I've been doing so far (just changing page.h to
+0xb0000000). 0x80000000 might be a bad default as suggested by Byron, as
+it just misses the full 2G.
+
+0xb0000000 is a much better default, but I didn't think that would fly
+as a patch.
 
 -- 
-Thanks, Sharp!
+Jens Axboe
+

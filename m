@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbWAJW32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbWAJWaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbWAJW32 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 17:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWAJW32
+	id S932581AbWAJWaj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 17:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWAJWaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 17:29:28 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:42936 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932578AbWAJW31 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 17:29:27 -0500
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, rdreier@cisco.com, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060110140557.41e85f7d.akpm@osdl.org>
-References: <patchbomb.1136579193@eng-12.pathscale.com>
-	 <d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
-	 <20060110011844.7a4a1f90.akpm@osdl.org> <adaslrw3zfu.fsf@cisco.com>
-	 <1136909276.32183.28.camel@serpentine.pathscale.com>
-	 <20060110170722.GA3187@infradead.org>
-	 <1136915386.6294.8.camel@serpentine.pathscale.com>
-	 <20060110175131.GA5235@infradead.org>
-	 <1136915714.6294.10.camel@serpentine.pathscale.com>
-	 <20060110140557.41e85f7d.akpm@osdl.org>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Tue, 10 Jan 2006 14:29:22 -0800
-Message-Id: <1136932162.6294.31.camel@serpentine.pathscale.com>
+	Tue, 10 Jan 2006 17:30:39 -0500
+Received: from bay101-f10.bay101.hotmail.com ([64.4.56.20]:27634 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S932579AbWAJWai
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 17:30:38 -0500
+Message-ID: <BAY101-F102837A76FADACF6F37DBBDF250@phx.gbl>
+X-Originating-IP: [70.150.153.162]
+X-Originating-Email: [jtreubig@hotmail.com]
+From: "John Treubig" <jtreubig@hotmail.com>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Error handling in LibATA
+Date: Tue, 10 Jan 2006 16:30:35 -0600
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 10 Jan 2006 22:30:35.0752 (UTC) FILETIME=[79B37680:01C61635]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 14:05 -0800, Andrew Morton wrote:
+I've been working on a problem with Promise 20269 PATA adapter under LibATA 
+that if the drive has a write error or time-out, the application that is 
+accessing the drive using SG should see some sort of error.  My first 
+problem was my system hung.  After patching the IDE-IO.C, with a recognized 
+patch, I have been able to keep my system from hanging.  Now the only 
+problem is the application gets no notification that the drive has been 
+rendered inaccessible.  (Test case is to run a system with my app going, and 
+then pull the power from the drive.  System log shows the errors, but 
+nothing gets back to the app).  The app does get notifications if I perform 
+the same type of test on a drive attached to the motherboard secondary IDE 
+adapter, so we know the app is correctly implemented.
 
-> It's kinda fun playing Brian along like this ;)
+I've traced the errors down to the fact that the errors are caught in 
+libata-core.c (ata_qc_timeout).  I'd like to put a call in libata-core.c 
+that would cause an error to be reflected back to the application.  Can you 
+suggest the function or method that would do this?
 
-A regular barrel of monkeys, indeed...
+Best wishes,
+John Treubig
+VT Miltope Corporation
 
-> One option is to just stick the thing in an existing lib/ or kernel/ file
-> and mark it __attribute__((weak)).  That way architectures can override it
-> for free with no ifdefs, no Makefile trickery, no Kconfig trickery, etc.
-
-I'm easy.  Would you prefer to take that, or the Kconfig-trickery-based
-patch series I already posted earlier?
-
-	<b
 

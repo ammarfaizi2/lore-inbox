@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWAJNME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWAJNQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWAJNME (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWAJNMD
+	id S932151AbWAJNQN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWAJNQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:12:03 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:31524 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751022AbWAJNL7 (ORCPT
+	Tue, 10 Jan 2006 08:16:12 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:19434 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932151AbWAJNQM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:11:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=AOcsWt+El+DbZX851BwONA1aLjpSoUabm+7elTPedAkp2LJKFZ+B2x8rccpfUyY3+3+FDwp+k3JxBB8nNR/EnmsEFUf/dI/nIO4g0z2GSKIDBjqFPJgo2Jl15zIrzjoQUPonHFbvqeg2DWUI/ZvFrLOOg4U8VzyBU+B2EYxU1B8=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-scsi@vger.kernel.org
-Subject: [PATCH]Add scsi_add_host() failure handling for nsp32
-Date: Tue, 10 Jan 2006 14:11:52 +0100
-User-Agent: KMail/1.9
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Morton <akpm@osdl.org>,
-       YOKOTA Hiroshi <yokota@netlab.is.tsukuba.ac.jp>,
-       GOTO Masanori <gotom@debian.or.jp>, gotom@debian.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 08:16:12 -0500
+Date: Tue, 10 Jan 2006 14:16:18 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Reuben Farrelly <reuben-lkml@reub.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+Message-ID: <20060110131618.GA27123@elte.hu>
+References: <20060107052221.61d0b600.akpm@osdl.org> <43BFD8C1.9030404@reub.net> <20060107133103.530eb889.akpm@osdl.org> <43C38932.7070302@reub.net> <20060110104759.GA30546@elte.hu> <43C3A85A.7000003@reub.net> <20060110044240.3d3aa456.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601101411.52585.jesper.juhl@gmail.com>
+In-Reply-To: <20060110044240.3d3aa456.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
 
-Add scsi_add_host() failure handling for nsp32
-and silence warning.
-  drivers/scsi/nsp32.c:2888: warning: ignoring return value of csi_add_host', declared with attribute warn_unused_result
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> >
+> > Ok here's the latest one, this time with KALLSYMS_ALL, CONFIG_FRAME_POINTER, 
+> >  CONFIG_DETECT_SOFTLOCKUP and the DEBUG_WARN_ON(current->state != TASK_RUNNING); 
+> >  patch from Ingo.
+> 
+> This is quite ugly.  I'd be suspecting a block layer problem: RAID or 
+> the underlying device driver (ahci) has lost an IO.
 
- drivers/scsi/nsp32.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
+yeah, now it more looks like that to me too. What happens is a raid1 
+resync happens in the background - which is one of the more complex 
+raid1 workloads - and there've been a good number of md patches 
+recently. Reuben, does -git5 show the same symptoms?
 
---- linux-2.6.15-mm2-orig/drivers/scsi/nsp32.c	2006-01-07 14:46:18.000000000 +0100
-+++ linux-2.6.15-mm2/drivers/scsi/nsp32.c	2006-01-10 14:07:00.000000000 +0100
-@@ -2885,7 +2885,12 @@ static int nsp32_detect(struct scsi_host
-         }
- 
- #if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
--	scsi_add_host (host, &PCIDEV->dev);
-+	ret = scsi_add_host (host, &PCIDEV->dev);
-+	if (ret) {
-+		printk(KERN_WARNING "nsp32: scsi_add_host failed\n");
-+		scsi_host_put(host);
-+		return ret;
-+	}
- 	scsi_scan_host(host);
- #endif
- 	pci_set_drvdata(PCIDEV, host);
-
-
-
-
-
-PS. Please CC me on replies from linux-scsi since I'm not subscribed there.
-
--- 
-Jesper Juhl
-
+	Ingo

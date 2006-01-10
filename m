@@ -1,26 +1,26 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWAJILA (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 10 Jan 2006 03:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWAJIK7
+	id S932086AbWAJIKc (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 10 Jan 2006 03:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWAJIKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 03:10:59 -0500
-Received: from omc2-s42.bay6.hotmail.com ([65.54.249.52]:49150 "EHLO
-	omc2-s42.bay6.hotmail.com") by vger.kernel.org with ESMTP
-	id S932087AbWAJIK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 03:10:59 -0500
-Message-ID: <BAY5-F48BB0D2122064DB41732FB4250@phx.gbl>
+	Tue, 10 Jan 2006 03:10:32 -0500
+Received: from omc2-s33.bay6.hotmail.com ([65.54.249.43]:27202 "EHLO
+	omc2-s33.bay6.hotmail.com") by vger.kernel.org with ESMTP
+	id S932086AbWAJIKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 03:10:31 -0500
+Message-ID: <BAY5-F4CFC5F615DEA4248232BBB4250@phx.gbl>
 X-Originating-IP: [81.91.238.42]
 X-Originating-Email: [drzoba_madu3@msn.com]
 From: "drzoba madu" <drzoba_madu3@msn.com>
-Subject: COMPENSATION AND HAPPY NEW YEAR TO YOU.
-Date: Tue, 10 Jan 2006 08:10:58 +0000
+Subject: COMPENSATION  
+Date: Tue, 10 Jan 2006 08:10:30 +0000
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 10 Jan 2006 08:10:58.0401 (UTC) FILETIME=[63344510:01C615BD]
+X-OriginalArrivalTime: 10 Jan 2006 08:10:31.0011 (UTC) FILETIME=[52E0E330:01C615BD]
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932087AbWAJILA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932086AbWAJIKc@vger.kernel.org>
 
 Dear Friend
 I'm happy to inform you about my success in getting those funds  transferred 

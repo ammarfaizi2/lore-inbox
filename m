@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWAJKId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWAJKLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWAJKId (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 05:08:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWAJKId
+	id S932159AbWAJKLt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 05:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWAJKLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 05:08:33 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:56992 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751037AbWAJKIc (ORCPT
+	Tue, 10 Jan 2006 05:11:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:57708 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751039AbWAJKLs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 05:08:32 -0500
-Date: Tue, 10 Jan 2006 11:08:39 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: rostedt@goodmis.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mutex subsystem, semaphore to completion: SX8
-Message-ID: <20060110100839.GA24106@elte.hu>
-References: <200601100207.k0A27B4J007573@hera.kernel.org> <43C31F08.304@pobox.com>
+	Tue, 10 Jan 2006 05:11:48 -0500
+Date: Tue, 10 Jan 2006 11:13:46 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]trivial: add CDC_RAM to ide-cd capabilities mask
+Message-ID: <20060110101346.GO3389@suse.de>
+References: <200601092316.47938.arvidjaar@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43C31F08.304@pobox.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200601092316.47938.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Jeff Garzik <jgarzik@pobox.com> wrote:
-
-> Linux Kernel Mailing List wrote:
-> >tree c45749fcb6f8f22d9e2666135b528c885856aaed
-> >parent 7892f2f48d165a34b0b8130c8a195dfd807b8cb6
-> >author Steven Rostedt <rostedt@goodmis.org> Tue, 10 Jan 2006 07:59:26 -0800
-> >committer Ingo Molnar <mingo@hera.kernel.org> Tue, 10 Jan 2006 07:59:26 
-> >-0800
-> >
-> >[PATCH] mutex subsystem, semaphore to completion: SX8
-> >
-> >change SX8 semaphores to completions.
-> >
-> >Signed-off-by: Ingo Molnar <mingo@elte.hu>
+On Mon, Jan 09 2006, Andrey Borzenkov wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Please at least CC the maintainer (me) _sometime_ before pushing 
-> upstream, when you modify a driver...
+> Add CDC-RAM to capability mask. This prevents udev incorrectly reporting RAM 
+> capabilities for device.
+> 
+> Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
+> 
+> - ---
+> 
+> - --- linux-2.6.15/drivers/ide/ide-cd.c.orig	2006-01-03 06:21:10.000000000 +0300
+> +++ linux-2.6.15/drivers/ide/ide-cd.c	2006-01-09 00:31:32.000000000 +0300
+> @@ -2905,6 +2905,8 @@ static int ide_cdrom_register (ide_drive
+>  		devinfo->mask |= CDC_CLOSE_TRAY;
+>  	if (!CDROM_CONFIG_FLAGS(drive)->mo_drive)
+>  		devinfo->mask |= CDC_MO_DRIVE;
+> +	if (!CDROM_CONFIG_FLAGS(drive)->ram)
+> +		devinfo->mask |= CDC_RAM;
+>  
+>  	devinfo->disk = info->disk;
+>  	return register_cdrom(devinfo);
 
-sorry, my bad - this patch grew out of -rt where it initially was a 
-quick hack and then found its way into the mutex tree. Should i send a 
-reverse patch to Linus, or is this change fine with you?
+Thanks, patch is correct.
 
-	Ingo
+-- 
+Jens Axboe
+

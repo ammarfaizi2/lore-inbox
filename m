@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWAJVUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWAJVVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWAJVUX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:20:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWAJVUX
+	id S932340AbWAJVVI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:21:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWAJVVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:20:23 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:18066 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932318AbWAJVUW (ORCPT
+	Tue, 10 Jan 2006 16:21:08 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:46227 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S932320AbWAJVVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:20:22 -0500
-Date: Tue, 10 Jan 2006 15:20:20 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: paulus@samba.org, anton@samba.org, linuxppc-dev@ozlabs.org
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060110212020.GB10837@sergelap.austin.ibm.com>
-References: <20060107052221.61d0b600.akpm@osdl.org>
+	Tue, 10 Jan 2006 16:21:05 -0500
+Subject: Re: ip_contrack refuses to load if built UP as a module on IA64
+From: dann frazier <dannf@hp.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-ia64@vger.kernel.org,
+       dmosberger@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20051219210750.GA15849@agluck-lia64.sc.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0443A5FA@scsmsx401.amr.corp.intel.com>
+	 <ed5aea430508301229386fc596@mail.gmail.com>
+	 <17172.54563.329758.846131@wombat.chubb.wattle.id.au>
+	 <17174.35525.283392.703723@berry.gelato.unsw.EDU.AU>
+	 <1127426700.25159.63.camel@krebs.dannf>
+	 <20051219210750.GA15849@agluck-lia64.sc.intel.com>
+Content-Type: text/plain
+Date: Tue, 10 Jan 2006 14:21:11 -0700
+Message-Id: <1136928071.11049.19.camel@krebs.dannf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060107052221.61d0b600.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton (akpm@osdl.org):
+On Mon, 2005-12-19 at 13:07 -0800, Luck, Tony wrote: 
+> On Thu, Sep 22, 2005 at 04:04:59PM -0600, dann frazier wrote:
+> > On Thu, 2005-09-01 at 14:59 +1000, Peter Chubb wrote:
+> > > 
+> > > This patch makes UP and SMP do the same thing as far as module per-cpu
+> > > data go.
+> > > 
+> > > Unfortunately it affects core code.
+> > 
+> > It causes 2.6.13/x86 to fail to link:
+> > kernel/built-in.o: In function `load_module':
+> > : undefined reference to `percpu_modcopy'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > fyi, this is a problem we're seeing in the Debian UP packages:
+> >   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=325070
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.15-mm2/
+> Another possible solution is to make ia64 more like other
+> architectures and make per-cpu variables just turn into
+> ordinary variables on UP.  There are some pros and cons to
+> this:
+> 
+> +) Being more like other architectures makes it less likely that
+>    we'll be burned by changes in generic code/tools that depend
+>    on implementation details
+> 
+> -) We probably get worse code to access per-cpu variables from
+>    C-compiled code, and definitely get worse code in a couple of
+>    critical paths in assembler (where an "addl" becomes a "movl")
+> 
+> Here's the patch ... lightly tested (just booted and checked that
+> I could load the ip_conntrack module).
 
-With both this and 2.6.15-mm1, but not with 2.6.15, I get the following
-error:
+Thanks Tony; sorry for taking so long to test this.  I required an
+additional change to discontig.c to get this to build w/ the Debian
+config.  With this additional patch, a UP kernel boots fine on my
+rx2600.
 
-mm/built-in.o(*ABS*+0x39c3c7ac): In function `__crc___handle_mm_fault':
-slab.c: multiple definition of `__crc___handle_mm_fault'
-make: *** [.tmp_vmlinux1] Error 1
-
-The culprit appears to be that there are two places where
-__handle_mm_fault is EXPORT_SYMBOL_GPLed.  The following trivial patch
-fixes it for me.
-
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
-
-Index: linux-2.6.15/arch/powerpc/kernel/ppc_ksyms.c
-===================================================================
---- linux-2.6.15.orig/arch/powerpc/kernel/ppc_ksyms.c	2006-01-10 04:59:11.000000000 -0600
-+++ linux-2.6.15/arch/powerpc/kernel/ppc_ksyms.c	2006-01-10 09:07:40.000000000 -0600
-@@ -240,8 +240,6 @@ EXPORT_SYMBOL(next_mmu_context);
- EXPORT_SYMBOL(set_context);
- #endif
- 
--EXPORT_SYMBOL_GPL(__handle_mm_fault);
--
- #ifdef CONFIG_PPC_STD_MMU_32
- extern long mol_trampoline;
- EXPORT_SYMBOL(mol_trampoline); /* For MOL */
+--- build-ia64-none-mckinley/arch/ia64/mm/discontig.c~	2006-01-02 20:21:10.000000000 -0700
++++ build-ia64-none-mckinley/arch/ia64/mm/discontig.c	2006-01-09 19:56:58.000000000 -0700
+@@ -339,8 +339,7 @@
+ 		struct cpuinfo_ia64 *cpu0_cpu_info;
+ 		cpu = 0;
+ 		node = node_cpuid[cpu].nid;
+-		cpu0_cpu_info = (struct cpuinfo_ia64 *)(__phys_per_cpu_start +
+-			((char *)&per_cpu__cpu_info - __per_cpu_start));
++		cpu0_cpu_info = &per_cpu(cpu_info, 0);
+ 		cpu0_cpu_info->node_data = mem_data[node].node_data;
+ 	}
+ #endif /* CONFIG_SMP */
 
 
-thanks,
--serge

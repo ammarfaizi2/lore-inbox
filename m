@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWAJI1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWAJIee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWAJI1r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 03:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWAJI1r
+	id S1751012AbWAJIee (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 03:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWAJIee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 03:27:47 -0500
-Received: from webmailv3.ispgateway.de ([80.67.16.113]:9166 "EHLO
-	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750931AbWAJI1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 03:27:47 -0500
-Message-ID: <1136881650.43c36ff2cb881@www.domainfactory-webmail.de>
-Date: Tue, 10 Jan 2006 09:27:30 +0100
-From: Clemens Ladisch <clemens@ladisch.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HPET RTC emulation: add watchdog timer
-References: <20060109154350.GA22126@turing.informatik.uni-halle.de> <20060109164140.GA67021@muc.de> <1136829634.43c2a4c2e0997@www.domainfactory-webmail.de> <20060109203225.GA93253@muc.de>
-In-Reply-To: <20060109203225.GA93253@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.8
-X-Originating-IP: 213.238.46.206
+	Tue, 10 Jan 2006 03:34:34 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:41858 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751009AbWAJIed
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 03:34:33 -0500
+Date: Tue, 10 Jan 2006 00:38:03 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Kirill Korotaev <dev@openvz.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Dmitry Mishin <dim@sw.ru>,
+       Stanislav Protassov <st@sw.ru>
+Subject: Re: [stable] [PATCH] netlink oops fix due to incorrect error code
+Message-ID: <20060110083803.GJ3335@sorel.sous-sol.org>
+References: <43C27662.2030400@openvz.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C27662.2030400@openvz.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Clemens Ladisch <lkml@cl.domainfactory-kunde.de> wrote:
-> > Andi Kleen wrote:
-> > > Clemens Ladisch wrote:
-> > > > To prevent the emulated RTC timer from stopping when
-> > > > interrupts are disabled for too long, implement the watchdog
-> > > > timer to restart it when needed.
-> > >
-> > > The interrupt handler should just read the time (it likely
-> > > has to do that anyways)
-> >
-> > Not in the current implementation.
->
-> The standard HPET interrupt in x86-64 does this already at least.
+* Kirill Korotaev (dev@openvz.org) wrote:
+> Fixed oops after failed netlink socket creation.
+> Wrong parathenses in if() statement caused err to be 1,
+> instead of negative value.
+> Trivial fix, not trivial to find though.
 
-But it's slower than just doing a mod_timer which the RTC code does
-_anyway_, so we could just as well use it.  Especially as the watchdog
-timer isn't actually expected to run in normal circumstances.
-
-
-Clemens
-
+Thanks, queued to -stable.
+-chris

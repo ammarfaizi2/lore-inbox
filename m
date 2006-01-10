@@ -1,141 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWAJCgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWAJClL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWAJCgm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 21:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWAJCgm
+	id S1750972AbWAJClL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 21:41:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWAJClK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 21:36:42 -0500
-Received: from mx1.suse.de ([195.135.220.2]:47591 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750737AbWAJCgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 21:36:42 -0500
-From: Andi Kleen <ak@suse.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Athlon 64 X2 cpuinfo oddities
-Date: Tue, 10 Jan 2006 03:36:31 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com> <p73r77gx36u.fsf@verdi.suse.de> <9a8748490601091812x24aefae3oc0c6750c5321c3ab@mail.gmail.com>
-In-Reply-To: <9a8748490601091812x24aefae3oc0c6750c5321c3ab@mail.gmail.com>
+	Mon, 9 Jan 2006 21:41:10 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:48146 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750972AbWAJClJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 21:41:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A8epFBGOGhAdeKBsqT3ZyyBgck9zI6WNIFv3ulrgjo1WMie7iovCEG1FXJGx/k639Uo6bFIrHbc1QI3QRV2vaUK81ciO7jE2dzl+zMdmVCT/n2VQht7K+kMlFQX6mx3mkE9qNCdcYCixSjx+NbuBRjjtkSI9zcAdKJe6axeqHt0=
+Message-ID: <4807377b0601091841j76c6093an8117ad66cd32981@mail.gmail.com>
+Date: Mon, 9 Jan 2006 18:41:08 -0800
+From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+To: Leroy van Logchem <leroy.vanlogchem@gmail.com>
+Subject: Re: PROBLEM: bug in e1000 module causes very high CPU load
+Cc: linux-kernel@vger.kernel.org,
+       Kernel Netdev Mailing List <netdev@vger.kernel.org>,
+       ph0x <ph0x@freequest.net>
+In-Reply-To: <b7561c4a0512231514y3bd6564jd13d16ea4476f07e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200601100336.31677.ak@suse.de>
+References: <4807377b0512101416t2f3a04c5ua6859ab3d99e8d07@mail.gmail.com>
+	 <20051211194114.GBCH17186.mxfep02.bredband.com@ph0x>
+	 <b7561c4a0512231514y3bd6564jd13d16ea4476f07e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 January 2006 03:12, Jesper Juhl wrote:
-> On 10 Jan 2006 02:49:13 +0100, Andi Kleen <ak@suse.de> wrote:
-> > Jesper Juhl <jesper.juhl@gmail.com> writes:
-> > >
-> > > Well, first of all you'll notice that the second core shows a
-> > > "physical id" of 127 while the first core shows an id of 0.  Shouldn't
-> > > the second core be id 1, just like the "core id" fields are 0 & 1?
-> >
-> > In theory it could be an uninitialized phys_proc_id (0xff >> 1),
-> > but it could be also the BIOS just setting the local APIC of CPU 1
-> > to 0xff for some reason.
-> >
-> > If you add a printk("PHYSCPU %d %x\n", smp_processor_id(), phys_proc_id[smp_processor_id()])
-> > at the end of arch/x86_64/kernel/setup.c:early_identify_cpu() what does
-> > dmesg | grep PHYSCPU output?
-> >
-> Not a thing since I'm using arch/i386 here (32bit distribution
-> (Slackware), just building a 32bit kernel optimized for K8).
+On 12/23/05, Leroy van Logchem <leroy.vanlogchem@gmail.com> wrote:
+> <snip>
+> > Yes, let the server act as usual, it just starts happening out of the blue.
+> > No new hardware has been added or removed, no new programs has been
+> > installed.
+>
+> "Me too"
 
-Ah - how legacy.
+<snip>
 
-> But, I stuck that printk into identify_cpu() in
-> arch/i386/kernel/cpu/common.c instead, and this is what I get :
-> $ dmesg | grep PHYSCPU
-> [   30.323965] PHYSCPU 0 0
-> [   30.402588] PHYSCPU 1 7f
+> Is there a method which can give hints about what was going on during
+> the sharply rising load? My guess is that even monitoring/sampling
 
-Hmm it looks like the phys_proc_id initialization is at the wrong
-place in 32bit. early_cpu_detect is only called on the BP, not
-on the AP. early_intel_workaround is also there incorrectly.
-Might be a mismerge - it should be one function below.
+well, maybe top, maybe you could schedule sar to gather stats on your system.
 
-The appended patch should help, but it's untested.
- 
-> 
-> > >
-> > > Second thing I find slightly odd is the lack of "sse3" in the "flags" list.
-> > > I was under the impression that all AMD Athlon 64 X2 CPU's featured SSE3?
-> > > Is it a case of:
-> > >  a) Me being wrong, not all Athlon 64 X2's feature SSE3?
-> > >  b) The CPU actually featuring SSE3 but Linux not taking advantage of it?
-> > >  c) The CPU features SSE3 and it's being utilized, but /proc/cpuinfo
-> > > doesn't show that fact?
-> > >  d) Something else?
-> >
-> > It's called pni (prescott new instructions) for historical reasons. We added
-> > the bit too early before Intel's marketing department could make up its
-> > mind fully, so Linux is stuck with the old codename.
-> >
-> Does anything actually parse the /proc/cpuinfo flags field? are we
-> really stuck with it?
+> aint doable anymore if the bad situation occurs. Tips on obtaining
+> information about subjects like:
+> - who was using which tcp/udp connection with what bandwidth
 
-Do you really want to find out by a report from a rightfully annoyed user?
-I considered at some point to print sse3 in addition to pni, but then
-it seemed like too much bloat for only a cosmetical issue. Maybe if it 
-becomes a popular FAQ, but it isn't that far yet.
+i like a utility like iptraf to help with this.
 
-(I can just see the headlines for such a patch -
-"Linux 2.6.20 finally adding SSE3 support")
+> - who was generating how many read/writes on which filesystem incl. location
 
--Andi
+hm, thats a little tougher, nfsstat doesn't give that does it.
 
-i386: Move phys_proc_id/early intel workaround to correct function.
+> - etc etc.
+> are more then welcome too. Does using profile=2 and storing
+> readprofile output to files every 5 seconds give enough information to
+> tacle the source of this problem?
 
-early_cpu_detect only runs on the BP, but this code needs to run
-on all CPUs.
+yes, i think that would certainly help figure out what happens at the TOD :-)
+you could enable sysrq in order to get a stack after it hung.  For
+bonus points you can hook up a serial console and dump the state of
+all processes with sysrq.
 
-Looks like a mismerge somewhere.  Also add a warning comment.
+hopefully before it died you would be able to sync your drive and
+reboot in order to maximize your chances of fully writing files.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/arch/i386/kernel/cpu/common.c
-===================================================================
---- linux.orig/arch/i386/kernel/cpu/common.c
-+++ linux/arch/i386/kernel/cpu/common.c
-@@ -204,7 +204,10 @@ static int __devinit have_cpuid_p(void)
- 
- /* Do minimum CPU detection early.
-    Fields really needed: vendor, cpuid_level, family, model, mask, cache alignment.
--   The others are not touched to avoid unwanted side effects. */
-+   The others are not touched to avoid unwanted side effects. 
-+
-+   WARNING: this function is only called on the BP.  Don't add code here
-+   that is supposed to run on all CPUs. */
- static void __init early_cpu_detect(void)
- {
- 	struct cpuinfo_x86 *c = &boot_cpu_data;
-@@ -236,12 +239,6 @@ static void __init early_cpu_detect(void
- 		if (cap0 & (1<<19))
- 			c->x86_cache_alignment = ((misc >> 8) & 0xff) * 8;
- 	}
--
--	early_intel_workaround(c);
--
--#ifdef CONFIG_X86_HT
--	phys_proc_id[smp_processor_id()] = (cpuid_ebx(1) >> 24) & 0xff;
--#endif
- }
- 
- void __devinit generic_identify(struct cpuinfo_x86 * c)
-@@ -289,6 +286,12 @@ void __devinit generic_identify(struct c
- 				get_model_name(c); /* Default name */
- 		}
- 	}
-+
-+	early_intel_workaround(c);
-+
-+#ifdef CONFIG_X86_HT
-+	phys_proc_id[smp_processor_id()] = (cpuid_ebx(1) >> 24) & 0xff;
-+#endif
- }
- 
- static void __devinit squash_the_stupid_serial_number(struct cpuinfo_x86 *c)
+Jesse

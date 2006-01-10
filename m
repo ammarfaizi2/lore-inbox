@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWAJPcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWAJPhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWAJPcB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAJPcB
+	id S932226AbWAJPhe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAJPhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:32:01 -0500
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:44699 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S932187AbWAJPb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:31:59 -0500
-To: len.brown@intel.com
-Cc: torvalds@osdl.org, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-Date: Sun, 08 Jan 2006 00:16:51 -0800 (PST)
-Subject: Re: git pull on Linux/ACPI release tree
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13489@hdsmsx401.amr.corp.intel.com>
-From: Catalin Marinas <catalin.marinas@arm.com>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005A13489@hdsmsx401.amr.corp.intel.com> (Len
- Brown's message of "Sun, 8 Jan 2006 02:47:30 -0500")
-Message-ID: <tnx64os3xri.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 10 Jan 2006 10:37:33 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:32085 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932226AbWAJPhd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:37:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G4PqTgK1BCgzfS21LDQ1q/ITiB+o+0kyk24AiBloK3vNlSvrB6RPWbZfBDEZ6JiS8mpDA+zP1TaLtgfv54P5k0mp0UPIQC6kvujLkvYNp/Fc/4JTn/1DBv5Ih+08C5a/qBjkITO1lgoevpzQE6ZrNLhtUlerWgzWPpCsGYsvyZQ=
+Message-ID: <d120d5000601100737r7b1e12edy6d4eedc4b12960fc@mail.gmail.com>
+Date: Tue, 10 Jan 2006 10:37:31 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
+       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       Leonid <nouser@lpetrov.net>
+In-Reply-To: <20060110152807.GB22371@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 Jan 2006 15:31:31.0996 (UTC) FILETIME=[EEDAC5C0:01C615FA]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060110074336.GA7462@suse.cz>
+	 <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
+	 <20060110152807.GB22371@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brown, Len" wrote:
->>I _really_ wish you wouldn't have those automatic merges.
->>
->>Why do you do them? They add nothing but ugly and unnecessary 
->>history, and in this pull, I think almost exactly half of the
->>commits were just these empty merges.
+On 1/10/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Tue, Jan 10, 2006 at 10:12:21AM -0500, Alan Stern wrote:
+> > On Tue, 10 Jan 2006, Vojtech Pavlik wrote:
+> >
+> > > It's usually that the BIOS does an incomplete emulation of the i8042
+> > > chip, while still getting in the way to the real i8042. Usually GRUB and
+> > > DOS don't care about sending any commands to the i8042, and so they
+> > > work. The Linux i8042.c driver needs to use them to enable the PS/2
+> > > mouse port and do other probing, and if the commans are not working, it
+> > > just bails out.
+> > >
+> > > The question of course is why the handoff code doesn't work on that
+> > > platform.
+> >
+> > It turned out that a BIOS upgrade fixed the problem, but this doesn't
+> > answer your question.
+> >
+> > The problem wasn't an incomplete emulation of the i8042, because when the
+> > USB handoff code was commented out the PS/2 keyboard worked okay.  This
+> > means the handoff, when enabled, wasn't being done correctly.  That could
+> > be the fault of the USB drivers or the BIOS (or both).  We have no way to
+> > tell which, because the users have all switched to the newer BIOS.
 >
-> Is it possible for it git, like bk, to simply ignore merge commits
-> in its summary output?
+> As usual with BIOS interaction problems.
+>
 
-As Junio suggested, you can have a look at StGIT
-(http://www.procode.org/stgit/) for a different workflow. There is a
-tutorial both on the web and in the doc/ directory but, anyway, it is
-pretty similar to Quilt only that the patches are GIT commits.
+We'll just have to wait for another report. "Sluggish typing" report
+looks promising.
 
-In principle, you keep all the patches in a stack whose base is the
-HEAD of Linus' kernel. You can indefinitely modify/push/pop the
-patches and, once you are happy with the state of the stack, ask Linus
-to pull using standard GIT commands (or mail them with 'stg
-mail'). You can afterwards pull the latest changes from Linus using
-'stg pull'. This operation pops the patches you have, advances the
-base of the stack (so no "merge" message) and pushes your patches
-back. Since pushing is done with a three-way merge, it detects whether
-there are any upstream modifications to your patches (if not, all the
-patches should become empty and safely removed from the stack).
-
-You can also have a branch for upstream merges only and you can easily
-cherry-pick patches or commits from other branches. This is quite
-useful if you want to continue the work on your development branch
-until Linus merges your patches.
-
--- 
-Catalin
+--
+Dmitry

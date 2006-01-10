@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbWAJVBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWAJVDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932629AbWAJVBe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWAJVBe
+	id S932688AbWAJVDY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWAJVDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:01:34 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:50445 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932629AbWAJVBd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:01:33 -0500
-Date: Tue, 10 Jan 2006 22:01:15 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/11] kconfig: factor out ncurses check in a shell script
-Message-ID: <20060110210115.GA16250@mars.ravnborg.org>
-References: <11368426843316@foobar.com> <Pine.LNX.4.61.0601102127230.16049@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jan 2006 16:03:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:49428 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932648AbWAJVDX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 16:03:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IsZvWpJuDcCvFkKBBamm8a7DGGwgIHuyrM+jock+4IR6Ykq/lqecm9UTksa58soyfOQV0FMa33ZeO4HwQvZqF6LdDVHbe8Eoe5aIK31QWejdOIq/SJSQEcWoi0ub++zeoze4GDg8PzfmWmEH/UQ/IvdA4lnxJE0gQ7uJ7ox713M=
+Message-ID: <9a8748490601101303r2e44e39at5f0f10bd82180add@mail.gmail.com>
+Date: Tue, 10 Jan 2006 22:03:20 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+Subject: Re: [PATCH] Megaraid cleanup
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Kolli, Neela" <Neela.Kolli@engenio.com>, linux-scsi@vger.kernel.org
+In-Reply-To: <9738BCBE884FDB42801FAD8A7769C265142001@NAMAIL1.ad.lsil.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601102127230.16049@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+References: <9738BCBE884FDB42801FAD8A7769C265142001@NAMAIL1.ad.lsil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 09:27:42PM +0100, Jan Engelhardt wrote:
-> >
-> >Cleaning up the lxdialog Makefile by factoring out the
-> >ncurses compatibility checks.
-> >This made the checks much more obvious and easier to extend.
-> 
-> BTW, do you know a nice way to detect ncursesw?
-Hi Jan.
+On 1/10/06, Ju, Seokmann <Seokmann.Ju@lsil.com> wrote:
+> Hi,
+> > Ok, I went into drivers/scsi/megaraid.c just to fix a few
+> > compiler warnings,
+> > but ended up doing a big spring-cleaning.
+>
+> Thank you for the patch first of all.
 
-I had ncursesw in my mind too when I did this.
-If you look at the test implemented to check for ncurses it
-should be simple to use same principle to check if one can use
-ncursesw. If gcc does not fail then ncursesw is present.
+You're welcome.
 
-Care to give it a spin?
-Otherwise I will try later this week.
+> I would like to step through the changes in the patch and
+> Will get back to you.
+> I would think you've already verified the patch by testing
+> The updated driver. Please confirm this.
+>
+As far as I could without having access to actual hardware, yes.
+That means I've read through my changes and tried to verify them
+visually/logically.
+I've also compile tested it - it builds fine.
+And I've also attempted to load it, and it fails (due to no hardware)
+as it's supposed to.
+Beyond that I'm unable to test it.
 
-	Sam
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

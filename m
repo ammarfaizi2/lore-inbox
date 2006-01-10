@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWAJNId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWAJNLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbWAJNId (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:08:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWAJNId
+	id S1750980AbWAJNLf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWAJNLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:08:33 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:56747 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1750995AbWAJNIc (ORCPT
+	Tue, 10 Jan 2006 08:11:35 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:29612 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750969AbWAJNLf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:08:32 -0500
-Message-ID: <43C3C3B5.61D5641@tv-sign.ru>
-Date: Tue, 10 Jan 2006 17:24:53 +0300
+	Tue, 10 Jan 2006 08:11:35 -0500
+Message-ID: <43C3C46C.D347F3F0@tv-sign.ru>
+Date: Tue, 10 Jan 2006 17:27:56 +0300
 From: Oleg Nesterov <oleg@tv-sign.ru>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
 X-Accept-Language: en
@@ -20,39 +20,38 @@ Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
        Dipankar Sarma <dipankar@in.ibm.com>,
        Manfred Spraul <manfred@colorfullife.com>,
        Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] rcu: fix hotplug-cpu ->donelist leak
+Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
 References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109185944.GB15083@us.ibm.com> <43C2C818.65238C30@tv-sign.ru> <20060109195933.GE14738@us.ibm.com> <20060110095811.GA30159@in.ibm.com>
 Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pointed out by Srivatsa Vaddagiri <vatsa@in.ibm.com>.
+Srivatsa Vaddagiri wrote:
+> 
+> On Mon, Jan 09, 2006 at 11:59:33AM -0800, Paul E. McKenney wrote:
+> > Hmmm...  So your thought is that __rcu_offline_cpu() moves nxtlist and
+> > curlist, but not donelist, but then returns to rcu_offline_cpu(), which
+> > might well do the tasklet_kill_immediate() before the tasklet completed
+> > processing all of donelist.
+> >
+> > Seems plausible to me.  If true, your patch adding the following statement
+> > to the ed of __rcu_offline_cpu seems like a reasonable fix:
+> >
+> >       rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
+> >
+> > Vatsa, is there something that Oleg and I are missing?
+> 
+> I think this should take care of the CPU Hotplug bug, with the caveat
+> that the callbacks on ->donelist will wait for additional grace period before
+> being invoked (which seems ok).
+> 
+> Oleg, do you want to resend the patch after some testing?
 
-rcu_do_batch() stops after processing maxbatch callbacks
-on ->donelist leaving rcu_tasklet in TASKLET_STATE_SCHED
-state.
+Sure. The problem is that I have no idea how to test this change.
+However, the patch seems "obviously correct", so I am sending it.
 
-If CPU_DEAD event happens remaining ->donelist entries are
-lost, rcu_offline_cpu() kills this tasklet.
+Srivatsa, I am sorry, I forgot to add you on CC: list while re-sending
+these cleanups. I hope you can see them on lkml.
 
-With this patch ->donelist migrates along with ->curlist
-and ->nxtlist to the current cpu.
-
-Compile tested.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.15/kernel/rcupdate.c~4_HPFIX	2006-01-10 19:06:38.000000000 +0300
-+++ 2.6.15/kernel/rcupdate.c	2006-01-10 19:15:01.000000000 +0300
-@@ -343,8 +343,9 @@ static void __rcu_offline_cpu(struct rcu
- 	spin_unlock_bh(&rcp->lock);
- 	rcu_move_batch(this_rdp, rdp->curlist, rdp->curtail);
- 	rcu_move_batch(this_rdp, rdp->nxtlist, rdp->nxttail);
--
-+	rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
- }
-+
- static void rcu_offline_cpu(int cpu)
- {
- 	struct rcu_data *this_rdp = &get_cpu_var(rcu_data);
+Oleg.

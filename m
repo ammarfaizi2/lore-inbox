@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWAJA73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWAJBAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWAJA73 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 19:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWAJA73
+	id S1750837AbWAJBAA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 20:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751809AbWAJBAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 19:59:29 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:49610 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932133AbWAJA72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 19:59:28 -0500
-Subject: Re: [PATCH] protect remove_proc_entry
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1136834210.6197.10.camel@localhost.localdomain>
-References: <1135973075.6039.63.camel@localhost.localdomain>
-	 <1135978110.6039.81.camel@localhost.localdomain>
-	 <20060107033637.458c4716.akpm@osdl.org>
-	 <1136834210.6197.10.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 09 Jan 2006 19:59:21 -0500
-Message-Id: <1136854761.6197.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jan 2006 20:00:00 -0500
+Received: from smtp-8.smtp.ucla.edu ([169.232.47.137]:2009 "EHLO
+	smtp-8.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S1750837AbWAJA77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 19:59:59 -0500
+Date: Mon, 9 Jan 2006 16:59:54 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: Roberto Nibali <ratz@drugphish.ch>
+cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+In-Reply-To: <43C2E243.5000904@drugphish.ch>
+Message-ID: <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
+References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu>
+ <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu>
+ <1136030901.28365.51.camel@localhost.localdomain> <20051231130151.GA15993@alpha.home.local>
+ <Pine.LNX.4.64.0601041402340.28134@potato.cts.ucla.edu> <20060105054348.GA28125@w.ods.org>
+ <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
+ <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
+ <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo, 
+On Mon, 9 Jan 2006, Roberto Nibali wrote:
 
-FYI
+>> That is the SCSI BIOS rev.  The machine is a Dell PowerEdge 2650 and 
+>> that's the onboard AIC 7899.  It comes up as "BIOS Build 25309".
+>
+> Brain is engaged now, thanks ;). If you find time, could you maybe 
+> compile a 2.4.32 kernel using following config (slightly changed from 
+> yours):
+>
+> http://www.drugphish.ch/patches/ratz/kernel/configs/config-2.4.32-chris_s
 
-I just uploaded my 2.6.15-rt2-sr3 which includes the latest patch to fix
-the bug in remove_proc_entry.
+If/when the current run with DEBUG_SLAB oopses, I'll reboot with the 
+config modifications.
 
-http://home.stny.rr.com/rostedt/patches/patch-2.6.15-rt2-sr3
+> And put a dmidecode[1] output onto your website.
 
-Again, the module to test this is here:
+http://hashbrown.cts.ucla.edu/pub/oops-200512/dmidecode.out
 
-http://www.kihontech.com/tests/proc/proc_stress.c
+> Is the BMC interface enabled in your BIOS?
 
-I tested it like the following:
-
-# insmod proc_stress.ko & for i in `seq 1 10000`; do ls /proc/proc_tests; done
-
--- Steve
+I haven't changed the BMC defaults and am not using it, but I believe that 
+it shipped as enabled so should still be.
 
 
+-Chris

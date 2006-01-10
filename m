@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWAJP0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWAJP2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWAJP0s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWAJP0s
+	id S932213AbWAJP2M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWAJP2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:26:48 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:23728 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751126AbWAJP0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:26:47 -0500
-Date: Tue, 10 Jan 2006 10:26:46 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: LKML List <linux-kernel@vger.kernel.org>, <gregkh@suse.de>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.15-mm2 allyesconfig build failure in
- drivers/usb/ip/
-In-Reply-To: <9a8748490601100546s2dcf9a25hcfd369e397bd7938@mail.gmail.com>
-Message-ID: <Pine.LNX.4.44L0.0601101024210.5060-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jan 2006 10:28:12 -0500
+Received: from styx.suse.cz ([82.119.242.94]:64999 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932213AbWAJP2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:28:11 -0500
+Date: Tue, 10 Jan 2006 16:28:07 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: dtor_core@ameritech.net,
+       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
+       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       Leonid <nouser@lpetrov.net>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+Message-ID: <20060110152807.GB22371@suse.cz>
+References: <20060110074336.GA7462@suse.cz> <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006, Jesper Juhl wrote:
-
-> allyesconfig currently doesn't build completely for me in 2.6.15-mm2
+On Tue, Jan 10, 2006 at 10:12:21AM -0500, Alan Stern wrote:
+> On Tue, 10 Jan 2006, Vojtech Pavlik wrote:
 > 
-> Here's what I did and the results :
+> > It's usually that the BIOS does an incomplete emulation of the i8042
+> > chip, while still getting in the way to the real i8042. Usually GRUB and
+> > DOS don't care about sending any commands to the i8042, and so they
+> > work. The Linux i8042.c driver needs to use them to enable the PS/2
+> > mouse port and do other probing, and if the commans are not working, it
+> > just bails out.
+> > 
+> > The question of course is why the handoff code doesn't work on that
+> > platform.
 > 
+> It turned out that a BIOS upgrade fixed the problem, but this doesn't 
+> answer your question.
 > 
-> $ make allyesconfig
->  ...
-> $ make -j 3
->  ...
->   CC      drivers/scsi/53c700.o
->   CC      net/sysctl_net.o
->   LD      net/xfrm/built-in.o
->   LD      net/built-in.o
->   LD      drivers/scsi/built-in.o
-> make: *** [drivers] Error 2
-> make: *** Waiting for unfinished jobs....
-> $ make
->   CHK     include/linux/version.h
->   CHK     include/linux/compile.h
->   CHK     usr/initramfs_list
->   LD      drivers/usb/ip/built-in.o
-> drivers/usb/ip/stub.o(.text+0xc7d): In function `usbip_pack_pdu':
-> drivers/usb/ip/usbip_common.c:748: multiple definition of `usbip_pack_pdu'
-> drivers/usb/ip/vhci-hcd.o(.text+0xc7d):drivers/usb/ip/usbip_common.c:748:
-> first defined here
+> The problem wasn't an incomplete emulation of the i8042, because when the
+> USB handoff code was commented out the PS/2 keyboard worked okay.  This
+> means the handoff, when enabled, wasn't being done correctly.  That could
+> be the fault of the USB drivers or the BIOS (or both).  We have no way to
+> tell which, because the users have all switched to the newer BIOS.
+ 
+As usual with BIOS interaction problems.
 
-The usbip driver is very new and, oddly enough, also out-of-date.  Until
-the maintainer can fix it, it should be marked BROKEN.
-
-Alan Stern
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,69 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWAJO12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWAJOky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWAJO12 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 09:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWAJO12
+	id S932222AbWAJOky (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWAJOky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 09:27:28 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:9123 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1751005AbWAJO11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 09:27:27 -0500
-Date: Tue, 10 Jan 2006 15:27:25 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15] running tcpdump on 3c905b causes freeze (reproducable)
-Message-ID: <20060110142725.GH12673@vanheusden.com>
-References: <20060108114305.GA32425@vanheusden.com>
-	<20060109041114.6e797a9b.akpm@osdl.org>
-	<20060109144522.GB10955@vanheusden.com>
-	<20060109193754.GD12673@vanheusden.com>
-	<20060109224821.7a40bc69.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060109224821.7a40bc69.akpm@osdl.org>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Tue Jan 10 20:12:10 CET 2006
-X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
-	with PGP!
-User-Agent: Mutt/1.5.10i
+	Tue, 10 Jan 2006 09:40:54 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:45772 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S932166AbWAJOkx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 09:40:53 -0500
+To: "Jaroslav Kysela" <perex@suse.cz>
+Cc: "Takashi Iwai" <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       "ALSA development" <alsa-devel@alsa-project.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de> <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> <mailman.1136368805.14661.linux-kernel2news@redhat.com> <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de> <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <s5h7j9chzat.wl%tiwai@suse.de> <Pine.LNX.4.61.0601080225500.17252@zeus.compusonic.fi> <Pine.LNX.4.61.0601081007550.9470@tm8103.perex-int.cz> <Pine.LNX.4.61.0601090010090.31763@zeus.compusonic.fi> <Pine.LNX.4.61.0601101144130.10330@tm8103.perex-int.cz> <Pine.LNX.4.61.0601101550390.24146@zeus.compusonic.fi> <Pine.LNX.4.61.0601101508560.10330@tm8103.perex-int.cz>
+Message-ID: <op.s2520tt5q5yxc3@merlin>
+Date: Tue, 10 Jan 2006 15:39:55 +0100
+From: =?iso-8859-2?B?QWRhbSBUbGGza2E=?= <atlka@pg.gda.pl>
+Organization: =?iso-8859-2?B?R2Rh8XNrIFVuaXZlcnNpdHkgb2YgVGVjaG5vbG9neQ==?=
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0601101508560.10330@tm8103.perex-int.cz>
+User-Agent: Opera M2/8.51 (Linux, build 1462)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Have you tried enabling the NMI watchdog?  Enable CONFIG_X86_LOCAL_APIC and
-> > > > boot with `nmi_watchdog=1' on the command line, make sure that the NMI line
-> > > > of /proc/interrupts is incrementing.
-> > > I'll give it a try. I've added it to the append-line in the lilo config.
-> > > Am now compiling the kernel.
-> > No change. Well, that is: the last message on the console now is
-> > "setting eth1 to promiscues mode".
-> Did you confirm that the NMI counters in /proc/interrupts are incrementing?
+Dnia 10-01-2006 o 15:17:21 Jaroslav Kysela <perex@suse.cz> napisa³:
 
-Yes:
-root@muur:/home/folkert# for i in `seq 1 5` ; do cat /proc/interrupts  | grep NMI ; sleep 1 ; done
-NMI:    6949080    6949067
-NMI:    6949182    6949169
-NMI:    6949284    6949271
-NMI:    6949386    6949373
-NMI:    6949488    6949475
+> On Tue, 10 Jan 2006, Hannu Savolainen wrote:
+>
+>> On Tue, 10 Jan 2006, Jaroslav Kysela wrote:
+>>
+>> > >
+>> > > Then you can include a libOSSlib.o library in ALSA with all the OSS
+>> > > emulation stuf inside.
+>> >
+>> > You should do the clear statement that the direct using of syscalls  
+>> is not
+>> > recommented for application developers. Unfortunately at this time, I
+>> > admit, it would be very difficult to change the existing applications.
+>
+>> Sorry. That breaks backward compatibility with systems that don't have
+>> libOSSlib (all current and past Linux distros, all BSD variants,
+>> everything but systems with our official OSS package installed). Such
+>> statement can be added in 2010 but provided that all Linux distros and
+>> other environments having OSS compatible implementations add the  
+>> osslib_*
+>> routines within this year.
+>
+> I meant that you can originate to move the OSS entry point to somewhere
+> else (library) and try to persuade developers to use library than direct
+> calls.
+>
+> Of course, we cannot change current applications, but we can start the
+> movement now. I just ask you to do it now. Nothing else. It will be a  
+> slow
+> process but it should be started now.
+>
+> Also, I don't think that it will break something. The application
+> developers can use your code in their applications directly when the
+> distribution does not have the OSS access library package.
+  ger atlka@sunrise.pg.gda.pl
 
+Doing every call through some lib even if it's only a wrapper leading
+to kernel syscall doesn't look very interesting.
+Some people need statically lined apps and minimum usable distro without
+bloated libs. What about Unix device abstraction?
+Are we going the current Windows way?
 
-Folkert van Heusden
+Anyway Windows is stearing to the microkernel approach (approaching Vista)
+and it looks that we are going to the current Windows model while MS  
+developers
+are going far away. Hurd looks nice but it is not good enough now.
+But the idea is good and needs more people to improve it.
 
--- 
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+So we could have Unix device approach with drivers running as separate  
+processes
+not in kernel space. With proper kernel scheduling and being non-swappable
+we could get good security, stability and additionally enough simple
+ from app point of view approach. Going through libs we are going through
+all the LD_PRELOAD and LD_LIBRARY_PATH and linker security hell.
+
+Kernel approach looks good enough for me now. But it is not so secure of  
+course.
+So we need some process->kernel-device->driver RT/non-swappable/correctly
+scheduled process IPC so we can do it the other way. IMHO that's the future
+if we don't want drivers in the kernel.
+
+Best regards
+--
+Adam Tla³ka      mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
+System  & Network Administration Group           ~~~~~~
+Computer Center,  Gdañsk University of Technology, Poland
+PGP public key:   finger atlka@sunrise.pg.gda.pl

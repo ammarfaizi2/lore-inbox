@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWAJKEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWAJKFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWAJKEV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 05:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWAJKEU
+	id S1751036AbWAJKFM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 05:05:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWAJKFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 05:04:20 -0500
-Received: from tornado.reub.net ([202.89.145.182]:30377 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1751025AbWAJKEU (ORCPT
+	Tue, 10 Jan 2006 05:05:11 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:52716 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751036AbWAJKFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 05:04:20 -0500
-Message-ID: <43C38671.4030805@reub.net>
-Date: Tue, 10 Jan 2006 23:03:29 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20060109)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
-References: <20060109203711.GA25023@kroah.com>	<Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>	<20060109164410.3304a0f6.akpm@osdl.org>	<1136857742.14532.0.camel@localhost.localdomain> <20060109174941.41b617f6.akpm@osdl.org>
-In-Reply-To: <20060109174941.41b617f6.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 05:05:10 -0500
+Date: Tue, 10 Jan 2006 11:05:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.15-rt2 - repeatable xrun - no good data in trace
+Message-ID: <20060110100517.GA23255@elte.hu>
+References: <5bdc1c8b0601081252x59190f1ajcb5514364d78a4e@mail.gmail.com> <43C17E50.4060404@stud.feec.vutbr.cz> <Pine.LNX.4.61.0601082247170.17804@yvahk01.tjqt.qr> <5bdc1c8b0601081404n2a163ce1ya21919800546dfc8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5bdc1c8b0601081404n2a163ce1ya21919800546dfc8@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-On 10/01/2006 2:49 p.m., Andrew Morton wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> On Llu, 2006-01-09 at 16:44 -0800, Andrew Morton wrote:
->>> - Reuben Farrelly's oops in make_class_name().  Could be libata, or scsi
->>>   or driver core.
->> libata I think. I reproduced it on 2.6.14-mm2 by accident with a buggy
->> pata driver.
+> > cdrecord does run with SCHED_RR/99 when started with proper privileges.
+>
+> Ah, then it's likely that this isn't a real problem and it would be 
+> expected to cause an xrun?
 > 
-> Well that's all merged up now.  Reuben, could you please test 2.6.15git6
-> tomorrow?
+> Anyway, it seems strange that the trace doesn't show anything. I 
+> suppose that's because cdrecord just grabs a lot of time at a higher 
+> priority than Jack and Jack ends up not getting serivces at all for 
+> 5-10mS?
 
-A couple of reboots later with git6 and at this stage it seems all OK, no oopses.
+the tracer will only detect undue delays in the 'highest prio' task in 
+the system - but it cannot detect whether all priorities in the system 
+are given out properly. In this particular case it was cdrecord that had 
+the highest priorities, and the delays you saw in Jackd were due to 
+cdrecord trumping Jackd's priority.
 
-I'm still having 100% repeatable "soft" hangs when booting up though, both with 
--mm2 (-mm1 seems OK in this regard) and git6.  It's enough to make git6 and mm2 
-unusable because the machine never finishes booting userspace.  I'll put more 
-details of that in another email following up to the original -mm2 thread, as 
-it's unrelated to the oops above (but probably equally as nasty).
+One way to make such scenarios easier to notice & debug would be for 
+jackd to warn if there are tasks in the system that have higher
+priorities. (maybe it could even do it at xrun time, from a lower-prio 
+thread.)
 
-But it means I can't test the git6 fixes much more because every time I boot it 
-I have to alt-sysrq S+U+B or uncleanly kill the box by hitting the reset button.
-
-reuben
+	Ingo

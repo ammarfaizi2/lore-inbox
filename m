@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWAJXzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932721AbWAJX5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWAJXzL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 18:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWAJXzL
+	id S932721AbWAJX5q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 18:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932726AbWAJX5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 18:55:11 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:29429 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932321AbWAJXzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 18:55:09 -0500
-Date: Tue, 10 Jan 2006 17:54:34 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: ata errors -> read-only root partition. Hardware issue?
-In-reply-to: <5ttip-Xh-13@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43C4493A.4010305@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <5ttip-Xh-13@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Tue, 10 Jan 2006 18:57:46 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:13523 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932721AbWAJX5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 18:57:45 -0500
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+	can't for a long time
+From: Lee Revell <rlrevell@joe-job.com>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: yarick@it-territory.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <20060110234832.GM12559@mail.muni.cz>
+References: <20060110234832.GM12559@mail.muni.cz>
+Content-Type: text/plain
+Date: Tue, 10 Jan 2006 18:57:42 -0500
+Message-Id: <1136937463.2007.104.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jerome lacoste wrote:
-> 
-> ata3: status=0x51 { DriveReady SeekComplete Error }
-> ata3: error=0x40 { UncorrectableError }
-> ata3: status=0x51 { DriveReady SeekComplete Error }
-> ata3: error=0x40 { UncorrectableError }
-> ata3: status=0x51 { DriveReady SeekComplete Error }
-> ata3: error=0x40 { UncorrectableError }
-> SCSI error : <2 0 0 0> return code = 0x8000002
-> sda: Current: sense key: Medium Error
->     Additional sense: Unrecovered read error - auto reallocate failed
-> end_request: I/O error, dev sda, sector 67801511
+On Wed, 2006-01-11 at 00:48 +0100, Lukas Hejtmanek wrote:
+> For intel graphics - use your money and force Intel to release docs at
+> least about setting graphics mode on 830-945 chipsets. I'm open to
+> contribute code then. (As I did some hacking into X driver without
+> docs just guessing). Or gain NDA and docs from local Intel authorize
+> reseller. 
 
-That sounds an awful lot like a failing hard drive.
+Or spend your money on SoftICE for Windows and just reverse engineer it.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+http://www.compuware.com/products/driverstudio/softice.htm
+
+Lee
 

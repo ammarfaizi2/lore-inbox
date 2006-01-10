@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWAJKr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWAJKtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWAJKr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 05:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWAJKrz
+	id S932128AbWAJKtg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 05:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWAJKtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 05:47:55 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:30187 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932113AbWAJKrz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 05:47:55 -0500
-Date: Tue, 10 Jan 2006 11:47:59 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060110104759.GA30546@elte.hu>
-References: <20060107052221.61d0b600.akpm@osdl.org> <43BFD8C1.9030404@reub.net> <20060107133103.530eb889.akpm@osdl.org> <43C38932.7070302@reub.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jan 2006 05:49:35 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:4106 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932128AbWAJKtf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 05:49:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b4pIuybEYiKwdkS5YesrLWzslX1OGQ9JFFPDjYtKTdL1wPCoNvNf7YOWL4M6hjBUX/OJxpmusEF831SH7CMkes9datIZtRawGEXcox6a4UOxcaHE36EYXDyxWHP2oN1LJU1xbI1UdkDDl3qepNfA9C2csZxvK53G+ak8WD73HjY=
+Message-ID: <f0309ff0601100249y4ffa3596sa2a623015cdca66b@mail.gmail.com>
+Date: Tue, 10 Jan 2006 02:49:34 -0800
+From: Nauman Tahir <nauman.tahir@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: X86_64 and X86_32 bit performance difference [Revisited]
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.kernel.org
+In-Reply-To: <1136793080.2936.14.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43C38932.7070302@reub.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <f0309ff0601082229u3fc5e415m12be9dc921f4a099@mail.gmail.com>
+	 <1136793080.2936.14.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1/9/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Sun, 2006-01-08 at 22:29 -0800, Nauman Tahir wrote:
+> > Hello All
+> > I have posted this problem before. Now mailing again after testing as
+> > recommeded in previous replys.
+> > My configuration is:
+> >
+> > Hardware:
+> > HP Proliant DL145 (2 x AMD Optaron 144)
+> > 14 GB RAM
+> >
+> > OS:
+> > FC 4
+> >
+> > Kernel
+> > 2.6.xx
+>
+> You *STILL* have not posted the URL to your source code.
+> How is anyone supposed to help you without that?????
 
-* Reuben Farrelly <reuben-lkml@reub.net> wrote:
+I have attached a file which I use as thread API. Complete code is
+quiet large and also need proper description. which i would be posting
+if needed.
+I hope I make my problem clear: I repeat : same code is giving alot of
+performance degradation on previously mentioned configuration. One
+suspect is the thread library.
 
-> >Don't know, sorry.  But this kernel had oopsed, hadn't it?
-> 
-> This one is still present in -git6.  The symptoms are that the kernel 
-> boots up, the userspace applications start launching as the system 
-> starts to go to runlevel 3, and then the system 'blocks' on 
-> $random_service (clamd, mysql and vsftp and others).  I've left it for 
-> 5 mins and it never continued on..
-> 
-> There's no oops, and nothing seems to be logged about it, I can hit 
-> enter and the console jumps to a new line, so the machine doesn't lock 
-> up hard, it seems to be getting 'stuck'.
 
-could you please also send me a SysRq-T (showTasks) output? [which will 
-also include all the stacktraces] (Please make sure you have 
-KALLSYMS_ALL enabled.)
+dts_thread_t *dts_register_thread(void (*run) (void *),  const char
+*name, void * private)
 
-	Ingo
+is the function to register my thread handler
+
+void dts_wakeup_thread(dts_thread_t *thread)
+
+is the function in the dts_thread.c which i use to run my thread.
+
+all my thread handlers either
+call generic_make_request some times for my RAMDISK and sometimes for
+my Target device [SCSI DISK or local HDD partition]
+OR
+uses list.h
+
+
+
+>
+>
+>
+>
+>

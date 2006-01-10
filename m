@@ -1,83 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWAJNwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWAJNwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWAJNwO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWAJNwO
+	id S932117AbWAJNwy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:52:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWAJNwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:52:14 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:36932 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932067AbWAJNwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:52:13 -0500
-Date: Tue, 10 Jan 2006 14:54:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2G memory split
-Message-ID: <20060110135404.GF3389@suse.de>
-References: <20060110125852.GA3389@suse.de> <17347.47882.735057.154898@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17347.47882.735057.154898@alkaid.it.uu.se>
+	Tue, 10 Jan 2006 08:52:54 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:11381 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP id S932095AbWAJNww
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 08:52:52 -0500
+Date: Tue, 10 Jan 2006 15:50:15 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Joern Nettingsmeier <nettings@folkwang-hochschule.de>,
+       Olivier Galibert <galibert@pobox.com>,
+       Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+       Pete Zaitcev <zaitcev@redhat.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <Pine.LNX.4.61.0601101048360.10330@tm8103.perex-int.cz>
+Message-ID: <Pine.LNX.4.61.0601101542500.24146@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
+ <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com>
+ <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
+ <43BDA02F.5070103@folkwang-hochschule.de> <20060105234951.GA10167@dspnet.fr.eu.org>
+ <43BDB858.5060500@folkwang-hochschule.de> <Pine.LNX.4.61.0601060348380.29362@zeus.compusonic.fi>
+ <Pine.LNX.4.61.0601101048360.10330@tm8103.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10 2006, Mikael Pettersson wrote:
-> Jens Axboe writes:
->  > Hi,
->  > 
->  > It does annoy me that any 1G i386 machine will end up with 1/8th of the
->  > memory as highmem. A patch like this one has been used in various places
->  > since the early 2.4 days at least, is there a reason why it isn't merged
->  > yet? Note I just hacked this one up, but similar patches abound I'm
->  > sure. Bugs are mine.
->  > 
->  > Signed-off-by: Jens Axboe <axboe@suse.de>
->  > 
->  > diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
->  > index d849c68..0b2457b 100644
->  > --- a/arch/i386/Kconfig
->  > +++ b/arch/i386/Kconfig
->  > @@ -444,6 +464,24 @@ config HIGHMEM64G
->  >  
->  >  endchoice
->  >  
->  > +choice
->  > +	depends on NOHIGHMEM
->  > +	prompt "Memory split"
->  > +	default DEFAULT_3G
->  > +	help
->  > +	  Select the wanted split between kernel and user memory. On a 1G
->  > +	  machine, the 3G/1G default split will result in 128MiB of high
->  > +	  memory. Selecting a 2G/2G split will make all of memory available
->  > +	  as low memory. Note that this will make your kernel incompatible
->  > +	  with binary only kernel modules.
+On Tue, 10 Jan 2006, Jaroslav Kysela wrote:
+
+> On Fri, 6 Jan 2006, Hannu Savolainen wrote:
 > 
-> 2G/2G is not the only viable alternative. On my 1GB x86 box I'm
+> > The fact is that there is nothing the audio subsystem can do to recover 
+> > the situation. For this very simple reason the OSS API lacks everything 
+> > that would be necessary to cope with this kind of problems.
+> 
+> Applications should be notified that something is broken. If you have
+> a professional environment, you really need to know, if the output 
+> survived all scheduling peaks and the audio data are delivered from/to
+> I/O in time.
+This is exactly how OSS API works. The application can check if there were 
+any errors so far. It can do it after finishing the playback or whenever 
+it likes. It can then show a dialog box saying that playback/recording 
+was not 100% error free. Alternatively it can show error counters on the 
+status line. Or most applications just don't care.
+ 
+Best regards,
 
-Yes I know, as I wrote to Ingo I wanted to keep it really simple. It can
-easily be extended, of course.
-
-> using "lowmem1g" patches for both 2.4 and 2.6, which results in
-> 2.75G for user-space. I'm sure others have other preferences.
-> Any standard option for this should either have several hard-coded
-> alternatives, or should support arbitrary values (within reason).
-
-That's just asking for trouble, imho. We should provide some defaults
-(that work well on 1G and 2G machines, for instance) and stick to that.
-
-> (See http://www.csd.uu.se/~mikpe/linux/patches/*/patch-i386-lowmem1g-*
-> if you're interested.)
-
-It's similar to what I've been doing so far (just changing page.h to
-0xb0000000). 0x80000000 might be a bad default as suggested by Byron, as
-it just misses the full 2G.
-
-0xb0000000 is a much better default, but I didn't think that would fly
-as a patch.
-
--- 
-Jens Axboe
-
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWAJPMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWAJPOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWAJPMY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWAJPMY
+	id S1751108AbWAJPOH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWAJPOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:12:24 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:36256 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751113AbWAJPMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:12:22 -0500
-Date: Tue, 10 Jan 2006 10:12:21 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: dtor_core@ameritech.net,
-       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-       <linux-kernel@vger.kernel.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       <linux-usb-devel@lists.sourceforge.net>, Greg KH <gregkh@suse.de>,
-       Leonid <nouser@lpetrov.net>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-In-Reply-To: <20060110074336.GA7462@suse.cz>
-Message-ID: <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jan 2006 10:14:07 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:32559 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S1751108AbWAJPOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:14:06 -0500
+Subject: Re: [spi-devel-general] [PATCH] spi: add bus methods instead of
+	driver's ones
+From: dmitry pervushin <dpervushin@ru.mvista.com>
+Reply-To: dpervushin@ru.mvista.com
+To: David Brownell <david-b@pacbell.net>
+Cc: spi-devel-general@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200601100705.13313.david-b@pacbell.net>
+References: <1136893627.4780.9.camel@diimka-laptop>
+	 <200601100705.13313.david-b@pacbell.net>
+Content-Type: text/plain
+Organization: montavista
+Date: Tue, 10 Jan 2006 18:11:51 +0300
+Message-Id: <1136905911.4780.19.camel@diimka-laptop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006, Vojtech Pavlik wrote:
-
-> It's usually that the BIOS does an incomplete emulation of the i8042
-> chip, while still getting in the way to the real i8042. Usually GRUB and
-> DOS don't care about sending any commands to the i8042, and so they
-> work. The Linux i8042.c driver needs to use them to enable the PS/2
-> mouse port and do other probing, and if the commans are not working, it
-> just bails out.
+On Tue, 2006-01-10 at 07:05 -0800, David Brownell wrote:
+> > @@ -125,42 +125,40 @@ struct bus_type spi_bus_type = {
+> >  	.dev_attrs	= spi_dev_attrs,
+> >  	.match		= spi_match_device,
+> >  	.uevent		= spi_uevent,
+> > +	.probe		= spi_bus_probe,
+> > +	.remove		= spi_bus_remove,
+> > +	.shutdown	= spi_bus_shutdown,
+> >  	.suspend	= spi_suspend,
+> >  	.resume		= spi_resume,
+> >  };
+> What kernel are you using here?  The one I'm looking at -- GIT snapshot
+> as of a few minutes ago -- doesn't have probe(), remove(), or shutdown()
+> methods in "struct bus_type".  I don't recall that it ever had such...
+Could you please look to message from Russell King with subject "[CFT
+1/29] Add bus_type probe, remove, shutdown methods." ? This patch
+introduces methods named above to bus_type struct. 
 > 
-> The question of course is why the handoff code doesn't work on that
-> platform.
-
-It turned out that a BIOS upgrade fixed the problem, but this doesn't 
-answer your question.
-
-The problem wasn't an incomplete emulation of the i8042, because when the
-USB handoff code was commented out the PS/2 keyboard worked okay.  This
-means the handoff, when enabled, wasn't being done correctly.  That could
-be the fault of the USB drivers or the BIOS (or both).  We have no way to
-tell which, because the users have all switched to the newer BIOS.
-
-Alan Stern
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Splunk Inc. Do you grep through log files
+> for problems?  Stop!  Download the new AJAX search engine that makes
+> searching your log files as easy as surfing the  web.  DOWNLOAD SPLUNK!
+> http://ads.osdn.com/?ad_id=7637&alloc_id=16865&op=click
+> _______________________________________________
+> spi-devel-general mailing list
+> spi-devel-general@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/spi-devel-general
+-- 
+cheers, dmitry pervushin
 

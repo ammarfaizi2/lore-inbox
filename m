@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWAJCTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWAJC2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWAJCTl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 21:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWAJCTl
+	id S932269AbWAJC2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 21:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWAJC2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 21:19:41 -0500
-Received: from host1.compusonic.fi ([195.238.198.242]:41843 "EHLO
-	minor.compusonic.fi") by vger.kernel.org with ESMTP id S932262AbWAJCTk
+	Mon, 9 Jan 2006 21:28:25 -0500
+Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:36834 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S932269AbWAJC2Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 21:19:40 -0500
-Date: Tue, 10 Jan 2006 04:17:03 +0200 (EET)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: John Rigg <ad@sound-man.co.uk>
-Cc: David Lang <dlang@digitalinsight.com>,
-       =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       linux-sound@vger.kernel.org,
-       ALSA development <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-In-Reply-To: <20060110020017.GB5375@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0601100408480.18971@zeus.compusonic.fi>
-References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de>
- <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi> <200601091812.55943.rene@exactcode.de>
- <Pine.LNX.4.62.0601091355541.4005@qynat.qvtvafvgr.pbz>
- <20060109232043.GA5013@localhost.localdomain> <Pine.LNX.4.61.0601100212290.26233@zeus.compusonic.fi>
- <20060110020017.GB5375@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jan 2006 21:28:25 -0500
+Date: Mon, 9 Jan 2006 18:28:06 -0800
+From: Greg KH <gregkh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
+Message-ID: <20060110022806.GA32206@suse.de>
+References: <20060109203711.GA25023@kroah.com> <Pine.LNX.4.64.0601091557480.5588@g5.osdl.org> <20060109164410.3304a0f6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109164410.3304a0f6.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006, John Rigg wrote:
-
-> On Tue, Jan 10, 2006 at 02:48:35AM +0200, Hannu Savolainen wrote:
-> > On Mon, 9 Jan 2006, John Rigg wrote:
+On Mon, Jan 09, 2006 at 04:44:10PM -0800, Andrew Morton wrote:
+> Linus Torvalds <torvalds@osdl.org> wrote:
+> >
+> > On Mon, 9 Jan 2006, Greg KH wrote:
+> > >
+> > > Here are some PCI patches against your latest git tree.  They have all
+> > > been in the -mm tree for a while with no problems.  I've pulled out all
+> > > of the offending patches that people objected to, or ones that crashed
+> > > older machines from the last series I sent you.
 > > 
-> > > Yes, but the CPU has plenty of other work to do. The sound cards that
-> > > would be worst affected by this are the big RME cards (non-interleaved) and
-> > > multiple ice1712 cards (non-interleaved blocks of interleaved data),
-> > ice1712 uses normal interleaving. There are no "non-interleaved blocks".
+> > Before I pull this, I'd like to get some confirmation that some of the 
+> > other problems that seem to be PCI-related in the -mm tree are also 
+> > understood, or at least known to be part of the stuff that you're _not_ 
+> > sending me..
 > 
-> With two ice1712 cards I had to patch jackd for MMAP_COMPLEX
-> support to make them work together. My understanding was that the
-> individual cards use interleaved data, but when several are combined
-> the resulting blocks of data are not interleaved together. I realise the
-> usual way of dealing with this is to use the alsa route plugin with
-> ttable to interleave them, but I couldn't get it to work with these
-> cards.
-Right. If you use two cards then both of them have independently 
-interleaved blocks. However if this kind of mapping belongs to the lowest 
-level audio API or not is yet another API feature to argue about.  Higher 
-level libraries like Jack could do this themselves.
+> It's really hard to keep track of all this, so it's likely that some things
+> will still sneak through.
+> 
+> - Reuben Farrelly's oops in make_class_name().  Could be libata, or scsi
+>   or driver core.
 
-Best regards,
+Haven't heard of this one before, but it shouldn't be a pci issue.
 
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM
+> - A few problems with ehci.  For example Grant Coady went oops loading
+>   the module.  Probably USB, maybe solved now, but there are
+>   interactions...
+
+People are still working on this one, but it shouldn't be a pci issue.
+
+> - gregkh-pci-x86-pci-domain-support-the-meat.patch is a problem, but
+>   wasn't in this tree.
+> 
+> > [ There's at least a pci_call_probe() NULL ptr dereference report by 
+> >   Martin Bligh, I think Andrew has a few others he's tracked.. ]
+
+Yes, that's the x86-* patches in my tree, from Jeff, and I'm not going
+to be sending them to you until all of the breakage is fixed up (he
+created them for machines that aren't public yet, so I don't think
+there's a rush for them to get in anytime soon...)
+
+> Yes, Martin is reporting failures on a few machines.  Hopefully he's
+> working out whether gregkh-pci-x86-pci-domain-support-the-meat.patch was
+> the culprit here.  If so, I'd say we're good to go.  If that's _not_ the
+> source then we just don't know where the failure is coming from.
+
+It sure looks like it's the reason why, as we are suddenly failing with
+a NULL pointer problem after we change an integer field into a pointer :)
+
+Linus, it should all be safe for you to pull this tree, as I took
+everything that people objected to out of my last attempt :)
+
+thanks,
+
+greg k-h

@@ -1,104 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWAJQ4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWAJRAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWAJQ4N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 11:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWAJQ4M
+	id S932251AbWAJRAs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 12:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWAJRAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 11:56:12 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:52377 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932235AbWAJQ4L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 11:56:11 -0500
-Subject: [PATCH] [RFC] Generic 32-bit MMIO copy, out of line
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>, Roland Dreier <rdreier@cisco.com>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1136909276.32183.28.camel@serpentine.pathscale.com>
-References: <patchbomb.1136579193@eng-12.pathscale.com>
-	 <d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
-	 <20060110011844.7a4a1f90.akpm@osdl.org>  <adaslrw3zfu.fsf@cisco.com>
-	 <1136909276.32183.28.camel@serpentine.pathscale.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Tue, 10 Jan 2006 08:56:05 -0800
-Message-Id: <1136912166.32183.45.camel@serpentine.pathscale.com>
+	Tue, 10 Jan 2006 12:00:48 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40921 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932238AbWAJRAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 12:00:47 -0500
+Date: Tue, 10 Jan 2006 11:00:32 -0600
+From: Mark Maule <maule@sgi.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Matthew Wilcox <matthew@wil.cx>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 0/3] msi abstractions and support for altix
+Message-ID: <20060110170032.GC18399@sgi.com>
+References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com> <20051222205023.GK2361@parisc-linux.org> <20060103032249.GA4957@sgi.com> <20060103060719.GA1845@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060103060719.GA1845@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 08:07 -0800, Bryan O'Sullivan wrote:
+On Mon, Jan 02, 2006 at 10:07:19PM -0800, Greg KH wrote:
+> On Mon, Jan 02, 2006 at 09:22:49PM -0600, Mark Maule wrote:
+> > On Thu, Dec 22, 2005 at 01:50:23PM -0700, Matthew Wilcox wrote:
+> > > On Thu, Dec 22, 2005 at 02:38:24PM -0600, Mark Maule wrote:
+> > > > Because on ia64 IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR
+> > > > (from which MSI FIRST_DEVICE_VECTOR/LAST_DEVICE_VECTOR are derived) are not
+> > > > constants.  The are now global variables (see change to asm-ia64/hw_irq.h)
+> > > > to allow the platform to override them.  Altix uses a reduced range of
+> > > > vectors for devices, and this change was necessary to make assign_irq_vector()
+> > > > to work on altix.
+> > > 
+> > > To be honest, I think this is just adding a third layer of paper over
+> > > the crack in the wall.  The original code assumed x86; the ia64 port
+> > > added enough emulation to make it look like x86 and now altix fixes a
+> > > couple of assumptions.  I say: bleh.
+> > > 
+> > > What we actually need is an interface provided by the architecture that
+> > > allocates a new irq.  I have a hankering to implement MSI on PA-RISC but
+> > > haven't found the time ... 
+> > 
+> > Matt, Greg, et. al:
+> > 
+> > Did you guys have something in mind for a vector allocation interface?  It
+> > seems to me that assign_irq_vector() more or less does what we want,
+> > but what is missing is a way for the platform to prime which vectors
+> > are available to choose from.
+> > 
+> > One possibly better solution would be to call something in the init_IRQ path
+> > that would set up the vector pool available to assign_irq_vector().
+> > 
+> > Any opinions on this?  I would maintain that this effort should be done
+> > independently of this patchset.
+> 
+> Care to write a patch showing how this would work?
+> 
+> And why would this be independant of your other changes?
+> 
+> thanks,
+> 
+> greg k-h
 
-> The only problem with this is that it's an unusual approach, so I don't
-> have any obvious examples to copy.
+Ok, looks like it's going to be a bit until I have time to work on the
+vector allocation stuff.
 
-It was easy to hack up a quick patch to try the idea out.
+In the mean time, would folks be recepteive to taking this portion of the
+initial patchset:
 
-This single-arch patch is for review purposes only; I compile-tested it
-on i386, and it has no obvious problems at compile- or link-time.
+[PATCH 1/4] msi archetecture init hook
+http://lkml.org/lkml/2005/12/21/168
 
-If it looks OK, I have a complete patch set that affects all arches.
-The parts that affect arch/*/lib/Makefile and include/asm-*/io.h are
-essentially identical in all cases.
+This would at least give us a graceful pci_enable_msi() failure on altix
+until I find the time to work on the other stuff.
 
-	<b
-
-diff -r 48616306e7bd include/asm-generic/raw_memcpy_toio32.h
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/include/asm-generic/raw_memcpy_toio32.h	Tue Jan 10 08:44:30 2006 -0800
-@@ -0,0 +1,16 @@
-+#ifndef _ASM_GENERIC_RAW_MEMCPYTOIO32_H
-+#define _ASM_GENERIC_RAW_MEMCPYTOIO32_H
-+
-+/*
-+ * __raw_memcpy_toio32 - copy data to MMIO space, in 32-bit units
-+ *
-+ * Order of access is not guaranteed, nor is a memory barrier performed
-+ * afterwards.  This is an arch-independent generic implementation.
-+ *
-+ * @to: destination, in MMIO space (must be 32-bit aligned)
-+ * @from: source (must be 32-bit aligned)
-+ * @count: number of 32-bit quantities to copy
-+ */
-+void __raw_memcpy_toio32(void __iomem *to, const void *from, size_t count);
-+
-+#endif // _ASM_GENERIC_RAW_MEMCPYTOIO32_H
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/lib/raw_memcpy_toio32.c	Tue Jan 10 08:44:30 2006 -0800
-@@ -0,0 +1,13 @@
-+#include <linux/types.h>
-+#include <asm/io.h>
-+#include <asm-generic/raw_memcpy_toio32.h>
-+
-+void __raw_memcpy_toio32(void __iomem *to, const void *from, size_t count)
-+{
-+	u32 __iomem *dst = to;
-+	const u32 *src = from;
-+	size_t i;
-+
-+	for (i = 0; i < count; i++)
-+		__raw_writel(*src++, dst++);
-+}
---- a/arch/i386/lib/Makefile	Tue Jan 10 08:44:35 2006 -0800
-+++ b/arch/i386/lib/Makefile	Tue Jan 10 08:44:44 2006 -0800
-@@ -5,5 +5,6 @@
- 
- lib-y = checksum.o delay.o usercopy.o getuser.o putuser.o memcpy.o strstr.o \
- 	bitops.o
-+lib-y += ../../../lib/raw_memcpy_toio32.o
- 
- lib-$(CONFIG_X86_USE_3DNOW) += mmx.o
---- a/include/asm-i386/io.h	Tue Jan 10 08:44:35 2006 -0800
-+++ b/include/asm-i386/io.h	Tue Jan 10 08:44:44 2006 -0800
-@@ -203,6 +203,8 @@
- {
- 	__memcpy((void __force *) dst, src, count);
- }
-+
-+#include <asm-generic/raw_memcpy_toio32.h>
- 
- /*
-  * ISA space is 'always mapped' on a typical x86 system, no need to
-
-
+Mark

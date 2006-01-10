@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbWAJUf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbWAJUgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932608AbWAJUf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWAJUfZ
+	id S932619AbWAJUgc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWAJUgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:35:25 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:14282 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932608AbWAJUfY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:35:24 -0500
-Date: Tue, 10 Jan 2006 12:34:56 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-cc: Jesper Juhl <jesper.juhl@gmail.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 64-bit vs 32-bit userspace/kernel benchmark? Was: Athlon 64 X2
- cpuinfooddities
-In-Reply-To: <43C417A5.6070104@mnsu.edu>
-Message-ID: <Pine.LNX.4.62.0601101232420.5425@qynat.qvtvafvgr.pbz>
-References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com> 
- <p73r77gx36u.fsf@verdi.suse.de>  <9a8748490601091812x24aefae3oc0c6750c5321c3ab@mail.gmail.com>
-  <200601100336.31677.ak@suse.de> <9a8748490601100129h2ce343f5kc9bc22885f01831a@mail.gmail.com>
- <43C417A5.6070104@mnsu.edu>
+	Tue, 10 Jan 2006 15:36:32 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9639 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932597AbWAJUga (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 15:36:30 -0500
+Date: Tue, 10 Jan 2006 12:31:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+Subject: Re: git pull on Linux/ACPI release tree
+In-Reply-To: <20060110201909.GB3911@stusta.de>
+Message-ID: <Pine.LNX.4.64.0601101229390.4939@g5.osdl.org>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
+ <Pine.LNX.4.64.0601081111190.3169@g5.osdl.org> <20060108230611.GP3774@stusta.de>
+ <Pine.LNX.4.64.0601081909250.3169@g5.osdl.org> <20060110201909.GB3911@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006, Jeffrey Hundstad wrote:
 
->
->> On 1/10/06, Andi Kleen <ak@suse.de> wrote:
->> 
->>> On Tuesday 10 January 2006 03:12, Jesper Juhl wrote:
->>> 
-> ...
->
->>> Ah - how legacy.
->>> 
->>> 
->> Yeah, but since my distro of choice is 32bit only and I don't much
->> feel like porting it myself or using an unofficial port (slamd64) I'm
->> sticking with a 32bit userspace. And as long as userspace is pure
->> 32bit there doesn't seem to be much point in building a 64bit kernel.
->> And I only have 2GB of RAM, so I don't have a use for the larger 64bit
->> address space.
->> I also don't run any apps that do a lot of math on >32bit numbers, so
->> there's not much gain there either.
->> I guess I would bennefit from the extra GPR's, but then I would at the
->> same time loose a bit by all pointers being 64bit - both lose some
->> disk space due to larger binaries and I'd have increased memory use
->> and less efficient L1/L2 cache use.
->> 
->> I don't think there would actually be much gain for me in switching to
->> a 64bit kernel with a 64bit userspace atm.
->> But if I'm wrong I'd of course love to hear about it :)
->> 
->> 
->
-> Has anyone done any actual benchmark tests that show 64-bit vs 32-bit 
-> environments/distributions with Athlon64 processors.  If so, I love to see 
-> the results.  I too elected to stick with 32-bit, using the same 
-> reasoning/guessing above.
 
-remember that benchmarks are all dependant on your workload, but on some 
-of my workloads (lots of fork-based network services) I've seen a 50%+ 
-increase by switching from a 32 bit to 64 bit kernel with 32 bit 
-userspace, and a further 50%+ increase by switching to a 64 bit userspace.
+On Tue, 10 Jan 2006, Adrian Bunk wrote:
+> 
+> > Now, in this model, you're not really using git as a distributed system. 
+> > In this model, you're using git to track somebody elses tree, and track a 
+> > few patches on top of it, and then "git rebase" is a way to move the base 
+> > that you're tracking your patches against forwards..
+> 
+> I am using the workaround of carrying the patches in a mail folder, 
+> applying them in a batch, and not pulling from your tree between 
+> applying a batch of patches and you pulling from my tree.
 
-remember that on amd64 systems 64 bit programs have access to twice as 
-many registers as 32 bit programs. This can be more of a win then the 
-extra pointer size is a loss.
+Yes, that also works.
 
-David Lang
+I think "quilt" is really the right thing here, although stg may be even 
+easier due to the more direct git integration. But with a smallish number 
+of patches, just doing patch management by hand is obviously simply not a 
+huge problem either, so extra tools may just end up confusing the issue.
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
-
+		Linus

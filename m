@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWAJNF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWAJNId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWAJNF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWAJNF5
+	id S1750995AbWAJNId (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:08:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWAJNId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:05:57 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:21805 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750990AbWAJNF4 (ORCPT
+	Tue, 10 Jan 2006 08:08:33 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:56747 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750995AbWAJNIc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:05:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:references;
-        b=XyOez1TgPY7NiTI9huGg2wxVF5Iqw9KsM/2n7hxNXesScCoDdZpUeXgTW/YHzfkXhw0BkC7BSKhCRsXn4wIEnx3qJTtkJ91KmJaP6A89nrJSRq6QZhiE3yqP4Ys3rHBpVlcBB4427jt/+SQ2F03wlSdDDEpbUAyyXAuvUaixuZo=
-Message-ID: <81083a450601100505m73f4580cvb6a4a0c6ceb9791d@mail.gmail.com>
-Date: Tue, 10 Jan 2006 18:35:55 +0530
-From: Ashutosh Naik <ashutosh.naik@gmail.com>
-To: linux-scsi@vger.kernel.org, James.Bottomley@steeleye.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scsi/arm/ecoscsi.c Handle scsi_add_host failure
-In-Reply-To: <81083a450601100441s7675d584jd10db5a8e6ccaf58@mail.gmail.com>
+	Tue, 10 Jan 2006 08:08:32 -0500
+Message-ID: <43C3C3B5.61D5641@tv-sign.ru>
+Date: Tue, 10 Jan 2006 17:24:53 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_332_8608814.1136898355757"
-References: <81083a450601100441s7675d584jd10db5a8e6ccaf58@mail.gmail.com>
+To: vatsa@in.ibm.com
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] rcu: fix hotplug-cpu ->donelist leak
+References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109185944.GB15083@us.ibm.com> <43C2C818.65238C30@tv-sign.ru> <20060109195933.GE14738@us.ibm.com> <20060110095811.GA30159@in.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_332_8608814.1136898355757
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Pointed out by Srivatsa Vaddagiri <vatsa@in.ibm.com>.
 
-Oops, Missed declaring the variable "retval". This one works for sure.
-Please apply this patch and drop the previous one. Sorry about that.
--Ashutosh
+rcu_do_batch() stops after processing maxbatch callbacks
+on ->donelist leaving rcu_tasklet in TASKLET_STATE_SCHED
+state.
 
-Add scsi_add_host() failure handling for the ecoscsi driver.
+If CPU_DEAD event happens remaining ->donelist entries are
+lost, rcu_offline_cpu() kills this tasklet.
 
-Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+With this patch ->donelist migrates along with ->curlist
+and ->nxtlist to the current cpu.
 
-------=_Part_332_8608814.1136898355757
-Content-Type: text/plain; name=ecoscsi.txt; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="ecoscsi.txt"
+Compile tested.
 
-diff -Naurp linux-2.6.15-git5-vanilla/drivers/scsi/arm/ecoscsi.c linux-2.6.15-git5/drivers/scsi/arm/ecoscsi.c
---- linux-2.6.15-git5-vanilla/drivers/scsi/arm/ecoscsi.c	2006-01-03 08:51:10.000000000 +0530
-+++ linux-2.6.15-git5/drivers/scsi/arm/ecoscsi.c	2006-01-10 18:23:12.000000000 +0530
-@@ -174,7 +174,7 @@ static struct Scsi_Host *host;
- 
- static int __init ecoscsi_init(void)
- {
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.15/kernel/rcupdate.c~4_HPFIX	2006-01-10 19:06:38.000000000 +0300
++++ 2.6.15/kernel/rcupdate.c	2006-01-10 19:15:01.000000000 +0300
+@@ -343,8 +343,9 @@ static void __rcu_offline_cpu(struct rcu
+ 	spin_unlock_bh(&rcp->lock);
+ 	rcu_move_batch(this_rdp, rdp->curlist, rdp->curtail);
+ 	rcu_move_batch(this_rdp, rdp->nxtlist, rdp->nxttail);
 -
-+	int retval;
- 	host = scsi_host_alloc(tpnt, sizeof(struct NCR5380_hostdata));
- 	if (!host)
- 		return 0;
-@@ -203,7 +203,13 @@ static int __init ecoscsi_init(void)
- 	NCR5380_print_options(host);
- 	printk("\n");
- 
--	scsi_add_host(host, NULL); /* XXX handle failure */
-+	retval = scsi_add_host(host, NULL);
-+	if (retval) {
-+		printk(KERN_WARNING "ecoscsi: scsi_add_host failed\n");
-+		scsi_host_put(host);
-+		return retval;
-+	}
++	rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
+ }
 +
- 	scsi_scan_host(host);
- 	return 0;
- 
-
-------=_Part_332_8608814.1136898355757--
+ static void rcu_offline_cpu(int cpu)
+ {
+ 	struct rcu_data *this_rdp = &get_cpu_var(rcu_data);

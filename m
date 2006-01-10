@@ -1,97 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWAJOky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWAJOhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWAJOky (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 09:40:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWAJOky
+	id S1751001AbWAJOhl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:37:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWAJOhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 09:40:54 -0500
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:45772 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S932166AbWAJOkx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 09:40:53 -0500
-To: "Jaroslav Kysela" <perex@suse.cz>
-Cc: "Takashi Iwai" <tiwai@suse.de>, linux-sound@vger.kernel.org,
-       "ALSA development" <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de> <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> <mailman.1136368805.14661.linux-kernel2news@redhat.com> <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de> <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <s5h7j9chzat.wl%tiwai@suse.de> <Pine.LNX.4.61.0601080225500.17252@zeus.compusonic.fi> <Pine.LNX.4.61.0601081007550.9470@tm8103.perex-int.cz> <Pine.LNX.4.61.0601090010090.31763@zeus.compusonic.fi> <Pine.LNX.4.61.0601101144130.10330@tm8103.perex-int.cz> <Pine.LNX.4.61.0601101550390.24146@zeus.compusonic.fi> <Pine.LNX.4.61.0601101508560.10330@tm8103.perex-int.cz>
-Message-ID: <op.s2520tt5q5yxc3@merlin>
-Date: Tue, 10 Jan 2006 15:39:55 +0100
-From: =?iso-8859-2?B?QWRhbSBUbGGza2E=?= <atlka@pg.gda.pl>
-Organization: =?iso-8859-2?B?R2Rh8XNrIFVuaXZlcnNpdHkgb2YgVGVjaG5vbG9neQ==?=
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0601101508560.10330@tm8103.perex-int.cz>
-User-Agent: Opera M2/8.51 (Linux, build 1462)
+	Tue, 10 Jan 2006 09:37:41 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:44069 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751001AbWAJOhk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 09:37:40 -0500
+Date: Tue, 10 Jan 2006 15:39:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2G memory split
+Message-ID: <20060110143931.GM3389@suse.de>
+References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0601100840400.9511@winds.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia 10-01-2006 o 15:17:21 Jaroslav Kysela <perex@suse.cz> napisa³:
+On Tue, Jan 10 2006, Byron Stanoszek wrote:
+> On Tue, 10 Jan 2006, Jens Axboe wrote:
+> 
+> >>yes, i made it totally configurable in 2.4 days: 1:3, 2/2 and 3:1 splits
+> >>were possible. It was a larger patch to enable all this across x86, but
+> >>the Kconfig portion was removed a bit later because people _frequently_
+> >>misconfigured their kernels and then complained about the results.
+> >
+> >How is this different than all other sorts of misconfigurations? As far
+> >as I can tell, the biggest "problem" for some is if they depend on some
+> >binary module that will of course break with a different page offset.
+> >
+> >For simplicity, I didn't add more than the 2/2 split, where we could add
+> >even a 3/1 kernel/user or a 0.5/3.5 (I think sles8 had this).
+> 
+> I prefer setting __PAGE_OFFSET to (0x78000000) on machines with 2GB of RAM.
+> This seems to let the kernel use the full 2GB of memory, rather than just
+> 1920-1984 MB (at least back in 2.4 days).
 
-> On Tue, 10 Jan 2006, Hannu Savolainen wrote:
->
->> On Tue, 10 Jan 2006, Jaroslav Kysela wrote:
->>
->> > >
->> > > Then you can include a libOSSlib.o library in ALSA with all the OSS
->> > > emulation stuf inside.
->> >
->> > You should do the clear statement that the direct using of syscalls  
->> is not
->> > recommented for application developers. Unfortunately at this time, I
->> > admit, it would be very difficult to change the existing applications.
->
->> Sorry. That breaks backward compatibility with systems that don't have
->> libOSSlib (all current and past Linux distros, all BSD variants,
->> everything but systems with our official OSS package installed). Such
->> statement can be added in 2010 but provided that all Linux distros and
->> other environments having OSS compatible implementations add the  
->> osslib_*
->> routines within this year.
->
-> I meant that you can originate to move the OSS entry point to somewhere
-> else (library) and try to persuade developers to use library than direct
-> calls.
->
-> Of course, we cannot change current applications, but we can start the
-> movement now. I just ask you to do it now. Nothing else. It will be a  
-> slow
-> process but it should be started now.
->
-> Also, I don't think that it will break something. The application
-> developers can use your code in their applications directly when the
-> distribution does not have the OSS access library package.
-  ger atlka@sunrise.pg.gda.pl
+A newer version, trying to cater to the various comments in here.
+Changes:
 
-Doing every call through some lib even if it's only a wrapper leading
-to kernel syscall doesn't look very interesting.
-Some people need statically lined apps and minimum usable distro without
-bloated libs. What about Unix device abstraction?
-Are we going the current Windows way?
+- Add 1G_OPT split, meant for 1GiB machines. Uses 0xB0000000
+- Add 1G/3G split
+- Move the 2G/2G a little, so the full 2GiB of ram can be mapped.
+- Improve help text (I hope :)
+- Make option depend on EXPERIMENTAL.
+- Make the page.h a lot more readable.
 
-Anyway Windows is stearing to the microkernel approach (approaching Vista)
-and it looks that we are going to the current Windows model while MS  
-developers
-are going far away. Hurd looks nice but it is not good enough now.
-But the idea is good and needs more people to improve it.
+---
 
-So we could have Unix device approach with drivers running as separate  
-processes
-not in kernel space. With proper kernel scheduling and being non-swappable
-we could get good security, stability and additionally enough simple
- from app point of view approach. Going through libs we are going through
-all the LD_PRELOAD and LD_LIBRARY_PATH and linker security hell.
+Add option for configuring the page offset, to better optimize the
+kernel for higher memory machines. Enables users to get rid of high
+memory for eg a 1GiB machine.
 
-Kernel approach looks good enough for me now. But it is not so secure of  
-course.
-So we need some process->kernel-device->driver RT/non-swappable/correctly
-scheduled process IPC so we can do it the other way. IMHO that's the future
-if we don't want drivers in the kernel.
+Signed-off-by: Jens Axboe <axboe@suse.de>
 
-Best regards
---
-Adam Tla³ka      mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
-System  & Network Administration Group           ~~~~~~
-Computer Center,  Gdañsk University of Technology, Poland
-PGP public key:   finger atlka@sunrise.pg.gda.pl
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+index d849c68..fcad8f7 100644
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -444,6 +464,32 @@ config HIGHMEM64G
+ 
+ endchoice
+ 
++choice
++	depends on NOHIGHMEM && EXPERIMENTAL
++	prompt "Memory split"
++	default DEFAULT_3G
++	help
++	  Select the wanted split between kernel and user memory.
++
++	  If the address range available to the kernel is less than the
++	  physical memory installed, the remaining memory will be available
++	  as "high memory". Accessing high memory is a little more costly
++	  than low memory, as it needs to be mapped into the kernel first.
++
++	  Note that selecting anything but the default 3G/1G split will make
++	  your kernel incompatible with binary only modules.
++
++	config DEFAULT_3G
++		bool "3G/1G user/kernel split"
++	config DEFAULT_3G_OPT
++		bool "3G/1G user/kernel split (for full 1G low memory)"
++	config DEFAULT_2G
++		bool "2G/2G user/kernel split"
++	config DEFAULT_1G
++		bool "1G/3G user/kernel split"
++
++endchoice
++
+ config HIGHMEM
+ 	bool
+ 	depends on HIGHMEM64G || HIGHMEM4G
+diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
+index 73296d9..7da50a1 100644
+--- a/include/asm-i386/page.h
++++ b/include/asm-i386/page.h
+@@ -109,11 +109,23 @@ extern int page_is_ram(unsigned long pag
+ 
+ #endif /* __ASSEMBLY__ */
+ 
++#if defined(CONFIG_DEFAULT_3G)
++#define __PAGE_OFFSET_RAW	(0xC0000000)
++#elif defined(CONFIG_DEFAULT_3G_OPT)
++#define	__PAGE_OFFSET_RAW	(0xB0000000)
++#elif defined(CONFIG_DEFAULT_2G)
++#define __PAGE_OFFSET_RAW	(0x78000000)
++#elif defined(CONFIG_DEFAULT_1G)
++#define __PAGE_OFFSET_RAW	(0x40000000)
++#else
++#error "Bad user/kernel offset"
++#endif
++
+ #ifdef __ASSEMBLY__
+-#define __PAGE_OFFSET		(0xC0000000)
++#define __PAGE_OFFSET		__PAGE_OFFSET_RAW
+ #define __PHYSICAL_START	CONFIG_PHYSICAL_START
+ #else
+-#define __PAGE_OFFSET		(0xC0000000UL)
++#define __PAGE_OFFSET		((unsigned long)__PAGE_OFFSET_RAW)
+ #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
+ #endif
+ #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
+
+-- 
+Jens Axboe
+

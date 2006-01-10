@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWAJUtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbWAJUuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbWAJUtI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWAJUtH
+	id S932609AbWAJUuR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWAJUuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:49:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57069 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932439AbWAJUtG (ORCPT
+	Tue, 10 Jan 2006 15:50:16 -0500
+Received: from Mail.MNSU.EDU ([134.29.1.12]:60810 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S932308AbWAJUuP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:49:06 -0500
-Date: Tue, 10 Jan 2006 15:48:59 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: David Howells <dhowells@redhat.com>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [patch] remove unnecessary asm/mutex.h from kernel/mutex-debug.c
-In-Reply-To: <2758.1136902767@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.58.0601101546120.2133@devserv.devel.redhat.com>
-References: <2758.1136902767@warthog.cambridge.redhat.com>
+	Tue, 10 Jan 2006 15:50:15 -0500
+Message-ID: <43C41DFD.9000507@mnsu.edu>
+Date: Tue, 10 Jan 2006 14:50:05 -0600
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Lang <dlang@digitalinsight.com>
+CC: Jesper Juhl <jesper.juhl@gmail.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 64-bit vs 32-bit userspace/kernel benchmark? Was: Athlon 64 X2
+ cpuinfooddities
+References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com>  <p73r77gx36u.fsf@verdi.suse.de>  <9a8748490601091812x24aefae3oc0c6750c5321c3ab@mail.gmail.com>  <200601100336.31677.ak@suse.de> <9a8748490601100129h2ce343f5kc9bc22885f01831a@mail.gmail.com> <43C417A5.6070104@mnsu.edu> <Pine.LNX.4.62.0601101232420.5425@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0601101232420.5425@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Lang wrote:
 
-On Tue, 10 Jan 2006, David Howells wrote:
+> On Tue, 10 Jan 2006, Jeffrey Hundstad wrote:
+>
+>>
+>>> On 1/10/06, Andi Kleen <ak@suse.de> wrote:
+>>>
+>>>> On Tuesday 10 January 2006 03:12, Jesper Juhl wrote:
+>>>>
+>> ...
+>>
+>>>> Ah - how legacy.
+>>>>
+>>>>
+>>> Yeah, but since my distro of choice is 32bit only and I don't much
+>>> feel like porting it myself or using an unofficial port (slamd64) I'm
+>>> sticking with a 32bit userspace. And as long as userspace is pure
+>>> 32bit there doesn't seem to be much point in building a 64bit kernel.
+>>> And I only have 2GB of RAM, so I don't have a use for the larger 64bit
+>>> address space.
+>>> I also don't run any apps that do a lot of math on >32bit numbers, so
+>>> there's not much gain there either.
+>>> I guess I would bennefit from the extra GPR's, but then I would at the
+>>> same time loose a bit by all pointers being 64bit - both lose some
+>>> disk space due to larger binaries and I'd have increased memory use
+>>> and less efficient L1/L2 cache use.
+>>>
+>>> I don't think there would actually be much gain for me in switching to
+>>> a 64bit kernel with a 64bit userspace atm.
+>>> But if I'm wrong I'd of course love to hear about it :)
+>>>
+>>>
+>>
+>> Has anyone done any actual benchmark tests that show 64-bit vs 32-bit 
+>> environments/distributions with Athlon64 processors.  If so, I love 
+>> to see the results.  I too elected to stick with 32-bit, using the 
+>> same reasoning/guessing above.
+>
+>
+> remember that benchmarks are all dependant on your workload, but on 
+> some of my workloads (lots of fork-based network services) I've seen a 
+> 50%+ increase by switching from a 32 bit to 64 bit kernel with 32 bit 
+> userspace, and a further 50%+ increase by switching to a 64 bit 
+> userspace.
+>
 
-> I've found a compilation error in mutexes when using the null variety:
-> 
-> 	In file included from kernel/mutex-debug.c:25:
-> 	kernel/mutex-debug.h:23:1: warning: "__IP__" redefined
-> 	In file included from include/asm/mutex.h:9,
-> 			 from kernel/mutex-debug.c:23:
-> 	include/asm-generic/mutex-null.h:15:1: warning: this is the location of the previous definition
+Thanks for your response.  I'm prob. being stupid here... but does 
+"increase" here mean faster or slower?
 
-ok, the patch below should solve this. This didnt trigger on any of the
-existing arches until now, because neither used asm-generic/null.h as
-their method. I build-tested the patch. Linus, please apply.
+> remember that on amd64 systems 64 bit programs have access to twice as 
+> many registers as 32 bit programs. This can be more of a win then the 
+> extra pointer size is a loss.
 
-	Ingo
---
 
-remove unnecessary (and incorrect) inclusion of asm/mutex.h, pointed out 
-by David Howells.
+If you've done other "standard" type of benchmarks between the two 
+please post your results.  Also, is there a big hit by using a nearly 
+pure 32-bit environment + the rare 64-bit program when needed?
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+-- 
+Jeffrey Hundstad
 
-----
-
- kernel/mutex-debug.c |    2 --
- 1 files changed, 2 deletions(-)
-
-Index: linux/kernel/mutex-debug.c
-===================================================================
---- linux.orig/kernel/mutex-debug.c
-+++ linux/kernel/mutex-debug.c
-@@ -20,8 +20,6 @@
- #include <linux/kallsyms.h>
- #include <linux/interrupt.h>
- 
--#include <asm/mutex.h>
--
- #include "mutex-debug.h"
- 
- /*

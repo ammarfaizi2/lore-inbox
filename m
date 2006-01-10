@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWAJEGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWAJEIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWAJEGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 23:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWAJEGI
+	id S1751178AbWAJEIN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 23:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWAJEIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 23:06:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8718 "HELO
+	Mon, 9 Jan 2006 23:08:13 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9998 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751177AbWAJEGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 23:06:07 -0500
-Date: Tue, 10 Jan 2006 05:06:05 +0100
+	id S1751178AbWAJEIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 23:08:13 -0500
+Date: Tue, 10 Jan 2006 05:08:11 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Ricardo Cerqueira <v4l@cerqueira.org>
-Cc: mchehab@brturbo.com.br, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] VIDEO_SAA7134_ALSA shouldn't select SND_PCM_OSS
-Message-ID: <20060110040605.GA3911@stusta.de>
+To: Greg KH <greg@kroah.com>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-git2: CONFIGFS_FS shows up as M/y choice, help says "if unsure, say N"
+Message-ID: <20060110040811.GB3911@stusta.de>
+References: <5a4c581d0601061310j3f4eb310o1d68c0b87c278685@mail.gmail.com> <20060106223032.GZ18439@ca-server1.us.oracle.com> <20060107220959.GA3774@stusta.de> <20060108021630.GA3771@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060108021630.GA3771@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's no reason for an ALSA driver to select an OSS legacy userspace 
-interface.
+On Sat, Jan 07, 2006 at 06:16:30PM -0800, Greg KH wrote:
+> On Sat, Jan 07, 2006 at 11:09:59PM +0100, Adrian Bunk wrote:
+> > On Fri, Jan 06, 2006 at 02:30:32PM -0800, Joel Becker wrote:
+> > > On Fri, Jan 06, 2006 at 10:10:13PM +0100, Alessandro Suardi wrote:
+> > > > If unsure, say N.
+> > > > ===========
+> > > > 
+> > > > I think I'll say M - for now ;)
+> > > 
+> > > 	If you choose something depending on CONFIGFS_FS, you of course
+> > > don't get the choice of 'N'.  Here's a cleanup also available at
+> > > http://oss.oracle.com/git/ocfs2-dev.git
+> > 
+> > I don't know whether I already asked this question (if I did it seems 
+> > I've forgotten the answer...):
+> > 
+> > Why is CONFIGFS_FS a user-visible option?
+> 
+> I think it should be the same as SYSFS, only changable from the EMBEDDED
+> portion.
 
+No, my thoughts got in exactly the opposite direction:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+It should not be available except when explicitely select'ed by a driver 
+with support for it.
 
---- linux-2.6.15-mm2/drivers/media/video/saa7134/Kconfig.old	2006-01-10 02:59:30.000000000 +0100
-+++ linux-2.6.15-mm2/drivers/media/video/saa7134/Kconfig	2006-01-10 03:02:57.000000000 +0100
-@@ -15,7 +15,7 @@
- config VIDEO_SAA7134_ALSA
- 	tristate "Philips SAA7134 DMA audio support"
- 	depends on VIDEO_SAA7134 && SND
--	select SND_PCM_OSS
-+	select SND_PCM
- 	---help---
- 	  This is a video4linux driver for direct (DMA) audio in
- 	  Philips SAA713x based TV cards using ALSA
+But I got the point that an option is required for stuff not yet merged 
+into the kernel.
+
+> thanks,
+> 
+> greg k-h
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

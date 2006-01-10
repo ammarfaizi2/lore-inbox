@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWAJANs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWAJARK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbWAJANs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 19:13:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWAJANs
+	id S1750745AbWAJARK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 19:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWAJARK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 19:13:48 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:11755 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751722AbWAJANs (ORCPT
+	Mon, 9 Jan 2006 19:17:10 -0500
+Received: from soundwarez.org ([217.160.171.123]:55466 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1750745AbWAJARJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 19:13:48 -0500
-Date: Tue, 10 Jan 2006 01:13:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [GIT PATCHES] mutex subsystem, -V16
-Message-ID: <20060110001356.GA16122@elte.hu>
+	Mon, 9 Jan 2006 19:17:09 -0500
+Date: Tue, 10 Jan 2006 01:17:01 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Andreas Gruenbacher <agruen@suse.de>,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch 0/2] Tmpfs acls
+Message-ID: <20060110001701.GA25690@vrfy.org>
+References: <200601090023.16956.agruen@suse.de> <E1Evk3m-00043Y-00@chiark.greenend.org.uk> <200601100059.47317.agruen@suse.de> <20060110000758.GA22399@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.0 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060110000758.GA22399@srcf.ucam.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 10, 2006 at 12:07:58AM +0000, Matthew Garrett wrote:
+> On Tue, Jan 10, 2006 at 12:59:46AM +0100, Andreas Gruenbacher wrote:
+> > On Monday 09 January 2006 00:34, Matthew Garrett wrote:
+> > > Hmm. Do you have any infrastructure for revoking open file descriptors
+> > > when a user logs out?
+> > 
+> > Open file descriptors have nothing to do with it. The device permissions are 
+> > set by different pam modules on different distributions (pam_console, 
+> > pam_resmgr).
+> 
+> Right. But what stops a user writing an application that opens a device, 
+> hangs around after the user logs out and then provides access to the 
+> user when logged in remotely?
+> 
+> Handwavy problem scenario - user A logs in, is given access to the 
+> soundcard. Starts running a program that when given appropriate signals 
+> will record from the system microphone. Logs out. Waits for user B, who 
+> he suspects is having an affair with his wife, and then monitors any 
+> conversations that user B has.
 
-this is the latest version of the generic mutex subsystem, against 
-Linus-curr. The GIT tree can be pulled from:
+That can be solved in the user session handling and not in the kernel.
 
-  master.kernel.org:/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
+> ACLs on their own don't seem to solve 
+> this any more than just statically assigning group membership to users.
 
-or:
+Sure, they do. Unlike silly group memberships, the system can provide
+ressources to "local" users only.
 
-  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
-
-(once master has resynced)
-
-or the patch-queue can be downloaded from:
-
-  http://redhat.com/~mingo/generic-mutex-subsystem/
-
-this code is identical to the mutex code in 2.6.15-mm2. There's been 
-little changes since -V15:
-
- - added the extra smp_mb()s to the generic headers, pointed out by 
-   Linus.
-
- - finished the i_mutex conversion.
-
- - fixed the ALSA i_mutex related bug that the mutex debugging code 
-   uncovered in -mm2 (part of the i_mutex conversion patch).
-
- - dropped the small-misc-conversions patch, will go through 
-   maintainers, if the mutex core is upstream.
-
-	Ingo
+Kay

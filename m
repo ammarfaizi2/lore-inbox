@@ -1,133 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbWAJWnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbWAJWlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbWAJWnK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 17:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWAJWnJ
+	id S932597AbWAJWlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 17:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWAJWlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 17:43:09 -0500
-Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:20137 "EHLO
-	smtpq3.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S1030259AbWAJWmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 17:42:39 -0500
-Message-ID: <43C4388B.4060905@keyaccess.nl>
-Date: Tue, 10 Jan 2006 23:43:23 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Sebastian <sebastian_ml@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Digital Audio Extraction with ATAPI drives far from perfect
-References: <20060107115449.GB20748@section_eight.mops.rwth-aachen.de> <20060107115947.GY3389@suse.de> <20060107140843.GA23699@section_eight.mops.rwth-aachen.de> <20060107142201.GC3389@suse.de> <20060107160622.GA25918@section_eight.mops.rwth-aachen.de> <43BFFE08.70808@wasp.net.au> <20060107180211.GA12209@section_eight.mops.rwth-aachen.de> <43C00C32.9050002@wasp.net.au> <20060109093025.GO3389@suse.de> <20060109094923.GA8373@section_eight.mops.rwth-aachen.de> <20060109100322.GP3389@suse.de>
-In-Reply-To: <20060109100322.GP3389@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Tue, 10 Jan 2006 17:41:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58347 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932597AbWAJWlg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 17:41:36 -0500
+Date: Tue, 10 Jan 2006 14:41:14 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Cliff Wickman <cpw@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net,
+       Hirokazu Takahashi <taka@valinux.co.jp>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20060110224114.19138.10463.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 0/5] Direct Migration V9: Overview
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Swap migration is now in Linus tree. So this is the first direct page
+migration patchset against his tree (2.6.15-git6 no changes apart
+from the rediff). Also done on the off chance that we decide to have
+the full thing in 2.6.16 instead of only swap migration.
+Maybe this can now get into Andrew's tree?
 
-> Well it's actually a good thing, because then at least it's not a bug
-> with the multi-frame extraction. So my guess would still be at the
-> error correction possibilities that the application has, in which
-> case CDROMREADAUDIO is just an inferior interface for this sort of
-> thing. It also doesn't give the issuer a chance to look at potential
-> error reasons, since the extended status isn't available.
+-----
 
-For what it's worth; when allowing only flawless rips with cdparanoia 
-(*) standard cdparanoia 9.8 and the SG_IO patched version of the same 
-give me the exact same rips always, on my ATAPI Plextor "PlexWriter 
-Premium", a drive that's specifically good at CDDA.
+Page migration allows the moving of the physical location of pages between
+nodes in a numa system while the process is running. This means that the
+virtual addresses that the process sees do not change. However, the
+system rearranges the physical location of those pages.
 
-One thing that _is_ different is that the SG_IO version very frequently 
-(soft) locks up the machine, with:
+The main intend of page migration patches here is to reduce the latency of
+memory access by moving pages near to the processor where the process
+accessing that memory is running.
 
-===
-hdc: DMA timeout retry
-hdc: timeout waiting for DMA
-hdc: status error: status=0x7f { DriveReady DeviceFault SeekComplete 
-DataRequest CorrectedError Index Error }
-hdc: status error: error=0x7f { IllegalLengthIndication EndOfMedia 
-AbortedCommand MediaChangeRequested LastFailedSense=0x07 }
-ide: failed opcode was: unknown
-hdc: drive not ready for command
-hdc: ATAPI reset complete
-hdc: irq timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: ATAPI reset complete
-hdc: irq timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: status timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: drive not ready for command
-hdc: status timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: DMA disabled
-hdc: drive not ready for command
-hdc: ATAPI reset complete
-hdc: irq timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: ATAPI reset complete
-hdc: irq timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: status timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: drive not ready for command
-BUG: soft lockup detected on CPU#0!
+The migration patchsets allow a process to manually relocate the node
+on which its pages are located through the MF_MOVE and MF_MOVE_ALL options
+while setting a new memory policy. The pages of process can also be relocated
+from another process using the sys_migrate_pages() function call. The
+migrate_pages function call takes two sets of nodes and moves pages of a
+process that are located on the from nodes to the destination nodes.
 
-Pid: 0, comm:              swapper
-EIP: 0060:[<c01d111f>] CPU: 0
-EIP is at ide_inb+0x3/0x7
-  EFLAGS: 00000206    Not tainted  (2.6.15-local-wc)
-EAX: 00000180 EBX: c0329184 ECX: 2cb065ff EDX: 00000177
-ESI: 00000282 EDI: 001403db EBP: c03290f0 DS: 007b ES: 007b
-CR0: 8005003b CR2: b7c5d004 CR3: 1fd1f000 CR4: 000006d0
-  [<c01d16ca>] ide_wait_stat+0xa0/0xfd
-  [<c01d07cb>] start_request+0x10c/0x1a7
-  [<c01d0b42>] ide_do_request+0x2bb/0x2f9
-  [<c01d00c5>] ide_atapi_error+0x53/0x78
-  [<c01da977>] cdrom_newpc_intr+0x0/0x2fd
-  [<c01d0dfd>] ide_timer_expiry+0x195/0x1bf
-  [<c0118ebe>] run_timer_softirq+0x140/0x181
-  [<c01d0c68>] ide_timer_expiry+0x0/0x1bf
-  [<c0115b01>] __do_softirq+0x35/0x7d
-  [<c0103c54>] do_softirq+0x38/0x3f
-  =======================
-  [<c0115bda>] irq_exit+0x29/0x34
-  [<c0103b84>] do_IRQ+0x46/0x4e
-  [<c01026ce>] common_interrupt+0x1a/0x20
-  [<c0100a73>] default_idle+0x2b/0x53
-  [<c0100af0>] cpu_idle+0x41/0x63
-  [<c02ea621>] start_kernel+0x13d/0x13f
-hdc: status timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hdc: drive not ready for command
-hdc: status timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-===
+Manual migration is very useful if for example the scheduler has relocated
+a process to a processor on a distant node. A batch scheduler or an
+administrator can detect  the situation and move the pages of the process
+nearer to the new processor.
 
-Ad infitum. Needless to say, I switched back to regular (unpatched from 
-upstream) cdparanoia which doesn't show this problem. The patching I did 
-was from this message earlier in this thread:
+Larger installations usually partition the system using cpusets into
+sections of nodes. Paul Jackson has  equipped cpusets with the ability to
+move pages when a task is moved to another cpuset. This allows automatic
+control over locality of a process. If a task is moved to a new cpuset
+then also all its pages are moved with it so that the performance of the
+process does not sink dramatically (as is the case today).
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113665002702563&w=2
+The swap migration patchset in 2.6.16-git6 works by simply evicting
+the page. The pages must be faulted back in. The pages are then typically
+reallocated by the system near the node where the process is executing.
+For swap migration the destination of the move is controlled by the
+allocation policy. Cpusets set the allocation policy before calling
+sys_migrate_pages() in order to move the pages as intended.
 
-First I tried with only the .sgio and .labels patches from that src.rpm 
-applied, saw the problem, then retried with all of redhat's patches 
-applied (just in case) but did not see an improvement.
+No allocation policy changes are performed for sys_migrate_pages(). This
+means that the pages may not faulted in to the specified nodes if no
+allocation policy was set by other means. The pages will just end up
+near the node where the fault occurred.  The direct migration patchset
+extends the migration functionality to avoid going through swap.
+The destination node of the relation is controllable during the actual
+moving of pages. The crutch of using the allocation policy to relocate
+is not necessary any and the pages are moved directly to the target.
 
-As said, when things do work, the rips are exactly the same as the rips 
-made with the standard cdparanoia.
+The direct migration patchset allows the preservation of the relative
+location of pages within a group of nodes for all migration techniques which
+will preserve a particular memory allocation pattern generated even after
+migrating a process. This is necessary in order to preserve the memory
+latencies. Processes will run with similar performance after migration.
 
-(*) by "allowing only flawless rips" I mean using "cdparanoia -v -z -B" 
-and only ever allowing spaces in the progressbar cdparanoia leaves 
-behind as it goes along. When anything else (-, +, !, ...) appears, I 
-re-rip the entire track, or the bit in which the error occured, until I 
-have a "spaces only" copy. Two of such rips are always the same while on 
-the other hand a non-spaces-only rip generally differs from any other 
-rip made of that same track.
+This patch makes sys_migrate_pages() finally work as intended but does not
+do any significant modifications to APIs.
 
-Rene.
+Benefits over swap migration:
+
+1. It makes migrates_pages() actually migrate pages instead of just
+   swapping pages from a set of nodes out.
+
+2. Its faster because the page does not need to be written to swap space.
+
+3. It does not use swap space and therefore there is no danger of running
+   out of swap space.
+
+4. The need to write back a dirty page before migration is avoided through
+   a file system specific method.
+
+5. Direct migration allows the preservation of the relative location of a page
+   within a set of nodes.
+
+Many of the ideas for this code were originally developed in the memory
+hotplug project and we hope that this code also will allow the hotplug
+project to build on this patch in order to get to their goals.
+
+The patchset consists of five patches (only the first two are necessary to
+have basic direct migration support):
+
+1. SwapCache patch
+
+   SwapCache pages may have changed their type after lock_page() if the
+   page was migrated. Check for this and retry lookup if the page is no
+   longer a SwapCache page.
+
+2. migrate_pages()
+
+   Basic direct migration with fallback to swap if all other attempts
+   fail.
+
+3. remove_from_swap()
+
+   Page migration installs swap ptes for anonymous pages in order to
+   preserve the information contained in the page tables. This patch
+   removes the swap ptes after migration and replaces them with regular
+   ptes.
+
+4. upgrade of MPOL_MF_MOVE and sys_migrate_pages()
+
+   Add logic to mm/mempolicy.c to allow the policy layer to control
+   direct page migration. Thanks to Paul Jackson for the interative
+   logic to move between sets of nodes.
+
+5. buffer_migrate_pages() patch
+
+   Allow migration without writing back dirty pages. Add filesystem dependent
+   migration support for ext2/ext3 and xfs. Use swapper space to setup a
+   method to migrate anonymous pages without writeback.
+
+Credits (also in mm/vmscan.c):
+
+The idea for this scheme of page migration was first developed in the context
+of the memory hotplug project. The main authors of the migration code from
+the memory hotplug project are:
+
+IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+Hirokazu Takahashi <taka@valinux.co.jp>
+Dave Hansen <haveblue@us.ibm.com>
+
+Changes V8->V9:
+- Patchset against 2.6.15-git6
+
+Changes V7->V8:
+- Patchset against 2.6.15-rc5-mm3
+- Export more functions so that filesystems are able to implement their own
+  migrate_page() function.
+- Fix remove_from_swap() to remove the page from the swap cache in addition
+  to replacing swap ptes. Call with the page lock on the new page.
+- Fix copying of struct page {} field to avoid using the macros that process
+  field information.
+
+Changes V7->V7:
+- Rediff against 2.6.14-rc5-mm2
+
+Changes V6->V7:
+- Patchset agsinst 2.6.15-rc5-mm1
+- Fix one occurence of page->mapping in migrate_page_remove_references()
+- Update description]
+
+Changes V5->V6:
+- Patchset against 2.6.15-rc3-mm1
+- Remove checks for page count increases while migrating after Andrew assured
+  me that this cannot happen. Revise documentation to reflect that. If this is
+  the case then we will have no need to include the unwind code from the
+  hotplug project in the future.
+- Wrong reference while calling remove_from_swap to page instead of newpage
+  fixed.
+
+Changes V4->V5:
+- Patchset against 2.6.15-rc2-mm1
+- Update policy layer patch to use the generic check_range in 2.6.15-rc2-mm1.
+- Remove try_to_unmap patch since VM_RESERVED vanished under us and therefore
+  there is no point anymore to distinguish between permament and transitional
+  failures.
+
+Changes V3->V4:
+- Patchset against 2.6.15-rc1-mm2 + two swap migration fixes posted today.
+- Remove what is already in 2.6.14-rc1-mm2 which results in a significant
+  cleanup of the code.
+
+Changes V2->V3:
+- Patchset against 2.6.14-mm2
+- Fix single processor build and builds without CONFIG_MIGRATION
+- export symbols for filesystems that are modules and for
+  modules using migrate_pages().
+- Paul Jackson's cpuset migration support is in 2.6.14-mm2 so
+  this patchset can be easily applied to -mm2 to get from swap
+  based to direct page migration.
+
+Changes V1->V2:
+- Call node_remap with the right parameters in do_migrate_pages().
+- Take radix tree lock while examining page count to avoid races with
+  find_get_page() and various *_get_pages based on it.
+- Convert direct ptes to swap ptes before radix tree update to avoid
+  more races.
+- Fix problem if CONFIG_MIGRATION is off for buffer_migrate_page
+- Add documentation about page migration
+- Change migrate_pages() api so that the caller can decide what
+  to do about the migrated pages (badmem handling and hotplug
+  have to remove those pages for good).
+- Drop config patch (already in mm)
+- Add try_to_unmap patch
+- Patchset now against 2.6.14-mm1 without requiring additional patches.
+
 

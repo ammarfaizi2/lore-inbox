@@ -1,59 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWAJM4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWAJM5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWAJM4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 07:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWAJM4I
+	id S932107AbWAJM5D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 07:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWAJM5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 07:56:08 -0500
-Received: from 213-140-2-69.ip.fastwebnet.it ([213.140.2.69]:18870 "EHLO
-	aa002msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750815AbWAJM4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 07:56:07 -0500
-Date: Tue, 10 Jan 2006 13:56:17 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
-Message-ID: <20060110135617.020f82fb@localhost>
-In-Reply-To: <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
-References: <20060109210035.3f6adafc@localhost>
-	<5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
-	<5.2.1.1.2.20060102092903.00bde090@pop.gmx.net>
-	<20060101123902.27a10798@localhost>
-	<5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
-	<5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
-	<200512281027.00252.kernel@kolivas.org>
-	<20051227190918.65c2abac@localhost>
-	<20051227224846.6edcff88@localhost>
-	<200512281027.00252.kernel@kolivas.org>
-	<5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
-	<5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
-	<5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
-	<5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
-X-Mailer: Sylpheed-Claws 2.0.0-rc1 (GTK+ 2.6.10; x86_64-pc-linux-gnu)
+	Tue, 10 Jan 2006 07:57:03 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:44561 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932107AbWAJM46 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 07:56:58 -0500
+Date: Tue, 10 Jan 2006 13:58:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: 2G memory split
+Message-ID: <20060110125852.GA3389@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006 13:07:33 +0100
-Mike Galbraith <efault@gmx.de> wrote:
+Hi,
 
-> Can you please try this version?  It tries harder to correct any 
+It does annoy me that any 1G i386 machine will end up with 1/8th of the
+memory as highmem. A patch like this one has been used in various places
+since the early 2.4 days at least, is there a reason why it isn't merged
+yet? Note I just hacked this one up, but similar patches abound I'm
+sure. Bugs are mine.
 
-It seems that you have forgotten the to attach the patch...
+Signed-off-by: Jens Axboe <axboe@suse.de>
 
-> imbalance... hopefully not too hard.  In case you didn't notice, you need 
-> to let your exploits run for a bit before the throttling will take 
-> effect.  I intentionally start tasks off at 0 cpu usage, so it takes a bit 
-> to come up to it's real usage.
-
-Yes, I've seen it.
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+index d849c68..0b2457b 100644
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -444,6 +464,24 @@ config HIGHMEM64G
+ 
+ endchoice
+ 
++choice
++	depends on NOHIGHMEM
++	prompt "Memory split"
++	default DEFAULT_3G
++	help
++	  Select the wanted split between kernel and user memory. On a 1G
++	  machine, the 3G/1G default split will result in 128MiB of high
++	  memory. Selecting a 2G/2G split will make all of memory available
++	  as low memory. Note that this will make your kernel incompatible
++	  with binary only kernel modules.
++
++	config DEFAULT_3G
++		bool "3G/1G user/kernel split"
++	config DEFAULT_2G
++		bool "2G/2G user/kernel split"
++
++endchoice
++
+ config HIGHMEM
+ 	bool
+ 	depends on HIGHMEM64G || HIGHMEM4G
+diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
+index 73296d9..be5f6b6 100644
+--- a/include/asm-i386/page.h
++++ b/include/asm-i386/page.h
+@@ -110,10 +110,22 @@ extern int page_is_ram(unsigned long pag
+ #endif /* __ASSEMBLY__ */
+ 
+ #ifdef __ASSEMBLY__
++#if defined(CONFIG_DEFAULT_3G)
+ #define __PAGE_OFFSET		(0xC0000000)
++#elif defined(CONFIG_DEFAULT_2G)
++#define __PAGE_OFFSET		(0x80000000)
++#else
++#error" Bad memory split"
++#endif
+ #define __PHYSICAL_START	CONFIG_PHYSICAL_START
+ #else
++#if defined(CONFIG_DEFAULT_3G)
+ #define __PAGE_OFFSET		(0xC0000000UL)
++#elif defined(CONFIG_DEFAULT_2G)
++#define __PAGE_OFFSET		(0x80000000UL)
++#else
++#error "Bad memory split"
++#endif
+ #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
+ #endif
+ #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
 
 -- 
-	Paolo Ornati
-	Linux 2.6.15-plugsched on x86_64
+Jens Axboe
+

@@ -1,116 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWAJIGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWAJIWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWAJIGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 03:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWAJIGp
+	id S932092AbWAJIWw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 03:22:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWAJIWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 03:06:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:36904 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751007AbWAJIGo (ORCPT
+	Tue, 10 Jan 2006 03:22:52 -0500
+Received: from smtp.enter.net ([216.193.128.24]:52745 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S932092AbWAJIWv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 03:06:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:x-enigmail-version:content-type:content-transfer-encoding;
-        b=AFchwypT0dDAkRzr4Xz2f0U1l0gVNGKRsHcSDxhwNfrj/a4XQAO5fGxbHnlq87yN5JKoJrZC/FubnU9y+lHF7vk3/h/00C4gA8w7dLfsi9grttUJyBWL6riDChpx5wTOsxhkb2bOI/c9U8ULKb21Ge5zJhqXngSx0DDZrzcV6Tw=
-Message-ID: <43C36B0D.3030808@gmail.com>
-Date: Tue, 10 Jan 2006 09:06:37 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051210)
-X-Accept-Language: it, it-it, en-us, en
+	Tue, 10 Jan 2006 03:22:51 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Date: Tue, 10 Jan 2006 03:33:56 -0500
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, Yaroslav Rastrigin <yarick@it-territory.ru>,
+       andersen@codepoet.org, linux-kernel@vger.kernel.org
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <20060109231313.2d455d5f.akpm@osdl.org> <200601100933.48022.vda@ilport.com.ua>
+In-Reply-To: <200601100933.48022.vda@ilport.com.ua>
 MIME-Version: 1.0
-To: rlrevell@joe-job.com, "Kernel, " <linux-kernel@vger.kernel.org>
-Subject: [BUG 2.6.15-git5] new alsa power management completly broken
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601100333.57301.dhazelton@enter.net>
+X-Virus-Checker-Version: Enter.Net Virus Scanner 1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6.15: suspend works but on resume mixer volumes are not restored
-(registers not saved), so you need to restart your alsa script.
-boring but working.
+On Tuesday 10 January 2006 02:33, Denis Vlasenko wrote:
+<snip>
+> Andrew, I think this is a rare (on lkml at least) case when guy
+> does not want to participate in development in a Linux way
+> but wants to just pay for development instead:
+> "I want this <hardware> to work good under Linux. I want to pay
+> up to <sum> to whoever will agree to do that. Anybody?"
+>
+> Do not dismiss him lightly. There are LOTS of people which aren't
+> hackish at all. An order of magniture more than 'us' computer geeks.
+> M$ is successful because it uses this resource.
+> We may want to think how can we use it too.
+>
+> No, I don't think you, or someone else on this list can efficiently
+> use it, but distros, being more commercially oriented, maybe can.
 
-with 2.6.15-git5 i saw a new power management part. lt's test it:
+This is true. The types of bounties I have seen in OS development do not 
+usually reach much beyond $500. If distro's were to get behind this and start 
+offering bounties of large sums for _working_ code for hardware there might 
+be a response. As you've said, M$ is successful because it can throw money at 
+the problems. Sadly, another reason why M$ is successful are their NDA's and 
+the terms of any number of the contracts they offer hardware vendors and the 
+like. (And yet another reason is the fact that they got their foot in the doo 
+at just the right time. However, IMHO (and I have seen this recently), Now is 
+the time for Linux to start really stepping up to bat. I have had any number 
+of freinds and relatives ask me if there is an alternative to Windows and how 
+it takes so much work to keep running (I teach them basic windows maintenance 
+so I don't have to spend weekends going from house to house fixing problems) 
+- sadly I've had to tell them they are stuck with Windows for various 
+reasons. (Nothing to do with the Kernel, but the state of the available 
+software))
 
-suspending...
+But if the larger distro vendors would start offering bounties, all the 
+various small kernel problems that would stymie them would probably 
+disappear. Then the only problem is the market penetration and the 
+availability of software many people have come to depend on. (I have two 
+relatives who rely on the newest Yahoo IM clients voice chat and web-cam 
+abilities. Yahoo has not, and apparently will not, update their "Official" 
+client for Linux to have these capabilities and none of the alternative 
+clients have them.) When (I'm quite hopeful) Linux begins to get more market 
+penetration these problems of software should start to disappear.
 
-Jan 10 08:44:51 blight kernel: Stopping tasks: ===================|
-Jan 10 08:44:51 blight kernel: Shrinking memory...  ^H-^Hdone (0 pages
-freed)
-Jan 10 08:44:51 blight kernel: pnp: Device 00:0b disabled.
-Jan 10 08:44:51 blight kernel: pnp: Device 00:07 disabled.
-Jan 10 08:44:51 blight kernel: ACPI: PCI interrupt for device
-0000:00:0b.0 disabled
-Jan 10 08:44:51 blight kernel: ACPI: PCI interrupt for device
-0000:00:0a.2 disabled
-Jan 10 08:44:51 blight kernel: ACPI: PCI interrupt for device
-0000:00:0a.1 disabled
-Jan 10 08:44:51 blight kernel: ACPI: PCI interrupt for device
-0000:00:0a.0 disabled
-Jan 10 08:44:51 blight kernel: ACPI: PCI interrupt for device
-0000:00:09.0 disabled
-Jan 10 08:44:51 blight kernel: ACPI: PCI interrupt for device
-0000:00:04.2 disabled
-Jan 10 08:44:51 blight kernel: swsusp: Need to copy 15888 pages
-Jan 10 08:44:51 blight kernel: ACPI: PCI Interrupt 0000:00:04.2[D] ->
-Link [LNKD] -> GSI 9 (level, low) -> IRQ 9
-Jan 10 08:44:51 blight kernel: ACPI: PCI Interrupt 0000:00:09.0[A] ->
-Link [LNKD] -> GSI 9 (level, low) -> IRQ 9
-Jan 10 08:44:51 blight kernel: ACPI: PCI Interrupt 0000:00:09.0[A] ->
-Link [LNKD] -> GSI 9 (level, low) -> IRQ 9
-Jan 10 08:44:51 blight kernel: ACPI: PCI Interrupt 0000:00:0a.0[A] ->
-Link [LNKC] -> GSI 5 (level, low) -> IRQ 5
-Jan 10 08:44:51 blight kernel: ACPI: PCI Interrupt 0000:00:0a.1[B] ->
-Link [LNKD] -> GSI 9 (level, low) -> IRQ 9
-Jan 10 08:44:51 blight kernel: ACPI: PCI Interrupt 0000:00:0a.2[C] ->
-Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
-Jan 10 08:44:51 blight kernel: usb usb1: root hub lost power or was reset
-Jan 10 08:44:51 blight kernel: ehci_hcd 0000:00:0a.2: USB 2.0 started,
-EHCI 0.95, driver 10 Dec 2004
-Jan 10 08:44:51 blight kernel: ACPI: PCI Interrupt 0000:00:0b.0[A] ->
-Link [LNKB] -> GSI 10 (level, low) -> IRQ 10
-Jan 10 08:44:51 blight kernel: codec write timeout, status = 0x660
-Jan 10 08:44:51 blight last message repeated 25 times
+_That_ is a goal Linux is (hopefully) aiming towards. This one persons offer 
+of money isn't enough - but more than likely larger offered sums will lure 
+more of the "Less Hackish" developers to start doing work for Linux. The 
+other problem is one of the legality of binary-only modules. I, personally, 
+have seen _very_ few with any "binary only" code that directly accesses 
+kernel facilities - those interfaces are always released openly. (I cannot 
+verify this for the two binary only modules I have had to deal with recently 
+- if just because I don't actually have the time to disassemble the object 
+files they ship to check for kernel function use. (Which would mean inclusion 
+of portions of the Kernel Headers. Which, I'm afraid, to me would signify 
+them being derivative works and therefore in violation of the GPL.)
 
-25 times....about half on suspending and about half on restarting.
+I've wasted enough bandwidth here. Note that all flames will be read and 
+laughed at :)
 
-
-now restarting..
-
-Jan 10 08:44:51 blight kernel: pnp: Device 00:07 activated.
-Jan 10 08:44:51 blight kernel: pnp: Failed to activate device 00:0a.
-Jan 10 08:44:51 blight kernel: pnp: Device 00:0b activated.
-Jan 10 08:44:51 blight kernel: Restarting tasks... done
-
-device can't play any sound, as before. so i tried the usual solution
-(restart the alsasound script in gentoo)
-
-Jan 10 08:45:45 blight rc-scripts: WARNING:  you are stopping a boot
-service.
-Jan 10 08:45:47 blight kernel: codec write timeout, status = 0x660
-Jan 10 08:46:33 blight last message repeated 64 times
-Jan 10 08:46:57 blight last message repeated 199 times
-
-as you can see it flood the syslog with 0x660 errors.
-infact if i try to adjust the volume via alsamixer the volume level
-moves soooo slow (it's flooding syslog)
-
-so actually power resume is completly broken. the only way is restarting
-the kernel via a reboot (built-in alsa).
-
-
-Audio card: Creative Sound Blaster PCI 128
-00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
-
-Ready to test patches.
-
-Thanks.
-
---
-Patrizio Bassi
-
-www.patriziobassi.it
-
+D. Hazelton

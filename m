@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWAJIiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWAJIlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWAJIiM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 03:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWAJIiM
+	id S932098AbWAJIlR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 03:41:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWAJIlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 03:38:12 -0500
-Received: from styx.suse.cz ([82.119.242.94]:54711 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932093AbWAJIiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 03:38:11 -0500
-Date: Tue, 10 Jan 2006 08:43:36 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: dtor_core@ameritech.net,
-       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Leonid <nouser@lpetrov.net>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-Message-ID: <20060110074336.GA7462@suse.cz>
-References: <d120d5000601090850k42cc1c1ft6ab4e197119cacd@mail.gmail.com> <Pine.LNX.4.44L0.0601091215070.7432-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jan 2006 03:41:17 -0500
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:51134 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932098AbWAJIlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 03:41:16 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.15 EHCI hang on boot
+Date: Tue, 10 Jan 2006 00:27:48 -0800
+User-Agent: KMail/1.7.1
+Cc: Marc Haber <mh+linux-kernel@zugschlus.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <20060104161844.GA28839@torres.l21.ma.zugschlus.de> <20060104220403.GC12778@kroah.com>
+In-Reply-To: <20060104220403.GC12778@kroah.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0601091215070.7432-100000@iolanthe.rowland.org>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601100027.48372.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 12:23:04PM -0500, Alan Stern wrote:
-> On Mon, 9 Jan 2006, Dmitry Torokhov wrote:
-> 
-> > > It would be nice to know which part of the usb-handoff code causes the
-> > > problem.
-> > 
-> > Well, it's not handoff code causing problems per se, it's just that it
-> > does not look like it performs handoff. If it did then disabling USB
-> > legacy emulation in BIOS would have no effect, right?
-> 
-> On the other hand, if the BIOS worked correctly then the ps/2 port would
-> have no problems regardless of whether USB legacy emulation was on or off.  
-> Given that the keyboard works during bootup, I see only two possibilities:
-> 
-> 	The USB handoff code somehow causes the BIOS to mess up the
-> 	state of the 8042;
-> 
-> 	The 8042 driver interacts badly with the firmware when USB
-> 	legacy emulation is on, and the USB handoff code doesn't
-> 	successfully turn off legacy emulation.
+On Wednesday 04 January 2006 2:04 pm, Greg KH wrote:
 
-It's usually that the BIOS does an incomplete emulation of the i8042
-chip, while still getting in the way to the real i8042. Usually GRUB and
-DOS don't care about sending any commands to the i8042, and so they
-work. The Linux i8042.c driver needs to use them to enable the PS/2
-mouse port and do other probing, and if the commans are not working, it
-just bails out.
+> > I suspect an incompatibility with the i865 chipset. Is there anything
+> > I can do to help debugging?
+> 
+> I don't know, David, any ideas?
 
-The question of course is why the handoff code doesn't work on that
-platform.
+Such things are more often BIOS than chipset, so check for updates there.
+Plus, you commented that the issue only shows up with your newest board,
+and most folk don't have such hang-on-boot issues.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+There were updates in 2.6.15 to how all the PCI based usb host controller
+drivers handle their reset/init logic ... basically "handoff" from BIOS to
+the OS kernel (Linux) is always done "early" now.  Previously it wasn't
+always done until late (too late for the input subsystem, given usb keyboards
+and mice that the BIOS uses to emulate ps/2 ones), and wasn't done very
+consistently.  (The "early handoff" code didn't act identically to the
+code inside the HCDs that did the bios handoff "later".)
+
+If there's no BIOS update, one experiment would be to #ifdef out the call
+to bios_handoff() in drivers/usb/host/ehci-pci.c ... the version of that
+code in the .../usb/hosts/pci-quirks.c file _should_ eventually suffice,
+though I think there are still differences between that version and the
+one (in ehci-pci.c) that's better tested.
+
+- Dave

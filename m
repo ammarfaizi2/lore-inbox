@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWAJQjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWAJQk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWAJQjn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 11:39:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWAJQjn
+	id S1751152AbWAJQk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 11:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWAJQk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 11:39:43 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:27285 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751136AbWAJQjn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 11:39:43 -0500
-Date: Tue, 10 Jan 2006 09:39:43 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Kyle McMartin <kyle@parisc-linux.org>, akpm@osdl.org,
-       carlos@parisc-linux.org, linux-kernel@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org
-Subject: Re: [parisc-linux] [PATCH 1/5] Add generic compat_siginfo_t
-Message-ID: <20060110163943.GY19769@parisc-linux.org>
-References: <20060108193755.GH3782@tachyon.int.mcmartin.ca> <20060109141355.GA22296@lst.de> <20060110150141.GE28306@quicksilver.road.mcmartin.ca> <20060110151547.GB17621@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060110151547.GB17621@lst.de>
-User-Agent: Mutt/1.5.9i
+	Tue, 10 Jan 2006 11:40:26 -0500
+Received: from rtr.ca ([64.26.128.89]:26797 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751152AbWAJQkZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 11:40:25 -0500
+Message-ID: <43C3E376.3020303@rtr.ca>
+Date: Tue, 10 Jan 2006 11:40:22 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2G memory split
+References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 04:15:47PM +0100, Christoph Hellwig wrote:
-> Yes, the is_compat_task helper is a nice thing to have.  I haven't
-> needed it for the signal bits I've done yet, but it's also useful
-> elsewhere.  But IIRC someone vehemently opposed it in the last round
-> of discussion.
+Linus Torvalds wrote:
+...
+> Can we do one final cleanup? Do all the magic in _one_ place, namely the 
+> x86 Kconfig file.
+...
+> 		config DEFAULT_3G
+> 			bool "3G/1G user/kernel split"
+> 		config DEFAULT_3G_OPT
+> 			bool "3G/1G user/kernel split (for full 1G low memory)"
+> 		config DEFAULT_2G
+> 			bool "2G/2G user/kernel split"
+> 		config DEFAULT_1G
+> 			bool "1G/3G user/kernel split"
+...
 
-Andi's now dropped his opposition, so I think we're fine.
+Are "DEFAULT_*" really the best names to assign to these options?
+For these options, I'd expect something like "VMUSER_*" or "USERMEM_*".
+
+Cheers

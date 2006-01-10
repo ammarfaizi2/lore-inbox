@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWAJPbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWAJPcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWAJPbV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWAJPbV
+	id S932239AbWAJPcb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWAJPcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:31:21 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:46226
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S932178AbWAJPbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:31:20 -0500
-Message-ID: <43C3D350.6070003@microgate.com>
-Date: Tue, 10 Jan 2006 09:31:28 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Tue, 10 Jan 2006 10:32:31 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:40887 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932235AbWAJPc3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:32:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Gzli5oBRgOOnv4K+jNRmI1P4rg1qYw7uP0yJJSZhd81SAT5GbpAytLri4bih2unFkj4NPf+M0S0c+Qi4/7u4gJTPj/YzPSe7MLVJ0UH/UPrQRre2uo88THnIjr7qvUvMGR6MU+kKhCmYkxKmF3C3lWx4deMgeoFtsS1n2P9vcHo=
+Message-ID: <81b0412b0601100731p46ec276btfe04382a9e53bd5c@mail.gmail.com>
+Date: Tue, 10 Jan 2006 16:31:19 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+To: Junio C Hamano <junkio@cox.net>
+Subject: Re: git pull on Linux/ACPI release tree
+Cc: Linus Torvalds <torvalds@osdl.org>, "Brown, Len" <len.brown@intel.com>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Martin Langhoff <martin.langhoff@gmail.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+In-Reply-To: <7vu0cdjhd1.fsf@assigned-by-dhcp.cox.net>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA Interrupt latency
-References: <419982528@web.de>
-In-Reply-To: <419982528@web.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13706@hdsmsx401.amr.corp.intel.com>
+	 <Pine.LNX.4.64.0601090835580.3169@g5.osdl.org>
+	 <7vu0cdjhd1.fsf@assigned-by-dhcp.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burkhard Schölpen wrote:
-> The issue seems to be something like interrupt 
-> latency in hardware. Measuring some signals with an 
-> oscilloscope shows, that the delay from generating the 
-> interrupt, which signals a finished transfer, to the time 
-> when the interrupt register on the card is reset (i.e. the 
-> beginning of the ISR) sometimes increases to more 
-> than 500 microseconds, which is dimensions too high. 
-> 
-> ... Another consideration is, that 
-> another driver could lock all interrupts for too long (but for 
-> 500 us??).  
+On 1/9/06, Junio C Hamano <junkio@cox.net> wrote:
+> 2. Fix "git checkout <branch>" so that it does a reasonable thing
+>    even when a dirty path is different in current HEAD and
+>    destination branch.  Then I could:
+>
+>         $ git checkout symref ;# this would not work in the current git
+>             # it would die like this:
+>             # $ git checkout symref
+>             # fatal: Entry 'gitweb.cgi' not uptodate. Cannot merge.
 
-I also have implemented bus master devices based
-on the Spartan 2 + Xilinx PCI core and wrote the
-associated Linux driver.
+That is actually very interesting. I already wished sometimes to be
+able to switch branches with a dirty working directory (and usually
+ended up with git diff+checkout+apply).
+Even if it results in a merge and conflict markers in files it looks
+like a very practical idea!
 
-My observations of interrupt latency using
-a similar setup to what you describe showed
-50usec is common but rare events on
-the order of milliseconds are possible.
-You are probably correct that the
-problem as a poorly behaved driver.
-
-If you have complete control over every system
-your device is installed in, you can
-find and eliminate any device that
-causes high interrupt latency.
-
-If you don't have that control, your hardware
-needs to tolerate interrupt latency of
-that magnitude.
-
-You describe an implementation with a single
-DMA buffer. You could switch to multiple
-buffers (ring structure or 2 alternating buffers)
-with an interrupt triggered after each
-buffer is exhausted (I use a ring of buffers).
-The remaining buffers allow the transfer to
-continue while waiting for ISR execution.
-
-Or, more crudely, trigger the interrupt when
-the single buffer reaches some low water mark
-and poll in the ISR for actual completion.
-
--- 
-Paul Fulghum
-Microgate Systems, Ltd.
+>         $ git diff ;# just to make sure inevitable automated merge
+>                     # did the right thing
+>         $ git commit -a -m "Fix symref fix"
+>             # I could collapse them into one instead, like this:
+>             # $ git reset --soft HEAD^
+>             # $ git commit -a -C ORIG_HEAD

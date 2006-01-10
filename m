@@ -1,53 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWAJJcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWAJJfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWAJJcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 04:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWAJJcz
+	id S932168AbWAJJfN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 04:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWAJJfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 04:32:55 -0500
-Received: from terrhq.ru ([81.222.97.18]:53993 "EHLO mail.terrhq.ru")
-	by vger.kernel.org with ESMTP id S932167AbWAJJcy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 04:32:54 -0500
-From: Yaroslav Rastrigin <yarick@it-territory.ru>
-Organization: IT-Territory 
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Date: Tue, 10 Jan 2006 12:32:38 +0300
-User-Agent: KMail/1.9
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <174467f50601082354y7ca871c7k@mail.gmail.com> <20060109231313.2d455d5f.akpm@osdl.org> <200601100933.48022.vda@ilport.com.ua>
-In-Reply-To: <200601100933.48022.vda@ilport.com.ua>
+	Tue, 10 Jan 2006 04:35:12 -0500
+Received: from mx.laposte.net ([81.255.54.11]:26116 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S932168AbWAJJfL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 04:35:11 -0500
+Date: Tue, 10 Jan 2006 10:33:17 +0100
+Message-Id: <ISVEJH$DEFF7A73BB517DB961D40DE65BBC816F@laposte.net>
+Subject: Re: panic with AIC7xxx
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601101232.38953.yarick@it-territory.ru>
+X-Sensitivity: 3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "emmanuel\.fuste" <emmanuel.fuste@laposte.net>
+To: "bunk" <bunk@stusta.de>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "James\.Bottomley" <James.Bottomley@SteelEye.com>,
+       "linux-scsi" <linux-scsi@vger.kernel.org>
+X-XaM3-API-Version: 4.1 (B103)
+X-SenderIP: 127.0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Denis,
-> 
-> Andrew, I think this is a rare (on lkml at least) case when guy
-> does not want to participate in development in a Linux way
-> but wants to just pay for development instead:
-> "I want this <hardware> to work good under Linux. I want to pay
-> up to <sum> to whoever will agree to do that. Anybody?"
-Well, yes. I want my hardware to work properly. And, given amount of problems with my current setup and _knowing_ 
-how much time it will take for me to debug them by myself , I'm deciding that in the end run it will be faster and more efficent to
-pay relevant people to fix bugs in subsystems they write/maintain than to participate in (sometimes) never ending bugfix mode.
+Hello,
 
+> On Sat, Oct 29, 2005 at 01:34:20AM +0200, Emmanuel Fusté wrote:
 > 
-> Do not dismiss him lightly. There are LOTS of people which aren't
-> hackish at all. An order of magniture more than 'us' computer geeks.
-> M$ is successful because it uses this resource.
-> We may want to think how can we use it too.
-Well. Regarding myself, your assumptions are totally wrong. 
-My Linux experience started in 1995, as an admin/coder, and since 2000 I'm Linux-only almost 100% 
-And up to some point I was fixing bugs that were critical for me in kernels I was using. 
-But now, given amount of other tasks before me (my regular daily/nightly job) , to spend a few weeks to
-understand why my WiFi starts to drop packets after resume is more than I could afford.
+> > Hello,
+> 
+> Hi Emmanuel,
+> 
+> > I recently made the switch from 2.4.26 to 2.6.13 and
+2.6.14rc5 on my old
+> > dual 586mmx 233mhz.
+> 
+> are your problems still present in 2.6.15?
+> 
+> > I've got many problems with SMP on 2.6.13 (bad irq
+balancing/routing
+> > very bad performance on IDE and SCSI) but I tried to use
+the long
+> > awaited CDRW support.
+> > I format a disc with cdrwtools -d/dev/cdrw -t4 -q
+> > the initialisation of the disc start and ~5min later I got :
+> > 
+> > Oct 20 20:44:57 rafale kernel: scsi0:0:3:0: Attempting to
+queue an ABORT message
+> > Oct 20 20:44:57 rafale kernel: CDB: 0x4 0x17 0x0 0x0 0x0 0x0
+> > Oct 20 20:44:57 rafale kernel: scsi0: At time of recovery,
+card was not paused
+......
+> > 
+> > Now I use a 2.6.14rc5 kernel with great results from a
+performance stand
+> > point: no longer bad SMP IRQ routing/balancing, good perfs
+for IDE and
+> > SCSI disc but when I try to blank a disc with the same
+command:
+> > cdrwtools -d/dev/cdrw -t4 -q
+> > Nothing append and the cd-writer/scsi bus directly crash:
+> > Oct 26 21:07:57 rafale kernel: scsi0:0:3:0: Attempting to
+queue an ABORT message
+> > Oct 26 21:07:57 rafale kernel: CDB: 0x5c 0x0 0x0 0x0 0x0
+0x0 0x0 0x0 0xc 0x0 0x0 0x0
+> > Oct 26 21:07:57 rafale kernel: scsi0: At time of recovery,
+card was not paused
+.......
+> 
+> cu
+> Adrian
+> 
+> -- 
 
--- 
-Managing your Territory since the dawn of times ...
+I was waiting the merge of the patch serie from Hannes
+Reinecke <hare () suse ! de>, because of the sequencer fixes.
+I did'nt try this patch serie myself because the sequencer
+fixes one ([PATCH 5/6]] never reach lkml or linux-scsi.
+
+I will compile a clean 2.6.15 today and give it a try this
+evening.
+
+Regards,
+Emmanuel.
+
+Accédez au courrier électronique de La Poste : www.laposte.net ; 
+3615 LAPOSTENET (0,34 €/mn) ; tél : 08 92 68 13 50 (0,34€/mn)
+
+
+

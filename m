@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWAJP2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWAJPbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWAJP2M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:28:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWAJP2M
+	id S932178AbWAJPbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWAJPbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:28:12 -0500
-Received: from styx.suse.cz ([82.119.242.94]:64999 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932213AbWAJP2L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:28:11 -0500
-Date: Tue, 10 Jan 2006 16:28:07 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: dtor_core@ameritech.net,
-       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Leonid <nouser@lpetrov.net>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-Message-ID: <20060110152807.GB22371@suse.cz>
-References: <20060110074336.GA7462@suse.cz> <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+	Tue, 10 Jan 2006 10:31:21 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:46226
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S932178AbWAJPbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:31:20 -0500
+Message-ID: <43C3D350.6070003@microgate.com>
+Date: Tue, 10 Jan 2006 09:31:28 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA Interrupt latency
+References: <419982528@web.de>
+In-Reply-To: <419982528@web.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 10:12:21AM -0500, Alan Stern wrote:
-> On Tue, 10 Jan 2006, Vojtech Pavlik wrote:
+Burkhard Schölpen wrote:
+> The issue seems to be something like interrupt 
+> latency in hardware. Measuring some signals with an 
+> oscilloscope shows, that the delay from generating the 
+> interrupt, which signals a finished transfer, to the time 
+> when the interrupt register on the card is reset (i.e. the 
+> beginning of the ISR) sometimes increases to more 
+> than 500 microseconds, which is dimensions too high. 
 > 
-> > It's usually that the BIOS does an incomplete emulation of the i8042
-> > chip, while still getting in the way to the real i8042. Usually GRUB and
-> > DOS don't care about sending any commands to the i8042, and so they
-> > work. The Linux i8042.c driver needs to use them to enable the PS/2
-> > mouse port and do other probing, and if the commans are not working, it
-> > just bails out.
-> > 
-> > The question of course is why the handoff code doesn't work on that
-> > platform.
-> 
-> It turned out that a BIOS upgrade fixed the problem, but this doesn't 
-> answer your question.
-> 
-> The problem wasn't an incomplete emulation of the i8042, because when the
-> USB handoff code was commented out the PS/2 keyboard worked okay.  This
-> means the handoff, when enabled, wasn't being done correctly.  That could
-> be the fault of the USB drivers or the BIOS (or both).  We have no way to
-> tell which, because the users have all switched to the newer BIOS.
- 
-As usual with BIOS interaction problems.
+> ... Another consideration is, that 
+> another driver could lock all interrupts for too long (but for 
+> 500 us??).  
+
+I also have implemented bus master devices based
+on the Spartan 2 + Xilinx PCI core and wrote the
+associated Linux driver.
+
+My observations of interrupt latency using
+a similar setup to what you describe showed
+50usec is common but rare events on
+the order of milliseconds are possible.
+You are probably correct that the
+problem as a poorly behaved driver.
+
+If you have complete control over every system
+your device is installed in, you can
+find and eliminate any device that
+causes high interrupt latency.
+
+If you don't have that control, your hardware
+needs to tolerate interrupt latency of
+that magnitude.
+
+You describe an implementation with a single
+DMA buffer. You could switch to multiple
+buffers (ring structure or 2 alternating buffers)
+with an interrupt triggered after each
+buffer is exhausted (I use a ring of buffers).
+The remaining buffers allow the transfer to
+continue while waiting for ISR execution.
+
+Or, more crudely, trigger the interrupt when
+the single buffer reaches some low water mark
+and poll in the ISR for actual completion.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Paul Fulghum
+Microgate Systems, Ltd.

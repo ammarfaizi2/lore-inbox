@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWAJVak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWAJVb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWAJVak (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWAJVak
+	id S932360AbWAJVb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWAJVb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:30:40 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:1456 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932347AbWAJVaj (ORCPT
+	Tue, 10 Jan 2006 16:31:57 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:64933 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932360AbWAJVb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:30:39 -0500
-Date: Tue, 10 Jan 2006 22:30:32 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andi Kleen <ak@suse.de>
-cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Console debugging wishlist was: Re: oops pauser.
-In-Reply-To: <200601102218.30998.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0601102229110.15968@yvahk01.tjqt.qr>
-References: <20060105045212.GA15789@redhat.com> <200601102145.53967.ak@suse.de>
- <Pine.LNX.4.61.0601102200410.1000@yvahk01.tjqt.qr> <200601102218.30998.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jan 2006 16:31:56 -0500
+Date: Tue, 10 Jan 2006 22:31:53 +0100
+From: Olaf Hering <olh@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] remove remaining crash_notes variable from arch/powerpc/kernel/machine_kexec.c
+Message-ID: <20060110213153.GA22460@suse.de>
+References: <200601101728.k0AHS4On018397@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <200601101728.k0AHS4On018397@hera.kernel.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Tue, Jan 10, Linux Kernel Mailing List wrote:
 
->But it wasn't actually my point. If you get 
->an problem during bootup - not necessarily an oops, but could
->be also a no root panic or your SCSI controller not working or 
->something else - and you can reproduce it it's a PITA to examine
->the kernel output before because there is no way to get
->enough scrollback.  For the oops itself it's not needed - it typically
->fits on the screen. But if it happens every boot it would be nice
->if you could just boot with "more" and then page through
->the kernel output and check what's going on.
-
-Ah yes, I had not considered boot oopses/panics. My bad.
+> tree e1847f5547a7a426214e9ef0719eab908ee305d7
+> parent 82409411571ad89d271dc46f7fa26149fad9efdf
+> author Vivek Goyal <vgoyal@in.ibm.com> Tue, 10 Jan 2006 12:51:41 -0800
+> committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 11 Jan 2006 00:01:26 -0800
+> 
+> [PATCH] kdump: dynamic per cpu allocation of memory for saving cpu registers
 
 
+remove remaining crash_notes definition to fix compile error
 
-Jan Engelhardt
+/dev/shm/linux-2.6/arch/powerpc/kernel/machine_kexec.c:21: error: conflicting types for `crash_notes'
+/dev/shm/linux-2.6/include/linux/kexec.h:129: error: previous declaration of `crash_notes'
+
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+ arch/powerpc/kernel/machine_kexec.c |    6 ------
+ 1 files changed, 6 deletions(-)
+
+Index: linux-2.6/arch/powerpc/kernel/machine_kexec.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/kernel/machine_kexec.c
++++ linux-2.6/arch/powerpc/kernel/machine_kexec.c
+@@ -14,12 +14,6 @@
+ #include <linux/threads.h>
+ #include <asm/machdep.h>
+ 
+-/*
+- * Provide a dummy crash_notes definition until crash dump is implemented.
+- * This prevents breakage of crash_notes attribute in kernel/ksysfs.c.
+- */
+-note_buf_t crash_notes[NR_CPUS];
+-
+ void machine_crash_shutdown(struct pt_regs *regs)
+ {
+ 	if (ppc_md.machine_crash_shutdown)
+
 -- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

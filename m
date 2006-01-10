@@ -1,66 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbWAJVOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbWAJVP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932698AbWAJVOc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWAJVOc
+	id S932694AbWAJVP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWAJVP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:14:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:20404 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932698AbWAJVOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:14:31 -0500
-Subject: Re: X86_64 and X86_32 bit performance difference [Revisited]
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nauman Tahir <nauman.tahir@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.kernel.org
-In-Reply-To: <f0309ff0601100249y4ffa3596sa2a623015cdca66b@mail.gmail.com>
-References: <f0309ff0601082229u3fc5e415m12be9dc921f4a099@mail.gmail.com>
-	 <1136793080.2936.14.camel@laptopd505.fenrus.org>
-	 <f0309ff0601100249y4ffa3596sa2a623015cdca66b@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 10 Jan 2006 22:14:25 +0100
-Message-Id: <1136927665.2846.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 10 Jan 2006 16:15:27 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:5528 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S932694AbWAJVP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 16:15:26 -0500
+Message-ID: <43C40B63.9090609@wolfmountaingroup.com>
+Date: Tue, 10 Jan 2006 12:30:43 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Martin Bligh <mbligh@mbligh.org>, Byron Stanoszek <gandalf@winds.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2G memory split
+References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3F986.4090209@mbligh.org> <Pine.LNX.4.64.0601101028360.4939@g5.osdl.org> <43C3E74D.7060309@wolfmountaingroup.com> <1136926519.14532.46.camel@localhost.localdomain> <43C40738.4070600@wolfmountaingroup.com> <20060110210237.GL3389@suse.de>
+In-Reply-To: <20060110210237.GL3389@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 02:49 -0800, Nauman Tahir wrote:
-> On 1/9/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > On Sun, 2006-01-08 at 22:29 -0800, Nauman Tahir wrote:
-> > > Hello All
-> > > I have posted this problem before. Now mailing again after testing as
-> > > recommeded in previous replys.
-> > > My configuration is:
-> > >
-> > > Hardware:
-> > > HP Proliant DL145 (2 x AMD Optaron 144)
-> > > 14 GB RAM
-> > >
-> > > OS:
-> > > FC 4
-> > >
-> > > Kernel
-> > > 2.6.xx
-> >
-> > You *STILL* have not posted the URL to your source code.
-> > How is anyone supposed to help you without that?????
-> 
-> I have attached a file which I use as thread API. Complete code is
-> quiet large and also need proper description. which i would be posting
-> if needed.
+Jens Axboe wrote:
 
-well you don't give any of the block layer code, I'd say more code is
-needed. Just put all of it online somewhere and post the URL...
+>On Tue, Jan 10 2006, Jeff V. Merkey wrote:
+>  
+>
+>>Alan Cox wrote:
+>>
+>>    
+>>
+>>>On Maw, 2006-01-10 at 09:56 -0700, Jeff V. Merkey wrote:
+>>>
+>>>
+>>>      
+>>>
+>>>>RH ES uses 4:4 which is ideal and superior to this hack.
+>>>>  
+>>>>
+>>>>        
+>>>>
+>>>Its a non trivial trade-off. 4/4 lets you run very large physical memory
+>>>systems much more efficiently than usual but you pay a cost on syscalls
+>>>and some other events when using the majority of processors. The 4/4
+>>>tricks also give most emulations (eg Qemu) serious heartburn trying to
+>>>emulate %cr3 reloading via mmap and other interfaces with high overhead
+>>>in relative terms.
+>>>
+>>>Of course AMD64 kind of shot the problem in the head once and for all.
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>Yep, they sure did.  Seriously, the 4:4 option should also be present 
+>>along with 3:1 and 2:2
+>>splits.  You should merge your RH work into this patch and allow both.  
+>>It would save me one less
+>>patch to maintain off the tree.
+>>    
+>>
+>
+>You can't compare the two patches, saying that 4:4 should go in because
+>configurable page offsets is merged is nonsense.
+>
+>Note that I'm not advocating against 4:4 as such, I have no real
+>oppinion on that. It has its uses for sure, while it comes with a cost
+>for others.
+>
+>  
+>
+I agree and I appreciate your recognizing this. As it stands, if I need 
+4:4 I just ship on ES3 and ES4. the 3:1
+patch in the standard kernel is a very good thing, and you are to be 
+commended for finally getting it in.
 
+P.S. Your bio stuff works great.
 
-
+Jeff

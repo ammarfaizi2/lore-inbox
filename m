@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWAJPLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWAJPMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbWAJPLp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWAJPLp
+	id S1751109AbWAJPMY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWAJPMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:11:45 -0500
-Received: from rtr.ca ([64.26.128.89]:48351 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751108AbWAJPLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:11:44 -0500
-Message-ID: <43C3CEAE.4030905@rtr.ca>
-Date: Tue, 10 Jan 2006 10:11:42 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Tue, 10 Jan 2006 10:12:24 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:36256 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751113AbWAJPMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:12:22 -0500
+Date: Tue, 10 Jan 2006 10:12:21 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: dtor_core@ameritech.net,
+       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
+       <linux-kernel@vger.kernel.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       <linux-usb-devel@lists.sourceforge.net>, Greg KH <gregkh@suse.de>,
+       Leonid <nouser@lpetrov.net>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+In-Reply-To: <20060110074336.GA7462@suse.cz>
+Message-ID: <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Byron Stanoszek <gandalf@winds.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Address space split configuration
-References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <20060110144412.GA9295@elte.hu> <20060110150331.GN3389@suse.de>
-In-Reply-To: <20060110150331.GN3389@suse.de>
-Content-Type: multipart/mixed;
- boundary="------------000806050201040206090308"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000806050201040206090308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 10 Jan 2006, Vojtech Pavlik wrote:
 
-This (below) is NOT a kernel patch, but anyone running VMware
-will need something like it when using the 2G-2G split:
+> It's usually that the BIOS does an incomplete emulation of the i8042
+> chip, while still getting in the way to the real i8042. Usually GRUB and
+> DOS don't care about sending any commands to the i8042, and so they
+> work. The Linux i8042.c driver needs to use them to enable the PS/2
+> mouse port and do other probing, and if the commans are not working, it
+> just bails out.
+> 
+> The question of course is why the handoff code doesn't work on that
+> platform.
 
-Cheers
+It turned out that a BIOS upgrade fixed the problem, but this doesn't 
+answer your question.
 
+The problem wasn't an incomplete emulation of the i8042, because when the
+USB handoff code was commented out the PS/2 keyboard worked okay.  This
+means the handoff, when enabled, wasn't being done correctly.  That could
+be the fault of the USB drivers or the BIOS (or both).  We have no way to
+tell which, because the users have all switched to the newer BIOS.
 
+Alan Stern
 
---- vmware-config.pl.orig	2006-01-10 10:05:55.000000000 -0500
-+++ vmware-config.pl	2006-01-10 10:07:29.000000000 -0500
-@@ -2593,7 +2593,9 @@
-          my $first;
-
-          $first = lc(substr($fields[0], 0, 1));
--        if ($first =~ /^[4567]$/) {
-+        if (lc(substr($fields[0],0,2)) =~ /^78$/) {
-+          $first = '78000000';
-+        } elsif ($first =~ /^[4567]$/) {
-            $first = '40000000';
-          } elsif ($first =~ /^[89ab]$/) {
-            $first = '80000000';
-
---------------000806050201040206090308
-Content-Type: text/x-patch;
- name="vmware-config.pl.2gig_ram.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vmware-config.pl.2gig_ram.patch"
-
---- vmware-config.pl.orig	2006-01-10 10:05:55.000000000 -0500
-+++ vmware-config.pl	2006-01-10 10:07:29.000000000 -0500
-@@ -2593,7 +2593,9 @@
-         my $first;
- 
-         $first = lc(substr($fields[0], 0, 1));
--        if ($first =~ /^[4567]$/) {
-+        if (lc(substr($fields[0],0,2)) =~ /^78$/) {
-+          $first = '78000000';
-+        } elsif ($first =~ /^[4567]$/) {
-           $first = '40000000';
-         } elsif ($first =~ /^[89ab]$/) {
-           $first = '80000000';
-
---------------000806050201040206090308--

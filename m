@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbWAJUgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWAJUnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932619AbWAJUgc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWAJUgc
+	id S932605AbWAJUnB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:43:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWAJUnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:36:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9639 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932597AbWAJUga (ORCPT
+	Tue, 10 Jan 2006 15:43:01 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:42880 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932605AbWAJUnA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:36:30 -0500
-Date: Tue, 10 Jan 2006 12:31:18 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
-Subject: Re: git pull on Linux/ACPI release tree
-In-Reply-To: <20060110201909.GB3911@stusta.de>
-Message-ID: <Pine.LNX.4.64.0601101229390.4939@g5.osdl.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com>
- <Pine.LNX.4.64.0601081111190.3169@g5.osdl.org> <20060108230611.GP3774@stusta.de>
- <Pine.LNX.4.64.0601081909250.3169@g5.osdl.org> <20060110201909.GB3911@stusta.de>
+	Tue, 10 Jan 2006 15:43:00 -0500
+Date: Tue, 10 Jan 2006 21:42:40 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2G memory split
+In-Reply-To: <17347.47882.735057.154898@alkaid.it.uu.se>
+Message-ID: <Pine.LNX.4.61.0601102141570.16049@yvahk01.tjqt.qr>
+References: <20060110125852.GA3389@suse.de> <17347.47882.735057.154898@alkaid.it.uu.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+>2G/2G is not the only viable alternative. On my 1GB x86 box I'm
+>using "lowmem1g" patches for both 2.4 and 2.6, which results in
+>2.75G for user-space. I'm sure others have other preferences.
+>Any standard option for this should either have several hard-coded
+>alternatives, or should support arbitrary values (within reason).
+>
+>(See http://www.csd.uu.se/~mikpe/linux/patches/*/patch-i386-lowmem1g-*
+>if you're interested.)
 
-On Tue, 10 Jan 2006, Adrian Bunk wrote:
-> 
-> > Now, in this model, you're not really using git as a distributed system. 
-> > In this model, you're using git to track somebody elses tree, and track a 
-> > few patches on top of it, and then "git rebase" is a way to move the base 
-> > that you're tracking your patches against forwards..
-> 
-> I am using the workaround of carrying the patches in a mail folder, 
-> applying them in a batch, and not pulling from your tree between 
-> applying a batch of patches and you pulling from my tree.
+Hm, Con Kolivas also provided a lowmem1g patch in his set...
 
-Yes, that also works.
 
-I think "quilt" is really the right thing here, although stg may be even 
-easier due to the more direct git integration. But with a smallish number 
-of patches, just doing patch management by hand is obviously simply not a 
-huge problem either, so extra tools may just end up confusing the issue.
 
-		Linus
+Jan Engelhardt
+-- 

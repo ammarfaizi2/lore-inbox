@@ -1,142 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWAJTb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWAJTkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbWAJTb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 14:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWAJTba
+	id S932364AbWAJTkF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 14:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWAJTkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 14:31:30 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:27490 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932364AbWAJTb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 14:31:28 -0500
-Subject: [git patch review 4/7] IB/mthca: Factor common MAD initialization code
-From: Roland Dreier <rolandd@cisco.com>
-Date: Tue, 10 Jan 2006 19:31:23 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1136921483290-850b093ba9fe8fda@cisco.com>
-In-Reply-To: <1136921483290-3d1a8ae2f0b61cbf@cisco.com>
-X-OriginalArrivalTime: 10 Jan 2006 19:31:24.0932 (UTC) FILETIME=[71B68440:01C6161C]
+	Tue, 10 Jan 2006 14:40:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:9243 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932364AbWAJTkE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 14:40:04 -0500
+Date: Tue, 10 Jan 2006 20:42:00 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bernd Eckenfels <be-news06@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2G memory split
+Message-ID: <20060110194200.GD3389@suse.de>
+References: <43C3E9C2.1000309@rtr.ca> <E1EwNc8-00063F-00@calista.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1EwNc8-00063F-00@calista.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Factor out common code for initializing MAD packets, which is shared
-by many query routines in mthca_provider.c, into init_query_mad().
 
-add/remove: 1/0 grow/shrink: 0/4 up/down: 16/-44 (-28)
-function                                     old     new   delta
-init_query_mad                                 -      16     +16
-mthca_query_port                             521     518      -3
-mthca_query_pkey                             301     294      -7
-mthca_query_device                           648     641      -7
-mthca_query_gid                              453     426     -27
+(please don't drop people from the cc list)
 
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+On Tue, Jan 10 2006, Bernd Eckenfels wrote:
+> Mark Lord <lkml@rtr.ca> wrote:
+> > So, the patch would now look like this:
+> 
+> can we please state something what the 3G_OPT is suppsoed to do? Is
+> this "optimzed for 1GB Real RAM"? Should this be something like "2.5G"
+> instead?
 
----
+Hmm I thought it was obvious with the description in paranthesis after
+the option. Basically the option is just an optimized default for 1GB of
+RAM, like the 2G option is tailored for 2GB of low mem on a 2GB machine.
 
- drivers/infiniband/hw/mthca/mthca_provider.c |   52 +++++++++++---------------
- 1 files changed, 22 insertions(+), 30 deletions(-)
+The reason the option exists is of course to leave the default at the
+older not-so-great option for 1G of RAM.
 
-87635b71b544563f29050a9cecaa12b5d2a3e34a
-diff --git a/drivers/infiniband/hw/mthca/mthca_provider.c b/drivers/infiniband/hw/mthca/mthca_provider.c
-index 0ae27fa..4887577 100644
---- a/drivers/infiniband/hw/mthca/mthca_provider.c
-+++ b/drivers/infiniband/hw/mthca/mthca_provider.c
-@@ -45,6 +45,14 @@
- #include "mthca_user.h"
- #include "mthca_memfree.h"
- 
-+static void init_query_mad(struct ib_smp *mad)
-+{
-+	mad->base_version  = 1;
-+	mad->mgmt_class    = IB_MGMT_CLASS_SUBN_LID_ROUTED;
-+	mad->class_version = 1;
-+	mad->method    	   = IB_MGMT_METHOD_GET;
-+}
-+
- static int mthca_query_device(struct ib_device *ibdev,
- 			      struct ib_device_attr *props)
- {
-@@ -64,11 +72,8 @@ static int mthca_query_device(struct ib_
- 
- 	props->fw_ver              = mdev->fw_ver;
- 
--	in_mad->base_version       = 1;
--	in_mad->mgmt_class     	   = IB_MGMT_CLASS_SUBN_LID_ROUTED;
--	in_mad->class_version  	   = 1;
--	in_mad->method         	   = IB_MGMT_METHOD_GET;
--	in_mad->attr_id   	   = IB_SMP_ATTR_NODE_INFO;
-+	init_query_mad(in_mad);
-+	in_mad->attr_id = IB_SMP_ATTR_NODE_INFO;
- 
- 	err = mthca_MAD_IFC(mdev, 1, 1,
- 			    1, NULL, NULL, in_mad, out_mad,
-@@ -134,12 +139,9 @@ static int mthca_query_port(struct ib_de
- 
- 	memset(props, 0, sizeof *props);
- 
--	in_mad->base_version       = 1;
--	in_mad->mgmt_class     	   = IB_MGMT_CLASS_SUBN_LID_ROUTED;
--	in_mad->class_version  	   = 1;
--	in_mad->method         	   = IB_MGMT_METHOD_GET;
--	in_mad->attr_id   	   = IB_SMP_ATTR_PORT_INFO;
--	in_mad->attr_mod           = cpu_to_be32(port);
-+	init_query_mad(in_mad);
-+	in_mad->attr_id  = IB_SMP_ATTR_PORT_INFO;
-+	in_mad->attr_mod = cpu_to_be32(port);
- 
- 	err = mthca_MAD_IFC(to_mdev(ibdev), 1, 1,
- 			    port, NULL, NULL, in_mad, out_mad,
-@@ -223,12 +225,9 @@ static int mthca_query_pkey(struct ib_de
- 	if (!in_mad || !out_mad)
- 		goto out;
- 
--	in_mad->base_version       = 1;
--	in_mad->mgmt_class     	   = IB_MGMT_CLASS_SUBN_LID_ROUTED;
--	in_mad->class_version  	   = 1;
--	in_mad->method         	   = IB_MGMT_METHOD_GET;
--	in_mad->attr_id   	   = IB_SMP_ATTR_PKEY_TABLE;
--	in_mad->attr_mod           = cpu_to_be32(index / 32);
-+	init_query_mad(in_mad);
-+	in_mad->attr_id  = IB_SMP_ATTR_PKEY_TABLE;
-+	in_mad->attr_mod = cpu_to_be32(index / 32);
- 
- 	err = mthca_MAD_IFC(to_mdev(ibdev), 1, 1,
- 			    port, NULL, NULL, in_mad, out_mad,
-@@ -261,12 +260,9 @@ static int mthca_query_gid(struct ib_dev
- 	if (!in_mad || !out_mad)
- 		goto out;
- 
--	in_mad->base_version       = 1;
--	in_mad->mgmt_class     	   = IB_MGMT_CLASS_SUBN_LID_ROUTED;
--	in_mad->class_version  	   = 1;
--	in_mad->method         	   = IB_MGMT_METHOD_GET;
--	in_mad->attr_id   	   = IB_SMP_ATTR_PORT_INFO;
--	in_mad->attr_mod           = cpu_to_be32(port);
-+	init_query_mad(in_mad);
-+	in_mad->attr_id  = IB_SMP_ATTR_PORT_INFO;
-+	in_mad->attr_mod = cpu_to_be32(port);
- 
- 	err = mthca_MAD_IFC(to_mdev(ibdev), 1, 1,
- 			    port, NULL, NULL, in_mad, out_mad,
-@@ -280,13 +276,9 @@ static int mthca_query_gid(struct ib_dev
- 
- 	memcpy(gid->raw, out_mad->data + 8, 8);
- 
--	memset(in_mad, 0, sizeof *in_mad);
--	in_mad->base_version       = 1;
--	in_mad->mgmt_class     	   = IB_MGMT_CLASS_SUBN_LID_ROUTED;
--	in_mad->class_version  	   = 1;
--	in_mad->method         	   = IB_MGMT_METHOD_GET;
--	in_mad->attr_id   	   = IB_SMP_ATTR_GUID_INFO;
--	in_mad->attr_mod           = cpu_to_be32(index / 8);
-+	init_query_mad(in_mad);
-+	in_mad->attr_id  = IB_SMP_ATTR_GUID_INFO;
-+	in_mad->attr_mod = cpu_to_be32(index / 8);
- 
- 	err = mthca_MAD_IFC(to_mdev(ibdev), 1, 1,
- 			    port, NULL, NULL, in_mad, out_mad,
 -- 
-1.0.7
+Jens Axboe
+

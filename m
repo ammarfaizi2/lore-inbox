@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWAJAaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWAJAeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWAJAaW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 19:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWAJAaW
+	id S932130AbWAJAeH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 19:34:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWAJAeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 19:30:22 -0500
-Received: from hs-grafik.net ([80.237.205.72]:46092 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1751130AbWAJAaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 19:30:21 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm2
-Date: Tue, 10 Jan 2006 01:30:11 +0100
-User-Agent: KMail/1.8.3
-References: <20060107052221.61d0b600.akpm@osdl.org> <200601080139.34774@zodiac.zodiac.dnsalias.org> <20060107175056.3d7a2895.akpm@osdl.org>
-In-Reply-To: <20060107175056.3d7a2895.akpm@osdl.org>
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?iso-8859-15?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-?=
- =?iso-8859-15?q?=7E=24ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?iso-8859-15?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8?=
- =?iso-8859-15?q?CNh*4?=<
+	Mon, 9 Jan 2006 19:34:07 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:58842 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932130AbWAJAeG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 19:34:06 -0500
+Date: Mon, 9 Jan 2006 16:29:45 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: John Rigg <ad@sound-man.co.uk>
+cc: =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>,
+       Hannu Savolainen <hannu@opensound.com>, Jaroslav Kysela <perex@suse.cz>,
+       Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       ALSA development <alsa-devel@alsa-project.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+In-Reply-To: <20060110001617.GA5154@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0601091628340.4005@qynat.qvtvafvgr.pbz>
+References: <20050726150837.GT3160@stusta.de> <200601091405.23939.rene@exactcode.de>
+ <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi> <200601091812.55943.rene@exactcode.de>
+ <Pine.LNX.4.62.0601091355541.4005@qynat.qvtvafvgr.pbz>
+ <20060109232043.GA5013@localhost.localdomain> <Pine.LNX.4.62.0601091515570.4005@qynat.qvtvafvgr.pbz>
+ <20060110001617.GA5154@localhost.localdomain>
 MIME-Version: 1.0
-Message-Id: <200601100130.12227@zodiac.zodiac.dnsalias.org>
-Content-Type: multipart/signed;
-  boundary="nextPart1175537.ZXvSUS3DB2";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1175537.ZXvSUS3DB2
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 10 Jan 2006, John Rigg wrote:
 
-Am Sonntag, 8. Januar 2006 02:50 schrieben Sie:
-> Can you try removing EDAC from .config?
+>> does the CPU touch the data for these, or do you DMA directly from
+>> userspace (i.e. "zero-copy")?
+>
+> The cards I mentioned use DMA. RME actually advertises that some of their
+> cards can handle 52 channels with zero CPU load. Their onboard DSPs can
+> also do routing and mixing, again without touching the CPU.
 
-Just did.
+I was under the (apparently mistaken) impression that you couldn't DMA 
+from userspace (something to do with the possibility that the userspace 
+memory pages could be swapped out in the middle of the DMA)
 
-> I doubt if the cause is EDAC really.  If you could investigate a bit
-> further it'd help.  mtrr?  Run top?  Generate a kernel profile?  Is it ju=
-st
-> X being sluggish?  (DRM/AGP?) etc.
+David Lang
 
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 
-EDAC errors are gone. System isn't sluggish ;)
-However one new erro:
-serial8250: too much work for irq3
-serial8250: too much work for irq3
-
-regards
-Alex
-
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
-
---nextPart1175537.ZXvSUS3DB2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDwwAU/aHb+2190pERAkfaAJ96t3LCtAlcukJ9VCuuQH0LM4C2OQCbBpOk
-wZYbPw+qLg0jcxvWZMHhQ8Y=
-=nEFJ
------END PGP SIGNATURE-----
-
---nextPart1175537.ZXvSUS3DB2--

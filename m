@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWAJMx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWAJM4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWAJMx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 07:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWAJMx7
+	id S1750815AbWAJM4I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 07:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWAJM4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 07:53:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11795 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750835AbWAJMx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 07:53:59 -0500
-Date: Tue, 10 Jan 2006 13:53:57 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Tim Tassonis <timtas@cubic.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: State of the Union: Wireless
-Message-ID: <20060110125357.GH3911@stusta.de>
-References: <43C3AAE2.1090900@cubic.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C3AAE2.1090900@cubic.ch>
-User-Agent: Mutt/1.5.11
+	Tue, 10 Jan 2006 07:56:08 -0500
+Received: from 213-140-2-69.ip.fastwebnet.it ([213.140.2.69]:18870 "EHLO
+	aa002msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1750815AbWAJM4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 07:56:07 -0500
+Date: Tue, 10 Jan 2006 13:56:17 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+Message-ID: <20060110135617.020f82fb@localhost>
+In-Reply-To: <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
+References: <20060109210035.3f6adafc@localhost>
+	<5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
+	<5.2.1.1.2.20060102092903.00bde090@pop.gmx.net>
+	<20060101123902.27a10798@localhost>
+	<5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
+	<5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
+	<200512281027.00252.kernel@kolivas.org>
+	<20051227190918.65c2abac@localhost>
+	<20051227224846.6edcff88@localhost>
+	<200512281027.00252.kernel@kolivas.org>
+	<5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
+	<5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
+	<5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
+	<5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
+X-Mailer: Sylpheed-Claws 2.0.0-rc1 (GTK+ 2.6.10; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 01:38:58PM +0100, Tim Tassonis wrote:
->...
-> >We can always undo mistakes later, but 
-> >we'll never get to that point if we don't start moving in one direction 
-> >instead of ten.
-> 
-> You were right if there were ten, but there seem to be only two at the 
-> moment. One stack will survive and one will die. There's no point in 
-> deciding this now.
+On Tue, 10 Jan 2006 13:07:33 +0100
+Mike Galbraith <efault@gmx.de> wrote:
 
-No, we'll end up with two stacks, some drivers using the first stack and 
-some the second one.
+> Can you please try this version?  It tries harder to correct any 
 
-You can't simply let one stack die because this would imply either 
-rewriting all drivers using this stack or dropping support for some 
-hardware.
+It seems that you have forgotten the to attach the patch...
 
-> Tim
+> imbalance... hopefully not too hard.  In case you didn't notice, you need 
+> to let your exploits run for a bit before the throttling will take 
+> effect.  I intentionally start tasks off at 0 cpu usage, so it takes a bit 
+> to come up to it's real usage.
 
-cu
-Adrian
+Yes, I've seen it.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Paolo Ornati
+	Linux 2.6.15-plugsched on x86_64

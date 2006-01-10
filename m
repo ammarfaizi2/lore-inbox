@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWAJBul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWAJB41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbWAJBul (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 20:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWAJBuM
+	id S1750947AbWAJB41 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 20:56:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWAJB41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 20:50:12 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:4787 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932138AbWAJBuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 20:50:10 -0500
-Date: Mon, 9 Jan 2006 20:49:35 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: George Anzinger <george@mvista.com>
-cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH RT] make hrtimer_nanosleep return immediately if time
- has passed
-In-Reply-To: <43C30FB9.1000609@mvista.com>
-Message-ID: <Pine.LNX.4.58.0601092042260.11138@gandalf.stny.rr.com>
-References: <1136557086.12468.138.camel@localhost.localdomain> 
- <43BEEEED.9040308@mvista.com> <1136588597.12468.162.camel@localhost.localdomain>
- <43C30FB9.1000609@mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jan 2006 20:56:27 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:61927 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750924AbWAJB40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 20:56:26 -0500
+Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Lang <dlang@digitalinsight.com>, John Rigg <ad@sound-man.co.uk>,
+       =?ISO-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>,
+       Hannu Savolainen <hannu@opensound.com>, Jaroslav Kysela <perex@suse.cz>,
+       Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
+       ALSA development <alsa-devel@alsa-project.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1136853898.12802.21.camel@localhost.localdomain>
+References: <20050726150837.GT3160@stusta.de>
+	 <200601091405.23939.rene@exactcode.de>
+	 <Pine.LNX.4.61.0601091637570.21552@zeus.compusonic.fi>
+	 <200601091812.55943.rene@exactcode.de>
+	 <Pine.LNX.4.62.0601091355541.4005@qynat.qvtvafvgr.pbz>
+	 <20060109232043.GA5013@localhost.localdomain>
+	 <Pine.LNX.4.62.0601091515570.4005@qynat.qvtvafvgr.pbz>
+	 <20060110001617.GA5154@localhost.localdomain>
+	 <Pine.LNX.4.62.0601091628340.4005@qynat.qvtvafvgr.pbz>
+	 <1136853898.12802.21.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 09 Jan 2006 20:56:21 -0500
+Message-Id: <1136858181.2007.26.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-01-10 at 00:44 +0000, Alan Cox wrote:
+> On Llu, 2006-01-09 at 16:29 -0800, David Lang wrote:
+> > I was under the (apparently mistaken) impression that you couldn't DMA 
+> > from userspace (something to do with the possibility that the userspace 
+> > memory pages could be swapped out in the middle of the DMA)
+> 
+> Drivers can choose to support this two different ways. One is to have a
+> buffer of kernel memory mapped into user space and shared with the
+> hardware (this is how OSS did it), the other is to use the 2.6
+> get_user_pages API to get the physical address of a set of pages and
+> lock them down so they don't wander off during DMA.
+> 
+> Both have advantages for different uses.
 
-On Mon, 9 Jan 2006, George Anzinger wrote:
-> Steven Rostedt wrote:
->
-> Uh... I have been wondering about the "mode" thing, thinking "flags" might be
-> better.  And allowing, say, a "return if elapsed" flag as well as the ABS
-> flag.  Then all you would need to do is to add the "return if elapsed" flag
-> to the nanosleep calls.  I have other reasons for wanting to expand the
-> "mode" to more that two states... but, even with out that, I think the result
-> would be a) less code, and b) easier to follow and understand.  I just have
-> trouble pushing a word on the stack to make a call and then use only one bit
-> of it when it could be combined...
+ALSA would appear to use the first method (get_user_pages does not
+appear in the source), presumably because new ALSA versions still
+support 2.4 (and 2.2, maybe even 2.0).
 
-And I perfectly agree with you :)
-
-The problem is that the hrtimes is not my code, and I don't like doing
-too many changes in code that I don't understand the consequences of. As
-you showed me earlier, that the previous change broke the posix_timers.
-So I really only did the bare minimum to fix what I considered a bug, and
-let Thomas, John, Ingo or yourself do a proper fix.  Someone that
-understands the timers better than I do.
-
-Currently, it seems those people are too busy, and I just wanted a quick
-fix.  I personally didn't like the patch, but my nose is stuck more into
-the scheduling, memory and Ingo's rt_mutex now to spend time understanding
-all the timer code. ;)
-
->
-> Never the less, the following code looks like is does the right thing.
->
-
-This was all I asked for.
-
-Thanks,
-
--- Steve
+Lee
 

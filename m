@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbWAJUqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWAJUtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbWAJUqu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:46:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWAJUqt
+	id S932439AbWAJUtI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWAJUtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:46:49 -0500
-Received: from ns2.suse.de ([195.135.220.15]:18337 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932617AbWAJUqs (ORCPT
+	Tue, 10 Jan 2006 15:49:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57069 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932439AbWAJUtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:46:48 -0500
-From: Andi Kleen <ak@suse.de>
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Subject: Re: Console debugging wishlist was: Re: oops pauser.
-Date: Tue, 10 Jan 2006 21:46:34 +0100
-User-Agent: KMail/1.8.2
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601102121400.16049@yvahk01.tjqt.qr> <20060110202920.GA5479@filer.fsl.cs.sunysb.edu>
-In-Reply-To: <20060110202920.GA5479@filer.fsl.cs.sunysb.edu>
+	Tue, 10 Jan 2006 15:49:06 -0500
+Date: Tue, 10 Jan 2006 15:48:59 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: David Howells <dhowells@redhat.com>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: [patch] remove unnecessary asm/mutex.h from kernel/mutex-debug.c
+In-Reply-To: <2758.1136902767@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.58.0601101546120.2133@devserv.devel.redhat.com>
+References: <2758.1136902767@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601102146.35117.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 January 2006 21:29, Josef Sipek wrote:
 
-> There is a config option that lets you specify the size of this buffer:
-> CONFIG_LOG_BUF_SHIFT
+On Tue, 10 Jan 2006, David Howells wrote:
 
-That is the dmesg buffer, not the scroll back buffer. Completely different
-things.
+> I've found a compilation error in mutexes when using the null variety:
+> 
+> 	In file included from kernel/mutex-debug.c:25:
+> 	kernel/mutex-debug.h:23:1: warning: "__IP__" redefined
+> 	In file included from include/asm/mutex.h:9,
+> 			 from kernel/mutex-debug.c:23:
+> 	include/asm-generic/mutex-null.h:15:1: warning: this is the location of the previous definition
 
--Andi
+ok, the patch below should solve this. This didnt trigger on any of the
+existing arches until now, because neither used asm-generic/null.h as
+their method. I build-tested the patch. Linus, please apply.
 
+	Ingo
+--
+
+remove unnecessary (and incorrect) inclusion of asm/mutex.h, pointed out 
+by David Howells.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+----
+
+ kernel/mutex-debug.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+Index: linux/kernel/mutex-debug.c
+===================================================================
+--- linux.orig/kernel/mutex-debug.c
++++ linux/kernel/mutex-debug.c
+@@ -20,8 +20,6 @@
+ #include <linux/kallsyms.h>
+ #include <linux/interrupt.h>
+ 
+-#include <asm/mutex.h>
+-
+ #include "mutex-debug.h"
+ 
+ /*

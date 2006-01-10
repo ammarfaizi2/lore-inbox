@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWAJSNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWAJSOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWAJSNM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 13:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWAJSNM
+	id S932453AbWAJSOc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 13:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWAJSOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 13:13:12 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:40836 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932357AbWAJSNK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 13:13:10 -0500
-Date: Tue, 10 Jan 2006 23:43:31 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
-Message-ID: <20060110181330.GB5387@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <43C165BC.F7C6DCF5@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C165BC.F7C6DCF5@tv-sign.ru>
-User-Agent: Mutt/1.5.10i
+	Tue, 10 Jan 2006 13:14:32 -0500
+Received: from dvhart.com ([64.146.134.43]:897 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932453AbWAJSOc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 13:14:32 -0500
+Message-ID: <43C3F986.4090209@mbligh.org>
+Date: Tue, 10 Jan 2006 10:14:30 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2G memory split
+References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 08, 2006 at 10:19:24PM +0300, Oleg Nesterov wrote:
-> ->donelist becomes != NULL only in rcu_process_callbacks().
+Linus Torvalds wrote:
 > 
-> So ->donelist != NULL means that rcu_tasklet is either
-> TASKLET_STATE_SCHED or TASKLET_STATE_RUN, we don't need to
-> check it in __rcu_pending().
+> On Tue, 10 Jan 2006, Jens Axboe wrote:
 > 
-> [ This patch was tested with rcutorture.ko, I don't understand
->   it's output, but it says "End of test: SUCCESS". So if this
->   patch incorrect blame Paul, not me! ]
+>>A newer version, trying to cater to the various comments in here.
+>>Changes:
 > 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 > 
-> --- 2.6.15/kernel/rcupdate.c~2_DONE	2006-01-08 21:35:21.000000000 +0300
-> +++ 2.6.15/kernel/rcupdate.c	2006-01-08 21:55:45.000000000 +0300
-> @@ -454,10 +454,6 @@ static int __rcu_pending(struct rcu_ctrl
->  	if (!rdp->curlist && rdp->nxtlist)
->  		return 1;
->  
-> -	/* This cpu has finished callbacks to invoke */
-> -	if (rdp->donelist)
-> -		return 1;
-> -
->  	/* The rcu core waits for a quiescent state from the cpu */
->  	if (rdp->quiescbatch != rcp->cur || rdp->qs_pending)
->  		return 1;
+> Can we do one final cleanup? Do all the magic in _one_ place, namely the 
+> x86 Kconfig file.
+> 
+> Also, I don't think the NOHIGHMEM dependency is necessarily correct. A 
+> 2G/2G split can be advantageous with a 16GB setup (you'll have more room 
+> for dentries etc), but you obviously want to have HIGHMEM for that..
+> 
+> Do it something like this:
+> 
+> 	choice
+> 		depends on EXPERIMENTAL
+> 		prompt "Memory split"
+> 		default DEFAULT_3G
+> 		help
+> 		  Select the wanted split between kernel and user memory.
+> 		  If the address range available to the kernel is less than the
+> 		  physical memory installed, the remaining memory will be available
+> 		  as "high memory". Accessing high memory is a little more costly
+> 		  than low memory, as it needs to be mapped into the kernel first.
+> 		  Note that selecting anything but the default 3G/1G split will make
+> 		  your kernel incompatible with binary only modules.
+> 
+> 		config DEFAULT_3G
+> 			bool "3G/1G user/kernel split"
+> 		config DEFAULT_3G_OPT
+> 			bool "3G/1G user/kernel split (for full 1G low memory)"
+> 		config DEFAULT_2G
+> 			bool "2G/2G user/kernel split"
+> 		config DEFAULT_1G
+> 			bool "1G/3G user/kernel split"
+> 	endchoice
+> 
+> 	config PAGE_OFFSET
+> 		hex
+> 		default 0xC0000000
+> 		default 0xB0000000 if DEFAULT_3G_OPT
+> 		default 0x78000000 if DEFAULT_2G
+> 		default 0x40000000 if DEFAULT_1G
+> 
+> and then asm-i386/page.h can just do
+> 
+> 	#define __PAGE_OFFSET ((unsigned long)CONFIG_PAGE_OFFSET)
+> 
+> and you're done.
 
+The non-1GB-aligned ones need to be disbarred when PAE is on, I think.
 
-This may not be a good idea. For example, during cpu hotplug,
-a cpu may inherit a set of finished callbacks that need to be
-invoked. So, an rcu_pending() check needs to detect that.
-
-Thanks
-Dipankar
+M.

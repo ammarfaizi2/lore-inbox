@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWAJRs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWAJRtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWAJRs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 12:48:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWAJRs7
+	id S932252AbWAJRtH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 12:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWAJRtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 12:48:59 -0500
-Received: from quechua.inka.de ([193.197.184.2]:51355 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S932157AbWAJRs6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 12:48:58 -0500
-From: be-news06@lina.inka.de (Bernd Eckenfels)
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2G memory split
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <43C3E9C2.1000309@rtr.ca>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1EwNc8-00063F-00@calista.inka.de>
-Date: Tue, 10 Jan 2006 18:48:56 +0100
+	Tue, 10 Jan 2006 12:49:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38919 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932252AbWAJRtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 12:49:05 -0500
+Date: Tue, 10 Jan 2006 18:49:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Matthew Wilcox <matthew@wil.cx>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: sym53c8xx_2 is flooding my syslog ...
+Message-ID: <20060110174904.GS3911@stusta.de>
+References: <430FD71C.6050704@bigpond.net.au> <43632635.7080604@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43632635.7080604@bigpond.net.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord <lkml@rtr.ca> wrote:
-> So, the patch would now look like this:
+On Sat, Oct 29, 2005 at 05:35:17PM +1000, Peter Williams wrote:
+> Peter Williams wrote:
+> >... with the following message:
+> >
+> >Aug 21 04:53:28 mudlark kernel: ..<6>sd 0:0:6:0: phase change 6-7 
+> >9@01ab97a0 resid=7.
+> >
+> >every 2 seconds.  Since the problem being reported seems to have no 
+> >effect on the operation of the scsi devices is it really necessary to 
+> >report it so often?
+> >
+> 
+> This problem is still occurring on 2.6.14.
 
-can we please state something what the 3G_OPT is suppsoed to do? Is this "optimzed for 1GB Real RAM"? Should this be something like "2.5G" instead?
+And still in 2.6.15?
 
-> +       config VMSPLIT_3G_OPT
-> +               bool "3G/1G user/kernel split (for full 1G low memory)"
+> Peter
 
-> +       default 0xC0000000
-> +       default 0xB0000000 if VMSPLIT_3G_OPT
-> +       default 0x78000000 if VMSPLIT_2G
-> +       default 0x40000000 if VMSPLIT_1G
+cu
+Adrian
 
-Grusss
-Bernd
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

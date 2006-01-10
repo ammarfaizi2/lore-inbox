@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWAJVvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWAJV6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWAJVvK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:51:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWAJVvJ
+	id S932496AbWAJV6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:58:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWAJV6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:51:09 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:17829 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932442AbWAJVvI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:51:08 -0500
-Date: Tue, 10 Jan 2006 13:51:22 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: dipankar@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com
-Subject: Re: [PATCH 4/5] rcu: join rcu_ctrlblk and rcu_state
-Message-ID: <20060110215121.GH18252@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <43C165CE.AF913697@tv-sign.ru> <20060110002818.GD15083@us.ibm.com> <20060110180954.GA5387@in.ibm.com> <43C41CC8.8000203@colorfullife.com>
-Mime-Version: 1.0
+	Tue, 10 Jan 2006 16:58:05 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39434 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932459AbWAJV6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 16:58:04 -0500
+Date: Tue, 10 Jan 2006 22:58:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: rmk+serial@arm.linux.org.uk
+Cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+Subject: [2.6 patch] drivers/serial/Kconfig: fix SERIAL_M32R_PLDSIO dependencies
+Message-ID: <20060110215801.GF3911@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43C41CC8.8000203@colorfullife.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 09:44:56PM +0100, Manfred Spraul wrote:
-> [I haven't read the diff, just a short comment]
-> 
-> Dipankar Sarma wrote:
-> 
-> >rcu_state came over from Manfred's RCU_HUGE patch IIRC. I don't
-> >think it is necessary to allocate rcu_state separately in the
-> >current mainline RCU code. So, the patch looks OK to me, but
-> >Manfred might see something that I am not seeing.
-> >
-> > 
-> >
-> The two-level rcu code was never merged, I still plan to clean it up.
-> 
-> But the idea of splitting the control block and the state is used in the 
-> current code:
-> - __rcu_pending() is the hot path, it only performs a read access to 
-> rcu_ctrlblk.
-> - write accesses to the rcu_ctrlblk are really rare, they only happen 
-> when a new batch is started. Especially: independant from the number of 
-> cpus.
-> 
-> Write access to the rcu_state are common:
-> - each cpu must write once in each cycle to update it's cpu mask.
-> - The last cpu then completes the quiescent cycle.
-> 
-> The idea is that rcu_state is more or less write-only and rcu_state is 
-> read-only. Theoretically, rcu_state could be shared in all cpus caches, 
-> and there will be only one invalidate when a new batch is started. Thus 
-> no cacheline trashing due to rcu_pending calls.
-> I think it would be safer to keep the two state counters in a separate 
-> cacheline from the spinlock and the cpu mask, but I don't have any hard 
-> numbers. IIRC the problems with the large SGI systems disappered, and 
-> everyone was happy. No real benchmark comparisons were made.
+This patch fixes a typo in the dependencies reported by
+Jean-Luc Leger <reiga@dspnet.fr.eu.org>.
 
-Good point!
 
-But doesn't the ____cacheline_maxaligned_in_smp directive on the "lock"
-field take care of this?  Here is the structure:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-/* Global control variables for rcupdate callback mechanism. */
-struct rcu_ctrlblk {
-        long    cur;            /* Current batch number.                      */
-        long    completed;      /* Number of the last completed batch         */
-        int     next_pending;   /* Is the next batch already waiting?         */
+--- linux-2.6.15-mm2-full/drivers/serial/Kconfig.old	2006-01-10 21:56:52.000000000 +0100
++++ linux-2.6.15-mm2-full/drivers/serial/Kconfig	2006-01-10 21:57:54.000000000 +0100
+@@ -826,7 +826,7 @@
+ 
+ config SERIAL_M32R_PLDSIO
+ 	bool "M32R SIO I/F on a PLD"
+-	depends on SERIAL_M32R_SIO=y && (PLAT_OPSPUT || PALT_USRV || PLAT_M32700UT)
++	depends on SERIAL_M32R_SIO=y && (PLAT_OPSPUT || PLAT_USRV || PLAT_M32700UT)
+ 	default n
+ 	help
+ 	  Say Y here if you want to use the M32R serial controller
 
-	spinlock_t      lock    ____cacheline_internodealigned_in_smp;
-	cpumask_t       cpumask; /* CPUs that need to switch in order    */
-				 /* for current batch to proceed.        */
-} ____cacheline_internodealigned_in_smp;
-
-If this does not cover this case, what more is needed?
-
-							Thanx, Paul

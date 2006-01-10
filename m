@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWAJPPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWAJPP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWAJPPU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 10:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWAJPPU
+	id S932182AbWAJPP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 10:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWAJPP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 10:15:20 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:36796 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751113AbWAJPPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 10:15:18 -0500
-Message-ID: <43C3CF3D.4000701@sgi.com>
-Date: Tue, 10 Jan 2006 09:14:05 -0600
-From: Eric Sandeen <sandeen@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Tue, 10 Jan 2006 10:15:28 -0500
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:16281 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751114AbWAJPP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 10:15:27 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: LKML List <linux-kernel@vger.kernel.org>, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.15-mm2 allyesconfig build failure in drivers/usb/ip/
+Date: Wed, 11 Jan 2006 02:15:20 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <aoj7s1pmcvup9h47bnglk267s64vpm53a3@4ax.com>
+References: <9a8748490601100546s2dcf9a25hcfd369e397bd7938@mail.gmail.com>
+In-Reply-To: <9a8748490601100546s2dcf9a25hcfd369e397bd7938@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: hch@infradead.org, sam@ravnborg.org, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: xfs: Makefile-linux-2.6 => Makefile?
-References: <20060109164214.GA10367@mars.ravnborg.org>	<20060109164611.GA1382@infradead.org>	<43C2CFBD.8040901@sgi.com> <20060109234532.78bda36a.akpm@osdl.org>
-In-Reply-To: <20060109234532.78bda36a.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> It'd be nice to fix this:
-> 
-> bix:/usr/src/25> make fs/xfs/linux-2.6/xfs_iops.o
->   SPLIT   include/linux/autoconf.h -> include/config/*
->   SHIPPED scripts/genksyms/lex.c
->   SHIPPED scripts/genksyms/parse.h
->   SHIPPED scripts/genksyms/keywords.c
->   HOSTCC  scripts/genksyms/lex.o
->   SHIPPED scripts/genksyms/parse.c
->   HOSTCC  scripts/genksyms/parse.o
->   HOSTLD  scripts/genksyms/genksyms
->   HOSTCC  scripts/mod/file2alias.o
->   HOSTCC  scripts/mod/modpost.o
->   HOSTLD  scripts/mod/modpost
-> scripts/Makefile.build:15: /usr/src/devel/fs/xfs/linux-2.6/Makefile: No such file or directory
-> make[1]: *** No rule to make target `/usr/src/devel/fs/xfs/linux-2.6/Makefile'.  Stop.
-> make: *** [fs/xfs/linux-2.6/xfs_iops.o] Error 2
+On Tue, 10 Jan 2006 14:46:08 +0100, Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
-I'll see what I can do to fix this up and a couple of other kbuild issues I've 
-run into recently.
+>allyesconfig currently doesn't build completely for me in 2.6.15-mm2
 
-Thanks,
+I sent a patch http://lkml.org/lkml/2006/1/7/272
 
--Eric
+Cheers,
+Grant.

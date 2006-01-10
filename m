@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWAJIlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWAJIwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWAJIlR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 03:41:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWAJIlR
+	id S1751016AbWAJIwX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 03:52:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWAJIwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 03:41:17 -0500
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:51134 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932098AbWAJIlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 03:41:16 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.15 EHCI hang on boot
-Date: Tue, 10 Jan 2006 00:27:48 -0800
-User-Agent: KMail/1.7.1
-Cc: Marc Haber <mh+linux-kernel@zugschlus.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <20060104161844.GA28839@torres.l21.ma.zugschlus.de> <20060104220403.GC12778@kroah.com>
-In-Reply-To: <20060104220403.GC12778@kroah.com>
+	Tue, 10 Jan 2006 03:52:23 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:30350 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751013AbWAJIwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 03:52:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=lEPiO69CyaHODMPh+wsGWmkLYB0g9vr1NWKPV6vxEaezFEFjlEG4Tubwr8DAM2rRGaS7QDhgihSEN+lM68B2FDWdmnN+KHe+tH6A31sjhGuKc1cHdVFLlRayNTQVKUzRuV3AtAAE9Fw+5B4TWg032zx3gT8pDIKgmp3c19QJc6w=
+Message-ID: <43C3759A.4030106@gmail.com>
+Date: Tue, 10 Jan 2006 16:51:38 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: intelfb
+References: <20060108234839.GF3001@mail.muni.cz> <20060108235753.GR3774@stusta.de> <43C1ACB4.4030704@gmail.com> <20060109002912.GS3774@stusta.de> <20060109101805.GK3001@mail.muni.cz> <43C30DEA.1050101@gmail.com> <20060110083533.GF12559@mail.muni.cz>
+In-Reply-To: <20060110083533.GF12559@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601100027.48372.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2006 2:04 pm, Greg KH wrote:
-
-> > I suspect an incompatibility with the i865 chipset. Is there anything
-> > I can do to help debugging?
+Lukas Hejtmanek wrote:
+> On Tue, Jan 10, 2006 at 09:29:14AM +0800, Antonino A. Daplas wrote:
+>> Yeah, he said he's going to be busy and he was not responding to e-mails
+>> for some time now. Anyway, what's your concern?
 > 
-> I don't know, David, any ideas?
+> I want to know, whether there is someone with i915 graphic card that is working
+> with intelfb. Some my tests and hacking points to fakct that routine to
 
-Such things are more often BIOS than chipset, so check for updates there.
-Plus, you commented that the issue only shows up with your newest board,
-and most folk don't have such hang-on-boot issues.
+You can always check the intelfb changelog...
 
-There were updates in 2.6.15 to how all the PCI based usb host controller
-drivers handle their reset/init logic ... basically "handoff" from BIOS to
-the OS kernel (Linux) is always done "early" now.  Previously it wasn't
-always done until late (too late for the input subsystem, given usb keyboards
-and mice that the BIOS uses to emulate ps/2 ones), and wasn't done very
-consistently.  (The "early handoff" code didn't act identically to the
-code inside the HCDs that did the bios handoff "later".)
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=history;h=4bba3925924148c24fb0c7636a04ad69a6a56b84;f=drivers/video/intelfb/intelfbdrv.c
 
-If there's no BIOS update, one experiment would be to #ifdef out the call
-to bios_handoff() in drivers/usb/host/ehci-pci.c ... the version of that
-code in the .../usb/hosts/pci-quirks.c file _should_ eventually suffice,
-though I think there are still differences between that version and the
-one (in ehci-pci.c) that's better tested.
+> calculate pixel mod clock is wrong for this chip. And also I have an idea how to
+> setup a graphic mode on local LCD (laptops).
+> 
 
-- Dave
+Can you post your hack to this list?
+
+Tony

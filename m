@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWAJGYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWAJGbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWAJGYe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 01:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWAJGYd
+	id S932082AbWAJGbX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 01:31:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAJGbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 01:24:33 -0500
-Received: from 217-133-42-200.b2b.tiscali.it ([217.133.42.200]:1109 "EHLO
-	opteron.random") by vger.kernel.org with ESMTP id S932069AbWAJGYd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 01:24:33 -0500
-Date: Tue, 10 Jan 2006 07:24:25 +0100
-From: Andrea Arcangeli <andrea@suse.de>
+	Tue, 10 Jan 2006 01:31:23 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:49093 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932077AbWAJGbW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 01:31:22 -0500
+Message-ID: <43C354B4.2070505@pobox.com>
+Date: Tue, 10 Jan 2006 01:31:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, hugh@veritas.com
-Subject: Re: smp race fix between invalidate_inode_pages* and do_no_page
-Message-ID: <20060110062425.GA15897@opteron.random>
-References: <20051213193735.GE3092@opteron.random> <20051213130227.2efac51e.akpm@osdl.org> <20051213211441.GH3092@opteron.random> <20051216135147.GV5270@opteron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051216135147.GV5270@opteron.random>
+CC: Dave Dillow <dave@thedillows.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Adaptec 1420SA issues with MSI
+References: <1136667984.2799.0.camel@obelisk.thedillows.org> <20060109221323.65f6987d.akpm@osdl.org>
+In-Reply-To: <20060109221323.65f6987d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Andrew Morton wrote: > Andi says "It's more likely a
+	hardware bug that needs to be handled by the > driver maintainer.
+	sata_mv has an pci_enable_msi(). Hardware that reports > MSI capability
+	but breaks when it's actually used is not unheard of." [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 02:51:47PM +0100, Andrea Arcangeli wrote:
-> There was a minor buglet in the previous patch an update is here:
-> 
-> 	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.15-rc5/seqschedlock-2
+Andrew Morton wrote:
+> Andi says "It's more likely a hardware bug that needs to be handled by the
+> driver maintainer.  sata_mv has an pci_enable_msi().  Hardware that reports
+> MSI capability but breaks when it's actually used is not unheard of."
 
-JFYI: I got a few hours ago positive confirmation of the fix from the
-customer that was capable of reproducing this. I guess this is good
-enough for production use (it's at the very least certainly better than
-the previous code and it's guaranteed not to hurt the scalability of the
-fast path in smp, so it's the least intrusive fix I could imagine).
 
-So we can start to think if we should using this new primitive I
-created, and if to replace the yield() with a proper waitqueue (and
-how). Or if to take the risk of hitting a bit of scalability in the
-nopage page faults of processes, by rewriting the fix with a
-find_lock_page in the do_no_page handler, that would avoid the need of
-my new locking primitive.
+> It seems strange that pci_enable_msi() succeeded if the device is not
+> MSI-capable?
 
-Comments welcome thanks!
+Unfortunately this is not strange :(  People have been coding interrupt 
+tests into MSI drivers -- shades of the early 90's -- because 
+pci_enable_msi() does not fail for systems that do not support MSI. 
+-Sometimes- it will fail as expected, if system does not support MSI, 
+sometimes not.
+
+For this case -- 32bit non-Intel mobo chipset -- the cause of the 
+failure is likely the poor pci_enable_msi() test.
+
+However, I know of at least one MSI-related sata_mv hardware bug that 
+needs working around, but that only affects 64-bit.  Given that MSI 
+works with this chip on other systems, I'm leaning towards blaming the 
+system.
+
+The following are reasonable workarounds:
+
+* Add pci=nomsi kernel parameter... we really need this
+* Add 'msi' module option to sata_mv
+
+I'll try to get around to committing the errata to source code. 
+Marvell's triple-layered vendor driver is GPL'd, so anyone can steal 
+this task from me...
+
+	Jeff
+
+

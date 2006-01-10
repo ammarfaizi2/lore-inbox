@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWAJNLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWAJNME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWAJNLf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWAJNLf
+	id S1751000AbWAJNME (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWAJNMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:11:35 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:29612 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1750969AbWAJNLf (ORCPT
+	Tue, 10 Jan 2006 08:12:03 -0500
+Received: from xproxy.gmail.com ([66.249.82.207]:31524 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751022AbWAJNL7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:11:35 -0500
-Message-ID: <43C3C46C.D347F3F0@tv-sign.ru>
-Date: Tue, 10 Jan 2006 17:27:56 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 10 Jan 2006 08:11:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=AOcsWt+El+DbZX851BwONA1aLjpSoUabm+7elTPedAkp2LJKFZ+B2x8rccpfUyY3+3+FDwp+k3JxBB8nNR/EnmsEFUf/dI/nIO4g0z2GSKIDBjqFPJgo2Jl15zIrzjoQUPonHFbvqeg2DWUI/ZvFrLOOg4U8VzyBU+B2EYxU1B8=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-scsi@vger.kernel.org
+Subject: [PATCH]Add scsi_add_host() failure handling for nsp32
+Date: Tue, 10 Jan 2006 14:11:52 +0100
+User-Agent: KMail/1.9
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       YOKOTA Hiroshi <yokota@netlab.is.tsukuba.ac.jp>,
+       GOTO Masanori <gotom@debian.or.jp>, gotom@debian.org
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
-References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109185944.GB15083@us.ibm.com> <43C2C818.65238C30@tv-sign.ru> <20060109195933.GE14738@us.ibm.com> <20060110095811.GA30159@in.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601101411.52585.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> 
-> On Mon, Jan 09, 2006 at 11:59:33AM -0800, Paul E. McKenney wrote:
-> > Hmmm...  So your thought is that __rcu_offline_cpu() moves nxtlist and
-> > curlist, but not donelist, but then returns to rcu_offline_cpu(), which
-> > might well do the tasklet_kill_immediate() before the tasklet completed
-> > processing all of donelist.
-> >
-> > Seems plausible to me.  If true, your patch adding the following statement
-> > to the ed of __rcu_offline_cpu seems like a reasonable fix:
-> >
-> >       rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
-> >
-> > Vatsa, is there something that Oleg and I are missing?
-> 
-> I think this should take care of the CPU Hotplug bug, with the caveat
-> that the callbacks on ->donelist will wait for additional grace period before
-> being invoked (which seems ok).
-> 
-> Oleg, do you want to resend the patch after some testing?
+From: Jesper Juhl <jesper.juhl@gmail.com>
 
-Sure. The problem is that I have no idea how to test this change.
-However, the patch seems "obviously correct", so I am sending it.
+Add scsi_add_host() failure handling for nsp32
+and silence warning.
+  drivers/scsi/nsp32.c:2888: warning: ignoring return value of csi_add_host', declared with attribute warn_unused_result
 
-Srivatsa, I am sorry, I forgot to add you on CC: list while re-sending
-these cleanups. I hope you can see them on lkml.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Oleg.
+ drivers/scsi/nsp32.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+--- linux-2.6.15-mm2-orig/drivers/scsi/nsp32.c	2006-01-07 14:46:18.000000000 +0100
++++ linux-2.6.15-mm2/drivers/scsi/nsp32.c	2006-01-10 14:07:00.000000000 +0100
+@@ -2885,7 +2885,12 @@ static int nsp32_detect(struct scsi_host
+         }
+ 
+ #if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
+-	scsi_add_host (host, &PCIDEV->dev);
++	ret = scsi_add_host (host, &PCIDEV->dev);
++	if (ret) {
++		printk(KERN_WARNING "nsp32: scsi_add_host failed\n");
++		scsi_host_put(host);
++		return ret;
++	}
+ 	scsi_scan_host(host);
+ #endif
+ 	pci_set_drvdata(PCIDEV, host);
+
+
+
+
+
+PS. Please CC me on replies from linux-scsi since I'm not subscribed there.
+
+-- 
+Jesper Juhl
+

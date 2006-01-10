@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWAJAng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWAJAoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWAJAng (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 19:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWAJAng
+	id S1751800AbWAJAoa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 19:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWAJAoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 19:43:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:58828 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751797AbWAJAnf (ORCPT
+	Mon, 9 Jan 2006 19:44:30 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38605 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751800AbWAJAo3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 19:43:35 -0500
-Date: Mon, 9 Jan 2006 16:43:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 4/5] rcu: join rcu_ctrlblk and rcu_state
-In-Reply-To: <20060110002818.GD15083@us.ibm.com>
-Message-ID: <Pine.LNX.4.64.0601091641000.5588@g5.osdl.org>
-References: <43C165CE.AF913697@tv-sign.ru> <20060110002818.GD15083@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jan 2006 19:44:29 -0500
+Date: Mon, 9 Jan 2006 16:44:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
+Message-Id: <20060109164410.3304a0f6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>
+References: <20060109203711.GA25023@kroah.com>
+	<Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 9 Jan 2006, Paul E. McKenney wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
 > 
-> This patch looks sane to me.  It passes a short one-hour rcutorture
-> on ppc64 and x86, firing up some overnight runs as well.
 > 
-> Dipankar, Manfred, any other concerns?  Cacheline alignment?  (Seems
-> to me this code is far enough from the fastpath that this should not
-> be a problem, but thought I should ask.)
+> On Mon, 9 Jan 2006, Greg KH wrote:
+> >
+> > Here are some PCI patches against your latest git tree.  They have all
+> > been in the -mm tree for a while with no problems.  I've pulled out all
+> > of the offending patches that people objected to, or ones that crashed
+> > older machines from the last series I sent you.
+> 
+> Before I pull this, I'd like to get some confirmation that some of the 
+> other problems that seem to be PCI-related in the -mm tree are also 
+> understood, or at least known to be part of the stuff that you're _not_ 
+> sending me..
 
-I'd ask you and Oleg to re-synchronize, and perhaps Oleg to re-send the 
-(part of?) the series that has no debate. I'm unsure, for example, whether 
-#2 was just to be dropped.
+It's really hard to keep track of all this, so it's likely that some things
+will still sneak through.
 
-I already applied #1, and it looks like there's agreement on #3 and #4, 
-but basically, just to make sure, can Oleg please re-send to make sure I 
-got it right?
+- Reuben Farrelly's oops in make_class_name().  Could be libata, or scsi
+  or driver core.
 
-Getting a screwed-up RCU thing is going to be too painful to debug, so I'd 
-rather get it right the first time it hits my tree..
+- A few problems with ehci.  For example Grant Coady went oops loading
+  the module.  Probably USB, maybe solved now, but there are
+  interactions...
 
-		Linus
+- gregkh-pci-x86-pci-domain-support-the-meat.patch is a problem, but
+  wasn't in this tree.
+
+> [ There's at least a pci_call_probe() NULL ptr dereference report by 
+>   Martin Bligh, I think Andrew has a few others he's tracked.. ]
+
+Yes, Martin is reporting failures on a few machines.  Hopefully he's
+working out whether gregkh-pci-x86-pci-domain-support-the-meat.patch was
+the culprit here.  If so, I'd say we're good to go.  If that's _not_ the
+source then we just don't know where the failure is coming from.
+
+All very vague, sorry.
+

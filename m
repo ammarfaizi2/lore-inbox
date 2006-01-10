@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWAJNSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWAJNVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWAJNSo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWAJNSo
+	id S932210AbWAJNVX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWAJNVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:18:44 -0500
-Received: from fmmailgate05.web.de ([217.72.192.243]:2729 "EHLO
-	fmmailgate05.web.de") by vger.kernel.org with ESMTP id S932196AbWAJNSn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:18:43 -0500
-Date: Tue, 10 Jan 2006 14:18:41 +0100
-Message-Id: <419982528@web.de>
+	Tue, 10 Jan 2006 08:21:23 -0500
+Received: from sf1.taajama.com ([212.86.0.100]:16891 "EHLO sf1.taajama.com")
+	by vger.kernel.org with ESMTP id S932210AbWAJNVX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 08:21:23 -0500
+Message-ID: <43C3B4A7.1000501@usr.fi>
+Date: Tue, 10 Jan 2006 15:20:39 +0200
+From: Miika Keskinen <weeti@usr.fi>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-From: =?iso-8859-1?Q?Burkhard=20Sch=F6lpen?= <bschoelpen@web.de>
 To: linux-kernel@vger.kernel.org
-Subject: PCI DMA Interrupt latency
-Organization: http://freemail.web.de/
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: serial port, custom divisor
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi
 
-I'm writing a driver for a custom pci card with an FPGA 
-(Xilinx Spartan 2 (XC2S150-6) with PCI 32 LogiCore), 
-which  can act as a pci bus master. The device is designed 
-to do DMA transfers with high bandwidth. One task is to 
-send image data to a printer which already works quite 
-well, but sometimes there are randomly occuring 
-problems concerning the timing between two DMA 
-transfers. The issue seems to be something like interrupt 
-latency in hardware. Measuring some signals with an 
-oscilloscope shows, that the delay from generating the 
-interrupt, which signals a finished transfer, to the time 
-when the interrupt register on the card is reset (i.e. the 
-beginning of the ISR) sometimes increases to more 
-than 500 microseconds, which is dimensions too high. 
+I read from the Documentation/serial/driver that the custom divisor is
+only applied to ports that have baud 38400. I'm asking if there is some
+reason why custom divisor should not be used for other speeds too? I do
+have a MIPS-SoC that does have 16550A-type uart but it needs custom
+divisor, no matter what the speed is. The custom divisor is calculated
+as follows:
 
-I already tried with other hardware deactivated, which 
-could cause traffic on the pci bus or generate many interrupts 
-(except hard disk). I also increased the priority of the IRQ 
-used by the pci board (with a tool called irqtune) to the 
-maximum possible value. Another consideration is, that 
-another driver could lock all interrupts for too long (but for 
-500 us??).  
+baud = speed of port
+system_frequency is in MHz
 
-As my experience on DMA stuff is not yet too 
-great, I would be very glad if somebody could give me some 
-advice to solve this problem. Below there is some further 
-information about my environment and how I set up the DMA 
-transfers.
+cdiv = (system_frequency * 5000) / baud;
+if ((cdiv % 16)>7) cdiv += 8;
+cdiv /= 16;
 
-Kind regards,
-Burkhard Schölpen
+What I'm doing is to use early_serial_setup with flags containing
+ASYNC_SPD_CUST and cdiv as .custom_divisor. However the serial_core
+doesn't apply that divisor unless the speed is 38400 (and for example I
+mostly need to run it in 9600). I'm now asking if I've misunderstood
+something or does the removal of baud==38400 from serial_core cause
+problems with other architectures?
 
+btw. I'm not subscribed to the list so please cc me if replying.
 
-Here is how I set up dma transfers from RAM to the pci device:
+yours,
+Miika
 
-while (down_interruptible(my_device->write_semaphore));
-my_device->dma_write_complete = 0;
-my_device->dma_direction = PCI_DMA_TODEVICE;
-
-writel (cpu_to_le32 (virt_to_phys(dma_buffer)), MY_DMA_ADDR_REGISTER);
-writel (cpu_to_le32 (my_device->dma_size/4), MY_DMA_COUNT_REGISTER); //triggers dma transfer
-
-if (wait_event_interruptible(write_wait_queue, my_device->dma_write_complete))
-{
-  //handle error...
-}
-//test, if MY_DMA_COUNT_REGISTER contains 0
-up(my_device->write_semaphore);
-
-Inside the Interrupt-handler I do the following:
-
-my_device->dma_write_complete = 1;
-wake_up_interruptible(&write_wait_queue);
-return IRQ_HANDLED;
-
-Here is some information about the PC:
-- Gigabyte GA-8I945GMF mainboard with Pentium D processor
-- custom pci board with Xilinx FPGA Spartan 2 (XC2S150-6) with PCI 32 LogiCore
-- Debian Linux with 2.6.13.4 SMP kernel
-
-
-______________________________________________________________
-Verschicken Sie romantische, coole und witzige Bilder per SMS!
-Jetzt bei WEB.DE FreeMail: http://f.web.de/?mc=021193
+-- 
+All bugs added by me :)
 

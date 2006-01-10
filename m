@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWAJVSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWAJVUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWAJVSr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWAJVSq
+	id S932318AbWAJVUX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWAJVUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:18:46 -0500
-Received: from mx2.suse.de ([195.135.220.15]:50852 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932263AbWAJVSq (ORCPT
+	Tue, 10 Jan 2006 16:20:23 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:18066 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932318AbWAJVUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:18:46 -0500
-From: Andi Kleen <ak@suse.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Console debugging wishlist was: Re: oops pauser.
-Date: Tue, 10 Jan 2006 22:18:30 +0100
-User-Agent: KMail/1.8.2
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <20060105045212.GA15789@redhat.com> <200601102145.53967.ak@suse.de> <Pine.LNX.4.61.0601102200410.1000@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601102200410.1000@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 16:20:22 -0500
+Date: Tue, 10 Jan 2006 15:20:20 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: paulus@samba.org, anton@samba.org, linuxppc-dev@ozlabs.org
+Subject: Re: 2.6.15-mm2
+Message-ID: <20060110212020.GB10837@sergelap.austin.ibm.com>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601102218.30998.ak@suse.de>
+In-Reply-To: <20060107052221.61d0b600.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 January 2006 22:06, Jan Engelhardt wrote:
+Quoting Andrew Morton (akpm@osdl.org):
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.15-mm2/
 
-> If you now had a kernel-level pager that would jump in everytime an oops
-> happened, control would normally not be given back to userspace unless we quit
-> the pager. kdb has a similar behavior: it "stops" userspace until someone
-> chooses to "c"ontinue.
-> Therefore this pager would not be too good. In a panic, yes, it would be 
-> perfect.
+With both this and 2.6.15-mm1, but not with 2.6.15, I get the following
+error:
 
-First for an recoverable oops there is no reason you couldn't use
-schedule_timeout(). And for those you don't need it anyways
-because you can as well use dmesg. For others you can use poll loops.
+mm/built-in.o(*ABS*+0x39c3c7ac): In function `__crc___handle_mm_fault':
+slab.c: multiple definition of `__crc___handle_mm_fault'
+make: *** [.tmp_vmlinux1] Error 1
 
-But it wasn't actually my point. If you get 
-an problem during bootup - not necessarily an oops, but could
-be also a no root panic or your SCSI controller not working or 
-something else - and you can reproduce it it's a PITA to examine
-the kernel output before because there is no way to get
-enough scrollback.  For the oops itself it's not needed - it typically
-fits on the screen. But if it happens every boot it would be nice
-if you could just boot with "more" and then page through
-the kernel output and check what's going on.
+The culprit appears to be that there are two places where
+__handle_mm_fault is EXPORT_SYMBOL_GPLed.  The following trivial patch
+fixes it for me.
 
-The feature would be mainly useful for problems during kernel bootup,
-although it might be sometimes useful too e.g. when user space
-hangs, but you want to page through the hotkey process dump
-which might be longer than console scrollback.
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
-Just more scrollback does not necessarily replace this because
-sometimes youe end up with so much output so quickly (e.g. some errors
-are very verbose) that any scrollback buffer would be overflown.
+Index: linux-2.6.15/arch/powerpc/kernel/ppc_ksyms.c
+===================================================================
+--- linux-2.6.15.orig/arch/powerpc/kernel/ppc_ksyms.c	2006-01-10 04:59:11.000000000 -0600
++++ linux-2.6.15/arch/powerpc/kernel/ppc_ksyms.c	2006-01-10 09:07:40.000000000 -0600
+@@ -240,8 +240,6 @@ EXPORT_SYMBOL(next_mmu_context);
+ EXPORT_SYMBOL(set_context);
+ #endif
+ 
+-EXPORT_SYMBOL_GPL(__handle_mm_fault);
+-
+ #ifdef CONFIG_PPC_STD_MMU_32
+ extern long mol_trampoline;
+ EXPORT_SYMBOL(mol_trampoline); /* For MOL */
 
-Now the only issue would be to work out when to use schedule_timeout
-and when to use a delay, but that can be all distingushed with some code.
 
-Anyways mind you - i suspect actually implementing this would be somewhat
-ugly, so the chances of it actually getting in would be likely slim.
-Still it would be often useful.
-
--Andi
-
+thanks,
+-serge

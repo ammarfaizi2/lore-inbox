@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWAJURu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWAJURj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWAJURu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWAJURu
+	id S932237AbWAJURj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWAJURj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:17:50 -0500
-Received: from quechua.inka.de ([193.197.184.2]:45737 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S932325AbWAJURt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:17:49 -0500
-Date: Tue, 10 Jan 2006 21:17:47 +0100
-From: Bernd Eckenfels <be-mail2006@lina.inka.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2G memory split
-Message-ID: <20060110201747.GA26433@lina.inka.de>
-References: <43C3E9C2.1000309@rtr.ca> <E1EwNc8-00063F-00@calista.inka.de> <20060110194200.GD3389@suse.de>
+	Tue, 10 Jan 2006 15:17:39 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:12208 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S932237AbWAJURi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 15:17:38 -0500
+Subject: [PATCH] [0/6] Add pselect/ppoll(), TIF_RESTORE_SIGMASK
+From: David Woodhouse <dwmw2@infradead.org>
+To: torvalds@osdl.org
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 10 Jan 2006 20:17:31 +0000
+Message-Id: <1136924251.3435.101.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060110194200.GD3389@suse.de>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 08:42:00PM +0100, Jens Axboe wrote:
-> Hmm I thought it was obvious with the description in paranthesis after
-> the option. Basically the option is just an optimized default for 1GB of
-> RAM, like the 2G option is tailored for 2GB of low mem on a 2GB machine.
+The following implementation of ppoll() and pselect() system calls
+depends on the architecture providing a TIF_RESTORE_SIGMASK flag in the
+thread_info.
 
-The description was (for full 1Gb Low Memory) and not (optimized for 1GB
-physical RAM) which would be more obvious, yes. However the text could still
-explain the consequences.
+These system calls have to change the signal mask during their
+operation, and signal handlers must be invoked using the new, temporary
+signal mask. The old signal mask must be restored either upon successful
+exit from the system call, or upon returning from the invoked signal
+handler if the system call is interrupted. We can't simply restore the
+original signal mask and return to userspace, since the restored signal
+mask may actually block the signal which interrupted the system call.
 
-Gruss
-Bernd
+The TIF_RESTORE_SIGMASK flag deals with this by causing the syscall exit
+path to trap into do_signal() just as TIF_SIGPENDING does, and by
+causing do_signal() to use the saved signal mask instead of the current
+signal mask when setting up the stack frame for the signal handler -- or
+by causing do_signal() to simply restore the saved signal mask in the
+case where there is no handler to be invoked.
+
+The first patch implements the sys_pselect() and sys_ppoll() system
+calls, which are present only if TIF_RESTORE_SIGMASK is defined. That
+#ifdef should go away in time when all architectures have implemented
+it. The second patch implements TIF_RESTORE_SIGMASK for the PowerPC
+kernel (in the -mm tree), and the third patch then removes the
+arch-specific implementations of sys_rt_sigsuspend() and replaces them
+with generic versions using the same trick.
+
+The fourth and fifth patches, provided by David Howells, implement
+TIF_RESTORE_SIGMASK for FR-V and i386 respectively, and the sixth patch
+adds the syscalls to the i386 syscall table.
+
+-- 
+dwmw2
+

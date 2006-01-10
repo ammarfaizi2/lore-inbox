@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWAJUA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWAJUBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbWAJUA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 15:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbWAJUA3
+	id S932283AbWAJUBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 15:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWAJUBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 15:00:29 -0500
-Received: from neapel230.server4you.de ([217.172.187.230]:9170 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S932540AbWAJUA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 15:00:28 -0500
-Date: Tue, 10 Jan 2006 21:00:16 +0100
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix running 'make kernelrelease' before builing
-Message-ID: <20060110200016.GA13461@lsrfire.ath.cx>
-MIME-Version: 1.0
+	Tue, 10 Jan 2006 15:01:24 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:52494 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932283AbWAJUBX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 15:01:23 -0500
+Date: Tue, 10 Jan 2006 21:00:54 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eric Sandeen <sandeen@sgi.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: xfs: Makefile-linux-2.6 => Makefile?
+Message-ID: <20060110200054.GA14721@mars.ravnborg.org>
+References: <20060109164214.GA10367@mars.ravnborg.org> <20060109164611.GA1382@infradead.org> <43C2CFBD.8040901@sgi.com> <20060109234532.78bda36a.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060109234532.78bda36a.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On Mon, Jan 09, 2006 at 11:45:32PM -0800, Andrew Morton wrote:
+> 
+> It'd be nice to fix this:
+> 
+> bix:/usr/src/25> make fs/xfs/linux-2.6/xfs_iops.o
+>   SPLIT   include/linux/autoconf.h -> include/config/*
+>   SHIPPED scripts/genksyms/lex.c
+>   SHIPPED scripts/genksyms/parse.h
+>   SHIPPED scripts/genksyms/keywords.c
+>   HOSTCC  scripts/genksyms/lex.o
+>   SHIPPED scripts/genksyms/parse.c
+>   HOSTCC  scripts/genksyms/parse.o
+>   HOSTLD  scripts/genksyms/genksyms
+>   HOSTCC  scripts/mod/file2alias.o
+>   HOSTCC  scripts/mod/modpost.o
+>   HOSTLD  scripts/mod/modpost
+> scripts/Makefile.build:15: /usr/src/devel/fs/xfs/linux-2.6/Makefile: No such file or directory
+> make[1]: *** No rule to make target `/usr/src/devel/fs/xfs/linux-2.6/Makefile'.  Stop.
+> make: *** [fs/xfs/linux-2.6/xfs_iops.o] Error 2
 
-after your latest Makefile changes 'make kernelrelease' displays an
-empty line when it is run before building.  I think it's more useful
-to let it build the kernel version and display it.
+xfs as one of the very few users in the kernel has split up .o files in
+several directories. And kbuild does not have support for specifying
+that is shall link to a .o file that is being build in a sub-directory.
 
-The patch makes kernelrelease dependant on .kernelrelease.  It also
-moves one echo call to the single other place that depends on
-.kernelrelease.  Otherwise it would display its message there _and_
-when called through 'make kernelrelease'.
+This is in general noe encouraged for the kernel - it is not common
+practice. And therefore not something I have planned to implement.
 
-Signed-off-by: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+If there is a general consensus that we like to have this then it is
+doable, but it will uglify scripts/Makefile.lib even more.
 
-diff --git a/Makefile b/Makefile
-index deedaf7..403eee0 100644
---- a/Makefile
-+++ b/Makefile
-@@ -788,7 +788,6 @@ kernelrelease = \
- .kernelrelease: FORCE
- 	$(Q)rm -f .kernelrelease
- 	$(Q)echo $(kernelrelease) > .kernelrelease
--	$(Q)echo "  Building kernel $(kernelrelease)"
- 
- 
- # Things we need to do before we recursively start building the kernel
-@@ -808,6 +807,7 @@ kernelrelease = \
- # 1) Check that make has not been executed in the kernel src $(srctree)
- # 2) Create the include2 directory, used for the second asm symlink
- prepare3: .kernelrelease
-+	$(Q)echo "  Building kernel $(KERNELRELEASE)"
- ifneq ($(KBUILD_SRC),)
- 	@echo '  Using $(srctree) as source for kernel'
- 	$(Q)if [ -f $(srctree)/.config ]; then \
-@@ -1300,7 +1300,7 @@ checkstack:
- 	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
- 	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
- 
--kernelrelease:
-+kernelrelease: .kernelrelease
- 	@echo $(KERNELRELEASE)
- kernelversion:
- 	@echo $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+For xfs this is 37 .o files that are build in three directories.
+The easy fix would be to move the files to stay just under the xfs/
+directory like all others - but xfs people prefer not to do so to stay
+compatible with their external source tree.
+
+	Sam

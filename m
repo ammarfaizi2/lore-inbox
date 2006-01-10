@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWAJNCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWAJNF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWAJNCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWAJNCY
+	id S1750973AbWAJNF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWAJNF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:02:24 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17427 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750936AbWAJNCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:02:24 -0500
-Date: Tue, 10 Jan 2006 14:02:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: paulus@samba.org
-Cc: linuxppc-dev@ozlabs.org, Jean-Luc Leger <reiga@dspnet.fr.eu.org>,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/powerpc/Kconfig: fix GENERIC_TBSYNC dependencies
-Message-ID: <20060110130222.GI3911@stusta.de>
+	Tue, 10 Jan 2006 08:05:57 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:21805 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750990AbWAJNF4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 08:05:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:references;
+        b=XyOez1TgPY7NiTI9huGg2wxVF5Iqw9KsM/2n7hxNXesScCoDdZpUeXgTW/YHzfkXhw0BkC7BSKhCRsXn4wIEnx3qJTtkJ91KmJaP6A89nrJSRq6QZhiE3yqP4Ys3rHBpVlcBB4427jt/+SQ2F03wlSdDDEpbUAyyXAuvUaixuZo=
+Message-ID: <81083a450601100505m73f4580cvb6a4a0c6ceb9791d@mail.gmail.com>
+Date: Tue, 10 Jan 2006 18:35:55 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: linux-scsi@vger.kernel.org, James.Bottomley@steeleye.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scsi/arm/ecoscsi.c Handle scsi_add_host failure
+In-Reply-To: <81083a450601100441s7675d584jd10db5a8e6ccaf58@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_332_8608814.1136898355757"
+References: <81083a450601100441s7675d584jd10db5a8e6ccaf58@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the dependencies of GENERIC_TBSYNC (this bug was found 
-by Jean-Luc Leger <reiga@dspnet.fr.eu.org>).
+------=_Part_332_8608814.1136898355757
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Additionally, it removes the superfluous "default n".
+Oops, Missed declaring the variable "retval". This one works for sure.
+Please apply this patch and drop the previous one. Sorry about that.
+-Ashutosh
 
+Add scsi_add_host() failure handling for the ecoscsi driver.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
 
---- linux-2.6.15-mm2-full/arch/powerpc/Kconfig.old	2006-01-10 13:59:33.000000000 +0100
-+++ linux-2.6.15-mm2-full/arch/powerpc/Kconfig	2006-01-10 13:59:57.000000000 +0100
-@@ -406,8 +406,7 @@
+------=_Part_332_8608814.1136898355757
+Content-Type: text/plain; name=ecoscsi.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="ecoscsi.txt"
+
+diff -Naurp linux-2.6.15-git5-vanilla/drivers/scsi/arm/ecoscsi.c linux-2.6.15-git5/drivers/scsi/arm/ecoscsi.c
+--- linux-2.6.15-git5-vanilla/drivers/scsi/arm/ecoscsi.c	2006-01-03 08:51:10.000000000 +0530
++++ linux-2.6.15-git5/drivers/scsi/arm/ecoscsi.c	2006-01-10 18:23:12.000000000 +0530
+@@ -174,7 +174,7 @@ static struct Scsi_Host *host;
  
- config GENERIC_TBSYNC
- 	bool
--	default y if CONFIG_PPC32 && CONFIG_SMP
--	default n
-+	default y if PPC32 && SMP
+ static int __init ecoscsi_init(void)
+ {
+-
++	int retval;
+ 	host = scsi_host_alloc(tpnt, sizeof(struct NCR5380_hostdata));
+ 	if (!host)
+ 		return 0;
+@@ -203,7 +203,13 @@ static int __init ecoscsi_init(void)
+ 	NCR5380_print_options(host);
+ 	printk("\n");
  
- source "drivers/cpufreq/Kconfig"
+-	scsi_add_host(host, NULL); /* XXX handle failure */
++	retval = scsi_add_host(host, NULL);
++	if (retval) {
++		printk(KERN_WARNING "ecoscsi: scsi_add_host failed\n");
++		scsi_host_put(host);
++		return retval;
++	}
++
+ 	scsi_scan_host(host);
+ 	return 0;
  
 
+------=_Part_332_8608814.1136898355757--

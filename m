@@ -1,111 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWAJRHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWAJRIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWAJRHT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 12:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWAJRHT
+	id S932284AbWAJRIk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 12:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWAJRIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 12:07:19 -0500
-Received: from rtr.ca ([64.26.128.89]:38800 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932244AbWAJRHR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 12:07:17 -0500
-Message-ID: <43C3E9C2.1000309@rtr.ca>
-Date: Tue, 10 Jan 2006 12:07:14 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Tue, 10 Jan 2006 12:08:39 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42502 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932284AbWAJRIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 12:08:38 -0500
+Date: Tue, 10 Jan 2006 18:08:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] [2.6 patch] let SND_SUPPORT_OLD_API depend on SND_PCM
+Message-ID: <20060110170836.GP3911@stusta.de>
+References: <20060110164449.GN3911@stusta.de> <s5hmzi4f26q.wl%tiwai@suse.de>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2G memory split
-References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hmzi4f26q.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, the patch would now look like this:
+On Tue, Jan 10, 2006 at 06:00:29PM +0100, Takashi Iwai wrote:
+> At Tue, 10 Jan 2006 17:44:49 +0100,
+> Adrian Bunk wrote:
+> > 
+> > SND_SUPPORT_OLD_API only has an effect if SND_PCM is set.
+> > 
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> > --- linux-2.6.15-mm2-full/sound/core/Kconfig.old	2006-01-10 17:35:35.000000000 +0100
+> > +++ linux-2.6.15-mm2-full/sound/core/Kconfig	2006-01-10 17:36:07.000000000 +0100
+> > @@ -124,7 +124,7 @@
+> >  
+> >  config SND_SUPPORT_OLD_API
+> >  	bool "Support old ALSA API"
+> > -	depends on SND
+> > +	depends on SND_PCM
+> >  	default y
+> >  	help
+> >  	  Say Y here to support the obsolete ALSA PCM API (ver.0.9.0 rc3
+> 
+> Does it work?  CONFIG_SND_PCM is selected by the drivers.  So, it will
+> be N until any drivers are selected.
 
+It does work and "make oldconfig" handles it perfectly, but I understand 
+your point that it might be accidentially set to N if a user later 
+selects a driver in "make {menu,x}oldconfig", and that this case is most 
+likely better handled without my patch.
 
-diff -u --recursive --new-file --exclude='.*' linux-2.6.15/arch/i386/Kconfig linux/arch/i386/Kconfig
---- linux-2.6.15/arch/i386/Kconfig	2006-01-02 22:21:10.000000000 -0500
-+++ linux/arch/i386/Kconfig	2006-01-10 12:02:40.000000000 -0500
-@@ -448,6 +448,43 @@
+> Takashi
 
-  endchoice
+cu
+Adrian
 
-+choice
-+	depends on EXPERIMENTAL
-+	prompt "Memory split"
-+	default VMSPLIT_3G
-+	help
-+	  Select the desired split between kernel and user memory.
-+
-+	  If the address range available to the kernel is less than the
-+	  physical memory installed, the remaining memory will be available
-+	  as "high memory". Accessing high memory is a little more costly
-+	  than low memory, as it needs to be mapped into the kernel first.
-+	  Note that increasing the kernel address space limits the range
-+	  available to user programs, making the address space there
-+	  tighter.  Selecting anything other than the default 3G/1G split
-+	  will also likely make your kernel incompatible with binary-only
-+	  kernel modules.
-+
-+	  If you are not absolutely sure what you are doing, leave this
-+	  option alone!
-+
-+	config VMSPLIT_3G
-+		bool "3G/1G user/kernel split"
-+	config VMSPLIT_3G_OPT
-+		bool "3G/1G user/kernel split (for full 1G low memory)"
-+	config VMSPLIT_2G
-+		bool "2G/2G user/kernel split"
-+	config VMSPLIT_1G
-+		bool "1G/3G user/kernel split"
-+endchoice
-+
-+config PAGE_OFFSET
-+	hex
-+	default 0xC0000000
-+	default 0xB0000000 if VMSPLIT_3G_OPT
-+	default 0x78000000 if VMSPLIT_2G
-+	default 0x40000000 if VMSPLIT_1G
-+
-  config HIGHMEM
-  	bool
-  	depends on HIGHMEM64G || HIGHMEM4G
-diff -u --recursive --new-file --exclude='.*' linux-2.6.15/arch/i386/mm/init.c linux/arch/i386/mm/init.c
---- linux-2.6.15/arch/i386/mm/init.c	2006-01-02 22:21:10.000000000 -0500
-+++ linux/arch/i386/mm/init.c	2006-01-10 12:06:10.000000000 -0500
-@@ -597,6 +597,12 @@
-  	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE - 1) + 1;
-  #endif
+-- 
 
-+#if !defined(CONFIG_VMSPLIT_3G)
-+	/* if the user has less than 960MB of RAM, he should use the default */
-+	if (max_low_pfn < (960 * 1024 * 1024 / PAGE_SIZE))
-+		printk(KERN_INFO "Memory: less than 960MiB of RAM, you should use the default memory split setting\n");
-+#endif
-+
-  	/* this will put all low memory onto the freelists */
-  	totalram_pages += free_all_bootmem();
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-diff -u --recursive --new-file --exclude='.*' linux-2.6.15/include/asm-i386/page.h linux/include/asm-i386/page.h
---- linux-2.6.15/include/asm-i386/page.h	2006-01-02 22:21:10.000000000 -0500
-+++ linux/include/asm-i386/page.h	2006-01-10 12:04:56.000000000 -0500
-@@ -110,10 +110,10 @@
-  #endif /* __ASSEMBLY__ */
-
-  #ifdef __ASSEMBLY__
--#define __PAGE_OFFSET		(0xC0000000)
-+#define __PAGE_OFFSET		CONFIG_PAGE_OFFSET
-  #define __PHYSICAL_START	CONFIG_PHYSICAL_START
-  #else
--#define __PAGE_OFFSET		(0xC0000000UL)
-+#define __PAGE_OFFSET		((unsigned long)CONFIG_PAGE_OFFSET)
-  #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
-  #endif
-  #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)

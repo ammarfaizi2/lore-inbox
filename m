@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWAJT4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWAJTzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbWAJT4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 14:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWAJTzs
+	id S932547AbWAJTzo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 14:55:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWAJTzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 14:55:48 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:58282 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932314AbWAJTzm (ORCPT
+	Tue, 10 Jan 2006 14:55:43 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:57002 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932547AbWAJTzm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 10 Jan 2006 14:55:42 -0500
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 2 of 3] memcpy32 for x86_64
-X-Mercurial-Node: b4863171295fdb6e820642e726101e45111a8966
-Message-Id: <b4863171295fdb6e8206.1136922838@serpentine.internal.keyresearch.com>
+Subject: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
+X-Mercurial-Node: 2d4af213d9c5975d28fc11c472f3b5e1cf2c21cd
+Message-Id: <2d4af213d9c5975d28fc.1136922837@serpentine.internal.keyresearch.com>
 In-Reply-To: <patchbomb.1136922836@serpentine.internal.keyresearch.com>
-Date: Tue, 10 Jan 2006 11:53:58 -0800
+Date: Tue, 10 Jan 2006 11:53:57 -0800
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, hch@infradead.org, ak@suse.de,
@@ -24,48 +24,27 @@ Cc: linux-kernel@vger.kernel.org, hch@infradead.org, ak@suse.de,
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce an x86_64-specific memcpy32 routine.  The routine is similar
-to memcpy, but is guaranteed to work in units of 32 bits at a time.
+This arch-independent routine copies data to a memory-mapped I/O region,
+using 32-bit accesses.  It does not guarantee access ordering, nor does
+it perform a memory barrier afterwards.  This style of access is required
+by some devices.
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/kernel/x8664_ksyms.c
---- a/arch/x86_64/kernel/x8664_ksyms.c	Tue Jan 10 11:52:46 2006 -0800
-+++ b/arch/x86_64/kernel/x8664_ksyms.c	Tue Jan 10 11:52:48 2006 -0800
-@@ -164,6 +164,8 @@
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(__memcpy);
+diff -r 48616306e7bd -r 2d4af213d9c5 lib/Makefile
+--- a/lib/Makefile	Tue Jan 10 10:41:42 2006 +0800
++++ b/lib/Makefile	Tue Jan 10 11:52:46 2006 -0800
+@@ -21,6 +21,7 @@
+ lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
+ lib-$(CONFIG_SEMAPHORE_SLEEPERS) += semaphore-sleepers.o
+ lib-$(CONFIG_GENERIC_FIND_NEXT_BIT) += find_next_bit.o
++lib-$(CONFIG_GENERIC_RAW_MEMCPY_IO) += raw_memcpy_io.o
+ obj-$(CONFIG_LOCK_KERNEL) += kernel_lock.o
+ obj-$(CONFIG_DEBUG_PREEMPT) += smp_processor_id.o
  
-+EXPORT_SYMBOL_GPL(memcpy32);
-+
- #ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
- /* prototypes are wrong, these are assembly with custom calling functions */
- extern void rwsem_down_read_failed_thunk(void);
-diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/lib/Makefile
---- a/arch/x86_64/lib/Makefile	Tue Jan 10 11:52:46 2006 -0800
-+++ b/arch/x86_64/lib/Makefile	Tue Jan 10 11:52:48 2006 -0800
-@@ -9,4 +9,4 @@
- lib-y := csum-partial.o csum-copy.o csum-wrappers.o delay.o \
- 	usercopy.o getuser.o putuser.o  \
- 	thunk.o clear_page.o copy_page.o bitstr.o bitops.o
--lib-y += memcpy.o memmove.o memset.o copy_user.o
-+lib-y += memcpy.o memcpy32.o memmove.o memset.o copy_user.o
-diff -r 2d4af213d9c5 -r b4863171295f include/asm-x86_64/string.h
---- a/include/asm-x86_64/string.h	Tue Jan 10 11:52:46 2006 -0800
-+++ b/include/asm-x86_64/string.h	Tue Jan 10 11:52:48 2006 -0800
-@@ -45,6 +45,9 @@
- #define __HAVE_ARCH_MEMMOVE
- void * memmove(void * dest,const void *src,size_t count);
- 
-+/* copy data, 32 bits at a time */
-+void memcpy32(void *dst, const void *src, size_t count);
-+
- /* Use C out of line version for memcmp */ 
- #define memcmp __builtin_memcmp
- int memcmp(const void * cs,const void * ct,size_t count);
-diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/lib/memcpy32.S
+diff -r 48616306e7bd -r 2d4af213d9c5 lib/raw_memcpy_io.c
 --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/arch/x86_64/lib/memcpy32.S	Tue Jan 10 11:52:48 2006 -0800
++++ b/lib/raw_memcpy_io.c	Tue Jan 10 11:52:46 2006 -0800
 @@ -0,0 +1,39 @@
 +/*
 + * Copyright 2006 PathScale, Inc.  All Rights Reserved.
@@ -84,25 +63,25 @@ diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/lib/memcpy32.S
 + * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 + */
 +
-+/*
-+ * Registers used below:
-+ * dst - rdi
-+ * src - rsi
-+ * count - rdx
-+ */
++#include <linux/types.h>
++#include <asm/io.h>
 +
 +/**
-+ * memcpy32 - copy data, in units of 32 bits at a time
-+ * @dst: destination (must be 32-bit aligned)
-+ * @src: source (must be 32-bit aligned)
++ * __raw_memcpy_toio32 - copy data to MMIO space, in 32-bit units
++ * @to: destination, in MMIO space (must be 32-bit aligned)
++ * @from: source (must be 32-bit aligned)
 + * @count: number of 32-bit quantities to copy
++ *
++ * Copy data from kernel space to MMIO space, in units of 32 bits at a
++ * time.  Order of access is not guaranteed, nor is a memory barrier
++ * performed afterwards.
 + */
-+ 	.globl memcpy32
-+memcpy32:
-+	movl %edx,%ecx
-+	shrl $1,%ecx
-+	andl $1,%edx
-+	rep movsq
-+	movl %edx,%ecx
-+	rep movsd
-+	ret
++void __raw_memcpy_toio32(void __iomem *to, const void *from, size_t count)
++{
++	u32 __iomem *dst = to;
++	const u32 *src = from;
++	size_t i;
++
++	for (i = 0; i < count; i++)
++		__raw_writel(*src++, dst++);
++}

@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWAJNff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWAJNkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWAJNff (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWAJNff
+	id S1750799AbWAJNkc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWAJNkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:35:35 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:21301 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750794AbWAJNfe (ORCPT
+	Tue, 10 Jan 2006 08:40:32 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:31158 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1750799AbWAJNkb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:35:34 -0500
-Date: Tue, 10 Jan 2006 14:37:29 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2G memory split
-Message-ID: <20060110133728.GB3389@suse.de>
-References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jan 2006 08:40:31 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: "Thomas Dahlmann" <thomas.dahlmann@amd.com>
+Subject: Re: [linux-usb-devel] [PATCH] UDC support for MIPS/AU1200 and Geode/CS5536
+Date: Tue, 10 Jan 2006 14:40:38 +0100
+User-Agent: KMail/1.8
+Cc: linux-usb-devel@lists.sourceforge.net,
+       "Jordan Crouse" <jordan.crouse@amd.com>, linux-mips@linux-mips.org,
+       linux-kernel@vger.kernel.org, info-linux@ldcmail.amd.com
+References: <20060109180356.GA8855@cosmic.amd.com> <200601092344.55988.oliver@neukum.org> <43C39431.6020308@amd.com>
+In-Reply-To: <43C39431.6020308@amd.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060110132957.GA28666@elte.hu>
+Message-Id: <200601101440.38853.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10 2006, Ingo Molnar wrote:
+Am Dienstag, 10. Januar 2006 12:02 schrieb Thomas Dahlmann:
 > 
-> * Jens Axboe <axboe@suse.de> wrote:
+> Oliver Neukum wrote:
 > 
-> > Hi,
-> > 
-> > It does annoy me that any 1G i386 machine will end up with 1/8th of 
-> > the memory as highmem. A patch like this one has been used in various 
-> > places since the early 2.4 days at least, is there a reason why it 
-> > isn't merged yet? Note I just hacked this one up, but similar patches 
-> > abound I'm sure. Bugs are mine.
+> >Am Montag, 9. Januar 2006 19:03 schrieb Jordan Crouse:
+> >  
+> >
+> >>>From the "two-birds-one-stone" department, I am pleased to present USB UDC
+> >>support for both the MIPS Au1200 SoC and the Geode CS5535 south bridge.  
+> >>Also, coming soon (in the next few days), OTG, which has been removed from
+> >>the usb_host patch, and put into its own patch (as per David's comments).
+> >>
+> >>This patch is against current linux-mips git, but it should apply for Linus's
+> >>tree as well.
+> >>
+> >>Regards,
+> >>Jordan
+> >>
+> >>    
+> >>
+> >+        VDBG("udc_read_bytes(): %d bytes\n", bytes);
+> >+
+> >+        /* dwords first */
+> >+        for (i = 0; i < bytes / UDC_DWORD_BYTES; i++) {
+> >+               *((u32*) (buf + (i<<2))) = readl(dev->rxfifo); 
+> >+        }
+> >
+> >Is there any reason you don't increment by 4?
+> >
+> >	Regards
+> >		Oliver
+> >
+> >
+> >
+> >  
+> >
+> The loop is for reading dwords only, so "i < bytes / UDC_DWORD_BYTES" cuts
+> off remaining 1,2 or 3 bytes which are handled by the next loop.
+> But you are right, incrementing by 4 may look better,  as
 > 
-> yes, i made it totally configurable in 2.4 days: 1:3, 2/2 and 3:1 splits 
-> were possible. It was a larger patch to enable all this across x86, but 
-> the Kconfig portion was removed a bit later because people _frequently_ 
-> misconfigured their kernels and then complained about the results.
+>         for (i = 0; i < bytes - bytes % UDC_DWORD_BYTES; i+=4) {
+>                *((u32*) (buf + i)) = readl(dev->rxfifo); 
+>         }
 
-How is this different than all other sorts of misconfigurations? As far
-as I can tell, the biggest "problem" for some is if they depend on some
-binary module that will of course break with a different page offset.
+Not only will it look better, but it'll save you a shift operation.
+You might even compute start and finish values before the loop and
+save an addition in the body.
 
-For simplicity, I didn't add more than the 2/2 split, where we could add
-even a 3/1 kernel/user or a 0.5/3.5 (I think sles8 had this).
-
-> so for now the trivial solution is to change the "C" to "8" in the 
-> following line in include/asm-i386/page.h:
-> 
-> >  #define __PAGE_OFFSET		(0xC0000000)
-> 
-> instead of editing your .config :-)
-
-:-)
-
-That is what I have been doing, but that requires me to carry this patch
-along with me all the time. So it annoys me!
-
-I would have posted a simple patch moving it to 0xB0000000 which would
-solve the problem for me as well, but I didn't because I'm sure people
-would be screaming at me...
-
-> Maybe we could try the Kconfig solution again, but it'll need alot 
-> better documentation, dependency on KERNEL_DEBUG and some heavy warnings 
-> all around.
-
-The help text could definitely be improved, it was a 30 second hackup.
-Why would you want to make it depend on DEBUG?
-
--- 
-Jens Axboe
-
+	Regards
+		Oliver

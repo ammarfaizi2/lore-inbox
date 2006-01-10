@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWAJBFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWAJBHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWAJBFj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jan 2006 20:05:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWAJBFi
+	id S932137AbWAJBHS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jan 2006 20:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWAJBHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jan 2006 20:05:38 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:6605 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932129AbWAJBFi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jan 2006 20:05:38 -0500
-Date: Tue, 10 Jan 2006 02:05:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] protect remove_proc_entry
-Message-ID: <20060110010541.GA5878@elte.hu>
-References: <1135973075.6039.63.camel@localhost.localdomain> <1135978110.6039.81.camel@localhost.localdomain> <20060107033637.458c4716.akpm@osdl.org> <1136834210.6197.10.camel@localhost.localdomain> <1136854761.6197.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jan 2006 20:07:18 -0500
+Received: from maggie.cs.pitt.edu ([130.49.220.148]:63679 "EHLO
+	maggie.cs.pitt.edu") by vger.kernel.org with ESMTP id S932137AbWAJBHR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jan 2006 20:07:17 -0500
+From: Claudio Scordino <cloud.of.andor@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Need help: hook for executing task
+Date: Mon, 9 Jan 2006 20:07:14 -0500
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1136854761.6197.18.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200601092007.14827.cloud.of.andor@gmail.com>
+X-Spam-Score: -1.665/8 BAYES_00 SA-version=3.000002
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+I have to develop some real-time code. I need to execute some code *any* time 
+the executing task changes.
 
-> Ingo,
-> 
-> FYI
-> 
-> I just uploaded my 2.6.15-rt2-sr3 which includes the latest patch to 
-> fix the bug in remove_proc_entry.
-> 
-> http://home.stny.rr.com/rostedt/patches/patch-2.6.15-rt2-sr3
+I already tried to put a hook in the __schedule() function, before the call to 
+the context_switch() function. 
 
-thanks Steve - i've applied your fixes and have uploaded 2.6.15-rt3 to 
-the usual place:
+However, my code is called two consecutive times with the same prev or the 
+same next: seems that between two consecutive calls someone has changed the 
+executing task...
 
-   http://redhat.com/~mingo/realtime-preempt/
+Can somebody please tell me where exactly I should put my hook ??
 
-(other than the version string it is the same as -rt2-sr3.)
+Many thanks,
 
-	Ingo
+           Claudio Scordino

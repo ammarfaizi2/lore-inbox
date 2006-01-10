@@ -1,65 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWAJTw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWAJT4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWAJTw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 14:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWAJTw4
+	id S932548AbWAJT4I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 14:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWAJTzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 14:52:56 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:36999 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932524AbWAJTwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 14:52:55 -0500
-Message-Id: <20060110204045.894417221@csdlinux-2.jf.intel.com>
-References: <20060110203912.007577046@csdlinux-2.jf.intel.com>
-Date: Tue, 10 Jan 2006 12:39:14 -0800
-From: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Cc: tony.luck@intel.com, "Systemtap" <systemtap@sources.redhat.com>,
-       "Jim Keniston" <jkenisto@us.ibm.com>, "Keith Owens" <kaos@sgi.com>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Subject: [patch 2/2] Link new module to the tail of module list
-Content-Disposition: inline; filename=module_link_order.patch
+	Tue, 10 Jan 2006 14:55:48 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:58282 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932314AbWAJTzm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 14:55:42 -0500
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 2 of 3] memcpy32 for x86_64
+X-Mercurial-Node: b4863171295fdb6e820642e726101e45111a8966
+Message-Id: <b4863171295fdb6e8206.1136922838@serpentine.internal.keyresearch.com>
+In-Reply-To: <patchbomb.1136922836@serpentine.internal.keyresearch.com>
+Date: Tue, 10 Jan 2006 11:53:58 -0800
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org, ak@suse.de,
+       rdreier@cisco.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Link new module to the tail of module list
+Introduce an x86_64-specific memcpy32 routine.  The routine is similar
+to memcpy, but is guaranteed to work in units of 32 bits at a time.
 
-When we are linking/adding a new module, it would be
-better to insert the new module to the tail of the
-module list. 
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-The reason is when kallsyms_lookup_name(name)
-looks for the text address corresponding to the name
-from the head of the module list, we always hit the
-module exporting the text address first and then the
-module using the text address later. This helps
-kallsyms_lookup_name() search which indeed need
-the text address.
-
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
--------------------------------------------------------------------
-
- kernel/module.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.15-mm1/kernel/module.c
-===================================================================
---- linux-2.6.15-mm1.orig/kernel/module.c
-+++ linux-2.6.15-mm1/kernel/module.c
-@@ -1911,7 +1911,12 @@ static struct module *load_module(void _
- static int __link_module(void *_mod)
- {
- 	struct module *mod = _mod;
--	list_add(&mod->list, &modules);
-+	/* Insert the new modules at the tail of the list,
-+	 * so kallsyms_lookup_name finds the module exporting
-+	 * the text address of a function first and quickens
-+	 * the search when searching based on function name
-+	 */
-+	list_add_tail(&mod->list, &modules);
- 	return 0;
- }
+diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/kernel/x8664_ksyms.c
+--- a/arch/x86_64/kernel/x8664_ksyms.c	Tue Jan 10 11:52:46 2006 -0800
++++ b/arch/x86_64/kernel/x8664_ksyms.c	Tue Jan 10 11:52:48 2006 -0800
+@@ -164,6 +164,8 @@
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(__memcpy);
  
-
---
-
++EXPORT_SYMBOL_GPL(memcpy32);
++
+ #ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
+ /* prototypes are wrong, these are assembly with custom calling functions */
+ extern void rwsem_down_read_failed_thunk(void);
+diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/lib/Makefile
+--- a/arch/x86_64/lib/Makefile	Tue Jan 10 11:52:46 2006 -0800
++++ b/arch/x86_64/lib/Makefile	Tue Jan 10 11:52:48 2006 -0800
+@@ -9,4 +9,4 @@
+ lib-y := csum-partial.o csum-copy.o csum-wrappers.o delay.o \
+ 	usercopy.o getuser.o putuser.o  \
+ 	thunk.o clear_page.o copy_page.o bitstr.o bitops.o
+-lib-y += memcpy.o memmove.o memset.o copy_user.o
++lib-y += memcpy.o memcpy32.o memmove.o memset.o copy_user.o
+diff -r 2d4af213d9c5 -r b4863171295f include/asm-x86_64/string.h
+--- a/include/asm-x86_64/string.h	Tue Jan 10 11:52:46 2006 -0800
++++ b/include/asm-x86_64/string.h	Tue Jan 10 11:52:48 2006 -0800
+@@ -45,6 +45,9 @@
+ #define __HAVE_ARCH_MEMMOVE
+ void * memmove(void * dest,const void *src,size_t count);
+ 
++/* copy data, 32 bits at a time */
++void memcpy32(void *dst, const void *src, size_t count);
++
+ /* Use C out of line version for memcmp */ 
+ #define memcmp __builtin_memcmp
+ int memcmp(const void * cs,const void * ct,size_t count);
+diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/lib/memcpy32.S
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/arch/x86_64/lib/memcpy32.S	Tue Jan 10 11:52:48 2006 -0800
+@@ -0,0 +1,39 @@
++/*
++ * Copyright 2006 PathScale, Inc.  All Rights Reserved.
++ *
++ * This file is free software; you can redistribute it and/or modify
++ * it under the terms of version 2 of the GNU General Public License
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
++ */
++
++/*
++ * Registers used below:
++ * dst - rdi
++ * src - rsi
++ * count - rdx
++ */
++
++/**
++ * memcpy32 - copy data, in units of 32 bits at a time
++ * @dst: destination (must be 32-bit aligned)
++ * @src: source (must be 32-bit aligned)
++ * @count: number of 32-bit quantities to copy
++ */
++ 	.globl memcpy32
++memcpy32:
++	movl %edx,%ecx
++	shrl $1,%ecx
++	andl $1,%edx
++	rep movsq
++	movl %edx,%ecx
++	rep movsd
++	ret

@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWAJM5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWAJM6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWAJM5D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 07:57:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWAJM5D
+	id S1750868AbWAJM6n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 07:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWAJM6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 07:57:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:44561 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932107AbWAJM46 (ORCPT
+	Tue, 10 Jan 2006 07:58:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:64456 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750838AbWAJM6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 07:56:58 -0500
-Date: Tue, 10 Jan 2006 13:58:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: 2G memory split
-Message-ID: <20060110125852.GA3389@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Tue, 10 Jan 2006 07:58:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=rTMjV1dI2moleOM0NB9btabDbHOsnHS1YaYSF1fE7Iy79WvOqkV78BbiL04tHQ3Hhkli/jY/djHg1yMOFf5SezpFO8TWzzzrWx1jSkLrm9NzmWF/o5WYqkSxYBIXiqfxcfPH8ZRG38dSGEqukpMM9p1NIRFf1nDUz9HWgIPff+Y=
+Message-ID: <81083a450601100458u683a3d57g8fb74ebe06c4f2b4@mail.gmail.com>
+Date: Tue, 10 Jan 2006 18:28:39 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: linux-scsi@vger.kernel.org, James.Bottomley@steeleye.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] scsi/pcmcia/fdomain_stub.c: Handle scsi_add_host failure
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_300_30611764.1136897919708"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+------=_Part_300_30611764.1136897919708
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-It does annoy me that any 1G i386 machine will end up with 1/8th of the
-memory as highmem. A patch like this one has been used in various places
-since the early 2.4 days at least, is there a reason why it isn't merged
-yet? Note I just hacked this one up, but similar patches abound I'm
-sure. Bugs are mine.
+Add scsi_add_host() failure handling for the  Future Domain-compatible
+PCMCIA SCSI driver.
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
 
-diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-index d849c68..0b2457b 100644
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -444,6 +464,24 @@ config HIGHMEM64G
- 
- endchoice
- 
-+choice
-+	depends on NOHIGHMEM
-+	prompt "Memory split"
-+	default DEFAULT_3G
-+	help
-+	  Select the wanted split between kernel and user memory. On a 1G
-+	  machine, the 3G/1G default split will result in 128MiB of high
-+	  memory. Selecting a 2G/2G split will make all of memory available
-+	  as low memory. Note that this will make your kernel incompatible
-+	  with binary only kernel modules.
-+
-+	config DEFAULT_3G
-+		bool "3G/1G user/kernel split"
-+	config DEFAULT_2G
-+		bool "2G/2G user/kernel split"
-+
-+endchoice
-+
- config HIGHMEM
- 	bool
- 	depends on HIGHMEM64G || HIGHMEM4G
-diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
-index 73296d9..be5f6b6 100644
---- a/include/asm-i386/page.h
-+++ b/include/asm-i386/page.h
-@@ -110,10 +110,22 @@ extern int page_is_ram(unsigned long pag
- #endif /* __ASSEMBLY__ */
- 
- #ifdef __ASSEMBLY__
-+#if defined(CONFIG_DEFAULT_3G)
- #define __PAGE_OFFSET		(0xC0000000)
-+#elif defined(CONFIG_DEFAULT_2G)
-+#define __PAGE_OFFSET		(0x80000000)
-+#else
-+#error" Bad memory split"
-+#endif
- #define __PHYSICAL_START	CONFIG_PHYSICAL_START
- #else
-+#if defined(CONFIG_DEFAULT_3G)
- #define __PAGE_OFFSET		(0xC0000000UL)
-+#elif defined(CONFIG_DEFAULT_2G)
-+#define __PAGE_OFFSET		(0x80000000UL)
-+#else
-+#error "Bad memory split"
-+#endif
- #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
- #endif
- #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
+------=_Part_300_30611764.1136897919708
+Content-Type: text/plain; name="pcmcia-fdomain.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="pcmcia-fdomain.txt"
 
--- 
-Jens Axboe
-
+ZGlmZiAtTmF1cnAgbGludXgtMi42LjE1LWdpdDUtdmFuaWxsYS9kcml2ZXJzL3Njc2kvcGNtY2lh
+L2Zkb21haW5fc3R1Yi5jIGxpbnV4LTIuNi4xNS1naXQ1L2RyaXZlcnMvc2NzaS9wY21jaWEvZmRv
+bWFpbl9zdHViLmMKLS0tIGxpbnV4LTIuNi4xNS1naXQ1LXZhbmlsbGEvZHJpdmVycy9zY3NpL3Bj
+bWNpYS9mZG9tYWluX3N0dWIuYwkyMDA2LTAxLTEwIDE2OjI0OjA2LjAwMDAwMDAwMCArMDUzMAor
+KysgbGludXgtMi42LjE1LWdpdDUvZHJpdmVycy9zY3NpL3BjbWNpYS9mZG9tYWluX3N0dWIuYwky
+MDA2LTAxLTEwIDE4OjE3OjQ3LjAwMDAwMDAwMCArMDUzMApAQCAtMTQzLDYgKzE0Myw3IEBAIHN0
+YXRpYyB2b2lkIGZkb21haW5fY29uZmlnKGRldl9saW5rX3QgKmwKICAgICB1X2NoYXIgdHVwbGVf
+ZGF0YVs2NF07CiAgICAgY2hhciBzdHJbMTZdOwogICAgIHN0cnVjdCBTY3NpX0hvc3QgKmhvc3Q7
+CisgICAgaW50IHJldHZhbDsKIAogICAgIERFQlVHKDAsICJmZG9tYWluX2NvbmZpZygweCVwKVxu
+IiwgbGluayk7CiAKQEAgLTE4OCw3ICsxODksMTMgQEAgc3RhdGljIHZvaWQgZmRvbWFpbl9jb25m
+aWcoZGV2X2xpbmtfdCAqbAogCWdvdG8gY3NfZmFpbGVkOwogICAgIH0KICAKLSAgICBzY3NpX2Fk
+ZF9ob3N0KGhvc3QsIE5VTEwpOyAvKiBYWFggaGFuZGxlIGZhaWx1cmUgKi8KKyAgICByZXR2YWwg
+PSBzY3NpX2FkZF9ob3N0KGhvc3QsIE5VTEwpOworICAgIGlmIChyZXR2YWwpIHsKKwlwcmludGso
+S0VSTl9XQVJOSU5HICJmZG9tYWluX2NzOiBzY3NpX2FkZF9ob3N0IGZhaWxlZFxuIik7CisJc2Nz
+aV9ob3N0X3B1dChob3N0KTsKKwlyZXR1cm4gcmV0dmFsOworICAgIH0KKwogICAgIHNjc2lfc2Nh
+bl9ob3N0KGhvc3QpOwogCiAgICAgc3ByaW50ZihpbmZvLT5ub2RlLmRldl9uYW1lLCAic2NzaSVk
+IiwgaG9zdC0+aG9zdF9ubyk7Cg==
+------=_Part_300_30611764.1136897919708--

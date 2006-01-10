@@ -1,244 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWAJNBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWAJNBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbWAJNBf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 08:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWAJNBe
+	id S932158AbWAJNBt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 08:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWAJNBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 08:01:34 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:61648 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750843AbWAJNBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 08:01:33 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: spereira@tusc.com.au
-Subject: Re: [PATCH 2/2 - 2.6.15]net:32 bit (socket layer) ioctl emulation for 64 bit kernels
-Date: Tue, 10 Jan 2006 13:00:40 +0000
-User-Agent: KMail/1.9.1
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Andi Kleen <ak@muc.de>,
-       linux-kenel <linux-kernel@vger.kernel.org>,
-       x25 maintainer <eis@baty.hanse.de>, netdev <netdev@vger.kernel.org>,
-       SP <pereira.shaun@gmail.com>
-References: <1136871083.5742.27.camel@spereira05.tusc.com.au>
-In-Reply-To: <1136871083.5742.27.camel@spereira05.tusc.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601101300.41351.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+	Tue, 10 Jan 2006 08:01:48 -0500
+Received: from mail.gmx.de ([213.165.64.21]:22154 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932158AbWAJNBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 08:01:47 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20060110135846.00bfd0a8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Tue, 10 Jan 2006 14:01:36 +0100
+To: Paolo Ornati <ornati@fastwebnet.it>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+In-Reply-To: <20060110135617.020f82fb@localhost>
+References: <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
+ <20060109210035.3f6adafc@localhost>
+ <5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
+ <5.2.1.1.2.20060102092903.00bde090@pop.gmx.net>
+ <20060101123902.27a10798@localhost>
+ <5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
+ <5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
+ <200512281027.00252.kernel@kolivas.org>
+ <20051227190918.65c2abac@localhost>
+ <20051227224846.6edcff88@localhost>
+ <200512281027.00252.kernel@kolivas.org>
+ <5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
+ <5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
+ <5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
+ <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_110765062==_"
+X-Antivirus: avast! (VPS 0601-0, 01/02/2006), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 January 2006 05:31, Shaun Pereira wrote:
-> --- linux-2.6.15-vanilla/include/net/x25.h	2006-01-03 14:21:10.000000000
-> +1100
-> +++ linux-2.6.15/include/net/x25.h	2006-01-10 16:15:16.000000000 +1100
-> @@ -223,6 +223,18 @@ extern struct x25_route *x25_get_route(s
->  extern struct net_device *x25_dev_get(char *);
->  extern void x25_route_device_down(struct net_device *dev);
->  extern int  x25_route_ioctl(unsigned int, void __user *);
-> +
-> +#ifdef CONFIG_COMPAT
-> +#include <linux/compat.h>
+--=====================_110765062==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-Don't hide #include <...> inside #ifdef, just add this in the beginning.
+At 01:56 PM 1/10/2006 +0100, Paolo Ornati wrote:
+>On Tue, 10 Jan 2006 13:07:33 +0100
+>Mike Galbraith <efault@gmx.de> wrote:
+>
+> > Can you please try this version?  It tries harder to correct any
+>
+>It seems that you have forgotten the to attach the patch...
 
-> +
-> +struct x25_route_struct32{
-> +	struct x25_address address;
-> +	compat_uint_t   sigdigits;
-> +	char    device[200];
-> +};
-> +extern int  compat_x25_route_ioctl(unsigned int, struct
-> x25_route_struct32 __user *);
-> +#endif
-> +
+Drat.  At least I'm not the first to ever do so :)
 
-Hmm. Declarations should not be hidden by #ifdef either, but of course
-compat_uint_t is not defined on 32 bit systems.
-Actually, the structure should already be the same on all 32 and 64 bit
-systems, there is no 'long' or  pointer in there. 
+(double checks)  It's now attached.
 
-I'm pretty sure you can simply call x25_route_ioctl instead of
-introducing a new compat_x25_route_ioctl(), or did you have a different
-reason to do this?
+         -Mike   
+--=====================_110765062==_
+Content-Type: application/octet-stream; name="sched_throttle2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="sched_throttle2"
 
->  extern void x25_route_free(void);
->  
->  static __inline__ void x25_route_hold(struct x25_route *rt)
-> diff -uprN -X dontdiff linux-2.6.15-vanilla/net/x25/af_x25.c
-> linux-2.6.15/net/x25/af_x25.c
-> --- linux-2.6.15-vanilla/net/x25/af_x25.c	2006-01-10 16:06:29.000000000
-> +1100
-> +++ linux-2.6.15/net/x25/af_x25.c	2006-01-10 16:15:16.000000000 +1100
-> @@ -475,6 +475,12 @@ out:
->  
->  void x25_init_timers(struct sock *sk);
->  
-> +#ifdef CONFIG_COMPAT
-> +#include "x25_ioctl_compat.c"
-> +#else
-> +#define compat_x25_ioctl NULL
-> +#endif
-> +
+LS0tIGxpbnV4LTIuNi4xNS9pbmNsdWRlL2xpbnV4L3NjaGVkLmgub3JnCVR1ZSBKYW4gIDMgMDk6
+MjY6NTAgMjAwNgorKysgbGludXgtMi42LjE1L2luY2x1ZGUvbGludXgvc2NoZWQuaAlTYXQgSmFu
+ICA3IDE0OjQ1OjM3IDIwMDYKQEAgLTcwMSw4ICs3MDEsOCBAQAogCiAJdW5zaWduZWQgc2hvcnQg
+aW9wcmlvOwogCi0JdW5zaWduZWQgbG9uZyBzbGVlcF9hdmc7Ci0JdW5zaWduZWQgbG9uZyBsb25n
+IHRpbWVzdGFtcCwgbGFzdF9yYW47CisJdW5zaWduZWQgbG9uZyBzbGVlcF9hdmcsIHNsaWNlX2F2
+ZzsKKwl1bnNpZ25lZCBsb25nIGxvbmcgdGltZXN0YW1wLCBsYXN0X3JhbiwgbGFzdF9zbGljZTsK
+IAl1bnNpZ25lZCBsb25nIGxvbmcgc2NoZWRfdGltZTsgLyogc2NoZWRfY2xvY2sgdGltZSBzcGVu
+dCBydW5uaW5nICovCiAJaW50IGFjdGl2YXRlZDsKIAotLS0gbGludXgtMi42LjE1L2tlcm5lbC9z
+Y2hlZC5jLm9yZwlTYXQgSmFuICA3IDE2OjIyOjEzIDIwMDYKKysrIGxpbnV4LTIuNi4xNS9rZXJu
+ZWwvc2NoZWQuYwlUdWUgSmFuIDEwIDEzOjU5OjQ0IDIwMDYKQEAgLTEyNyw2ICsxMjcsMjAgQEAK
+IAkoTlNfVE9fSklGRklFUygocCktPnNsZWVwX2F2ZykgKiBNQVhfQk9OVVMgLyBcCiAJCU1BWF9T
+TEVFUF9BVkcpCiAKKy8qCisgKiBJZiBhIHRhc2sncyBzbGVlcF9hdmcgc3RyYXlzIHRvbyBmYXIg
+ZnJvbSBpdCdzIHNsaWNlX2F2ZywgdGhpcworICogdGFzayBpcyB1c2luZyBtb3JlIGNwdSB0aGFu
+IGl0J3Mgc2xlZXBfYXZnIHdvdWxkIGluZGljYXRlLiBXaGVuCisgKiBzdWNoIGEgZGlzcGFyaXR5
+IGlzIGRldGVjdGVkLCBwcmV2ZW50IGFkZGl0aW9uYWwgc2xlZXAgdGltZSBmcm9tCisgKiBiZWlu
+ZyBhZGRlZCB0byB0aGUgZXhpc3RpbmcgaW1iYWxhbmNlLCBhbmQgaW5jcmVhc2UgdGhlIHJhdGUg
+YXQKKyAqIHdoaWNoIHNsZWVwX2F2ZXJhZ2UgaXMgY29uc3VtZWQuCisgKi8KKyNkZWZpbmUgU0xF
+RVBfQVZHX0lNQkFMQU5DRShwKSBcCisJKChwKS0+c2xlZXBfYXZnID4gKHApLT5zbGljZV9hdmcg
+KyAoTlNfTUFYX1NMRUVQX0FWRy8xMCkpCisKKyNkZWZpbmUgQ1BVX1BFTkFMVFkocCkgXAorCShO
+U19UT19KSUZGSUVTKG1pbigocCktPnNsZWVwX2F2ZywgKHApLT5zbGljZV9hdmcpKSAqIE1BWF9C
+T05VUyAvIFwKKwkJTUFYX1NMRUVQX0FWRykKKwogI2RlZmluZSBHUkFOVUxBUklUWQkoMTAgKiBI
+WiAvIDEwMDAgPyA6IDEpCiAKICNpZmRlZiBDT05GSUdfU01QCkBAIC03NDQsNyArNzU4LDcgQEAK
+IAllbHNlCiAJCXNsZWVwX3RpbWUgPSAodW5zaWduZWQgbG9uZylfX3NsZWVwX3RpbWU7CiAKLQlp
+ZiAobGlrZWx5KHNsZWVwX3RpbWUgPiAwKSkgeworCWlmIChsaWtlbHkoc2xlZXBfdGltZSA+IDAg
+JiYgIVNMRUVQX0FWR19JTUJBTEFOQ0UocCkpKSB7CiAJCS8qCiAJCSAqIFVzZXIgdGFza3MgdGhh
+dCBzbGVlcCBhIGxvbmcgdGltZSBhcmUgY2F0ZWdvcmlzZWQgYXMKIAkJICogaWRsZSBhbmQgd2ls
+bCBnZXQganVzdCBpbnRlcmFjdGl2ZSBzdGF0dXMgdG8gc3RheSBhY3RpdmUgJgpAQCAtMTM1Myw3
+ICsxMzY3LDcgQEAKIAogb3V0X2FjdGl2YXRlOgogI2VuZGlmIC8qIENPTkZJR19TTVAgKi8KLQlp
+ZiAob2xkX3N0YXRlID09IFRBU0tfVU5JTlRFUlJVUFRJQkxFKSB7CisJaWYgKG9sZF9zdGF0ZSAm
+IFRBU0tfVU5JTlRFUlJVUFRJQkxFKSB7CiAJCXJxLT5ucl91bmludGVycnVwdGlibGUtLTsKIAkJ
+LyoKIAkJICogVGFza3Mgb24gaW52b2x1bnRhcnkgc2xlZXAgZG9uJ3QgZWFybgpAQCAtMTM2OCw3
+ICsxMzgyLDcgQEAKIAkgKiBzbGVlcCBpcyBoYW5kbGVkIGluIGEgcHJpb3JpdHktbmV1dHJhbCBt
+YW5uZXIsIG5vIHByaW9yaXR5CiAJICogYm9vc3QgYW5kIG5vIHBlbmFsdHkuKQogCSAqLwotCWlm
+IChvbGRfc3RhdGUgJiBUQVNLX05PTklOVEVSQUNUSVZFKQorCWlmIChvbGRfc3RhdGUgJiBUQVNL
+X05PTklOVEVSQUNUSVZFIHx8IFNMRUVQX0FWR19JTUJBTEFOQ0UocCkpCiAJCV9fYWN0aXZhdGVf
+dGFzayhwLCBycSk7CiAJZWxzZQogCQlhY3RpdmF0ZV90YXNrKHAsIHJxLCBjcHUgPT0gdGhpc19j
+cHUpOwpAQCAtMTQ5Miw2ICsxNTA2LDggQEAKIAkgKi8KIAlwLT5zbGVlcF9hdmcgPSBKSUZGSUVT
+X1RPX05TKENVUlJFTlRfQk9OVVMocCkgKgogCQlDSElMRF9QRU5BTFRZIC8gMTAwICogTUFYX1NM
+RUVQX0FWRyAvIE1BWF9CT05VUyk7CisJcC0+c2xpY2VfYXZnID0gTlNfTUFYX1NMRUVQX0FWRzsK
+KwlwLT5sYXN0X3NsaWNlID0gc2NoZWRfY2xvY2soKTsKIAogCXAtPnByaW8gPSBlZmZlY3RpdmVf
+cHJpbyhwKTsKIApAQCAtMjY3OSw2ICsyNjk1LDcgQEAKIAkJaWYgKChwLT5wb2xpY3kgPT0gU0NI
+RURfUlIpICYmICEtLXAtPnRpbWVfc2xpY2UpIHsKIAkJCXAtPnRpbWVfc2xpY2UgPSB0YXNrX3Rp
+bWVzbGljZShwKTsKIAkJCXAtPmZpcnN0X3RpbWVfc2xpY2UgPSAwOworCQkJcC0+bGFzdF9zbGlj
+ZSA9IG5vdzsKIAkJCXNldF90c2tfbmVlZF9yZXNjaGVkKHApOwogCiAJCQkvKiBwdXQgaXQgYXQg
+dGhlIGVuZCBvZiB0aGUgcXVldWU6ICovCkBAIC0yNjg3LDEyICsyNzA0LDMzIEBACiAJCWdvdG8g
+b3V0X3VubG9jazsKIAl9CiAJaWYgKCEtLXAtPnRpbWVfc2xpY2UpIHsKKwkJdW5zaWduZWQgbG9u
+ZyBsb25nIG5zZWNzID0gbm93IC0gcC0+bGFzdF9zbGljZTsKKwkJdW5zaWduZWQgbG9uZyBpZGxl
+LCB0aWNrczsKKwkJaW50IHcgPSAxMDsKKwogCQlkZXF1ZXVlX3Rhc2socCwgcnEtPmFjdGl2ZSk7
+CiAJCXNldF90c2tfbmVlZF9yZXNjaGVkKHApOwogCQlwLT5wcmlvID0gZWZmZWN0aXZlX3ByaW8o
+cCk7CiAJCXAtPnRpbWVfc2xpY2UgPSB0YXNrX3RpbWVzbGljZShwKTsKIAkJcC0+Zmlyc3RfdGlt
+ZV9zbGljZSA9IDA7CiAKKwkJaWYgKG5zZWNzID4gfjBVTCkKKwkJCW5zZWNzID0gfjBVTDsKKwkJ
+dGlja3MgPSBOU19UT19KSUZGSUVTKCh1bnNpZ25lZCBsb25nKSBuc2Vjcyk7CisJCWlmICh0aWNr
+cyA8IHAtPnRpbWVfc2xpY2UpCisJCQl0aWNrcyA9IHAtPnRpbWVfc2xpY2U7CisJCWlkbGUgPSAx
+MDAgLSAoMTAwICogcC0+dGltZV9zbGljZSAvIHRpY2tzKTsKKwkJcC0+c2xpY2VfYXZnIC89IE5T
+X01BWF9TTEVFUF9BVkcgLyAxMDA7CisJCS8qCisJCSAqIElmIHRoZSB0YXNrIGlzIGxvd2VyaW5n
+IGl0J3MgY3B1IHVzYWdlLCBzcGVlZCB1cCB0aGUKKwkJICogZWZmZWN0IG9uIHNsaWNlX2F2ZyBz
+byB3ZSBkb24ndCBvdmVyIHRocm90dGxlLgorCQkgKi8KKwkJaWYgKGlkbGUgPiBwLT5zbGljZV9h
+dmcgKyAxMCkKKwkJCXcgLT0gKDEwMCAqIHAtPnNsaWNlX2F2ZyAvIGlkbGUpIC8gMTA7CisJCXAt
+PnNsaWNlX2F2ZyA9ICh3ICogcC0+c2xpY2VfYXZnICsgaWRsZSkgLyAodyArIDEpOworCQlwLT5z
+bGljZV9hdmcgKj0gTlNfTUFYX1NMRUVQX0FWRyAvIDEwMDsKKwkJcC0+bGFzdF9zbGljZSA9IG5v
+dzsKKwogCQlpZiAoIXJxLT5leHBpcmVkX3RpbWVzdGFtcCkKIAkJCXJxLT5leHBpcmVkX3RpbWVz
+dGFtcCA9IGppZmZpZXM7CiAJCWlmICghVEFTS19JTlRFUkFDVElWRShwKSB8fCBFWFBJUkVEX1NU
+QVJWSU5HKHJxKSkgewpAQCAtMjk5Niw3ICszMDM0LDcgQEAKIAkgKiBUYXNrcyBjaGFyZ2VkIHBy
+b3BvcnRpb25hdGVseSBsZXNzIHJ1bl90aW1lIGF0IGhpZ2ggc2xlZXBfYXZnIHRvCiAJICogZGVs
+YXkgdGhlbSBsb3NpbmcgdGhlaXIgaW50ZXJhY3RpdmUgc3RhdHVzCiAJICovCi0JcnVuX3RpbWUg
+Lz0gKENVUlJFTlRfQk9OVVMocHJldikgPyA6IDEpOworCXJ1bl90aW1lIC89IChDUFVfUEVOQUxU
+WShwcmV2KSA/IDogMSk7CiAKIAlzcGluX2xvY2tfaXJxKCZycS0+bG9jayk7CiAKQEAgLTMwMTAs
+NyArMzA0OCw3IEBACiAJCQkJdW5saWtlbHkoc2lnbmFsX3BlbmRpbmcocHJldikpKSkKIAkJCXBy
+ZXYtPnN0YXRlID0gVEFTS19SVU5OSU5HOwogCQllbHNlIHsKLQkJCWlmIChwcmV2LT5zdGF0ZSA9
+PSBUQVNLX1VOSU5URVJSVVBUSUJMRSkKKwkJCWlmIChwcmV2LT5zdGF0ZSAmIFRBU0tfVU5JTlRF
+UlJVUFRJQkxFKQogCQkJCXJxLT5ucl91bmludGVycnVwdGlibGUrKzsKIAkJCWRlYWN0aXZhdGVf
+dGFzayhwcmV2LCBycSk7CiAJCX0KQEAgLTMwOTUsNiArMzEzMywxMiBAQAogCXByZXYtPnNsZWVw
+X2F2ZyAtPSBydW5fdGltZTsKIAlpZiAoKGxvbmcpcHJldi0+c2xlZXBfYXZnIDw9IDApCiAJCXBy
+ZXYtPnNsZWVwX2F2ZyA9IDA7CisJLyoKKwkgKiBFbmFibGUgZGV0ZWN0aW9uIG9mIHRoZSBiZWdp
+bm5pbmcgb2YgYSBzbGljZSBhdCB0aWNrIHRpbWUuCisJICovCisJaWYgKCFydF90YXNrKG5leHQp
+ICYmICEobmV4dC0+dGltZV9zbGljZSAlIERFRl9USU1FU0xJQ0UpKQorCQluZXh0LT5sYXN0X3Ns
+aWNlID0gbm93OworCiAJcHJldi0+dGltZXN0YW1wID0gcHJldi0+bGFzdF9yYW4gPSBub3c7CiAK
+IAlzY2hlZF9pbmZvX3N3aXRjaChwcmV2LCBuZXh0KTsK
+--=====================_110765062==_--
 
-No, this is not a good way to do it. It's good put it in a separate file,
-if the compat code is large, but then better use Makefile magic to do
-conditional compilation, like:
-
-obj-$(CONFIG_X25) += x25.o
-x25-$(CONFIG_COMPAT) += x25_ioctl_compat.o
-
-[ OTOH, with the changes I propose below, it probably becomes so small
-  that it's no longer worth doing a separate file. ]
-
->  static int x25_create(struct socket *sock, int protocol)
->  {
->  	struct sock *sk;
-> @@ -1403,7 +1409,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname =	x25_getname,
->  	.poll =		datagram_poll,
->  	.ioctl =	x25_ioctl,
-> -	.compat_ioctl=  NULL,
-> +	.compat_ioctl=  compat_x25_ioctl,
->  	.listen =	x25_listen,
->  	.shutdown =	sock_no_shutdown,
->  	.setsockopt =	x25_setsockopt,
-
-Then this normally becomes
-
-	.poll =		datagram_poll,
- 	.ioctl =	x25_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl=  compat_x25_ioctl,
-+#endif
- 	.listen =	x25_listen,
- 	.shutdown =	sock_no_shutdown,
-
-or you change the declaration in the header file to become
-
-#ifdef CONFIG_COMPAT
-extern long compat_x25_ioctl(struct file *, unsigned int, unsigned long);
-#else
-#define compat_x25_ioctl NULL
-#endif
-
-> diff -uprN -X dontdiff linux-2.6.15-vanilla/net/x25/x25_ioctl_compat.c
-> linux-2.6.15/net/x25/x25_ioctl_compat.c
-> --- linux-2.6.15-vanilla/net/x25/x25_ioctl_compat.c	1970-01-01
-> 10:00:00.000000000 +1000
-> +++ linux-2.6.15/net/x25/x25_ioctl_compat.c	2006-01-10
-> 16:15:16.000000000 +1100
-> @@ -0,0 +1,264 @@
-> +#include <linux/compat.h>
-> +
-> +struct x25_subscrip_struct32{
-> +	char device[200-sizeof(compat_ulong_t)];
-> +	compat_ulong_t global_facil_mask;
-> +	compat_uint_t extended;
-> +};
-
-Please don't use a compat_ prefix instead of a 32 postfix,
-i.e. compat_x25_subscrip_struct.
-
-> +
-> +struct x25_facilities32{
-> +	compat_uint_t	winzize_in, winsize_out;
-> +	compat_uint_t	pacsize_in, packsize_out;
-> +	compat_uint_t	throughput;
-> +	compat_uint_t   reverse;
-> +};
-> +
-> +struct x25_calluserdata32 {
-> +	compat_uint_t 	cudlength;
-> +	unsigned char   cuddata[128];
-> +};
-> +
-> +struct x25_subaddr32 {
-> +	compat_uint_t 	cudmatchlength;
-> +};
-
-These should all be compatible and not need a conversion at all.
-
-> +
-> +static int compat_x25_subscr_ioctl(unsigned int cmd,
-> +		struct x25_subscrip_struct32 __user *x25_subscr32)
-> +{
-> ...
-
-that function looks good.
-
-> +static int compat_x25_facility_ioctl(struct socket *sock, struct
-> x25_facilities32 __user *facilities32)
-
-> +static int compat_x25_get_facility_ioctl(struct socket *sock, struct
-> x25_facilities32 __user *facility32)
-
-> +static int compat_x25_cud_ioctl(struct socket *sock, struct
-> x25_calluserdata32 __user *calluserdata32)
-
-> +static int compat_x25_get_cud_ioctl(struct socket *sock, struct
-> x25_calluserdata32 __user *calluserdata32)
-
-> +static int compat_x25_cud_match_ioctl(struct socket *sock, struct
-> x25_subaddr32 __user *sub_addr32)
-
-> +static int compat_x25_accept_ctrl(struct socket *sock, unsigned int
-> cmd)
-
-All these appear pointless to me, as the arguments are the same as in
-the native 64 bit case.
-
-> +
-> +static int compat_x25_ioctl(struct socket *sock, unsigned int cmd,
-> unsigned long arg)
-> ...
-> +		case SIOCX25GFACILITIES:
-> +			rc = compat_x25_get_facility_ioctl(sock, argp);
-> +			break;
-> +		case SIOCX25SFACILITIES:
-> +			rc = compat_x25_facility_ioctl(sock, argp);
-> +			break;
-> +		case SIOCX25GCALLUSERDATA:
-> +			rc = compat_x25_get_cud_ioctl(sock, argp);
-> +			break;
-> +		case SIOCX25SCALLUSERDATA:
-> +			rc = compat_x25_cud_ioctl(sock, argp);
-> +			break;
-> +		case SIOCX25GCAUSEDIAG:
-> +		case SIOCX25SCUDMATCHLEN:
-> +			rc = compat_x25_cud_match_ioctl(sock,argp);
-> +			break;
-> +		case SIOCX25CALLACCPTAPPRV:
-> +			rc = compat_x25_accept_ctrl(sock,SIOCX25CALLACCPTAPPRV);
-> +				break;
-> +		case SIOCX25SENDCALLACCPT:
-> +			rc = compat_x25_accept_ctrl(sock,SIOCX25SENDCALLACCPT);
-> +				break;
-
-Then these could become
-+		case SIOCX25GFACILITIES:
-+		case SIOCX25SFACILITIES:
-+		case SIOCX25GCALLUSERDATA:
-+		case SIOCX25SCALLUSERDATA:
-+		case SIOCX25GCAUSEDIAG:
-+		case SIOCX25SCUDMATCHLEN:
-+		case SIOCX25CALLACCPTAPPRV:
-+		case SIOCX25SENDCALLACCPT:
-+			rc = x25_ioctl(sock, cmd, (unsigned long)argp);
-+			break;
-
-The casting argp to unsigned long instead of using arg takes care of
-the pointer type problem, so it even works on s390 (your code did as well).
-
-> +#ifdef CONFIG_COMPAT
-> +
-> +int compat_x25_route_ioctl(unsigned int cmd, struct x25_route_struct32
-> __user *rt32)
-> +{
-
-AFAICS; this function is identical to x25_route_ioctl, so just call that
-one.
-
-	Arnd <><

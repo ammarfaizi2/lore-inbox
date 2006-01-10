@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWAJSG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWAJSJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWAJSG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 13:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWAJSG5
+	id S932323AbWAJSJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 13:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWAJSJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 13:06:57 -0500
-Received: from smtpout.mac.com ([17.250.248.83]:12782 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932299AbWAJSGx (ORCPT
+	Tue, 10 Jan 2006 13:09:29 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:61635 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932323AbWAJSJ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 13:06:53 -0500
-In-Reply-To: <46a038f90601092238r3476556apf948bfe5247da484@mail.gmail.com>
-References: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com> <Pine.LNX.4.64.0601091845160.5588@g5.osdl.org> <99D82C29-4F19-4DD3-A961-698C3FC0631D@mac.com> <46a038f90601092238r3476556apf948bfe5247da484@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <252A408D-0B42-49F3-92BC-B80F94F19F40@mac.com>
-Cc: Luben Tuikov <ltuikov@yahoo.com>, "Brown, Len" <len.brown@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Junio C Hamano <junkio@cox.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Git Mailing List <git@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: git pull on Linux/ACPI release tree
-Date: Tue, 10 Jan 2006 13:05:56 -0500
-To: Martin Langhoff <martin.langhoff@gmail.com>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 10 Jan 2006 13:09:28 -0500
+Date: Tue, 10 Jan 2006 23:39:54 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 4/5] rcu: join rcu_ctrlblk and rcu_state
+Message-ID: <20060110180954.GA5387@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <43C165CE.AF913697@tv-sign.ru> <20060110002818.GD15083@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060110002818.GD15083@us.ibm.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 10, 2006, at 01:38, Martin Langhoff wrote:
-> On 1/10/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
->> If they all work, then we know precisely that it's the  
->> interactions between them, which also makes debugging a lot easier.
->
-> The more complex your tree structure is, the more the interactions  
-> are likely to be part of the problem. Is git-bisect not useful in  
-> this scenario?
+On Mon, Jan 09, 2006 at 04:28:18PM -0800, Paul E. McKenney wrote:
+> On Sun, Jan 08, 2006 at 10:19:42PM +0300, Oleg Nesterov wrote:
+> > This patch moves rcu_state into the rcu_ctrlblk. I think there
+> > are no reasons why we should have 2 different variables to control
+> > rcu state. Every user of rcu_state has also "rcu_ctrlblk *rcp" in
+> > the parameter list.
+> 
+> This patch looks sane to me.  It passes a short one-hour rcutorture
+> on ppc64 and x86, firing up some overnight runs as well.
+> 
+> Dipankar, Manfred, any other concerns?  Cacheline alignment?  (Seems
+> to me this code is far enough from the fastpath that this should not
+> be a problem, but thought I should ask.)
+> 
 
-IIRC git-bisect just does an outright linearization of the whole tree  
-anyways, which makes git-bisect work everywhere, even in the presence  
-of difficult cross-merges.  On the other hand, if you are git- 
-bisecting ACPI changes (perhaps due to some ACPI breakage), and ACPI  
-has 10 pulls from mainline, you _also_ have to wade through the  
-bisection of any other changes that occurred in mainline, even if  
-they're totally irrelevant.  This is why it's useful to only pull  
-mainline into your tree (EX: ACPI) when you functionally depend on  
-changes there (as Linus so eloquently expounded upon).
+rcu_state came over from Manfred's RCU_HUGE patch IIRC. I don't
+think it is necessary to allocate rcu_state separately in the
+current mainline RCU code. So, the patch looks OK to me, but
+Manfred might see something that I am not seeing.
 
-Cheers,
-Kyle Moffett
-
---
-Q: Why do programmers confuse Halloween and Christmas?
-A: Because OCT 31 == DEC 25.
-
-
-
+Thanks
+Dipankar

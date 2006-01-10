@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932663AbWAJVKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbWAJVLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932663AbWAJVKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 16:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbWAJVKY
+	id S932691AbWAJVLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 16:11:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbWAJVLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 16:10:24 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:38315 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932663AbWAJVKY (ORCPT
+	Tue, 10 Jan 2006 16:11:51 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:56491 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932691AbWAJVLu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 16:10:24 -0500
-Date: Tue, 10 Jan 2006 22:10:36 +0100
+	Tue, 10 Jan 2006 16:11:50 -0500
+Date: Tue, 10 Jan 2006 22:12:02 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
+To: Daniel Walker <dwalker@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] mark mutex_lock*() as might_sleep()
-Message-ID: <20060110211036.GA9460@elte.hu>
+Subject: Re: [PATCH] Add kernel.h to plist.h
+Message-ID: <20060110211202.GA9683@elte.hu>
+References: <200601101823.k0AINn2u032208@dhcp153.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200601101823.k0AINn2u032208@dhcp153.mvista.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -30,33 +32,13 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-mark mutex_lock() and mutex_lock_interruptible() as might_sleep()
-functions.
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 	On ARM plist compilation fails due to missing container_of() So 
+> I resolved it by adding kernel.h to plist.h .
+> 
+> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-----
+thanks, added.
 
- kernel/mutex.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-Index: linux/kernel/mutex.c
-===================================================================
---- linux.orig/kernel/mutex.c
-+++ linux/kernel/mutex.c
-@@ -81,6 +81,7 @@ __mutex_lock_slowpath(atomic_t *lock_cou
-  */
- void fastcall __sched mutex_lock(struct mutex *lock)
- {
-+	might_sleep();
- 	/*
- 	 * The locking fastpath is the 1->0 transition from
- 	 * 'unlocked' into 'locked' state.
-@@ -253,6 +254,7 @@ __mutex_lock_interruptible_slowpath(atom
-  */
- int fastcall __sched mutex_lock_interruptible(struct mutex *lock)
- {
-+	might_sleep();
- 	return __mutex_fastpath_lock_retval
- 			(&lock->count, __mutex_lock_interruptible_slowpath);
- }
+	Ingo

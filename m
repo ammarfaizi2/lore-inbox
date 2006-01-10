@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030683AbWAJXMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWAJXUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030683AbWAJXMK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 18:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWAJXMJ
+	id S1751131AbWAJXUT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 18:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWAJXUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 18:12:09 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:53135 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1030466AbWAJXMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 18:12:07 -0500
-Subject: Re: Error handling in LibATA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Treubig <jtreubig@hotmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <BAY101-F102837A76FADACF6F37DBBDF250@phx.gbl>
-References: <BAY101-F102837A76FADACF6F37DBBDF250@phx.gbl>
+	Tue, 10 Jan 2006 18:20:19 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:34526 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751131AbWAJXUR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 18:20:17 -0500
+Subject: Re: [PATCH 1/10] NTP: Remove pps support
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0512220019330.30882@scrub.home>
+References: <Pine.LNX.4.61.0512220019330.30882@scrub.home>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 10 Jan 2006 23:15:16 +0000
-Message-Id: <1136934917.26976.4.camel@localhost.localdomain>
+Date: Tue, 10 Jan 2006 15:20:10 -0800
+Message-Id: <1136935211.2890.11.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-10 at 16:30 -0600, John Treubig wrote:
-> I've traced the errors down to the fact that the errors are caught in 
-> libata-core.c (ata_qc_timeout).  I'd like to put a call in libata-core.c 
+On Thu, 2005-12-22 at 00:20 +0100, Roman Zippel wrote:
+> This removes the support for pps. It's completely unused within the
+> kernel and is basically in the way for further cleanups. It should be
+> easier to readd proper support for it after the rest has been converted
+> to NTP4.
+> Patch is originally done by John Stultz, I did some minor cleanups and
+> updated it.
+> 
+> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+
+Hey Roman, sorry for the slow response, but I've been busy since getting
+back from the holiday.
+
+Initially when I wrote this I was hoping to prod Ulrich into updating
+and sending his PPS driver for inclusion. But I believe he has just been
+too busy, so pulling this code is probably the right thing. 
+
+Acked-by: John Stultz <johnstul@us.ibm.com>
 
 
-drivers/ide/* doesn't use libata. libata is used by the new PATA/SATA
-drivers.
+I do hope someone interested in PPS drivers will re-add the support code
+along with a driver that utilizes the interface at some point.
+
+thanks
+-john
 

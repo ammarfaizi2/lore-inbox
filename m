@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWAJKuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWAJKuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWAJKuX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 05:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWAJKuW
+	id S932155AbWAJKuR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 05:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWAJKuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 05:50:22 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:5410 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932156AbWAJKuS convert rfc822-to-8bit
+	Tue, 10 Jan 2006 05:50:16 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:53219 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932155AbWAJKuN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 05:50:18 -0500
+	Tue, 10 Jan 2006 05:50:13 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=BrATn47Md9q+Od2B1GigMFtjcWZ82h5mZM2DlKK7nmSObuYtHjKBDjGretBIBy0H7UbkVv8hTFHPtBryrVA5We+Df+Ba0Uk9bMI/Pvw4hm4IFzeuClc1Vk7OcFJYAbGmxR6R4DD0659MeeQHf0jDdJDkASwtFa5tc9/xJSqLhic=
-Date: Tue, 10 Jan 2006 11:50:08 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Yaroslav Rastrigin <yarick@it-territory.ru>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, vda@ilport.com.ua
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
- can't for a long time
-Message-Id: <20060110115008.3c803330.diegocg@gmail.com>
-In-Reply-To: <200601101220.03848.yarick@it-territory.ru>
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
-	<200601091207.14939.yarick@it-territory.ru>
-	<20060109231313.2d455d5f.akpm@osdl.org>
-	<200601101220.03848.yarick@it-territory.ru>
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f5UpGGHPOauUgUySWRV7bpUY4kT3fa2cZJVV/ZOQ4U764EkfHiSH8H+sPweBYmqsFenQQtAzIop7gOF8kOIyudzs5slRpStAgP5lu9VCXtxggOJ8HgTd2ZNJg15TsowH48gIEUkuC/BL+BtkKkOWFK7bTwvusD94BZKPm9X24P4=
+Message-ID: <f0309ff0601100250p55bc635aw98fcd55b327e2392@mail.gmail.com>
+Date: Tue, 10 Jan 2006 02:50:12 -0800
+From: Nauman Tahir <nauman.tahir@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: X86_64 and X86_32 bit performance difference [Revisited]
+Cc: kernelnewbies@nl.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <p734q4dxnnb.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <f0309ff0601082229u3fc5e415m12be9dc921f4a099@mail.gmail.com>
+	 <p734q4dxnnb.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 10 Jan 2006 12:20:03 +0300,
-Yaroslav Rastrigin <yarick@it-territory.ru> escribió:
+On 09 Jan 2006 19:27:20 +0100, Andi Kleen <ak@suse.de> wrote:
+> Nauman Tahir <nauman.tahir@gmail.com> writes:
+>
+> > I have posted this problem before. Now mailing again after testing as
+> > recommeded in previous replys.
+> > My configuration is:
+>
+> Most likely it's related to you misusing the PCI DMA API in some way.
+> Review Documentation/DMA-mapping.txt closely.
+>
+> If that doesn't turn on the light try oprofile.
 
-
-> Bug #1188 . See for yourself about quality of reported data, relevant maintainers and my prepareness to work with them to resolve.
-> (P.S. Two fscking years.)
-
-
-I see 44 comentaries there. It's not that people haven't tried to
-help you (several of them don't get any money for helping to
-fix stuff). In fact they've been following the bug for two years,
-which proves how good bugzilla maintainers the intel acpi guys are.
-You've indeed helped people to debug the problem, but there're some
-bugs that just are hard to fix (and hardware manufacturers not
-collaborating to make their hardware work in linux doesn't makes
-it easier).
+what is oprofile???
+>
+> -Andi
+>

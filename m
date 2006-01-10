@@ -1,48 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWAJRHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWAJRHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWAJRHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 12:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWAJRHa
+	id S932244AbWAJRHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 12:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWAJRHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 12:07:30 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:30699 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932253AbWAJRH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 12:07:29 -0500
-Date: Tue, 10 Jan 2006 17:07:22 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Roland Dreier <rdreier@cisco.com>, sam@ravnborg.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-Message-ID: <20060110170722.GA3187@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bryan O'Sullivan <bos@pathscale.com>,
-	Roland Dreier <rdreier@cisco.com>, sam@ravnborg.org,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <patchbomb.1136579193@eng-12.pathscale.com> <d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com> <20060110011844.7a4a1f90.akpm@osdl.org> <adaslrw3zfu.fsf@cisco.com> <1136909276.32183.28.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136909276.32183.28.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 10 Jan 2006 12:07:19 -0500
+Received: from rtr.ca ([64.26.128.89]:38800 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932244AbWAJRHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 12:07:17 -0500
+Message-ID: <43C3E9C2.1000309@rtr.ca>
+Date: Tue, 10 Jan 2006 12:07:14 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2G memory split
+References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 08:07:56AM -0800, Bryan O'Sullivan wrote:
-> I'm fine with doing that, but I wonder what an appropriate way to do it
-> would be.
-> 
-> Really, we'd like the generic implementation to be declared in
-> asm-generic and defined in lib.  Each arch that needed the generic
-> version could then have its arch/XXX/lib/Makefile modified to pull in
-> the generic version from lib, while arches that had special versions
-> could remain unencumbered.
+So, the patch would now look like this:
 
-Or add a CONFIG_GENERIC_MEMCPY_IO that's non-uservisible and just set
-by all the architectures that don't provide their own version.  And once
-we're at that level of complexity we should really add the _fromio version
-aswell ;-)
 
+diff -u --recursive --new-file --exclude='.*' linux-2.6.15/arch/i386/Kconfig linux/arch/i386/Kconfig
+--- linux-2.6.15/arch/i386/Kconfig	2006-01-02 22:21:10.000000000 -0500
++++ linux/arch/i386/Kconfig	2006-01-10 12:02:40.000000000 -0500
+@@ -448,6 +448,43 @@
+
+  endchoice
+
++choice
++	depends on EXPERIMENTAL
++	prompt "Memory split"
++	default VMSPLIT_3G
++	help
++	  Select the desired split between kernel and user memory.
++
++	  If the address range available to the kernel is less than the
++	  physical memory installed, the remaining memory will be available
++	  as "high memory". Accessing high memory is a little more costly
++	  than low memory, as it needs to be mapped into the kernel first.
++	  Note that increasing the kernel address space limits the range
++	  available to user programs, making the address space there
++	  tighter.  Selecting anything other than the default 3G/1G split
++	  will also likely make your kernel incompatible with binary-only
++	  kernel modules.
++
++	  If you are not absolutely sure what you are doing, leave this
++	  option alone!
++
++	config VMSPLIT_3G
++		bool "3G/1G user/kernel split"
++	config VMSPLIT_3G_OPT
++		bool "3G/1G user/kernel split (for full 1G low memory)"
++	config VMSPLIT_2G
++		bool "2G/2G user/kernel split"
++	config VMSPLIT_1G
++		bool "1G/3G user/kernel split"
++endchoice
++
++config PAGE_OFFSET
++	hex
++	default 0xC0000000
++	default 0xB0000000 if VMSPLIT_3G_OPT
++	default 0x78000000 if VMSPLIT_2G
++	default 0x40000000 if VMSPLIT_1G
++
+  config HIGHMEM
+  	bool
+  	depends on HIGHMEM64G || HIGHMEM4G
+diff -u --recursive --new-file --exclude='.*' linux-2.6.15/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-2.6.15/arch/i386/mm/init.c	2006-01-02 22:21:10.000000000 -0500
++++ linux/arch/i386/mm/init.c	2006-01-10 12:06:10.000000000 -0500
+@@ -597,6 +597,12 @@
+  	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE - 1) + 1;
+  #endif
+
++#if !defined(CONFIG_VMSPLIT_3G)
++	/* if the user has less than 960MB of RAM, he should use the default */
++	if (max_low_pfn < (960 * 1024 * 1024 / PAGE_SIZE))
++		printk(KERN_INFO "Memory: less than 960MiB of RAM, you should use the default memory split setting\n");
++#endif
++
+  	/* this will put all low memory onto the freelists */
+  	totalram_pages += free_all_bootmem();
+
+diff -u --recursive --new-file --exclude='.*' linux-2.6.15/include/asm-i386/page.h linux/include/asm-i386/page.h
+--- linux-2.6.15/include/asm-i386/page.h	2006-01-02 22:21:10.000000000 -0500
++++ linux/include/asm-i386/page.h	2006-01-10 12:04:56.000000000 -0500
+@@ -110,10 +110,10 @@
+  #endif /* __ASSEMBLY__ */
+
+  #ifdef __ASSEMBLY__
+-#define __PAGE_OFFSET		(0xC0000000)
++#define __PAGE_OFFSET		CONFIG_PAGE_OFFSET
+  #define __PHYSICAL_START	CONFIG_PHYSICAL_START
+  #else
+-#define __PAGE_OFFSET		(0xC0000000UL)
++#define __PAGE_OFFSET		((unsigned long)CONFIG_PAGE_OFFSET)
+  #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
+  #endif
+  #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)

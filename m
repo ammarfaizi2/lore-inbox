@@ -1,87 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWAJQO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWAJQRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWAJQO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 11:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWAJQO4
+	id S932229AbWAJQRi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 11:17:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWAJQRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 11:14:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:10952 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932110AbWAJQO4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 11:14:56 -0500
-Date: Tue, 10 Jan 2006 08:14:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2G memory split
-In-Reply-To: <20060110143931.GM3389@suse.de>
-Message-ID: <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
-References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu>
- <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org>
- <20060110143931.GM3389@suse.de>
+	Tue, 10 Jan 2006 11:17:38 -0500
+Received: from gromit.trivadis.com ([193.73.126.130]:34108 "EHLO
+	lttit.trivadis.com") by vger.kernel.org with ESMTP id S932229AbWAJQRh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 11:17:37 -0500
+Message-ID: <43C3DE1F.9010807@cubic.ch>
+Date: Tue, 10 Jan 2006 17:17:35 +0100
+From: Tim Tassonis <timtas@cubic.ch>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: State of the Union: Wireless
+References: <43C3AAE2.1090900@cubic.ch> <20060110125357.GH3911@stusta.de> <43C3B7C8.8000708@cubic.ch> <20060110141324.GJ3911@stusta.de>
+In-Reply-To: <20060110141324.GJ3911@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 10 Jan 2006, Jens Axboe wrote:
 > 
-> A newer version, trying to cater to the various comments in here.
-> Changes:
+> I won't try to speak for Linus (perhaps he'd like to pipe up at some point), 
+> but I think you're pulling that concept wayy out of context here.
+> 
+> Quoting ManagementStyle:
+> 
+>> Btw, another way to avoid a decision is to plaintively just whine "can't
+>> we just do both?" and look pitiful.  Trust me, it works.  If it's not
+>> clear which approach is better, they'll eventually figure it out.  The
+>> answer may end up being that both teams get so frustrated by the
+>> situation that they just give up.
+> 
+> Built into that paragraph, I think, is the assumption that you never 'do 
+> both'. 
 
-Can we do one final cleanup? Do all the magic in _one_ place, namely the 
-x86 Kconfig file.
+Well, we'd have to ask Linus about this one. I think it can be a good 
+idea to do both, if you're not sure which one is better.
 
-Also, I don't think the NOHIGHMEM dependency is necessarily correct. A 
-2G/2G split can be advantageous with a 16GB setup (you'll have more room 
-for dentries etc), but you obviously want to have HIGHMEM for that..
+> 
+> Also, referring to OSS/Alsa is just a great way to illustrate the problem with 
+> your idea. There is, today, finally a "dominant" solution, but how long did 
+> it take us to get there? By my count, a really long time! And along the way 
+> we've had to deal with all kinds of applications that just support the first 
+> and not the other. And it seems like far too many people still have just one 
+> foot in the door - take for instance the README files shipped with commercial 
+> game ports that advise using OSS at the first hint of trouble with Alsa.
 
-Do it something like this:
+A network device is way better abstracted by the operating system, so 
+compatibility issues are of much smaller concern.
 
-	choice
-		depends on EXPERIMENTAL
-		prompt "Memory split"
-		default DEFAULT_3G
-		help
-		  Select the wanted split between kernel and user memory.
-		  If the address range available to the kernel is less than the
-		  physical memory installed, the remaining memory will be available
-		  as "high memory". Accessing high memory is a little more costly
-		  than low memory, as it needs to be mapped into the kernel first.
-		  Note that selecting anything but the default 3G/1G split will make
-		  your kernel incompatible with binary only modules.
+> Is this what we want for wireless?
 
-		config DEFAULT_3G
-			bool "3G/1G user/kernel split"
-		config DEFAULT_3G_OPT
-			bool "3G/1G user/kernel split (for full 1G low memory)"
-		config DEFAULT_2G
-			bool "2G/2G user/kernel split"
-		config DEFAULT_1G
-			bool "1G/3G user/kernel split"
-	endchoice
+We wouldn't get it, see above.
 
-	config PAGE_OFFSET
-		hex
-		default 0xC0000000
-		default 0xB0000000 if DEFAULT_3G_OPT
-		default 0x78000000 if DEFAULT_2G
-		default 0x40000000 if DEFAULT_1G
 
-and then asm-i386/page.h can just do
-
-	#define __PAGE_OFFSET ((unsigned long)CONFIG_PAGE_OFFSET)
-
-and you're done.
-
-If you ever want to change the offsets, you're only changing the Kconfig 
-file, and as you can tell, the syntax is actually much _nicer_ that using 
-the C preprocessor, since these kinds of choices is exactly what the 
-Kconfig language is all about.
-
-Please?
-
-		Linus

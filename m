@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWAJJyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWAJJ6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWAJJyk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 04:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWAJJyk
+	id S932080AbWAJJ6N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 04:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWAJJ6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 04:54:40 -0500
-Received: from gate.perex.cz ([85.132.177.35]:56723 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1750891AbWAJJyi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 04:54:38 -0500
-Date: Tue, 10 Jan 2006 10:54:32 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: Joern Nettingsmeier <nettings@folkwang-hochschule.de>,
-       Olivier Galibert <galibert@pobox.com>,
-       Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
-       Pete Zaitcev <zaitcev@redhat.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Adrian Bunk <bunk@stusta.de>, Tomasz Torcz <zdzichu@irc.pl>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-In-Reply-To: <Pine.LNX.4.61.0601060348380.29362@zeus.compusonic.fi>
-Message-ID: <Pine.LNX.4.61.0601101048360.10330@tm8103.perex-int.cz>
-References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
- <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
- <mailman.1136368805.14661.linux-kernel2news@redhat.com>
- <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
- <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>
- <43BDA02F.5070103@folkwang-hochschule.de> <20060105234951.GA10167@dspnet.fr.eu.org>
- <43BDB858.5060500@folkwang-hochschule.de> <Pine.LNX.4.61.0601060348380.29362@zeus.compusonic.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jan 2006 04:58:13 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:13451 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932080AbWAJJ6N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 04:58:13 -0500
+Date: Tue, 10 Jan 2006 15:28:11 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/5] rcu: don't check ->donelist in __rcu_pending()
+Message-ID: <20060110095811.GA30159@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109185944.GB15083@us.ibm.com> <43C2C818.65238C30@tv-sign.ru> <20060109195933.GE14738@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060109195933.GE14738@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006, Hannu Savolainen wrote:
-
-> What happens if some system load peak delays the application by 20 ms? The 
-> result is complete failure. What is the ALSA (API) feature OSS doesn't 
-> have that makes it able to predict what kind of output the application 
-> should have fed to the device during the (about) 20 ms period of silence? 
+On Mon, Jan 09, 2006 at 11:59:33AM -0800, Paul E. McKenney wrote:
+> Hmmm...  So your thought is that __rcu_offline_cpu() moves nxtlist and
+> curlist, but not donelist, but then returns to rcu_offline_cpu(), which
+> might well do the tasklet_kill_immediate() before the tasklet completed
+> processing all of donelist.
 > 
-> The fact is that there is nothing the audio subsystem can do to recover 
-> the situation. For this very simple reason the OSS API lacks everything 
-> that would be necessary to cope with this kind of problems.
+> Seems plausible to me.  If true, your patch adding the following statement
+> to the ed of __rcu_offline_cpu seems like a reasonable fix:
+> 
+> 	rcu_move_batch(this_rdp, rdp->donelist, rdp->donetail);
+>
+> Vatsa, is there something that Oleg and I are missing?
 
-Applications should be notified that something is broken. If you have
-a professional environment, you really need to know, if the output 
-survived all scheduling peaks and the audio data are delivered from/to
-I/O in time.
+I think this should take care of the CPU Hotplug bug, with the caveat
+that the callbacks on ->donelist will wait for additional grace period before 
+being invoked (which seems ok).
 
-Also, in the standard consumer environment is good to know that the system
-have some trouble to deliver data in time (motivating developers of core 
-Linux kernel code or subsystems, or motivating app programers to set the 
-correct scheduling parameters) to fix remaining problems.
+Oleg, do you want to resend the patch after some testing? 
 
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+- vatsa

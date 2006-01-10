@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWAJKCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWAJKEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWAJKCT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 05:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWAJKCT
+	id S1751033AbWAJKEV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 05:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWAJKEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 05:02:19 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:14479 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932146AbWAJKCS (ORCPT
+	Tue, 10 Jan 2006 05:04:20 -0500
+Received: from tornado.reub.net ([202.89.145.182]:30377 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1751025AbWAJKEU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 05:02:18 -0500
-Date: Tue, 10 Jan 2006 15:32:11 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 4/5] rcu: join rcu_ctrlblk and rcu_state
-Message-ID: <20060110100211.GB30159@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <43C165CE.AF913697@tv-sign.ru> <20060110002818.GD15083@us.ibm.com> <Pine.LNX.4.64.0601091641000.5588@g5.osdl.org> <20060110025439.GI14738@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060110025439.GI14738@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Jan 2006 05:04:20 -0500
+Message-ID: <43C38671.4030805@reub.net>
+Date: Tue, 10 Jan 2006 23:03:29 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060109)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
+References: <20060109203711.GA25023@kroah.com>	<Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>	<20060109164410.3304a0f6.akpm@osdl.org>	<1136857742.14532.0.camel@localhost.localdomain> <20060109174941.41b617f6.akpm@osdl.org>
+In-Reply-To: <20060109174941.41b617f6.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 09, 2006 at 06:54:39PM -0800, Paul E. McKenney wrote:
-> I believe that the original #2 is to be dropped, but that the patch Oleg
-> submitted in:
-> 
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=113681388600342&w=2
-> 
-> may be needed.  I have added Vatsa to the CC to get his take on this.
 
-The patch submitted in the above URL seems fine to me and I think we should
-take it after Oleg does some basic testing.
 
-- vatsa
+On 10/01/2006 2:49 p.m., Andrew Morton wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> On Llu, 2006-01-09 at 16:44 -0800, Andrew Morton wrote:
+>>> - Reuben Farrelly's oops in make_class_name().  Could be libata, or scsi
+>>>   or driver core.
+>> libata I think. I reproduced it on 2.6.14-mm2 by accident with a buggy
+>> pata driver.
+> 
+> Well that's all merged up now.  Reuben, could you please test 2.6.15git6
+> tomorrow?
+
+A couple of reboots later with git6 and at this stage it seems all OK, no oopses.
+
+I'm still having 100% repeatable "soft" hangs when booting up though, both with 
+-mm2 (-mm1 seems OK in this regard) and git6.  It's enough to make git6 and mm2 
+unusable because the machine never finishes booting userspace.  I'll put more 
+details of that in another email following up to the original -mm2 thread, as 
+it's unrelated to the oops above (but probably equally as nasty).
+
+But it means I can't test the git6 fixes much more because every time I boot it 
+I have to alt-sysrq S+U+B or uncleanly kill the box by hitting the reset button.
+
+reuben

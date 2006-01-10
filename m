@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWAJOI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWAJOJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWAJOI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 09:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWAJOIZ
+	id S1751003AbWAJOJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWAJOJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 09:08:25 -0500
-Received: from gate.perex.cz ([85.132.177.35]:43157 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1751048AbWAJOIY (ORCPT
+	Tue, 10 Jan 2006 09:09:59 -0500
+Received: from mx2.suse.de ([195.135.220.15]:25572 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751003AbWAJOJ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 09:08:24 -0500
-Date: Tue, 10 Jan 2006 15:08:23 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Takashi Iwai <tiwai@suse.de>,
-       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] ALSA userspace API complexity
-In-Reply-To: <Pine.LNX.4.61.0601101520360.24146@zeus.compusonic.fi>
-Message-ID: <Pine.LNX.4.61.0601101455140.10330@tm8103.perex-int.cz>
-References: <20050726150837.GT3160@stusta.de>  <20060103193736.GG3831@stusta.de>
-  <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> 
- <mailman.1136368805.14661.linux-kernel2news@redhat.com> 
- <20060104030034.6b780485.zaitcev@redhat.com>  <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
-  <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> 
- <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> 
- <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>  <s5hmziaird8.wl%tiwai@suse.de>
-  <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <1136504460.847.91.camel@mindpipe>
- <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
- <Pine.LNX.4.61.0601101040430.10330@tm8103.perex-int.cz>
- <Pine.LNX.4.61.0601101520360.24146@zeus.compusonic.fi>
+	Tue, 10 Jan 2006 09:09:58 -0500
+Message-ID: <43C3C023.9040308@suse.de>
+Date: Tue, 10 Jan 2006 15:09:39 +0100
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2G memory split
+References: <20060110125852.GA3389@suse.de> <17347.47882.735057.154898@alkaid.it.uu.se> <20060110135404.GF3389@suse.de>
+In-Reply-To: <20060110135404.GF3389@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006, Hannu Savolainen wrote:
+   Hi,
 
-> On Tue, 10 Jan 2006, Jaroslav Kysela wrote:
-> 
-> > Overloading interrupt handlers with extra things is evil (and I bet you're 
-> > mixing samples in the interrupt handler). Even the network stack uses 
-> > interrupts only for DMA management and not for any extra operations.
-> You mean it's evil because nobody else is doing it? Then it must be  
-> evil or rather voodoo.
+> 0xb0000000 is a much better default, but I didn't think that would fly
+> as a patch.
 
-No, I mean that it's quite obvious bad design, because you might increase 
-interrupt latencies for other drivers.
+I think that will not fly with CONFIG_X86_PAE.  In PAE mode the 3rd pmd 
+  (for the 0xc0000000 => 0xffffffff kernel address range) is shared, 
+anything but 0xc000000 most likely needs some more hackery than just 
+changing PAGE_OFFSET.  As the whole point of this split patchery is to 
+avoid highmem in the first place it maybe makes sense to have some 
+"optimize for 1/2/4/more GB main memory" config option which in turn 
+picks sane PAGE_OFFSET+HIGHMEM+PAE settings?
 
-						Jaroslav
+cheers,
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+   Gerd
+
+-- 
+Gerd 'just married' Hoffmann <kraxel@suse.de>
+I'm the hacker formerly known as Gerd Knorr.

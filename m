@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWAJMjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWAJMl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWAJMjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 07:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWAJMjQ
+	id S932150AbWAJMl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 07:41:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWAJMl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 07:39:16 -0500
-Received: from gromit.trivadis.com ([193.73.126.130]:22225 "EHLO
-	lttit.trivadis.com") by vger.kernel.org with ESMTP id S1750783AbWAJMjQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 07:39:16 -0500
-Message-ID: <43C3AAE2.1090900@cubic.ch>
-Date: Tue, 10 Jan 2006 13:38:58 +0100
-From: Tim Tassonis <timtas@cubic.ch>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Tue, 10 Jan 2006 07:41:26 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:2533 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750815AbWAJMlZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 07:41:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=VnzWgPCnK01C7lcTP1Hy4Df7Lqsw8kpSGN4L3M+sokPpQ6B/lPHGzmjUGu6ybOjDF/QRaXds8e6MNGsbsD24/UuEI25zKm2vWYAOu7qeJ8sP+5Frl4VT65qmmL18vwmIJyUNgDwIgKo3UZDpm5U60vn79vP7W5w7hkkJ3zYoUkE=
+Message-ID: <81083a450601100441s7675d584jd10db5a8e6ccaf58@mail.gmail.com>
+Date: Tue, 10 Jan 2006 18:11:24 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: linux-scsi@vger.kernel.org, James.Bottomley@steeleye.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] scsi/arm/ecoscsi.c Handle scsi_add_host failure
+Cc: linux@arm.linux.org.uk
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: State of the Union: Wireless
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_124_2415053.1136896884096"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I don't like the idea of maintaining two of anything. What if I have two 
-> wireless interfaces, each using a different stack?
-> 
-> Performance--,
-> Kernel size++
-> 
-> I get that it's hard to get everyone to agree on one stack or another, but we 
-> need to make the decision now because the longer we don't have a decision 
-> made (this includes maintaining two in-tree stacks) the longer it's going to 
-> take us to have serious / robust / reliable / consistent wireless support.
+------=_Part_124_2415053.1136896884096
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is exactly the opposite of what Linus proposes in his management 
-style document: "Avoid making decisions". At the moment, nobody seems to 
-know what the "right" direction is, because the right direction is the 
-one that will produce the better wireless support, and not the one that 
-sounds better at the moment.
+Add scsi_add_host() failure handling for ecoscsi driver.
 
-I therefore also vote for merging both stacks.
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
 
-> We can always undo mistakes later, but 
-> we'll never get to that point if we don't start moving in one direction 
-> instead of ten.
+------=_Part_124_2415053.1136896884096
+Content-Type: text/plain; name=ecoscsi.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="ecoscsi.txt"
 
-You were right if there were ten, but there seem to be only two at the 
-moment. One stack will survive and one will die. There's no point in 
-deciding this now.
+diff -Naurp linux-2.6.15-git5-vanilla/drivers/scsi/arm/ecoscsi.c linux-2.6.15-git5/drivers/scsi/arm/ecoscsi.c
+--- linux-2.6.15-git5-vanilla/drivers/scsi/arm/ecoscsi.c	2006-01-03 08:51:10.000000000 +0530
++++ linux-2.6.15-git5/drivers/scsi/arm/ecoscsi.c	2006-01-10 17:59:21.000000000 +0530
+@@ -203,7 +203,13 @@ static int __init ecoscsi_init(void)
+ 	NCR5380_print_options(host);
+ 	printk("\n");
+ 
+-	scsi_add_host(host, NULL); /* XXX handle failure */
++	retval = scsi_add_host(host, NULL);
++	if (retval) {
++		printk(KERN_WARNING "ecoscsi: scsi_add_host failed\n");
++		scsi_host_put(host);
++		return retval;
++	}
++
+ 	scsi_scan_host(host);
+ 	return 0;
+ 
 
-Tim
-
-
+------=_Part_124_2415053.1136896884096--

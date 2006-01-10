@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWAJTBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWAJTCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWAJTBz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 14:01:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWAJTBz
+	id S1751189AbWAJTCR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 14:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAJTCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 14:01:55 -0500
-Received: from rtr.ca ([64.26.128.89]:32406 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751189AbWAJTBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 14:01:51 -0500
-Message-ID: <43C4049E.6020105@rtr.ca>
-Date: Tue, 10 Jan 2006 14:01:50 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Tue, 10 Jan 2006 14:02:17 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:40343 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751189AbWAJTCQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 14:02:16 -0500
+Message-ID: <43C3EC2D.1080506@wolfmountaingroup.com>
+Date: Tue, 10 Jan 2006 10:17:33 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
+To: Jens Axboe <axboe@suse.de>
 Cc: Linus Torvalds <torvalds@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
+       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Subject: Re: 2G memory split
-References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu>	 <20060110133728.GB3389@suse.de>	 <Pine.LNX.4.63.0601100840400.9511@winds.org>	 <20060110143931.GM3389@suse.de>	 <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>	 <43C3F986.4090209@mbligh.org>	 <Pine.LNX.4.64.0601101028360.4939@g5.osdl.org> <1136919312.2557.77.camel@localhost.localdomain>
-In-Reply-To: <1136919312.2557.77.camel@localhost.localdomain>
+References: <20060110125852.GA3389@suse.de> <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3F986.4090209@mbligh.org> <Pine.LNX.4.64.0601101028360.4939@g5.osdl.org> <43C3E74D.7060309@wolfmountaingroup.com> <20060110185811.GV3389@suse.de>
+In-Reply-To: <20060110185811.GV3389@suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+Jens Axboe wrote:
+
+>On Tue, Jan 10 2006, Jeff V. Merkey wrote:
+>  
 >
-> It actually "just works".  We have a 16GB machine that gets a lot of
-> filesystem activity and use a 2:2 split all the time.  Appended patch is
-> all that we need.
+>>RH ES uses 4:4 which is ideal and superior to this hack.
+>>    
+>>
+>
+>This isn't a hack, it's just making the offset configurable so you can
+>get the best of what you want.
+>
+>And 4:4 may be ideal in a peyote haze, so whatever.
+>  
+>
 
-Your (tested) patch is not the same as what is being proposed here,
-so the testing experience probably doesn't apply.
+Jens,
 
-The 2:2 boundary is different here.
+You are just jealous because you can't take peyote. Next time your are 
+in Utah visiting Novell, come by Lindon at
+the old keylabs building -- I'm on the second floor. I am right next 
+door to SCO (you can throw a rock and hit darls window from the parking 
+lot).
+I don't ever talk to them and we have nothing to do with them.
+
+Jeff
+
+"Cry me a river(tm)" is an unregistered common law trademark of Linux 
+Torvalds.
+
+:-)
+
+
+

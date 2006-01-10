@@ -1,89 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWAJKvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWAJKwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWAJKvh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 05:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWAJKvg
+	id S932119AbWAJKwi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 05:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWAJKwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 05:51:36 -0500
-Received: from gate.perex.cz ([85.132.177.35]:23700 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S932177AbWAJKvf (ORCPT
+	Tue, 10 Jan 2006 05:52:38 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:1198 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932119AbWAJKwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 05:51:35 -0500
-Date: Tue, 10 Jan 2006 11:51:33 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-sound@vger.kernel.org,
-       ALSA development <alsa-devel@alsa-project.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [OT] ALSA userspace API complexity
-In-Reply-To: <Pine.LNX.4.61.0601090010090.31763@zeus.compusonic.fi>
-Message-ID: <Pine.LNX.4.61.0601101144130.10330@tm8103.perex-int.cz>
-References: <20050726150837.GT3160@stusta.de> <20060103193736.GG3831@stusta.de>
- <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl>
- <mailman.1136368805.14661.linux-kernel2news@redhat.com>
- <20060104030034.6b780485.zaitcev@redhat.com> <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl>
- <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz>
- <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl> <s5hmziaird8.wl%tiwai@suse.de>
- <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <s5h7j9chzat.wl%tiwai@suse.de>
- <Pine.LNX.4.61.0601080225500.17252@zeus.compusonic.fi>
- <Pine.LNX.4.61.0601081007550.9470@tm8103.perex-int.cz>
- <Pine.LNX.4.61.0601090010090.31763@zeus.compusonic.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jan 2006 05:52:37 -0500
+Date: Tue, 10 Jan 2006 11:52:49 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+Message-ID: <20060110105249.GA1528@elte.hu>
+References: <20060107052221.61d0b600.akpm@osdl.org> <43BFD8C1.9030404@reub.net> <20060107133103.530eb889.akpm@osdl.org> <43C38932.7070302@reub.net> <20060110104759.GA30546@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060110104759.GA30546@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jan 2006, Hannu Savolainen wrote:
 
-> > >From the end user perspective, don't you think that having an opportunity 
-> > to change the API entry point from one to multiple (user space library - 
-> > preferred, direct kernel space - last resort) is more flexible for 
-> > developers and users? Please, consider this question without any flames 
-> > line which API is better and what's better for audio subsystem architects 
-> > and what's better for your commercial work.
-> It's too late to discuss about this. This decision could have been made in 
-> 1992-1993 before large number of applications were already written. 
-> Unfortunately the whole issue was raised just recently.
-> 
-> There has been definitions for routines like osslib_open(), etc in 
-> soundcard.h for years. Also the libOSSlib.so library contains such 
-> routines. If an OSS application is compiled without -DOSSLIB then they are 
-> defined as open, etc. Unfortunately this version of soundcard.h was not 
-> accepted by the kernel OSS maintainers so the stock Linux version doesn't 
-> have these definitions.
-> 
-> If you like to get OSS apps to go through this library API you can do the 
-> following:
-> 
-> - Get the latest soundcard.h from our OSS package to be included in the 
-> stock kernel.
-> - Do the same for libOSSlib (sources shipped with OSS).
-> - Tell all OSS developers to change all OSS system calls to use their 
-> osslib_ counterparts. And to recompile against the latest soundcard.h
-> with -DOSSLIB. Make sure all distributions have done the changes before 
-> that.
-> 
-> Then you can include a libOSSlib.o library in ALSA with all the OSS 
-> emulation stuf inside.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-You should do the clear statement that the direct using of syscalls is not 
-recommented for application developers. Unfortunately at this time, I 
-admit, it would be very difficult to change the existing applications.
+> could you please also send me a SysRq-T (showTasks) output? [which 
+> will also include all the stacktraces] (Please make sure you have 
+> KALLSYMS_ALL enabled.)
 
-I can only suggest to OSS including the commercial version:
+a wild guess: could you also apply the debug patch below (and please 
+keep CONFIG_DEBUG_MUTEXES enabled) - does it trigger anywhere during 
+your bootup sequence? [it doesnt trigger here on an ext3 based bootup 
+sequence]
 
-1) create a osslib package under GPL and probably also under BSD licence
-2) notify developers in your documentation that every syscall has own
-   function in osslib and that using syscalls directly is not recommended
+	Ingo
 
-In this way, your library will go to all Linux distributions and OSS app 
-developers will have quite confirmed the right direction from you.
+--
+check that mutexes are used in TASK_RUNNING state. Using a mutex within
+some wait-for-event loop could result in wakeups getting lost.
 
-						Jaroslav
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+----
+
+ kernel/mutex-debug.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+Index: linux/kernel/mutex-debug.c
+===================================================================
+--- linux.orig/kernel/mutex-debug.c
++++ linux/kernel/mutex-debug.c
+@@ -385,6 +385,11 @@ void debug_mutex_init_waiter(struct mute
+ 	memset(waiter, 0x11, sizeof(*waiter));
+ 	waiter->magic = waiter;
+ 	INIT_LIST_HEAD(&waiter->list);
++	/*
++	 * Make sure mutexes are not acquired deep within some
++	 * waitqueue loop - wakeups could get lost:
++	 */
++	DEBUG_WARN_ON(current->state != TASK_RUNNING);
+ }
+ 
+ void debug_mutex_wake_waiter(struct mutex *lock, struct mutex_waiter *waiter)

@@ -1,145 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWAJME2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWAJMHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbWAJME2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 07:04:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWAJME2
+	id S1751079AbWAJMHl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 07:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWAJMHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 07:04:28 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:46019 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751080AbWAJME1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 07:04:27 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: spereira@tusc.com.au
-Subject: Re: [PATCH 1/2 RESEND- 2.6.15] net: 32 bit (socket layer) ioctl emulation for 64 bit kernels
-Date: Tue, 10 Jan 2006 12:03:58 +0000
-User-Agent: KMail/1.9.1
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Andi Kleen <ak@muc.de>,
-       linux-kenel <linux-kernel@vger.kernel.org>,
-       x25 maintainer <eis@baty.hanse.de>, netdev <netdev@vger.kernel.org>,
-       SP <pereira.shaun@gmail.com>
-References: <1136871078.5742.26.camel@spereira05.tusc.com.au>
-In-Reply-To: <1136871078.5742.26.camel@spereira05.tusc.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601101203.59423.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+	Tue, 10 Jan 2006 07:07:41 -0500
+Received: from mail.gmx.net ([213.165.64.21]:43149 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751079AbWAJMHk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 07:07:40 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20060110125942.00bef510@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Tue, 10 Jan 2006 13:07:33 +0100
+To: Paolo Ornati <ornati@fastwebnet.it>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+In-Reply-To: <5.2.1.1.2.20060110062457.00c38d18@pop.gmx.net>
+References: <20060109210035.3f6adafc@localhost>
+ <5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
+ <5.2.1.1.2.20060102092903.00bde090@pop.gmx.net>
+ <20060101123902.27a10798@localhost>
+ <5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
+ <5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
+ <200512281027.00252.kernel@kolivas.org>
+ <20051227190918.65c2abac@localhost>
+ <20051227224846.6edcff88@localhost>
+ <200512281027.00252.kernel@kolivas.org>
+ <5.2.1.1.2.20051231090255.00bede00@pop.gmx.net>
+ <5.2.1.1.2.20051231162352.00bda610@pop.gmx.net>
+ <5.2.1.1.2.20060109162113.00ba9fd0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0601-0, 01/02/2006), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 January 2006 05:31, Shaun Pereira wrote:
-> Hi Arnd, Arnaldo
-> Thanks for your comments. I initially did not wish to change any of the 
-> other modules, but based on Arnd's comments I have removed the
-> extra macro, SOCKOPS_COMPAT_WRAP and use the original SOCKOPS_WRAP.
+At 08:08 AM 1/10/2006 +0100, Mike Galbraith wrote:
 
-Ok, looks better now. Just a few tiny style comments:
+>>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>>  5626 paolo     16   0  2392  288  228 R 30.1  0.1   0:39.95 a.out
+>>  5627 paolo     16   0  2392  288  228 R 24.1  0.1   0:34.93 a.out
+>>  5625 paolo     18   0  2392  288  228 R 23.5  0.1   0:37.53 a.out
+>>  5624 paolo     18   0  2392  288  228 R 21.9  0.1   0:37.60 a.out
+>>  5193 root      15   0  167m  17m 2916 S  0.2  3.5   0:09.67 X
+>>  5638 paolo     18   0  4952 1468  372 R  0.2  0.3   0:00.15 dd
+>>
+>>DD test (256MB): real    3m37.122s  (instead of 8s)
+>
+>Ok, I'll  take another look.  Those should be being throttled.
 
-> +++ linux-2.6.15/net/appletalk/ddp.c	2006-01-10 15:56:55.000000000 +1100
-> @@ -1852,6 +1852,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname	= atalk_getname,
->  	.poll		= datagram_poll,
->  	.ioctl		= atalk_ioctl,
-> +	.compat_ioctl   = NULL,
->  	.listen		= sock_no_listen,
->  	.shutdown	= sock_no_shutdown,
->  	.setsockopt	= sock_no_setsockopt,
+Can you please try this version?  It tries harder to correct any 
+imbalance... hopefully not too hard.  In case you didn't notice, you need 
+to let your exploits run for a bit before the throttling will take 
+effect.  I intentionally start tasks off at 0 cpu usage, so it takes a bit 
+to come up to it's real usage.
 
-No need to set .compat_ioctl to NULL, that's what it already is when you
-don't assign it at all. Leaving it out makes it easier to grep for users.
+         -Mike 
 
-> @@ -709,6 +710,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname =	econet_getname, 
->  	.poll =		datagram_poll,
->  	.ioctl =	econet_ioctl,
-> +	.compat_ioctl=  NULL,
->  	.listen =	sock_no_listen,
->  	.shutdown =	sock_no_shutdown,
->  	.setsockopt =	sock_no_setsockopt,
-> diff -uprN -X dontdiff linux-2.6.15-vanilla/net/ipx/af_ipx.c
-> linux-2.6.15/net/ipx/af_ipx.c
-> --- linux-2.6.15-vanilla/net/ipx/af_ipx.c	2006-01-03 14:21:10.000000000
-> +1100
-> +++ linux-2.6.15/net/ipx/af_ipx.c	2006-01-10 15:56:55.000000000 +1100
-> @@ -1912,6 +1912,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname	= ipx_getname,
->  	.poll		= datagram_poll,
->  	.ioctl		= ipx_ioctl,
-> +	.compat_ioctl   = NULL,
->  	.listen		= sock_no_listen,
->  	.shutdown	= sock_no_shutdown, /* FIXME: support shutdown */
->  	.setsockopt	= ipx_setsockopt,
-> diff -uprN -X dontdiff linux-2.6.15-vanilla/net/irda/af_irda.c
-> linux-2.6.15/net/irda/af_irda.c
-> --- linux-2.6.15-vanilla/net/irda/af_irda.c	2006-01-03
-> 14:21:10.000000000 +1100
-> +++ linux-2.6.15/net/irda/af_irda.c	2006-01-10 15:56:55.000000000 +1100
-> @@ -2474,6 +2474,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname =	irda_getname,
->  	.poll =		irda_poll,
->  	.ioctl =	irda_ioctl,
-> +	.compat_ioctl=  NULL,
->  	.listen =	irda_listen,
->  	.shutdown =	irda_shutdown,
->  	.setsockopt =	irda_setsockopt,
-> @@ -2495,6 +2496,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname =	irda_getname,
->  	.poll =		datagram_poll,
->  	.ioctl =	irda_ioctl,
-> +	.compat_ioctl=  NULL,
->  	.listen =	irda_listen,
->  	.shutdown =	irda_shutdown,
->  	.setsockopt =	irda_setsockopt,
-> @@ -2516,6 +2518,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname =	irda_getname,
->  	.poll =		datagram_poll,
->  	.ioctl =	irda_ioctl,
-> +	.compat_ioctl=  NULL,
->  	.listen =	irda_listen,
->  	.shutdown =	irda_shutdown,
->  	.setsockopt =	irda_setsockopt,
-> @@ -2538,6 +2541,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname =	irda_getname,
->  	.poll =		datagram_poll,
->  	.ioctl =	irda_ioctl,
-> +	.compat_ioctl=  NULL,
->  	.listen =	sock_no_listen,
->  	.shutdown =	irda_shutdown,
->  	.setsockopt =	irda_setsockopt,
->  static struct proto_ops SOCKOPS_WRAPPED(x25_proto_ops) = {
->  	.family =	AF_X25,
->  	.owner =	THIS_MODULE,
-> @@ -1402,6 +1403,7 @@ static struct proto_ops SOCKOPS_WRAPPED(
->  	.getname =	x25_getname,
->  	.poll =		datagram_poll,
->  	.ioctl =	x25_ioctl,
-> +	.compat_ioctl=  NULL,
->  	.listen =	x25_listen,
->  	.shutdown =	sock_no_shutdown,
->  	.setsockopt =	x25_setsockopt,
-> 
-> 
-
-Same comment applies to all these.
-
-> +static long compat_sock_ioctl(struct file *file, unsigned cmd, unsigned
-> long arg)
-> +{
-> +	struct socket *sock;
-> +	sock = file->private_data;
-> +
-> +	int ret = -ENOIOCTLCMD;
-> +	if(sock->ops->compat_ioctl) {
-> +		ret = sock->ops->compat_ioctl(sock,cmd,arg);
-> +	}
-
-Leave out the curly braces here and put a space between the function
-arguments, so it becomes
-
-+ if(sock->ops->compat_ioctl)
-+ 	ret = sock->ops->compat_ioctl(sock, cmd, arg);
-
-	Arnd <><

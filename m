@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbWAJWD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWAJWGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbWAJWD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 17:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWAJWD5
+	id S1030225AbWAJWGY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 17:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWAJWGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 17:03:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22955 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932543AbWAJWD4 (ORCPT
+	Tue, 10 Jan 2006 17:06:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54207 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030225AbWAJWGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 17:03:56 -0500
-Message-ID: <43C42F0C.10008@redhat.com>
-Date: Tue, 10 Jan 2006 14:02:52 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mail/News 1.5 (X11/20060103)
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: ntohs/ntohl and bitops
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5BA0AE62271E2A3553A52D6E"
+	Tue, 10 Jan 2006 17:06:24 -0500
+Date: Tue, 10 Jan 2006 14:05:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: hch@infradead.org, rdreier@cisco.com, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
+Message-Id: <20060110140557.41e85f7d.akpm@osdl.org>
+In-Reply-To: <1136915714.6294.10.camel@serpentine.pathscale.com>
+References: <patchbomb.1136579193@eng-12.pathscale.com>
+	<d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
+	<20060110011844.7a4a1f90.akpm@osdl.org>
+	<adaslrw3zfu.fsf@cisco.com>
+	<1136909276.32183.28.camel@serpentine.pathscale.com>
+	<20060110170722.GA3187@infradead.org>
+	<1136915386.6294.8.camel@serpentine.pathscale.com>
+	<20060110175131.GA5235@infradead.org>
+	<1136915714.6294.10.camel@serpentine.pathscale.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5BA0AE62271E2A3553A52D6E
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+"Bryan O'Sullivan" <bos@pathscale.com> wrote:
+>
+> OK, that header file will vanish.
+>
 
-I just saw this in a patch:
+It's kinda fun playing Brian along like this ;)
 
-+               if (ntohs(ih->frag_off) & IP_OFFSET)
-+                       return EBT_NOMATCH;
+One option is to just stick the thing in an existing lib/ or kernel/ file
+and mark it __attribute__((weak)).  That way architectures can override it
+for free with no ifdefs, no Makefile trickery, no Kconfig trickery, etc.
 
-This isn't optimal, it requires a byte switch little endian machines.
-The compiler isn't smart enough.  It would be better to use
-
-     if (ih->frag_off & ntohs(IP_OFFSET))
-
-where the byte-swap can be done at compile time.  This is kind of ugly,
-I guess, so maybe a dedicate macro
-
-    net_host_bit_p(ih->frag_off, IP_OFFSET)
-
-??
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig5BA0AE62271E2A3553A52D6E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDxC8R2ijCOnn/RHQRArbmAKCMMLjj5XOuW3X4lxU58XiE75OimwCghexD
-oxVcgsA//RNDEIKFaxEjnGY=
-=Yp2t
------END PGP SIGNATURE-----
-
---------------enig5BA0AE62271E2A3553A52D6E--
+attribute(weak) is creepily useful - I keep waiting for something to go
+wrong with it.

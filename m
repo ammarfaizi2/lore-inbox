@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWAJRzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWAJR7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWAJRzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 12:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWAJRzQ
+	id S1751153AbWAJR7j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 12:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWAJR7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 12:55:16 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:33183 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932292AbWAJRzP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 12:55:15 -0500
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Roland Dreier <rdreier@cisco.com>, sam@ravnborg.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060110175131.GA5235@infradead.org>
-References: <patchbomb.1136579193@eng-12.pathscale.com>
-	 <d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
-	 <20060110011844.7a4a1f90.akpm@osdl.org> <adaslrw3zfu.fsf@cisco.com>
-	 <1136909276.32183.28.camel@serpentine.pathscale.com>
-	 <20060110170722.GA3187@infradead.org>
-	 <1136915386.6294.8.camel@serpentine.pathscale.com>
-	 <20060110175131.GA5235@infradead.org>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Tue, 10 Jan 2006 09:55:14 -0800
-Message-Id: <1136915714.6294.10.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 10 Jan 2006 12:59:39 -0500
+Received: from mail.linicks.net ([217.204.244.146]:36551 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1751153AbWAJR7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 12:59:38 -0500
+From: Nick Warne <nick@linicks.net>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [Alsa-devel] Re: ALSA - pnp OS bios option
+Date: Tue, 10 Jan 2006 17:59:20 +0000
+User-Agent: KMail/1.9
+Cc: Clemens Ladisch <clemens@ladisch.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@lists.sourceforge.net
+References: <200601092022.56244.nick@linicks.net> <1136883693.43c377ed83361@www.domainfactory-webmail.de> <s5hy81ofhl4.wl%tiwai@suse.de>
+In-Reply-To: <s5hy81ofhl4.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601101759.20707.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 17:51 +0000, Christoph Hellwig wrote:
+On Tuesday 10 January 2006 11:27, Takashi Iwai wrote:
 
-> This should be in the implementation file, not near the prototype.
-> And needs to start with /** to be valid kernel doc.
+> > > Set_Control:894 Name mismatch ... Control #47
+> > > 896: Index mismatch (0/0) for Control #47
+> > > 1008: Bad control.47.value
+> >
+> > This usually happens when you use a different driver version that has
+> > different mixer controls so that the saved state in /etc/asound.state
+> > doesn't match.
+>
+> Use -F option for alsactl in your init script.
 
-OK, thanks.
+I see - specify the asound.state file to use.
 
-> > +void __raw_memcpy_toio32(void __iomem *to, const void *from, size_t count);
-> 
-> and without that comment I'd suggest just adding this to every asm/io.h
-> instead of an asm-generic header for just one prototype.
+So bios pnp OS ON/OFF both use different alsa drivers (or parts _of_ the 
+driver) then - which in turn require different asound.state files?
 
-OK, that header file will vanish.
-
-	<b
-
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

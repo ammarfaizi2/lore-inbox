@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWAJOUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWAJOUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWAJOUE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 09:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWAJOUB
+	id S932171AbWAJOUd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 09:20:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWAJOUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 09:20:01 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:791 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932164AbWAJOUA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 09:20:00 -0500
-Date: Tue, 10 Jan 2006 15:21:51 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2G memory split
-Message-ID: <20060110142151.GI3389@suse.de>
-References: <20060110125852.GA3389@suse.de> <17347.47882.735057.154898@alkaid.it.uu.se> <20060110135404.GF3389@suse.de> <43C3C023.9040308@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C3C023.9040308@suse.de>
+	Tue, 10 Jan 2006 09:20:32 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:7684 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP id S932171AbWAJOUa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 09:20:30 -0500
+Date: Tue, 10 Jan 2006 16:17:53 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Lee Revell <rlrevell@joe-job.com>, Takashi Iwai <tiwai@suse.de>,
+       linux-sound@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ALSA userspace API complexity
+In-Reply-To: <Pine.LNX.4.61.0601101455140.10330@tm8103.perex-int.cz>
+Message-ID: <Pine.LNX.4.61.0601101606340.24146@zeus.compusonic.fi>
+References: <20050726150837.GT3160@stusta.de>  <20060103193736.GG3831@stusta.de>
+  <Pine.BSO.4.63.0601032210380.29027@rudy.mif.pg.gda.pl> 
+ <mailman.1136368805.14661.linux-kernel2news@redhat.com> 
+ <20060104030034.6b780485.zaitcev@redhat.com>  <Pine.LNX.4.61.0601041220450.9321@tm8103.perex-int.cz>
+  <Pine.BSO.4.63.0601051253550.17086@rudy.mif.pg.gda.pl> 
+ <Pine.LNX.4.61.0601051305240.10350@tm8103.perex-int.cz> 
+ <Pine.BSO.4.63.0601051345100.17086@rudy.mif.pg.gda.pl>  <s5hmziaird8.wl%tiwai@suse.de>
+  <Pine.LNX.4.61.0601060028310.27932@zeus.compusonic.fi> <1136504460.847.91.camel@mindpipe>
+ <Pine.LNX.4.61.0601060156430.27932@zeus.compusonic.fi>
+ <Pine.LNX.4.61.0601101040430.10330@tm8103.perex-int.cz>
+ <Pine.LNX.4.61.0601101520360.24146@zeus.compusonic.fi>
+ <Pine.LNX.4.61.0601101455140.10330@tm8103.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10 2006, Gerd Hoffmann wrote:
->   Hi,
-> 
-> >0xb0000000 is a much better default, but I didn't think that would fly
-> >as a patch.
-> 
-> I think that will not fly with CONFIG_X86_PAE.  In PAE mode the 3rd pmd 
->  (for the 0xc0000000 => 0xffffffff kernel address range) is shared, 
-> anything but 0xc000000 most likely needs some more hackery than just 
-> changing PAGE_OFFSET.  As the whole point of this split patchery is to 
-> avoid highmem in the first place it maybe makes sense to have some 
-> "optimize for 1/2/4/more GB main memory" config option which in turn 
-> picks sane PAGE_OFFSET+HIGHMEM+PAE settings?
+On Tue, 10 Jan 2006, Jaroslav Kysela wrote:
 
-The patch depends on NOHIGHMEM atm, so you can't select PAE and move the
-page offset anyways.
+> No, I mean that it's quite obvious bad design, because you might increase 
+> interrupt latencies for other drivers.
+Maybe if running with all interrupts disabled. 
 
--- 
-Jens Axboe
+The "mixing" time for one interrupt has been measured and it was smaller 
+than the resolution of the measurement method (1 usec). It is indeed a 
+serious risk to the system. 
 
+Best regards,
+
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

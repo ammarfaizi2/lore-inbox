@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWAJRJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWAJRMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWAJRJH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 12:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWAJRJH
+	id S932267AbWAJRMA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 12:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWAJRMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 12:09:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43014 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932266AbWAJRJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 12:09:05 -0500
-Date: Tue, 10 Jan 2006 18:09:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-Subject: [2.6 patch] drivers/net/irda/Kconfig: DONGLE_OLD: remove dependency on non-existing symbol
-Message-ID: <20060110170903.GQ3911@stusta.de>
-MIME-Version: 1.0
+	Tue, 10 Jan 2006 12:12:00 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8366 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932267AbWAJRL5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 12:11:57 -0500
+Date: Tue, 10 Jan 2006 09:11:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Mark Maule <maule@sgi.com>, Greg KH <gregkh@suse.de>,
+       Matthew Wilcox <matthew@wil.cx>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 0/3] msi abstractions and support for altix
+Message-ID: <20060110171102.GA13239@kroah.com>
+References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com> <20051222205023.GK2361@parisc-linux.org> <20060103032249.GA4957@sgi.com> <20060103060719.GA1845@suse.de> <20060110170032.GC18399@sgi.com> <20060110170339.GA2567@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060110170339.GA2567@infradead.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean-Luc Leger <reiga@dspnet.fr.eu.org> reported this alternative 
-dependency on a non-existing symbol.
+On Tue, Jan 10, 2006 at 05:03:39PM +0000, Christoph Hellwig wrote:
+> > Ok, looks like it's going to be a bit until I have time to work on the
+> > vector allocation stuff.
+> > 
+> > In the mean time, would folks be recepteive to taking this portion of the
+> > initial patchset:
+> > 
+> > [PATCH 1/4] msi archetecture init hook
+> > http://lkml.org/lkml/2005/12/21/168
+> > 
+> > This would at least give us a graceful pci_enable_msi() failure on altix
+> > until I find the time to work on the other stuff.
+> 
+> Personally I think your patchkit should just go in after all the other
+> comments have addresses [1].  It's a huge improvement over the mess that's
+> there currently.
 
+Yes, please repost your patches with all of the comments addressed and
+we can look at it from there...
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+thanks,
 
---- linux-2.6.15-mm2-full/drivers/net/irda/Kconfig.old	2006-01-10 17:48:41.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/net/irda/Kconfig	2006-01-10 17:48:59.000000000 +0100
-@@ -1,4 +1,3 @@
--
- menu "Infrared-port device drivers"
- 	depends on IRDA!=n
- 
-@@ -156,7 +155,7 @@
- 
- config DONGLE_OLD
- 	bool "Old Serial dongle support"
--	depends on (IRTTY_OLD || IRPORT_SIR) && BROKEN_ON_SMP
-+	depends on IRPORT_SIR && BROKEN_ON_SMP
- 	help
- 	  Say Y here if you have an infrared device that connects to your
- 	  computer's serial port. These devices are called dongles. Then say Y
-
+greg k-h

@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWAKMzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWAKNCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWAKMzd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 07:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWAKMzc
+	id S1751475AbWAKNCD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWAKNCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:55:32 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:47009 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751472AbWAKMzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:55:32 -0500
-Date: Wed, 11 Jan 2006 06:56:42 -0600
-From: John Hesterberg <jh@sgi.com>
-To: Jes Sorensen <jes@trained-monkey.org>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
-       LKML <linux-kernel@vger.kernel.org>, elsa-devel@lists.sourceforge.net,
-       lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>
-Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors
-Message-ID: <20060111125642.GC12921@sgi.com>
-References: <43BC1C43.9020101@engr.sgi.com> <1136414431.22868.115.camel@stark> <20060104151730.77df5bf6.akpm@osdl.org> <1136486566.22868.127.camel@stark> <1136488842.22868.142.camel@stark> <20060105151016.732612fd.akpm@osdl.org> <1136505973.22868.192.camel@stark> <yq08xttybrx.fsf@jaguar.mkp.net> <43BE9E91.9060302@watson.ibm.com> <yq0wth72gr6.fsf@jaguar.mkp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Jan 2006 08:02:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:20858 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751475AbWAKNCC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 08:02:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rJLfQxATOxejKjdpChrfvwbgmoNNazDwcd1mTxLfjSAPWkJMkZ+V4gqhzfAB4KK/EOFbZsENh47Tvkn2HmtrdPpSdkrx6gaecjV5cpUplfym7FMkzeb+xczlm4CcHk1qhhvpDjXhLlxK9pIBWKHuMJJU90AysqdFKdQ88p8YAbA=
+Message-ID: <7cd5d4b40601110501w40bc28f0peb13cdbb082e2b4a@mail.gmail.com>
+Date: Wed, 11 Jan 2006 21:01:59 +0800
+From: jeff shia <tshxiayu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: something about disk fragmentation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <yq0wth72gr6.fsf@jaguar.mkp.net>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 05:36:29AM -0500, Jes Sorensen wrote:
-> I think task_notify it should be usable for statistics gathering as
-> well, the only issue is how to attach it to the processes we wish to
-> gather accounting for. Personally I am not a big fan of the current
-> concept where statistics are gathered for all tasks at all time but
-> just not exported until accounting is enabled.
+Hello,everyone
 
-I believe the accounting our customers require needs to be turned on
-system-wide.  In fact, I recall getting problems reports if there are
-some processes not 'accounted' for.  If you do it on a task basis,
-and accounting gets turned on, you'd have to have a fool-proof way
-of tracking down all the tasks in a system and turn on their accounting.
+   In a file system ,the disk fragmentation can slow down the data accessing
+speed.How can I solve this kind of problem in a file system?I know that
+preallocation tech can do this.Is there any other solutions?
+  Thank you!
 
-I would expect sites either want accounting on all the time for
-everything, or not at all.
-
-John
+Yours
+Jeff

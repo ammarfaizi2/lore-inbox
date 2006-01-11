@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751726AbWAKTYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWAKTZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751726AbWAKTYU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWAKTYU
+	id S932198AbWAKTZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 14:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWAKTZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:24:20 -0500
-Received: from tornado.reub.net ([202.89.145.182]:31719 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1751726AbWAKTYT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:24:19 -0500
-Message-ID: <43C55B31.5000201@reub.net>
-Date: Thu, 12 Jan 2006 08:23:29 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20060110)
+	Wed, 11 Jan 2006 14:25:26 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:31758 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932198AbWAKTZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 14:25:25 -0500
+Message-ID: <43C55BF2.40500@shadowen.org>
+Date: Wed, 11 Jan 2006 19:26:42 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, neilb@suse.de, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       htejun@gmail.com
-Subject: Re: 2.6.15-mm2
-References: <43C4947C.1040703@reub.net> <20060110213001.265a6153.akpm@osdl.org> <20060110213056.58f5e806.akpm@osdl.org> <43C4E2BE.6050800@reub.net> <20060111030529.0bc03e0a.akpm@osdl.org> <20060111111313.GD3389@suse.de> <43C4EEA4.3050502@reub.net> <20060111115616.GE3389@suse.de> <43C518BC.5090903@reub.net> <20060111145201.GS3389@suse.de> <20060111145504.GT3389@suse.de>
-In-Reply-To: <20060111145504.GT3389@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86_64 out of line numa funcs are discontig only
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Grrrr, patch sender collapsed the cc lines ...
 
+-------- Original Message --------
+Subject: [PATCH] x86_64 out of line numa funcs are discontig only
+Date: Wed, 11 Jan 2006 18:14:11 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+To: Andrew Morton <akpm@osdl.org>
+CC: Andi Kleen <ak@suse.de>
+References: <20060111042135.24faf878.akpm@osdl.org>
 
-On 12/01/2006 3:55 a.m., Jens Axboe wrote:
-> On Wed, Jan 11 2006, Jens Axboe wrote:
->> It's not too tricky, you just need to correct that function prototype.
->> Could you do that? Would be nice to know _exactly_ which libata
->> changeset caused this malfunction. But it does of course point at the
->> barrier changes for scsi/libata...
-> 
-> You can also try something quicker - use a newer kernel known to exhibit
-> the problem, and apply this patch on top of that:
-> 
-> diff --git a/drivers/md/md.c b/drivers/md/md.c
-> index 0302723..720ace4 100644
-> --- a/drivers/md/md.c
-> +++ b/drivers/md/md.c
-> @@ -436,6 +436,7 @@ void md_super_write(mddev_t *mddev, mdk_
->  	bio->bi_rw = rw;
->  
->  	atomic_inc(&mddev->pending_writes);
-> +#if 0
->  	if (!test_bit(BarriersNotsupp, &rdev->flags)) {
->  		struct bio *rbio;
->  		rw |= (1<<BIO_RW_BARRIER);
-> @@ -444,6 +445,7 @@ void md_super_write(mddev_t *mddev, mdk_
->  		rbio->bi_end_io = super_written_barrier;
->  		submit_bio(rw, rbio);
->  	} else
-> +#endif
->  		submit_bio(rw, bio);
->  }
+x86_64 out of line numa funcs are discontig only
 
-...and with that patch, I can now boot up 2.6.15-mm3 (repeated twice).  So yes, 
-looks like that's where the problem lies.
+The following patch included in 2.6.15-mm3 moves the inline DISCONTIGMEM
+page accessor functions into numa.c.  However, these are only used under
+DISCONTIGMEM and need covered by CONFIG_DISCONTIGMEM:
 
-Thanks Jens,
-Reuben
+    x86_64-out-of-line-numa-funcs.patch
 
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ numa.c |    2 ++
+ 1 files changed, 2 insertions(+)
+diff -upN reference/arch/x86_64/mm/numa.c current/arch/x86_64/mm/numa.c
+--- reference/arch/x86_64/mm/numa.c
++++ current/arch/x86_64/mm/numa.c
+@@ -361,6 +361,7 @@ EXPORT_SYMBOL(memnode_shift);
+ EXPORT_SYMBOL(memnodemap);
+ EXPORT_SYMBOL(node_data);
+
++#ifdef CONFIG_DISCONTIGMEM
+ /*
+  * Functions to convert PFNs from/to per node page addresses.
+  * These are out of line because they are quite big.
+@@ -394,3 +395,4 @@ int pfn_valid(unsigned long pfn)
+ 	return pfn >= node_start_pfn(nid) && (pfn) < node_end_pfn(nid);
+ }
+ EXPORT_SYMBOL(pfn_valid);
++#endif /* CONFIG_DISCONTIGMEM */

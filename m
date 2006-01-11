@@ -1,144 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWAKJca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWAKJeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWAKJca (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 04:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWAKJca
+	id S1751401AbWAKJeO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 04:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWAKJeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 04:32:30 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:31449 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751395AbWAKJc3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 04:32:29 -0500
-Date: Wed, 11 Jan 2006 15:02:12 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Crash with SMP on post 2.6.15 -git kernel
-Message-ID: <20060111093212.GA15281@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060110165457.42ed2087@dxpl.pdx.osdl.net> <200601110227.30461.ak@suse.de> <20060110184903.790d1a2c@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-In-Reply-To: <20060110184903.790d1a2c@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 11 Jan 2006 04:34:14 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:23432 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751400AbWAKJeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 04:34:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Zlv9OqsHpinrjyLyFmb2QpaYjyoTd8rG7U521/HmT2SukrHXAh4Qll9UrveId6/a39TH8xArST7gSyKNwwk8bS7cYZzBLfmuZziK/CezzLEUlk81d9LcPG2PGos5vMRMPfQ+EuPqWKVQVqzRqZ6dFrItpeJqEgkisdzoLaFzyTY=  ;
+Message-ID: <43C4D113.4060705@yahoo.com.au>
+Date: Wed, 11 Jan 2006 20:34:11 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com
+Subject: Re: smp race fix between invalidate_inode_pages* and do_no_page
+References: <20051213193735.GE3092@opteron.random> <20051213130227.2efac51e.akpm@osdl.org> <20051213211441.GH3092@opteron.random> <20051216135147.GV5270@opteron.random> <20060110062425.GA15897@opteron.random> <43C484BF.2030602@yahoo.com.au> <20060111082359.GV15897@opteron.random>
+In-Reply-To: <20060111082359.GV15897@opteron.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Jan 10, 2006 at 06:49:03PM -0800, Stephen Hemminger wrote:
-> On Wed, 11 Jan 2006 02:27:30 +0100
-> Andi Kleen <ak@suse.de> wrote:
+Andrea Arcangeli wrote:
+> On Wed, Jan 11, 2006 at 03:08:31PM +1100, Nick Piggin wrote:
 > 
-> > On Wednesday 11 January 2006 01:54, Stephen Hemminger wrote:
-> > 6
-> > > [   37.047264] CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)[   37.070722] CPU: L2 Cache: 1024K (64 bytes/line)
-> > > [   37.085894] mtrr: v2.0 (20020519)
-> > > [   37.350186] Using local APIC timer interrupts.
-> > > [   37.414873] Detected 12.464 MHz APIC timer.
-> > > [   37.428717] Booting processor 1/2 APIC 0x1
-> > > 
-> > > Machine then goes blank and reboots...
-> > 
+>>I'd be inclined to think a lock_page is not a big SMP scalability
+>>problem because the struct page's cacheline(s) will be written to
+>>several times in the process of refcounting anyway. Such a workload
+>>would also be running into tree_lock as well.
+> 
+> 
+> I seem to recall you wanted to make the tree_lock a readonly lock for
+> readers for the exact same scalability reason? do_no_page is quite a
 
-I took the latest git and took your config file and it boots fine on
-my dual opteron box. cpuinfo & lspci output atached.
+I think Bill Irwin or Peter Chubb made the tree_lock a reader-writer
+lock back in the day.
 
-> > Don't know what it could be - I didn't merge anything. Maybe revert the kexec patches?
-> I built it without kexec and that had no change.  But perhaps it botched something.
->  
+I have some patches (ref:lockless pagecache) that completely removes
+the tree_lock from read-side operations like find_get_page and
+find_lock_page, and turns the write side back into a regular spinlock.
+You must be thinking of that?
 
-Few x86_64 APIC related kexec changes are still in Andi's tree and have not
-been pushed to Linus tree. So there are no new x86_64 kexec patches in latest
-git repository.
-
-Andrew has pushed x86_64 kdump related patches to Linus tree. And these become
-effective only under CONFIG_CRASH_DUMP. These patches are very less likely
-to botch with this stuff.
-
-> > Does the -git6 snapshot still work?  Possibly do a binary search to narrow
-> > it down.
-
-I tested -git6 also in the same way and this too boots fine.
-
-> > 
-> > -Andi
+> fast path for the tree lock too. But I totally agree the unavoidable is
+> the atomic_inc though, good point, so it worth more to remove the
+> tree_lock than to remove the page lock, the tree_lock can be avoided the
+> atomic_inc on page->_count not.
 > 
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cpuinfo
+Yep, my thinking as well.
 
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 15
-model		: 5
-model name	: AMD Opteron(tm) Processor 248
-stepping	: 8
-cpu MHz		: 2193.506
-cache size	: 1024 KB
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 3dnowext 3dnow
-bogomips	: 4391.72
-TLB size	: 1024 4K pages
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 40 bits physical, 48 bits virtual
-power management: ts ttp
+> The other bonus that makes this attractive is that then we can drop the
+> *whole* vm_truncate_count mess... vm_truncate_count and
+> inode->trunate_count exists for the only single reason that do_no_page
+> must not map into the pte a page that is under truncation. We can
+> provide the same guarantee with the page lock doing like
+> invalidate_inode_pages2_range (that is to check page_mapping under the
+> page_lock and executing unmap_mapping_range with the page lock held if
+> needed). That will free 4 bytes per vma (without even counting the
+> truncate_count on every inode out there! that could be an even larger
+> gain), on my system I have 9191 vmas in use, that's 36K saved of ram in
+> my system, and that's 36K saved on x86, on x86-64 it's 72K saved of
+> physical ram since it's an unsigned long after a pointer, and vma must
+> not be hw aligned (and infact it isn't so the saving is real). On the
+> indoes side it saves 4 bytes
+> * 1384 on my current system, on a busy nfs server it can save a lot
+> more. The inode also most not be hw aligned and correctly it isn't. On a
+> server with lot more of vmas and lot more of inodes it'll save more ram.
+> 
+> So if I make this change this could give me a grant for lifetime
+> guarantee of seccomp in the kernel that takes less than 1kbyte on a x86,
+> right? (on a normal desktop I'll save at minimum 30 times more than what
+> I cost to the kernel users ;) Just kidding of course...
+> 
 
-processor	: 1
-vendor_id	: AuthenticAMD
-cpu family	: 15
-model		: 5
-model name	: AMD Opteron(tm) Processor 248
-stepping	: 8
-cpu MHz		: 2193.506
-cache size	: 1024 KB
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 3dnowext 3dnow
-bogomips	: 4386.31
-TLB size	: 1024 4K pages
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 40 bits physical, 48 bits virtual
-power management: ts ttp
+Sounds like a good idea (and your proposed implementation -
+lock_page and recheck mapping in do_no_page sounds sane).
 
+Thanks,
+Nick
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=lspci
+-- 
+SUSE Labs, Novell Inc.
 
-0000:00:06.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8111 PCI (rev 07)
-0000:00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-8111 LPC (rev 05)
-0000:00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-8111 IDE (rev 03)
-0000:00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-8111 ACPI (rev 05)
-0000:00:0a.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12)
-0000:00:0a.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-0000:00:0b.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12)
-0000:00:0b.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:01:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-0000:01:00.1 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-0000:01:05.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-0000:02:01.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
-0000:02:01.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
-0000:02:02.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 07)
-
---lrZ03NoBR/3+SXJZ--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWAKSfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWAKSfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWAKSfB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWAKSfA
+	id S932508AbWAKSfz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWAKSfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:35:00 -0500
-Received: from mail.gmx.net ([213.165.64.21]:21164 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932454AbWAKSe7 (ORCPT
+	Wed, 11 Jan 2006 13:35:54 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:7618 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932508AbWAKSfx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:34:59 -0500
-X-Authenticated: #1890154
-Subject: Re: Kernel 2.6.15 sometimes only detects one of two SATA drives
-	and panics
-From: Andre Hessling <ahessling@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1137004161.27255.72.camel@mindpipe>
-References: <1137003241.7603.20.camel@localhost.localdomain>
-	 <1137004161.27255.72.camel@mindpipe>
-Content-Type: text/plain; charset=utf-8
-Date: Wed, 11 Jan 2006 19:35:06 +0100
-Message-Id: <1137004506.8568.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Wed, 11 Jan 2006 13:35:53 -0500
+Date: Wed, 11 Jan 2006 19:35:44 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jakub Jelinek <jakub@redhat.com>
+cc: "David S. Miller" <davem@davemloft.net>, drepper@redhat.com,
+       arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: ntohs/ntohl and bitops
+In-Reply-To: <20060111094854.GK7768@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.61.0601111935340.19259@yvahk01.tjqt.qr>
+References: <20060111.000020.25886635.davem@davemloft.net>
+ <1136967192.2929.6.camel@laptopd505.fenrus.org> <43C4C37B.9020801@redhat.com>
+ <20060111.004418.92939254.davem@davemloft.net> <20060111094854.GK7768@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, den 11.01.2006, 13:29 -0500 schrieb Lee Revell:
+>> Does it work for comparisons?  F.e.:
+>> 
+>>      if (val < ntohs(VAL))
+>
+>No, only for ==, !=, &, |, ~.
 
-> Check your cabling and termination.
-> 
-> Lee
+And ^?
 
-I can assure you that there is nothing wrong with cabling/termination.
 
-BTW: It never happened before, just 2.6.15 seems to be affected.
-I also have another OS installed that never complained before about
-having not detected my second hard drive.
+Jan Engelhardt
 -- 
-Regards,
-André
-

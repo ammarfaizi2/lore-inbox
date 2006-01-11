@@ -1,148 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWAKNFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWAKNID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWAKNFv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 08:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWAKNFv
+	id S1751384AbWAKNID (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:08:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWAKNID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 08:05:51 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:2553 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751173AbWAKNFu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 08:05:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=r7jF+psnDwXzIvAiJG03UFGzyiYK3FA1GSpr7xs06+ptGxw928jgiGVYQMResdCzDAua2WYDO2SRJ8vWtmUtME6YHBEFgJ3XOVkz6ZKncc8gIPFAk8xvCMP9tyy7qlv8IPDr8Ngz8dj68Fd0lQ7gVbhXc9x1Le4qbm0SUAB4vOU=
-Message-ID: <a4e6962a0601110505r1f13f78cp2dfda7e6bb2d23fe@mail.gmail.com>
-Date: Wed, 11 Jan 2006 07:05:48 -0600
-From: Eric Van Hensbergen <ericvh@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH]: v9fs: add readpage support
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.org
-In-Reply-To: <20060111033821.4b3d4d7b.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 11 Jan 2006 08:08:03 -0500
+Received: from lug-owl.de ([195.71.106.12]:15027 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751384AbWAKNIC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 08:08:02 -0500
+Date: Wed, 11 Jan 2006 14:08:01 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: =?utf-8?B?R8OhYm9yIEzDqW7DoXJ0?= <lgb@lgb.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OT: fork(): parent or child should run first?
+Message-ID: <20060111130800.GJ12091@lug-owl.de>
+Mail-Followup-To: =?utf-8?B?R8OhYm9yIEzDqW7DoXJ0?= <lgb@lgb.hu>,
+	linux-kernel@vger.kernel.org
+References: <20060111123745.GB30219@lgb.hu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+9faIjRurCDpBc7U"
 Content-Disposition: inline
-References: <20060111011437.451FD5A809A@localhost.localdomain>
-	 <20060111033821.4b3d4d7b.akpm@osdl.org>
+In-Reply-To: <20060111123745.GB30219@lgb.hu>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/06, Andrew Morton <akpm@osdl.org> wrote:
-> ericvh@gmail.com (Eric Van Hensbergen) wrote:
-> >
-> > Subject: [PATCH] v9fs: add readpage support
-> >
-> > v9fs mmap support was originally removed from v9fs at Al Viro's request,
-> > but recently there have been requests from folks who want readpage
-> > functionality (primarily to enable execution of files mounted via 9P).
-> > This patch adds readpage support (but not writepage which contained most of
-> > the objectionable code).  It passes FSX (and other regressions) so it
-> > should be relatively safe.
-> >
-> > +
-> > +static int v9fs_vfs_readpage(struct file *filp, struct page *page)
-> > +{
-> > +     char *buffer = NULL;
-> > +     int retval = -EIO;
-> > +     loff_t offset = page_offset(page);
-> > +     int count = PAGE_CACHE_SIZE;
-> > +     struct inode *inode = filp->f_dentry->d_inode;
-> > +     struct v9fs_session_info *v9ses = v9fs_inode2v9ses(inode);
-> > +     int rsize = v9ses->maxdata - V9FS_IOHDRSZ;
-> > +     struct v9fs_fid *v9f = filp->private_data;
-> > +     struct v9fs_fcall *fcall = NULL;
-> > +     int fid = v9f->fid;
-> > +     int total = 0;
-> > +     int result = 0;
-> > +
-> > +     buffer = kmap(page);
-> > +     do {
-> > +             if (count < rsize)
-> > +                     rsize = count;
-> > +
-> > +             result = v9fs_t_read(v9ses, fid, offset, rsize, &fcall);
-> > +
-> > +             if (result < 0) {
-> > +                     printk(KERN_ERR "v9fs_t_read returned %d\n",
-> > +                            result);
-> > +
-> > +                     kfree(fcall);
-> > +                     goto UnmapAndUnlock;
-> > +             } else
-> > +                     offset += result;
-> > +
-> > +             memcpy(buffer, fcall->params.rread.data, result);
-> > +
-> > +             count -= result;
-> > +             buffer += result;
-> > +             total += result;
-> > +
-> > +             kfree(fcall);
->
-> Minor thing: from my reading of v9fs_mux_rpc() there's potential for a
-> double-kfree here.  Either v9fs_mux_rpc() needs to be changed to
-> unambiguously zero out *rcall (or, better, v9fs_t_read does it) or you need
-> to zero fcall on each go around the loop.
->
->
 
-Okay I'll take a look at this in the context of both the old mux and
-the new mux code.
+--+9faIjRurCDpBc7U
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > +             if (result < rsize)
-> > +                     break;
-> > +     } while (count);
-> > +
-> > +     memset(buffer, 0, count);
-> > +     flush_dcache_page(page);
-> > +     SetPageUptodate(page);
->
-> if (result < rsize), is the page really up to date?
->
+On Wed, 2006-01-11 13:37:45 +0100, G=C3=A1bor L=C3=A9n=C3=A1rt <lgb@lgb.hu>=
+ wrote:
+> Hello,
+>=20
+> The following problem may be simple for you, so I hope someone can answer
+> here. We've got a complex software using child processes and a table
+> to keep data of them together, like this:
+>=20
+> childs[n].pid=3Dfork();
+>=20
+> where "n" is an integer contains a free "slot" in the childs struct array.
+>=20
+> I also handle SIGCHLD in the parent and signal handler  searches the chil=
+ds
+> array for the pid returned by waitpid(). However here is my problem. The
+> child process can be fast, ie exits before scheduler of the kernel give
+> chance the parent process to run, so storing pid into childs[n].pid in the
+> parent context is not done yet. Child may exit, than scheduler gives cont=
+rol
+> to the signal handler before doing the store of the pid (if child run for
+> more time, eg 10 seconds it works of course). So it's impossible to store
+> child pids and search by that information in eg the signal handler? It's
+> quite problematic, since the code uses blocking I/O a lot, so other
+> solutions (like searching in childs[] in the main program and not in sign=
+al
+> handler) would require to recode the whole project. The problem can be
+> avoided with having a fork() run the PARENT first, but I thing this is do=
+ne
+> by the scheduler so it's a kernel issue. Also the problem that source sho=
+uld
+> be portable between Linux and Solaris ...
 
-maybe?  Its been a while since I looked at this code, but I believe
-the logic is that if you are approaching the end of the file you'll
-get less than rsize bytes back and then you just fill in the rest of
-the page with zeros.
+One way to sort this out would be to queue the dead childs to some
+thread that clears the child's slot, possibly waiting on a condition
+(queue to slot list ready).
 
-> > +     retval = 0;
-> > +
-> > +      UnmapAndUnlock:
-> > +     kunmap(page);
->
-> eww, do you really indent labels like that?
->
+Quite easy :-)
 
-No, something funky happened and I didn't proof the patch like I should have.
+MfG, JBG
 
-> > diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
-> > index 6852f0e..feddc5c 100644
-> > --- a/fs/9p/vfs_file.c
-> > +++ b/fs/9p/vfs_file.c
-> > @@ -289,6 +289,8 @@ v9fs_file_write(struct file *filp, const
-> >               total += result;
-> >       } while (count);
-> >
-> > +     invalidate_inode_pages2(inode->i_mapping);
-> > +
-> >       return total;
-> >  }
->
-> That's a really scary function you have there.  Can you explain the
-> thinking behind its use here?  What are we trying to achieve?
->
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-Its quite possible I've done the wrong thing here.  The intent is to
-make sure that any stuff that might be in the page cache due to an
-mmap is flushed when I do a write.  This approach is overkill, I
-should probably just flush anything in the cache that the write
-affects.
+--+9faIjRurCDpBc7U
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-I'll take another look at the mux stuff and also see if I can come up
-with a less brute-force approach to invalidating the page cache.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-thanks for the comments.
+iD8DBQFDxQMwHb1edYOZ4bsRAojhAJ4gJBjYek7DKSPf8GRaS3Lt98a+HwCfcAOu
+1mfy1KsSEWb60tPGyFUXURA=
+=Mrkg
+-----END PGP SIGNATURE-----
 
-      -eric
+--+9faIjRurCDpBc7U--

@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWAKUrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWAKUtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751713AbWAKUrk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 15:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751729AbWAKUrk
+	id S932463AbWAKUtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 15:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWAKUtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 15:47:40 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:37067 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751694AbWAKUrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 15:47:40 -0500
-Subject: 2.6.15-rt4-sr1
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 15:47:11 -0500
-Message-Id: <1137012431.6197.117.camel@localhost.localdomain>
+	Wed, 11 Jan 2006 15:49:46 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58589 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932350AbWAKUtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 15:49:45 -0500
+Date: Wed, 11 Jan 2006 14:49:29 -0600
+From: Mark Maule <maule@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Tony Luck <tony.luck@intel.com>, gregkh@suse.de
+Subject: Re: [PATCH 1/3] msi vector targeting abstractions
+Message-ID: <20060111204929.GA17946@sgi.com>
+References: <20060111155251.12460.71269.12163@attica.americas.sgi.com> <20060111155256.12460.26048.32596@attica.americas.sgi.com> <20060111202123.GC4367@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060111202123.GC4367@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just uploaded my new maintenance release.
+> > +static inline int msi_arch_init(void)
+> > +{
+> > +	extern struct msi_ops msi_apic_ops;
+> > +	msi_register(&msi_apic_ops);
+> > +	return 0;
+> > +}
+> 
+> Don't have an extern in a function, it belongs in a .h file somewhere
+> that describes it and everyone can see it.  Otherwise this gets stale
+> and messy over time.
 
-fixes:
+In this case, I have a public .h (asm-xxx/msi.h) which needs a data structure
+decleared down in a driver-private file (drivers/pci/msi-apic.c).  Do you have
+a suggestion for where I should put the msi_apic_ops declaration?  It should
+be somewhere such that future msi ops (e.g. sn_msi_ops from patch3) would
+be treated consistently.
 
-- light soft lockup - currently it doesn't detect the light soft lockups
-    because the counter was being reset in the wrong place.  Not sure if
-    this was done earlier with some other issue.  But I needed this fix
-    to get the low priority lockup to be detected.
+linux/pci.h seems like one possiblity near where the ops struct is declared,
+but that doesn't really seem right, because we'ld want to treat sn_msi_ops
+(and future msi ops) the same way.
 
-- posix_timers deadlock - There's a loop in the posix_timeres code that 
-    is entered if the current process is a higher priority than the 
-    softirqd thread, and it spins until the softirqd thread is finished.
-    But since the thread is of a higher priority than the softirqd, it
-    deadlocks.
+Maybe just move the extern out of the function and up further in the
+asm-xxx/msi.h file?
 
-- read_trylock_rt  - added this for cases that have a loop on
-    read_trylock.  Since in RT a read lock is a mutex, a read_trylock
-    will fail even if the owner has it only for reading.  But since
-    the reads are not protected with irqsaves, this can deadlock when
-    a high priority process preempts the owner of the lock and spins
-    till it's released. (this was seen in signal.c: send_group_sigqueue,
-    there may be others)
+> 
+> > +/*
+> > + * Generic callouts used on most archs/platforms.  Override with
+> > + * msi_register_callouts()
+> > + */
+> 
+> Care to use kerneldoc here and define exactly what is needed for these
+> function pointers?  And you are still calling them "callouts" here :)
+> 
+> > +struct msi_ops msi_apic_ops = {
+> > +	.setup = msi_setup_apic,
+> > +	.teardown = msi_teardown_apic,
+> > +#ifdef CONFIG_SMP
+> > +	.target = msi_target_apic,
+> > +#endif
+> 
+> Why the #ifdef?  Just drop it, it makes the code cleaner.
+> 
+> Care to redo this?
 
-Still at the normal location:
+ok.  Will submit a new version once we have the placement of the msi_apic_ops
+declaration sorted out.
 
-http://home.stny.rr.com/rostedt/patches/patch-2.6.15-rt4-sr1
-
-Here is the program that showed all these nice deadlocks ;)
-
-http://www.kihontech.com/tests/rt/timer_stress.c
-
-(Run with -P to get the posix deadlocks)
-
--- Steve
-
-
+Mark

@@ -1,86 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWAKLyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWAKMB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWAKLyh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 06:54:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWAKLyh
+	id S932382AbWAKMB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 07:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWAKMB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 06:54:37 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43590 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932378AbWAKLyg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 06:54:36 -0500
-Date: Wed, 11 Jan 2006 12:56:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Andrew Morton <akpm@osdl.org>, neilb@suse.de, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060111115616.GE3389@suse.de>
-References: <20060110044240.3d3aa456.akpm@osdl.org> <20060110131618.GA27123@elte.hu> <17348.34472.105452.831193@cse.unsw.edu.au> <43C4947C.1040703@reub.net> <20060110213001.265a6153.akpm@osdl.org> <20060110213056.58f5e806.akpm@osdl.org> <43C4E2BE.6050800@reub.net> <20060111030529.0bc03e0a.akpm@osdl.org> <20060111111313.GD3389@suse.de> <43C4EEA4.3050502@reub.net>
-Mime-Version: 1.0
+	Wed, 11 Jan 2006 07:01:26 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:42374 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932382AbWAKMBZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 07:01:25 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C4EEA4.3050502@reub.net>
+Content-Transfer-Encoding: 7bit
+Message-ID: <17348.62356.869372.208463@jaguar.mkp.net>
+Date: Wed, 11 Jan 2006 07:01:24 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephane Eranian <eranian@hpl.hp.com>
+Subject: [patch] perfmon sem2completion
+X-Mailer: VM 7.19 under Emacs 21.4.1
+From: jes@trained-monkey.org (Jes Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12 2006, Reuben Farrelly wrote:
-> 
-> 
-> On 12/01/2006 12:13 a.m., Jens Axboe wrote:
-> >On Wed, Jan 11 2006, Andrew Morton wrote:
-> >>Neil thinks that an IO got lost.  In the git2->git3 diff we have:
-> >>
-> >> b/drivers/scsi/Kconfig                         |   10 
-> >> b/drivers/scsi/ahci.c                          |    1 
-> >> b/drivers/scsi/ata_piix.c                      |    5 
-> >> b/drivers/scsi/libata-core.c                   |  145 +
-> >> b/drivers/scsi/libata-scsi.c                   |   48 
-> >> b/drivers/scsi/libata.h                        |    4 
-> >> b/drivers/scsi/sata_mv.c                       |    1 
-> >> b/drivers/scsi/sata_promise.c                  |    1 
-> >> b/drivers/scsi/sata_sil.c                      |    1 
-> >> b/drivers/scsi/sata_sil24.c                    |    1 
-> >> b/drivers/scsi/sata_sx4.c                      |    1 
-> >> b/drivers/scsi/scsi_lib.c                      |   50 
-> >> b/drivers/scsi/scsi_sysfs.c                    |   31 
-> >> b/drivers/scsi/sd.c                            |   85 -
-> >> b/fs/bio.c                                     |   26 
-> >>
-> >>Jens, Jeff: were any of those changes added in the final day or two, not
-> >>included in the trees which I pull?
-> >
-> >Reuben, do you have any barrier= options in your fstab for any reiser
-> >file system?
-> 
-> None whatsoever:
-> 
-> /dev/md0                /                       reiserfs defaults        0 0
-> none                    /dev/pts                devpts   gid=5,mode=620  0 0
-> none                    /dev/shm                tmpfs    defaults        0 0
-> none                    /proc                   proc     defaults        0 0
-> sysfs                   /sys                    sysfs    defaults        0 0
-> /dev/sda1               /boot                   ext3     defaults        1 2
-> #/dev/sdb1              /boot-2                 ext3     defaults        1 2
-> /dev/md1                /home                   reiserfs defaults        0 0
-> /dev/md2                /var                    reiserfs defaults        0 0
-> /dev/md3                /var/www/cgi-bin        reiserfs defaults        0 0
-> /dev/md4                /tmp                    reiserfs defaults        0 0
-> /dev/md5                /backup                 reiserfs defaults        0 0
-> /dev/sda8               /var/spool/squid-1      reiserfs noatime,notail  0 0
-> /dev/sdb8               /var/spool/squid-2      reiserfs noatime,notail  0 0
-> /dev/sda9               swap                    swap     defaults        0 0
-> /dev/sdb9               swap                    swap     defaults        0 0
-> /dev/sdc1               /store                  reiserfs defaults        0 0
-> /dev/shm                /var/spool/amavisd/tmp  tmpfs 
-> defaults,size=25m,mode=700,uid=508,gid=509, 0 0
-> /dev/fd0                /media/floppy           auto 
-> pamconsole,exec,noauto,managed 0 0
+Hi,
 
-Then the barrier changes from git2 -> git3 should not have anything to
-do with it. Strange... I guess you should try the git bisect method to
-narrow it down.
+A patch to eliminate the semaphore in the perfmon driver. I believe
+Stephane also already applied this to his private tree.
 
--- 
-Jens Axboe
+Cheers,
+Jes
 
+
+Migrate perfmon from using an old semaphore to a completion handler.
+
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+
+----
+
+ arch/ia64/kernel/perfmon.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
+
+Index: linux-2.6/arch/ia64/kernel/perfmon.c
+===================================================================
+--- linux-2.6.orig/arch/ia64/kernel/perfmon.c
++++ linux-2.6/arch/ia64/kernel/perfmon.c
+@@ -39,6 +39,7 @@
+ #include <linux/mount.h>
+ #include <linux/bitops.h>
+ #include <linux/rcupdate.h>
++#include <linux/completion.h>
+ 
+ #include <asm/errno.h>
+ #include <asm/intrinsics.h>
+@@ -285,7 +286,7 @@
+ 
+ 	unsigned long		ctx_ovfl_regs[4];	/* which registers overflowed (notification) */
+ 
+-	struct semaphore	ctx_restart_sem;   	/* use for blocking notification mode */
++	struct completion	ctx_restart_done;  	/* use for blocking notification mode */
+ 
+ 	unsigned long		ctx_used_pmds[4];	/* bitmask of PMD used            */
+ 	unsigned long		ctx_all_pmds[4];	/* bitmask of all accessible PMDs */
+@@ -1988,7 +1989,7 @@
+ 		/*
+ 		 * force task to wake up from MASKED state
+ 		 */
+-		up(&ctx->ctx_restart_sem);
++		complete(&ctx->ctx_restart_done);
+ 
+ 		DPRINT(("waking up ctx_state=%d\n", state));
+ 
+@@ -2703,7 +2704,7 @@
+ 	/*
+ 	 * init restart semaphore to locked
+ 	 */
+-	sema_init(&ctx->ctx_restart_sem, 0);
++	init_completion(&ctx->ctx_restart_done);
+ 
+ 	/*
+ 	 * activation is used in SMP only
+@@ -3684,7 +3685,7 @@
+ 	 */
+ 	if (CTX_OVFL_NOBLOCK(ctx) == 0 && state == PFM_CTX_MASKED) {
+ 		DPRINT(("unblocking [%d] \n", task->pid));
+-		up(&ctx->ctx_restart_sem);
++		complete(&ctx->ctx_restart_done);
+ 	} else {
+ 		DPRINT(("[%d] armed exit trap\n", task->pid));
+ 
+@@ -5086,7 +5087,7 @@
+ 	 * may go through without blocking on SMP systems
+ 	 * if restart has been received already by the time we call down()
+ 	 */
+-	ret = down_interruptible(&ctx->ctx_restart_sem);
++	ret = wait_for_completion_interruptible(&ctx->ctx_restart_done);
+ 
+ 	DPRINT(("after block sleeping ret=%d\n", ret));
+ 

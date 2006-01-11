@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWAKRNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWAKRR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWAKRNU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 12:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWAKRNU
+	id S1751396AbWAKRR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 12:17:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWAKRR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 12:13:20 -0500
-Received: from rtr.ca ([64.26.128.89]:19148 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751467AbWAKRNT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 12:13:19 -0500
-Message-ID: <43C53CA2.7070002@rtr.ca>
-Date: Wed, 11 Jan 2006 12:13:06 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Wed, 11 Jan 2006 12:17:58 -0500
+Received: from silver.veritas.com ([143.127.12.111]:8992 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751396AbWAKRR5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 12:17:57 -0500
+Date: Wed, 11 Jan 2006 17:18:28 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Octavio Alvarez Piza <alvarezp@alvarezp.ods.org>
+cc: Dave Jones <davej@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: mm/rmap.c negative page map count BUG.
+In-Reply-To: <20060111085843.1d79e045@octavio.alvarezp.pri>
+Message-ID: <Pine.LNX.4.61.0601111711510.5071@goblin.wat.veritas.com>
+References: <20060103082609.GB11738@redhat.com> <43BA630F.1020805@yahoo.com.au>
+ <20060103135312.GB18060@redhat.com> <20060104155326.351a9c01.akpm@osdl.org>
+ <20060105074718.GF20809@redhat.com> <1136448712.2920.4.camel@laptopd505.fenrus.org>
+ <20060105111520.GL20809@redhat.com> <op.s2w4pyqm4oyyg1@octavio.tecbc.mx>
+ <20060111000111.5fa4bdce@octavio.alvarezp.pri>
+ <Pine.LNX.4.61.0601111603520.4337@goblin.wat.veritas.com>
+ <20060111085843.1d79e045@octavio.alvarezp.pri>
 MIME-Version: 1.0
-To: Greg Norris <haphazard@kc.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca> <20060111160050.GA5472@yggdrasil.localdomain>
-In-Reply-To: <20060111160050.GA5472@yggdrasil.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 11 Jan 2006 17:17:57.0070 (UTC) FILETIME=[F7117EE0:01C616D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Norris wrote:
-> Is there any benefit/point to enabling HIGHMEM when using this patch, 
-> assuming that physical memory is smaller than the address space?  For 
-> example, when using VMSPLIT_3G_OPT on a box with 1G of memory.
+On Wed, 11 Jan 2006, Octavio Alvarez Piza wrote:
+> 
+> BTW, what's the first 8 in flags:0x80010008? I can't find 1<<31 in
+> include/linux/page-flags.h
 
-No.  In fact, there should be a (very) tiny performance gain
-by NOT enabling HIGHMEM -- things like kmap() should get simpler.
+It's the zone that page belongs to (you won't, I think, get involved
+in nodes and sections): see helpful comment on "page->flags layout"
+in include/linux/mm.h, and definitions in include/linux/mmzone.h.
 
-Cheers
+I'd have to make a fool of myself by doing arithmetic in public,
+probably getting it wrong, to tell you precisely which zone the
+8 meant in 2.6.15 in your config; but it's not interesting anyway.
+
+Hugh

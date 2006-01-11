@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWAKPqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWAKPtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWAKPqf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 10:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWAKPqe
+	id S1750710AbWAKPtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 10:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWAKPtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 10:46:34 -0500
-Received: from zcars04f.nortel.com ([47.129.242.57]:52893 "EHLO
+	Wed, 11 Jan 2006 10:49:25 -0500
+Received: from zcars04f.nortel.com ([47.129.242.57]:32927 "EHLO
 	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1751169AbWAKPqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 10:46:34 -0500
-Message-ID: <43C5284F.8020104@nortel.com>
-Date: Wed, 11 Jan 2006 09:46:23 -0600
+	id S1750710AbWAKPtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 10:49:24 -0500
+Message-ID: <43C528FC.1060408@nortel.com>
+Date: Wed, 11 Jan 2006 09:49:16 -0600
 From: "Christopher Friesen" <cfriesen@nortel.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: linux-kernel@vger.kernel.org
+To: Roger Heflin <rheflin@atipa.com>
+CC: "'linux-os (Dick Johnson)'" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: FAT and Microsoft patent?
-References: <43C51D65.3030309@nortel.com> <Pine.LNX.4.61.0601111026300.27240@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0601111026300.27240@chaos.analogic.com>
+References: <EXCHG2003RXf2LTrpwA00000b29@EXCHG2003.microtech-ks.com>
+In-Reply-To: <EXCHG2003RXf2LTrpwA00000b29@EXCHG2003.microtech-ks.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Jan 2006 15:46:26.0030 (UTC) FILETIME=[2E2748E0:01C616C6]
+X-OriginalArrivalTime: 11 Jan 2006 15:49:18.0013 (UTC) FILETIME=[94A9CED0:01C616C6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Wed, 11 Jan 2006, Christopher Friesen wrote:
-> 
-> 
->>According to various sources, the USPTO has ruled that Microsoft's
->>patent on FAT is valid.
->>
->>Does this impact Linux?  Will we have to remove the filesystem?
->>
->>Chris
-> 
-> 
-> You mean the expired patent circa 1980 for their first use of this
-> technology?
+Roger Heflin wrote:
 
-No, I mean the three listed on Microsoft's website:
+> The patent upheld is for long filenames on a FAT filesystem, not
+> for FAT in general.
 
-# U.S. Patent #5,579,517 "Common name space for long and short 
-filenames" Nov 26, 1996
+It appears that Microsoft specifically lists three patents, but they're 
+all related to long filenames.
 
-# U.S. Patent #5,758,352  "Common name space for long and short 
-filenames" May 26, 1998
+> Not a major thing to go without.
 
-# U.S. Patent #6,286,013 "Method and system for providing a common name 
-space for long and short file names in an operating system" September 4, 
-2001
+True.
+
+> It would be nice it the original poster would have done 30 seconds
+> more research before posting.
+
+The question still holds in modified form...will we need to remove this 
+functionality, or is it currently implemented in a way that does not 
+infringe on the patent?
 
 Chris

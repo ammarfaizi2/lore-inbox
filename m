@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWAKNPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWAKNR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbWAKNPd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 08:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWAKNPd
+	id S1751490AbWAKNR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWAKNR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 08:15:33 -0500
-Received: from mgw-ext01.nokia.com ([131.228.20.93]:29809 "EHLO
-	mgw-ext01.nokia.com") by vger.kernel.org with ESMTP
-	id S1751481AbWAKNPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 08:15:33 -0500
-Message-ID: <43C5052C.4050804@indt.org.br>
-Date: Wed, 11 Jan 2006 09:16:28 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Wed, 11 Jan 2006 08:17:28 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:35488 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751490AbWAKNR2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 08:17:28 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: Console debugging wishlist was: Re: oops pauser.
+Date: Wed, 11 Jan 2006 14:17:18 +0100
+User-Agent: KMail/1.8.2
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
+References: <20060105045212.GA15789@redhat.com> <200601111331.45940.ak@suse.de> <43C502AA.1040200@gmail.com>
+In-Reply-To: <43C502AA.1040200@gmail.com>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>,
-       linux@arm.linux.org.uk, ext David Brownell <david-b@pacbell.net>,
-       Tony Lindgren <tony@atomide.com>, drzeus-list@drzeus.cx,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>
-Subject: Re: [patch 1/5] Add MMC password protection (lock/unlock) support
- V3
-References: <43C2E064.90500@indt.org.br> <20060109222902.GF19131@flint.arm.linux.org.uk>
-In-Reply-To: <20060109222902.GF19131@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Jan 2006 13:14:45.0781 (UTC) FILETIME=[FDFB7C50:01C616B0]
+Content-Disposition: inline
+Message-Id: <200601111417.19234.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Wednesday 11 January 2006 14:05, Antonino A. Daplas wrote:
+> Andi Kleen wrote:
+> > On Wednesday 11 January 2006 13:24, Antonino A. Daplas wrote:
+> > 
+> >> In the VGA console, all buffers, including scrollback is in video RAM, but
+> >> the size is fixed and is very small.
+> > 
+> > I wonder if that can be fixed.
+> 
+> It can be done, but it will affect VGA console performance.
 
->On Mon, Jan 09, 2006 at 06:15:00PM -0400, Anderson Briglia wrote:
->  
->
->>When a card is locked, only commands from the "basic" and "lock card" classes
->>are accepted. To be able to use the other commands, the card must be unlocked
->>first.
->>    
->>
->
->I don't think this works as you intend.
->
->When a card is initially inserted, we discover the cards via mmc_setup()
->and mmc_discover_cards().  This means that we'll never set the locked
->status for newly inserted cards.
->  
->
-mmc_setup() calls mmc_check_cards(). Our patch adds the necessary code
-to mmc_check_cards() to set the locked state when the card is locked.
+By how much? As long as it still scrolls reasonably fast it would be ok for me.
 
->>===================================================================
->>--- linux-2.6.15-rc4.orig/drivers/mmc/mmc.c	2005-12-15 14:06:52.000000000 -0400
->>+++ linux-2.6.15-rc4/drivers/mmc/mmc.c	2005-12-15 17:00:37.000000000 -0400
->>@@ -986,10 +986,15 @@ static void mmc_check_cards(struct mmc_h
->> 		cmd.flags = MMC_RSP_R1;
->> 
->> 		err = mmc_wait_for_cmd(host, &cmd, CMD_RETRIES);
->>-		if (err == MMC_ERR_NONE)
->>+		if (err != MMC_ERR_NONE) {
->>+			mmc_card_set_dead(card);
->> 			continue;
->>+		}
->> 
->>-		mmc_card_set_dead(card);
->>+		if (cmd.resp[0] & R1_CARD_IS_LOCKED)
->>+			mmc_card_set_locked(card);
->>+		else
->>+			card->state &= ~MMC_STATE_LOCKED;
->>    
->>
-Anderson Briglia
-INdT - Manaus
+>  
+> > 
+> >> With the framebuffer console, you can increase the size of the scrollback
+> >> buffer with the boot option:
+> >>
+> >> fbcon=scrollback:<n> (default is 32K)
+> > 
+> > On x86-64 vesafb is unusable slow because it does CPU scrolling cause
+> > it can't use the vesa BIOS - and the others don't work everywhere. So I don't
+> > think fbcon is an usable replacement.
+> 
+> How about vga16fb + fbcon? If scrolling is slow in vga16fb, fbset -vyres 800 should
+> increase performance significantly.
+
+I can try it.
+
+-Andi

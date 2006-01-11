@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751719AbWAKSmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751723AbWAKSpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751719AbWAKSmd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751720AbWAKSmd
+	id S1751723AbWAKSpT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWAKSpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:42:33 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:7563 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751719AbWAKSmc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:42:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EzBC4AVq5qGbkuYvpkWJC431f6rgxH+zdIJk0+fTOnELRs9KHILi835IA7g7AVgY+nUvifaKaL/yEzncxuBMYN1Dvc4AYtYi9ZhtOZq8rilnYOIrmy8t9FpTDa+KTVXKGto7vrOCwr5aO7ajE6XDB1daGdbf9x41ECEEzKGtlSY=
-Message-ID: <9c2327970601111042i126c7dfbk10aa2bd35310b6c3@mail.gmail.com>
-Date: Wed, 11 Jan 2006 16:42:32 -0200
-From: Weber Ress <ress.weber@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Education
-In-Reply-To: <Pine.LNX.4.61.0601090805140.17451@chaos.analogic.com>
+	Wed, 11 Jan 2006 13:45:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48100 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751723AbWAKSpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:45:17 -0500
+Message-ID: <43C5522C.6080306@redhat.com>
+Date: Wed, 11 Jan 2006 10:45:00 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mail/News 1.5 (X11/20060103)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <9c2327970601090500i78fec178mb197c0fa5732e4a4@mail.gmail.com>
-	 <Pine.LNX.4.61.0601090805140.17451@chaos.analogic.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Jakub Jelinek <jakub@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+       arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: ntohs/ntohl and bitops
+References: <20060111.000020.25886635.davem@davemloft.net> <1136967192.2929.6.camel@laptopd505.fenrus.org> <43C4C37B.9020801@redhat.com> <20060111.004418.92939254.davem@davemloft.net> <20060111094854.GK7768@devserv.devel.redhat.com> <Pine.LNX.4.61.0601111935340.19259@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0601111935340.19259@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.93.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5A42F91143BD91B46E6D0525"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somebody knows the Nachos? http://www.cs.washington.edu/homes/tom/nachos/
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5A42F91143BD91B46E6D0525
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Is a good idea use this software in my educational project ?
+Jan Engelhardt wrote:
+> And ^?
 
-Best !
+^ is fine.
 
-Weber Ress
+And just to be complete: I sent DaveM the correct line for that file in
+question, I just C&Ped the wrong line my scripts produced.  The mail
+seem not to make it to lkml.  In fact, none of my mail originated from
+the gmail account ever made it.  I don't know what filter doesn't like me=
+=2E
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
 
-On 1/9/06, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
->
-> On Mon, 9 Jan 2006, Weber Ress wrote:
->
-> > Hi guys,
-> >
-> > I´m starting a social project to teach kernel development for young
-> > students, with objetive of include these people in job market.
-> >
-> > These studentes don´t have great skills in mathematical and computer
-> > science areas, but have great interest in development area. Some
-> > studentes have a little basic C language skills.
-> >
->
-> They need more than basic 'C' language skills. They must be _expert_
-> in the use of this fundamental tool. Not to worry, your students can
-> become expert fairly quickly if, for instance, a project was to
-> write a file-system driver.
->
-> > Which are the first steps that I need in this project ?
-> > Which´s the "more simple" kernel version to teach (2.2 ? 2.4 ? 2.6 ?).
-> >
->
-> Version 2.4.x was very reliable and was easiest to make drivers for.
-> This was before all the "everything must be GPL crap" was added to
-> make life miserable.
->
-> However, make-files for 2.6 are easier to create. Also the "job market"
-> probably expects one to use 2.6.x
->
-> > I accept any suggestions.
-> >
-> > Best Regards !
-> > -
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
->
-> ****************************************************************
-> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
->
-> Thank you.
->
+--------------enig5A42F91143BD91B46E6D0525
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDxVIs2ijCOnn/RHQRAiRxAJ91lJ2c6j5eHKnerYI0H4BQFEKEbgCfbF4n
+/bDbZGeF+U98vfK/MhBYI8k=
+=8aM+
+-----END PGP SIGNATURE-----
+
+--------------enig5A42F91143BD91B46E6D0525--

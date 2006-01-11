@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbWAKJNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWAKJR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932630AbWAKJNd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 04:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWAKJNd
+	id S1751388AbWAKJR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 04:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWAKJR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 04:13:33 -0500
-Received: from 217-133-42-200.b2b.tiscali.it ([217.133.42.200]:6507 "EHLO
-	opteron.random") by vger.kernel.org with ESMTP id S932630AbWAKJNc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 04:13:32 -0500
-Date: Wed, 11 Jan 2006 10:13:27 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, hugh@veritas.com
-Subject: Re: smp race fix between invalidate_inode_pages* and do_no_page
-Message-ID: <20060111091327.GZ15897@opteron.random>
-References: <20051213193735.GE3092@opteron.random> <20051213130227.2efac51e.akpm@osdl.org> <20051213211441.GH3092@opteron.random> <20051216135147.GV5270@opteron.random> <20060110062425.GA15897@opteron.random> <43C484BF.2030602@yahoo.com.au> <20060111082359.GV15897@opteron.random> <20060111005134.3306b69a.akpm@osdl.org> <20060111090225.GY15897@opteron.random> <20060111010638.0eb0f783.akpm@osdl.org>
+	Wed, 11 Jan 2006 04:17:27 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:60142 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751388AbWAKJR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 04:17:26 -0500
+Subject: Re: [PATCH 2/2] dasd: remove dynamic ioctl registration
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Ric Wheeler <ric@emc.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, arnd@arndb.de,
+       linux-kernel@vger.kernel.org,
+       "saparnis, carol" <saparnis_carol@emc.com>
+In-Reply-To: <43BE7EE4.3010203@emc.com>
+References: <20051216143348.GB19541@lst.de> <20060106110157.GA16725@lst.de>
+	 <43BE7C45.4090206@emc.com> <20060106142146.GA20094@lst.de>
+	 <43BE7EE4.3010203@emc.com>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 10:16:27 +0100
+Message-Id: <1136970987.6147.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060111010638.0eb0f783.akpm@osdl.org>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 01:06:38AM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> >  On Wed, Jan 11, 2006 at 12:51:34AM -0800, Andrew Morton wrote:
-> >  > Andrea Arcangeli <andrea@suse.de> wrote:
-> >  > >
-> >  > >  On Wed, Jan 11, 2006 at 03:08:31PM +1100, Nick Piggin wrote:
-> >  > >  > I'd be inclined to think a lock_page is not a big SMP scalability
-> >  > >  > problem because the struct page's cacheline(s) will be written to
-> >  > >  > several times in the process of refcounting anyway. Such a workload
-> >  > >  > would also be running into tree_lock as well.
-> >  > > 
-> >  > >  I seem to recall you wanted to make the tree_lock a readonly lock for
-> >  > >  readers for the exact same scalability reason? do_no_page is quite a
-> >  > >  fast path for the tree lock too. But I totally agree the unavoidable is
-> >  > >  the atomic_inc though, good point, so it worth more to remove the
-> >  > >  tree_lock than to remove the page lock, the tree_lock can be avoided the
-> >  > >  atomic_inc on page->_count not.
-> >  > > 
-> >  > >  The other bonus that makes this attractive is that then we can drop the
-> >  > >  *whole* vm_truncate_count mess... vm_truncate_count and
-> >  > >  inode->trunate_count exists for the only single reason that do_no_page
-> >  > >  must not map into the pte a page that is under truncation.
-> >  > 
-> >  > I think you'll find this hard - filemap_nopage() is the first to find the
-> >  > page but we need lock coverage up in do_no_page().  So the ->nopage
-> >  > protocol will need to be changed to "must return with the page locked".  Or
-> >  > we add a new ->nopage_locked and call that if the vm_ops implements it.
-> > 
-> >  Can't we avoid to change the protocol and use lock_page in do_no_page
-> >  instead?
+On Fri, 2006-01-06 at 09:29 -0500, Ric Wheeler wrote:
 > 
-> Confused.  do_no_page() doesn't have a page to lock until it has called
-> ->nopage.
+> Christoph Hellwig wrote:
+> 
+> >>If you could hold off just a couple of weeks, I hope that we can get 
+> >>through our EMC process junk and get the GPL'ed patch out to fix the 
+> >>symmetrix support part of this rolled in as well,
+> >>    
+> >>
+> >
+> >Why?  We never do things to support legally questionable binary modules.
+> >And on the practical side, does emc even ship modules for -mm release?
+> >What's the point of not putting it into -mm?
+> >  
+> >
+> No need for an EMC module, I think that we can issue a simple  patch to 
+> dasd.c that removes the (silly) binary module that was there.
+> 
+> I would prefer that the clean up not break one of the few (and 
+> relatively common) devices supported by the dasd.c driver. If for no 
+> other reason, it would seem to make it more likely to be able test the 
+> existing patch properly.
 
-yes, I mean doing lock_page after ->nopage returned it here:
+The patch we got from EMC is for 2.4 and in its current form would never
+have worked for 2.6 anyway. So 2.6 is already broken, no reason to hold
+off the ioctl removal patch. We'll come up with a cleaned up solution.
+
+Christoph, please go ahead and push the patch to Andrew. 
+
+-- 
+blue skies,
+   Martin
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
 
-	lock_page(page);
-	if (mapping && !page->mapping)
-		goto bail_out;
-	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
-[..]
-			page_add_file_rmap()
-			unlock_page()
-
-That should be enough no? Imagine the truncate side implemented exactly
-like invalidate_inode_pages2:
-
-	lock_page(page)
-	if (page_mapped(page))	
-		unmap_mapping_pages()
-	truncate_full_page(page)
-	unlock_page(page)
-
-Either the pte is dropped by unmap_mapping_pages and we're safe, or
-->nopage returns an already truncated page and page->mapping is null and
-we bail out.

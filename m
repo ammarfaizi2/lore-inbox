@@ -1,52 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWAKTBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWAKTDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbWAKTBm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWAKTBm
+	id S932638AbWAKTDb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 14:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbWAKTDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:01:42 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:12648 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S932635AbWAKTBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:01:41 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-X-Message-Flag: Warning: May contain useful information
-References: <adaslrw3zfu.fsf@cisco.com>
-	<1136909276.32183.28.camel@serpentine.pathscale.com>
-	<20060110170722.GA3187@infradead.org>
-	<1136915386.6294.8.camel@serpentine.pathscale.com>
-	<20060110175131.GA5235@infradead.org>
-	<1136915714.6294.10.camel@serpentine.pathscale.com>
-	<20060110140557.41e85f7d.akpm@osdl.org>
-	<1136932162.6294.31.camel@serpentine.pathscale.com>
-	<20060110153257.1aac5370.akpm@osdl.org>
-	<1137000032.11245.11.camel@camp4.serpentine.com>
-	<20060111172216.GA18292@mars.ravnborg.org>
-	<20060111093019.097d156a.akpm@osdl.org>
-	<1137001400.11245.31.camel@camp4.serpentine.com>
-	<adairsq1tx9.fsf@cisco.com>
-	<1137005865.11245.47.camel@camp4.serpentine.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 11 Jan 2006 11:01:39 -0800
-In-Reply-To: <1137005865.11245.47.camel@camp4.serpentine.com> (Bryan
- O'Sullivan's message of "Wed, 11 Jan 2006 10:57:45 -0800")
-Message-ID: <ada3bju1td8.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Wed, 11 Jan 2006 14:03:31 -0500
+Received: from [195.144.244.147] ([195.144.244.147]:58005 "EHLO
+	amanaus.varma-el.com") by vger.kernel.org with ESMTP
+	id S932638AbWAKTDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 14:03:30 -0500
+Message-ID: <43C5567C.8070106@varma-el.com>
+Date: Wed, 11 Jan 2006 22:03:24 +0300
+From: Andrey Volkov <avolkov@varma-el.com>
+Organization: Varma Electronics Oy
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ru-ru, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 11 Jan 2006 19:01:40.0690 (UTC) FILETIME=[74A28B20:01C616E1]
+To: "Mark A. Greer" <mgreer@mvista.com>, Jean Delvare <khali@linux-fr.org>
+Cc: adi@hexapodia.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] i2c: Combined ST m41txx i2c rtc chip driver
+References: <4378960F.8030800@varma-el.com> <20051115215226.4e6494e0.khali@linux-fr.org> <20051116025714.GK5546@mag.az.mvista.com> <20051219210325.GA21696@mag.az.mvista.com> <43A7D76E.5050008@varma-el.com> <20060111000912.GA11471@mag.az.mvista.com> <43C4D275.2070505@varma-el.com> <20060111161954.GB6405@mag.az.mvista.com>
+In-Reply-To: <20060111161954.GB6405@mag.az.mvista.com>
+X-Enigmail-Version: 0.93.0.0
+OpenPGP: url=pgp.dtype.org
+Content-Type: multipart/mixed;
+ boundary="------------080201020401050702090506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> The memcpy32 routine is, but __raw_memcpy_toio32 simply
-    Bryan> calls it, so we have two jump/ret pairs instead of one.
+This is a multi-part message in MIME format.
+--------------080201020401050702090506
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Oh, I think you're misunderstanding Andrew's idea.  Just create a
-generic __raw_memcpy_toio32() that is always compiled, but mark it
-with attribute((weak)).  Then x86_64 can define its own version of
-__raw_memcpy_toio32(), which will override the weak generic version.
+Hi Mark,
 
- - R.
+Mark A. Greer wrote:
+> On Wed, Jan 11, 2006 at 12:40:05PM +0300, Andrey Volkov wrote:
+> 
+>>
+>>Mark A. Greer wrote:
+>>
+>>>On Tue, Dec 20, 2005 at 01:05:34PM +0300, Andrey Volkov wrote:
+>>>
+>>>
+>>>>Hello Mark
+>>>>
+>>>>Big Thanks, I check it on my board today-tomorrow.
+>>>>But check some comments below.
+>>>
+>>>
+>>>Did you have a chance to test it?
+>>>
+>>
+>>I testing it now (holidays, sorry).
+>>Aprrox 3-4 hours delay.
+> 
+> 
+> No problem.  Just curious if it works for you.
+> Please let me know.
+> 
+> Thanks,
+> 
+> Mark
+> 
+Attached patch fix some misspellings and, mainly,
+_reset_ HT flag. If this flag is set, then STM418xx
+doesn't run in spite of ST flag state.
+With this patch my board work ok.
+
+P.S. Jean, "i2c_master_send vs i2c_smbus_write_byte_data"
+problem still open.
+Could you made executive decision about it?
+
+-- 
+Regards
+Andrey Volkov
+
+--------------080201020401050702090506
+Content-Type: text/plain;
+ name="01-stm_combind_fixes.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="01-stm_combind_fixes.diff"
+
+	* Misc fixes of Mark A. Greers's stm_combined patch
+---
+
+ drivers/i2c/chips/Kconfig  |    2 +-
+ drivers/i2c/chips/m41txx.c |   45 +++++++++++++++++++++++++-------------------
+ include/linux/m41txx.h     |   34 +++++++++++++++++++++++++++++++++
+ 3 files changed, 61 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+index 4a26fb4..8fa3840 100644
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -134,6 +134,6 @@ config RTC_M41TXX_I2C
+ 	  of I2C RTC chips.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+-	  will be called m41t00.
++	  will be called m41txx.
+ 
+ endmenu
+diff --git a/drivers/i2c/chips/m41txx.c b/drivers/i2c/chips/m41txx.c
+index 82ada1f..97564a1 100644
+--- a/drivers/i2c/chips/m41txx.c
++++ b/drivers/i2c/chips/m41txx.c
+@@ -124,12 +124,12 @@ m41txx_get_rtc_time(void)
+ 	mon &= 0x1f;
+ 	year &= 0xff;
+ 
+-	BCD_TO_BIN(sec);
+-	BCD_TO_BIN(min);
+-	BCD_TO_BIN(hour);
+-	BCD_TO_BIN(day);
+-	BCD_TO_BIN(mon);
+-	BCD_TO_BIN(year);
++	sec = BCD2BIN(sec);
++	min = BCD2BIN(min);
++	hour = BCD2BIN(hour);
++	day = BCD2BIN(day);
++	mon = BCD2BIN(mon);
++	year = BCD2BIN(year);
+ 
+ 	year += 1900;
+ 	if (year < 1970)
+@@ -148,12 +148,12 @@ m41txx_set(void *arg)
+ 	to_tm(nowtime, &tm);
+ 	tm.tm_year = (tm.tm_year - 1900) % 100;
+ 
+-	BIN_TO_BCD(tm.tm_sec);
+-	BIN_TO_BCD(tm.tm_min);
+-	BIN_TO_BCD(tm.tm_hour);
+-	BIN_TO_BCD(tm.tm_mday);
+-	BIN_TO_BCD(tm.tm_mon);
+-	BIN_TO_BCD(tm.tm_year);
++	tm.tm_sec = BIN2BCD(tm.tm_sec);
++	tm.tm_min = BIN2BCD(tm.tm_min);
++	tm.tm_hour = BIN2BCD(tm.tm_hour);
++	tm.tm_mday = BIN2BCD(tm.tm_mday);
++	tm.tm_mon = BIN2BCD(tm.tm_mon);
++	tm.tm_year = BIN2BCD(tm.tm_year);
+ 
+ 	down(&m41txx_mutex);
+ 
+@@ -259,14 +259,21 @@ m41txx_probe(struct i2c_adapter *adap, i
+ 	if ((rc = i2c_attach_client(client)) != 0)
+ 		goto probe_err;
+ 
+-	/* Sst SQW frequency & enable */
+-	if ((m41txx_chip->type != M41TXX_TYPE_M41T00) && m41txx_chip->sqw_freq
+-			&& ((rc = i2c_smbus_read_byte_data(client,
+-				m41txx_chip->alarm_mon)) >= 0)
++	/* Set SQW frequency & enable */
++	if ((m41txx_chip->type != M41TXX_TYPE_M41T00)) {
++		if (m41txx_chip->sqw_freq  
++			&& ((rc = i2c_smbus_read_byte_data(client, 
++				 m41txx_chip->alarm_mon)) >= 0) 
+ 			&& !(rc & 0x40) && !(i2c_smbus_write_byte_data(
+-				client,m41txx_chip->sqw,m41txx_chip->sqw_freq)))
+-		i2c_smbus_write_byte_data(client, m41txx_chip->alarm_mon,
+-			rc | 0x40);
++				client,m41txx_chip->sqw, m41txx_chip->sqw_freq)))
++			i2c_smbus_write_byte_data(client, m41txx_chip->alarm_mon,
++				rc | 0x40);
++	   /* Reset HT (Halt Update) flag, if it set */	
++		if ( ((rc = i2c_smbus_read_byte_data(client, 
++				 m41txx_chip->alarm_hour)) >= 0) && (rc & 0x40))
++			i2c_smbus_write_byte_data(client, m41txx_chip->alarm_hour,
++				rc & ~0x40);
++	} 
+ 
+ 	/* Make sure oscillator is running (i.e., clear 'ST' bit in sec reg) */
+ 	if (((rc = i2c_smbus_read_byte_data(client, m41txx_chip->sec)) < 0)
+diff --git a/include/linux/m41txx.h b/include/linux/m41txx.h
+index 31a40d2..8176721 100644
+--- a/include/linux/m41txx.h
++++ b/include/linux/m41txx.h
+@@ -25,4 +25,38 @@ struct m41txx_platform_data {
+ 	u32	sqw_freq;
+ };
+ 
++/* SQW output disabled, this is default value by power on*/
++#define SQW_FREQ_DISABLE	(0)
++
++/* 32.768 KHz */
++#define SQW_FREQ_32KHZ	(1<<4)
++/* 8.192 KHz */
++#define SQW_FREQ_8KHZ	(2<<4)
++/* 4.096 KHz */
++#define SQW_FREQ_4KHZ	(3<<4)
++/* 2.048 KHz */
++#define SQW_FREQ_2KHZ	(4<<4)
++/* 1.024 KHz */
++#define SQW_FREQ_1KHZ	(5<<4)
++/* 512 Hz */
++#define SQW_FREQ_512HZ	(6<<4)
++/* 256 Hz */
++#define SQW_FREQ_256HZ	(7<<4)
++/* 128 Hz */
++#define SQW_FREQ_128HZ	(8<<4)
++/* 64 Hz */
++#define SQW_FREQ_64HZ	(9<<4)
++/* 32 Hz */
++#define SQW_FREQ_32HZ	(10<<4)
++/* 16 Hz */
++#define SQW_FREQ_16HZ	(11<<4)
++/* 8 Hz */
++#define SQW_FREQ_8HZ	(12<<4)
++/* 4 Hz */
++#define SQW_FREQ_4HZ	(13<<4)
++/* 2 Hz */
++#define SQW_FREQ_2HZ	(14<<4)
++/* 1 Hz */
++#define SQW_FREQ_1HZ	(15<<4)
++
+ #endif /* _M41TXX_H */
+
+--------------080201020401050702090506--

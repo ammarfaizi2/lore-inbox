@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751620AbWAKNwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751624AbWAKNyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751620AbWAKNwb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 08:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751619AbWAKNwb
+	id S1751624AbWAKNyv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWAKNyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 08:52:31 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:35870 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751615AbWAKNwa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 08:52:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d0UIOquTU42XipIUFc8THxiXLj2hkdgUKfPN8mjUYgBEeqxRqTcz3zhMJ1ncOPUSnf1CPcmafqBc9xl7MRMhXCSlMxKjdbcV/WYS9rXNd/u4qyP7HLweXhVkFVSyrIiNLjng8raa4n5LLCkRY/StnmsHxWXiJ6nl00iHgTTfCYk=
-Message-ID: <5a2cf1f60601110552t5e9afa0dr7785b22ae6dbd99b@mail.gmail.com>
-Date: Wed, 11 Jan 2006 14:52:29 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ata errors -> read-only root partition. Hardware issue?
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1136986688.28616.7.camel@localhost.localdomain>
+	Wed, 11 Jan 2006 08:54:50 -0500
+Received: from mx2.suse.de ([195.135.220.15]:63655 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751624AbWAKNyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 08:54:50 -0500
+From: Andi Kleen <ak@suse.de>
+To: vgoyal@in.ibm.com
+Subject: Re: Crash with SMP on post 2.6.15 -git kernel
+Date: Wed, 11 Jan 2006 14:50:07 +0100
+User-Agent: KMail/1.8.2
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060110165457.42ed2087@dxpl.pdx.osdl.net> <200601111212.40989.ak@suse.de> <20060111134230.GE4990@in.ibm.com>
+In-Reply-To: <20060111134230.GE4990@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5ttip-Xh-13@gated-at.bofh.it> <43C4493A.4010305@shaw.ca>
-	 <5a2cf1f60601110030u358c12fcscf79067cbc3eebe0@mail.gmail.com>
-	 <1136986688.28616.7.camel@localhost.localdomain>
+Message-Id: <200601111450.07996.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Mer, 2006-01-11 at 09:30 +0100, jerome lacoste wrote:
-> > - scan for bad blocks
->
-> Read the entire disk (write will hide and clean up errors by
-> reallocating)
+On Wednesday 11 January 2006 14:42, Vivek Goyal wrote:
 
-something like should be sufficient right?
+> While testing this I ran into another problem with same symtoms. If 
+> I compile my kernel for physical location greater than or equal to 
+> 16MB then only BP boots and applicatoin processors don't come up. I had
+> noticed this problem in i386 and posted a patch. Here is the similar  patch 
+> for x86_64.
+> 
+> Though the symtoms are same but this does not seem to be related to the
+> problem which Stephen is facing as he seems to be compiling the kernel
+> for 1MB location only.
 
-cat /dev/sdax > /dev/null
+I don't think that's Stephen's problem.
 
-Thanks a lot.
-
-Jerome
+-Andi

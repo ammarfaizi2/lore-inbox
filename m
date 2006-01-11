@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbWAKC3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWAKCiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932640AbWAKC3I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 21:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWAKC3I
+	id S932308AbWAKCiV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 21:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWAKCiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 21:29:08 -0500
-Received: from xproxy.gmail.com ([66.249.82.198]:17188 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932640AbWAKC3H convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 21:29:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rc6QxY3VSbqP2E3AzSkVYNZdOiQ1hmDR73WD8uUaUZjL4LGhL3gNU1JgMuCwkTQgQeuH6oilm/2VLN/CzdwQ3bn8FzcbIcW14doodvCJepcFWFT/4UpT5Z2JkiLJJiOPIiPvK2UQ2d0azJ9+XeUj6Z0Q8cMInPoFiQXWvC+ksc4=
-Message-ID: <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
-Date: Tue, 10 Jan 2006 20:29:04 -0600
-From: David Nicol <davidnicol@gmail.com>
-To: Yaroslav Rastrigin <yarick@it-territory.ru>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Cc: CaT <cat@zip.com.au>, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       andersen@codepoet.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200601091634.52107.yarick@it-territory.ru>
+	Tue, 10 Jan 2006 21:38:21 -0500
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:49991 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932308AbWAKCiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 21:38:20 -0500
+Message-ID: <43C46F99.1000902@bigpond.net.au>
+Date: Wed, 11 Jan 2006 13:38:17 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
-	 <200601091403.46304.yarick@it-territory.ru>
-	 <20060109124545.GA2035@zip.com.au>
-	 <200601091634.52107.yarick@it-territory.ru>
+To: Con Kolivas <kernel@kolivas.org>
+CC: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <20060110173159.55cce659.akpm@osdl.org> <43C4624D.4040604@google.com> <200601111249.05881.kernel@kolivas.org>
+In-Reply-To: <200601111249.05881.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 11 Jan 2006 02:38:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
+Con Kolivas wrote:
+> On Wed, 11 Jan 2006 12:41 pm, Martin Bligh wrote:
+> 
+>>Seems to have gone wrong between 2.6.14-rc1-mm1 and 2.6.14-rc2-mm1 ?
+>>See http://test.kernel.org/perf/kernbench.moe.png for clearest effect.
+> 
+> 
+> The only new scheduler patch at that time was this:
+> +sched-modified-nice-support-for-smp-load-balancing.patch
+> 
+> which was Peter's modifications to my smp nice support. cc'ed Peter
+> 
 
-> Unfortunately, bounties doesn't work :-/
+This patch will probably have overhead implications as it will skip some 
+tasks during load balancing looking for ones whose bias_prio is small 
+enough to fit within the amount of bias to be moved.  Because the 
+candidate tasks are ordered in the array by dynamic priority and not 
+nice (or bias_prio) the search is exhaustive.  I need to think about 
+whether this can be made a little smarter e.g. skip to the next idx as 
+soon as a task whose bias_prio is too large is encountered.  This would 
+have the effect of missing some tasks that could have been moved due but 
+these will generally be tasks with interactive bonuses causing them to 
+be in a lower slot in the queue than would otherwise be the case and as 
+they generally do small CPU runs not moving them probably won't make 
+much difference.
 
+ > I guess we need to check whether reversing this patch helps.
 
-No?  Bounties seems to work fine for Asterisk.  Is the problem, still no central
-linux kernel bounty system?
+It would be interesting to see if it does.
 
+If it does we probably have to wear the cost (and try to reduce it) as 
+without this change smp nice support is fairly ineffective due to the 
+fact that it moves exactly the same tasks as would be moved without it. 
+  At the most it changes the frequency at which load balancing occurs.
 
---
-David L Nicol
-high on complexity
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

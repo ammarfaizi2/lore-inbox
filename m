@@ -1,56 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWAKRzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWAKRzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbWAKRzw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 12:55:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWAKRzw
+	id S932402AbWAKRzc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 12:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWAKRzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 12:55:52 -0500
-Received: from bender.bawue.de ([193.7.176.20]:64385 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S932415AbWAKRzv (ORCPT
+	Wed, 11 Jan 2006 12:55:32 -0500
+Received: from cedar.ugent.be ([157.193.49.14]:6591 "EHLO cedar.UGent.be")
+	by vger.kernel.org with ESMTP id S932402AbWAKRzb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 12:55:51 -0500
-Date: Wed, 11 Jan 2006 18:52:40 +0100
-From: Joerg Sommrey <jo@sommrey.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] amd76x_pm: C2 powersaving for AMD K7
-Message-ID: <20060111175240.GA29857@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060110194622.GA14645@sommrey.de> <20060111032057.7569be8a.akpm@osdl.org>
+	Wed, 11 Jan 2006 12:55:31 -0500
+Message-ID: <43C54679.5050706@intec.ugent.be>
+Date: Wed, 11 Jan 2006 18:55:05 +0100
+From: Stijn Eeckhaut <stijn.eeckhaut@intec.ugent.be>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060111032057.7569be8a.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+To: Nauman Tahir <nauman.tahir@gmail.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Martin Bligh <mbligh@mbligh.org>,
+       Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Although CONFIG_IRQBALANCE is enabled IRQ's don't seem to be
+ balanced very well
+References: <9a8748490601100314u26d4a566uc41a1912e410ea46@mail.gmail.com>  <20060110203115.GB5479@filer.fsl.cs.sunysb.edu>  <43C42708.4020108@mbligh.org>  <9a8748490601101410i31a8447ev2bf8fafe570fc407@mail.gmail.com>  <43C4314C.4030800@mbligh.org>  <9a87484906011014 <f0309ff0601110614s3007cfb5g11278f9850225a8c@mail.gmail.com>
+In-Reply-To: <f0309ff0601110614s3007cfb5g11278f9850225a8c@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 03:20:57AM -0800, Andrew Morton wrote:
-> Joerg Sommrey <jo@sommrey.de> wrote:
-> >
-> >  +static void
-> >  +config_amd768_C2(int enable)
-> >  +{
-> >  +	unsigned char regbyte;
-> >  +
-> >  +	/* Set C2 options in DevB:3x4F, page 100 in AMD-768 doc */
-> >  +	pci_read_config_byte(pdev_sb, 0x4F, &regbyte);
-> >  +	if(enable)
-> >  +		regbyte |= C2EN;
-> >  +	else
-> >  +		regbyte ^= C2EN;
+Nauman Tahir wrote:
+> On 1/10/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>>On 1/10/06, Martin Bligh <mbligh@mbligh.org> wrote:
+>>>Jesper Juhl wrote:
+>>>>On 1/10/06, Martin Bligh <mbligh@mbligh.org> wrote:
+>>>>>Josef Sipek wrote:
+>>>>>>On Tue, Jan 10, 2006 at 12:14:42PM +0100, Jesper Juhl wrote:
+>>>>>>
+>>>>>>>Do I need any userspace tools in addition to CONFIG_IRQBALANCE?
+>>>>>>
+>>>>>>Last I checked, yes you do need "irqbalance" (at least that's what
+>>>>>>the package is called in debian.
+>>>>>
+>>>>>Nope - you need the kernel option turned on OR the userspace daemon,
+>>>>>not both.
+>>>>
+>>>>Ok, good to know.
+>>>>
+>>>>>If you're not generating interrupts at a high enough rate, it won't
+>>>>>rotate. That's deliberate.
 > 
->  &= ?
-This piece of code was not written by me.  I agree
-	regbyte &= ^C2EN;
-is more common.  However, calling config_amd768_C2(0) *would* work, if
-config_amd768_C2(1) had been called before.  But config_amd768_C2(0)
-never gets called...
+> What I have read is that first CPU is used more for interrupts to use
+> the concept of maximizing cache locality. Probably kernel is
+> optimizing this even with CONFIG option enabled.
+> 
+>>>>
+>>>>Hmm, and what would count as "a high enough rate"?
 
-Seems like I need to fix this too.
+This is what I tested a few months ago:
 
--jo
+Test system: 2 dual Pentium3 systems
+- with 2.6.11 kernel and kernel IRQ balancing;
+- each with an Intel dual port E1000 NIC (e1000 driver 6.0.54);
+- both systems connected back-to-back to each other with 2 links.
 
--- 
--rw-r--r--  1 jo users 63 2006-01-10 20:55 /home/jo/.signature
+Test 1:
+- I started 1 UDP flow (< 23 Mbps) on the first link with the Iperf 
+network performance measurement tool. For a UDP bandwidth lower than 23 
+Mbps the interrupt rate at the receiver interface was lower than 2000 
+interrupts per second. In this case all interrupts were distributed to 
+CPU 0. 2000 interrupts per second seemed to be the threshold for the 
+interrupts to be distributed to 1 CPU.
+
+Test 2:
+- Then I started 1 UDP flow of 600 Mbps on the first link. 8000 
+interrupts per second were generated by the receiver interface. 
+Approximately half of the interrupts were distributed to CPU 0, the 
+other half to CPU 1.
+
+Test 3:
+- Then I did a test with 2 UDP flows of 600 Mbps, each over their own 
+link. 8000 interrupts per second were generated by both receiver 
+interfaces. All interrupts generated by the 1st interface were 
+distributed to CPU 0, all interrupts generated by the 2nd interface were 
+  distributed to CPU 1.
+
+
+>>>>
+>>>>I just did a small test with thousands of  ping -f's through my NIC
+>>>>while at the same time giving the disk a good workout with tons of
+>>>>find's, sync's & updatedb's - that sure did drive up the number of
+>>>>interrupts and my load average went sky high (amazingly the box was
+>>>>still fairly responsive):
+>>>>
+>>>>root@dragon:/home/juhl# uptime
+>>>> 22:59:58 up 12:43,  1 user,  load average: 1015.48, 715.93, 429.07
+>>>>but, not a single interrupt was handled by CPU1, they all went to CPU0.
+>>>>
+>>>>Do you have a good way to drive up the nr of interrupts above the
+>>>>treshhold for balancing?
+>>>
+>>>Is it HT? ISTR it was intelligent enough to ignore that. But you'd
+>>>have to look at the code to be sure.
+>>>
+>>
+>>Dual Core Athlon 64 X2 4400+
+>>

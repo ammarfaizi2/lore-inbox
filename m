@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbWAKC4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030708AbWAKDGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932705AbWAKC4n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 21:56:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWAKC4n
+	id S1030708AbWAKDGo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 22:06:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWAKDGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 21:56:43 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:19587 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932705AbWAKC4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 21:56:42 -0500
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
-	can't for a long time
-From: Lee Revell <rlrevell@joe-job.com>
-To: David Nicol <davidnicol@gmail.com>
-Cc: Yaroslav Rastrigin <yarick@it-territory.ru>, CaT <cat@zip.com.au>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
-	 <200601091403.46304.yarick@it-territory.ru>
-	 <20060109124545.GA2035@zip.com.au>
-	 <200601091634.52107.yarick@it-territory.ru>
-	 <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 10 Jan 2006 21:56:37 -0500
-Message-Id: <1136948198.2007.137.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Tue, 10 Jan 2006 22:06:44 -0500
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:50857 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030708AbWAKDGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 22:06:43 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+Date: Wed, 11 Jan 2006 14:07:05 +1100
+User-Agent: KMail/1.8.2
+Cc: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <43C45BDC.1050402@google.com> <200601111249.05881.kernel@kolivas.org> <43C46F99.1000902@bigpond.net.au>
+In-Reply-To: <43C46F99.1000902@bigpond.net.au>
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 2051
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200601111407.05738.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 20:29 -0600, David Nicol wrote:
-> On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
-> 
-> > Unfortunately, bounties doesn't work :-/
-> 
-> 
-> No?  Bounties seems to work fine for Asterisk.  Is the problem, still no central
-> linux kernel bounty system?
+On Wed, 11 Jan 2006 01:38 pm, Peter Williams wrote:
+> Con Kolivas wrote:
+>  > I guess we need to check whether reversing this patch helps.
+>
+> It would be interesting to see if it does.
+>
+> If it does we probably have to wear the cost (and try to reduce it) as
+> without this change smp nice support is fairly ineffective due to the
+> fact that it moves exactly the same tasks as would be moved without it.
+>   At the most it changes the frequency at which load balancing occurs.
 
+I disagree. I think the current implementation changes the balancing according 
+to nice much more effectively than previously where by their very nature, low 
+priority tasks were balanced more frequently and ended up getting their own 
+cpu. No it does not provide firm 'nice' handling that we can achieve on UP 
+configurations but it is also free in throughput terms and miles better than 
+without it. I would like to see your more robust (and nicer code) solution 
+incorporated but I also want to see it cost us as little as possible. We 
+haven't confirmed anything just yet...
 
-Many bounties don't work because they are too low, too vague or both.
-For example several months ago Ubuntu offered $500 to "fix all remaining
-ALSA issues for PowerMac hardware".  HA!  That's like 5 or 6 diffent
-drivers which ranged from not working at all, to sound works but no
-system beeps, etc...
-
-Lee
-
+Cheers,
+Con

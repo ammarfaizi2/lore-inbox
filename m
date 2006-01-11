@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWAKVVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWAKV0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWAKVVF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 16:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWAKVVF
+	id S1750729AbWAKV0D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 16:26:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWAKV0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 16:21:05 -0500
-Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:5661 "EHLO
-	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
-	id S1750714AbWAKVVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 16:21:04 -0500
-Date: Wed, 11 Jan 2006 22:20:56 +0100
-From: Michael Hanselmann <linux-kernel@hansmi.ch>
-To: dtor_core@ameritech.net
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz,
-       linuxppc-dev@ozlabs.org, linux-kernel@killerfox.forkbomb.ch,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
-Message-ID: <20060111212056.GC6617@hansmi.ch>
-References: <20051225212041.GA6094@hansmi.ch> <200512252304.32830.dtor_core@ameritech.net> <1135575997.14160.4.camel@localhost.localdomain> <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Wed, 11 Jan 2006 16:26:01 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:5071 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750729AbWAKV0B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 16:26:01 -0500
+Date: Wed, 11 Jan 2006 22:25:42 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, sct@redhat.com,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
+In-Reply-To: <1137012917.2929.78.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0601112224280.7071@yvahk01.tjqt.qr>
+References: <200601112126.59796.ak@suse.de>  <20060111124617.5e7e1eaa.akpm@osdl.org>
+ <1137012917.2929.78.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 04:07:37PM -0500, Dmitry Torokhov wrote:
-> Ok, I am looking at the patch again, and I have a question - do we
-> really need these 3 module parameters? If the goal is to be compatible
-> with older keyboards then shouldn't we stick to one behavior?
+>the conversion is buggy.
+>
+>mutex_trylock has the same convention as spin_try_lock (which is the
+>opposite of down_trylock). THe conversion forgot to add a !
+>
+> static void ext3_write_super (struct super_block * sb)
+> {
+>-	if (mutex_trylock(&sb->s_lock) != 0)
+>+	if (!mutex_trylock(&sb->s_lock) != 0)
 
-The old keyboard was controlled by ADB (Apple Desktop Bus) commands sent
-by pbbuttonsd. That doesn't work for the USB keyboard because the
-conversion is not done in hardware like with the old ones. ioctl's would
-also be possible, but I'm not sure wether they would be easy to do for
-USB devices. Module parameters can be changed using sysfs.
+How about a nicer...?
 
-Greets,
-Michael
+        if(mutex_trylock(&sb->s_lock) == 0)
+
+
+
+Jan Engelhardt
+-- 

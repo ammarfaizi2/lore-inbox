@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932780AbWAKC1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbWAKC3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932780AbWAKC1J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 21:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbWAKC1J
+	id S932640AbWAKC3I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 21:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWAKC3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 21:27:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15056 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932780AbWAKC1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 21:27:07 -0500
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Cc: Keith Owens <kaos@sgi.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Paulo Marques <pmarques@grupopie.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       tony.luck@intel.com, Systemtap <systemtap@sources.redhat.com>,
-       Jim Keniston <jkenisto@us.ibm.com>
-Subject: Re: [patch 1/2] [BUG]kallsyms_lookup_name should return the text addres
-References: <Pine.LNX.4.58.0601101606380.12724@shark.he.net>
-	<20396.1136939008@ocs3.ocs.com.au>
-	<20060110163956.A17329@unix-os.sc.intel.com>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 10 Jan 2006 21:26:37 -0500
-In-Reply-To: <20060110163956.A17329@unix-os.sc.intel.com>
-Message-ID: <y0mvewr4i02.fsf@tooth.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Tue, 10 Jan 2006 21:29:08 -0500
+Received: from xproxy.gmail.com ([66.249.82.198]:17188 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932640AbWAKC3H convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 21:29:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rc6QxY3VSbqP2E3AzSkVYNZdOiQ1hmDR73WD8uUaUZjL4LGhL3gNU1JgMuCwkTQgQeuH6oilm/2VLN/CzdwQ3bn8FzcbIcW14doodvCJepcFWFT/4UpT5Z2JkiLJJiOPIiPvK2UQ2d0azJ9+XeUj6Z0Q8cMInPoFiQXWvC+ksc4=
+Message-ID: <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
+Date: Tue, 10 Jan 2006 20:29:04 -0600
+From: David Nicol <davidnicol@gmail.com>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Cc: CaT <cat@zip.com.au>, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       andersen@codepoet.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200601091634.52107.yarick@it-territory.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	 <200601091403.46304.yarick@it-territory.ru>
+	 <20060109124545.GA2035@zip.com.au>
+	 <200601091634.52107.yarick@it-territory.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
 
-anil.s.keshavamurthy@intel.com writes:
+> Unfortunately, bounties doesn't work :-/
 
-> [...]  Humm..This duplication of symbols in the kernel will be a
-> problem for systemtap scripts, as we might end up putting probes in
-> the unwanted places :-( [...]
 
-Not at all.  Systemtap does not look in System.map.  It can qualify
-function names with the compilation unit name to make unique the probe
-target.  For that matter, it only uses /proc/kallsyms as a table to
-drive the address-to-name mappings in debug output.
+No?  Bounties seems to work fine for Asterisk.  Is the problem, still no central
+linux kernel bounty system?
 
-- FChE
+
+--
+David L Nicol
+high on complexity

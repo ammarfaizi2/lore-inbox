@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWAKIFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWAKINX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWAKIFu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 03:05:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWAKIFu
+	id S1751087AbWAKINX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 03:13:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAKINX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 03:05:50 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:8626 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751048AbWAKIFt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 03:05:49 -0500
-Message-ID: <43C4CE39.3326BFBB@tv-sign.ru>
-Date: Wed, 11 Jan 2006 12:22:01 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Benjamin LaHaise <bcrl@kvack.org>,
-       Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219192537.GC15277@kvack.org> <Pine.LNX.4.64.0512191148460.4827@g5.osdl.org> <43A985E6.CA9C600D@tv-sign.ru> <20060110102851.GB18325@in.ibm.com> <43C3F6DB.FEFDA101@tv-sign.ru> <20060111063322.GA9261@in.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+	Wed, 11 Jan 2006 03:13:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33260 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751087AbWAKINW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 03:13:22 -0500
+Subject: Re: ntohs/ntohl and bitops
+From: Arjan van de Ven <arjan@infradead.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060111.000020.25886635.davem@davemloft.net>
+References: <43C42F0C.10008@redhat.com>
+	 <20060111.000020.25886635.davem@davemloft.net>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 09:13:11 +0100
+Message-Id: <1136967192.2929.6.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
+On Wed, 2006-01-11 at 00:00 -0800, David S. Miller wrote:
+> From: Ulrich Drepper <drepper@redhat.com>
+> Date: Tue, 10 Jan 2006 14:02:52 -0800
 > 
-> On Tue, Jan 10, 2006 at 09:03:07PM +0300, Oleg Nesterov wrote:
+> > I just saw this in a patch:
+> > 
+> > +               if (ntohs(ih->frag_off) & IP_OFFSET)
+> > +                       return EBT_NOMATCH;
+> > 
+> > This isn't optimal, it requires a byte switch little endian machines.
+> > The compiler isn't smart enough.  It would be better to use
+> > 
+> >      if (ih->frag_off & ntohs(IP_OFFSET))
+> > 
+> > where the byte-swap can be done at compile time.  This is kind of ugly,
+> > I guess, so maybe a dedicate macro
+> > 
+> >     net_host_bit_p(ih->frag_off, IP_OFFSET)
 > 
-> > I don't have an answer, only a wild guess.
-> >
-> > Note that if P1 releases this semaphore before pre-woken P2 actually
-> > gets cpu what happens is:
-> >
-> >       P1->up() just increments ->count, no wake_up() (fastpath)
-> >
-> >       P2 takes the semaphore without schedule.
-> >
-> > So *may be* it was designed this way as some form of optimization,
-> > in this scenario P2 has some chances to run with sem held earlier.
-> >
+> The first suggestion isn't considered ugly, and the best form is:
 > 
-> P1->up() will do a wake_up() only if count < 0. For no wake_up()
-> the count >=0 before the increment. This means that there is no one
-> sleeping on the semaphore.
+> 	if (ih->frag_off & __constant_htons(IP_OFFSET))
 
-And this exactly happens. P1 returns from __down() with ->count == 0
-and P2 pre-woken.
+why this __constant_htons and not just plain htons ??
+htons() gets auto-remapped to that anyway via the builtin "is this a
+constant" thing...... and to be honest htons() is more readable.
 
-Oleg.
+

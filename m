@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWAKVeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWAKVee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWAKVeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 16:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWAKVeE
+	id S1750808AbWAKVee (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 16:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWAKVee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 16:34:04 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:20927 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750798AbWAKVeC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 16:34:02 -0500
-Subject: Re: [PATCH 0/5] multiple block allocation to current ext3
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@lst.de, pbadari@us.ibm.com, sct@redhat.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <20060111114303.45540193.akpm@osdl.org>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113288087.4319.49.camel@localhost.localdomain>
-	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1114207837.7339.50.camel@localhost.localdomain>
-	 <1114659912.16933.5.camel@mindpipe>
-	 <1114715665.18996.29.camel@localhost.localdomain>
-	 <1136935562.4901.41.camel@dyn9047017067.beaverton.ibm.com>
-	 <20060110212551.411a766d.akpm@osdl.org>
-	 <1137007032.4395.24.camel@localhost.localdomain>
-	 <20060111114303.45540193.akpm@osdl.org>
+	Wed, 11 Jan 2006 16:34:34 -0500
+Received: from gate.crashing.org ([63.228.1.57]:38611 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750808AbWAKVed (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 16:34:33 -0500
+Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple
+	PowerBooks
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
+       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <20060111212056.GC6617@hansmi.ch>
+References: <20051225212041.GA6094@hansmi.ch>
+	 <200512252304.32830.dtor_core@ameritech.net>
+	 <1135575997.14160.4.camel@localhost.localdomain>
+	 <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com>
+	 <20060111212056.GC6617@hansmi.ch>
 Content-Type: text/plain
-Organization: IBM LTC
-Date: Wed, 11 Jan 2006 13:31:44 -0800
-Message-Id: <1137015104.4395.37.camel@localhost.localdomain>
+Date: Thu, 12 Jan 2006 08:34:17 +1100
+Message-Id: <1137015258.5138.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 11:43 -0800, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > # time ./filetst  -b 1048576 -w -f /mnt/a
-> >  	2.6.14		2.6.15
-> >  real    0m21.710s	0m25.773s
-> >  user    0m0.012s	0m0.004s
-> >  sys     0m14.569s	0m15.065s
+On Wed, 2006-01-11 at 22:20 +0100, Michael Hanselmann wrote:
+> On Wed, Jan 11, 2006 at 04:07:37PM -0500, Dmitry Torokhov wrote:
+> > Ok, I am looking at the patch again, and I have a question - do we
+> > really need these 3 module parameters? If the goal is to be compatible
+> > with older keyboards then shouldn't we stick to one behavior?
 > 
-> That's a big drop.
-> 
-> Was it doing I/O, or was it all from pagecache?
-> 
+> The old keyboard was controlled by ADB (Apple Desktop Bus) commands sent
+> by pbbuttonsd. That doesn't work for the USB keyboard because the
+> conversion is not done in hardware like with the old ones. ioctl's would
+> also be possible, but I'm not sure wether they would be easy to do for
+> USB devices. Module parameters can be changed using sysfs.
 
-It's doing IO on a freshly created filesystem. It was running with AS io
-scheduler.  It seems DIO has no problem, and ext2 has no regression
-either... Will keep you posted.
+Yeah, but the question is why 3 ? I think one (on/off) is enough. Do you
+have any case where people actually change the other ones ?
 
-
-Mingming
+Ben.
 
 

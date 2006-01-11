@@ -1,32 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWAKQBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWAKQNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbWAKQBA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 11:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWAKQA7
+	id S1751077AbWAKQNA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 11:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWAKQNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 11:00:59 -0500
-Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:46829 "EHLO
-	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S1751366AbWAKQA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 11:00:58 -0500
-Date: Wed, 11 Jan 2006 10:00:50 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-Message-ID: <20060111160050.GA5472@yggdrasil.localdomain>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C40803.2000106@rtr.ca>
-X-Operating-System: Linux yggdrasil 2.6.15 #1 SMP PREEMPT Tue Jan 10 20:27:55 CST 2006 i686 GNU/Linux
-User-Agent: Mutt/1.5.11
+	Wed, 11 Jan 2006 11:13:00 -0500
+Received: from ns.firmix.at ([62.141.48.66]:58850 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751026AbWAKQM7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 11:12:59 -0500
+Subject: Re: FAT and Microsoft patent?
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Christopher Friesen <cfriesen@nortel.com>
+Cc: Roger Heflin <rheflin@atipa.com>,
+       "'linux-os (Dick Johnson)'" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <43C528FC.1060408@nortel.com>
+References: <EXCHG2003RXf2LTrpwA00000b29@EXCHG2003.microtech-ks.com>
+	 <43C528FC.1060408@nortel.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Wed, 11 Jan 2006 17:12:30 +0100
+Message-Id: <1136995950.6547.172.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any benefit/point to enabling HIGHMEM when using this patch, 
-assuming that physical memory is smaller than the address space?  For 
-example, when using VMSPLIT_3G_OPT on a box with 1G of memory.
+On Wed, 2006-01-11 at 09:49 -0600, Christopher Friesen wrote:
+[...]
+> The question still holds in modified form...will we need to remove this 
+> functionality, or is it currently implemented in a way that does not 
+> infringe on the patent?
 
-Thanx!
+This is a law question (and not a technical one) and AFAICS it can only
+answered by a judge in court.
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

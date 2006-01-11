@@ -1,83 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWAKObe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWAKOd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWAKObe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 09:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWAKObe
+	id S932396AbWAKOd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 09:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWAKOd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 09:31:34 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:42572 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932395AbWAKObd convert rfc822-to-8bit
+	Wed, 11 Jan 2006 09:33:56 -0500
+Received: from nproxy.gmail.com ([64.233.182.207]:31831 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932396AbWAKOdz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 09:31:33 -0500
+	Wed, 11 Jan 2006 09:33:55 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h1NPWulbylH14uQIUZdWuFqhaf9MnenfSZtxSUkglzQM12UUEu8HNa1eeOq262u7XNKRJq4dvUOH91Do8ElGMufwvXwjJmytrep9Xgm+nNl9xmab4SUXgCofvkPCpPdZ/O2gFv7v+FkxLnpihr21w0tNPbCm1OTnFq6Xo4bHU/4=
-Message-ID: <d120d5000601110631j6705c71cya5faf293cac148a6@mail.gmail.com>
-Date: Wed, 11 Jan 2006 09:31:32 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Patrick Read <pread99999@gmail.com>
-Subject: Re: PROBLEM: Oops in Kernel 2.6.15 usbhid
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ieq0T/mimVw/E4vNyjgC99K/BspoejICcjJ+Zy/C2o/xYWoLpByLnGcQYnEORVhO2LK0uCDi5SloWv11tLrbzec42V8CIZP0acp9Omo/kfvkF3ow5YN9Ggp/GSXiqaR87PB6lSux7qx4vJeq8KbX4DSGwqjNtyvisD0VmTsunlg=
+Message-ID: <728201270601110633i2eb8c71dq8a0c23d9e7ad724f@mail.gmail.com>
+Date: Wed, 11 Jan 2006 08:33:20 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: jeff shia <tshxiayu@gmail.com>
+Subject: Re: something about disk fragmentation
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <25ac9de40601110021r3e8d5075v6a5a7186533a4c8a@mail.gmail.com>
+In-Reply-To: <7cd5d4b40601110501w40bc28f0peb13cdbb082e2b4a@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <25ac9de40601052225i48bca97dx3ad796a1cd68f1c3@mail.gmail.com>
-	 <200601100054.51198.dtor_core@ameritech.net>
-	 <25ac9de40601110021r3e8d5075v6a5a7186533a4c8a@mail.gmail.com>
+References: <7cd5d4b40601110501w40bc28f0peb13cdbb082e2b4a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/06, Patrick Read <pread99999@gmail.com> wrote:
-> On 1/9/06, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > On Friday 06 January 2006 01:25, Patrick Read wrote:
-> > > [1.] Oops in Kernel 2.6.15 usbhid
-> > >
-> > > [2.] Compiled 2.6.15 downloaded from kernel.org.  Configured, made,
-> > > and installed.  During reboot, I get an Oops in the USB HID module.
-> > > This does not occur with a nearly-identical config on the same
-> > > computer with kernel 2.6.14.5.
-> > >
-> > > [3.] USB, HID, kernel, 2.6.15, module
-> > >
-> >
-> > Could you please try the patch below? Thanks!
-> >
-> > --
-> > Dmitry
-> >
-> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> > ---
-> >
-> >  drivers/usb/input/pid.c |    2 +-
-> >  1 files changed, 1 insertion(+), 1 deletion(-)
-> >
-> > Index: work/drivers/usb/input/pid.c
-> > ===================================================================
-> > --- work.orig/drivers/usb/input/pid.c
-> > +++ work/drivers/usb/input/pid.c
-> > @@ -259,7 +259,7 @@ static int hid_pid_upload_effect(struct
-> >  int hid_pid_init(struct hid_device *hid)
-> >  {
-> >         struct hid_ff_pid *private;
-> > -       struct hid_input *hidinput = list_entry(&hid->inputs, struct hid_input, list);
-> > +       struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
-> >         struct input_dev *input_dev = hidinput->input;
-> >
-> >         private = hid->ff_private = kzalloc(sizeof(struct hid_ff_pid), GFP_KERNEL);
-> >
->
-> The above fix works like a charm.  2.6.15 is running on this very
-> computer that I'm typing on.
->
-> Thank you for your good work.  Please ensure that this fix gets
-> incorporated in the mainline kernel.
->
+2.6 kernel has  3 differen kind of io schedulers. Anticipatory io
+scheduler is the default one. You may try to select CFQ  or deadline
+scheduler & see if that improves your performance. These schedulers
+have parameters which can be tuned also.
 
-Thank you for testing it, I will forward it to Linus.
+Regards
+Ram Gupta
 
---
-Dmitry
+On 1/11/06, jeff shia <tshxiayu@gmail.com> wrote:
+> Hello,everyone
+>
+>    In a file system ,the disk fragmentation can slow down the data accessing
+> speed.How can I solve this kind of problem in a file system?I know that
+> preallocation tech can do this.Is there any other solutions?
+>   Thank you!
+>
+> Yours
+> Jeff
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

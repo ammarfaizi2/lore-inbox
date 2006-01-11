@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWAKMv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWAKMxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751463AbWAKMv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 07:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWAKMv6
+	id S1751474AbWAKMxI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 07:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWAKMxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:51:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58573 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751472AbWAKMv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:51:57 -0500
-Subject: Re: OT: fork(): parent or child should run first?
-From: Arjan van de Ven <arjan@infradead.org>
-To: lgb@lgb.hu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060111123745.GB30219@lgb.hu>
-References: <20060111123745.GB30219@lgb.hu>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 11 Jan 2006 13:51:50 +0100
-Message-Id: <1136983910.2929.39.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 11 Jan 2006 07:53:08 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:55246 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751466AbWAKMxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 07:53:06 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: spereira@tusc.com.au
+Subject: Re: [PATCH] net: 32 bit (socket layer) ioctl emulation for 64 bit kernels
+Date: Wed, 11 Jan 2006 12:52:39 +0000
+User-Agent: KMail/1.9.1
+Cc: linux-kenel <linux-kernel@vger.kernel.org>,
+       netdev <netdev@vger.kernel.org>, Andi Kleen <ak@muc.de>,
+       SP <pereira.shaun@gmail.com>
+References: <1136789216.6653.17.camel@spereira05.tusc.com.au> <200601091054.35010.arnd@arndb.de> <1136960915.5347.10.camel@spereira05.tusc.com.au>
+In-Reply-To: <1136960915.5347.10.camel@spereira05.tusc.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601111252.39897.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 13:37 +0100, Gábor Lénárt wrote:
-> Hello,
-> 
-> The following problem may be simple for you, so I hope someone can answer
-> here. We've got a complex software using child processes and a table
-> to keep data of them together, like this:
-> 
-> childs[n].pid=fork();
-> 
-> where "n" is an integer contains a free "slot" in the childs struct array.
-> 
-> I also handle SIGCHLD in the parent and signal handler  searches the childs
-> array for the pid returned by waitpid(). However here is my problem. The
-> child process can be fast, ie exits before scheduler of the kernel give
-> chance the parent process to run, so storing pid into childs[n].pid in the
-> parent context is not done yet. Child may exit, than scheduler gives control
-> to the signal handler before doing the store of the pid (if child run for
-> more time, eg 10 seconds it works of course). So it's impossible to store
-> child pids and search by that information in eg the signal handler? It's
-> quite problematic, since the code uses blocking I/O a lot, so other
-> solutions (like searching in childs[] in the main program and not in signal
-> handler) would require to recode the whole project. The problem can be
-> avoided with having a fork() run the PARENT first, but I thing this is done
-> by the scheduler so it's a kernel issue. Also the problem that source should
-> be portable between Linux and Solaris ...
+On Wednesday 11 January 2006 06:28, Shaun Pereira wrote:
+> And the correct x.25 patch, (will build a [PATCH] if this is ok).
+> Tested with with xot to a Cisco box. 
 
-you just cannot depend on which would run first, child or parent. Even
-if linux would do it the other way around, you have no guarantee. Think
-SMP or Dual Core processors and time slices and cache misses... your
-code just HAS to be able to cope with it. Even on solaris ;)
+Much better now, but
 
+> +       switch(cmd) {
+> +               case TIOCOUTQ:
+> +               case TIOCINQ:
 
+Looking at how these are handled in x25_ioctl(),
+these should be forwarded to x25_ioctl(), because they are
+compatible. With your current code you incorrectly return -EINVAL.
+
+> +               case SIOCGSTAMP:
+
+This one actually needs a conversion handler. You could
+add a generic compat_sock_get_timestamp() function to net/compat.c
+for this.
+
+> +               case SIOCGIFADDR:
+> +               case SIOCSIFADDR:
+> +               case SIOCGIFDSTADDR:
+> +               case SIOCSIFDSTADDR:
+> +               case SIOCGIFBRDADDR:
+> +               case SIOCSIFBRDADDR:
+> +               case SIOCGIFNETMASK:
+> +               case SIOCSIFNETMASK:
+> +               case SIOCGIFMETRIC:
+> +               case SIOCSIFMETRIC:
+
+These all return -EINVAL in x25_ioctl, just do the same here.
+
+For any the cases above, you can also choose not to handle them
+in compat_x25_ioctl at all and just return -ENOIOCTLCMD, so they
+get forwarded to the conversion code in fs/compat_ioctl.c. 
+
+> +               case SIOCADDRT:
+> +               case SIOCDELRT:
+
+These should call x25_route_ioctl() instead of falling through to
+to compat_x25_subscr_ioctl(), right?
+
+> +               case SIOCX25GFACILITIES:
+> +               case SIOCX25SFACILITIES:
+> +               case SIOCX25GCALLUSERDATA:
+> +               case SIOCX25SCALLUSERDATA:
+> +               case SIOCX25GCAUSEDIAG:
+> +               case SIOCX25SCUDMATCHLEN:
+> +               case SIOCX25CALLACCPTAPPRV:
+> +                       rc = x25_ioctl(sock, cmd, (unsigned long)argp);
+> +                       break;
+> +               case SIOCX25SENDCALLACCPT:
+> +                       rc = x25_ioctl(sock, cmd, (unsigned long)argp);
+> +                       break;
+
+I guess these can be combined to a single case list.
+
+        Arnd <><

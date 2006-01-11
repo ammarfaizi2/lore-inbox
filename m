@@ -1,118 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWAKKgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWAKKuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWAKKgg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 05:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWAKKgg
+	id S1750944AbWAKKuY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 05:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWAKKuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 05:36:36 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:50309 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751406AbWAKKgf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 05:36:35 -0500
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Matt Helsley <matthltc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
-       John Hesterberg <jh@sgi.com>
-Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors
-References: <43BB05D8.6070101@watson.ibm.com>
-	<43BB09D4.2060209@watson.ibm.com> <43BC1C43.9020101@engr.sgi.com>
-	<1136414431.22868.115.camel@stark>
-	<20060104151730.77df5bf6.akpm@osdl.org>
-	<1136486566.22868.127.camel@stark> <1136488842.22868.142.camel@stark>
-	<20060105151016.732612fd.akpm@osdl.org>
-	<1136505973.22868.192.camel@stark> <yq08xttybrx.fsf@jaguar.mkp.net>
-	<43BE9E91.9060302@watson.ibm.com>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 11 Jan 2006 05:36:29 -0500
-In-Reply-To: <43BE9E91.9060302@watson.ibm.com>
-Message-ID: <yq0wth72gr6.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Wed, 11 Jan 2006 05:50:24 -0500
+Received: from tornado.reub.net ([202.89.145.182]:19410 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1750753AbWAKKuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 05:50:23 -0500
+Message-ID: <43C4E2BE.6050800@reub.net>
+Date: Wed, 11 Jan 2006 23:49:34 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060110)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: neilb@suse.de, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2
+References: <20060107052221.61d0b600.akpm@osdl.org>	<43BFD8C1.9030404@reub.net>	<20060107133103.530eb889.akpm@osdl.org>	<43C38932.7070302@reub.net>	<20060110104759.GA30546@elte.hu>	<43C3A85A.7000003@reub.net>	<20060110044240.3d3aa456.akpm@osdl.org>	<20060110131618.GA27123@elte.hu>	<17348.34472.105452.831193@cse.unsw.edu.au>	<43C4947C.1040703@reub.net>	<20060110213001.265a6153.akpm@osdl.org> <20060110213056.58f5e806.akpm@osdl.org>
+In-Reply-To: <20060110213056.58f5e806.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Shailabh" == Shailabh Nagar <nagar@watson.ibm.com> writes:
+On 11/01/2006 6:30 p.m., Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+>> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>>> I'm tempted to see if I can narrow it down to a specific -gitX release, maybe 
+>>>  that would narrow it down to say, 200 or so patches ;-)
+>> If -mm2 plus -mm2's linus.patch does not fail then
+>> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt will
+>> find the dud patch.
+> 
+> Actually 2.6.15-mm1 would be a better one to do the bisection on: it has
+> all the md- patches separated out.
 
-Shailabh> Jes Sorensen wrote:
->> I am quite concerned about that lock your patches put into struct
->> task_struct through struct task_delay_info. Have you done any
->> measurements on how this impacts performance on highly threaded
->> apps on larger system?
+I've done some more testing - which may change the suggested approach somewhat..
 
-Shailabh> I don't expect the lock contention to be high. The lock is
-Shailabh> held for a very short time (across two
-Shailabh> additions/increments). Moreover, it gets contended only when
-Shailabh> the stats are being read (either through /proc or
-Shailabh> connectors).  Since the reading of stats won't be that
-Shailabh> frequent (the utility of these numbers is to influence the
-Shailabh> I/O priority/rss limit etc. which won't be done at a very
-Shailabh> small granularity anyway), I wouldn't expect a problem.
+2.6.15-mm1 is OK, I'm running it now, rebooted probably 15 times and it's come 
+up every time.
+2.6.15-git2 is OK, booted up to completion (tested once).
+2.6.15-git3 was a dud, bootup hung
+2.6.15- [linus.patch from -mm2, which is basically the same as -git3] won't boot
+2.6.15-mm2 doesn't boot either, tested many times
+2.6.15-git6 won't boot
+2.6.15-git7 got stuck also, same issue
 
-Hi Shailabh,
+So some change that went in between -git2 and -git3 seems to have caused it. 
+Nothing from -git3 onwards has ever booted to completion.
 
-When this is read through connectors, it's initiated by the connectors
-code which is called from the task's context hence we don't need
-locking for that. It's very similar to the task_notify code I am about
-to post and I think the connector code could fit into that
-framework. The main issue is /proc, but then one could even have a
-mechanism with a hook when the task exits that pushes the data to a
-storage point which is lock protected.
+Is there any chance a patch came in, was queued in -mm but was never released in 
+any -mm (1|2) release before being sent to Linus/-gitX?  (in this case, -git3). 
+  The reason I suggest this is because -mm1 didn't have the problem, but in -mm2 
+it was visible by just the linus.patch from that release.
 
-Even if a lock isn't contended, you are still going to see the cache
-lines bounce around due to the writes. It may not show up on a 4-way
-box but what happens on a 64-way? We have seen some pretty nasty
-effects on the bigger SN2 boxes with locks that were taken far too
-frequently, to the point where it would prevent the box from booting
-(now I don't expect it to that severe here, but I'd still like to
-explore an approach of doing it lock free).
+I'm not sure where this leaves quilt testing.  Would quilt testing just narrow 
+me down to it being the linus.patch in mm which actually caused it? (Which I 
+already know is the source)..
 
-Shailabh> But its better to take some measurements anyway. Any
-Shailabh> suggestions on a benchmark ?
+I've put the -git7 .config and a tasks list up on 
+http://www.reub.net/files/kernel/ again in case anyone wants to verify that it 
+is still the same problem.
 
->> IMHO it seems to make more sense to use something like Jack's
->> proposed task_notifier code to lock-less collect the data into task
->> local data structures and then take the data from there and ship
->> off to userland through netlink or similar like you are doing?
->> 
->> I am working on modifying Jack's patch to carry task local data and
->> use it for not just accounting but other areas that need optional
->> callbacks (optional in the sense that it's a feature that can be
->> enabled or disabled). Looking at Shailabh's delayacct_blkio()
->> changes it seems that it would be really easy to fit those into
->> that framework.
->> 
->> Guess I should post some of this code .....
+What a pain of a bug.
 
-Shailabh> Please do. If this accounting can fit into some other
-Shailabh> framework, thats fine too.
+reuben
 
-Ok, finally, sorry for the delay. My current code snapshot is
-available at http://www.trained-monkey.org/~jes/patches/task_notify/ -
-it's a modified version of Jack's task_notify code, and three example
-users of it (the SysV IPC semundo semaphore, the key infrastructure
-and SGI's JOB module). The patch order should be task_notify.diff,
-task-notify-keys.diff, task-notify-semundo.diff, and
-task_notify-job.diff last.
 
-I think task_notify it should be usable for statistics gathering as
-well, the only issue is how to attach it to the processes we wish to
-gather accounting for. Personally I am not a big fan of the current
-concept where statistics are gathered for all tasks at all time but
-just not exported until accounting is enabled.
 
-I just had a quick look at the connector code and I think it could
-possibly be hooked into the task_notify code as well as connectors
-seem to be another optional feature.
 
-The API for the task_notify code is not set in stone and we can add
-more notifier hooks where needed. If someone has strong reasoning for
-making changes to the API, then I'll be very open to that.
 
-Anyway, let me know what you think?
-
-Cheers,
-Jes

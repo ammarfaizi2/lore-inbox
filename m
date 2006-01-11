@@ -1,133 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWAKGYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbWAKGZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932624AbWAKGYb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 01:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWAKGYb
+	id S932594AbWAKGZu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 01:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWAKGZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 01:24:31 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:47390 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S932376AbWAKGYa (ORCPT
+	Wed, 11 Jan 2006 01:25:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5828 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932594AbWAKGZt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 01:24:30 -0500
-Subject: Re: 32 bit (socket layer) ioctl emulation for 64 bit kernels -
-	patch1
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Andi Kleen <ak@muc.de>,
-       linux-kenel <linux-kernel@vger.kernel.org>,
-       x25 maintainer <eis@baty.hanse.de>, netdev <netdev@vger.kernel.org>,
-       SP <pereira.shaun@gmail.com>
-In-Reply-To: <200601101203.59423.arnd@arndb.de>
-References: <1136871078.5742.26.camel@spereira05.tusc.com.au>
-	 <200601101203.59423.arnd@arndb.de>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 17:24:48 +1100
-Message-Id: <1136960688.5347.6.camel@spereira05.tusc.com.au>
+	Wed, 11 Jan 2006 01:25:49 -0500
+Date: Tue, 10 Jan 2006 22:25:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: cpw@sgi.com, linux-kernel@vger.kernel.org, clameter@sgi.com,
+       lhms-devel@lists.sourceforge.net, taka@valinux.co.jp,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 5/5] Direct Migration V9: Avoid writeback /
+ page_migrate() method
+Message-Id: <20060110222527.1cfdf70b.akpm@osdl.org>
+In-Reply-To: <20060110224140.19138.84122.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060110224114.19138.10463.sendpatchset@schroedinger.engr.sgi.com>
+	<20060110224140.19138.84122.sendpatchset@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arnd
- Thanks for reviewing those patches, and your feedback. I have made the
-changes recommended. If these are acceptable, I will build a proper
-[PATCH] for submission.Is there anyone in particular that I need to mail
-in order that these patches go into the next release? 
-Here is the updated patch with the changes.
-/Shaun
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> +int buffer_migrate_page(struct page *newpage, struct page *page)
+>  +{
+>  +	struct address_space *mapping = page->mapping;
+>  +	struct buffer_head *bh, *head;
+>  +
+>  +	if (!mapping)
+>  +		return -EAGAIN;
+>  +
+>  +	if (!page_has_buffers(page))
+>  +		return migrate_page(newpage, page);
+>  +
+>  +	head = page_buffers(page);
+>  +
+>  +	if (migrate_page_remove_references(newpage, page, 3))
+>  +		return -EAGAIN;
+>  +
+>  +	spin_lock(&mapping->private_lock);
 
-Index: linux-2.6.15/include/linux/net.h
-===================================================================
---- linux-2.6.15.orig/include/linux/net.h
-+++ linux-2.6.15/include/linux/net.h
-@@ -143,6 +143,8 @@ struct proto_ops {
- 				      struct poll_table_struct *wait);
- 	int		(*ioctl)     (struct socket *sock, unsigned int cmd,
- 				      unsigned long arg);
-+	int	 	(*compat_ioctl) (struct socket *sock, unsigned int cmd,
-+				      unsigned long arg);
- 	int		(*listen)    (struct socket *sock, int len);
- 	int		(*shutdown)  (struct socket *sock, int flags);
- 	int		(*setsockopt)(struct socket *sock, int level,
-@@ -247,6 +249,8 @@ SOCKCALL_UWRAP(name, poll, (struct file 
- 	      (file, sock, wait)) \
- SOCKCALL_WRAP(name, ioctl, (struct socket *sock, unsigned int cmd, \
- 			 unsigned long arg), (sock, cmd, arg)) \
-+SOCKCALL_WRAP(name, compat_ioctl, (struct socket *sock, unsigned int
-cmd, \
-+			 unsigned long arg), (sock, cmd, arg)) \
- SOCKCALL_WRAP(name, listen, (struct socket *sock, int len), (sock,
-len)) \
- SOCKCALL_WRAP(name, shutdown, (struct socket *sock, int flags), (sock,
-flags)) \
- SOCKCALL_WRAP(name, setsockopt, (struct socket *sock, int level, int
-optname, \
-@@ -271,6 +275,7 @@ static struct proto_ops name##_ops = {		
- 	.getname	= __lock_##name##_getname,	\
- 	.poll		= __lock_##name##_poll,		\
- 	.ioctl		= __lock_##name##_ioctl,	\
-+	.compat_ioctl	= __lock_##name##_compat_ioctl,	\
- 	.listen		= __lock_##name##_listen,	\
- 	.shutdown	= __lock_##name##_shutdown,	\
- 	.setsockopt	= __lock_##name##_setsockopt,	\
-@@ -279,6 +284,7 @@ static struct proto_ops name##_ops = {		
- 	.recvmsg	= __lock_##name##_recvmsg,	\
- 	.mmap		= __lock_##name##_mmap,		\
- };
-+
- #endif
- 
- #define MODULE_ALIAS_NETPROTO(proto) \
-Index: linux-2.6.15/net/socket.c
-===================================================================
---- linux-2.6.15.orig/net/socket.c
-+++ linux-2.6.15/net/socket.c
-@@ -109,6 +109,10 @@ static unsigned int sock_poll(struct fil
- 			      struct poll_table_struct *wait);
- static long sock_ioctl(struct file *file,
- 		      unsigned int cmd, unsigned long arg);
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file,
-+		      unsigned int cmd, unsigned long arg);
-+#endif
- static int sock_fasync(int fd, struct file *filp, int on);
- static ssize_t sock_readv(struct file *file, const struct iovec
-*vector,
- 			  unsigned long count, loff_t *ppos);
-@@ -130,6 +134,9 @@ static struct file_operations socket_fil
- 	.aio_write =	sock_aio_write,
- 	.poll =		sock_poll,
- 	.unlocked_ioctl = sock_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl = compat_sock_ioctl,
-+#endif
- 	.mmap =		sock_mmap,
- 	.open =		sock_no_open,	/* special open code to disallow open via /proc
-*/
- 	.release =	sock_close,
-@@ -2084,6 +2091,20 @@ void socket_seq_show(struct seq_file *se
- }
- #endif /* CONFIG_PROC_FS */
- 
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file, unsigned cmd, unsigned
-long arg)
-+{
-+	struct socket *sock;
-+	sock = file->private_data;
-+
-+	int ret = -ENOIOCTLCMD;
-+	if(sock->ops->compat_ioctl)
-+		ret = sock->ops->compat_ioctl(sock, cmd, arg);
-+
-+	return ret;
-+}
-+#endif
-+
- /* ABI emulation layers need these two */
- EXPORT_SYMBOL(move_addr_to_kernel);
- EXPORT_SYMBOL(move_addr_to_user);
+Why are you taking ->private_lock here?
+
+address_space.private_lock protects the list of buffers at
+address_space.private_list.  For a regular file (or directory or long
+symlink..) that list contains buffers against the blockdev mapping (a
+different address_space) which need to be synced for a successful fsync of
+this file.  ie: dirty metadata for this file.
+
+So we have two situations:
+
+a) page->mapping->host refers to a regular file/dir/etc
+
+   Here, mapping->private_list holds potentially-dirty buffers against
+   the blockdev mapping (a different address_space).
+
+   Nothing needs to be done.
+
+b) page->mapping->host refers to a blockdev (/dev/hda1's pages)
+
+   Here, mapping->private_list is actually always empty.
+
+   Nothing needs to be done.
 
 
+   BUT, page_buffers(page) refers to buffers which might be on some
+   other address_space's ->private_list.  Because a blockdev may have dirty
+   buffers which some other address_space needs to write out for its sync.
 
+   blockdevmapping->private_lock is the correct lock for these buffers. 
+   Each regular file has a copy of blockdevmapping in its ->assoc_mapping,
+   so all files end up taking the same lock when manipulating their
+   ->private_list.
+
+   As long as you've taken a ref on the blockdev mapping's buffers and
+   locked them then nobody will be starting I/O against them or fiddling
+   with ->b_page while you do the swizzle (I think).
+
+AFAIK nobody ever used address_space.private_list for anything apart from
+the associated buffers, but that's just a btw.
+
+Anyway, ->private_lock is purely for protecting the thing at
+->private_list, so I suspect this locking is simply unneeded.
+
+Please explain the reasoning behind taking this lock.  In fact, that should
+have been commented, in the spirit of buffer.c's glorious overcommenting,
+which I'm sure you enjoyed ;)

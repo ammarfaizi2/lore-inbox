@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWAKRwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWAKRxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbWAKRwK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 12:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWAKRwK
+	id S932398AbWAKRxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 12:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWAKRxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 12:52:10 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:61314 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932352AbWAKRwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 12:52:09 -0500
-Date: Wed, 11 Jan 2006 12:51:52 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Esben Nielsen <simlo@phys.au.dk>
-cc: Ingo Molnar <mingo@elte.hu>, david singleton <dsingleton@mvista.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
-In-Reply-To: <Pine.LNX.4.44L0.0601111816360.16743-201000@lifa03.phys.au.dk>
-Message-ID: <Pine.LNX.4.58.0601111240020.31180@gandalf.stny.rr.com>
-References: <Pine.LNX.4.44L0.0601111816360.16743-201000@lifa03.phys.au.dk>
+	Wed, 11 Jan 2006 12:53:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:24383 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932398AbWAKRxL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 12:53:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Qh98s05Zt8LAyo1AH+qV4Z2q+97CpXPCReiwsKWiFji3COc8WQk1qqwcMI1Y5VOk2WcV8mrR/vxlVxcZi7IQffUZAWo8Of2QI/Q6Pwxba5n0yJaIx6DbCBQ1PFzeiFlD1UiDfrfyvb8Sm8lFGXyJ9vDk5fjQHDbVagnIyZTmas0=
+Message-ID: <401b11ae0601110953h2389f118t3d4d11c33eece4f8@mail.gmail.com>
+Date: Wed, 11 Jan 2006 17:53:10 +0000
+From: erg0t <ergot86@gmail.com>
+To: mingo@elte.hu
+Subject: [PATCH] i386 - sys_clone from vsyscall
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes a little problem when sys_clone is called from a
+vsyscall and a new stack
+for the child is specifed.
+Some regs, and return address are pushed in the stack before sysenter,
+so when the syscall returns, pop the regs and return, if we made a new
+stack for the thread
+we need to copy that to the new stack or the thread will segfault.
+Sorry for use the 0xffffe410 constant I didn't find another way to reference it.
+And sorry for my english :S
+	Signed-off-by: Daniel F <ergot86@gmail.com>
 
-On Wed, 11 Jan 2006, Esben Nielsen wrote:
+--- /usr/src/linux-2.6.14/arch/i386/kernel/process.c.orig    
+2005-12-13 17:06:46.000000000 +0000
++++ /usr/src/linux-2.6.14/arch/i386/kernel/process.c  2006-01-11
+15:19:01.000000000 +0000
+@@ -446,6 +446,7 @@ int copy_thread(int nr, unsigned long cl
+ {
+        struct pt_regs * childregs;
+        struct task_struct *tsk;
++       unsigned long vsyscall_stack[4] ;
+        int err;
 
-> I have done 2 things which might be of interrest:
->
-> I) A rt_mutex unittest suite. It might also be usefull against the generic
-> mutexes.
->
-> II) I changed the priority inheritance mechanism in rt.c,
-> optaining the following goals:
->
+        childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long)
+p->thread_info)) - 1;
+@@ -462,6 +463,17 @@ int copy_thread(int nr, unsigned long cl
+        childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
+        *childregs = *regs;
+        childregs->eax = 0;
++       /*
++        * When we were called from a vsyscall some thigs are pushed
+on the stack,
++        * we need to copy the stuff to the new stack.
++        */
++       if ((regs->esp != esp) && (regs->eip == 0xffffe410)) {
++               if (copy_from_user(vsyscall_stack,(void
+*)regs->esp,sizeof(vsyscall_stack)))
++                       return -EFAULT ;
++               if (copy_to_user((void
+*)esp-sizeof(vsyscall_stack),vsyscall_stack,sizeof(vsyscall_stack)))
++                       return -EFAULT ;
++               esp -= sizeof(vsyscall_stack) ;
++       }
+        childregs->esp = esp;
 
-Interesting.  I'll take a look more at this after I finish dealing with
-some deadlocks that I found in posix-timers.
-
-[snip]
->
-> What am I missing:
-> Testing on SMP. I have no SMP machine. The unittest can mimic the SMP
-> somewhat
-> but no unittest can catch _all_ errors.
-
-I have a SMP machine that just freed up.  It would be interesting to see
-how this works on a 8x machine.  I'll test it first on my 2x, and when
-Ingo gets some time he can test it on his big boxes.
-
->
-> Testing with futexes.
->
-> ALL_PI_TASKS are always switched on now. This is for making the code
-> simpler.
->
-> My machine fails to run with CONFIG_DEBUG_DEADLOCKS and CONFIG_DEBUG_PREEMPT
-> on at the same time. I need a serial cabel and on consol over serial to
-> debug it. My screen is too small to see enough there.
->
-> Figure out more tests to run in my unittester.
->
-> So why aren't I doing those things before sending the patch? 1) Well my
-> girlfriend comes back tomorrow with our child. I know I will have no time to code anything substential
-> then. 2) I want to make sure Ingo sees this approach before he starts
-> merging preempt_rt and rt_mutex with his now mainstream mutex.
-
-If I get time, I might be able to finish this up, if the changes look
-decent, and don't cause too much overhead.
-
--- Steve
-
+        p->thread.esp = (unsigned long) childregs;

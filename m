@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbWAKKOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbWAKKT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbWAKKOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 05:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbWAKKOD
+	id S932696AbWAKKT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 05:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbWAKKTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 05:14:03 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21649 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932615AbWAKKOB (ORCPT
+	Wed, 11 Jan 2006 05:19:55 -0500
+Received: from mx1.ifl.net ([213.18.248.104]:9957 "EHLO mx1.ifl.net")
+	by vger.kernel.org with ESMTP id S932382AbWAKKTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 05:14:01 -0500
-Date: Wed, 11 Jan 2006 05:13:00 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Ingo Molnar <mingo@elte.hu>, Hugh Dickins <hugh@veritas.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] fix i386 mutex fastpath on FRAME_POINTER &&  !DEBUG_MUTEXES
-In-Reply-To: <200601110327_MC3-1-B5A3-6E0E@compuserve.com>
-Message-ID: <Pine.LNX.4.58.0601110511590.24014@devserv.devel.redhat.com>
-References: <200601110327_MC3-1-B5A3-6E0E@compuserve.com>
+	Wed, 11 Jan 2006 05:19:55 -0500
+Message-ID: <43C4DB86.7030603@projecthugo.co.uk>
+Date: Wed, 11 Jan 2006 10:18:46 +0000
+From: Matt Darcy <kernel-lists@projecthugo.co.uk>
+Reply-To: kernel-lists@projecthugo.co.uk
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git patch] 2.6.x libata fix
+References: <20060109171104.GA25793@havoc.gtf.org>
+In-Reply-To: <20060109171104.GA25793@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-IFL-MailScanner-Information: Please contact IFL support for more information
+X-IFL-MailScanner: Found to be clean
+X-IFL-MailScanner-From: kernel-lists@projecthugo.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
 
-On Wed, 11 Jan 2006, Chuck Ebbert wrote:
+>Please pull from 'upstream-linus' branch of
+>master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+>
+>to receive the following updates:
+>
+> drivers/scsi/sata_nv.c |   30 ++++++++++++++++++++++++------
+> 1 files changed, 24 insertions(+), 6 deletions(-)
+>
+>Andrew Chew:
+>      sata_nv, spurious interrupts at system startup with MAXTOR 6H500F0 drive
+>
+>diff --git a/drivers/scsi/sata_nv.c b/drivers/scsi/sata_nv.c
+>index c0cf52c..bbbb55e 100644
+>--- a/drivers/scsi/sata_nv.c
+>+++ b/drivers/scsi/sata_nv.c
+>
+> <snip reset of patch>
+>  
+>
+Hi Jeff, et all
 
-> In-Reply-To: <20060110210744.GA8850@elte.hu>
-> 
-> On Tue, 10 Jan 2006 at 22:07:44 +0100, Ingo Molnar wrote:
-> 
-> > --- linux.orig/include/asm-i386/mutex.h
-> > +++ linux/include/asm-i386/mutex.h
-> > @@ -28,7 +28,13 @@ do {                                                                       \
-> >                                                                       \
-> >       __asm__ __volatile__(                                           \
-> >               LOCK    "   decl (%%eax)        \n"                     \
-> > -                     "   js "#fail_fn"       \n"                     \
-> > +                     "   js 2f               \n"                     \
-> > +                     "1:                     \n"                     \
-> > +                                                                     \
-> > +             LOCK_SECTION_START("")                                  \
-> > +                     "2: call "#fail_fn"     \n"                     \
-> > +                     "   jmp 1b              \n"                     \
-> > +             LOCK_SECTION_END                                        \
-> >                                                                       \
-> >               :"=a" (dummy)                                           \
-> >               : "a" (count)                                           \
-> 
-> 
-> But now it's inefficient again.
-> 
-> Why not this:
-> 
->                 LOCK    "   decl (%%eax)        \n"                     \
->                         "   jns 1f              \n"                     \
->                         "   call "#fail_fn"     \n"                     \
->                         "1:                     \n"                     \
->                                                                         \
->                 :"=a" (dummy)                                           \
->                 : "a" (count)                                           \
-> 
-> 
-> Will the extra taken forward conditional jump in the fastpath cause much
-> of a slowdown?
+I pulled this down last night from 
+git.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+as I don't have an account on master.kernel.org, I assume these are the 
+same physical tree.
 
-yeah - the fastpath is much more common than the slowpath.
+This built fine and seemed aware of all the SATA disks on my controller 
+(as did previous git branches).
 
-	Ingo
+Again using my raid5 (7 disks 1.4tb) example, I am unable to build an 
+array without the machine hanging.
+
+I am able to access the individual disks for a short period of time 
+before the box hangs totally which I assume is why the raid array will 
+not build as the access for the disks hangs, not the actual building of 
+the array.
+
+I havn't got any output yet on the errors (if there are any) as I left 
+the array building overnight (300+ minutes) and when I woke up this 
+morning the box had hung, but power saver had come on the screen so I 
+couldn't see the messages.
+
+I'll do another test this afternoon and try to get some output for you, 
+but I just thought I'd let you know this was coming.
+
+Aslo FYI: I'm using maxtor SATA disks, so your patch was of particular 
+interesting to me.
+
+Many thanks,
+
+Matt
+
+
+

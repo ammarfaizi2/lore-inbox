@@ -1,117 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWAKLlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWAKLut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWAKLlu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 06:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWAKLlu
+	id S932316AbWAKLut (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 06:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWAKLut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 06:41:50 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28312 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932201AbWAKLlt (ORCPT
+	Wed, 11 Jan 2006 06:50:49 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:48272 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932316AbWAKLut (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 06:41:49 -0500
-Date: Wed, 11 Jan 2006 03:38:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ericvh@gmail.com (Eric Van Hensbergen)
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.org
-Subject: Re: [PATCH]: v9fs: add readpage support
-Message-Id: <20060111033821.4b3d4d7b.akpm@osdl.org>
-In-Reply-To: <20060111011437.451FD5A809A@localhost.localdomain>
-References: <20060111011437.451FD5A809A@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 11 Jan 2006 06:50:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=SYK704eiuSW/zRtekGd2vNyx4JVE1q8l/PCynlFZIVEpMu1lBTR6YmzcfCORzVII+IqvoZaGFgI/9Cc1VRsEFcaGnTqKDiVyrIYKJZ1vhTD5WyP04EDn1lEin7BapeQPy2KQzDYb6oj2qXojpZoWm/GJ6M/7Kt98cAXfyIBTAAA=
+Message-ID: <43C4F114.9070308@gmail.com>
+Date: Wed, 11 Jan 2006 19:50:44 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-$SHA1: VT <-> X sometimes odd
+References: <20060110162305.GA7886@mipter.zuzino.mipt.ru>
+In-Reply-To: <20060110162305.GA7886@mipter.zuzino.mipt.ru>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ericvh@gmail.com (Eric Van Hensbergen) wrote:
->
-> Subject: [PATCH] v9fs: add readpage support
+Alexey Dobriyan wrote:
+> Approximate sequence of event:
 > 
-> v9fs mmap support was originally removed from v9fs at Al Viro's request,
-> but recently there have been requests from folks who want readpage
-> functionality (primarily to enable execution of files mounted via 9P).
-> This patch adds readpage support (but not writepage which contained most of
-> the objectionable code).  It passes FSX (and other regressions) so it
-> should be relatively safe.
+> 1. script which builds allmodconfig on 11 targets is left on otherwise
+>    idle machine. Logged in on VT1. Logged of X.
+> 2. After 5 hours I return, ensure script behaves OK, switch to X and see
+>    black screen.
+> 3. Now, trying to switch between VTs and X gives nothing but black
+>    screen.
+> 4. Alt+SysRq+K. After several seconds black screen switches to black
+>    screen with text cursor in the upper-left corner.
+> 5. Futher attempts to switch and SysRq+Ki'ing gave nothing.
+> 6. In a minute or so X login prompt reappeared. Mouse os OK. Keyboard is
+>    not. In particular, typing username doesn't work.
+> 7. By some miracle, typing became OK (probably after I hit Ctrl, not
+>    sure). I login to X successfully and fire up mutt to mail bugreport.
+> 8. Devil turned me to switch to VT again...
+> 9. goto #5.
+> 10. Cold reboot.
+
+Can you reproduce this with another X driver, for example, vesa or
+fbdev, and/or with another console driver? Maybe you can also try with
+DRI enabled and disabled?
+ 
 > 
-> +
-> +static int v9fs_vfs_readpage(struct file *filp, struct page *page)
-> +{  
-> +	char *buffer = NULL;
-> +	int retval = -EIO;
-> +	loff_t offset = page_offset(page);
-> +	int count = PAGE_CACHE_SIZE;
-> +	struct inode *inode = filp->f_dentry->d_inode;
-> +	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(inode);
-> +	int rsize = v9ses->maxdata - V9FS_IOHDRSZ;
-> +	struct v9fs_fid *v9f = filp->private_data;
-> +	struct v9fs_fcall *fcall = NULL;
-> +	int fid = v9f->fid;
-> +	int total = 0;
-> +	int result = 0;
-> +
-> +	buffer = kmap(page);
-> +	do {
-> +		if (count < rsize)
-> +			rsize = count;
-> +
-> +		result = v9fs_t_read(v9ses, fid, offset, rsize, &fcall);
-> +
-> +		if (result < 0) {
-> +			printk(KERN_ERR "v9fs_t_read returned %d\n",
-> +			       result);
-> +
-> +			kfree(fcall);
-> +			goto UnmapAndUnlock;
-> +		} else
-> +			offset += result;
-> +
-> +		memcpy(buffer, fcall->params.rread.data, result);
-> +
-> +		count -= result;
-> +		buffer += result;
-> +		total += result;
-> +
-> +		kfree(fcall);
+> The overall feeling is that X left without human interaction starts to
+> reacts slooowly (probably after blanking kicks in?).
 
-Minor thing: from my reading of v9fs_mux_rpc() there's potential for a
-double-kfree here.  Either v9fs_mux_rpc() needs to be changed to
-unambiguously zero out *rcall (or, better, v9fs_t_read does it) or you need
-to zero fcall on each go around the loop.
+That's also what I'm thinking, console blanking, X blanking, or power
+management. You might want to shorten the console blanking interval with:
 
+setterm -blank 1.
 
-> +		if (result < rsize)
-> +			break;
-> +	} while (count);
-> +
-> +	memset(buffer, 0, count);
-> +	flush_dcache_page(page);
-> +	SetPageUptodate(page);
-
-if (result < rsize), is the page really up to date?
-
-> +	retval = 0;
-> +
-> +      UnmapAndUnlock:
-> +	kunmap(page);
-
-eww, do you really indent labels like that?
-
-> diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
-> index 6852f0e..feddc5c 100644
-> --- a/fs/9p/vfs_file.c
-> +++ b/fs/9p/vfs_file.c
-> @@ -289,6 +289,8 @@ v9fs_file_write(struct file *filp, const
->  		total += result;
->  	} while (count);
->  
-> +	invalidate_inode_pages2(inode->i_mapping);
-> +
->  	return total;
->  }
-
-That's a really scary function you have there.  Can you explain the
-thinking behind its use here?  What are we trying to achieve?
-
-
+Tony

@@ -1,101 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbWAKG6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160994AbWAKG7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030292AbWAKG6m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 01:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWAKG6m
+	id S1160994AbWAKG7K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 01:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWAKG6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 01:58:42 -0500
-Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:43381 "HELO
-	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030292AbWAKG6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 01:58:45 -0500
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:44168 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030299AbWAKG6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 11 Jan 2006 01:58:41 -0500
-Message-Id: <20060111065752.016420000.dtor_core@ameritech.net>
+Message-Id: <20060111065752.245711000.dtor_core@ameritech.net>
 References: <20060111064746.560312000.dtor_core@ameritech.net>
-Date: Wed, 11 Jan 2006 01:47:50 -0500
+Date: Wed, 11 Jan 2006 01:47:52 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>
-Subject: [patch 4/6] tb0219: convert to the new platform device interface
-Content-Disposition: inline; filename=tb02190-new-platform-interface.patch
+Subject: [patch 6/6] serial8250: convert to the new platform device interface
+Content-Disposition: inline; filename=8250-new-platform-intf.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tb0219: convert to the new platform device interface
+serial8250: convert to the new platform device interface
 
 Do not use platform_device_register_simple() as it is going away.
+Also set up driver's owner to create link driver->module in sysfs. 
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/char/tb0219.c |   24 +++++++++++++++---------
- 1 files changed, 15 insertions(+), 9 deletions(-)
+ drivers/serial/8250.c |   30 ++++++++++++++++++++----------
+ 1 files changed, 20 insertions(+), 10 deletions(-)
 
-Index: work/drivers/char/tb0219.c
+Index: work/drivers/serial/8250.c
 ===================================================================
---- work.orig/drivers/char/tb0219.c
-+++ work/drivers/char/tb0219.c
-@@ -283,7 +283,7 @@ static void tb0219_pci_irq_init(void)
- 	vr41xx_set_irq_level(TB0219_PCI_SLOT3_PIN, IRQ_LEVEL_LOW);
- }
- 
--static int tb0219_probe(struct platform_device *dev)
-+static int __devinit tb0219_probe(struct platform_device *dev)
- {
- 	int retval;
- 
-@@ -319,7 +319,7 @@ static int tb0219_probe(struct platform_
- 	return 0;
- }
- 
--static int tb0219_remove(struct platform_device *dev)
-+static int __devexit tb0219_remove(struct platform_device *dev)
- {
- 	_machine_restart = old_machine_restart;
- 
-@@ -335,19 +335,26 @@ static struct platform_device *tb0219_pl
- 
- static struct platform_driver tb0219_device_driver = {
- 	.probe		= tb0219_probe,
--	.remove		= tb0219_remove,
-+	.remove		= __devexit_p(tb0219_remove),
+--- work.orig/drivers/serial/8250.c
++++ work/drivers/serial/8250.c
+@@ -2453,6 +2453,7 @@ static struct platform_driver serial8250
+ 	.resume		= serial8250_resume,
  	.driver		= {
- 		.name	= "TB0219",
+ 		.name	= "serial8250",
 +		.owner	= THIS_MODULE,
  	},
  };
  
--static int __devinit tanbac_tb0219_init(void)
-+static int __init tanbac_tb0219_init(void)
- {
- 	int retval;
+@@ -2593,21 +2594,30 @@ static int __init serial8250_init(void)
+ 	if (ret)
+ 		goto out;
  
--	tb0219_platform_device = platform_device_register_simple("TB0219", -1, NULL, 0);
--	if (IS_ERR(tb0219_platform_device))
--		return PTR_ERR(tb0219_platform_device);
-+	tb0219_platform_device = platform_device_alloc("TB0219", -1);
-+	if (!tb0219_platform_device)
-+		return -ENOMEM;
+-	serial8250_isa_devs = platform_device_register_simple("serial8250",
+-					 PLAT8250_DEV_LEGACY, NULL, 0);
+-	if (IS_ERR(serial8250_isa_devs)) {
+-		ret = PTR_ERR(serial8250_isa_devs);
+-		goto unreg;
++	ret = platform_driver_register(&serial8250_isa_driver);
++	if (ret)
++		goto unreg_uart_drv;
 +
-+	retval = platform_device_add(tb0219_platform_device);
-+	if (retval < 0) {
-+		platform_device_put(tb0219_platform_device);
-+		return retval;
-+	}
++	serial8250_isa_devs = platform_device_alloc("serial8250",
++						    PLAT8250_DEV_LEGACY);
++	if (!serial8250_isa_devs) {
++		ret = -ENOMEM;
++		goto unreg_plat_drv;
+ 	}
  
- 	retval = platform_driver_register(&tb0219_device_driver);
- 	if (retval < 0)
-@@ -356,10 +363,9 @@ static int __devinit tanbac_tb0219_init(
- 	return retval;
- }
++	ret = platform_device_add(serial8250_isa_devs);
++	if (ret)
++		goto put_dev;
++
+ 	serial8250_register_ports(&serial8250_reg, &serial8250_isa_devs->dev);
  
--static void __devexit tanbac_tb0219_exit(void)
-+static void __exit tanbac_tb0219_exit(void)
- {
- 	platform_driver_unregister(&tb0219_device_driver);
--
- 	platform_device_unregister(tb0219_platform_device);
- }
+-	ret = platform_driver_register(&serial8250_isa_driver);
+-	if (ret == 0)
+-		goto out;
++	goto out;
  
+-	platform_device_unregister(serial8250_isa_devs);
+- unreg:
++ put_dev:
++	platform_device_put(serial8250_isa_devs);
++ unreg_plat_drv:
++	platform_driver_unregister(&serial8250_isa_driver);
++ unreg_uart_drv:
+ 	uart_unregister_driver(&serial8250_reg);
+  out:
+ 	return ret;
 

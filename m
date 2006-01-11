@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWAKVpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWAKVqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWAKVpR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 16:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWAKVpR
+	id S1750910AbWAKVqE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 16:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWAKVqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 16:45:17 -0500
-Received: from styx.suse.cz ([82.119.242.94]:4750 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750894AbWAKVpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 16:45:15 -0500
-Date: Wed, 11 Jan 2006 22:45:32 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: dtor_core@ameritech.net, Michael Hanselmann <linux-kernel@hansmi.ch>,
-       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz,
-       linuxppc-dev@ozlabs.org, linux-kernel@killerfox.forkbomb.ch
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
-Message-ID: <20060111214532.GA11962@midnight.suse.cz>
-References: <20051225212041.GA6094@hansmi.ch> <200512252304.32830.dtor_core@ameritech.net> <1135575997.14160.4.camel@localhost.localdomain> <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com> <1137015006.5138.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137015006.5138.18.camel@localhost.localdomain>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+	Wed, 11 Jan 2006 16:46:04 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:13749 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1750910AbWAKVqC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 16:46:02 -0500
+Date: Wed, 11 Jan 2006 22:45:42 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Ingo Molnar <mingo@elte.hu>, david singleton <dsingleton@mvista.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
+In-Reply-To: <Pine.LNX.4.58.0601111240020.31180@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.44L0.0601112229540.16715-100000@lifa01.phys.au.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 08:30:06AM +1100, Benjamin Herrenschmidt wrote:
 
-> > Ok, I am looking at the patch again, and I have a question - do we
-> > really need these 3 module parameters? If the goal is to be compatible
-> > with older keyboards then shouldn't we stick to one behavior?
-> 
-> I personally think one parameter is plenty enough (on/off) . Michael,
-> can you send Dimitri the latest version of that patch please ?
- 
-I agree. If you need the compatible behavior.
+On Wed, 11 Jan 2006, Steven Rostedt wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+>
+> On Wed, 11 Jan 2006, Esben Nielsen wrote:
+> [snip]
+>
+> If I get time, I might be able to finish this up, if the changes look
+> decent, and don't cause too much overhead.
+
+This was the answer I was hoping for!  I'll try to get time to test and
+improve myself ofcourse.
+As for optimization: I take and release the current->pi_lock and
+owner->pi_lock a lot because it isn't allowed to have both locks. Some
+code restructuring could probably improve it such that it first finishes
+what it has to finish under current->pi_lock then does what it has to do
+under the owner->pi_lock - or the other way around.
+In a few places pi_lock is taken without just to be sure. It might be
+removed.
+
+But first we have to establish the principle. Then optimization can begin.
+
+Esben
+
+>
+> -- Steve
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

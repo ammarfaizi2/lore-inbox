@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWAKW25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWAKWhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWAKW25 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 17:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWAKW25
+	id S932399AbWAKWhW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWAKWhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 17:28:57 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:46536 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932302AbWAKW24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 17:28:56 -0500
-Message-ID: <43C5869A.5080107@gentoo.org>
-Date: Wed, 11 Jan 2006 22:28:42 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051223)
+	Wed, 11 Jan 2006 17:37:21 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:10711 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932306AbWAKWhS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 17:37:18 -0500
+Message-ID: <43C58895.4080006@pobox.com>
+Date: Wed, 11 Jan 2006 17:37:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Drake <dsd@gentoo.org>
+CC: "John W. Linville" <linville@tuxdriver.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: Wireless: One small step towards a more perfect union...?
-References: <20060106042218.GA18974@havoc.gtf.org> <20060111020534.GA22285@tuxdriver.com>
-In-Reply-To: <20060111020534.GA22285@tuxdriver.com>
+References: <20060106042218.GA18974@havoc.gtf.org> <20060111020534.GA22285@tuxdriver.com> <43C5869A.5080107@gentoo.org>
+In-Reply-To: <43C5869A.5080107@gentoo.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Daniel Drake wrote: > FWIW, my opinion is that the
+	devicescape code should be broken down and > used to extend the
+	existing stack, no matter how 'good' it is. The way > it has been
+	developed (i.e. totally outside of the ieee80211 stack) is > somewhat
+	insulting to our development process. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
-> If you are the maintainer of an out-of-tree driver or other component
-> (e.g. softmac), please let me hear from you (publicly or privately).
-> I want to be sure to identify all the major stakeholders.  I would
-> also like to hear your plans for getting your code into the tree... :-)
+Daniel Drake wrote:
+> FWIW, my opinion is that the devicescape code should be broken down and 
+> used to extend the existing stack, no matter how 'good' it is. The way 
+> it has been developed (i.e. totally outside of the ieee80211 stack) is 
+> somewhat insulting to our development process.
 
-Thanks for stepping up for this role - I'm sure it will help the 
-situation improve. Here's some info about an out-of-tree driver for you:
+Strongly agreed, though perhaps some of the blame rests on me for 
+letting ieee80211 sit around too long without a clear maintainer...
 
-ZD1211.
+	Jeff
 
-These are USB 2.0 wireless adapters, there are about 20 available on the 
-market, all branded differently.
 
-There is a GPL driver available from ZyDAS (the manufacturer) but, well, 
-you really don't want to see it. There have been projects come and go 
-(zd1211.sf.net, zd1211.ath.cx) which try to make the ZyDAS driver more 
-workable, but they restrict themselves to small unobtrusive patches, 
-leaving the code still in a horrific state, not at all suited for kernel 
-inclusion.
-
-ZyDAS also made the device specs available to us, however they are 
-somewhat inaccurate, almost as if they were written about another device 
-altogether.
-
-Myself and two others have recently started rewriting the driver:
-
-http://zd1211.ath.cx/wiki/RoadmapForKernelInclusion
-
-We're in very early stages but progress should be fairly quick once we 
-have 'deciphered' more of the junk in the vendor driver.
-
-Right now we will be using the ieee80211 wireless stack, for the simple 
-reason that this is what is included in the kernel, and our top priority 
-is inclusion ASAP.
-
-FWIW, my opinion is that the devicescape code should be broken down and 
-used to extend the existing stack, no matter how 'good' it is. The way 
-it has been developed (i.e. totally outside of the ieee80211 stack) is 
-somewhat insulting to our development process.
-
-Daniel

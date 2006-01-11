@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751712AbWAKSJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWAKSKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751712AbWAKSJb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWAKSJb
+	id S932413AbWAKSKh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWAKSKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:09:31 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:28073 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751711AbWAKSJa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:09:30 -0500
-Message-ID: <43C55BAF.180F3689@tv-sign.ru>
-Date: Wed, 11 Jan 2006 22:25:35 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] rcu: fix hotplug-cpu ->donelist leak
-References: <43C165BC.F7C6DCF5@tv-sign.ru> <20060109185944.GB15083@us.ibm.com> <43C2C818.65238C30@tv-sign.ru> <20060109195933.GE14738@us.ibm.com> <20060110095811.GA30159@in.ibm.com> <43C3C3B5.61D5641@tv-sign.ru> <20060111162809.GC21885@us.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+	Wed, 11 Jan 2006 13:10:37 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:14767 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S932413AbWAKSKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:10:36 -0500
+Subject: Re: [IPV6]: Set skb->priority in ip6_output.c
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Patrick McHardy <kaber@trash.net>, davem@davemloft.net
+In-Reply-To: <200601100009.k0A09dlx021099@hera.kernel.org>
+References: <200601100009.k0A09dlx021099@hera.kernel.org>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 18:10:25 +0000
+Message-Id: <1137003025.4196.114.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" wrote:
-> 
-> This passed a ten-hour RCU torture test, with the torture test augmented
+On Mon, 2006-01-09 at 16:09 -0800, Linux Kernel Mailing List wrote:
+> --- a/net/ipv6/ip6_output.c
+> +++ b/net/ipv6/ip6_output.c
+> @@ -226,6 +226,8 @@ int ip6_xmit(struct sock *sk, struct sk_
+>         ipv6_addr_copy(&hdr->saddr, &fl->fl6_src);
+>         ipv6_addr_copy(&hdr->daddr, first_hop);
+>  
+> +       skb->priority = sk->sk_priority;
+> +
 
-Thank you!
+This function is called with NULL sk from tcp_v6_send_ack() and
+tcp_v6_send_reset() ... and now oopses.
 
-> by Vatsa's CPU-hotplug RCU-torture-test patch.
+-- 
+dwmw2
 
-I can't find this patch, could you point me?
-
-Oleg.

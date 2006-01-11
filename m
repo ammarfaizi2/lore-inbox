@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWAKP0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWAKP0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWAKP0U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 10:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWAKP0U
+	id S1751459AbWAKP0W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 10:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWAKP0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 10:26:20 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:13752 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751451AbWAKP0T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 10:26:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L5kfQeb/NR78vBL9jVX10XEqDktVgX2p9bMBlpyGoyvVWbZb/YOp1dyZ7rOb9ND0DO1d3rXVD2fxFjyg0hMoLLhSMdAHnXJ3YGWKHA+IhTH+1548UElhZrarp4DCMZEKV6rjBpAGTYwTxV805F0YvFozjHVzRjEGqnDa2djAv4o=
-Message-ID: <5a2cf1f60601110726r46805e1dl784f0a0ca20c128@mail.gmail.com>
-Date: Wed, 11 Jan 2006 16:26:18 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ata errors -> read-only root partition. Hardware issue?
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5a2cf1f60601110552t5e9afa0dr7785b22ae6dbd99b@mail.gmail.com>
+	Wed, 11 Jan 2006 10:26:22 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:49555 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751459AbWAKP0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 10:26:21 -0500
+Date: Wed, 11 Jan 2006 10:26:19 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
+       "dtor_core @ ameritech. net Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       <linux-usb-devel@lists.sourceforge.net>, Greg KH <gregkh@suse.de>,
+       Leonid <nouser@lpetrov.net>
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+In-Reply-To: <20060111000151.GA5712@sith.mimuw.edu.pl>
+Message-ID: <Pine.LNX.4.44L0.0601111024260.5195-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5ttip-Xh-13@gated-at.bofh.it> <43C4493A.4010305@shaw.ca>
-	 <5a2cf1f60601110030u358c12fcscf79067cbc3eebe0@mail.gmail.com>
-	 <1136986688.28616.7.camel@localhost.localdomain>
-	 <5a2cf1f60601110552t5e9afa0dr7785b22ae6dbd99b@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/06, jerome lacoste <jerome.lacoste@gmail.com> wrote:
-> On 1/11/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Mer, 2006-01-11 at 09:30 +0100, jerome lacoste wrote:
-> > > - scan for bad blocks
-> >
-> > Read the entire disk (write will hide and clean up errors by
-> > reallocating)
->
-> something like should be sufficient right?
->
-> cat /dev/sdax > /dev/null
+On Wed, 11 Jan 2006, Jan Rekorajski wrote:
 
-I did something slightly different:
+> On Tue, 10 Jan 2006, Dmitry Torokhov wrote:
+> 
+> > We'll just have to wait for another report. "Sluggish typing" report
+> > looks promising.
+> 
+> With 2.6.14.6:
+> 
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> 
+> and my keyboard works.
+> 
+> with 2.6.15:
+> 
+> i8042.c: Can't read CTR while initializing i8042.
+> 
+> and no PS/2 keyboard.
+> 
+> This happens on Dell Precision 380, x86_64 kernel with SMP/HT, no options
+> on kernel command line, same kernel .config (modulo make oldconfig).
+> I tried all solutions I found on google, none works (beside connecting
+> USB keyboard or disabling USB in BIOS).
 
-root@manies:~# cat /dev/sda > /dev/null
-cat: /dev/sda: Input/output error
+Assuming your BIOS isn't totally out-of-date, what happens if you try 
+turning off the usb-handoff code and preventing the *hci-hcd.ko drivers 
+from loading, as described ealier in this thread?
 
-and in dmesg, problems show again:
+If your keyboard works in that state, what happens when you disable 
+the handoff code and driver for each one of the drivers, alone?
 
-ata3: status=0x51 { DriveReady SeekComplete Error }
-ata3: error=0x40 { UncorrectableError }
-ata3: status=0x51 { DriveReady SeekComplete Error }
-ata3: error=0x40 { UncorrectableError }
-ata3: status=0x51 { DriveReady SeekComplete Error }
-ata3: error=0x40 { UncorrectableError }
-ata3: status=0x51 { DriveReady SeekComplete Error }
-ata3: error=0x40 { UncorrectableError }
-ata3: status=0x51 { DriveReady SeekComplete Error }
-ata3: error=0x40 { UncorrectableError }
-SCSI error : <2 0 0 0> return code = 0x8000002
-sda: Current: sense key: Medium Error
-    Additional sense: Unrecovered read error - auto reallocate failed
-end_request: I/O error, dev sda, sector 39088832
-Buffer I/O error on device sda, logical block 4886104
-ata3: status=0x51 { DriveReady SeekComplete Error }
-ata3: error=0x40 { UncorrectableError }
-....
+Alan Stern
 
-
-
-smartmontools is unfortunately not installed but I probably don't need it.
-
-Could something else (bad cable or disk controller ) trigger these issues?
-
-It would be great if we users had a quick way to decipher these messages.
-
-E.g.
-
-"Buffer I/O error on device xxxx, logical block yyyyyyy"
-
-Usualy a disk failure, may also be caused by....
-
-Etc...
-
-Noone has made an "Identifying Hardware failures HowTo"?
-
-Jerome

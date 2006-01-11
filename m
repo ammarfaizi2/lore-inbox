@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWAKWY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWAKW0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWAKWY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 17:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWAKWY0
+	id S932301AbWAKW0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWAKW0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 17:24:26 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:51927 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932298AbWAKWYZ (ORCPT
+	Wed, 11 Jan 2006 17:26:24 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:14208 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932301AbWAKW0X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 17:24:25 -0500
-Subject: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
-From: Adam Litke <agl@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <1137016960.9672.5.camel@localhost.localdomain>
-References: <1136920951.23288.5.camel@localhost.localdomain>
-	 <1137016960.9672.5.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 11 Jan 2006 16:24:23 -0600
-Message-Id: <1137018263.9672.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 17:26:23 -0500
+Date: Wed, 11 Jan 2006 23:26:17 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm3
+In-Reply-To: <20060111104520.42a766d1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0601112258250.11765@scrub.home>
+References: <20060111042135.24faf878.akpm@osdl.org> <Pine.LNX.4.61.0601111924001.11765@scrub.home>
+ <20060111104520.42a766d1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 16:02 -0600, Adam Litke wrote:
-> here).  The patch doesn't completely close the race (there is a much
-> smaller window without the zeroing though).  The next patch should close
-> the race window completely.
+Hi,
 
-My only concern is if I am using the correct lock for the job here.
+On Wed, 11 Jan 2006, Andrew Morton wrote:
 
- hugetlb.c |   14 ++++++++++----
- 1 files changed, 10 insertions(+), 4 deletions(-)
-diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
---- reference/mm/hugetlb.c
-+++ current/mm/hugetlb.c
-@@ -445,6 +445,7 @@ int hugetlb_no_page(struct mm_struct *mm
- 	struct page *page;
- 	struct address_space *mapping;
- 	pte_t new_pte;
-+	int shared = vma->vm_flags & VM_SHARED;
- 
- 	mapping = vma->vm_file->f_mapping;
- 	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
-@@ -454,26 +455,31 @@ int hugetlb_no_page(struct mm_struct *mm
- 	 * Use page lock to guard against racing truncation
- 	 * before we get page_table_lock.
- 	 */
--retry:
- 	page = find_lock_page(mapping, idx);
- 	if (!page) {
- 		if (hugetlb_get_quota(mapping))
- 			goto out;
-+
-+		if (shared)
-+			spin_lock(&mapping->host->i_lock);
-+		
- 		page = alloc_unzeroed_huge_page(vma, address);
- 		if (!page) {
- 			hugetlb_put_quota(mapping);
-+			if (shared)
-+				spin_unlock(&mapping->host->i_lock);
- 			goto out;
- 		}
- 
--		if (vma->vm_flags & VM_SHARED) {
-+		if (shared) {
- 			int err;
- 
- 			err = add_to_page_cache(page, mapping, idx, GFP_KERNEL);
-+			spin_unlock(&mapping->host->i_lock);
- 			if (err) {
- 				put_page(page);
- 				hugetlb_put_quota(mapping);
--				if (err == -EEXIST)
--					goto retry;
-+				BUG_ON(-EEXIST);
- 				goto out;
- 			}
- 		} else
+> Ignoring the objections of a long-standing and respected kernel developer
+> is not a thing I like to do, but fortunately it's very rare.
 
+I really hoped where would be a question before if there were outstanding 
+issues.
 
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
+> Can you summarise, yet again, in as few words as possible, what you find
+> wrong with it?  I'd really like to understand, but there were waay too many
+> lengthy emails..
 
+The whole resolution issue is still outstanding. It basically assumes 
+already high resolution timer and makes it hard to allow simple low 
+resolution timer.
+
+The rounding is broken for relative timer started on low resolution 
+clocks. The run_hrtimer_queue() calls get_time() every interrupt, wasting 
+time if that call should be slow (and could be avoided completely for low 
+resolution timers).
+I haven't even gotten to a number of small issues, because it's impossible 
+to discuss even the general issues with Thomas. :-(
+
+bye, Roman

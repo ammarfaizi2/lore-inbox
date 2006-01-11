@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWAKIAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWAKIFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWAKIAS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 03:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWAKIAR
+	id S1751048AbWAKIFu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 03:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWAKIFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 03:00:17 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:52915
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750885AbWAKIAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 03:00:16 -0500
-Date: Wed, 11 Jan 2006 00:00:20 -0800 (PST)
-Message-Id: <20060111.000020.25886635.davem@davemloft.net>
-To: drepper@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ntohs/ntohl and bitops
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43C42F0C.10008@redhat.com>
-References: <43C42F0C.10008@redhat.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 11 Jan 2006 03:05:50 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:8626 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751048AbWAKIFt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 03:05:49 -0500
+Message-ID: <43C4CE39.3326BFBB@tv-sign.ru>
+Date: Wed, 11 Jan 2006 12:22:01 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+Cc: Linus Torvalds <torvalds@osdl.org>, Benjamin LaHaise <bcrl@kvack.org>,
+       Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>
+Subject: Re: [patch 00/15] Generic Mutex Subsystem
+References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219192537.GC15277@kvack.org> <Pine.LNX.4.64.0512191148460.4827@g5.osdl.org> <43A985E6.CA9C600D@tv-sign.ru> <20060110102851.GB18325@in.ibm.com> <43C3F6DB.FEFDA101@tv-sign.ru> <20060111063322.GA9261@in.ibm.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ulrich Drepper <drepper@redhat.com>
-Date: Tue, 10 Jan 2006 14:02:52 -0800
+Balbir Singh wrote:
+> 
+> On Tue, Jan 10, 2006 at 09:03:07PM +0300, Oleg Nesterov wrote:
+> 
+> > I don't have an answer, only a wild guess.
+> >
+> > Note that if P1 releases this semaphore before pre-woken P2 actually
+> > gets cpu what happens is:
+> >
+> >       P1->up() just increments ->count, no wake_up() (fastpath)
+> >
+> >       P2 takes the semaphore without schedule.
+> >
+> > So *may be* it was designed this way as some form of optimization,
+> > in this scenario P2 has some chances to run with sem held earlier.
+> >
+> 
+> P1->up() will do a wake_up() only if count < 0. For no wake_up()
+> the count >=0 before the increment. This means that there is no one
+> sleeping on the semaphore.
 
-> I just saw this in a patch:
-> 
-> +               if (ntohs(ih->frag_off) & IP_OFFSET)
-> +                       return EBT_NOMATCH;
-> 
-> This isn't optimal, it requires a byte switch little endian machines.
-> The compiler isn't smart enough.  It would be better to use
-> 
->      if (ih->frag_off & ntohs(IP_OFFSET))
-> 
-> where the byte-swap can be done at compile time.  This is kind of ugly,
-> I guess, so maybe a dedicate macro
-> 
->     net_host_bit_p(ih->frag_off, IP_OFFSET)
+And this exactly happens. P1 returns from __down() with ->count == 0
+and P2 pre-woken.
 
-The first suggestion isn't considered ugly, and the best form is:
-
-	if (ih->frag_off & __constant_htons(IP_OFFSET))
-
-I'll fix that up when I get a chance, thanks for catching it Uli.
+Oleg.

@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932759AbWAKB27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932760AbWAKBaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932759AbWAKB27 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 20:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbWAKB27
+	id S932760AbWAKBaL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 20:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932761AbWAKBaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 20:28:59 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:30960 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S932759AbWAKB26
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 20:28:58 -0500
-Date: Tue, 10 Jan 2006 17:28:48 -0800
-Message-Id: <200601110128.k0B1Smvi025723@dhcp153.mvista.com>
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-       mlachwani@mvista.com
-Subject: [PATCH] enable soft-irq state w/ raw state 
+	Tue, 10 Jan 2006 20:30:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51338 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932760AbWAKBaK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 20:30:10 -0500
+Date: Tue, 10 Jan 2006 17:31:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Bligh <mbligh@google.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+Message-Id: <20060110173159.55cce659.akpm@osdl.org>
+In-Reply-To: <43C45BDC.1050402@google.com>
+References: <43C45BDC.1050402@google.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin Bligh <mbligh@google.com> wrote:
+>
+> OK, I fixed the graphs so you can actually read them now ;-)
 
-	MIPS needs this due to PF_IRQSOFF being set in the 
-flags during start_kernel() .
+They're cute.
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+> http://test.kernel.org/perf/kernbench.elm3b6.png (x86_64 4x)
+> http://test.kernel.org/perf/kernbench.moe.png (NUMA-Q)
+> http://test.kernel.org/perf/kernbench.elm3b132.png (4x SMP ia32)
+> 
+> Both seems significantly slower on -mm (mm is green line)
 
-Index: linux-2.6.15/init/main.c
-===================================================================
---- linux-2.6.15.orig/init/main.c
-+++ linux-2.6.15/init/main.c
-@@ -515,6 +515,7 @@ asmlinkage void __init start_kernel(void
- 	 * Soft IRQ state will be enabled with the hard state.
- 	 */
- 	raw_local_irq_enable();
-+	local_irq_enable();
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start && !initrd_below_start_ok &&
+Well, 1% slower.  -mm has permanent not-for-linus debug things, some of
+which are expected to have a performance impact.  I don't know whether
+they'd have a 1% impact though.
+
+> If I look at diffprofile between 2.6.15 and 2.6.15-mm1, it just looks
+> like we have lots more idle time.
+
+Yes, we do.   It'd be useful to test -git7..
+
+> You got strange scheduler changes in
+> there, that you've been carrying for a long time (2.6.14-mm1 at least)? 
+> or HZ piddling? See to be mainly getting much more idle time.
+
+Yes, there are CPU scheduler changes, although much fewer than usual. 
+Ingo, any suggestions as to a culprit?
+

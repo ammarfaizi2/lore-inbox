@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932787AbWAKGfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932797AbWAKGiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932787AbWAKGfY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 01:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932792AbWAKGfX
+	id S932797AbWAKGiz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 01:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932798AbWAKGiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 01:35:23 -0500
-Received: from main.gmane.org ([80.91.229.2]:58846 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932787AbWAKGfX (ORCPT
+	Wed, 11 Jan 2006 01:38:55 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:15825 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932797AbWAKGiy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 01:35:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: 2.6.15 and CONFIG_PRINTK_TIME
-Date: Wed, 11 Jan 2006 15:34:58 +0900
-Message-ID: <dq28uj$96q$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s185160.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060110)
+	Wed, 11 Jan 2006 01:38:54 -0500
+Message-ID: <43C4A7EA.9050402@pobox.com>
+Date: Wed, 11 Jan 2006 01:38:34 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.93.0.0
+MIME-Version: 1.0
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: why no -mm git tree?
+References: <20060111055616.GA5976@localhost.localdomain>
+In-Reply-To: <20060111055616.GA5976@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Coywolf Qi Hunt wrote: > hello, > > Why don't use a -mm
+	git tree? Maybe it was time for it. > With a -mm git tree, we can help
+	-mm test much earlier and quicker, A -mm git tree would be nice. > and
+	no more need of the mm-commits ML. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I remember there was some talk about resetting the time on printk during the
-boot to zero... Is that gone for 2.6.15?
+Coywolf Qi Hunt wrote:
+> hello,
+> 
+> Why don't use a -mm git tree? Maybe it was time for it.
+> With a -mm git tree, we can help -mm test much earlier and quicker,
 
-I recently turned CONFIG_PRINTK_TIME on two machines and they identically
-print things like this:
+A -mm git tree would be nice.
 
-[17179569.184000] Linux version 2.6.15-K01_PIII_laptop (kalin@ss) (gcc
-version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)) #2 PREEMPT Wed
-Jan 11 09:56:21 JST 2006
-[17179569.184000] BIOS-provided physical RAM map:
-[17179569.184000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-[17179569.184000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-[17179569.184000]  BIOS-e820: 00000000000e0000 - 00000000000eee00 (reserved)
-[17179569.184000]  BIOS-e820: 00000000000eee00 - 00000000000ef000 (ACPI NVS)
-[17179569.184000]  BIOS-e820: 00000000000ef000 - 0000000000100000 (reserved)
 
-...
+> and no more need of the mm-commits ML.
 
-[17179591.768000] ReiserFS: hda5: checking transaction log (hda5)
-[17179591.836000] ReiserFS: hda5: Using r5 hash to sort names
-[17179605.172000] e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+Strongly disagree.
 
-That is about t0 + 200 days :-) No, the box is not THAT slow :-D
 
-Now, on two different boxen, the initial time is the same: 17179569.184000
+> Also an option, to use git, and still gernerate broken-out from git.
 
-What is this number?
+AFAICT from akpm's workflow, it would be far easier to generate a git 
+tree from his pile of patches, than the other way around.
 
-Kalin.
+	Jeff
 
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
 

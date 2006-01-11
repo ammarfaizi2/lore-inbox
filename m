@@ -1,82 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWAKEdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWAKEdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWAKEdr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 23:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWAKEdr
+	id S1751357AbWAKEdn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 23:33:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWAKEdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 23:33:47 -0500
-Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:14161 "EHLO
-	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932423AbWAKEdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 23:33:46 -0500
-Message-ID: <43C48AA7.6070603@bigpond.net.au>
-Date: Wed, 11 Jan 2006 15:33:43 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-References: <43C45BDC.1050402@google.com> <200601111407.05738.kernel@kolivas.org> <43C47E32.4020001@bigpond.net.au> <200601111449.29269.kernel@kolivas.org>
-In-Reply-To: <200601111449.29269.kernel@kolivas.org>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 11 Jan 2006 04:33:44 +0000
+	Tue, 10 Jan 2006 23:33:43 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:4517 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751357AbWAKEdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 23:33:43 -0500
+Date: Tue, 10 Jan 2006 20:33:56 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/3] rcu: don't set ->next_pending in rcu_start_batch()
+Message-ID: <20060111043356.GL18252@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43C3BAC2.C1F20B95@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C3BAC2.C1F20B95@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Wed, 11 Jan 2006 02:40 pm, Peter Williams wrote:
+On Tue, Jan 10, 2006 at 04:46:42PM +0300, Oleg Nesterov wrote:
+> I think it is better to set ->next_pending in the caller, when
+> it is needed. This saves one parameter, and this coincides with
+> cpu_quiet() beahaviour, which sets ->completed = ->cur itself.
+
+Looks good to me, passes a one-hour torture test on x86.
+
+						Thanx, Paul
+
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 > 
->>Con Kolivas wrote:
->>
->>>I disagree. I think the current implementation changes the balancing
->>>according to nice much more effectively than previously where by their
->>>very nature, low priority tasks were balanced more frequently and ended
->>>up getting their own cpu.
->>
->>I can't follow the logic here 
+> --- 2.6.15/kernel/rcupdate.c~2_NPEND	2006-01-10 18:35:45.000000000 +0300
+> +++ 2.6.15/kernel/rcupdate.c	2006-01-10 18:39:08.000000000 +0300
+> @@ -249,12 +249,8 @@ static void rcu_do_batch(struct rcu_data
+>   * active batch and the batch to be registered has not already occurred.
+>   * Caller must hold rcu_state.lock.
+>   */
+> -static void rcu_start_batch(struct rcu_ctrlblk *rcp, struct rcu_state *rsp,
+> -				int next_pending)
+> +static void rcu_start_batch(struct rcu_ctrlblk *rcp, struct rcu_state *rsp)
+>  {
+> -	if (next_pending)
+> -		rcp->next_pending = 1;
+> -
+>  	if (rcp->next_pending &&
+>  			rcp->completed == rcp->cur) {
+>  		rcp->next_pending = 0;
+> @@ -288,7 +284,7 @@ static void cpu_quiet(int cpu, struct rc
+>  	if (cpus_empty(rsp->cpumask)) {
+>  		/* batch completed ! */
+>  		rcp->completed = rcp->cur;
+> -		rcu_start_batch(rcp, rsp, 0);
+> +		rcu_start_batch(rcp, rsp);
+>  	}
+>  }
+>  
+> @@ -423,7 +419,8 @@ static void __rcu_process_callbacks(stru
+>  		if (!rcp->next_pending) {
+>  			/* and start it/schedule start if it's a new batch */
+>  			spin_lock(&rsp->lock);
+> -			rcu_start_batch(rcp, rsp, 1);
+> +			rcp->next_pending = 1;
+> +			rcu_start_batch(rcp, rsp);
+>  			spin_unlock(&rsp->lock);
+>  		}
+>  	} else {
 > 
-> 
-> cpu bound non interactive tasks have long timeslices. Tasks that have short 
-> timeslices like interactive ones or cpu bound ones at nice 19 have short 
-> timeslices.
-
-Time slice size is dependent on nice (via static_prio) only, gets bigger 
-as static_prio gets smaller and only really effects the switching of 
-tasks from the active array to the expired array.  This means that 
-programs with high nice values will tend to spend more time on the 
-expired array than the active array.  Since the expired queue is always 
-examined first this makes them the most likely to be moved regardless of 
-the smp nice patch.  This is independent of the amount of CPU a task 
-uses each time it gets onto the CPU which is what I think you were 
-alluding to.
-
-> If a nice 0 and nice 19 task are running on the same cpu, the 
-> nice 19 one is going to be spending most of its time waiting in the runqueue. 
-> As soon as an idle cpu appears it will only pull a task that is waiting in a 
-> runqueue... and that is going to be the low priority tasks. 
-
-Because they're more likely to be on the expired array.
-
-So the patch works by reducing the chance of any tasks being moved 
-during an idle rebalance.  Surely this is likely to increase the amount 
-of idle time.
-
-Maybe the idle balance should check the active arrays before it checks 
-the expired arrays?  This will increase the chances of getting a high 
-priority task.  The down side is that tasks on the active array are more 
-likely to be "cache warm" which is why the expired array is checked 
-first (hence the suggestion that this only apply to idle balancing).
-
-But, as you say, let's wait and see what happens with the patch backed 
-out before we get too carried away.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

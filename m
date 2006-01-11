@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbWAKCYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932780AbWAKC1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932590AbWAKCYy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 21:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWAKCYy
+	id S932780AbWAKC1J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 21:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbWAKC1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 21:24:54 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:56802 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932590AbWAKCYx (ORCPT
+	Tue, 10 Jan 2006 21:27:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15056 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932780AbWAKC1H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 21:24:53 -0500
-Date: Tue, 10 Jan 2006 18:24:22 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: adobriyan@gmail.com, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.15-mm2: alpha broken
-Message-Id: <20060110182422.d26c5d8b.pj@sgi.com>
-In-Reply-To: <20060107154842.5832af75.akpm@osdl.org>
-References: <20060107052221.61d0b600.akpm@osdl.org>
-	<20060107210646.GA26124@mipter.zuzino.mipt.ru>
-	<20060107154842.5832af75.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 21:27:07 -0500
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: Keith Owens <kaos@sgi.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Paulo Marques <pmarques@grupopie.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       tony.luck@intel.com, Systemtap <systemtap@sources.redhat.com>,
+       Jim Keniston <jkenisto@us.ibm.com>
+Subject: Re: [patch 1/2] [BUG]kallsyms_lookup_name should return the text addres
+References: <Pine.LNX.4.58.0601101606380.12724@shark.he.net>
+	<20396.1136939008@ocs3.ocs.com.au>
+	<20060110163956.A17329@unix-os.sc.intel.com>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 10 Jan 2006 21:26:37 -0500
+In-Reply-To: <20060110163956.A17329@unix-os.sc.intel.com>
+Message-ID: <y0mvewr4i02.fsf@tooth.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> This is caused by the inclusion of user.h in kernel.h added by
-> dump_thread-cleanup.patch.
 
-This same build breakage showed up on ia64 sn2_defconfig,
-and your patch fixes it nicely.  Thanks.
+anil.s.keshavamurthy@intel.com writes:
 
-Acked-by: Paul Jackson <pj@sgi.com>
+> [...]  Humm..This duplication of symbols in the kernel will be a
+> problem for systemtap scripts, as we might end up putting probes in
+> the unwanted places :-( [...]
 
+Not at all.  Systemtap does not look in System.map.  It can qualify
+function names with the compilation unit name to make unique the probe
+target.  For that matter, it only uses /proc/kallsyms as a table to
+drive the address-to-name mappings in debug output.
 
-Andrian - I think that was your dump_thread-cleanup patch.
-
-Please be sure to cross build other arch's when making non-local
-changes, such as this one that affected the files:
-
-    arch/alpha/kernel/alpha_ksyms.c
-    arch/arm26/kernel/armksyms.c
-    arch/cris/kernel/crisksyms.c
-    arch/cris/kernel/process.c
-    arch/frv/kernel/frv_ksyms.c
-    arch/frv/kernel/process.c
-    arch/h8300/kernel/h8300_ksyms.c
-    arch/h8300/kernel/process.c
-    arch/m32r/kernel/m32r_ksyms.c
-    arch/m32r/kernel/process.c
-    arch/m68k/kernel/m68k_ksyms.c
-    arch/m68knommu/kernel/m68k_ksyms.c
-    arch/m68knommu/kernel/process.c
-    arch/s390/kernel/process.c
-    arch/sh64/kernel/process.c
-    arch/sh64/kernel/sh_ksyms.c
-    arch/sh/kernel/process.c
-    arch/sh/kernel/sh_ksyms.c
-    arch/sparc64/kernel/binfmt_aout32.c
-    arch/sparc64/kernel/sparc64_ksyms.c
-    arch/sparc/kernel/sparc_ksyms.c
-    arch/v850/kernel/process.c
-    arch/v850/kernel/v850_ksyms.c
-    fs/binfmt_aout.c
-    fs/binfmt_flat.c
-    include/asm-um/processor-generic.h
-    include/linux/kernel.h
-
-Sure, it consumes some time, but better you do it once, then each of
-several of us have to first do a bisection on Andrew's gazillion
-patches to find the culprit, and then stare at the patch until the light
-bulb goes on in our dimm brains, only to grep back through the lkml
-messages to find that we are not alone in our misery.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+- FChE

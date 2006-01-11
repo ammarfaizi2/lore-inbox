@@ -1,50 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWAKPjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWAKPmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWAKPjD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 10:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWAKPjC
+	id S1751482AbWAKPmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 10:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWAKPmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 10:39:02 -0500
-Received: from ns.firmix.at ([62.141.48.66]:56290 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1751303AbWAKPjB (ORCPT
+	Wed, 11 Jan 2006 10:42:04 -0500
+Received: from uproxy.gmail.com ([66.249.92.205]:26505 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751482AbWAKPmC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 10:39:01 -0500
-Subject: Re: FAT and Microsoft patent?
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Christopher Friesen <cfriesen@nortel.com>
+	Wed, 11 Jan 2006 10:42:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=f8mywTlRkSC4zYitDkLzl5HYYU6BtOUQcWQYmSdryeL63PxY6/mOk0v4UUwFe6bcf7kFTS+h3d2XFue6LN31/6baHZmub5etISo4Q7p+6I/mT5pqi9zcEqqhbEigUXQysdrfngysNR76wbAo/GZ2UWMRHNLKOKS0717AF9/driQ=
+Date: Wed, 11 Jan 2006 18:59:07 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43C51D65.3030309@nortel.com>
-References: <43C51D65.3030309@nortel.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 11 Jan 2006 16:35:33 +0100
-Message-Id: <1136993733.6547.168.camel@tara.firmix.at>
+Subject: [PATCH] include/asm-*/bitops.h: fix more "~0UL >> size" typos
+Message-ID: <20060111155907.GB8686@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 08:59 -0600, Christopher Friesen wrote:
-> According to various sources, the USPTO has ruled that Microsoft's 
-> patent on FAT is valid.
+"[PATCH] m68knommu: fix find_next_zero_bit in bitops.h" fixed a typo in
+m68knommu implementation of find_next_zero_bit().
 
-"ruled"? Isn't that the job of courts (and of course not of the
-executive part of a government)?
-And yes, there is another interpretation possible - justice is no longer
-separated from the executive part.
+grep(1) shows that cris, frv, h8300, v850 are also affected.
 
-And it is the job of the USPTO to grant patents and not to hinder them.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-> Does this impact Linux?  Will we have to remove the filesystem?
+ include/asm-cris/bitops.h  |    2 +-
+ include/asm-frv/bitops.h   |    2 +-
+ include/asm-h8300/bitops.h |    2 +-
+ include/asm-v850/bitops.h  |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-There are lots of patents in the USPTO.
-Have fun removing everything which is claimed by some granted patent.
-It boils down or `rm -rf world`.
-
-	Bernd, NAL
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+--- a/include/asm-cris/bitops.h
++++ b/include/asm-cris/bitops.h
+@@ -290,7 +290,7 @@ static inline int find_next_zero_bit (co
+ 	tmp = *p;
+ 	
+  found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+  found_middle:
+ 	return result + ffz(tmp);
+ }
+--- a/include/asm-frv/bitops.h
++++ b/include/asm-frv/bitops.h
+@@ -209,7 +209,7 @@ static inline int find_next_zero_bit(con
+ 	tmp = *p;
+ 
+ found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+ found_middle:
+ 	return result + ffz(tmp);
+ }
+--- a/include/asm-h8300/bitops.h
++++ b/include/asm-h8300/bitops.h
+@@ -227,7 +227,7 @@ static __inline__ int find_next_zero_bit
+ 	tmp = *p;
+ 
+ found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+ found_middle:
+ 	return result + ffz(tmp);
+ }
+--- a/include/asm-v850/bitops.h
++++ b/include/asm-v850/bitops.h
+@@ -188,7 +188,7 @@ static inline int find_next_zero_bit(con
+ 	tmp = *p;
+ 
+  found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+  found_middle:
+ 	return result + ffz (tmp);
+ }
 

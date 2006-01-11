@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWAKV0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWAKV2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWAKV0D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 16:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWAKV0B
+	id S1750786AbWAKV2g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 16:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWAKV2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 16:26:01 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:5071 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750729AbWAKV0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 16:26:01 -0500
-Date: Wed, 11 Jan 2006 22:25:42 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, sct@redhat.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
-In-Reply-To: <1137012917.2929.78.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0601112224280.7071@yvahk01.tjqt.qr>
-References: <200601112126.59796.ak@suse.de>  <20060111124617.5e7e1eaa.akpm@osdl.org>
- <1137012917.2929.78.camel@laptopd505.fenrus.org>
+	Wed, 11 Jan 2006 16:28:36 -0500
+Received: from orion2.pixelized.ch ([195.190.190.13]:47235 "EHLO
+	mail.pixelized.ch") by vger.kernel.org with ESMTP id S1750786AbWAKV2f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 16:28:35 -0500
+Message-ID: <43C57875.3080404@debian.org>
+Date: Wed, 11 Jan 2006 22:28:21 +0100
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linker error in 2.6.15-git: drivers/media/video/tuner.o:(.bss+0x0):
+ multiple definition of `debug'
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->the conversion is buggy.
->
->mutex_trylock has the same convention as spin_try_lock (which is the
->opposite of down_trylock). THe conversion forgot to add a !
->
-> static void ext3_write_super (struct super_block * sb)
-> {
->-	if (mutex_trylock(&sb->s_lock) != 0)
->+	if (!mutex_trylock(&sb->s_lock) != 0)
+In latest git tree (since 2 days), I have
 
-How about a nicer...?
+   CC [M]  drivers/media/video/saa7134/saa7134-dvb.o
+   CC      drivers/media/video/saa7127.o
+   LD      drivers/media/video/built-in.o
+drivers/media/video/tuner.o:(.bss+0x0): multiple definition of `debug'
+drivers/media/video/msp3400.o:(.bss+0x0): first defined here
+drivers/media/video/cx25840/built-in.o:(.bss+0x0): multiple definition 
+of `debug'
+drivers/media/video/msp3400.o:(.bss+0x0): first defined here
+make[3]: *** [drivers/media/video/built-in.o] Error 1
+make[2]: *** [drivers/media/video] Error 2
+make[1]: *** [drivers/media] Error 2
+make: *** [drivers] Error 2
 
-        if(mutex_trylock(&sb->s_lock) == 0)
-
-
-
-Jan Engelhardt
--- 
+ciao
+	cate

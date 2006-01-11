@@ -1,102 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWAKUiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWAKUq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWAKUiP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 15:38:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWAKUiP
+	id S1751697AbWAKUq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 15:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751694AbWAKUq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 15:38:15 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:62736 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964834AbWAKUiO convert rfc822-to-8bit (ORCPT
+	Wed, 11 Jan 2006 15:46:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27341 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751413AbWAKUqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 15:38:14 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <9c2327970601111042i126c7dfbk10aa2bd35310b6c3@mail.gmail.com>
-X-OriginalArrivalTime: 11 Jan 2006 20:38:12.0297 (UTC) FILETIME=[F0B3A390:01C616EE]
-Content-class: urn:content-classes:message
-Subject: Re: Kernel Education
-Date: Wed, 11 Jan 2006 15:37:29 -0500
-Message-ID: <Pine.LNX.4.61.0601111534060.28093@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel Education
-Thread-Index: AcYW7vC6ASh2r4jfRpinyu0BesNCCg==
-References: <9c2327970601090500i78fec178mb197c0fa5732e4a4@mail.gmail.com> <Pine.LNX.4.61.0601090805140.17451@chaos.analogic.com> <9c2327970601111042i126c7dfbk10aa2bd35310b6c3@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Weber Ress" <ress.weber@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 11 Jan 2006 15:46:55 -0500
+Date: Wed, 11 Jan 2006 12:46:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, sct@redhat.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
+Message-Id: <20060111124617.5e7e1eaa.akpm@osdl.org>
+In-Reply-To: <200601112126.59796.ak@suse.de>
+References: <200601112126.59796.ak@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 11 Jan 2006, Weber Ress wrote:
-
-> Somebody knows the Nachos? http://www.cs.washington.edu/homes/tom/nachos/
+Andi Kleen <ak@suse.de> wrote:
 >
-> Is a good idea use this software in my educational project ?
->
-> Best !
->
-> Weber Ress
->
+> 
+> Running LTP with the default runfile on a 4 virtual CPU x86-64 
+> system gives
+> 
+> To reproduce: run ltp 20040908 (newer one will probably work
+> too) with runltp -p -q -l `uname -r` on a ext3 file system
+> 
+> config is x86-64 defconfig.
+> 
 
-I sent this PRIVATELY to you. You had no right or privilege to
-c.c. this to the linux-kernel mailing list! You are, therefore,
-a proved creep.
+mutex_trylock() is returning the wrong value.  fs/super.c:write_super()
+clearly took the lock.
 
->
-> On 1/9/06, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
->>
->> On Mon, 9 Jan 2006, Weber Ress wrote:
->>
->>> Hi guys,
->>>
->>> I´m starting a social project to teach kernel development for young
->>> students, with objetive of include these people in job market.
->>>
->>> These studentes don´t have great skills in mathematical and computer
->>> science areas, but have great interest in development area. Some
->>> studentes have a little basic C language skills.
->>>
->>
->> They need more than basic 'C' language skills. They must be _expert_
->> in the use of this fundamental tool. Not to worry, your students can
->> become expert fairly quickly if, for instance, a project was to
->> write a file-system driver.
->>
->>> Which are the first steps that I need in this project ?
->>> Which´s the "more simple" kernel version to teach (2.2 ? 2.4 ? 2.6 ?).
->>>
->>
->> Version 2.4.x was very reliable and was easiest to make drivers for.
->> This was before all the "everything must be GPL crap" was added to
->> make life miserable.
->>
->> However, make-files for 2.6 are easier to create. Also the "job market"
->> probably expects one to use 2.6.x
->>
->>> I accept any suggestions.
->>>
->>> Best Regards !
->>> -
->>
->> Cheers,
->> Dick Johnson
->> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
->> Warning : 98.36% of all statistics are fiction.
->>
+Ingo, weren't you hitting this occasionally?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+> 
+> ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at /home/lsrc/quilt/linux/fs/ext3/super.c:2154
+> invalid opcode: 0000 [1] SMP 
+> CPU 0 
+> Modules linked in:
+> Pid: 14055, comm: pdflush Not tainted 2.6.15-git7 #90
+> RIP: 0010:[<ffffffff801d998e>] <ffffffff801d998e>{ext3_write_super+20}
+> RSP: 0018:ffff810117fb1e08  EFLAGS: 00010202
+> RAX: 0000000000000001 RBX: ffff81011f9ae800 RCX: ffffffff80492060
+> RDX: 0000000000000000 RSI: ffff810117fb0000 RDI: ffff81011f9ae888
+> RBP: ffff81011f9ae888 R08: ffff810117fb0000 R09: ffff810004f219e0
+> R10: 0000000000000000 R11: 0000000000000002 R12: ffff81011f9ae870
+> R13: ffffffff80159aee R14: ffff8100cdce1d68 R15: ffffffff80146b14
+> FS:  0000000000000000(0000) GS:ffffffff8060d000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> CR2: 00002aaaaab61000 CR3: 000000011baf3000 CR4: 00000000000006e0
+> Process pdflush (pid: 14055, threadinfo ffff810117fb0000, task ffff81011fe5c400)
+> Stack: ffff81011f9ae800 ffffffff8017aa43 0000000000000064 0000000000000000 
+>        ffff8100cdce1d78 ffffffff801592f9 ffff81011fe5c400 ffffffff80494000 
+>        0000000000000000 0000000000000000 
+> Call Trace: <ffffffff8017aa43>{sync_supers+133} <ffffffff801592f9>{wb_kupdate+49}
+>        <ffffffff80159aee>{pdflush+0} <ffffffff80159c40>{pdflush+338}
+>        <ffffffff801592c8>{wb_kupdate+0} <ffffffff80146c7f>{kthread+203}
+>        <ffffffff801107ca>{child_rip+8} <ffffffff80146b14>{keventd_create_kthread+0}
+>        <ffffffff80146bb4>{kthread+0} <ffffffff801107c2>{child_rip+0}
+> 
+> Code: 0f 0b 68 e9 0d 43 80 c2 6a 08 c6 43 21 00 5b c3 49 c7 c0 ca 
+> RIP <ffffffff801d998e>{ext3_write_super+20} RSP <ffff810117fb1e08>
+>  Badness in do_exit at /home/lsrc/quilt/linux/kernel/exit.c:796
+> 
+> Call Trace: <ffffffff80136800>{do_exit+84} <ffffffff804024dd>{_spin_unlock_irqrestore+8}
+>        <ffffffff80146b14>{keventd_create_kthread+0} <ffffffff801114ef>{kernel_math_error+0}
+>        <ffffffff80159aee>{pdflush+0} <ffffffff80111c61>{do_invalid_op+163}
+>        <ffffffff801d998e>{ext3_write_super+20} <ffffffff8040116a>{thread_return+0}
+>        <ffffffff80110611>{error_exit+0} <ffffffff80146b14>{keventd_create_kthread+0}
+>        <ffffffff80159aee>{pdflush+0} <ffffffff801d998e>{ext3_write_super+20}
+>        <ffffffff801d998a>{ext3_write_super+16} <ffffffff8017aa43>{sync_supers+133}
+>        <ffffffff801592f9>{wb_kupdate+49} <ffffffff80159aee>{pdflush+0}
+>        <ffffffff80159c40>{pdflush+338} <ffffffff801592c8>{wb_kupdate+0}
+>        <ffffffff80146c7f>{kthread+203} <ffffffff801107ca>{child_rip+8}
+>        <ffffffff80146b14>{keventd_create_kthread+0} <ffffffff80146bb4>{kthread+0}
+>        <ffffffff801107c2>{child_rip+0}

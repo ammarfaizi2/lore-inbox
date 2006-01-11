@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWAKPcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWAKPjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWAKPcP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 10:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWAKPcP
+	id S1751303AbWAKPjD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 10:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWAKPjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 10:32:15 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:5895 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751485AbWAKPcP convert rfc822-to-8bit (ORCPT
+	Wed, 11 Jan 2006 10:39:02 -0500
+Received: from ns.firmix.at ([62.141.48.66]:56290 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751303AbWAKPjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 10:32:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <43C51D65.3030309@nortel.com>
-X-OriginalArrivalTime: 11 Jan 2006 15:32:13.0802 (UTC) FILETIME=[322F9CA0:01C616C4]
-Content-class: urn:content-classes:message
+	Wed, 11 Jan 2006 10:39:01 -0500
 Subject: Re: FAT and Microsoft patent?
-Date: Wed, 11 Jan 2006 10:31:46 -0500
-Message-ID: <Pine.LNX.4.61.0601111026300.27240@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FAT and Microsoft patent?
-Thread-Index: AcYWxDJTGD6yA8iwSWGf7sf1O9XZiQ==
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Christopher Friesen <cfriesen@nortel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43C51D65.3030309@nortel.com>
 References: <43C51D65.3030309@nortel.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Wed, 11 Jan 2006 16:35:33 +0100
+Message-Id: <1136993733.6547.168.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 11 Jan 2006, Christopher Friesen wrote:
-
-> According to various sources, the USPTO has ruled that Microsoft's
+On Wed, 2006-01-11 at 08:59 -0600, Christopher Friesen wrote:
+> According to various sources, the USPTO has ruled that Microsoft's 
 > patent on FAT is valid.
->
+
+"ruled"? Isn't that the job of courts (and of course not of the
+executive part of a government)?
+And yes, there is another interpretation possible - justice is no longer
+separated from the executive part.
+
+And it is the job of the USPTO to grant patents and not to hinder them.
+
 > Does this impact Linux?  Will we have to remove the filesystem?
->
-> Chris
 
-You mean the expired patent circa 1980 for their first use of this
-technology? This is 2006, 26 years later. Patents don't run forever,
-you know. That's the reason why it has become the 'universal' file-
-system, not because it's a good file-system, but because it's now
-in the public domain due to expiration.
+There are lots of patents in the USPTO.
+Have fun removing everything which is claimed by some granted patent.
+It boils down or `rm -rf world`.
 
-And, can you cite the 'various sources'. They seem to be like spooks
-under the bridge, completely without merit.
+	Bernd, NAL
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

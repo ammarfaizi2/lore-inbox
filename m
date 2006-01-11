@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWAKRUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWAKRUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751533AbWAKRUo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 12:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751682AbWAKRUo
+	id S1751681AbWAKRUm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 12:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWAKRUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 12:20:44 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:10925 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751533AbWAKRUn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 12:20:43 -0500
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, rdreier@cisco.com, sam@ravnborg.org,
+	Wed, 11 Jan 2006 12:20:42 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:60431 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751533AbWAKRUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 12:20:41 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: FAT and Microsoft patent?
+Date: Wed, 11 Jan 2006 17:20:44 +0000
+User-Agent: KMail/1.9
+Cc: Christopher Friesen <cfriesen@nortel.com>,
+       Roger Heflin <rheflin@atipa.com>,
+       "'linux-os (Dick Johnson)'" <linux-os@analogic.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20060110153257.1aac5370.akpm@osdl.org>
-References: <patchbomb.1136579193@eng-12.pathscale.com>
-	 <d286502c3b3cd6bcec7b.1136579194@eng-12.pathscale.com>
-	 <20060110011844.7a4a1f90.akpm@osdl.org> <adaslrw3zfu.fsf@cisco.com>
-	 <1136909276.32183.28.camel@serpentine.pathscale.com>
-	 <20060110170722.GA3187@infradead.org>
-	 <1136915386.6294.8.camel@serpentine.pathscale.com>
-	 <20060110175131.GA5235@infradead.org>
-	 <1136915714.6294.10.camel@serpentine.pathscale.com>
-	 <20060110140557.41e85f7d.akpm@osdl.org>
-	 <1136932162.6294.31.camel@serpentine.pathscale.com>
-	 <20060110153257.1aac5370.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 09:20:32 -0800
-Message-Id: <1137000032.11245.11.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+References: <EXCHG2003RXf2LTrpwA00000b29@EXCHG2003.microtech-ks.com> <43C528FC.1060408@nortel.com> <Pine.LNX.4.63.0601111212020.5975@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0601111212020.5975@cuia.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601111720.44759.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 15:32 -0800, Andrew Morton wrote:
+On Wednesday 11 January 2006 17:13, Rik van Riel wrote:
+> On Wed, 11 Jan 2006, Christopher Friesen wrote:
+> > The question still holds in modified form...will we need to remove this
+> > functionality, or is it currently implemented in a way that does not
+> > infringe on the patent?
+>
+> I would not be surprised if the UMSDOS filesystem predated
+> VFAT by a few years - but this was all quite a while ago,
+> and I'm not sure the patents cover something that UMSDOS
+> could have prior art on...
 
-> Unless someone can think of a problem with attribute(weak), I think you'll
-> find that it's the simplest-by-far solution.
+I think the patents are on LFN, which is not VFAT, probably a lot younger, and 
+as other people have mentioned on this thread, a lot less of a patent threat.
 
-The only problem I can see with this is that on x86_64 and other
-platforms that reimplement the routine as an inline function, I think
-we'll be left with a small hunk of dead code in the form of the
-out-of-line version in lib/ that never gets referenced.
+-- 
+Cheers,
+Alistair.
 
-Is this something people care about?  If so, I could turn the config
-setting in my last patch on its head, and use it to indicate that the
-routine should *not* be built for a particular arch.  This would make
-lib/Makefile slightly uglier, but would avoid cluttering every other
-arch's lib/Makefile and Kconfig file.
-
-	<b
-
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

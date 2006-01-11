@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWAKTHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751777AbWAKTIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751771AbWAKTHg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751767AbWAKTHf
+	id S1751777AbWAKTIE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 14:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWAKTIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:07:35 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:23793 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932637AbWAKTH2 (ORCPT
+	Wed, 11 Jan 2006 14:08:04 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:43191 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751775AbWAKTIC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:07:28 -0500
-Message-ID: <43C55761.1090106@ens-lyon.org>
-Date: Wed, 11 Jan 2006 14:07:13 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm3
-References: <20060111042135.24faf878.akpm@osdl.org> <43C54FB9.9080906@ens-lyon.org> <20060111184012.GA19604@isilmar.linta.de>
-In-Reply-To: <20060111184012.GA19604@isilmar.linta.de>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 11 Jan 2006 14:08:02 -0500
+Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <ada3bju1td8.fsf@cisco.com>
+References: <adaslrw3zfu.fsf@cisco.com>
+	 <1136909276.32183.28.camel@serpentine.pathscale.com>
+	 <20060110170722.GA3187@infradead.org>
+	 <1136915386.6294.8.camel@serpentine.pathscale.com>
+	 <20060110175131.GA5235@infradead.org>
+	 <1136915714.6294.10.camel@serpentine.pathscale.com>
+	 <20060110140557.41e85f7d.akpm@osdl.org>
+	 <1136932162.6294.31.camel@serpentine.pathscale.com>
+	 <20060110153257.1aac5370.akpm@osdl.org>
+	 <1137000032.11245.11.camel@camp4.serpentine.com>
+	 <20060111172216.GA18292@mars.ravnborg.org>
+	 <20060111093019.097d156a.akpm@osdl.org>
+	 <1137001400.11245.31.camel@camp4.serpentine.com>
+	 <adairsq1tx9.fsf@cisco.com>
+	 <1137005865.11245.47.camel@camp4.serpentine.com>
+	 <ada3bju1td8.fsf@cisco.com>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 11:08:01 -0800
+Message-Id: <1137006481.11245.51.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
+On Wed, 2006-01-11 at 11:01 -0800, Roland Dreier wrote:
 
->>pcmcia: Detected deprecated PCMCIA ioctl usage.
->>This interface will soon be removed from the kernel; please expect
->>breakage unless you upgrade to new tools.
->>pcmcia: see
->>http://www.kernel.org/pub/linux/utils/kernel/pcmcia/pcmcia.html for details.
->>cs: IO port probe 0x100-0x4ff: excluding 0x3f0-0x3ff 0x4d0-0x4d7
->>cs: IO port probe 0x800-0x8ff: clean.
->>cs: IO port probe 0xc00-0xcff: excluding 0xcf8-0xcff
->>cs: IO port probe 0xa00-0xaff: clean.
->>BUG: atomic counter underflow at:
->> [<c01a0921>] kref_put+0x4d/0x68
->> [<c01a0051>] kobject_put+0x16/0x19
->> [<c01a0475>] kobject_release+0x0/0xa
->> [<e0a40b20>] ds_ioctl+0x380/0x6e8 [pcmcia]
->> [<c0153301>] do_ioctl+0x3d/0x4e
->> [<c01534fc>] vfs_ioctl+0x1ea/0x1fb
->> [<c0153538>] sys_ioctl+0x2b/0x47
->> [<c0102a2d>] syscall_call+0x7/0xb
->>    
->>
->
->git-pcmcia . I'll look at what's broken. Thanks for reporting this.
->  
->
-Confirmed, works after reverting it.
+> Oh, I think you're misunderstanding Andrew's idea.  Just create a
+> generic __raw_memcpy_toio32() that is always compiled, but mark it
+> with attribute((weak)).  Then x86_64 can define its own version of
+> __raw_memcpy_toio32(), which will override the weak generic version.
 
-Brice
+No, I understood that.  But my original x86_64 routine was inline, which
+would have left the out-of-line version compiled, but not used, on
+x86_64.
+
+	<b
 

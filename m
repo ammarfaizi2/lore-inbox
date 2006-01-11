@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWAKAhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWAKAie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932552AbWAKAhx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWAKAhx
+	id S1030200AbWAKAie (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbWAKAie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:37:53 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20492 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932552AbWAKAhv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:37:51 -0500
-Date: Wed, 11 Jan 2006 01:37:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-Subject: [2.6 patch] from drivers/video/Kconfig: remove unused VISWS option
-Message-ID: <20060111003749.GK3911@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 10 Jan 2006 19:38:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22673 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030200AbWAKAic (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:38:32 -0500
+Date: Tue, 10 Jan 2006 16:19:38 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net, vojtech@suse.cz,
+       stern@rowland.harvard.edu, mailing-lists-mmv@bretschneidernet.de,
+       jengelh@linux01.gwdg.de, linux-usb-devel@lists.sourceforge.net,
+       gregkh@suse.de, nouser@lpetrov.net, zaitcev@redhat.com
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+Message-Id: <20060110161938.68ad1947.zaitcev@redhat.com>
+In-Reply-To: <20060111000151.GA5712@sith.mimuw.edu.pl>
+References: <20060110074336.GA7462@suse.cz>
+	<Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org>
+	<20060110152807.GB22371@suse.cz>
+	<d120d5000601100737r7b1e12edy6d4eedc4b12960fc@mail.gmail.com>
+	<20060111000151.GA5712@sith.mimuw.edu.pl>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The BUS_I2C option is neither available (since there is no VISWS option 
-in the kernel) nor does it have any effect - so why not remove it?
+On Wed, 11 Jan 2006 01:01:51 +0100, Jan Rekorajski <baggins@sith.mimuw.edu.pl> wrote:
 
-Based on a report by Jean-Luc Leger <reiga@dspnet.fr.eu.org>.
+> This happens on Dell Precision 380, [...]
 
+Continue no further. What is the BIOS's A-version? Anything below A04
+is unusable.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-mm2-full/drivers/video/Kconfig.old	2006-01-11 01:23:37.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/video/Kconfig	2006-01-11 01:23:49.000000000 +0100
-@@ -525,11 +525,6 @@
- 	  This is the amount of memory reserved for the framebuffer,
- 	  which can be any value between 1MB and 8MB.
- 
--config BUS_I2C
--	bool
--	depends on (FB = y) && VISWS
--	default y
--
- config FB_SUN3
- 	bool "Sun3 framebuffer support"
- 	depends on (FB = y) && (SUN3 || SUN3X) && BROKEN
-
+-- Pete

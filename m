@@ -1,104 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbWAKGpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbWAKGpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932651AbWAKGpd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 01:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWAKGpd
+	id S932643AbWAKGpO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 01:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbWAKGpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 01:45:33 -0500
-Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:36005 "HELO
-	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932651AbWAKGpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 01:45:32 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: rusty@rustcorp.com.au
-Subject: Subject: Fix processing of obsolete-style setup options
-Date: Wed, 11 Jan 2006 01:45:29 -0500
-User-Agent: KMail/1.8.3
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 11 Jan 2006 01:45:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46790 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932643AbWAKGpM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 01:45:12 -0500
+Date: Tue, 10 Jan 2006 22:44:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why no -mm git tree?
+Message-Id: <20060110224451.44c9d3da.akpm@osdl.org>
+In-Reply-To: <20060111055616.GA5976@localhost.localdomain>
+References: <20060111055616.GA5976@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601110145.29776.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When kernel init code checks for presence of obsolete-style
-kernel parameters it gets confused if parameters have common
-prefix, such as "nousb" and "nousbstorage". Make sure that
-we compare entire names, not just common prefixes.
+Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
+>
+> Why don't use a -mm git tree?
+>
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+Because everthing would take me 100x longer?
 
- init/main.c |   30 ++++++++++++++++--------------
- 1 files changed, 16 insertions(+), 14 deletions(-)
+I'm looking into generating a pullable git tree for each -mm.  Just as a
+convenience for people who can't type "ftp".
 
-Index: work/init/main.c
-===================================================================
---- work.orig/init/main.c
-+++ work/init/main.c
-@@ -158,24 +158,22 @@ static const char *panic_later, *panic_p
- 
- extern struct obs_kernel_param __setup_start[], __setup_end[];
- 
--static int __init obsolete_checksetup(char *line)
-+static int __init obsolete_checksetup(char *line, int len)
- {
- 	struct obs_kernel_param *p;
- 
- 	p = __setup_start;
- 	do {
--		int n = strlen(p->str);
--		if (!strncmp(line, p->str, n)) {
-+		if (!strncmp(line, p->str, len) && len == strlen(p->str)) {
- 			if (p->early) {
--				/* Already done in parse_early_param?  (Needs
--				 * exact match on param part) */
--				if (line[n] == '\0' || line[n] == '=')
--					return 1;
-+				/* Already done in parse_early_param? */
-+				return 1;
- 			} else if (!p->setup_func) {
--				printk(KERN_WARNING "Parameter %s is obsolete,"
--				       " ignored\n", p->str);
-+				printk(KERN_WARNING
-+					"Parameter %s is obsolete, ignored\n",
-+					p->str);
- 				return 1;
--			} else if (p->setup_func(line + n))
-+			} else if (p->setup_func(line + len))
- 				return 1;
- 		}
- 		p++;
-@@ -224,21 +222,25 @@ __setup("loglevel=", loglevel);
-  */
- static int __init unknown_bootoption(char *param, char *val)
- {
-+	int len = strlen(param);
-+
- 	/* Change NUL term back to "=", to make "param" the whole string. */
- 	if (val) {
- 		/* param=val or param="val"? */
--		if (val == param+strlen(param)+1)
-+		if (val == param + len + 1) {
- 			val[-1] = '=';
--		else if (val == param+strlen(param)+2) {
-+			len++;
-+		} else if (val == param + len + 2) {
- 			val[-2] = '=';
--			memmove(val-1, val, strlen(val)+1);
-+			memmove(val - 1, val, strlen(val) + 1);
- 			val--;
-+			len++;
- 		} else
- 			BUG();
- 	}
- 
- 	/* Handle obsolete-style parameters */
--	if (obsolete_checksetup(param))
-+	if (obsolete_checksetup(param, len))
- 		return 0;
- 
- 	/*
+That'll just be a dump of the whole -mm lineup into git.  I don't know how
+workable it'll be - we'll see.

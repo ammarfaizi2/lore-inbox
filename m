@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751540AbWAKNT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbWAKNVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751540AbWAKNT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 08:19:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWAKNT2
+	id S1751542AbWAKNVc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWAKNVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 08:19:28 -0500
-Received: from gwbw.xs4all.nl ([213.84.100.200]:58819 "EHLO
-	laptop.blackstar.nl") by vger.kernel.org with ESMTP
-	id S1751493AbWAKNT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 08:19:27 -0500
-Subject: Re: Wireless: One small step towards a more perfect union...?
-From: Bas Vermeulen <bvermeul@blackstar.nl>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060111020534.GA22285@tuxdriver.com>
-References: <20060106042218.GA18974@havoc.gtf.org>
-	 <20060111020534.GA22285@tuxdriver.com>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 14:19:16 +0100
-Message-Id: <1136985556.5050.29.camel@laptop.blackstar.nl>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
+	Wed, 11 Jan 2006 08:21:32 -0500
+Received: from outgoing.tpinternet.pl ([193.110.120.20]:28026 "EHLO
+	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
+	id S1751493AbWAKNVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 08:21:31 -0500
+In-Reply-To: <17348.58532.375242.210475@alkaid.it.uu.se>
+References: <20060110205709.GE3911@stusta.de> <52078AC1-B781-4664-A03A-1DC84C84490B@neostrada.pl> <17348.58532.375242.210475@alkaid.it.uu.se>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6ACF03DE-0670-47BF-A97C-B4C4377E0647@neostrada.pl>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
+Subject: Re: [2.6 patch] ftape: remove some outdated information from Kconfig files
+Date: Wed, 11 Jan 2006 14:20:47 +0100
+To: Mikael Pettersson <mikpe@csd.uu.se>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 21:05 -0500, John W. Linville wrote:
-> If you are the maintainer of an out-of-tree driver or other component
-> (e.g. softmac), please let me hear from you (publicly or privately).
-> I want to be sure to identify all the major stakeholders.  I would
-> also like to hear your plans for getting your code into the tree... :-)
 
-I'm the author of a driver for the No Wires Needed card family.
-It's a bit of an odd-man-out in the wireless devices world, as all the
-wireless management is being done in firmware. Packets are read/sent
-through a 16550 type interface as ethernet packets, and management
-packets to control the card are sent in a similar way (but with a
-different packet type). I inject management packets into the network
-queue with dev_queue_xmit(), meaning the network queue takes care of the
-correct locking.
+On 2006-01-11, at 11:57, Mikael Pettersson wrote:
 
-I'd be interested in getting it integrated into mainline, although I'll
-have to devote some time to get the pcmcia handling up to scratch, as
-well as update to the latest wireless extensions (or any of the other
-management utensils).
+> Marcin Dalecki writes:
+>>
+>> On 2006-01-10, at 21:57, Adrian Bunk wrote:
+>>
+>>> This patch removes some outdated information about the ftape driver
+>>> like
+>>> pointers to no longer existing webpages from Kconfig files.
+>>
+>> You could just remove this driver completely as well. Because
+>> practically since
+>> it's inclusion in to the main stream kernel it has been outdated and
+>> nonfunctioning.
+>
+> There exists configurations for which it does work.
+>
+>> 4. Right now the corresponding user space tools can't be found on the
+>> web any longer.
+>
+> The only required tools are standard things like mt and tar or cpio.
+> The tape formatting tools are out in the wild somewhere, big deal.
 
-Let me know if you are interested in a patch, and I'll see what I can do
-in the near future.
+There are definitively no tape formatting tools for the in-kernel  
+version.
+Formatting was only supported by the external driver ever.
+And this brings your former statement about some supposedly working  
+configurations
+in to question.
 
--- 
-Bas Vermeulen <bvermeul@blackstar.nl>
+> Or are you volunteering to take over maintenance of ftape-4.x and  
+> merge
+> that into the kernel?
 
+No. Tough I have been messing with the ftape driver a *long* time ago  
+and
+still have two QIC drives in the dust bin - I'm considering this kind
+of hardware obsolete by a large margin.

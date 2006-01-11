@@ -1,122 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWAKEQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWAKEdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbWAKEQt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 23:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWAKEQt
+	id S932423AbWAKEdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 23:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWAKEdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 23:16:49 -0500
-Received: from mx2.suse.de ([195.135.220.15]:33480 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751356AbWAKEQs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 23:16:48 -0500
-From: Neil Brown <neilb@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Date: Wed, 11 Jan 2006 15:16:40 +1100
+	Tue, 10 Jan 2006 23:33:47 -0500
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:14161 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932423AbWAKEdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 23:33:46 -0500
+Message-ID: <43C48AA7.6070603@bigpond.net.au>
+Date: Wed, 11 Jan 2006 15:33:43 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Con Kolivas <kernel@kolivas.org>
+CC: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <200601111407.05738.kernel@kolivas.org> <43C47E32.4020001@bigpond.net.au> <200601111449.29269.kernel@kolivas.org>
+In-Reply-To: <200601111449.29269.kernel@kolivas.org>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17348.34472.105452.831193@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, Reuben Farrelly <reuben-lkml@reub.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm2
-In-Reply-To: message from Ingo Molnar on Tuesday January 10
-References: <20060107052221.61d0b600.akpm@osdl.org>
-	<43BFD8C1.9030404@reub.net>
-	<20060107133103.530eb889.akpm@osdl.org>
-	<43C38932.7070302@reub.net>
-	<20060110104759.GA30546@elte.hu>
-	<43C3A85A.7000003@reub.net>
-	<20060110044240.3d3aa456.akpm@osdl.org>
-	<20060110131618.GA27123@elte.hu>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 11 Jan 2006 04:33:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday January 10, mingo@elte.hu wrote:
+Con Kolivas wrote:
+> On Wed, 11 Jan 2006 02:40 pm, Peter Williams wrote:
 > 
-> * Andrew Morton <akpm@osdl.org> wrote:
+>>Con Kolivas wrote:
+>>
+>>>I disagree. I think the current implementation changes the balancing
+>>>according to nice much more effectively than previously where by their
+>>>very nature, low priority tasks were balanced more frequently and ended
+>>>up getting their own cpu.
+>>
+>>I can't follow the logic here 
 > 
-> > Reuben Farrelly <reuben-lkml@reub.net> wrote:
-> > >
-> > > Ok here's the latest one, this time with KALLSYMS_ALL, CONFIG_FRAME_POINTER, 
-> > >  CONFIG_DETECT_SOFTLOCKUP and the DEBUG_WARN_ON(current->state != TASK_RUNNING); 
-> > >  patch from Ingo.
-> > 
-> > This is quite ugly.  I'd be suspecting a block layer problem: RAID or 
-> > the underlying device driver (ahci) has lost an IO.
 > 
-> yeah, now it more looks like that to me too. What happens is a raid1 
-> resync happens in the background - which is one of the more complex 
-> raid1 workloads - and there've been a good number of md patches 
-> recently. Reuben, does -git5 show the same symptoms?
+> cpu bound non interactive tasks have long timeslices. Tasks that have short 
+> timeslices like interactive ones or cpu bound ones at nice 19 have short 
+> timeslices.
 
-There isn't a resync happening - if there was you would a process
-called
-   mdX_resync
-(for some X).
+Time slice size is dependent on nice (via static_prio) only, gets bigger 
+as static_prio gets smaller and only really effects the switching of 
+tasks from the active array to the expired array.  This means that 
+programs with high nice values will tend to spend more time on the 
+expired array than the active array.  Since the expired queue is always 
+examined first this makes them the most likely to be moved regardless of 
+the smp nice patch.  This is independent of the amount of CPU a task 
+uses each time it gets onto the CPU which is what I think you were 
+alluding to.
 
-What I see here is:
- pdflush at:
-Call Trace:
-  [<c02a2f72>] md_write_start+0xbc/0x150
-  [<c029a659>] make_request+0x51/0x432
-  [<c01e1146>] generic_make_request+0xbe/0x13d
-  [<c01e120e>] submit_bio+0x49/0xd3
+> If a nice 0 and nice 19 task are running on the same cpu, the 
+> nice 19 one is going to be spending most of its time waiting in the runqueue. 
+> As soon as an idle cpu appears it will only pull a task that is waiting in a 
+> runqueue... and that is going to be the low priority tasks. 
 
-So it is trying to write to a raid1 which was 'clean' and needs to
-be marked 'dirty' (or 'active') before the first write.
-md_start_write arranges for the array's thread to do this.
-What is that thread doing?
+Because they're more likely to be on the expired array.
 
-md2_raid1     D F7227200     0   386     11           390   382 (L-TLB)
-  ...
-Call Trace:
-  [<c029d004>] md_super_wait+0xd5/0xea
-  [<c02a4f93>] bitmap_unplug+0x1d8/0x1df
-  [<c029b72b>] raid1d+0x7d/0x555
-  [<c02a211a>] md_thread+0x44/0x14f
+So the patch works by reducing the chance of any tasks being moved 
+during an idle rebalance.  Surely this is likely to increase the amount 
+of idle time.
 
-It probably hasn't tried to write out the superblock, and just
-now it is writing out some write-intent-bitmap entries and waiting
-for the write to complete.
+Maybe the idle balance should check the active arrays before it checks 
+the expired arrays?  This will increase the chances of getting a high 
+priority task.  The down side is that tasks on the active array are more 
+likely to be "cache warm" which is why the expired array is checked 
+first (hence the suggestion that this only apply to idle balancing).
 
-md_super_wait is waiting for 'pending_writes' to become zero.
-It is incremented when any superblock or bitmap write starts, and
-is decremented when that write completes.
+But, as you say, let's wait and see what happens with the patch backed 
+out before we get too carried away.
 
-So a lost write request in one of the components of the array could
-cause this, but it is too easy to simply blame it on someone else....
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-But there is something I don't understand....
-
-If md2_raid1 is in bitmap_unplug, that means there are outstanding
-write requests to md2_raid1, so the one that pdflush is currently
-generating cannot be the first.
-
-This suggests that pdflush is not writing to md2, but to something
-else.
-Ahhhh.. md0_raid1 is also blocked:
-Call Trace:
-  [<c029d004>] md_super_wait+0xd5/0xea
-  [<c029ec29>] md_update_sb+0xc9/0x153
-  [<c02a3a20>] md_check_recovery+0x182/0x437
-  [<c029b6cd>] raid1d+0x1f/0x555
-
-It has just updated the superblocks for md0 and is waiting for those
-writes to complete.  But they don't seem to want to complete.
-
-So it seems that two raid1 arrays are blocked in slightly different
-places.
-
-I'm tempted to blame the IO scheduled, only because there have been
-vaguely similar problems in the recent past that can be avoided by
-changing the scheduler.
-
-Reuben:  could you check what IO scheduler your drives are using, and 
-try changing it.  I suspect they use 'as' by default.  Try 'cfq' or
-'deadline'.
-
-NeilBrown
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

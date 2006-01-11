@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWAKXXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWAKXZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbWAKXXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 18:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWAKXXe
+	id S932534AbWAKXZU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 18:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWAKXZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 18:23:34 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:51848 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932528AbWAKXXe (ORCPT
+	Wed, 11 Jan 2006 18:25:20 -0500
+Received: from holomorphy.com ([66.93.40.71]:51178 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S932534AbWAKXZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 18:23:34 -0500
-Message-ID: <43C5937D.7060502@ens-lyon.org>
-Date: Wed, 11 Jan 2006 18:23:41 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-mm3
-References: <20060111042135.24faf878.akpm@osdl.org> <43C54FB9.9080906@ens-lyon.org> <20060111184012.GA19604@isilmar.linta.de> <43C55761.1090106@ens-lyon.org> <20060111195553.GA15739@isilmar.linta.de> <43C56A6C.8020707@ens-lyon.org> <20060111212135.GA32021@isilmar.linta.de> <43C58B02.6010601@ens-lyon.org> <20060111230039.GB4541@isilmar.linta.de>
-In-Reply-To: <20060111230039.GB4541@isilmar.linta.de>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 18:25:19 -0500
+Date: Wed, 11 Jan 2006 15:24:56 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adam Litke <agl@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
+Message-ID: <20060111232456.GF9091@holomorphy.com>
+References: <1136920951.23288.5.camel@localhost.localdomain> <1137016960.9672.5.camel@localhost.localdomain> <1137018263.9672.10.camel@localhost.localdomain> <20060111225202.GE9091@holomorphy.com> <1137020606.9672.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137020606.9672.16.camel@localhost.localdomain>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
+On Wed, 2006-01-11 at 14:52 -0800, William Lee Irwin III wrote:
+>> ->i_lock looks rather fishy. It may have been necessary when ->i_blocks
+>> was used for nefarious purposes, but without ->i_blocks fiddling, it's
+>> not needed unless I somehow missed the addition of some custom fields
+>> to hugetlbfs inodes and their modifications by any of these functions.
 
->Many thanks... Could you try out this patch instead of the other one,
->please? get_pcmcia_device() seems to be the buggiest function I've ever
->written, sorry about that...
->  
->
-It works, thanks. Good job!
+On Wed, Jan 11, 2006 at 05:03:25PM -0600, Adam Litke wrote:
+> Nope, all the i_blocks stuff is gone.  I was just looking for a
+> spin_lock for serializing all allocations for a particular hugeltbfs
+> file and i_lock seemed to fit that bill.  It could be said, however,
+> that the locking strategy used in the patch protects a section of code,
+> not a data structure (which can be a bad idea).  Any thoughts on a less
+> "fishy" locking strategy for this case?
 
-Brice
+That's not really something that needs to be synchronized per se. hugetlb
+data structures need protection against concurrent modification, but
+they have that from the functions you're calling.
 
+
+-- wli

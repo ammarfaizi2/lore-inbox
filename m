@@ -1,54 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWAKIj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWAKIj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932588AbWAKIj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 03:39:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbWAKIj1
+	id S932610AbWAKIj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 03:39:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWAKIj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 03:39:27 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14009 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932588AbWAKIj0 (ORCPT
+	Wed, 11 Jan 2006 03:39:57 -0500
+Received: from quechua.inka.de ([193.197.184.2]:39144 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932610AbWAKIj4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 03:39:26 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
+	Wed, 11 Jan 2006 03:39:56 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
 To: linux-kernel@vger.kernel.org
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Subject: 2.6.15 make fails with multiple targets in parallel
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 11 Jan 2006 19:39:11 +1100
-Message-ID: <13394.1136968751@kao2.melbourne.sgi.com>
+Subject: Re: 2G memory split
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20060110202819.GJ3389@suse.de>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1EwbWM-00029C-00@calista.inka.de>
+Date: Wed, 11 Jan 2006 09:39:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running make on the kernel tree with multiple targets on the command
-line and in parallel mode gets errors.  The prepare targets are run
-several times, once for each target on the command line.  Sometimes the
-result is sensible, sometimes the prepare commands overwrite each other
-with either garbage or missing files.
+Jens Axboe <axboe@suse.de> wrote:
+> To me the former is clearer, it tells you that you have one full gig of
+> low memory. But maybe that's just me.
 
-make -j12 compressed modules vmlinux
-  Using /foo/linux as source for kernel
-  Using /foo/linux as source for kernel
-  Using /foo/linux as source for kernel
-  GEN    /foo/obj/Makefile
-  CHK     include/linux/version.h
-  GEN    /foo/obj/Makefile
-  GEN    /foo/obj/Makefile
-  CHK     include/linux/version.h
-  CHK     include/linux/version.h
-  UPD     include/linux/version.h
-  UPD     include/linux/version.h
-  UPD     include/linux/version.h
-mv: cannot stat `include/linux/version.h.tmp': No such file or directory
-make[1]: *** [include/linux/version.h] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make: *** [vmlinux] Error 2
-make: *** Waiting for unfinished jobs....
+It still does not describe what the consequences, especiall the difference
+to the non-optimized case is. When do you want to use it, and when not.
 
-I know that the command above is equivalent to 'make -j12' but that is
-irrelevant, make is supposed to handle multiple targets without
-repeating commands.
-
-Is this where we mention http://www.google.com/search?q=cache:HwuX7YF2uBIJ:aegis.sourceforge.net/auug97.pdf&hl=en ?
-
+Gruss
+Bernd

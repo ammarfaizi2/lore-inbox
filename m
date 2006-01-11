@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWAKSZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWAKS3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWAKSZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:25:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWAKSZ4
+	id S964788AbWAKS3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWAKS3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:25:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22682 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932446AbWAKSZz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:25:55 -0500
-Date: Wed, 11 Jan 2006 10:25:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nils Rennebarth <nils.rennebarth@packetalarm.com>
+	Wed, 11 Jan 2006 13:29:24 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:174 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964788AbWAKS3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:29:23 -0500
+Subject: Re: Kernel 2.6.15 sometimes only detects one of two SATA drives
+	and panics
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andre Hessling <ahessling@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: e100 in 2.6.15 fails unless irqpoll ist used
-Message-Id: <20060111102536.5d91fd92.akpm@osdl.org>
-In-Reply-To: <43C50ED4.3090707@packetalarm.com>
-References: <43C50ED4.3090707@packetalarm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+In-Reply-To: <1137003241.7603.20.camel@localhost.localdomain>
+References: <1137003241.7603.20.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 13:29:21 -0500
+Message-Id: <1137004161.27255.72.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nils Rennebarth <nils.rennebarth@packetalarm.com> wrote:
->
-> An upgrade from 2.6.14.3 to 2.6.15 on my testmachine disabled my network cards: 
->  no packets are sent or received.
+On Wed, 2006-01-11 at 19:14 +0100, Andre Hessling wrote:
+> Hello!
 > 
->  There is the following in dmesg:
+> I recently upgraded from 2.6.14 to 2.6.15 vanilla and I encountered some
+> random kernel panics on boot so far.
 > 
->  usbcore: registered new driver usbfs
->  usbcore: registered new driver hub
->  USB Universal Host Controller Interface driver v2.3
->  irq 11: nobody cared (try booting with the "irqpoll" option)
->    [<c012ae21>] __report_bad_irq+0x31/0x77
->    [<c012aef4>] note_interrupt+0x75/0x99
->    [<c012a9f0>] __do_IRQ+0x65/0x91
->  ...
+> The panic is:
+> "Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)"
 > 
->  Rebooting with irqpoll will make the network cards work. The above message will 
->  appeare nonetheless.
+> My config hasn't changed since 2.6.14 and I never encountered such an
+> error under 2.6.14.
+> 
 
-This means that your IRQ routing broke and the card's interrupt requests
-are not getting through.
+Check your cabling and termination.
 
-This is likely to be an ACPI regression.  Please raise a report at
-bugzilla.kernel.org, generate full `dmesg -s 1000000' output for both
-2.6.14.3 and for 2.6.15 and attach them to the report, thanks.
+Lee
+

@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWAKBte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbWAKBuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161076AbWAKBte (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 20:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWAKBtd
+	id S1161078AbWAKBuM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 20:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWAKBuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 20:49:33 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:60603 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1161076AbWAKBtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 20:49:33 -0500
-From: Con Kolivas <kernel@kolivas.org>
+	Tue, 10 Jan 2006 20:50:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:10128 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161078AbWAKBuJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 20:50:09 -0500
+Date: Tue, 10 Jan 2006 17:52:00 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Martin Bligh <mbligh@google.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
 Subject: Re: -mm seems significanty slower than mainline on kernbench
-Date: Wed, 11 Jan 2006 12:49:05 +1100
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Peter Williams <pwil3058@bigpond.net.au>
-References: <43C45BDC.1050402@google.com> <20060110173159.55cce659.akpm@osdl.org> <43C4624D.4040604@google.com>
+Message-Id: <20060110175200.456af1a7.akpm@osdl.org>
 In-Reply-To: <43C4624D.4040604@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+References: <43C45BDC.1050402@google.com>
+	<20060110173159.55cce659.akpm@osdl.org>
+	<43C4624D.4040604@google.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601111249.05881.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jan 2006 12:41 pm, Martin Bligh wrote:
-> Seems to have gone wrong between 2.6.14-rc1-mm1 and 2.6.14-rc2-mm1 ?
-> See http://test.kernel.org/perf/kernbench.moe.png for clearest effect.
+Martin Bligh <mbligh@google.com> wrote:
+>
+> > Well, 1% slower.  -mm has permanent not-for-linus debug things, some of
+> > which are expected to have a performance impact.  I don't know whether
+> > they'd have a 1% impact though.
+> 
+> OK, fair enough. Can I turn them off somehow to check? it's 10% on 
+> NUMA-Q. The good news is that it's stayed in -mm for long time, so ...
+> am praying.
 
-The only new scheduler patch at that time was this:
-+sched-modified-nice-support-for-smp-load-balancing.patch
+There are quite a lot of them.
 
-which was Peter's modifications to my smp nice support. cc'ed Peter
+list_del-debug.patch
+page-owner-tracking-leak-detector.patch
+page-owner-tracking-leak-detector-fix.patch
+unplug-can-sleep.patch
+firestream-warnings.patch
+#periodically-scan-redzone-entries-and-slab-control-structures.patch
+slab-leak-detector.patch
+releasing-resources-with-children.patch
+nr_blockdev_pages-in_interrupt-warning.patch
+nmi-lockup-and-altsysrq-p-dumping-calltraces-on-_all_-cpus.patch
+detect-atomic-counter-underflows.patch
+sysfs-crash-debugging.patch
+device-suspend-debug.patch
+slab-cache-shrinker-statistics.patch
+slab-cache-shrinker-statistics-fix.patch
+mm-debug-dump-pageframes-on-bad_page.patch
+debug-warn-if-we-sleep-in-an-irq-for-a-long-time.patch
+debug-shared-irqs.patch
+debug-shared-irqs-fix.patch
+make-frame_pointer-default=y.patch
 
-I guess we need to check whether reversing this patch helps.
 
-Con
+list_del-debug.patch, detect-atomic-counter-underflows.patch,
+slab-cache-shrinker-statistics.patch will all have a small impact.
+
+But not much.

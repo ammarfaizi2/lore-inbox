@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWAKUq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWAKUrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751697AbWAKUq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 15:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751694AbWAKUq4
+	id S1751713AbWAKUrk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 15:47:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751729AbWAKUrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 15:46:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27341 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751413AbWAKUqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 15:46:55 -0500
-Date: Wed, 11 Jan 2006 12:46:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, sct@redhat.com, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
-Message-Id: <20060111124617.5e7e1eaa.akpm@osdl.org>
-In-Reply-To: <200601112126.59796.ak@suse.de>
-References: <200601112126.59796.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 11 Jan 2006 15:47:40 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:37067 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751694AbWAKUrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 15:47:40 -0500
+Subject: 2.6.15-rt4-sr1
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 15:47:11 -0500
+Message-Id: <1137012431.6197.117.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> 
-> Running LTP with the default runfile on a 4 virtual CPU x86-64 
-> system gives
-> 
-> To reproduce: run ltp 20040908 (newer one will probably work
-> too) with runltp -p -q -l `uname -r` on a ext3 file system
-> 
-> config is x86-64 defconfig.
-> 
+I've just uploaded my new maintenance release.
 
-mutex_trylock() is returning the wrong value.  fs/super.c:write_super()
-clearly took the lock.
+fixes:
 
-Ingo, weren't you hitting this occasionally?
+- light soft lockup - currently it doesn't detect the light soft lockups
+    because the counter was being reset in the wrong place.  Not sure if
+    this was done earlier with some other issue.  But I needed this fix
+    to get the low priority lockup to be detected.
 
-> 
-> ----------- [cut here ] --------- [please bite here ] ---------
-> Kernel BUG at /home/lsrc/quilt/linux/fs/ext3/super.c:2154
-> invalid opcode: 0000 [1] SMP 
-> CPU 0 
-> Modules linked in:
-> Pid: 14055, comm: pdflush Not tainted 2.6.15-git7 #90
-> RIP: 0010:[<ffffffff801d998e>] <ffffffff801d998e>{ext3_write_super+20}
-> RSP: 0018:ffff810117fb1e08  EFLAGS: 00010202
-> RAX: 0000000000000001 RBX: ffff81011f9ae800 RCX: ffffffff80492060
-> RDX: 0000000000000000 RSI: ffff810117fb0000 RDI: ffff81011f9ae888
-> RBP: ffff81011f9ae888 R08: ffff810117fb0000 R09: ffff810004f219e0
-> R10: 0000000000000000 R11: 0000000000000002 R12: ffff81011f9ae870
-> R13: ffffffff80159aee R14: ffff8100cdce1d68 R15: ffffffff80146b14
-> FS:  0000000000000000(0000) GS:ffffffff8060d000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 00002aaaaab61000 CR3: 000000011baf3000 CR4: 00000000000006e0
-> Process pdflush (pid: 14055, threadinfo ffff810117fb0000, task ffff81011fe5c400)
-> Stack: ffff81011f9ae800 ffffffff8017aa43 0000000000000064 0000000000000000 
->        ffff8100cdce1d78 ffffffff801592f9 ffff81011fe5c400 ffffffff80494000 
->        0000000000000000 0000000000000000 
-> Call Trace: <ffffffff8017aa43>{sync_supers+133} <ffffffff801592f9>{wb_kupdate+49}
->        <ffffffff80159aee>{pdflush+0} <ffffffff80159c40>{pdflush+338}
->        <ffffffff801592c8>{wb_kupdate+0} <ffffffff80146c7f>{kthread+203}
->        <ffffffff801107ca>{child_rip+8} <ffffffff80146b14>{keventd_create_kthread+0}
->        <ffffffff80146bb4>{kthread+0} <ffffffff801107c2>{child_rip+0}
-> 
-> Code: 0f 0b 68 e9 0d 43 80 c2 6a 08 c6 43 21 00 5b c3 49 c7 c0 ca 
-> RIP <ffffffff801d998e>{ext3_write_super+20} RSP <ffff810117fb1e08>
->  Badness in do_exit at /home/lsrc/quilt/linux/kernel/exit.c:796
-> 
-> Call Trace: <ffffffff80136800>{do_exit+84} <ffffffff804024dd>{_spin_unlock_irqrestore+8}
->        <ffffffff80146b14>{keventd_create_kthread+0} <ffffffff801114ef>{kernel_math_error+0}
->        <ffffffff80159aee>{pdflush+0} <ffffffff80111c61>{do_invalid_op+163}
->        <ffffffff801d998e>{ext3_write_super+20} <ffffffff8040116a>{thread_return+0}
->        <ffffffff80110611>{error_exit+0} <ffffffff80146b14>{keventd_create_kthread+0}
->        <ffffffff80159aee>{pdflush+0} <ffffffff801d998e>{ext3_write_super+20}
->        <ffffffff801d998a>{ext3_write_super+16} <ffffffff8017aa43>{sync_supers+133}
->        <ffffffff801592f9>{wb_kupdate+49} <ffffffff80159aee>{pdflush+0}
->        <ffffffff80159c40>{pdflush+338} <ffffffff801592c8>{wb_kupdate+0}
->        <ffffffff80146c7f>{kthread+203} <ffffffff801107ca>{child_rip+8}
->        <ffffffff80146b14>{keventd_create_kthread+0} <ffffffff80146bb4>{kthread+0}
->        <ffffffff801107c2>{child_rip+0}
+- posix_timers deadlock - There's a loop in the posix_timeres code that 
+    is entered if the current process is a higher priority than the 
+    softirqd thread, and it spins until the softirqd thread is finished.
+    But since the thread is of a higher priority than the softirqd, it
+    deadlocks.
+
+- read_trylock_rt  - added this for cases that have a loop on
+    read_trylock.  Since in RT a read lock is a mutex, a read_trylock
+    will fail even if the owner has it only for reading.  But since
+    the reads are not protected with irqsaves, this can deadlock when
+    a high priority process preempts the owner of the lock and spins
+    till it's released. (this was seen in signal.c: send_group_sigqueue,
+    there may be others)
+
+Still at the normal location:
+
+http://home.stny.rr.com/rostedt/patches/patch-2.6.15-rt4-sr1
+
+Here is the program that showed all these nice deadlocks ;)
+
+http://www.kihontech.com/tests/rt/timer_stress.c
+
+(Run with -P to get the posix deadlocks)
+
+-- Steve
+
+

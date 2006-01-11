@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWAKDtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWAKDxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWAKDtF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 22:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAKDtF
+	id S1750907AbWAKDxx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 22:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWAKDxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 22:49:05 -0500
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:37284 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751166AbWAKDtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 22:49:04 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-Date: Wed, 11 Jan 2006 14:49:29 +1100
-User-Agent: KMail/1.8.2
-Cc: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <43C45BDC.1050402@google.com> <200601111407.05738.kernel@kolivas.org> <43C47E32.4020001@bigpond.net.au>
-In-Reply-To: <43C47E32.4020001@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Jan 2006 22:53:53 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:26347 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750907AbWAKDxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 22:53:53 -0500
+Subject: Re: 2.6.15-rt3 + Open Posix Test Suite
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1136934210.5756.13.camel@localhost.localdomain>
+References: <1136934210.5756.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 10 Jan 2006 22:53:12 -0500
+Message-Id: <1136951593.6197.81.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601111449.29269.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jan 2006 02:40 pm, Peter Williams wrote:
-> Con Kolivas wrote:
-> > I disagree. I think the current implementation changes the balancing
-> > according to nice much more effectively than previously where by their
-> > very nature, low priority tasks were balanced more frequently and ended
-> > up getting their own cpu.
->
-> I can't follow the logic here 
+On Tue, 2006-01-10 at 15:03 -0800, Daniel Walker wrote:
+> 	It's worth noting that a few tests in the current Open Posix Test Suite
+> hang RT systems. 
+> 
+> Specifically this test (hope this url comes through),
+> 
+> http://cvs.sourceforge.net/viewcvs.py/*checkout*/posixtest/posixtestsuite/conformance/interfaces/sched_setparam/10-1.c?rev=1.2
+> 
+> sched_setparam test 10-1.c and I think 9-1.c .
+> 
+> The 10-1 test spawns some children at SCHED_FIFO priority 99 , then runs
+> the following,
+> 
+> void child_process(){
+> 	alarm(2);
+> 
+> 	while(1) {
+> 		(*shmptr)++;
+> 		sched_yield();
+> 	}
+> }
+> 
+> I'm sure this is what's hanging the system, the yield() is one issue.
+> Another is why the alarm() is never delivered .
 
-cpu bound non interactive tasks have long timeslices. Tasks that have short 
-timeslices like interactive ones or cpu bound ones at nice 19 have short 
-timeslices. If a nice 0 and nice 19 task are running on the same cpu, the 
-nice 19 one is going to be spending most of its time waiting in the runqueue. 
-As soon as an idle cpu appears it will only pull a task that is waiting in a 
-runqueue... and that is going to be the low priority tasks. 
+This runs a while loop at SCHED_FIFO prio 99?  And alarm never happens.
+Doesn't the alarm get activated by the softirqd that is running at a
+lower priority?  Seems that this is starving out the softirq from
+getting the alarm.
 
-> Yes, that's true.  I must admit that I wouldn't have expected the
-> increased overhead to be very big.  In general, the "system" CPU time in
-> a kernbench is only about 1% of the total CPU time and the extra
-> overhead should be just a fraction of that.
+I believe that Thomas once had priorities attached to the timers.  I'd
+like to see that again, and may even start adding them myself, such that
+when a process activates a timer, when that timer goes off, the softirq
+will get the priority of the timer.  But this has some complications to
+be sorted out.
 
-Doesn't appear to be system time. Extra idle time does suggest poor balancing 
-though. Remember the effort I went to to avoid altering the delicate idle 
-balancing...
+-- Steve
 
-> It's possible that better distribution of niceness across CPU leads to
-> more preemption within a run queue (i.e. if there all the same priority
-> they won't preempt each other much) leading to more context switches.
 
-Can't see how that is for what you say below.
-
-> But you wouldn't expect that to show up in kernbench as the tasks are
-> all the same niceness and usually end up with the same dynamic priority.
-
-The whole of userspace on a kernbench run is going to be nice 0. 
-
-Let's wait till we confirm or deny this patch is responsible before 
-postulating further.
-
-Cheers,
-Con

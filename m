@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWAKS3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWAKSci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWAKS3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWAKS3Y
+	id S932219AbWAKSci (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWAKSci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:29:24 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:174 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964788AbWAKS3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:29:23 -0500
-Subject: Re: Kernel 2.6.15 sometimes only detects one of two SATA drives
-	and panics
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andre Hessling <ahessling@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1137003241.7603.20.camel@localhost.localdomain>
-References: <1137003241.7603.20.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 13:29:21 -0500
-Message-Id: <1137004161.27255.72.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Wed, 11 Jan 2006 13:32:38 -0500
+Received: from nproxy.gmail.com ([64.233.182.195]:30707 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932219AbWAKSch (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:32:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=ARdoAdOnhUTiFv87yavOV/7NQaP81q63aUgMaRJsQYP3Nnexs7NY6gQEzRx3h70M+piqY3mU+6Sm6LMHCzX4EEjfWzmmCW4U2g5eU0pGAxedgVeiX/PRWbcQqv1gMvjsjhxiDj5rGFB/enzkSkGZapJ1KzYVQkUSmye7ZQy62SA=
+Message-ID: <43C54F32.3040509@gmail.com>
+Date: Thu, 12 Jan 2006 00:02:18 +0530
+Reply-To: chaitanya.hazarey@gmail.com
+Organization: Grid Comp & Ecom Lab (C-212), School of Technology and Computer
+ Science, Tata Institue of Fundamental Research, Mumbai
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Back to the Future ? or some thing sinister ?
+References: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>	 <20060109040322.GA2683@localhost.localdomain> <728201270601090726i256cf19bj48be55621b86931f@mail.gmail.com>
+In-Reply-To: <728201270601090726i256cf19bj48be55621b86931f@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+From: Chaitanya Vinay Hazarey <c.v.hazarey@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 19:14 +0100, Andre Hessling wrote:
-> Hello!
-> 
-> I recently upgraded from 2.6.14 to 2.6.15 vanilla and I encountered some
-> random kernel panics on boot so far.
-> 
-> The panic is:
-> "Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)"
-> 
-> My config hasn't changed since 2.6.14 and I never encountered such an
-> error under 2.6.14.
-> 
+Ram Gupta wrote:
 
-Check your cabling and termination.
+>On 1/8/06, Nathan Lynch <ntl@pobox.com> wrote:
+>  
+>
+>>Chaitanya Hazarey wrote:
+>>    
+>>
+>>>We have got a machine, lets say X , make is IBM and the CPU is Intel
+>>>Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
+>>>      
+>>>
+>
+>
+>Is this machine's time is synchronized with some server using ntp. I
+>had seen some very similar issue when the clock deviation was more
+>than a second .If clock is adjusted and time difference becomes more
+>than 2 sec the diffence becomes negative because timeval has its
+>members as signed int.It think that issue might be playing a role
+>here.
+>
+>  
+>
+Nope tried every thing, shutting down the ntp server, changing the Ntp 
+server, any thing I do it still will hang intermittently. And if the 
+problem is because of the Ntp why should it hang only on 2.6 not 2.4 
+kernels ?
 
-Lee
+And the point is that when it reaches that stage all the commands seem 
+to execute ultra slow.
+
+Any help for diagnosing the problem is most welcome.
+
+Thanks,
+
+Chaitanya
+
 

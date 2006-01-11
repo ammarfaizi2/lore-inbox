@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030701AbWAKAEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030700AbWAKAHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030701AbWAKAEu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030702AbWAKAEt
+	id S1030700AbWAKAHF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030702AbWAKAHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:04:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30848 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030701AbWAKAEs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:04:48 -0500
-Date: Tue, 10 Jan 2006 16:03:24 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: State of the Union: Wireless
-Message-Id: <20060110160324.17074fa3.zaitcev@redhat.com>
-In-Reply-To: <mailman.1136898727.7233.linux-kernel2news@redhat.com>
-References: <43C3AAE2.1090900@cubic.ch>
-	<mailman.1136898727.7233.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 19:07:05 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21752 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S1030700AbWAKAHB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:07:01 -0500
+Date: Tue, 10 Jan 2006 16:06:55 -0800
+Message-Id: <200601110006.k0B06tDI018868@dhcp153.mvista.com>
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Make CONFIG_BLOCKER X86 only 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006 13:53:57 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> On Tue, Jan 10, 2006 at 01:38:58PM +0100, Tim Tassonis wrote:
-> >...
-> > >We can always undo mistakes later, but 
-> > >we'll never get to that point if we don't start moving in one direction 
-> > >instead of ten.
-> > 
-> > You were right if there were ten, but there seem to be only two at the 
-> > moment. One stack will survive and one will die. There's no point in 
-> > deciding this now.
-> 
-> No, we'll end up with two stacks, some drivers using the first stack and 
-> some the second one.
-> 
-> You can't simply let one stack die because this would imply either 
-> rewriting all drivers using this stack or dropping support for some 
-> hardware.
+	That's the only arch I know of that it compiles on.
 
-So, you don't want to remove OSS drivers anymore, I take it.
-Can't let bad stacks die!
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
--- Pete
+Index: linux-2.6.15/drivers/char/Kconfig
+===================================================================
+--- linux-2.6.15.orig/drivers/char/Kconfig
++++ linux-2.6.15/drivers/char/Kconfig
+@@ -722,7 +722,7 @@ config RTC_HISTOGRAM
+ 
+ config BLOCKER
+ 	tristate "Priority Inheritance Debugging (Blocker) Device Support"
+-	default y
++	default y if X86 
+ 	---help---
+ 	  If you say Y here then a device will be created that the userspace
+ 	  pi_test suite uses to test and measure kernel locking primitives.

@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbWAKABy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030696AbWAKACv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932736AbWAKABy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbWAKABy
+	id S1030696AbWAKACv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030698AbWAKACu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:01:54 -0500
-Received: from sith.mimuw.edu.pl ([193.0.96.4]:33296 "EHLO sith.mimuw.edu.pl")
-	by vger.kernel.org with ESMTP id S932736AbWAKABx (ORCPT
+	Tue, 10 Jan 2006 19:02:50 -0500
+Received: from igw2.zrnko.cz ([81.31.45.164]:8417 "EHLO anubis.fi.muni.cz")
+	by vger.kernel.org with ESMTP id S1030694AbWAKACt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:01:53 -0500
-Date: Wed, 11 Jan 2006 01:01:51 +0100
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: linux-kernel@vger.kernel.org
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Stern <stern@rowland.harvard.edu>,
-       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-       "dtor_core @ ameritech. net Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Leonid <nouser@lpetrov.net>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-Message-ID: <20060111000151.GA5712@sith.mimuw.edu.pl>
-Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-	linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-	"dtor_core @ ameritech. net Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-	linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-	Leonid <nouser@lpetrov.net>
-References: <20060110074336.GA7462@suse.cz> <Pine.LNX.4.44L0.0601101008440.5060-100000@iolanthe.rowland.org> <20060110152807.GB22371@suse.cz> <d120d5000601100737r7b1e12edy6d4eedc4b12960fc@mail.gmail.com>
-Mime-Version: 1.0
+	Tue, 10 Jan 2006 19:02:49 -0500
+Date: Wed, 11 Jan 2006 01:02:43 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: yarick@it-territory.ru, linux-kernel@vger.kernel.org
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Message-ID: <20060111000243.GN12559@mail.muni.cz>
+References: <20060110234832.GM12559@mail.muni.cz> <1136937463.2007.104.camel@mindpipe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <d120d5000601100737r7b1e12edy6d4eedc4b12960fc@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.14.6 x86_64
+In-Reply-To: <1136937463.2007.104.camel@mindpipe>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jan 2006, Dmitry Torokhov wrote:
+On Tue, Jan 10, 2006 at 06:57:42PM -0500, Lee Revell wrote:
+> On Wed, 2006-01-11 at 00:48 +0100, Lukas Hejtmanek wrote:
+> > For intel graphics - use your money and force Intel to release docs at
+> > least about setting graphics mode on 830-945 chipsets. I'm open to
+> > contribute code then. (As I did some hacking into X driver without
+> > docs just guessing). Or gain NDA and docs from local Intel authorize
+> > reseller. 
+> 
+> Or spend your money on SoftICE for Windows and just reverse engineer it.
+> 
+> http://www.compuware.com/products/driverstudio/softice.htm
 
-> We'll just have to wait for another report. "Sluggish typing" report
-> looks promising.
+It would be easier to RE intel binary driver:
+http://downloadfinder.intel.com/scripts-df-external/filter_results.aspx?strTypes=all&ProductID=2159&OSFullName=Linux*&lang=eng&strOSs=39&submit=Go%21
 
-With 2.6.14.6:
+or VGA BIOS.
 
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-
-and my keyboard works.
-
-with 2.6.15:
-
-i8042.c: Can't read CTR while initializing i8042.
-
-and no PS/2 keyboard.
-
-This happens on Dell Precision 380, x86_64 kernel with SMP/HT, no options
-on kernel command line, same kernel .config (modulo make oldconfig).
-I tried all solutions I found on google, none works (beside connecting
-USB keyboard or disabling USB in BIOS).
-
-Jan
 -- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
+Luká¹ Hejtmánek

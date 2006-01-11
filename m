@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWAKMB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWAKMD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWAKMB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 07:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWAKMB0
+	id S1751198AbWAKMD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 07:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWAKMD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:01:26 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:42374 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932382AbWAKMBZ
+	Wed, 11 Jan 2006 07:03:29 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:45702 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751198AbWAKMD3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:01:25 -0500
+	Wed, 11 Jan 2006 07:03:29 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17348.62356.869372.208463@jaguar.mkp.net>
-Date: Wed, 11 Jan 2006 07:01:24 -0500
+Message-ID: <17348.62479.70227.421232@jaguar.mkp.net>
+Date: Wed, 11 Jan 2006 07:03:27 -0500
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Stephane Eranian <eranian@hpl.hp.com>
-Subject: [patch] perfmon sem2completion
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: [patch] sem2mutex floppy.c
 X-Mailer: VM 7.19 under Emacs 21.4.1
 From: jes@trained-monkey.org (Jes Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,76 +25,102 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-A patch to eliminate the semaphore in the perfmon driver. I believe
-Stephane also already applied this to his private tree.
+This one converts the floppy driver to a mutex. Patch tested by Ingo as
+I don't have anything floppy capable to test it on.
 
 Cheers,
 Jes
 
-
-Migrate perfmon from using an old semaphore to a completion handler.
+Convert from semaphore to mutex.
 
 Signed-off-by: Jes Sorensen <jes@sgi.com>
 
 ----
 
- arch/ia64/kernel/perfmon.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/block/floppy.c |   17 +++++++++--------
+ 1 files changed, 9 insertions(+), 8 deletions(-)
 
-Index: linux-2.6/arch/ia64/kernel/perfmon.c
+Index: linux-2.6/drivers/block/floppy.c
 ===================================================================
---- linux-2.6.orig/arch/ia64/kernel/perfmon.c
-+++ linux-2.6/arch/ia64/kernel/perfmon.c
-@@ -39,6 +39,7 @@
- #include <linux/mount.h>
- #include <linux/bitops.h>
- #include <linux/rcupdate.h>
-+#include <linux/completion.h>
+--- linux-2.6.orig/drivers/block/floppy.c
++++ linux-2.6/drivers/block/floppy.c
+@@ -179,6 +179,7 @@
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/platform_device.h>
+ #include <linux/buffer_head.h>	/* for invalidate_buffers() */
++#include <linux/mutex.h>
  
- #include <asm/errno.h>
- #include <asm/intrinsics.h>
-@@ -285,7 +286,7 @@
+ /*
+  * PS/2 floppies have much slower step rates than regular floppies.
+@@ -414,7 +415,7 @@
+ static struct timer_list motor_off_timer[N_DRIVE];
+ static struct gendisk *disks[N_DRIVE];
+ static struct block_device *opened_bdev[N_DRIVE];
+-static DECLARE_MUTEX(open_lock);
++static DEFINE_MUTEX(open_lock);
+ static struct floppy_raw_cmd *raw_cmd, default_raw_cmd;
  
- 	unsigned long		ctx_ovfl_regs[4];	/* which registers overflowed (notification) */
- 
--	struct semaphore	ctx_restart_sem;   	/* use for blocking notification mode */
-+	struct completion	ctx_restart_done;  	/* use for blocking notification mode */
- 
- 	unsigned long		ctx_used_pmds[4];	/* bitmask of PMD used            */
- 	unsigned long		ctx_all_pmds[4];	/* bitmask of all accessible PMDs */
-@@ -1988,7 +1989,7 @@
- 		/*
- 		 * force task to wake up from MASKED state
- 		 */
--		up(&ctx->ctx_restart_sem);
-+		complete(&ctx->ctx_restart_done);
- 
- 		DPRINT(("waking up ctx_state=%d\n", state));
- 
-@@ -2703,7 +2704,7 @@
- 	/*
- 	 * init restart semaphore to locked
- 	 */
--	sema_init(&ctx->ctx_restart_sem, 0);
-+	init_completion(&ctx->ctx_restart_done);
- 
- 	/*
- 	 * activation is used in SMP only
-@@ -3684,7 +3685,7 @@
- 	 */
- 	if (CTX_OVFL_NOBLOCK(ctx) == 0 && state == PFM_CTX_MASKED) {
- 		DPRINT(("unblocking [%d] \n", task->pid));
--		up(&ctx->ctx_restart_sem);
-+		complete(&ctx->ctx_restart_done);
+ /*
+@@ -3334,7 +3335,7 @@
+ 	if (type) {
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+-		down(&open_lock);
++		mutex_lock(&open_lock);
+ 		LOCK_FDC(drive, 1);
+ 		floppy_type[type] = *g;
+ 		floppy_type[type].name = "user format";
+@@ -3348,7 +3349,7 @@
+ 				continue;
+ 			__invalidate_device(bdev);
+ 		}
+-		up(&open_lock);
++		mutex_unlock(&open_lock);
  	} else {
- 		DPRINT(("[%d] armed exit trap\n", task->pid));
+ 		int oldStretch;
+ 		LOCK_FDC(drive, 1);
+@@ -3675,7 +3676,7 @@
+ {
+ 	int drive = (long)inode->i_bdev->bd_disk->private_data;
  
-@@ -5086,7 +5087,7 @@
- 	 * may go through without blocking on SMP systems
- 	 * if restart has been received already by the time we call down()
- 	 */
--	ret = down_interruptible(&ctx->ctx_restart_sem);
-+	ret = wait_for_completion_interruptible(&ctx->ctx_restart_done);
+-	down(&open_lock);
++	mutex_lock(&open_lock);
+ 	if (UDRS->fd_ref < 0)
+ 		UDRS->fd_ref = 0;
+ 	else if (!UDRS->fd_ref--) {
+@@ -3685,7 +3686,7 @@
+ 	if (!UDRS->fd_ref)
+ 		opened_bdev[drive] = NULL;
+ 	floppy_release_irq_and_dma();
+-	up(&open_lock);
++	mutex_unlock(&open_lock);
+ 	return 0;
+ }
  
- 	DPRINT(("after block sleeping ret=%d\n", ret));
+@@ -3703,7 +3704,7 @@
+ 	char *tmp;
+ 
+ 	filp->private_data = (void *)0;
+-	down(&open_lock);
++	mutex_lock(&open_lock);
+ 	old_dev = UDRS->fd_device;
+ 	if (opened_bdev[drive] && opened_bdev[drive] != inode->i_bdev)
+ 		goto out2;
+@@ -3786,7 +3787,7 @@
+ 		if ((filp->f_mode & 2) && !(UTESTF(FD_DISK_WRITABLE)))
+ 			goto out;
+ 	}
+-	up(&open_lock);
++	mutex_unlock(&open_lock);
+ 	return 0;
+ out:
+ 	if (UDRS->fd_ref < 0)
+@@ -3797,7 +3798,7 @@
+ 		opened_bdev[drive] = NULL;
+ 	floppy_release_irq_and_dma();
+ out2:
+-	up(&open_lock);
++	mutex_unlock(&open_lock);
+ 	return res;
+ }
  

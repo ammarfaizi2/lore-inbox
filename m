@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWAKO1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWAKO3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWAKO1m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 09:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWAKO1m
+	id S932384AbWAKO3k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 09:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWAKO3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 09:27:42 -0500
-Received: from picard.linux.it ([213.254.12.146]:60623 "EHLO picard.linux.it")
-	by vger.kernel.org with ESMTP id S1751536AbWAKO1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 09:27:41 -0500
-Message-ID: <15632.83.103.117.254.1136989660.squirrel@picard.linux.it>
-In-Reply-To: <20060110170037.4a614245.akpm@osdl.org>
-References: <20060110235554.GA3527@inferi.kami.home>
-    <20060110170037.4a614245.akpm@osdl.org>
-Date: Wed, 11 Jan 2006 15:27:40 +0100 (CET)
-Subject: Re: 2.6.15-mm2: reiser3 oops on suspend and more (bonus oops shot!)
-From: "Mattia Dongili" <malattia@linux.it>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       linux-acpi@vger.kernel.org, "Pavel Machek" <pavel@ucw.cz>
-User-Agent: SquirrelMail/1.4.4
+	Wed, 11 Jan 2006 09:29:40 -0500
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:27025 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932384AbWAKO3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 09:29:39 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+Date: Thu, 12 Jan 2006 01:29:15 +1100
+User-Agent: KMail/1.9
+Cc: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au>
+In-Reply-To: <43C4F8EE.50208@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601120129.16315.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, January 11, 2006 2:00 am, Andrew Morton said:
-> Mattia Dongili <malattia@linux.it> wrote:
-[...]
->> 3- This laptop experienced 2 long stalls (20~25 sec) during boot,
->>    apparently after scanning usb_storage devices and starting portmap.
+On Wednesday 11 January 2006 23:24, Peter Williams wrote:
+> Martin J. Bligh wrote:
+> > That seems broken to me ?
 >
-> You mean before starting portmap?
+> But, yes, given that the problem goes away when the patch is removed
+> (which we're still waiting to see) it's broken.  I think the problem is
+> probably due to the changed metric (i.e. biased load instead of simple
+> load) causing idle_balance() to fail more often (i.e. it decides to not
+> bother moving any tasks more often than it otherwise would) which would
+> explain the increased idle time being seen.  This means that the fix
+> would be to review the criteria for deciding whether to move tasks in
+> idle_balance().
 
-well, _while_ starting portmap. As you can see from the traces I have
-portmap sleeping in sys_poll, consider my reflexes are not that fast
-so the trace might be well more than 10 secs after the /etc/init.d/portmap
-was run.
-Trying to stop and start it again didn't have any delay.
+Look back on my implementation. The problem as I saw it was that one task 
+alone with a biased load would suddenly make a runqueue look much busier than 
+it was supposed to so I special cased the runqueue that had precisely one 
+task.
 
->>    Is it time for me to learn to git bisect? (Tomorrow morning I'll try
->>    (CET) if plain 2.6.15 also shows the same stalls).
->
-> Please test the next Linus git tree (2.6.15-git7) and see if we've
-> propagated it into there too.
->
-> There's not much point in fiddling with -mm2.  If git7 is OK then please
-> test the next -mm and if it still fails then yes, doing a bisection would
-> really help.
->
-> <types madly>
->
-> See http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
-
-ooooh :) really really thanks!!
-I was starting to script something that just some hours later revealed to
-be like stGit (well at least had the same base idea).
-
-Anyway I'm currently using -git7 and building -mm3, -git7 is OK:
-no stalls, no reiser3 oops (yet) and no ACPI misaligned pointer.
-
-Will report on -mm3 as soon as possible
-
--- 
-mattia
-:wq!
-
-
+Cheers,
+Con

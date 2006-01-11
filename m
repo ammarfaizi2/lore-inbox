@@ -1,55 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWAKQvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWAKQzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751679AbWAKQvW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 11:51:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWAKQvW
+	id S1751354AbWAKQzd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 11:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWAKQzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 11:51:22 -0500
-Received: from moutvdom.kundenserver.de ([212.227.126.249]:49372 "EHLO
-	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751674AbWAKQvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 11:51:22 -0500
-Message-ID: <43C537A4.1060806@anagramm.de>
-Date: Wed, 11 Jan 2006 17:51:48 +0100
-From: Clemens Koller <clemens.koller@anagramm.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Clemens Koller <clemens.koller@anagramm.de>
-CC: Coywolf Qi Hunt <coywolf@gmail.com>,
-       Alexander Shishckin <alexander.shishckin@gmail.com>,
-       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-Subject: Re: kernel.org is down (changeset link broken)
-References: <43BBAB31.7060401@perkel.com>	 <71a0d6ff0601040345g16ebc4a7s915ddba7051c8146@mail.gmail.com> <2cd57c900601040418g5906baf4h@mail.gmail.com> <43C53576.9030208@anagramm.de>
-In-Reply-To: <43C53576.9030208@anagramm.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 11:55:33 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:51730 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751354AbWAKQzc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 11:55:32 -0500
+Date: Wed, 11 Jan 2006 17:55:13 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/11] kconfig: factor out ncurses check in a shell script
+Message-ID: <20060111165513.GA18184@mars.ravnborg.org>
+References: <11368426843316@foobar.com> <Pine.LNX.4.61.0601102127230.16049@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0601102127230.16049@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again!
-
-> I am not sure, if this has reported yet, but I cannot
-> access the changesets of the 2.6 kernels on kernel.org
-> as in:
+On Tue, Jan 10, 2006 at 09:27:42PM +0100, Jan Engelhardt wrote:
+> >
+> >Cleaning up the lxdialog Makefile by factoring out the
+> >ncurses compatibility checks.
+> >This made the checks much more obvious and easier to extend.
 > 
-> http://www.kernel.org/git/?p=linux%2Fkernel%2Fgit%2Ftorvalds%2Flinux-2.6.git;a=summary 
+> BTW, do you know a nice way to detect ncursesw?
+Something like this?
 
-Sorry for the noise, it's working again...
-(If this should happen frequently, a comment on the webpage would be fine...)
-
-Greets,
-
--- 
-Clemens Koller
-_______________________________
-R&D Imaging Devices
-Anagramm GmbH
-Rupert-Mayer-Str. 45/1
-81379 Muenchen
-Germany
-
-http://www.anagramm.de
-Phone: +49-89-741518-50
-Fax: +49-89-741518-19
+diff --git a/scripts/kconfig/lxdialog/Makefile b/scripts/kconfig/lxdialog/Makefile
+index 8f41d9a..fae3e29 100644
+--- a/scripts/kconfig/lxdialog/Makefile
++++ b/scripts/kconfig/lxdialog/Makefile
+@@ -1,9 +1,9 @@
+ # Makefile to build lxdialog package
+ #
+ 
+-check-lxdialog   := $(srctree)/$(src)/check-lxdialog.sh
+-HOST_EXTRACFLAGS := $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
+-HOST_LOADLIBES   := $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags)
++check-lxdialog  := $(srctree)/$(src)/check-lxdialog.sh
++HOST_EXTRACFLAGS:= $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
++HOST_LOADLIBES  := $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
+  
+ HOST_EXTRACFLAGS += -DLOCALE 
+ 
+diff --git a/scripts/kconfig/lxdialog/check-lxdialog.sh b/scripts/kconfig/lxdialog/check-lxdialog.sh
+index a3c141b..3f172f1 100644
+--- a/scripts/kconfig/lxdialog/check-lxdialog.sh
++++ b/scripts/kconfig/lxdialog/check-lxdialog.sh
+@@ -4,11 +4,22 @@
+ # What library to link
+ ldflags()
+ {
+-	if [ `uname` == SunOS ]; then
+-		echo '-lcurses'
+-	else
++	echo "main() {}" | $compiler -lncursesw -xc - 2> /dev/null
++	if [ $? -eq 0 ]; then
++		echo '-lncursesw'
++		exit
++	fi
++	echo "main() {}" | $compiler -lncurses -xc - 2> /dev/null
++	if [ $? -eq 0 ]; then
+ 		echo '-lncurses'
++		exit
++	fi
++	echo "main() {}" | $compiler -lcurses -xc - 2> /dev/null
++	if [ $? -eq 0 ]; then
++		echo '-lcurses'
++		exit
+ 	fi
++	exit 1
+ }
+ 
+ # Where is ncurses.h?
+@@ -58,6 +69,8 @@ case "$1" in
+ 		ccflags
+ 		;;
+ 	"-ldflags")
++		shift
++		compiler="$@"
+ 		ldflags
+ 		;;
+ 	"*")

@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWAKToF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWAKTnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbWAKToF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWAKToF
+	id S932467AbWAKTnj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 14:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWAKTnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:44:05 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:11350 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964804AbWAKToD (ORCPT
+	Wed, 11 Jan 2006 14:43:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54201 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932467AbWAKTni (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:44:03 -0500
-Date: Wed, 11 Jan 2006 20:45:18 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Andrew Morton <akpm@osdl.org>, neilb@suse.de, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       htejun@gmail.com
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060111194517.GE5373@suse.de>
-References: <20060110213056.58f5e806.akpm@osdl.org> <43C4E2BE.6050800@reub.net> <20060111030529.0bc03e0a.akpm@osdl.org> <20060111111313.GD3389@suse.de> <43C4EEA4.3050502@reub.net> <20060111115616.GE3389@suse.de> <43C518BC.5090903@reub.net> <20060111145201.GS3389@suse.de> <20060111145504.GT3389@suse.de> <43C55B31.5000201@reub.net>
+	Wed, 11 Jan 2006 14:43:38 -0500
+Date: Wed, 11 Jan 2006 11:43:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: hch@lst.de, pbadari@us.ibm.com, sct@redhat.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/5] multiple block allocation to current ext3
+Message-Id: <20060111114303.45540193.akpm@osdl.org>
+In-Reply-To: <1137007032.4395.24.camel@localhost.localdomain>
+References: <1112673094.14322.10.camel@mindpipe>
+	<1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+	<1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
+	<1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1113244710.4413.38.camel@localhost.localdomain>
+	<1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1113288087.4319.49.camel@localhost.localdomain>
+	<1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	<1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1114207837.7339.50.camel@localhost.localdomain>
+	<1114659912.16933.5.camel@mindpipe>
+	<1114715665.18996.29.camel@localhost.localdomain>
+	<1136935562.4901.41.camel@dyn9047017067.beaverton.ibm.com>
+	<20060110212551.411a766d.akpm@osdl.org>
+	<1137007032.4395.24.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C55B31.5000201@reub.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12 2006, Reuben Farrelly wrote:
-> 
-> 
-> On 12/01/2006 3:55 a.m., Jens Axboe wrote:
-> >On Wed, Jan 11 2006, Jens Axboe wrote:
-> >>It's not too tricky, you just need to correct that function prototype.
-> >>Could you do that? Would be nice to know _exactly_ which libata
-> >>changeset caused this malfunction. But it does of course point at the
-> >>barrier changes for scsi/libata...
-> >
-> >You can also try something quicker - use a newer kernel known to exhibit
-> >the problem, and apply this patch on top of that:
-> >
-> >diff --git a/drivers/md/md.c b/drivers/md/md.c
-> >index 0302723..720ace4 100644
-> >--- a/drivers/md/md.c
-> >+++ b/drivers/md/md.c
-> >@@ -436,6 +436,7 @@ void md_super_write(mddev_t *mddev, mdk_
-> > 	bio->bi_rw = rw;
-> > 
-> > 	atomic_inc(&mddev->pending_writes);
-> >+#if 0
-> > 	if (!test_bit(BarriersNotsupp, &rdev->flags)) {
-> > 		struct bio *rbio;
-> > 		rw |= (1<<BIO_RW_BARRIER);
-> >@@ -444,6 +445,7 @@ void md_super_write(mddev_t *mddev, mdk_
-> > 		rbio->bi_end_io = super_written_barrier;
-> > 		submit_bio(rw, rbio);
-> > 	} else
-> >+#endif
-> > 		submit_bio(rw, bio);
-> > }
-> 
-> ...and with that patch, I can now boot up 2.6.15-mm3 (repeated twice).  So 
-> yes, looks like that's where the problem lies.
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> # time ./filetst  -b 1048576 -w -f /mnt/a
+>  	2.6.14		2.6.15
+>  real    0m21.710s	0m25.773s
+>  user    0m0.012s	0m0.004s
+>  sys     0m14.569s	0m15.065s
 
-At least it shows that the problem is indeed barrier related. I don't
-have the start of this thread, so can you please send me the output from
-dmesg from this kernel boot? I'm curious whether the fallback triggers,
-or if it's the barrier that fails instead.
+That's a big drop.
 
--- 
-Jens Axboe
+Was it doing I/O, or was it all from pagecache?
 
+>  I also found tiobench(sequential write test) and dbench has similar
+>  regression between 2.6.14 and 2.6.15. Actually I found 2.6.15 rc2
+>  already has the regression.  Is this a known issue?
+
+No, it is not known.
+
+> Anyway I will continue looking at the issue...
+
+Thanks.

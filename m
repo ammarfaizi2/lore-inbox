@@ -1,71 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWAKKwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWAKLGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWAKKwe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 05:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAKKwe
+	id S1751421AbWAKLGW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 06:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWAKLGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 05:52:34 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20394 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750919AbWAKKwd (ORCPT
+	Wed, 11 Jan 2006 06:06:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65169 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751421AbWAKLGV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 05:52:33 -0500
-Date: Wed, 11 Jan 2006 11:52:13 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Joel Schopp <jschopp@austin.ibm.com>
-Cc: Olof Johansson <olof@lixom.net>, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Anton Blanchard <anton@samba.org>,
-       PPC64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: PowerPC fastpaths for mutex subsystem
-Message-ID: <20060111105213.GA3717@elte.hu>
-References: <43BC5E15.207@austin.ibm.com> <20060105143502.GA16816@elte.hu> <43BD4C66.60001@austin.ibm.com> <20060105222106.GA26474@elte.hu> <43BDA672.4090704@austin.ibm.com> <20060106002919.GA29190@pb15.lixom.net> <43BFFF1D.7030007@austin.ibm.com> <20060108094839.GA16887@elte.hu> <43C435B9.5080409@austin.ibm.com> <20060110230917.GA25285@elte.hu>
+	Wed, 11 Jan 2006 06:06:21 -0500
+Date: Wed, 11 Jan 2006 03:05:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: neilb@suse.de, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.15-mm2
+Message-Id: <20060111030529.0bc03e0a.akpm@osdl.org>
+In-Reply-To: <43C4E2BE.6050800@reub.net>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<43BFD8C1.9030404@reub.net>
+	<20060107133103.530eb889.akpm@osdl.org>
+	<43C38932.7070302@reub.net>
+	<20060110104759.GA30546@elte.hu>
+	<43C3A85A.7000003@reub.net>
+	<20060110044240.3d3aa456.akpm@osdl.org>
+	<20060110131618.GA27123@elte.hu>
+	<17348.34472.105452.831193@cse.unsw.edu.au>
+	<43C4947C.1040703@reub.net>
+	<20060110213001.265a6153.akpm@osdl.org>
+	<20060110213056.58f5e806.akpm@osdl.org>
+	<43C4E2BE.6050800@reub.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060110230917.GA25285@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
+> On 11/01/2006 6:30 p.m., Andrew Morton wrote:
+> > Andrew Morton <akpm@osdl.org> wrote:
+> >> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> >>> I'm tempted to see if I can narrow it down to a specific -gitX release, maybe 
+> >>>  that would narrow it down to say, 200 or so patches ;-)
+> >> If -mm2 plus -mm2's linus.patch does not fail then
+> >> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt will
+> >> find the dud patch.
+> > 
+> > Actually 2.6.15-mm1 would be a better one to do the bisection on: it has
+> > all the md- patches separated out.
+> 
+> I've done some more testing - which may change the suggested approach somewhat..
+> 
+> 2.6.15-mm1 is OK, I'm running it now, rebooted probably 15 times and it's come 
+> up every time.
+> 2.6.15-git2 is OK, booted up to completion (tested once).
+> 2.6.15-git3 was a dud, bootup hung
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Ah.
 
-> ok. I'll really need to look at "vmstat" output from these. We could 
-> easily make the mutex slowpath behave like ppc64 semaphores, via the 
-> attached (untested) patch, but i really think it's the wrong thing to 
-> do, because it overloads the system with runnable tasks in an 
-> essentially unlimited fashion [== overscheduling] - they'll all 
-> contend for the same single mutex.
+> 2.6.15- [linus.patch from -mm2, which is basically the same as -git3] won't boot
+> 2.6.15-mm2 doesn't boot either, tested many times
+> 2.6.15-git6 won't boot
+> 2.6.15-git7 got stuck also, same issue
+> 
+> So some change that went in between -git2 and -git3 seems to have caused it. 
+> Nothing from -git3 onwards has ever booted to completion.
+> 
+> Is there any chance a patch came in, was queued in -mm but was never released in 
+> any -mm (1|2) release before being sent to Linus/-gitX?  (in this case, -git3). 
 
-find the working patch below. (the previous one had a syntax error)
+Yes, people sneak stuff in at the last minute.
 
-	Ingo
+Neil thinks that an IO got lost.  In the git2->git3 diff we have:
 
-Index: linux/kernel/mutex.c
-===================================================================
---- linux.orig/kernel/mutex.c
-+++ linux/kernel/mutex.c
-@@ -227,6 +227,9 @@ __mutex_unlock_slowpath(atomic_t *lock_c
- 		debug_mutex_wake_waiter(lock, waiter);
- 
- 		wake_up_process(waiter->task);
-+
-+		/* be (much) more agressive about wakeups: */
-+		list_move_tail(&waiter->list, &lock->wait_list);
- 	}
- 
- 	debug_mutex_clear_owner(lock);
+ b/drivers/scsi/Kconfig                         |   10 
+ b/drivers/scsi/ahci.c                          |    1 
+ b/drivers/scsi/ata_piix.c                      |    5 
+ b/drivers/scsi/libata-core.c                   |  145 +
+ b/drivers/scsi/libata-scsi.c                   |   48 
+ b/drivers/scsi/libata.h                        |    4 
+ b/drivers/scsi/sata_mv.c                       |    1 
+ b/drivers/scsi/sata_promise.c                  |    1 
+ b/drivers/scsi/sata_sil.c                      |    1 
+ b/drivers/scsi/sata_sil24.c                    |    1 
+ b/drivers/scsi/sata_sx4.c                      |    1 
+ b/drivers/scsi/scsi_lib.c                      |   50 
+ b/drivers/scsi/scsi_sysfs.c                    |   31 
+ b/drivers/scsi/sd.c                            |   85 -
+ b/fs/bio.c                                     |   26 
+
+Jens, Jeff: were any of those changes added in the final day or two, not
+included in the trees which I pull?
+
+
+> 
+> I'm not sure where this leaves quilt testing.  Would quilt testing just narrow 
+> me down to it being the linus.patch in mm which actually caused it? (Which I 
+> already know is the source)..
+
+Yes, there's not much point in that.
+
+`git bisect' will find it.
+

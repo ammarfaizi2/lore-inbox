@@ -1,78 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751652AbWAKQB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWAKQBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751652AbWAKQB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 11:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751537AbWAKQB1
+	id S1751381AbWAKQBA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 11:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWAKQA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 11:01:27 -0500
-Received: from sith.mimuw.edu.pl ([193.0.96.4]:59399 "EHLO sith.mimuw.edu.pl")
-	by vger.kernel.org with ESMTP id S1751517AbWAKQBV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 11:01:21 -0500
-Date: Wed, 11 Jan 2006 17:01:20 +0100
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-       "dtor_core @ ameritech. net Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Leonid <nouser@lpetrov.net>
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-Message-ID: <20060111160120.GB8999@sith.mimuw.edu.pl>
-Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-	Martin Bretschneider <mailing-lists-mmv@bretschneidernet.de>,
-	"dtor_core @ ameritech. net Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-	linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-	Leonid <nouser@lpetrov.net>
-References: <20060111000151.GA5712@sith.mimuw.edu.pl> <Pine.LNX.4.44L0.0601111024260.5195-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Wed, 11 Jan 2006 11:00:59 -0500
+Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:46829 "EHLO
+	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S1751366AbWAKQA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 11:00:58 -0500
+Date: Wed, 11 Jan 2006 10:00:50 -0600
+From: Greg Norris <haphazard@kc.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
+Message-ID: <20060111160050.GA5472@yggdrasil.localdomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44L0.0601111024260.5195-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.15 i686
+In-Reply-To: <43C40803.2000106@rtr.ca>
+X-Operating-System: Linux yggdrasil 2.6.15 #1 SMP PREEMPT Tue Jan 10 20:27:55 CST 2006 i686 GNU/Linux
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jan 2006, Alan Stern wrote:
+Is there any benefit/point to enabling HIGHMEM when using this patch, 
+assuming that physical memory is smaller than the address space?  For 
+example, when using VMSPLIT_3G_OPT on a box with 1G of memory.
 
-> On Wed, 11 Jan 2006, Jan Rekorajski wrote:
-> 
-> > On Tue, 10 Jan 2006, Dmitry Torokhov wrote:
-> > 
-> > > We'll just have to wait for another report. "Sluggish typing" report
-> > > looks promising.
-> > 
-> > With 2.6.14.6:
-> > 
-> > serio: i8042 AUX port at 0x60,0x64 irq 12
-> > serio: i8042 KBD port at 0x60,0x64 irq 1
-> > 
-> > and my keyboard works.
-> > 
-> > with 2.6.15:
-> > 
-> > i8042.c: Can't read CTR while initializing i8042.
-> > 
-> > and no PS/2 keyboard.
-> > 
-> > This happens on Dell Precision 380, x86_64 kernel with SMP/HT, no options
-> > on kernel command line, same kernel .config (modulo make oldconfig).
-> > I tried all solutions I found on google, none works (beside connecting
-> > USB keyboard or disabling USB in BIOS).
-> 
-> Assuming your BIOS isn't totally out-of-date, what happens if you try 
-> turning off the usb-handoff code and preventing the *hci-hcd.ko drivers 
-> from loading, as described ealier in this thread?
-
-Wrong assumption, my BIOS was totally out-of-date. After upgrading to
-A04 the problem went away and now everything works fine.
-
-Jan
--- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
+Thanx!

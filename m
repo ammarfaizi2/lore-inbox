@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWAKNqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWAKNs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751591AbWAKNqg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 08:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWAKNqg
+	id S1751602AbWAKNs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWAKNs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 08:46:36 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:16050 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751582AbWAKNqf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 08:46:35 -0500
-Subject: Re: ata errors -> read-only root partition. Hardware issue?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jerome lacoste <jerome.lacoste@gmail.com>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5a2cf1f60601110030u358c12fcscf79067cbc3eebe0@mail.gmail.com>
-References: <5ttip-Xh-13@gated-at.bofh.it> <43C4493A.4010305@shaw.ca>
-	 <5a2cf1f60601110030u358c12fcscf79067cbc3eebe0@mail.gmail.com>
+	Wed, 11 Jan 2006 08:48:58 -0500
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:63938 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751598AbWAKNs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 08:48:58 -0500
+From: Ian Campbell <ijc@hellion.org.uk>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       lgb@lgb.hu
+In-Reply-To: <1136985918.6547.115.camel@tara.firmix.at>
+References: <20060111123745.GB30219@lgb.hu>
+	 <1136983910.2929.39.camel@laptopd505.fenrus.org>
+	 <20060111130255.GC30219@lgb.hu>  <1136985918.6547.115.camel@tara.firmix.at>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 11 Jan 2006 13:38:08 +0000
-Message-Id: <1136986688.28616.7.camel@localhost.localdomain>
+Date: Wed, 11 Jan 2006 13:49:21 +0000
+Message-Id: <1136987361.6517.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 213.104.11.16
+X-SA-Exim-Mail-From: ijc@hellion.org.uk
+Subject: Re: OT: fork(): parent or child should run first?
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-01-11 at 09:30 +0100, jerome lacoste wrote:
-> - scan for bad blocks
+On Wed, 2006-01-11 at 14:25 +0100, Bernd Petrovitsch wrote:
+> Then this leaves the race if an old pid is reused in a newly created
+> process before the last instances of that pid is cleaned up.
 
-Read the entire disk (write will hide and clean up errors by
-reallocating)
+The PID won't be available to be re-used until the signal handler has
+called waitpid() on it?
 
-> - maybe check the SMART results if they are available
+Ian.
 
-Definitely - failures are in the smart log
+-- 
+Ian Campbell
+Current Noise: Sloth - Wishman
 
-> - memory check: memtest86 & memtest86+ tests (just in case)
-
-memory failures generally show a different pattern, you get corruption
-not errors off disks.
-
-Alan
+I understand why you're confused.  You're thinking too much.
+		-- Carole Wallach.
 

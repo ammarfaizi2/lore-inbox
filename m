@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161085AbWAKBua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161089AbWAKByM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161085AbWAKBua (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 20:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbWAKBu3
+	id S1161089AbWAKByM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 20:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161092AbWAKByM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 20:50:29 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:46312 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161085AbWAKBu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 20:50:27 -0500
-Date: Wed, 11 Jan 2006 10:49:11 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [patch 2/2] add x86-64 support for memory hot-add
-Cc: keith <kmannth@us.ibm.com>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       Matt Tolentino <metolent@cs.vt.edu>, akpm@osdl.org, discuss@x86-64.org,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200601101348.17322.ak@suse.de>
-References: <20060110214140.38B2.Y-GOTO@jp.fujitsu.com> <200601101348.17322.ak@suse.de>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
-Message-Id: <20060111103557.BCA6.Y-GOTO@jp.fujitsu.com>
+	Tue, 10 Jan 2006 20:54:12 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56588 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161089AbWAKByL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 20:54:11 -0500
+Date: Wed, 11 Jan 2006 02:54:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Sean <seanlkml@sympatico.ca>
+Cc: Ian McDonald <imcdnzl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Revised [PATCH] Documentation: Update to SubmittingPatches
+Message-ID: <20060111015409.GE29663@stusta.de>
+References: <cbec11ac0512201343q79de6e13h6fccf1259445076@mail.gmail.com> <20060111005721.GA29663@stusta.de> <46118.10.10.10.28.1136943503.squirrel@linux1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <46118.10.10.10.28.1136943503.squirrel@linux1>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 10 January 2006 13:43, Yasunori Goto wrote:
-> > > IIRC, SRAT is just for booting time. So, when hotplug occured,
-> > > it is not reliable. DSDT should be used for it in order to SRAT
-> > > like following 2 patches.
-> > > First is to get pxm from physical address.
-> > > I'll post the second patch after this post.
-> >
-> > Second one is here.
-> > This is map/unmap between pxm to nid. This is just for ia64.
-> > But I guess for x86-64 is not so difference.
+On Tue, Jan 10, 2006 at 08:38:23PM -0500, Sean wrote:
+> On Tue, January 10, 2006 7:57 pm, Adrian Bunk said:
 > 
-> It probably is. The x86-64 NUMA setup is quite different from IA64.
+> >> -Use "diff -up" or "diff -uprN" to create patches.
+> >> +You can use git-diff(1) or git-format-patch(1) which makes your life
+> >> easy. If
+> >> +you want it to be more difficult then carry on reading.
+> >>...
+> >
+> > IMHO, this doesn't make much sense:
+> >
+> > The average patch submitter does _not_ use git in any way - and there's
+> > no reason why he should.
+> >
+> 
+> Git is an efficient and convenient way to track the mainline kernel.   The
+> number of submitters using it is significant enough to mention it as an
+> option for creating patches.
 
-Ah... Ok.
-I wish my patch would be good example for x86-64.
 
-But, hmm. I feel it is a bit strange.
-Why there is a difference among x86-64 and ia64 about mapping
-pxm to nid? (in addition i386.)
-PXM is defined by ACPI. ACPI is used on all of them.
-Node id is used on Linux generically.
+<--  snip  -->
 
-So, ia64 and i386 has pxm_to_nid_map[], and x86-64 has pxm2node[] too.
+--------------------------------------------
+SECTION 1 - CREATING AND SENDING YOUR CHANGE
+--------------------------------------------
 
-Why are these arrays and codes are defined on each arch?
-Does anyone know it?
-Its code might be able to be common on driver/acpi/numa.c...
+1) Creating a diff file
+-----------------------
+
+You can use git-diff(1) or git-format-patch(1) which makes your life easy. If
+you want it to be more difficult then carry on reading.
+
+<--  snip  -->
+
+
+The first mentionings of the string "git" in the document are in this 
+line.
+
+SubmittingPatches should teach newbies how to create good patches with 
+GNU diff, and random references to git programs don't help anyone.
+
+If a submitter is using a git-based workflow he most likely has a 
+comletely different wotkflow than the one described in SubmittingPatches -
+and git-specific documents should cover what he should do.
+
+
+> Sean
+
+cu
+Adrian
 
 -- 
-Yasunori Goto 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWAKAff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWAKAhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbWAKAff (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWAKAff
+	id S932551AbWAKAhv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:37:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWAKAhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:35:35 -0500
-Received: from osagesoftware.com ([216.144.204.42]:40088 "EHLO
-	mail.osagesoftware.com") by vger.kernel.org with ESMTP
-	id S932546AbWAKAff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:35:35 -0500
-Date: Tue, 10 Jan 2006 19:35:34 -0500
-From: David Relson <relson@osagesoftware.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with kernel 2.6.15's build target .tmp_vmlinux1
-Message-ID: <20060110193534.09a6031c@osage.osagesoftware.com>
-Organization: Osage Software Systems, Inc.
-X-Mailer: Sylpheed-Claws 1.9.100cvs93 (GTK+ 2.8.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 19:37:50 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19980 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932549AbWAKAhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:37:50 -0500
+Date: Wed, 11 Jan 2006 01:37:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/{,wireless/}Kconfig: remove dead URL
+Message-ID: <20060111003747.GJ3911@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+shadow.cabi.net does no longer exist.
 
-Greetings,
 
-I've run into a problem building 2.6.15.  Starting with my 2.6.14
-.config file, I ran oldconfig to generate a .config for 2.6.15.
-Running "make" results in:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-      LD      .tmp_vmlinux1
-    kernel/built-in.o: In function `do_exit':
-    : undefined reference to `exit_io_context'
-    mm/built-in.o: In function `generic_write_checks':
-    : undefined reference to `bdev_read_only'
-    mm/built-in.o: In function `__generic_file_aio_write_nolock':
-    : undefined reference to `bdev_read_only'
-    mm/built-in.o: In function `__alloc_pages':
-    : undefined reference to `blk_congestion_wait'
-    mm/built-in.o: In function `__alloc_pages':
-    : undefined reference to `blk_congestion_wait'
+---
 
-Makefile indicates that KALLSYMS is involved in building this target,
-so here are two combinations of KALLSYMS settings that result in the
-same problem:
+ drivers/net/Kconfig          |    4 ----
+ drivers/net/wireless/Kconfig |    4 ----
+ 2 files changed, 8 deletions(-)
 
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS is not set
-# CONFIG_KALLSYMS is not set
+--- linux-2.6.15-mm2-full/drivers/net/Kconfig.old	2006-01-11 01:14:12.000000000 +0100
++++ linux-2.6.15-mm2-full/drivers/net/Kconfig	2006-01-11 01:16:43.000000000 +0100
+@@ -2663,10 +2663,6 @@
+ 	  Class-Based Queueing (CBQ) scheduling support which you get if you
+ 	  say Y to "QoS and/or fair queueing" above.
+ 
+-	  To set up and configure shaper devices, you need the shapecfg
+-	  program, available from <ftp://shadow.cabi.net/pub/Linux/> in the
+-	  shaper package.
+-
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called shaper.  If unsure, say N.
+ 
+--- linux-2.6.15-mm2-full/drivers/net/wireless/Kconfig.old	2006-01-11 01:16:56.000000000 +0100
++++ linux-2.6.15-mm2-full/drivers/net/wireless/Kconfig	2006-01-11 01:17:08.000000000 +0100
+@@ -24,10 +24,6 @@
+ 	  the tools from
+ 	  <http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html>.
+ 
+-	  Some user-level drivers for scarab devices which don't require
+-	  special kernel support are available from
+-	  <ftp://shadow.cabi.net/pub/Linux/>.
+-
+ # Note : the cards are obsolete (can't buy them anymore), but the drivers
+ # are not, as people are still using them...
+ comment "Obsolete Wireless cards support (pre-802.11)"
 
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS_ALL is not set
-CONFIG_KALLSYMS_EXTRA_PASS=y
-
-Makefile mentions that the maintainers are working on problems with
-kallsyms, which is why I'm reporting this problem.
-
-If you need any more info (such as a copy of .config), let me know.
-
-Regards,
-
-David
-
-P.S. As I'm not subscribed to this list, please CC me for all replies.

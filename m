@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWAKW0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWAKW25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWAKW0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 17:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWAKW0Y
+	id S932326AbWAKW25 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWAKW25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 17:26:24 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:14208 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932301AbWAKW0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 17:26:23 -0500
-Date: Wed, 11 Jan 2006 23:26:17 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm3
-In-Reply-To: <20060111104520.42a766d1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0601112258250.11765@scrub.home>
-References: <20060111042135.24faf878.akpm@osdl.org> <Pine.LNX.4.61.0601111924001.11765@scrub.home>
- <20060111104520.42a766d1.akpm@osdl.org>
+	Wed, 11 Jan 2006 17:28:57 -0500
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:46536 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932302AbWAKW24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 17:28:56 -0500
+Message-ID: <43C5869A.5080107@gentoo.org>
+Date: Wed, 11 Jan 2006 22:28:42 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051223)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Wireless: One small step towards a more perfect union...?
+References: <20060106042218.GA18974@havoc.gtf.org> <20060111020534.GA22285@tuxdriver.com>
+In-Reply-To: <20060111020534.GA22285@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John W. Linville wrote:
+> If you are the maintainer of an out-of-tree driver or other component
+> (e.g. softmac), please let me hear from you (publicly or privately).
+> I want to be sure to identify all the major stakeholders.  I would
+> also like to hear your plans for getting your code into the tree... :-)
 
-On Wed, 11 Jan 2006, Andrew Morton wrote:
+Thanks for stepping up for this role - I'm sure it will help the 
+situation improve. Here's some info about an out-of-tree driver for you:
 
-> Ignoring the objections of a long-standing and respected kernel developer
-> is not a thing I like to do, but fortunately it's very rare.
+ZD1211.
 
-I really hoped where would be a question before if there were outstanding 
-issues.
+These are USB 2.0 wireless adapters, there are about 20 available on the 
+market, all branded differently.
 
-> Can you summarise, yet again, in as few words as possible, what you find
-> wrong with it?  I'd really like to understand, but there were waay too many
-> lengthy emails..
+There is a GPL driver available from ZyDAS (the manufacturer) but, well, 
+you really don't want to see it. There have been projects come and go 
+(zd1211.sf.net, zd1211.ath.cx) which try to make the ZyDAS driver more 
+workable, but they restrict themselves to small unobtrusive patches, 
+leaving the code still in a horrific state, not at all suited for kernel 
+inclusion.
 
-The whole resolution issue is still outstanding. It basically assumes 
-already high resolution timer and makes it hard to allow simple low 
-resolution timer.
+ZyDAS also made the device specs available to us, however they are 
+somewhat inaccurate, almost as if they were written about another device 
+altogether.
 
-The rounding is broken for relative timer started on low resolution 
-clocks. The run_hrtimer_queue() calls get_time() every interrupt, wasting 
-time if that call should be slow (and could be avoided completely for low 
-resolution timers).
-I haven't even gotten to a number of small issues, because it's impossible 
-to discuss even the general issues with Thomas. :-(
+Myself and two others have recently started rewriting the driver:
 
-bye, Roman
+http://zd1211.ath.cx/wiki/RoadmapForKernelInclusion
+
+We're in very early stages but progress should be fairly quick once we 
+have 'deciphered' more of the junk in the vendor driver.
+
+Right now we will be using the ieee80211 wireless stack, for the simple 
+reason that this is what is included in the kernel, and our top priority 
+is inclusion ASAP.
+
+FWIW, my opinion is that the devicescape code should be broken down and 
+used to extend the existing stack, no matter how 'good' it is. The way 
+it has been developed (i.e. totally outside of the ieee80211 stack) is 
+somewhat insulting to our development process.
+
+Daniel

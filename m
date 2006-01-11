@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWAKXZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932625AbWAKX0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932534AbWAKXZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 18:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWAKXZU
+	id S932625AbWAKX0O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 18:26:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWAKX0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 18:25:20 -0500
-Received: from holomorphy.com ([66.93.40.71]:51178 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S932534AbWAKXZT (ORCPT
+	Wed, 11 Jan 2006 18:26:14 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:42880 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932625AbWAKX0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 18:25:19 -0500
-Date: Wed, 11 Jan 2006 15:24:56 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adam Litke <agl@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
-Message-ID: <20060111232456.GF9091@holomorphy.com>
-References: <1136920951.23288.5.camel@localhost.localdomain> <1137016960.9672.5.camel@localhost.localdomain> <1137018263.9672.10.camel@localhost.localdomain> <20060111225202.GE9091@holomorphy.com> <1137020606.9672.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137020606.9672.16.camel@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+	Wed, 11 Jan 2006 18:26:13 -0500
+Date: Thu, 12 Jan 2006 00:26:09 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ben Collins <ben.collins@ubuntu.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+In-Reply-To: <1136814126.1043.36.camel@grayson>
+Message-ID: <Pine.LNX.4.61.0601120019430.30994@scrub.home>
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com> <200601090109.06051.zippel@linux-m68k.org>
+ <1136779153.1043.26.camel@grayson> <200601091232.56348.zippel@linux-m68k.org>
+ <1136814126.1043.36.camel@grayson>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 14:52 -0800, William Lee Irwin III wrote:
->> ->i_lock looks rather fishy. It may have been necessary when ->i_blocks
->> was used for nefarious purposes, but without ->i_blocks fiddling, it's
->> not needed unless I somehow missed the addition of some custom fields
->> to hugetlbfs inodes and their modifications by any of these functions.
+Hi,
 
-On Wed, Jan 11, 2006 at 05:03:25PM -0600, Adam Litke wrote:
-> Nope, all the i_blocks stuff is gone.  I was just looking for a
-> spin_lock for serializing all allocations for a particular hugeltbfs
-> file and i_lock seemed to fit that bill.  It could be said, however,
-> that the locking strategy used in the patch protects a section of code,
-> not a data structure (which can be a bad idea).  Any thoughts on a less
-> "fishy" locking strategy for this case?
+On Mon, 9 Jan 2006, Ben Collins wrote:
 
-That's not really something that needs to be synchronized per se. hugetlb
-data structures need protection against concurrent modification, but
-they have that from the functions you're calling.
+> > That just means Debian's automatic build for the kernel has been broken for 
+> > years. All normal config targets require user input and no input equals 
+> > default input. Only silentoldconfig will abort if input is not available.
+> 
+> I think that's broken (because I don't see where that behavior is
+> described).
 
+I'll accept a patch to fix the documentation.
 
--- wli
+> IMO, based on the code, it should only go with defaults when
+> -n -y or -m is passed.
+
+No.
+
+> Why is it so hard to error when stdin is closed? It's not like that will
+> break anything.
+
+oldconfig & co are interactive targets, so don't use them in automatic 
+builds. If you some problem with using silentoldconfig, describe it and 
+I'll help to solve it.
+
+bye, Roman

@@ -1,61 +1,97 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751736AbWAKUzo (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 11 Jan 2006 15:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWAKUzn
+	id S964848AbWAKU7O (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 11 Jan 2006 15:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWAKU7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 15:55:43 -0500
-Received: from bay21-f17.bay21.hotmail.com ([65.54.233.106]:56605 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1751736AbWAKUzm
+	Wed, 11 Jan 2006 15:59:14 -0500
+Received: from londonderry-cuda1-68-170-133-225.lndnnh.adelphia.net ([68.170.133.225]:62475
+	"HELO netscape.net") by vger.kernel.org with SMTP id S932499AbWAKU7N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 15:55:42 -0500
-Message-ID: <BAY21-F17996BD5B3B693CEA964C095240@phx.gbl>
-X-Originating-IP: [81.91.239.67]
-X-Originating-Email: [akofi101@hotmail.com]
-From: "adams kofi" <akofi101@hotmail.com>
-Subject: So far so  good.
-Date: Wed, 11 Jan 2006 20:55:36 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-X-OriginalArrivalTime: 11 Jan 2006 20:55:36.0986 (UTC) FILETIME=[5F6287A0:01C616F1]
-To: unlisted-recipients:; (no To-header on input)
+	Wed, 11 Jan 2006 15:59:13 -0500
+Message-ID: <B7754089.48A03D0@netscape.net>
+Date: Thu, 12 Jan 2006 08:29:26 +1100
+Reply-To: "East-West Australia lotteries" <ellenbleeker@netscape.net>
+From: "East-West Australia lotteries" <ellenbleeker@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.5) Gecko/20031020
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>
+Subject: CONTACT THE PAYING BANK
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751736AbWAKUzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964848AbWAKU7O@vger.kernel.org>
 
-So far so  good.
+East-West Australia Lotteries,
+1022 Kingsway Ave., Osborne,
+Western Australia, 6018.
+Head office: Maliebaan 38-40, 3581CR,
+Utrecht, The Netherlands.
 
+Dear Sir/Madam,
 
-I am very happy to inform you about my success in getting those funds 
-transferred  under the cooperation of a new partner from HongKong. Presently 
-I'm in India for investment projects with my own share of the total sum.
-Meanwhile,I didn't forget your past efforts and attempts to assist me in 
-transferring those funds despite that it failed us some how.
+YOU WON: €1,000,000.00!euros
+With utmost joy, we are pleased to inform you of the result of the
+East-West Australia Lotteries  International programs held on the 10th of
+January 2006 drew cash Prize of €1,000,000.00. Your e-mail address attached
+to Code number 370011672387-290-02 with claim
+Number 12093782/42 drew these lucky numbers 894-4563-001-764-64-2911, which
+consequently won in the 2nd category. You have been approved to receive a
+cash prize of €1,000,000.00 (One Million Euros).
+Be advised that due to incessant mix up in cash prize transfer to previous
+winners, we advise that you Keep your winning information confidential
+until
+your claims is been processed and your funds (€1,000,000.00) Transferred to
+you. This security measure is important; its protocol meant to avoid double
+claims, transfer and unwarranted abuse of this program by other
+participants.
+METHOD OF SELECTING WINNERS:
+Participants were selected anonymously through a private ballot system
+(computer ballot) from over 35,000 Companies and 70,000 individual e-mail
+addresses all over the world. At the final draw your e-mail address Emerged
+as the winner of our last jackpot.This is promotional program takes place
+bi-annually, and it is promoted and sponsored Orient software Corporation
+(Orient Networks). It is met to reward some individuals and corporations
+who
+have devote Their time and resources surfing the world wide web (www) with
+their email addresses. Remember, all winning must be claimed not later than
+5 working days from today. After the expiration of that time frame, if your
+funds are unclaimed, it will be refunded to us and included in our next
+draws.We hope you will use part of your cash prize to participate in our
+next €18million draws in March 2006. Lastly, in order to avoid unnecessary
+delays/complications with the transfer of your funds to you, please
+Always remember to quote your Code number in all correspondence with our
+paying bank (Deutsche Bank-Amsterdam). Furthermore, should there be any
+change of your present
+address, please notify us Immediately so to make the appropriate
+adjustment.
 
-In appreciation of your assistance I have mapped out as a compensation and 
-wrote on your favour a check worth of Us$500,000.55.
+Congratulations from the management and staffs of East-West Australia
+Lotteries. 
 
+Kindly, immediately, contact our Paying Bank (Deutsche Bank-Amsterdam) for
+your payment advice.
+Send them following e-mail:
+I……………(your names)…….., with e-mail address………..(your e-mail address)…..,
+contact address………..(postal address)…….and code number:……….(quote your code
+number)…….is the winner of the last East-West Astralia lotteries draws,
+with a cash prize of €1,000,000.00. Kindly advise me with details of the
+process of the transfer of my cash prize.
 
-So, you can now contact my secretary in Benin republic,  Mr John Akpali on 
-his e-mail  address ( akpalijohn@inbox.com ) and phone number + 22997601483 
-ask him to send you  the total of $500.000.00 which I kept for your 
-compensation for all the past  efforts and attempts to assist me in this 
-matter.
-Bear in mind that this $500,000 is in draft, not cash, so you need to send 
-to him your full names and address as where this draft/check will be 
-posted/delivered.
-
-I appreciated your efforts at that time very much.So feel free and get in 
-touched with my secretary John Akpali and instruct  him where to send the  
-amount to you. Please do let me know immediately you  receive it so that we 
-can share the joy after all the sufferness at that time.
-In the moment,I'm very busy here because of the investment projects which me 
-and the new partner are having at hand, finally, remember that I had 
-forwarded instruction to the secretary on your behalf to receive that money, 
-so
-feel  free to get in touch with John aKPALI, he will send the amount to you 
-without any delay.
-
-Regards,
-Adams Kofi
+Contact details of our Paying Bank:
+Contact person:  Mr. Powell Green.
+Department of Private Banking,
+Deutsche Bank, Amsterdam, the Netherlands.
+E-mail: srvccust@netscape.net
+Tel: 31 647-494-395
+Fax 31-84-752-0508
+Congratulations.
+Yours in services,
+Ellen Bleeker.(Lottery Coordinator)
+Note: Participants below 21 years are automatically disqualified.
+All e-mail transmission/correspondence are 100% protected by our Secure
+Socket Layer (SSL) server.
 
 

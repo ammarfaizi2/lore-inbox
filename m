@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030696AbWAKACv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030694AbWAKAC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030696AbWAKACv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030698AbWAKACu
+	id S1030694AbWAKAC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030698AbWAKAC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:02:50 -0500
-Received: from igw2.zrnko.cz ([81.31.45.164]:8417 "EHLO anubis.fi.muni.cz")
-	by vger.kernel.org with ESMTP id S1030694AbWAKACt (ORCPT
+	Tue, 10 Jan 2006 19:02:59 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:24006 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1030694AbWAKAC5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:02:49 -0500
-Date: Wed, 11 Jan 2006 01:02:43 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: yarick@it-territory.ru, linux-kernel@vger.kernel.org
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Message-ID: <20060111000243.GN12559@mail.muni.cz>
-References: <20060110234832.GM12559@mail.muni.cz> <1136937463.2007.104.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1136937463.2007.104.camel@mindpipe>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11
+	Tue, 10 Jan 2006 19:02:57 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+cc: Paulo Marques <pmarques@grupopie.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       tony.luck@intel.com, Systemtap <systemtap@sources.redhat.com>,
+       Jim Keniston <jkenisto@us.ibm.com>
+Subject: Re: [patch 1/2] [BUG]kallsyms_lookup_name should return the text addres 
+In-reply-to: Your message of "Tue, 10 Jan 2006 15:29:05 -0800."
+             <20060110152904.A16312@unix-os.sc.intel.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 11 Jan 2006 11:02:55 +1100
+Message-ID: <19866.1136937775@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 06:57:42PM -0500, Lee Revell wrote:
-> On Wed, 2006-01-11 at 00:48 +0100, Lukas Hejtmanek wrote:
-> > For intel graphics - use your money and force Intel to release docs at
-> > least about setting graphics mode on 830-945 chipsets. I'm open to
-> > contribute code then. (As I did some hacking into X driver without
-> > docs just guessing). Or gain NDA and docs from local Intel authorize
-> > reseller. 
-> 
-> Or spend your money on SoftICE for Windows and just reverse engineer it.
-> 
-> http://www.compuware.com/products/driverstudio/softice.htm
+Keshavamurthy Anil S (on Tue, 10 Jan 2006 15:29:05 -0800) wrote:
+>On Wed, Jan 11, 2006 at 10:11:26AM +1100, Keith Owens wrote:
+>> Keshavamurthy Anil S (on Tue, 10 Jan 2006 13:07:37 -0800) wrote:
+>> >On Tue, Jan 10, 2006 at 08:45:02PM +0000, Paulo Marques wrote:
+>> >But my [patch 2/2] speeds up the lookup and that can go in, I think.
+>> >Please ack that patch if you think so.
+>> 
+>> Your second patch changes the behaviour of kallsyms lookup w.r.t
+>> duplicate symbols.
+>With this send patch, kallsyms lookup first finds 
+>the real text address which is what we want. If you consider
+>this as the change in behaviour, what is the negetive effect of this
+>I am unable to get it.
 
-It would be easier to RE intel binary driver:
-http://downloadfinder.intel.com/scripts-df-external/filter_results.aspx?strTypes=all&ProductID=2159&OSFullName=Linux*&lang=eng&strOSs=39&submit=Go%21
+Local symbols can be (and are) duplicated in the kernel code, and these
+duplicate symbols can appear in modules.  Changing the list order of
+loaded modules also changes which version of a duplicated symbol is
+returned by the kallsyms code.  Not a big deal, but annoying enough to
+say "don't change the module list order".
 
-or VGA BIOS.
+Changing the thread slightly, kallsyms_lookup_name() has never coped
+with duplicate local symbols and it cannot do so without changing its
+API, and all its callers.  For debugging purposes, it would be nicer if
+the kernel did not have any duplicate symbols.  Perhaps some kernel
+janitor would like to take that task on.
 
--- 
-Luká¹ Hejtmánek

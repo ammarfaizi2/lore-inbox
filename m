@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWAKAIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbWAKAKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWAKAIH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161000AbWAKAIH
+	id S1161024AbWAKAKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWAKAKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:08:07 -0500
-Received: from mail47-s.fg.online.no ([148.122.161.47]:20726 "EHLO
-	mail47-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S1161004AbWAKAIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:08:05 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Help track down a freezing machine, libata or hardware
-References: <dnp4t9$srl$1@sea.gmane.org>
-	<81b0412b0512140625i7cc5779ar224de3d64c615fbc@mail.gmail.com>
-	<dnuutm$v10$1@sea.gmane.org> <dor1is$9bo$1@sea.gmane.org>
-	<dprej1$qmb$1@sea.gmane.org>
-From: Esben Stien <b0ef@esben-stien.name>
-Date: Wed, 11 Jan 2006 03:00:38 +0100
-In-Reply-To: <dprej1$qmb$1@sea.gmane.org> (Kalin KOZHUHAROV's message of
- "Mon, 09 Jan 2006 01:28:17 +0900")
-Message-ID: <87k6d7ikvt.fsf@esben-stien.name>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jan 2006 19:10:40 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:55509 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1161024AbWAKAKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:10:39 -0500
+Subject: Re: PCI DMA Interrupt latency
+From: Lee Revell <rlrevell@joe-job.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43C44A54.5070702@shaw.ca>
+References: <5trA6-6MD-39@gated-at.bofh.it>  <43C44A54.5070702@shaw.ca>
+Content-Type: text/plain
+Date: Tue, 10 Jan 2006 19:10:36 -0500
+Message-Id: <1136938237.2007.110.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kalin KOZHUHAROV <kalin@thinrope.net> writes:
+On Tue, 2006-01-10 at 17:59 -0600, Robert Hancock wrote:
+> Most likely some driver is disabling interrupts for that period, which 
+> is really longer than it should be. However, if your card/driver require 
+> such tight interrupt latency to function correctly, that seems too 
+> fragile and may not be reliable. Some kind of ringbuffer arrangement 
+> would likely work better, so that the interrupt does not have to be 
+> serviced so soon.
+> 
 
-> Do you see this as hardware problem?
- 
-Yes, definitely. I wrote a nice mail to the reiserfs list titled
-"Close Encounter of the Bad Block Kind". Check it out for how to get
-your data before anything else happens. 
+You can easily tell if this is the case by applying these patches:
 
--- 
-Esben Stien is b0ef@e     s      a             
-         http://www. s     t    n m
-          irc://irc.  b  -  i  .   e/%23contact
-          [sip|iax]:   e     e 
-           jid:b0ef@    n     n
+http://people.redhat.com/mingo/latency-tracing-patches/latency-tracing-patches-2.6.15-rc7.tar.gz
+
+It says -rc7 but they apply cleanly and work with 2.6.15 final.
+
+Lee
+

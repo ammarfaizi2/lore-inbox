@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWAKSul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932667AbWAKSyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932618AbWAKSul (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbWAKSul
+	id S932667AbWAKSyn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWAKSyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:50:41 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:41743 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932618AbWAKSuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:50:40 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-X-Message-Flag: Warning: May contain useful information
-References: <adaslrw3zfu.fsf@cisco.com>
-	<1136909276.32183.28.camel@serpentine.pathscale.com>
-	<20060110170722.GA3187@infradead.org>
-	<1136915386.6294.8.camel@serpentine.pathscale.com>
-	<20060110175131.GA5235@infradead.org>
-	<1136915714.6294.10.camel@serpentine.pathscale.com>
-	<20060110140557.41e85f7d.akpm@osdl.org>
-	<1136932162.6294.31.camel@serpentine.pathscale.com>
-	<20060110153257.1aac5370.akpm@osdl.org>
-	<1137000032.11245.11.camel@camp4.serpentine.com>
-	<20060111172216.GA18292@mars.ravnborg.org>
-	<20060111093019.097d156a.akpm@osdl.org>
-	<1137001400.11245.31.camel@camp4.serpentine.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 11 Jan 2006 10:49:38 -0800
-In-Reply-To: <1137001400.11245.31.camel@camp4.serpentine.com> (Bryan
- O'Sullivan's message of "Wed, 11 Jan 2006 09:43:19 -0800")
-Message-ID: <adairsq1tx9.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Wed, 11 Jan 2006 13:54:43 -0500
+Received: from web34102.mail.mud.yahoo.com ([66.163.178.100]:40847 "HELO
+	web34102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932637AbWAKSym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:54:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=OrlVpchkI04HhBG68L7C/u9Czz2sZo2ILlrwxde1i3EW78PL1+3UJ5w3seIpDHdBVjSqTrai3ESnmRDW/fh4gZY4SbV1gZtOQJ8tIfSaR8z9A3kILrhj83ySyOHQLGUqmzwTlCEx3it8kMMoH6G60M+AFrkEmcvS/D486FbW9ww=  ;
+Message-ID: <20060111185441.37826.qmail@web34102.mail.mud.yahoo.com>
+Date: Wed, 11 Jan 2006 10:54:41 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: Is user-space AIO dead?
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060111184112.GA21922@kvack.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 11 Jan 2006 18:49:39.0934 (UTC) FILETIME=[C707E7E0:01C616DF]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> I'll take a look at whether the extra call/ret indirection
-    Bryan> affects performance in a measurable fashion.
+--- Benjamin LaHaise <bcrl@kvack.org> wrote:
+> It all depends on which database engine you're using.
+Not interrested in using, more interrested in building.
 
-Your current implementation is out-of-line, right?
+> Getting Oracle 
+> tuned to the Linux AIO implementation took a few revisions, but what's 
+> out in the fields these days makes good use of aio to gain 10-15% on 
+> the usual large industry standard database benchmark.
 
-I would be surprised if calling a function has any overhead on x86_64,
-since the function call is a jump that can be predicted perfectly.
-The only issue is the code to shuffle values into the right registers.
+I was about to start out testing libaio for a simple transaction engine and read this paper, so I
+thought it prudent to ask around before investing too much effort.
 
- - R.
+Are there any more up-to-date references?
+
+-Kenny
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

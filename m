@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWAKRnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751706AbWAKRoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751705AbWAKRnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 12:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWAKRnZ
+	id S1751706AbWAKRoH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 12:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751708AbWAKRoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 12:43:25 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:16303 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751705AbWAKRnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 12:43:25 -0500
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, hch@infradead.org, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060111093019.097d156a.akpm@osdl.org>
-References: <adaslrw3zfu.fsf@cisco.com>
-	 <1136909276.32183.28.camel@serpentine.pathscale.com>
-	 <20060110170722.GA3187@infradead.org>
-	 <1136915386.6294.8.camel@serpentine.pathscale.com>
-	 <20060110175131.GA5235@infradead.org>
-	 <1136915714.6294.10.camel@serpentine.pathscale.com>
-	 <20060110140557.41e85f7d.akpm@osdl.org>
-	 <1136932162.6294.31.camel@serpentine.pathscale.com>
-	 <20060110153257.1aac5370.akpm@osdl.org>
-	 <1137000032.11245.11.camel@camp4.serpentine.com>
-	 <20060111172216.GA18292@mars.ravnborg.org>
-	 <20060111093019.097d156a.akpm@osdl.org>
+	Wed, 11 Jan 2006 12:44:07 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:31141 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751706AbWAKRoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 12:44:05 -0500
+Subject: Re: ata errors -> read-only root partition. Hardware issue?
+From: Lee Revell <rlrevell@joe-job.com>
+To: jerome lacoste <jerome.lacoste@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a2cf1f60601110726r46805e1dl784f0a0ca20c128@mail.gmail.com>
+References: <5ttip-Xh-13@gated-at.bofh.it> <43C4493A.4010305@shaw.ca>
+	 <5a2cf1f60601110030u358c12fcscf79067cbc3eebe0@mail.gmail.com>
+	 <1136986688.28616.7.camel@localhost.localdomain>
+	 <5a2cf1f60601110552t5e9afa0dr7785b22ae6dbd99b@mail.gmail.com>
+	 <5a2cf1f60601110726r46805e1dl784f0a0ca20c128@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 11 Jan 2006 09:43:19 -0800
-Message-Id: <1137001400.11245.31.camel@camp4.serpentine.com>
+Date: Wed, 11 Jan 2006 12:44:02 -0500
+Message-Id: <1137001442.27255.53.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 09:30 -0800, Andrew Morton wrote:
+On Wed, 2006-01-11 at 16:26 +0100, jerome lacoste wrote:
+> Could something else (bad cable or disk controller ) trigger these
+> issues?
+> 
+> It would be great if we users had a quick way to decipher these
+> messages.
+> 
+> E.g.
+> 
+> "Buffer I/O error on device xxxx, logical block yyyyyyy"
+> 
+> Usualy a disk failure, may also be caused by.... 
 
-> Sure, attribute(weak) assumes that nobody want to implement the thing as an
-> inline.  Are yu sure that we want to do that?
+This is not a bad idea, "status=0x51 { DriveReady SeekComplete Error }"
+in my experience always indicates a failing hard drive.  Maybe a
+"Possible drive or media failure" could be added?
 
-I'll take a look at whether the extra call/ret indirection affects
-performance in a measurable fashion.
-
-	<b
+Lee
 

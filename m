@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWAKVHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWAKVIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWAKVHk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 16:07:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWAKVHk
+	id S964853AbWAKVIM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 16:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWAKVIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 16:07:40 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:46016 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932247AbWAKVHj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 16:07:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e/2j9a6j0afH772DXgfgSsfZaOSosDmyg/oljJxZmhVxUPsYbSxeqCL3oWgZnpnnTnXZsiYhHVG/b04B9fXmI3iulMRIls9h0Sd9b6NbU7lZFhRiZ/WnIc0WcRgFWUtHzKPWuqi7OXULAXBIHVLfZLXp3alHp3eaRjgCz7qzm2A=
-Message-ID: <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com>
-Date: Wed, 11 Jan 2006 16:07:37 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
-       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <1135575997.14160.4.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Wed, 11 Jan 2006 16:08:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32467 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964853AbWAKVIJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 16:08:09 -0500
+Date: Wed, 11 Jan 2006 13:07:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, sct@redhat.com, mingo@elte.hu
+Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
+Message-Id: <20060111130728.579ab429.akpm@osdl.org>
+In-Reply-To: <1137012917.2929.78.camel@laptopd505.fenrus.org>
+References: <200601112126.59796.ak@suse.de>
+	<20060111124617.5e7e1eaa.akpm@osdl.org>
+	<1137012917.2929.78.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051225212041.GA6094@hansmi.ch>
-	 <200512252304.32830.dtor_core@ameritech.net>
-	 <1135575997.14160.4.camel@localhost.localdomain>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/26/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> On Sun, 2005-12-25 at 23:04 -0500, Dmitry Torokhov wrote:
+Arjan van de Ven <arjan@infradead.org> wrote:
 >
-> > As far as the hook itself - i have that feeling that it should not be
-> > done in kernel but via a keymap.
->
-> While I understand your feeling, it's a bit annoying in this specific
-> case because previous models did this in hardware and all mac keymaps
-> already account for that. Knowing how nasty it has been to get mac
-> keymaps updated and in a good shape, and to get distros to properly get
-> them, it makes a lot of sense to have this small hook in the kernel that
-> makes the USB keyboard behave exactly like the older ADB couterparts.
->
+> On Wed, 2006-01-11 at 12:46 -0800, Andrew Morton wrote:
+> > Andi Kleen <ak@suse.de> wrote:
+> > >
+> > > 
+> > > Running LTP with the default runfile on a 4 virtual CPU x86-64 
+> > > system gives
+> > > 
+> > > To reproduce: run ltp 20040908 (newer one will probably work
+> > > too) with runltp -p -q -l `uname -r` on a ext3 file system
+> > > 
+> > > config is x86-64 defconfig.
+> > > 
+> > 
+> > mutex_trylock() is returning the wrong value.  fs/super.c:write_super()
+> > clearly took the lock.
+> 
+> 
+> the conversion is buggy.
+> 
+> mutex_trylock has the same convention as spin_try_lock (which is the
+> opposite of down_trylock). THe conversion forgot to add a !
+> 
+> --- linux-2.6.15/fs/ext3/super.c~	2006-01-11 21:54:13.000000000 +0100
+> +++ linux-2.6.15/fs/ext3/super.c	2006-01-11 21:54:13.000000000 +0100
+> @@ -2150,7 +2150,7 @@
+>  
+>  static void ext3_write_super (struct super_block * sb)
+>  {
+> -	if (mutex_trylock(&sb->s_lock) != 0)
+> +	if (!mutex_trylock(&sb->s_lock) != 0)
+>  		BUG();
+>  	sb->s_dirt = 0;
+>  }
 
-Ok, I am looking at the patch again, and I have a question - do we
-really need these 3 module parameters? If the goal is to be compatible
-with older keyboards then shouldn't we stick to one behavior?
-
---
-Dmitry
+We expect the lock to be held on entry.  Hence we expect mutex_trylock()
+to return zero.

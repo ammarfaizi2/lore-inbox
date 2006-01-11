@@ -1,61 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWAKPUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWAKPVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWAKPUv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 10:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWAKPUv
+	id S1751350AbWAKPVH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 10:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWAKPVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 10:20:51 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:38596 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750869AbWAKPUu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 10:20:50 -0500
-Date: Wed, 11 Jan 2006 08:20:50 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: [PATCH 1/2]MSI(X) save/restore for suspend/resume
-Message-ID: <20060111152050.GC19769@parisc-linux.org>
-References: <1135649077.17476.14.camel@sli10-desk.sh.intel.com> <20060103231304.56e3228b.akpm@osdl.org> <1136422680.30655.1.camel@sli10-desk.sh.intel.com> <20060110202841.GZ19769@parisc-linux.org> <1136942240.5750.35.camel@sli10-desk.sh.intel.com> <20060111012625.GA29108@kroah.com> <1136967502.5750.65.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136967502.5750.65.camel@sli10-desk.sh.intel.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 11 Jan 2006 10:21:07 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:53265 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751350AbWAKPVF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 10:21:05 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <1136988316.6517.8.camel@localhost.localdomain>
+X-OriginalArrivalTime: 11 Jan 2006 15:20:58.0574 (UTC) FILETIME=[9FB7FEE0:01C616C2]
+Content-class: urn:content-classes:message
+Subject: Re: OT: fork(): parent or child should run first?
+Date: Wed, 11 Jan 2006 10:19:53 -0500
+Message-ID: <Pine.LNX.4.61.0601111005340.27240@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: OT: fork(): parent or child should run first?
+Thread-Index: AcYWwp/BH9bYJbknSji602sWjYyFHQ==
+References: <20060111123745.GB30219@lgb.hu> <1136983910.2929.39.camel@laptopd505.fenrus.org> <20060111130255.GC30219@lgb.hu>  <1136985918.6547.115.camel@tara.firmix.at> <1136987361.6517.1.camel@localhost.localdomain> <1136987743.6547.122.camel@tara.firmix.at> <1136988316.6517.8.camel@localhost.localdomain>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Ian Campbell" <ijc@hellion.org.uk>
+Cc: "Bernd Petrovitsch" <bernd@firmix.at>, <linux-kernel@vger.kernel.org>,
+       "Arjan van de Ven" <arjan@infradead.org>, <lgb@lgb.hu>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 04:18:22PM +0800, Shaohua Li wrote:
-> +static inline void pci_remove_saved_cap(struct pci_dev *pci_dev,
-> +	struct pci_cap_saved_state *cap)
-> +{
-> +	struct pci_cap_saved_state *last;
-> +	last = pci_dev->saved_cap_space;
-> +	if (!last)
-> +		return;
-> +
-> +	if (last == cap) {
-> +		pci_dev->saved_cap_space = last->next;
-> +		return;
-> +	}
-> +	while (last->next && last->next != cap)
-> +		last = last->next;
-> +	if (last->next)
-> +		last->next = last->next->next;
-> +}
 
-I believe the more standard way of doing a singly-linked-list
-delete looks like this:
+On Wed, 11 Jan 2006, Ian Campbell wrote:
 
+> On Wed, 2006-01-11 at 14:55 +0100, Bernd Petrovitsch wrote:
+>> On Wed, 2006-01-11 at 13:49 +0000, Ian Campbell wrote:
+>>> On Wed, 2006-01-11 at 14:25 +0100, Bernd Petrovitsch wrote:
+>>>> Then this leaves the race if an old pid is reused in a newly created
+>>>> process before the last instances of that pid is cleaned up.
+>>>
+>>> The PID won't be available to be re-used until the signal handler has
+>>> called waitpid() on it?
+>>
+>> Yes.
+>> But ATM the signal handler calls waitpid() and stores the pid in a
+>> to-be-cleaned-pids array (at time X).
+>> The main loop at some time in the future (say at time X+N) walks through
+>> the to-be-cleaned-pids array and cleans them from the active-childs
+>> array.
+>
+> yuk... I'd say the application is a bit dumb for calling waitpid before
+> it is actually prepared for the pid to be reclaimed.
+>
+
+The application has no clue (and must not know) the internal workings
+of the kernel. In the following code, both forks must work, the case
+in which the child executed immediately, and the case in which the
+child did some work or slept before it exited.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main()
 {
-        struct pci_cap_saved_state **lastp = &pci_dev->saved_cap_space;
+     pid_t pid;
+     int status;
 
-        while (*lastp && *lastp != cap)
-                lastp = &(*lastp)->next;
-        if (*lastp)
-                *lastp = (*lastp)->next;
+     switch((pid = fork()))
+     {
+     case 0:    // child
+         exit(EXIT_SUCCESS);
+     case -1:	// Error
+         perror("fork");
+         exit(EXIT_FAILURE);
+     default:	// Parent
+         waitpid(pid, &status, 0);
+         break;
+     }
+     switch((pid = fork()))
+     {
+     case 0:    // child
+         sleep(10);
+         exit(EXIT_SUCCESS);
+     case -1:	// Error
+         perror("fork");
+         exit(EXIT_FAILURE);
+     default:	// Parent
+         waitpid(pid, &status, 0);
+         break;
+     }
+     return 0;
 }
 
-untested, of course.
+The code has no clue whether or not the child started before
+waitpid was called. It knows it has a valid pid, which is only a
+promise that such a child will start execution sometime or
+that it once existed and has already expired. That pid must
+remain valid until somebody reaps the status of the expired
+child.
+
+> A possible solution would be to also defer the waitpid until the main
+> loop cleanup function, perhaps flagging the entry in the child array as
+> not-active between the signal and that time or moving the pid from the
+> active to an inactive array in the signal handler.
+>
+
+The pid will (must) always be valid until after the status is reaped.
+There should not be any flags used to synchronize anything here. That
+pid just cannot be reused until the child is out of the Z state and
+its status has been obtained. Then the pid can be reused. It's the
+Z state that has historically provided the needed synchronization.
+
+> Ian.
+> --
+> Ian Campbell
+> Current Noise: Sloth - Into The Sun
+>
+> To err is human,
+> To purr feline.
+> 		-- Robert Byrne
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161035AbWAKHAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbWAKHDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161035AbWAKHAt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 02:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWAKHAt
+	id S1161013AbWAKHDD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 02:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWAKHDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 02:00:49 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:58128 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1161004AbWAKHAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 02:00:48 -0500
-Date: Wed, 11 Jan 2006 15:00:43 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: Andrew Morton <akpm@osdl.org>
+	Wed, 11 Jan 2006 02:03:03 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:49121 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1161055AbWAKHDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 02:03:00 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: 2.6.15 and CONFIG_PRINTK_TIME
+Date: Wed, 11 Jan 2006 09:01:57 +0200
+User-Agent: KMail/1.8.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: why no -mm git tree?
-Message-ID: <20060111070043.GA7858@localhost.localdomain>
-References: <20060111055616.GA5976@localhost.localdomain> <20060110224451.44c9d3da.akpm@osdl.org>
+References: <dq28uj$96q$1@sea.gmane.org>
+In-Reply-To: <dq28uj$96q$1@sea.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060110224451.44c9d3da.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601110901.57718.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 10:44:51PM -0800, Andrew Morton wrote:
-> Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
-> >
-> > Why don't use a -mm git tree?
-> >
+On Wednesday 11 January 2006 08:34, Kalin KOZHUHAROV wrote:
+> I remember there was some talk about resetting the time on printk during the
+> boot to zero... Is that gone for 2.6.15?
 > 
-> Because everthing would take me 100x longer?
-
-Really? So does Linus?
-
+> I recently turned CONFIG_PRINTK_TIME on two machines and they identically
+> print things like this:
 > 
-> I'm looking into generating a pullable git tree for each -mm.  Just as a
-> convenience for people who can't type "ftp".
-
-That doesn't help much if it's only for each -mm.
-If you make git commits for each each patch merged in, then
-we can always run the `current' -mm git tree.
-
-Test the -mm patches, not leave them sleeping for most of the time.
-
+> [17179569.184000] Linux version 2.6.15-K01_PIII_laptop (kalin@ss) (gcc
+> version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)) #2 PREEMPT Wed
+> Jan 11 09:56:21 JST 2006
+> [17179569.184000] BIOS-provided physical RAM map:
+> [17179569.184000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+> [17179569.184000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+> [17179569.184000]  BIOS-e820: 00000000000e0000 - 00000000000eee00 (reserved)
+> [17179569.184000]  BIOS-e820: 00000000000eee00 - 00000000000ef000 (ACPI NVS)
+> [17179569.184000]  BIOS-e820: 00000000000ef000 - 0000000000100000 (reserved)
 > 
-> That'll just be a dump of the whole -mm lineup into git.  I don't know how
-> workable it'll be - we'll see.
+> ...
 > 
+> [17179591.768000] ReiserFS: hda5: checking transaction log (hda5)
+> [17179591.836000] ReiserFS: hda5: Using r5 hash to sort names
+> [17179605.172000] e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+> 
+> That is about t0 + 200 days :-) No, the box is not THAT slow :-D
+> 
+> Now, on two different boxen, the initial time is the same: 17179569.184000
+> 
+> What is this number?
 
--- 
-Coywolf Qi Hunt
+I guess time sybsystem is not up until that line.
+--
+vda

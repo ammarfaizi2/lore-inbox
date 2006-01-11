@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWAKWT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWAKWWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWAKWT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 17:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWAKWT0
+	id S932288AbWAKWWF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWAKWWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 17:19:26 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:61390 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S932279AbWAKWTZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 17:19:25 -0500
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Place for userland swsusp parts
-Date: Thu, 12 Jan 2006 08:19:42 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <20060111221511.GA8223@elf.ucw.cz>
-In-Reply-To: <20060111221511.GA8223@elf.ucw.cz>
+	Wed, 11 Jan 2006 17:22:05 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35335 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932288AbWAKWWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 17:22:04 -0500
+Date: Wed, 11 Jan 2006 23:22:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dominik Karall <dominik.karall@gmx.net>, mchehab@brturbo.com.br
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Giacomo A. Catenazzi" <cate@debian.org>,
+       "David S. Miller" <davem@davemloft.net>, video4linux-list@redhat.com
+Subject: 2.6.15-mm3, current -git: drivers/media/video/ compile errors
+Message-ID: <20060111222202.GG29663@stusta.de>
+References: <20060111042135.24faf878.akpm@osdl.org> <200601111721.23598.dominik.karall@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601120819.42512.ncunningham@linuxmail.org>
+In-Reply-To: <200601111721.23598.dominik.karall@gmx.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, Jan 11, 2006 at 05:21:23PM +0100, Dominik Karall wrote:
+> 
+> hi!
+> it doesn't compile here.
+> 
+>   CC      drivers/media/video/tveeprom.o
+>   LD      drivers/media/video/built-in.o
+> drivers/media/video/tuner.o:(.bss+0x0): multiple definition of `debug'
+> drivers/media/video/msp3400.o:(.bss+0xc): first defined here
+> make[3]: *** [drivers/media/video/built-in.o] Fehler 1
+>...
 
-On Thursday 12 January 2006 08:15, Pavel Machek wrote:
-> Hi!
->
-> Is there some place where we could  put userland swsusp parts under
-> version control?
->
-> swsusp.sf.net looks like possible place, but it has been in use by
-> suspend2... Is it still being used? If not, would it be possible to
-> "hijack" it for swsusp development?
+I'm getting even one more error:
 
-It's not still being used (we have suspend2.net now). The only problem I see 
-with that is that it still has all the old suspend2 stuff and Sourceforge 
-make it really hard to clear out a project's files. You were talking about 
-calling it uswsusp or something like that. How about starting a 
-uswsusp.sf.net?
+<--  snip  -->
 
-Regards,
+...
+drivers/media/video/tuner.o:(.bss+0x0): multiple definition of `debug'
+drivers/media/video/msp3400.o:(.bss+0xc): first defined here
+drivers/media/video/cx25840/built-in.o:(.bss+0x0): multiple definition of `debug'
+drivers/media/video/msp3400.o:(.bss+0xc): first defined here
+make[3]: *** [drivers/media/video/built-in.o] Error 1
 
-Nigel
+<--  snip  -->
+
+There's sometime a need for variables being global being visible in 
+all objects of a module.
+
+That's OK.
+
+But they should never have generic names like "debug" or "once" (the 
+latter and some similar ones don't seem to cause compile errors since 
+they are currently used only once, but they are equally wrong.
+
+> greets,
+> dominik
+
+cu
+Adrian
+
 -- 
-Nigel, Michelle and Alisdair Cunningham
-72 Brownie Street, Jamboree Heights
-Brisbane 4074, Australia
-+61 (7) 3279 6728
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

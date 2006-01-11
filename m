@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWAKMD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWAKMHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWAKMD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 07:03:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWAKMD3
+	id S1751208AbWAKMHN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 07:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWAKMHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:03:29 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:45702 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751198AbWAKMD3
+	Wed, 11 Jan 2006 07:07:13 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:50054 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751208AbWAKMHM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:03:29 -0500
+	Wed, 11 Jan 2006 07:07:12 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17348.62479.70227.421232@jaguar.mkp.net>
-Date: Wed, 11 Jan 2006 07:03:27 -0500
+Message-ID: <17348.62703.715407.716894@jaguar.mkp.net>
+Date: Wed, 11 Jan 2006 07:07:11 -0500
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: [patch] sem2mutex floppy.c
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, petero2@telia.com
+Subject: [patch] sem2mutex pktcdvd
 X-Mailer: VM 7.19 under Emacs 21.4.1
 From: jes@trained-monkey.org (Jes Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,102 +25,120 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This one converts the floppy driver to a mutex. Patch tested by Ingo as
-I don't have anything floppy capable to test it on.
+Relative to Linus' git tree this morning. I don't have anything to test
+it with but it seems obviously correct.
 
 Cheers,
 Jes
 
-Convert from semaphore to mutex.
+
+Convert to use mutex from a semaphore
 
 Signed-off-by: Jes Sorensen <jes@sgi.com>
 
 ----
 
- drivers/block/floppy.c |   17 +++++++++--------
- 1 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/block/pktcdvd.c |   27 ++++++++++++++-------------
+ 1 files changed, 14 insertions(+), 13 deletions(-)
 
-Index: linux-2.6/drivers/block/floppy.c
+Index: linux-2.6/drivers/block/pktcdvd.c
 ===================================================================
---- linux-2.6.orig/drivers/block/floppy.c
-+++ linux-2.6/drivers/block/floppy.c
-@@ -179,6 +179,7 @@
- #include <linux/devfs_fs_kernel.h>
- #include <linux/platform_device.h>
- #include <linux/buffer_head.h>	/* for invalidate_buffers() */
+--- linux-2.6.orig/drivers/block/pktcdvd.c
++++ linux-2.6/drivers/block/pktcdvd.c
+@@ -58,6 +58,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/miscdevice.h>
+ #include <linux/suspend.h>
 +#include <linux/mutex.h>
+ #include <scsi/scsi_cmnd.h>
+ #include <scsi/scsi_ioctl.h>
  
- /*
-  * PS/2 floppies have much slower step rates than regular floppies.
-@@ -414,7 +415,7 @@
- static struct timer_list motor_off_timer[N_DRIVE];
- static struct gendisk *disks[N_DRIVE];
- static struct block_device *opened_bdev[N_DRIVE];
--static DECLARE_MUTEX(open_lock);
-+static DEFINE_MUTEX(open_lock);
- static struct floppy_raw_cmd *raw_cmd, default_raw_cmd;
+@@ -82,7 +83,7 @@
+ static struct pktcdvd_device *pkt_devs[MAX_WRITERS];
+ static struct proc_dir_entry *pkt_proc;
+ static int pkt_major;
+-static struct semaphore ctl_mutex;	/* Serialize open/close/setup/teardown */
++static struct mutex ctl_mutex;	/* Serialize open/close/setup/teardown */
+ static mempool_t *psd_pool;
  
- /*
-@@ -3334,7 +3335,7 @@
- 	if (type) {
+ 
+@@ -2030,7 +2031,7 @@
+ 
+ 	VPRINTK("pktcdvd: entering open\n");
+ 
+-	down(&ctl_mutex);
++	mutex_lock(&ctl_mutex);
+ 	pd = pkt_find_dev_from_minor(iminor(inode));
+ 	if (!pd) {
+ 		ret = -ENODEV;
+@@ -2057,14 +2058,14 @@
+ 		set_blocksize(inode->i_bdev, CD_FRAMESIZE);
+ 	}
+ 
+-	up(&ctl_mutex);
++	mutex_unlock(&ctl_mutex);
+ 	return 0;
+ 
+ out_dec:
+ 	pd->refcnt--;
+ out:
+ 	VPRINTK("pktcdvd: failed open (%d)\n", ret);
+-	up(&ctl_mutex);
++	mutex_unlock(&ctl_mutex);
+ 	return ret;
+ }
+ 
+@@ -2073,14 +2074,14 @@
+ 	struct pktcdvd_device *pd = inode->i_bdev->bd_disk->private_data;
+ 	int ret = 0;
+ 
+-	down(&ctl_mutex);
++	mutex_lock(&ctl_mutex);
+ 	pd->refcnt--;
+ 	BUG_ON(pd->refcnt < 0);
+ 	if (pd->refcnt == 0) {
+ 		int flush = test_bit(PACKET_WRITABLE, &pd->flags);
+ 		pkt_release_dev(pd, flush);
+ 	}
+-	up(&ctl_mutex);
++	mutex_unlock(&ctl_mutex);
+ 	return ret;
+ }
+ 
+@@ -2614,21 +2615,21 @@
+ 	case PKT_CTRL_CMD_SETUP:
  		if (!capable(CAP_SYS_ADMIN))
  			return -EPERM;
--		down(&open_lock);
-+		mutex_lock(&open_lock);
- 		LOCK_FDC(drive, 1);
- 		floppy_type[type] = *g;
- 		floppy_type[type].name = "user format";
-@@ -3348,7 +3349,7 @@
- 				continue;
- 			__invalidate_device(bdev);
- 		}
--		up(&open_lock);
-+		mutex_unlock(&open_lock);
- 	} else {
- 		int oldStretch;
- 		LOCK_FDC(drive, 1);
-@@ -3675,7 +3676,7 @@
- {
- 	int drive = (long)inode->i_bdev->bd_disk->private_data;
- 
--	down(&open_lock);
-+	mutex_lock(&open_lock);
- 	if (UDRS->fd_ref < 0)
- 		UDRS->fd_ref = 0;
- 	else if (!UDRS->fd_ref--) {
-@@ -3685,7 +3686,7 @@
- 	if (!UDRS->fd_ref)
- 		opened_bdev[drive] = NULL;
- 	floppy_release_irq_and_dma();
--	up(&open_lock);
-+	mutex_unlock(&open_lock);
- 	return 0;
- }
- 
-@@ -3703,7 +3704,7 @@
- 	char *tmp;
- 
- 	filp->private_data = (void *)0;
--	down(&open_lock);
-+	mutex_lock(&open_lock);
- 	old_dev = UDRS->fd_device;
- 	if (opened_bdev[drive] && opened_bdev[drive] != inode->i_bdev)
- 		goto out2;
-@@ -3786,7 +3787,7 @@
- 		if ((filp->f_mode & 2) && !(UTESTF(FD_DISK_WRITABLE)))
- 			goto out;
+-		down(&ctl_mutex);
++		mutex_lock(&ctl_mutex);
+ 		ret = pkt_setup_dev(&ctrl_cmd);
+-		up(&ctl_mutex);
++		mutex_unlock(&ctl_mutex);
+ 		break;
+ 	case PKT_CTRL_CMD_TEARDOWN:
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+-		down(&ctl_mutex);
++		mutex_lock(&ctl_mutex);
+ 		ret = pkt_remove_dev(&ctrl_cmd);
+-		up(&ctl_mutex);
++		mutex_unlock(&ctl_mutex);
+ 		break;
+ 	case PKT_CTRL_CMD_STATUS:
+-		down(&ctl_mutex);
++		mutex_lock(&ctl_mutex);
+ 		pkt_get_status(&ctrl_cmd);
+-		up(&ctl_mutex);
++		mutex_unlock(&ctl_mutex);
+ 		break;
+ 	default:
+ 		return -ENOTTY;
+@@ -2674,7 +2675,7 @@
+ 		goto out;
  	}
--	up(&open_lock);
-+	mutex_unlock(&open_lock);
- 	return 0;
- out:
- 	if (UDRS->fd_ref < 0)
-@@ -3797,7 +3798,7 @@
- 		opened_bdev[drive] = NULL;
- 	floppy_release_irq_and_dma();
- out2:
--	up(&open_lock);
-+	mutex_unlock(&open_lock);
- 	return res;
- }
+ 
+-	init_MUTEX(&ctl_mutex);
++	mutex_init(&ctl_mutex);
+ 
+ 	pkt_proc = proc_mkdir("pktcdvd", proc_root_driver);
  

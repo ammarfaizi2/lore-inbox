@@ -1,80 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWAKSPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWAKSVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWAKSPf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWAKSPf
+	id S932433AbWAKSVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWAKSVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:15:35 -0500
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:7385 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932426AbWAKSPe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:15:34 -0500
-X-ORBL: [67.117.73.34]
-Date: Wed, 11 Jan 2006 10:14:59 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Anderson Briglia <anderson.briglia@indt.org.br>,
-       linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>,
-       linux@arm.linux.org.uk, ext David Brownell <david-b@pacbell.net>,
-       drzeus-list@drzeus.cx,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>
-Subject: Re: [patch 1/5] Add MMC password protection (lock/unlock) support V3
-Message-ID: <20060111181459.GF4422@atomide.com>
-References: <43C2E064.90500@indt.org.br> <20060109222902.GF19131@flint.arm.linux.org.uk> <43C5052C.4050804@indt.org.br> <20060111144424.GA20523@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060111144424.GA20523@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11
+	Wed, 11 Jan 2006 13:21:25 -0500
+Received: from outgoing.tpinternet.pl ([193.110.120.20]:33578 "EHLO
+	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
+	id S932435AbWAKSVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:21:24 -0500
+In-Reply-To: <20060111181252.61498.qmail@web34103.mail.mud.yahoo.com>
+References: <20060111181252.61498.qmail@web34103.mail.mud.yahoo.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <BEF11842-40CA-403C-9546-12F55976EF93@neostrada.pl>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
+Subject: Re: Is user-space AIO dead?
+Date: Wed, 11 Jan 2006 19:20:23 +0100
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Russell King <rmk+lkml@arm.linux.org.uk> [060111 06:44]:
-> On Wed, Jan 11, 2006 at 09:16:28AM -0400, Anderson Briglia wrote:
-> > Russell King wrote:
-> > 
-> > >On Mon, Jan 09, 2006 at 06:15:00PM -0400, Anderson Briglia wrote:
-> > >  
-> > >
-> > >>When a card is locked, only commands from the "basic" and "lock card" classes
-> > >>are accepted. To be able to use the other commands, the card must be unlocked
-> > >>first.
-> > >>    
-> > >>
-> > >
-> > >I don't think this works as you intend.
-> > >
-> > >When a card is initially inserted, we discover the cards via mmc_setup()
-> > >and mmc_discover_cards().  This means that we'll never set the locked
-> > >status for newly inserted cards.
-> > >  
-> > >
-> > mmc_setup() calls mmc_check_cards(). Our patch adds the necessary code
-> > to mmc_check_cards() to set the locked state when the card is locked.
-> 
-> Not in Linus' kernel, it doesn't.
-> 
-> If you're working off the OMAP tree, bear in mind that I've found in
-> the past that they have a large number of wrong or inappropriate
-> changes to the MMC layer in there.  They don't regularly merge either,
-> and they certainly don't forward any bug fixes for review in a timely
-> manner.
 
-I agree the omap MMC driver should be cleaned-up and finally merged.
+On 2006-01-11, at 19:12, Kenny Simpson wrote:
+> If I want a transactional engine (like a database) that needs to  
+> persist to stable storage, is it
+> still best to use a helper thread to do write/fsync or O_SYNC| 
+> O_DIRECT?
 
-Anderson, since you are already patching it, do you want to take care of
-cleaning it up a bit and posting it here?
-
-There are some mmc core hacks there for buggy cards that might worth
-testing on other platforms too. (It could also be that they are
-only needed on omap).
-
-As far as I remember for omap we've had to do hacks for cards that claim
-to be ready before the data is transferred, and also hacks for cards
-that never set the ready bit...
- 
-Regards,
-
-Tony
+Yes.

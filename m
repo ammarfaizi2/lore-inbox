@@ -1,118 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWAKTVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751726AbWAKTYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbWAKTVn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWAKTVm
+	id S1751726AbWAKTYU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 14:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWAKTYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:21:42 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:2497 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932203AbWAKTVk (ORCPT
+	Wed, 11 Jan 2006 14:24:20 -0500
+Received: from tornado.reub.net ([202.89.145.182]:31719 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1751726AbWAKTYT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:21:40 -0500
-Subject: Re: [PATCH 0/5] multiple block allocation to current ext3
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@lst.de, pbadari@us.ibm.com, sct@redhat.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <20060110212551.411a766d.akpm@osdl.org>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113288087.4319.49.camel@localhost.localdomain>
-	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1114207837.7339.50.camel@localhost.localdomain>
-	 <1114659912.16933.5.camel@mindpipe>
-	 <1114715665.18996.29.camel@localhost.localdomain>
-	 <1136935562.4901.41.camel@dyn9047017067.beaverton.ibm.com>
-	 <20060110212551.411a766d.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Wed, 11 Jan 2006 11:17:11 -0800
-Message-Id: <1137007032.4395.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Wed, 11 Jan 2006 14:24:19 -0500
+Message-ID: <43C55B31.5000201@reub.net>
+Date: Thu, 12 Jan 2006 08:23:29 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060110)
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, neilb@suse.de, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       htejun@gmail.com
+Subject: Re: 2.6.15-mm2
+References: <43C4947C.1040703@reub.net> <20060110213001.265a6153.akpm@osdl.org> <20060110213056.58f5e806.akpm@osdl.org> <43C4E2BE.6050800@reub.net> <20060111030529.0bc03e0a.akpm@osdl.org> <20060111111313.GD3389@suse.de> <43C4EEA4.3050502@reub.net> <20060111115616.GE3389@suse.de> <43C518BC.5090903@reub.net> <20060111145201.GS3389@suse.de> <20060111145504.GT3389@suse.de>
+In-Reply-To: <20060111145504.GT3389@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 21:25 -0800, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > Tests done so far includes fsx,tiobench and dbench. The following
-> >  numbers collected from Direct IO tests (1G file creation/read)  shows
-> >  the system time have been greatly reduced (more than 50% on my 8 cpu
-> >  system) with the patches.
-> > 
-> >  1G file DIO write:
-> >  	2.6.15		2.6.15+patches
-> >  real    0m31.275s	0m31.161s
-> >  user    0m0.000s	0m0.000s
-> >  sys     0m3.384s	0m0.564s 
-> > 
-> > 
-> >  1G file DIO read:
-> >  	2.6.15		2.6.15+patches
-> >  real    0m30.733s	0m30.624s
-> >  user    0m0.000s	0m0.004s
-> >  sys     0m0.748s	0m0.380s
-> > 
-> >  Some previous test we did on buffered IO with using multiple blocks
-> >  allocation and delayed allocation shows noticeable improvement on
-> >  throughput and system time.
+
+
+On 12/01/2006 3:55 a.m., Jens Axboe wrote:
+> On Wed, Jan 11 2006, Jens Axboe wrote:
+>> It's not too tricky, you just need to correct that function prototype.
+>> Could you do that? Would be nice to know _exactly_ which libata
+>> changeset caused this malfunction. But it does of course point at the
+>> barrier changes for scsi/libata...
 > 
-> I'd be interested in seeing benchmark results for the common
-> allocate-one-block case - just normal old buffered IO without any
-> additional multiblock patches.   Would they show any regression?
+> You can also try something quicker - use a newer kernel known to exhibit
+> the problem, and apply this patch on top of that:
 > 
-Hi Andrew, 
-  One thing I want to clarify is that: for the buffered IO, even with
-mutlipleblock patches, currently ext3 is still allocate one block at a
-time.(we will need delayed allocation to make use of the multiple block
-allocation)
+> diff --git a/drivers/md/md.c b/drivers/md/md.c
+> index 0302723..720ace4 100644
+> --- a/drivers/md/md.c
+> +++ b/drivers/md/md.c
+> @@ -436,6 +436,7 @@ void md_super_write(mddev_t *mddev, mdk_
+>  	bio->bi_rw = rw;
+>  
+>  	atomic_inc(&mddev->pending_writes);
+> +#if 0
+>  	if (!test_bit(BarriersNotsupp, &rdev->flags)) {
+>  		struct bio *rbio;
+>  		rw |= (1<<BIO_RW_BARRIER);
+> @@ -444,6 +445,7 @@ void md_super_write(mddev_t *mddev, mdk_
+>  		rbio->bi_end_io = super_written_barrier;
+>  		submit_bio(rw, rbio);
+>  	} else
+> +#endif
+>  		submit_bio(rw, bio);
+>  }
 
-I did the same test on buffered IO, w/o the patches. Very little
-regression(less than 1% could be consider as noise) comparing 2.6.15
-kernel w/o patches:
+...and with that patch, I can now boot up 2.6.15-mm3 (repeated twice).  So yes, 
+looks like that's where the problem lies.
 
-buffered IO write: (no sync)
-# time ./filetst  -b 1048576 -w -f /mnt/a
-	2.6.15		2.6.15+patches
-real    0m25.773s	0m26.102s
-user    0m0.004s	0m0.000s
-sys     0m15.065s	0m16.053s
-
-buffered IO read (after umount/remount)
-# time ./filetst  -b 1048576 -r -f /mnt/a
-	2.6.15		2.6.15+patches
-real    0m29.257s	0m29.257s
-user    0m0.000s	0m0.000s
-sys     0m6.996s	0m6.980s
-
-
-But I do notice regression between vanilla 2.6.14 kernel and vanilla
-2.6.15 kernel on buffered IO(about 18%). 
-
-# time ./filetst  -b 1048576 -w -f /mnt/a
-	2.6.14		2.6.15
-real    0m21.710s	0m25.773s
-user    0m0.012s	0m0.004s
-sys     0m14.569s	0m15.065s
-
-I also found tiobench(sequential write test) and dbench has similar
-regression between 2.6.14 and 2.6.15. Actually I found 2.6.15 rc2
-already has the regression.  Is this a known issue? Anyway I will
-continue looking at the issue...
-
-Thanks,
-Mingming
+Thanks Jens,
+Reuben
 

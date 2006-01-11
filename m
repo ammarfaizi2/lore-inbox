@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWAKEIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWAKEOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWAKEIm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 23:08:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWAKEIm
+	id S1751351AbWAKEOc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 23:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWAKEOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 23:08:42 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:9640 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751344AbWAKEIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 23:08:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=6Ywf/L230OyFvrkiP1BBMoMO0cVD8mNgAGcnIEKzSUZCV2fOcfgcr5F+aCDKzIj9CLcJ90rMvsgKyXc+n1eD1HZlmBIRF5clVVXNH0Fe39TK09CAnRJ5lSiu8+h2QKIKrrn7R/VD+ALzTcoteVroQ1D/qUlJ33GoBZrnrk4vSMg=  ;
-Message-ID: <43C484BF.2030602@yahoo.com.au>
-Date: Wed, 11 Jan 2006 15:08:31 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       hugh@veritas.com
-Subject: Re: smp race fix between invalidate_inode_pages* and do_no_page
-References: <20051213193735.GE3092@opteron.random> <20051213130227.2efac51e.akpm@osdl.org> <20051213211441.GH3092@opteron.random> <20051216135147.GV5270@opteron.random> <20060110062425.GA15897@opteron.random>
-In-Reply-To: <20060110062425.GA15897@opteron.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jan 2006 23:14:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:11728 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751351AbWAKEOb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 23:14:31 -0500
+Date: Tue, 10 Jan 2006 17:26:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Andrew Morton <akpm@osdl.org>,
+       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Rajesh Shah <rajesh.shah@intel.com>
+Subject: Re: [PATCH 1/2]MSI(X) save/restore for suspend/resume
+Message-ID: <20060111012625.GA29108@kroah.com>
+References: <1135649077.17476.14.camel@sli10-desk.sh.intel.com> <20060103231304.56e3228b.akpm@osdl.org> <1136422680.30655.1.camel@sli10-desk.sh.intel.com> <20060110202841.GZ19769@parisc-linux.org> <1136942240.5750.35.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1136942240.5750.35.camel@sli10-desk.sh.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> On Fri, Dec 16, 2005 at 02:51:47PM +0100, Andrea Arcangeli wrote:
+On Wed, Jan 11, 2006 at 09:17:19AM +0800, Shaohua Li wrote:
+> On Tue, 2006-01-10 at 13:28 -0700, Matthew Wilcox wrote:
+> > On Thu, Jan 05, 2006 at 08:58:00AM +0800, Shaohua Li wrote:
+> > > +	if ((pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)) <= 0 ||
+> > > +		dev->no_msi)
+> > 
+> > No assignments within conditionals, please.
+> Ok.
 > 
->>There was a minor buglet in the previous patch an update is here:
->>
->>	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.15-rc5/seqschedlock-2
-> 
-> 
-> JFYI: I got a few hours ago positive confirmation of the fix from the
-> customer that was capable of reproducing this. I guess this is good
-> enough for production use (it's at the very least certainly better than
-> the previous code and it's guaranteed not to hurt the scalability of the
-> fast path in smp, so it's the least intrusive fix I could imagine).
-> 
-> So we can start to think if we should using this new primitive I
-> created, and if to replace the yield() with a proper waitqueue (and
-> how). Or if to take the risk of hitting a bit of scalability in the
-> nopage page faults of processes, by rewriting the fix with a
-> find_lock_page in the do_no_page handler, that would avoid the need of
-> my new locking primitive.
-> 
-> Comments welcome thanks!
+> > 	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
+> > 	if (pos <= 0 || dev->no_msi)
+> > 
+> > >  	u32		saved_config_space[16]; /* config space saved at suspend time */
+> > > +	void		*saved_cap_space[PCI_CAP_ID_MAX + 1]; /* ext config space saved at suspend time */
+> > >  	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+> > ...
+> > >  #define  PCI_CAP_ID_MSIX	0x11	/* MSI-X */
+> > > +#define PCI_CAP_ID_MAX		PCI_CAP_ID_MSIX
+> > >  #define PCI_CAP_LIST_NEXT	1	/* Next capability in the list */
+> > 
+> > Rather than taking all this space in the pci_dev structure (even
+> > without CONFIG_PM), how about:
+> > 
+> > struct pci_cap_saved_state {
+> > 	struct pci_cap_saved_state *next;
+> > 	char cap_nr;
+> > 	char data[0];
+> > }
+> > 
+> > and then just add:
+> > 
+> > 	struct pci_cap_saved_state *saved_cap_space;
+> > 
+> > to the struct pci_dev?  One pointer, rather than (currently!) 12.
+> > That's an 88 byte saving per PCI device on 64-bit machines!
+> It's not that big, right? This will make things a little complex. How
+> about just define saved_cap_space[] with CONFIG_PM configured? Anyway,
+> if you insist on less space, I'm happy to change it.
 
-I'd be inclined to think a lock_page is not a big SMP scalability
-problem because the struct page's cacheline(s) will be written to
-several times in the process of refcounting anyway. Such a workload
-would also be running into tree_lock as well.
+A pointer to the structure is much nicer, I'd recommend doing it that
+way.
 
-Not that I have done any measurements.
+thanks,
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+greg k-h

@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWAKRUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751688AbWAKRWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751681AbWAKRUm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 12:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWAKRUm
+	id S1751688AbWAKRWy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 12:22:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbWAKRWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 12:20:42 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:60431 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751533AbWAKRUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 12:20:41 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Rik van Riel <riel@redhat.com>
-Subject: Re: FAT and Microsoft patent?
-Date: Wed, 11 Jan 2006 17:20:44 +0000
-User-Agent: KMail/1.9
-Cc: Christopher Friesen <cfriesen@nortel.com>,
-       Roger Heflin <rheflin@atipa.com>,
-       "'linux-os (Dick Johnson)'" <linux-os@analogic.com>,
+	Wed, 11 Jan 2006 12:22:54 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:19209 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751685AbWAKRWx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 12:22:53 -0500
+Date: Wed, 11 Jan 2006 18:22:16 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org, rdreier@cisco.com,
        linux-kernel@vger.kernel.org
-References: <EXCHG2003RXf2LTrpwA00000b29@EXCHG2003.microtech-ks.com> <43C528FC.1060408@nortel.com> <Pine.LNX.4.63.0601111212020.5975@cuia.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.63.0601111212020.5975@cuia.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
+Message-ID: <20060111172216.GA18292@mars.ravnborg.org>
+References: <adaslrw3zfu.fsf@cisco.com> <1136909276.32183.28.camel@serpentine.pathscale.com> <20060110170722.GA3187@infradead.org> <1136915386.6294.8.camel@serpentine.pathscale.com> <20060110175131.GA5235@infradead.org> <1136915714.6294.10.camel@serpentine.pathscale.com> <20060110140557.41e85f7d.akpm@osdl.org> <1136932162.6294.31.camel@serpentine.pathscale.com> <20060110153257.1aac5370.akpm@osdl.org> <1137000032.11245.11.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601111720.44759.s0348365@sms.ed.ac.uk>
+In-Reply-To: <1137000032.11245.11.camel@camp4.serpentine.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 January 2006 17:13, Rik van Riel wrote:
-> On Wed, 11 Jan 2006, Christopher Friesen wrote:
-> > The question still holds in modified form...will we need to remove this
-> > functionality, or is it currently implemented in a way that does not
-> > infringe on the patent?
->
-> I would not be surprised if the UMSDOS filesystem predated
-> VFAT by a few years - but this was all quite a while ago,
-> and I'm not sure the patents cover something that UMSDOS
-> could have prior art on...
-
-I think the patents are on LFN, which is not VFAT, probably a lot younger, and 
-as other people have mentioned on this thread, a lot less of a patent threat.
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+On Wed, Jan 11, 2006 at 09:20:32AM -0800, Bryan O'Sullivan wrote:
+> On Tue, 2006-01-10 at 15:32 -0800, Andrew Morton wrote:
+> 
+> > Unless someone can think of a problem with attribute(weak), I think you'll
+> > find that it's the simplest-by-far solution.
+> 
+> The only problem I can see with this is that on x86_64 and other
+> platforms that reimplement the routine as an inline function, I think
+> we'll be left with a small hunk of dead code in the form of the
+> out-of-line version in lib/ that never gets referenced.
+If it is not referenced the linker should not pull it in from lib.a -
+no?
+	Sam

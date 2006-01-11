@@ -1,38 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWAKWWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWAKWY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWAKWWw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 17:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWAKWWw
+	id S932298AbWAKWY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWAKWY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 17:22:52 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:7136 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S932301AbWAKWWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 17:22:51 -0500
-To: jes@trained-monkey.org (Jes Sorensen)
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: [patch] sem2mutex pktcdvd
-References: <17348.62703.715407.716894@jaguar.mkp.net>
-From: Peter Osterlund <petero2@telia.com>
-Date: 11 Jan 2006 23:22:33 +0100
-In-Reply-To: <17348.62703.715407.716894@jaguar.mkp.net>
-Message-ID: <m3u0ca4d7a.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Jan 2006 17:24:26 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:51927 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932298AbWAKWYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 17:24:25 -0500
+Subject: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
+From: Adam Litke <agl@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <1137016960.9672.5.camel@localhost.localdomain>
+References: <1136920951.23288.5.camel@localhost.localdomain>
+	 <1137016960.9672.5.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 11 Jan 2006 16:24:23 -0600
+Message-Id: <1137018263.9672.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jes@trained-monkey.org (Jes Sorensen) writes:
+On Wed, 2006-01-11 at 16:02 -0600, Adam Litke wrote:
+> here).  The patch doesn't completely close the race (there is a much
+> smaller window without the zeroing though).  The next patch should close
+> the race window completely.
 
-> Relative to Linus' git tree this morning. I don't have anything to test
-> it with but it seems obviously correct.
+My only concern is if I am using the correct lock for the job here.
 
-It worked fine in my tests.
+ hugetlb.c |   14 ++++++++++----
+ 1 files changed, 10 insertions(+), 4 deletions(-)
+diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
+--- reference/mm/hugetlb.c
++++ current/mm/hugetlb.c
+@@ -445,6 +445,7 @@ int hugetlb_no_page(struct mm_struct *mm
+ 	struct page *page;
+ 	struct address_space *mapping;
+ 	pte_t new_pte;
++	int shared = vma->vm_flags & VM_SHARED;
+ 
+ 	mapping = vma->vm_file->f_mapping;
+ 	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
+@@ -454,26 +455,31 @@ int hugetlb_no_page(struct mm_struct *mm
+ 	 * Use page lock to guard against racing truncation
+ 	 * before we get page_table_lock.
+ 	 */
+-retry:
+ 	page = find_lock_page(mapping, idx);
+ 	if (!page) {
+ 		if (hugetlb_get_quota(mapping))
+ 			goto out;
++
++		if (shared)
++			spin_lock(&mapping->host->i_lock);
++		
+ 		page = alloc_unzeroed_huge_page(vma, address);
+ 		if (!page) {
+ 			hugetlb_put_quota(mapping);
++			if (shared)
++				spin_unlock(&mapping->host->i_lock);
+ 			goto out;
+ 		}
+ 
+-		if (vma->vm_flags & VM_SHARED) {
++		if (shared) {
+ 			int err;
+ 
+ 			err = add_to_page_cache(page, mapping, idx, GFP_KERNEL);
++			spin_unlock(&mapping->host->i_lock);
+ 			if (err) {
+ 				put_page(page);
+ 				hugetlb_put_quota(mapping);
+-				if (err == -EEXIST)
+-					goto retry;
++				BUG_ON(-EEXIST);
+ 				goto out;
+ 			}
+ 		} else
 
-Acked-by: Peter Osterlund <petero2@telia.com>
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
+

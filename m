@@ -1,71 +1,53 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWAKMra (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 11 Jan 2006 07:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWAKMra
+	id S932410AbWAKSBw (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 11 Jan 2006 13:01:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWAKSBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:47:30 -0500
-Received: from bay24-f3.bay24.hotmail.com ([64.4.18.53]:12555 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1751339AbWAKMr3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:47:29 -0500
-Message-ID: <BAY24-F398A6EB2351BCBD381538E1240@phx.gbl>
-X-Originating-IP: [62.166.232.22]
-X-Originating-Email: [lowratebankingservicesdept5@hotmail.com]
-From: "Lowrate Banking Services Dept" 
-	<lowratebankingservicesdept5@hotmail.com>
-Subject: ATLANTIC ALLIANCE FINANCE OFFERS LOAN AT LOW INTEREST RATE.
-Date: Wed, 11 Jan 2006 12:47:27 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 11 Jan 2006 12:47:28.0139 (UTC) FILETIME=[2DDF25B0:01C616AD]
-To: unlisted-recipients:; (no To-header on input)
+	Wed, 11 Jan 2006 13:01:52 -0500
+Received: from [59.40.213.221] ([59.40.213.221]:54031 "HELO 202.96.154.15")
+	by vger.kernel.org with SMTP id S932410AbWAKSBv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:01:51 -0500
+Message-ID: <80Me@tpts4.seed.net.tw>
+From: xmdxbDIy4@tpts1.seed.net.tw
+To: ZBUylLi8@mail.sysnet.net.tw
+Subject: =?ISO-8859-1?Q?=20OA=B5=C4=D0=C2=D1=A1=D4=F1,=CE=AA=C4=E3=BF?= =?ISO-8859-1?Q?=AA=B4=B4?=
+	=?ISO-8859-1?Q?=CD=F8=C2=E7=B0=EC=B9=AB=D0=C2=CA=B1=B4=FA?=
+Content-Type: text/plain;
+Content-Transfer-Encoding: Quoted-Printable
+X-Priority: 3
+X-MSMail-Priority: Normal
+Date: Wed, 11 Jan 2006 13:01:51 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751339AbWAKMra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932410AbWAKSBw@vger.kernel.org>
 
-ATLANTIC ALLIANCE FINANCE OFFERS LOAN AT LOW INTEREST RATE.
-ATLANTIC ALLIANCE FINANCE
-45 Freeslandwijk, 1205 FK
-Netherlands.
-Email:pmorrisloanconsult@myway.com
-Tel:0031 655 525 691
-Fax:0031 847 538 401
-Ref:046/LR3/06
 
-Attn:Sir/President/ceo.
+=D4=DA=CF=DF=B2=E2=CA=D4=B5=D8=D6=B7 http://starterp.oicp.net/oa/   =D5=CA=BA=C5:admin  =C3=DC=C2=EB:admin 
+=D7=C9=D1=AF=B5=E7=BB=B0:0 7 5 5 - 6 1 3 2 5 3 1 1  =B2=DC=CF=C8=C9=FA  E-mail: caoshan@starterp.net
 
-We are a financial institution based in Amsterdam The Netherlands By name 
-ATLANTIC ALLIANCE FINANCE.
 
-ATLANTIC ALLIANCE FINANCE is into giving soft loan to Charity 
-organizations,Companies and individual all over Europe and Asia at a Low  
-Interest Rate.
+StartOA=D6=C2=C1=A6=D3=DA=CA=B9=D0=C5=CF=A2=BB=AF=B3=CC=B6=C8=BD=CF=B5=CD=B5=C4=C6=F3=CA=C2=D2=B5=B5=A5=CE=BB=CB=B3=C0=FB=CA=B5=CF=D6=D3=C9=B4=AB=CD=B3=B0=EC=B9=AB=B7=BD=CA=BD=CF=F2=CD=F8
+=C2=E7=BB=AF=B0=EC=B9=AB=B7=BD=CA=BD=B5=C4=D6=D8=D2=AA=B1=E4=B8=EF=A3=AC=B6=F8=B2=BB=D0=E8=D2=AA=B7=B1=CB=F6=B5=C4=C8=CB=D4=B1=C5=E0=D1=B5=D2=D4=BC=B0=B4=F3=C1=BF=B5=C4=D7=CA=BD=F0=CD=B6=C8=EB=A1=A3=C6=E4
+=B9=A6=C4=DC=C9=E8=D6=C3=D7=EE=B4=F3=CF=DE=B6=C8=D3=AD=BA=CF=C4=BF=B1=EA=BF=CD=BB=A7=D0=E8=C7=F3=A3=AC=B2=D9=D7=F7=BD=E7=C3=E6=D2=B2=B8=F9=BE=DD=B9=FA=C4=DA=BF=CD=BB=A7=B5=C4=CA=B5=BC=CA=CF=B0=B9=DF=BD=F8
+=D0=D0=C1=CB=D7=A8=C3=C5=C9=E8=BC=C6=A3=AC=B2=BB=D0=E8=CC=AB=B6=E0=CB=B5=C3=F7=BC=B4=BF=C9=C7=E1=CB=C9=C9=CF=CA=D6=A1=A3
+ =A3=A0 
+ 
+=D2=BB=CA=C7=B2=FA=C6=B7=CA=B9=D3=C3=D5=DF=B5=C4=D7=A8=D2=B5=CB=D8=D6=CA=A1=A3=BA=DC=B6=E0=D3=C3=BB=A7=B7=B4=D3=B3=CB=FB=C3=C7=C8=B1=B7=A6=D7=A8=D2=B5IT=BC=BC=CA=F5=C8=CB=D4=B1=A3=AC=CA=B9=D3=C3=D5=DF
+=B5=C4=BC=C6=CB=E3=BB=FA=B2=D9=D7=F7=CB=AE=C6=BD=BA=CD=CA=EC=C1=B7=B3=CC=B6=C8=D2=B2=BD=CF=B5=CD=A3=AC=D0=ED=B6=E0=B2=FA=C6=B7=B5=C4=B9=A6=C4=DC=CB=E4=C8=BB=C8=AB=C3=E6=A3=AC=B5=AB=CA=B9=D3=C3=D2=AA=C7=F3
+=CC=AB=B8=DF=A3=AC=D3=A6=D3=C3=C6=F0=C0=B4=C4=D1=B6=C8=CC=AB=B4=F3=A1=A3
 
-This loan will be re-paid within the period of Five(5) years from the date 
-the loan is giving to the
-beneficial.This Finance Institution introduce this new developement to help 
-the less previlage and individuals who are willing to be share holders in 
-this financial Institution.
+=D5=E2=BE=CD=D2=AA=C7=F3=CE=D2=C3=C7=B1=D8=D0=EB=D4=DA=B2=FA=C6=B7=B5=C4=D2=D7=D3=C3=D0=D4=C9=CF=CF=C2=B9=A6=B7=F2=A3=AC=C4=DC=BE=A1=C1=BF=BC=F2=BB=AF=B2=D9=D7=F7=BD=E7=C3=E6=BA=CD=C1=F7=B3=CC=A3=AC=D7=F6
+=B5=BD=C8=E7=BA=CE=CA=B9=D3=C3=D2=BB=C4=BF=C1=CB=C8=BB=A3=AC=CE=AA=D3=C3=BB=A7=CC=E1=B9=A9=D2=BB=B8=F6=C8=DD=D2=D7=B2=BF=CA=F0=A1=A2=B0=B2=D7=B0=B7=BD=B1=E3=A1=A2=CE=C8=B6=A8=D4=CB=D0=D0=A1=A2=D2=D7=D3=DA
+=CE=AC=BB=A4=B5=C4=B0=EC=B9=AB=C6=BD=CC=A8=A1=A3
+  
+=B6=FE=CA=C7=D3=C3=BB=A7=CF=A3=CD=FB=CB=F9=CC=E1=B9=A9=B5=C4=B2=FA=C6=B7=C4=DC=D7=DB=BA=CF=BF=BC=C2=C7=A3=AC=C2=FA=D7=E3=B5=B1=C7=B0=CF=D6=D7=B4=BA=CD=CE=B4=C0=B4=B7=A2=D5=B9=D2=AA=C7=F3=A1=A3=D3=C3=BB=A7
+=C6=D5=B1=E9=B7=B4=D3=B3=D3=C9=D3=DA=B5=B1=C7=B0=D7=CA=BD=F0=D3=D0=CF=DE=A3=AC=B5=CD=CD=B6=D7=CA=A1=A2=B8=DF=BB=D8=B1=A8=B5=C4=B5=E7=D7=D3=C9=CC=CE=F1=C4=A3=CA=BD=CA=C7=D7=EE=CF=A3=CD=FB=B5=C3=B5=BD=B5=C4=A3=AC
+=CF=A3=CD=FB=C4=DC=B2=BB=BB=A8=B7=D1=CC=AB=B6=E0=BE=AB=C1=A6=A3=AC=D2=BB=B4=CE=CD=B6=D7=CA=A1=A2=D2=BB=B2=BD=B5=BD=CE=BB=B5=D8=BD=A8=C1=A2=C6=F3=D2=B5=B5=E7=D7=D3=C9=CC=CE=F1=C6=BD=CC=A8=A3=AC=B2=A2=B5=C8
+=CA=CA=D3=A6=C6=F3=D2=B5=BD=F1=BA=F3=BD=CF=B3=A4=CA=B1=BC=E4=C4=DA=B9=E6=C4=A3=D1=B8=CB=D9=C0=A9=D5=C5=BA=CD=D2=B5=CE=F1=C6=B5=B7=B1=CD=D8=D5=B9=B5=C4=D0=CE=CA=C6=D0=E8=C7=F3=A1=A3
 
-This programmes is sponsored by promenant business men,president of foreign 
-export in Aruba(Mr Glanchi Mehon), director of economic and stragetic 
-Planning Switzerland(Mr.Skanclar Burgen) and the Board of Directors of the 
-Financial Institution.
-
-If you are interested in obtaining this loan, Please contact us through this 
-e-mail address
-
-More Information about the loan will be communicated to you upon receiving 
-your response.
-
-Tel:24 hours ATMB- ONLINE service number +00 31 626 750 996  SERVICE NUMBER
-
-Direct Tel:0031 655 525 691
-
-Email to:pmorrisloanconsult@myway.com
-
-Best regards,
-Mr.Micheal Jones.
-Director for Loan consultant/approval.
+=D5=E2=D2=AA=C7=F3=CE=D2=C3=C7=B5=C4=B2=FA=C6=B7=BC=C8=D2=AA=BE=DF=B1=B8=D3=EB=D4=AD=D3=D0=B0=EC=B9=AB=BB=B7=BE=B3=B5=C4=BC=E6=C8=DD=D0=D4=A3=AC=C4=DC=D3=EB=D4=AD=D3=D0=B8=F7=D6=D6=B0=EC=B9=AB=C6=BD=CC=A8=CF=B5
+=CD=B3=CE=DE=B7=EC=C1=AC=BD=D3=A3=AC=BA=CD=B4=AB=CD=B3=B0=EC=B9=AB=B7=BD=CA=BD=B2=BB=CF=E0=C5=C5=B3=E2=A3=BB=D3=D6=D2=AA=BE=DF=D3=D0=C7=B0=D5=B0=D0=D4=A3=AC=C4=DC=D2=FD=B5=BC=C6=F3=D2=B5=D6=F0=B2=BD=CA=B5=CF=D6
+=CF=F2=D2=D4Internet/Intranet=CD=F8=C2=E7=CE=AA=BB=F9=B4=A1=B5=C4=CF=D6=B4=FA=BB=AF=A1=A2=CE=DE=D6=BD=BB=AF=B0=EC=B9=AB=B7=BD=CA=BD=B5=C4=B9=FD=B6=C9=A1=A3
 
 

@@ -1,145 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWAKPVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWAKP0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWAKPVH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 10:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWAKPVH
+	id S1751451AbWAKP0U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 10:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWAKP0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 10:21:07 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:53265 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751350AbWAKPVF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 10:21:05 -0500
+	Wed, 11 Jan 2006 10:26:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:13752 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751451AbWAKP0T convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 10:26:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L5kfQeb/NR78vBL9jVX10XEqDktVgX2p9bMBlpyGoyvVWbZb/YOp1dyZ7rOb9ND0DO1d3rXVD2fxFjyg0hMoLLhSMdAHnXJ3YGWKHA+IhTH+1548UElhZrarp4DCMZEKV6rjBpAGTYwTxV805F0YvFozjHVzRjEGqnDa2djAv4o=
+Message-ID: <5a2cf1f60601110726r46805e1dl784f0a0ca20c128@mail.gmail.com>
+Date: Wed, 11 Jan 2006 16:26:18 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ata errors -> read-only root partition. Hardware issue?
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a2cf1f60601110552t5e9afa0dr7785b22ae6dbd99b@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <1136988316.6517.8.camel@localhost.localdomain>
-X-OriginalArrivalTime: 11 Jan 2006 15:20:58.0574 (UTC) FILETIME=[9FB7FEE0:01C616C2]
-Content-class: urn:content-classes:message
-Subject: Re: OT: fork(): parent or child should run first?
-Date: Wed, 11 Jan 2006 10:19:53 -0500
-Message-ID: <Pine.LNX.4.61.0601111005340.27240@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: OT: fork(): parent or child should run first?
-Thread-Index: AcYWwp/BH9bYJbknSji602sWjYyFHQ==
-References: <20060111123745.GB30219@lgb.hu> <1136983910.2929.39.camel@laptopd505.fenrus.org> <20060111130255.GC30219@lgb.hu>  <1136985918.6547.115.camel@tara.firmix.at> <1136987361.6517.1.camel@localhost.localdomain> <1136987743.6547.122.camel@tara.firmix.at> <1136988316.6517.8.camel@localhost.localdomain>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ian Campbell" <ijc@hellion.org.uk>
-Cc: "Bernd Petrovitsch" <bernd@firmix.at>, <linux-kernel@vger.kernel.org>,
-       "Arjan van de Ven" <arjan@infradead.org>, <lgb@lgb.hu>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <5ttip-Xh-13@gated-at.bofh.it> <43C4493A.4010305@shaw.ca>
+	 <5a2cf1f60601110030u358c12fcscf79067cbc3eebe0@mail.gmail.com>
+	 <1136986688.28616.7.camel@localhost.localdomain>
+	 <5a2cf1f60601110552t5e9afa0dr7785b22ae6dbd99b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 11 Jan 2006, Ian Campbell wrote:
-
-> On Wed, 2006-01-11 at 14:55 +0100, Bernd Petrovitsch wrote:
->> On Wed, 2006-01-11 at 13:49 +0000, Ian Campbell wrote:
->>> On Wed, 2006-01-11 at 14:25 +0100, Bernd Petrovitsch wrote:
->>>> Then this leaves the race if an old pid is reused in a newly created
->>>> process before the last instances of that pid is cleaned up.
->>>
->>> The PID won't be available to be re-used until the signal handler has
->>> called waitpid() on it?
->>
->> Yes.
->> But ATM the signal handler calls waitpid() and stores the pid in a
->> to-be-cleaned-pids array (at time X).
->> The main loop at some time in the future (say at time X+N) walks through
->> the to-be-cleaned-pids array and cleans them from the active-childs
->> array.
+On 1/11/06, jerome lacoste <jerome.lacoste@gmail.com> wrote:
+> On 1/11/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > On Mer, 2006-01-11 at 09:30 +0100, jerome lacoste wrote:
+> > > - scan for bad blocks
+> >
+> > Read the entire disk (write will hide and clean up errors by
+> > reallocating)
 >
-> yuk... I'd say the application is a bit dumb for calling waitpid before
-> it is actually prepared for the pid to be reclaimed.
+> something like should be sufficient right?
 >
+> cat /dev/sdax > /dev/null
 
-The application has no clue (and must not know) the internal workings
-of the kernel. In the following code, both forks must work, the case
-in which the child executed immediately, and the case in which the
-child did some work or slept before it exited.
+I did something slightly different:
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+root@manies:~# cat /dev/sda > /dev/null
+cat: /dev/sda: Input/output error
 
-int main()
-{
-     pid_t pid;
-     int status;
+and in dmesg, problems show again:
 
-     switch((pid = fork()))
-     {
-     case 0:    // child
-         exit(EXIT_SUCCESS);
-     case -1:	// Error
-         perror("fork");
-         exit(EXIT_FAILURE);
-     default:	// Parent
-         waitpid(pid, &status, 0);
-         break;
-     }
-     switch((pid = fork()))
-     {
-     case 0:    // child
-         sleep(10);
-         exit(EXIT_SUCCESS);
-     case -1:	// Error
-         perror("fork");
-         exit(EXIT_FAILURE);
-     default:	// Parent
-         waitpid(pid, &status, 0);
-         break;
-     }
-     return 0;
-}
+ata3: status=0x51 { DriveReady SeekComplete Error }
+ata3: error=0x40 { UncorrectableError }
+ata3: status=0x51 { DriveReady SeekComplete Error }
+ata3: error=0x40 { UncorrectableError }
+ata3: status=0x51 { DriveReady SeekComplete Error }
+ata3: error=0x40 { UncorrectableError }
+ata3: status=0x51 { DriveReady SeekComplete Error }
+ata3: error=0x40 { UncorrectableError }
+ata3: status=0x51 { DriveReady SeekComplete Error }
+ata3: error=0x40 { UncorrectableError }
+SCSI error : <2 0 0 0> return code = 0x8000002
+sda: Current: sense key: Medium Error
+    Additional sense: Unrecovered read error - auto reallocate failed
+end_request: I/O error, dev sda, sector 39088832
+Buffer I/O error on device sda, logical block 4886104
+ata3: status=0x51 { DriveReady SeekComplete Error }
+ata3: error=0x40 { UncorrectableError }
+....
 
-The code has no clue whether or not the child started before
-waitpid was called. It knows it has a valid pid, which is only a
-promise that such a child will start execution sometime or
-that it once existed and has already expired. That pid must
-remain valid until somebody reaps the status of the expired
-child.
 
-> A possible solution would be to also defer the waitpid until the main
-> loop cleanup function, perhaps flagging the entry in the child array as
-> not-active between the signal and that time or moving the pid from the
-> active to an inactive array in the signal handler.
->
 
-The pid will (must) always be valid until after the status is reaped.
-There should not be any flags used to synchronize anything here. That
-pid just cannot be reused until the child is out of the Z state and
-its status has been obtained. Then the pid can be reused. It's the
-Z state that has historically provided the needed synchronization.
+smartmontools is unfortunately not installed but I probably don't need it.
 
-> Ian.
-> --
-> Ian Campbell
-> Current Noise: Sloth - Into The Sun
->
-> To err is human,
-> To purr feline.
-> 		-- Robert Byrne
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Could something else (bad cable or disk controller ) trigger these issues?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.71 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+It would be great if we users had a quick way to decipher these messages.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+E.g.
 
-Thank you.
+"Buffer I/O error on device xxxx, logical block yyyyyyy"
+
+Usualy a disk failure, may also be caused by....
+
+Etc...
+
+Noone has made an "Identifying Hardware failures HowTo"?
+
+Jerome

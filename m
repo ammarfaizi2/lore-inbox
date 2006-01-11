@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWAKAXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWAKAYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161029AbWAKAXb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWAKAXb
+	id S1161033AbWAKAYa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWAKAYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:23:31 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:36038 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932359AbWAKAXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:23:30 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       Paulo Marques <pmarques@grupopie.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       tony.luck@intel.com, Systemtap <systemtap@sources.redhat.com>,
-       Jim Keniston <jkenisto@us.ibm.com>
-Subject: Re: [patch 1/2] [BUG]kallsyms_lookup_name should return the text addres 
-In-reply-to: Your message of "Tue, 10 Jan 2006 16:07:55 -0800."
-             <Pine.LNX.4.58.0601101606380.12724@shark.he.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 11 Jan 2006 11:23:28 +1100
-Message-ID: <20396.1136939008@ocs3.ocs.com.au>
+	Tue, 10 Jan 2006 19:24:30 -0500
+Received: from xproxy.gmail.com ([66.249.82.207]:60186 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161033AbWAKAY3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:24:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BagKe4ZdLYPC0H7zu2cAPIoZkXrLl06Ox6tJBEX2jM74BwQTjfpuarLNAnVmD5u1S8yJEQZJEuRH7oczUdJG/u/V9sJ77GVBRjXLtFPCLOglHlrqSj4KafQlwOAu5BDmtFrbq6DeFkBhzohtX4/9ANhnjWi4xDSRFcb/ZuatBco=
+Message-ID: <4807377b0601101624m1e1eb636q99ae0792b0903c5a@mail.gmail.com>
+Date: Tue, 10 Jan 2006 16:24:28 -0800
+From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+To: gcoady@gmail.com
+Subject: Re: 2.4: e100 accounting bust for multiple adapters
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <e196s1pj6u4apbjhgdm3imij4a10s6nb87@4ax.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <e196s1pj6u4apbjhgdm3imij4a10s6nb87@4ax.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" (on Tue, 10 Jan 2006 16:07:55 -0800 (PST)) wrote:
->On Wed, 11 Jan 2006, Keith Owens wrote:
->> Changing the thread slightly, kallsyms_lookup_name() has never coped
->> with duplicate local symbols and it cannot do so without changing its
->> API, and all its callers.  For debugging purposes, it would be nicer if
->> the kernel did not have any duplicate symbols.  Perhaps some kernel
->> janitor would like to take that task on.
+On 1/9/06, Grant Coady <gcoady@gmail.com> wrote:
+> Hi there,
 >
->Jesper Juhl was doing some -Wshadow patches.  Would that detect
->duplicate symbols?
+> While testing for a different issue on a box with two e100 NICs I noticed
+> that interrupt and other accounting are accumulated to the first e100 NIC.
 
-No, the duplicate symbols are (a) static and (b) in separate source
-files.  Run this against a System.map.
+are the two e100's on the same broadcast domain?  if they are you
+might actually be transferring all traffic on eth0
 
- awk '{print $NF}' System.map | egrep -v '^__ks|^__func' | sort | uniq -dc | LANG=C sort -k2
+e100 doesn't track its own interrupt counts, the kernel does that for us.
 
+Jesse

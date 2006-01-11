@@ -1,33 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbWAKF4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWAKGDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932600AbWAKF4W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 00:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932792AbWAKF4W
+	id S1750978AbWAKGDi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 01:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWAKGDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 00:56:22 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:38666 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S932600AbWAKF4W (ORCPT
+	Wed, 11 Jan 2006 01:03:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21184 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750978AbWAKGDh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 00:56:22 -0500
-Date: Wed, 11 Jan 2006 13:56:16 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: why no -mm git tree?
-Message-ID: <20060111055616.GA5976@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 11 Jan 2006 01:03:37 -0500
+Date: Tue, 10 Jan 2006 22:03:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: cpw@sgi.com, linux-kernel@vger.kernel.org, clameter@sgi.com,
+       lhms-devel@lists.sourceforge.net, taka@valinux.co.jp,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 5/5] Direct Migration V9: Avoid writeback /
+ page_migrate() method
+Message-Id: <20060110220314.70e5793b.akpm@osdl.org>
+In-Reply-To: <20060110224140.19138.84122.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060110224114.19138.10463.sendpatchset@schroedinger.engr.sgi.com>
+	<20060110224140.19138.84122.sendpatchset@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> +	spin_lock(&mapping->private_lock);
+>  +
+>  +	bh = head;
+>  +	do {
+>  +		get_bh(bh);
+>  +		lock_buffer(bh);
+>  +		bh = bh->b_this_page;
+>  +
+>  +	} while (bh != head);
+>  +
 
-Why don't use a -mm git tree? Maybe it was time for it.
-With a -mm git tree, we can help -mm test much earlier and quicker,
-and no more need of the mm-commits ML.
+Guys, lock_buffer() sleeps and cannot be called inside spinlock.
 
-Also an option, to use git, and still gernerate broken-out from git.
--- 
-Coywolf Qi Hunt
+Please, always enable kernel preemption and all debug options when testing
+your code.

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWAKAkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWAKAkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWAKAkP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWAKAkO
+	id S1030216AbWAKAkn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWAKAkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:40:14 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:45007 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030195AbWAKAkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:40:12 -0500
-Date: Tue, 10 Jan 2006 16:39:57 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Keith Owens <kaos@sgi.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       Paulo Marques <pmarques@grupopie.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       tony.luck@intel.com, Systemtap <systemtap@sources.redhat.com>,
-       Jim Keniston <jkenisto@us.ibm.com>
-Subject: Re: [patch 1/2] [BUG]kallsyms_lookup_name should return the text addres
-Message-ID: <20060110163956.A17329@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <Pine.LNX.4.58.0601101606380.12724@shark.he.net> <20396.1136939008@ocs3.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20396.1136939008@ocs3.ocs.com.au>; from kaos@sgi.com on Wed, Jan 11, 2006 at 11:23:28AM +1100
+	Tue, 10 Jan 2006 19:40:43 -0500
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:8916 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1030183AbWAKAkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:40:41 -0500
+Message-ID: <43C45406.3040004@bigpond.net.au>
+Date: Wed, 11 Jan 2006 11:40:38 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Matthew Wilcox <matthew@wil.cx>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: sym53c8xx_2 is flooding my syslog ...
+References: <430FD71C.6050704@bigpond.net.au> <43632635.7080604@bigpond.net.au> <20060110174904.GS3911@stusta.de>
+In-Reply-To: <20060110174904.GS3911@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 11 Jan 2006 00:40:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 11:23:28AM +1100, Keith Owens wrote:
-> "Randy.Dunlap" (on Tue, 10 Jan 2006 16:07:55 -0800 (PST)) wrote:
-> >On Wed, 11 Jan 2006, Keith Owens wrote:
-> >> Changing the thread slightly, kallsyms_lookup_name() has never coped
-> >> with duplicate local symbols and it cannot do so without changing its
-> >> API, and all its callers.  For debugging purposes, it would be nicer if
-> >> the kernel did not have any duplicate symbols.  Perhaps some kernel
-> >> janitor would like to take that task on.
-> >
-> >Jesper Juhl was doing some -Wshadow patches.  Would that detect
-> >duplicate symbols?
+Adrian Bunk wrote:
+> On Sat, Oct 29, 2005 at 05:35:17PM +1000, Peter Williams wrote:
 > 
-> No, the duplicate symbols are (a) static and (b) in separate source
-> files.  Run this against a System.map.
+>>Peter Williams wrote:
+>>
+>>>... with the following message:
+>>>
+>>>Aug 21 04:53:28 mudlark kernel: ..<6>sd 0:0:6:0: phase change 6-7 
+>>>9@01ab97a0 resid=7.
+>>>
+>>>every 2 seconds.  Since the problem being reported seems to have no 
+>>>effect on the operation of the scsi devices is it really necessary to 
+>>>report it so often?
+>>>
+>>
+>>This problem is still occurring on 2.6.14.
 > 
->  awk '{print $NF}' System.map | egrep -v '^__ks|^__func' | sort | uniq -dc | LANG=C sort -k2
+> 
+> And still in 2.6.15?
 
-Humm..This duplication of symbols in the kernel will be a 
-problem for systemtap scripts, as we might end up putting probes
-in the unwanted places :-(
+No.  It seems to have stopped.
 
-I agree with you Keith, from the debugging purposes, it 
-would make sense not to have any duplicate symbols.
+Thanks
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Thanks,
-Anil
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

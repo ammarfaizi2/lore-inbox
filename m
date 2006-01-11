@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWAKUTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWAKUUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWAKUTP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 15:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWAKUTP
+	id S964797AbWAKUUU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 15:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWAKUUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 15:19:15 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44435
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751190AbWAKUTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 15:19:14 -0500
-Date: Wed, 11 Jan 2006 12:19:14 -0800 (PST)
-Message-Id: <20060111.121914.44668958.davem@davemloft.net>
-To: drepper@redhat.com
-Cc: jengelh@linux01.gwdg.de, jakub@redhat.com, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: ntohs/ntohl and bitops
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43C5522C.6080306@redhat.com>
-References: <20060111094854.GK7768@devserv.devel.redhat.com>
-	<Pine.LNX.4.61.0601111935340.19259@yvahk01.tjqt.qr>
-	<43C5522C.6080306@redhat.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 15:20:20 -0500
+Received: from knorkaan.xs4all.nl ([213.84.240.34]:43933 "EHLO
+	knorkaan.xs4all.nl") by vger.kernel.org with ESMTP id S964797AbWAKUUT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 15:20:19 -0500
+Date: Wed, 11 Jan 2006 21:20:06 +0100 (CET)
+From: Jerome Borsboom <j.borsboom@erasmusmc.nl>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] no message type set in af_key.c, linux-2.6.15
+Message-ID: <Pine.LNX.4.64.0601112108040.446@knorkaan.xs4all.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ulrich Drepper <drepper@redhat.com>
-Date: Wed, 11 Jan 2006 10:45:00 -0800
+When returning a message to userspace in reply to a SADB_FLUSH or 
+SADB_X_SPDFLUSH message, the type was not set for the returned PFKEY 
+message. The patch below corrects this problem.
 
-> And just to be complete: I sent DaveM the correct line for that file in
-> question, I just C&Ped the wrong line my scripts produced.  The mail
-> seem not to make it to lkml.  In fact, none of my mail originated from
-> the gmail account ever made it.  I don't know what filter doesn't like me.
+Signed-off-by: Jerome Borsboom <j.borsboom@erasmusmc.nl>
 
-This one:
-
-m/^Content-Transfer-Encoding:\s*base64/i
+--- linux-2.6.15/net/key/af_key.c	2006-01-03 09:50:44.000000000 +0100
++++ linux-2.6.15/net/key/af_key.c.new	2006-01-11 17:04:02.000000000 +0100
+@@ -1526,6 +1526,7 @@
+  	if (!skb)
+  		return -ENOBUFS;
+  	hdr = (struct sadb_msg *) skb_put(skb, sizeof(struct sadb_msg));
++	hdr->sadb_msg_type = SADB_FLUSH;
+  	hdr->sadb_msg_satype = pfkey_proto2satype(c->data.proto);
+  	hdr->sadb_msg_seq = c->seq;
+  	hdr->sadb_msg_pid = c->pid;
+@@ -2227,6 +2228,7 @@
+  	if (!skb_out)
+  		return -ENOBUFS;
+  	hdr = (struct sadb_msg *) skb_put(skb_out, sizeof(struct sadb_msg));
++	hdr->sadb_msg_type = SADB_X_SPDFLUSH;
+  	hdr->sadb_msg_seq = c->seq;
+  	hdr->sadb_msg_pid = c->pid;
+  	hdr->sadb_msg_version = PF_KEY_V2;

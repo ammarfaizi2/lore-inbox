@@ -1,302 +1,317 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932634AbWAKX0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWAKX3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932634AbWAKX0z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 18:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWAKX0z
+	id S932577AbWAKX3b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 18:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWAKX3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 18:26:55 -0500
-Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:44316 "EHLO
-	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
-	id S932577AbWAKX0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 18:26:54 -0500
-Date: Thu, 12 Jan 2006 00:26:51 +0100
-From: Michael Hanselmann <linux-kernel@hansmi.ch>
-To: dtor_core@ameritech.net
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz,
-       linuxppc-dev@ozlabs.org, linux-kernel@killerfox.forkbomb.ch,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
-Message-ID: <20060111232651.GI6617@hansmi.ch>
-References: <20051225212041.GA6094@hansmi.ch> <200512252304.32830.dtor_core@ameritech.net> <1135575997.14160.4.camel@localhost.localdomain> <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com>
+	Wed, 11 Jan 2006 18:29:31 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:64493 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932577AbWAKX3a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 18:29:30 -0500
+Subject: Re: [PATCH 5/10] NTP: convert time_offset to nsec
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0512220022350.30906@scrub.home>
+References: <Pine.LNX.4.61.0512220022350.30906@scrub.home>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 15:29:27 -0800
+Message-Id: <1137022168.2890.93.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 04:07:37PM -0500, Dmitry Torokhov wrote:
-> Ok, I am looking at the patch again, and I have a question - do we
-> really need these 3 module parameters? If the goal is to be compatible
-> with older keyboards then shouldn't we stick to one behavior?
+On Thu, 2005-12-22 at 00:24 +0100, Roman Zippel wrote:
+> This converts time_offset into a scaled time_offset value. By scaling
+> the value it avoids completely the compensation in second_overflow().
+> Some calculations for the time_freq adjustments are now done using 64bit
+> values, which allows a better resolution and makes the NTP4 conversion
+> easier (the nsec resolution and increased time_constant range makes it
+> hard to keep it 32bit values).
+> 
+> 
+> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+> 
+> ---
+> 
+>  arch/powerpc/kernel/time.c |    6 ++-
+>  include/linux/timex.h      |    6 +--
+>  kernel/time.c              |   34 +++++++++++++---------
+>  kernel/timer.c             |   68 +++++++++++++++++++--------------------------
+>  4 files changed, 58 insertions(+), 56 deletions(-)
+> 
+> Index: linux-2.6-mm/arch/powerpc/kernel/time.c
+> ===================================================================
+> --- linux-2.6-mm.orig/arch/powerpc/kernel/time.c	2005-12-21 12:09:49.000000000 +0100
+> +++ linux-2.6-mm/arch/powerpc/kernel/time.c	2005-12-21 12:12:08.000000000 +0100
+> @@ -794,12 +794,14 @@ void ppc_adjtimex(void)
+>  	 */
+>  	if ( time_offset < 0 ) {
+>  		ltemp = -time_offset;
+> -		ltemp <<= SHIFT_USEC - SHIFT_UPDATE;
+> +		ltemp <<= SHIFT_USEC - SHIFT_HZ;
+> +		ltemp = ltemp * HZ / 1000;
+>  		ltemp >>= SHIFT_KG + time_constant;
+>  		ltemp = -ltemp;
+>  	} else {
+>  		ltemp = time_offset;
+> -		ltemp <<= SHIFT_USEC - SHIFT_UPDATE;
+> +		ltemp <<= SHIFT_USEC - SHIFT_HZ;
+> +		ltemp = ltemp * HZ / 1000;
+>  		ltemp >>= SHIFT_KG + time_constant;
+>  	}
+>  	
+> Index: linux-2.6-mm/include/linux/timex.h
+> ===================================================================
+> --- linux-2.6-mm.orig/include/linux/timex.h	2005-12-21 12:12:00.000000000 +0100
+> +++ linux-2.6-mm/include/linux/timex.h	2005-12-21 12:12:08.000000000 +0100
+> @@ -95,11 +95,11 @@
+>  #define SHIFT_USEC 16		/* frequency offset scale (shift) */
+>  #define FINENSEC (1L << SHIFT_SCALE) /* ~1 ns in phase units */
+>  
+> -#define MAXPHASE 512000L        /* max phase error (us) */
+> +#define MAXPHASE 500000000L	/* max phase error (ns) */
+>  #define MAXFREQ (512L << SHIFT_USEC)  /* max frequency error (ppm) */
+>  #define MINSEC 16L              /* min interval between updates (s) */
+>  #define MAXSEC 1200L            /* max interval between updates (s) */
+> -#define	NTP_PHASE_LIMIT	(MAXPHASE << 5)	/* beyond max. dispersion */
+> +#define NTP_PHASE_LIMIT	((MAXPHASE / 1000) << 5) /* beyond max. dispersion */
+>  
+>  /*
+>   * syscall interface - used (mainly by NTP daemon)
+> @@ -206,7 +206,7 @@ extern int tickadj;			/* amount of adjus
+>   */
+>  extern int time_state;		/* clock status */
+>  extern int time_status;		/* clock synchronization status bits */
+> -extern long time_offset;	/* time adjustment (us) */
+> +extern long time_offset;	/* time adjustment (ns) */
+>  extern long time_constant;	/* pll time constant */
+>  extern long time_tolerance;	/* frequency tolerance (ppm) */
+>  extern long time_precision;	/* clock precision (us) */
+> Index: linux-2.6-mm/kernel/time.c
+> ===================================================================
+> --- linux-2.6-mm.orig/kernel/time.c	2005-12-21 12:12:04.000000000 +0100
+> +++ linux-2.6-mm/kernel/time.c	2005-12-21 12:12:08.000000000 +0100
+> @@ -212,6 +212,7 @@ void __attribute__ ((weak)) notify_arch_
+>  int do_adjtimex(struct timex *txc)
+>  {
+>          long ltemp, mtemp, save_adjust;
+> +	s64 freq_adj;
+>  	int result;
+>  
+>  	/* In order to modify anything, you gotta be super-user! */
+> @@ -227,7 +228,8 @@ int do_adjtimex(struct timex *txc)
+>  
+>  	if (txc->modes != ADJ_OFFSET_SINGLESHOT && (txc->modes & ADJ_OFFSET))
+>  	  /* adjustment Offset limited to +- .512 seconds */
+> -		if (txc->offset <= - MAXPHASE || txc->offset >= MAXPHASE )
+> +		if (txc->offset <= -MAXPHASE / 1000 ||
+> +		    txc->offset >= MAXPHASE / 1000)
+>  			return -EINVAL;	
+>  
+>  	/* if the quartz is off by more than 10% something is VERY wrong ! */
+> @@ -291,18 +293,18 @@ int do_adjtimex(struct timex *txc)
+>  			 time_adjust = 0;
+>  		}
+>  		else if (time_status & STA_PLL) {
+> -		    ltemp = txc->offset;
+> +		    ltemp = txc->offset * 1000;
+>  
+>  		    /*
+>  		     * Scale the phase adjustment and
+>  		     * clamp to the operating range.
+>  		     */
+>  		    if (ltemp > MAXPHASE)
+> -		        time_offset = MAXPHASE << SHIFT_UPDATE;
+> +		        time_offset = MAXPHASE;
+>  		    else if (ltemp < -MAXPHASE)
+> -			time_offset = -(MAXPHASE << SHIFT_UPDATE);
+> +			time_offset = -MAXPHASE;
+>  		    else
+> -		        time_offset = ltemp << SHIFT_UPDATE;
+> +		        time_offset = ltemp;
 
-After clearing the other points with Benjamin Herrenschmidt, I created
-another patch which you find below.
+The above looks good to me. 
 
-This patch implements support for the fn key on PowerBooks using USB
-based keyboards.
 
-Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
-Acked-by: Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>  		    /*
+>  		     * Select whether the frequency is to be controlled
+> @@ -316,15 +318,21 @@ int do_adjtimex(struct timex *txc)
+>  		    time_reftime = xtime.tv_sec;
+>  		    if (time_status & STA_FLL) {
+>  		        if (mtemp >= MINSEC) {
+> -			    ltemp = (time_offset / mtemp) << (SHIFT_USEC -
+> -							      SHIFT_UPDATE);
+> -			    time_freq += shift_right(ltemp, SHIFT_KH);
+> +			    if (time_offset < 0) {
+> +				freq_adj = (s64)-time_offset << SHIFT_USEC;
+> +				do_div(freq_adj, mtemp);
+> +				time_freq -= freq_adj >> SHIFT_KH;
+> +			    } else {
+> +				freq_adj = (s64)time_offset << SHIFT_USEC;
+> +				do_div(freq_adj, mtemp);
+> +				time_freq += freq_adj >> SHIFT_KH;
+> +			    }
+>  			} else /* calibration interval too short (p. 12) */
+>  				result = TIME_ERROR;
+>  		    } else {	/* PLL mode */
+>  		        if (mtemp < MAXSEC) {
+> -			    ltemp *= mtemp;
+> -			    time_freq += shift_right(ltemp,(time_constant +
+> +			    freq_adj = (s64)ltemp * mtemp;
+> +			    time_freq += shift_right(freq_adj,(time_constant +
+>  						       time_constant +
+>  						       SHIFT_KF - SHIFT_USEC));
+>  			} else /* calibration interval too long (p. 12) */
 
----
-diff -upr linux-2.6.15.orig/drivers/usb/input/hid-core.c linux-2.6.15/drivers/usb/input/hid-core.c
---- linux-2.6.15.orig/drivers/usb/input/hid-core.c	2006-01-11 23:59:40.000000000 +0100
-+++ linux-2.6.15/drivers/usb/input/hid-core.c	2006-01-08 11:53:36.000000000 +0100
-@@ -1580,6 +1580,14 @@ static struct hid_blacklist {
- 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
- 
-+	{ USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x0215, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x0216, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_POWERBOOK_HAS_FN },
-+
- 	{ 0, 0 }
- };
- 
-diff -upr linux-2.6.15.orig/drivers/usb/input/hid.h linux-2.6.15/drivers/usb/input/hid.h
---- linux-2.6.15.orig/drivers/usb/input/hid.h	2006-01-11 23:59:40.000000000 +0100
-+++ linux-2.6.15/drivers/usb/input/hid.h	2006-01-08 11:53:36.000000000 +0100
-@@ -246,6 +246,8 @@ struct hid_item {
- #define HID_QUIRK_2WHEEL_MOUSE_HACK_5		0x100
- #define HID_QUIRK_2WHEEL_MOUSE_HACK_ON		0x200
- #define HID_QUIRK_2WHEEL_POWERMOUSE		0x400
-+#define HID_QUIRK_POWERBOOK_HAS_FN		0x00000800
-+#define HID_QUIRK_POWERBOOK_FN_ON		0x00001000
- 
- /*
-  * This is the global environment of the parser. This information is
-@@ -431,6 +433,14 @@ struct hid_device {							/* device repo
- 	void (*ff_exit)(struct hid_device*);                            /* Called by hid_exit_ff(hid) */
- 	int (*ff_event)(struct hid_device *hid, struct input_dev *input,
- 			unsigned int type, unsigned int code, int value);
-+
-+#ifdef CONFIG_USB_HIDINPUT_POWERBOOK
-+	/* We do this here because it's only relevant for the
-+	 * USB devices, not for all input_dev's.
-+	 */
-+	unsigned long pb_fn[NBITS(KEY_MAX)];
-+	unsigned long pb_numlock[NBITS(KEY_MAX)];
-+#endif
- };
- 
- #define HID_GLOBAL_STACK_SIZE 4
-diff -upr linux-2.6.15.orig/drivers/usb/input/hid-input.c linux-2.6.15/drivers/usb/input/hid-input.c
---- linux-2.6.15.orig/drivers/usb/input/hid-input.c	2006-01-11 23:59:40.000000000 +0100
-+++ linux-2.6.15/drivers/usb/input/hid-input.c	2006-01-11 23:41:14.000000000 +0100
-@@ -63,6 +63,65 @@ static struct {
- 	__s32 y;
- }  hid_hat_to_axis[] = {{ 0, 0}, { 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}};
- 
-+struct hidinput_key_translation {
-+	u16 from;
-+	u16 to;
-+	u8 flags;
-+};
-+
-+#ifdef CONFIG_USB_HIDINPUT_POWERBOOK
-+
-+#define POWERBOOK_FLAG_FKEY 0x01
-+
-+static struct hidinput_key_translation powerbook_fn_keys[] = {
-+	{ KEY_BACKSPACE, KEY_DELETE },
-+	{ KEY_F1,	KEY_BRIGHTNESSDOWN,	POWERBOOK_FLAG_FKEY },
-+	{ KEY_F2,	KEY_BRIGHTNESSUP,	POWERBOOK_FLAG_FKEY },
-+	{ KEY_F3,	KEY_MUTE,		POWERBOOK_FLAG_FKEY },
-+	{ KEY_F4,	KEY_VOLUMEDOWN,		POWERBOOK_FLAG_FKEY },
-+	{ KEY_F5,	KEY_VOLUMEUP,		POWERBOOK_FLAG_FKEY },
-+	{ KEY_F6,	KEY_NUMLOCK,		POWERBOOK_FLAG_FKEY },
-+	{ KEY_F7,	KEY_SWITCHVIDEOMODE,	POWERBOOK_FLAG_FKEY },
-+	{ KEY_F8,	KEY_KBDILLUMTOGGLE,	POWERBOOK_FLAG_FKEY },
-+	{ KEY_F9,	KEY_KBDILLUMDOWN,	POWERBOOK_FLAG_FKEY },
-+	{ KEY_F10,	KEY_KBDILLUMUP,		POWERBOOK_FLAG_FKEY },
-+	{ KEY_UP,	KEY_PAGEUP },
-+	{ KEY_DOWN,	KEY_PAGEDOWN },
-+	{ KEY_LEFT,	KEY_HOME },
-+	{ KEY_RIGHT,	KEY_END },
-+	{ }
-+};
-+
-+static struct hidinput_key_translation powerbook_numlock_keys[] = {
-+	{ KEY_J,	KEY_KP1 },
-+	{ KEY_K,	KEY_KP2 },
-+	{ KEY_L,	KEY_KP3 },
-+	{ KEY_U,	KEY_KP4 },
-+	{ KEY_I,	KEY_KP5 },
-+	{ KEY_O,	KEY_KP6 },
-+	{ KEY_7,	KEY_KP7 },
-+	{ KEY_8,	KEY_KP8 },
-+	{ KEY_9,	KEY_KP9 },
-+	{ KEY_M,	KEY_KP0 },
-+	{ KEY_DOT,	KEY_KPDOT },
-+	{ KEY_SLASH,	KEY_KPPLUS },
-+	{ KEY_SEMICOLON, KEY_KPMINUS },
-+	{ KEY_P,	KEY_KPASTERISK },
-+	{ KEY_MINUS,	KEY_KPEQUAL },
-+	{ KEY_0,	KEY_KPSLASH },
-+	{ KEY_F6,	KEY_NUMLOCK },
-+	{ KEY_KPENTER,	KEY_KPENTER },
-+	{ KEY_BACKSPACE, KEY_BACKSPACE },
-+	{ }
-+};
-+
-+static int usbhid_pb_fnmode = 1;
-+module_param_named(pb_fnmode, usbhid_pb_fnmode, int, 0644);
-+MODULE_PARM_DESC(usbhid_pb_fnmode,
-+	"Mode of fn key on PowerBooks (0 = disabled, "
-+	"1 = fkeyslast, 2 = fkeysfirst)");
-+#endif
-+
- #define map_abs(c)	do { usage->code = c; usage->type = EV_ABS; bit = input->absbit; max = ABS_MAX; } while (0)
- #define map_rel(c)	do { usage->code = c; usage->type = EV_REL; bit = input->relbit; max = REL_MAX; } while (0)
- #define map_key(c)	do { usage->code = c; usage->type = EV_KEY; bit = input->keybit; max = KEY_MAX; } while (0)
-@@ -73,6 +132,80 @@ static struct {
- #define map_key_clear(c)	do { map_key(c); clear_bit(c, bit); } while (0)
- #define map_ff_effect(c)	do { set_bit(c, input->ffbit); } while (0)
- 
-+static inline struct hidinput_key_translation *find_translation(
-+	struct hidinput_key_translation *table, u16 from)
-+{
-+	struct hidinput_key_translation *trans;
-+
-+	/* Look for the translation */
-+	for(trans = table; trans->from && (trans->from != from); trans++);
-+
-+	return (trans->from?trans:NULL);
-+}
-+
-+static int hidinput_pb_event(struct hid_device *hid, struct input_dev *input,
-+	struct hid_usage *usage, __s32 value)
-+{
-+#ifdef CONFIG_USB_HIDINPUT_POWERBOOK
-+	struct hidinput_key_translation *trans;
-+
-+	if (usage->code == KEY_FN) {
-+		if (value) hid->quirks |=  HID_QUIRK_POWERBOOK_FN_ON;
-+		else       hid->quirks &= ~HID_QUIRK_POWERBOOK_FN_ON;
-+
-+		input_event(input, usage->type, usage->code, value);
-+
-+		return 1;
-+	}
-+
-+	if (usbhid_pb_fnmode) {
-+		int try_translate, do_translate;
-+
-+		trans = find_translation(powerbook_fn_keys, usage->code);
-+		if (trans) {
-+			if (test_bit(usage->code, hid->pb_fn))
-+				do_translate = 1;
-+			else if (trans->flags & POWERBOOK_FLAG_FKEY)
-+				do_translate =
-+					(usbhid_pb_fnmode == 2 &&  (hid->quirks & HID_QUIRK_POWERBOOK_FN_ON)) ||
-+					(usbhid_pb_fnmode == 1 && !(hid->quirks & HID_QUIRK_POWERBOOK_FN_ON));
-+			else
-+				do_translate = (hid->quirks & HID_QUIRK_POWERBOOK_FN_ON);
-+
-+			if (do_translate) {
-+				if (value)
-+					set_bit(usage->code, hid->pb_fn);
-+				else
-+					clear_bit(usage->code, hid->pb_fn);
-+
-+				input_event(input, usage->type, trans->to, value);
-+
-+				return 1;
-+			}
-+		}
-+
-+		try_translate = test_bit(usage->code, hid->pb_numlock)?1:
-+				test_bit(LED_NUML, input->led);
-+		if (try_translate) {
-+			trans = find_translation(powerbook_numlock_keys, usage->code);
-+
-+			if (trans) {
-+				if (value)
-+					set_bit(usage->code, hid->pb_numlock);
-+				else
-+					clear_bit(usage->code, hid->pb_numlock);
-+
-+				input_event(input, usage->type, trans->to, value);
-+			}
-+
-+			return 1;
-+		}
-+	}
-+#endif
-+
-+	return 0;
-+}
-+
- static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_field *field,
- 				     struct hid_usage *usage)
- {
-@@ -325,7 +458,27 @@ static void hidinput_configure_usage(str
- 
- 			set_bit(EV_REP, input->evbit);
- 			switch(usage->hid & HID_USAGE) {
--				case 0x003: map_key_clear(KEY_FN);		break;
-+#ifdef CONFIG_USB_HIDINPUT_POWERBOOK
-+				/* The fn key on Apple PowerBooks */
-+				case 0x0003: {
-+					struct hidinput_key_translation *trans;
-+
-+					map_key_clear(KEY_FN);
-+
-+					set_bit(KEY_FN, input->keybit);
-+					set_bit(KEY_NUMLOCK, input->keybit);
-+
-+					/* Enable all needed keys */
-+					for(trans = powerbook_fn_keys; trans->from; trans++)
-+						set_bit(trans->to, input->keybit);
-+
-+					for(trans = powerbook_numlock_keys; trans->from; trans++)
-+						set_bit(trans->to, input->keybit);
-+
-+					goto ignore;
-+				}
-+#endif
-+
- 				default:    goto ignore;
- 			}
- 			break;
-@@ -482,6 +635,11 @@ void hidinput_hid_event(struct hid_devic
- 		return;
- 	}
- 
-+	if ((hid->quirks & HID_QUIRK_POWERBOOK_HAS_FN) &&
-+	    hidinput_pb_event(hid, input, usage, value)) {
-+		return;
-+	}
-+
- 	if (usage->hat_min < usage->hat_max || usage->hat_dir) {
- 		int hat_dir = usage->hat_dir;
- 		if (!hat_dir)
-diff -upr linux-2.6.15.orig/drivers/usb/input/Kconfig linux-2.6.15/drivers/usb/input/Kconfig
---- linux-2.6.15.orig/drivers/usb/input/Kconfig	2006-01-11 23:59:40.000000000 +0100
-+++ linux-2.6.15/drivers/usb/input/Kconfig	2006-01-08 11:53:35.000000000 +0100
-@@ -37,6 +37,16 @@ config USB_HIDINPUT
- 
- 	  If unsure, say Y.
- 
-+config USB_HIDINPUT_POWERBOOK
-+	bool "Enable support for iBook/PowerBook special keys"
-+	default n
-+	depends on USB_HIDINPUT
-+	help
-+	  Say Y here if you want support for the special keys (Fn, Numlock) on
-+	  Apple iBooks and PowerBooks.
-+
-+	  If unsure, say N.
-+
- config HID_FF
- 	bool "Force feedback support (EXPERIMENTAL)"
- 	depends on USB_HIDINPUT && EXPERIMENTAL
+While you're there, mind changing mtemp to adjtime_interval or something
+more clear? Probably something similar to ltemp as well.
+
+
+> @@ -332,6 +340,7 @@ int do_adjtimex(struct timex *txc)
+>  		    }
+>  		    time_freq = min(time_freq, time_tolerance);
+>  		    time_freq = max(time_freq, -time_tolerance);
+> +		    time_offset = (time_offset / HZ) << SHIFT_HZ;
+
+time_offset has already been bounded and set. Mind commenting on what
+this is doing?
+
+>  		} /* STA_PLL */
+>  	    } /* txc->modes & ADJ_OFFSET */
+>  	    if (txc->modes & ADJ_TICK)
+> @@ -345,9 +354,8 @@ leave:	if ((time_status & (STA_UNSYNC|ST
+>  	
+>  	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
+>  	    txc->offset	   = save_adjust;
+> -	else {
+> -	    txc->offset = shift_right(time_offset, SHIFT_UPDATE);
+> -	}
+> +	else
+> +	    txc->offset    = shift_right(time_offset, SHIFT_HZ) * HZ / 1000;
+
+I realize this is related to the last chunk, but do you mind clarifying
+w/ a comment?
+
+
+>  	txc->freq	   = time_freq;
+>  	txc->maxerror	   = time_maxerror;
+>  	txc->esterror	   = time_esterror;
+> Index: linux-2.6-mm/kernel/timer.c
+> ===================================================================
+> --- linux-2.6-mm.orig/kernel/timer.c	2005-12-21 12:12:04.000000000 +0100
+> +++ linux-2.6-mm/kernel/timer.c	2005-12-21 12:12:08.000000000 +0100
+> @@ -577,7 +577,7 @@ int tickadj = 500/HZ ? : 1;		/* microsec
+>  /* TIME_ERROR prevents overwriting the CMOS clock */
+>  int time_state = TIME_OK;		/* clock synchronization status	*/
+>  int time_status = STA_UNSYNC;		/* clock status bits		*/
+> -long time_offset;			/* time adjustment (us)		*/
+> +long time_offset;			/* time adjustment (ns)		*/
+>  long time_constant = 2;			/* pll time constant		*/
+>  long time_tolerance = MAXFREQ;		/* frequency tolerance (ppm)	*/
+>  long time_precision = 1;		/* clock precision (us)		*/
+> @@ -606,6 +606,7 @@ void ntp_clear(void)
+>  
+>  	tick_nsec_curr = tick_nsec;
+>  	time_adj_curr = time_adj;
+> +	time_offset = 0;
+>  }
+>  
+>  void ntp_update_frequency(void)
+> @@ -646,7 +647,7 @@ void ntp_update_frequency(void)
+>   */
+>  static void second_overflow(void)
+>  {
+> -	long ltemp, adj;
+> +	long ltemp;
+
+
+Again, might you choose something better then ltemp?
+
+
+>  	/* Bump the maxerror field */
+>  	time_maxerror += time_tolerance >> SHIFT_USEC;
+> @@ -716,42 +717,33 @@ static void second_overflow(void)
+>  	 * adjustment for each second is clamped so as to spread the adjustment
+>  	 * over not more than the number of seconds between updates.
+>  	 */
+> -	ltemp = time_offset;
+> -	if (!(time_status & STA_FLL))
+> -		ltemp = shift_right(ltemp, SHIFT_KG + time_constant);
+> -	ltemp = min(ltemp, (MAXPHASE / MINSEC) << SHIFT_UPDATE);
+> -	ltemp = max(ltemp, -(MAXPHASE / MINSEC) << SHIFT_UPDATE);
+> -	time_offset -= ltemp;
+> -	adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+> -
+> -	/*
+> -	 * Compute the frequency estimate and additional phase adjustment due
+> -	 * to frequency error for the next second.
+> -	 */
+> -
+> -#if HZ == 100
+> -	/*
+> -	 * Compensate for (HZ==100) != (1 << SHIFT_HZ).  Add 25% and 3.125% to
+> -	 * get 128.125; => only 0.125% error (p. 14)
+> -	 */
+> -	adj += shift_right(adj, 2) + shift_right(adj, 5);
+> -#endif
+> -#if HZ == 250
+> -	/*
+> -	 * Compensate for (HZ==250) != (1 << SHIFT_HZ).  Add 1.5625% and
+> -	 * 0.78125% to get 255.85938; => only 0.05% error (p. 14)
+> -	 */
+> -	adj += shift_right(adj, 6) + shift_right(adj, 7);
+> -#endif
+> -#if HZ == 1000
+> -	/*
+> -	 * Compensate for (HZ==1000) != (1 << SHIFT_HZ).  Add 1.5625% and
+> -	 * 0.78125% to get 1023.4375; => only 0.05% error (p. 14)
+> -	 */
+> -	adj += shift_right(adj, 6) + shift_right(adj, 7);
+> -#endif
+> -	tick_nsec_curr += adj >> (SHIFT_SCALE - 10);
+> -	time_adj_curr += (adj << 10) & (FINENSEC - 1);
+> +	if (time_offset < 0) {
+> +		ltemp = -time_offset;
+> +		if (!(time_status & STA_FLL))
+> +			ltemp >>= SHIFT_KG + time_constant;
+> +		if (ltemp > (((MAXPHASE / HZ) << SHIFT_HZ) / MINSEC))
+> +			ltemp = ((MAXPHASE / HZ) << SHIFT_HZ) / MINSEC;
+> +		time_offset += ltemp;
+> +		tick_nsec_curr -= ltemp >> SHIFT_HZ;
+> +		time_adj_curr -= (ltemp << (SHIFT_SCALE - SHIFT_HZ)) & (FINENSEC - 1);
+> +		if (time_adj_curr < 0) {
+> +			tick_nsec_curr--;
+> +			time_adj_curr += FINENSEC;
+> +		}
+> +	} else {
+> +		ltemp = time_offset;
+> +		if (!(time_status & STA_FLL))
+> +			ltemp >>= SHIFT_KG + time_constant;
+> +		if (ltemp > (((MAXPHASE / HZ) << SHIFT_HZ) / MINSEC))
+> +			ltemp = ((MAXPHASE / HZ) << SHIFT_HZ) / MINSEC;
+> +		time_offset -= ltemp;
+> +		tick_nsec_curr += ltemp >> SHIFT_HZ;
+> +		time_adj_curr += (ltemp << (SHIFT_SCALE - SHIFT_HZ)) & (FINENSEC - 1);
+> +		if (time_adj_curr >= FINENSEC) {
+> +			tick_nsec_curr++;
+> +			time_adj_curr -= FINENSEC;
+> +		}
+> +	}
+
+Again, more comments would help.
+
+Also, these big "if negative, lot of coding adding else lots of code
+subtracting" switches strike me as code duplication. It may not be as
+efficient, but would you consider re-working this to save off the sign,
+doing the math once and then applying the sign back? Parts of the above
+already do this. See also the shift_right() macro.
+
+
+thanks
+-john
+
+

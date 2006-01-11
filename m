@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbWAKCpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbWAKC4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932648AbWAKCpz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 21:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbWAKCpz
+	id S932705AbWAKC4n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 21:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWAKC4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 21:45:55 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:49562 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932648AbWAKCpy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 21:45:54 -0500
-Date: Tue, 10 Jan 2006 18:49:03 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Crash with SMP on post 2.6.15 -git kernel
-Message-ID: <20060110184903.790d1a2c@localhost.localdomain>
-In-Reply-To: <200601110227.30461.ak@suse.de>
-References: <20060110165457.42ed2087@dxpl.pdx.osdl.net>
-	<200601110227.30461.ak@suse.de>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+	Tue, 10 Jan 2006 21:56:43 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:19587 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932705AbWAKC4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 21:56:42 -0500
+Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
+	can't for a long time
+From: Lee Revell <rlrevell@joe-job.com>
+To: David Nicol <davidnicol@gmail.com>
+Cc: Yaroslav Rastrigin <yarick@it-territory.ru>, CaT <cat@zip.com.au>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com>
+	 <200601091403.46304.yarick@it-territory.ru>
+	 <20060109124545.GA2035@zip.com.au>
+	 <200601091634.52107.yarick@it-territory.ru>
+	 <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 10 Jan 2006 21:56:37 -0500
+Message-Id: <1136948198.2007.137.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jan 2006 02:27:30 +0100
-Andi Kleen <ak@suse.de> wrote:
+On Tue, 2006-01-10 at 20:29 -0600, David Nicol wrote:
+> On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
+> 
+> > Unfortunately, bounties doesn't work :-/
+> 
+> 
+> No?  Bounties seems to work fine for Asterisk.  Is the problem, still no central
+> linux kernel bounty system?
 
-> On Wednesday 11 January 2006 01:54, Stephen Hemminger wrote:
-> 6
-> > [   37.047264] CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)[   37.070722] CPU: L2 Cache: 1024K (64 bytes/line)
-> > [   37.085894] mtrr: v2.0 (20020519)
-> > [   37.350186] Using local APIC timer interrupts.
-> > [   37.414873] Detected 12.464 MHz APIC timer.
-> > [   37.428717] Booting processor 1/2 APIC 0x1
-> > 
-> > Machine then goes blank and reboots...
-> 
-> Don't know what it could be - I didn't merge anything. Maybe revert the kexec patches?
-I built it without kexec and that had no change.  But perhaps it botched something.
- 
-> Does the -git6 snapshot still work?  Possibly do a binary search to narrow
-> it down.
-> 
-> -Andi
+
+Many bounties don't work because they are too low, too vague or both.
+For example several months ago Ubuntu offered $500 to "fix all remaining
+ALSA issues for PowerMac hardware".  HA!  That's like 5 or 6 diffent
+drivers which ranged from not working at all, to sound works but no
+system beeps, etc...
+
+Lee
 

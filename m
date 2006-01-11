@@ -1,50 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWAKLFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWAKLBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWAKLFU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 06:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWAKLFT
+	id S1751183AbWAKLBt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 06:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWAKLBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 06:05:19 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:51950 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1751358AbWAKLFS (ORCPT
+	Wed, 11 Jan 2006 06:01:49 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:3470 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751183AbWAKLBt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 06:05:18 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17348.58532.375242.210475@alkaid.it.uu.se>
-Date: Wed, 11 Jan 2006 11:57:40 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] ftape: remove some outdated information from Kconfig files
-In-Reply-To: <52078AC1-B781-4664-A03A-1DC84C84490B@neostrada.pl>
-References: <20060110205709.GE3911@stusta.de>
-	<52078AC1-B781-4664-A03A-1DC84C84490B@neostrada.pl>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Wed, 11 Jan 2006 06:01:49 -0500
+Date: Wed, 11 Jan 2006 03:01:38 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org
+Cc: kurosawa@valinux.co.jp, simon.derr@bull.net, linux-kernel@vger.kernel.org,
+       st@sw.ru, dev@sw.ru, den@sw.ru, Paul Jackson <pj@sgi.com>,
+       djwong@us.ibm.com
+Message-Id: <20060111110138.25784.52441.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [RFC] cpuset oom lock fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcin Dalecki writes:
- > 
- > On 2006-01-10, at 21:57, Adrian Bunk wrote:
- > 
- > > This patch removes some outdated information about the ftape driver  
- > > like
- > > pointers to no longer existing webpages from Kconfig files.
- > 
- > You could just remove this driver completely as well. Because  
- > practically since
- > it's inclusion in to the main stream kernel it has been outdated and  
- > nonfunctioning.
+The following is not adequately tested yet, so it
+probably shouldn't go in *-mm.
 
-There exists configurations for which it does work.
+I'm posting it so that the people who reported this
+bug can have the opportunity to test this fix.
 
- > 4. Right now the corresponding user space tools can't be found on the  
- > web any longer.
+The problem, reported in:
+  http://bugzilla.kernel.org/show_bug.cgi?id=5859
+and by various other email messages and lkml posts
+is that the cpuset hook in the oom (out of memory)
+code can try to take a cpuset semaphore while holding
+the tasklist_lock (a spinlock).
 
-The only required tools are standard things like mt and tar or cpio.
-The tape formatting tools are out in the wild somewhere, big deal.
+One must not sleep while holding a spinlock.
 
-Or are you volunteering to take over maintenance of ftape-4.x and merge
-that into the kernel?
+The fix seems easy enough - move the cpuset semaphore
+region outside the tasklist_lock region.
+
+This required a few lines of mechanism to implement.
+The oom code where the locking needs to be changed
+does not have access to the cpuset locks, which are
+internal to kernel/cpuset.c only.  So I provided a
+couple more cpuset interface routines, available too
+the rest of the kernel, which simple take and drop
+the lock needed here (cpusets callback_sem).
+
+The initial build and boot and poke at it once test
+passes ok.  But I still need to:
+ 1) build some other arch's (crosstool), and
+ 2) test with the various CONFIG_*DEBUG* and CONFIG_*LOCK*_
+    options enabled.
+
+It will be about one more day before I complete this
+and submit this patch for consideration in *-mm.
+
+If those who have stress tests that hit this could
+give this patch a trial, that would be appreciated.
+
+Signed-off-by: Paul Jackson
+
+---
+
+ include/linux/cpuset.h |    6 ++++++
+ kernel/cpuset.c        |   33 ++++++++++++++++++++++++++++-----
+ mm/oom_kill.c          |    3 +++
+ 3 files changed, 37 insertions(+), 5 deletions(-)
+
+--- 2.6.15-mm2.orig/include/linux/cpuset.h	2006-01-10 16:00:21.190309415 -0800
++++ 2.6.15-mm2/include/linux/cpuset.h	2006-01-10 23:07:59.648091868 -0800
+@@ -48,6 +48,9 @@ extern void __cpuset_memory_pressure_bum
+ extern struct file_operations proc_cpuset_operations;
+ extern char *cpuset_task_status_allowed(struct task_struct *task, char *buffer);
+ 
++extern void cpuset_lock(void);
++extern void cpuset_unlock(void);
++
+ #else /* !CONFIG_CPUSETS */
+ 
+ static inline int cpuset_init_early(void) { return 0; }
+@@ -93,6 +96,9 @@ static inline char *cpuset_task_status_a
+ 	return buffer;
+ }
+ 
++static inline void cpuset_lock(void) {}
++static inline void cpuset_unlock(void) {}
++
+ #endif /* !CONFIG_CPUSETS */
+ 
+ #endif /* _LINUX_CPUSET_H */
+--- 2.6.15-mm2.orig/kernel/cpuset.c	2006-01-10 18:26:40.408120365 -0800
++++ 2.6.15-mm2/kernel/cpuset.c	2006-01-10 23:14:28.355492590 -0800
+@@ -2150,6 +2150,33 @@ int __cpuset_zone_allowed(struct zone *z
+ }
+ 
+ /**
++ * cpuset_lock - lock out any changes to cpuset structures
++ *
++ * The out of memory (oom) code needs to lock down cpusets
++ * from being changed while it scans the tasklist looking for a
++ * task in an overlapping cpuset.  Expose callback_sem via this
++ * cpuset_lock() routine, so the oom code can lock it, before
++ * locking the task list.  The tasklist_lock is a spinlock, so
++ * must be taken inside callback_sem.
++ */
++
++void cpuset_lock(void)
++{
++	down(&callback_sem);
++}
++
++/**
++ * cpuset_unlock - release lock on cpuset changes
++ *
++ * Undo the lock taken in a previous cpuset_lock() call.
++ */
++
++void cpuset_unlock(void)
++{
++	up(&callback_sem);
++}
++
++/**
+  * cpuset_excl_nodes_overlap - Do we overlap @p's mem_exclusive ancestors?
+  * @p: pointer to task_struct of some other task.
+  *
+@@ -2158,7 +2185,7 @@ int __cpuset_zone_allowed(struct zone *z
+  * determine if task @p's memory usage might impact the memory
+  * available to the current task.
+  *
+- * Acquires callback_sem - not suitable for calling from a fast path.
++ * Call while holding callback_sem.
+  **/
+ 
+ int cpuset_excl_nodes_overlap(const struct task_struct *p)
+@@ -2166,8 +2193,6 @@ int cpuset_excl_nodes_overlap(const stru
+ 	const struct cpuset *cs1, *cs2;	/* my and p's cpuset ancestors */
+ 	int overlap = 0;		/* do cpusets overlap? */
+ 
+-	down(&callback_sem);
+-
+ 	task_lock(current);
+ 	if (current->flags & PF_EXITING) {
+ 		task_unlock(current);
+@@ -2186,8 +2211,6 @@ int cpuset_excl_nodes_overlap(const stru
+ 
+ 	overlap = nodes_intersects(cs1->mems_allowed, cs2->mems_allowed);
+ done:
+-	up(&callback_sem);
+-
+ 	return overlap;
+ }
+ 
+--- 2.6.15-mm2.orig/mm/oom_kill.c	2006-01-10 19:18:25.588685008 -0800
++++ 2.6.15-mm2/mm/oom_kill.c	2006-01-10 23:16:05.936643833 -0800
+@@ -274,6 +274,7 @@ void out_of_memory(gfp_t gfp_mask, int o
+ 		show_mem();
+ 	}
+ 
++	cpuset_lock();
+ 	read_lock(&tasklist_lock);
+ retry:
+ 	p = select_bad_process();
+@@ -284,6 +285,7 @@ retry:
+ 	/* Found nothing?!?! Either we hang forever, or we panic. */
+ 	if (!p) {
+ 		read_unlock(&tasklist_lock);
++		cpuset_unlock();
+ 		panic("Out of memory and no killable processes...\n");
+ 	}
+ 
+@@ -293,6 +295,7 @@ retry:
+ 
+  out:
+ 	read_unlock(&tasklist_lock);
++	cpuset_unlock();
+ 	if (mm)
+ 		mmput(mm);
+ 
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

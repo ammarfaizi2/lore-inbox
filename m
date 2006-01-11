@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932735AbWAKEm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWAKEoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932735AbWAKEm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 23:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932752AbWAKEm6
+	id S1751355AbWAKEoE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 23:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWAKEoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 23:42:58 -0500
-Received: from gate.crashing.org ([63.228.1.57]:8904 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932735AbWAKEm5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 23:42:57 -0500
-Date: Tue, 10 Jan 2006 22:36:37 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: linux-kernel@vger.kernel.org, <linuxppc-dev@ozlabs.org>,
-       <linuxppc64-dev@gate.crashing.org>
-Subject: [PATCH] powerpc: Fix arch/powerpc/boot Makefile
-Message-ID: <Pine.LNX.4.44.0601102236050.15456-100000@gate.crashing.org>
+	Tue, 10 Jan 2006 23:44:04 -0500
+Received: from fed1rmmtao07.cox.net ([68.230.241.32]:58559 "EHLO
+	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S1751355AbWAKEoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 23:44:01 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.1.1
+cc: linux-kernel@vger.kernel.org
+Date: Tue, 10 Jan 2006 20:43:58 -0800
+Message-ID: <7v64or1ii9.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-clean-files was being set twice rather than being appended to.
+The latest maintenance release GIT 1.1.1 is available at the usual places:
 
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+	http://www.kernel.org/pub/software/scm/git/
 
----
-commit aa30a75885b935a7f09a1312e792f96cc338e505
-tree 2be29cf7aacbf9ac89e3c99dcf0a0502e940ae36
-parent b718d4872e6ad557b9751785b596ed57b9e6b023
-author Kumar Gala <galak@kernel.crashing.org> Tue, 10 Jan 2006 22:41:48 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Tue, 10 Jan 2006 22:41:48 -0600
+	git-1.1.1.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.1.1-1.$arch.rpm	(RPM)
 
- arch/powerpc/boot/Makefile |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+This is primarily to fix the build problems with RPM and tarball
+releases.  I owe a big thanks to Peter Anvin for the fix.
 
-diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
-index 22726ae..b53d677 100644
---- a/arch/powerpc/boot/Makefile
-+++ b/arch/powerpc/boot/Makefile
-@@ -176,4 +176,4 @@ $(obj)/uImage: $(obj)/vmlinux.gz
- install: $(CONFIGURE) $(BOOTIMAGE)
- 	sh -x $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" vmlinux System.map "$(INSTALL_PATH)" "$(BOOTIMAGE)"
- 
--clean-files := $(addprefix $(objtree)/, $(obj-boot) vmlinux.strip)
-+clean-files += $(addprefix $(objtree)/, $(obj-boot) vmlinux.strip)
+----------------------------------------------------------------
+
+Changes since v1.1.0 are as follows:
+
+H. Peter Anvin:
+      For release tarballs, include the proper version
+
+Johannes Schindelin:
+      glossary: explain "master" and "origin"
+
+Junio C Hamano:
+      GIT-VERSION-GEN: detect dirty tree and mark the version accordingly.
+
+
 

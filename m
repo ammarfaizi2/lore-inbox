@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWAKSpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWAKSpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbWAKSpw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWAKSpk
+	id S932542AbWAKSpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:45:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWAKSpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:45:40 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:28070 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932539AbWAKSpa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:45:30 -0500
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
-In-Reply-To: <43C53DA0.60704@us.ibm.com>
-References: <43C53DA0.60704@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 10:45:26 -0800
-Message-Id: <1137005126.27584.71.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 13:45:38 -0500
+Received: from web34112.mail.mud.yahoo.com ([66.163.178.110]:40824 "HELO
+	web34112.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932542AbWAKSpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 13:45:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=rf/HjHhVpxgSJ1tZriD2LeLxBhbJvfCrfEV3Z6AITrxsxXlFmymlFnWUdWsvph6KPYetC+a0rNAPklewqJF3qEB2iv5nE0dwP18i4pjZOFZzu012cDBEq3IMtqbIFi0CcgewwMfTWtdPQo5A7kjegTGBeK/1wweHjK/SMKDq4yc=  ;
+Message-ID: <20060111184532.42618.qmail@web34112.mail.mud.yahoo.com>
+Date: Wed, 11 Jan 2006 10:45:32 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: Is user-space AIO dead?
+To: David Lloyd <dmlloyd@tds.net>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0601111223210.14191@tomservo.workpc.tds.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 12:17 -0500, Mike D. Day wrote:
-> +#ifndef BOOL
-> +#define BOOL    int
-> +#endif
-> +
-> +#ifndef FALSE
-> +#define FALSE   0
-> +#endif
-> +
-> +#ifndef TRUE
-> +#define TRUE    1
-> +#endif
-> +
-> +#ifndef NULL
-> +#define NULL    0
-> +#endif
+--- David Lloyd <dmlloyd@tds.net> wrote:
+> Wouldn't nonblocking I/O on regular files be nice?
 
-Whatever you do with this driver, these need to go.
+Yes it could be.  As I understand it, regular file writes (not O_DIRECT) are only to the page
+cache and only block when there is memory pressure (so it is more of a throttle).
 
-Your patch is also whitespace-challenged.
+Reads, on the other hand, could be quite handy.  What might be very cool is if there were a way to
+mmap and start faulting in the pages in the background, and get notified as they complete - or
+when all the faulting is done.
 
-Why not make these Xen attributes part of the "system" devices?  Seems a
-lot more natural to me.
+-Kenny
 
--- Dave
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

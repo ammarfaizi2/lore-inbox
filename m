@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWAKXwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWAKXzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWAKXwK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 18:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWAKXwK
+	id S1751175AbWAKXzi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 18:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWAKXzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 18:52:10 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:8105 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751155AbWAKXwI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 18:52:08 -0500
-Date: Wed, 11 Jan 2006 23:50:53 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Dave Jones <davej@redhat.com>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-mm2
-In-Reply-To: <20060111215615.GA11668@redhat.com>
-Message-ID: <Pine.LNX.4.58.0601112350380.8371@skynet>
-References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org>
- <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org>
- <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com>
- <Pine.LNX.4.58.0601112149270.8371@skynet> <20060111215615.GA11668@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Jan 2006 18:55:38 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:65436
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751157AbWAKXzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 18:55:37 -0500
+Date: Wed, 11 Jan 2006 15:55:38 -0800 (PST)
+Message-Id: <20060111.155538.28284376.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+       reiga@dspnet.fr.eu.org
+Subject: Re: [2.6 patch] arch/sparc64/Kconfig: fix HUGETLB_PAGE_SIZE_64K
+ dependencies
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060111234640.GJ29663@stusta.de>
+References: <20060111234640.GJ29663@stusta.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Adrian Bunk <bunk@stusta.de>
+Date: Thu, 12 Jan 2006 00:46:41 +0100
 
-> causes drm heartburn, I'll drop it.  But if you could take a peek
-> just incase drm is doing something silly I'd appreciate it.
+> This patch fixes a typo in the dependencies of HUGETLB_PAGE_SIZE_64K.
+> 
+> It might be more logical to rename the HUGETLB_PAGE_SIZE_*K dependencies 
+> to HUGETLB_PAGE_SIZE_*KB, but let's fix this bug first.
+> 
+> This bug was reported by Jean-Luc Leger <reiga@dspnet.fr.eu.org>.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'll try and test -mm2 this evening..
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
+Applied, thanks Adrian.

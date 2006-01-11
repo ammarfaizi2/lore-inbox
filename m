@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWAKBhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932762AbWAKBi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161041AbWAKBhs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 20:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWAKBhs
+	id S932762AbWAKBi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 20:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbWAKBi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 20:37:48 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:52723 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S932762AbWAKBhr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 20:37:47 -0500
-Message-ID: <43C4614B.40002@mvista.com>
-Date: Tue, 10 Jan 2006 17:37:15 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Tue, 10 Jan 2006 20:38:27 -0500
+Received: from bayc1-pasmtp11.bayc1.hotmail.com ([65.54.191.171]:10772 "EHLO
+	BAYC1-PASMTP11.bayc1.hotmail.com") by vger.kernel.org with ESMTP
+	id S932769AbWAKBi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 20:38:26 -0500
+Message-ID: <BAYC1-PASMTP11D76F1C8E40096264A62CAE240@CEZ.ICE>
+X-Originating-IP: [69.156.6.171]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Message-ID: <46118.10.10.10.28.1136943503.squirrel@linux1>
+In-Reply-To: <20060111005721.GA29663@stusta.de>
+References: <cbec11ac0512201343q79de6e13h6fccf1259445076@mail.gmail.com>
+    <20060111005721.GA29663@stusta.de>
+Date: Tue, 10 Jan 2006 20:38:23 -0500 (EST)
+Subject: Re: Revised [PATCH] Documentation: Update to SubmittingPatches
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: "Ian McDonald" <imcdnzl@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       "Linus Torvalds" <torvalds@osdl.org>
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
-To: Thomas Gleixner <tglx@linutronix.de>
-CC: john stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: new time code problem
-References: <Pine.LNX.4.61.0512220019330.30882@scrub.home> <1136935211.2890.11.camel@cog.beaverton.ibm.com> <43C44A3C.6010803@mvista.com> <200601110023.35374.tglx@linutronix.de>
-In-Reply-To: <200601110023.35374.tglx@linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 11 Jan 2006 01:39:53.0453 (UTC) FILETIME=[EB6B19D0:01C6164F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Tuesday 10 January 2006 23:58, George Anzinger wrote:
-> 
->>The 64-bit conversion routine to convert 64-bit nsec time to a time spec.
->>gives an unnormalized result if the value being converted is negative.  I
->>think there are two ways to go about fixing this.  Most systems will give a
->>negative remainder and so need to just normalize.  On the other hand, some
->>systems will use div64 to do the division and, I think, it expects unsigned
->>numbers.  The attached patch uses the conservative approach of expecting
->>the div to be set up for unsigned numbers.
->>
->>I came accross this when one of my tests set a time near 1 Jan 1970, i.e.
->>it is a real problem.
-> 
-> 
->> kernel/time.c |   13 ++++++++-----
->> 1 files changed, 8 insertions(+), 5 deletions(-)
->>
->>Index: linux-2.6.16-rc/kernel/time.c
->>===================================================================
->>--- linux-2.6.16-rc.orig/kernel/time.c
->>+++ linux-2.6.16-rc/kernel/time.c
->>@@ -702,16 +702,19 @@ void set_normalized_timespec(struct time
->>  *
->>  * Returns the timespec representation of the nsec parameter.
->>  */
->>-inline struct timespec ns_to_timespec(const nsec_t nsec)
->>+struct timespec ns_to_timespec(const nsec_t nsec)
->> {
->>        struct timespec ts;
->> 
->>-       if (nsec)
->>+       if (nsec) return (struct timespec){0, 0};
-> 
-> 
-> Err, you mean propably
-> 
-> 	if(!nsec)
-> 		return (struct timespec){0, 0};
+On Tue, January 10, 2006 7:57 pm, Adrian Bunk said:
 
-Why yes I do.  I even found that and fixed it, but then failed to refresh the 
-patch.  Thanks...
+>> -Use "diff -up" or "diff -uprN" to create patches.
+>> +You can use git-diff(1) or git-format-patch(1) which makes your life
+>> easy. If
+>> +you want it to be more difficult then carry on reading.
+>>...
+>
+> IMHO, this doesn't make much sense:
+>
+> The average patch submitter does _not_ use git in any way - and there's
+> no reason why he should.
+>
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Git is an efficient and convenient way to track the mainline kernel.   The
+number of submitters using it is significant enough to mention it as an
+option for creating patches.
+
+Sean
+

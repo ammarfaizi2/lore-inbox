@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWAKV4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWAKWDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWAKV4f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 16:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWAKV4f
+	id S1751049AbWAKWDK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWAKWDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 16:56:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56960 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750760AbWAKV4e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 16:56:34 -0500
-Date: Wed, 11 Jan 2006 16:56:15 -0500
-From: Dave Jones <davej@redhat.com>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060111215615.GA11668@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dave Airlie <airlied@linux.ie>,
-	Brice Goglin <Brice.Goglin@ens-lyon.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org> <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com> <Pine.LNX.4.58.0601112149270.8371@skynet>
+	Wed, 11 Jan 2006 17:03:10 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:27566 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751049AbWAKWDJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 17:03:09 -0500
+Subject: Re: Back to the Future ? or some thing sinister ?
+From: john stultz <johnstul@us.ibm.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: Chaitanya Hazarey <cvh.tcs@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060109040322.GA2683@localhost.localdomain>
+References: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
+	 <20060109040322.GA2683@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 14:03:06 -0800
+Message-Id: <1137016986.2890.57.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601112149270.8371@skynet>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 09:50:31PM +0000, Dave Airlie wrote:
+On Sun, 2006-01-08 at 22:03 -0600, Nathan Lynch wrote:
+> Chaitanya Hazarey wrote:
+> >
+> > We have got a machine, lets say X , make is IBM and the CPU is Intel
+> > Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
+> > 2.6.27-4 Kernel the distribution is Debian Sagre.
+> > 
+[snip]
+> > 
+> > The problem is that, after a some time ( fuzzy , but I think like 2
+> > hours ) of inactivity or because of some esoteric factor which triggers
+> > a state in which the time on the machine starts going around in a loop.
+> > if I do cat /proc/uptime, it goes 4  ticks ahead and again rewinds back
+> > to the starting count ( not zero, but the moment in time when the event
+> > was triggred. )
+> > 
+> > The problem seems to be specific to the 2.6 series of kernel, not the
+> > 2.4 series.
+> > 
+> > I  would like to know how to go about the debugging of the problem, and
+> > that which specific part of the kernel will be directly interacting with
+> > the rtc / system clock.
+> 
+> Look into upgrading the BIOS on that machine; I've had similar
+> problems on a IBM P4 workstation that were fixed in this way.
 
- > > That's puzzling. It should still be loadable. All the current agpgart tree
- > > is doing is basically enforcing agp=off if there's no agp card present.
- > > That shouldn't prevent the module from actually loading, or it's symbols being
- > > referenced by other modules.
- > >
- > > Hrmm, it's puzzling that you also are unable to resolve drm_open and drm_release.
- > > That may be a follow-on failure from the first, but it seems unlikely.
- > 
- > Thats' just a cascaded failure, radeon gives out because drm won't load
- > because agpgart won't load... there must be a reason why agpgart doesn't
- > load... perhaps we've some issue when the backend isn't there or
- > something..
+Yes, there was a problematic BIOS on some IBM P4 systems that after a
+few hours messed up the apic's timer interrupt frequency. I believe
+booting w/ noapic will work around the issue, but the correct fix is to
+update your BIOS.
 
-It may be that my current experiment is a really bad idea, and if it
-causes drm heartburn, I'll drop it.  But if you could take a peek
-just incase drm is doing something silly I'd appreciate it.
+Please file a bugzilla bug if upgrading your BIOS does resolve the
+issue.
 
-		Dave
+thanks
+-john
 

@@ -1,64 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWAKWDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWAKWCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWAKWDK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 17:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWAKWDK
+	id S1751098AbWAKWCq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWAKWCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 17:03:10 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:27566 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751049AbWAKWDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 17:03:09 -0500
-Subject: Re: Back to the Future ? or some thing sinister ?
-From: john stultz <johnstul@us.ibm.com>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: Chaitanya Hazarey <cvh.tcs@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060109040322.GA2683@localhost.localdomain>
-References: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
-	 <20060109040322.GA2683@localhost.localdomain>
+	Wed, 11 Jan 2006 17:02:46 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:41359 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751049AbWAKWCo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 17:02:44 -0500
+Subject: [PATCH 1/2] hugetlb: Delay page zeroing for faulted pages
+From: Adam Litke <agl@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <1136920951.23288.5.camel@localhost.localdomain>
+References: <1136920951.23288.5.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 11 Jan 2006 14:03:06 -0800
-Message-Id: <1137016986.2890.57.camel@cog.beaverton.ibm.com>
+Organization: IBM
+Date: Wed, 11 Jan 2006 16:02:40 -0600
+Message-Id: <1137016960.9672.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-08 at 22:03 -0600, Nathan Lynch wrote:
-> Chaitanya Hazarey wrote:
-> >
-> > We have got a machine, lets say X , make is IBM and the CPU is Intel
-> > Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
-> > 2.6.27-4 Kernel the distribution is Debian Sagre.
-> > 
-[snip]
-> > 
-> > The problem is that, after a some time ( fuzzy , but I think like 2
-> > hours ) of inactivity or because of some esoteric factor which triggers
-> > a state in which the time on the machine starts going around in a loop.
-> > if I do cat /proc/uptime, it goes 4  ticks ahead and again rewinds back
-> > to the starting count ( not zero, but the moment in time when the event
-> > was triggred. )
-> > 
-> > The problem seems to be specific to the 2.6 series of kernel, not the
-> > 2.4 series.
-> > 
-> > I  would like to know how to go about the debugging of the problem, and
-> > that which specific part of the kernel will be directly interacting with
-> > the rtc / system clock.
+I've come up with a much better idea to resolve the issue I mention
+below.  The attached patch changes hugetlb_no_page to allocate unzeroed
+huge pages initially.  For shared mappings, we wait until after
+inserting the page into the page_cache succeeds before we zero it.  This
+has a side benefit of preventing the wasted zeroing that happened often
+in the original code.  The page_lock should guard against someone else
+using the page before it has been zeroed (but correct me if I am wrong
+here).  The patch doesn't completely close the race (there is a much
+smaller window without the zeroing though).  The next patch should close
+the race window completely.
+
+On Tue, 2006-01-10 at 13:22 -0600, Adam Litke wrote: 
+> The race occurs when multiple threads shmat a hugetlb area and begin
+> faulting in it's pages.  During a hugetlb fault, hugetlb_no_page checks
+> for the page in the page cache.  If not found, it allocates (and zeroes)
+> a new page and tries to add it to the page cache.  If this fails, the
+> huge page is freed and we retry the page cache lookup (assuming someone
+> else beat us to the add_to_page_cache call).
 > 
-> Look into upgrading the BIOS on that machine; I've had similar
-> problems on a IBM P4 workstation that were fixed in this way.
+> The above works fine, but due to the large window (while zeroing the
+> huge page) it is possible that many threads could be "borrowing" pages
+> only to return them later.  This causes free_hugetlb_pages to be lower
+> than the logical number of free pages and some threads trying to shmat
+> can falsely fail the accounting check.
 
-Yes, there was a problematic BIOS on some IBM P4 systems that after a
-few hours messed up the apic's timer interrupt frequency. I believe
-booting w/ noapic will work around the issue, but the correct fix is to
-update your BIOS.
+Signed-off-by: Adam Litke <agl@us.ibm.com>
 
-Please file a bugzilla bug if upgrading your BIOS does resolve the
-issue.
+ hugetlb.c |   26 +++++++++++++++++++++++---
+ 1 files changed, 23 insertions(+), 3 deletions(-)
+diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
+--- reference/mm/hugetlb.c
++++ current/mm/hugetlb.c
+@@ -92,10 +92,10 @@ void free_huge_page(struct page *page)
+ 	spin_unlock(&hugetlb_lock);
+ }
+ 
+-struct page *alloc_huge_page(struct vm_area_struct *vma, unsigned long addr)
++struct page *alloc_unzeroed_huge_page(struct vm_area_struct *vma,
++					unsigned long addr)
+ {
+ 	struct page *page;
+-	int i;
+ 
+ 	spin_lock(&hugetlb_lock);
+ 	page = dequeue_huge_page(vma, addr);
+@@ -106,8 +106,26 @@ struct page *alloc_huge_page(struct vm_a
+ 	spin_unlock(&hugetlb_lock);
+ 	set_page_count(page, 1);
+ 	page[1].mapping = (void *)free_huge_page;
++
++	return page;
++}
++	
++void zero_huge_page(struct page *page)
++{
++	int i;
++	
+ 	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
+ 		clear_highpage(&page[i]);
++}
++
++struct page *alloc_huge_page(struct vm_area_struct *vma, unsigned long addr)
++{
++	struct page *page;
++
++	page = alloc_unzeroed_huge_page(vma, addr);
++	if (page)
++		zero_huge_page(page);
++	
+ 	return page;
+ }
+ 
+@@ -441,7 +459,7 @@ retry:
+ 	if (!page) {
+ 		if (hugetlb_get_quota(mapping))
+ 			goto out;
+-		page = alloc_huge_page(vma, address);
++		page = alloc_unzeroed_huge_page(vma, address);
+ 		if (!page) {
+ 			hugetlb_put_quota(mapping);
+ 			goto out;
+@@ -460,6 +478,8 @@ retry:
+ 			}
+ 		} else
+ 			lock_page(page);
++
++		zero_huge_page(page);
+ 	}
+ 
+ 	spin_lock(&mm->page_table_lock);
 
-thanks
--john
+
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 

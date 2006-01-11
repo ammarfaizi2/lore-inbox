@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWAKMgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWAKMha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751453AbWAKMgu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 07:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWAKMgu
+	id S1751446AbWAKMha (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 07:37:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWAKMh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 07:36:50 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:1291 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751446AbWAKMgs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 07:36:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JP+1ZVhP2w5UqNT71fmf4Ocf/utKrSYekqIaskYs59u6tYJJUNgpe1aHvMomvpxS6YKh51mfpq4p/hSRzKjscCev3WkVYTHexU2tZb0E5clPN6InwNkts7mqxaUVGCtYH3Mka4Duj4J4Pg27RypileI5BKLSUkVC76n0vY5DsC4=
-Message-ID: <4d8e3fd30601110436p286cfacap6618067c32e22a32@mail.gmail.com>
-Date: Wed, 11 Jan 2006 13:36:48 +0100
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: why no -mm git tree?
-Cc: Coywolf Qi Hunt <qiyong@fc-cn.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060110231818.6164dba7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 11 Jan 2006 07:37:29 -0500
+Received: from a.relay.invitel.net ([62.77.203.3]:20099 "EHLO
+	a.relay.invitel.net") by vger.kernel.org with ESMTP
+	id S1751446AbWAKMh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 07:37:27 -0500
+Date: Wed, 11 Jan 2006 13:37:45 +0100
+From: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: linux-kernel@vger.kernel.org
+Subject: OT: fork(): parent or child should run first?
+Message-ID: <20060111123745.GB30219@lgb.hu>
+Reply-To: lgb@lgb.hu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <20060111055616.GA5976@localhost.localdomain>
-	 <20060110224451.44c9d3da.akpm@osdl.org>
-	 <20060111070043.GA7858@localhost.localdomain>
-	 <20060110231818.6164dba7.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+X-Operating-System: vega Linux 2.6.12-10-686 i686
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/06, Andrew Morton <akpm@osdl.org> wrote:
-> Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
-> >
-> > On Tue, Jan 10, 2006 at 10:44:51PM -0800, Andrew Morton wrote:
-> > > Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
-> > > >
-> > > > Why don't use a -mm git tree?
-> > > >
-> > >
-> > > Because everthing would take me 100x longer?
-> >
-> > Really? So does Linus?
-> >
->
-> Linus does a totally different thing from me.
->
-> He reverts about one patch a month.  I drop tens a day.
->
-> He never _alters_ patches.  2.6.15-mm1 had about 200 patches which modify
-> earlier patches and which get rolled up into the patch-which-they-modify
-> before going upstream.
->
-> He never alters the order of patches.
->
-> etc.
->
-> > >
-> > > I'm looking into generating a pullable git tree for each -mm.  Just as a
-> > > convenience for people who can't type "ftp".
-> >
-> > That doesn't help much if it's only for each -mm.
-> > If you make git commits for each each patch merged in, then
-> > we can always run the `current' -mm git tree.
->
-> Ah.  If you're suggesting that the -mm git tree have _patches_ under git,
-> and the way of grabbing the -mm tree is to pull everything and to then
-> apply all the patches under the patches/ directory then yeah, that would
-> work.
->
-> But my tree at any random point in time is a random piece of
-> doesn't-even-compile-let-alone-run crap, believe me.  Often not all the
-> patches even apply.  I don't think there's much point in exposing people to
-> something like that.
+Hello,
 
-Andew,
-did you consider Stacked GIT as an alternative to quilt ?
+The following problem may be simple for you, so I hope someone can answer
+here. We've got a complex software using child processes and a table
+to keep data of them together, like this:
 
---
-Paolo
+childs[n].pid=fork();
+
+where "n" is an integer contains a free "slot" in the childs struct array.
+
+I also handle SIGCHLD in the parent and signal handler  searches the childs
+array for the pid returned by waitpid(). However here is my problem. The
+child process can be fast, ie exits before scheduler of the kernel give
+chance the parent process to run, so storing pid into childs[n].pid in the
+parent context is not done yet. Child may exit, than scheduler gives control
+to the signal handler before doing the store of the pid (if child run for
+more time, eg 10 seconds it works of course). So it's impossible to store
+child pids and search by that information in eg the signal handler? It's
+quite problematic, since the code uses blocking I/O a lot, so other
+solutions (like searching in childs[] in the main program and not in signal
+handler) would require to recode the whole project. The problem can be
+avoided with having a fork() run the PARENT first, but I thing this is done
+by the scheduler so it's a kernel issue. Also the problem that source should
+be portable between Linux and Solaris ...
+
+Sorry for disturbing the list with this kind of problem but I can't find
+any solution elsewhere.
+
+Thanks a lot,
+
+-- 
+- Gábor

@@ -1,258 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWAKEfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932735AbWAKEm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWAKEfe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 23:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWAKEfe
+	id S932735AbWAKEm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 23:42:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932752AbWAKEm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 23:35:34 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:48040 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932462AbWAKEfd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 23:35:33 -0500
-Date: Tue, 10 Jan 2006 20:35:57 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       vatsa@in.ibm.com
-Subject: Re: [PATCH 3/3] rcu: join rcu_ctrlblk and rcu_state
-Message-ID: <20060111043557.GM18252@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <43C3BB12.B5523F2C@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C3BB12.B5523F2C@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Jan 2006 23:42:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:8904 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932735AbWAKEm5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 23:42:57 -0500
+Date: Tue, 10 Jan 2006 22:36:37 -0600 (CST)
+From: Kumar Gala <galak@gate.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, <linuxppc-dev@ozlabs.org>,
+       <linuxppc64-dev@gate.crashing.org>
+Subject: [PATCH] powerpc: Fix arch/powerpc/boot Makefile
+Message-ID: <Pine.LNX.4.44.0601102236050.15456-100000@gate.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 04:48:02PM +0300, Oleg Nesterov wrote:
-> This patch moves rcu_state into the rcu_ctrlblk. I think there
-> are no reasons why we should have 2 different variables to control
-> rcu state. Every user of rcu_state has also "rcu_ctrlblk *rcp" in
-> the parameter list.
+clean-files was being set twice rather than being appended to.
 
-Looks good to me, passes one-hour RCU torture test.
+Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-Manfred, does the ____cacheline_internodealigned_in_smp take care
-of your cache-line alignment concerns?
+---
+commit aa30a75885b935a7f09a1312e792f96cc338e505
+tree 2be29cf7aacbf9ac89e3c99dcf0a0502e940ae36
+parent b718d4872e6ad557b9751785b596ed57b9e6b023
+author Kumar Gala <galak@kernel.crashing.org> Tue, 10 Jan 2006 22:41:48 -0600
+committer Kumar Gala <galak@kernel.crashing.org> Tue, 10 Jan 2006 22:41:48 -0600
 
-							Thanx, Paul
+ arch/powerpc/boot/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- 2.6.15/include/linux/rcupdate.h~3_JOIN	2006-01-10 18:52:29.000000000 +0300
-> +++ 2.6.15/include/linux/rcupdate.h	2006-01-10 19:06:38.000000000 +0300
-> @@ -65,6 +65,10 @@ struct rcu_ctrlblk {
->  	long	cur;		/* Current batch number.                      */
->  	long	completed;	/* Number of the last completed batch         */
->  	int	next_pending;	/* Is the next batch already waiting?         */
-> +
-> +	spinlock_t	lock	____cacheline_internodealigned_in_smp;
-> +	cpumask_t	cpumask; /* CPUs that need to switch in order    */
-> +	                         /* for current batch to proceed.        */
->  } ____cacheline_internodealigned_in_smp;
->  
->  /* Is batch a before batch b ? */
-> --- 2.6.15/kernel/rcupdate.c~3_JOIN	2006-01-10 18:52:36.000000000 +0300
-> +++ 2.6.15/kernel/rcupdate.c	2006-01-10 19:06:38.000000000 +0300
-> @@ -49,22 +49,18 @@
->  #include <linux/cpu.h>
->  
->  /* Definition for rcupdate control block. */
-> -struct rcu_ctrlblk rcu_ctrlblk = 
-> -	{ .cur = -300, .completed = -300 };
-> -struct rcu_ctrlblk rcu_bh_ctrlblk =
-> -	{ .cur = -300, .completed = -300 };
-> -
-> -/* Bookkeeping of the progress of the grace period */
-> -struct rcu_state {
-> -	spinlock_t	lock; /* Guard this struct and writes to rcu_ctrlblk */
-> -	cpumask_t	cpumask; /* CPUs that need to switch in order    */
-> -	                              /* for current batch to proceed.        */
-> +struct rcu_ctrlblk rcu_ctrlblk = {
-> +	.cur = -300,
-> +	.completed = -300,
-> +	.lock = SPIN_LOCK_UNLOCKED,
-> +	.cpumask = CPU_MASK_NONE,
-> +};
-> +struct rcu_ctrlblk rcu_bh_ctrlblk = {
-> +	.cur = -300,
-> +	.completed = -300,
-> +	.lock = SPIN_LOCK_UNLOCKED,
-> +	.cpumask = CPU_MASK_NONE,
->  };
-> -
-> -static struct rcu_state rcu_state ____cacheline_internodealigned_in_smp =
-> -	  {.lock = SPIN_LOCK_UNLOCKED, .cpumask = CPU_MASK_NONE };
-> -static struct rcu_state rcu_bh_state ____cacheline_internodealigned_in_smp =
-> -	  {.lock = SPIN_LOCK_UNLOCKED, .cpumask = CPU_MASK_NONE };
->  
->  DEFINE_PER_CPU(struct rcu_data, rcu_data) = { 0L };
->  DEFINE_PER_CPU(struct rcu_data, rcu_bh_data) = { 0L };
-> @@ -220,13 +216,13 @@ static void rcu_do_batch(struct rcu_data
->   *   This is done by rcu_start_batch. The start is not broadcasted to
->   *   all cpus, they must pick this up by comparing rcp->cur with
->   *   rdp->quiescbatch. All cpus are recorded  in the
-> - *   rcu_state.cpumask bitmap.
-> + *   rcu_ctrlblk.cpumask bitmap.
->   * - All cpus must go through a quiescent state.
->   *   Since the start of the grace period is not broadcasted, at least two
->   *   calls to rcu_check_quiescent_state are required:
->   *   The first call just notices that a new grace period is running. The
->   *   following calls check if there was a quiescent state since the beginning
-> - *   of the grace period. If so, it updates rcu_state.cpumask. If
-> + *   of the grace period. If so, it updates rcu_ctrlblk.cpumask. If
->   *   the bitmap is empty, then the grace period is completed.
->   *   rcu_check_quiescent_state calls rcu_start_batch(0) to start the next grace
->   *   period (if necessary).
-> @@ -234,9 +230,9 @@ static void rcu_do_batch(struct rcu_data
->  /*
->   * Register a new batch of callbacks, and start it up if there is currently no
->   * active batch and the batch to be registered has not already occurred.
-> - * Caller must hold rcu_state.lock.
-> + * Caller must hold rcu_ctrlblk.lock.
->   */
-> -static void rcu_start_batch(struct rcu_ctrlblk *rcp, struct rcu_state *rsp)
-> +static void rcu_start_batch(struct rcu_ctrlblk *rcp)
->  {
->  	if (rcp->next_pending &&
->  			rcp->completed == rcp->cur) {
-> @@ -251,11 +247,11 @@ static void rcu_start_batch(struct rcu_c
->  		/*
->  		 * Accessing nohz_cpu_mask before incrementing rcp->cur needs a
->  		 * Barrier  Otherwise it can cause tickless idle CPUs to be
-> -		 * included in rsp->cpumask, which will extend graceperiods
-> +		 * included in rcp->cpumask, which will extend graceperiods
->  		 * unnecessarily.
->  		 */
->  		smp_mb();
-> -		cpus_andnot(rsp->cpumask, cpu_online_map, nohz_cpu_mask);
-> +		cpus_andnot(rcp->cpumask, cpu_online_map, nohz_cpu_mask);
->  
->  	}
->  }
-> @@ -265,13 +261,13 @@ static void rcu_start_batch(struct rcu_c
->   * Clear it from the cpu mask and complete the grace period if it was the last
->   * cpu. Start another grace period if someone has further entries pending
->   */
-> -static void cpu_quiet(int cpu, struct rcu_ctrlblk *rcp, struct rcu_state *rsp)
-> +static void cpu_quiet(int cpu, struct rcu_ctrlblk *rcp)
->  {
-> -	cpu_clear(cpu, rsp->cpumask);
-> -	if (cpus_empty(rsp->cpumask)) {
-> +	cpu_clear(cpu, rcp->cpumask);
-> +	if (cpus_empty(rcp->cpumask)) {
->  		/* batch completed ! */
->  		rcp->completed = rcp->cur;
-> -		rcu_start_batch(rcp, rsp);
-> +		rcu_start_batch(rcp);
->  	}
->  }
->  
-> @@ -281,7 +277,7 @@ static void cpu_quiet(int cpu, struct rc
->   * quiescent cycle, then indicate that it has done so.
->   */
->  static void rcu_check_quiescent_state(struct rcu_ctrlblk *rcp,
-> -			struct rcu_state *rsp, struct rcu_data *rdp)
-> +					struct rcu_data *rdp)
->  {
->  	if (rdp->quiescbatch != rcp->cur) {
->  		/* start new grace period: */
-> @@ -306,15 +302,15 @@ static void rcu_check_quiescent_state(st
->  		return;
->  	rdp->qs_pending = 0;
->  
-> -	spin_lock(&rsp->lock);
-> +	spin_lock(&rcp->lock);
->  	/*
->  	 * rdp->quiescbatch/rcp->cur and the cpu bitmap can come out of sync
->  	 * during cpu startup. Ignore the quiescent state.
->  	 */
->  	if (likely(rdp->quiescbatch == rcp->cur))
-> -		cpu_quiet(rdp->cpu, rcp, rsp);
-> +		cpu_quiet(rdp->cpu, rcp);
->  
-> -	spin_unlock(&rsp->lock);
-> +	spin_unlock(&rcp->lock);
->  }
->  
->  
-> @@ -335,16 +331,16 @@ static void rcu_move_batch(struct rcu_da
->  }
->  
->  static void __rcu_offline_cpu(struct rcu_data *this_rdp,
-> -	struct rcu_ctrlblk *rcp, struct rcu_state *rsp, struct rcu_data *rdp)
-> +				struct rcu_ctrlblk *rcp, struct rcu_data *rdp)
->  {
->  	/* if the cpu going offline owns the grace period
->  	 * we can block indefinitely waiting for it, so flush
->  	 * it here
->  	 */
-> -	spin_lock_bh(&rsp->lock);
-> +	spin_lock_bh(&rcp->lock);
->  	if (rcp->cur != rcp->completed)
-> -		cpu_quiet(rdp->cpu, rcp, rsp);
-> -	spin_unlock_bh(&rsp->lock);
-> +		cpu_quiet(rdp->cpu, rcp);
-> +	spin_unlock_bh(&rcp->lock);
->  	rcu_move_batch(this_rdp, rdp->curlist, rdp->curtail);
->  	rcu_move_batch(this_rdp, rdp->nxtlist, rdp->nxttail);
->  
-> @@ -354,9 +350,9 @@ static void rcu_offline_cpu(int cpu)
->  	struct rcu_data *this_rdp = &get_cpu_var(rcu_data);
->  	struct rcu_data *this_bh_rdp = &get_cpu_var(rcu_bh_data);
->  
-> -	__rcu_offline_cpu(this_rdp, &rcu_ctrlblk, &rcu_state,
-> +	__rcu_offline_cpu(this_rdp, &rcu_ctrlblk,
->  					&per_cpu(rcu_data, cpu));
-> -	__rcu_offline_cpu(this_bh_rdp, &rcu_bh_ctrlblk, &rcu_bh_state,
-> +	__rcu_offline_cpu(this_bh_rdp, &rcu_bh_ctrlblk,
->  					&per_cpu(rcu_bh_data, cpu));
->  	put_cpu_var(rcu_data);
->  	put_cpu_var(rcu_bh_data);
-> @@ -375,7 +371,7 @@ static void rcu_offline_cpu(int cpu)
->   * This does the RCU processing work from tasklet context. 
->   */
->  static void __rcu_process_callbacks(struct rcu_ctrlblk *rcp,
-> -			struct rcu_state *rsp, struct rcu_data *rdp)
-> +					struct rcu_data *rdp)
->  {
->  	if (rdp->curlist && !rcu_batch_before(rcp->completed, rdp->batch)) {
->  		*rdp->donetail = rdp->curlist;
-> @@ -405,25 +401,23 @@ static void __rcu_process_callbacks(stru
->  
->  		if (!rcp->next_pending) {
->  			/* and start it/schedule start if it's a new batch */
-> -			spin_lock(&rsp->lock);
-> +			spin_lock(&rcp->lock);
->  			rcp->next_pending = 1;
-> -			rcu_start_batch(rcp, rsp);
-> -			spin_unlock(&rsp->lock);
-> +			rcu_start_batch(rcp);
-> +			spin_unlock(&rcp->lock);
->  		}
->  	} else {
->  		local_irq_enable();
->  	}
-> -	rcu_check_quiescent_state(rcp, rsp, rdp);
-> +	rcu_check_quiescent_state(rcp, rdp);
->  	if (rdp->donelist)
->  		rcu_do_batch(rdp);
->  }
->  
->  static void rcu_process_callbacks(unsigned long unused)
->  {
-> -	__rcu_process_callbacks(&rcu_ctrlblk, &rcu_state,
-> -				&__get_cpu_var(rcu_data));
-> -	__rcu_process_callbacks(&rcu_bh_ctrlblk, &rcu_bh_state,
-> -				&__get_cpu_var(rcu_bh_data));
-> +	__rcu_process_callbacks(&rcu_ctrlblk, &__get_cpu_var(rcu_data));
-> +	__rcu_process_callbacks(&rcu_bh_ctrlblk, &__get_cpu_var(rcu_bh_data));
->  }
->  
->  static int __rcu_pending(struct rcu_ctrlblk *rcp, struct rcu_data *rdp)
-> 
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index 22726ae..b53d677 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -176,4 +176,4 @@ $(obj)/uImage: $(obj)/vmlinux.gz
+ install: $(CONFIGURE) $(BOOTIMAGE)
+ 	sh -x $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" vmlinux System.map "$(INSTALL_PATH)" "$(BOOTIMAGE)"
+ 
+-clean-files := $(addprefix $(objtree)/, $(obj-boot) vmlinux.strip)
++clean-files += $(addprefix $(objtree)/, $(obj-boot) vmlinux.strip)
+

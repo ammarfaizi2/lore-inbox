@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWAKI1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWAKIaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWAKI1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 03:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWAKI1Y
+	id S1751382AbWAKIaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 03:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWAKIaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 03:27:24 -0500
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:56765 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932188AbWAKI1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 03:27:23 -0500
-Date: Wed, 11 Jan 2006 03:24:12 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Re: Athlon 64 X2 cpuinfo oddities
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Message-ID: <200601110327_MC3-1-B5A3-6E10@compuserve.com>
+	Wed, 11 Jan 2006 03:30:09 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:50594 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751382AbWAKIaH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 03:30:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=d0dCo3TubPJcTRPYQOiAd4xKvQHBLuFTntV3fIIlZrm0OEAwi4pBelj0V/V4JaINrciVmJF7U2l0fDLSIM9001E9GproN+iqmBlMtoOu5AyVoZGk1Op7z+QBfgBI2+WeXsdNh0XkiLIw6IE11J/U0JqhCMx2QhYuiplj+tlwCYE=
+Message-ID: <5a2cf1f60601110030u358c12fcscf79067cbc3eebe0@mail.gmail.com>
+Date: Wed, 11 Jan 2006 09:30:07 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: ata errors -> read-only root partition. Hardware issue?
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43C4493A.4010305@shaw.ca>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <5ttip-Xh-13@gated-at.bofh.it> <43C4493A.4010305@shaw.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <9a8748490601100129h2ce343f5kc9bc22885f01831a@mail.gmail.com>
+On 1/11/06, Robert Hancock <hancockr@shaw.ca> wrote:
+> jerome lacoste wrote:
+> >
+> > ata3: status=0x51 { DriveReady SeekComplete Error }
+> > ata3: error=0x40 { UncorrectableError }
+> > ata3: status=0x51 { DriveReady SeekComplete Error }
+> > ata3: error=0x40 { UncorrectableError }
+> > ata3: status=0x51 { DriveReady SeekComplete Error }
+> > ata3: error=0x40 { UncorrectableError }
+> > SCSI error : <2 0 0 0> return code = 0x8000002
+> > sda: Current: sense key: Medium Error
+> >     Additional sense: Unrecovered read error - auto reallocate failed
+> > end_request: I/O error, dev sda, sector 67801511
+>
+> That sounds an awful lot like a failing hard drive.
 
-On Tue, 10 Jan 2006, Jesper Juhl wrote:
+Thanks Robert,
 
-> Yeah, but since my distro of choice is 32bit only and I don't much
-> feel like porting it myself or using an unofficial port (slamd64) I'm
-> sticking with a 32bit userspace. And as long as userspace is pure
-> 32bit there doesn't seem to be much point in building a 64bit kernel.
+So what is the procedure in Linux to test for these problems?
+I was thinking:
+- scan for bad blocks
+- maybe check the SMART results if they are available
+- memory check: memtest86 & memtest86+ tests (just in case)
 
- Of course there's a point -- you can test both x86-64 and i386 kernels.
-Sometimes one has a bug the other doesn't, as you just found.
+Anything I missed?
 
- FWIW, 32-bit userspace works almost perfectly for me on 64-bit kernel
-(everything but iptables and old pcmcia-cs package.)
+Does someone know a diagnostics utilities CD (a la Dell diagnostics)
+that you can boot on your PC, let run for x hours and get feedback?
 
--- 
-Chuck
-Currently reading: _Olympos_ by Dan Simmons
+Cheers,
+
+Jerome

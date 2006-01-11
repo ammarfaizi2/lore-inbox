@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWAKWnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWAKWq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbWAKWnU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 17:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWAKWnU
+	id S932479AbWAKWq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 17:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWAKWq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 17:43:20 -0500
-Received: from holomorphy.com ([66.93.40.71]:18847 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S932457AbWAKWnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 17:43:18 -0500
-Date: Wed, 11 Jan 2006 14:42:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adam Litke <agl@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 1/2] hugetlb: Delay page zeroing for faulted pages
-Message-ID: <20060111224255.GD9091@holomorphy.com>
-References: <1136920951.23288.5.camel@localhost.localdomain> <1137016960.9672.5.camel@localhost.localdomain>
+	Wed, 11 Jan 2006 17:46:29 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22757
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932479AbWAKWq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 17:46:28 -0500
+Date: Wed, 11 Jan 2006 14:44:22 -0800 (PST)
+Message-Id: <20060111.144422.48199200.davem@davemloft.net>
+To: pavel@suse.cz
+Cc: arjan@infradead.org, akpm@osdl.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, sct@redhat.com, mingo@elte.hu
+Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060111224013.GA8277@elf.ucw.cz>
+References: <20060111130728.579ab429.akpm@osdl.org>
+	<1137014875.2929.81.camel@laptopd505.fenrus.org>
+	<20060111224013.GA8277@elf.ucw.cz>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137016960.9672.5.camel@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 04:02:40PM -0600, Adam Litke wrote:
-> I've come up with a much better idea to resolve the issue I mention
-> below.  The attached patch changes hugetlb_no_page to allocate unzeroed
-> huge pages initially.  For shared mappings, we wait until after
-> inserting the page into the page_cache succeeds before we zero it.  This
-> has a side benefit of preventing the wasted zeroing that happened often
-> in the original code.  The page_lock should guard against someone else
-> using the page before it has been zeroed (but correct me if I am wrong
-> here).  The patch doesn't completely close the race (there is a much
-> smaller window without the zeroing though).  The next patch should close
-> the race window completely.
+From: Pavel Machek <pavel@suse.cz>
+Date: Wed, 11 Jan 2006 23:40:13 +0100
 
-Looks better to me.
+> likely is the evil part here. What about this? Should make this bug
+> impossible to do....
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Signed-off-by: William Irwin <wli@holomorphy.com>
+This doesn't let you do:
 
+     if (likely(y) || unlikely(x))
 
--- wli
+which I have had reason to use in the past.

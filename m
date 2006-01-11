@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751577AbWAKQk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWAKQmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751577AbWAKQk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 11:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWAKQkz
+	id S1751578AbWAKQmN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 11:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbWAKQmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 11:40:55 -0500
-Received: from uproxy.gmail.com ([66.249.92.195]:5024 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751576AbWAKQkz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 11:40:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=lFvyo99VJChPR7wDwASTWYd236Xq7i37hIWe0CR0cSMZaPFvtlYVtkL9T8Ox69Ky5F+NR4FrIStKMRMB12jnug6PInSaw3T4XuZ/LseRA5bLW8wwOdj7xscbQWnpAK2a6uN0/NMYBO0vnFulyb+5bJkvuPSiqaqMK5R5XMuwGpU=
-Date: Wed, 11 Jan 2006 19:57:58 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>
-Subject: [PATCH -mm] mm/rmap.c: don't forget to include module.h
-Message-ID: <20060111165758.GH8686@mipter.zuzino.mipt.ru>
-References: <20060111042135.24faf878.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060111042135.24faf878.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Wed, 11 Jan 2006 11:42:13 -0500
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:8920 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751576AbWAKQmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 11:42:11 -0500
+Message-ID: <43C53576.9030208@anagramm.de>
+Date: Wed, 11 Jan 2006 17:42:30 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+CC: Alexander Shishckin <alexander.shishckin@gmail.com>,
+       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+Subject: Re: kernel.org is down (changeset link broken)
+References: <43BBAB31.7060401@perkel.com>	 <71a0d6ff0601040345g16ebc4a7s915ddba7051c8146@mail.gmail.com> <2cd57c900601040418g5906baf4h@mail.gmail.com>
+In-Reply-To: <2cd57c900601040418g5906baf4h@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  CC      mm/rmap.o
-mm/rmap.c:235: warning: type defaults to `int' in declaration of `EXPORT_SYMBOL'
-mm/rmap.c:235: warning: parameter names (without types) in function declaration
-mm/rmap.c:235: warning: data definition has no type or storage class
+Hello!
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Coywolf Qi Hunt wrote:
+> 2006/1/4, Alexander Shishckin <alexander.shishckin@gmail.com>:
+> 
+>>On 1/4/06, Marc Perkel <marc@perkel.com> wrote:
+>>
+>>>In case you all don't already know - kernel.org is down.
 
- mm/rmap.c |    3 +++
- 1 file changed, 3 insertions(+)
+I am not sure, if this has reported yet, but I cannot
+access the changesets of the 2.6 kernels on kernel.org
+as in:
 
---- linux-2.6.15-mm3/mm/rmap.c	2006-01-11 19:42:39.000000000 +0300
-+++ linux-2.6.15-mm3-rmap/mm/rmap.c	2006-01-11 19:48:12.000000000 +0300
-@@ -52,6 +52,9 @@
- #include <linux/init.h>
- #include <linux/rmap.h>
- #include <linux/rcupdate.h>
-+#ifdef CONFIG_MIGRATION
-+#include <linux/module.h>
-+#endif
- 
- #include <asm/tlbflush.h>
- 
+http://www.kernel.org/git/?p=linux%2Fkernel%2Fgit%2Ftorvalds%2Flinux-2.6.git;a=summary
 
+Because afaics somebody (Linus) moved linux-2.6 to somewhere else. :-)
+Or did I miss something?
+Please update the link at kernel.org...
+
+>>Perhaps, webmaster should be notified.
+
+Thanks,
+-- 
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
+
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19

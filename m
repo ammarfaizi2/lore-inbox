@@ -1,128 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWAKReO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWAKRnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751703AbWAKReO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 12:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWAKReN
+	id S1751705AbWAKRnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 12:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWAKRnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 12:34:13 -0500
-Received: from cabal.ca ([134.117.69.58]:46247 "EHLO fattire.cabal.ca")
-	by vger.kernel.org with ESMTP id S1751700AbWAKReN (ORCPT
+	Wed, 11 Jan 2006 12:43:25 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:16303 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751705AbWAKRnZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 12:34:13 -0500
-Date: Wed, 11 Jan 2006 12:33:21 -0500
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Move read_mostly definition to asm/cache.h
-Message-ID: <20060111173321.GC28018@quicksilver.road.mcmartin.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 11 Jan 2006 12:43:25 -0500
+Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, hch@infradead.org, rdreier@cisco.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060111093019.097d156a.akpm@osdl.org>
+References: <adaslrw3zfu.fsf@cisco.com>
+	 <1136909276.32183.28.camel@serpentine.pathscale.com>
+	 <20060110170722.GA3187@infradead.org>
+	 <1136915386.6294.8.camel@serpentine.pathscale.com>
+	 <20060110175131.GA5235@infradead.org>
+	 <1136915714.6294.10.camel@serpentine.pathscale.com>
+	 <20060110140557.41e85f7d.akpm@osdl.org>
+	 <1136932162.6294.31.camel@serpentine.pathscale.com>
+	 <20060110153257.1aac5370.akpm@osdl.org>
+	 <1137000032.11245.11.camel@camp4.serpentine.com>
+	 <20060111172216.GA18292@mars.ravnborg.org>
+	 <20060111093019.097d156a.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 09:43:19 -0800
+Message-Id: <1137001400.11245.31.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kyle McMartin <kyle@parisc-linux.org>
+On Wed, 2006-01-11 at 09:30 -0800, Andrew Morton wrote:
 
-Seems like needless clutter having a bunch of #if
-defined(CONFIG_$ARCH) in include/linux/cache.h. Move the per
-architecture section definition to asm/cache.h, and keep the
-if-not-defined dummy case in linux/cache.h to catch architectures
-which don't implement the section.
+> Sure, attribute(weak) assumes that nobody want to implement the thing as an
+> inline.  Are yu sure that we want to do that?
 
-Verified that symbols still go in .data.read_mostly on parisc,
-and the compile doesn't break.
+I'll take a look at whether the extra call/ret indirection affects
+performance in a measurable fashion.
 
-Signed-off-by: Kyle McMartin <kyle@parisc-linux.org>
+	<b
 
----
-
-I accidently committed this to an up-to-date master branch, as
-I forgot to check out the temporary branch I was going to commit
-it on. Swapping the sums from .git/refs/heads/{master,read_mostly}
-wouldn't break anything, if the only different between the two was
-this commit, right?
-
- include/asm-i386/cache.h    |    2 ++
- include/asm-ia64/cache.h    |    2 ++
- include/asm-parisc/cache.h  |    2 ++
- include/asm-sparc64/cache.h |    2 ++
- include/asm-x86_64/cache.h  |    2 ++
- include/linux/cache.h       |    4 +---
- 6 files changed, 11 insertions(+), 3 deletions(-)
-
-b7b3d524ba7fae865789ecc49b8ff660f5ef928b
-diff --git a/include/asm-i386/cache.h b/include/asm-i386/cache.h
-index 615911e..ca15c9c 100644
---- a/include/asm-i386/cache.h
-+++ b/include/asm-i386/cache.h
-@@ -10,4 +10,6 @@
- #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)
- #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
- 
-+#define __read_mostly __attribute__((__section__(".data.read_mostly")))
-+
- #endif
-diff --git a/include/asm-ia64/cache.h b/include/asm-ia64/cache.h
-index 40dd251..f0a104d 100644
---- a/include/asm-ia64/cache.h
-+++ b/include/asm-ia64/cache.h
-@@ -25,4 +25,6 @@
- # define SMP_CACHE_BYTES	(1 << 3)
- #endif
- 
-+#define __read_mostly __attribute__((__section__(".data.read_mostly")))
-+
- #endif /* _ASM_IA64_CACHE_H */
-diff --git a/include/asm-parisc/cache.h b/include/asm-parisc/cache.h
-index 93f179f..ae50f8e 100644
---- a/include/asm-parisc/cache.h
-+++ b/include/asm-parisc/cache.h
-@@ -29,6 +29,8 @@
- 
- #define SMP_CACHE_BYTES L1_CACHE_BYTES
- 
-+#define __read_mostly __attribute__((__section__(".data.read_mostly")))
-+
- extern void flush_data_cache_local(void *);  /* flushes local data-cache only */
- extern void flush_instruction_cache_local(void *); /* flushes local code-cache only */
- #ifdef CONFIG_SMP
-diff --git a/include/asm-sparc64/cache.h b/include/asm-sparc64/cache.h
-index f7d35a2..e9df17a 100644
---- a/include/asm-sparc64/cache.h
-+++ b/include/asm-sparc64/cache.h
-@@ -13,4 +13,6 @@
- #define        SMP_CACHE_BYTES_SHIFT	6
- #define        SMP_CACHE_BYTES		(1 << SMP_CACHE_BYTES_SHIFT) /* L2 cache line size. */
- 
-+#define __read_mostly __attribute__((__section__(".data.read_mostly")))
-+
- #endif
-diff --git a/include/asm-x86_64/cache.h b/include/asm-x86_64/cache.h
-index b4a2401..f06f33a 100644
---- a/include/asm-x86_64/cache.h
-+++ b/include/asm-x86_64/cache.h
-@@ -10,4 +10,6 @@
- #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)
- #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
- 
-+#define __read_mostly __attribute__((__section__(".data.read_mostly")))
-+
- #endif
-diff --git a/include/linux/cache.h b/include/linux/cache.h
-index d22e632..cc4b3aa 100644
---- a/include/linux/cache.h
-+++ b/include/linux/cache.h
-@@ -13,9 +13,7 @@
- #define SMP_CACHE_BYTES L1_CACHE_BYTES
- #endif
- 
--#if defined(CONFIG_X86) || defined(CONFIG_SPARC64) || defined(CONFIG_IA64) || defined(CONFIG_PARISC)
--#define __read_mostly __attribute__((__section__(".data.read_mostly")))
--#else
-+#ifndef __read_mostly
- #define __read_mostly
- #endif
- 
--- 
-1.0.GIT

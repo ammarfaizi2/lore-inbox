@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWAKTnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWAKTuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWAKTnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWAKTnj
+	id S932245AbWAKTuF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 14:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWAKTuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:43:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54201 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932467AbWAKTni (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:43:38 -0500
-Date: Wed, 11 Jan 2006 11:43:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: cmm@us.ibm.com
-Cc: hch@lst.de, pbadari@us.ibm.com, sct@redhat.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/5] multiple block allocation to current ext3
-Message-Id: <20060111114303.45540193.akpm@osdl.org>
-In-Reply-To: <1137007032.4395.24.camel@localhost.localdomain>
-References: <1112673094.14322.10.camel@mindpipe>
-	<1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	<1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	<1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1113244710.4413.38.camel@localhost.localdomain>
-	<1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1113288087.4319.49.camel@localhost.localdomain>
-	<1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	<1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1114207837.7339.50.camel@localhost.localdomain>
-	<1114659912.16933.5.camel@mindpipe>
-	<1114715665.18996.29.camel@localhost.localdomain>
-	<1136935562.4901.41.camel@dyn9047017067.beaverton.ibm.com>
-	<20060110212551.411a766d.akpm@osdl.org>
-	<1137007032.4395.24.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 14:50:04 -0500
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:41873 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932434AbWAKTuD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 14:50:03 -0500
+X-ORBL: [67.117.73.34]
+Date: Wed, 11 Jan 2006 11:49:53 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+Cc: linux-kernel@vger.kernel.org,
+       "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       linux@arm.linux.org.uk, ext David Brownell <david-b@pacbell.net>,
+       drzeus-list@drzeus.cx,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>
+Subject: Re: [patch 1/5] Add MMC password protection (lock/unlock) support V3
+Message-ID: <20060111194953.GG4422@atomide.com>
+References: <43C2E064.90500@indt.org.br> <20060109222902.GF19131@flint.arm.linux.org.uk> <43C5052C.4050804@indt.org.br> <20060111144424.GA20523@flint.arm.linux.org.uk> <20060111181459.GF4422@atomide.com> <43C55C3B.3090207@indt.org.br>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C55C3B.3090207@indt.org.br>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
->
-> # time ./filetst  -b 1048576 -w -f /mnt/a
->  	2.6.14		2.6.15
->  real    0m21.710s	0m25.773s
->  user    0m0.012s	0m0.004s
->  sys     0m14.569s	0m15.065s
+* Anderson Briglia <anderson.briglia@indt.org.br> [060111 11:26]:
+> Tony Lindgren wrote:
+> > * Russell King <rmk+lkml@arm.linux.org.uk> [060111 06:44]:
+> > 
+> >>On Wed, Jan 11, 2006 at 09:16:28AM -0400, Anderson Briglia wrote:
+> >>
+> >>>Russell King wrote:
+> >>>
+> >>>
+> >>>>On Mon, Jan 09, 2006 at 06:15:00PM -0400, Anderson Briglia wrote:
+> >>>> 
+> >>>>
+> >>>>
+> >>>>>When a card is locked, only commands from the "basic" and "lock card" classes
+> >>>>>are accepted. To be able to use the other commands, the card must be unlocked
+> >>>>>first.
+> >>>>>   
+> >>>>>
+> >>>>
+> >>>>I don't think this works as you intend.
+> >>>>
+> >>>>When a card is initially inserted, we discover the cards via mmc_setup()
+> >>>>and mmc_discover_cards().  This means that we'll never set the locked
+> >>>>status for newly inserted cards.
+> >>>> 
+> >>>>
+> >>>
+> >>>mmc_setup() calls mmc_check_cards(). Our patch adds the necessary code
+> >>>to mmc_check_cards() to set the locked state when the card is locked.
+> >>
+> >>Not in Linus' kernel, it doesn't.
+> >>
+> >>If you're working off the OMAP tree, bear in mind that I've found in
+> >>the past that they have a large number of wrong or inappropriate
+> >>changes to the MMC layer in there.  They don't regularly merge either,
+> >>and they certainly don't forward any bug fixes for review in a timely
+> >>manner.
+> > 
+> > 
+> > I agree the omap MMC driver should be cleaned-up and finally merged.
+> > 
+> > Anderson, since you are already patching it, do you want to take care of
+> > cleaning it up a bit and posting it here?
+> 
+> OK Tony. I'll do it and post here asap.
 
-That's a big drop.
+Cool, thanks!
 
-Was it doing I/O, or was it all from pagecache?
-
->  I also found tiobench(sequential write test) and dbench has similar
->  regression between 2.6.14 and 2.6.15. Actually I found 2.6.15 rc2
->  already has the regression.  Is this a known issue?
-
-No, it is not known.
-
-> Anyway I will continue looking at the issue...
-
-Thanks.
+Tony

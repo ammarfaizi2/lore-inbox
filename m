@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWAKQV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751669AbWAKQ2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751596AbWAKQV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 11:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWAKQV1
+	id S1751669AbWAKQ2d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 11:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751670AbWAKQ2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 11:21:27 -0500
-Received: from mail.gmx.de ([213.165.64.21]:32721 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751362AbWAKQV0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 11:21:26 -0500
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.15-mm3
-Date: Wed, 11 Jan 2006 17:21:23 +0100
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <20060111042135.24faf878.akpm@osdl.org>
-In-Reply-To: <20060111042135.24faf878.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 11:28:33 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:15577 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751667AbWAKQ2c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 11:28:32 -0500
+Date: Wed, 11 Jan 2006 08:28:55 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       vatsa@in.ibm.com
+Subject: Re: [PATCH 3/3] rcu: join rcu_ctrlblk and rcu_state
+Message-ID: <20060111162855.GD21885@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43C3BB12.B5523F2C@tv-sign.ru> <20060111043557.GM18252@us.ibm.com> <43C4A867.7080408@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601111721.23598.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <43C4A867.7080408@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 11. January 2006 13:21, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.15
->-mm3/
+On Wed, Jan 11, 2006 at 07:40:39AM +0100, Manfred Spraul wrote:
+> Paul E. McKenney wrote:
+> 
+> >On Tue, Jan 10, 2006 at 04:48:02PM +0300, Oleg Nesterov wrote:
+> > 
+> >
+> >>This patch moves rcu_state into the rcu_ctrlblk. I think there
+> >>are no reasons why we should have 2 different variables to control
+> >>rcu state. Every user of rcu_state has also "rcu_ctrlblk *rcp" in
+> >>the parameter list.
+> >>   
+> >>
+> >
+> >Looks good to me, passes one-hour RCU torture test.
+> >
+> >Manfred, does the ____cacheline_internodealigned_in_smp take care
+> >of your cache-line alignment concerns?
+>
+> Yes.
 
-hi!
-it doesn't compile here.
+Sounds good, we should be set on this one then!
 
-  CC      drivers/media/video/tveeprom.o
-  LD      drivers/media/video/built-in.o
-drivers/media/video/tuner.o:(.bss+0x0): multiple definition of `debug'
-drivers/media/video/msp3400.o:(.bss+0xc): first defined here
-make[3]: *** [drivers/media/video/built-in.o] Fehler 1
-make[2]: *** [drivers/media/video] Fehler 2
-make[1]: *** [drivers/media] Fehler 2
-make: *** [drivers] Fehler 2
-
-config file can be downloaded here:
-http://stud4.tuwien.ac.at/~e0227135/kernel/config-2.6.15-mm3
-
-greets,
-dominik
+							Thanx, Paul

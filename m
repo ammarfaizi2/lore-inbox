@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751624AbWAKNyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWAKNyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751624AbWAKNyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 08:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWAKNyu
+	id S1751623AbWAKNyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWAKNyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 08:54:50 -0500
-Received: from mx2.suse.de ([195.135.220.15]:63655 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751624AbWAKNyu (ORCPT
+	Wed, 11 Jan 2006 08:54:46 -0500
+Received: from mx2.suse.de ([195.135.220.15]:63143 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751623AbWAKNyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 08:54:50 -0500
+	Wed, 11 Jan 2006 08:54:46 -0500
 From: Andi Kleen <ak@suse.de>
-To: vgoyal@in.ibm.com
-Subject: Re: Crash with SMP on post 2.6.15 -git kernel
-Date: Wed, 11 Jan 2006 14:50:07 +0100
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: Console debugging wishlist was: Re: oops pauser.
+Date: Wed, 11 Jan 2006 14:51:33 +0100
 User-Agent: KMail/1.8.2
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060110165457.42ed2087@dxpl.pdx.osdl.net> <200601111212.40989.ak@suse.de> <20060111134230.GE4990@in.ibm.com>
-In-Reply-To: <20060111134230.GE4990@in.ibm.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
+References: <20060105045212.GA15789@redhat.com> <200601111417.19234.ak@suse.de> <43C50B6D.6090608@gmail.com>
+In-Reply-To: <43C50B6D.6090608@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200601111450.07996.ak@suse.de>
+Message-Id: <200601111451.34178.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 January 2006 14:42, Vivek Goyal wrote:
-
-> While testing this I ran into another problem with same symtoms. If 
-> I compile my kernel for physical location greater than or equal to 
-> 16MB then only BP boots and applicatoin processors don't come up. I had
-> noticed this problem in i386 and posted a patch. Here is the similar  patch 
-> for x86_64.
+On Wednesday 11 January 2006 14:43, Antonino A. Daplas wrote:
+> Andi Kleen wrote:
+> > On Wednesday 11 January 2006 14:05, Antonino A. Daplas wrote:
+> >> Andi Kleen wrote:
+> >>> On Wednesday 11 January 2006 13:24, Antonino A. Daplas wrote:
+> >>>
+> >>>> In the VGA console, all buffers, including scrollback is in video RAM, but
+> >>>> the size is fixed and is very small.
+> >>> I wonder if that can be fixed.
+> >> It can be done, but it will affect VGA console performance.
+> > 
+> > By how much? As long as it still scrolls reasonably fast it would be ok for me.
 > 
-> Though the symtoms are same but this does not seem to be related to the
-> problem which Stephen is facing as he seems to be compiling the kernel
-> for 1MB location only.
+> Each character will need to be written twice, one to VGA RAM and another to
+> the shadow/scrollback buffer in system RAM.
 
-I don't think that's Stephen's problem.
+That should be basically unnoticeable. 
 
+> It would still be reasonably fast. 
+> 
+> Perhaps I can implement this for vgacon.
+
+Please do. And increase the default scrollback please or make it a CONFIG.
+
+Thanks,
 -Andi

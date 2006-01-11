@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751723AbWAKSpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbWAKSqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751723AbWAKSpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWAKSpT
+	id S932604AbWAKSqE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWAKSpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:45:19 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48100 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751723AbWAKSpR (ORCPT
+	Wed, 11 Jan 2006 13:45:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18335 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932604AbWAKSpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:45:17 -0500
-Message-ID: <43C5522C.6080306@redhat.com>
-Date: Wed, 11 Jan 2006 10:45:00 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mail/News 1.5 (X11/20060103)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Jakub Jelinek <jakub@redhat.com>, "David S. Miller" <davem@davemloft.net>,
-       arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: ntohs/ntohl and bitops
-References: <20060111.000020.25886635.davem@davemloft.net> <1136967192.2929.6.camel@laptopd505.fenrus.org> <43C4C37B.9020801@redhat.com> <20060111.004418.92939254.davem@davemloft.net> <20060111094854.GK7768@devserv.devel.redhat.com> <Pine.LNX.4.61.0601111935340.19259@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601111935340.19259@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5A42F91143BD91B46E6D0525"
+	Wed, 11 Jan 2006 13:45:38 -0500
+Date: Wed, 11 Jan 2006 10:45:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm3
+Message-Id: <20060111104520.42a766d1.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0601111924001.11765@scrub.home>
+References: <20060111042135.24faf878.akpm@osdl.org>
+	<Pine.LNX.4.61.0601111924001.11765@scrub.home>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5A42F91143BD91B46E6D0525
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> Hi,
+> 
+> On Wed, 11 Jan 2006, Andrew Morton wrote:
+> 
+> > -hrtimer-...
+> 
+> Andrew, why did you merge this one? :-(
+> 
 
-Jan Engelhardt wrote:
-> And ^?
+Because the egregious rename-the-whole-world parts got taken out and
+everyone who'd looked at and worked on the code except for yourself was
+happy with it.
 
-^ is fine.
+Ignoring the objections of a long-standing and respected kernel developer
+is not a thing I like to do, but fortunately it's very rare.
 
-And just to be complete: I sent DaveM the correct line for that file in
-question, I just C&Ped the wrong line my scripts produced.  The mail
-seem not to make it to lkml.  In fact, none of my mail originated from
-the gmail account ever made it.  I don't know what filter doesn't like me=
-=2E
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig5A42F91143BD91B46E6D0525
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDxVIs2ijCOnn/RHQRAiRxAJ91lJ2c6j5eHKnerYI0H4BQFEKEbgCfbF4n
-/bDbZGeF+U98vfK/MhBYI8k=
-=8aM+
------END PGP SIGNATURE-----
-
---------------enig5A42F91143BD91B46E6D0525--
+Can you summarise, yet again, in as few words as possible, what you find
+wrong with it?  I'd really like to understand, but there were waay too many
+lengthy emails..

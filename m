@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751730AbWAKVFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWAKVHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751730AbWAKVFz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 16:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751737AbWAKVFz
+	id S932499AbWAKVHk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 16:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWAKVHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 16:05:55 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:35794 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751729AbWAKVFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 16:05:55 -0500
-Date: Wed, 11 Jan 2006 13:05:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: andrea@suse.de, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: smp race fix between invalidate_inode_pages* and do_no_page
-Message-Id: <20060111130533.6f23685b.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0601111949070.6448@goblin.wat.veritas.com>
-References: <20051213193735.GE3092@opteron.random>
-	<20051213130227.2efac51e.akpm@osdl.org>
-	<20051213211441.GH3092@opteron.random>
-	<20051216135147.GV5270@opteron.random>
-	<20060110062425.GA15897@opteron.random>
-	<43C484BF.2030602@yahoo.com.au>
-	<20060111082359.GV15897@opteron.random>
-	<20060111005134.3306b69a.akpm@osdl.org>
-	<20060111090225.GY15897@opteron.random>
-	<20060111010638.0eb0f783.akpm@osdl.org>
-	<20060111091327.GZ15897@opteron.random>
-	<Pine.LNX.4.61.0601111949070.6448@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 11 Jan 2006 16:07:40 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:46016 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932247AbWAKVHj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 16:07:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e/2j9a6j0afH772DXgfgSsfZaOSosDmyg/oljJxZmhVxUPsYbSxeqCL3oWgZnpnnTnXZsiYhHVG/b04B9fXmI3iulMRIls9h0Sd9b6NbU7lZFhRiZ/WnIc0WcRgFWUtHzKPWuqi7OXULAXBIHVLfZLXp3alHp3eaRjgCz7qzm2A=
+Message-ID: <d120d5000601111307x451db79aqf88725e7ecec79d2@mail.gmail.com>
+Date: Wed, 11 Jan 2006 16:07:37 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
+Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
+       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <1135575997.14160.4.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051225212041.GA6094@hansmi.ch>
+	 <200512252304.32830.dtor_core@ameritech.net>
+	 <1135575997.14160.4.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+On 12/26/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> On Sun, 2005-12-25 at 23:04 -0500, Dmitry Torokhov wrote:
 >
->  But I do not know what guarantees invalidate_inode_pages2 is supposed
->  to give.  As soon as you emerge from iipages2, its work could be undone:
+> > As far as the hook itself - i have that feeling that it should not be
+> > done in kernel but via a keymap.
+>
+> While I understand your feeling, it's a bit annoying in this specific
+> case because previous models did this in hardware and all mac keymaps
+> already account for that. Knowing how nasty it has been to get mac
+> keymaps updated and in a good shape, and to get distros to properly get
+> them, it makes a lot of sense to have this small hook in the kernel that
+> makes the USB keyboard behave exactly like the older ADB couterparts.
+>
 
-yup.  It cannot become a hard guarantee unless we add some new really big
-locks.
+Ok, I am looking at the patch again, and I have a question - do we
+really need these 3 module parameters? If the goal is to be compatible
+with older keyboards then shouldn't we stick to one behavior?
 
-So it can be fooled by silly or poorly-designed apps.  What we're aiming
-for here is predictable behaviour for sanely-implemented applications and
-refusal to oops or to expose insecure data for poorly-designed ones or
-exploits.
+--
+Dmitry

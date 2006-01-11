@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWAKSeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWAKSfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbWAKSeK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 13:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWAKSeK
+	id S932454AbWAKSfB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 13:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWAKSfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 13:34:10 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:3522 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932450AbWAKSeJ (ORCPT
+	Wed, 11 Jan 2006 13:35:00 -0500
+Received: from mail.gmx.net ([213.165.64.21]:21164 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932454AbWAKSe7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 13:34:09 -0500
-Date: Wed, 11 Jan 2006 19:34:04 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-cc: Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Console debugging wishlist was: Re: oops pauser.
-In-Reply-To: <43C502AA.1040200@gmail.com>
-Message-ID: <Pine.LNX.4.61.0601111933440.19259@yvahk01.tjqt.qr>
-References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601102121400.16049@yvahk01.tjqt.qr>
- <43C4F8EE.10201@gmail.com> <200601111331.45940.ak@suse.de> <43C502AA.1040200@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Jan 2006 13:34:59 -0500
+X-Authenticated: #1890154
+Subject: Re: Kernel 2.6.15 sometimes only detects one of two SATA drives
+	and panics
+From: Andre Hessling <ahessling@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1137004161.27255.72.camel@mindpipe>
+References: <1137003241.7603.20.camel@localhost.localdomain>
+	 <1137004161.27255.72.camel@mindpipe>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 11 Jan 2006 19:35:06 +0100
+Message-Id: <1137004506.8568.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> With the framebuffer console, you can increase the size of the scrollback
->>> buffer with the boot option:
->>>
->>> fbcon=scrollback:<n> (default is 32K)
->> 
->> On x86-64 vesafb is unusable slow because it does CPU scrolling cause
->> it can't use the vesa BIOS - and the others don't work everywhere. So I don't
->> think fbcon is an usable replacement.
->
->How about vga16fb + fbcon? If scrolling is slow in vga16fb, fbset -vyres 800 should
->increase performance significantly.
->
+Am Mittwoch, den 11.01.2006, 13:29 -0500 schrieb Lee Revell:
 
-Benchmarks first.
+> Check your cabling and termination.
+> 
+> Lee
 
+I can assure you that there is nothing wrong with cabling/termination.
 
-Jan Engelhardt
+BTW: It never happened before, just 2.6.15 seems to be affected.
+I also have another OS installed that never complained before about
+having not detected my second hard drive.
 -- 
+Regards,
+André
+

@@ -1,160 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWAKXFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWAKXHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWAKXFd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 18:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWAKXFd
+	id S932517AbWAKXHT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 18:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWAKXHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 18:05:33 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:43954 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932515AbWAKXFc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 18:05:32 -0500
-Subject: Re: [PATCH 3/10] NTP: add ntp_update_frequency
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0512220021210.30900@scrub.home>
-References: <Pine.LNX.4.61.0512220021210.30900@scrub.home>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 15:05:30 -0800
-Message-Id: <1137020731.2890.74.camel@cog.beaverton.ibm.com>
+	Wed, 11 Jan 2006 18:07:19 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1190 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932517AbWAKXHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 18:07:17 -0500
+Date: Wed, 11 Jan 2006 15:07:04 -0800
+From: Greg KH <greg@kroah.com>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
+Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
+Message-ID: <20060111230704.GA32558@kroah.com>
+References: <43C53DA0.60704@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C53DA0.60704@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 00:21 +0100, Roman Zippel wrote:
-> This introduces ntp_update_frequency and deinlines ntp_clear() (as it's
-> not performance critical).
-> It also changes how tick_nsec is calculated from tick_usec, instead of
-> scaling it using TICK_USEC_TO_NSEC it's simply shifted by the difference.
-> Since ntp doesn't change the tick value, the result in practice is the
-> same, but it's easier to change this into a clock parameter, which can
-> be calculated during boot.
-> 
+On Wed, Jan 11, 2006 at 12:17:20PM -0500, Mike D. Day wrote:
+> The included patch provides some sysfs helper routines so that xen 
+> domain kernel processes can easily attributes to sysfs. The intent is 
+> that any kernel process can add an attribute under /sys/xen just as 
+> easily as adding a file under /proc. In other words, without using the 
+> driver core to create a subsystem, dealing with kobjects and ksets, etc.
 
-Looks ok. Few comments below.
+Why is xen special from the rest of the kernel in regards to adding
+files to sysfs?  What does your infrastructure add that is not currently
+already present for everyone to use today?
 
-> 
-> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-> 
-> ---
-> 
->  include/linux/timex.h |   14 ++------------
->  kernel/time.c         |    7 ++++---
->  kernel/timer.c        |   28 ++++++++++++++++++++++++++--
->  3 files changed, 32 insertions(+), 17 deletions(-)
-> 
-> Index: linux-2.6-mm/include/linux/timex.h
-> ===================================================================
-> --- linux-2.6-mm.orig/include/linux/timex.h	2005-12-21 12:11:56.000000000 +0100
-> +++ linux-2.6-mm/include/linux/timex.h	2005-12-21 12:12:00.000000000 +0100
-> @@ -219,18 +219,8 @@ extern long time_reftime;	/* time at las
->  extern long time_adjust;	/* The amount of adjtime left */
->  extern long time_next_adjust;	/* Value for time_adjust at next tick */
->  
-> -/**
-> - * ntp_clear - Clears the NTP state variables
-> - *
-> - * Must be called while holding a write on the xtime_lock
-> - */
-> -static inline void ntp_clear(void)
-> -{
-> -	time_adjust = 0;		/* stop active adjtime() */
-> -	time_status |= STA_UNSYNC;
-> -	time_maxerror = NTP_PHASE_LIMIT;
-> -	time_esterror = NTP_PHASE_LIMIT;
-> -}
-> +extern void ntp_clear(void);
-> +extern void ntp_update_frequency(void);
+> One example adds xen version info under /sys/xen/version
 
-Yep, that looks good.
+Why is the xen version any different from any other module or driver
+version in the kernel? (hint, use the interface that is availble for
+this already...)
+
+> The comments desired are (1) do the helper routines in xen_sysfs 
+> duplicate code already present in linux (or under development somewhere 
+> else).
+
+You have access to the current tree as well as we do to be able to
+answer this question :)
+
+> (2) Is it appropriate for a process to create sysfs attributes without
+> implementing a driver subsystem
+
+You don't have to create a driver subsystem to be able to add stuff to
+sysfs, what makes you think that?
+
+> or (3) are such attributes better off living under /proc.
+
+No, they belong in the sysfs tree like everything else.  Unless you have
+process specific attributes, do NOT add anything new to /proc.
+
+> (4) any other feedback is appreciated.
+
+did you look at debugfs?  configfs?
+
+What is wrong with the current kobject/sysfs/driver model interface that
+made you want to create this extra code?
+
+Aren't you already going to have a xen virtual bus in sysfs and the
+driver model?  Why not just put your needed attributes there, where they
+belong (on the devices themselves)?
 
 
->  /**
->   * ntp_synced - Returns 1 if the NTP status is not UNSYNC
-> Index: linux-2.6-mm/kernel/time.c
-> ===================================================================
-> --- linux-2.6-mm.orig/kernel/time.c	2005-12-21 12:11:48.000000000 +0100
-> +++ linux-2.6-mm/kernel/time.c	2005-12-21 12:12:00.000000000 +0100
-> @@ -334,10 +334,11 @@ int do_adjtimex(struct timex *txc)
->  		    time_freq = max(time_freq, -time_tolerance);
->  		} /* STA_PLL */
->  	    } /* txc->modes & ADJ_OFFSET */
-> -	    if (txc->modes & ADJ_TICK) {
-> +	    if (txc->modes & ADJ_TICK)
->  		tick_usec = txc->tick;
-> -		tick_nsec = TICK_USEC_TO_NSEC(tick_usec);
-> -	    }
+> linux-2.6-xen-sparse/arch/xen/kernel/xen_sysfs.c
+> --- /dev/null   Tue Jan 10 17:53:44 2006
+> +++ b/linux-2.6-xen-sparse/arch/xen/kernel/xen_sysfs.c  Tue Jan 10 
+> 23:30:37 2006
+
+Your patch is linewrapped :(
+
+> +#ifdef DEBUG
+> +#define DPRINTK(fmt, args...)   printk(KERN_DEBUG "xen_sysfs: ",  fmt, 
+> ## args)
+> +#else
+> +#define DPRINTK(fmt, args...)
+> +#endif
+
+Don't create your own, use dev_dbg() and friends instead.  pr_debug if
+you absolutely don't have access to a struct device.
+
+> +#ifndef BOOL
+> +#define BOOL    int
+> +#endif
+
+Heh, what OS is this code for?
+
+> +#ifndef FALSE
+> +#define FALSE   0
+> +#endif
 > +
-> +	    if (txc->modes & ADJ_TICK)
-> +		    ntp_update_frequency();
+> +#ifndef TRUE
+> +#define TRUE    1
+> +#endif
 
-Why the extra conditional instead of just adding ntp_update_frequency()
-inside the braces?
+No, don't add this, it's pointless.
 
+> +#ifndef NULL
+> +#define NULL    0
+> +#endif
 
->  	} /* txc->modes */
->  leave:	if ((time_status & (STA_UNSYNC|STA_CLOCKERR)) != 0)
->  		result = TIME_ERROR;
-> Index: linux-2.6-mm/kernel/timer.c
-> ===================================================================
-> --- linux-2.6-mm.orig/kernel/timer.c	2005-12-21 12:11:56.000000000 +0100
-> +++ linux-2.6-mm/kernel/timer.c	2005-12-21 12:12:00.000000000 +0100
-> @@ -551,8 +551,8 @@ found:
->   * Timekeeping variables
->   */
->  unsigned long tick_usec = TICK_USEC; 		/* USER_HZ period (usec) */
-> -unsigned long tick_nsec = TICK_NSEC;		/* ACTHZ period (nsec) */
-> -static unsigned long tick_nsec_curr = TICK_NSEC;
-> +unsigned long tick_nsec;			/* ACTHZ period (nsec) */
-> +static unsigned long tick_nsec_curr;
->  
->  /* 
->   * The current time 
-> @@ -591,6 +591,29 @@ long time_reftime;			/* time at last adj
->  long time_adjust;
->  long time_next_adjust;
->  
-> +/**
-> + * ntp_clear - Clears the NTP state variables
-> + *
-> + * Must be called while holding a write on the xtime_lock
-> + */
-> +void ntp_clear(void)
-> +{
-> +	time_adjust = 0;		/* stop active adjtime() */
-> +	time_status |= STA_UNSYNC;
-> +	time_maxerror = NTP_PHASE_LIMIT;
-> +	time_esterror = NTP_PHASE_LIMIT;
+No, that will just break sparse.  Why did you add this?
+
+> +#define __sysfs_ref__
+
+Why?
+
+> +struct xen_sysfs_object;
 > +
-> +	ntp_update_frequency();
-> +
-> +	tick_nsec_curr = tick_nsec;
-> +}
-> +
-> +void ntp_update_frequency(void)
-> +{
-> +	tick_nsec = tick_usec * 1000;
-> +	tick_nsec -= NSEC_PER_SEC / HZ - TICK_NSEC;
-> +}
+> +struct xen_sysfs_attr {
+> +       struct bin_attribute attr;
+> +       ssize_t (*show)(void *, char *) ;
+> +       ssize_t (*store)(void *, const char *, size_t) ;
+> +       ssize_t (*read)(void *, char *, loff_t, size_t );
+> +       ssize_t (*write)(void *, char *, loff_t, size_t) ;
+> +};
 
-Could you add another "john is slow and forgetful" comment here?
+Why a binary attribute?  Do you want to have more than one single piece
+of info in here?  If so, no.
 
->  /*
->   * this routine handles the overflow of the microsecond field
->   *
-> @@ -1348,6 +1371,7 @@ static struct notifier_block __devinitda
->  
->  void __init init_timers(void)
->  {
-> +	ntp_clear();
->  	timer_cpu_notify(&timers_nb, (unsigned long)CPU_UP_PREPARE,
->  				(void *)(long)smp_processor_id());
->  	register_cpu_notifier(&timers_nb);
+I'll stop here and say that you should use the internal-to-IBM code
+review process, it would probably save you a lot of time in the
+future...
 
+thanks,
 
-thanks
--john
-
+greg k-h

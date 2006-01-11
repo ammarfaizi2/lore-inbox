@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWAKT5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWAKT6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWAKT5V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:57:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWAKT5V
+	id S932478AbWAKT6U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 14:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWAKT6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:57:21 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13001
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932474AbWAKT5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:57:21 -0500
-Date: Wed, 11 Jan 2006 11:56:29 -0800 (PST)
-Message-Id: <20060111.115629.65083150.davem@davemloft.net>
-To: schwidefsky@de.ibm.com
-Cc: bunk@stusta.de, linux390@de.ibm.com, linux-390@vm.marist.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] arch/s390/Makefile: remove -finline-limit=10000
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1136971280.6147.20.camel@localhost.localdomain>
-References: <20060110205704.GD3911@stusta.de>
-	<1136971280.6147.20.camel@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 11 Jan 2006 14:58:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24225 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932478AbWAKT6T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 14:58:19 -0500
+Date: Wed, 11 Jan 2006 11:57:10 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+Cc: stern@rowland.harvard.edu, linux-kernel@vger.kernel.org, vojtech@suse.cz,
+       mailing-lists-mmv@bretschneidernet.de, jengelh@linux01.gwdg.de,
+       linux-usb-devel@lists.sourceforge.net, gregkh@suse.de,
+       nouser@lpetrov.net, zaitcev@redhat.com
+Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
+Message-Id: <20060111115710.42937b7f.zaitcev@redhat.com>
+In-Reply-To: <20060111160120.GB8999@sith.mimuw.edu.pl>
+References: <20060111000151.GA5712@sith.mimuw.edu.pl>
+	<Pine.LNX.4.44L0.0601111024260.5195-100000@iolanthe.rowland.org>
+	<20060111160120.GB8999@sith.mimuw.edu.pl>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Wed, 11 Jan 2006 10:21:20 +0100
+On Wed, 11 Jan 2006 17:01:20 +0100, Jan Rekorajski <baggins@sith.mimuw.edu.pl> wrote:
 
-> On Tue, 2006-01-10 at 21:57 +0100, Adrian Bunk wrote:
-> > -finline-limit might have been required for older compilers, but 
-> > nowadays it does no longer make sense.
+> > > This happens on Dell Precision 380, x86_64 kernel with SMP/HT, no options
+> > > on kernel command line, same kernel .config (modulo make oldconfig).
+> > > I tried all solutions I found on google, none works (beside connecting
+> > > USB keyboard or disabling USB in BIOS).
+> > 
+> > Assuming your BIOS isn't totally out-of-date, what happens if you try 
+> > turning off the usb-handoff code and preventing the *hci-hcd.ko drivers 
+> > from loading, as described ealier in this thread?
 > 
-> I didn't check the effects of reverting to the default inline-limit, did
-> you find any negative impacts? I'm thinking about the critical code
-> paths e.g. minor faults. There better should not be an additional
-> function call that would have been inlined with the bigger inline limit,
-> since function calls are quite expensive on s390.
+> Wrong assumption, my BIOS was totally out-of-date. After upgrading to
+> A04 the problem went away and now everything works fine.
 
-You need to be careful now that -Os is specified by default
-in 2.6.x
+Very good. I suggested this because the PW 380 is a poster child of the
+buggy BIOS, and also of industry involvement: Dell fixed the problems
+for us. Buy a beer for Matt Domsch.
 
-The inline-limit GCC option is interpreted differently in
-gcc-4.x when -Os is given vs. when it is not.
+Here's the original RHEL bug (do not add silly comments or I'll make
+it private):
+ https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=165749
 
-On Sparc this caused schedule() to be inlined (I'm not kidding)
-which caused all kinds of troubles.
+Notice that the bug deals with broken sharing between EHCI and its
+companion controller. This is also something a BIOS breaks often.
+But you should've seen wild theories people posted about it to Ubuntu
+forums, they just crack me up.
 
-I highly recommed you don't specify it and let the compiler
-make the decisions, and add inline tags to places where you
-think it is hyper-important for inlining to occur.
+-- Pete

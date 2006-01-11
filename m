@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWAKXBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWAKXD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWAKXBc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 18:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWAKXBc
+	id S932510AbWAKXD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 18:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWAKXD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 18:01:32 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:26232 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932511AbWAKXBb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 18:01:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rdMwmOv7rEuz7D9AZ0inM809fANt5lvLueg3nScvpQ1Ov/uOqN7in9iiypLDlhsqjfWFZTHTZPC5bReAVi7etxsP+peizkCIJZLporgfDlqN/VdquK9IkIkkVzQ7ikzITGNmxQgLyfG+g0cEHjoofORuCniRKVyqbzQFaLM6uZI=
-Message-ID: <29495f1d0601111501j5c52b847v92bc95253513c280@mail.gmail.com>
-Date: Wed, 11 Jan 2006 15:01:30 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: load average wraps at 1024
-Cc: LKML List <linux-kernel@vger.kernel.org>
-In-Reply-To: <9a8748490601111440m53fdab80pfefc10efb214f3bd@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490601111440m53fdab80pfefc10efb214f3bd@mail.gmail.com>
+	Wed, 11 Jan 2006 18:03:29 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:473 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932510AbWAKXD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 18:03:28 -0500
+Subject: Re: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
+From: Adam Litke <agl@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20060111225202.GE9091@holomorphy.com>
+References: <1136920951.23288.5.camel@localhost.localdomain>
+	 <1137016960.9672.5.camel@localhost.localdomain>
+	 <1137018263.9672.10.camel@localhost.localdomain>
+	 <20060111225202.GE9091@holomorphy.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 11 Jan 2006 17:03:25 -0600
+Message-Id: <1137020606.9672.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/11/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> Hi,
->
-> Don't know if this is a kernel issue or userspace issue, but load
-> average values wrap back to 0 once they hit 1024.
->
-> I've been trying to stress 2.6.15-mm3 by putting a *lot* of load on it
-> and seeing if it stays alive, how it copes, how long it seems to take
-> to recover etc.
-> While doing that I've done some test runs that start thousands of
-> processes and the load average quickly shoots up to several hundred
-> and eventually reach 1000 - when it continues to climb it goes to 1023
-> and then wraps down to small numbers like 4-5 and then continue
-> climbing from there. Once I kill all my processes it slowly goes down
-> to zero, then wraps back to ~1000 and continues to climb down from
-> there until it's eventually back to normal.
->
-> Is this expected behaviour?
+On Wed, 2006-01-11 at 14:52 -0800, William Lee Irwin III wrote:
+> On Wed, Jan 11, 2006 at 04:24:23PM -0600, Adam Litke wrote:
+> > My only concern is if I am using the correct lock for the job here.
+> 
+> ->i_lock looks rather fishy. It may have been necessary when ->i_blocks
+> was used for nefarious purposes, but without ->i_blocks fiddling, it's
+> not needed unless I somehow missed the addition of some custom fields
+> to hugetlbfs inodes and their modifications by any of these functions.
 
-I'm going to say yes, based on the comments in sched.h:
+Nope, all the i_blocks stuff is gone.  I was just looking for a
+spin_lock for serializing all allocations for a particular hugeltbfs
+file and i_lock seemed to fit that bill.  It could be said, however,
+that the locking strategy used in the patch protects a section of code,
+not a data structure (which can be a bad idea).  Any thoughts on a less
+"fishy" locking strategy for this case?
 
-/*
- * These are the constant used to fake the fixed-point load-average
- * counting. Some notes:
- *  - 11 bit fractions expand to 22 bits by the multiplies: this gives
- *    a load-average precision of 10 bits integer + 11 bits fractional
- *  - if you want to count load-averages more often, you need more
- *    precision, or rounding will get you. With 2-second counting freq,
- *    the EXP_n values would be 1981, 2034 and 2043 if still using only
- *    11 bit fractions.
- */
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 
-That is, 10 bits of integer is 1024, the remaining 11 bits being used
-for fractions.
-
-Thanks,
-Nish

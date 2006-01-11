@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWAKT6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWAKUEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWAKT6U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 14:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWAKT6U
+	id S932407AbWAKUEI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 15:04:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWAKUEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 14:58:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24225 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932478AbWAKT6T (ORCPT
+	Wed, 11 Jan 2006 15:04:08 -0500
+Received: from smtpout04-03.prod.mesa1.secureserver.net ([64.202.165.198]:30156
+	"HELO smtpout04-03.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S932407AbWAKUEH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 14:58:19 -0500
-Date: Wed, 11 Jan 2006 11:57:10 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-Cc: stern@rowland.harvard.edu, linux-kernel@vger.kernel.org, vojtech@suse.cz,
-       mailing-lists-mmv@bretschneidernet.de, jengelh@linux01.gwdg.de,
-       linux-usb-devel@lists.sourceforge.net, gregkh@suse.de,
-       nouser@lpetrov.net, zaitcev@redhat.com
-Subject: Re: PROBLEM: PS/2 keyboard does not work with 2.6.15
-Message-Id: <20060111115710.42937b7f.zaitcev@redhat.com>
-In-Reply-To: <20060111160120.GB8999@sith.mimuw.edu.pl>
-References: <20060111000151.GA5712@sith.mimuw.edu.pl>
-	<Pine.LNX.4.44L0.0601111024260.5195-100000@iolanthe.rowland.org>
-	<20060111160120.GB8999@sith.mimuw.edu.pl>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 15:04:07 -0500
+Date: Wed, 11 Jan 2006 13:03:42 -0700
+From: akennedy@techmoninc.com
+Subject: ixp4xx_defconfig
+To: linux-kernel@vger.kernel.org
+Message-ID: <20060111130342.bfc52cea95091b0fffcb409eab6296ba.5d36bccaec.wbe@email.secureserver.net>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; CHARSET=US-ASCII
+X-Originating-IP: 24.177.178.80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jan 2006 17:01:20 +0100, Jan Rekorajski <baggins@sith.mimuw.edu.pl> wrote:
+Please CC me :shameful: as I'm not part of the list.
 
-> > > This happens on Dell Precision 380, x86_64 kernel with SMP/HT, no options
-> > > on kernel command line, same kernel .config (modulo make oldconfig).
-> > > I tried all solutions I found on google, none works (beside connecting
-> > > USB keyboard or disabling USB in BIOS).
-> > 
-> > Assuming your BIOS isn't totally out-of-date, what happens if you try 
-> > turning off the usb-handoff code and preventing the *hci-hcd.ko drivers 
-> > from loading, as described ealier in this thread?
-> 
-> Wrong assumption, my BIOS was totally out-of-date. After upgrading to
-> A04 the problem went away and now everything works fine.
+Please forgive if this has already been asked (I did look and couldn't
+find the answer).
 
-Very good. I suggested this because the PW 380 is a poster child of the
-buggy BIOS, and also of industry involvement: Dell fixed the problems
-for us. Buy a beer for Matt Domsch.
+I have a fresh install of 2.6.15, patched with 2.6.15-git6, edited the
+top-level make file and changed the ARCH ?= <blah> to ARCH = arm
 
-Here's the original RHEL bug (do not add silly comments or I'll make
-it private):
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=165749
+I then issue the following commands
+make ixp4xx_defconfig
+make
 
-Notice that the bug deals with broken sharing between EHCI and its
-companion controller. This is also something a BIOS breaks often.
-But you should've seen wild theories people posted about it to Ubuntu
-forums, they just crack me up.
+and I get the following:
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  SPLIT   include/linux/autoconf.h -> include/config/*
+  SYMLINK include/asm-arm/arch -> include/asm-arm/arch-ixp4xx
+  Generating include/asm-arm/mach-types.h
+  SYMLINK include/asm -> include/asm-arm
+  CC      arch/arm/kernel/asm-offsets.s
+cc1: error: invalid option `big-endian'
+cc1: error: invalid option `apcs'
+cc1: error: invalid option `no-sched-prolog'
+cc1: error: invalid option `abi=apcs-gnu'
+cc1: error: invalid option `tune=strongarm110'
+cc1: error: bad value (armv4) for -march= switch
+cc1: error: bad value (armv4) for -mcpu= switch
+make[1]: *** [arch/arm/kernel/asm-offsets.s] Error 1
+make: *** [prepare0] Error 2
 
--- Pete
+I'm sure that I'm not doing something easy, but I'm a virgin to Embedded
+systems.
+
+Sorry for the post, I know you guys have more to do than answer
+questions
+for embedded newbies.
+
+Thanks in advance for any assistance you can offer.
+
+Andy Kennedy
+Sr. Programmer
+Technical Monitoring Research Inc.
+

@@ -1,87 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbWAKGd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932787AbWAKGfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932699AbWAKGd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 01:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932787AbWAKGd1
+	id S932787AbWAKGfY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 01:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932792AbWAKGfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 01:33:27 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:23186 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932699AbWAKGd0 (ORCPT
+	Wed, 11 Jan 2006 01:35:23 -0500
+Received: from main.gmane.org ([80.91.229.2]:58846 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932787AbWAKGfX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 01:33:26 -0500
-Date: Wed, 11 Jan 2006 12:03:22 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, Benjamin LaHaise <bcrl@kvack.org>,
-       Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-Message-ID: <20060111063322.GA9261@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219192537.GC15277@kvack.org> <Pine.LNX.4.64.0512191148460.4827@g5.osdl.org> <43A985E6.CA9C600D@tv-sign.ru> <20060110102851.GB18325@in.ibm.com> <43C3F6DB.FEFDA101@tv-sign.ru>
+	Wed, 11 Jan 2006 01:35:23 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: 2.6.15 and CONFIG_PRINTK_TIME
+Date: Wed, 11 Jan 2006 15:34:58 +0900
+Message-ID: <dq28uj$96q$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C3F6DB.FEFDA101@tv-sign.ru>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s185160.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060110)
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 09:03:07PM +0300, Oleg Nesterov wrote:
-> Balbir Singh wrote:
-> >
-> > On Wed, Dec 21, 2005 at 07:42:14PM +0300, Oleg Nesterov wrote:
-> > >
-> > > Note that subsequent up() will not call wakeup(): ->count == 0,
-> > > it just increment it. That is why we are waking the next waiter
-> > > in advance. When it gets cpu, it will decrement ->count by 1,
-> > > because ->sleepers == 0. If up() (++->count) was already called,
-> > > it takes semaphore. If not - goes to sleep again.
-> > >
-> > > Or my understanding is completely broken?
-> >
-> > [ ... long snip ... ]
-> >
-> > The question now remains as to why we have the atomic_add_negative()? Why do
-> > we change the count in __down(), when down() has already decremented it
-> > for us?
-> 
-> ... and why __down() always sets ->sleepers = 0 on return.
->
+I remember there was some talk about resetting the time on printk during the
+boot to zero... Is that gone for 2.6.15?
 
-I think sem->sleepers initially started as a counter, but was later converted
-to a boolean value (0 or 1). The only possible values of sem->sleepers is 0, 1
-or 2 and we always use sem->sleepers - 1 and set the value to either 0 or 1.
+I recently turned CONFIG_PRINTK_TIME on two machines and they identically
+print things like this:
 
-sem->sleepers is set to 0, so that when the double wakeup is called on the
-wait queue, the task that wakes up (P2) corrects the count to 
-(sem->sleepers - 1) = -1. This ensures that other tasks do not acquire 
-the semaphore with down() (count is -1) and P2 sets sem->sleepers back to 1 
-and sleeps.
+[17179569.184000] Linux version 2.6.15-K01_PIII_laptop (kalin@ss) (gcc
+version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)) #2 PREEMPT Wed
+Jan 11 09:56:21 JST 2006
+[17179569.184000] BIOS-provided physical RAM map:
+[17179569.184000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+[17179569.184000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+[17179569.184000]  BIOS-e820: 00000000000e0000 - 00000000000eee00 (reserved)
+[17179569.184000]  BIOS-e820: 00000000000eee00 - 00000000000ef000 (ACPI NVS)
+[17179569.184000]  BIOS-e820: 00000000000ef000 - 0000000000100000 (reserved)
 
- 
-> I don't have an answer, only a wild guess.
-> 
-> Note that if P1 releases this semaphore before pre-woken P2 actually
-> gets cpu what happens is:
-> 
-> 	P1->up() just increments ->count, no wake_up() (fastpath)
-> 
-> 	P2 takes the semaphore without schedule.
-> 
-> So *may be* it was designed this way as some form of optimization,
-> in this scenario P2 has some chances to run with sem held earlier.
->
+...
 
-P1->up() will do a wake_up() only if count < 0. For no wake_up()
-the count >=0 before the increment. This means that there is no one
-sleeping on the semaphore.
- 
-Feel free to correct me,
-Balbir
+[17179591.768000] ReiserFS: hda5: checking transaction log (hda5)
+[17179591.836000] ReiserFS: hda5: Using r5 hash to sort names
+[17179605.172000] e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+
+That is about t0 + 200 days :-) No, the box is not THAT slow :-D
+
+Now, on two different boxen, the initial time is the same: 17179569.184000
+
+What is this number?
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

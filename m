@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWAKXqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWAKXrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWAKXqo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 18:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWAKXqn
+	id S964773AbWAKXrD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 18:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964772AbWAKXrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 18:46:43 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18184 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964769AbWAKXqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 18:46:42 -0500
-Date: Thu, 12 Jan 2006 00:46:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: davem@davemloft.net
-Cc: ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-Subject: [2.6 patch] arch/sparc64/Kconfig: fix HUGETLB_PAGE_SIZE_64K dependencies
-Message-ID: <20060111234640.GJ29663@stusta.de>
+	Wed, 11 Jan 2006 18:47:01 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:19427 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964773AbWAKXqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 18:46:45 -0500
+Message-Id: <200601112346.k0BNk5g02008@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Adam Litke'" <agl@us.ibm.com>,
+       "William Lee Irwin III" <wli@holomorphy.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: RE: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
+Date: Wed, 11 Jan 2006 15:46:05 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYXA5Czwn9PohthTzqItiwomjgCdAABRQKg
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <1137020606.9672.16.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a typo in the dependencies of HUGETLB_PAGE_SIZE_64K.
+Adam Litke wrote on Wednesday, January 11, 2006 3:03 PM
+> Nope, all the i_blocks stuff is gone.  I was just looking for a
+> spin_lock for serializing all allocations for a particular hugeltbfs
+> file and i_lock seemed to fit that bill.
 
-It might be more logical to rename the HUGETLB_PAGE_SIZE_*K dependencies 
-to HUGETLB_PAGE_SIZE_*KB, but let's fix this bug first.
+I hope you are aware of the consequence of serializing page allocation:
+It won't scale on large numa machine.  I don't have any issue per se at
+the moment.  But in the past, SGI folks had screamed their heads off
+for people doing something like that.
 
-This bug was reported by Jean-Luc Leger <reiga@dspnet.fr.eu.org>.
+- Ken
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-mm3-full/arch/sparc64/Kconfig.old	2006-01-11 23:44:42.000000000 +0100
-+++ linux-2.6.15-mm3-full/arch/sparc64/Kconfig	2006-01-11 23:44:58.000000000 +0100
-@@ -179,7 +179,7 @@
- 	bool "512K"
- 
- config HUGETLB_PAGE_SIZE_64K
--	depends on !SPARC64_PAGE_SIZE_4MB && !SPARC64_PAGE_SIZE_512K
-+	depends on !SPARC64_PAGE_SIZE_4MB && !SPARC64_PAGE_SIZE_512KB
- 	bool "64K"
- 
- endchoice

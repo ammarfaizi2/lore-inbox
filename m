@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWAKAH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWAKAIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160999AbWAKAH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jan 2006 19:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160998AbWAKAH6
+	id S1161008AbWAKAIH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jan 2006 19:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161000AbWAKAIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jan 2006 19:07:58 -0500
-Received: from xenotime.net ([66.160.160.81]:7627 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161000AbWAKAH5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jan 2006 19:07:57 -0500
-Date: Tue, 10 Jan 2006 16:07:55 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Keith Owens <kaos@sgi.com>
-cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       Paulo Marques <pmarques@grupopie.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       tony.luck@intel.com, Systemtap <systemtap@sources.redhat.com>,
-       Jim Keniston <jkenisto@us.ibm.com>
-Subject: Re: [patch 1/2] [BUG]kallsyms_lookup_name should return the text
- addres 
-In-Reply-To: <19866.1136937775@ocs3.ocs.com.au>
-Message-ID: <Pine.LNX.4.58.0601101606380.12724@shark.he.net>
-References: <19866.1136937775@ocs3.ocs.com.au>
+	Tue, 10 Jan 2006 19:08:07 -0500
+Received: from mail47-s.fg.online.no ([148.122.161.47]:20726 "EHLO
+	mail47-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S1161004AbWAKAIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jan 2006 19:08:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Help track down a freezing machine, libata or hardware
+References: <dnp4t9$srl$1@sea.gmane.org>
+	<81b0412b0512140625i7cc5779ar224de3d64c615fbc@mail.gmail.com>
+	<dnuutm$v10$1@sea.gmane.org> <dor1is$9bo$1@sea.gmane.org>
+	<dprej1$qmb$1@sea.gmane.org>
+From: Esben Stien <b0ef@esben-stien.name>
+Date: Wed, 11 Jan 2006 03:00:38 +0100
+In-Reply-To: <dprej1$qmb$1@sea.gmane.org> (Kalin KOZHUHAROV's message of
+ "Mon, 09 Jan 2006 01:28:17 +0900")
+Message-ID: <87k6d7ikvt.fsf@esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jan 2006, Keith Owens wrote:
+Kalin KOZHUHAROV <kalin@thinrope.net> writes:
 
-> Keshavamurthy Anil S (on Tue, 10 Jan 2006 15:29:05 -0800) wrote:
-> >On Wed, Jan 11, 2006 at 10:11:26AM +1100, Keith Owens wrote:
-> >> Keshavamurthy Anil S (on Tue, 10 Jan 2006 13:07:37 -0800) wrote:
-> >> >On Tue, Jan 10, 2006 at 08:45:02PM +0000, Paulo Marques wrote:
-> >> >But my [patch 2/2] speeds up the lookup and that can go in, I think.
-> >> >Please ack that patch if you think so.
-> >>
-> >> Your second patch changes the behaviour of kallsyms lookup w.r.t
-> >> duplicate symbols.
-> >With this send patch, kallsyms lookup first finds
-> >the real text address which is what we want. If you consider
-> >this as the change in behaviour, what is the negetive effect of this
-> >I am unable to get it.
->
-> Local symbols can be (and are) duplicated in the kernel code, and these
-> duplicate symbols can appear in modules.  Changing the list order of
-> loaded modules also changes which version of a duplicated symbol is
-> returned by the kallsyms code.  Not a big deal, but annoying enough to
-> say "don't change the module list order".
->
-> Changing the thread slightly, kallsyms_lookup_name() has never coped
-> with duplicate local symbols and it cannot do so without changing its
-> API, and all its callers.  For debugging purposes, it would be nicer if
-> the kernel did not have any duplicate symbols.  Perhaps some kernel
-> janitor would like to take that task on.
-
-Jesper Juhl was doing some -Wshadow patches.  Would that detect
-duplicate symbols?
+> Do you see this as hardware problem?
+ 
+Yes, definitely. I wrote a nice mail to the reiserfs list titled
+"Close Encounter of the Bad Block Kind". Check it out for how to get
+your data before anything else happens. 
 
 -- 
-~Randy  [sees nothing wrong with dup. local symbols, except for debugging]
+Esben Stien is b0ef@e     s      a             
+         http://www. s     t    n m
+          irc://irc.  b  -  i  .   e/%23contact
+          [sip|iax]:   e     e 
+           jid:b0ef@    n     n

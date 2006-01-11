@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWAKNDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWAKNFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWAKNDd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 08:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWAKNDd
+	id S1751195AbWAKNFy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 08:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWAKNFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 08:03:33 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:662 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S1750909AbWAKNDc (ORCPT
+	Wed, 11 Jan 2006 08:05:53 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:54187 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751195AbWAKNFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 08:03:32 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: OT: fork(): parent or child should run first?
-Date: Wed, 11 Jan 2006 13:03:30 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dq2vn2$dmr$1@news.cistron.nl>
-References: <20060111123745.GB30219@lgb.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: ncc1701.cistron.net 1136984610 14043 194.109.0.112 (11 Jan 2006 13:03:30 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Wed, 11 Jan 2006 08:05:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=mzaS/YObyya08/v0w91N1vVEX6OQKOacjqLNAC+ygupOnsAq+QAx9eRA6SpT7heEE8b8IBlKEj75B3tnUetgyUUGQ0z0Ce0r6137y75L0qR+xyOpS0/pf5N3bFOhCjPNlmhj83N8S90xh1bJgcJ4Z3OienQm9WzoxAzyR3YKrq4=
+Message-ID: <43C502AA.1040200@gmail.com>
+Date: Wed, 11 Jan 2006 21:05:46 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Console debugging wishlist was: Re: oops pauser.
+References: <20060105045212.GA15789@redhat.com> <Pine.LNX.4.61.0601102121400.16049@yvahk01.tjqt.qr> <43C4F8EE.10201@gmail.com> <200601111331.45940.ak@suse.de>
+In-Reply-To: <200601111331.45940.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20060111123745.GB30219@lgb.hu>,
-Gábor Lénárt  <lgb@lgb.hu> wrote:
->The following problem may be simple for you, so I hope someone can answer
->here. We've got a complex software using child processes and a table
->to keep data of them together, like this:
->
->childs[n].pid=fork();
->
->where "n" is an integer contains a free "slot" in the childs struct array.
->
->I also handle SIGCHLD in the parent and signal handler  searches the childs
->array for the pid returned by waitpid(). However here is my problem. The
->child process can be fast, ie exits before scheduler of the kernel give
->chance the parent process to run, so storing pid into childs[n].pid in the
->parent context is not done yet. Child may exit, than scheduler gives control
->to the signal handler before doing the store of the pid (if child run for
->more time, eg 10 seconds it works of course). So it's impossible to store
->child pids and search by that information in eg the signal handler?
+Andi Kleen wrote:
+> On Wednesday 11 January 2006 13:24, Antonino A. Daplas wrote:
+> 
+>> In the VGA console, all buffers, including scrollback is in video RAM, but
+>> the size is fixed and is very small.
+> 
+> I wonder if that can be fixed.
 
-Simply block sigchld like this:
+It can be done, but it will affect VGA console performance.
+ 
+> 
+>> With the framebuffer console, you can increase the size of the scrollback
+>> buffer with the boot option:
+>>
+>> fbcon=scrollback:<n> (default is 32K)
+> 
+> On x86-64 vesafb is unusable slow because it does CPU scrolling cause
+> it can't use the vesa BIOS - and the others don't work everywhere. So I don't
+> think fbcon is an usable replacement.
 
-	sigemptyset(&set);
-	sigaddset(&set, SIGCHLD);
-	sigprocmask(SIG_BLOCK, &set, &oldset);
-	pid = fork();
-	if (pid == 0) {
-		sigprocmask(SIG_SETMASK, &oldset, NULL);
-		do_whatever();
-		exit(0);
-	}
-	childs[n].pid = pid;
-	sigprocmask(SIG_SETMASK, &oldset, NULL);
+How about vga16fb + fbcon? If scrolling is slow in vga16fb, fbset -vyres 800 should
+increase performance significantly.
 
-This is a common problem. When you have data structures that are
-handled by both the main program and by a signal handler, *always* block
-the signal when you're handling the data structures in the main program.
-
-Mike.
--- 
-Freedom is no longer a problem.
-
+Tony

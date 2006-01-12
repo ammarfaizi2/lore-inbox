@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161327AbWALVxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161329AbWALVzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161327AbWALVxF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 16:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161328AbWALVxF
+	id S1161329AbWALVzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 16:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161332AbWALVzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 16:53:05 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:41229 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161327AbWALVxE (ORCPT
+	Thu, 12 Jan 2006 16:55:25 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:22145 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1161329AbWALVzZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 16:53:04 -0500
-Date: Thu, 12 Jan 2006 22:52:37 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Matthew Wilcox <willy@parisc-linux.org>, grundler@parisc-linux.org,
-       parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] arch/parisc/Makefile: remove GCC_VERSION
-Message-ID: <20060112215237.GC8665@mars.ravnborg.org>
-References: <20060112105157.GT29663@stusta.de>
+	Thu, 12 Jan 2006 16:55:25 -0500
+Date: Thu, 12 Jan 2006 22:55:23 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: git status (was: drm tree for 2.6.16-rc1)
+Message-ID: <20060112215523.GA19656@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+References: <Pine.LNX.4.58.0601120948270.1552@skynet> <Pine.LNX.4.64.0601121016020.3535@g5.osdl.org> <20060112134255.29074831.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060112105157.GT29663@stusta.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060112134255.29074831.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 11:51:57AM +0100, Adrian Bunk wrote:
-> This patch removes the usage of GCC_VERSION from arch/parisc/Makefile.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Hi,
 
-I assume the parisc people will take this one.
+On Thu, Jan 12, 2006 at 01:42:55PM -0800, Andrew Morton wrote:
+> 40442				git-pcmcia.patch
 
-	Sam
-> 
-> --- linux-2.6.15-mm3-hppa/arch/parisc/Makefile.old	2006-01-12 03:11:45.000000000 +0100
-> +++ linux-2.6.15-mm3-hppa/arch/parisc/Makefile	2006-01-12 03:12:35.000000000 +0100
-> @@ -35,12 +35,8 @@
->  
->  OBJCOPY_FLAGS =-O binary -R .note -R .comment -S
->  
-> -GCC_VERSION     := $(call cc-version)
-> -ifneq ($(shell if [ -z $(GCC_VERSION) ] ; then echo "bad"; fi ;),)
-> -$(error Sorry, couldn't find ($(cc-version)).)
-> -endif
-> -ifneq ($(shell if [ $(GCC_VERSION) -lt 0303 ] ; then echo "bad"; fi ;),)
-> -$(error Sorry, your compiler is too old ($(GCC_VERSION)).  GCC v3.3 or above is required.)
-> +ifneq ($(shell if [ $(call cc-version) -lt 0303 ] ; then echo "bad"; fi ;),)
-> +$(error Sorry, your compiler is too old.  GCC v3.3 or above is required.)
->  endif
->  
->  cflags-y	:= -pipe
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> pcmcia: had a problem but I think that's now fixed.  But this seems
+>         to be fairly fresh code?
+
+For the two important fixes which are part of this tree, (add new IDs for
+serial_cs.c, runtime powermanagement interface), please pull from
+
+git://git.kernel.org/pub/scm/linux/kernel/git/brodo/pcmcia-fixes-2.6.git/
+
+
+The other patches are indeed fresh code, and are meant for 2.6.17.
+
+Thanks,
+	Dominik

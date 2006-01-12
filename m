@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbWALSIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWALSLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932612AbWALSIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 13:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbWALSIo
+	id S932236AbWALSLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 13:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWALSLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 13:08:44 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:18121 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932612AbWALSIn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 13:08:43 -0500
-Subject: Re: Back to the Future ? or some thing sinister ?
-From: john stultz <johnstul@us.ibm.com>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Cc: Nathan Lynch <ntl@pobox.com>, Chaitanya Hazarey <cvh.tcs@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <728201270601120633i1c9072fp3329d05b49de790f@mail.gmail.com>
-References: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
-	 <20060109040322.GA2683@localhost.localdomain>
-	 <1137016986.2890.57.camel@cog.beaverton.ibm.com>
-	 <728201270601120633i1c9072fp3329d05b49de790f@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 10:08:17 -0800
-Message-Id: <1137089297.2890.118.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 12 Jan 2006 13:11:41 -0500
+Received: from host2092.kph.uni-mainz.de ([134.93.134.92]:43738 "EHLO
+	a1i15.kph.uni-mainz.de") by vger.kernel.org with ESMTP
+	id S932236AbWALSLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 13:11:40 -0500
+From: Ulrich Mueller <ulm@kph.uni-mainz.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17350.39878.474574.712791@a1i15.kph.uni-mainz.de>
+Date: Thu, 12 Jan 2006 19:11:18 +0100
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-mm2
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<43C0172E.7040607@ens-lyon.org>
+	<20060107210413.GL9402@redhat.com>
+	<43C03214.5080201@ens-lyon.org>
+	<43C55148.4010706@ens-lyon.org>
+	<20060111202957.GA3688@redhat.com>
+	<u3bjtogq0@a1i15.kph.uni-mainz.de>
+	<20060112171137.GA19827@redhat.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 08:33 -0600, Ram Gupta wrote:
-> On 1/11/06, john stultz <johnstul@us.ibm.com> wrote:
-> > On Sun, 2006-01-08 at 22:03 -0600, Nathan Lynch wrote:
-> > > Chaitanya Hazarey wrote:
-> > > >
-> > > > We have got a machine, lets say X , make is IBM and the CPU is Intel
-> > > > Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
-> > > > 2.6.27-4 Kernel the distribution is Debian Sagre.
-> 
-> It may be BIOS related. But I feel it might be an overflow related
-> issue. If the variable is signed int then there will be a transition
-> from 0x7fffffff ns  to 0x80000000 ns which is basically from +2 sec to
-> -2 sec which will result in 4 sec loss.
+>>>>> On Thu, 12 Jan 2006, Dave Jones wrote:
 
-I'm pretty sure this is the BIOS issue. If your hesitant about updating
-the BIOS, try booting w/ noapic, and see if that works around the issue.
+>> $ lspci -s 00:02.0 -v
+>> 00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 03) (prog-if 00 [VGA])
+>> Subsystem: Hewlett-Packard Company nx6110/nc6120
+>> Flags: bus master, fast devsel, latency 0, IRQ 16
+>> Memory at d0400000 (32-bit, non-prefetchable) [size=512K]
+>> I/O ports at 7000 [size=8]
+>> Memory at c0000000 (32-bit, prefetchable) [size=256M]
+>> Memory at d0480000 (32-bit, non-prefetchable) [size=256K]
+>> Capabilities: [d0] Power Management version 2
 
-The 4 second loss is the tv_nsec portion of the xtime timespec wrapping.
-Since time is not accumulated (timer_interrupt isn't being called at the
-normal HZ frequency), the TSC offset grows and grows (and finally will
-wrap repeating the processes), causing the xtime.tv_nsec to wrap.
+> Another one that advertises no AGP capabilities.
+> In this situation you shouldn't *need* agpgart.  If it's PCI[E],
+> radeon will use pcigart.
 
-Thus you are correct that the symptom is overflow related, but the cause
-is most likely the BIOS.
-
-thanks
--john
-
+Problem is that i915 depends on DRM && AGP && AGP_INTEL.
+And at the end of i{810,830,915}_dma.c there is the comment:
+"All Intel graphics chipsets are treated as AGP, even if they are
+really PCI-e."

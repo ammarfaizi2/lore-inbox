@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932683AbWALGg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWALGgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932683AbWALGg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 01:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbWALGg4
+	id S932498AbWALGgK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 01:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWALGgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 01:36:56 -0500
-Received: from mx2.suse.de ([195.135.220.15]:54209 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932683AbWALGg4 (ORCPT
+	Thu, 12 Jan 2006 01:36:10 -0500
+Received: from dvhart.com ([64.146.134.43]:20866 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932498AbWALGgJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 01:36:56 -0500
-From: Neil Brown <neilb@suse.de>
-To: Jurriaan <thunder7@xs4all.nl>
-Date: Thu, 12 Jan 2006 17:36:42 +1100
+	Thu, 12 Jan 2006 01:36:09 -0500
+Message-ID: <43C5F8C8.60908@mbligh.org>
+Date: Wed, 11 Jan 2006 22:35:52 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Martin Bligh <mbligh@google.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, apw@shadowen.org
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <200601121218.47744.kernel@kolivas.org> <43C5B945.3000903@google.com>
+In-Reply-To: <43C5B945.3000903@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17349.63738.220760.681335@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm3 hangs during boot (raid related?)
-In-Reply-To: message from Jurriaan on adsl-gate on Thursday January 12
-References: <20060112062310.GA12471@gates.of.nowhere>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday January 12, thunder7@xs4all.nl wrote:
-> 
-> 2.6.15-mm3 hangs during boot for me, after the lines
-> 
-> ========
-> md4: bitmap initialized from disk: read 15/15 pages, set 51 bits, status: 0
-> created bitmap (224 pages) for device md4
-> ========
-> 
-> ctrl-alt-del to reboot works sometimes (2 out of 3). Below is complete
-> dmesg (from 2.6.15-mm2, ver_linux output, .config and raid details).
+Martin Bligh wrote:
 
-Yep, this is probably a known problem with recent changes to the
-'barrier' code.
+>
+>> This is a shot in the dark. We haven't confirmed 1. there is a 
+>> problem 2. that this is the problem nor 3. that this patch will fix 
+>> the problem. I say we wait for the results of 1. If the improved smp 
+>> nice handling patch ends up being responsible then it should not be 
+>> merged upstream, and then this patch can be tested on top.
+>>
+>> Martin I know your work move has made it not your responsibility to 
+>> test backing out this change, but are you aware of anything being 
+>> done to test this hypothesis?
+>
+>
+OK, backing out that patch seems to fix it. Thanks Andy ;-)
 
-Try to convince md not to use barrier by changing md_super_write in
-drivers/md/md.c.  Simply remove
+M.
 
-	if (!test_bit(BarriersNotsupp, &rdev->flags)) {
-		struct bio *rbio;
-		rw |= (1<<BIO_RW_BARRIER);
-		rbio = bio_clone(bio, GFP_NOIO);
-		rbio->bi_private = bio;
-		rbio->bi_end_io = super_written_barrier;
-		submit_bio(rw, rbio);
-	} else
 
-leaving the
-		submit_bio(rw, rbio);
-
-which comes after it.
-
-NeilBrown

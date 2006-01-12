@@ -1,115 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161302AbWALVQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161297AbWALVWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161302AbWALVQr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 16:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161297AbWALVQr
+	id S1161297AbWALVWV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 16:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161284AbWALVWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 16:16:47 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:28108 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1161299AbWALVQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 16:16:46 -0500
-Message-Id: <200601122116.k0CLGaiO005357@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.15-mm3 - disk quotas apparently busticated..
-From: Valdis.Kletnieks@vt.edu
+	Thu, 12 Jan 2006 16:22:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20916 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161283AbWALVWT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 16:22:19 -0500
+Date: Thu, 12 Jan 2006 16:22:05 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Daniel Drake <dsd@gentoo.org>, Jon Mason <jdmason@us.ibm.com>,
+       mulix@mulix.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: pcnet32 devices with incorrect trident vendor ID
+Message-ID: <20060112212205.GA28395@devserv.devel.redhat.com>
+Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
+	Daniel Drake <dsd@gentoo.org>, Jon Mason <jdmason@us.ibm.com>,
+	mulix@mulix.org, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+References: <20060112175051.GA17539@us.ibm.com> <43C6C0E6.7030705@gentoo.org> <20060112205714.GK19769@parisc-linux.org> <20060112210559.GL19769@parisc-linux.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1137100596_2950P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 12 Jan 2006 16:16:36 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060112210559.GL19769@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1137100596_2950P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <5348.1137100595.1@turing-police.cc.vt.edu>
+Matthew Wilcox (matthew@wil.cx) said: 
+> On Thu, Jan 12, 2006 at 01:57:14PM -0700, Matthew Wilcox wrote:
+> > On Thu, Jan 12, 2006 at 08:49:42PM +0000, Daniel Drake wrote:
+> > > interesting:
+> > > 
+> > > http://forums.gentoo.org/viewtopic-t-420013-highlight-trident.html
+> > > 
+> > > The user saw the correct vendor ID (AMD) in 2.4, but when upgrading to 
+> > > 2.6, it changed to Trident.
+> > 
+> > It looks to me like there used to be a quirk that knew about this bug
+> > and fixed it.
+> > 
+> > The reason I say this is that the lspci -x dumps are the same -- both
+> > featuring the wrong vendor ID.  Want to dig through 2.4 and look for
+> > this quirk?
+> 
+> Oh -- found it.  It's still in 2.6:
+> 
+> static void
+> fixup_broken_pcnet32(struct pci_dev* dev)
+> {
+>         if ((dev->class>>8 == PCI_CLASS_NETWORK_ETHERNET)) {
+>                 dev->vendor = PCI_VENDOR_ID_AMD;
+>                 pci_write_config_word(dev, PCI_VENDOR_ID, PCI_VENDOR_ID_AMD);
+>         }
+> }
+> DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TRIDENT, PCI_ANY_ID,                     
+> fixup_broken_pcnet32);
+> 
+> Wonder why it isn't working now ... someone with a PPC box needs to check
+> (a) whether this function is being called and (b) if it is called, why
+> it's not doing what it's supposed to.
 
-Disk quotas have been functioning for me for quite a while (including 2.6.15 and
-2.6.15-rc*-mm* - haven't tried 15-mm1 or 15-mm2 yet).
+I remember looking at this a while back. I think the corrected information
+is only being propagated to the 'vendor' file, and the write_config_word
+isn't actually updating the 'config' entry in sysfs.
 
-Under the 2.6.15-mm3 kernel, 'quotaon /home' (or any other ext3 filesystem
-that had functional quotas on it fails:
+If you remove the "#if 0" from lib/sysfs.c in pciutils, it should
+start reporting the corrected value in base lspci, etc.
 
-# quotaon /home
-quotaon: using /home/aquota.group on /dev/mapper/rootvg-home [/home]: Invalid argument
-quotaon: Maybe create new quota files with quotacheck(8)?
-quotaon: using /home/aquota.user on /dev/mapper/rootvg-home [/home]: Invalid argument
-quotaon: Maybe create new quota files with quotacheck(8)?
-# quotacheck -u -g -m /home
-# quotaon /home
-quotaon: using /home/aquota.group on /dev/mapper/rootvg-home [/home]: Invalid argument
-quotaon: Maybe create new quota files with quotacheck(8)?
-quotaon: using /home/aquota.user on /dev/mapper/rootvg-home [/home]: Invalid argument
-quotaon: Maybe create new quota files with quotacheck(8)?
-
-Using quota-3.13.
-
-Poking with strace finds:
-...
-quotactl(Q_QUOTAON|GRPQUOTA, "/dev/mapper/rootvg-home", 2, {8169863311701010479, 8030594534456192885, 141733949557, 8097873655606109231, 8390047167027504496, 28549297904379766, 1309965025280, 13254570172929388888}) = -1 EINVAL (Invalid argument)
-...
-quotactl(Q_QUOTAON|USRQUOTA, "/dev/mapper/rootvg-home", 2, {8169863311701010479, 7310315462216413045, 141733920882, 8097873655606109231, 8390047167027504496, 28549297904379766, 210453397504, 7018986666877744431}) = -1 EINVAL (Invalid argument)
-
-And the following corresponding cryptic messages in dmesg:
-
-[ 1833.288000] failed read
-[ 1833.332000] failed read
-
-(which is why I just submitted a patch to fs/quota_v2.c)
-
-Further digging based on the info from that patch implicates ext3_quota_read()
-(which itself seems potentially buggy - it has code that says:
-
-                bh = ext3_bread(NULL, inode, blk, 0, &err);
-                if (err)
-                        return err;
-
-which is returning 1 in my case.  Good thing that ext3_get_blocks_handle()
-(which eventually gets called) can't return 8....
-
-It's getting down to fs/ext3/inode.c ext3_getblk() and this code:
-
-        *errp = ext3_get_blocks_handle(handle, inode, block, 1, &dummy, create, 1);
-        if ((*errp == 1 ) && buffer_mapped(&dummy)) {
-
-which sets *errp to 1. We then enter a 40-line block, which can return a valid
-struct buffer_head, but never set another value into *errp.
-
-Bug/question: Should that big 'if' statement reset *errp if things work out OK?
-
---- inode.c     2006-01-12 13:35:44.000000000 -0500
-+++ inode.c.temp        2006-01-12 16:13:44.000000000 -0500
-@@ -1048,14 +1048,16 @@
-                } else {
-                        BUFFER_TRACE(bh, "not a new buffer");
-                }
-                if (fatal) {
-                        *errp = fatal;
-                        brelse(bh);
-                        bh = NULL;
-+               } else {
-+                       *errp = 0;
-                }
-                return bh;
-        }
- err:
-        return NULL;
- }
-
-
---==_Exmh_1137100596_2950P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDxsc0cC3lWbTT17ARAoIoAKDPzfAYFaxNoybacHivgjaBBeH0NgCfWXP5
-tVlSGxD6rbVACcEqMFf48ls=
-=kaNU
------END PGP SIGNATURE-----
-
---==_Exmh_1137100596_2950P--
+Bill

@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWALBea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWALBfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbWALBea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 20:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWALBe3
+	id S964962AbWALBfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 20:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWALBfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 20:34:29 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:31502 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S964960AbWALBe2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 20:34:28 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <lgb@lgb.hu>, <linux-kernel@vger.kernel.org>
-Subject: RE: fork(): parent or child should run first?
-Date: Wed, 11 Jan 2006 17:33:13 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKECAJFAB.davids@webmaster.com>
+	Wed, 11 Jan 2006 20:35:43 -0500
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:51889 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964958AbWALBfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 20:35:42 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+Date: Thu, 12 Jan 2006 12:36:07 +1100
+User-Agent: KMail/1.8.3
+Cc: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <43C45BDC.1050402@google.com> <200601121218.47744.kernel@kolivas.org> <43C5B0F6.5090500@bigpond.net.au>
+In-Reply-To: <43C5B0F6.5090500@bigpond.net.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060111123745.GB30219@lgb.hu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 11 Jan 2006 17:30:07 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 11 Jan 2006 17:30:08 -0800
+Content-Disposition: inline
+Message-Id: <200601121236.07522.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> The following problem may be simple for you, so I hope someone can answer
-> here. We've got a complex software using child processes and a table
-> to keep data of them together, like this:
+On Thu, 12 Jan 2006 12:29 pm, Peter Williams wrote:
+> Con Kolivas wrote:
+> > This is a shot in the dark. We haven't confirmed 1. there is a problem 2.
+> > that this is the problem nor 3. that this patch will fix the problem.
 >
-> childs[n].pid=fork();
->
-> where "n" is an integer contains a free "slot" in the childs struct array.
->
-> I also handle SIGCHLD in the parent and signal handler  searches
-> the childs
-> array for the pid returned by waitpid(). However here is my problem. The
-> child process can be fast, ie exits before scheduler of the kernel give
-> chance the parent process to run, so storing pid into childs[n].pid in the
-> parent context is not done yet. Child may exit, than scheduler
-> gives control
-[snip]
+> I disagree.  I think that there is a clear mistake in my original patch
+> that this patch fixes.
 
-	There are a lot of things you should not do in a signal handler, this is
-one of them. There are a lot of possible solutions. My recommendation would
-be to handle the death of a child from a safe context, rather than from a
-signal handler. For example, the SIGCHLD handler could just set a volatile
-variable to 'true' and then the code could notice that from a safe context
-and loop on 'waitpid', reaping all dead children.
+I agree with you on that. The real concern is that we were just about to push 
+it upstream. So where does this leave us? I propose we delay merging the 
+"improved smp nice handling" patch into mainline pending your further 
+changes.
 
-	DS
-
-
+Cheers,
+Con

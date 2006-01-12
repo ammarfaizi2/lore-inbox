@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWALRXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWALRWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWALRXD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 12:23:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWALRXD
+	id S932337AbWALRWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 12:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWALRWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 12:23:03 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:780 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S932278AbWALRXA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 12:23:00 -0500
-Message-ID: <43C69067.9040206@arcom.com>
-Date: Thu, 12 Jan 2006 17:22:47 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 12 Jan 2006 12:22:37 -0500
+Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:36023 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S932315AbWALRWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 12:22:36 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Orion Poplawski'" <orion@cora.nwra.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Help with machine check exception
+Date: Thu, 12 Jan 2006 11:32:33 -0600
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, oliver@neukum.org
-Subject: Re: [linux-usb-devel] Re: need for packed attribute
-References: <200601121227.k0CCRCB8016162@alkaid.it.uu.se> <20060112134729.GB5700@flint.arm.linux.org.uk> <17350.33811.433595.750615@alkaid.it.uu.se> <20060112164621.GA9288@flint.arm.linux.org.uk>
-In-Reply-To: <20060112164621.GA9288@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Jan 2006 17:26:43.0093 (UTC) FILETIME=[5B03FC50:01C6179D]
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcYXlT5VKYSi6+oQSIGXO+GLNhjx1AACHJiQ
+In-Reply-To: <dq606p$776$1@sea.gmane.org>
+Message-ID: <EXCHG2003lbcrYP0QzB00000be1@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 12 Jan 2006 17:16:09.0431 (UTC) FILETIME=[E152D670:01C6179B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> BTW, it's worth noting that the new EABI stuff has it's own set of
-> problems.  We have r0 to r6 to pass 32-bit or 64-bit arguments.
-> With EABI, 64-bit arguments will be aligned to an _even_ numbered
-> register.
+ 
 
-Is there a reason for this alignment requirement?
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> Orion Poplawski
+> Sent: Thursday, January 12, 2006 10:30 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Help with machine check exception
+> 
+> Can someone help determine the problem here?  Does it 
+> definitely point to a bad CPU, or possibly a bad motherboard?
+> 
+> Thanks!
+> 
+> CPU 0: Machine Check Exception:                4 Bank 4: 
+> b200000000070f0f
+> TSC 184fcd0553e4
+> Kernel panic - not syncing: Machine check
+> 
 
-David Vrabel
--- 
-David Vrabel, Design Engineer
+If this is an Opteron, CPU or Memory, a dimm failing in the
+correct manner will cause it, and I have seen a CPU cause it,
+I don't know that I have seen a MB cause it, and we have fixed
+a fair number of these errors.   If it is memory, it can be any
+of the dimms on that cpu.
 
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+I have seen this error kill a machine on boot up, but it looks
+more like something was cleared improperly, and may only affect
+much older versions of 2.6, in this case it is not broken hardware,
+and rebooting will cause it to not be duplicatable.
+
+                       Roger
+

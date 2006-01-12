@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbWALO3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbWALOdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030414AbWALO3x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 09:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbWALO3w
+	id S1030417AbWALOdy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 09:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbWALOdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 09:29:52 -0500
-Received: from cabal.ca ([134.117.69.58]:18834 "EHLO fattire.cabal.ca")
-	by vger.kernel.org with ESMTP id S1030414AbWALO3w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 09:29:52 -0500
-Date: Thu, 12 Jan 2006 09:28:43 -0500
-From: Kyle McMartin <kyle@mcmartin.ca>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       parisc-linux@parisc-linux.org, Kyle McMartin <kyle@parisc-linux.org>
-Subject: Re: [parisc-linux] Re: [2.6 patch] arch/parisc/mm/init.c: fix SMP=y compilation
-Message-ID: <20060112142843.GA31925@quicksilver.road.mcmartin.ca>
-References: <20060112092017.GP29663@stusta.de> <20060112125020.GG19769@parisc-linux.org>
+	Thu, 12 Jan 2006 09:33:54 -0500
+Received: from nproxy.gmail.com ([64.233.182.192]:45346 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030417AbWALOdx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 09:33:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B3OEDazfzJXuhiqQYScpDmKSm0cOHFeq/8n19TYp6g4kbENbslUumh3RvKr00ywhRbU+yShPdCqA8pHn+DssVqZulmQxbCBIHW94pgzRGg35w8JtdksgiG6aqLwU9GsFdY7nCthArHkOOdfHOHCSlIqSNNbXmcpYgiYZLVqDpik=
+Message-ID: <728201270601120633i1c9072fp3329d05b49de790f@mail.gmail.com>
+Date: Thu, 12 Jan 2006 08:33:51 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: Back to the Future ? or some thing sinister ?
+Cc: Nathan Lynch <ntl@pobox.com>, Chaitanya Hazarey <cvh.tcs@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1137016986.2890.57.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060112125020.GG19769@parisc-linux.org>
-User-Agent: Mutt/1.5.11
+References: <eaef64fc0601081131i17336398l304038c6dea3e057@mail.gmail.com>
+	 <20060109040322.GA2683@localhost.localdomain>
+	 <1137016986.2890.57.camel@cog.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 05:50:20AM -0700, Matthew Wilcox wrote:
-> It's already this way in the parisc tree.  Kyle, did you miss part of
-> the merge?
+On 1/11/06, john stultz <johnstul@us.ibm.com> wrote:
+> On Sun, 2006-01-08 at 22:03 -0600, Nathan Lynch wrote:
+> > Chaitanya Hazarey wrote:
+> > >
+> > > We have got a machine, lets say X , make is IBM and the CPU is Intel
+> > > Pentium 4 2.60 GHz. Its running a 2.6.13.1 Kernel and previously,
+> > > 2.6.27-4 Kernel the distribution is Debian Sagre.
 
-Indeed. I handcrafted most of the patches I applied, and it seems I forgot
-to look for duplicates (patching the same file twice in the same diff)
-so while one part of mm/init.c got fribbled, the other didn't. Fix
-applied to my tree.
+It may be BIOS related. But I feel it might be an overflow related
+issue. If the variable is signed int then there will be a transition
+from 0x7fffffff ns  to 0x80000000 ns which is basically from +2 sec to
+-2 sec which will result in 4 sec loss.
 
-Thanks for pointing this out,
-	Kyle
+Ram

@@ -1,90 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161461AbWALXS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161462AbWALXVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161461AbWALXS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 18:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161462AbWALXS5
+	id S1161462AbWALXVH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 18:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161464AbWALXVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 18:18:57 -0500
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:62898 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1161461AbWALXS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 18:18:56 -0500
-Date: Thu, 12 Jan 2006 18:14:55 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.15 OOPS while trying to mount cdrom
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Message-ID: <200601121818_MC3-1-B5C5-46C7@compuserve.com>
+	Thu, 12 Jan 2006 18:21:07 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56836 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161462AbWALXVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 18:21:05 -0500
+Date: Fri, 13 Jan 2006 00:21:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: =?iso-8859-1?Q?Jos=E9_Luis_S=E1nchez?= 
+	<jsanchez@todounix.homeip.net>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, linux-scsi@vger.kernel.org,
+       matthew@wil.cx
+Subject: Re: Problem with 2.6.14 and up...
+Message-ID: <20060112232104.GD29663@stusta.de>
+References: <200511211724.47826.jsanchez@todounix.homeip.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200511211724.47826.jsanchez@todounix.homeip.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060110184624.GA6721@aitel.hist.no>
+On Mon, Nov 21, 2005 at 05:24:47PM +0100, José Luis Sánchez wrote:
 
-On Tue, 10 Jan 2006 Helge Hafting wrote:
+> Hi,
 
-> Kernel 2.6.15 amd64, gcc 4.1.0 from debian.
->
-> The cdrom (/dev/hda) is usually fine.  I tried booting with
-> hda=ide-scsi in order to read a scratched audio cd with cdparanoia.
-> That way, I at least get error messages when the scratches are
-> too bad.
+Hi José,
+
+> >From 2.6.14 I have a nasty problem with my SCSI devices. First, see my HW:
 > 
-> I forgot about hda=ide-scsi, and tried to mount /dev/hda as
-> usual in order to read an ordinary iso9660 cd.  This is
-> probably not supposed to work when ide-scsi is using the device,
-> but then I expect something like EBUSY rather than this oops:
+> ----------------------------------
+> 00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host bridge 
+> (rev 03)
+> 00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge 
+> (rev 03)
+> 00:04.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
+> 00:04.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+> 00:04.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+> 00:04.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
+> 00:0a.0 SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 26)
+> 00:0b.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 
+> 64)
+> 00:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 06)
+> 00:0d.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
+> 06)
+> 01:00.0 VGA compatible controller: nVidia Corporation NV28 [GeForce4 Ti 4200 
+> AGP 8x] (rev a1)
+> ------------------------
 > 
-> ide-scsi: unsup command: dev hda: flags = REQ_SORTED REQ_CMD REQ_STARTED 
-> REQ_ELVPRIV 
-> sector 64, nr/cnr 2/2
-> bio ffff8100044a9b40, biotail ffff8100044a9b40, buffer ffff81000cb4d000, data 
-> 0000000000000000, len 0
-> end_request: I/O error, dev hda, sector 64
-> isofs_fill_super: bread failed, dev=hda, iso_blknum=16, block=32
-> Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP: 
-> <ffffffff80235a92>{strlen+2}
+> I'm using the ncr53c8xx SCSI driver. When I run K3b, the program stalls a few 
+> minutes and this appears in the messages file:
+> 
+> sr0: scsi3-mmc drive: 40x/40x cd/rw xa/form2 cdda tray
+> Uniform CD-ROM driver Revision: 3.20
+> sr 0:0:1:0: Attached scsi CD-ROM sr0
+> sr1: scsi3-mmc drive: 24x/16x writer cd/rw xa/form2 cdda tray
+> sr 0:0:2:0: Attached scsi CD-ROM sr1
+> sd 0:0:0:0: Attached scsi generic sg0 type 0
+> sr 0:0:1:0: Attached scsi generic sg1 type 5
+> sr 0:0:2:0: Attached scsi generic sg2 type 5
+>  0:0:5:0: Attached scsi generic sg3 type 1
+> sr 0:0:2:0: phase change 2-1 12@01bbcf60 resid=6.
+> sr 0:0:2:0: ABORT operation started.
+> sr 0:0:2:0: ABORT operation timed-out.
+> sr 0:0:2:0: DEVICE RESET operation started.
+> sr 0:0:2:0: DEVICE RESET operation timed-out.
+> sr 0:0:2:0: BUS RESET operation started.
+> sym0: SCSI BUS reset detected.
+> sym0: SCSI BUS has been reset.
+> sr 0:0:2:0: BUS RESET operation complete.
+> sr 0:0:2:0: phase change 2-1 12@01bbcf60 resid=6.
+> Device not ready. Make sure there is a disc in the drive.
+> Device not ready. Make sure there is a disc in the drive.
+> sr 0:0:2:0: phase change 2-1 12@01bbcf60 resid=6.
+> sr 0:0:2:0: phase change 2-3 12@01bbcf60 resid=2.
+> sr 0:0:2:0: phase change 2-3 12@01bbcf60 resid=2.
+> sr 0:0:2:0: phase change 2-3 12@01bbcf60 resid=2.
+> ....
+> 
+> I'm very sure what the SCSI card, the cabling and the devices are OK, why 
+> don't have any problem with 2.4.32 kernel.
+> 
+> Ideas?
 
 
-The IDE driver probably shouldn't have allowed the bdev to be opened in
-the first place.
-
-After that happened, mount attempted to fill the superblock and the I/O
-failed.  Upon failure, get_sb_bdev() called deactivate_super()
-(fs/super.c line 718) and all hell broke loose.
-
-        - deactivate_super() called fs->kill_sb() (super.c line 176) which
-          pointed to kill_block_super() (fs/isofs/inode.c line 1411)
-
-        - kill_block_super() called kobject_uevent() with action KOBJ_UMOUNT
-          (Question: why is it sending UMOUNT for a mount that never happened?)
-
-        - kobject_uevent() called kobject_get_path() and one of the objects
-          had a null kobject.name, which caused strlen() to oops.
-
-There seem to be several bugs here:
-
-(1) IDE shouldn't have allowed the bdev to be opened.
-
-(2) (maybe) kobject_uevent shouldn't have been called for an unmount event
-    when the mount never succeeded.
-
-(3) kobject_get_path() shouldn't oops when a path component has a NULL name,
-    or else kobject should fail registration of any such object.
+is this problem still present in kernel 2.6.15?
 
 
-> The pc didn't seem to malfunction after this.
+> José Luis
 
-If you attempt to mount the CD a second time, mount will hang in D state; ps(1)
-reports it's at text.lock.super.  System cannot be cleanly shut down after that --
-shutdown(8) hangs and so does sync(1).
 
+cu
+Adrian
 
 -- 
-Chuck
-Currently reading: _Olympos_ by Dan Simmons
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

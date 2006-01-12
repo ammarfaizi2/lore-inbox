@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWALM2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWALMeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030374AbWALM2n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 07:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWALM2n
+	id S964910AbWALMeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 07:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWALMeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 07:28:43 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:9094 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030374AbWALM2m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 07:28:42 -0500
-Date: Thu, 12 Jan 2006 13:28:42 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/10] NTP: add ntp_update_frequency
-In-Reply-To: <1137020731.2890.74.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0601121324510.30994@scrub.home>
-References: <Pine.LNX.4.61.0512220021210.30900@scrub.home>
- <1137020731.2890.74.camel@cog.beaverton.ibm.com>
+	Thu, 12 Jan 2006 07:34:13 -0500
+Received: from mexforward.lss.emc.com ([168.159.213.200]:39999 "EHLO
+	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
+	id S964910AbWALMeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 07:34:12 -0500
+Message-ID: <43C64C3B.5070704@emc.com>
+Date: Thu, 12 Jan 2006 07:31:55 -0500
+From: Ric Wheeler <ric@emc.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Reuben Farrelly <reuben-lkml@reub.net>
+CC: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, neilb@suse.de, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.15-mm2
+References: <20060111115616.GE3389@suse.de> <43C518BC.5090903@reub.net> <20060111145201.GS3389@suse.de> <20060111145504.GT3389@suse.de> <43C55B31.5000201@reub.net> <20060111194517.GE5373@suse.de> <20060111195349.GF5373@suse.de> <43C5D1CA.7000400@reub.net> <20060112080051.GA22783@htj.dyndns.org> <43C61598.7050004@reub.net> <20060112111846.GA19976@htj.dyndns.org> <43C645ED.40905@reub.net>
+In-Reply-To: <43C645ED.40905@reub.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2006.01.12.035104
+X-PerlMx-Spam: Gauge=, SPAM=1%, Reasons='EMC_FROM_00+ -3, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Reuben Farrelly wrote:
 
-On Wed, 11 Jan 2006, john stultz wrote:
+>
+>
+> On 13/01/2006 12:18 a.m., Tejun Heo wrote:
+>
+>> On Thu, Jan 12, 2006 at 09:38:48PM +1300, Reuben Farrelly wrote:
+>> [--snip--]
+>>
+>>> [start_ordered       ] f7e8a708 -> c1b028fc,c1b029a4,c1b02a4c infl=1
+>>> [start_ordered       ] f74b0e00 0 48869571 8 8 1 1 c1ba9000
+>>> [start_ordered       ] BIO f74b0e00 48869571 4096
+>>> [start_ordered       ] ordered=31 in_flight=1
+>>> [blk_do_ordered      ] start_ordered f7e8a708->00000000
+>>> [blk_do_ordered      ] seq=02 f74ccd98->f74ccd98
+>>> [blk_do_ordered      ] seq=02 f74ccd98->f74ccd98
+>>> [blk_do_ordered      ] seq=02 c1b028fc->00000000
+>>> [blk_do_ordered      ] seq=02 c1b028fc->00000000
+>>> [blk_do_ordered      ] seq=02 c1b028fc->00000000
+>>
+>>
+>> Yeap, this one is the offending one.  0xf74ccd98 got requeued in front
+>> of pre-flush while draining and when it finished it didn't complete
+>> draining thus hanging the queue.  It seems like it's some kind of
+>> special request which probably fails and got retried.  Are you using
+>> SMART or something which issues special commands to drives?
+>
+>
+> No SMART, although I should be (rebuilt the system a few months 
+> ago..and must
+> have missed it).
+>
+> Are there any other things which could be contributing to this?  
+> <scratches head>
+>
+Could this be hdparm or something tweaking the drive write cache 
+settings, etc?
 
-> > This introduces ntp_update_frequency and deinlines ntp_clear() (as it's
-> > not performance critical).
-> > It also changes how tick_nsec is calculated from tick_usec, instead of
-> > scaling it using TICK_USEC_TO_NSEC it's simply shifted by the difference.
-> > Since ntp doesn't change the tick value, the result in practice is the
-> > same, but it's easier to change this into a clock parameter, which can
-> > be calculated during boot.
-> > 
-> 
-> One last thing, shouldn't this patch kill TICK_USEC_TO_NSEC ?
+ric
 
-If it's the only user it could be removed, but jiffies.h can still be 
-cleaned up in a separate pass.
-
-> > @@ -334,10 +334,11 @@ int do_adjtimex(struct timex *txc)
-> >  		    time_freq = max(time_freq, -time_tolerance);
-> >  		} /* STA_PLL */
-> >  	    } /* txc->modes & ADJ_OFFSET */
-> > -	    if (txc->modes & ADJ_TICK) {
-> > +	    if (txc->modes & ADJ_TICK)
-> >  		tick_usec = txc->tick;
-> > -		tick_nsec = TICK_USEC_TO_NSEC(tick_usec);
-> > -	    }
-> > +
-> > +	    if (txc->modes & ADJ_TICK)
-> > +		    ntp_update_frequency();
-> 
-> Why the extra conditional instead of just adding ntp_update_frequency()
-> inside the braces?
-
-This changes in the next patch. :)
-
-> > +void ntp_update_frequency(void)
-> > +{
-> > +	tick_nsec = tick_usec * 1000;
-> > +	tick_nsec -= NSEC_PER_SEC / HZ - TICK_NSEC;
-> > +}
-> 
-> Could you add another "john is slow and forgetful" comment here?
-
-Ok.
-
-bye, Roman

@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbWALS7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWALTCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932675AbWALS7b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 13:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbWALS7b
+	id S1161148AbWALTCt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 14:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161159AbWALTCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 13:59:31 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:20113 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932675AbWALS7a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 13:59:30 -0500
-Message-ID: <43C6A70D.8010902@us.ibm.com>
-Date: Thu, 12 Jan 2006 12:59:25 -0600
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Greg KH <greg@kroah.com>, Gerd Hoffmann <kraxel@suse.de>,
-       "Mike D. Day" <ncmike@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+	Thu, 12 Jan 2006 14:02:49 -0500
+Received: from mail.kroah.org ([69.55.234.183]:41126 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161148AbWALTCs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 14:02:48 -0500
+Date: Thu, 12 Jan 2006 11:01:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Mike D. Day" <ncmike@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
        xen-devel@lists.xensource.com
 Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>	 <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>	 <43C5B59C.8050908@us.ibm.com> <43C65196.8040402@suse.de>	 <1137072089.2936.29.camel@laptopd505.fenrus.org> <43C66ACC.60408@suse.de>	 <20060112173926.GD10513@kroah.com>  <43C6A5B4.80801@us.ibm.com> <1137092120.2936.55.camel@laptopd505.fenrus.org>
-In-Reply-To: <1137092120.2936.55.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060112190124.GB12773@kroah.com>
+References: <43C53DA0.60704@us.ibm.com> <20060111233118.GA1534@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060111233118.GA1534@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Thu, Jan 12, 2006 at 12:31:18AM +0100, Pavel Machek wrote:
+> 
+> > The comments desired are (1) do the helper routines in xen_sysfs 
+> > duplicate code already present in linux (or under development somewhere 
+> > else). (2) Is it appropriate for a process to create sysfs attributes 
+> > without implementing a driver subsystem
+> 
+> Not sure, maybe proc is really better.
 
->On Thu, 2006-01-12 at 12:53 -0600, Anthony Liguori wrote:
->  
->
->>We wish to make management hypercalls as the root user in userspace 
->>which means we have to go through the kernel.  Currently, we do this
->>by 
->>having /proc/xen/privcmd accept an ioctl() that takes a structure
->>that 
->>describe the register arguments.  The kernel interface allows us to 
->>control who in userspace can execute hypercalls.
->>    
->>
->
->ioctls on proc is evil though (so is ioctl-on-sysfs). It's a device not
->a proc file!
->  
->
-I full heartedly agree with you :-)
+NO!
 
-Regards,
+{sigh}
 
-Anthony Liguori
+Please remember, proc is ONLY FOR PROCESS RELATED THINGS.  Do not add
+non-process related things to proc anymore please...
+
+thanks,
+
+greg k-h

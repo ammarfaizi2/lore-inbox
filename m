@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161374AbWALWpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161379AbWALWqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161374AbWALWpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161379AbWALWpZ
+	id S1161379AbWALWqf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161383AbWALWqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:45:25 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:15234 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S1161374AbWALWpY (ORCPT
+	Thu, 12 Jan 2006 17:46:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:61620 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161379AbWALWqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:45:24 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades
-To: linux-kernel@vger.kernel.org
-Subject: Does a git pull have to be so big?
-Date: Fri, 13 Jan 2006 08:45:29 +1000
-User-Agent: KMail/1.9.1
+	Thu, 12 Jan 2006 17:46:33 -0500
+Date: Thu, 12 Jan 2006 14:46:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [git patches] 2.6.x net driver updates
+In-Reply-To: <20060112143938.5cf7d6a5.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0601121444030.3535@g5.osdl.org>
+References: <20060112221322.GA25470@havoc.gtf.org> <Pine.LNX.4.64.0601121423120.3535@g5.osdl.org>
+ <20060112143938.5cf7d6a5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601130845.29797.ncunningham@cyclades.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-I try to do pulls reasonably often, but they always seem to be huge downloads 
-- I'm sure they're orders of magnitude bigger than a simple patch would be. 
-This leads me to ask, do they have to be so big? I'm on 256/64 ADSL at home, 
-did a pull yesterday at work iirc, and yet the pull this morning has taken at 
-least half an hour. Am I perhaps doing something wrong?
 
-I'm using cogito .16-2 (ubuntu) and git 1.0.6.
+On Thu, 12 Jan 2006, Andrew Morton wrote:
+> 
+> Yes, I think that's much more Aunt-Nellie-friendly, but Roman considers it
+> abuse of the Kconfig system in ways which I never completely understood?
 
-Regards,
+Hmm. If Roman dislikes it, he must dislike the fact that we already do 
+exactly this for a ton of different things. There's something like 2000+ 
+"select" statements in the kernel Kconfig tree, and just grepping for 
+"select.*CRYPTO" gets 52 hits..
 
-Nigel
+So this isn't new..
 
-#cg-fetch 
-Fetching head...
-Fetching objects...
-progress: 114 objects, 256992 bytes
-Getting alternates list for 
-http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-progress: 376 objects, 1413225 bytes
-Getting pack list for 
-http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-progress: 453 objects, 1924312 bytes
-Getting index for pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
-Getting pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
- which contains 62727f8969438d99c3c34415d16611cf86f16140
-
-(Still going)
+		Linus

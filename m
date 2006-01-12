@@ -1,136 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWALBtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWALCBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWALBtU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 20:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWALBtU
+	id S964976AbWALCBV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 21:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWALCBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 20:49:20 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:34178 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964969AbWALBtT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 20:49:19 -0500
-Message-ID: <43C5B59C.8050908@us.ibm.com>
-Date: Wed, 11 Jan 2006 20:49:16 -0500
-From: "Mike D. Day" <ncmike@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com> <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>
-In-Reply-To: <20060112005710.GA2936@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 21:01:21 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:41029 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S964976AbWALCBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 21:01:20 -0500
+Date: Wed, 11 Jan 2006 21:00:52 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+In-reply-to: <Pine.LNX.4.61.0601120019430.30994@scrub.home>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1137031253.9643.38.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.4
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
+ <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
+ <200601091232.56348.zippel@linux-m68k.org> <1136814126.1043.36.camel@grayson>
+ <Pine.LNX.4.61.0601120019430.30994@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-
->>I think it comes down to simplification for non-driver code, which is 
->>admittedly not the mainstream use model for sysfs.
+On Thu, 2006-01-12 at 00:26 +0100, Roman Zippel wrote:
+> Hi,
 > 
-> /sys/module/ is a pretty "mainstream use model for sysfs", right?
-
-Yes, but xen is not a module. I believe /sys/xen/ is different than 
-/sys/module/, and provide some further reasoning below.
-
->>The module version? Xen is not a module nor a driver, so that interface 
->>doesn't quite serve the purpose.
+> On Mon, 9 Jan 2006, Ben Collins wrote:
 > 
-> Then it doesn't need a separate version, as it is the same as the main
-> kernel version, right?  Just because your code is out-of-the-tree right
-
-No. For example, I could run linux-2.6.x in a domain under xen 3.0.0. In 
-this case the xen version is 3.0.0, the linux version is 2.6.x. I could 
-run the very same kernel on xen 3.0.1, xen 3.1, and eventually xen 
-4.x.x. The xen version exists outside of the linux kernel version, but 
-userspace will have good reasons to want to know the xen version (think 
-management tools).
+> > > That just means Debian's automatic build for the kernel has been broken for 
+> > > years. All normal config targets require user input and no input equals 
+> > > default input. Only silentoldconfig will abort if input is not available.
+> > 
+> > I think that's broken (because I don't see where that behavior is
+> > described).
 > 
-> Huh?  You can't just throw a "MODULE_VERSION()", and a module_init()
-> somewhere into the xen code to get this to happen?  Then all of your
-> configurable paramaters show up automagically.
-
-No, I can't. Xen does not have modules. Xen loads and runs linux. I am 
-trying to make it simple for linux to represent xen attributes under 
-/sys/xen. This is analogous to a kernel module representing the kernel. 
-I know it is weird.
-
->>/sys/xen/version may not be the best example for this discussion. What
->>is important is that this attribute is obtained from Xen using a
->>hypercall. Sysfs works great to prove the xen version and other
->>similar xen attributes to userspace.
+> I'll accept a patch to fix the documentation.
 > 
+> > IMO, based on the code, it should only go with defaults when
+> > -n -y or -m is passed.
 > 
-> Like what?  Specifics please.
-
-What privileges are granted to the kernel by xen - can the kernel 
-control real devices or just virtual ones. How many other domains 
-(virtual machines) are being hosted by xen? How much memory is available 
-for ballooning (increasing the memory used by kernels through the 
-remapping of pages inside the hypervisor). Can the domain be migrated to 
-another physical host? What scheduler is Xen using (xen has plug-in 
-schedulers)? All the actual information resides within the xen 
-hypervisor, not the linux kernel.
-
-> So you want to divorce the relationship in sysfs between directories and
-> kobjects?  
-
-Not quite, just hide the relationship for users of sysfs that have no 
-reason to know about it.
-
-That's a valid proposal, but just don't do it as a xen
-specific thing please, that's being selfish.
-
-ok
-
-> But I think you will fail in this, as we want to keep a very strict
-> heirachy in sysfs, as userspace relies on this.  See the previous
-> proposal from Pat Mochel to try to do this (in the lkml archives) for
-> the problems when he tried to do so.
-
-Hence why I created this as a xeno-linux patch. I can control where the 
-sysfs files get created. For example, I check to make sure the path 
-starts with "/sys/xen." I don't want to interfere with keeping a strict 
-heirarchy.
-
+> No.
 > 
->>Currently in xeno-linux there are several files under /proc/xen. These 
->>are created by different areas of the xeno-linux kernel. In xeno-linux 
->>today there is a single higher-level routine that each of these 
->>different areas uses to create its own file under /proc/xen. In other 
->>words, I think there should be a unifying element to the interface 
->>because the callers are not organized within a single module.
+> > Why is it so hard to error when stdin is closed? It's not like that will
+> > break anything.
 > 
-> Ok, but again, that's no different than anything else in the kernel,
-> right?
+> oldconfig & co are interactive targets, so don't use them in automatic 
+> builds. If you some problem with using silentoldconfig, describe it and 
+> I'll help to solve it.
 
-I think that it is different. The sysfs attributes are being created by 
-the kernel, not a driver or module. The attribute values themselves are 
-located in the xen hypervisor, which is totally outside of the kernel 
-and everything it controls.
+First, we need oldconfig because it allows us to look at the build log
+and see exactly what happened in the config stage. Silentoldconfig gives
+us no feedback for logs.
 
-> not be applied due to a broken email client setup, tried to do all of
-> the work in your own subsection of an external kernel tree that seems to
+Now let me see if I get this right:
 
-I worked within the xen project hoping that the code might get applied 
-there and later merged.
+1) oldconfig was broken when stdin was closed. Meaning, it went into an
+infinite loop. This was obviously not the intended outcome.
 
-> strongly avoid getting merged into mainline, ignored the existing kernel
-> interfaces, 
+2) silentoldconfig will, when faced with a closed stdin, abort, and
+notify the user.
 
-No, I didn't ignore them. I may be mistaken, but I believe this is a 
-different use model.
+3) Obviously since current behavior of oldconfig was broken with a
+closed stdin, then it was never doing what anyone wanted in this usage
+case. Since no one else noticed it, that means that we are the only use
+case for this.
 
-and didn't cc: the subsystem maintainer.
+4) I send a patch that fixes oldconfig with closed stdin by making it
+duplicate what silentoldconfig does, aborting when it needs input and
+stdin is closed. Since oldconfig was always broken in this usage case,
+this seems the obvious fix, plus it's consistent. This isn't the same as
+an empty string (e.g. when hitting enter), which didn't get changed, and
+has always meant to use the default value.
 
-Sorry, will make certain to cc: the maintainer in the future.
+5) My patch did not break anything, nor did it change anything that was
+already working.
 
-Mike
+6) In response you make oldconfig work exactly opposite of
+silentoldconfig by using the default value for a config option when
+stdin is closed (basically acting like the user hit ENTER), and further
+break things for me in this usage case, with no purpose, and no reason
+for making your change the way you did. Since it was broken, you aren't
+helping anyone. We can't have the build system using default values. We
+need it to abort.
+
+Did I get this right, or am I imagining that you are being hard headed
+about this?
+
 -- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 
-Mike D. Day
-STSM and Architect, Open Virtualization
-IBM Linux Technology Center
-ncmike@us.ibm.com

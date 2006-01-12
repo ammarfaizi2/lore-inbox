@@ -1,164 +1,345 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWALNzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWALN44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbWALNzl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 08:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWALNzl
+	id S932233AbWALN44 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 08:56:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWALN44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 08:55:41 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:11352 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932233AbWALNzl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 08:55:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=jXLUdvpCLQPs7PEu/RxPeS/ALJeuSH1MRC+IwJ21DHbNkVyFziIbXxD5ySvLjUW7ljVb/neRZ97AwtZa+tryqRrXj7kNun24vPmOXYoJAmi6e9ZocMMTR3xWP+RcZZILt4/bSBAMP/Hiz9h+L8mg9aeDEPSPxEmbSZoiPGkUWco=
-Date: Thu, 12 Jan 2006 22:55:33 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Ric Wheeler <ric@emc.com>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>, neilb@suse.de, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060112135533.GA29675@htj.dyndns.org>
-References: <43C55B31.5000201@reub.net> <20060111194517.GE5373@suse.de> <20060111195349.GF5373@suse.de> <43C5D1CA.7000400@reub.net> <20060112080051.GA22783@htj.dyndns.org> <43C61598.7050004@reub.net> <20060112111846.GA19976@htj.dyndns.org> <43C645ED.40905@reub.net> <43C64C3B.5070704@emc.com> <43C64DF6.7060604@reub.net>
+	Thu, 12 Jan 2006 08:56:56 -0500
+Received: from stinky.trash.net ([213.144.137.162]:51965 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S932233AbWALN4z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 08:56:55 -0500
+Message-ID: <43C65FF1.7060208@trash.net>
+Date: Thu, 12 Jan 2006 14:56:01 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C64DF6.7060604@reub.net>
-User-Agent: Mutt/1.5.11
+To: Marcel Holtmann <marcel@holtmann.org>
+CC: Wolfgang Walter <wolfgang.walter@studentenwerk.mhn.de>,
+       bluez-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       maxk@qualcomm.com
+Subject: Re: patch: problem with sco
+References: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de>	 <1137057244.3955.3.camel@localhost.localdomain>	 <43C64B0C.2080903@trash.net> <1137072707.5013.7.camel@localhost.localdomain>
+In-Reply-To: <1137072707.5013.7.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------040104090204010103090504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, again.
+This is a multi-part message in MIME format.
+--------------040104090204010103090504
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 13, 2006 at 01:39:18AM +1300, Reuben Farrelly wrote:
+Marcel Holtmann wrote:
+>>I'm seeing the exact same problem with a Logitech "mobile Freedom"
+>>headset. I'm using this patch to work around the problem:
 > 
 > 
-> On 13/01/2006 1:31 a.m., Ric Wheeler wrote:
-> >Reuben Farrelly wrote:
-> >>On 13/01/2006 12:18 a.m., Tejun Heo wrote:
-> >>>On Thu, Jan 12, 2006 at 09:38:48PM +1300, Reuben Farrelly wrote:
-> >>>[--snip--]
-> >>>
-> >>>>[start_ordered       ] f7e8a708 -> c1b028fc,c1b029a4,c1b02a4c infl=1
-> >>>>[start_ordered       ] f74b0e00 0 48869571 8 8 1 1 c1ba9000
-> >>>>[start_ordered       ] BIO f74b0e00 48869571 4096
-> >>>>[start_ordered       ] ordered=31 in_flight=1
-> >>>>[blk_do_ordered      ] start_ordered f7e8a708->00000000
-> >>>>[blk_do_ordered      ] seq=02 f74ccd98->f74ccd98
-> >>>>[blk_do_ordered      ] seq=02 f74ccd98->f74ccd98
-> >>>>[blk_do_ordered      ] seq=02 c1b028fc->00000000
-> >>>>[blk_do_ordered      ] seq=02 c1b028fc->00000000
-> >>>>[blk_do_ordered      ] seq=02 c1b028fc->00000000
-> >>>
-> >>>
-> >>>Yeap, this one is the offending one.  0xf74ccd98 got requeued in front
-> >>>of pre-flush while draining and when it finished it didn't complete
-> >>>draining thus hanging the queue.  It seems like it's some kind of
-> >>>special request which probably fails and got retried.  Are you using
-> >>>SMART or something which issues special commands to drives?
-> >>
-> >>
-> >>No SMART, although I should be (rebuilt the system a few months 
-> >>ago..and must
-> >>have missed it).
-> >>
-> >>Are there any other things which could be contributing to this?  
-> >><scratches head>
-> >>
-> >Could this be hdparm or something tweaking the drive write cache 
-> >settings, etc?
+> so it seems that Broadcom really messed the SCO MTU settings up and we
+> have to workaround with some sane values.
 > 
-> hdparm isn't configured on the box by me or called by initscripts in Fedora 
-> either, AFAIK.
-> 
+> Please also include the lspci for these devices.
 
-This is the offending part of your new log.
+Its an USB device. I've attached the output of "lsusb -v", in case
+that helps.
 
-[02 start_ordered           ] c1b36120 -> c1b35904,c1b359ac,c1b35a54 ordcolor=1 infl=1
-[02 start_ordered           ] f7eb91c0 0 68436682 8 8 1 1 f7dc0000
-[02 start_ordered           ] BIO f7eb91c0 68436682 4096
-[02 start_ordered           ] ordered=31 in_flight=1
-[02 blk_do_ordered          ] start_ordered c1b36120->00000000
-[02 blk_do_ordered          ] seq=02 f7e53660->f7e53660 (flags=0x32888)
-[02 elv_completed_request   ] seq=01 rq=f7dd7ba0 (flags=0x2000b44) infl=0
-[02 blk_do_ordered          ] seq=02 f7e53660->f7e53660 (flags=0x32b88)
-[02 blk_do_ordered          ] seq=02 c1b35904->00000000 (flags=0x0)
-[na flush_dry_bio_endio     ] BIO c19c7580 48869579 4096
-[na end_that_request_last   ] !ELVPRIV c1b3526c 000003d9
-[02 blk_do_ordered          ] seq=02 c1b35904->00000000 (flags=0x0)
-[02 elv_completed_request   ] seq=01 unacc f7e53660 (flags=0x32b88) infl=0
-[na end_that_request_last   ] !ELVPRIV c1b35314 02002318
-[02 blk_do_ordered          ] seq=02 c1b35904->00000000 (flags=0x0)
+--------------040104090204010103090504
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
-And I was wrong, it wasn't special command being requeued.  What
-happens here is....
+Bus 002 Device 003: ID 03f0:011d Hewlett-Packard 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass          224 Wireless
+  bDeviceSubClass         1 Radio Frequency
+  bDeviceProtocol         1 Bluetooth
+  bMaxPacketSize0        64
+  idVendor           0x03f0 Hewlett-Packard
+  idProduct          0x011d 
+  bcdDevice            0.17
+  iManufacturer           1 Broadcom
+  iProduct                2 HP integrated Bluetooth module
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength          216
+    bNumInterfaces          4
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xe0
+      Self Powered
+      Remote Wakeup
+    MaxPower                0mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           3
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0010  1x 16 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0000  1x 0 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0000  1x 0 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       1
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0009  1x 9 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0009  1x 9 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       2
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0011  1x 17 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0011  1x 17 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       3
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       4
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       5
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        2
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol    255 Vendor Specific Protocol
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x84  EP 4 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x04  EP 4 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        3
+      bAlternateSetting       0
+      bNumEndpoints           0
+      bInterfaceClass       254 Application Specific Interface
+      bInterfaceSubClass      1 Device Firmware Update
+      bInterfaceProtocol      0 
+      iInterface              0 
+Device Status:     0x0001
+  Self Powered
 
-1. fs requests are happily being processed
-
-2. barrier request comes at the head of the queue
-
-3. ordered code interprets it into three request sequence, a fs
-   request is still in flight, so it wait for the queue to be drained.
-
-4. a REQ_SPECIAL | REQ_BLOCK_PC | REQ_QUIET request gets queued at
-   the head of the queue.  (I have no idea where this comes from.  sd
-   driver doesn't even handle PC requests.  It will be just failed.
-   Some kind of hardware management stuff trying to probe MMC
-   devices?)
-
-5. the in-flight fs request finishes, in_flight is now zero but the
-   head of queue is not the ordered sequence.  It determines draining
-   isn't complete yet.
-
-6. the special request from #4 got issued and completed, but due to
-   my stupid mistake, special requests don't check for draining
-   completion condition.
-
-7. The queue is stuck now.  SORRY.  My apologies.
-
-Reuben, can you please test the following patch?  It's against -mm2
-but should apply to -mm3 too.  If you confirm this one, I'll submit to
-Jens & Andrew with proper explanations and stuff.  Thanks a lot for
-all your time and trouble.
-
-
-diff --git a/block/elevator.c b/block/elevator.c
-index 1b5b5d9..f905e47 100644
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -615,23 +615,23 @@ void elv_completed_request(request_queue
- 	 * request is released from the driver, io must be done
- 	 */
- 	if (blk_account_rq(rq)) {
--		struct request *first_rq = list_entry_rq(q->queue_head.next);
--
- 		q->in_flight--;
-+		if (blk_sorted_rq(rq) && e->ops->elevator_completed_req_fn)
-+			e->ops->elevator_completed_req_fn(q, rq);
-+	}
- 
--		/*
--		 * Check if the queue is waiting for fs requests to be
--		 * drained for flush sequence.
--		 */
--		if (q->ordseq && q->in_flight == 0 &&
-+	/*
-+	 * Check if the queue is waiting for fs requests to be
-+	 * drained for flush sequence.
-+	 */
-+	if (unlikely(q->ordseq)) {
-+		struct request *first_rq = list_entry_rq(q->queue_head.next);
-+		if (q->in_flight == 0 &&
- 		    blk_ordered_cur_seq(q) == QUEUE_ORDSEQ_DRAIN &&
- 		    blk_ordered_req_seq(first_rq) > QUEUE_ORDSEQ_DRAIN) {
- 			blk_ordered_complete_seq(q, QUEUE_ORDSEQ_DRAIN, 0);
- 			q->request_fn(q);
- 		}
--
--		if (blk_sorted_rq(rq) && e->ops->elevator_completed_req_fn)
--			e->ops->elevator_completed_req_fn(q, rq);
- 	}
- }
- 
+--------------040104090204010103090504--

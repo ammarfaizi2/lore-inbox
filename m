@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWALGDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWALGTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbWALGDv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 01:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWALGDv
+	id S1030255AbWALGTq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 01:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWALGTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 01:03:51 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:34876 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S1030307AbWALGDt (ORCPT
+	Thu, 12 Jan 2006 01:19:46 -0500
+Received: from waste.org ([64.81.244.121]:20921 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932684AbWALGTq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 01:03:49 -0500
-Subject: [PATCH 4/4 -2.6.15]: 32 bit (socket layer) ioctl emulation for 64
-	bit kernels
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: Arnd Bergmann <arnd@arndb.de>,
-       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       Andi Kleen <ak@muc.de>, linux-kenel <linux-kernel@vger.kernel.org>,
-       x25 maintainer <eis@baty.hanse.de>,
-       "David S. Miller" <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 17:03:43 +1100
-Message-Id: <1137045823.5221.25.camel@spereira05.tusc.com.au>
+	Thu, 12 Jan 2006 01:19:46 -0500
+Date: Thu, 12 Jan 2006 00:11:21 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: linux-kernel@vger.kernel.org, hugh@veritas.com, akpm@osdl.org
+Subject: Re: [PATCH 2.6.15] do_truncate() call fix in tiny-shmem.c
+Message-ID: <20060112061121.GB3356@waste.org>
+References: <20060111125418.13276.29099.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060111125418.13276.29099.stgit@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A small fix for the following error, when trying to run a 64 bit x25
-server application.
+On Wed, Jan 11, 2006 at 12:54:18PM +0000, Catalin Marinas wrote:
+> From: Catalin Marinas <catalin.marinas@arm.com>
+> 
+> This is a simple patch to adapt tiny-shmem.c to the new do_truncate()
+> prototype.
 
-T2 kernel: schedule_timeout: 
- wrong timeout value ffffffffffffffff from ffffffff88164796
-
-diff -uprN -X dontdiff linux-2.6.15-vanilla/net/x25/af_x25.c
-linux-2.6.15/net/x25/af_x25.c
---- linux-2.6.15-vanilla/net/x25/af_x25.c	2006-01-12 16:15:46.000000000
-+1100
-+++ linux-2.6.15/net/x25/af_x25.c	2006-01-12 16:14:27.000000000 +1100
-@@ -747,7 +747,7 @@ out:
- 	return rc;
- }
+It's probably right, and Hugh came up with the same thing. I'm on a
+a random hillside in rural New Zealand, so I haven't properly looked
+it over, but I'll give it a tentative ACK to get things going.
  
--static int x25_wait_for_data(struct sock *sk, int timeout)
-+static int x25_wait_for_data(struct sock *sk, long timeout)
- {
- 	DECLARE_WAITQUEUE(wait, current);
- 	int rc = 0;
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 
+Acked-by: Matt Mackall <mpm@selenic.com>
 
+-- 
+Mathematics is the supreme nostalgia of our time.

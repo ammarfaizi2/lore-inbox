@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161244AbWALUga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161249AbWALUg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161244AbWALUga (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 15:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWALUga
+	id S1161249AbWALUg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 15:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161250AbWALUg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 15:36:30 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:62353 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161244AbWALUg3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 15:36:29 -0500
-Date: Thu, 12 Jan 2006 14:36:25 -0600
-To: Greg KH <greg@kroah.com>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       johnrose@austin.ibm.com
-Subject: [PATCH] PCI panic on dlpar add (add pci slot to running partition)
-Message-ID: <20060112203625.GU26221@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 12 Jan 2006 15:36:58 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:3138 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161249AbWALUg4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 15:36:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M6Bhc2ETF4dQrA0Cxg8/McXRoSp2NwNMAlZqhAII3CXWWzUuhDLiR4R3/Gp6jWdifCCYRY9xzWJV/g346n1cPAPgVWcl7EKHA5FGlkkMGKim7bX3pBN6c28s2MPUMmFk+IbF4qMbXDsGc2dqlasI2QGKu9y8nvyfC3N46B13xSA=
+Message-ID: <86802c440601121236s47d5737fo45105ce3ebc746a6@mail.gmail.com>
+Date: Thu, 12 Jan 2006 12:36:55 -0800
+From: yhlu <yhlu.kernel@gmail.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: can not compile in the latest git
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0601111213270.24355@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: linas@austin.ibm.com (linas)
+References: <86802c440601111021m7cb40881m7206d9342534f844@mail.gmail.com>
+	 <Pine.LNX.4.62.0601111213270.24355@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It turns out, if I disable "Support for paging of anonymous memory
+(swap)" --- SWAP
 
-Greg, Please apply and forward upstream.
+the CONFIG_MIGRATION will disappear from the .config
 
-Removing and then adding a PCI slot to a running partition results in
-a kernel panic. The current code attempts to add iospace for an entire 
-root bus, which is inappropriate, and silently fails.  When a pci device 
-tries to use the iospace, a page fault is taken, as the iospace had not
-been mapped, and of course the page fault cannot be resolved. 
+the mm/mempolicy.c may need some #if CONFIG_MIRGRATION to comment out
+these calling.
 
-This only occurs for PCI adapters using pio, which may be why it hadn't 
-been seen earlier (this seems to have been broken for a while).
-This patch has survived testing of dozens of slot add and removes.
+YH
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-
-Index: linux-2.6.15-git6/drivers/pci/hotplug/rpadlpar_core.c
-===================================================================
---- linux-2.6.15-git6.orig/drivers/pci/hotplug/rpadlpar_core.c	2006-01-12 13:54:52.374015674 -0600
-+++ linux-2.6.15-git6/drivers/pci/hotplug/rpadlpar_core.c	2006-01-12 13:56:08.191380743 -0600
-@@ -152,7 +152,7 @@
- 	pcibios_claim_one_bus(dev->bus);
- 
- 	/* ioremap() for child bus, which may or may not succeed */
--	(void) remap_bus_range(dev->bus);
-+	remap_bus_range(dev->subordinate);
- 
- 	/* Add new devices to global lists.  Register in proc, sysfs. */
- 	pci_bus_add_devices(phb->bus);
+On 1/11/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> On Wed, 11 Jan 2006, yhlu wrote:
+>
+> > : undefined reference to `putback_lru_pages'
+> > make: *** [.tmp_vmlinux1] Error 1
+>
+> Please post your .config file.
+>
+>

@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWALVGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161279AbWALVK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161275AbWALVGE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 16:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161274AbWALVGB
+	id S1161279AbWALVK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 16:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbWALVK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 16:06:01 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:16606 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932703AbWALVF7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 16:05:59 -0500
-Date: Thu, 12 Jan 2006 14:05:59 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Jon Mason <jdmason@us.ibm.com>, mulix@mulix.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: pcnet32 devices with incorrect trident vendor ID
-Message-ID: <20060112210559.GL19769@parisc-linux.org>
-References: <20060112175051.GA17539@us.ibm.com> <43C6C0E6.7030705@gentoo.org> <20060112205714.GK19769@parisc-linux.org>
+	Thu, 12 Jan 2006 16:10:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14744 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161279AbWALVK2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 16:10:28 -0500
+Date: Thu, 12 Jan 2006 13:10:19 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sk98lin
+Message-ID: <20060112131019.485edc65@dxpl.pdx.osdl.net>
+In-Reply-To: <20060112204844.1BDCDC8C4@mx.dtiltas.lt>
+References: <20060112180048.8A18EBC32@mx.dtiltas.lt>
+	<20060112101843.0b0e159f@dxpl.pdx.osdl.net>
+	<20060112204844.1BDCDC8C4@mx.dtiltas.lt>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060112205714.GK19769@parisc-linux.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 01:57:14PM -0700, Matthew Wilcox wrote:
-> On Thu, Jan 12, 2006 at 08:49:42PM +0000, Daniel Drake wrote:
-> > interesting:
-> > 
-> > http://forums.gentoo.org/viewtopic-t-420013-highlight-trident.html
-> > 
-> > The user saw the correct vendor ID (AMD) in 2.4, but when upgrading to 
-> > 2.6, it changed to Trident.
+On Thu, 12 Jan 2006 22:43:44 +0200
+Nerijus Baliunas <nerijus@users.sourceforge.net> wrote:
+
+> On Thu, 12 Jan 2006 10:18:43 -0800 Stephen Hemminger <shemminger@osdl.org> wrote:
 > 
-> It looks to me like there used to be a quirk that knew about this bug
-> and fixed it.
+> > While developing the skge and sky2 driver I discovered more problems and
+> > those got fixed in the mainline sk98lin driver.
 > 
-> The reason I say this is that the lspci -x dumps are the same -- both
-> featuring the wrong vendor ID.  Want to dig through 2.4 and look for
-> this quirk?
+> What is a difference between them? Which one supports Marvell Technology
+> Group Ltd. 88E8050 Gigabit Ethernet Controller (rev 17)?
+> skge in 2.6.14 does not support it.
 
-Oh -- found it.  It's still in 2.6:
+sky2 is for 88e8050 and related chips
 
-static void
-fixup_broken_pcnet32(struct pci_dev* dev)
-{
-        if ((dev->class>>8 == PCI_CLASS_NETWORK_ETHERNET)) {
-                dev->vendor = PCI_VENDOR_ID_AMD;
-                pci_write_config_word(dev, PCI_VENDOR_ID, PCI_VENDOR_ID_AMD);
-        }
-}
-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TRIDENT, PCI_ANY_ID,                     
-fixup_broken_pcnet32);
-
-Wonder why it isn't working now ... someone with a PPC box needs to check
-(a) whether this function is being called and (b) if it is called, why
-it's not doing what it's supposed to.
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

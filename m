@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWALCFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964769AbWALCK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbWALCFY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 21:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWALCFY
+	id S964769AbWALCK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 21:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWALCK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 21:05:24 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:1621 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S964981AbWALCFX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 21:05:23 -0500
-Message-ID: <43C5B945.3000903@google.com>
-Date: Wed, 11 Jan 2006 18:04:53 -0800
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Wed, 11 Jan 2006 21:10:57 -0500
+Received: from web53713.mail.yahoo.com ([206.190.39.62]:9554 "HELO
+	web53713.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S964769AbWALCK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 21:10:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=kRf+QXBE1FGIYIYN8DT1+k0+f6pYUV7WQC4J6zE7EoobEtoJbFOVTiRtaxWOkGnq7jXPnPzZPk566XCVlZN9USdu12UkCxQRqbh24RpJAfxOOFeljlVfbrcr5eeQsegZP0pINwdopLtNQLP9/McYEvVrKBntLycPPCjYbDbV52M=  ;
+Message-ID: <20060112021056.45798.qmail@web53713.mail.yahoo.com>
+Date: Wed, 11 Jan 2006 18:10:56 -0800 (PST)
+From: Mikado <mikado4vn@yahoo.com>
+Subject: Is kgdb for kernel 2.6.13 compatible with 2.6.14.5
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-References: <43C45BDC.1050402@google.com> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <200601121218.47744.kernel@kolivas.org>
-In-Reply-To: <200601121218.47744.kernel@kolivas.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> This is a shot in the dark. We haven't confirmed 1. there is a problem 2. that 
-> this is the problem nor 3. that this patch will fix the problem. I say we 
-> wait for the results of 1. If the improved smp nice handling patch ends up 
-> being responsible then it should not be merged upstream, and then this patch 
-> can be tested on top.
-> 
-> Martin I know your work move has made it not your responsibility to test 
-> backing out this change, but are you aware of anything being done to test 
-> this hypothesis?
+kgdb: http://kgdb.linsyssoft.com/
 
-Yup, Andy queued the job ... just waiting for it to pop out the system
+I see that the lastest kgdb only support kernel 2.6.13. Is it compatible with kernel 2.6.14.6 or
+2.6.15?
 
-M.
+Thank you.
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

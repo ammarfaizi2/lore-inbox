@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWALWqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161387AbWALWtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161383AbWALWqr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161384AbWALWqr
+	id S1161387AbWALWtE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161388AbWALWtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:46:47 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28676 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161383AbWALWqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:46:45 -0500
-Date: Thu, 12 Jan 2006 23:46:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jiri Slaby <slaby@liberouter.org>,
-       Jon Mason <jdmason@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-Message-ID: <20060112224645.GY29663@stusta.de>
-References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu> <1137100539.2370.68.camel@mindpipe> <20060112215853.GW29663@stusta.de> <1137103614.2370.75.camel@mindpipe>
+	Thu, 12 Jan 2006 17:49:04 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:58504 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1161387AbWALWtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:49:01 -0500
+Message-ID: <43C6DCD7.30709@didntduck.org>
+Date: Thu, 12 Jan 2006 17:48:55 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137103614.2370.75.camel@mindpipe>
-User-Agent: Mutt/1.5.11
+To: Nigel Cunningham <ncunningham@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Does a git pull have to be so big?
+References: <200601130845.29797.ncunningham@cyclades.com>
+In-Reply-To: <200601130845.29797.ncunningham@cyclades.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 05:06:53PM -0500, Lee Revell wrote:
-> On Thu, 2006-01-12 at 22:58 +0100, Adrian Bunk wrote:
-> > On Thu, Jan 12, 2006 at 04:15:38PM -0500, Lee Revell wrote:
-> > > On Thu, 2006-01-12 at 22:07 +0200, Muli Ben-Yehuda wrote:
-> > > > On Thu, Jan 12, 2006 at 08:28:30PM +0100, Jiri Slaby wrote:
-> > > > 
-> > > > > You should change alsa driver (sound/pci/trident/trident.c), rather than this,
-> > > > > which will be removed soon, I guess. And, additionally, could you change that
-> > > > > lines to use PCI_DEVICE macro?
-> > > > 
-> > > > This driver is not up for removal soon, as it supports a device that
-> > > > the alsa driver apparently doesn't (the INTERG_5050).
-> > > 
-> > > When were you going to report this?
-> > 
-> > I already reported this as ALSA bug #1293.
-> > 
-> > The problem is the lack of a tester, and I'm currently inclined to 
-> > schedule this driver for removal although this PCI ID is still missing - 
-> > either noone is using these settop boxes anymore or someone will 
-> > volunteer to test patches.
+Nigel Cunningham wrote:
+> Hi.
 > 
-> Hmm, yeah, if the hardware was only used in set top boxes there's not a
-> lot that can be done, unless someone wants to donate one to the ALSA
-> project.
+> I try to do pulls reasonably often, but they always seem to be huge downloads 
+> - I'm sure they're orders of magnitude bigger than a simple patch would be. 
+> This leads me to ask, do they have to be so big? I'm on 256/64 ADSL at home, 
+> did a pull yesterday at work iirc, and yet the pull this morning has taken at 
+> least half an hour. Am I perhaps doing something wrong?
 > 
-> It might be as simple as adding the PCI IDs to the driver.
+> I'm using cogito .16-2 (ubuntu) and git 1.0.6.
+> 
+> Regards,
+> 
+> Nigel
+> 
+> #cg-fetch 
+> Fetching head...
+> Fetching objects...
+> progress: 114 objects, 256992 bytes
+> Getting alternates list for 
+> http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
+> progress: 376 objects, 1413225 bytes
+> Getting pack list for 
+> http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
+> progress: 453 objects, 1924312 bytes
+> Getting index for pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
+> Getting pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
+>  which contains 62727f8969438d99c3c34415d16611cf86f16140
+> 
+> (Still going)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-To the snd-trident ALSA driver or to the snd-ali5451 ALSA driver?
+Use git://git.kernel.org/... instead of http.
 
-Seriously, if it would be _that_ trivial, I'd have sent such a patch 
-instead of opening the ALSA bug.
-
-There's a serious amount of 5050 specific code in the OSS driver, and 
-I'd therefore prefer "unsopported in ALSA" over "blindly adding PCI ID 
-and most likely non-working".
-
-> Lee
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--
+				Brian Gerst

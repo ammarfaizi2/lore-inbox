@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWALBfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932680AbWALBjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWALBfo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 20:35:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWALBfn
+	id S932680AbWALBjG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 20:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWALBjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 20:35:43 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:51889 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964958AbWALBfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 20:35:42 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-Date: Thu, 12 Jan 2006 12:36:07 +1100
-User-Agent: KMail/1.8.3
-Cc: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <43C45BDC.1050402@google.com> <200601121218.47744.kernel@kolivas.org> <43C5B0F6.5090500@bigpond.net.au>
-In-Reply-To: <43C5B0F6.5090500@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 20:39:05 -0500
+Received: from spooner.celestial.com ([192.136.111.35]:26008 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S932680AbWALBjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 20:39:03 -0500
+Date: Wed, 11 Jan 2006 20:38:58 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: OT: fork(): parent or child should run first?
+Message-ID: <20060112013858.GB6178@kurtwerks.com>
+Mail-Followup-To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>,
+	Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+References: <20060111123745.GB30219@lgb.hu> <1136983910.2929.39.camel@laptopd505.fenrus.org> <20060111130255.GC30219@lgb.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200601121236.07522.kernel@kolivas.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060111130255.GC30219@lgb.hu>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.15krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jan 2006 12:29 pm, Peter Williams wrote:
-> Con Kolivas wrote:
-> > This is a shot in the dark. We haven't confirmed 1. there is a problem 2.
-> > that this is the problem nor 3. that this patch will fix the problem.
->
-> I disagree.  I think that there is a clear mistake in my original patch
-> that this patch fixes.
+On Wed, Jan 11, 2006 at 02:02:55PM +0100, Gábor Lénárt took 0 lines to write:
+> Hello,
+> 
+> Ok, you're absolutly right here. My problem is to find some solution and not
+> to change the behaviour of fork() of course :) It's quite annoying to
+> introduce some kind of IPC between parent and childs just for transferring a
+> single pid_t ;-) Using exit status would be great (I would transfer "n")
 
-I agree with you on that. The real concern is that we were just about to push 
-it upstream. So where does this leave us? I propose we delay merging the 
-"improved smp nice handling" patch into mainline pending your further 
-changes.
+But IPC, especially shared memory, would be great for this if you can
+set up the shmid ahead of time. It would certainly be fast.
 
-Cheers,
-Con
+Kurt
+-- 
+The study of non-linear physics is like the study of non-elephant
+biology.

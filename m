@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbWALQFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbWALQJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030453AbWALQFi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 11:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030456AbWALQFh
+	id S1030457AbWALQJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 11:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030456AbWALQJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 11:05:37 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:1937 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1030453AbWALQFg (ORCPT
+	Thu, 12 Jan 2006 11:09:25 -0500
+Received: from rtr.ca ([64.26.128.89]:65417 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1030457AbWALQJY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 11:05:36 -0500
-Message-ID: <43C67E8A.8070100@ums.usu.ru>
-Date: Thu, 12 Jan 2006 21:06:34 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Thu, 12 Jan 2006 11:09:24 -0500
+Message-ID: <43C67F20.30300@rtr.ca>
+Date: Thu, 12 Jan 2006 11:09:04 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: dtor_core@ameritech.net
-Cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: linux-2.6.15-git7: PS/2 keyboard dies on ppp traffic
-References: <43C66E82.4030106@ums.usu.ru> <d120d5000601120759n222c1e5av7caf60c02aa52331@mail.gmail.com>
-In-Reply-To: <d120d5000601120759n222c1e5av7caf60c02aa52331@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Tejun Heo <htejun@gmail.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] blk: fix possible queue stall in blk_do_ordered
+References: <20060112152949.GA9855@htj.dyndns.org>
+In-Reply-To: <20060112152949.GA9855@htj.dyndns.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.27; VDF: 6.33.0.118; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
+Tejun Heo wrote:
+> Previously, if a fs request which was being drained failed and got
+> requeued, blk_do_ordered() didn't allow it to be reissued, which
+> causes queue stall.  This patch makes blk_do_ordered() use the
+> sequence of each request to determine whether a request can be issued
+> or not.  This fixes the bug and simplifies code.
 
->Do you have access to an USB keyboard?
->  
->
-No
+What kernel(s) is this against?  The patch seems to fail on 2.6.15.
 
--- 
-Alexander E. Patrakov
+Thanks

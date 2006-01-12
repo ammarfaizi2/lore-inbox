@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWALKwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWALKwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbWALKwX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 05:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWALKwX
+	id S1030366AbWALKwO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 05:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWALKwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 05:52:23 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:43410 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030368AbWALKwV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 05:52:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WEIbMh1epyrjneMIv1IoOVwaHoYzK/3veyEhUB4cLvCPrOvipE3Gte11MMpPD5VeUzgSwaTAMNe+k3UBZblaPcKQxzj+zXaNrT5rdyxPhzaVoUAEI3j8ebBl518VIJBAptHgHggfo9VkqcsD733Y2APDVLdi/hBWEjts4BXufTI=
-Message-ID: <5a4c581d0601120252g56c97df4y76b5fc5e1355508a@mail.gmail.com>
-Date: Thu, 12 Jan 2006 11:52:20 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: [2.6.15-git6,-git7] hard lockup on FC4 exiting X (Intel I915)
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e9970601112345p9306310ud935735f3b44e565@mail.gmail.com>
-MIME-Version: 1.0
+	Thu, 12 Jan 2006 05:52:14 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:59303 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1030366AbWALKwM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 05:52:12 -0500
+Date: Thu, 12 Jan 2006 02:51:15 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: akpm@osdl.org, kurosawa@valinux.co.jp, simon.derr@bull.net,
+       linux-kernel@vger.kernel.org, st@sw.ru, den@sw.ru, djwong@us.ibm.com
+Subject: Re: [PATCH] cpuset oom lock fix
+Message-Id: <20060112025115.3d9c7754.pj@sgi.com>
+In-Reply-To: <43C62A39.50606@sw.ru>
+References: <20060112091627.18409.49780.sendpatchset@jackhammer.engr.sgi.com>
+	<43C62A39.50606@sw.ru>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5a4c581d0601111647i62f8c625q51a420ba9a9175e5@mail.gmail.com>
-	 <21d7e9970601112345p9306310ud935735f3b44e565@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/12/06, Dave Airlie <airlied@gmail.com> wrote:
-> >  startx, fire up a gnome-terminal, exit it, Desktop->Logout...
-> >  at this point the mouse arrow stills and the box locks up,
-> >  keyboard dead, no response to pings.
-> >
->
-> Normally I'd accept blame for this, but I've not merged up yet, so at
-> a guess the mutex patches probably did something... if not the some
-> PCI ones perhaps..
->
-> I don't suppose you can get a serial console hooked up (probably no
-> real serial on that machine) or a netconsole..
+Kirill wrote:
+> To tell the truth I don't like such approaches, when more and more hooks 
+> are create and scattered all aroung. maybe it is possible to split 
+> semaphore to lock and sem and use lock where possible?
 
-Will plug both laptops in my router and try netconsole when I get
- back home later tonight, and report back...
+Hmmm ...
 
-Thanks,
+I'm not sure what to make of your comments.
 
---alessandro
+I guess you are suggesting a different locking scheme with your phrase
+"split semaphore to lock and sem and use lock", but I can't parse
+your phrase, nor guess what you have in mind.
 
- "Somehow all you ever need is, never really quite enough, you know"
+And I am guessing that you recommend this alternative locking scheme
+(whatever it is) because you think it would reduce the number of
+cpuset_*() hooks in the kernel -- or at least avoid this one in the
+oom code.
 
-   (Bruce Springsteen - "Reno")
+There are various reasons I could imagine why you might not like
+"more and more hooks", but I don't have a guess as to which of these
+possible reasons are your chief concerns, so cannot evaluate whether
+said locking scheme would address those concerns.
+
+I just went through a substantial amount of work refining and fine
+tuning the cpuset locking structure, and at the moment am both
+pleased with the result, and not enthusiastic about recommendations
+to rework it all again.  The result we have now is very low impact
+on the important code paths (oom is not an important code path,
+performance wise).
+
+So ...
+
+Could you please elaborate on why you don't like the hooks, on
+what this alternative locking scheme is (if indeed that's what
+you meant) and how such a scheme addresses your concerns with
+the hooks?
+
+Take a close look at the comments in kernel/cpuset.c, explaining
+the current cpuset locking mechanims, as part of your recommending
+alternatives.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

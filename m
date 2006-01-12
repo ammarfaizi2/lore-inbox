@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbWALSyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbWALSzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932665AbWALSyA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 13:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbWALSyA
+	id S932666AbWALSzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 13:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWALSzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 13:54:00 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:54845 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932665AbWALSx7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 13:53:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NRq3xGhPhFE8vWIYs4FyHdd7qfV6F+rD93enLConBIhZv8RY0Ndvtmmao1R3qBQA1g5eRizS72rngIBwP4i+es9uVSvCasownXmgxFFZUYMxj/GYSkIrNgV7kF086KGgEVXQkKxUOA6OoYZ+D40+oHzqRczd8BzezoHzLTiXcmY=
-Message-ID: <934f64a20601121053q38e191c6y5c9ac00a68a49bf2@mail.gmail.com>
-Date: Thu, 12 Jan 2006 12:53:58 -0600
-From: David Nicol <davidnicol@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
-Cc: Yaroslav Rastrigin <yarick@it-territory.ru>, CaT <cat@zip.com.au>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1136948198.2007.137.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
-	 <200601091403.46304.yarick@it-territory.ru>
-	 <20060109124545.GA2035@zip.com.au>
-	 <200601091634.52107.yarick@it-territory.ru>
-	 <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
-	 <1136948198.2007.137.camel@mindpipe>
+	Thu, 12 Jan 2006 13:55:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:16612 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932666AbWALSzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 13:55:24 -0500
+Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
+From: Arjan van de Ven <arjan@infradead.org>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, Gerd Hoffmann <kraxel@suse.de>,
+       "Mike D. Day" <ncmike@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       xen-devel@lists.xensource.com
+In-Reply-To: <43C6A5B4.80801@us.ibm.com>
+References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>
+	 <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>
+	 <43C5B59C.8050908@us.ibm.com> <43C65196.8040402@suse.de>
+	 <1137072089.2936.29.camel@laptopd505.fenrus.org> <43C66ACC.60408@suse.de>
+	 <20060112173926.GD10513@kroah.com>  <43C6A5B4.80801@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 12 Jan 2006 19:55:19 +0100
+Message-Id: <1137092120.2936.55.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/10/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Tue, 2006-01-10 at 20:29 -0600, David Nicol wrote:
-> > On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
-> >
-> > > Unfortunately, bounties doesn't work :-/
-> >
-> >
-> > No?  Bounties seems to work fine for Asterisk.  Is the problem, still no central
-> > linux kernel bounty system?
->
->
-> Many bounties don't work because they are too low, too vague or both.
-> For example several months ago Ubuntu offered $500 to "fix all remaining
-> ALSA issues for PowerMac hardware".  HA!  That's like 5 or 6 diffent
-> drivers which ranged from not working at all, to sound works but no
-> system beeps, etc...
->
-> Lee
+On Thu, 2006-01-12 at 12:53 -0600, Anthony Liguori wrote:
+> 
+> We wish to make management hypercalls as the root user in userspace 
+> which means we have to go through the kernel.  Currently, we do this
+> by 
+> having /proc/xen/privcmd accept an ioctl() that takes a structure
+> that 
+> describe the register arguments.  The kernel interface allows us to 
+> control who in userspace can execute hypercalls.
+
+ioctls on proc is evil though (so is ioctl-on-sysfs). It's a device not
+a proc file!
 
 
-How did they offer this bounty?  Through the ubuntu announcements channels?
-
-Like if, say, Linux International was to partner with TipJar.com to create
-and maintain an organized open bounty system where stakeholders wanting
-to see something could contribute to the pot for the feature and the first
-implementor who passes the tests (including code readability!) gets the pot.
-
-Write me off-list to become involved in this project or to direct me to
-an already existing project so I don't waste more time on wheel reinvention?
-
-David "tipjar" Nicol
-
-
---
-David L Nicol
-awrsagfagoijneaghnjhda

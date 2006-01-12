@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWALBCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWALBF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWALBCn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 20:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWALBCm
+	id S964915AbWALBF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 20:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWALBF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 20:02:42 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48904 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964900AbWALBCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 20:02:42 -0500
-Date: Thu, 12 Jan 2006 02:02:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
-       Greg K-H <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org
-Subject: [-mm patch] fix arch/ia64/sn/kernel/tiocx.c compilation
-Message-ID: <20060112010240.GN29663@stusta.de>
-References: <20060111042135.24faf878.akpm@osdl.org>
-MIME-Version: 1.0
+	Wed, 11 Jan 2006 20:05:28 -0500
+Received: from holomorphy.com ([66.93.40.71]:52688 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S964915AbWALBF1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 20:05:27 -0500
+Date: Wed, 11 Jan 2006 17:05:02 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Adam Litke'" <agl@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
+Message-ID: <20060112010502.GG9091@holomorphy.com>
+References: <1137018263.9672.10.camel@localhost.localdomain> <200601120040.k0C0ebg02818@unix-os.sc.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060111042135.24faf878.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200601120040.k0C0ebg02818@unix-os.sc.intel.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 04:21:35AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.15-mm2:
->...
-> +gregkh-driver-add-tiocx-bus_type-probe-remove-methods.patch
->...
->  driver tree updates
->...
+On Wed, Jan 11, 2006 at 04:40:37PM -0800, Chen, Kenneth W wrote:
+> What if two processes fault on the same page and races with find_lock_page(),
+> both find page not in the page cache.  The process won the race proceed to
+> allocate last hugetlb page.  While the other will exit with SIGBUS.
+> In theory, both processes should be OK.
 
-This patch caused the following compile error:
+This is supposed to fix the incarnation of that as a preexisting
+problem, but you're right, there is no fallback or retry for the case
+of hugepage queue exhaustion. For some reason I saw a phantom page
+allocator fallback in the hugepage allocator changes.
 
-<--  snip  -->
-
-...
-  CC      arch/ia64/sn/kernel/tiocx.o
-arch/ia64/sn/kernel/tiocx.c:151: error: 'cx_device_remove' undeclared here (not in a function)
-make[2]: *** [arch/ia64/sn/kernel/tiocx.o] Error 1
-
-<--  snip  -->
+Looks like back to the drawing board for this pair of patches, though
+I'd be more than happy to get a solution to this.
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-mm3/arch/ia64/sn/kernel/tiocx.c.old	2006-01-12 01:58:20.000000000 +0100
-+++ linux-2.6.15-mm3/arch/ia64/sn/kernel/tiocx.c	2006-01-12 01:58:35.000000000 +0100
-@@ -148,7 +148,7 @@
- 	.match = tiocx_match,
- 	.uevent = tiocx_uevent,
- 	.probe = cx_device_probe,
--	.remove = cx_device_remove,
-+	.remove = cx_driver_remove,
- };
- 
- /**
-
+-- wli

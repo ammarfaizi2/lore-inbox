@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932676AbWALVFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbWALVF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932676AbWALVFY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 16:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbWALVFX
+	id S932692AbWALVF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 16:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWALVFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 16:05:23 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44746 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932676AbWALVFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 16:05:23 -0500
-Subject: Re: Why the DOS has many ntfs read and write driver,but the linux
-	can't for a long time
-From: Lee Revell <rlrevell@joe-job.com>
-To: David Nicol <davidnicol@gmail.com>
-Cc: Yaroslav Rastrigin <yarick@it-territory.ru>, CaT <cat@zip.com.au>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <934f64a20601121053q38e191c6y5c9ac00a68a49bf2@mail.gmail.com>
-References: <174467f50601082354y7ca871c7k@mail.gmail.com>
-	 <200601091403.46304.yarick@it-territory.ru>
-	 <20060109124545.GA2035@zip.com.au>
-	 <200601091634.52107.yarick@it-territory.ru>
-	 <934f64a20601101829q1f801a0y8efc2988489b6d9a@mail.gmail.com>
-	 <1136948198.2007.137.camel@mindpipe>
-	 <934f64a20601121053q38e191c6y5c9ac00a68a49bf2@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 16:05:18 -0500
-Message-Id: <1137099918.2370.59.camel@mindpipe>
+	Thu, 12 Jan 2006 16:05:55 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:51403 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932692AbWALVFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 16:05:54 -0500
+Date: Thu, 12 Jan 2006 16:05:53 -0500
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Jon Mason <jdmason@us.ibm.com>, mulix@mulix.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: pcnet32 devices with incorrect trident vendor ID
+Message-ID: <20060112210553.GA18972@csclub.uwaterloo.ca>
+References: <20060112175051.GA17539@us.ibm.com> <43C6C0E6.7030705@gentoo.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C6C0E6.7030705@gentoo.org>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 12:53 -0600, David Nicol wrote:
-> On 1/10/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Tue, 2006-01-10 at 20:29 -0600, David Nicol wrote:
-> > > On 1/9/06, Yaroslav Rastrigin <yarick@it-territory.ru> wrote:
-> > >
-> > > > Unfortunately, bounties doesn't work :-/
-> > >
-> > >
-> > > No?  Bounties seems to work fine for Asterisk.  Is the problem, still no central
-> > > linux kernel bounty system?
-> >
-> >
-> > Many bounties don't work because they are too low, too vague or both.
-> > For example several months ago Ubuntu offered $500 to "fix all remaining
-> > ALSA issues for PowerMac hardware".  HA!  That's like 5 or 6 diffent
-> > drivers which ranged from not working at all, to sound works but no
-> > system beeps, etc...
-> >
-> > Lee
+On Thu, Jan 12, 2006 at 08:49:42PM +0000, Daniel Drake wrote:
+> On the subject of pcnet32 and the invalid vendor ID, you may find this 
+> interesting:
 > 
+> http://forums.gentoo.org/viewtopic-t-420013-highlight-trident.html
 > 
-> How did they offer this bounty?  Through the ubuntu announcements channels?
+> The user saw the correct vendor ID (AMD) in 2.4, but when upgrading to 
+> 2.6, it changed to Trident.
 > 
-> Like if, say, Linux International was to partner with TipJar.com to create
-> and maintain an organized open bounty system where stakeholders wanting
-> to see something could contribute to the pot for the feature and the first
-> implementor who passes the tests (including code readability!) gets the pot.
-> 
-> Write me off-list to become involved in this project or to direct me to
-> an already existing project so I don't waste more time on wheel reinvention?
+> I guess this is still likely to be a hardware bug, but it demonstrates 
+> that the Linux PCI layer has something to do with it (even if it is just 
+> triggering it somehow).
 
-Heh, I only found out about it when some Ubuntu user mentioned it in an
-ALSA bug report.  I guess they just expect people to find them somehow.
-So yes, there needs to be a single, central resource for OSS bounties.
+Perhaps there is a significant different in the pcnet32.c files between
+the two versions.  I also remember that there is some powerpc specific
+code in there related to MAC address detection.  There are certainly
+differences in 2.4 and 2.6's version of the driver, maybe something is
+broken in the newer one when run on powerpc.  I don't run gentoo and
+have no idea how to get a hold of the source of pcnet32.c from each of
+those two.
 
-I think a lot of these problems with the PPC drivers were later solved.
-But my point was really that $500 was not nearly enough for the amount
-of work that would have been required.  It's a nice bonus for someone
-who would have done it for free anyway but I was under the impression
-that bounties were created to solve problems too tricky or unrewarding
-or uninteresting for someone to do for free.
+It does seem odd that only the pcnet32 has the pci ID change, but at the
+same time, somehow the driver is recognizing it and loading at boot
+time, so the ID can't be wrong at that time.  Does the ID get mangled as
+part of what makes the MAC addresses read incorrectly on your 2.6.14?
+The 2.4 system shows all the cards overriding the MAC based on the PROM,
+which I believe is what the driver code should do on a powerpc system.
+On 2.6 that appears to only happen on one of the cards.  At least on
+that device (pci 01:01) appears to agree what the MAC should be in both
+cases.
 
-Lee
+Perhaps the lspci being wrong is just a side effect of the real problem.
+Maybe the driver is broken and messing things up.
 
-
+Len Sorensen

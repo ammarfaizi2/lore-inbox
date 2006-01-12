@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWALNVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWALNbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbWALNVl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 08:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWALNVl
+	id S1751165AbWALNbV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 08:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWALNbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 08:21:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41380 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030397AbWALNVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 08:21:41 -0500
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-From: Arjan van de Ven <arjan@infradead.org>
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: "Mike D. Day" <ncmike@us.ibm.com>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
-In-Reply-To: <43C65196.8040402@suse.de>
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>
-	 <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>
-	 <43C5B59C.8050908@us.ibm.com>  <43C65196.8040402@suse.de>
+	Thu, 12 Jan 2006 08:31:20 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:51640 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751165AbWALNbU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 08:31:20 -0500
+Subject: Re: patch: problem with sco
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Wolfgang Walter <wolfgang.walter@studentenwerk.mhn.de>,
+       bluez-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       maxk@qualcomm.com
+In-Reply-To: <43C64B0C.2080903@trash.net>
+References: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de>
+	 <1137057244.3955.3.camel@localhost.localdomain>
+	 <43C64B0C.2080903@trash.net>
 Content-Type: text/plain
-Date: Thu, 12 Jan 2006 14:21:28 +0100
-Message-Id: <1137072089.2936.29.camel@laptopd505.fenrus.org>
+Date: Thu, 12 Jan 2006 14:31:47 +0100
+Message-Id: <1137072707.5013.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   privcmd returns a filehandle which is then used 
-> for ioctls (misc char dev maybe?). 
+Hi Patrick,
 
+> >>A friend and I encountered a problem with sco transfers to a headset using
+> >>linux (vanilla 2.6.15). While all sco packets sent by the headset were
+> >>received there was no outgoing traffic.
+> >>
+> >>After switching debugging output on we found that actually sco_cnt was always
+> >>zero in hci_sched_sco.
+> 
+> I'm seeing the exact same problem with a Logitech "mobile Freedom"
+> headset. I'm using this patch to work around the problem:
 
-EWWWWWWWWWWWWWW
+so it seems that Broadcom really messed the SCO MTU settings up and we
+have to workaround with some sane values.
 
-what is wrong with open() ?????
-things that return fd's that aren't open() (or dup and socket) are just
-evil. Esp if it's in proc or sysfs.
+Please also include the lspci for these devices.
+
+Regards
+
+Marcel
 
 

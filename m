@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161248AbWALUeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161244AbWALUga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161248AbWALUeV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 15:34:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWALUeV
+	id S1161244AbWALUga (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 15:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWALUga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 15:34:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40845 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161244AbWALUeU (ORCPT
+	Thu, 12 Jan 2006 15:36:30 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:62353 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161244AbWALUg3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 15:34:20 -0500
-Date: Thu, 12 Jan 2006 12:32:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: htejun@gmail.com, ric@emc.com, axboe@suse.de, neilb@suse.de, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: 2.6.15-mm2
-Message-Id: <20060112123253.26ec3e5f.akpm@osdl.org>
-In-Reply-To: <43C6AD72.2010101@reub.net>
-References: <43C55B31.5000201@reub.net>
-	<20060111194517.GE5373@suse.de>
-	<20060111195349.GF5373@suse.de>
-	<43C5D1CA.7000400@reub.net>
-	<20060112080051.GA22783@htj.dyndns.org>
-	<43C61598.7050004@reub.net>
-	<20060112111846.GA19976@htj.dyndns.org>
-	<43C645ED.40905@reub.net>
-	<43C64C3B.5070704@emc.com>
-	<43C64DF6.7060604@reub.net>
-	<20060112135533.GA29675@htj.dyndns.org>
-	<43C6AD72.2010101@reub.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 12 Jan 2006 15:36:29 -0500
+Date: Thu, 12 Jan 2006 14:36:25 -0600
+To: Greg KH <greg@kroah.com>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       johnrose@austin.ibm.com
+Subject: [PATCH] PCI panic on dlpar add (add pci slot to running partition)
+Message-ID: <20060112203625.GU26221@austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+From: linas@austin.ibm.com (linas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
->  Indeed that seems to fix it.  I've just booted -mm3 and it came up with no 
->  problems at all.
 
-whew.
+Greg, Please apply and forward upstream.
 
-What about all the other problems?  The oops under ata_device_add()?
+Removing and then adding a PCI slot to a running partition results in
+a kernel panic. The current code attempts to add iospace for an entire 
+root bus, which is inappropriate, and silently fails.  When a pci device 
+tries to use the iospace, a page fault is taken, as the iospace had not
+been mapped, and of course the page fault cannot be resolved. 
 
-And is it still saying this?
+This only occurs for PCI adapters using pio, which may be why it hadn't 
+been seen earlier (this seems to have been broken for a while).
+This patch has survived testing of dozens of slot add and removes.
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> On Iau, 2006-01-12 at 16:55 +1300, Reuben Farrelly wrote:
-> > ata1: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x0 irq 0
-> > ata2: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x8 irq 0
-> > Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> 
-> That is the critical bit. The SATA ports have no PCI resources assigned
-> for bus mastering (BAR 4). libata should have driven the device PIO in
-> this case but the resource should have been assigned.
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+
+Index: linux-2.6.15-git6/drivers/pci/hotplug/rpadlpar_core.c
+===================================================================
+--- linux-2.6.15-git6.orig/drivers/pci/hotplug/rpadlpar_core.c	2006-01-12 13:54:52.374015674 -0600
++++ linux-2.6.15-git6/drivers/pci/hotplug/rpadlpar_core.c	2006-01-12 13:56:08.191380743 -0600
+@@ -152,7 +152,7 @@
+ 	pcibios_claim_one_bus(dev->bus);
+ 
+ 	/* ioremap() for child bus, which may or may not succeed */
+-	(void) remap_bus_range(dev->bus);
++	remap_bus_range(dev->subordinate);
+ 
+ 	/* Add new devices to global lists.  Register in proc, sysfs. */
+ 	pci_bus_add_devices(phb->bus);

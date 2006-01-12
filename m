@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161279AbWALVK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbWALVPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161279AbWALVK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 16:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbWALVK3
+	id S1161281AbWALVPs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 16:15:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161296AbWALVPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 16:10:29 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14744 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161279AbWALVK2 (ORCPT
+	Thu, 12 Jan 2006 16:15:48 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:7655 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1161281AbWALVPr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 16:10:28 -0500
-Date: Thu, 12 Jan 2006 13:10:19 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sk98lin
-Message-ID: <20060112131019.485edc65@dxpl.pdx.osdl.net>
-In-Reply-To: <20060112204844.1BDCDC8C4@mx.dtiltas.lt>
-References: <20060112180048.8A18EBC32@mx.dtiltas.lt>
-	<20060112101843.0b0e159f@dxpl.pdx.osdl.net>
-	<20060112204844.1BDCDC8C4@mx.dtiltas.lt>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Thu, 12 Jan 2006 16:15:47 -0500
+Date: Fri, 13 Jan 2006 08:15:44 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [XFS] Do not inherit properties for the quota inodes from the root inode.
+Message-ID: <20060113081543.A8335102@wobbly.melbourne.sgi.com>
+References: <200601121815.k0CIFYBU024320@hera.kernel.org> <20060112204336.GA20248@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060112204336.GA20248@taniwha.stupidest.org>; from cw@f00f.org on Thu, Jan 12, 2006 at 12:43:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jan 2006 22:43:44 +0200
-Nerijus Baliunas <nerijus@users.sourceforge.net> wrote:
+Hi Chris,
 
-> On Thu, 12 Jan 2006 10:18:43 -0800 Stephen Hemminger <shemminger@osdl.org> wrote:
+On Thu, Jan 12, 2006 at 12:43:36PM -0800, Chris Wedgwood wrote:
+> > [XFS] Do not inherit properties for the quota inodes from the root inode.
 > 
-> > While developing the skge and sky2 driver I discovered more problems and
-> > those got fixed in the mainline sk98lin driver.
-> 
-> What is a difference between them? Which one supports Marvell Technology
-> Group Ltd. 88E8050 Gigabit Ethernet Controller (rev 17)?
-> skge in 2.6.14 does not support it.
+> lots of whitespace changes... :)
 
-sky2 is for 88e8050 and related chips
+If by "lots" you mean "one line", then yes!
+
+> >
+> > -	if ((error = xfs_dir_ialloc(&tp, mp->m_rootip, S_IFREG, 1, 0,
+> > +	if ((error = xfs_dir_ialloc(&tp, &zeroino, S_IFREG, 1, 0,
+> >  				   &zerocr, 0, 1, ip, &committed))) {
+> >  		xfs_trans_cancel(tp, XFS_TRANS_RELEASE_LOG_RES |
+> >  				 XFS_TRANS_ABORT);
+> 
+> why would you want to do this at all?
+
+I'm not sure what you're asking?  There are things we do not
+want to inherit from the root inode (certain inode flags in
+particular) when the quota inodes are being created... does
+that help?
+
+cheers.
 
 -- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+Nathan

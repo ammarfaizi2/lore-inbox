@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161239AbWALUHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbWALULU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161239AbWALUHP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 15:07:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161238AbWALUHP
+	id S1161236AbWALULU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 15:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161222AbWALULU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 15:07:15 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:17117 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1161235AbWALUHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 15:07:12 -0500
-Message-Id: <200601122006.k0CK6Sg17146@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Adam Litke'" <agl@us.ibm.com>
-Cc: "William Lee Irwin III" <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: RE: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
-Date: Thu, 12 Jan 2006 12:06:29 -0800
+	Thu, 12 Jan 2006 15:11:20 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:14262 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1161236AbWALULT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 15:11:19 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Place for userland swsusp parts
+Date: Thu, 12 Jan 2006 21:13:24 +0100
+User-Agent: KMail/1.9
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <20060111221511.GA8223@elf.ucw.cz> <200601120819.42512.ncunningham@linuxmail.org> <20060112143851.GB9752@elf.ucw.cz>
+In-Reply-To: <20060112143851.GB9752@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYXsX0jEz3WeSkDSuSR67+DuRaUZQAAgPAw
-In-Reply-To: <1137095339.17956.22.camel@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601122113.24461.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Litke wrote on Thursday, January 12, 2006 11:49 AM
-> On Thu, 2006-01-12 at 11:07 -0800, Chen, Kenneth W wrote:
-> > Sorry, I don't think patch 1 by itself is functionally correct.  It opens
-> > a can of worms with race window all over the place.  It does more damage
-> > than what it is trying to solve.  Here is one case:
+Hi,
+
+On Thursday, 12 January 2006 15:38, Pavel Machek wrote:
+> On Čt 12-01-06 08:19:42, Nigel Cunningham wrote:
+> > On Thursday 12 January 2006 08:15, Pavel Machek wrote:
+> > > Is there some place where we could  put userland swsusp parts under
+> > > version control?
+> > >
+> > > swsusp.sf.net looks like possible place, but it has been in use by
+> > > suspend2... Is it still being used? If not, would it be possible to
+> > > "hijack" it for swsusp development?
 > > 
-> > 1 thread fault on hugetlb page, allocate a non-zero page, insert into the
-> > page cache, then proceed to zero it.  While in the middle of the zeroing,
-> > 2nd thread comes along fault on the same hugetlb page.  It find it in the
-> > page cache, went ahead install a pte and return to the user.  User code
-> > modify some parts of the hugetlb page while the 1st thread is still
-> > zeroing.  A potential silent data corruption.
+> > It's not still being used (we have suspend2.net now). The only problem I see 
+> > with that is that it still has all the old suspend2 stuff and Sourceforge 
+> > make it really hard to clear out a project's files. You were talking about 
+> > calling it uswsusp or something like that. How about starting a 
+> > uswsusp.sf.net?
 > 
-> I don't think the above case is possible because of find_lock_page().
-> The second thread would wait on the page to be unlocked by the thread
-> zeroing it before it could proceed.
+> Rafael, do you have repository to place userland parts in, or should I
+> start uswsusp.sf.net project, or do you want to do it?
 
-I think you are correct.  Sorry for the noise.
+I think I can host them (the box is moving tomorrow, hopefully, so it should get
+enough bandwidth ;-)), but I'm afraid I won't have time to set up a mailing list
+etc.
 
-- Ken
+IMHO uswsusp.sf.net would be too similar to swsusp.sf.net, especially that
+swsusp.sf.net is redirected to www.suspend2.net.
 
+Greetings,
+Rafael

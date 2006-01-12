@@ -1,67 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWALAlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWALArQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbWALAlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 19:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWALAlQ
+	id S964874AbWALArQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 19:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWALArQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 19:41:16 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:55177 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S964869AbWALAlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 19:41:15 -0500
-Message-Id: <200601120040.k0C0ebg02818@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Adam Litke'" <agl@us.ibm.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: RE: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
-Date: Wed, 11 Jan 2006 16:40:37 -0800
+	Wed, 11 Jan 2006 19:47:16 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:40882 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964874AbWALArP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 19:47:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=lW1+1lN8duU1zshGqZuXAOYXqRC+Skw9qM0n1Wb+kZDyY3tpiQ7v40H3bQXET+CjwdqQv9C4UvYgMWO8ehKbuqFXMzpf5NTqPO175AfKdCiHs21ywMzFepsW2OgzTcHkU6W1wn0rvYhsjFXo6Kzq+sglF794x8fy7zBcc0LjWh8=
+Message-ID: <5a4c581d0601111647i62f8c625q51a420ba9a9175e5@mail.gmail.com>
+Date: Thu, 12 Jan 2006 01:47:14 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.6.15-git6,-git7] hard lockup on FC4 exiting X (Intel I915)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYW/itjjO67zSDSTmaloBqyhdrYxAAEX1pQ
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <1137018263.9672.10.camel@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Litke wrote on Wednesday, January 11, 2006 2:24 PM
-> > here).  The patch doesn't completely close the race (there is a much
-> > smaller window without the zeroing though).  The next patch should close
-> > the race window completely.
-> 
-> My only concern is if I am using the correct lock for the job here.
+Dell Latitude D610, Pentium M @ 1.86Ghz, 2GB RAM
+ running uptodate FC4. 100% reproducable since
+ 2.6.15-git6, no problem up to -git5. Log in to VT1, run
+ startx, fire up a gnome-terminal, exit it, Desktop->Logout...
+ at this point the mouse arrow stills and the box locks up,
+ keyboard dead, no response to pings.
 
-I don't think so.
+Card is, according to lspci -v,
+
+00:02.0 VGA compatible controller: Intel Corporation Mobile
+915GM/GMS/910GML Express Graphics Controller (rev 03) (prog-if 00
+[VGA])
+        Subsystem: Dell: Unknown device 0182
+        Flags: bus master, fast devsel, latency 0, IRQ 11
+        Memory at dff00000 (32-bit, non-prefetchable) [size=512K]
+        I/O ports at ec38 [size=8]
+        Memory at c0000000 (32-bit, prefetchable) [size=256M]
+        Memory at dfec0000 (32-bit, non-prefetchable) [size=256K]
+        Capabilities: [d0] Power Management version 2
+
+Doesn't happen on -git6 on my older laptop (Latitude C640,
+ Pentium IV @ 1.8Ghz, 1GB RAM, Radeon Mobility 7500), so
+ it definitely is hardware-related.
+
+Diff'ing the dmesg boot log and the Xorg log from the latest
+ working version to the latest available version, the relevant
+ lines would seem to be these:
+
+[root@sandman ~]# diff /tmp/dmesg-2615git* | grep -v audit
+1c1
+< Linux version 2.6.15-git5 (asuardi@sandman) (gcc version 4.0.2
+20051125 (Red Hat 4.0.2-8)) #1 Thu Jan 12 01:01:05 CET 2006
+---
+> Linux version 2.6.15-git7 (asuardi@sandman) (gcc version 4.0.2 20051125 (Red Hat 4.0.2-8)) #1 Thu Jan 12 00:48:04 CET 2006
+[...]
+78a79
+> PCI: Bus #04 (-#07) may be hidden behind transparent bridge #03 (-#04) (try 'pci=assign-busses')
+145c146
+---
+157,159c158,160
+< Allocate Port Service[pcie00]
+< Allocate Port Service[pcie02]
+< Allocate Port Service[pcie03]
+---
+> Allocate Port Service[0000:00:1c.0:pcie00]
+> Allocate Port Service[0000:00:1c.0:pcie02]
+> Allocate Port Service[0000:00:1c.0:pcie03]
+[...]
+
+[root@sandman ~]# diff /tmp/Xorg-2615git*
+6c6
+< Current Operating System: Linux sandman 2.6.15-git5 #1 Thu Jan 12
+01:01:05 CET 2006 i686
+---
+> Current Operating System: Linux sandman 2.6.15-git7 #1 Thu Jan 12 00:48:04 CET 2006 i686
+[...]
+2101,2103c2101,2103
+< (II) I810(0): Allocated 4 kB for HW cursor at 0xffff000 (0x37c27000)
+< (II) I810(0): Allocated 16 kB for HW (ARGB) cursor at 0xfffb000 (0x35b28000)
+< (II) I810(0): Allocated 4 kB for Overlay registers at 0xfffa000 (0x35ae5000).
+---
+> (II) I810(0): Allocated 4 kB for HW cursor at 0xffff000 (0x36b84000)
+> (II) I810(0): Allocated 16 kB for HW (ARGB) cursor at 0xfffb000 (0x36bf0000)
+> (II) I810(0): Allocated 4 kB for Overlay registers at 0xfffa000 (0x36b87000).
+2121,2122c2121,2122
+< (II) I810(0): [drm] added 8192 byte SAREA at 0xf8a5a000
+< (II) I810(0): [drm] mapped SAREA 0xf8a5a000 to 0xb7f55000
+---
+> (II) I810(0): [drm] added 8192 byte SAREA at 0xf8af0000
+> (II) I810(0): [drm] mapped SAREA 0xf8af0000 to 0xb7f77000
+
+Something to do with the PCI Express stuff ?
 
 
-> @@ -454,26 +455,31 @@ int hugetlb_no_page(struct mm_struct *mm
->  	 * Use page lock to guard against racing truncation
->  	 * before we get page_table_lock.
->  	 */
-> -retry:
->  	page = find_lock_page(mapping, idx);
->  	if (!page) {
->  		if (hugetlb_get_quota(mapping))
->  			goto out;
-> +
-> +		if (shared)
-> +			spin_lock(&mapping->host->i_lock);
-> +		
->  		page = alloc_unzeroed_huge_page(vma, address);
->  		if (!page) {
->  			hugetlb_put_quota(mapping);
-> +			if (shared)
-> +				spin_unlock(&mapping->host->i_lock);
->  			goto out;
->  		}
+Available for more detailed info and/or testing to interested parties :)
 
-What if two processes fault on the same page and races with find_lock_page(),
-both find page not in the page cache.  The process won the race proceed to
-allocate last hugetlb page.  While the other will exit with SIGBUS.  In theory,
-both processes should be OK.
+Thanks in advance, ciao,
 
-- Ken
+--alessandro
 
+ "Somehow all you ever need is, never really quite enough, you know"
+
+   (Bruce Springsteen - "Reno")

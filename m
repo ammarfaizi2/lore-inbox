@@ -1,43 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161157AbWALSnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWALSoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161157AbWALSnI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 13:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWALSnH
+	id S932652AbWALSoi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 13:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWALSoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 13:43:07 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:49118 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S932657AbWALSnG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 13:43:06 -0500
-Date: Thu, 12 Jan 2006 19:43:05 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: soft lockup detected in acpi_processor_idle() -- false positive?
-Message-ID: <20060112184305.GA7068@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Thu, 12 Jan 2006 13:44:38 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:15748 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932652AbWALSoh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 13:44:37 -0500
+Message-ID: <43C6A383.80205@us.ibm.com>
+Date: Thu, 12 Jan 2006 12:44:19 -0600
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: "Mike D. Day" <ncmike@us.ibm.com>, xen-devel@lists.xensource.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Xen-devel] Re: [RFC] [PATCH] sysfs support for Xen attributes
+References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com> <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com> <43C5B59C.8050908@us.ibm.com> <20060112071000.GA32418@kroah.com> <43C66B56.8030801@us.ibm.com> <43C67C7E.3070909@us.ibm.com> <20060112173449.GB10513@kroah.com>
+In-Reply-To: <20060112173449.GB10513@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Latest git, fresh after resuming from suspend-to-disk (in-kernel variant):
+Greg KH wrote:
 
-[4294914.586000] Restarting tasks... done
-[4294922.657000] BUG: soft lockup detected on CPU#0!
-[4294922.657000] 
-[4294922.657000] Pid: 0, comm:              swapper
-[4294922.657000] EIP: 0060:[<f003084c>] CPU: 0
-[4294922.657000] EIP is at acpi_processor_idle+0x1f3/0x2d5 [processor]
-[4294922.657000]  EFLAGS: 00000282    Not tainted  (2.6.15)
-[4294922.657000] EAX: fffff000 EBX: 005543a8 ECX: 00000000 EDX: 00000000
-[4294922.657000] ESI: edcc3064 EDI: edcc2f60 EBP: c041cfdc DS: 007b ES: 007b
-[4294922.657000] CR0: 8005003b CR2: 080c3000 CR3: 2d530000 CR4: 000006d0
+>On Thu, Jan 12, 2006 at 09:57:50AM -0600, Anthony Liguori wrote:
+>  
+>
+>>Here's a list of the remaining things we current expose in /proc/xen 
+>>that have no obvious place:
+>>
+>>1) capabilities (is the domain a management domain)
+>>    
+>>
+>
+>Is this just a single value or a bitfield?
+>  
+>
+Right now it's a string that identifies the type of partition is it (for 
+instance, "control_d" for the control domain).
 
+>>2) xsd_mfn (a frame number for our bus so that userspace can connect to it)
+>>    
+>>
+>
+>Single number, right?
+>  
+>
+Yup.
 
-As acpi_processor_idle doesn't take any locks AFAIK, it seems to me to be a
-false positive -- or do I miss something obvious?
+>>3) xsd_evtchn (a virtual IRQ for xen bus for userspace)
+>>    
+>>
+>
+>Again, single number?
+>  
+>
+Yup.
 
-	Dominik
+>>I would think these would most obviously go under something like:
+>>
+>>/sys/hypervisor/xen/
+>>
+>>That would introduce a hypervisor subsystem.  There are at least a few 
+>>hypervisors out there already so this isn't that bad of an idea 
+>>(although perhaps it may belong somewhere else in the hierarchy).  Greg?
+>>    
+>>
+>
+>I would have no problem with /sys/hypervisor/xen/ as long as you play by
+>the rest of the rules for sysfs (one value per file, no binary blobs
+>being intrepreted by the kernel, etc.)
+>  
+>
+Great, thanks!
+
+Regards,
+
+Anthony Liguori
+
+>thanks,
+>
+>greg k-h
+>
+>  
+>
+

@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbWALTwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161227AbWALUEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161224AbWALTwK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 14:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161223AbWALTwJ
+	id S1161227AbWALUEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 15:04:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161229AbWALUEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 14:52:09 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:5302 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1161217AbWALTwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 14:52:08 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: soft lockup detected in acpi_processor_idle() -- false positive?
-Date: Thu, 12 Jan 2006 20:54:13 +0100
-User-Agent: KMail/1.9
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@suse.cz>
-References: <20060112184305.GA7068@isilmar.linta.de>
-In-Reply-To: <20060112184305.GA7068@isilmar.linta.de>
+	Thu, 12 Jan 2006 15:04:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41603 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161227AbWALUEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 15:04:13 -0500
+Date: Thu, 12 Jan 2006 12:04:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.15-$SHA1: VT <-> X sometimes odd
+In-Reply-To: <Pine.LNX.4.64.0601121119100.3535@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0601121201520.3535@g5.osdl.org>
+References: <20060110162305.GA7886@mipter.zuzino.mipt.ru> <43C4F114.9070308@gmail.com>
+ <20060111153822.GA7879@mipter.zuzino.mipt.ru> <20060112192856.GA7938@mipter.zuzino.mipt.ru>
+ <Pine.LNX.4.64.0601121119100.3535@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601122054.14128.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 12 January 2006 19:43, Dominik Brodowski wrote:
-> Latest git, fresh after resuming from suspend-to-disk (in-kernel variant):
-> 
-> [4294914.586000] Restarting tasks... done
-> [4294922.657000] BUG: soft lockup detected on CPU#0!
-> [4294922.657000] 
-> [4294922.657000] Pid: 0, comm:              swapper
-> [4294922.657000] EIP: 0060:[<f003084c>] CPU: 0
-> [4294922.657000] EIP is at acpi_processor_idle+0x1f3/0x2d5 [processor]
-> [4294922.657000]  EFLAGS: 00000282    Not tainted  (2.6.15)
-> [4294922.657000] EAX: fffff000 EBX: 005543a8 ECX: 00000000 EDX: 00000000
-> [4294922.657000] ESI: edcc3064 EDI: edcc2f60 EBP: c041cfdc DS: 007b ES: 007b
-> [4294922.657000] CR0: 8005003b CR2: 080c3000 CR3: 2d530000 CR4: 000006d0
-> 
-> 
-> As acpi_processor_idle doesn't take any locks AFAIK, it seems to me to be a
-> false positive -- or do I miss something obvious?
 
-I think it's a false-positive.
 
-This "soft lockup" message has been appearing for me for quite some time now
-(actually since the softlockup patch made it into -mm ;-)), in a
-non-reproducible manner, but I haven't been able to nail it down.
+On Thu, 12 Jan 2006, Linus Torvalds wrote:
+>
+> or if that isn't it, and you have an IDE drive, can you try if the 
+> appended trivial patch makes a difference?
 
-Still, I thought it was x86-64-specific, but your machine is an i386,
-so there's more to it, apparently.  Probably there's missing
-touch_softlockup_watchdog() somewhere, or the timer .suspend()/.resume()
-routines need some additional review.
+I just pushed out a commit that reverts the IDE softirq request 
+completion, so if you pull a recent enough git tree, and you see that 
+revert (by Jens), the patch in the previous email won't apply, but it 
+won't be needed either.
 
-Greetings,
-Rafael
+		Linus

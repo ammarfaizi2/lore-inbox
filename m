@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWALAbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWALAai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWALAbD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 19:31:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWALAbB
+	id S964851AbWALAai (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 19:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWALAai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 19:31:01 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:51177 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964857AbWALAa4 (ORCPT
+	Wed, 11 Jan 2006 19:30:38 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:53462 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S964851AbWALAai (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 19:30:56 -0500
-Date: Thu, 12 Jan 2006 01:30:58 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: pavel@suse.cz, arjan@infradead.org, akpm@osdl.org, ak@suse.de,
-       linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
-Message-ID: <20060112003058.GA2681@elte.hu>
-References: <20060111130728.579ab429.akpm@osdl.org> <1137014875.2929.81.camel@laptopd505.fenrus.org> <20060111224013.GA8277@elf.ucw.cz> <20060111.144422.48199200.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060111.144422.48199200.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 11 Jan 2006 19:30:38 -0500
+Content-Type: multipart/mixed; boundary="===============1603230373=="
+MIME-Version: 1.0
+Subject: [PATCH 0 of 2] Much smaller MMIO copy patches
+Message-Id: <patchbomb.1137025774@eng-12.pathscale.com>
+Date: Wed, 11 Jan 2006 16:29:34 -0800
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: akpm@osdl.org
+Cc: rdreier@cisco.com, ak@suse.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--===============1603230373==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-* David S. Miller <davem@davemloft.net> wrote:
+These MMIO copy patches are lean, mean, and apparently clean.
 
-> From: Pavel Machek <pavel@suse.cz>
-> Date: Wed, 11 Jan 2006 23:40:13 +0100
-> 
-> > likely is the evil part here. What about this? Should make this bug
-> > impossible to do....
-> > 
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> 
-> This doesn't let you do:
-> 
->      if (likely(y) || unlikely(x))
+These define the generic __raw_memcpy_toio32 as a weak symbol, which
+arches are free to override.  We provide a specialised implementation
+for x86_64.
 
-hm, why not? It will expand to:
+We also introduce include/linux/io.h, which is tiny now, but a candidate
+for later cleanups of all the per-arch asm-*/io.h files.
 
-   if ((__builtin_expect(!!(y), 1)) || (__builtin_expect(!!(x), 0)))
+These patches should apply cleanly against current -git, and have been
+tested on i386 and x86_64.  The symbol shows up in the built vmlinux,
+as one might hope.
 
-which seems correct to me. Pavel only added extra parantheses, to make 
-the simple case more readable.
+The patch series is as follows:
 
-	Ingo
+raw_memcpy_io.patch
+  Introduce the generic MMIO 32-bit copy routine.
+
+x86_64-raw_memcpy_io.patch
+  Add a faster __raw_memcpy_io32 routine to x86_64.
+
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+
+--===============1603230373==--

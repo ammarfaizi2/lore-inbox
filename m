@@ -1,59 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030450AbWALP2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWALP36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030450AbWALP2y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 10:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWALP2y
+	id S1751349AbWALP36 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 10:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWALP35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 10:28:54 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62336 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030450AbWALP2x (ORCPT
+	Thu, 12 Jan 2006 10:29:57 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:18307 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751205AbWALP34 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 10:28:53 -0500
-Subject: Re: [Xen-devel] Re: [RFC] [PATCH] sysfs support for Xen attributes
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <43C66D12.5090503@us.ibm.com>
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>
-	 <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>
-	 <43C5B59C.8050908@us.ibm.com>
-	 <1137057022.5397.7.camel@localhost.localdomain>
-	 <43C66D12.5090503@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 07:28:43 -0800
-Message-Id: <1137079724.5397.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jan 2006 10:29:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=mvwfkILDjYXN+gXdNlfjTkwKaL46p5Q45odx5s4dfgjqCLkiFy7HX1dFfeZoYsW7/EVbpD7dCtWVarHcI0GxYsLgg9yL1M6hXSRqjuNoUtyEttOWnFy2xbbZp6PL9asnJCYgm/Yh9h4kr0pROsYGWlUdcBw1F94SsogYAfL9cDU=
+Date: Fri, 13 Jan 2006 00:29:49 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] blk: fix possible queue stall in blk_do_ordered
+Message-ID: <20060112152949.GA9855@htj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 09:52 -0500, Mike D. Day wrote:
-> Dave Hansen wrote:
-> > On Wed, 2006-01-11 at 20:49 -0500, Mike D. Day wrote:
-> >>Can the domain be migrated to another physical host?
-> >>What scheduler is Xen using (xen has plug-in 
-> >>schedulers)? All the actual information resides within the xen 
-> >>hypervisor, not the linux kernel.
-> > 
-> > Other than debugging and curiosity, why are these things needed?
-> 
-> Debugging is always a good reason :) but I'm specifically thinking of 
-> systems management tools, deployment of virtual machines, and migration. 
-> All of these attributes are important for tools that manage, deploy, or 
-> migrate.
+Previously, if a fs request which was being drained failed and got
+requeued, blk_do_ordered() didn't allow it to be reissued, which
+causes queue stall.  This patch makes blk_do_ordered() use the
+sequence of each request to determine whether a request can be issued
+or not.  This fixes the bug and simplifies code.
 
--ETOOMANYBUZZWORDS :)
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-One concern I have with this approach is that it is for things for which
-a need is _anticipated_, instead of things that are actually needed.  It
-is awesome that this is being done in advance, but you have to be
-careful not to throw the kitchen sink at the problem from the beginning.
+--
 
-Would a potential workload manager contact the individual Xen partitions
-in order to get an overview of the entire machine?  Why would it not
-simply contact the controlling partition?
+Jens, this fix is not very urgent.  The bug is not likely to be
+triggered easily.  I think pushing this to -mm first would be better.
 
--- Dave
+Thanks.
 
+Signed-off-by: Tejun Heo <htejun@gmail.com>
+
+diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
+index ec27dda..701808e 100644
+--- a/block/ll_rw_blk.c
++++ b/block/ll_rw_blk.c
+@@ -494,7 +494,7 @@ static inline struct request *start_orde
+ 
+ int blk_do_ordered(request_queue_t *q, struct request **rqp)
+ {
+-	struct request *rq = *rqp, *allowed_rq;
++	struct request *rq = *rqp;
+ 	int is_barrier = blk_fs_request(rq) && blk_barrier_rq(rq);
+ 
+ 	if (!q->ordseq) {
+@@ -518,32 +518,26 @@ int blk_do_ordered(request_queue_t *q, s
+ 		}
+ 	}
+ 
++	/*
++	 * Ordered sequence in progress
++	 */
++
++	/* Special requests are not subject to ordering rules. */
++	if (!blk_fs_request(rq) &&
++	    rq != &q->pre_flush_rq && rq != &q->post_flush_rq)
++		return 1;
++
+ 	if (q->ordered & QUEUE_ORDERED_TAG) {
++		/* Ordered by tag.  Blocking the next barrier is enough. */
+ 		if (is_barrier && rq != &q->bar_rq)
+ 			*rqp = NULL;
+-		return 1;
++	} else {
++		/* Ordered by draining.  Wait for turn. */
++		WARN_ON(blk_ordered_req_seq(rq) < blk_ordered_cur_seq(q));
++		if (blk_ordered_req_seq(rq) > blk_ordered_cur_seq(q))
++			*rqp = NULL;
+ 	}
+ 
+-	switch (blk_ordered_cur_seq(q)) {
+-	case QUEUE_ORDSEQ_PREFLUSH:
+-		allowed_rq = &q->pre_flush_rq;
+-		break;
+-	case QUEUE_ORDSEQ_BAR:
+-		allowed_rq = &q->bar_rq;
+-		break;
+-	case QUEUE_ORDSEQ_POSTFLUSH:
+-		allowed_rq = &q->post_flush_rq;
+-		break;
+-	default:
+-		allowed_rq = NULL;
+-		break;
+-	}
+-
+-	if (rq != allowed_rq &&
+-	    (blk_fs_request(rq) || rq == &q->pre_flush_rq ||
+-	     rq == &q->post_flush_rq))
+-		*rqp = NULL;
+-
+ 	return 1;
+ }
+ 

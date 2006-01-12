@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161369AbWALWUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161370AbWALWUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161369AbWALWUm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161370AbWALWUm
+	id S1161370AbWALWUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161374AbWALWUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:20:42 -0500
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:3982 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1161369AbWALWUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:20:41 -0500
-Message-ID: <43C6D636.8000105@bigpond.net.au>
-Date: Fri, 13 Jan 2006 09:20:38 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au> <200601120129.16315.kernel@kolivas.org> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <43C6A24E.9080901@google.com> <43C6B60E.2000003@bigpond.net.au>
-In-Reply-To: <43C6B60E.2000003@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 12 Jan 2006 22:20:38 +0000
+	Thu, 12 Jan 2006 17:20:48 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:41117 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161370AbWALWUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:20:46 -0500
+Date: Thu, 12 Jan 2006 16:20:37 -0600
+From: Jon Mason <jdmason@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jiri Slaby <slaby@liberouter.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
+Message-ID: <20060112222036.GI17539@us.ibm.com>
+References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu> <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060112220039.GX29663@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Martin Bligh wrote:
+On Thu, Jan 12, 2006 at 11:00:39PM +0100, Adrian Bunk wrote:
+> On Thu, Jan 12, 2006 at 03:47:19PM -0600, Jon Mason wrote:
+> > On Thu, Jan 12, 2006 at 10:07:35PM +0200, Muli Ben-Yehuda wrote:
+> > > On Thu, Jan 12, 2006 at 08:28:30PM +0100, Jiri Slaby wrote:
+> > > 
+> > > > You should change alsa driver (sound/pci/trident/trident.c), rather than this,
+> > > > which will be removed soon, I guess. And, additionally, could you change that
+> > > > lines to use PCI_DEVICE macro?
+> > > 
+> > > This driver is not up for removal soon, as it supports a device that
+> > > the alsa driver apparently doesn't (the INTERG_5050). As for
+> > > PCI_DEVICE, agreed. Jon, feel like patching it up?
+> > 
+> > Patches to follow.
+> > 
+> > After looking at the ALSA driver, it doesn't support PCI IDs for
+> > ALI_5451 or CYBER5050.  Someone should look into porting any necessary
+> > code from sound/oss/trident.c to sound/pci/trident/trident.c
 > 
->>
->>>>
->>>> But I was thinking more about the code that (in the original) 
->>>> handled the case where the number of tasks to be moved was less than 
->>>> 1 but more than 0 (i.e. the cases where "imbalance" would have been 
->>>> reduced to zero when divided by SCHED_LOAD_SCALE).  I think that I 
->>>> got that part wrong and you can end up with a bias load to be moved 
->>>> which is less than any of the bias_prio values for any queued tasks 
->>>> (in circumstances where the original code would have rounded up to 1 
->>>> and caused a move).  I think that the way to handle this problem is 
->>>> to replace 1 with "average bias prio" within that logic.  This would 
->>>> guarantee at least one task with a bias_prio small enough to be moved.
->>>>
->>>> I think that this analysis is a strong argument for my original 
->>>> patch being the cause of the problem so I'll go ahead and generate a 
->>>> fix. I'll try to have a patch available later this morning.
->>>
->>>
->>>
->>>
->>> Attached is a patch that addresses this problem.  Unlike the 
->>> description above it does not use "average bias prio" as that 
->>> solution would be very complicated.  Instead it makes the assumption 
->>> that NICE_TO_BIAS_PRIO(0) is a "good enough" for this purpose as this 
->>> is highly likely to be the median bias prio and the median is 
->>> probably better for this purpose than the average.
->>>
->>> Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
->>
->>
->>
->> Doesn't fix the perf issue.
-> 
-> 
-> OK, thanks.  I think there's a few more places where SCHED_LOAD_SCALE 
-> needs to be multiplied by NICE_TO_BIAS_PRIO(0).  Basically, anywhere 
-> that it's added to, subtracted from or compared to a load.  In those 
-> cases it's being used as a scaled version of 1 and we need a scaled 
+> CYBER5050 is discussed in ALSA bug #1293 (tester wanted).
+> ALI_5451 is supported by the snd-ali5451 driver.
 
-This would have been better said as "the load generated by 1 task" 
-rather than just "a scaled version of 1".  Numerically, they're the same 
-but one is clearer than the other and makes it more obvious why we need 
-NICE_TO_BIAS_PRIO(0) * SCHED_LOAD_SCALE and where we need it.
+Sorry, I grepped for PCI_DEVICE_ID_ALI_5451 not 0x5451.  Sending a patch
+to fix that up too.
 
-> version of NICE_TO_BIAS_PRIO(0).  I'll have another patch later today.
-
-I'm just testing this at the moment.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Thanks,
+Jon

@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161354AbWALWIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161355AbWALWIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161354AbWALWIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161356AbWALWIP
+	id S1161355AbWALWIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161349AbWALWIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:08:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51625 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161354AbWALWIK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:08:10 -0500
-Date: Thu, 12 Jan 2006 14:07:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: torvalds@osdl.org, airlied@linux.ie, linux-kernel@vger.kernel.org,
-       len.brown@intel.com, axboe@suse.de, sfrench@us.ibm.com,
-       rolandd@cisco.com, wim@iguana.be, aia21@cantab.net,
-       linux@dominikbrodowski.net
-Subject: Re: git status (was: drm tree for 2.6.16-rc1)
-Message-Id: <20060112140713.770be59c.akpm@osdl.org>
-In-Reply-To: <1137102945.3621.1.camel@pmac.infradead.org>
-References: <Pine.LNX.4.58.0601120948270.1552@skynet>
-	<Pine.LNX.4.64.0601121016020.3535@g5.osdl.org>
-	<20060112134255.29074831.akpm@osdl.org>
-	<1137102945.3621.1.camel@pmac.infradead.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 12 Jan 2006 17:08:40 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:45532 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161352AbWALWIh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:08:37 -0500
+Date: Thu, 12 Jan 2006 16:08:28 -0600
+From: Jon Mason <jdmason@us.ibm.com>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
+Message-ID: <20060112220827.GG17539@us.ibm.com>
+References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060112200735.GD5399@granada.merseine.nu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
->
-> On Thu, 2006-01-12 at 13:42 -0800, Andrew Morton wrote:
-> > audit: we're tracking one oops which seems to be coming out of the
-> > audit code
-> 
-> Are we? I recall one oops which was tracked down to an inode which had
-> i_sb == 0x00000008 so it didn't seem to be audit-related. Was there
-> something else I should be looking at?
-> 
+This revised version of the OSS Trident patch includes PCI_DEVICE Macro
+usage.
 
-Well it's oopsing in the audit code, and might not oops without audit. 
-Perhaps the audit code is being called before i_sb is fully set up or
-something.  We won't know until we know.
+Thanks,
+Jon
 
-Did we work out why i_sb is crazy?
+Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+
+diff -r 4a7597b41d25 sound/oss/trident.c
+--- a/sound/oss/trident.c	Wed Jan 11 19:14:08 2006
++++ b/sound/oss/trident.c	Thu Jan 12 15:33:02 2006
+@@ -278,16 +278,14 @@
+ };
+ 
+ static struct pci_device_id trident_pci_tbl[] = {
+-	{PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_DX,
+-	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, TRIDENT_4D_DX},
+-	{PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_NX,
+-	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, TRIDENT_4D_NX},
+-	{PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7018,
+-	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, SIS_7018},
+-	{PCI_VENDOR_ID_ALI, PCI_DEVICE_ID_ALI_5451,
+-	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, ALI_5451},
+-	{PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_5050,
+-	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, CYBER5050},
++	{PCI_DEVICE(PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_DX), 
++		PCI_CLASS_MULTIMEDIA_AUDIO << 8, 0xffff00, TRIDENT_4D_DX},
++	{PCI_DEVICE(PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_NX), 
++		0, 0, TRIDENT_4D_NX},
++	{PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7018), 0, 0, SIS_7018},
++	{PCI_DEVICE(PCI_VENDOR_ID_ALI, PCI_DEVICE_ID_ALI_5451), 0, 0, ALI_5451},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_5050), 
++		0, 0, CYBER5050},
+ 	{0,}
+ };
+ 

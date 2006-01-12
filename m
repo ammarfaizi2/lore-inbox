@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161435AbWALXIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161451AbWALXLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161435AbWALXIt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 18:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161264AbWALXIt
+	id S1161451AbWALXLY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 18:11:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161447AbWALXLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 18:08:49 -0500
-Received: from igw2.zrnko.cz ([81.31.45.164]:23439 "EHLO anubis.fi.muni.cz")
-	by vger.kernel.org with ESMTP id S1161435AbWALXIs (ORCPT
+	Thu, 12 Jan 2006 18:11:24 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:28904 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1161451AbWALXLX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 18:08:48 -0500
-Date: Fri, 13 Jan 2006 00:08:35 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: ACPI Suspend-to-ram issues
-Message-ID: <20060112230835.GC2961@mail.muni.cz>
+	Thu, 12 Jan 2006 18:11:23 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Does a git pull have to be so big?
+Date: Fri, 13 Jan 2006 09:11:46 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200601130845.29797.ncunningham@cyclades.com> <20060112225434.GA27678@havoc.gtf.org>
+In-Reply-To: <20060112225434.GA27678@havoc.gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11
+Message-Id: <200601130911.46761.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi.
 
-I noticed (also thanks to discussion about DOS and NTFS) that suspend to ram
-consumes a lot of battery power.
-I'm using 2.6.15-git7 kernel now.
+On Friday 13 January 2006 08:54, Jeff Garzik wrote:
+> On Fri, Jan 13, 2006 at 08:45:29AM +1000, Nigel Cunningham wrote:
+> > I try to do pulls reasonably often, but they always seem to be huge
+> > downloads - I'm sure they're orders of magnitude bigger than a simple
+> > patch would be. This leads me to ask, do they have to be so big? I'm on
+> > 256/64 ADSL at home, did a pull yesterday at work iirc, and yet the pull
+> > this morning has taken at least half an hour. Am I perhaps doing
+> > something wrong?
+>
+> Two answers here:
+>
+> 1) Every so often, you download the entire kernel history all over
+> again, if you are using pack files, since most repositories are repacked
+> occasionally.
 
-According to lspci I have:
-0000:00:00.0 Host bridge
-0000:00:01.0 PCI bridge
-0000:00:02.0 VGA compatible controller (915GM)
-0000:00:02.1 VGA compatible controller
-0000:00:1b.0 High Definition Audio Controller 
-0000:00:1d.0 USB Controller UHCI
-0000:00:1d.1 USB Controller UHCI
-0000:00:1d.2 USB Controller UHCI
-0000:00:1d.3 USB Controller UHCI
-0000:00:1d.7 USB Controller EHCI
-0000:00:1e.0 PCI bridge
-0000:00:1f.0 ISA bridge
-0000:00:1f.1 IDE interface
-0000:00:1f.3 SMBus Controller 
-0000:01:00.0 Ethernet controller
-0000:01:01.0 CardBus bridge
-0000:01:01.1 FireWire (IEEE 1394)
-0000:01:01.2 SD/SDIO/MMC/MS/MSPro
-0000:01:01.3 Memory Stick Bus
-0000:01:01.4 Ricoh Co Ltd xD-Picture Card Controller
-0000:01:02.0 Network controller
+Thanks for the reply. Can I avoid using pack files with Linus' tree? If so, 
+how?
 
-I have modules for both USB1.1, USB2.0, sound card, dri, both ethernet
-controllers, cardbus, and IEEE1394. 
+> 2) Every change sends the full updated (albeit compressed) file,
+> not a patch.
 
-In normal situation, I load modules for: DRI, sound, USB1, USB2, ethernet
-cotroller. Suspend-to-ram takes 2.8W. 
+Ok. I can cope with that. Redownloading the whole history however, I'd like to 
+stop.
 
-If I boot using init=/bin/bash i.e. not using any module, then suspend-to-ram
-takes 1.6W (which is still a lot, it should taky 0.7W approx).
+Regards,
 
-I do not know, how PCI devices disabling works. Does message:
-ACPI: PCI interrupt for device 0000:01:00.0 disabled
-have additional meaning, that device 0000:01:00.0 went into D3 state?
-
-However, I have these messages in dmesg (if usual modules are present):
-ACPI: PCI interrupt for device 0000:01:00.0 disabled
-ACPI: PCI interrupt for device 0000:00:1d.7 disabled
-ACPI: PCI interrupt for device 0000:00:1d.3 disabled
-ACPI: PCI interrupt for device 0000:00:1d.2 disabled
-ACPI: PCI interrupt for device 0000:00:1d.1 disabled
-ACPI: PCI interrupt for device 0000:00:1d.0 disabled
-ACPI: PCI interrupt for device 0000:00:1b.0 disabled
-
-So, it looks like IRQ is not disabled for graphic and IDE, cardbus, firewire,
-card reader. Is this OK?
-
--- 
-Luká¹ Hejtmánek
+Nigel

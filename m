@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWALQXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWALQ0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030459AbWALQXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 11:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbWALQXQ
+	id S1030460AbWALQ0p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 11:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbWALQ0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 11:23:16 -0500
-Received: from mail.fieldses.org ([66.93.2.214]:5332 "EHLO pickle.fieldses.org")
-	by vger.kernel.org with ESMTP id S1030459AbWALQXP (ORCPT
+	Thu, 12 Jan 2006 11:26:45 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:7495 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030460AbWALQ0o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 11:23:15 -0500
-Date: Thu, 12 Jan 2006 11:23:06 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, qiyong@fc-cn.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: why no -mm git tree?
-Message-ID: <20060112162306.GB14138@fieldses.org>
-References: <20060111055616.GA5976@localhost.localdomain> <20060110224451.44c9d3da.akpm@osdl.org> <20060111070043.GA7858@localhost.localdomain> <20060110231818.6164dba7.akpm@osdl.org> <4d8e3fd30601110436p286cfacap6618067c32e22a32@mail.gmail.com> <20060111091125.716bfcfc.akpm@osdl.org>
+	Thu, 12 Jan 2006 11:26:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=NkBMJszhUODJyt+TMfQn/Pdq8BoJwBZeRGdw8ZWWGULcB9i5IBhD1LN6hd3sY3k5yuTEmg9pvjJNQ7S2aAR4H1OpqLJgUfVjxfODCKVSwvrHBCbkDiCprmHkpF2d+IsX0QPkdwsgwj6DUH1/IR9mlKR4uTyGLCO9rM8aBd274ZQ=
+Message-ID: <43C6833C.1000704@gmail.com>
+Date: Fri, 13 Jan 2006 01:26:36 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060111091125.716bfcfc.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-From: "J. Bruce Fields" <bfields@fieldses.org>
+To: Mark Lord <lkml@rtr.ca>
+CC: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] blk: fix possible queue stall in blk_do_ordered
+References: <20060112152949.GA9855@htj.dyndns.org> <43C67F20.30300@rtr.ca>
+In-Reply-To: <43C67F20.30300@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 09:11:25AM -0800, Andrew Morton wrote:
-> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> >  did you consider Stacked GIT as an alternative to quilt ?
+Mark Lord wrote:
+> Tejun Heo wrote:
 > 
-> I looked at the web page - stgit seems to be broken-out patches
-> revision-controlled under git.
+>> Previously, if a fs request which was being drained failed and got
+>> requeued, blk_do_ordered() didn't allow it to be reissued, which
+>> causes queue stall.  This patch makes blk_do_ordered() use the
+>> sequence of each request to determine whether a request can be issued
+>> or not.  This fixes the bug and simplifies code.
+> 
+> 
+> What kernel(s) is this against?  The patch seems to fail on 2.6.15.
+> 
+> Thanks
 
-It doesn't really attempt to do revision control on the patches.
+It's against v2.6.15-mm2.  It's sort of a follow-up patch for the following.
 
---b.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113707430626490&w=2
+
+-- 
+tejun

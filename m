@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161376AbWALWmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161375AbWALWlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161376AbWALWmP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161377AbWALWmO
+	id S1161375AbWALWlt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161376AbWALWlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:42:14 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:31965 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161376AbWALWmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:42:13 -0500
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jon Mason <jdmason@us.ibm.com>, Muli Ben-Yehuda <mulix@mulix.org>,
-       Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060112220039.GX29663@stusta.de>
-References: <20060112175051.GA17539@us.ibm.com>
-	 <43C6ADDE.5060904@liberouter.org>
-	 <20060112200735.GD5399@granada.merseine.nu>
-	 <20060112214719.GE17539@us.ibm.com>  <20060112220039.GX29663@stusta.de>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 17:42:10 -0500
-Message-Id: <1137105731.2370.94.camel@mindpipe>
+	Thu, 12 Jan 2006 17:41:49 -0500
+Received: from CPE0050fc332afc-CM00407b861c34.cpe.net.cable.rogers.com ([69.197.25.155]:45021
+	"EHLO nuku.localdomain") by vger.kernel.org with ESMTP
+	id S1161375AbWALWlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:41:49 -0500
+Date: Thu, 12 Jan 2006 17:41:39 -0500
+From: Rashkae <rashkae@tigershaunt.com>
+To: linux-kernel@vger.kernel.org
+Subject: ATAPI DVD Drive looses dma settings on reset, keepsettings=1
+Message-ID: <20060112224139.GA4562@tigershaunt.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 23:00 +0100, Adrian Bunk wrote:
-> CYBER5050 is discussed in ALSA bug #1293 (tester wanted).
+Tested with Linux 2.6.15 and 2.6.13.3
 
-OK I set that bug to FEEDBACK, but it's open 5 months now and no testers
-are forthcoming.  I think if we don't find one as a result of this
-thread we can assume no one cares about this hardware anymore.
+I have an ATAPI DVD drive as a master(single) device on my
+secondary IDE (hdc).
 
-I'm still not sure that just adding it to the ALSA driver and hoping it
-works is the best solution.  Would we rather users see right away that
-their hardware isn't supported, or have the driver load and get no sound
-or hang the machine?
+The normal hdparm settings are:
+IO_support   =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  1 (on)
+ readonly     =  0 (off)
+ readahead    = 256 (on)
 
-I think the best approach might just be to drop it in lieu of a tester.
-It will be trivial to add support later if someone finds one of these
-boxes.
 
-Lee
+However, if I force a reset with hdparm -w (or the Kernel does
+when I insert a disc that the drive takes too long to identify),
+DMA gets turned off.  Dmesg reports:
 
+hdc: DMA disabled
+hdc: ATAPI reset complete
+
+
+In the case where inserting a disc causes the reset, dmesg
+reports:
+
+
+hdc: irq timeout: status=0xd0 { Busy }
+ide: failed opcode was: unknown
+hdc: DMA disabled
+hdc: ATAPI reset complete
+
+Is there a way I can increate the irq timeout?
+
+It was my understanding that with keepsettings on, the driver
+would retain the dma setting on reset.  If there is a way correct
+this, or I have mis-understood the purpose of keepsettings,
+please CC me the response. 
+
+Thanks. 

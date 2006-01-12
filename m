@@ -1,137 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWALAX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbWALA06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWALAX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 19:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbWALAX5
+	id S932677AbWALA06 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 19:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWALA06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 19:23:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:45738 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932672AbWALAX5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 19:23:57 -0500
-Message-ID: <43C5A199.1080708@us.ibm.com>
-Date: Wed, 11 Jan 2006 19:23:53 -0500
-From: "Mike D. Day" <ncmike@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>
-In-Reply-To: <20060111230704.GA32558@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 11 Jan 2006 19:26:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27040 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932673AbWALA05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 19:26:57 -0500
+Date: Wed, 11 Jan 2006 16:23:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, edwardsg@sgi.com, linux-altix@sgi.com
+Subject: Re: 2.6.15-mm3: arch/ia64/sn/kernel/sn2/sn_proc_fs.c compile error
+Message-Id: <20060111162319.5aecc314.akpm@osdl.org>
+In-Reply-To: <20060112001726.GK29663@stusta.de>
+References: <20060111042135.24faf878.akpm@osdl.org>
+	<20060111234133.GI29663@stusta.de>
+	<20060111160121.77d57626.akpm@osdl.org>
+	<20060112001726.GK29663@stusta.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-
-> Why is xen special from the rest of the kernel in regards to adding
-> files to sysfs?  What does your infrastructure add that is not currently
-> already present for everyone to use today?
-
-I think it comes down to simplification for non-driver code, which is 
-admittedly not the mainstream use model for sysfs.
-
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> > >  arch/ia64/sn/kernel/sn2/sn_proc_fs.c:140: error: assignment of read-only member 'write'
+>  > 
+>  > This?
+>  >...
 > 
-> Why is the xen version any different from any other module or driver
-> version in the kernel? (hint, use the interface that is availble for
-> this already...)
-
-The module version? Xen is not a module nor a driver, so that interface 
-doesn't quite serve the purpose. True, one could create a "Xen module" 
-that talks to Xen the hypervisor, but then the version interface would 
-provide the version of the xen module, not the version of the xen 
-hypervisor. /sys/xen/version may not be the best example for this 
-discussion. What is important is that this attribute is obtained from 
-Xen using a hypercall. Sysfs works great to prove the xen version and 
-other similar xen attributes to userspace.
-
+>  Nearly.
 > 
-> You have access to the current tree as well as we do to be able to
-> answer this question :)
+>  The last compile error (line 140) is still present.
 
-Right. Dumb question.
-
-> You don't have to create a driver subsystem to be able to add stuff to
-> sysfs, what makes you think that?
-
-Sorry, you are right. But you do need to have s struct dev or use 
-kobjects. What I want is an interface to create sysfs files using a path 
-as a parameter, rather than a struct kobject.
-
-> did you look at debugfs?  
-
-yes
-
-> configfs?
-
-no. configfs may be a better choice. I would still want a higher-level 
-kernel interface similar to what is in the patch, as explained below. 
-But I think sysfs may be more appropriate because attributes show up 
-automatically without a user-space action being taken.
-
-> What is wrong with the current kobject/sysfs/driver model interface that
-> made you want to create this extra code?
-
-Nothing is wrong, but I want a higher-level interface, to be able to 
-create files and directories using a path, and to allow a code that is 
-not associated with a device to create sysfs files by specifying a path. 
-e.g., create(path, mode, ...).
-
-Currently in xeno-linux there are several files under /proc/xen. These 
-are created by different areas of the xeno-linux kernel. In xeno-linux 
-today there is a single higher-level routine that each of these 
-different areas uses to create its own file under /proc/xen. In other 
-words, I think there should be a unifying element to the interface 
-because the callers are not organized within a single module.
+Bah.
 
 
-> Aren't you already going to have a xen virtual bus in sysfs and the
-> driver model?  Why not just put your needed attributes there, where they
-> belong (on the devices themselves)?
+diff -puN arch/ia64/sn/kernel/sn2/sn_proc_fs.c~ia64-const-f_ops-fix arch/ia64/sn/kernel/sn2/sn_proc_fs.c
+--- devel/arch/ia64/sn/kernel/sn2/sn_proc_fs.c~ia64-const-f_ops-fix	2006-01-11 16:04:18.000000000 -0800
++++ devel-akpm/arch/ia64/sn/kernel/sn2/sn_proc_fs.c	2006-01-11 16:22:38.000000000 -0800
+@@ -93,19 +93,22 @@ static int coherence_id_open(struct inod
+ static struct proc_dir_entry *sn_procfs_create_entry(
+ 	const char *name, struct proc_dir_entry *parent,
+ 	int (*openfunc)(struct inode *, struct file *),
+-	int (*releasefunc)(struct inode *, struct file *))
++	int (*releasefunc)(struct inode *, struct file *),
++	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *))
+ {
+ 	struct proc_dir_entry *e = create_proc_entry(name, 0444, parent);
+ 
+ 	if (e) {
+-		e->proc_fops = (struct file_operations *)kmalloc(
+-			sizeof(struct file_operations), GFP_KERNEL);
+-		if (e->proc_fops) {
+-			memset(e->proc_fops, 0, sizeof(struct file_operations));
+-			e->proc_fops->open = openfunc;
+-			e->proc_fops->read = seq_read;
+-			e->proc_fops->llseek = seq_lseek;
+-			e->proc_fops->release = releasefunc;
++		struct file_operations *f;
++
++		f = kzalloc(sizeof(*f), GFP_KERNEL);
++		if (f) {
++			f->open = openfunc;
++			f->read = seq_read;
++			f->llseek = seq_lseek;
++			f->release = releasefunc;
++			f->write = write;
++			e->proc_fops = f;
+ 		}
+ 	}
+ 
+@@ -119,31 +122,29 @@ extern int sn_topology_release(struct in
+ void register_sn_procfs(void)
+ {
+ 	static struct proc_dir_entry *sgi_proc_dir = NULL;
+-	struct proc_dir_entry *e;
+ 
+ 	BUG_ON(sgi_proc_dir != NULL);
+ 	if (!(sgi_proc_dir = proc_mkdir("sgi_sn", NULL)))
+ 		return;
+ 
+ 	sn_procfs_create_entry("partition_id", sgi_proc_dir,
+-		partition_id_open, single_release);
++		partition_id_open, single_release, NULL);
+ 
+ 	sn_procfs_create_entry("system_serial_number", sgi_proc_dir,
+-		system_serial_number_open, single_release);
++		system_serial_number_open, single_release, NULL);
+ 
+ 	sn_procfs_create_entry("licenseID", sgi_proc_dir, 
+-		licenseID_open, single_release);
++		licenseID_open, single_release, NULL);
+ 
+-	e = sn_procfs_create_entry("sn_force_interrupt", sgi_proc_dir, 
+-		sn_force_interrupt_open, single_release);
+-	if (e) 
+-		e->proc_fops->write = sn_force_interrupt_write_proc;
++	sn_procfs_create_entry("sn_force_interrupt", sgi_proc_dir,
++		sn_force_interrupt_open, single_release,
++		sn_force_interrupt_write_proc);
+ 
+ 	sn_procfs_create_entry("coherence_id", sgi_proc_dir, 
+-		coherence_id_open, single_release);
++		coherence_id_open, single_release, NULL);
+ 	
+ 	sn_procfs_create_entry("sn_topology", sgi_proc_dir,
+-		sn_topology_open, sn_topology_release);
++		sn_topology_open, sn_topology_release, NULL);
+ }
+ 
+ #endif /* CONFIG_PROC_FS */
+_
 
-the xenbus, which is now in xen 3.0, allows kernels running in xen 
-domains to get access to virtual devices hosted in a driver 
-domain/domain0. But the attributes I am creating in /sys/xen are xen 
-attributes, not device attributes. The difference is important to 
-consumers of the attributes. I could create a device just to export 
-hypervisor attributes, but I think the what I've done is simpler.
-
-
->>+#define __sysfs_ref__
-> 
-> 
-> Why? 
-
-A simple way to denote functions that get a reference to a reference 
-counted object. e.g., int __sysfs_ref__ foo(void);  gone.
-
-> 
-> 
->>+struct xen_sysfs_object;
->>+
->>+struct xen_sysfs_attr {
->>+       struct bin_attribute attr;
->>+       ssize_t (*show)(void *, char *) ;
->>+       ssize_t (*store)(void *, const char *, size_t) ;
->>+       ssize_t (*read)(void *, char *, loff_t, size_t );
->>+       ssize_t (*write)(void *, char *, loff_t, size_t) ;
->>+};
-> 
-> 
-> Why a binary attribute?  Do you want to have more than one single piece
-> of info in here?  If so, no.
-
-To facilitate creation of binary files. struct bin_attribute contains a 
-struct attribute, so it is an alternative to using a union.
-
-Mike (hoping he doesn't end up on linux kernel monkey log)
-
--- 
-
-Mike D. Day
-STSM and Architect, Open Virtualization
-IBM Linux Technology Center
-ncmike@us.ibm.com

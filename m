@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWALA4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWALA4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWALA4b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 19:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWALA4b
+	id S964887AbWALA4c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 19:56:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWALA4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 19:56:31 -0500
-Received: from mx2.suse.de ([195.135.220.15]:16805 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964883AbWALA4a (ORCPT
+	Wed, 11 Jan 2006 19:56:32 -0500
+Received: from mx2.suse.de ([195.135.220.15]:17829 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964887AbWALA4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 19:56:30 -0500
+	Wed, 11 Jan 2006 19:56:31 -0500
 From: Andi Kleen <ak@suse.de>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Subject: Re: [PATCH 2 of 2] __raw_memcpy_toio32 for x86_64
-Date: Thu, 12 Jan 2006 01:56:11 +0100
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs II - more problems
+Date: Thu, 12 Jan 2006 01:55:26 +0100
 User-Agent: KMail/1.8.2
-Cc: akpm@osdl.org, rdreier@cisco.com, linux-kernel@vger.kernel.org
-References: <f03a807a80b8bc45bf91.1137025776@eng-12.pathscale.com>
-In-Reply-To: <f03a807a80b8bc45bf91.1137025776@eng-12.pathscale.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       sct@redhat.com, mingo@elte.hu
+References: <200601112126.59796.ak@suse.de> <20060111130728.579ab429.akpm@osdl.org> <1137014875.2929.81.camel@laptopd505.fenrus.org>
+In-Reply-To: <1137014875.2929.81.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200601120156.11529.ak@suse.de>
+Message-Id: <200601120155.26679.ak@suse.de>
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 January 2006 01:29, Bryan O'Sullivan wrote:
+On Wednesday 11 January 2006 22:27, Arjan van de Ven wrote:
+> > 15/fs/ext3/super.c~	2006-01-11 21:54:13.000000000 +0100
+> > > +++ linux-2.6.15/fs/ext3/super.c	2006-01-11 21:54:13.000000000 +0100
+> > > @@ -2150,7 +2150,7 @@
+> > >  
+> > >  static void ext3_write_super (struct super_block * sb)
+> > >  {
+> > > -	if (mutex_trylock(&sb->s_lock) != 0)
+> > > +	if (!mutex_trylock(&sb->s_lock) != 0)
+> > >  		BUG();
+> > >  	sb->s_dirt = 0;
+> > >  }
+> > 
+> > We expect the lock to be held on entry.  Hence we expect mutex_trylock()
+> > to return zero.
+> 
+> you are correct, and the x86-64 mutex.h is buggy
 
->  lib-y := csum-partial.o csum-copy.o csum-wrappers.o delay.o \
->  	usercopy.o getuser.o putuser.o  \
-> diff -r cd6d8a62dad5 -r f03a807a80b8 arch/x86_64/lib/raw_memcpy_io.S
-> --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-> +++ b/arch/x86_64/lib/raw_memcpy_io.S	Wed Jan 11 16:26:59 2006 -0800
-> @@ -0,0 +1,29 @@
-> +/*
-> + * Copyright 2006 PathScale, Inc.  All Rights Reserved.
+While this patch seemed  to fix LTP my desktop running the same kernel (with 
+mutex fix) hung the mailer while sending an unrelated mail. Again on ext3.
 
-At least some people have complained about the "All Rights reserved"
-in the past. Best you drop it.
+I unfortunately don't have the backtraces anymore because I couldn't
+save them to disk before the reboot (and forgot to copy them
+to another system sorry), but they were also hanging in some JBD/ext3
+functions in D, with all disk accesses hanging.
 
-
-> +/*
-> + * override generic version in lib/raw_memcpy_io.c
-> + */
-> + 	.globl __raw_memcpy_toio32
-
-Usually one should use .p2align or ENTRY() at function beginning,
-otherwise you might get some penalty on K8.
-
-> +__raw_memcpy_toio32:
-> +	movl %edx,%ecx
-> +	shrl $1,%ecx
-
-1? If it's called memcpy it should get a byte argument, no? If not
-name it something else, otherwise everybody will be confused. 
-
-> +	andl $1,%edx
-> +	rep movsq
-
-movsq? I thought you wanted 32bit IO? 
-
-The movsd also looks weird.
+So things appear to be still broken in ext3 land.
 
 -Andi
+

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbWALUzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161261AbWALU5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161090AbWALUzf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 15:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161261AbWALUzf
+	id S1161261AbWALU5P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 15:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbWALU5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 15:55:35 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:32995 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161090AbWALUze (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 15:55:34 -0500
-Message-ID: <43C6C23A.3080402@pobox.com>
-Date: Thu, 12 Jan 2006 15:55:22 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       gregkh@suse.de, linux-kernel@vger.kernel.org,
+	Thu, 12 Jan 2006 15:57:15 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:45208 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1161261AbWALU5O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 15:57:14 -0500
+Date: Thu, 12 Jan 2006 13:57:14 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Jon Mason <jdmason@us.ibm.com>, mulix@mulix.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
        linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
-References: <20060109203711.GA25023@kroah.com>	 <Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>	 <20060109164410.3304a0f6.akpm@osdl.org> <1136857742.14532.0.camel@localhost.localdomain>
-In-Reply-To: <1136857742.14532.0.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Alan Cox wrote: > On Llu, 2006-01-09 at 16:44 -0800,
-	Andrew Morton wrote: > >>- Reuben Farrelly's oops in make_class_name().
-	Could be libata, or scsi >> or driver core. > > > libata I think. I
-	reproduced it on 2.6.14-mm2 by accident with a buggy > pata driver.
-	[...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Subject: Re: pcnet32 devices with incorrect trident vendor ID
+Message-ID: <20060112205714.GK19769@parisc-linux.org>
+References: <20060112175051.GA17539@us.ibm.com> <43C6C0E6.7030705@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C6C0E6.7030705@gentoo.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Llu, 2006-01-09 at 16:44 -0800, Andrew Morton wrote:
+On Thu, Jan 12, 2006 at 08:49:42PM +0000, Daniel Drake wrote:
+> interesting:
 > 
->>- Reuben Farrelly's oops in make_class_name().  Could be libata, or scsi
->>  or driver core.
+> http://forums.gentoo.org/viewtopic-t-420013-highlight-trident.html
 > 
-> 
-> libata I think. I reproduced it on 2.6.14-mm2 by accident with a buggy
-> pata driver.
+> The user saw the correct vendor ID (AMD) in 2.4, but when upgrading to 
+> 2.6, it changed to Trident.
 
+It looks to me like there used to be a quirk that knew about this bug
+and fixed it.
 
-Any additional info?  How can I reproduce?
-
-	Jeff
-
+The reason I say this is that the lspci -x dumps are the same -- both
+featuring the wrong vendor ID.  Want to dig through 2.4 and look for
+this quirk?

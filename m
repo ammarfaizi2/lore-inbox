@@ -1,100 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161187AbWALTGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161185AbWALTIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161187AbWALTGk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 14:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161185AbWALTGk
+	id S1161185AbWALTIn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 14:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161188AbWALTIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 14:06:40 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:64132 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964775AbWALTGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 14:06:39 -0500
-Date: Thu, 12 Jan 2006 11:04:22 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Paul Jackson <pj@sgi.com>
-cc: hawkes@sgi.com, tony.luck@gmail.com, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       steiner@sgi.com, djh@sgi.com, jh@sgi.com, edwardsg@sgi.com
-Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
-In-Reply-To: <20060111160937.921a719d.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0601121057550.30182@schroedinger.engr.sgi.com>
-References: <20060105213948.11412.45463.sendpatchset@tomahawk.engr.sgi.com>
- <20060111160937.921a719d.pj@sgi.com>
+	Thu, 12 Jan 2006 14:08:43 -0500
+Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:39369 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S1161185AbWALTIm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 14:08:42 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Orion Poplawski'" <orion@cora.nwra.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Help with machine check exception
+Date: Thu, 12 Jan 2006 13:18:43 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcYXoFLrlQT+6uYJRzqbqLnO/4i5CQADCdDg
+In-Reply-To: <43C6974F.2080104@cora.nwra.com>
+Message-ID: <EXCHG2003GR881Np7vX00000c0f@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 12 Jan 2006 19:02:18.0387 (UTC) FILETIME=[B5846630:01C617AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jan 2006, Paul Jackson wrote:
+ 
 
->       LD      .tmp_vmlinux1
->     arch/ia64/kernel/built-in.o(.init.text+0x68b2): In function `topology_init':
->     arch/ia64/kernel/ivt.S:1465: undefined reference to `__you_cannot_kmalloc_that_much'
->     make: *** [.tmp_vmlinux1] Error 1
 > 
-> Backing off to 512 CPUs built ok.
+> I would have expected 2 CPU temps (being dual-processor).  
+> Maybe Remote is the second.
 > 
-> There are a couple of kmalloc() calls in topology_init().  I didn't try
-> to figure out which one blew up, nor did I try to investigate further.
+> With 4 copies of burnK7:
+> 
+> machine with problems:
+> 
+> CPU:      +71.25°C  (low  =   +10°C, high =   +50°C)     ALARM
+> Board:    +47.25°C  (low  =   +10°C, high =   +35°C)     ALARM
+> Remote:   +68.50°C  (low  =   +10°C, high =   +35°C)     ALARM
+> 
+> machine without:
+> 
+> CPU:      +61.25°C  (low  =   +10°C, high =   +50°C)     ALARM
+> Board:    +47.25°C  (low  =   +10°C, high =   +35°C)     ALARM
+> Remote:   +74.25°C  (low  =   +10°C, high =   +35°C)     ALARM
+> 
+> 
+> So *maybe* cooling?
+> 
 
-Here are two patches that might to cure it (used to be in 
-2.6.15-rc5-mm1 but the cure accepted for the workqueues was to use
-alloc_percpu):
+That is a little on the warm side, I believe AMD's posted limit
+is 70C for most of their chips, assuming the measuring point is
+in the correct place for the 70C limit.
 
-From: Christoph Lameter <clameter@engr.sgi.com>
+Certain cpus also seem to have more issues than others, so one cpu
+out of a batch can be ok with a certain setup, and another from the
+same batch will mce under similar conditions.
 
-The workqueue structure can grow larger than 128k under 2.6.14-rc2 (with
-all debugging features enabled on 64 bit platforms) which will make kzalloc
-for workqueue structure entries fail.  This patch increases the maximum
-slab entry size to 256K.
+Did you build the machines yourself or did you buy them this way?
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Machines getting MCE's that often will fail the burnin testing that
+we use here.
 
- include/linux/kmalloc_sizes.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+And machines that produce those kinds of temps will also fail our
+burn-in process just because that seems a bit too warm.
 
-diff -puN include/linux/kmalloc_sizes.h~increase-maximum-kmalloc-size-to-256k include/linux/kmalloc_sizes.h
---- 25/include/linux/kmalloc_sizes.h~increase-maximum-kmalloc-size-to-256k	Thu Sep 22 15:09:57 2005
-+++ 25-akpm/include/linux/kmalloc_sizes.h	Thu Sep 22 15:09:57 2005
-@@ -19,8 +19,8 @@
- 	CACHE(32768)
- 	CACHE(65536)
- 	CACHE(131072)
--#ifndef CONFIG_MMU
- 	CACHE(262144)
-+#ifndef CONFIG_MMU
- 	CACHE(524288)
- 	CACHE(1048576)
- #ifdef CONFIG_LARGE_ALLOCS
-_
+                           Roger
 
-From: Andrew Morton <akpm@osdl.org>
-
-Fix instaoops.
-
-Cc: Christoph Lameter <clameter@sgi.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- mm/slab.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN mm/slab.c~increase-maximum-kmalloc-size-to-256k-fix mm/slab.c
---- devel/mm/slab.c~increase-maximum-kmalloc-size-to-256k-fix	2005-09-22 21:19:27.000000000 -0700
-+++ devel-akpm/mm/slab.c	2005-09-22 21:19:27.000000000 -0700
-@@ -551,8 +551,8 @@ static void **dbg_userword(kmem_cache_t 
- #define	MAX_OBJ_ORDER	13	/* up to 32Mb */
- #define	MAX_GFP_ORDER	13	/* up to 32Mb */
- #elif defined(CONFIG_MMU)
--#define	MAX_OBJ_ORDER	5	/* 32 pages */
--#define	MAX_GFP_ORDER	5	/* 32 pages */
-+#define	MAX_OBJ_ORDER	6	/* 64 pages */
-+#define	MAX_GFP_ORDER	6	/* 64 pages */
- #else
- #define	MAX_OBJ_ORDER	8	/* up to 1Mb */
- #define	MAX_GFP_ORDER	8	/* up to 1Mb */
-_

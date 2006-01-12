@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWALAie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWALAlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbWALAie (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 19:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWALAie
+	id S964868AbWALAlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 19:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWALAlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 19:38:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:38664 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964864AbWALAid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 19:38:33 -0500
-From: Wolfgang Walter <wolfgang.walter@studentenwerk.mhn.de>
-To: bluez-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: patch: problem with sco
-Date: Thu, 12 Jan 2006 01:38:31 +0100
-User-Agent: KMail/1.9.1
-Cc: marcel@holtmann.org, maxk@qualcomm.com
-Organization: Studentenwerk =?iso-8859-1?q?M=FCnchen?=
+	Wed, 11 Jan 2006 19:41:16 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:55177 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964869AbWALAlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 19:41:15 -0500
+Message-Id: <200601120040.k0C0ebg02818@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Adam Litke'" <agl@us.ibm.com>,
+       "William Lee Irwin III" <wli@holomorphy.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: RE: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
+Date: Wed, 11 Jan 2006 16:40:37 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de>
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYW/itjjO67zSDSTmaloBqyhdrYxAAEX1pQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <1137018263.9672.10.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A friend and I encountered a problem with sco transfers to a headset using
-linux (vanilla 2.6.15). While all sco packets sent by the headset were
-received there was no outgoing traffic.
+Adam Litke wrote on Wednesday, January 11, 2006 2:24 PM
+> > here).  The patch doesn't completely close the race (there is a much
+> > smaller window without the zeroing though).  The next patch should close
+> > the race window completely.
+> 
+> My only concern is if I am using the correct lock for the job here.
 
-After switching debugging output on we found that actually sco_cnt was always
-zero in hci_sched_sco.
-
-hciconfig hci0 shows sco_mtu to be 64:0. Changing that to 64:8 did not help.
-
-This was because in hci_cc_info_param hdev->sco_pkts is set to zero. When we
-changed this line so that hdev->sco_pkts is set to 8 if bs->sco_max_pkt is 0
-sco transfer to the headset started to work just fine.
+I don't think so.
 
 
-Here the patch:
+> @@ -454,26 +455,31 @@ int hugetlb_no_page(struct mm_struct *mm
+>  	 * Use page lock to guard against racing truncation
+>  	 * before we get page_table_lock.
+>  	 */
+> -retry:
+>  	page = find_lock_page(mapping, idx);
+>  	if (!page) {
+>  		if (hugetlb_get_quota(mapping))
+>  			goto out;
+> +
+> +		if (shared)
+> +			spin_lock(&mapping->host->i_lock);
+> +		
+>  		page = alloc_unzeroed_huge_page(vma, address);
+>  		if (!page) {
+>  			hugetlb_put_quota(mapping);
+> +			if (shared)
+> +				spin_unlock(&mapping->host->i_lock);
+>  			goto out;
+>  		}
 
---- linux-2.6.15/net/bluetooth/hci_event.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15-dbg/net/bluetooth/hci_event.c	2006-01-12 00:35:48.000000000 +0100
-@@ -322,7 +322,7 @@
- 		hdev->acl_mtu  = __le16_to_cpu(bs->acl_mtu);
- 		hdev->sco_mtu  = bs->sco_mtu ? bs->sco_mtu : 64;
- 		hdev->acl_pkts = hdev->acl_cnt = __le16_to_cpu(bs->acl_max_pkt);
--		hdev->sco_pkts = hdev->sco_cnt = __le16_to_cpu(bs->sco_max_pkt);
-+		hdev->sco_pkts = hdev->sco_cnt = (bs->sco_max_pkt ? __le16_to_cpu(bs->sco_max_pkt) : 8);
- 
- 		BT_DBG("%s mtu: acl %d, sco %d max_pkt: acl %d, sco %d", hdev->name,
- 			hdev->acl_mtu, hdev->sco_mtu, hdev->acl_pkts, hdev->sco_pkts);
+What if two processes fault on the same page and races with find_lock_page(),
+both find page not in the page cache.  The process won the race proceed to
+allocate last hugetlb page.  While the other will exit with SIGBUS.  In theory,
+both processes should be OK.
 
+- Ken
 
--- 
-Wolfgang Walter
-Studentenwerk München
-Anstalt des öffentlichen Rechts
-Leiter EDV
-Leopoldstraße 15
-80802 München
-Tel: +49 89 38196-276
-Fax: +49 89 38196-144
-wolfgang.walter@studentenwerk.mhn.de
-http://www.studentenwerk.mhn.de/

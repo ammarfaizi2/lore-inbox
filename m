@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161347AbWALWFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161346AbWALWFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161347AbWALWFu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:05:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161348AbWALWFu
+	id S1161346AbWALWFT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161347AbWALWFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:05:50 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:29077 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161347AbWALWFt
+	Thu, 12 Jan 2006 17:05:19 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:27089 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161346AbWALWFR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:05:49 -0500
-Date: Thu, 12 Jan 2006 16:05:30 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Jiri Slaby <slaby@liberouter.org>, mulix@mulix.org,
-       Jaroslav Kysela <perex@suse.cz>, audio@tridentmicro.com
-Subject: [PATCH] Prevent ALSA trident driver from grabbing pcnet32 hardware
-Message-ID: <20060112220530.GF17539@us.ibm.com>
+	Thu, 12 Jan 2006 17:05:17 -0500
+Subject: [PATCH] Time: Timekeeping Fixups for 2.6.15-mm3
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 12 Jan 2006 14:05:02 -0800
+Message-Id: <1137103513.2890.128.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some pcnet32 hardware erroneously has the Vendor ID for Trident.  The
-pcnet32 driver looks for the PCI ethernet class before grabbing the
-hardware, but the current trident driver does not check against the
-PCI audio class.  This allows the trident driver to claim the pcnet32
-hardware.  This patch prevents that.
+Hey Andrew,
+	Below are two quick fixes I found while reviewing the timekeeping
+patches currently in -mm. 
 
-Per Jiri Slaby's request, I changed the trident driver to use
-PCI_DEVICE macro and PCI ID #defines.
+The first chunk fixes a missed return in the
+time-fix-cpu-frequency-detection.patch which could possibly cause
+interrupts to be disabled and never re-enabled (although the failure
+case is unlikely, so this probably isn't biting anyone).
 
-This patch is untested on Trident 4DWAVE_DX hardware, but has been
-tested on pcnet32 hardware.
+The second chunk removes a bit of code that was unnecessarily duplicated
+in time-reduced-ntp-rework-part-2.patch that bumps the time_maxerror
+variable each second (which is already done at the top of the function).
+The code must of slipped in while moving the code in an earlier version
+of the patch and didn't get removed as it should have been.
 
-Thanks,
-Jon
-
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+thanks
+-john
 
 
-diff -r 4a7597b41d25 sound/pci/trident/trident.c
---- a/sound/pci/trident/trident.c	Wed Jan 11 19:14:08 2006
-+++ b/sound/pci/trident/trident.c	Thu Jan 12 15:52:34 2006
-@@ -64,9 +64,11 @@
- MODULE_PARM_DESC(wavetable_size, "Maximum memory size in kB for wavetable synth.");
+linux-2.6.15-mm3_timeofday-fixups_B16.patch
+===========================================
+diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
+index c86eba0..cab2546 100644
+--- a/arch/i386/kernel/tsc.c
++++ b/arch/i386/kernel/tsc.c
+@@ -158,7 +158,7 @@ static unsigned long calculate_cpu_khz(v
  
- static struct pci_device_id snd_trident_ids[] = {
--	{ 0x1023, 0x2000, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },	/* Trident 4DWave DX PCI Audio */
--	{ 0x1023, 0x2001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },	/* Trident 4DWave NX PCI Audio */
--	{ 0x1039, 0x7018, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },	/* SiS SI7018 PCI Audio */
-+	{PCI_DEVICE(PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_DX), 
-+		PCI_CLASS_MULTIMEDIA_AUDIO << 8, 0xffff00, 0},
-+	{PCI_DEVICE(PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_NX), 
-+		0, 0, 0},
-+	{PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7018), 0, 0, 0},
- 	{ 0, }
- };
+ 	/* cpu freq too slow: */
+ 	if (delta64 <= CALIBRATE_TIME_MSEC)
+-		return 0;
++		goto err;
  
+ 	delta64 += CALIBRATE_TIME_MSEC/2; /* round for do_div */
+ 	do_div(delta64,CALIBRATE_TIME_MSEC);
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 8d10cd5..21efa12 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -745,13 +745,6 @@ static void second_overflow(void)
+ 		time_state = TIME_OK;
+ 	}
+ 
+-	/* Bump the maxerror field */
+-	time_maxerror += time_tolerance >> SHIFT_USEC;
+-	if ( time_maxerror > NTP_PHASE_LIMIT ) {
+-		time_maxerror = NTP_PHASE_LIMIT;
+-		time_status |= STA_UNSYNC;
+-	}
+-
+ 	/*
+ 	 * Compute the phase adjustment for the next second. In PLL mode, the
+ 	 * offset is reduced by a fixed factor times the time constant. In FLL
+
+

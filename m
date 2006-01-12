@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWALRbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWALReY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbWALRbF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 12:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWALRbF
+	id S932430AbWALReY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 12:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWALReX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 12:31:05 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:33938 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932280AbWALRbC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 12:31:02 -0500
-Subject: Re: Help with machine check exception
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Orion Poplawski <orion@cora.nwra.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dq62df$gse$1@sea.gmane.org>
-References: <dq606p$776$1@sea.gmane.org>  <dq62df$gse$1@sea.gmane.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 12 Jan 2006 17:33:53 +0000
-Message-Id: <1137087233.26334.3.camel@localhost.localdomain>
+	Thu, 12 Jan 2006 12:34:23 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29200 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932430AbWALReW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 12:34:22 -0500
+Date: Thu, 12 Jan 2006 17:34:13 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Vrabel <dvrabel@arcom.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, oliver@neukum.org
+Subject: Re: [linux-usb-devel] Re: need for packed attribute
+Message-ID: <20060112173413.GD9288@flint.arm.linux.org.uk>
+Mail-Followup-To: David Vrabel <dvrabel@arcom.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+	linux-usb-devel@lists.sourceforge.net, oliver@neukum.org
+References: <200601121227.k0CCRCB8016162@alkaid.it.uu.se> <20060112134729.GB5700@flint.arm.linux.org.uk> <17350.33811.433595.750615@alkaid.it.uu.se> <20060112164621.GA9288@flint.arm.linux.org.uk> <43C69067.9040206@arcom.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C69067.9040206@arcom.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-01-12 at 10:07 -0700, Orion Poplawski wrote:
-> mcelog decode states:
+On Thu, Jan 12, 2006 at 05:22:47PM +0000, David Vrabel wrote:
+> Russell King wrote:
+> > BTW, it's worth noting that the new EABI stuff has it's own set of
+> > problems.  We have r0 to r6 to pass 32-bit or 64-bit arguments.
+> > With EABI, 64-bit arguments will be aligned to an _even_ numbered
+> > register.
 > 
-> CPU 0 4 northbridge TSC 184fcd0553e4
->    Northbridge Watchdog error
->         bit57 = processor context corrupt
->         bit61 = error uncorrected
->    bus error 'generic participation, request timed out
->        generic error mem transaction
->        generic access, level generic'
-> STATUS b200000000070f0f MCGSTATUS 4
-> Kernel panic - not syncing: Machine check
+> Is there a reason for this alignment requirement?
 
-Could be ram cpu or motherboard, even a power glitch of course.
+I think it comes from the 64-bit accessing instructions (ldrd/strd)
+having the restriction that they only take an even numbered 32-bit
+register.  The immediately consecutive higher numbered 32-bit 
+egister is used as the other half of the number.
 
-Before you panic I'd suggest that you check the machine is being
-adequately cooled (especially the CPU) and that the ram and cpu are all
-well socketed.
+Think about it as the x86 32-bit eax register being made up of
+16-bit ah and al registers.  Only we call then r0, r1 etc not
+eax, ah and al (and they're twice the size.)
 
-memtest86+ will help test for memory problems and may be worth an
-overnight run
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

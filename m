@@ -1,62 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161355AbWALWIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161349AbWALWJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161355AbWALWIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161349AbWALWIk
+	id S1161349AbWALWJy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161356AbWALWJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:08:40 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:45532 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161352AbWALWIh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:08:37 -0500
-Date: Thu, 12 Jan 2006 16:08:28 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-Message-ID: <20060112220827.GG17539@us.ibm.com>
-References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu>
+	Thu, 12 Jan 2006 17:09:54 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62360 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161349AbWALWJx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:09:53 -0500
+Date: Thu, 12 Jan 2006 23:09:40 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
+Message-ID: <20060112220940.GA10088@elf.ucw.cz>
+References: <200601122241.07363.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060112200735.GD5399@granada.merseine.nu>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200601122241.07363.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This revised version of the OSS Trident patch includes PCI_DEVICE Macro
-usage.
+Hi!
 
-Thanks,
-Jon
+> This is the next version of the patch that adds a user space interface to
+> swsusp.
 
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+Looks mostly okay, few nits...
 
-diff -r 4a7597b41d25 sound/oss/trident.c
---- a/sound/oss/trident.c	Wed Jan 11 19:14:08 2006
-+++ b/sound/oss/trident.c	Thu Jan 12 15:33:02 2006
-@@ -278,16 +278,14 @@
- };
- 
- static struct pci_device_id trident_pci_tbl[] = {
--	{PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_DX,
--	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, TRIDENT_4D_DX},
--	{PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_NX,
--	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, TRIDENT_4D_NX},
--	{PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7018,
--	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, SIS_7018},
--	{PCI_VENDOR_ID_ALI, PCI_DEVICE_ID_ALI_5451,
--	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, ALI_5451},
--	{PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_5050,
--	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, CYBER5050},
-+	{PCI_DEVICE(PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_DX), 
-+		PCI_CLASS_MULTIMEDIA_AUDIO << 8, 0xffff00, TRIDENT_4D_DX},
-+	{PCI_DEVICE(PCI_VENDOR_ID_TRIDENT, PCI_DEVICE_ID_TRIDENT_4DWAVE_NX), 
-+		0, 0, TRIDENT_4D_NX},
-+	{PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7018), 0, 0, SIS_7018},
-+	{PCI_DEVICE(PCI_VENDOR_ID_ALI, PCI_DEVICE_ID_ALI_5451), 0, 0, ALI_5451},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_5050), 
-+		0, 0, CYBER5050},
- 	{0,}
- };
- 
+> +	case SNAPSHOT_IOCFREEZE:
+
+Could we make it SNAPSHOT_IOC_FREEZE or even better SNAPSHOT_FREEZE?
+
+> +commands defined in kernel/power/power.h.  The major and minor
+> +numbers of the device are, respectively, 10 and 231, and they can
+> +be read from /sys/class/misc/snapshot/dev.
+
+Is this still true?
+
+> +The device can be open either for reading or for writing.  If open for
+> +reading, it is considered to be in the suspend mode.  Otherwise it is
+> +assumed to be in the resume mode.  The device cannot be open for reading
+> +and writing.  It is also imposiible to have the device open more
+                            ~~~~~~~~~~
+				typo.
+
+> +SNAPSHOT_IOCSET_IMAGE_SIZE - set the preferred maximum size of the image
+> +	(the kernel will do its best to ensure the image size will not exceed
+> +	this number, but if it turns out to be impossible, the kernel will
+> +	create the smallest image possible)
+
+Nice.
+
+> +SNAPSHOT_IOCAVAIL_SWAP - check the amount of available swap (the last argument
+> +	should be a pointer to an unsigned int variable that will contain
+> +	the result if the call is successful)
+
+Is this good idea? It will overflow on 32-bit systems. Ammount of
+available swap can be >4GB. [Or maybe it is in something else than
+bytes, then you need to specify it.]
+
+> +SNAPSHOT_IOCSET_SWAP_FILE - set the resume partition (the last ioctl() argument
+> +	should specify the device's major and minor numbers in the old
+> +	two-byte format, as returned by the stat() function in the .st_rdev
+> +	member of the stat structure); it is recommended to always use this
+> +	call, because the other code the could have set the resume partition
+> +	need not be present in the kernel
+
+Parse error on last sentence.
+
+"because the code to set the resume partition could be removed from
+future kernels"?
+
+> +For details, please refer to the source code.
+
+We should specify that userland suspend/resume utilities should lock
+themselves in memory before freezing system, and not attempt
+filesystem operations after freeze. (Probably not even reads).
+
+We may want to specify if it is okay to snapshot system and then
+unfreeze and continue. I'd suggest supporting that -- it will be handy
+for "esc to abort" and "suspend to RAM and disk".
+
+Ouch and you have my ACK on next attempt :-).
+								Pavel
+-- 
+Thanks, Sharp!

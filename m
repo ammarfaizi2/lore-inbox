@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWALJhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWALJqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWALJhn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 04:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWALJhm
+	id S1030237AbWALJqH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 04:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWALJqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 04:37:42 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:38059 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964836AbWALJhm (ORCPT
+	Thu, 12 Jan 2006 04:46:07 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:15557 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1030237AbWALJqG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 04:37:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=PT1jTxDRJYYvwjrtTdlggDERKVsFnEPZ8XlsfWjg4ASCk1RL20JgMWhiVqNr0GnXx/lAGH/8cHQ1NbSNtHKcclBPfSoJTNwxDXuFBEbbxBLUUp5sZ/C9unVll0tfNRwgI4Dw8sN9jqiMcasl6QzQSENjRx0Cwlan4dYDTEzwieA=
-Message-ID: <43C62360.9050705@gmail.com>
-Date: Thu, 12 Jan 2006 10:37:36 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051210)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       kernel list <linux-kernel@vger.kernel.org>, tiwai@suse.de
-Subject: Re: [BUG 2.6.15-git5] new alsa power management completly broken
-References: <20060111234810.3ffe241c.akpm@osdl.org> <20060112085837.GD1670@elf.ucw.cz>
-In-Reply-To: <20060112085837.GD1670@elf.ucw.cz>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 12 Jan 2006 04:46:06 -0500
+Date: Thu, 12 Jan 2006 01:45:51 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, linux-ia64@vger.kernel.org
+Subject: Re: [CFT 9/29] Add tiocx bus_type probe/remove methods
+Message-Id: <20060112014551.8e7888c3.pj@sgi.com>
+In-Reply-To: <20060105142951.13.09@flint.arm.linux.org.uk>
+References: <20060105142951.13.01@flint.arm.linux.org.uk>
+	<20060105142951.13.09@flint.arm.linux.org.uk>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek ha scritto:
+This patch looks broken.  I see the lines:
 
->On St 11-01-06 23:48:10, Andrew Morton wrote:
->  
->
->>swsusp problems...
->>    
->>
->
->Where? :-)
->  
->
-nowhere now :)
-i still have problems on my noteboot about irq 14 not cared...(since ages!)
-i'll try to do something, if i can't fix i'll report.
-(stopping here cause going OT)
++	.remove = cx_device_remove,
+-	cx_driver->driver.remove = cx_driver_remove;
 
->  
->
->>sorry for delay, however i tested it and works perfectly.
->>
->>just 2 things to notice:
->>1) [unrelated to this bug] swsusp ram pages write and read is really
->>slower than 2.6.14 one. i didn't follow changes, so don't know what
->>happened
->>    
->>
->
->That's a feature. echo 0 > /sys/power/image_size should make it behave
->like 2.6.14.
->
->  
->
-ok, so i think i should check docs (i hope they are updated)
+The routine (not in this patch) is still known as "cx_driver_remove"
+but now it is linked to from the .remove line as  "cx_device_remove"
 
->>2) when i suspend i continue to see errors 0x660 in my tty. The strange
->>thing is that after resume they are no more in dmesg!
->>strange. however, as i wrote before, it works.
->>    
->>
->
->That's not so strange. Messages that happen after memory snapshot are
->lost (of course).
->								Pavel
->  
->
-ok, sure, but before this patch i had them in my dmesg.
-the patch shouldn't have changed the saving sequence, so..why this happens?
-and, however some errors still occour.
+A defconfig ia64 build of *-mm3 with this patch fails:
 
-alsa guys should judge if they are revelant to trace and fix the source
-of 0x660.
+arch/ia64/sn/kernel/tiocx.c:151: error: `cx_device_remove' undeclared here (not in a function)
+arch/ia64/sn/kernel/tiocx.c:151: error: initializer element is not constant
+arch/ia64/sn/kernel/tiocx.c:151: error: (near initialization for `tiocx_bus_type.remove')
+arch/ia64/sn/kernel/tiocx.c:137: warning: `cx_driver_remove' defined but not used         
 
-Thanks for support
+When I s/cx_device_remove/cx_driver_remove/, then ia64 *-mm3 defconfig builds fine.
 
---
-Patrizio Bassi
-www.patriziobassi.it
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWALFgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWALFjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbWALFgK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 00:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWALFgK
+	id S964781AbWALFjr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 00:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWALFjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 00:36:10 -0500
-Received: from cabal.ca ([134.117.69.58]:19168 "EHLO fattire.cabal.ca")
-	by vger.kernel.org with ESMTP id S1030290AbWALFgJ (ORCPT
+	Thu, 12 Jan 2006 00:39:47 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:58315 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964781AbWALFjq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 00:36:09 -0500
-Date: Thu, 12 Jan 2006 00:36:18 -0500
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: Junio C Hamano <junkio@cox.net>
-Cc: Kyle McMartin <kyle@parisc-linux.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Move read_mostly definition to asm/cache.h
-Message-ID: <20060112053618.GH25353@tachyon.int.mcmartin.ca>
-References: <20060111173321.GC28018@quicksilver.road.mcmartin.ca> <Pine.LNX.4.64.0601110951210.5073@g5.osdl.org> <7vslruqx5w.fsf@assigned-by-dhcp.cox.net>
-MIME-Version: 1.0
+	Thu, 12 Jan 2006 00:39:46 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: paulmck@us.ibm.com
+cc: John Hesterberg <jh@sgi.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>
+Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors 
+In-reply-to: Your message of "Wed, 11 Jan 2006 21:04:53 -0800."
+             <20060112050453.GA23673@us.ibm.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7vslruqx5w.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Mutt/1.5.11
+Date: Thu, 12 Jan 2006 16:38:03 +1100
+Message-ID: <13667.1137044283@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 01:20:27PM -0800, Junio C Hamano wrote:
-> Essentially, you are (you want to be) in read_mostly branch, but
-> your .git/HEAD incorrectly says you are on the master branch.
-> So you would need:
-> 
-> 	$ git symbolic-ref HEAD refs/heads/read_mostly
-> 
-> after swapping.  Then you would be on read_mostly branch.
+"Paul E. McKenney" (on Wed, 11 Jan 2006 21:04:53 -0800) wrote:
+>On Thu, Jan 12, 2006 at 02:29:52PM +1100, Keith Owens wrote:
+>> An alternative patch that requires no locks and does not even require
+>> RCU is in http://marc.theaimsgroup.com/?l=linux-kernel&m=113392370322545&w=2
 >
+>But doesn't notifier_call_chain_lockfree() need to either disable
+>preemption or use atomic operations to update notifier_chain_lockfree_inuse[]
+>in order to avoid problems with preemption?
 
-Alternatively, if I had (I haven't touched the tree, just format-patch'd
-which looked right) used git-reset --hard HEAD and been up to date
-(working tree and index file) with whatever ended up being pointed
-to by HEAD, right?
+Yes it does :(.  Originally the atomic notifier chains were only called
+from atomic contexts (typically interrupt context), but if they are
+going to be generalized to all contexts, then the code is not good
+enough.  These lines either assume no preemption or that preemption is
+stacked in LIFO order, which is not guaranteed.
 
-I'll try to remember the symbolic-ref thing for next time, usually when
-this happens I just blow away the last commit and try again, but I felt
-adventurous today. :)
+int notifier_call_chain_lockfree(struct notifier_block **list,
+				 unsigned long val, void *v)
+{
+	int ret = NOTIFY_DONE, cpu = smp_processor_id(), nested;
+	struct notifier_block *nb;
+	nested = notifier_chain_lockfree_inuse[cpu];
+	notifier_chain_lockfree_inuse[cpu] = 1;
+	wmb();
+	nb = *list;
+	while (nb) {
+		smp_read_barrier_depends();
+		ret = nb->notifier_call(nb, val, v);
+		if (ret & NOTIFY_STOP_MASK)
+			break;
+		nb = nb->next;
+	}
+	barrier();
+	notifier_chain_lockfree_inuse[cpu] = nested;
+	return ret;
+}
 
-Cheers,
-	Kyle
+So either disable preemption in notifier_call_chain_lockfree (including
+all the callbacks that it invokes) or notifier_chain_lockfree_inuse has
+to be an atomic_t.  atomic_t would be better, but it could cause a
+problem on architectures that implement atomic_t via hashed spinlocks
+_and_ have non maskable interrupts that call notifier_call_chain_lockfree().
+
+Going away to think about this ...
+

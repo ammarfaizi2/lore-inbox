@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161195AbWALTSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWALTWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161195AbWALTSY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 14:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWALTSY
+	id S1161198AbWALTWG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 14:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161199AbWALTWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 14:18:24 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:59370 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161195AbWALTSX (ORCPT
+	Thu, 12 Jan 2006 14:22:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:981 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161198AbWALTWF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 14:18:23 -0500
-Message-ID: <43C6AB78.1040301@us.ibm.com>
-Date: Thu, 12 Jan 2006 14:18:16 -0500
-From: "Mike D. Day" <ncmike@us.ibm.com>
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Anthony Liguori <aliguori@us.ibm.com>, Gerd Hoffmann <kraxel@suse.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com> <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com> <43C5B59C.8050908@us.ibm.com> <43C65196.8040402@suse.de> <1137072089.2936.29.camel@laptopd505.fenrus.org> <43C66ACC.60408@suse.de> <20060112173926.GD10513@kroah.com> <43C6A5B4.80801@us.ibm.com> <20060112190845.GA13073@kroah.com>
-In-Reply-To: <20060112190845.GA13073@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jan 2006 14:22:05 -0500
+Date: Thu, 12 Jan 2006 14:21:39 -0500
+From: Dave Jones <davej@redhat.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-mm2
+Message-ID: <20060112192139.GI19827@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Brice Goglin <Brice.Goglin@ens-lyon.org>,
+	linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
+	Andrew Morton <akpm@osdl.org>
+References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org> <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com> <u3bjtogq0@a1i15.kph.uni-mainz.de> <20060112171137.GA19827@redhat.com> <43C6AA17.5070409@ens-lyon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C6AA17.5070409@ens-lyon.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Thu, Jan 12, 2006 at 02:12:23PM -0500, Brice Goglin wrote:
+ > Dave Jones wrote:
+ > 
+ > >On Thu, Jan 12, 2006 at 11:58:31AM +0100, Ulrich Mueller wrote:
+ > > 
+ > > >    $ lspci -s 00:02.0 -v
+ > > >    00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 03) (prog-if 00 [VGA])
+ > > >    	Subsystem: Hewlett-Packard Company nx6110/nc6120
+ > > >    	Flags: bus master, fast devsel, latency 0, IRQ 16
+ > > >    	Memory at d0400000 (32-bit, non-prefetchable) [size=512K]
+ > > >    	I/O ports at 7000 [size=8]
+ > > >    	Memory at c0000000 (32-bit, prefetchable) [size=256M]
+ > > >    	Memory at d0480000 (32-bit, non-prefetchable) [size=256K]
+ > > >    	Capabilities: [d0] Power Management version 2
+ > >
+ > >Another one that advertises no AGP capabilities.
+ > >In this situation you shouldn't *need* agpgart.  If it's PCI[E],
+ > >radeon will use pcigart.
+ > >  
+ > Is this supposed to work soon ? Looking at all "agp_foo" symbols in the
+ > drm module, there might lots of work do first, right ? In this case, it
+ > might be good to still be able to load agpgart on PCI-E machine for a
+ > while ?
 
-> 
-> Why not do the same thing that the Cell developers did for their
-> "special syscalls"?  Or at the least, make it a "real" syscall like the
-> ppc64 developers did.  It's not like there isn't a whole bunch of "prior
-> art" in the kernel today that you should be ignoring.
+Well, mainline does that already, and this stuff won't go anywhere
+near there anytime soon.  I'd like to understand why drm can't find
+the symbols in the module, even though its loaded, but between being
+ill this week, and trying to get the Fedora 5 test2 kernel in shape,
+I've not had much chance to dig into it yet.
 
-A hypercall syscall would be good in a lot of ways. For x86/x86_64 there 
-are multiple hypervisors so we would need to make the syscall general 
-enough to support more than one hypervisor.
+		Dave
 
-Mike
--- 
-
-Mike D. Day
-STSM and Architect, Open Virtualization
-IBM Linux Technology Center
-ncmike@us.ibm.com

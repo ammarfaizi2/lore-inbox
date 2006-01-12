@@ -1,157 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWALBsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWALBtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964967AbWALBsI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 20:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWALBsH
+	id S964969AbWALBtU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 20:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWALBtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 20:48:07 -0500
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:2229 "EHLO
-	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S964967AbWALBsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 20:48:05 -0500
-Date: Wed, 11 Jan 2006 20:41:39 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.15-current] i386: fix stack dump loglevel
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200601112044_MC3-1-B5B1-3B1E@compuserve.com>
+	Wed, 11 Jan 2006 20:49:20 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:34178 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964969AbWALBtT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 20:49:19 -0500
+Message-ID: <43C5B59C.8050908@us.ibm.com>
+Date: Wed, 11 Jan 2006 20:49:16 -0500
+From: "Mike D. Day" <ncmike@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
+Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
+References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com> <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>
+In-Reply-To: <20060112005710.GA2936@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
 
-Recent changes caused part of stack traces from SysRq-T to print at
-KERN_EMERG loglevel.  Also, parts of stack dump during oops were
-failing to print at that level when they should.
+>>I think it comes down to simplification for non-driver code, which is 
+>>admittedly not the mainstream use model for sysfs.
+> 
+> /sys/module/ is a pretty "mainstream use model for sysfs", right?
 
+Yes, but xen is not a module. I believe /sys/xen/ is different than 
+/sys/module/, and provide some further reasoning below.
 
-Signed-Off-By: Chuck Ebbert <76306.1226@compuserve.com>
----
+>>The module version? Xen is not a module nor a driver, so that interface 
+>>doesn't quite serve the purpose.
+> 
+> Then it doesn't need a separate version, as it is the same as the main
+> kernel version, right?  Just because your code is out-of-the-tree right
 
- arch/i386/kernel/traps.c |   57 ++++++++++++++++++++++++++++++++---------------
- 1 files changed, 39 insertions(+), 18 deletions(-)
+No. For example, I could run linux-2.6.x in a domain under xen 3.0.0. In 
+this case the xen version is 3.0.0, the linux version is 2.6.x. I could 
+run the very same kernel on xen 3.0.1, xen 3.1, and eventually xen 
+4.x.x. The xen version exists outside of the linux kernel version, but 
+userspace will have good reasons to want to know the xen version (think 
+management tools).
+> 
+> Huh?  You can't just throw a "MODULE_VERSION()", and a module_init()
+> somewhere into the xen code to get this to happen?  Then all of your
+> configurable paramaters show up automagically.
 
---- 2.6.15a.orig/arch/i386/kernel/traps.c
-+++ 2.6.15a/arch/i386/kernel/traps.c
-@@ -112,33 +112,38 @@ static inline int valid_stack_ptr(struct
- 		p < (void *)tinfo + THREAD_SIZE - 3;
- }
- 
-+static inline void print_addr_and_symbol(unsigned long addr, char *log_lvl)
-+{
-+		printk(log_lvl);
-+		printk(" [<%08lx>] ", addr);
-+		print_symbol("%s", addr);
-+		printk("\n");
-+}
-+
- static inline unsigned long print_context_stack(struct thread_info *tinfo,
--				unsigned long *stack, unsigned long ebp)
-+				unsigned long *stack, unsigned long ebp,
-+				char *log_lvl)
- {
- 	unsigned long addr;
- 
- #ifdef	CONFIG_FRAME_POINTER
- 	while (valid_stack_ptr(tinfo, (void *)ebp)) {
- 		addr = *(unsigned long *)(ebp + 4);
--		printk(KERN_EMERG " [<%08lx>] ", addr);
--		print_symbol("%s", addr);
--		printk("\n");
-+		print_addr_and_symbol(addr, log_lvl);
- 		ebp = *(unsigned long *)ebp;
- 	}
- #else
- 	while (valid_stack_ptr(tinfo, stack)) {
- 		addr = *stack++;
--		if (__kernel_text_address(addr)) {
--			printk(KERN_EMERG " [<%08lx>]", addr);
--			print_symbol(" %s", addr);
--			printk("\n");
--		}
-+		if (__kernel_text_address(addr))
-+			print_addr_and_symbol(addr, log_lvl);
- 	}
- #endif
- 	return ebp;
- }
- 
--void show_trace(struct task_struct *task, unsigned long * stack)
-+static void show_trace_log_lvl(struct task_struct *task,
-+			       unsigned long *stack, char *log_lvl)
- {
- 	unsigned long ebp;
- 
-@@ -157,7 +162,7 @@ void show_trace(struct task_struct *task
- 		struct thread_info *context;
- 		context = (struct thread_info *)
- 			((unsigned long)stack & (~(THREAD_SIZE - 1)));
--		ebp = print_context_stack(context, stack, ebp);
-+		ebp = print_context_stack(context, stack, ebp, log_lvl);
- 		stack = (unsigned long*)context->previous_esp;
- 		if (!stack)
- 			break;
-@@ -165,7 +170,13 @@ void show_trace(struct task_struct *task
- 	}
- }
- 
--void show_stack(struct task_struct *task, unsigned long *esp)
-+void show_trace(struct task_struct *task, unsigned long * stack)
-+{
-+	show_trace_log_lvl(task, stack, "");
-+}
-+
-+static void show_stack_log_lvl(struct task_struct *task, unsigned long *esp,
-+			       char *log_lvl)
- {
- 	unsigned long *stack;
- 	int i;
-@@ -178,16 +189,26 @@ void show_stack(struct task_struct *task
- 	}
- 
- 	stack = esp;
--	printk(KERN_EMERG);
-+	printk(log_lvl);
- 	for(i = 0; i < kstack_depth_to_print; i++) {
- 		if (kstack_end(stack))
- 			break;
--		if (i && ((i % 8) == 0))
--			printk("\n" KERN_EMERG "       ");
-+		if (i && ((i % 8) == 0)) {
-+			printk("\n");
-+			printk(log_lvl);
-+			printk("       ");
-+		}
- 		printk("%08lx ", *stack++);
- 	}
--	printk("\n" KERN_EMERG "Call Trace:\n");
--	show_trace(task, esp);
-+	printk("\n");
-+	printk(log_lvl);
-+	printk("Call Trace:\n");
-+	show_trace_log_lvl(task, esp, log_lvl);
-+}
-+
-+void show_stack(struct task_struct *task, unsigned long *esp)
-+{
-+	show_stack_log_lvl(task, esp, "");
- }
- 
- /*
-@@ -238,7 +259,7 @@ void show_registers(struct pt_regs *regs
- 		u8 __user *eip;
- 
- 		printk("\n" KERN_EMERG "Stack: ");
--		show_stack(NULL, (unsigned long*)esp);
-+		show_stack_log_lvl(NULL, (unsigned long *)esp, KERN_EMERG);
- 
- 		printk(KERN_EMERG "Code: ");
- 
+No, I can't. Xen does not have modules. Xen loads and runs linux. I am 
+trying to make it simple for linux to represent xen attributes under 
+/sys/xen. This is analogous to a kernel module representing the kernel. 
+I know it is weird.
+
+>>/sys/xen/version may not be the best example for this discussion. What
+>>is important is that this attribute is obtained from Xen using a
+>>hypercall. Sysfs works great to prove the xen version and other
+>>similar xen attributes to userspace.
+> 
+> 
+> Like what?  Specifics please.
+
+What privileges are granted to the kernel by xen - can the kernel 
+control real devices or just virtual ones. How many other domains 
+(virtual machines) are being hosted by xen? How much memory is available 
+for ballooning (increasing the memory used by kernels through the 
+remapping of pages inside the hypervisor). Can the domain be migrated to 
+another physical host? What scheduler is Xen using (xen has plug-in 
+schedulers)? All the actual information resides within the xen 
+hypervisor, not the linux kernel.
+
+> So you want to divorce the relationship in sysfs between directories and
+> kobjects?  
+
+Not quite, just hide the relationship for users of sysfs that have no 
+reason to know about it.
+
+That's a valid proposal, but just don't do it as a xen
+specific thing please, that's being selfish.
+
+ok
+
+> But I think you will fail in this, as we want to keep a very strict
+> heirachy in sysfs, as userspace relies on this.  See the previous
+> proposal from Pat Mochel to try to do this (in the lkml archives) for
+> the problems when he tried to do so.
+
+Hence why I created this as a xeno-linux patch. I can control where the 
+sysfs files get created. For example, I check to make sure the path 
+starts with "/sys/xen." I don't want to interfere with keeping a strict 
+heirarchy.
+
+> 
+>>Currently in xeno-linux there are several files under /proc/xen. These 
+>>are created by different areas of the xeno-linux kernel. In xeno-linux 
+>>today there is a single higher-level routine that each of these 
+>>different areas uses to create its own file under /proc/xen. In other 
+>>words, I think there should be a unifying element to the interface 
+>>because the callers are not organized within a single module.
+> 
+> Ok, but again, that's no different than anything else in the kernel,
+> right?
+
+I think that it is different. The sysfs attributes are being created by 
+the kernel, not a driver or module. The attribute values themselves are 
+located in the xen hypervisor, which is totally outside of the kernel 
+and everything it controls.
+
+> not be applied due to a broken email client setup, tried to do all of
+> the work in your own subsection of an external kernel tree that seems to
+
+I worked within the xen project hoping that the code might get applied 
+there and later merged.
+
+> strongly avoid getting merged into mainline, ignored the existing kernel
+> interfaces, 
+
+No, I didn't ignore them. I may be mistaken, but I believe this is a 
+different use model.
+
+and didn't cc: the subsystem maintainer.
+
+Sorry, will make certain to cc: the maintainer in the future.
+
+Mike
 -- 
-Chuck
-Currently reading: _Olympos_ by Dan Simmons
+
+Mike D. Day
+STSM and Architect, Open Virtualization
+IBM Linux Technology Center
+ncmike@us.ibm.com

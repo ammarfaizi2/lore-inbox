@@ -1,153 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWALMFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWALMXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030305AbWALMFG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 07:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWALMFG
+	id S1030339AbWALMXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 07:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWALMXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 07:05:06 -0500
-Received: from tornado.reub.net ([202.89.145.182]:17046 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1030305AbWALMFF (ORCPT
+	Thu, 12 Jan 2006 07:23:40 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:2694 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030339AbWALMXk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 07:05:05 -0500
-Message-ID: <43C645ED.40905@reub.net>
-Date: Fri, 13 Jan 2006 01:05:01 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20060111)
+	Thu, 12 Jan 2006 07:23:40 -0500
+Date: Thu, 12 Jan 2006 13:23:33 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/10] NTP: normalize time_adj
+In-Reply-To: <1136946077.2890.44.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0601121302050.30994@scrub.home>
+References: <Pine.LNX.4.61.0512220020250.30897@scrub.home>
+ <1136946077.2890.44.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>, neilb@suse.de,
-       mingo@elte.hu, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.15-mm2
-References: <20060111115616.GE3389@suse.de> <43C518BC.5090903@reub.net> <20060111145201.GS3389@suse.de> <20060111145504.GT3389@suse.de> <43C55B31.5000201@reub.net> <20060111194517.GE5373@suse.de> <20060111195349.GF5373@suse.de> <43C5D1CA.7000400@reub.net> <20060112080051.GA22783@htj.dyndns.org> <43C61598.7050004@reub.net> <20060112111846.GA19976@htj.dyndns.org>
-In-Reply-To: <20060112111846.GA19976@htj.dyndns.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Tue, 10 Jan 2006, john stultz wrote:
 
-On 13/01/2006 12:18 a.m., Tejun Heo wrote:
-> On Thu, Jan 12, 2006 at 09:38:48PM +1300, Reuben Farrelly wrote:
-> [--snip--]
->> [start_ordered       ] f7e8a708 -> c1b028fc,c1b029a4,c1b02a4c infl=1
->> [start_ordered       ] f74b0e00 0 48869571 8 8 1 1 c1ba9000
->> [start_ordered       ] BIO f74b0e00 48869571 4096
->> [start_ordered       ] ordered=31 in_flight=1
->> [blk_do_ordered      ] start_ordered f7e8a708->00000000
->> [blk_do_ordered      ] seq=02 f74ccd98->f74ccd98
->> [blk_do_ordered      ] seq=02 f74ccd98->f74ccd98
->> [blk_do_ordered      ] seq=02 c1b028fc->00000000
->> [blk_do_ordered      ] seq=02 c1b028fc->00000000
->> [blk_do_ordered      ] seq=02 c1b028fc->00000000
+> > Index: linux-2.6-mm/include/linux/timex.h
+> > ===================================================================
+> > --- linux-2.6-mm.orig/include/linux/timex.h	2005-12-21 12:11:48.000000000 +0100
+> > +++ linux-2.6-mm/include/linux/timex.h	2005-12-21 12:11:56.000000000 +0100
+> > @@ -93,7 +93,7 @@
+> >  #define SHIFT_SCALE 22		/* phase scale (shift) */
+> >  #define SHIFT_UPDATE (SHIFT_KG + MAXTC) /* time offset scale (shift) */
+> >  #define SHIFT_USEC 16		/* frequency offset scale (shift) */
+> > -#define FINENSEC (1L << (SHIFT_SCALE - 10)) /* ~1 ns in phase units */
+> > +#define FINENSEC (1L << SHIFT_SCALE) /* ~1 ns in phase units */
 > 
-> Yeap, this one is the offending one.  0xf74ccd98 got requeued in front
-> of pre-flush while draining and when it finished it didn't complete
-> draining thus hanging the queue.  It seems like it's some kind of
-> special request which probably fails and got retried.  Are you using
-> SMART or something which issues special commands to drives?
+> So this effectively increases the granularity of the phase units, right?
 
-No SMART, although I should be (rebuilt the system a few months ago..and must
-have missed it).
+Basically yes, but it's part of a small cleanup I forgot to comment. (See 
+below)
 
-Are there any other things which could be contributing to this?  <scratches head>
-
-> Can you please try the following debug patch.  I've added a few more
-> debug messages to make things clearer.
+> > @@ -675,36 +677,38 @@ static void second_overflow(void)
+> >  	ltemp = min(ltemp, (MAXPHASE / MINSEC) << SHIFT_UPDATE);
+> >  	ltemp = max(ltemp, -(MAXPHASE / MINSEC) << SHIFT_UPDATE);
+> >  	time_offset -= ltemp;
+> > -	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+> > +	adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
 > 
-> diff --git a/block/elevator.c b/block/elevator.c
-> index 1b5b5d9..a0075aa 100644
-> --- a/block/elevator.c
-> +++ b/block/elevator.c
-> @@ -37,6 +37,9 @@
->  
->  #include <asm/uaccess.h>
->  
-> +#define pd(fmt, args...) printk("[%02d %-24s] "fmt, q->id, __FUNCTION__ , ##args)
-> +#define pd0(fmt, args...) printk("[na %-24s] "fmt, __FUNCTION__ , ##args)
-> +
->  static DEFINE_SPINLOCK(elv_list_lock);
->  static LIST_HEAD(elv_list);
+> 	That could maybe use a better comment. The larger comment makes it
+> clear we're converting the usec offset to phase adjustment units, but
+> maybe something further to explain how usecs -> phase is connected to
+> multiplying by 2^(SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE) would help?
 
-I'm applying to -mm3 - applies with some fuzz.
+I agree that this could use better comments, although some changes are 
+only temporary, so some things I'll probably only comment better in the 
+changelog.
 
-Here's the last few lines:
+> >  	 * 0.78125% to get 1023.4375; => only 0.05% error (p. 14)
+> >  	 */
+> > -	time_adj += shift_right(time_adj, 6) + shift_right(time_adj, 7);
+> > +	adj += shift_right(adj, 6) + shift_right(adj, 7);
+> >  #endif
+> > +	tick_nsec_curr += adj >> (SHIFT_SCALE - 10);
+> > +	time_adj = (adj << 10) & (FINENSEC - 1);
+> 
+> Again, a comment here would help. 
+> 
+> We use time_adj to increment the phase which will adjust the per-tick
+> nsec interval in update_wall_time_one_tick, so why are we adjusting
+> tick_nsec_curr which is used there as well?
 
-[01 elv_completed_request   ] seq=03 unacc c1b351c4 (flags=0x2002318) infl=0
-[01 blk_ordered_complete_seq] ordseq=03 seq=04 orderr=0 error=0
-[01 blk_do_ordered          ] seq=08 c1b3526c->c1b3526c (flags=0xd9)
-[01 elv_next_request        ] c1b3526c (bar)
-[01 blk_do_ordered          ] seq=08 c1b35314->00000000 (flags=0x0)
-[01 ordered_bio_endio       ] q->orderr=0 error=0
-[na flush_dry_bio_endio     ] BIO f7eb95c0 48869571 4096
-[na end_that_request_last   ] !ELVPRIV c1b3526c 000003d9
-[01 elv_completed_request   ] seq=07 rq=c1b3526c (flags=0x3d9) infl=0
-[01 blk_ordered_complete_seq] ordseq=07 seq=08 orderr=0 error=0
-[01 blk_do_ordered          ] seq=10 c1b35314->c1b35314 (flags=0x2002018)
-[01 elv_next_request        ] c1b35314 (post)
-[na end_that_request_last   ] !ELVPRIV c1b35314 02002318
-[01 elv_completed_request   ] seq=0f unacc c1b35314 (flags=0x2002318) infl=0
-[01 blk_ordered_complete_seq] ordseq=0f seq=10 orderr=0 error=0
-[01 blk_ordered_complete_seq] sequence complete
-[02 blk_do_ordered          ] seq=02 c1b35904->00000000 (flags=0x0)
-[01 start_ordered           ] f7dd93c0 -> c1b351c4,c1b3526c,c1b35314 ordcolor=1 
-infl=0
-[01 start_ordered           ] f7e93d80 0 69641528 8 8 1 1 c1ba7000
-[01 start_ordered           ] BIO f7e93d80 69641528 4096
-[01 start_ordered           ] ordered=31 in_flight=0
-[01 blk_do_ordered          ] start_ordered f7dd93c0->c1b351c4
-[01 elv_next_request        ] c1b351c4 (pre)
-[01 blk_do_ordered          ] seq=04 c1b3526c->00000000 (flags=0x0)
-[na end_that_request_last   ] !ELVPRIV c1b351c4 02002318
-[01 elv_completed_request   ] seq=03 unacc c1b351c4 (flags=0x2002318) infl=0
-[01 blk_ordered_complete_seq] ordseq=03 seq=04 orderr=0 error=0
-[01 blk_do_ordered          ] seq=08 c1b3526c->c1b3526c (flags=0xd9)
-[01 elv_next_request        ] c1b3526c (bar)
-[01 blk_do_ordered          ] seq=08 c1b35314->00000000 (flags=0x0)
-[01 ordered_bio_endio       ] q->orderr=0 error=0
-[na flush_dry_bio_endio     ] BIO f7e93d80 69641528 4096
-[na end_that_request_last   ] !ELVPRIV c1b3526c 000003d9
-[01 elv_completed_request   ] seq=07 rq=c1b3526c (flags=0x3d9) infl=0
-[01 blk_ordered_complete_seq] ordseq=07 seq=08 orderr=0 error=0
-[01 blk_do_ordered          ] seq=10 c1b35314->c1b35314 (flags=0x2002018)
-[01 elv_next_request        ] c1b35314 (post)
-[na end_that_request_last   ] !ELVPRIV c1b35314 02002318
-[01 elv_completed_request   ] seq=0f unacc c1b35314 (flags=0x2002318) infl=0
-[01 blk_ordered_complete_seq] ordseq=0f seq=10 orderr=0 error=0
-[01 blk_ordered_complete_seq] sequence complete
-[02 blk_do_ordered          ] seq=02 c1b35904->00000000 (flags=0x0)
-[01 start_ordered           ] f7dd93c0 -> c1b351c4,c1b3526c,c1b35314 ordcolor=1 
-infl=0
-[01 start_ordered           ] f7e938c0 0 69641536 8 8 1 1 f7dae000
-[01 start_ordered           ] BIO f7e938c0 69641536 4096
-[01 start_ordered           ] ordered=31 in_flight=0
-[01 blk_do_ordered          ] start_ordered f7dd93c0->c1b351c4
-[01 elv_next_request        ] c1b351c4 (pre)
-[01 blk_do_ordered          ] seq=04 c1b3526c->00000000 (flags=0x0)
-[na end_that_request_last   ] !ELVPRIV c1b351c4 02002318
-[01 elv_completed_request   ] seq=03 unacc c1b351c4 (flags=0x2002318) infl=0
-[01 blk_ordered_complete_seq] ordseq=03 seq=04 orderr=0 error=0
-[01 blk_do_ordered          ] seq=08 c1b3526c->c1b3526c (flags=0xd9)
-[01 elv_next_request        ] c1b3526c (bar)
-[01 blk_do_ordered          ] seq=08 c1b35314->00000000 (flags=0x0)
-[01 ordered_bio_endio       ] q->orderr=0 error=0
-[na flush_dry_bio_endio     ] BIO f7e938c0 69641536 4096
-[na end_that_request_last   ] !ELVPRIV c1b3526c 000003d9
-[01 elv_completed_request   ] seq=07 rq=c1b3526c (flags=0x3d9) infl=0
-[01 blk_ordered_complete_seq] ordseq=07 seq=08 orderr=0 error=0
-[01 blk_do_ordered          ] seq=10 c1b35314->c1b35314 (flags=0x2002018)
-[01 elv_next_request        ] c1b35314 (post)
-[na end_that_request_last   ] !ELVPRIV c1b35314 02002318
-[01 elv_completed_request   ] seq=0f unacc c1b35314 (flags=0x2002318) infl=0
-[01 blk_ordered_complete_seq] ordseq=0f seq=10 orderr=0 error=0
-[01 blk_ordered_complete_seq] sequence complete
+This is the part which normalizes time_adj, so it's always positive and 
+saves two checks in update_wall_time_one_tick().
+(BTW in the long term I want to merge these two into a single 64 bit 
+variable, but it requires a few more changes.)
 
-The full 300k file is up on http://www.reub.net/files/kernel/  It's too big to 
-be sending to everyone..
+> Also why SHIFT_SCALE - 10?  And (adj<<10)&(FINSEC -1) looks like magic
+> to me. :)
 
-reuben
+It's connected to the removed "- 10" above and below, it moves the crude 
+usec to nsec conversion (it divides by 1024 instead of 1000) to a single 
+spot, so it's easier to remove in a later patch.
+I initially wanted to mention this in the changelog, but forgot about it, 
+I'll update it.
 
+> >  	time_phase += time_adj;
+> > -	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC)) {
+> > -		long ltemp = shift_right(time_phase, (SHIFT_SCALE - 10));
+> > -		time_phase -= ltemp << (SHIFT_SCALE - 10);
+> > +	if (time_phase >= FINENSEC) {
+> > +		long ltemp = time_phase >> SHIFT_SCALE;
+> > +		time_phase -= ltemp << SHIFT_SCALE;
+> >  		delta_nsec += ltemp;
+> >  	}
+> >  	xtime.tv_nsec += delta_nsec;
+> 
+> Again, same point as the last comment.
 
+See above.
 
+> I'll try to provide similar comments for the other patches tomorrow.
 
+Thanks. :)
+
+bye, Roman

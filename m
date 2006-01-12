@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbWALAJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWALANR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbWALAJs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 19:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbWALAJr
+	id S932655AbWALANR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 19:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbWALANR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 19:09:47 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:486 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932421AbWALAJq (ORCPT
+	Wed, 11 Jan 2006 19:13:17 -0500
+Received: from ns2.suse.de ([195.135.220.15]:49823 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932655AbWALANQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 19:09:46 -0500
-Date: Wed, 11 Jan 2006 16:09:37 -0800
-From: Paul Jackson <pj@sgi.com>
-To: hawkes@sgi.com
-Cc: tony.luck@gmail.com, akpm@osdl.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, steiner@sgi.com, djh@sgi.com,
-       hawkes@sgi.com, jh@sgi.com, edwardsg@sgi.com
-Subject: Re: [PATCH] ia64: change defconfig to NR_CPUS==1024
-Message-Id: <20060111160937.921a719d.pj@sgi.com>
-In-Reply-To: <20060105213948.11412.45463.sendpatchset@tomahawk.engr.sgi.com>
-References: <20060105213948.11412.45463.sendpatchset@tomahawk.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 11 Jan 2006 19:13:16 -0500
+From: Andi Kleen <ak@suse.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: Crash with SMP on post 2.6.15 -git kernel
+Date: Thu, 12 Jan 2006 01:12:51 +0100
+User-Agent: KMail/1.8.2
+Cc: vgoyal@in.ibm.com, linux-kernel@vger.kernel.org
+References: <20060110165457.42ed2087@dxpl.pdx.osdl.net> <20060111134230.GE4990@in.ibm.com> <20060111160520.02c0ec73@dxpl.pdx.osdl.net>
+In-Reply-To: <20060111160520.02c0ec73@dxpl.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601120112.51762.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I tried to build a 2.6.15-mm2 kernel with NR_CPUS 1024, and turned
-on some of the LOCK DEBUG options:
+On Thursday 12 January 2006 01:05, Stephen Hemminger wrote:
 
-    1160c1160
-    < # CONFIG_DEBUG_SLAB is not set
-    ---
-    > CONFIG_DEBUG_SLAB=y
-    1163,1164c1163,1164
-    < # CONFIG_DEBUG_SPINLOCK is not set
-    < # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-    ---
-    > CONFIG_DEBUG_SPINLOCK=y
-    > CONFIG_DEBUG_SPINLOCK_SLEEP=y
+> > 
+> > While testing this I ran into another problem with same symtoms. If 
+> > I compile my kernel for physical location greater than or equal to 
+> > 16MB then only BP boots and applicatoin processors don't come up. I had
+> > noticed this problem in i386 and posted a patch. Here is the similar  patch 
+> > for x86_64.
+> > 
+> > Though the symtoms are same but this does not seem to be related to the
+> > problem which Stephen is facing as he seems to be compiling the kernel
+> > for 1MB location only.
+> 
+> Aha... Yes, this fixes the problem.
 
-then the build failed:
+Ok I will submit it then. 
 
-      LD      .tmp_vmlinux1
-    arch/ia64/kernel/built-in.o(.init.text+0x68b2): In function `topology_init':
-    arch/ia64/kernel/ivt.S:1465: undefined reference to `__you_cannot_kmalloc_that_much'
-    make: *** [.tmp_vmlinux1] Error 1
-
-Backing off to 512 CPUs built ok.
-
-There are a couple of kmalloc() calls in topology_init().  I didn't try
-to figure out which one blew up, nor did I try to investigate further.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Andi

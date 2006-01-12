@@ -1,176 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWALJru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWALJtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWALJru (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 04:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWALJru
+	id S1030260AbWALJtm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 04:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWALJtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 04:47:50 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27373 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030240AbWALJrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 04:47:49 -0500
-Date: Thu, 12 Jan 2006 00:31:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-Message-ID: <20060111233118.GA1534@elf.ucw.cz>
-References: <43C53DA0.60704@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C53DA0.60704@us.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 12 Jan 2006 04:49:41 -0500
+Received: from neptune.fsa.ucl.ac.be ([130.104.233.21]:6649 "EHLO
+	neptune.fsa.ucl.ac.be") by vger.kernel.org with ESMTP
+	id S1030260AbWALJtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 04:49:41 -0500
+Message-ID: <43C625F5.8070602@246tNt.com>
+Date: Thu, 12 Jan 2006 10:48:37 +0100
+From: Sylvain Munaut <tnt@246tnt.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050610)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Volkov <avolkov@varma-el.com>
+CC: ML linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [kernel-2.6.15] Fix PCI irq mapping for lite5200
+References: <43C614A5.6030703@varma-el.com>
+In-Reply-To: <43C614A5.6030703@varma-el.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrey,
 
-> The comments desired are (1) do the helper routines in xen_sysfs 
-> duplicate code already present in linux (or under development somewhere 
-> else). (2) Is it appropriate for a process to create sysfs attributes 
-> without implementing a driver subsystem
+Andrey Volkov wrote:
+> Hi Sylvain,
+> 
+> This patch fix problem of PCI boards irq mapping on lite5200
 
-Not sure, maybe proc is really better.
+What problem is that patch supposed to fix ?
+The Lite5200 has a single PCI port, assigned to idsel 24 (afair) and its
+INTA is connected to the IRQ0 pin of the 5200 so that looks correct to me.
 
-> or (3) are such attributes 
-> better off living under /proc. (4) any other feedback is appreciated.
+> (raised after your changes of MPC52xx_IRQ0 number)
 
-> --- a/linux-2.6-xen-sparse/arch/xen/kernel/Makefile     Tue Jan 10 
-> 17:53:44 2006
-> +++ b/linux-2.6-xen-sparse/arch/xen/kernel/Makefile     Tue Jan 10 
-> 23:30:37 2006
+I'm not sure I get this either.
+Do you mean that change provoked the bug you're talking about or that
+before that change the bug was there but just not visible because masked
+by the interrupt number being 0 problem ?
 
-Your mailer is evil and word-wraps patches.
 
-> +#ifndef BOOL
-> +#define BOOL    int
-> +#endif
-> +
-> +#ifndef FALSE
-> +#define FALSE   0
-> +#endif
-> +
-> +#ifndef TRUE
-> +#define TRUE    1
-> +#endif
-> +
-> +#ifndef NULL
-> +#define NULL    0
-> +#endif
+	Sylvain
 
-Evil!
-								Pavel
+> 
+> --
+> Regards
+> Andrey Volkov
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> 	lite5200_map_irq: Fix irq mapping for external PCI boards
+> 
+> Signed-off-by: Andrey Volkov <avolkov@varma-el.com>
+> ---
+> 
+>  arch/ppc/platforms/lite5200.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+> 
+> diff --git a/arch/ppc/platforms/lite5200.c b/arch/ppc/platforms/lite5200.c
+> index 7ed52dc..cd4acb3 100644
+> --- a/arch/ppc/platforms/lite5200.c
+> +++ b/arch/ppc/platforms/lite5200.c
+> @@ -73,7 +73,8 @@ lite5200_show_cpuinfo(struct seq_file *m
+>  static int
+>  lite5200_map_irq(struct pci_dev *dev, unsigned char idsel, unsigned char pin)
+>  {
+> -	return (pin == 1) && (idsel==24) ? MPC52xx_IRQ0 : -1;
+> +	/* Only INTA supported */
+> +	return (pin == 1) ? MPC52xx_IRQ0 : -1;
+>  }
+>  #endif
+>  
 
-> +{
-> +       struct xen_sysfs_object * xen_obj = to_xen_obj_bin(kobj);
-> +       if (xen_obj->attr.write)
-> +               return xen_obj->attr.write(xen_obj->user_data, buf, 
-> offset, size);
-> +       if(size == 0 )
-
-CodingStyle...
-> +       .path = __stringify(/sys/xen),
-
-Eh?
-
-> +       .list = LIST_HEAD_INIT(xen_root.list),
-> +       .children = LIST_HEAD_INIT(xen_root.children),
-> +       .parent = NULL,
-> +};
-> +
-> +/* xen sysfs path functions */
-> +
-> +static BOOL
-> +valid_chars(const char *path)
-> +{
-> +       if( ! strstarts(path, "/sys/xen") )
-> +               return FALSE;
-> +       if(strstr(path, "//"))
-> +               return FALSE;
-> +       return (strspn(path,
-> +                      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-> +                      "abcdefghijklmnopqrstuvwxyz"
-> +                      "0123456789-/_@~$") == strlen(path));
-> +}
-> +
-> +
-> +/* return value must be kfree'd */
-> +static char *
-> +dup_path(const char *path)
-> +{
-> +       char * ret;
-> +       int len;
-> +       BUG_ON( ! path );
-> +
-> +       if( FALSE == valid_chars(path) ) {
-> +               return NULL;
-> +       }
-> +
-> +       len = strlen(path) + 1;
-> +       ret = kcalloc(len - 1, sizeof(char), GFP_KERNEL);
-> +       memcpy(ret, path, len);
-> +       return ret;
-> +}
-> +
-> +
-> +
-> +static char *
-> +basename(const char *name)
-> +{
-> +       return strrchr(name, '/') + 1;
-> +}
-> +
-> +static char *
-> +strip_trailing_slash(char * path)
-> +{
-> +       int len = strlen(path);
-> +
-> +       char * term = path + len - 1;
-> +       if( *term == '/')
-> +               *term = 0;
-> +       return path;
-> +}
-> +
-> +/* return value must be kfree'd */
-> +static char * dirname(const char * name)
-> +{
-> +       char *ret;
-> +       int len;
-> +
-> +       len = strlen(name) - strlen(basename(name)) + 1;
-> +       ret = kcalloc(len, sizeof(char), GFP_KERNEL);
-> +       memcpy(ret, name, len - 1);
-> +       ret = strip_trailing_slash(ret);
-> +
-> +       return ret;
-> +}
-> +
-> +
-> +/* type must be char, bin, or dir */
-> +static __sysfs_ref__ struct xen_sysfs_object *
-> +new_sysfs_object(const char * path,
-> +                int type,
-> +                int mode,
-> +                ssize_t (*show)(void *, char *),
-> +                ssize_t (*store)(void *, const char *, size_t),
-> +                ssize_t (*read)(void *, char *, loff_t, size_t),
-> +                ssize_t (*write)(void *, char *, loff_t, size_t),
-> +                void * user_data,
-> +                void (* user_data_release)(void *))
-> +{
-> +       struct xen_sysfs_object * ret =
-> +               (struct xen_sysfs_object *)kcalloc(sizeof(struct 
-> xen_sysfs_object),
-> +                                                  sizeof(char),
-> +                                                  GFP_KERNEL);
-
-Unneeded cast AFAICT.
-
-> +       // if path is longer than obj-path, search children
-> +       if ( strstarts(path, obj->path) &&
-
-Mo C++ comments please.
-						Pavel
--- 
-Thanks, Sharp!

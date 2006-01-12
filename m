@@ -1,92 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030385AbWALM2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbWALM1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030385AbWALM2S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 07:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbWALM2S
+	id S1030363AbWALM1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 07:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWALM1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 07:28:18 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:32448 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S1030374AbWALM2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 07:28:16 -0500
-Date: Thu, 12 Jan 2006 07:27:59 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-In-reply-to: <Pine.LNX.4.61.0601121155450.30994@scrub.home>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1137068880.4254.8.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.4
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
- <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
- <200601091232.56348.zippel@linux-m68k.org> <1136814126.1043.36.camel@grayson>
- <Pine.LNX.4.61.0601120019430.30994@scrub.home>
- <1137031253.9643.38.camel@grayson>
- <Pine.LNX.4.61.0601121155450.30994@scrub.home>
+	Thu, 12 Jan 2006 07:27:42 -0500
+Received: from stinky.trash.net ([213.144.137.162]:58868 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1030363AbWALM1l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 07:27:41 -0500
+Message-ID: <43C64B0C.2080903@trash.net>
+Date: Thu, 12 Jan 2006 13:26:52 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcel Holtmann <marcel@holtmann.org>
+CC: Wolfgang Walter <wolfgang.walter@studentenwerk.mhn.de>,
+       bluez-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       maxk@qualcomm.com
+Subject: Re: patch: problem with sco
+References: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de> <1137057244.3955.3.camel@localhost.localdomain>
+In-Reply-To: <1137057244.3955.3.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 12:08 +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 11 Jan 2006, Ben Collins wrote:
-> 
-> > First, we need oldconfig because it allows us to look at the build log
-> > and see exactly what happened in the config stage. Silentoldconfig gives
-> > us no feedback for logs.
-> 
-> silentoldconfig gives you exactly the same information. Both conf and 
-> oldconfig will change invisible options without telling you, so it's not 
-> exact at all.
-> If you can't trust a silent oldconfig, a more verbose oldconfig can't tell 
-> you anything else, if it would it's a bug.
+Marcel Holtmann wrote:
+>>A friend and I encountered a problem with sco transfers to a headset using
+>>linux (vanilla 2.6.15). While all sco packets sent by the headset were
+>>received there was no outgoing traffic.
+>>
+>>After switching debugging output on we found that actually sco_cnt was always
+>>zero in hci_sched_sco.
 
-silentoldconfig tells you a lot less, agreed? I want the verbose
-oldconfig, and I want it to fail on closed stdin when it needs input.
+I'm seeing the exact same problem with a Logitech "mobile Freedom"
+headset. I'm using this patch to work around the problem:
 
-> > 3) Obviously since current behavior of oldconfig was broken with a
-> > closed stdin, then it was never doing what anyone wanted in this usage
-> > case. Since no one else noticed it, that means that we are the only use
-> > case for this.
-> 
-> This is enough reason to simply hijack conf and use it for your own 
-> purpose without even asking the maintainer about the intended bahaviour?
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1239,7 +1239,7 @@ static inline void hci_sched_sco(struct
 
-Hijack? It was broken, correct? It has always been broken. This problem
-has existed for as long as I've been handling kernel builds with Debian
-(which seems to be about 6-7 years now). So intended behavior aside, it
-has never worked as intended.
+         BT_DBG("%s", hdev->name);
 
-> > 5) My patch did not break anything, nor did it change anything that was
-> > already working.
-> 
-> It _was_ working like that, you're breaking it.
+-       while (hdev->sco_cnt && (conn = hci_low_sent(hdev, SCO_LINK, 
+&quote))) {
++       while (/* hdev->sco_cnt && */ (conn = hci_low_sent(hdev, 
+SCO_LINK, &quote))) {
+                 while (quote-- && (skb = skb_dequeue(&conn->data_q))) {
+                         BT_DBG("skb %p len %d", skb, skb->len);
+                         hci_send_frame(skb);
 
-At what point did oldconfig use default values when stdin was closed?
-Show me the code that actually did this. Yes, it has always used default
-values when it was empty input, just like silentoldconfig does. But
-silentoldconfig aborts when stdin is closed, why should oldconfig?
 
-> > 6) In response you make oldconfig work exactly opposite of
-> > silentoldconfig by using the default value for a config option when
-> > stdin is closed (basically acting like the user hit ENTER), and further
-> > break things for me in this usage case, with no purpose, and no reason
-> > for making your change the way you did. Since it was broken, you aren't
-> > helping anyone. We can't have the build system using default values. We
-> > need it to abort.
-> 
-> So simply use silentoldconfig.
+> send in the information from "hciconfig -a" for this device, because
+> this is a hardware bug and you can't be sure that you can have eight
+> outstanding SCO packets.
 
-That's not the usage I want. Show me where and when oldconfig worked as
-you say it was intended to work. And then explain why oldconfig is
-intended to be inconsistent with silentoldconfig.
+In my case:
 
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
+hci0:   Type: USB
+         BD Address: 00:10:C6:86:64:27 ACL MTU: 377:10 SCO MTU: 48:64
+         UP RUNNING PSCAN ISCAN
+         RX bytes:622370 acl:27 sco:12167 events:69 errors:0
+         TX bytes:588454 acl:25 sco:11520 commands:35 errors:0
+         Features: 0xff 0xfe 0x0d 0x38 0x08 0x08 0x00 0x00
+         Packet type: DM1 DM3 DM5 DH1 DH3 DH5 HV1 HV2 HV3
+         Link policy: RSWITCH HOLD SNIFF PARK
+         Link mode: SLAVE ACCEPT
+         Name: 'krusty-0'
+         Class: 0x3e0100
+         Service Classes: Networking, Rendering, Capturing
+         Device Class: Computer, Uncategorized
+         HCI Ver: 1.2 (0x2) HCI Rev: 0x11 LMP Ver: 1.2 (0x2) LMP Subver: 
+0x6963
+         Manufacturer: Broadcom Corporation (15)
 

@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161457AbWALXL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161454AbWALXOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161457AbWALXL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 18:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161458AbWALXL7
+	id S1161454AbWALXOO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 18:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161459AbWALXOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 18:11:59 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:55430 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S1161457AbWALXL6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 18:11:58 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: Does a git pull have to be so big?
-Date: Fri, 13 Jan 2006 09:12:27 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200601130845.29797.ncunningham@cyclades.com> <43C6DCD7.30709@didntduck.org>
-In-Reply-To: <43C6DCD7.30709@didntduck.org>
+	Thu, 12 Jan 2006 18:14:14 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50692 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161454AbWALXON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 18:14:13 -0500
+Date: Fri, 13 Jan 2006 00:14:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] 2.6.x net driver updates
+Message-ID: <20060112231412.GB29663@stusta.de>
+References: <20060112221322.GA25470@havoc.gtf.org> <Pine.LNX.4.64.0601121423120.3535@g5.osdl.org> <20060112224227.GA26888@havoc.gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601130912.27374.ncunningham@cyclades.com>
+In-Reply-To: <20060112224227.GA26888@havoc.gtf.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, Jan 12, 2006 at 05:42:27PM -0500, Jeff Garzik wrote:
+> On Thu, Jan 12, 2006 at 02:30:19PM -0800, Linus Torvalds wrote:
+> > 
+> > 
+> > On Thu, 12 Jan 2006, Jeff Garzik wrote:
+> > > 
+> > > dann frazier:
+> > >       CONFIG_AIRO needs CONFIG_CRYPTO
+> > 
+> > I think this is done wrong.
+> > 
+> > It should "select CRYPTO" rather than "depends on CRYPTO".
+> 
+> OK
+>...
 
-On Friday 13 January 2006 08:48, Brian Gerst wrote:
-> Nigel Cunningham wrote:
-> > Hi.
-> >
-> > I try to do pulls reasonably often, but they always seem to be huge
-> > downloads - I'm sure they're orders of magnitude bigger than a simple
-> > patch would be. This leads me to ask, do they have to be so big? I'm on
-> > 256/64 ADSL at home, did a pull yesterday at work iirc, and yet the pull
-> > this morning has taken at least half an hour. Am I perhaps doing
-> > something wrong?
-> >
-> > I'm using cogito .16-2 (ubuntu) and git 1.0.6.
-> >
-> > Regards,
-> >
-> > Nigel
-> >
-> > #cg-fetch
-> > Fetching head...
-> > Fetching objects...
-> > progress: 114 objects, 256992 bytes
-> > Getting alternates list for
-> > http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-> > progress: 376 objects, 1413225 bytes
-> > Getting pack list for
-> > http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-> > progress: 453 objects, 1924312 bytes
-> > Getting index for pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
-> > Getting pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
-> >  which contains 62727f8969438d99c3c34415d16611cf86f16140
-> >
-> > (Still going)
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> Use git://git.kernel.org/... instead of http.
->
-> --
-> 				Brian Gerst
+What was wrong with my patch [1] that did not only this, but also fixes 
+the same bug with AIRO_CS and removes all the #ifdef's for the 
+non-compiling CRYPTO=n case from the driver?
 
-Ok. I'll give it a try - is it related to the packed files thing Jeff spoke 
-of?
+> 	Jeff
 
-Regards,
+cu
+Adrian
 
-Nigel
+[1] http://lkml.org/lkml/2006/1/10/328
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWALTIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161188AbWALTJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWALTIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 14:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161185AbWALTIf
+	id S1161188AbWALTJN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 14:09:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161194AbWALTJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 14:08:35 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:43181 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S964790AbWALTIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 14:08:34 -0500
-Message-Id: <200601121907.k0CJ7og16283@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Adam Litke'" <agl@us.ibm.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: RE: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
-Date: Thu, 12 Jan 2006 11:07:50 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYXngZO7WuqSj4STUaDo+N0mNpxVAACxkaw
-In-Reply-To: <1137086766.9672.40.camel@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Thu, 12 Jan 2006 14:09:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4010 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161188AbWALTJL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 14:09:11 -0500
+Date: Thu, 12 Jan 2006 11:08:45 -0800
+From: Greg KH <greg@kroah.com>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Gerd Hoffmann <kraxel@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       "Mike D. Day" <ncmike@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       xen-devel@lists.xensource.com
+Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
+Message-ID: <20060112190845.GA13073@kroah.com>
+References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com> <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com> <43C5B59C.8050908@us.ibm.com> <43C65196.8040402@suse.de> <1137072089.2936.29.camel@laptopd505.fenrus.org> <43C66ACC.60408@suse.de> <20060112173926.GD10513@kroah.com> <43C6A5B4.80801@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C6A5B4.80801@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Litke wrote on Thursday, January 12, 2006 9:26 AM
-> On Wed, 2006-01-11 at 17:05 -0800, William Lee Irwin III wrote:
-> > On Wed, Jan 11, 2006 at 04:40:37PM -0800, Chen, Kenneth W wrote:
-> > > What if two processes fault on the same page and races with find_lock_page(),
-> > > both find page not in the page cache.  The process won the race proceed to
-> > > allocate last hugetlb page.  While the other will exit with SIGBUS.
-> > > In theory, both processes should be OK.
-> > 
-> > This is supposed to fix the incarnation of that as a preexisting
-> > problem, but you're right, there is no fallback or retry for the case
-> > of hugepage queue exhaustion. For some reason I saw a phantom page
-> > allocator fallback in the hugepage allocator changes.
-> > 
-> > Looks like back to the drawing board for this pair of patches, though
-> > I'd be more than happy to get a solution to this.
+On Thu, Jan 12, 2006 at 12:53:40PM -0600, Anthony Liguori wrote:
+> Greg KH wrote:
 > 
-> I still think patch 1 (delayed zeroing) is a good thing to have.  It
-> will definitely improve performance for multi-threaded hugetlb
-> applications by avoiding unnecessary hugetlb page zeroing.  It also
-> shrinks the race window we have been talking about to a tiny fraction of
-> what it was.  This should ease the problem while we figure out a way to
-> handle the "last free page" case.
+> >What exactly do the different ioctls do?  Do they have to be ioctls?
+> >Can you use configfs or sysfs for most of the stuff there?
+> > 
+> >
+> The canonical example is /proc/xen/privcmd which is our userspace 
+> hypercall interface.  A hypercall is software interrupt with a number of 
+> parameters passed via registers.  This has to come from ring 1 for 
+> security reasons (the kernel is running in ring 1).
+> 
+> We wish to make management hypercalls as the root user in userspace 
+> which means we have to go through the kernel.  Currently, we do this by 
+> having /proc/xen/privcmd accept an ioctl() that takes a structure that 
+> describe the register arguments.  The kernel interface allows us to 
+> control who in userspace can execute hypercalls.
+> 
+> It would perhaps be possible to use a read/write interface for 
+> hypercalls but ioctl() seems a little less awkward.  Suggestions are 
+> certainly appreciated though.
+> 
+> Right now, I think a misc char device with an ioctl() interface seems 
+> like the most promising way to do this.  This doesn't seem like the sort 
+> of think one would want to expose in sysfs...
 
-Sorry, I don't think patch 1 by itself is functionally correct.  It opens
-a can of worms with race window all over the place.  It does more damage
-than what it is trying to solve.  Here is one case:
+ick ick ick.
 
-1 thread fault on hugetlb page, allocate a non-zero page, insert into the
-page cache, then proceed to zero it.  While in the middle of the zeroing,
-2nd thread comes along fault on the same hugetlb page.  It find it in the
-page cache, went ahead install a pte and return to the user.  User code
-modify some parts of the hugetlb page while the 1st thread is still
-zeroing.  A potential silent data corruption.
+Why not do the same thing that the Cell developers did for their
+"special syscalls"?  Or at the least, make it a "real" syscall like the
+ppc64 developers did.  It's not like there isn't a whole bunch of "prior
+art" in the kernel today that you should be ignoring.
 
-The scenario could be even worst that after 1st thread finish zeroing, find
-a pte in the page table is already instantiated and then it proceed to back
-out that newly allocated hugetlb page.
+Please don't abuse /proc with ioctls like that.
 
-What is needed here is the code that does find-alloc-insert should be one
-atomic step under corner cases.  I was thinking using a semaphore to
-protect the code sequence. But I haven't come up with a reasonable
-solution yet.
+And if you tried to do that with sysfs...
 
-- Ken
+thanks,
 
-
-
+greg k-h

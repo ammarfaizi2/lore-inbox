@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWALR0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWALR3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWALR0K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 12:26:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWALR0J
+	id S932376AbWALR3X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 12:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWALR3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 12:26:09 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:62131 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932199AbWALR0I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 12:26:08 -0500
-Subject: Re: [PATCH 2/2] hugetlb: synchronize alloc with page cache insert
-From: Adam Litke <agl@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <20060112010502.GG9091@holomorphy.com>
-References: <1137018263.9672.10.camel@localhost.localdomain>
-	 <200601120040.k0C0ebg02818@unix-os.sc.intel.com>
-	 <20060112010502.GG9091@holomorphy.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 12 Jan 2006 11:26:05 -0600
-Message-Id: <1137086766.9672.40.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jan 2006 12:29:22 -0500
+Received: from smtp-vbr3.xs4all.nl ([194.109.24.23]:48914 "EHLO
+	smtp-vbr3.xs4all.nl") by vger.kernel.org with ESMTP id S932376AbWALR3V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 12:29:21 -0500
+Date: Thu, 12 Jan 2006 18:29:00 +0100
+From: Jurriaan on adsl-gate <thunder7@xs4all.nl>
+To: Neil Brown <neilb@suse.de>
+Cc: Jurriaan <thunder7@xs4all.nl>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm3 hangs during boot (raid related?)
+Message-ID: <20060112172900.GA3687@gates.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20060112062310.GA12471@gates.of.nowhere> <17349.63738.220760.681335@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17349.63738.220760.681335@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 17:05 -0800, William Lee Irwin III wrote:
-> On Wed, Jan 11, 2006 at 04:40:37PM -0800, Chen, Kenneth W wrote:
-> > What if two processes fault on the same page and races with find_lock_page(),
-> > both find page not in the page cache.  The process won the race proceed to
-> > allocate last hugetlb page.  While the other will exit with SIGBUS.
-> > In theory, both processes should be OK.
+From: Neil Brown <neilb@suse.de>
+Date: Thu, Jan 12, 2006 at 05:36:42PM +1100
+Sent-To: 
+> On Thursday January 12, thunder7@xs4all.nl wrote:
+> > 
+> > 2.6.15-mm3 hangs during boot for me, after the lines
+> > 
+> > ========
+> > md4: bitmap initialized from disk: read 15/15 pages, set 51 bits, status: 0
+> > created bitmap (224 pages) for device md4
+> > ========
+> > 
+> > ctrl-alt-del to reboot works sometimes (2 out of 3). Below is complete
+> > dmesg (from 2.6.15-mm2, ver_linux output, .config and raid details).
 > 
-> This is supposed to fix the incarnation of that as a preexisting
-> problem, but you're right, there is no fallback or retry for the case
-> of hugepage queue exhaustion. For some reason I saw a phantom page
-> allocator fallback in the hugepage allocator changes.
+> Yep, this is probably a known problem with recent changes to the
+> 'barrier' code.
 > 
-> Looks like back to the drawing board for this pair of patches, though
-> I'd be more than happy to get a solution to this.
+> Try to convince md not to use barrier by changing md_super_write in
+> drivers/md/md.c.  Simply remove
+> 
+> 	if (!test_bit(BarriersNotsupp, &rdev->flags)) {
+> 		struct bio *rbio;
+> 		rw |= (1<<BIO_RW_BARRIER);
+> 		rbio = bio_clone(bio, GFP_NOIO);
+> 		rbio->bi_private = bio;
+> 		rbio->bi_end_io = super_written_barrier;
+> 		submit_bio(rw, rbio);
+> 	} else
+> 
+> leaving the
+> 		submit_bio(rw, rbio);
+> 
+> which comes after it.
+> 
+With this patch, it boots and works just fine.
 
-I still think patch 1 (delayed zeroing) is a good thing to have.  It
-will definitely improve performance for multi-threaded hugetlb
-applications by avoiding unnecessary hugetlb page zeroing.  It also
-shrinks the race window we have been talking about to a tiny fraction of
-what it was.  This should ease the problem while we figure out a way to
-handle the "last free page" case.
-
+Kind regards,
+Jurriaan
 -- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
-
+His pride could withstand anything. He simply wouldn't care.
+	Melanie Rawn - Skybowl
+Debian (Unstable) GNU/Linux 2.6.15-mm3 2x4802 bogomips 0.31

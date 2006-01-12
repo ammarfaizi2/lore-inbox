@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161321AbWALVrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161326AbWALVwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161321AbWALVrf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 16:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161322AbWALVrf
+	id S1161326AbWALVwl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 16:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161327AbWALVwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 16:47:35 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:30621 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161321AbWALVre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 16:47:34 -0500
-Date: Thu, 12 Jan 2006 15:47:19 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-Message-ID: <20060112214719.GE17539@us.ibm.com>
-References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060112200735.GD5399@granada.merseine.nu>
-User-Agent: Mutt/1.5.11
+	Thu, 12 Jan 2006 16:52:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6053 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161326AbWALVwk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 16:52:40 -0500
+Date: Thu, 12 Jan 2006 13:52:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Airlie <airlied@gmail.com>
+cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git tree] drm tree for 2.6.16-rc1
+In-Reply-To: <21d7e9970601121233t1e6c2d99pf6ca3a4569d5a6d7@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0601121352110.3535@g5.osdl.org>
+References: <Pine.LNX.4.58.0601120948270.1552@skynet> 
+ <Pine.LNX.4.64.0601121016020.3535@g5.osdl.org>
+ <21d7e9970601121233t1e6c2d99pf6ca3a4569d5a6d7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 10:07:35PM +0200, Muli Ben-Yehuda wrote:
-> On Thu, Jan 12, 2006 at 08:28:30PM +0100, Jiri Slaby wrote:
+
+
+On Fri, 13 Jan 2006, Dave Airlie wrote:
 > 
-> > You should change alsa driver (sound/pci/trident/trident.c), rather than this,
-> > which will be removed soon, I guess. And, additionally, could you change that
-> > lines to use PCI_DEVICE macro?
-> 
-> This driver is not up for removal soon, as it supports a device that
-> the alsa driver apparently doesn't (the INTERG_5050). As for
-> PCI_DEVICE, agreed. Jon, feel like patching it up?
+> Actually none of this tree was causing problems in -mm it was the
+> agpgart tree, this tree is fully tested on all my available hardware,
+> it is also the first tree that supports multiple cards properly
+> without oopsing on module remove....
 
-Patches to follow.
+Ok, since Andrew backs you up on that one, I'll merge asap.
 
-After looking at the ALSA driver, it doesn't support PCI IDs for
-ALI_5451 or CYBER5050.  Someone should look into porting any necessary
-code from sound/oss/trident.c to sound/pci/trident/trident.c
-
-Thanks,
-Jon
+		Linus

@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWALBOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWALBPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWALBOt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 20:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWALBOs
+	id S964935AbWALBPt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 20:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWALBPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 20:14:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:37546 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964934AbWALBOs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 20:14:48 -0500
-Date: Wed, 11 Jan 2006 17:14:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, sct@redhat.com,
-       mingo@elte.hu
-Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs II - more problems
-Message-Id: <20060111171402.3f79e9f9.akpm@osdl.org>
-In-Reply-To: <200601120155.26679.ak@suse.de>
-References: <200601112126.59796.ak@suse.de>
-	<20060111130728.579ab429.akpm@osdl.org>
-	<1137014875.2929.81.camel@laptopd505.fenrus.org>
-	<200601120155.26679.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 11 Jan 2006 20:15:49 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:23783 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S964935AbWALBPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 20:15:48 -0500
+Subject: Re: + add-pselect-ppoll-system-call-implementation-tidy.patch
+	added to -mm tree
+From: David Woodhouse <dwmw2@infradead.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200601120105.k0C15QdV021028@shell0.pdx.osdl.net>
+References: <200601120105.k0C15QdV021028@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Thu, 12 Jan 2006 01:15:32 +0000
+Message-Id: <1137028532.4196.179.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Wednesday 11 January 2006 22:27, Arjan van de Ven wrote:
-> > > 15/fs/ext3/super.c~	2006-01-11 21:54:13.000000000 +0100
-> > > > +++ linux-2.6.15/fs/ext3/super.c	2006-01-11 21:54:13.000000000 +0100
-> > > > @@ -2150,7 +2150,7 @@
-> > > >  
-> > > >  static void ext3_write_super (struct super_block * sb)
-> > > >  {
-> > > > -	if (mutex_trylock(&sb->s_lock) != 0)
-> > > > +	if (!mutex_trylock(&sb->s_lock) != 0)
-> > > >  		BUG();
-> > > >  	sb->s_dirt = 0;
-> > > >  }
-> > > 
-> > > We expect the lock to be held on entry.  Hence we expect mutex_trylock()
-> > > to return zero.
-> > 
-> > you are correct, and the x86-64 mutex.h is buggy
-> 
-> While this patch seemed  to fix LTP my desktop running the same kernel (with 
-> mutex fix) hung the mailer while sending an unrelated mail. Again on ext3.
-> 
-> I unfortunately don't have the backtraces anymore because I couldn't
-> save them to disk before the reboot (and forgot to copy them
-> to another system sorry), but they were also hanging in some JBD/ext3
-> functions in D, with all disk accesses hanging.
-> 
-> So things appear to be still broken in ext3 land.
+On Wed, 2006-01-11 at 17:05 -0800, akpm@osdl.org wrote:
+> -                       memcpy(&current->saved_sigmask, &sigsaved, sizeof(sigsaved));
+> +                       memcpy(&current->saved_sigmask, &sigsaved,
+> +                                       sizeof(sigsaved));
 
-Are you using MD?
 
-sata?   If so, which?
+I often use an editor in an 80x25 terminal to edit code, and I object to
+this kind of patch because it make the code _harder_ to read on such a
+terminal.
+
+In 99.9% of cases, you don't _care_ about double-checking precisely what
+the third argument to that memcpy is. You glance at the line of code and
+it's obvious what's happening. It's _better_ if it's off the right-hand
+side of the screen rather than being moved down to take up a line all of
+its own. You just wasted one more of my precious 25 lines.
+
+The same goes for printks, where I've seen people actually break up
+strings and move them onto multiple lines. In the common case, we just
+don't _care_ -- what fits onto the first 80 columns is _enough_.
+
+Please don't make this kind of change.
+
+-- 
+dwmw2
+

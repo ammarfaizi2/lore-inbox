@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161215AbWALTrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161204AbWALTs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161215AbWALTrD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 14:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161216AbWALTrB
+	id S1161204AbWALTs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 14:48:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161216AbWALTs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 14:47:01 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:985 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161215AbWALTrA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 14:47:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IUZhCFJ32fPcDedUdsQr5O4vxns0LMbwdiuxQrU0z04dqMMBLGQnME4Iovvh98VluUy1lrzzHHnYSmxTOLLLmWNqWsXN9bSUiAlRNum+7Sv3Wq+2MHjgiIRL1khpp+EIPyY6BoxkDc9dqfVEGO3l6afX04fLDIwfEXmRXH+W2FI=
-Message-ID: <9a8748490601121146g780cc826pcabd4215658376be@mail.gmail.com>
-Date: Thu, 12 Jan 2006 20:46:59 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Brian D. McGrew" <brian@visionpro.com>
-Subject: Re: Capturing All Kernel Messages
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0970971@chicken.machinevisionproducts.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <14CFC56C96D8554AA0B8969DB825FEA0970971@chicken.machinevisionproducts.com>
+	Thu, 12 Jan 2006 14:48:27 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:37021 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1161204AbWALTs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 14:48:27 -0500
+Date: Thu, 12 Jan 2006 14:48:25 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.1[4,5]: battery info lost
+In-reply-to: <43C6AB66.2040509@liberouter.org>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200601121448.25776.gene.heskett@verizon.net>
+Organization: Absolutely none - usually detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060112173752.GN16769@wptx44.physik.uni-wuerzburg.de>
+ <43C6AB66.2040509@liberouter.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/12/06, Brian D. McGrew <brian@visionpro.com> wrote:
-> So I'm trying to build a new special kernel and of course, as Murphy
-> says, it'll blow up the first 1,000 times!  I need to capture the boot
-> messages because I'm getting a lot of errors scrolling by before the
-> kernel panics and I'm toast and have to revert back to my old kernel.
-> Once I revert back to my old kernel, all my previous messages are lost
-> and dmesg does me no good!
+On Thursday 12 January 2006 14:17, Jiri Slaby wrote:
+>Alexander Wagner napsal(a):
+>> Problem: Linux seems to loose the battery information in recent
+>> kernels.
+>>
+>> Keywords: Battery, ACPI, 2.6.14.x, 2.6.15
+>>
+>> Description:
+>>
+>> Since 2.6.14 I notice that after some time the Kernel seems
+>> to loose the battery information via ACPI. This behaviour
+>> is reproducable though I do not know how to provoke it (it
+>> just happens). Occurs as well on the R52 from which are the
+>> logs below as on my T41p. On LKML this problem seems also
+>> to be mentioned by Narayan Desai and the same issues seems
+>> to be reported by Alejandro Bonilla Beeche and Geoff Mishkin
+>> mentioning this problem on other IBMs. As the latter uesed
 >
-> How can I make the kernel output to a file or some other means as soon
-> as it starts loading so I can capture this stuff?
+>Me too with 2.6.15 on asus m6r. In 2.6.14 helped ec_burst=1 kernel
+> parameter. I will try few things with that and let you know (tomorrow
+> or the day after). It is broken since 2.6.14 times, IIRC 2.6.13 was
+> OK.
+>I have also problems with irqs I found out yesterday. Don't know if it
+> does have sth. to do with this [acpi] problem (I mean LOC: 4394987,
+> ERR: 891474, timer is 4394964).
 >
+>regards,
 
-serial console, net console or console on line printer.
-Check the Documentation/ subdir in the kernel source for the details.
+Just to provide a data point, this is a biostar board and gkrellm 
+displays the cmos battery voltage as 3.14 volts right now, booted to 
+2.6.15.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWALGu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWALGys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbWALGu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 01:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWALGu5
+	id S1751239AbWALGys (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 01:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWALGys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 01:50:57 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:1252 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030254AbWALGu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 01:50:56 -0500
-Date: Wed, 11 Jan 2006 22:51:15 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Keith Owens <kaos@sgi.com>
-Cc: John Hesterberg <jh@sgi.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>
-Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors
-Message-ID: <20060112065115.GB23673@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060112050453.GA23673@us.ibm.com> <15187.1137046741@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15187.1137046741@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Jan 2006 01:54:48 -0500
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:10636 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751239AbWALGys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 01:54:48 -0500
+Message-ID: <43C5FD35.6080605@bigpond.net.au>
+Date: Thu, 12 Jan 2006 17:54:45 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Martin Bligh <mbligh@google.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, apw@shadowen.org
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C5B945.3000903@google.com> <43C5F8C8.60908@mbligh.org> <200601121741.36042.kernel@kolivas.org>
+In-Reply-To: <200601121741.36042.kernel@kolivas.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 12 Jan 2006 06:54:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 05:19:01PM +1100, Keith Owens wrote:
-> "Paul E. McKenney" (on Wed, 11 Jan 2006 21:04:53 -0800) wrote:
-> >On Thu, Jan 12, 2006 at 02:29:52PM +1100, Keith Owens wrote:
-> >> John Hesterberg (on Wed, 11 Jan 2006 15:39:10 -0600) wrote:
-> >> >On Wed, Jan 11, 2006 at 01:02:10PM -0800, Matt Helsley wrote:
-> >> >> 	Have you looked at Alan Stern's notifier chain fix patch? Could that be
-> >> >> used in task_notify?
-> >> >
-> >> >I have two concerns about an all-tasks notification interface.
-> >> >First, we want this to scale, so don't want more global locks.
-> >> >One unique part of the task notify is that it doesn't use locks.
-> >> 
-> >> Neither does Alan Stern's atomic notifier chain.  Indeed it cannot use
-> >> locks, because the atomic notifier chains can be called from anywhere,
-> >> including non maskable interrupts.  The downside is that Alan's atomic
-> >> notifier chains require RCU.
-> >> 
-> >> An alternative patch that requires no locks and does not even require
-> >> RCU is in http://marc.theaimsgroup.com/?l=linux-kernel&m=113392370322545&w=2
-> >
-> >Interesting!  Missed this on the first time around...
-> >
-> >But doesn't notifier_call_chain_lockfree() need to either disable
-> >preemption or use atomic operations to update notifier_chain_lockfree_inuse[]
-> >in order to avoid problems with preemption?
+Con Kolivas wrote:
+> On Thu, 12 Jan 2006 05:35 pm, Martin J. Bligh wrote:
 > 
-> OK, I have thought about it and ...
+>>Martin Bligh wrote:
+>>
+>>>>This is a shot in the dark. We haven't confirmed 1. there is a
+>>>>problem 2. that this is the problem nor 3. that this patch will fix
+>>>>the problem. I say we wait for the results of 1. If the improved smp
+>>>>nice handling patch ends up being responsible then it should not be
+>>>>merged upstream, and then this patch can be tested on top.
+>>>>
+>>>>Martin I know your work move has made it not your responsibility to
+>>>>test backing out this change, but are you aware of anything being
+>>>>done to test this hypothesis?
+>>
+>>OK, backing out that patch seems to fix it. Thanks Andy ;-)
 > 
->   notifier_call_chain_lockfree() must be called with preempt disabled.
 > 
-> The justification for this routine is to handle all the nasty
-> corner cases in the notify_die() and similar chains, including panic,
-> spinlocks being held and even non maskable interrupts.  It is silly to
-> try to make notifier_call_chain_lockfree() handle the preemptible case
-> as well.
+> Yes thanks!
+> 
+> I just noticed the result myself and emailed on another branch of this email 
+> thread. Gah
 
-Fair enough!  A comment, perhaps?  In a former life I would have also
-demanded debug code to verify that preemption/interrupts/whatever were
-actually disabled, given the very subtle nature of any resulting bugs...
+It would nice to get a run with the patch back in and my fix applied.
 
-> If notifier_call_chain_lockfree() is to be called for task
-> notification, then the caller must disable preempt around the call to
-> notifier_call_chain_lockfree().  Scalability over lots of cpus should
-> not be an issue, especially if notifier_chain_lockfree_inuse[] is
-> converted to a per cpu variable.  The amount of time spent with preempt
-> disabled is proportional to the number of registered callbacks on the
-> task notifcation chain and to the amount of work performed by those
-> callbacks, neither of which should be high.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Ah, but the guys doing the latency measurements will be the judge of
-that, right?  ;-)
-
-						Thanx, Paul
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

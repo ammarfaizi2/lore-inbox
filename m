@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWALEPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbWALEUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWALEPx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 23:15:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWALEPw
+	id S965020AbWALEUg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 23:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbWALEUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 23:15:52 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:16098 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965024AbWALEPh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 23:15:37 -0500
-Subject: [PATCH -mm 9/10] unshare system call -v5 : system call
-	registration for ppc
-From: JANAK DESAI <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-To: akpm@osdl.org, viro@ftp.linux.org.uk, dwmw2@infradead.org
-Cc: chrisw@sous-sol.org, jamie@shareable.org, serue@us.ibm.com,
-       sds@tycho.nsa.gov, sgrubb@redhat.com, ebiederm@xmission.com,
-       janak@us.ibm.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1137039010.7488.220.camel@hobbes.atlanta.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 11 Jan 2006 23:11:00 -0500
+	Wed, 11 Jan 2006 23:20:36 -0500
+Received: from ns2.suse.de ([195.135.220.15]:53941 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965020AbWALEUf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 23:20:35 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: Re: [PATCH 2 of 2] __raw_memcpy_toio32 for x86_64
+Date: Thu, 12 Jan 2006 05:19:12 +0100
+User-Agent: KMail/1.8
+Cc: akpm@osdl.org, rdreier@cisco.com, linux-kernel@vger.kernel.org
+References: <f03a807a80b8bc45bf91.1137025776@eng-12.pathscale.com> <200601120233.51601.ak@suse.de> <1137039242.29795.5.camel@camp4.serpentine.com>
+In-Reply-To: <1137039242.29795.5.camel@camp4.serpentine.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601120519.12960.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH -mm 9/10] unshare system call: system call registration for ppc
+On Thursday 12 January 2006 05:14, Bryan O'Sullivan wrote:
 
-Registers system call for the ppc architecture.
+> > That sounds like a very chipset specific assumption. Is that safe
+> > to make?
+>
+> I can fix the doc so that it says "at least 32 bits", in that case.
+> This should make the assumption more clear for other bus types.
 
-Changes since -v4 of this patch submitted on 12/13/05:
-        - Forward ported to 2.6.15-mm3 which modified the syscall number.
+Well it seems quite wrong - an iowrite32 shouldn't write more than 32bits
+at a time.
 
-Signed-off-by: Janak Desai <janak@us.ibm.com>
+My feeling is more and more that this thing is so specialized for your setup
+and so narrow purpose that you're best off dropping this whole patchkit and 
+just put the assembly into your driver. At least normal kernels wouldn't be 
+bloated with such unlikely to be useful for anything else functions then.
 
----
-
- misc.S |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -Naurp 2.6.15-mm3/arch/ppc/kernel/misc.S 2.6.15-mm3+unsh-ppc/arch/ppc/kernel/misc.S
---- 2.6.15-mm3/arch/ppc/kernel/misc.S	2006-01-11 20:21:46.000000000 +0000
-+++ 2.6.15-mm3+unsh-ppc/arch/ppc/kernel/misc.S	2006-01-12 00:44:16.000000000 +0000
-@@ -1403,3 +1403,4 @@ _GLOBAL(sys_call_table)
- 	.long sys_inotify_init		/* 275 */
- 	.long sys_inotify_add_watch
- 	.long sys_inotify_rm_watch
-+	.long sys_unshare
-
-
+-Andi

@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWALNbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWALNcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbWALNbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 08:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWALNbU
+	id S1751245AbWALNcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 08:32:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWALNcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 08:31:20 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:51640 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751165AbWALNbU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 08:31:20 -0500
-Subject: Re: patch: problem with sco
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Wolfgang Walter <wolfgang.walter@studentenwerk.mhn.de>,
-       bluez-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       maxk@qualcomm.com
-In-Reply-To: <43C64B0C.2080903@trash.net>
-References: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de>
-	 <1137057244.3955.3.camel@localhost.localdomain>
-	 <43C64B0C.2080903@trash.net>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 14:31:47 +0100
-Message-Id: <1137072707.5013.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jan 2006 08:32:10 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:16716 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S1751245AbWALNcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 08:32:09 -0500
+Date: Thu, 12 Jan 2006 08:31:54 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+In-reply-to: <Pine.LNX.4.61.0601121342200.11765@scrub.home>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1137072715.4254.24.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.4
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
+ <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
+ <200601091232.56348.zippel@linux-m68k.org> <1136814126.1043.36.camel@grayson>
+ <Pine.LNX.4.61.0601120019430.30994@scrub.home>
+ <1137031253.9643.38.camel@grayson>
+ <Pine.LNX.4.61.0601121155450.30994@scrub.home>
+ <1137068880.4254.8.camel@grayson>
+ <Pine.LNX.4.61.0601121342200.11765@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Patrick,
-
-> >>A friend and I encountered a problem with sco transfers to a headset using
-> >>linux (vanilla 2.6.15). While all sco packets sent by the headset were
-> >>received there was no outgoing traffic.
-> >>
-> >>After switching debugging output on we found that actually sco_cnt was always
-> >>zero in hci_sched_sco.
+On Thu, 2006-01-12 at 13:48 +0100, Roman Zippel wrote:
+> Hi,
 > 
-> I'm seeing the exact same problem with a Logitech "mobile Freedom"
-> headset. I'm using this patch to work around the problem:
+> On Thu, 12 Jan 2006, Ben Collins wrote:
+> 
+> > > silentoldconfig gives you exactly the same information. Both conf and 
+> > > oldconfig will change invisible options without telling you, so it's not 
+> > > exact at all.
+> > > If you can't trust a silent oldconfig, a more verbose oldconfig can't tell 
+> > > you anything else, if it would it's a bug.
+> > 
+> > silentoldconfig tells you a lot less, agreed?
+> 
+> No.
 
-so it seems that Broadcom really messed the SCO MTU settings up and we
-have to workaround with some sane values.
+So you are saying that silentoldconfig outputs no less information than
+oldconfig? No output compared to a full config output (yes, with some
+special cased invisible options, but the same output that a user would
+see if manually configuring).
 
-Please also include the lspci for these devices.
+My point is that you are making oldconfig and silentoldconfig operate
+differently when they encounter a closed stdin. You are making them
+inconsistent. And so far, you have yet to give a valid reason to do so.
+I've been giving very valid reasons why they should work the same, and
+why the behavior is correct for them to work that way.
 
-Regards
+What is the reason for silentoldconfig to fail in this way, and for
+oldconfig not to? I suspect you have some special usage of your own for
+which you depend on this functionality.
 
-Marcel
-
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 

@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161263AbWALUuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161259AbWALUtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161263AbWALUuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 15:50:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161261AbWALUuI
+	id S1161259AbWALUtx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 15:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161260AbWALUtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 15:50:08 -0500
-Received: from mx.dt.lt ([84.32.38.8]:11241 "EHLO mx.dtiltas.lt")
-	by vger.kernel.org with ESMTP id S1161260AbWALUuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 15:50:06 -0500
-Date: Thu, 12 Jan 2006 22:43:44 +0200
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: sk98lin
-To: linux-kernel@vger.kernel.org
-cc: Stephen Hemminger <shemminger@osdl.org>
+	Thu, 12 Jan 2006 15:49:53 -0500
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:6600 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1161259AbWALUtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 15:49:52 -0500
+Message-ID: <43C6C0E6.7030705@gentoo.org>
+Date: Thu, 12 Jan 2006 20:49:42 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051223)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: INLINE
-References: <20060112180048.8A18EBC32@mx.dtiltas.lt>
- <20060112101843.0b0e159f@dxpl.pdx.osdl.net>
-In-Reply-To: <20060112101843.0b0e159f@dxpl.pdx.osdl.net>
-X-Mailer: Mahogany 0.66.0 'Clio', compiled for Linux 2.6.13-1.1532_FC4 i686
-Message-Id: <20060112204844.2E721C9F7@mx.dtiltas.lt>
+To: Jon Mason <jdmason@us.ibm.com>
+CC: mulix@mulix.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: pcnet32 devices with incorrect trident vendor ID
+References: <20060112175051.GA17539@us.ibm.com>
+In-Reply-To: <20060112175051.GA17539@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jan 2006 10:18:43 -0800 Stephen Hemminger <shemminger@osdl.org> wrote:
+Jon Mason wrote:
+> Some pcnet32 hardware erroneously has the Vendor ID for Trident.  The
+> pcnet32 driver looks for the PCI ethernet class before grabbing the
+> hardware, but the current trident driver does not check against the
+> PCI audio class.  This allows the trident driver to claim the pcnet32 
+> hardware.  This patch prevents that.
 
-> While developing the skge and sky2 driver I discovered more problems and
-> those got fixed in the mainline sk98lin driver.
+On the subject of pcnet32 and the invalid vendor ID, you may find this 
+interesting:
 
-What is a difference between them? Which one supports Marvell Technology
-Group Ltd. 88E8050 Gigabit Ethernet Controller (rev 17)?
-skge in 2.6.14 does not support it.
+http://forums.gentoo.org/viewtopic-t-420013-highlight-trident.html
 
-Regards,
-Nerijus
+The user saw the correct vendor ID (AMD) in 2.4, but when upgrading to 
+2.6, it changed to Trident.
+
+I guess this is still likely to be a hardware bug, but it demonstrates 
+that the Linux PCI layer has something to do with it (even if it is just 
+triggering it somehow).
+
+Daniel

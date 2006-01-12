@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161249AbWALUg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161250AbWALUjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161249AbWALUg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 15:36:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161250AbWALUg6
+	id S1161250AbWALUjM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 15:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161251AbWALUjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 15:36:58 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:3138 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161249AbWALUg4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 15:36:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M6Bhc2ETF4dQrA0Cxg8/McXRoSp2NwNMAlZqhAII3CXWWzUuhDLiR4R3/Gp6jWdifCCYRY9xzWJV/g346n1cPAPgVWcl7EKHA5FGlkkMGKim7bX3pBN6c28s2MPUMmFk+IbF4qMbXDsGc2dqlasI2QGKu9y8nvyfC3N46B13xSA=
-Message-ID: <86802c440601121236s47d5737fo45105ce3ebc746a6@mail.gmail.com>
-Date: Thu, 12 Jan 2006 12:36:55 -0800
-From: yhlu <yhlu.kernel@gmail.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: can not compile in the latest git
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0601111213270.24355@schroedinger.engr.sgi.com>
+	Thu, 12 Jan 2006 15:39:12 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:50071 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1161250AbWALUjK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 15:39:10 -0500
+Date: Thu, 12 Jan 2006 20:37:51 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Ulrich Mueller <ulm@kph.uni-mainz.de>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Hourihane <alanh@tungstengraphics.com>
+Subject: Re: 2.6.15-mm2
+In-Reply-To: <17350.39878.474574.712791@a1i15.kph.uni-mainz.de>
+Message-ID: <Pine.LNX.4.58.0601122036430.32194@skynet>
+References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org>
+ <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org>
+ <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com>
+ <u3bjtogq0@a1i15.kph.uni-mainz.de> <20060112171137.GA19827@redhat.com>
+ <17350.39878.474574.712791@a1i15.kph.uni-mainz.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <86802c440601111021m7cb40881m7206d9342534f844@mail.gmail.com>
-	 <Pine.LNX.4.62.0601111213270.24355@schroedinger.engr.sgi.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It turns out, if I disable "Support for paging of anonymous memory
-(swap)" --- SWAP
-
-the CONFIG_MIGRATION will disappear from the .config
-
-the mm/mempolicy.c may need some #if CONFIG_MIRGRATION to comment out
-these calling.
-
-YH
-
-On 1/11/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
-> On Wed, 11 Jan 2006, yhlu wrote:
 >
-> > : undefined reference to `putback_lru_pages'
-> > make: *** [.tmp_vmlinux1] Error 1
+> > Another one that advertises no AGP capabilities.
+> > In this situation you shouldn't *need* agpgart.  If it's PCI[E],
+> > radeon will use pcigart.
 >
-> Please post your .config file.
+> Problem is that i915 depends on DRM && AGP && AGP_INTEL.
+> And at the end of i{810,830,915}_dma.c there is the comment:
+> "All Intel graphics chipsets are treated as AGP, even if they are
+> really PCI-e."
 >
->
+
+I've cc'ed Alan Hourihane, but from memory the Intel on-board graphics
+chips don't advertise the AGP bit on the graphics controllers but work
+using AGP...
+
+I've got an PCIE chipset with Radeon on it, and in that case I could get
+away without agpgart...
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

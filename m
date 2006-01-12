@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWALA1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWALAbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932674AbWALA1V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 19:27:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932676AbWALA1V
+	id S964857AbWALAbD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 19:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWALAbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 19:27:21 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:25529
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S932674AbWALA1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 19:27:19 -0500
-Subject: Re: [PATCH] new tty buffering access fix
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <20060111160823.6bc95ab8.akpm@osdl.org>
-References: <1137023508.3113.10.camel@x2.pipehead.org>
-	 <20060111160823.6bc95ab8.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 18:27:12 -0600
-Message-Id: <1137025632.3113.18.camel@x2.pipehead.org>
+	Wed, 11 Jan 2006 19:31:01 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:51177 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964857AbWALAa4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 19:30:56 -0500
+Date: Thu, 12 Jan 2006 01:30:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: pavel@suse.cz, arjan@infradead.org, akpm@osdl.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: 2.6.15-git7 oopses in ext3 during LTP runs
+Message-ID: <20060112003058.GA2681@elte.hu>
+References: <20060111130728.579ab429.akpm@osdl.org> <1137014875.2929.81.camel@laptopd505.fenrus.org> <20060111224013.GA8277@elf.ucw.cz> <20060111.144422.48199200.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060111.144422.48199200.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 16:08 -0800, Andrew Morton wrote:
-> Curious.  How did this manage to sneak through without anyone noticing? 
-> Does tty_buffer_request_room() mostly work, or do only rarely-used drivers
-> use it, or what?
 
-At common speeds you never have more than one
-buffer on the queue when the function in question is called.
-So looking at the head is the same as looking at the tail.
+* David S. Miller <davem@davemloft.net> wrote:
 
-In my recent testing, I cranked the speed up and at 460800bps
-the queue became corrupted when more than one buffer was pending.
-This is the important part of the patch.
+> From: Pavel Machek <pavel@suse.cz>
+> Date: Wed, 11 Jan 2006 23:40:13 +0100
+> 
+> > likely is the evil part here. What about this? Should make this bug
+> > impossible to do....
+> > 
+> > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> This doesn't let you do:
+> 
+>      if (likely(y) || unlikely(x))
 
-With this patch, I've been running multiple devices (synclink_gt)
-simultaneously on an SMP machine from 38400bps to 921600bps and
-the new buffering is solid.
+hm, why not? It will expand to:
 
-The part of the patch in flush_to_ldisc closes a tiny hole
-where an ISR might access the queue tail after flush_to_ldisc
-has removed it from the queue.
+   if ((__builtin_expect(!!(y), 1)) || (__builtin_expect(!!(x), 0)))
 
--- 
-Paul Fulghum
-Microgate Systems, Ltd
+which seems correct to me. Pavel only added extra parantheses, to make 
+the simple case more readable.
 
+	Ingo

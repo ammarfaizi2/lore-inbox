@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbWALM1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWALM2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbWALM1n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 07:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWALM1n
+	id S1030374AbWALM2n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 07:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWALM2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 07:27:43 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:28880 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1030377AbWALM1m (ORCPT
+	Thu, 12 Jan 2006 07:28:43 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:9094 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030374AbWALM2m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 07:27:42 -0500
-Date: Thu, 12 Jan 2006 13:27:12 +0100 (MET)
-Message-Id: <200601121227.k0CCRCB8016162@alkaid.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: rmk+lkml@arm.linux.org.uk
-Subject: Re: need for packed attribute
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       oliver@neukum.org
+	Thu, 12 Jan 2006 07:28:42 -0500
+Date: Thu, 12 Jan 2006 13:28:42 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/10] NTP: add ntp_update_frequency
+In-Reply-To: <1137020731.2890.74.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0601121324510.30994@scrub.home>
+References: <Pine.LNX.4.61.0512220021210.30900@scrub.home>
+ <1137020731.2890.74.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jan 2006 18:38:46 +0000, Russell King wrote:
->> is there any architecture for which packed is required in structures like this:
->> 
->> /* All standard descriptors have these 2 fields at the beginning */
->> struct usb_descriptor_header {
->> 	__u8  bLength;
->> 	__u8  bDescriptorType;
->> };
->
->sizeof(struct usb_descriptor_header) will be 4 on ARM.
+Hi,
 
-I found this surprising, but gcc-3.4.5 for ARM seems to agree with you.
+On Wed, 11 Jan 2006, john stultz wrote:
 
-As fas as I can tell, the AAPCS document (v2.03 7th Oct 2005) requires
-that a simple "struct foo { unsigned char c; };" should have both size
-and alignment equal to 1, but gcc makes them both 4. Do you have any
-information about why gcc is doing this on ARM/Linux? Is there an accurate
-ABI document for ARM/Linux somewhere?
+> > This introduces ntp_update_frequency and deinlines ntp_clear() (as it's
+> > not performance critical).
+> > It also changes how tick_nsec is calculated from tick_usec, instead of
+> > scaling it using TICK_USEC_TO_NSEC it's simply shifted by the difference.
+> > Since ntp doesn't change the tick value, the result in practice is the
+> > same, but it's easier to change this into a clock parameter, which can
+> > be calculated during boot.
+> > 
+> 
+> One last thing, shouldn't this patch kill TICK_USEC_TO_NSEC ?
 
-/Mikael
+If it's the only user it could be removed, but jiffies.h can still be 
+cleaned up in a separate pass.
+
+> > @@ -334,10 +334,11 @@ int do_adjtimex(struct timex *txc)
+> >  		    time_freq = max(time_freq, -time_tolerance);
+> >  		} /* STA_PLL */
+> >  	    } /* txc->modes & ADJ_OFFSET */
+> > -	    if (txc->modes & ADJ_TICK) {
+> > +	    if (txc->modes & ADJ_TICK)
+> >  		tick_usec = txc->tick;
+> > -		tick_nsec = TICK_USEC_TO_NSEC(tick_usec);
+> > -	    }
+> > +
+> > +	    if (txc->modes & ADJ_TICK)
+> > +		    ntp_update_frequency();
+> 
+> Why the extra conditional instead of just adding ntp_update_frequency()
+> inside the braces?
+
+This changes in the next patch. :)
+
+> > +void ntp_update_frequency(void)
+> > +{
+> > +	tick_nsec = tick_usec * 1000;
+> > +	tick_nsec -= NSEC_PER_SEC / HZ - TICK_NSEC;
+> > +}
+> 
+> Could you add another "john is slow and forgetful" comment here?
+
+Ok.
+
+bye, Roman

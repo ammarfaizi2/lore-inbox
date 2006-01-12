@@ -1,61 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161454AbWALXOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161459AbWALXSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161454AbWALXOO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 18:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161459AbWALXOO
+	id S1161459AbWALXSe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 18:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161461AbWALXSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 18:14:14 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50692 "HELO
+	Thu, 12 Jan 2006 18:18:34 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54532 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161454AbWALXON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 18:14:13 -0500
-Date: Fri, 13 Jan 2006 00:14:12 +0100
+	id S1161459AbWALXSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 18:18:33 -0500
+Date: Fri, 13 Jan 2006 00:18:33 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patches] 2.6.x net driver updates
-Message-ID: <20060112231412.GB29663@stusta.de>
-References: <20060112221322.GA25470@havoc.gtf.org> <Pine.LNX.4.64.0601121423120.3535@g5.osdl.org> <20060112224227.GA26888@havoc.gtf.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [2.6 patch] i386: remove gcc version check for CONFIG_REGPARM
+Message-ID: <20060112231833.GC29663@stusta.de>
+References: <20060109211157.GA14477@mars.ravnborg.org> <Pine.LNX.4.64.0601100821440.4939@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060112224227.GA26888@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.64.0601100821440.4939@g5.osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 05:42:27PM -0500, Jeff Garzik wrote:
-> On Thu, Jan 12, 2006 at 02:30:19PM -0800, Linus Torvalds wrote:
-> > 
-> > 
-> > On Thu, 12 Jan 2006, Jeff Garzik wrote:
-> > > 
-> > > dann frazier:
-> > >       CONFIG_AIRO needs CONFIG_CRYPTO
-> > 
-> > I think this is done wrong.
-> > 
-> > It should "select CRYPTO" rather than "depends on CRYPTO".
+On Tue, Jan 10, 2006 at 08:27:57AM -0800, Linus Torvalds wrote:
 > 
-> OK
+> 
+> On Mon, 9 Jan 2006, Sam Ravnborg wrote:
+> >
+> > Please pull from:
+> > 	ssh://master.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+> 
+> Ok, pulled.
+> 
+> However, fixing up a trivial conflict in i386/Makefile, I noticed this:
+> 
+> 	cflags-$(CONFIG_REGPARM) += $(shell if [ $(call cc-version) -ge 0300 ] ; then \
+> 				    echo "-mregparm=3"; fi ;)
+> 
+> and it strikes me that this is WRONG.
+> 
+> It's wrong for some subtle reasons: it means that CONFIG_REGPARM is set 
+> whether or not it is actually _used_, which means that anybody who depends 
+> on CONFIG_REGPARM in the sources is just screwed.
 >...
 
-What was wrong with my patch [1] that did not only this, but also fixes 
-the same bug with AIRO_CS and removes all the #ifdef's for the 
-non-compiling CRYPTO=n case from the driver?
+The change from Sam's tree conflicted with my patch to completely remove  
+the version check since we do no longer support any gcc < 3.0.  
 
-> 	Jeff
+Patch below.
+
+> 		Linus
 
 cu
 Adrian
 
-[1] http://lkml.org/lkml/2006/1/10/328
 
--- 
+<--  snip  -->
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Since we do no longer support any gcc < 3.0, there's no need to check 
+for it..
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-mm3-full/arch/i386/Makefile.old	2006-01-13 00:04:09.000000000 +0100
++++ linux-2.6.15-mm3-full/arch/i386/Makefile	2006-01-13 00:05:09.000000000 +0100
+@@ -37,10 +37,7 @@
+ # CPU-specific tuning. Anything which can be shared with UML should go here.
+ include $(srctree)/arch/i386/Makefile.cpu
+ 
+-# -mregparm=3 works ok on gcc-3.0 and later
+-#
+-cflags-$(CONFIG_REGPARM) += $(shell if [ $(call cc-version) -ge 0300 ] ; then \
+-                            echo "-mregparm=3"; fi ;)
++cflags-$(CONFIG_REGPARM) += -mregparm=3
+ 
+ # Disable unit-at-a-time mode on pre-gcc-4.0 compilers, it makes gcc use
+ # a lot more stack due to the lack of sharing of stacklots:
 

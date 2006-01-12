@@ -1,102 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161359AbWALWN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161361AbWALWP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161359AbWALWN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:13:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161358AbWALWN4
+	id S1161361AbWALWP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:15:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161364AbWALWP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:13:56 -0500
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:400 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1161359AbWALWNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:13:55 -0500
-Date: Thu, 12 Jan 2006 14:11:32 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       discuss@x86-64.org
-Subject: Re: ptrace denies access to EFLAGS_RF
-Message-ID: <20060112221132.GE30055@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200601061112_MC3-1-B567-47BB@compuserve.com>
+	Thu, 12 Jan 2006 17:15:26 -0500
+Received: from mxout4.cac.washington.edu ([140.142.33.19]:60583 "EHLO
+	mxout4.cac.washington.edu") by vger.kernel.org with ESMTP
+	id S1161361AbWALWPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:15:25 -0500
+X-Auth-Received: from athena.sea.amer.gettywan.com (outbound.gettyimages.com [206.28.72.1])
+	(authenticated authid=ashepard)
+	by smtp.washington.edu (8.13.5+UW05.10/8.13.5+UW05.09) with ESMTP id k0CMFHg8028240
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT);
+	Thu, 12 Jan 2006 14:15:20 -0800
+Subject: [PATCH] Spelling fix in IPW2100 and IPW2200 Kconfig entries
+From: Alex Shepard <ashepard@u.washington.edu>
+To: jketreno@linux.intel.com, yi.zhu@intel.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, trivial@kernel.org
+Content-Type: text/plain
+Date: Thu, 12 Jan 2006 14:15:13 -0800
+Message-Id: <1137104113.15772.17.camel@athena>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601061112_MC3-1-B567-47BB@compuserve.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Uwash-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck,
+s/remvoed/removed/
 
-I tired today with 2.6.15-git8 and now it works just fine
-on my Opteron box.
 
-Thanks for your help.
+Signed-off-by: Alex Shepard <ashepard@u.washington.edu>
 
-On Fri, Jan 06, 2006 at 11:10:16AM -0500, Chuck Ebbert wrote:
-> In-Reply-To: <20060106140217.GD7676@frankl.hpl.hp.com>
-> 
-> On Fri, 6 Jan 2006 at 06:02:17 -0800, Stephane Eranian wrote:
-> 
-> 
-> > To my surprise, applying the same fix to the x86_64 does not
-> > solve the problem on my Opteron box. I verified that the
-> > offset (144) matches with what the kernel is expecting.
-> > Somehow the RF is lost or not set in the proper location.
-> > I cannot make forward progress once I reach the breakpoint.
-> 
-> 
-> I sent this to Andi this morning.  Does it work for you?
-> 
-> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-> 
->  arch/x86_64/ia32/ptrace32.c |    9 ++++++---
->  arch/x86_64/kernel/ptrace.c |    9 ++++++---
->  2 files changed, 12 insertions(+), 6 deletions(-)
-> 
-> --- 2.6.15-64a.orig/arch/x86_64/ia32/ptrace32.c
-> +++ 2.6.15-64a/arch/x86_64/ia32/ptrace32.c
-> @@ -28,9 +28,12 @@
->  #include <asm/i387.h>
->  #include <asm/fpu32.h>
->  
-> -/* determines which flags the user has access to. */
-> -/* 1 = access 0 = no access */
-> -#define FLAG_MASK 0x44dd5UL
-> +/*
-> + * Determines which flags the user has access to [1 = access, 0 = no access].
-> + * Prohibits changing ID(21), VIP(20), VIF(19), VM(17), IOPL(12-13), IF(9).
-> + * Also masks reserved bits (31-22, 15, 5, 3, 1).
-> + */
-> +#define FLAG_MASK 0x54dd5UL
->  
->  #define R32(l,q) \
->  	case offsetof(struct user32, regs.l): stack[offsetof(struct pt_regs, q)/8] = val; break
-> --- 2.6.15-64a.orig/arch/x86_64/kernel/ptrace.c
-> +++ 2.6.15-64a/arch/x86_64/kernel/ptrace.c
-> @@ -36,9 +36,12 @@
->   * in exit.c or in signal.c.
->   */
->  
-> -/* determines which flags the user has access to. */
-> -/* 1 = access 0 = no access */
-> -#define FLAG_MASK 0x44dd5UL
-> +/*
-> + * Determines which flags the user has access to [1 = access, 0 = no access].
-> + * Prohibits changing ID(21), VIP(20), VIF(19), VM(17), IOPL(12-13), IF(9).
-> + * Also masks reserved bits (63-22, 15, 5, 3, 1).
-> + */
-> +#define FLAG_MASK 0x54dd5UL
->  
->  /* set's the trap flag. */
->  #define TRAP_FLAG 0x100UL
-> -- 
-> Chuck
-> Currently reading: _Thud!_ by Terry Pratchett
+--- a/drivers/net/wireless/Kconfig
++++ b/drivers/net/wireless/Kconfig
+@@ -160,7 +160,7 @@ config IPW2100
+           <http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html>.
+  
+           If you want to compile the driver as a module ( = code which can be
+-          inserted in and remvoed from the running kernel whenever you want),
++          inserted in and removed from the running kernel whenever you want),
+           say M here and read <file:Documentation/modules.txt>.  The module
+           will be called ipw2100.ko.
+ 	
+@@ -213,7 +213,7 @@ config IPW2200
+           <http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html>.
+  
+           If you want to compile the driver as a module ( = code which can be
+-          inserted in and remvoed from the running kernel whenever you want),
++          inserted in and removed from the running kernel whenever you want),
+           say M here and read <file:Documentation/modules.txt>.  The module
+           will be called ipw2200.ko.
+ 
 
--- 
 
--Stephane

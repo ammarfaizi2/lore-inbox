@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWALJz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWALJ5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbWALJz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 04:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWALJz0
+	id S1030342AbWALJ5r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 04:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWALJ5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 04:55:26 -0500
-Received: from relay03.pair.com ([209.68.5.17]:18449 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1030335AbWALJz0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 04:55:26 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-To: ck@vds.kolivas.org, oyvinst@student.matnat.uio.no
-Subject: Re: [ck] Bad page state at free_hot_cold_page
-Date: Thu, 12 Jan 2006 03:55:43 -0600
-User-Agent: KMail/1.9
-References: <200601120301.00361.chase.venters@clientec.com> <200601121047.13016.oyvinst@ifi.uio.no>
-In-Reply-To: <200601121047.13016.oyvinst@ifi.uio.no>
-Organization: Clientec, Inc.
-Cc: linux-kernel@vger.kernel.org
+	Thu, 12 Jan 2006 04:57:47 -0500
+Received: from mail.asc.de ([82.100.219.35]:14891 "EHLO mail.asc.de")
+	by vger.kernel.org with ESMTP id S1030342AbWALJ5q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 04:57:46 -0500
+Message-ID: <43C62818.6030001@asc.de>
+Date: Thu, 12 Jan 2006 10:57:44 +0100
+From: Reinhold Jordan <r.jordan@asc.de>
+Organization: ASC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601120355.44290.chase.venters@clientec.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: option memmap
+References: <43C51ABD.4050204@asc.de>
+In-Reply-To: <43C51ABD.4050204@asc.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 12 Jan 2006 09:57:44.0952 (UTC) FILETIME=[A2A1DF80:01C6175E]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 January 2006 03:47, Øyvind Stegard wrote:
-> Don't run memtest yet.
->
-> Got the same problem, it's ALSA related.
->
-> The answer should be provided here:
-> http://lkml.org/lkml/2005/12/9/106
->
-> Upgrading to ALSA-1.0.11rc2 fixed the problem for me.. Apparently there are
-> some memalloc compatibilty-issues, haven't looked very much into it.
-> There's at patch provided in the LKML-thread.
+Hello,
 
-Ah ha! Well, this looks like it'll be a quick fix. I'm building ALSA-1.0.11rc2 
-now. 
+is there any problem with this question? Who should I ask
+kernel dependent questions beside the kernel developers?
 
-> Øyvind
+Regards, Reinhold
 
-Thanks,
-Chase
+Reinhold Jordan wrote:
+> Hello,
+> 
+> is there any documentation for this option better than this in
+> linux/Documentation/kernel-parameters.txt ?
+> 
+> I have a laptop with a defect memory soldered on the main-board.
+> 128KB of 128MB are defect started at 7936KB
+> 
+> As I read from kernel-parameters.txt the option
+> memmap=128K$7936K
+> reserve this area. But this seems to be simply ignored. Even, if I
+> fade out 64MB, Knoppix still create a RAM disk, which is larger
+> as the remaining memory...
+> 
+> Does someone know advice?
+
+-- 
+ASC telecom AG                   Research & Development
+Seibelstr. 2                     F: +49-6021-5001-309
+D-63768 Hösbach                  E: r.jordan@asc.de
+      Visit us on http://www.asctelecom.com

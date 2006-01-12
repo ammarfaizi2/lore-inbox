@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWALFg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWALFgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbWALFg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 00:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWALFg2
+	id S1030290AbWALFgK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 00:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWALFgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 00:36:28 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:7836 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030291AbWALFg2 (ORCPT
+	Thu, 12 Jan 2006 00:36:10 -0500
+Received: from cabal.ca ([134.117.69.58]:19168 "EHLO fattire.cabal.ca")
+	by vger.kernel.org with ESMTP id S1030290AbWALFgJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 00:36:28 -0500
-Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit
-	Connectors
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Keith Owens <kaos@sgi.com>
-Cc: John Hesterberg <jh@sgi.com>, Jes Sorensen <jes@trained-monkey.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>
-In-Reply-To: <8699.1137036592@kao2.melbourne.sgi.com>
-References: <8699.1137036592@kao2.melbourne.sgi.com>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 21:26:08 -0800
-Message-Id: <1137043569.6673.156.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jan 2006 00:36:09 -0500
+Date: Thu, 12 Jan 2006 00:36:18 -0500
+From: Kyle McMartin <kyle@parisc-linux.org>
+To: Junio C Hamano <junkio@cox.net>
+Cc: Kyle McMartin <kyle@parisc-linux.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Move read_mostly definition to asm/cache.h
+Message-ID: <20060112053618.GH25353@tachyon.int.mcmartin.ca>
+References: <20060111173321.GC28018@quicksilver.road.mcmartin.ca> <Pine.LNX.4.64.0601110951210.5073@g5.osdl.org> <7vslruqx5w.fsf@assigned-by-dhcp.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7vslruqx5w.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 14:29 +1100, Keith Owens wrote:
-> John Hesterberg (on Wed, 11 Jan 2006 15:39:10 -0600) wrote:
-> >On Wed, Jan 11, 2006 at 01:02:10PM -0800, Matt Helsley wrote:
-> >> 	Have you looked at Alan Stern's notifier chain fix patch? Could that be
-> >> used in task_notify?
-> >
-> >I have two concerns about an all-tasks notification interface.
-> >First, we want this to scale, so don't want more global locks.
-> >One unique part of the task notify is that it doesn't use locks.
+On Wed, Jan 11, 2006 at 01:20:27PM -0800, Junio C Hamano wrote:
+> Essentially, you are (you want to be) in read_mostly branch, but
+> your .git/HEAD incorrectly says you are on the master branch.
+> So you would need:
 > 
-> Neither does Alan Stern's atomic notifier chain.  Indeed it cannot use
-> locks, because the atomic notifier chains can be called from anywhere,
-> including non maskable interrupts.  The downside is that Alan's atomic
-> notifier chains require RCU.
+> 	$ git symbolic-ref HEAD refs/heads/read_mostly
 > 
-> An alternative patch that requires no locks and does not even require
-> RCU is in http://marc.theaimsgroup.com/?l=linux-kernel&m=113392370322545&w=2
-> 
+> after swapping.  Then you would be on read_mostly branch.
+>
 
-	Interesting. Might the 'inuse' flags suffer from bouncing due to false
-sharing?
+Alternatively, if I had (I haven't touched the tree, just format-patch'd
+which looked right) used git-reset --hard HEAD and been up to date
+(working tree and index file) with whatever ended up being pointed
+to by HEAD, right?
+
+I'll try to remember the symbolic-ref thing for next time, usually when
+this happens I just blow away the last commit and try again, but I felt
+adventurous today. :)
 
 Cheers,
-	-Matt Helsley
-
+	Kyle

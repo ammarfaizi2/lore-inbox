@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161340AbWALWAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161343AbWALWCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161340AbWALWAu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161341AbWALWAt
+	id S1161343AbWALWCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161342AbWALWCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:00:49 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:41616 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1161340AbWALWAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:00:48 -0500
-Date: Thu, 12 Jan 2006 23:00:32 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org,
-       ck@vds.kolivas.org
-Subject: Re: [ck] Bad page state at free_hot_cold_page
-In-Reply-To: <20060112092406.GA2587@rhlx01.fht-esslingen.de>
-Message-ID: <Pine.LNX.4.61.0601122257500.30373@yvahk01.tjqt.qr>
-References: <200601120301.00361.chase.venters@clientec.com>
- <20060112092406.GA2587@rhlx01.fht-esslingen.de>
+	Thu, 12 Jan 2006 17:02:09 -0500
+Received: from uproxy.gmail.com ([66.249.92.192]:61756 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161345AbWALWCH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:02:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=D1kEs7EfRtVUL4sl3/NfOcdxBitm4Kd5f05YRMmVizFHn8xuABLxxCGgpBAP9O7bVw9zyP0F4RffVsuNxQhvtwzN8LvHIr2qIUllmiU151m1/kxZ+4aTDrIole3LdmWjFVaZ/STzceoEUxmRzR31V6LwWADPMPgWKWftBrOmi3A=
+Message-ID: <21d7e9970601121402u2d05a073kc677f94b278181c0@mail.gmail.com>
+Date: Fri, 13 Jan 2006 09:02:04 +1100
+From: Dave Airlie <airlied@gmail.com>
+To: Alan Hourihane <alanh@tungstengraphics.com>
+Subject: Re: 2.6.15-mm2
+Cc: Dave Airlie <airlied@linux.ie>, Ulrich Mueller <ulm@kph.uni-mainz.de>,
+       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1137099813.9711.32.camel@jetpack.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	 <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org>
+	 <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com>
+	 <u3bjtogq0@a1i15.kph.uni-mainz.de> <20060112171137.GA19827@redhat.com>
+	 <17350.39878.474574.712791@a1i15.kph.uni-mainz.de>
+	 <Pine.LNX.4.58.0601122036430.32194@skynet>
+	 <1137099813.9711.32.camel@jetpack.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Greetings,
->> 	(I'm posting this to LKML and CK because I'm not sure if any of 2.6.15-ck1's 
->> changes might cause this scenario)
->> 	Recently I've noticed that after my desktop has been up for a while, my music 
->> playback / mouse cursor movement will on occasion pause briefly. I got 
->> frustrated with it a minute ago and decided to kill artsd, wondering if there 
->> could be issues with both arts and amarok's backend holding the audio device 
->> open at once.
->> 	When running killall artsd, I locked up for a second and found this in dmesg:
->> 
->> Bad page state at free_hot_cold_page (in process 'artsd', page b1761620)
->> flags:0x80000404 mapping:00000000 mapcount:0 count:0
->> Backtrace:
->>  [<b0148e9a>] bad_page+0x84/0xbc
->>  [<b0149699>] free_hot_cold_page+0x65/0x13a
->>  [<b05b6901>] _spin_unlock_irqrestore+0xf/0x23
->>  [<b0153bf1>] zap_pte_range+0x1d1/0x28f
->>  [<b0153d70>] unmap_page_range+0xc1/0x122
->>  [<b0153ebe>] unmap_vmas+0xed/0x242
->>  [<b0158099>] unmap_region+0xb4/0x156
->>  [<b01583e2>] do_munmap+0x108/0x144
->>  [<b015846f>] sys_munmap+0x51/0x76
->>  [<b0102eff>] sysenter_past_esp+0x54/0x75
->> Trying to fix it up, but a reboot is needed
+> >
+> > I've cc'ed Alan Hourihane, but from memory the Intel on-board graphics
+> > chips don't advertise the AGP bit on the graphics controllers but work
+> > using AGP...
+> >
+> > I've got an PCIE chipset with Radeon on it, and in that case I could get
+> > away without agpgart...
+>
+> Dave,
+>
+> You're probably reading too much into that last statement.
+>
+> I've never seen a pure PCI-e chipset from Intel (i.e. the ones without
+> integrated graphics) so that may not be true, but the ones with
+> integrated graphics are always treated as AGP based.
+>
 
-Ftr, I get the same stackdump when shutting down X. But look no 
-further: I use an ancient nvidia and 2.6.15 (vanilla). No bad ram here,
-even tested last week before install. :)
+I'll show you one at xdevconf if I can get there, it has just a PCI-E
+root bridge no graphics controller, we still init AGP on it but I
+don't think there is any need, however for all the integrated
+graphics, even if they don't advertise AGP they do use it which is
+DaveJ's problem that he was trying not to load AGP if the AGP was
+being advertised..
 
-
-Jan Engelhardt
--- 
+Dave.

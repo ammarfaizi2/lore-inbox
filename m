@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWALK7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWALLI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbWALK7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 05:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbWALK7L
+	id S964986AbWALLI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 06:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWALLI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 05:59:11 -0500
-Received: from host2092.kph.uni-mainz.de ([134.93.134.92]:205 "EHLO
-	a1i15.kph.uni-mainz.de") by vger.kernel.org with ESMTP
-	id S1030358AbWALK7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 05:59:10 -0500
-To: linux-kernel@vger.kernel.org
-CC: Dave Airlie <airlied@linux.ie>, Dave Jones <davej@redhat.com>,
-       Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.15-mm2
-References: <20060107052221.61d0b600.akpm@osdl.org>
-	<43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com>
-	<43C03214.5080201@ens-lyon.org> <43C55148.4010706@ens-lyon.org>
-	<20060111202957.GA3688@redhat.com>
-Date: Thu, 12 Jan 2006 11:58:31 +0100
-From: ulm@kph.uni-mainz.de (Ulrich Mueller)
-Message-ID: <u3bjtogq0@a1i15.kph.uni-mainz.de>
+	Thu, 12 Jan 2006 06:08:26 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:40069 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932169AbWALLIZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 06:08:25 -0500
+Date: Thu, 12 Jan 2006 12:08:21 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ben Collins <ben.collins@ubuntu.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
+In-Reply-To: <1137031253.9643.38.camel@grayson>
+Message-ID: <Pine.LNX.4.61.0601121155450.30994@scrub.home>
+References: <0ISL003ZI97GCY@a34-mta01.direcway.com> <200601090109.06051.zippel@linux-m68k.org>
+ <1136779153.1043.26.camel@grayson> <200601091232.56348.zippel@linux-m68k.org>
+ <1136814126.1043.36.camel@grayson> <Pine.LNX.4.61.0601120019430.30994@scrub.home>
+ <1137031253.9643.38.camel@grayson>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 11 Jan 2006, Dave Airlie wrote:
+Hi,
 
->> > How are we supposed to get DRM to work on PCI Express cards if DRM
->> > needs AGP and agpgart does not load when no AGP card is found ? :)
->> 
->> That's puzzling. It should still be loadable. All the current
->> agpgart tree is doing is basically enforcing agp=off if there's no
->> agp card present. That shouldn't prevent the module from actually
->> loading, or it's symbols being referenced by other modules.
->> 
->> Hrmm, it's puzzling that you also are unable to resolve drm_open
->> and drm_release. That may be a follow-on failure from the first,
->> but it seems unlikely.
+On Wed, 11 Jan 2006, Ben Collins wrote:
 
-> Thats' just a cascaded failure, radeon gives out because drm won't
-> load because agpgart won't load... there must be a reason why
-> agpgart doesn't load... perhaps we've some issue when the backend
-> isn't there or something..
+> First, we need oldconfig because it allows us to look at the build log
+> and see exactly what happened in the config stage. Silentoldconfig gives
+> us no feedback for logs.
 
-Same problem here with 2.6.15-mm3:
+silentoldconfig gives you exactly the same information. Both conf and 
+oldconfig will change invisible options without telling you, so it's not 
+exact at all.
+If you can't trust a silent oldconfig, a more verbose oldconfig can't tell 
+you anything else, if it would it's a bug.
 
-   $ lspci -s 00:02.0 -v
-   00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 03) (prog-if 00 [VGA])
-   	Subsystem: Hewlett-Packard Company nx6110/nc6120
-   	Flags: bus master, fast devsel, latency 0, IRQ 16
-   	Memory at d0400000 (32-bit, non-prefetchable) [size=512K]
-   	I/O ports at 7000 [size=8]
-   	Memory at c0000000 (32-bit, prefetchable) [size=256M]
-   	Memory at d0480000 (32-bit, non-prefetchable) [size=256K]
-   	Capabilities: [d0] Power Management version 2
-   $ modprobe -v agpgart
-   insmod /lib/modules/2.6.15-mm3/kernel/drivers/char/agp/agpgart.ko 
-   FATAL: Error inserting agpgart (/lib/modules/2.6.15-mm3/kernel/drivers/char/agp/agpgart.ko): No such device
+> 3) Obviously since current behavior of oldconfig was broken with a
+> closed stdin, then it was never doing what anyone wanted in this usage
+> case. Since no one else noticed it, that means that we are the only use
+> case for this.
 
-And as a consequence intel-agp, drm, and i915 cannot be loaded.
+This is enough reason to simply hijack conf and use it for your own 
+purpose without even asking the maintainer about the intended bahaviour?
 
-The problem disappears if I revert git-agpgart.patch.
+> 5) My patch did not break anything, nor did it change anything that was
+> already working.
+
+It _was_ working like that, you're breaking it.
+
+> 6) In response you make oldconfig work exactly opposite of
+> silentoldconfig by using the default value for a config option when
+> stdin is closed (basically acting like the user hit ENTER), and further
+> break things for me in this usage case, with no purpose, and no reason
+> for making your change the way you did. Since it was broken, you aren't
+> helping anyone. We can't have the build system using default values. We
+> need it to abort.
+
+So simply use silentoldconfig.
+
+bye, Roman

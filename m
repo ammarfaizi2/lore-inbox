@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWALHsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWALHvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWALHsq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 02:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWALHsq
+	id S932120AbWALHvH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 02:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWALHvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 02:48:46 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:41743 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S932115AbWALHsp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 02:48:45 -0500
-Date: Thu, 12 Jan 2006 16:49:32 +0900 (JST)
-Message-Id: <20060112.164932.55192618.yoshfuji@linux-ipv6.org>
-To: ahessling@gmx.de
-Cc: linux-kernel@vger.kernel.org, CHINEN@jp.ibm.com, usagi-core@linux-ipv6.org
-Subject: Re: Kernel 2.6.15 sometimes only detects one of two SATA drives
- and panics
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <1137003241.7603.20.camel@localhost.localdomain>
-References: <1137003241.7603.20.camel@localhost.localdomain>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Thu, 12 Jan 2006 02:51:07 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:15260 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932120AbWALHvG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 02:51:06 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: paulmck@us.ibm.com
+cc: John Hesterberg <jh@sgi.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>
+Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors 
+In-reply-to: Your message of "Wed, 11 Jan 2006 22:51:15 -0800."
+             <20060112065115.GB23673@us.ibm.com> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Jan 2006 18:50:34 +1100
+Message-ID: <19140.1137052234@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1137003241.7603.20.camel@localhost.localdomain> (at Wed, 11 Jan 2006 19:14:01 +0100), Andre Hessling <ahessling@gmx.de> says:
+"Paul E. McKenney" (on Wed, 11 Jan 2006 22:51:15 -0800) wrote:
+>On Thu, Jan 12, 2006 at 05:19:01PM +1100, Keith Owens wrote:
+>> OK, I have thought about it and ...
+>> 
+>>   notifier_call_chain_lockfree() must be called with preempt disabled.
+>> 
+>Fair enough!  A comment, perhaps?  In a former life I would have also
+>demanded debug code to verify that preemption/interrupts/whatever were
+>actually disabled, given the very subtle nature of any resulting bugs...
 
-> I recently upgraded from 2.6.14 to 2.6.15 vanilla and I encountered some
-> random kernel panics on boot so far.
-> 
-> The panic is:
-> "Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)"
+Comment - OK.  Debug code is not required, the reference to
+smp_processor_id() already does all the debug checks that
+notifier_call_chain_lockfree() needs.  CONFIG_PREEMPT_DEBUG is your
+friend.
 
-We observe similar problem.
-And the problem seems to go away if we turned off CONFIG_SMP.
-
---yoshfuji

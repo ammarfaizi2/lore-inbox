@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWALIWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWALIey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWALIWi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 03:22:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWALIWi
+	id S1030259AbWALIey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 03:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWALIey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 03:22:38 -0500
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:45222 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S1751165AbWALIWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 03:22:37 -0500
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: john stultz <johnstul@us.ibm.com>
-Date: Thu, 12 Jan 2006 09:22:17 +0100
+	Thu, 12 Jan 2006 03:34:54 -0500
+Received: from [195.144.244.147] ([195.144.244.147]:25505 "EHLO
+	amanaus.varma-el.com") by vger.kernel.org with ESMTP
+	id S1030259AbWALIex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 03:34:53 -0500
+Message-ID: <43C614A5.6030703@varma-el.com>
+Date: Thu, 12 Jan 2006 11:34:45 +0300
+From: Andrey Volkov <avolkov@varma-el.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ru-ru, ru
 MIME-Version: 1.0
-Subject: Re: [PATCH 6/10] NTP: add time_adjust to tick_nsec
-Cc: George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Message-ID: <43C61FCA.12735.FA541A8@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <1137033983.2890.111.camel@cog.beaverton.ibm.com>
-References: <Pine.LNX.4.61.0512220024290.30918@scrub.home>
-X-mailer: Pegasus Mail for Windows (4.30 public beta 1)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-P=3.98.0+V=3.98+U=2.07.112+R=03 October 2005+T=114253@20060112.081749Z
+To: Sylvain Munaut <tnt@246tNt.com>
+Cc: ML linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [kernel-2.6.15] Fix PCI irq mapping for lite5200
+Content-Type: multipart/mixed;
+ boundary="------------010607090800000105020007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------010607090800000105020007
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 
-I think that's wrong: On the long term it doesn't make any difference, but while 
-adjusting time, the increase of time changes slope every second (i.e. time will 
-advance at different speed) when only adjusting the clock at the end of a second. 
-A frequency error should be corrected every time the clock is read. So you can 
-either do a correction frequently whenever it's needed ("tick interpolation"), or 
-you do it pro-active, even when it's not needed (That's what the 
-update_wall_time_one_tick() code does). In my solution I even tried to apply the 
-correction between ticks, using a combination of both methods.
+Hi Sylvain,
 
-What you are proposing is even what we had before, and much worse what can be 
-done. The old question: Do you want a fast clock, or an exact clock?
+This patch fix problem of PCI boards irq mapping on lite5200
+(raised after your changes of MPC52xx_IRQ0 number)
 
-And who said that adjtime() isn't used by ntpd? "disable kernel" does exacltly 
-that I think.
+--
+Regards
+Andrey Volkov
 
-As always I may be wrong...
+--------------010607090800000105020007
+Content-Type: text/plain;
+ name="01-lite5200_map_irq-fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="01-lite5200_map_irq-fix.diff"
 
-Regards,
-Ulrich
+	lite5200_map_irq: Fix irq mapping for external PCI boards
 
-On 11 Jan 2006 at 18:46, john stultz wrote:
+Signed-off-by: Andrey Volkov <avolkov@varma-el.com>
+---
 
-> On Thu, 2005-12-22 at 00:25 +0100, Roman Zippel wrote:
-> > This removes time_adjust from update_wall_time_one_tick() and moves it
-> > to second_overflow() and adds it to tick_nsec_curr instead.
-> > This slightly changes the adjtime() behaviour, instead of applying it to
-> > the next tick, it's applied to the next second. As this interface isn't
-> > used by ntp, there shouldn't be much users left.
-> > 
-> 
-> This sounds reasonable to me. 
-> Although CC'ing Ulrich and George for more review.
-> 
-> 
-> Acked-by: John Stultz <johnstul@us.ibm.com>
-> 
-> thanks
-> -john
-> 
-> 
+ arch/ppc/platforms/lite5200.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
+diff --git a/arch/ppc/platforms/lite5200.c b/arch/ppc/platforms/lite5200.c
+index 7ed52dc..cd4acb3 100644
+--- a/arch/ppc/platforms/lite5200.c
++++ b/arch/ppc/platforms/lite5200.c
+@@ -73,7 +73,8 @@ lite5200_show_cpuinfo(struct seq_file *m
+ static int
+ lite5200_map_irq(struct pci_dev *dev, unsigned char idsel, unsigned char pin)
+ {
+-	return (pin == 1) && (idsel==24) ? MPC52xx_IRQ0 : -1;
++	/* Only INTA supported */
++	return (pin == 1) ? MPC52xx_IRQ0 : -1;
+ }
+ #endif
+ 
 
+--------------010607090800000105020007--

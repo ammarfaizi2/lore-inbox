@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWALBc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWALBeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbWALBc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 20:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWALBc5
+	id S964955AbWALBeN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 20:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWALBeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 20:32:57 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:24205 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964956AbWALBc4 (ORCPT
+	Wed, 11 Jan 2006 20:34:13 -0500
+Received: from mx2.suse.de ([195.135.220.15]:63912 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964957AbWALBeM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 20:32:56 -0500
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       xen-devel@lists.xensource.com
-In-Reply-To: <43C5A199.1080708@us.ibm.com>
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>
-	 <43C5A199.1080708@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 11 Jan 2006 17:32:54 -0800
-Message-Id: <1137029574.11331.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Wed, 11 Jan 2006 20:34:12 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: Re: [PATCH 2 of 2] __raw_memcpy_toio32 for x86_64
+Date: Thu, 12 Jan 2006 02:33:51 +0100
+User-Agent: KMail/1.8.2
+Cc: akpm@osdl.org, rdreier@cisco.com, linux-kernel@vger.kernel.org
+References: <f03a807a80b8bc45bf91.1137025776@eng-12.pathscale.com> <200601120156.11529.ak@suse.de> <1137029233.17705.46.camel@localhost.localdomain>
+In-Reply-To: <1137029233.17705.46.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601120233.51601.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 19:23 -0500, Mike D. Day wrote:
-> Greg KH wrote:
+On Thursday 12 January 2006 02:27, Bryan O'Sullivan wrote:
+
+> > > +__raw_memcpy_toio32:
+> > > +	movl %edx,%ecx
+> > > +	shrl $1,%ecx
+> > 
+> > 1? If it's called memcpy it should get a byte argument, no? If not
+> > name it something else, otherwise everybody will be confused. 
 > 
-> > Why is xen special from the rest of the kernel in regards to adding
-> > files to sysfs?  What does your infrastructure add that is not currently
-> > already present for everyone to use today?
+> It's called toio32 for a reason :-)
 > 
-> I think it comes down to simplification for non-driver code, which is 
-> admittedly not the mainstream use model for sysfs.
+> Also, the kernel doc clearly states its purpose.
 
-You might also want to take a good look at how things like ACPI do
-exports in sysfs: in /sys/firmware.  Not that ACPI is a good example of
-_anything_ :), but that is probably more compliant with the current
-model than your own /sys/xen.
+I think it's deeply wrong to reuse names of standard functions with different
+arguments. Either pass bytes or give it some other name.
+ 
+> > movsq? I thought you wanted 32bit IO? 
+> 
+> The northbridge will split qword writes into pairs of dword writes.
 
-Do you have a definitive list of things that you want to export?  Are
-they things that come and go, or are they static?  Do you want hotplug
-events for them?  Some of those things may be better fit platform
-devices.  Notice that ACPI has entries in /sys/firmware/acpi
-and /sys/devices/system/acpi.
+That sounds like a very chipset specific assumption. Is that safe
+to make? If yes you would need to document it clearly. But most likely
+it's not a good idea to do this. Even if it works right now it would
+be another death trap for the next user.
 
--- Dave
-
+-Andi

@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWALSoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932658AbWALSvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbWALSoi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 13:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWALSoi
+	id S932658AbWALSvT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 13:51:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWALSvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 13:44:38 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:15748 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932652AbWALSoh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 13:44:37 -0500
-Message-ID: <43C6A383.80205@us.ibm.com>
-Date: Thu, 12 Jan 2006 12:44:19 -0600
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Thu, 12 Jan 2006 13:51:19 -0500
+Received: from serverina.hacknight.org ([80.68.90.101]:40714 "EHLO
+	serverina.hacknight.org") by vger.kernel.org with ESMTP
+	id S932658AbWALSvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 13:51:18 -0500
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: realtime-preempt and suspend2
+References: <87irsrhwvf.fsf@64studio.com>
+	<200601120806.24132.ncunningham@cyclades.com>
+From: Free Ekanayaka <free@64studio.com>
+Organization: 64 Studio
+In-Reply-To: <200601120806.24132.ncunningham@cyclades.com> (Nigel Cunningham's message of "Thu, 12 Jan 2006 08:06:23 +1000")
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (linux)
+Date: Thu, 12 Jan 2006 18:52:33 +0100
+Message-ID: <871wzdmizi.fsf@miu-ft.org>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "Mike D. Day" <ncmike@us.ibm.com>, xen-devel@lists.xensource.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Xen-devel] Re: [RFC] [PATCH] sysfs support for Xen attributes
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com> <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com> <43C5B59C.8050908@us.ibm.com> <20060112071000.GA32418@kroah.com> <43C66B56.8030801@us.ibm.com> <43C67C7E.3070909@us.ibm.com> <20060112173449.GB10513@kroah.com>
-In-Reply-To: <20060112173449.GB10513@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+|--==> Nigel Cunningham writes:
 
->On Thu, Jan 12, 2006 at 09:57:50AM -0600, Anthony Liguori wrote:
->  
->
->>Here's a list of the remaining things we current expose in /proc/xen 
->>that have no obvious place:
->>
->>1) capabilities (is the domain a management domain)
->>    
->>
->
->Is this just a single value or a bitfield?
->  
->
-Right now it's a string that identifies the type of partition is it (for 
-instance, "control_d" for the control domain).
+  NC> Hi.
+  NC> On Wednesday 11 January 2006 20:39, Free Ekanayaka wrote:
+  >>Hi,
+  >>
+  >>I'd like  to use both  the realtime-preempt  and the suspend2 patches,
+  >>but the seem to conflict in (I tried to apply them on 2.6.15).
+  >>
+  >>Did anybody experiment such combination?
 
->>2) xsd_mfn (a frame number for our bus so that userspace can connect to it)
->>    
->>
->
->Single number, right?
->  
->
-Yup.
+  NC> Give me more detail and I'll see if I can help.
 
->>3) xsd_evtchn (a virtual IRQ for xen bus for userspace)
->>    
->>
->
->Again, single number?
->  
->
-Yup.
+Thanks, the patch sequence is:
 
->>I would think these would most obviously go under something like:
->>
->>/sys/hypervisor/xen/
->>
->>That would introduce a hypervisor subsystem.  There are at least a few 
->>hypervisors out there already so this isn't that bad of an idea 
->>(although perhaps it may belong somewhere else in the hierarchy).  Greg?
->>    
->>
->
->I would have no problem with /sys/hypervisor/xen/ as long as you play by
->the rest of the rules for sysfs (one value per file, no binary blobs
->being intrepreted by the kernel, etc.)
->  
->
-Great, thanks!
+1) pristine kernel 2.6.15
+2) suspend2 patch 2.2-rc16 (I used the apply script incl in the source tarball) [0]
+3) realtime-preempt 2.6.15-rt2
 
-Regards,
+Of  course the  suspend2  patch applies happily,   but when I try with
+realtime-preempt I get some rejects, here is the log:
 
-Anthony Liguori
+http://people.miu-ft.org/~free/2.6.15+suspend2+rt.log
 
->thanks,
->
->greg k-h
->
->  
->
+Cheers,
+
+Free
+
+[0] http://www.suspend2.net/downloads/all/suspend2-2.2-rc16-for-2.6.15.tar.bz2
 

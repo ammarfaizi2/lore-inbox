@@ -1,71 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWALIey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbWALIkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbWALIey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 03:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWALIey
+	id S1030327AbWALIkA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 03:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWALIj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 03:34:54 -0500
-Received: from [195.144.244.147] ([195.144.244.147]:25505 "EHLO
-	amanaus.varma-el.com") by vger.kernel.org with ESMTP
-	id S1030259AbWALIex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 03:34:53 -0500
-Message-ID: <43C614A5.6030703@varma-el.com>
-Date: Thu, 12 Jan 2006 11:34:45 +0300
-From: Andrey Volkov <avolkov@varma-el.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ru-ru, ru
+	Thu, 12 Jan 2006 03:39:59 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:1668 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1030327AbWALIj7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 03:39:59 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: Re: [PATCH 2 of 3] memcpy32 for x86_64
+Date: Thu, 12 Jan 2006 10:38:17 +0200
+User-Agent: KMail/1.8.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, hch@infradead.org, ak@suse.de,
+       rdreier@cisco.com
+References: <b4863171295fdb6e8206.1136922838@serpentine.internal.keyresearch.com>
+In-Reply-To: <b4863171295fdb6e8206.1136922838@serpentine.internal.keyresearch.com>
 MIME-Version: 1.0
-To: Sylvain Munaut <tnt@246tNt.com>
-Cc: ML linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [kernel-2.6.15] Fix PCI irq mapping for lite5200
-Content-Type: multipart/mixed;
- boundary="------------010607090800000105020007"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601121038.17764.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010607090800000105020007
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
+On Tuesday 10 January 2006 21:53, Bryan O'Sullivan wrote:
+> Introduce an x86_64-specific memcpy32 routine.  The routine is similar
+> to memcpy, but is guaranteed to work in units of 32 bits at a time.
+> 
+> Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+> 
+> diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/kernel/x8664_ksyms.c
+> --- a/arch/x86_64/kernel/x8664_ksyms.c	Tue Jan 10 11:52:46 2006 -0800
+> +++ b/arch/x86_64/kernel/x8664_ksyms.c	Tue Jan 10 11:52:48 2006 -0800
+> @@ -164,6 +164,8 @@
+>  EXPORT_SYMBOL(memcpy);
+>  EXPORT_SYMBOL(__memcpy);
+>  
+> +EXPORT_SYMBOL_GPL(memcpy32);
+> +
+>  #ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
+>  /* prototypes are wrong, these are assembly with custom calling functions */
+>  extern void rwsem_down_read_failed_thunk(void);
+> diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/lib/Makefile
+> --- a/arch/x86_64/lib/Makefile	Tue Jan 10 11:52:46 2006 -0800
+> +++ b/arch/x86_64/lib/Makefile	Tue Jan 10 11:52:48 2006 -0800
+> @@ -9,4 +9,4 @@
+>  lib-y := csum-partial.o csum-copy.o csum-wrappers.o delay.o \
+>  	usercopy.o getuser.o putuser.o  \
+>  	thunk.o clear_page.o copy_page.o bitstr.o bitops.o
+> -lib-y += memcpy.o memmove.o memset.o copy_user.o
+> +lib-y += memcpy.o memcpy32.o memmove.o memset.o copy_user.o
+> diff -r 2d4af213d9c5 -r b4863171295f include/asm-x86_64/string.h
+> --- a/include/asm-x86_64/string.h	Tue Jan 10 11:52:46 2006 -0800
+> +++ b/include/asm-x86_64/string.h	Tue Jan 10 11:52:48 2006 -0800
+> @@ -45,6 +45,9 @@
+>  #define __HAVE_ARCH_MEMMOVE
+>  void * memmove(void * dest,const void *src,size_t count);
+>  
+> +/* copy data, 32 bits at a time */
+> +void memcpy32(void *dst, const void *src, size_t count);
+> +
+>  /* Use C out of line version for memcmp */ 
+>  #define memcmp __builtin_memcmp
+>  int memcmp(const void * cs,const void * ct,size_t count);
+> diff -r 2d4af213d9c5 -r b4863171295f arch/x86_64/lib/memcpy32.S
+> --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
+> +++ b/arch/x86_64/lib/memcpy32.S	Tue Jan 10 11:52:48 2006 -0800
+> @@ -0,0 +1,39 @@
+> +/*
+> + * Copyright 2006 PathScale, Inc.  All Rights Reserved.
+> + *
+> + * This file is free software; you can redistribute it and/or modify
+> + * it under the terms of version 2 of the GNU General Public License
+> + * as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software Foundation,
+> + * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+> + */
+> +
+> +/*
+> + * Registers used below:
+> + * dst - rdi
+> + * src - rsi
+> + * count - rdx
+> + */
+> +
+> +/**
+> + * memcpy32 - copy data, in units of 32 bits at a time
+> + * @dst: destination (must be 32-bit aligned)
+> + * @src: source (must be 32-bit aligned)
+> + * @count: number of 32-bit quantities to copy
+> + */
+> + 	.globl memcpy32
+> +memcpy32:
+> +	movl %edx,%ecx
+> +	shrl $1,%ecx
+> +	andl $1,%edx
+> +	rep movsq
+> +	movl %edx,%ecx
+> +	rep movsd
+> +	ret
 
-Hi Sylvain,
+movsq is not a 32bit move, it's a 64 bit one.
 
-This patch fix problem of PCI boards irq mapping on lite5200
-(raised after your changes of MPC52xx_IRQ0 number)
+There are three possibilities here:
 
+1) I misunderstand what memcpy32 means (I understand it like "it guarantees
+that all accesses will be strictly 32bit")
+
+2) On all current x86_64 hardware each 64bit access from/to
+IO mapped addresses is always converted to two 32bit accesses.
+
+3) code is buggy
+
+If it is (1) or (2), consider adding a comment to clear future
+reader's confusion.
 --
-Regards
-Andrey Volkov
-
---------------010607090800000105020007
-Content-Type: text/plain;
- name="01-lite5200_map_irq-fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="01-lite5200_map_irq-fix.diff"
-
-	lite5200_map_irq: Fix irq mapping for external PCI boards
-
-Signed-off-by: Andrey Volkov <avolkov@varma-el.com>
----
-
- arch/ppc/platforms/lite5200.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/arch/ppc/platforms/lite5200.c b/arch/ppc/platforms/lite5200.c
-index 7ed52dc..cd4acb3 100644
---- a/arch/ppc/platforms/lite5200.c
-+++ b/arch/ppc/platforms/lite5200.c
-@@ -73,7 +73,8 @@ lite5200_show_cpuinfo(struct seq_file *m
- static int
- lite5200_map_irq(struct pci_dev *dev, unsigned char idsel, unsigned char pin)
- {
--	return (pin == 1) && (idsel==24) ? MPC52xx_IRQ0 : -1;
-+	/* Only INTA supported */
-+	return (pin == 1) ? MPC52xx_IRQ0 : -1;
- }
- #endif
- 
-
---------------010607090800000105020007--
+vda

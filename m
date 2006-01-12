@@ -1,419 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWALDSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWALD0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965007AbWALDSg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 22:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWALDSg
+	id S965010AbWALD0I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 22:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965011AbWALD0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 22:18:36 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:54740 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965007AbWALDSf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 22:18:35 -0500
-Subject: Re: [PATCH 1/2]MSI(X) save/restore for suspend/resume
-From: Shaohua Li <shaohua.li@intel.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Rajesh Shah <rajesh.shah@intel.com>
-In-Reply-To: <20060112024732.GE19769@parisc-linux.org>
-References: <1135649077.17476.14.camel@sli10-desk.sh.intel.com>
-	 <20060103231304.56e3228b.akpm@osdl.org>
-	 <1136422680.30655.1.camel@sli10-desk.sh.intel.com>
-	 <20060110202841.GZ19769@parisc-linux.org>
-	 <1136942240.5750.35.camel@sli10-desk.sh.intel.com>
-	 <20060111012625.GA29108@kroah.com>
-	 <1136967502.5750.65.camel@sli10-desk.sh.intel.com>
-	 <20060111155142.GA19828@kroah.com>
-	 <1137033060.5750.68.camel@sli10-desk.sh.intel.com>
-	 <20060112024732.GE19769@parisc-linux.org>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 11:17:51 +0800
-Message-Id: <1137035871.5750.80.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 22:26:08 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4572 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965010AbWALD0H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 22:26:07 -0500
+Date: Wed, 11 Jan 2006 19:25:53 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: cpw@sgi.com, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net, taka@valinux.co.jp,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 2/5] Direct Migration V9: migrate_pages() extension
+In-Reply-To: <20060110214648.4d54da7c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0601111919020.26549@schroedinger.engr.sgi.com>
+References: <20060110224114.19138.10463.sendpatchset@schroedinger.engr.sgi.com>
+ <20060110224124.19138.36811.sendpatchset@schroedinger.engr.sgi.com>
+ <20060110214648.4d54da7c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 19:47 -0700, Matthew Wilcox wrote:
-> On Thu, Jan 12, 2006 at 10:30:59AM +0800, Shaohua Li wrote:
+On Tue, 10 Jan 2006, Andrew Morton wrote:
+
+> So I'd suggest that this part needs a bit of a rethink.  If we really need
+> to run other processes then try a schedule_timeout_uninterruptible(1).  If
+> not, just remove the loop.
 > 
-> Did you not understand my comment about using the hlist functions?
-> 
-> > +struct pci_cap_saved_state {
-> > +	struct list_head next;
-> 
-> struct hlist_node list;
+> Please stick a printk in there, work out how often and under which
+> workloads that loop is actually doing something useful.
 
-Add MSI(X) configure space save/restore in generic PCI helper.
+The loop is there to call try_to_unmap until it replaces all ptes
+with swap ptes. The problem is that try_to_unmap may return SWAP_FAIL
+if a pte was recently referenced and do nothing.
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
+Lets go back to the way the old hotplug code did it. Modify 
+try_to_unmap() to take an additional parameter so that the reference
+bit in the ptes does not cause a SWAP_FAIL. Another option would be to 
+modify try_to_unmap to return an additional status SWAP_REFERENCE and
+call try_to_unmap until another status is returned.
 
- linux-2.6.15-rc5-root/drivers/pci/msi.c   |  227 ++++++++++++++++++++++++++----
- linux-2.6.15-rc5-root/drivers/pci/pci.c   |    6 
- linux-2.6.15-rc5-root/drivers/pci/pci.h   |   11 +
- linux-2.6.15-rc5-root/include/linux/pci.h |   31 ++++
- 5 files changed, 246 insertions(+), 29 deletions(-)
 
-diff -puN drivers/pci/msi.c~msi_save_restore drivers/pci/msi.c
---- linux-2.6.15-rc5/drivers/pci/msi.c~msi_save_restore	2006-01-11 13:33:33.000000000 +0800
-+++ linux-2.6.15-rc5-root/drivers/pci/msi.c	2006-01-12 10:13:41.000000000 +0800
-@@ -499,6 +499,201 @@ void pci_scan_msi_device(struct pci_dev 
- 		nr_reserved_vectors++;
- }
+
+
+Add a parameter to try_to_unmap and friends to not return
+SWAP_FAIL if a newly referenced pte is encountered.
+
+Then replace the loop in migrate_page_remove_references()
+with an invokation of try_to_unmap with that parameter.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.15/mm/vmscan.c
+===================================================================
+--- linux-2.6.15.orig/mm/vmscan.c	2006-01-11 19:22:01.000000000 -0800
++++ linux-2.6.15/mm/vmscan.c	2006-01-11 19:22:07.000000000 -0800
+@@ -472,7 +472,7 @@ static int shrink_list(struct list_head 
+ 		 * processes. Try to unmap it here.
+ 		 */
+ 		if (page_mapped(page) && mapping) {
+-			switch (try_to_unmap(page)) {
++			switch (try_to_unmap(page, 0)) {
+ 			case SWAP_FAIL:
+ 				goto activate_locked;
+ 			case SWAP_AGAIN:
+@@ -621,7 +621,7 @@ static int swap_page(struct page *page)
+ 	struct address_space *mapping = page_mapping(page);
  
-+#ifdef CONFIG_PM
-+int pci_save_msi_state(struct pci_dev *dev)
-+{
-+	int pos, i = 0;
-+	u16 control;
-+	struct pci_cap_saved_state *save_state;
-+	u32 *cap;
-+
-+	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
-+	if (pos <= 0 || dev->no_msi)
-+		return 0;
-+
-+	pci_read_config_word(dev, msi_control_reg(pos), &control);
-+	if (!(control & PCI_MSI_FLAGS_ENABLE))
-+		return 0;
-+
-+	save_state = kzalloc(sizeof(struct pci_cap_saved_state) + sizeof(u32) * 5,
-+		GFP_KERNEL);
-+	if (!save_state) {
-+		printk(KERN_ERR "Out of memory in pci_save_msi_state\n");
-+		return -ENOMEM;
-+	}
-+	cap = &save_state->data[0];
-+
-+	pci_read_config_dword(dev, pos, &cap[i++]);
-+	control = cap[0] >> 16;
-+	pci_read_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, &cap[i++]);
-+	if (control & PCI_MSI_FLAGS_64BIT) {
-+		pci_read_config_dword(dev, pos + PCI_MSI_ADDRESS_HI, &cap[i++]);
-+		pci_read_config_dword(dev, pos + PCI_MSI_DATA_64, &cap[i++]);
-+	} else
-+		pci_read_config_dword(dev, pos + PCI_MSI_DATA_32, &cap[i++]);
-+	if (control & PCI_MSI_FLAGS_MASKBIT)
-+		pci_read_config_dword(dev, pos + PCI_MSI_MASK_BIT, &cap[i++]);
-+	disable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
-+	save_state->cap_nr = PCI_CAP_ID_MSI;
-+	pci_add_saved_cap(dev, save_state);
-+	return 0;
-+}
-+
-+void pci_restore_msi_state(struct pci_dev *dev)
-+{
-+	int i = 0, pos;
-+	u16 control;
-+	struct pci_cap_saved_state *save_state;
-+	u32 *cap;
-+
-+	save_state = pci_find_saved_cap(dev, PCI_CAP_ID_MSI);
-+	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
-+	if (!save_state || pos <= 0)
-+		return;
-+	cap = &save_state->data[0];
-+
-+	control = cap[i++] >> 16;
-+	pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, cap[i++]);
-+	if (control & PCI_MSI_FLAGS_64BIT) {
-+		pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_HI, cap[i++]);
-+		pci_write_config_dword(dev, pos + PCI_MSI_DATA_64, cap[i++]);
-+	} else
-+		pci_write_config_dword(dev, pos + PCI_MSI_DATA_32, cap[i++]);
-+	if (control & PCI_MSI_FLAGS_MASKBIT)
-+		pci_write_config_dword(dev, pos + PCI_MSI_MASK_BIT, cap[i++]);
-+	pci_write_config_word(dev, pos + PCI_MSI_FLAGS, control);
-+	enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
-+	pci_remove_saved_cap(save_state);
-+	kfree(save_state);
-+}
-+
-+int pci_save_msix_state(struct pci_dev *dev)
-+{
-+	int pos;
-+	u16 control;
-+	struct pci_cap_saved_state *save_state;
-+
-+	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
-+	if (pos <= 0 || dev->no_msi)
-+		return 0;
-+
-+	pci_read_config_word(dev, msi_control_reg(pos), &control);
-+	if (!(control & PCI_MSIX_FLAGS_ENABLE))
-+		return 0;
-+	save_state = kzalloc(sizeof(struct pci_cap_saved_state) + sizeof(u16),
-+		GFP_KERNEL);
-+	if (!save_state) {
-+		printk(KERN_ERR "Out of memory in pci_save_msix_state\n");
-+		return -ENOMEM;
-+	}
-+	*((u16 *)&save_state->data[0]) = control;
-+
-+	disable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
-+	save_state->cap_nr = PCI_CAP_ID_MSIX;
-+	pci_add_saved_cap(dev, save_state);
-+	return 0;
-+}
-+
-+void pci_restore_msix_state(struct pci_dev *dev)
-+{
-+	u16 save;
-+	int pos;
-+	int vector, head, tail = 0;
-+	void __iomem *base;
-+	int j;
-+	struct msg_address address;
-+	struct msg_data data;
-+	struct msi_desc *entry;
-+	int temp;
-+	struct pci_cap_saved_state *save_state;
-+
-+	save_state = pci_find_saved_cap(dev, PCI_CAP_ID_MSIX);
-+	if (!save_state)
-+		return;
-+	save = *((u16 *)&save_state->data[0]);
-+	pci_remove_saved_cap(save_state);
-+	kfree(save_state);
-+
-+	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
-+	if (pos <= 0)
-+		return;
-+
-+	/* route the table */
-+	temp = dev->irq;
-+	if (msi_lookup_vector(dev, PCI_CAP_ID_MSIX))
-+		return;
-+	vector = head = dev->irq;
-+	while (head != tail) {
-+		entry = msi_desc[vector];
-+		base = entry->mask_base;
-+		j = entry->msi_attrib.entry_nr;
-+
-+		msi_address_init(&address);
-+		msi_data_init(&data, vector);
-+
-+		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
-+		address.lo_address.value |= entry->msi_attrib.current_cpu <<
-+					MSI_TARGET_CPU_SHIFT;
-+
-+		writel(address.lo_address.value,
-+			base + j * PCI_MSIX_ENTRY_SIZE +
-+			PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
-+		writel(address.hi_address,
-+			base + j * PCI_MSIX_ENTRY_SIZE +
-+			PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
-+		writel(*(u32*)&data,
-+			base + j * PCI_MSIX_ENTRY_SIZE +
-+			PCI_MSIX_ENTRY_DATA_OFFSET);
-+
-+		tail = msi_desc[vector]->link.tail;
-+		vector = tail;
-+	}
-+	dev->irq = temp;
-+
-+	pci_write_config_word(dev, msi_control_reg(pos), save);
-+	enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
-+}
-+#endif
-+
-+static void msi_register_init(struct pci_dev *dev, struct msi_desc *entry)
-+{
-+	struct msg_address address;
-+	struct msg_data data;
-+	int pos, vector = dev->irq;
-+	u16 control;
-+
-+   	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
-+	pci_read_config_word(dev, msi_control_reg(pos), &control);
-+	/* Configure MSI capability structure */
-+	msi_address_init(&address);
-+	msi_data_init(&data, vector);
-+	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
-+				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
-+	pci_write_config_dword(dev, msi_lower_address_reg(pos),
-+			address.lo_address.value);
-+	if (is_64bit_address(control)) {
-+		pci_write_config_dword(dev,
-+			msi_upper_address_reg(pos), address.hi_address);
-+		pci_write_config_word(dev,
-+			msi_data_reg(pos, 1), *((u32*)&data));
-+	} else
-+		pci_write_config_word(dev,
-+			msi_data_reg(pos, 0), *((u32*)&data));
-+	if (entry->msi_attrib.maskbit) {
-+		unsigned int maskbits, temp;
-+		/* All MSIs are unmasked by default, Mask them all */
-+		pci_read_config_dword(dev,
-+			msi_mask_bits_reg(pos, is_64bit_address(control)),
-+			&maskbits);
-+		temp = (1 << multi_msi_capable(control));
-+		temp = ((temp - 1) & ~temp);
-+		maskbits |= temp;
-+		pci_write_config_dword(dev,
-+			msi_mask_bits_reg(pos, is_64bit_address(control)),
-+			maskbits);
-+	}
-+}
-+
- /**
-  * msi_capability_init - configure device's MSI capability structure
-  * @dev: pointer to the pci_dev data structure of MSI device function
-@@ -511,8 +706,6 @@ void pci_scan_msi_device(struct pci_dev 
- static int msi_capability_init(struct pci_dev *dev)
+ 	if (page_mapped(page) && mapping)
+-		if (try_to_unmap(page) != SWAP_SUCCESS)
++		if (try_to_unmap(page, 0) != SWAP_SUCCESS)
+ 			goto unlock_retry;
+ 
+ 	if (PageDirty(page)) {
+@@ -677,7 +677,6 @@ int migrate_page_remove_references(struc
  {
- 	struct msi_desc *entry;
--	struct msg_address address;
--	struct msg_data data;
- 	int pos, vector;
- 	u16 control;
+ 	struct address_space *mapping = page_mapping(page);
+ 	struct page **radix_pointer;
+-	int i;
  
-@@ -542,33 +735,8 @@ static int msi_capability_init(struct pc
- 	/* Replace with MSI handler */
- 	irq_handler_init(PCI_CAP_ID_MSI, vector, entry->msi_attrib.maskbit);
- 	/* Configure MSI capability structure */
--	msi_address_init(&address);
--	msi_data_init(&data, vector);
--	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
--				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
--	pci_write_config_dword(dev, msi_lower_address_reg(pos),
--			address.lo_address.value);
--	if (is_64bit_address(control)) {
--		pci_write_config_dword(dev,
--			msi_upper_address_reg(pos), address.hi_address);
--		pci_write_config_word(dev,
--			msi_data_reg(pos, 1), *((u32*)&data));
--	} else
--		pci_write_config_word(dev,
--			msi_data_reg(pos, 0), *((u32*)&data));
--	if (entry->msi_attrib.maskbit) {
--		unsigned int maskbits, temp;
--		/* All MSIs are unmasked by default, Mask them all */
--		pci_read_config_dword(dev,
--			msi_mask_bits_reg(pos, is_64bit_address(control)),
--			&maskbits);
--		temp = (1 << multi_msi_capable(control));
--		temp = ((temp - 1) & ~temp);
--		maskbits |= temp;
--		pci_write_config_dword(dev,
--			msi_mask_bits_reg(pos, is_64bit_address(control)),
--			maskbits);
+ 	/*
+ 	 * Avoid doing any of the following work if the page count
+@@ -706,17 +705,7 @@ int migrate_page_remove_references(struc
+ 	 * If the page was not migrated then the PageSwapCache bit
+ 	 * is still set and the operation may continue.
+ 	 */
+-	for(i = 0; i < 10 && page_mapped(page); i++) {
+-		int rc = try_to_unmap(page);
+-
+-		if (rc == SWAP_SUCCESS)
+-			break;
+-		/*
+-		 * If there are other runnable processes then running
+-		 * them may make it possible to unmap the page
+-		 */
+-		schedule();
 -	}
-+	msi_register_init(dev, entry);
-+
- 	attach_msi_entry(entry, vector);
- 	/* Set MSI enabled bits	 */
- 	enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
-@@ -717,6 +885,7 @@ int pci_enable_msi(struct pci_dev* dev)
- 			vector_irq[dev->irq] = -1;
- 			nr_released_vectors--;
- 			spin_unlock_irqrestore(&msi_lock, flags);
-+			msi_register_init(dev, msi_desc[dev->irq]);
- 			enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
- 			return 0;
- 		}
-diff -puN drivers/pci/pci.c~msi_save_restore drivers/pci/pci.c
---- linux-2.6.15-rc5/drivers/pci/pci.c~msi_save_restore	2006-01-11 13:33:33.000000000 +0800
-+++ linux-2.6.15-rc5-root/drivers/pci/pci.c	2006-01-11 13:33:33.000000000 +0800
-@@ -438,6 +438,10 @@ pci_save_state(struct pci_dev *dev)
- 	/* XXX: 100% dword access ok here? */
- 	for (i = 0; i < 16; i++)
- 		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
-+	if ((i = pci_save_msi_state(dev)) != 0)
-+		return i;
-+	if ((i = pci_save_msix_state(dev)) != 0)
-+		return i;
- 	return 0;
- }
++	try_to_unmap(page, 1);
  
-@@ -452,6 +456,8 @@ pci_restore_state(struct pci_dev *dev)
- 
- 	for (i = 0; i < 16; i++)
- 		pci_write_config_dword(dev,i * 4, dev->saved_config_space[i]);
-+	pci_restore_msi_state(dev);
-+	pci_restore_msix_state(dev);
- 	return 0;
- }
- 
-diff -puN drivers/pci/pci.h~msi_save_restore drivers/pci/pci.h
---- linux-2.6.15-rc5/drivers/pci/pci.h~msi_save_restore	2006-01-11 13:33:33.000000000 +0800
-+++ linux-2.6.15-rc5-root/drivers/pci/pci.h	2006-01-12 10:24:48.000000000 +0800
-@@ -58,6 +58,17 @@ void disable_msi_mode(struct pci_dev *de
- #else
- static inline void disable_msi_mode(struct pci_dev *dev, int pos, int type) { }
- #endif
-+#if defined(CONFIG_PCI_MSI) && defined(CONFIG_PM)
-+int pci_save_msi_state(struct pci_dev *dev);
-+int pci_save_msix_state(struct pci_dev *dev);
-+void pci_restore_msi_state(struct pci_dev *dev);
-+void pci_restore_msix_state(struct pci_dev *dev);
-+#else
-+static inline int pci_save_msi_state(struct pci_dev *dev) { return 0; }
-+static inline int pci_save_msix_state(struct pci_dev *dev) { return 0; }
-+static inline void pci_restore_msi_state(struct pci_dev *dev) {}
-+static inline void pci_restore_msix_state(struct pci_dev *dev) {}
-+#endif
- 
- extern int pcie_mch_quirk;
- extern struct device_attribute pci_dev_attrs[];
-diff -puN include/linux/pci.h~msi_save_restore include/linux/pci.h
---- linux-2.6.15-rc5/include/linux/pci.h~msi_save_restore	2006-01-11 13:33:33.000000000 +0800
-+++ linux-2.6.15-rc5-root/include/linux/pci.h	2006-01-12 11:01:39.000000000 +0800
-@@ -78,6 +78,12 @@ typedef int __bitwise pci_power_t;
- #define PCI_UNKNOWN	((pci_power_t __force) 5)
- #define PCI_POWER_ERROR	((pci_power_t __force) -1)
- 
-+struct pci_cap_saved_state {
-+	struct hlist_node next;
-+	char cap_nr;
-+	u32 data[0];
-+};
-+
- /*
-  * The pci_dev structure is used to describe PCI devices.
+ 	/*
+ 	 * Give up if we were unable to remove all mappings.
+Index: linux-2.6.15/mm/rmap.c
+===================================================================
+--- linux-2.6.15.orig/mm/rmap.c	2006-01-11 19:22:00.000000000 -0800
++++ linux-2.6.15/mm/rmap.c	2006-01-11 19:22:07.000000000 -0800
+@@ -571,7 +571,8 @@ void page_remove_rmap(struct page *page)
+  * Subfunctions of try_to_unmap: try_to_unmap_one called
+  * repeatedly from either try_to_unmap_anon or try_to_unmap_file.
   */
-@@ -135,6 +141,7 @@ struct pci_dev {
- 	unsigned int	block_ucfg_access:1;	/* userspace config space access is blocked */
+-static int try_to_unmap_one(struct page *page, struct vm_area_struct *vma)
++static int try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
++				int ignore_refs)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+@@ -594,7 +595,8 @@ static int try_to_unmap_one(struct page 
+ 	 * skipped over this mm) then we should reactivate it.
+ 	 */
+ 	if ((vma->vm_flags & VM_LOCKED) ||
+-			ptep_clear_flush_young(vma, address, pte)) {
++			(ptep_clear_flush_young(vma, address, pte)
++				&& !ignore_refs)) {
+ 		ret = SWAP_FAIL;
+ 		goto out_unmap;
+ 	}
+@@ -728,7 +730,7 @@ static void try_to_unmap_cluster(unsigne
+ 	pte_unmap_unlock(pte - 1, ptl);
+ }
  
- 	u32		saved_config_space[16]; /* config space saved at suspend time */
-+	struct hlist_head saved_cap_space;
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
- 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
- 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
-@@ -145,6 +152,30 @@ struct pci_dev {
- #define	to_pci_dev(n) container_of(n, struct pci_dev, dev)
- #define for_each_pci_dev(d) while ((d = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
+-static int try_to_unmap_anon(struct page *page)
++static int try_to_unmap_anon(struct page *page, int ignore_refs)
+ {
+ 	struct anon_vma *anon_vma;
+ 	struct vm_area_struct *vma;
+@@ -739,7 +741,7 @@ static int try_to_unmap_anon(struct page
+ 		return ret;
  
-+static inline struct pci_cap_saved_state *pci_find_saved_cap(
-+	struct pci_dev *pci_dev,char cap)
-+{
-+	struct pci_cap_saved_state *tmp;
-+	struct hlist_node *pos;
-+
-+	hlist_for_each_entry(tmp, pos, &pci_dev->saved_cap_space, next) {
-+		if (tmp->cap_nr == cap)
-+			return tmp;
-+	}
-+	return NULL;
-+}
-+
-+static inline void pci_add_saved_cap(struct pci_dev *pci_dev,
-+	struct pci_cap_saved_state *new_cap)
-+{
-+	hlist_add_head(&new_cap->next, &pci_dev->saved_cap_space);
-+}
-+
-+static inline void pci_remove_saved_cap(struct pci_cap_saved_state *cap)
-+{
-+	hlist_del(&cap->next);
-+}
-+
- /*
-  *  For PCI devices, the region numbers are assigned this way:
+ 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
+-		ret = try_to_unmap_one(page, vma);
++		ret = try_to_unmap_one(page, vma, ignore_refs);
+ 		if (ret == SWAP_FAIL || !page_mapped(page))
+ 			break;
+ 	}
+@@ -756,7 +758,7 @@ static int try_to_unmap_anon(struct page
   *
-_
-
-
+  * This function is only called from try_to_unmap for object-based pages.
+  */
+-static int try_to_unmap_file(struct page *page)
++static int try_to_unmap_file(struct page *page, int ignore_refs)
+ {
+ 	struct address_space *mapping = page->mapping;
+ 	pgoff_t pgoff = page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT);
+@@ -770,7 +772,7 @@ static int try_to_unmap_file(struct page
+ 
+ 	spin_lock(&mapping->i_mmap_lock);
+ 	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, pgoff, pgoff) {
+-		ret = try_to_unmap_one(page, vma);
++		ret = try_to_unmap_one(page, vma, ignore_refs);
+ 		if (ret == SWAP_FAIL || !page_mapped(page))
+ 			goto out;
+ 	}
+@@ -855,16 +857,16 @@ out:
+  * SWAP_AGAIN	- we missed a mapping, try again later
+  * SWAP_FAIL	- the page is unswappable
+  */
+-int try_to_unmap(struct page *page)
++int try_to_unmap(struct page *page, int ignore_refs)
+ {
+ 	int ret;
+ 
+ 	BUG_ON(!PageLocked(page));
+ 
+ 	if (PageAnon(page))
+-		ret = try_to_unmap_anon(page);
++		ret = try_to_unmap_anon(page, ignore_refs);
+ 	else
+-		ret = try_to_unmap_file(page);
++		ret = try_to_unmap_file(page, ignore_refs);
+ 
+ 	if (!page_mapped(page))
+ 		ret = SWAP_SUCCESS;
+Index: linux-2.6.15/include/linux/rmap.h
+===================================================================
+--- linux-2.6.15.orig/include/linux/rmap.h	2006-01-11 19:22:19.000000000 -0800
++++ linux-2.6.15/include/linux/rmap.h	2006-01-11 19:22:22.000000000 -0800
+@@ -91,7 +91,7 @@ static inline void page_dup_rmap(struct 
+  * Called from mm/vmscan.c to handle paging out
+  */
+ int page_referenced(struct page *, int is_locked);
+-int try_to_unmap(struct page *);
++int try_to_unmap(struct page *, int ignore_refs);
+ #ifdef CONFIG_MIGRATION
+ void remove_from_swap(struct page *page);
+ #endif
+@@ -114,7 +114,7 @@ unsigned long page_address_in_vma(struct
+ #define anon_vma_link(vma)	do {} while (0)
+ 
+ #define page_referenced(page,l) TestClearPageReferenced(page)
+-#define try_to_unmap(page)	SWAP_FAIL
++#define try_to_unmap(page, refs) SWAP_FAIL
+ 
+ #endif	/* CONFIG_MMU */
+ 

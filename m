@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWALTWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbWALTYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161198AbWALTWG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 14:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161199AbWALTWG
+	id S1161199AbWALTYF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 14:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161202AbWALTYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 14:22:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:981 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161198AbWALTWF (ORCPT
+	Thu, 12 Jan 2006 14:24:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46305 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161199AbWALTYE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 14:22:05 -0500
-Date: Thu, 12 Jan 2006 14:21:39 -0500
-From: Dave Jones <davej@redhat.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.15-mm2
-Message-ID: <20060112192139.GI19827@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Brice Goglin <Brice.Goglin@ens-lyon.org>,
-	linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
-	Andrew Morton <akpm@osdl.org>
-References: <20060107052221.61d0b600.akpm@osdl.org> <43C0172E.7040607@ens-lyon.org> <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org> <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com> <u3bjtogq0@a1i15.kph.uni-mainz.de> <20060112171137.GA19827@redhat.com> <43C6AA17.5070409@ens-lyon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C6AA17.5070409@ens-lyon.org>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 12 Jan 2006 14:24:04 -0500
+Date: Thu, 12 Jan 2006 11:23:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.15-$SHA1: VT <-> X sometimes odd
+In-Reply-To: <20060112192856.GA7938@mipter.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.64.0601121119100.3535@g5.osdl.org>
+References: <20060110162305.GA7886@mipter.zuzino.mipt.ru> <43C4F114.9070308@gmail.com>
+ <20060111153822.GA7879@mipter.zuzino.mipt.ru> <20060112192856.GA7938@mipter.zuzino.mipt.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 02:12:23PM -0500, Brice Goglin wrote:
- > Dave Jones wrote:
- > 
- > >On Thu, Jan 12, 2006 at 11:58:31AM +0100, Ulrich Mueller wrote:
- > > 
- > > >    $ lspci -s 00:02.0 -v
- > > >    00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 03) (prog-if 00 [VGA])
- > > >    	Subsystem: Hewlett-Packard Company nx6110/nc6120
- > > >    	Flags: bus master, fast devsel, latency 0, IRQ 16
- > > >    	Memory at d0400000 (32-bit, non-prefetchable) [size=512K]
- > > >    	I/O ports at 7000 [size=8]
- > > >    	Memory at c0000000 (32-bit, prefetchable) [size=256M]
- > > >    	Memory at d0480000 (32-bit, non-prefetchable) [size=256K]
- > > >    	Capabilities: [d0] Power Management version 2
- > >
- > >Another one that advertises no AGP capabilities.
- > >In this situation you shouldn't *need* agpgart.  If it's PCI[E],
- > >radeon will use pcigart.
- > >  
- > Is this supposed to work soon ? Looking at all "agp_foo" symbols in the
- > drm module, there might lots of work do first, right ? In this case, it
- > might be good to still be able to load agpgart on PCI-E machine for a
- > while ?
 
-Well, mainline does that already, and this stuff won't go anywhere
-near there anytime soon.  I'd like to understand why drm can't find
-the symbols in the module, even though its loaded, but between being
-ill this week, and trying to get the Fedora 5 test2 kernel in shape,
-I've not had much chance to dig into it yet.
 
-		Dave
+On Thu, 12 Jan 2006, Alexey Dobriyan wrote:
+> 
+> Now it's vim saving 5k proggie while X tarball was unpacking on reiserfs.
+> :wq and vim freezes. Switching to another virtual "desktops" works and
+> everything in general works except vim. But switching to VT and back
+> sends system to hell.
 
+This may be fixed by the current -git tree:
+
+	commit 1bc691d3, Tejun Heo <htejun@gmail.com>:
+
+	[PATCH] fix queue stalling while barrier sequencing
+
+or if that isn't it, and you have an IDE drive, can you try if the 
+appended trivial patch makes a difference?
+
+			Linus
+
+---
+diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+index bcbaeb5..d726167 100644
+--- a/drivers/ide/ide-io.c
++++ b/drivers/ide/ide-io.c
+@@ -101,7 +101,7 @@ int __ide_end_request(ide_drive_t *drive
+ 	 * for those
+ 	 */
+ 	nbytes = nr_sectors << 9;
+-	if (!rq->errors && rq_all_done(rq, nbytes)) {
++	if (0 && !rq->errors && rq_all_done(rq, nbytes)) {
+ 		rq->data_len = nbytes;
+ 		blkdev_dequeue_request(rq);
+ 		HWGROUP(drive)->rq = NULL;

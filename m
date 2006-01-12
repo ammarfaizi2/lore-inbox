@@ -1,63 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWALOUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbWALOUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWALOUf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 09:20:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbWALOUf
+	id S1030416AbWALOUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 09:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbWALOUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 09:20:35 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:18621 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030416AbWALOUe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 09:20:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=EA7FHLr0cQiP++GGA3+mzBB91/dezkTxKve7Hl2+zZ5eseOemH4cuuwReFGRLlBbLfFngwiqdj4SEhT+a4/hmLTNYJS8s57ANMYcSZVkjGXsQHU3/Qj0+LkHTH/AIuWWKnD8H8isZmvvHKrvyGRJGhazvi+a/bM2WCfJ/H7DB8U=
-Message-ID: <43C665A9.60301@gmail.com>
-Date: Thu, 12 Jan 2006 23:20:25 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Reuben Farrelly <reuben-lkml@reub.net>, Ric Wheeler <ric@emc.com>,
-       Andrew Morton <akpm@osdl.org>, neilb@suse.de, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.15-mm2
-References: <20060111194517.GE5373@suse.de> <20060111195349.GF5373@suse.de> <43C5D1CA.7000400@reub.net> <20060112080051.GA22783@htj.dyndns.org> <43C61598.7050004@reub.net> <20060112111846.GA19976@htj.dyndns.org> <43C645ED.40905@reub.net> <43C64C3B.5070704@emc.com> <43C64DF6.7060604@reub.net> <20060112135533.GA29675@htj.dyndns.org> <20060112141015.GL3945@suse.de>
-In-Reply-To: <20060112141015.GL3945@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jan 2006 09:20:48 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:16563 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1030417AbWALOUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 09:20:46 -0500
+Date: Thu, 12 Jan 2006 15:20:42 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Marcel Holtmann <marcel@holtmann.org>, Michael Buesch <mbuesch@freenet.de>,
+       jgarzik@pobox.com, bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Bcm43xx-dev] [Fwd: State of the Union: Wireless]
+Message-ID: <20060112142042.GJ4430@sunbeam.de.gnumonks.org>
+References: <1136541243.4037.18.camel@localhost> <200601061200.59376.mbuesch@freenet.de> <1136547494.7429.72.camel@localhost> <200601061245.55978.mbuesch@freenet.de> <1136549423.7429.88.camel@localhost> <43BE6697.3030009@trash.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FFpMipsYUdYbs4p3"
+Content-Disposition: inline
+In-Reply-To: <43BE6697.3030009@trash.net>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Jan 12 2006, Tejun Heo wrote:
-> 
->>4. a REQ_SPECIAL | REQ_BLOCK_PC | REQ_QUIET request gets queued at
->>   the head of the queue.  (I have no idea where this comes from.  sd
->>   driver doesn't even handle PC requests.  It will be just failed.
->>   Some kind of hardware management stuff trying to probe MMC
->>   devices?)
-> 
-> 
-> But it does, sd understands these just fine (see references to
-> blk_pc_request()).
-> 
-> It could be coming from someone doing a blkdev_issue_flush, that will
-> even cause sd to queue such a request internally. So it isn't
-> necessarily from user space (it would have to be through SG_IO at that
-> point), and Reubens boot log doesn't have any evidence of anything of
-> that nature being started. So I'm guessing it's the flush, raid1
-> propagates these flushes to the bottom devices when it sees one.
-> 
-> Your analysis looks correct though, Reuben looking forward to hearing
-> whether this fixes your boot hang!
-> 
 
-Ah... you're right.  I was only staring at the !blk_fs_request() test in 
-sd_init_command().  It has early exit for blk_pc_request() of course. 
-It needs to handle SG_IO's & flushes.  :-p
+--FFpMipsYUdYbs4p3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-tejun
+On Fri, Jan 06, 2006 at 01:46:15PM +0100, Patrick McHardy wrote:
+> Marcel Holtmann wrote:
+>=20
+> >>I just personally liked the idea of having a device node in /dev for
+> >>every existing hardware wlan card. Like we have device nodes for
+> >>other real hardware, too. It felt like a bit of a "unix way" to do
+> >>this to me. I don't say this is the way to go.
+> >>If a netlink socket is used (which is possible, for sure), we stay with
+> >>the old way of having no device node in /dev for networking devices.
+> >>That is ok. But that is really only an implementation detail (and for s=
+ure
+> >>a matter of taste).
+> >At the OLS last year, I think the consensus was to use netlink for all
+> >configuration task. However this was mainly driven by Harald Welte and
+> >he might be able to talk about the pros and cons of netlink versus a
+> >character device.
+>=20
+> I think the main advantages of netlink over a character device is its
+> flexible format, which is easily extendable, and multicast capability,
+
+Especially the multicast capability is _extrmely_ handy, since you
+basically can have all sorts of dock-applets or monitoring applications
+that don't need to rely on polling device status but instead get
+multicast notifications of configuration changes.
+
+Also, as a theoretical option, you could implement parts of the wireless
+subsystem outside of the kernel - esp. for the more extensive
+authentication/keying/rekeying functions.
+
+A wireless configuration program would just speak netlink to a
+particular netlink multicast group.  Whether or not the receiving
+functional entity is implemented in the kernel or in a wireless daemon
+in userspace could be completely transparent, as long as the protocol is
+the same.
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--FFpMipsYUdYbs4p3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDxmW6XaXGVTD0i/8RAtBvAJwKF7nZr5hGEJh5wykwtmZLMFUbGwCcCttg
+DEByg/xBH9UAbg0Ra/tDjWw=
+=zQ0E
+-----END PGP SIGNATURE-----
+
+--FFpMipsYUdYbs4p3--

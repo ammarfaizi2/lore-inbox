@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWALFgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWALFg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWALFgs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 00:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWALFgs
+	id S1030291AbWALFg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 00:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWALFg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 00:36:48 -0500
-Received: from c-24-22-115-24.hsd1.or.comcast.net ([24.22.115.24]:62601 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1030293AbWALFgr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 00:36:47 -0500
-Date: Wed, 11 Jan 2006 21:36:22 -0800
-From: Greg KH <gregkh@suse.de>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Mark Maule <maule@sgi.com>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 1/3] msi vector targeting abstractions
-Message-ID: <20060112053622.GA29142@suse.de>
-References: <20060111155251.12460.71269.12163@attica.americas.sgi.com> <20060111155256.12460.26048.32596@attica.americas.sgi.com> <20060112050243.GC332@colo.lackof.org>
+	Thu, 12 Jan 2006 00:36:28 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:7836 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030291AbWALFg2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 00:36:28 -0500
+Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit
+	Connectors
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Keith Owens <kaos@sgi.com>
+Cc: John Hesterberg <jh@sgi.com>, Jes Sorensen <jes@trained-monkey.org>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>
+In-Reply-To: <8699.1137036592@kao2.melbourne.sgi.com>
+References: <8699.1137036592@kao2.melbourne.sgi.com>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 21:26:08 -0800
+Message-Id: <1137043569.6673.156.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060112050243.GC332@colo.lackof.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 10:02:43PM -0700, Grant Grundler wrote:
-> On Wed, Jan 11, 2006 at 09:52:56AM -0600, Mark Maule wrote:
-> > Abstract portions of the MSI core for platforms that do not use standard
-> > APIC interrupt controllers.  This is implemented through a new arch-specific
-> > msi setup routine, and a set of msi ops which can be set on a per platform
-> > basis.
-> ...
-> > Index: linux-maule/drivers/pci/msi.c
-> ...
-> > +	if ((status = msi_arch_init()) < 0) {
+On Thu, 2006-01-12 at 14:29 +1100, Keith Owens wrote:
+> John Hesterberg (on Wed, 11 Jan 2006 15:39:10 -0600) wrote:
+> >On Wed, Jan 11, 2006 at 01:02:10PM -0800, Matt Helsley wrote:
+> >> 	Have you looked at Alan Stern's notifier chain fix patch? Could that be
+> >> used in task_notify?
+> >
+> >I have two concerns about an all-tasks notification interface.
+> >First, we want this to scale, so don't want more global locks.
+> >One unique part of the task notify is that it doesn't use locks.
 > 
-> Willy told me I should always complain about assignment in if() statements :)
+> Neither does Alan Stern's atomic notifier chain.  Indeed it cannot use
+> locks, because the atomic notifier chains can be called from anywhere,
+> including non maskable interrupts.  The downside is that Alan's atomic
+> notifier chains require RCU.
 > 
-> Greg, I volunteer to submit a patch to fix all occurances in pci/msi.c
-> including the one above.  I can prepare that this weekend on my own time.
-> Is that ok?
+> An alternative patch that requires no locks and does not even require
+> RCU is in http://marc.theaimsgroup.com/?l=linux-kernel&m=113392370322545&w=2
+> 
 
-Yes, that would be wonderful to have.
+	Interesting. Might the 'inuse' flags suffer from bouncing due to false
+sharing?
 
-thanks,
+Cheers,
+	-Matt Helsley
 
-greg k-h

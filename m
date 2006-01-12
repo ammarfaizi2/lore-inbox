@@ -1,49 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030353AbWALKp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWALKsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030353AbWALKp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 05:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWALKpz
+	id S1030359AbWALKsf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 05:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWALKsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 05:45:55 -0500
-Received: from tornado.reub.net ([202.89.145.182]:46471 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1030353AbWALKpz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 05:45:55 -0500
-Message-ID: <43C63361.103@reub.net>
-Date: Thu, 12 Jan 2006 23:45:53 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20060111)
+	Thu, 12 Jan 2006 05:48:35 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1036 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030359AbWALKsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 05:48:33 -0500
+Date: Thu, 12 Jan 2006 11:48:33 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, "Ed L. Cashin" <ecashin@coraid.com>,
+       Greg K-H <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] drivers/block/aoe/aoecmd.c: make aoecmd_cfg_pkts() static
+Message-ID: <20060112104833.GS29663@stusta.de>
+References: <20060111042135.24faf878.akpm@osdl.org>
 MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: why sk98lin driver is not up-to date ?
-References: <Xns97496767C8536ericbelhommefreefr@80.91.229.5> <200601120339.17071.chase.venters@clientec.com>
-In-Reply-To: <200601120339.17071.chase.venters@clientec.com>
-Content-Type: text/plain; charset=ISO-8859-6; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060111042135.24faf878.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/01/2006 10:39 p.m., Chase Venters wrote:
-> On Thursday 12 January 2006 03:09, Eric Belhomme wrote:
->> So this archive is more recent than sources included in stock kernel, but
->> older than 2.6.14 kernel, so I wonder why this revision of sk98lin is not
->> included in kernel ?
-> 
-> Eric,
-> 	IIRC, the SysKonnect official GPL driver attempts to support two different 
-> chipsets / possibly has other coding issues as well. I think this is the 
-> reason SysKonnect's driver is still out of tree. I think some netdev folks 
-> might be working on newer drivers, but I haven't been keeping track honestly.
+On Wed, Jan 11, 2006 at 04:21:35AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.15-mm2:
+>...
+> +gregkh-driver-aoe-support-dynamic-resizing-of-aoe-devices.patch
+>...
+>  driver tree updates
+>...
 
-Yes, look at the skge driver in 2.6.15 and the upcoming sky2 in 2.6.16.
+aoecmd_cfg_pkts() can be static.
 
-I think you'll find those drivers much better than sk98lin and support most if 
-not all of the cards that the sk98lin driver works with.  Certainly those two 
-replacement drivers are better maintained.
 
-My understanding is that is that sk98lin is in the process of being deprecated.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-reuben
+---
 
+ drivers/block/aoe/aoe.h    |    1 
+ drivers/block/aoe/aoecmd.c |   94 ++++++++++++++++++-------------------
+ 2 files changed, 47 insertions(+), 48 deletions(-)
+
+--- linux-2.6.15-mm3-full/drivers/block/aoe/aoe.h.old	2006-01-12 00:56:33.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/block/aoe/aoe.h	2006-01-12 00:56:38.000000000 +0100
+@@ -154,7 +154,6 @@
+ 
+ void aoecmd_work(struct aoedev *d);
+ void aoecmd_cfg(ushort aoemajor, unsigned char aoeminor);
+-struct sk_buff *aoecmd_cfg_pkts(ushort, unsigned char, struct sk_buff **);
+ void aoecmd_ata_rsp(struct sk_buff *);
+ void aoecmd_cfg_rsp(struct sk_buff *);
+ void aoecmd_sleepwork(void *vp);
+--- linux-2.6.15-mm3-full/drivers/block/aoe/aoecmd.c.old	2006-01-12 00:56:47.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/block/aoe/aoecmd.c	2006-01-12 00:57:29.000000000 +0100
+@@ -190,6 +190,53 @@
+ 	}
+ }
+ 
++/* some callers cannot sleep, and they can call this function,
++ * transmitting the packets later, when interrupts are on
++ */
++static struct sk_buff *
++aoecmd_cfg_pkts(ushort aoemajor, unsigned char aoeminor, struct sk_buff **tail)
++{
++	struct aoe_hdr *h;
++	struct aoe_cfghdr *ch;
++	struct sk_buff *skb, *sl, *sl_tail;
++	struct net_device *ifp;
++
++	sl = sl_tail = NULL;
++
++	read_lock(&dev_base_lock);
++	for (ifp = dev_base; ifp; dev_put(ifp), ifp = ifp->next) {
++		dev_hold(ifp);
++		if (!is_aoe_netif(ifp))
++			continue;
++
++		skb = new_skb(ifp, sizeof *h + sizeof *ch);
++		if (skb == NULL) {
++			printk(KERN_INFO "aoe: aoecmd_cfg: skb alloc failure\n");
++			continue;
++		}
++		if (sl_tail == NULL)
++			sl_tail = skb;
++		h = (struct aoe_hdr *) skb->mac.raw;
++		memset(h, 0, sizeof *h + sizeof *ch);
++
++		memset(h->dst, 0xff, sizeof h->dst);
++		memcpy(h->src, ifp->dev_addr, sizeof h->src);
++		h->type = __constant_cpu_to_be16(ETH_P_AOE);
++		h->verfl = AOE_HVER;
++		h->major = cpu_to_be16(aoemajor);
++		h->minor = aoeminor;
++		h->cmd = AOECMD_CFG;
++
++		skb->next = sl;
++		sl = skb;
++	}
++	read_unlock(&dev_base_lock);
++
++	if (tail != NULL)
++		*tail = sl_tail;
++	return sl;
++}
++
+ /* enters with d->lock held */
+ void
+ aoecmd_work(struct aoedev *d)
+@@ -543,53 +590,6 @@
+ 	aoenet_xmit(sl);
+ }
+ 
+-/* some callers cannot sleep, and they can call this function,
+- * transmitting the packets later, when interrupts are on
+- */
+-struct sk_buff *
+-aoecmd_cfg_pkts(ushort aoemajor, unsigned char aoeminor, struct sk_buff **tail)
+-{
+-	struct aoe_hdr *h;
+-	struct aoe_cfghdr *ch;
+-	struct sk_buff *skb, *sl, *sl_tail;
+-	struct net_device *ifp;
+-
+-	sl = sl_tail = NULL;
+-
+-	read_lock(&dev_base_lock);
+-	for (ifp = dev_base; ifp; dev_put(ifp), ifp = ifp->next) {
+-		dev_hold(ifp);
+-		if (!is_aoe_netif(ifp))
+-			continue;
+-
+-		skb = new_skb(ifp, sizeof *h + sizeof *ch);
+-		if (skb == NULL) {
+-			printk(KERN_INFO "aoe: aoecmd_cfg: skb alloc failure\n");
+-			continue;
+-		}
+-		if (sl_tail == NULL)
+-			sl_tail = skb;
+-		h = (struct aoe_hdr *) skb->mac.raw;
+-		memset(h, 0, sizeof *h + sizeof *ch);
+-
+-		memset(h->dst, 0xff, sizeof h->dst);
+-		memcpy(h->src, ifp->dev_addr, sizeof h->src);
+-		h->type = __constant_cpu_to_be16(ETH_P_AOE);
+-		h->verfl = AOE_HVER;
+-		h->major = cpu_to_be16(aoemajor);
+-		h->minor = aoeminor;
+-		h->cmd = AOECMD_CFG;
+-
+-		skb->next = sl;
+-		sl = skb;
+-	}
+-	read_unlock(&dev_base_lock);
+-
+-	if (tail != NULL)
+-		*tail = sl_tail;
+-	return sl;
+-}
+-
+ void
+ aoecmd_cfg(ushort aoemajor, unsigned char aoeminor)
+ {
 

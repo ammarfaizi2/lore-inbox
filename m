@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWALJK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWALJNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWALJK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 04:10:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWALJK1
+	id S964975AbWALJNk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 04:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWALJNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 04:10:27 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:21226 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964973AbWALJKZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 04:10:25 -0500
-Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       xen-devel@lists.xensource.com
-In-Reply-To: <43C5B59C.8050908@us.ibm.com>
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>
-	 <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>
-	 <43C5B59C.8050908@us.ibm.com>
+	Thu, 12 Jan 2006 04:13:40 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:24503 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S964975AbWALJNj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 04:13:39 -0500
+Subject: Re: patch: problem with sco
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Wolfgang Walter <wolfgang.walter@studentenwerk.mhn.de>
+Cc: bluez-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       maxk@qualcomm.com
+In-Reply-To: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de>
+References: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de>
 Content-Type: text/plain
-Date: Thu, 12 Jan 2006 01:10:22 -0800
-Message-Id: <1137057022.5397.7.camel@localhost.localdomain>
+Date: Thu, 12 Jan 2006 10:14:04 +0100
+Message-Id: <1137057244.3955.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 20:49 -0500, Mike D. Day wrote:
-> Greg KH wrote:
-> >>/sys/xen/version may not be the best example for this discussion. What
-> >>is important is that this attribute is obtained from Xen using a
-> >>hypercall. Sysfs works great to prove the xen version and other
-> >>similar xen attributes to userspace.
-> > 
-> > 
-> > Like what?  Specifics please.
+Hi Wolfgang,
+
+> A friend and I encountered a problem with sco transfers to a headset using
+> linux (vanilla 2.6.15). While all sco packets sent by the headset were
+> received there was no outgoing traffic.
 > 
-> What privileges are granted to the kernel by xen - can the kernel 
-> control real devices or just virtual ones.
+> After switching debugging output on we found that actually sco_cnt was always
+> zero in hci_sched_sco.
+> 
+> hciconfig hci0 shows sco_mtu to be 64:0. Changing that to 64:8 did not help.
+> 
+> This was because in hci_cc_info_param hdev->sco_pkts is set to zero. When we
+> changed this line so that hdev->sco_pkts is set to 8 if bs->sco_max_pkt is 0
+> sco transfer to the headset started to work just fine.
 
-Why wouldn't this simply be transparent from what devices Linux detects?
-If Linux doesn't detect any raw PCI devices, then it obviously doesn't
-have access to any.
+send in the information from "hciconfig -a" for this device, because
+this is a hardware bug and you can't be sure that you can have eight
+outstanding SCO packets.
 
-Why don't any other hypervisors need this?
+I personally prefer to implement this as a quirk which can be activated
+by the driver. Once I have seen the device information, I will think
+about how we might deal with it.
 
-> How many other domains 
-> (virtual machines) are being hosted by xen? How much memory is available 
-> for ballooning (increasing the memory used by kernels through the 
-> remapping of pages inside the hypervisor).
+Regards
 
-There are definitely things that are exceedingly helpful.  However,
-there are at least two other hypervisor-ish things that I can think of
-which do the exact same kinds of things.  Perhaps it would be helpful to
-collaborate with them and produce a common interface. (uml, s390, maybe
-some of the powerpc hypervisors)
+Marcel
 
-> Can the domain be migrated to another physical host?
-> What scheduler is Xen using (xen has plug-in 
-> schedulers)? All the actual information resides within the xen 
-> hypervisor, not the linux kernel.
-
-Other than debugging and curiosity, why are these things needed?
-
--- Dave
 

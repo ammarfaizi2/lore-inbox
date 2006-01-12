@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030431AbWALOwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030432AbWALOyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030431AbWALOwU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 09:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWALOwU
+	id S1030432AbWALOyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 09:54:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbWALOyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 09:52:20 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:45217 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030431AbWALOwU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 09:52:20 -0500
-Message-ID: <43C66D12.5090503@us.ibm.com>
-Date: Thu, 12 Jan 2006 09:52:02 -0500
-From: "Mike D. Day" <ncmike@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
-X-Accept-Language: en-us, en
+	Thu, 12 Jan 2006 09:54:04 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:4843 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1030432AbWALOyC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 09:54:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WVJLP95bFqX2W86v1z/LfEDTDAWeXm4/tWP639Pny+ym8WCoQlG+UWUVsoIL2qI1lT8bjii+vOTgCCVR+y9W+C13ngIzkvItloj3WMzQIjHSP9qxpaPtTrw2yGOsE+fgpY6o2XqJKJhsjjqvH4w0Q+3nRxVXQZR6ScYsP4i++Hc=
+Message-ID: <728201270601120652g21c8b2d5t340cf01f7c0d91fc@mail.gmail.com>
+Date: Thu, 12 Jan 2006 08:52:20 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: Reinhold Jordan <r.jordan@asc.de>
+Subject: Re: option memmap
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43C62818.6030001@asc.de>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Xen-devel] Re: [RFC] [PATCH] sysfs support for Xen attributes
-References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com>	<43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com>	<43C5B59C.8050908@us.ibm.com> <1137057022.5397.7.camel@localhost.localdomain>
-In-Reply-To: <1137057022.5397.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43C51ABD.4050204@asc.de> <43C62818.6030001@asc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Wed, 2006-01-11 at 20:49 -0500, Mike D. Day wrote:
-> 
-> There are definitely things that are exceedingly helpful.  However,
-> there are at least two other hypervisor-ish things that I can think of
-> which do the exact same kinds of things.  Perhaps it would be helpful to
-> collaborate with them and produce a common interface. (uml, s390, maybe
-> some of the powerpc hypervisors)
+On 1/12/06, Reinhold Jordan <r.jordan@asc.de> wrote:
+> Hello,
+>
+> is there any problem with this question? Who should I ask
+> kernel dependent questions beside the kernel developers?
+>
+> Regards, Reinhold
+>
+> Reinhold Jordan wrote:
+> > Hello,
+> >
+> > is there any documentation for this option better than this in
+> > linux/Documentation/kernel-parameters.txt ?
+> >
+> > I have a laptop with a defect memory soldered on the main-board.
+> > 128KB of 128MB are defect started at 7936KB
+> >
 
-yes, that is a good idea.
+Did you use memmap option in combination with mem option.mem option is
+used to specify the amount of memory to be used & memmap specifies the
+region map.
 
->>Can the domain be migrated to another physical host?
->>What scheduler is Xen using (xen has plug-in 
->>schedulers)? All the actual information resides within the xen 
->>hypervisor, not the linux kernel.
-> 
-> Other than debugging and curiosity, why are these things needed?
-
-Debugging is always a good reason :) but I'm specifically thinking of 
-systems management tools, deployment of virtual machines, and migration. 
-All of these attributes are important for tools that manage, deploy, or 
-migrate.
-
-thanks,
-
-Mike
-
-
--- 
-
-Mike D. Day
-STSM and Architect, Open Virtualization
-IBM Linux Technology Center
-ncmike@us.ibm.com
+regards
+Ram Gupta

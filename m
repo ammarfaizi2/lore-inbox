@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161387AbWALWtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161388AbWALWwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161387AbWALWtE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161388AbWALWtE
+	id S1161388AbWALWwH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:52:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161389AbWALWwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:49:04 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:58504 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1161387AbWALWtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:49:01 -0500
-Message-ID: <43C6DCD7.30709@didntduck.org>
-Date: Thu, 12 Jan 2006 17:48:55 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Thu, 12 Jan 2006 17:52:06 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35332 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161388AbWALWwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 17:52:05 -0500
+Date: Thu, 12 Jan 2006 23:52:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jon Mason <jdmason@us.ibm.com>, Muli Ben-Yehuda <mulix@mulix.org>,
+       Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
+Message-ID: <20060112225205.GZ29663@stusta.de>
+References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu> <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de> <1137105731.2370.94.camel@mindpipe>
 MIME-Version: 1.0
-To: Nigel Cunningham <ncunningham@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Does a git pull have to be so big?
-References: <200601130845.29797.ncunningham@cyclades.com>
-In-Reply-To: <200601130845.29797.ncunningham@cyclades.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137105731.2370.94.camel@mindpipe>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> Hi.
+On Thu, Jan 12, 2006 at 05:42:10PM -0500, Lee Revell wrote:
+> On Thu, 2006-01-12 at 23:00 +0100, Adrian Bunk wrote:
+> > CYBER5050 is discussed in ALSA bug #1293 (tester wanted).
 > 
-> I try to do pulls reasonably often, but they always seem to be huge downloads 
-> - I'm sure they're orders of magnitude bigger than a simple patch would be. 
-> This leads me to ask, do they have to be so big? I'm on 256/64 ADSL at home, 
-> did a pull yesterday at work iirc, and yet the pull this morning has taken at 
-> least half an hour. Am I perhaps doing something wrong?
-> 
-> I'm using cogito .16-2 (ubuntu) and git 1.0.6.
-> 
-> Regards,
-> 
-> Nigel
-> 
-> #cg-fetch 
-> Fetching head...
-> Fetching objects...
-> progress: 114 objects, 256992 bytes
-> Getting alternates list for 
-> http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-> progress: 376 objects, 1413225 bytes
-> Getting pack list for 
-> http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-> progress: 453 objects, 1924312 bytes
-> Getting index for pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
-> Getting pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
->  which contains 62727f8969438d99c3c34415d16611cf86f16140
-> 
-> (Still going)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+> OK I set that bug to FEEDBACK, but it's open 5 months now and no testers
+> are forthcoming.  I think if we don't find one as a result of this
+> thread we can assume no one cares about this hardware anymore.
 
-Use git://git.kernel.org/... instead of http.
+The majority of Linux users doesn't read linux-kernel...
 
---
-				Brian Gerst
+We might find users after the OSS driver is deprecated in a released 
+kernel, or perhaps some months after it's removed from the kernel.
+
+This would match my current experiences regarding my suggested removal 
+of some OSS drivers.
+
+> I'm still not sure that just adding it to the ALSA driver and hoping it
+> works is the best solution.  Would we rather users see right away that
+> their hardware isn't supported, or have the driver load and get no sound
+> or hang the machine?
+> 
+> I think the best approach might just be to drop it in lieu of a tester.
+> It will be trivial to add support later if someone finds one of these
+> boxes.
+
+Agreed.
+
+> Lee
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

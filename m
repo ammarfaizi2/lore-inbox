@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWANJeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWANJdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbWANJeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 04:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWANJeQ
+	id S1751186AbWANJdy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 04:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWANJdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 04:34:16 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19975 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751546AbWANJd4
+	Sat, 14 Jan 2006 04:33:54 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20487 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751546AbWANJdx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 04:33:56 -0500
-Date: Wed, 11 Jan 2006 20:37:32 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Tim Tassonis <timtas@cubic.ch>, linux-kernel@vger.kernel.org
-Subject: Re: State of the Union: Wireless
-Message-ID: <20060111203731.GF2456@ucw.cz>
-References: <43C3AAE2.1090900@cubic.ch> <20060110125357.GH3911@stusta.de> <43C3B7C8.8000708@cubic.ch> <20060110141324.GJ3911@stusta.de>
+	Sat, 14 Jan 2006 04:33:53 -0500
+Date: Thu, 12 Jan 2006 01:04:06 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: ntohs/ntohl and bitops
+Message-ID: <20060112010406.GA2367@ucw.cz>
+References: <43C42F0C.10008@redhat.com> <20060111.000020.25886635.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060110141324.GJ3911@stusta.de>
+In-Reply-To: <20060111.000020.25886635.davem@davemloft.net>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Like the OSS/Alsa or XFree3.x/XFree4.x situations.
+On Wed 11-01-06 00:00:20, David S. Miller wrote:
+> From: Ulrich Drepper <drepper@redhat.com>
+> Date: Tue, 10 Jan 2006 14:02:52 -0800
 > 
-> And OSS/ALSA is an example why this is not a good thing:
-> - OSS in the kernel is unmaintained
-> - people forced to use OSS drivers can't use applications only 
->   supporting ALSA
+> > I just saw this in a patch:
+> > 
+> > +               if (ntohs(ih->frag_off) & IP_OFFSET)
+> > +                       return EBT_NOMATCH;
+> > 
+> > This isn't optimal, it requires a byte switch little endian machines.
+> > The compiler isn't smart enough.  It would be better to use
+> > 
+> >      if (ih->frag_off & ntohs(IP_OFFSET))
+> > 
+> > where the byte-swap can be done at compile time.  This is kind of ugly,
+> > I guess, so maybe a dedicate macro
+> > 
+> >     net_host_bit_p(ih->frag_off, IP_OFFSET)
+> 
+> The first suggestion isn't considered ugly, and the best form is:
+> 
+> 	if (ih->frag_off & __constant_htons(IP_OFFSET))
+> 
+> I'll fix that up when I get a chance, thanks for catching it Uli.
 
-Well, it is different. Current ieee80211 stack is going to be
-maintained by Intel -- because they need it for their hw.
-And it will be very easy to find maintainer for the new stack...
+Could you possibly 
+#define IP_OFFSET htons(1234)
+?
 
-So we already have two-stack situation here.
+Noone should need it in native endianity, no?
 
 -- 
 Thanks, Sharp!

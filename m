@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161298AbWALV0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161304AbWALV2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161298AbWALV0I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 16:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161299AbWALV0I
+	id S1161304AbWALV2s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 16:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161299AbWALV2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 16:26:08 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:48142 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161298AbWALV0I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 16:26:08 -0500
-Date: Thu, 12 Jan 2006 22:25:32 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Cal Peake <cp@absolutedigital.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 09/11] kbuild: drop vmlinux dependency from "make install"
-Message-ID: <20060112212532.GA8665@mars.ravnborg.org>
-References: <11368427243850@foobar.com> <Pine.LNX.4.61.0601121118550.6734@lancer.cnet.absolutedigital.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601121118550.6734@lancer.cnet.absolutedigital.net>
-User-Agent: Mutt/1.5.11
+	Thu, 12 Jan 2006 16:28:48 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:53665 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1161220AbWALV2r convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 16:28:47 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] - pci_ids - adding pci device id support for FC949ES
+Date: Thu, 12 Jan 2006 14:28:45 -0700
+Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F1AA29A@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] - pci_ids - adding pci device id support for FC949ES
+Thread-Index: AcYXvyr9+Gva1DjyTMiB34KvaVsVpQ==
+From: "Moore, Eric" <Eric.Moore@lsil.com>
+To: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 12 Jan 2006 21:28:45.0909 (UTC) FILETIME=[2B49D850:01C617BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 11:21:51AM -0500, Cal Peake wrote:
-> On Mon, 9 Jan 2006, Sam Ravnborg wrote:
-> 
-> > This removes the dependency from vmlinux to install, thus avoiding the
-> > current situation where "make install" has a nasty tendency to leave
-> > root-turds in the working directory.
-> 
-> Is removing the `kernel_install' target considered a userspace interface 
-> breakage? ;) Or am I just gonna have to get used to typing `make install' 
-> again?
-make install is there to stay. And now where install and kernel_install
-do the same thing the latter will disappear.
-So yes, soon yo have to type less.
+Adding support for new LSI Logic Fibre Channel controller.
 
-	Sam
+Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
+
+--- b/include/linux/pci_ids.h	2006-01-11 19:04:18.000000000 -0700
++++ a/include/linux/pci_ids.h	2006-01-12 14:19:43.000000000 -0700
+@@ -181,6 +181,7 @@
+ #define PCI_DEVICE_ID_LSI_FC929X	0x0626
+ #define PCI_DEVICE_ID_LSI_FC939X	0x0642
+ #define PCI_DEVICE_ID_LSI_FC949X	0x0640
++#define PCI_DEVICE_ID_LSI_FC949ES	0x0646
+ #define PCI_DEVICE_ID_LSI_FC919X	0x0628
+ #define PCI_DEVICE_ID_NCR_YELLOWFIN	0x0701
+ #define PCI_DEVICE_ID_LSI_61C102	0x0901

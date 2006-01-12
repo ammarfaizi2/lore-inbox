@@ -1,99 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWALCBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWALCCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWALCBV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 21:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWALCBV
+	id S964978AbWALCCN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 21:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWALCCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 21:01:21 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:41029 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S964976AbWALCBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 21:01:20 -0500
-Date: Wed, 11 Jan 2006 21:00:52 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-In-reply-to: <Pine.LNX.4.61.0601120019430.30994@scrub.home>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1137031253.9643.38.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.4
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <0ISL003ZI97GCY@a34-mta01.direcway.com>
- <200601090109.06051.zippel@linux-m68k.org> <1136779153.1043.26.camel@grayson>
- <200601091232.56348.zippel@linux-m68k.org> <1136814126.1043.36.camel@grayson>
- <Pine.LNX.4.61.0601120019430.30994@scrub.home>
+	Wed, 11 Jan 2006 21:02:13 -0500
+Received: from po.harenet.ne.jp ([210.167.64.67]:15317 "EHLO po.harenet.ne.jp")
+	by vger.kernel.org with ESMTP id S964978AbWALCCL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 21:02:11 -0500
+Date: Thu, 12 Jan 2006 11:02:49 +0900 (JST)
+Message-Id: <20060112.110249.46098125.psbfan@po.harenet.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: about sanitize_e820_map()
+From: Toshiyuki Ishii <psbfan@po.harenet.ne.jp>
+X-Mailer: Mew version 3.3 on XEmacs 21.1.8 (Bryce Canyon)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 00:26 +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 9 Jan 2006, Ben Collins wrote:
-> 
-> > > That just means Debian's automatic build for the kernel has been broken for 
-> > > years. All normal config targets require user input and no input equals 
-> > > default input. Only silentoldconfig will abort if input is not available.
-> > 
-> > I think that's broken (because I don't see where that behavior is
-> > described).
-> 
-> I'll accept a patch to fix the documentation.
-> 
-> > IMO, based on the code, it should only go with defaults when
-> > -n -y or -m is passed.
-> 
-> No.
-> 
-> > Why is it so hard to error when stdin is closed? It's not like that will
-> > break anything.
-> 
-> oldconfig & co are interactive targets, so don't use them in automatic 
-> builds. If you some problem with using silentoldconfig, describe it and 
-> I'll help to solve it.
 
-First, we need oldconfig because it allows us to look at the build log
-and see exactly what happened in the config stage. Silentoldconfig gives
-us no feedback for logs.
+Good evening.
+I am Toshiyuki Ishii at Kurashiki in Japan.
 
-Now let me see if I get this right:
+I am a beginner of kernel source code,
+so sorry if I am misunderstanding.
 
-1) oldconfig was broken when stdin was closed. Meaning, it went into an
-infinite loop. This was obviously not the intended outcome.
+In sanitize_e820_map(),
+When sorting change_point[] by address and swapping
+two maps that represets the same memory region
+and have a different address, end address for privious change_point
+and start address for current change_point,
+"if" statement is
 
-2) silentoldconfig will, when faced with a closed stdin, abort, and
-notify the user.
+if ((change_point[i]->addr < change_point[i-1]->addr) ||
 
-3) Obviously since current behavior of oldconfig was broken with a
-closed stdin, then it was never doing what anyone wanted in this usage
-case. Since no one else noticed it, that means that we are the only use
-case for this.
+     ((change_point[i]->addr == change_point[i-1]->addr) &&
+      (change_point[i]->addr == change_point[i]->pbios->addr) &&
+      (change_point[i-1]->addr != change_point[i-1]->pbios->addr))
 
-4) I send a patch that fixes oldconfig with closed stdin by making it
-duplicate what silentoldconfig does, aborting when it needs input and
-stdin is closed. Since oldconfig was always broken in this usage case,
-this seems the obvious fix, plus it's consistent. This isn't the same as
-an empty string (e.g. when hitting enter), which didn't get changed, and
-has always meant to use the default value.
+There are two conditions and I think the first one is sorting by address.
+I have a qestion in the second condition.
 
-5) My patch did not break anything, nor did it change anything that was
-already working.
+I think second line
 
-6) In response you make oldconfig work exactly opposite of
-silentoldconfig by using the default value for a config option when
-stdin is closed (basically acting like the user hit ENTER), and further
-break things for me in this usage case, with no purpose, and no reason
-for making your change the way you did. Since it was broken, you aren't
-helping anyone. We can't have the build system using default values. We
-need it to abort.
+change_point[i]->addr == change_point[i]->pbios->addr
 
-Did I get this right, or am I imagining that you are being hard headed
-about this?
+checks that current change_point represents start address.
+and third line
 
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
+change_point[i-1]->addr != change_point[i-1]->pbios->addr
+
+checks that previous change_point represents end address.
+If this "if" statement intends to swap maps for "the same" region
+that match these condition, the first line should be
+
+change_point[i]->pbios->addr == change_point[i-1]->pbios->addr
+
+I think.
+
+Am I wrong?
 

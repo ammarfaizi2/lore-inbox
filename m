@@ -1,70 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWALJfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWALJhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWALJfp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 04:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWALJfp
+	id S964836AbWALJhn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 04:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWALJhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 04:35:45 -0500
-Received: from relay03.pair.com ([209.68.5.17]:59918 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S932160AbWALJfo (ORCPT
+	Thu, 12 Jan 2006 04:37:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:38059 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964836AbWALJhm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 04:35:44 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Subject: Re: [ck] Bad page state at free_hot_cold_page
-Date: Thu, 12 Jan 2006 03:36:02 -0600
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200601120301.00361.chase.venters@clientec.com> <20060112092406.GA2587@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060112092406.GA2587@rhlx01.fht-esslingen.de>
+	Thu, 12 Jan 2006 04:37:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=PT1jTxDRJYYvwjrtTdlggDERKVsFnEPZ8XlsfWjg4ASCk1RL20JgMWhiVqNr0GnXx/lAGH/8cHQ1NbSNtHKcclBPfSoJTNwxDXuFBEbbxBLUUp5sZ/C9unVll0tfNRwgI4Dw8sN9jqiMcasl6QzQSENjRx0Cwlan4dYDTEzwieA=
+Message-ID: <43C62360.9050705@gmail.com>
+Date: Thu, 12 Jan 2006 10:37:36 +0100
+From: Patrizio Bassi <patrizio.bassi@gmail.com>
+Reply-To: patrizio.bassi@gmail.com
+Organization: patrizio.bassi@gmail.com
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051210)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pavel Machek <pavel@suse.cz>
+CC: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       kernel list <linux-kernel@vger.kernel.org>, tiwai@suse.de
+Subject: Re: [BUG 2.6.15-git5] new alsa power management completly broken
+References: <20060111234810.3ffe241c.akpm@osdl.org> <20060112085837.GD1670@elf.ucw.cz>
+In-Reply-To: <20060112085837.GD1670@elf.ucw.cz>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601120336.03289.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 January 2006 03:24, Andreas Mohr wrote:
-> AFAIK random page state toggling often happens due to bad RAM.
+Pavel Machek ha scritto:
+
+>On St 11-01-06 23:48:10, Andrew Morton wrote:
+>  
 >
-> Care to run memtest86 or similar to confirm this?
-> Or also try running an older kernel to verify whether it doesn't happen
-> there. But I'm betting on bad RAM :-\
+>>swsusp problems...
+>>    
+>>
+>
+>Where? :-)
+>  
+>
+nowhere now :)
+i still have problems on my noteboot about irq 14 not cared...(since ages!)
+i'll try to do something, if i can't fix i'll report.
+(stopping here cause going OT)
 
-Andreas,
-	I've been looking into this problem a little bit more (did some digging to 
-try and teach myself a little bit about the page flags). I noticed after 
-posting that I had bad page states reported in dmesg for amarokapp (new ones) 
-as well. 
-	So I got a bit curious and looked to see what bits were stuck on... and I 
-started to wonder if it could have something to do with ALSA. (Unfortunately 
-I'm quickly reaching the limit of my current understanding of the kernel's 
-innards)
-	Anyway, I tried a test - made sure both amarokapp and artsd were dead, then 
-used rmmod to pluck out every last "snd" module. I put them back in, fired up 
-amarok, and went to play a song. It played fine with no noticeable latency, 
-so I tried switching to another track. Doing so caused the system to freeze 
-for a few seconds and another set of bad page states to go rushing through 
-the log.
-	I can accept bad memory (though I think it's unlikely on this system because 
-I've tested that fairly recently) but the page states, while bad, are 
-consistently (not randomly) so.
-	I'd reboot right now and test it, but at the moment I'm capable of 
-reproducing these page state errors 100% of the time, so if there are any 
-sorts of things I can do to debug the thing while it's up I'd like to move 
-forward with that before I reboot and lose whatever 'ideal state' got me here 
-in the first place.
+>  
+>
+>>sorry for delay, however i tested it and works perfectly.
+>>
+>>just 2 things to notice:
+>>1) [unrelated to this bug] swsusp ram pages write and read is really
+>>slower than 2.6.14 one. i didn't follow changes, so don't know what
+>>happened
+>>    
+>>
+>
+>That's a feature. echo 0 > /sys/power/image_size should make it behave
+>like 2.6.14.
+>
+>  
+>
+ok, so i think i should check docs (i hope they are updated)
 
-Thanks,
-Chase
+>>2) when i suspend i continue to see errors 0x660 in my tty. The strange
+>>thing is that after resume they are no more in dmesg!
+>>strange. however, as i wrote before, it works.
+>>    
+>>
+>
+>That's not so strange. Messages that happen after memory snapshot are
+>lost (of course).
+>								Pavel
+>  
+>
+ok, sure, but before this patch i had them in my dmesg.
+the patch shouldn't have changed the saving sequence, so..why this happens?
+and, however some errors still occour.
 
-> Andreas Mohr
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+alsa guys should judge if they are revelant to trace and fix the source
+of 0x660.
+
+Thanks for support
+
+--
+Patrizio Bassi
+www.patriziobassi.it

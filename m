@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWALC2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWALCad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964989AbWALC2N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 21:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932676AbWALC2M
+	id S964990AbWALCad (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 21:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWALCad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 21:28:12 -0500
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:55757 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932678AbWALC2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 21:28:11 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-Date: Thu, 12 Jan 2006 13:27:48 +1100
-User-Agent: KMail/1.8.3
-Cc: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <43C45BDC.1050402@google.com> <200601121236.07522.kernel@kolivas.org> <43C5BD8F.3000307@bigpond.net.au>
-In-Reply-To: <43C5BD8F.3000307@bigpond.net.au>
+	Wed, 11 Jan 2006 21:30:33 -0500
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:50571 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932676AbWALCad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jan 2006 21:30:33 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+From: Mark Williamson <mark.williamson@cl.cam.ac.uk>
+To: xen-devel@lists.xensource.com
+Subject: Re: [Xen-devel] Re: [RFC] [PATCH] sysfs support for Xen attributes
+Date: Thu, 12 Jan 2006 02:17:52 +0000
+User-Agent: KMail/1.9.1
+Cc: "Mike D. Day" <ncmike@us.ibm.com>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <43C53DA0.60704@us.ibm.com> <20060112005710.GA2936@kroah.com> <43C5B59C.8050908@us.ibm.com>
+In-Reply-To: <43C5B59C.8050908@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200601121327.48640.kernel@kolivas.org>
+Message-Id: <200601120217.53610.mark.williamson@cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jan 2006 01:23 pm, Peter Williams wrote:
-> Con Kolivas wrote:
-> > On Thu, 12 Jan 2006 12:29 pm, Peter Williams wrote:
-> >>Con Kolivas wrote:
-> >>>This is a shot in the dark. We haven't confirmed 1. there is a problem
-> >>> 2. that this is the problem nor 3. that this patch will fix the
-> >>> problem.
-> >>
-> >>I disagree.  I think that there is a clear mistake in my original patch
-> >>that this patch fixes.
+Guys,
+
+I think the waters are getting a bit muddied here regarding Xen (the 
+hypervisor, a separate project which boots natively on the hardware, not a 
+module or patch to Linux) vs. the Xen Patch to Linux (allowing i386 Linux to 
+run on top of that hypervisor's APIs).
+
+> >>The module version? Xen is not a module nor a driver, so that interface
+> >>doesn't quite serve the purpose.
 > >
-> > I agree with you on that. The real concern is that we were just about to
-> > push it upstream. So where does this leave us?  I propose we delay
-> > merging the "improved smp nice handling" patch into mainline pending your
-> > further changes.
->
-> I think that they're already in 2.6.15 minus my "move load not tasks"
-> modification which I was expecting to go into 2.6.16.  Is that what you
-> meant?
+> > Then it doesn't need a separate version, as it is the same as the main
+> > kernel version, right?  Just because your code is out-of-the-tree right
 
-Yes, akpm included your patch under the name of something like "improved smp 
-nice handling". My smp nice patches went into mainline 2.6.15 and were 
-extensively tested for performance regressions. This is about your move load 
-not tasks modification which is the patch in question that might be affecting 
-performance.
+> > Huh?  You can't just throw a "MODULE_VERSION()", and a module_init()
+> > somewhere into the xen code to get this to happen?  Then all of your
+> > configurable paramaters show up automagically.
 
-Con
+To put it another way, when Mike referred to "Xen", he meant the hypervisor 
+itself, not part of the patch to Linux.  The version attribute under /sys/xen 
+is therefore describing the version of the "virtual hardware" that's provided 
+by the Xen<->guest OS interface, not for describing / configuring the 
+Xen-aware portion of Linux itself.
 
-> If so I think this is a small and obvious fix that shouldn't delay the
-> merging of "move load not tasks" into the mainline.  But it's not my call.
->
-> Peter
+(side note: Xen's quite like a CPU arch / extended hardware platform in some 
+ways, although it's kinda orthogonal to the particular hardware platform in 
+use.  Mike - had you looked at how CPU entries are registered 
+in /sys/devices/system, for instance?  anything there you could leverage?)
+
+Cheers,
+Mark
+
+
+-- 
+Dave: Just a question. What use is a unicyle with no seat?  And no pedals!
+Mark: To answer a question with a question: What use is a skateboard?
+Dave: Skateboards have wheels.
+Mark: My wheel has a wheel!

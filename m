@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWALEq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWALExc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965029AbWALEq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jan 2006 23:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWALEq4
+	id S1030252AbWALExc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jan 2006 23:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWALExc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jan 2006 23:46:56 -0500
-Received: from ns2.suse.de ([195.135.220.15]:59577 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965029AbWALEq4 (ORCPT
+	Wed, 11 Jan 2006 23:53:32 -0500
+Received: from colo.lackof.org ([198.49.126.79]:56977 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S965014AbWALExb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jan 2006 23:46:56 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Subject: Re: [PATCH 2 of 2] __raw_memcpy_toio32 for x86_64
-Date: Thu, 12 Jan 2006 05:45:34 +0100
-User-Agent: KMail/1.8
-Cc: akpm@osdl.org, rdreier@cisco.com, linux-kernel@vger.kernel.org
-References: <f03a807a80b8bc45bf91.1137025776@eng-12.pathscale.com> <200601120519.12960.ak@suse.de> <1137040361.29795.8.camel@camp4.serpentine.com>
-In-Reply-To: <1137040361.29795.8.camel@camp4.serpentine.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jan 2006 23:53:31 -0500
+Date: Wed, 11 Jan 2006 22:02:43 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Mark Maule <maule@sgi.com>
+Cc: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Tony Luck <tony.luck@intel.com>, gregkh@suse.de
+Subject: Re: [PATCH 1/3] msi vector targeting abstractions
+Message-ID: <20060112050243.GC332@colo.lackof.org>
+References: <20060111155251.12460.71269.12163@attica.americas.sgi.com> <20060111155256.12460.26048.32596@attica.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601120545.34711.ak@suse.de>
+In-Reply-To: <20060111155256.12460.26048.32596@attica.americas.sgi.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 January 2006 05:32, Bryan O'Sullivan wrote:
-> On Thu, 2006-01-12 at 05:19 +0100, Andi Kleen wrote:
-> > My feeling is more and more that this thing is so specialized for your
-> > setup and so narrow purpose that you're best off dropping this whole
-> > patchkit and just put the assembly into your driver.
->
-> But this gave people fits when Roland first posted the driver for
-> review.  
+On Wed, Jan 11, 2006 at 09:52:56AM -0600, Mark Maule wrote:
+> Abstract portions of the MSI core for platforms that do not use standard
+> APIC interrupt controllers.  This is implemented through a new arch-specific
+> msi setup routine, and a set of msi ops which can be set on a per platform
+> basis.
+...
+> Index: linux-maule/drivers/pci/msi.c
+...
+> +	if ((status = msi_arch_init()) < 0) {
 
-Yah, but they clearly didn't see the whole picture back then
-(you should probably have explained it better). All the ugly details
-were only brought to light on close review.
+Willy told me I should always complain about assignment in if() statements :)
 
-> There's also no clean, obvious way to make it work on other 
-> 64-bit architectures, in that case.
+Greg, I volunteer to submit a patch to fix all occurances in pci/msi.c
+including the one above.  I can prepare that this weekend on my own time.
+Is that ok?
 
-for loop and writel() ? 
-
--Andi
+grant

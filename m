@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161451AbWALXLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161457AbWALXL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161451AbWALXLY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 18:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161447AbWALXLY
+	id S1161457AbWALXL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 18:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161458AbWALXL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 18:11:24 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:28904 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S1161451AbWALXLX (ORCPT
+	Thu, 12 Jan 2006 18:11:59 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:55430 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1161457AbWALXL6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 18:11:23 -0500
+	Thu, 12 Jan 2006 18:11:58 -0500
 From: Nigel Cunningham <ncunningham@cyclades.com>
 Organization: Cyclades
-To: Jeff Garzik <jgarzik@pobox.com>
+To: Brian Gerst <bgerst@didntduck.org>
 Subject: Re: Does a git pull have to be so big?
-Date: Fri, 13 Jan 2006 09:11:46 +1000
+Date: Fri, 13 Jan 2006 09:12:27 +1000
 User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-References: <200601130845.29797.ncunningham@cyclades.com> <20060112225434.GA27678@havoc.gtf.org>
-In-Reply-To: <20060112225434.GA27678@havoc.gtf.org>
+References: <200601130845.29797.ncunningham@cyclades.com> <43C6DCD7.30709@didntduck.org>
+In-Reply-To: <43C6DCD7.30709@didntduck.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200601130911.46761.ncunningham@cyclades.com>
+Message-Id: <200601130912.27374.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-On Friday 13 January 2006 08:54, Jeff Garzik wrote:
-> On Fri, Jan 13, 2006 at 08:45:29AM +1000, Nigel Cunningham wrote:
+On Friday 13 January 2006 08:48, Brian Gerst wrote:
+> Nigel Cunningham wrote:
+> > Hi.
+> >
 > > I try to do pulls reasonably often, but they always seem to be huge
 > > downloads - I'm sure they're orders of magnitude bigger than a simple
 > > patch would be. This leads me to ask, do they have to be so big? I'm on
 > > 256/64 ADSL at home, did a pull yesterday at work iirc, and yet the pull
 > > this morning has taken at least half an hour. Am I perhaps doing
 > > something wrong?
+> >
+> > I'm using cogito .16-2 (ubuntu) and git 1.0.6.
+> >
+> > Regards,
+> >
+> > Nigel
+> >
+> > #cg-fetch
+> > Fetching head...
+> > Fetching objects...
+> > progress: 114 objects, 256992 bytes
+> > Getting alternates list for
+> > http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
+> > progress: 376 objects, 1413225 bytes
+> > Getting pack list for
+> > http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
+> > progress: 453 objects, 1924312 bytes
+> > Getting index for pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
+> > Getting pack 221c50e73e5ab65afededc14f1df0541b59ebdd5
+> >  which contains 62727f8969438d99c3c34415d16611cf86f16140
+> >
+> > (Still going)
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 >
-> Two answers here:
+> Use git://git.kernel.org/... instead of http.
 >
-> 1) Every so often, you download the entire kernel history all over
-> again, if you are using pack files, since most repositories are repacked
-> occasionally.
+> --
+> 				Brian Gerst
 
-Thanks for the reply. Can I avoid using pack files with Linus' tree? If so, 
-how?
-
-> 2) Every change sends the full updated (albeit compressed) file,
-> not a patch.
-
-Ok. I can cope with that. Redownloading the whole history however, I'd like to 
-stop.
+Ok. I'll give it a try - is it related to the packed files thing Jeff spoke 
+of?
 
 Regards,
 

@@ -1,54 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161370AbWALWUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161381AbWALWXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161370AbWALWUs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161374AbWALWUs
+	id S1161381AbWALWXO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:23:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161380AbWALWXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:20:48 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:41117 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161370AbWALWUq (ORCPT
+	Thu, 12 Jan 2006 17:23:14 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:59300 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161378AbWALWXN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:20:46 -0500
-Date: Thu, 12 Jan 2006 16:20:37 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jiri Slaby <slaby@liberouter.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-Message-ID: <20060112222036.GI17539@us.ibm.com>
-References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu> <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de>
+	Thu, 12 Jan 2006 17:23:13 -0500
+Date: Thu, 12 Jan 2006 14:23:20 -0800
+From: Don Fry <brazilnut@us.ibm.com>
+To: Matthew Wilcox <matthew@wil.cx>, Daniel Drake <dsd@gentoo.org>,
+       Jon Mason <jdmason@us.ibm.com>, mulix@mulix.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: pcnet32 devices with incorrect trident vendor ID
+Message-ID: <20060112222320.GA19668@us.ibm.com>
+References: <20060112175051.GA17539@us.ibm.com> <43C6C0E6.7030705@gentoo.org> <20060112205714.GK19769@parisc-linux.org> <20060112210559.GL19769@parisc-linux.org> <20060112212205.GA28395@devserv.devel.redhat.com> <20060112212435.GB28395@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060112220039.GX29663@stusta.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060112212435.GB28395@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 11:00:39PM +0100, Adrian Bunk wrote:
-> On Thu, Jan 12, 2006 at 03:47:19PM -0600, Jon Mason wrote:
-> > On Thu, Jan 12, 2006 at 10:07:35PM +0200, Muli Ben-Yehuda wrote:
-> > > On Thu, Jan 12, 2006 at 08:28:30PM +0100, Jiri Slaby wrote:
-> > > 
-> > > > You should change alsa driver (sound/pci/trident/trident.c), rather than this,
-> > > > which will be removed soon, I guess. And, additionally, could you change that
-> > > > lines to use PCI_DEVICE macro?
-> > > 
-> > > This driver is not up for removal soon, as it supports a device that
-> > > the alsa driver apparently doesn't (the INTERG_5050). As for
-> > > PCI_DEVICE, agreed. Jon, feel like patching it up?
-> > 
-> > Patches to follow.
-> > 
-> > After looking at the ALSA driver, it doesn't support PCI IDs for
-> > ALI_5451 or CYBER5050.  Someone should look into porting any necessary
-> > code from sound/oss/trident.c to sound/pci/trident/trident.c
+There are just a few differences between the 2.4 (1.30h) version of
+pcnet32.c and the 2.6 (1.30j) version, as I have tried to keep them
+as similar as possible.
+
+The driver was changed in February 2004 to recognize the incorrect
+vendor ID so that the ppc workaround was no longer required, and so that
+the cards would work in non ppc systems.  From the driver perspective
+the ppc workaround could be deleted.
+
+On my systems lspci shows all the devices with the correct name whether
+it is ppc or x86.
+
+PPC:
+donf@elm3b48:/usr/src> lspci | grep Ethernet
+0000:01:01.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 54)
+0000:21:01.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 0d)
+0000:62:00.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 26)
+0000:62:01.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 26)
+0000:62:02.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 26)
+0000:62:03.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 26)
+0001:21:01.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 44)
+0001:31:01.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 26)
+0001:41:01.0 Ethernet controller: Intel Corporation 82545EM Gigabit Ethernet Controller (Copper) (rev 01)
+0001:61:01.0 Ethernet controller: Advanced Micro Devices [AMD] 79c978 [HomePNA] (rev 51)
+donf@elm3b48:/usr/src>
+
+x86:
+[donf@elm3b45 linux-2.6.14-git11]$ lspci | grep Ethernet
+00:01.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 54)
+00:05.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 44)
+02:05.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 16)
+02:06.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 36)
+05:02.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 44)
+05:03.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 54)
+05:04.0 Ethernet controller: Advanced Micro Devices [AMD] 79c978 [HomePNA] (rev 51)
+[donf@elm3b45 linux-2.6.14-git11]$ 
+
+On Thu, Jan 12, 2006 at 04:24:35PM -0500, Bill Nottingham wrote:
+> Bill Nottingham (notting@redhat.com) said: 
+> > I remember looking at this a while back. I think the corrected information
+> > is only being propagated to the 'vendor' file, and the write_config_word
+> > isn't actually updating the 'config' entry in sysfs.
 > 
-> CYBER5050 is discussed in ALSA bug #1293 (tester wanted).
-> ALI_5451 is supported by the snd-ali5451 driver.
-
-Sorry, I grepped for PCI_DEVICE_ID_ALI_5451 not 0x5451.  Sending a patch
-to fix that up too.
-
-Thanks,
-Jon
+> Ah, here's an example from the box I remember working on this on
+> (without the libpci change):
+> 
+> root@pseries 0000:00:0c.0]# pwd
+> /sys/bus/pci/devices/0000:00:0c.0
+> [root@pseries 0000:00:0c.0]# lspci | grep 0c.0
+> 00:0c.0 Ethernet controller: Trident Microsystems 4DWave DX (rev 26)
+> [root@pseries 0000:00:0c.0]# lspci -n | grep 0c.0
+> 00:0c.0 Class 0200: 1023:2000 (rev 26)
+> [root@pseries 0000:00:0c.0]# cat vendor
+> 0x1022
+> [root@pseries 0000:00:0c.0]# cat device
+> 0x2000
+> [root@pseries 0000:00:0c.0]# od -x config
+> 0000000 2310 0020 4701 8002 2600 0002 0048 0000
+> 0000020 01f0 ff00 0070 21c3 0000 0000 0000 0000
+> 0000040 0000 0000 0000 0000 0000 0000 0000 0000
+> 0000060 0000 10c3 0000 0000 0000 0000 1101 06ff
+> 0000100 0000 0000 0000 0000 0000 0000 0000 0000
+> *
+> 0000400
+> 
+> Note that the config space is different than the vendor file. This
+> was with 2.6.9-ish, I don't have the box around any more to confirm
+> with something more recent.
+> 
+> Bill
+-- 
+Don Fry
+brazilnut@us.ibm.com

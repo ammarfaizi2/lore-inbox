@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161353AbWALWIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161354AbWALWIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161353AbWALWIB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 17:08:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161354AbWALWIA
+	id S1161354AbWALWIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 17:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161356AbWALWIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 17:08:00 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:2482 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1161353AbWALWH7 (ORCPT
+	Thu, 12 Jan 2006 17:08:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51625 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161354AbWALWIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 17:07:59 -0500
-Date: Thu, 12 Jan 2006 17:11:33 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Dave Jones <davej@redhat.com>, Con Kolivas <kernel@kolivas.org>,
-       ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-ck1
-Message-ID: <20060112221133.GA11601@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Dave Jones <davej@redhat.com>, Con Kolivas <kernel@kolivas.org>,
-	ck list <ck@vds.kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060104190554.GG10592@redhat.com>
-User-Agent: Mutt/1.5.11
+	Thu, 12 Jan 2006 17:08:10 -0500
+Date: Thu, 12 Jan 2006 14:07:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, airlied@linux.ie, linux-kernel@vger.kernel.org,
+       len.brown@intel.com, axboe@suse.de, sfrench@us.ibm.com,
+       rolandd@cisco.com, wim@iguana.be, aia21@cantab.net,
+       linux@dominikbrodowski.net
+Subject: Re: git status (was: drm tree for 2.6.16-rc1)
+Message-Id: <20060112140713.770be59c.akpm@osdl.org>
+In-Reply-To: <1137102945.3621.1.camel@pmac.infradead.org>
+References: <Pine.LNX.4.58.0601120948270.1552@skynet>
+	<Pine.LNX.4.64.0601121016020.3535@g5.osdl.org>
+	<20060112134255.29074831.akpm@osdl.org>
+	<1137102945.3621.1.camel@pmac.infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 04, 2006 at 02:05:54PM -0500, Dave Jones wrote:
-> On Wed, Jan 04, 2006 at 12:00:00PM +1100, Con Kolivas wrote:
->  >  +2.6.15-dynticks-060101.patch
->  >  +dynticks-disable_smp_config.patch
->  > Latest version of the dynticks patch. This is proving stable and effective on 
->  > virtually all uniprocessor machines and will benefit systems that desire 
->  > power savings. SMP kernels (even on UP machines) still misbehave so this 
->  > config option is not available by default for this stable kernel.
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> On Thu, 2006-01-12 at 13:42 -0800, Andrew Morton wrote:
+> > audit: we're tracking one oops which seems to be coming out of the
+> > audit code
 > 
-> I've been curious for some time if this would actually show any measurable
-> power savings. So I hooked up my laptop to a gizmo[1] that shows how much
-> power is being sucked.
+> Are we? I recall one oops which was tracked down to an inode which had
+> i_sb == 0x00000008 so it didn't seem to be audit-related. Was there
+> something else I should be looking at?
 > 
-> both before, and after, it shows my laptop when idle is pulling 21W.
-> So either the savings here are <1W (My device can't measure more accurately
-> than a single watt), or this isn't actually buying us anything at all, or
-> something needs tuning.
-> 
-> 		Dave
 
-I've done quite a bit of testing with dynticks and various c-state strategies.
-On my thinkpad T42, dynticks can save about .5 W (as read from the ACPI battery
-interface, but hey it's a good ballpark measurement).  This is when compared to
-250HZ and the stock ACPI c-state code.  Both tests were running at the lowest
-processor frequency (600 MHZ).  The savings were much greater when running at
-1.7 GHZ or when comparing to a HZ value of 1000.  Also the advantage was closer
-to 1 W when X was not running.
+Well it's oopsing in the audit code, and might not oops without audit. 
+Perhaps the audit code is being called before i_sb is fully set up or
+something.  We won't know until we know.
 
-It might be possible to do even a little better.  Currently, I'm developing a
-new ACPI idle policy that tries to take advantage of the long time we may
-be able to spend in a C3 state.
-
-Thanks,
-Adam
+Did we work out why i_sb is crazy?

@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWALRWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWALRX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWALRWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 12:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWALRWh
+	id S932315AbWALRX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 12:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWALRX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 12:22:37 -0500
-Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:36023 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S932315AbWALRWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 12:22:36 -0500
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Orion Poplawski'" <orion@cora.nwra.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Help with machine check exception
-Date: Thu, 12 Jan 2006 11:32:33 -0600
+	Thu, 12 Jan 2006 12:23:26 -0500
+Received: from silver.veritas.com ([143.127.12.111]:43115 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932315AbWALRXY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 12:23:24 -0500
+Date: Thu, 12 Jan 2006 17:23:48 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Kurt Wall <kwall@kurtwerks.com>
+cc: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: OT: fork(): parent or child should run first?
+In-Reply-To: <20060112013858.GB6178@kurtwerks.com>
+Message-ID: <Pine.LNX.4.61.0601121719550.9759@goblin.wat.veritas.com>
+References: <20060111123745.GB30219@lgb.hu> <1136983910.2929.39.camel@laptopd505.fenrus.org>
+ <20060111130255.GC30219@lgb.hu> <20060112013858.GB6178@kurtwerks.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcYXlT5VKYSi6+oQSIGXO+GLNhjx1AACHJiQ
-In-Reply-To: <dq606p$776$1@sea.gmane.org>
-Message-ID: <EXCHG2003lbcrYP0QzB00000be1@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 12 Jan 2006 17:16:09.0431 (UTC) FILETIME=[E152D670:01C6179B]
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323584-1392799392-1137086628=:9759"
+X-OriginalArrivalTime: 12 Jan 2006 17:23:23.0790 (UTC) FILETIME=[E438C2E0:01C6179C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Orion Poplawski
-> Sent: Thursday, January 12, 2006 10:30 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Help with machine check exception
-> 
-> Can someone help determine the problem here?  Does it 
-> definitely point to a bad CPU, or possibly a bad motherboard?
-> 
-> Thanks!
-> 
-> CPU 0: Machine Check Exception:                4 Bank 4: 
-> b200000000070f0f
-> TSC 184fcd0553e4
-> Kernel panic - not syncing: Machine check
-> 
+--8323584-1392799392-1137086628=:9759
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-If this is an Opteron, CPU or Memory, a dimm failing in the
-correct manner will cause it, and I have seen a CPU cause it,
-I don't know that I have seen a MB cause it, and we have fixed
-a fair number of these errors.   If it is memory, it can be any
-of the dimms on that cpu.
+On Wed, 11 Jan 2006, Kurt Wall wrote:
+> On Wed, Jan 11, 2006 at 02:02:55PM +0100, G=C3=A1bor L=C3=A9n=C3=A1rt too=
+k 0 lines to write:
+> >=20
+> > Ok, you're absolutly right here. My problem is to find some solution an=
+d not
+> > to change the behaviour of fork() of course :) It's quite annoying to
+> > introduce some kind of IPC between parent and childs just for transferr=
+ing a
+> > single pid_t ;-) Using exit status would be great (I would transfer "n"=
+)
+>=20
+> But IPC, especially shared memory, would be great for this if you can
+> set up the shmid ahead of time. It would certainly be fast.
 
-I have seen this error kill a machine on boot up, but it looks
-more like something was cleared improperly, and may only affect
-much older versions of 2.6, in this case it is not broken hardware,
-and rebooting will cause it to not be duplicatable.
+I've not been following the thread, but if your suggestion is good, then
+better would be to use mmap MAP_SHARED|MAP_ANONYMOUS - that gives memory
+shared between parent and children, without all the nuisance of shmids.
 
-                       Roger
-
+Hugh
+--8323584-1392799392-1137086628=:9759--

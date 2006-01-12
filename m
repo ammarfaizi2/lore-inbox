@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWALTSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161195AbWALTSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161194AbWALTSF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 14:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWALTSE
+	id S1161195AbWALTSY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 14:18:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWALTSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 14:18:04 -0500
-Received: from bno-84-242-95-19.nat.karneval.cz ([84.242.95.19]:10662 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1161194AbWALTSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 14:18:03 -0500
-Message-ID: <43C6AB66.2040509@liberouter.org>
-Date: Thu, 12 Jan 2006 20:17:58 +0100
-From: Jiri Slaby <slaby@liberouter.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: cs, en-us, en
+	Thu, 12 Jan 2006 14:18:24 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:59370 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161195AbWALTSX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 14:18:23 -0500
+Message-ID: <43C6AB78.1040301@us.ibm.com>
+Date: Thu, 12 Jan 2006 14:18:16 -0500
+From: "Mike D. Day" <ncmike@us.ibm.com>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
 MIME-Version: 1.0
-To: Alexander Wagner <a.wagner@physik.uni-wuerzburg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1[4,5]: battery info lost
-References: <20060112173752.GN16769@wptx44.physik.uni-wuerzburg.de>
-In-Reply-To: <20060112173752.GN16769@wptx44.physik.uni-wuerzburg.de>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Greg KH <greg@kroah.com>
+CC: Anthony Liguori <aliguori@us.ibm.com>, Gerd Hoffmann <kraxel@suse.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>, xen-devel@lists.xensource.com
+Subject: Re: [RFC] [PATCH] sysfs support for Xen attributes
+References: <43C53DA0.60704@us.ibm.com> <20060111230704.GA32558@kroah.com> <43C5A199.1080708@us.ibm.com> <20060112005710.GA2936@kroah.com> <43C5B59C.8050908@us.ibm.com> <43C65196.8040402@suse.de> <1137072089.2936.29.camel@laptopd505.fenrus.org> <43C66ACC.60408@suse.de> <20060112173926.GD10513@kroah.com> <43C6A5B4.80801@us.ibm.com> <20060112190845.GA13073@kroah.com>
+In-Reply-To: <20060112190845.GA13073@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Wagner napsal(a):
-> Problem: Linux seems to loose the battery information in recent kernels.
-> 
-> Keywords: Battery, ACPI, 2.6.14.x, 2.6.15
-> 
-> Description:
-> 
-> Since 2.6.14 I notice that after some time the Kernel seems
-> to loose the battery information via ACPI. This behaviour
-> is reproducable though I do not know how to provoke it (it
-> just happens). Occurs as well on the R52 from which are the
-> logs below as on my T41p. On LKML this problem seems also
-> to be mentioned by Narayan Desai and the same issues seems
-> to be reported by Alejandro Bonilla Beeche and Geoff Mishkin
-> mentioning this problem on other IBMs. As the latter uesed
-Me too with 2.6.15 on asus m6r. In 2.6.14 helped ec_burst=1 kernel parameter. I
-will try few things with that and let you know (tomorrow or the day after).
-It is broken since 2.6.14 times, IIRC 2.6.13 was OK.
-I have also problems with irqs I found out yesterday. Don't know if it does have
-sth. to do with this [acpi] problem (I mean LOC: 4394987, ERR: 891474, timer is
-4394964).
+Greg KH wrote:
 
-regards,
+> 
+> Why not do the same thing that the Cell developers did for their
+> "special syscalls"?  Or at the least, make it a "real" syscall like the
+> ppc64 developers did.  It's not like there isn't a whole bunch of "prior
+> art" in the kernel today that you should be ignoring.
+
+A hypercall syscall would be good in a lot of ways. For x86/x86_64 there 
+are multiple hypervisors so we would need to make the syscall general 
+enough to support more than one hypervisor.
+
+Mike
 -- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+
+Mike D. Day
+STSM and Architect, Open Virtualization
+IBM Linux Technology Center
+ncmike@us.ibm.com

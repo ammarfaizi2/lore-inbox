@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161531AbWAMKPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161533AbWAMKRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161531AbWAMKPO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161533AbWAMKPO
+	id S1161533AbWAMKRh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161536AbWAMKRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:15:14 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29410 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161531AbWAMKPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:15:12 -0500
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Jon Mason <jdmason@us.ibm.com>,
-       Muli Ben-Yehuda <mulix@mulix.org>, Jiri Slaby <slaby@liberouter.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1137106544.2370.97.camel@mindpipe>
-References: <20060112175051.GA17539@us.ibm.com>
-	 <43C6ADDE.5060904@liberouter.org>
-	 <20060112200735.GD5399@granada.merseine.nu>
-	 <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de>
-	 <1137105731.2370.94.camel@mindpipe>  <20060112225205.GZ29663@stusta.de>
-	 <1137106544.2370.97.camel@mindpipe>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Jan 2006 10:16:53 +0000
-Message-Id: <1137147413.3645.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 13 Jan 2006 05:17:37 -0500
+Received: from uproxy.gmail.com ([66.249.92.202]:25871 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161533AbWAMKRg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 05:17:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OMS0z26BvUUo1aM06Uuv4T4SLv1toBLY9ESMu4FvHM1j2XMr0MIQ40vfkhEWGGxgAdHIutel6Y3iMCMCSNMnIZstq3Z11cVopM3j8xhN9oOQJ1ZJnseea35/OoSPHP163xvvUW06heRyywEwQvyIT5GRhxu38CuJZ/RCLDE7u+E=
+Message-ID: <58cb370e0601130211j50b85af0w3fa2a1a5f872d0e@mail.gmail.com>
+Date: Fri, 13 Jan 2006 11:11:14 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: jeff shia <tshxiayu@gmail.com>
+Subject: Re: Is there any hard disk standard?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7cd5d4b40601130200m73798389p4939e9e43cb0db87@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7cd5d4b40601130200m73798389p4939e9e43cb0db87@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-01-12 at 17:55 -0500, Lee Revell wrote:
-> "The cyberpro 5050 is an old combined video+audio controller - and
-> is/was used in some settop boxes (German Siemens Activity and also
-> Loewe).
-> 
-> There will be no "desktop users" around.
+On 1/13/06, jeff shia <tshxiayu@gmail.com> wrote:
+> Hello,everyone!
+>
+> Many companies produce hard disks,Is there any hard disk standard?Or
+> where can I
+> get the standard?
 
-The 5050 is used with some older geode systems. It uses the same core
-(from T-squared I believe) as trident and the other vendors. Its not
-very different to the 4DWAVE.
+ATA: http://www.t13.org (seems to be down at the moment)
+SCSI: http://www.t10.org
+SerialATA: http://www.serialata.org
 
-Alan
+or use www.google.com

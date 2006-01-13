@@ -1,99 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423046AbWAMWcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423043AbWAMWdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423046AbWAMWcL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423044AbWAMWcK
+	id S1423043AbWAMWdR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423044AbWAMWdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:32:10 -0500
-Received: from sipsolutions.net ([66.160.135.76]:37137 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1423041AbWAMWcI (ORCPT
+	Fri, 13 Jan 2006 17:33:17 -0500
+Received: from sipsolutions.net ([66.160.135.76]:40465 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1423043AbWAMWdQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:32:08 -0500
-Subject: Re: wireless: recap of current issues (configuration)
+	Fri, 13 Jan 2006 17:33:16 -0500
+Subject: Re: wireless: recap of current issues (compatibility)
 From: Johannes Berg <johannes@sipsolutions.net>
 To: netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060113221935.GJ16166@tuxdriver.com>
+In-Reply-To: <20060113222054.GK16166@tuxdriver.com>
 References: <20060113195723.GB16166@tuxdriver.com>
 	 <20060113212605.GD16166@tuxdriver.com>
-	 <20060113213011.GE16166@tuxdriver.com>
-	 <20060113221935.GJ16166@tuxdriver.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RADtLkFmpaw1z7cysBCk"
-Date: Fri, 13 Jan 2006 23:32:02 +0100
-Message-Id: <1137191522.2520.63.camel@localhost>
+	 <20060113213126.GF16166@tuxdriver.com>
+	 <20060113222054.GK16166@tuxdriver.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zzmr2n7morzN+LTOxZYx"
+Date: Fri, 13 Jan 2006 23:33:10 +0100
+Message-Id: <1137191590.2520.65.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-RADtLkFmpaw1z7cysBCk
+--=-zzmr2n7morzN+LTOxZYx
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-[since none our replies made it to the lists, here mine are again.
-apologies to those who see it twice, just skip it, I only pasted my
-previous replies]
 
-> Virtual devices will have a mode (e.g. station, AP, WDS, ad-hoc, rfmon,
-> raw?, other modes?) which defines its "on the air" behaviour.  Should
-> this mode be fixed when the wlan device is created?  Or something
-> that can be changed when the net_device is down?
+> The netlink configuration mechanism needs compatibility code to
+> translate wireless extension ioctls into netlink transactions.
 
-IMHO there's not much point in allowing changes. I have a feeling that
-might create icky issues you don't want to have to tackle when the
-solution is easy by just not allowing it. Part of my thinking is that
-different virtual types have different structures associated, so
-changing it needs re-creating structures anyway. And different virtual
-device types might even be provided by different kernel modules so you
-don't carry around AP mode if you don't need it.
+I think we could restrict this to allow ioctl configuration only if
+there's just a single active virtual dev [excluding some special cases
+like changing the mode which would (see above) require deactivating one
+and activating another virtual dev. or is that not possible without
+screwing up naming etc? that might get tricky if we disallow mode
+changing, but can probably be worked around easier than allowing mode
+changing, especially since this is to be deprecated]
 
-> Do "global" config requests go to any associated wlan device?
-> Or must they be directed to the WiPHY device?  Does it matter?
-> I think we should require "global" configuration to target the WiPHY
-> device, while "local" configuration remains with the wlan device.
-> (I'm not sure how important this point is?)
+> Should a default wlan device be created at WiPHY init?  Should it
+> enable translational bridging?  I'm inclined against this, but is it
+> worthwhile for compatibility?  Could/should this be a configuration
+> option for the stack?
 
-Right [global config targets wiphy]. I do think this is an important UI
-issue that userspace will have to tackle, but I think the correct way
-for the kernel is to surface this issue instead of creating workarounds.
+If you want the old userspace API to 'just work' you have to create one
+default wlan device at WiPHY init.
 
-> Either way, the WiPHY
-> device will need some way to be able to reject configuration requests
-> that are incompatible among its associated wlan devices.  Since the
-> wlan interface implementations should not be device specific, perhaps
-> the 802.11 stack can be smart enough to filter-out most conflicting
-> config requests before they get to the WiPHY device?
+> How about if WiPHY initialization triggered a netlink broadcast?
 
-I'm not sure this is worth it. While putting this into the WiPHY device
-creates more logic there, putting knowledge like 'how many different
-channels can this WiPHY device support' etc. into some representation
-that can be used by the stack to decide is much more trouble than it is
-worth.
+It definitely should, in any case.
 
 johannes
 
---=-RADtLkFmpaw1z7cysBCk
+--=-zzmr2n7morzN+LTOxZYx
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Comment: Johannes Berg (SIP Solutions)
 
-iQIVAwUAQ8gqX6Vg1VMiehFYAQL+PRAAs7JIxUCwh+yw+O7t7KU0v2e6uwE+ZZem
-fIqI+Z9DF/UH21lUhXqzfjueSZXJecZXEJk7XoWo8VHLCPmx0FOD0MJnUYJ3jqE+
-BX/ZSWP1cVU9H1jbnC1gudh4LhGz1B+5Mpg1ntAbmaydDDSLidPTEeyD5i0D/iMR
-Mr0m8qcD+Ld72pQ3ZarSi8rZM6Rgv7n4QSWpxUOE+mFsPdzC56OorIAfkvpPampT
-qTCa0Z9EJFEvdHtC/fjBCpxe1C62bMCciJ5AwbSTjoaxw+sdhutSA8+GiisR2xiE
-/m0X1qve5ST+mN5LivkU3KCVpufcQ52wQ4sX5kMrp1DGaqiu78RWXylVWWanerrf
-GYtEQFlRxJVA/WpM1pQodRiHoQrK1deIY6d8p/kN7VbxHa8HcHkeDrSruRpyejyh
-hbIrOmHoYll41UPa7RVlMmwEuDp1nRNYz0iK5BqIpMS3qgICn/rhDUVQ3140HwSQ
-SxdTtVWKn7EOtbSeFf3Useq0Kq3+p1yEl4dRCKQcbePN7xpJNw0PbSOxS+gQWZzs
-T4G6f7evWv6U7QE6VDKKdNpx/vcye8/YuPLsAsC7jULtQErxzvGtHDJyxKb9YI8k
-7UDSJgjYJXmfymXkFyrQ8j3jQwR65Rm5aQSAwpnyD8SUgTUQtRxpxmFJz8UYycGg
-kigqMqtZag8=
-=nmN4
+iQIVAwUAQ8gqpKVg1VMiehFYAQLU7g//cW6KA0nnVHi0wxS4b4kLjqAOwxNeIKzc
+GwCgCwLGCJjkfQFmmKpsKc5BQ3MPCbBuW8EeGuv1iT/57dCgjolduHlyxfCgSSRE
+IpibMygL3TAp6HE2OkRnBjjhtw2qfSIMW+yJr1ClD2G5SzO4+uWwomRzRglND1q8
+Y8Z4L6vxKN40QIKFRe/ywfblpZBY7CThRCu7cQEANSvu94TMBicI3tLa5Y2HIAPZ
+oYUdR/yh8OVheL86u7dw/EAxBj7p8OfZFUwCKjXmQmh5G6kpDyxspMqY1uYqohNU
+9s4Q9xAjTRLm3Na/wSgEHui/N6RyJHkQYUxJ/YyuJKLSVF3eyfY0gMOZ1xIPq+vW
+5WHjSu8ZloUGuHOuI915Z6PpDv6b79Rfnl9Mf2t4zEXF2+7IxSDVv7UNWu8cFAgD
+2PUmDFNZO6s9oRAFWCQ2COntJhzl5jSxog4WIGux/FUVE+ZcbLaJHuBYqMSoKvWO
+PuB65hGoGN6XgqWmo+dfgp5QCX7yxdiJxaU/e2x3Sp1RNf8e1ZHTtrB9YWr02kjJ
+Pw0qK7w18ZD9aCLAR52ET9llukkypqRVi0VeTefb7Ds6LFJm5iryDVgHgMj9Gkrz
+rOOqAjzVZPCajWidhO2CoHYYUQA4Oz7Q1rOJgnmu0DPP0exQfKzFzpMAkSttNpnN
+5TNlSGTKiZY=
+=E+Y7
 -----END PGP SIGNATURE-----
 
---=-RADtLkFmpaw1z7cysBCk--
+--=-zzmr2n7morzN+LTOxZYx--
 

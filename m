@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWAMMcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422647AbWAMMmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422643AbWAMMcS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 07:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422644AbWAMMcS
+	id S1422647AbWAMMmp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 07:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWAMMmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 07:32:18 -0500
-Received: from mtaout1.012.net.il ([84.95.2.1]:17559 "EHLO mtaout1.012.net.il")
-	by vger.kernel.org with ESMTP id S1422643AbWAMMcS (ORCPT
+	Fri, 13 Jan 2006 07:42:45 -0500
+Received: from soundwarez.org ([217.160.171.123]:8624 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1422647AbWAMMmo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 07:32:18 -0500
-Date: Fri, 13 Jan 2006 14:32:15 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-In-reply-to: <20060113122358.GH29663@stusta.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jon Mason <jdmason@us.ibm.com>,
-       Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
-Message-id: <20060113123215.GQ5399@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060112175051.GA17539@us.ibm.com>
- <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu>
- <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de>
- <1137105731.2370.94.camel@mindpipe>
- <20060113113756.GL5399@granada.merseine.nu> <20060113122358.GH29663@stusta.de>
-User-Agent: Mutt/1.5.11
+	Fri, 13 Jan 2006 07:42:44 -0500
+Date: Fri, 13 Jan 2006 13:42:35 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: unify sysfs device tree
+Message-ID: <20060113124235.GB3246@vrfy.org>
+References: <20060113015652.GA30796@vrfy.org> <200601122324.49442.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200601122324.49442.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 01:23:58PM +0100, Adrian Bunk wrote:
-
-> In my experience with scheduling OSS drivers for removal, users simply 
-> use the OSS drivers unless you tell them very explicitely that the OSS 
-> driver will go.
-
-If the OSS drivers satisfy them, what's wrong with it?
-
-> It shouldn't be too hard to port the support to ALSA if someone with the  
-> hardware is willing to test patches.
-
-Unfortunately, I have a different trident variant (the 5451).
-
-> The goal is to get people still using OSS drivers where ALSA drivers 
-> support the same hardware to use the ALSA drivers - and if there were 
-> bugs in the ALSA drivers preventing them to switch to ALSA, to report 
-> them to the ALSA bug tracking system.
+On Thu, Jan 12, 2006 at 11:24:49PM -0500, Dmitry Torokhov wrote:
+> On Thursday 12 January 2006 20:56, Kay Sievers wrote:
+> > Here is for illustration the "input" layer as a flat /sys/class directory. All
+> > devices point to /sys/devices which exposes the device hierarchy if userspace
+> > wants to know that:
+> >         /sys/class/
+> >         ...
+> >         |-- input
+> >         |   |-- input0 -> ../../devices/platform/i8042/serio1/input0
+> >         |   |-- input1 -> ../../devices/platform/i8042/serio0/input1
+> >         |   |-- input3 -> ../../devices/platform/i8042/serio0/serio2/input3
+> >         |   |-- input4 -> ../../devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input4
+> >         |   |-- mice -> ../../devices/mice
+> >         |   |-- mouse0 -> ../../devices/platform/i8042/serio0/input1/mouse0
+> >         |   |-- mouse1 -> ../../devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input4/mouse1
+> >         |   `-- mouse2 -> ../../devices/platform/i8042/serio0/serio2/input3/mouse2
 > 
-> This has the following advantages:
-> - better ALSA drivers
+> Looks nice with exception of my standard argument that inputX and
+> mouseX are objects of different (but related) classes.
 
-This one is fine.
+You can easily distinguish them by the device instance name, we have this
+in a lot of other classes too: /class/sound/controlC0 is very different from
+/class/sound/pcmC0D0p, /class/sound/timer, ...
 
-> - get rid of some unmaintained code in the kernel
+> I believe this also relies on overriding class' methods (release, uevent)
+> by individual devices and inability for class to define standard attributes
+> for such devices. Pretty yucky...
 
-This one is irrelevant for trident - I maintain it.
+You can, if you want separate classes, put them in different classes.
+This will work fine with this model now, cause the device hierarchy is
+still nicely exposed in /sys/devices.
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
+Thanks,
+Kay

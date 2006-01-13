@@ -1,138 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161538AbWAMKX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161539AbWAMKXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161538AbWAMKX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161541AbWAMKX2
+	id S1161539AbWAMKXS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161540AbWAMKXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:23:28 -0500
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:33737 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1161538AbWAMKX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:23:27 -0500
+	Fri, 13 Jan 2006 05:23:18 -0500
+Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:25576 "EHLO
+	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1161538AbWAMKXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 05:23:16 -0500
 From: Con Kolivas <kernel@kolivas.org>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/5] sched-alter_uninterruptible_sleep_interactivity.patch
-Date: Fri, 13 Jan 2006 21:23:08 +1100
+Subject: [PATCH 1/5] sched-cleanup_task_activated.patch
+Date: Fri, 13 Jan 2006 21:22:59 +1100
 User-Agent: KMail/1.9
 Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-X-Length: 4088
+X-Length: 4888
 Content-Type: multipart/signed;
-  boundary="nextPart1493609.BisPe4bOj0";
+  boundary="nextPart2440201.Y0TQYkgF8u";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601132123.12844.kernel@kolivas.org>
+Message-Id: <200601132123.01338.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1493609.BisPe4bOj0
+--nextPart2440201.Y0TQYkgF8u
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-The interactivity estimator special cases tasks that are waking up from
-uninterruptible sleep based on the fact that most uninterruptible sleep
-represents a task waiting on disk I/O and is not truly interactive. The
-current system uses a ceiling to the priority bonus said tasks can receive.
-The problem with that system is that if there are enough interactive tasks
-at high bonus levels it can lead to I/O starvation.
-
-In order to remove the ceiling but still maintain some special case treatme=
-nt
-of uninterruptible sleep, we can make any sleep_avg incrementing to be pure=
-ly
-based on sleep time instead of being biased in the non-linear fashion that
-interactive tasks are.
-
-This will lead to a detriment in interactive behaviour under disk I/O howev=
-er
-the current system unfairly biases against them and leads to a loss of disk
-throughput. This change should restore a better balance between disk
-throughput and interactivity.
+The activated flag in task_struct is used to track different sleep types
+and its usage is somewhat obfuscated. Convert the variable to an enum with
+more descriptive names without altering the function.
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
- kernel/sched.c |   36 ++++++++++++------------------------
- 1 files changed, 12 insertions(+), 24 deletions(-)
+ include/linux/sched.h |    9 ++++++++-
+ kernel/sched.c        |   24 +++++++++++++++---------
+ 2 files changed, 23 insertions(+), 10 deletions(-)
 
+Index: linux-2.6.15/include/linux/sched.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2D-- linux-2.6.15.orig/include/linux/sched.h
++++ linux-2.6.15/include/linux/sched.h
+@@ -683,6 +683,13 @@ static inline void prefetch_stack(struct
+ struct audit_context;		/* See audit.c */
+ struct mempolicy;
+=20
++enum sleep_type {
++	SLEEP_NORMAL,
++	SLEEP_NONINTERACTIVE,
++	SLEEP_INTERACTIVE,
++	SLEEP_INTERRUPTED,
++};
++
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+ 	struct thread_info *thread_info;
+@@ -704,7 +711,7 @@ struct task_struct {
+ 	unsigned long sleep_avg;
+ 	unsigned long long timestamp, last_ran;
+ 	unsigned long long sched_time; /* sched_clock time spent running */
+=2D	int activated;
++	enum sleep_type sleep_type;
+=20
+ 	unsigned long policy;
+ 	cpumask_t cpus_allowed;
 Index: linux-2.6.15/kernel/sched.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 =2D-- linux-2.6.15.orig/kernel/sched.c
 +++ linux-2.6.15/kernel/sched.c
-@@ -756,26 +756,17 @@ static int recalc_task_prio(task_t *p, u
+@@ -751,7 +751,7 @@ static int recalc_task_prio(task_t *p, u
+ 		 * prevent them suddenly becoming cpu hogs and starving
+ 		 * other processes.
+ 		 */
+=2D		if (p->mm && p->activated !=3D -1 &&
++		if (p->mm && p->sleep_type !=3D SLEEP_NONINTERACTIVE &&
+ 			sleep_time > INTERACTIVE_SLEEP(p)) {
  				p->sleep_avg =3D JIFFIES_TO_NS(MAX_SLEEP_AVG -
  						DEF_TIMESLICE);
- 		} else {
-=2D			/*
-=2D			 * The lower the sleep avg a task has the more
-=2D			 * rapidly it will rise with sleep time.
-=2D			 */
-=2D			sleep_time *=3D (MAX_BONUS - CURRENT_BONUS(p)) ? : 1;
-=20
- 			/*
-=2D			 * Tasks waking from uninterruptible sleep are
-=2D			 * limited in their sleep_avg rise as they
-=2D			 * are likely to be waiting on I/O
-+			 * The lower the sleep avg a task has the more
-+			 * rapidly it will rise with sleep time. This enables
-+			 * tasks to rapidly recover to a low latency priority.
-+			 * If a task was sleeping with the noninteractive
-+			 * label do not apply this non-linear boost
+@@ -767,7 +767,7 @@ static int recalc_task_prio(task_t *p, u
+ 			 * limited in their sleep_avg rise as they
+ 			 * are likely to be waiting on I/O
  			 */
-=2D			if (p->sleep_type =3D=3D SLEEP_NONINTERACTIVE && p->mm) {
-=2D				if (p->sleep_avg >=3D INTERACTIVE_SLEEP(p))
-=2D					sleep_time =3D 0;
-=2D				else if (p->sleep_avg + sleep_time >=3D
-=2D						INTERACTIVE_SLEEP(p)) {
-=2D					p->sleep_avg =3D INTERACTIVE_SLEEP(p);
-=2D					sleep_time =3D 0;
-=2D				}
-=2D			}
-+			if (p->sleep_type !=3D SLEEP_NONINTERACTIVE || p->mm)
-+				sleep_time *=3D
-+					(MAX_BONUS - CURRENT_BONUS(p)) ? : 1;
-=20
- 			/*
- 			 * This code gives a bonus to interactive tasks.
-@@ -818,11 +809,7 @@ static void activate_task(task_t *p, run
- 	if (!rt_task(p))
- 		p->prio =3D recalc_task_prio(p, now);
-=20
-=2D	/*
-=2D	 * This checks to make sure it's not an uninterruptible task
-=2D	 * that is now waking up.
-=2D	 */
-=2D	if (p->sleep_type =3D=3D SLEEP_NORMAL) {
-+	if (p->sleep_type !=3D SLEEP_NONINTERACTIVE) {
+=2D			if (p->activated =3D=3D -1 && p->mm) {
++			if (p->sleep_type =3D=3D SLEEP_NONINTERACTIVE && p->mm) {
+ 				if (p->sleep_avg >=3D INTERACTIVE_SLEEP(p))
+ 					sleep_time =3D 0;
+ 				else if (p->sleep_avg + sleep_time >=3D
+@@ -822,7 +822,7 @@ static void activate_task(task_t *p, run
+ 	 * This checks to make sure it's not an uninterruptible task
+ 	 * that is now waking up.
+ 	 */
+=2D	if (!p->activated) {
++	if (p->sleep_type =3D=3D SLEEP_NORMAL) {
  		/*
  		 * Tasks which were woken up by interrupts (ie. hw events)
  		 * are most likely of interactive nature. So we give them
-@@ -1356,8 +1343,9 @@ out_activate:
- 	if (old_state =3D=3D TASK_UNINTERRUPTIBLE) {
- 		rq->nr_uninterruptible--;
- 		/*
-=2D		 * Tasks on involuntary sleep don't earn
-=2D		 * sleep_avg beyond just interactive state.
-+		 * Tasks waking from uninterruptible sleep are likely
-+		 * to be sleeping involuntarily on I/O and are otherwise
-+		 * cpu bound so label them as noninteractive.
+@@ -831,13 +831,13 @@ static void activate_task(task_t *p, run
+ 		 * on a CPU, first time around:
  		 */
- 		p->sleep_type =3D SLEEP_NONINTERACTIVE;
+ 		if (in_interrupt())
+=2D			p->activated =3D 2;
++			p->sleep_type =3D SLEEP_INTERRUPTED;
+ 		else {
+ 			/*
+ 			 * Normal first-time wakeups get a credit too for
+ 			 * on-runqueue time, but it will be weighted down:
+ 			 */
+=2D			p->activated =3D 1;
++			p->sleep_type =3D SLEEP_INTERACTIVE;
+ 		}
  	}
+ 	p->timestamp =3D now;
+@@ -1359,7 +1359,7 @@ out_activate:
+ 		 * Tasks on involuntary sleep don't earn
+ 		 * sleep_avg beyond just interactive state.
+ 		 */
+=2D		p->activated =3D -1;
++		p->sleep_type =3D SLEEP_NONINTERACTIVE;
+ 	}
+=20
+ 	/*
+@@ -2938,6 +2938,12 @@ EXPORT_SYMBOL(sub_preempt_count);
+=20
+ #endif
+=20
++static inline int interactive_sleep(enum sleep_type sleep_type)
++{
++	return (sleep_type =3D=3D SLEEP_INTERACTIVE ||
++		sleep_type =3D=3D SLEEP_INTERRUPTED);
++}
++
+ /*
+  * schedule() is the main scheduler function.
+  */
+@@ -3063,12 +3069,12 @@ go_idle:
+ 	queue =3D array->queue + idx;
+ 	next =3D list_entry(queue->next, task_t, run_list);
+=20
+=2D	if (!rt_task(next) && next->activated > 0) {
++	if (!rt_task(next) && interactive_sleep(next->sleep_type)) {
+ 		unsigned long long delta =3D now - next->timestamp;
+ 		if (unlikely((long long)(now - next->timestamp) < 0))
+ 			delta =3D 0;
+=20
+=2D		if (next->activated =3D=3D 1)
++		if (next->sleep_type =3D=3D SLEEP_INTERACTIVE)
+ 			delta =3D delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
+=20
+ 		array =3D next->array;
+@@ -3081,7 +3087,7 @@ go_idle:
+ 		} else
+ 			requeue_task(next, array);
+ 	}
+=2D	next->activated =3D 0;
++	next->sleep_type =3D SLEEP_NORMAL;
+ switch_tasks:
+ 	if (next =3D=3D rq->idle)
+ 		schedstat_inc(rq, sched_goidle);
 
---nextPart1493609.BisPe4bOj0
+--nextPart2440201.Y0TQYkgF8u
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBDx3+QZUg7+tp6mRURAqvwAKCTXIM1TmTZN6q1Nf2uwkuER30W7wCfYT5B
-AoCXgNU2dNXtkzg+RIFyxzU=
-=45G9
+iD8DBQBDx3+FZUg7+tp6mRURAtEsAJ9m0agiyshs4ZnIxJRciEd/kwXI+ACdFQLN
+gZ1sJ3iTHdyWs6gR9r8mPSA=
+=tCd9
 -----END PGP SIGNATURE-----
 
---nextPart1493609.BisPe4bOj0--
+--nextPart2440201.Y0TQYkgF8u--

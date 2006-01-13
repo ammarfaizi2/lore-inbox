@@ -1,87 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423070AbWAMW52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423080AbWAMW6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423070AbWAMW52 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423073AbWAMW52
+	id S1423080AbWAMW6s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423077AbWAMW6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:57:28 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:60006 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1423070AbWAMW51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:57:27 -0500
-X-IronPort-AV: i="3.99,366,1131350400"; 
-   d="scan'208"; a="391640018:sNHT44725423968"
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [git pull] IB changes for 2.6.16-rc1
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 13 Jan 2006 14:57:03 -0800
-Message-ID: <ada64on4tz4.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 13 Jan 2006 22:57:04.0301 (UTC) FILETIME=[ABCA0DD0:01C61894]
+	Fri, 13 Jan 2006 17:58:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:12763 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1423075AbWAMW6r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:58:47 -0500
+Date: Fri, 13 Jan 2006 14:55:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kobject: don't oops on null kobject.name
+Message-ID: <20060113225537.GA25522@kroah.com>
+References: <200601122004_MC3-1-B5C5-4B72@compuserve.com> <20060113143013.0ed0f9c0.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113143013.0ed0f9c0.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+On Fri, Jan 13, 2006 at 02:30:13PM -0800, Andrew Morton wrote:
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> >
+> > kobject_get_path() will oops if one of the component names is
+> > NULL.  Fix that by returning NULL instead of oopsing.
+> > 
+> > Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> > ---
+> > 
+> > Helge, this fixes your "2.6.15 OOPS while trying to mount cdrom".
+> > 
+> > Probably not the best fix, but It Works For Me (TM).
+> > 
+> > --- 2.6.15a.orig/lib/kobject.c
+> > +++ 2.6.15a/lib/kobject.c
+> > @@ -72,6 +72,8 @@ static int get_kobj_path_length(struct k
+> >  	 * Add 1 to strlen for leading '/' of each level.
+> >  	 */
+> >  	do {
+> > +		if (kobject_name(parent) == NULL)
+> > +			return 0;
+> >  		length += strlen(kobject_name(parent)) + 1;
+> >  		parent = parent->parent;
+> >  	} while (parent);
+> > @@ -107,6 +109,8 @@ char *kobject_get_path(struct kobject *k
+> >  	int len;
+> >  
+> >  	len = get_kobj_path_length(kobj);
+> > +	if (len == 0)
+> > +		return NULL;
+> >  	path = kmalloc(len, gfp_mask);
+> >  	if (!path)
+> >  		return NULL;
+> 
+> I'd have thought that we'd want the test right at the start of
+> kobject_add() - fail it if ->name is zero.  I don't know if that'd work for
+> all callers, but kobject_add() does play around with the ->name field and
+> will go oops if ->name==NULL and debugging is enabled.
 
-    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+Something like this instead?  (warning, untested...)
 
-This tree is also available from kernel.org mirrors at:
+I'll try it out in a reboot cycle...
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+thanks,
 
-The pull will get the following changes:
+greg k-h
 
-Eli Cohen:
-      IPoIB: Fix error path in ipoib_mcast_dev_flush()
-      IPoIB: Fix address handle refcounting for multicast groups
-      IPoIB: Fix memory leak of multicast group structures
 
-Ingo Molnar:
-      IB: convert from semaphores to mutexes
-
-Ishai Rabinovitz:
-      IB/mthca: Fix memory leak of multicast group structures
-
-Jack Morgenstein:
-      IB/mthca: Fix memory leaks in error handling
-
-Michael S. Tsirkin:
-      IB/mthca: fix page shift calculation in mthca_reg_phys_mr()
-      IB/mthca: prevent event queue overrun
-      IPoIB: Take dev->xmit_lock around mc_list accesses
-      IB/mthca: Cosmetic: use the ALIGN macro
-      IB/mthca: Initialize grh_present before using it
-
-Roland Dreier:
-      IB/mthca: kzalloc conversions
-      IB/mthca: Factor common MAD initialization code
-
-Sean Hefty:
-      IB: Add node_guid to struct ib_device
-
- drivers/infiniband/core/cm.c                   |   29 +----
- drivers/infiniband/core/device.c               |   23 ++--
- drivers/infiniband/core/sysfs.c                |   22 +--
- drivers/infiniband/core/ucm.c                  |   23 ++--
- drivers/infiniband/core/uverbs.h               |    5 -
- drivers/infiniband/core/uverbs_cmd.c           |  152 ++++++++++++------------
- drivers/infiniband/core/uverbs_main.c          |    8 +
- drivers/infiniband/hw/mthca/mthca_av.c         |   10 +-
- drivers/infiniband/hw/mthca/mthca_cmd.c        |    7 +
- drivers/infiniband/hw/mthca/mthca_dev.h        |    1 
- drivers/infiniband/hw/mthca/mthca_eq.c         |   28 ++--
- drivers/infiniband/hw/mthca/mthca_provider.c   |  132 ++++++++++++---------
- drivers/infiniband/hw/mthca/mthca_qp.c         |    2 
- drivers/infiniband/ulp/ipoib/ipoib.h           |    6 -
- drivers/infiniband/ulp/ipoib/ipoib_ib.c        |   31 ++---
- drivers/infiniband/ulp/ipoib/ipoib_main.c      |   12 +-
- drivers/infiniband/ulp/ipoib/ipoib_multicast.c |  105 +++++------------
- drivers/infiniband/ulp/ipoib/ipoib_verbs.c     |    8 +
- drivers/infiniband/ulp/ipoib/ipoib_vlan.c      |   10 +-
- drivers/infiniband/ulp/srp/ib_srp.c            |   23 +---
- include/rdma/ib_verbs.h                        |    2 
- 21 files changed, 287 insertions(+), 352 deletions(-)
+--- gregkh-2.6.orig/lib/kobject.c	2006-01-13 09:15:18.000000000 -0800
++++ gregkh-2.6/lib/kobject.c	2006-01-13 14:54:40.000000000 -0800
+@@ -164,6 +164,11 @@ int kobject_add(struct kobject * kobj)
+ 		return -ENOENT;
+ 	if (!kobj->k_name)
+ 		kobj->k_name = kobj->name;
++	if (!kobj->k_name) {
++		pr_debug("kobject attempted to be registered with no name!\n");
++		WARN_ON(1);
++		return -EINVAL;
++	}
+ 	parent = kobject_get(kobj->parent);
+ 
+ 	pr_debug("kobject %s: registering. parent: %s, set: %s\n",

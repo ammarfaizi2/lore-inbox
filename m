@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWAMEYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWAMEaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWAMEYw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 23:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWAMEYv
+	id S964816AbWAMEaG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 23:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWAMEaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 23:24:51 -0500
-Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:28021 "HELO
-	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964799AbWAMEYv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 23:24:51 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: unify sysfs device tree
-Date: Thu, 12 Jan 2006 23:24:49 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <20060113015652.GA30796@vrfy.org>
-In-Reply-To: <20060113015652.GA30796@vrfy.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601122324.49442.dtor_core@ameritech.net>
+	Thu, 12 Jan 2006 23:30:06 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:39352 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S964816AbWAMEaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 23:30:05 -0500
+Subject: Re: [PATCH] [5/6] Handle TIF_RESTORE_SIGMASK for i386
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       David Howells <dhowells@redhat.com>
+In-Reply-To: <20060112195950.60188acf.akpm@osdl.org>
+References: <1136923488.3435.78.camel@localhost.localdomain>
+	 <1136924357.3435.107.camel@localhost.localdomain>
+	 <20060112195950.60188acf.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 04:30:05 +0000
+Message-Id: <1137126606.3085.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 January 2006 20:56, Kay Sievers wrote:
-> Here is for illustration the "input" layer as a flat /sys/class directory. All
-> devices point to /sys/devices which exposes the device hierarchy if userspace
-> wants to know that:
->         /sys/class/
->         ...
->         |-- input
->         |   |-- input0 -> ../../devices/platform/i8042/serio1/input0
->         |   |-- input1 -> ../../devices/platform/i8042/serio0/input1
->         |   |-- input3 -> ../../devices/platform/i8042/serio0/serio2/input3
->         |   |-- input4 -> ../../devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input4
->         |   |-- mice -> ../../devices/mice
->         |   |-- mouse0 -> ../../devices/platform/i8042/serio0/input1/mouse0
->         |   |-- mouse1 -> ../../devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input4/mouse1
->         |   `-- mouse2 -> ../../devices/platform/i8042/serio0/serio2/input3/mouse2
+On Thu, 2006-01-12 at 19:59 -0800, Andrew Morton wrote:
+> applied, or with all of David's patches applied, an FC5-test1 machine hangs
+> during the login process (local vt or sshd).  An FC1 machine doesn't
+> exhibit the problem.
 
-Looks nice with exception of my standard argument that inputX and
-mouseX are objects of different (but related) classes.
+So the 'successful' login reported at 19:21:45 never actually completed
+and gave you a shell?
 
-I believe this also relies on overriding class' methods (release, uevent)
-by individual devices and inability for class to define standard attributes
-for such devices. Pretty yucky...
+I can't make out which process it is that's misbehaving... and your
+login was pid 2292 but I don't see your SysRq-T output going up that
+far. Am I missing something?
+
+I note you're running auditd -- FC5-test1 enabled syscall auditing by
+default. Does the problem persist if you prevent the auditd initscript
+from starting up? If so, let's turn auditing back on and actually make
+use of it -- assuming the offending process is actually one of your own
+after the login has changed uid, can you set an audit rule to log all
+syscalls from your own userid? (add '-Aexit,always -Fuid=500'
+to /etc/audit.rules, assuming 500 is your own uid). Then show me the
+appropriate section from /var/log/audit/audit.log. 
+
+I tested both with and without audit on PPC -- David, did you test this
+patch with auditing enabled on i386?
+
+Will attempt to reproduce locally... I've _also_ seen login hangs on
+current linus trees but they've been different (and on that machine I
+haven't had the TIF_RESTORE_SIGMASK patches either). It happens on disk
+activity though -- after 'rpm -i <kernelpackage>' the whole machine
+locks up and I have no more file system access. If your SysRq-T got to
+the disk, I suspect you aren't seeing the same problem.
 
 -- 
-Dmitry
+dwmw2
+

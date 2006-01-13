@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161368AbWAMFyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161372AbWAMGLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161368AbWAMFyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 00:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161372AbWAMFyY
+	id S1161372AbWAMGLI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 01:11:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWAMGLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 00:54:24 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:41923 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1161368AbWAMFyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 00:54:24 -0500
-From: Yu Luming <luming.yu@intel.com>
-Organization: Intel
-To: Narayan Desai <desai@mcs.anl.gov>
-Subject: Re: 2.6.1[4,5]: battery info lost
-Date: Fri, 13 Jan 2006 13:55:36 +0800
-User-Agent: KMail/1.8.2
-Cc: Alexander Wagner <a.wagner@physik.uni-wuerzburg.de>,
-       linux-kernel@vger.kernel.org
-References: <20060112173752.GN16769@wptx44.physik.uni-wuerzburg.de> <87mzi1ay5f.fsf@topaz.mcs.anl.gov>
-In-Reply-To: <87mzi1ay5f.fsf@topaz.mcs.anl.gov>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 13 Jan 2006 01:11:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49576 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751505AbWAMGLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 01:11:07 -0500
+Date: Thu, 12 Jan 2006 22:10:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dwmw2@infradead.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       drepper@redhat.com, dhowells@redhat.com
+Subject: Re: [PATCH] [5/6] Handle TIF_RESTORE_SIGMASK for i386
+Message-Id: <20060112221037.5dbc3dd9.akpm@osdl.org>
+In-Reply-To: <20060112205451.392c0c5c.akpm@osdl.org>
+References: <1136923488.3435.78.camel@localhost.localdomain>
+	<1136924357.3435.107.camel@localhost.localdomain>
+	<20060112195950.60188acf.akpm@osdl.org>
+	<1137126606.3085.44.camel@localhost.localdomain>
+	<20060112205451.392c0c5c.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601131355.36958.luming.yu@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 January 2006 06:18, Narayan Desai wrote:
-> I found that disabling CONFIG_PREEMPT fixed the problems for me. A
-> co-worker reported (today, coincidentally) that using the
-> acpi_serialize kernel option seems to have fixed the problem for him.
->  -nld
-Please try patch http://bugzilla.kernel.org/show_bug.cgi?id=4588#c31
-when PREEMPT enabled.
--- 
-Thanks,
-Luming
+Andrew Morton <akpm@osdl.org> wrote:
+>
+>  Note that I have /bin/zsh in /etc/passwd.
+>
+
+It's zsh.  I can log in as root (root uses bash) and just type "zsh" and
+zsh gets stuck chewing 100% CPU.  strace says:
+
+
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigsuspend(~[HUP CHLD RTMIN RT_1])   = -1 EINVAL (Invalid argument)

@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422725AbWAMQVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWAMQZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422725AbWAMQVV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 11:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422727AbWAMQVU
+	id S965014AbWAMQZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 11:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWAMQZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 11:21:20 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:41937 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1422725AbWAMQVU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 11:21:20 -0500
-Subject: Re: [PATCH 2 of 3] memcpy32 for x86_64
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Chris Wedgwood <cw@f00f.org>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, ak@suse.de, rdreier@cisco.com
-In-Reply-To: <200601131224.36545.vda@ilport.com.ua>
-References: <b4863171295fdb6e8206.1136922838@serpentine.internal.keyresearch.com>
-	 <1137081882.28011.1.camel@serpentine.pathscale.com>
-	 <20060113095625.GA3707@taniwha.stupidest.org>
-	 <200601131224.36545.vda@ilport.com.ua>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Fri, 13 Jan 2006 08:21:09 -0800
-Message-Id: <1137169269.29209.0.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 13 Jan 2006 11:25:47 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:60676 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S965014AbWAMQZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 11:25:47 -0500
+Message-ID: <43C7D4D1.10200@shadowen.org>
+Date: Fri, 13 Jan 2006 16:26:57 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Con Kolivas <kernel@kolivas.org>, Martin Bligh <mbligh@google.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au> <200601120129.16315.kernel@kolivas.org> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <43C6A24E.9080901@google.com> <43C6B60E.2000003@bigpond.net.au> <43C6D636.8000105@bigpond.net.au> <43C75178.80809@bigpond.net.au>
+In-Reply-To: <43C75178.80809@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 12:24 +0200, Denis Vlasenko wrote:
+Peter Williams wrote:
 
-> you need just
-> 
-> 	.globl memcpy32
-> memcpy32:
-> 	movl %edx,%ecx
-> 	rep movsd
-> 	ret
+> Attached is a new patch to fix the excessive idle problem.  This patch
+> takes a new approach to the problem as it was becoming obvious that
+> trying to alter the load balancing code to cope with biased load was
+> harder than it seemed.
 
-This is what the current version of the patches in -mm does.
+Ok.  Tried testing different-approach-to-smp-nice-problem against the
+transition release 2.6.14-rc2-mm1 but it doesn't apply.  Am testing
+against 2.6.15-mm3 right now.  Will let you know.
 
-	<b
-
+-apw

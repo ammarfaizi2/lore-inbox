@@ -1,102 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030272AbWAMEA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWAMEC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030272AbWAMEA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 23:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWAMEA0
+	id S964901AbWAMEC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 23:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWAMEC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 23:00:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26769 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964799AbWAMEAZ (ORCPT
+	Thu, 12 Jan 2006 23:02:58 -0500
+Received: from main.gmane.org ([80.91.229.2]:14823 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964901AbWAMEC5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 23:00:25 -0500
-Date: Thu, 12 Jan 2006 19:59:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] [5/6] Handle TIF_RESTORE_SIGMASK for i386
-Message-Id: <20060112195950.60188acf.akpm@osdl.org>
-In-Reply-To: <1136924357.3435.107.camel@localhost.localdomain>
-References: <1136923488.3435.78.camel@localhost.localdomain>
-	<1136924357.3435.107.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 12 Jan 2006 23:02:57 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
+Subject: Re: ide-cd turning off DMA when verifying DVD-R
+Date: Fri, 13 Jan 2006 06:04:13 +0200
+Message-ID: <pan.2006.01.13.04.04.13.412805@sci.fi>
+References: <43C6CB99.50302@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cs181093116.pp.htv.fi
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
->
-> The attached patch handles TIF_RESTORE_SIGMASK as added by David Woodhouse's
-> patch entitled:
-> 
->         [PATCH] 2/3 Add TIF_RESTORE_SIGMASK support for arch/powerpc
->         [PATCH] 3/3 Generic sys_rt_sigsuspend
-> 
-> It does the following:
-> 
->  (1) Declares TIF_RESTORE_SIGMASK for i386.
-> 
->  (2) Invokes it over to do_signal() when TIF_RESTORE_SIGMASK is set.
-> 
->  (3) Makes do_signal() support TIF_RESTORE_SIGMASK, using the signal mask saved
->      in current->saved_sigmask.
-> 
->  (4) Discards sys_rt_sigsuspend() from the arch, using the generic one instead.
-> 
->  (5) Makes sys_sigsuspend() save the signal mask and set TIF_RESTORE_SIGMASK
->      rather than attempting to fudge the return registers.
-> 
->  (6) Makes sys_sigsuspend() return -ERESTARTNOHAND rather than looping
->      intrinsically.
-> 
->  (7) Makes setup_frame(), setup_rt_frame() and handle_signal() return 0 or
->      -EFAULT rather than true/false to be consistent with the rest of the
->      kernel.
-> 
-> Due to the fact do_signal() is then only called from one place:
-> 
->  (8) Makes do_signal() no longer have a return value is it was just being
->      ignored; force_sig() takes care of this.
-> 
->  (9) Discards the old sigmask argument to do_signal() as it's no longer
->      necessary.
-> 
-> (10) Makes do_signal() static.
-> 
-> (11) Marks the second argument to do_notify_resume() as unused. The unused
->      argument should remain in the middle as the arguments are passed in as
->      registers, and the ordering is specific in entry.S
-> 
-> Given the way do_signal() is now no longer called from sys_{,rt_}sigsuspend(),
-> they no longer need access to the exception frame, and so can just take
-> arguments normally.
-> 
-> This patch depends on sys_rt_sigsuspend patch.
+On Thu, 12 Jan 2006 22:35:21 +0100, Ondrej Zary wrote:
 
-I have problems with this patch.
+> Hello,
+> I found this problem when burning DVDs using K3b (it uses growisofs to 
+> do the work) with LG GSA-4167B drive:
+> Burn process completes without any problems, then K3b ejects and reloads 
+> the tray, then it calculates MD5 checksum from the image. Then it starts 
+> reading the DVD back to calculate MD5 checksum of it. The moment it 
+> starts to read, this appears in dmesg:
+> 
+> hdd: irq timeout: status=0xd0 { Busy }
+> ide: failed opcode was: unknown
+> hdd: DMA disabled
+> hdd: ATAPI reset complete
+> 
+> And then it slowly reads the DVD in PIO mode. After about a hour, it 
+> finishes with success. When I re-enable DMA mode ("hdparm -d1 /dev/hdd") 
+> immediately after it was disabled, it works fine in - there are no more 
+> errors in the log and the verification completes much sooner. I burnt 10 
+> DVDs and it always does exactly this.
+> 
+> Any ideas why it does this? And why ide-cd disables the DMA?
 
-With
+I think the drive just takes too long to recongize the disc. My 4163B has
+the same problem which is why I always close the tray manually or with
+eject -t and wait a while before mounting or burning the disc. Of course
+that won't help in your case. I guess the real fix would be to
+increase some ide-cd timeout.
 
-	generic-sys_rt_sigsuspend.patch
-	handle-tif_restore_sigmask-for-frv.patch
-	handle-tif_restore_sigmask-for-i386.patch
+-- 
+Ville Syrjälä
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/
 
-applied, or with all of David's patches applied, an FC5-test1 machine hangs
-during the login process (local vt or sshd).  An FC1 machine doesn't
-exhibit the problem.
-
-dmesg+sysrq-t:
-	http://www.zip.com.au/~akpm/linux/patches/stuff/dmesg
-
-.config:
-	http://www.zip.com.au/~akpm/linux/patches/stuff/config-sony
-
-culprit patches:
-	http://www.zip.com.au/~akpm/linux/patches/stuff/generic-sys_rt_sigsuspend.patch
-	http://www.zip.com.au/~akpm/linux/patches/stuff/handle-tif_restore_sigmask-for-i386.patch
-
-(I retested with just current -linus and the above two patches.  Same
-deal).
 

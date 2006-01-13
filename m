@@ -1,41 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422635AbWAML4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWAMMAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422635AbWAML4W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 06:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161266AbWAML4W
+	id S1422636AbWAMMAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 07:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161266AbWAMMAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 06:56:22 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:2691 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1161262AbWAML4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 06:56:21 -0500
-Date: Fri, 13 Jan 2006 09:56:19 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Neal Becker <ndbecker2@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: integrated IR receiver driver?
-Message-Id: <20060113095619.69e8a50c.lcapitulino@mandriva.com.br>
-In-Reply-To: <dq705i$1ov$1@sea.gmane.org>
-References: <dq705i$1ov$1@sea.gmane.org>
-Organization: Mandriva
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.9; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Jan 2006 07:00:55 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:53197 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1161262AbWAMMAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 07:00:54 -0500
+Message-ID: <43C79673.8040507@bigpond.net.au>
+Date: Fri, 13 Jan 2006 23:00:51 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Con Kolivas <kernel@kolivas.org>, Martin Bligh <mbligh@google.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Andy Whitcroft <apw@shadowen.org>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au> <200601120129.16315.kernel@kolivas.org> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <43C6A24E.9080901@google.com> <43C6B60E.2000003@bigpond.net.au> <43C6D636.8000105@bigpond.net.au> <43C75178.80809@bigpond.net.au>
+In-Reply-To: <43C75178.80809@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 13 Jan 2006 12:00:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jan 2006 20:36:29 -0500
-Neal Becker <ndbecker2@gmail.com> wrote:
+Peter Williams wrote:
+> Peter Williams wrote:
+> 
+>> Peter Williams wrote:
+>>
+>>> Martin Bligh wrote:
+>>>
+>>>>
+>>>>>>
+>>>>>> But I was thinking more about the code that (in the original) 
+>>>>>> handled the case where the number of tasks to be moved was less 
+>>>>>> than 1 but more than 0 (i.e. the cases where "imbalance" would 
+>>>>>> have been reduced to zero when divided by SCHED_LOAD_SCALE).  I 
+>>>>>> think that I got that part wrong and you can end up with a bias 
+>>>>>> load to be moved which is less than any of the bias_prio values 
+>>>>>> for any queued tasks (in circumstances where the original code 
+>>>>>> would have rounded up to 1 and caused a move).  I think that the 
+>>>>>> way to handle this problem is to replace 1 with "average bias 
+>>>>>> prio" within that logic.  This would guarantee at least one task 
+>>>>>> with a bias_prio small enough to be moved.
+>>>>>>
+>>>>>> I think that this analysis is a strong argument for my original 
+>>>>>> patch being the cause of the problem so I'll go ahead and generate 
+>>>>>> a fix. I'll try to have a patch available later this morning.
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> Attached is a patch that addresses this problem.  Unlike the 
+>>>>> description above it does not use "average bias prio" as that 
+>>>>> solution would be very complicated.  Instead it makes the 
+>>>>> assumption that NICE_TO_BIAS_PRIO(0) is a "good enough" for this 
+>>>>> purpose as this is highly likely to be the median bias prio and the 
+>>>>> median is probably better for this purpose than the average.
+>>>>>
+>>>>> Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> Doesn't fix the perf issue.
+>>>
+>>>
+>>>
+>>>
+>>> OK, thanks.  I think there's a few more places where SCHED_LOAD_SCALE 
+>>> needs to be multiplied by NICE_TO_BIAS_PRIO(0).  Basically, anywhere 
+>>> that it's added to, subtracted from or compared to a load.  In those 
+>>> cases it's being used as a scaled version of 1 and we need a scaled 
+>>
+>>
+>>
+>> This would have been better said as "the load generated by 1 task" 
+>> rather than just "a scaled version of 1".  Numerically, they're the 
+>> same but one is clearer than the other and makes it more obvious why 
+>> we need NICE_TO_BIAS_PRIO(0) * SCHED_LOAD_SCALE and where we need it.
+>>
+>>> version of NICE_TO_BIAS_PRIO(0).  I'll have another patch later today.
+>>
+>>
+>>
+>> I'm just testing this at the moment.
+> 
+> 
+> Attached is a new patch to fix the excessive idle problem.  This patch 
+> takes a new approach to the problem as it was becoming obvious that 
+> trying to alter the load balancing code to cope with biased load was 
+> harder than it seemed.
+> 
+> This approach reverts to the old load values but weights them according 
+> to tasks' bias_prio values.  This means that any assumptions by the load 
+> balancing code that the load generated by a single task is 
+> SCHED_LOAD_SCALE will still hold.  Then, in find_busiest_group(), the 
+> imbalance is scaled back up to bias_prio scale so that move_tasks() can 
+> move biased load rather than tasks.
+> 
+> One advantage of this is that when there are no non zero niced tasks the 
+> processing will be mathematically the same as the original code. 
+> Kernbench results from a 2 CPU Celeron 550Mhz system are:
+> 
+> Average Optimal -j 8 Load Run:
+> Elapsed Time 1056.16 (0.831102)
+> User Time 1906.54 (1.38447)
+> System Time 182.086 (0.973386)
+> Percent CPU 197 (0)
+> Context Switches 48727.2 (249.351)
+> Sleeps 27623.4 (413.913)
+> 
+> This indicates that, on average, 98.9% of the total available CPU was 
+> used by the build.
 
-| I have an hp dv8000 notebook.  It says it has an integrated IR receiver. 
-| Any clues whether there is a driver for it?  I have not found any useful
-| technical info on it, nor found anything poking around in boot logs
-| or /proc/
+Here's the numbers for the same machine with the "improved smp nice 
+handling" completely removed i.e. back to 2.6.15 version.
 
- Did you check Linux-IrDA project already?
+Average Optimal -j 8 Load Run:
+Elapsed Time 1059.95 (1.19324)
+User Time 1914.94 (1.11102)
+System Time 181.846 (0.916695)
+Percent CPU 197.4 (0.547723)
+Context Switches 40917.4 (469.184)
+Sleeps 26654 (320.824)
 
- http://irda.sourceforge.net/
+> 
+> Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+> 
+> BTW I think that we need to think about a slightly more complex nice to 
+> bias mapping function.  The current one gives a nice==19 1/20 of the 
+> bias of a nice=0 task but only gives nice=-20 tasks twice the bias of a 
+> nice=0 task.  I don't think this is a big problem as the majority of non 
+> nice==0 tasks will have positive nice but should be looked at for a 
+> future enhancement.
+> 
+> Peter
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> Index: MM-2.6.X/kernel/sched.c
+> ===================================================================
+> --- MM-2.6.X.orig/kernel/sched.c	2006-01-13 14:53:34.000000000 +1100
+> +++ MM-2.6.X/kernel/sched.c	2006-01-13 15:11:19.000000000 +1100
+> @@ -1042,7 +1042,8 @@ void kick_process(task_t *p)
+>  static unsigned long source_load(int cpu, int type)
+>  {
+>  	runqueue_t *rq = cpu_rq(cpu);
+> -	unsigned long load_now = rq->prio_bias * SCHED_LOAD_SCALE;
+> +	unsigned long load_now = (rq->prio_bias * SCHED_LOAD_SCALE) /
+> +		NICE_TO_BIAS_PRIO(0);
+>  
+>  	if (type == 0)
+>  		return load_now;
+> @@ -1056,7 +1057,8 @@ static unsigned long source_load(int cpu
+>  static inline unsigned long target_load(int cpu, int type)
+>  {
+>  	runqueue_t *rq = cpu_rq(cpu);
+> -	unsigned long load_now = rq->prio_bias * SCHED_LOAD_SCALE;
+> +	unsigned long load_now = (rq->prio_bias * SCHED_LOAD_SCALE) /
+> +		NICE_TO_BIAS_PRIO(0);
+>  
+>  	if (type == 0)
+>  		return load_now;
+> @@ -1322,7 +1324,8 @@ static int try_to_wake_up(task_t *p, uns
+>  			 * of the current CPU:
+>  			 */
+>  			if (sync)
+> -				tl -= p->bias_prio * SCHED_LOAD_SCALE;
+> +				tl -= (p->bias_prio * SCHED_LOAD_SCALE) /
+> +					NICE_TO_BIAS_PRIO(0);
+>  
+>  			if ((tl <= load &&
+>  				tl + target_load(cpu, idx) <= SCHED_LOAD_SCALE) ||
+> @@ -2159,7 +2162,7 @@ find_busiest_group(struct sched_domain *
+>  	}
+>  
+>  	/* Get rid of the scaling factor, rounding down as we divide */
+> -	*imbalance = *imbalance / SCHED_LOAD_SCALE;
+> +	*imbalance = (*imbalance * NICE_TO_BIAS_PRIO(0)) / SCHED_LOAD_SCALE;
+>  	return busiest;
+>  
+>  out_balanced:
+> @@ -2472,7 +2475,8 @@ static void rebalance_tick(int this_cpu,
+>  	struct sched_domain *sd;
+>  	int i;
+>  
+> -	this_load = this_rq->prio_bias * SCHED_LOAD_SCALE;
+> +	this_load = (this_rq->prio_bias * SCHED_LOAD_SCALE) /
+> +		NICE_TO_BIAS_PRIO(0);
+>  	/* Update our load */
+>  	for (i = 0; i < 3; i++) {
+>  		unsigned long new_load = this_load;
+
 
 -- 
-Luiz Fernando N. Capitulino
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

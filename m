@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161562AbWAMQnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWAMQuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161562AbWAMQnn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 11:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161558AbWAMQnn
+	id S1751247AbWAMQuX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 11:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWAMQuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 11:43:43 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:49264 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161562AbWAMQnm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 11:43:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nrJFCMd2XUSv576k6l6ropG4yHvWB2HHISjgo7gPu8Vn/6EMZ15iPpyoSw7b5+NVx73sQOOmdZqnJkMJfp9/aBf3SgFbYMzWspR8N6dg314zVxKyZrqiHsAHd24cGjY3jpahvb+q4BC8Q5T4KF4sM9vj6TZoOtDUFv5fCg3TjkU=
-Message-ID: <3afbacad0601130843k6cf548e5y638b9ae3434096fa@mail.gmail.com>
-Date: Fri, 13 Jan 2006 17:43:40 +0100
-From: Jim MacBaine <jmacbaine@gmail.com>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Subject: Re: /proc/sys/vm/swappiness == 0 makes OOM killer go beserk
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <728201270601130832h37eae980hc4e0d3de7522c81e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 13 Jan 2006 11:50:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60366 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751247AbWAMQuW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 11:50:22 -0500
+Date: Fri, 13 Jan 2006 11:49:43 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan Hourihane <alanh@tungstengraphics.com>
+Cc: Dave Airlie <airlied@gmail.com>, Dave Airlie <airlied@linux.ie>,
+       Ulrich Mueller <ulm@kph.uni-mainz.de>, linux-kernel@vger.kernel.org,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-mm2
+Message-ID: <20060113164943.GA26957@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Hourihane <alanh@tungstengraphics.com>,
+	Dave Airlie <airlied@gmail.com>, Dave Airlie <airlied@linux.ie>,
+	Ulrich Mueller <ulm@kph.uni-mainz.de>, linux-kernel@vger.kernel.org,
+	Brice Goglin <Brice.Goglin@ens-lyon.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <43C03214.5080201@ens-lyon.org> <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com> <u3bjtogq0@a1i15.kph.uni-mainz.de> <20060112171137.GA19827@redhat.com> <17350.39878.474574.712791@a1i15.kph.uni-mainz.de> <Pine.LNX.4.58.0601122036430.32194@skynet> <1137099813.9711.32.camel@jetpack.demon.co.uk> <21d7e9970601121402u2d05a073kc677f94b278181c0@mail.gmail.com> <1137141125.9634.0.camel@jetpack.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3afbacad0601130755x507047eeqfdcfb1e54a163cdd@mail.gmail.com>
-	 <728201270601130832h37eae980hc4e0d3de7522c81e@mail.gmail.com>
+In-Reply-To: <1137141125.9634.0.camel@jetpack.demon.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/06, Ram Gupta <ram.gupta5@gmail.com> wrote:
+On Fri, Jan 13, 2006 at 08:32:05AM +0000, Alan Hourihane wrote:
+ > On Fri, 2006-01-13 at 09:02 +1100, Dave Airlie wrote:
+ > > > >
+ > > > > I've cc'ed Alan Hourihane, but from memory the Intel on-board graphics
+ > > > > chips don't advertise the AGP bit on the graphics controllers but work
+ > > > > using AGP...
+ > > > >
+ > > > > I've got an PCIE chipset with Radeon on it, and in that case I could get
+ > > > > away without agpgart...
+ > > >
+ > > > Dave,
+ > > >
+ > > > You're probably reading too much into that last statement.
+ > > >
+ > > > I've never seen a pure PCI-e chipset from Intel (i.e. the ones without
+ > > > integrated graphics) so that may not be true, but the ones with
+ > > > integrated graphics are always treated as AGP based.
+ > > >
+ > > 
+ > > I'll show you one at xdevconf if I can get there, it has just a PCI-E
+ > > root bridge no graphics controller, we still init AGP on it but I
+ > > don't think there is any need, however for all the integrated
+ > > graphics, even if they don't advertise AGP they do use it which is
+ > > DaveJ's problem that he was trying not to load AGP if the AGP was
+ > > being advertised..
+ > 
+ > O.k. I didn't see the original thread to this. But yes, all integrated
+ > graphics based Intel chipsets are AGP regardless if the chip doesn't
+ > advertise it correctly.
 
-> This is ok. When the swappiness variable  is set to zero kernel does
-> not try to swap out processes. So once all memory is used up by
-> processes it can not free up memory by swapping and hence had to kill
-> process.
+FWIW, I've dropped that change from agpgart.git. It caused more problems
+than it was worth.
 
-It _would_ be ok if swappiness == 0 would mean that the kernel will
-not swap at all. That's not the case. Even without an excessive use of
-tmpfs the kernel found ~250 MB of unused memory which it swapped out
-during the last days with swappiness == 0.
+		Dave
 
-Regards,
-Jim

@@ -1,107 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWAMKgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161554AbWAMKhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbWAMKgz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161554AbWAMKgz
+	id S1161554AbWAMKhx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWAMKhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:36:55 -0500
-Received: from uproxy.gmail.com ([66.249.92.201]:40083 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161267AbWAMKgz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:36:55 -0500
+	Fri, 13 Jan 2006 05:37:53 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:19135 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030338AbWAMKhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 05:37:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=VWIE8twk08kk85W5ArHhMFTZlwG3xHfgB9WhqRHZmorFT8F7dfKtkDcM4dw1krOAJLh0cWWJ4Kb/vv7tOO4koaPF1ajfqgfipxBSDCINvTZJl0mckkKN0DpGb8vzEOw6SZc1U3FgbqlLHcRZbYOq7oSfVUpFJeL5HipDO1hnF7M=
-Message-ID: <8bcbe9bd0601130230l1ab3eab5te5e88e463c5b05c1@mail.gmail.com>
-Date: Fri, 13 Jan 2006 18:30:46 +0800
-From: jinhong hu <jinhong.hu@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: kernel 2.6.15 scsi problem
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=nhh93HcsOcVzFoE2sG/1MwrC+++p28/nXFOckoqVtIjOfUvJRdWjFM8trfS5M107KaKEJt10cQlGNAtoYGc5tHXUF1DhqHkjYCA4ZSJAyAUCQaBxRMJ52OxGgdgCjFjc3lmybCFpWyMQB3JpMdJU03JZvjNiIQjolikvx/x3Vlw=  ;
+Message-ID: <43C782F3.1090803@yahoo.com.au>
+Date: Fri, 13 Jan 2006 21:37:39 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+To: Andrew Morton <akpm@osdl.org>
+CC: hugh@veritas.com, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: smp race fix between invalidate_inode_pages* and do_no_page
+References: <20051213193735.GE3092@opteron.random>	<20051213130227.2efac51e.akpm@osdl.org>	<20051213211441.GH3092@opteron.random>	<20051216135147.GV5270@opteron.random>	<20060110062425.GA15897@opteron.random>	<43C484BF.2030602@yahoo.com.au>	<20060111082359.GV15897@opteron.random>	<20060111005134.3306b69a.akpm@osdl.org>	<20060111090225.GY15897@opteron.random>	<20060111010638.0eb0f783.akpm@osdl.org>	<20060111091327.GZ15897@opteron.random>	<Pine.LNX.4.61.0601111949070.6448@goblin.wat.veritas.com>	<43C75834.3040007@yahoo.com.au> <20060112234726.676c3873.akpm@osdl.org>
+In-Reply-To: <20060112234726.676c3873.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-host A and host B are connected to the same FC switch with qla2300 HBA card.
-And I can see device such as "/dev/sda" through command "fdisk -l" on A.
-but if I reboot host B, then the device is removed for some reason.
-The messages are:
-kernel:  rport-0:0-0: blocked FC remote port time out: removing target and
-saving binding
-kernel:  rport-1:0-0: blocked FC remote port time out: removing target and
-saving binding
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>(I guess reclaim might be one, but quite rare -- any other significant
+>> lock_page users that we might hit?)
+> 
+> 
+> The only time 2.6 holds lock_page() for a significant duration is when
+> bringing the page uptodate with readpage or memset.
+> 
 
-My problem is, the device can not come back automaticly unless I reload
-the driver module "qla2300". But after I reload module "qla2300" on host A,
-the device on host B disappeared.
-Now I've updated my kernel to 2.6.15.git6ÅB I select the driver as:
-<*> QLogic QLA2XXX Fibre Channel Support
-[ ]     Use firmware-loader modules (DEPRECATED)
-but After I reboot my host to the new kernel, I can not find the device.
-The logs are:
-Jan 11 16:53:07 nd10 kernel: QLogic Fibre Channel HBA Driver
-Jan 11 16:53:07 nd10 kernel: ACPI: PCI Interrupt 0000:07:01.0[A] -> GSI 96
-(level, low) -> IRQ 169
-Jan 11 16:53:07 nd10 kernel: qla2xxx 0000:07:01.0: Found an ISP2312, irq 169,
-iobase 0xf8816000
-Jan 11 16:53:07 nd10 kernel: qla2xxx 0000:07:01.0: Configuring PCI space...
-Jan 11 16:53:07 nd10 kernel: qla2xxx 0000:07:01.0: Configure NVRAM
-parameters...
-Jan 11 16:53:07 nd10 kernel: qla2xxx 0000:07:01.0: Verifying loaded RISC
-code...
-Jan 11 16:53:07 nd10 kernel: qla2xxx 0000:07:01.0: Firmware image unavailable.
-Jan 11 16:53:07 nd10 kernel: qla2xxx 0000:07:01.0: Failed to initialize adapter
-Jan 11 16:53:07 nd10 kernel: Trying to free free IRQ169
-Jan 11 16:53:07 nd10 kernel: ACPI: PCI interrupt for device 0000:07:01.0
-disabled
-Jan 11 16:53:07 nd10 kernel: ACPI: PCI interrupt for device 0000:07:01.0
-disabled
-Jan 11 16:53:07 nd10 kernel: ACPI: PCI Interrupt 0000:07:01.1[B] -> GSI 97
-(level, low) -> IRQ 177
-Jan 11 16:53:08 nd10 kernel: qla2xxx 0000:07:01.1: Found an ISP2312, irq 177,
-iobase 0xf8816000
-Jan 11 16:53:08 nd10 kernel: qla2xxx 0000:07:01.1: Configuring PCI space...
-Jan 11 16:53:08 nd10 kernel: qla2xxx 0000:07:01.1: Configure NVRAM
-parameters...
-Jan 11 16:53:08 nd10 kernel: qla2xxx 0000:07:01.1: Verifying loaded RISC
-code...
-Jan 11 16:53:08 nd10 kernel: qla2xxx 0000:07:01.1: Firmware image unavailable.
-Jan 11 16:53:08 nd10 kernel: qla2xxx 0000:07:01.1: Failed to initialize adapter
-Jan 11 16:53:08 nd10 kernel: Trying to free free IRQ177
+Yes that's what I thought. And we don't really need to worry about this
+case because filemap_nopage has to deal with it anyway (ie. we shouldn't
+see a locked !uptodate page in do_no_page).
 
+> The scalability risk here is 100 CPUs all faulting in the same file in the
+> same pattern.  Like the workload which caused the page_table_lock splitup
+> (that was with anon pages).  All the CPUs could pretty easily get into sync
+> and start arguing over every single page's lock.
+> 
 
-if I select the driver as:
- <M> QLogic QLA2XXX Fibre Channel Support
- [*]     Use firmware-loader modules (DEPRECATED)
- <M>       Build QLogic ISP2100 firmware-module
- <M>       Build QLogic ISP2200 firmware-module
- <M>       Build QLogic ISP2300 firmware-module
- <M>       Build QLogic ISP2322 firmware-module
- <M>       Build QLogic ISP63xx firmware-module
- <M>       Build QLogic ISP24xx firmware-module
+Yes, but in that case they're still going to hit the tree_lock anyway, and
+if they do have a chance of synching up, the cacheline bouncing from count
+and mapcount accounting is almost as likely to cause it as the lock_page
+itself.
 
-The problem of the comment 5 already exists.
-Howerver, if I use the kernel 2.6.11.3, I've not encountered this problem.
+I did a nopage microbenchmark like you describe a while back. IIRC single
+threaded is 2.5 times *more* throughput than 64 CPUs, even when those 64 are
+faulting their own NUMA memory (and obviously different pages). Thanks to
+tree_lock.
 
-What can I do for my system?
+-- 
+SUSE Labs, Novell Inc.
 
-
-------- Additional Comment #8 From Luckey 2006-01-11 01:52 -------
-after I type the command "fdisk -l", the logs are:
-Jan 11 17:57:47 nd10 kernel:  rport-10:0-0: blocked FC remote port time out:
-removing target and saving binding
-Jan 11 17:57:48 nd10 kernel:  10:0:0:0: SCSI error: return code = 0x10000
-Jan 11 17:57:48 nd10 kernel: end_request: I/O error, dev sda, sector 0
-Jan 11 17:57:48 nd10 kernel: Buffer I/O error on device sda, logical block 0
-Jan 11 17:57:48 nd10 kernel:  10:0:0:0: rejecting I/O to dead device
-Jan 11 17:57:48 nd10 kernel: Buffer I/O error on device sda, logical block 0
-Jan 11 17:58:23 nd10 kernel:  rport-11:0-0: blocked FC remote port time out:
-removing target and saving binding
-Jan 11 17:58:23 nd10 kernel:  11:0:0:0: SCSI error: return code = 0x10000
-Jan 11 17:58:23 nd10 kernel: end_request: I/O error, dev sdb, sector 0
-Jan 11 17:58:23 nd10 kernel: Buffer I/O error on device sdb, logical block 0
-Jan 11 17:58:23 nd10 kernel:  11:0:0:0: rejecting I/O to dead device
-Jan 11 17:58:23 nd10 kernel: Buffer I/O error on device sdb, logical block 0
+Send instant messages to your online friends http://au.messenger.yahoo.com 

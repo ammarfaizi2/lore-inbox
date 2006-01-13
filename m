@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161491AbWAMIaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161493AbWAMIbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161491AbWAMIaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 03:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161492AbWAMIaQ
+	id S1161493AbWAMIbw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 03:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161495AbWAMIbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 03:30:16 -0500
-Received: from 203-79-122-66.cable.paradise.net.nz ([203.79.122.66]:9819 "EHLO
-	kereru.site") by vger.kernel.org with ESMTP id S1161491AbWAMIaO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 03:30:14 -0500
-Date: Fri, 13 Jan 2006 21:30:09 +1300
-From: Volker Kuhlmann <list0570@paradise.net.nz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd turning off DMA when verifying DVD-R
-Message-ID: <20060113083009.GE12338@paradise.net.nz>
-References: <5ujmU-1UQ-665@gated-at.bofh.it> <5uoqr-Qq-7@gated-at.bofh.it> <43C72F41.5060207@shaw.ca>
+	Fri, 13 Jan 2006 03:31:52 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:26124 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1161493AbWAMIbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 03:31:51 -0500
+Subject: Re: 2.6.15-mm2
+From: Alan Hourihane <alanh@tungstengraphics.com>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, Ulrich Mueller <ulm@kph.uni-mainz.de>,
+       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <21d7e9970601121402u2d05a073kc677f94b278181c0@mail.gmail.com>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	 <20060107210413.GL9402@redhat.com> <43C03214.5080201@ens-lyon.org>
+	 <43C55148.4010706@ens-lyon.org> <20060111202957.GA3688@redhat.com>
+	 <u3bjtogq0@a1i15.kph.uni-mainz.de> <20060112171137.GA19827@redhat.com>
+	 <17350.39878.474574.712791@a1i15.kph.uni-mainz.de>
+	 <Pine.LNX.4.58.0601122036430.32194@skynet>
+	 <1137099813.9711.32.camel@jetpack.demon.co.uk>
+	 <21d7e9970601121402u2d05a073kc677f94b278181c0@mail.gmail.com>
+Content-Type: text/plain
+Organization: Tungsten Graphics, Inc.
+Date: Fri, 13 Jan 2006 08:32:05 +0000
+Message-Id: <1137141125.9634.0.camel@jetpack.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C72F41.5060207@shaw.ca>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 13 Jan 2006 17:40:33 NZDT +1300, Robert Hancock wrote:
+On Fri, 2006-01-13 at 09:02 +1100, Dave Airlie wrote:
+> > >
+> > > I've cc'ed Alan Hourihane, but from memory the Intel on-board graphics
+> > > chips don't advertise the AGP bit on the graphics controllers but work
+> > > using AGP...
+> > >
+> > > I've got an PCIE chipset with Radeon on it, and in that case I could get
+> > > away without agpgart...
+> >
+> > Dave,
+> >
+> > You're probably reading too much into that last statement.
+> >
+> > I've never seen a pure PCI-e chipset from Intel (i.e. the ones without
+> > integrated graphics) so that may not be true, but the ones with
+> > integrated graphics are always treated as AGP based.
+> >
+> 
+> I'll show you one at xdevconf if I can get there, it has just a PCI-E
+> root bridge no graphics controller, we still init AGP on it but I
+> don't think there is any need, however for all the integrated
+> graphics, even if they don't advertise AGP they do use it which is
+> DaveJ's problem that he was trying not to load AGP if the AGP was
+> being advertised..
 
-> I'm thinking the IDE code is too aggressive in assuming that the failure 
->  is because of a DMA problem and disabling it.. Most likely all that's 
-> happening is the drive is taking a long time to complete the current 
-> command.
+O.k. I didn't see the original thread to this. But yes, all integrated
+graphics based Intel chipsets are AGP regardless if the chip doesn't
+advertise it correctly.
 
-Yes! Each time when inserting a faulty CD/DVD, or whenever the drive
-gives read errors for whatever reason, the kernel decides to turn DMA
-off and try again, fail (again) and leave DMA off. And this after having
-successfully used DMA before - so it's not that the device is
-DMA-incapable.
+Alan.
 
-Volker
-
--- 
-Volker Kuhlmann			is possibly list0570 with the domain in header
-http://volker.dnsalias.net/		Please do not CC list postings to me.

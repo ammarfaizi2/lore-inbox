@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422750AbWAMR6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422762AbWAMSEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422750AbWAMR6k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 12:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWAMR6k
+	id S1422762AbWAMSEI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 13:04:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422763AbWAMSEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 12:58:40 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:45257 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1422750AbWAMR6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 12:58:39 -0500
-Subject: Re: Dual core Athlons and unsynced TSCs
-From: Lee Revell <rlrevell@joe-job.com>
-To: thockin@hockin.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060113180620.GA14382@hockin.org>
-References: <1137104260.2370.85.camel@mindpipe>
-	 <20060113180620.GA14382@hockin.org>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 12:58:36 -0500
-Message-Id: <1137175117.15108.18.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 13:04:08 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:18490 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422762AbWAMSEH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 13:04:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pn0kkokoCg9KI04fKx92Xhs7sGhYI61sPIBYvdHt+OPs2qiXCgbV6yFCwCdDx+AthMRoXjyad3LByaVPc8zOh1OLkMAbsVrOZT6S5vzwFU6P2TQyhYAcRtff5o7LJgxSInt6h//OqSjDvUYKMjMdreAXfGK1Z+TrbtekiNiOqBY=
+Message-ID: <728201270601131004l6a3ed526q3846d4c485e3fc07@mail.gmail.com>
+Date: Fri, 13 Jan 2006 12:04:04 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: Jim MacBaine <jmacbaine@gmail.com>
+Subject: Re: /proc/sys/vm/swappiness == 0 makes OOM killer go beserk
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3afbacad0601130843k6cf548e5y638b9ae3434096fa@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3afbacad0601130755x507047eeqfdcfb1e54a163cdd@mail.gmail.com>
+	 <728201270601130832h37eae980hc4e0d3de7522c81e@mail.gmail.com>
+	 <3afbacad0601130843k6cf548e5y638b9ae3434096fa@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 10:06 -0800, thockin@hockin.org wrote:
-> On Thu, Jan 12, 2006 at 05:17:39PM -0500, Lee Revell wrote:
-> > It's been known for quite some time that the TSCs are not synced between
-> > cores on Athlon X2 machines and this screws up the kernel's timekeeping,
-> > as it still uses the TSC as the default time source on these machines.
-> > 
-> > This problem still seems to be present in the latest kernels.  What is
-> > the plan to fix it?  Is the fix simply to make the kernel use the ACPI
-> > PM timer by default on Athlon X2?
-> 
-> If your BIOS has an ACPI "HPET" table, then the kernel can use the HPET
-> timer instead.  It doesn't solve the problem for apps or other kernel bits
-> that use rdtsc directly, but there are other fixes for that floating
-> around which will hopefully get consideration when they're mature.
-> 
+On 1/13/06, Jim MacBaine <jmacbaine@gmail.com> wrote:
+> On 1/13/06, Ram Gupta <ram.gupta5@gmail.com> wrote:
+> It _would_ be ok if swappiness == 0 would mean that the kernel will
+> not swap at all. That's not the case. Even without an excessive use of
+> tmpfs the kernel found ~250 MB of unused memory which it swapped out
+> during the last days with swappiness == 0.
+>
+> Regards,
+> Jim
+>
 
-The apps can be converted to use clock_gettime(), but that does not help
-if the kernel can't keep reasonable time on these machines. 
+I correct myself. swappiness == 0 does not mean that kernel will not try to
+ swap at all but this value decreases the swapping.
+swap_tendency = mapped_ratio / 2 + distress + vm_swappiness;
 
-But if we just use "clock=pmtmr" by default on these machines the TSC is
-not a problem right?
+swap_tendency depends on swappiness and affects the memory reclaimation.
 
-Lee
-
+Regards
+Ram Gupta

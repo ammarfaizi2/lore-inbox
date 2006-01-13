@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422951AbWAMU6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422954AbWAMU7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422951AbWAMU6W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 15:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422954AbWAMU6W
+	id S1422954AbWAMU7i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 15:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422959AbWAMU7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 15:58:22 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:16856 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1422951AbWAMU6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 15:58:21 -0500
-Subject: Re: Dual core Athlons and unsynced TSCs
-From: Steven Rostedt <rostedt@goodmis.org>
-To: thockin@hockin.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Sven-Thorsten Dietrich <sven@mvista.com>
-In-Reply-To: <20060113193234.GA20519@hockin.org>
-References: <1137104260.2370.85.camel@mindpipe>
-	 <20060113180620.GA14382@hockin.org> <1137175117.15108.18.camel@mindpipe>
-	 <20060113181631.GA15366@hockin.org> <1137175792.15108.26.camel@mindpipe>
-	 <20060113185533.GA18301@hockin.org>
-	 <1137178574.2536.13.camel@localhost.localdomain>
-	 <20060113193234.GA20519@hockin.org>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 15:58:08 -0500
-Message-Id: <1137185888.6731.4.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 15:59:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20418 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1422954AbWAMU7h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 15:59:37 -0500
+Date: Fri, 13 Jan 2006 21:59:27 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Linux PM <linux-pm@osdl.org>
+Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
+Message-ID: <20060113205927.GN1906@elf.ucw.cz>
+References: <200601122241.07363.rjw@sisk.pl> <200601130031.34624.rjw@sisk.pl> <200601132053.43085.ioe-lkml@rameria.de> <200601132149.39159.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200601132149.39159.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 11:32 -0800, thockin@hockin.org wrote:
-> On Fri, Jan 13, 2006 at 10:56:13AM -0800, Sven-Thorsten Dietrich wrote:
-> > On Fri, 2006-01-13 at 10:55 -0800, thockin@hockin.org wrote:
-> > > unless we can re-sync the TSCs often enough that apps don't notice.
+On Pá 13-01-06 21:49:38, Rafael J. Wysocki wrote:
+> On Friday, 13 January 2006 20:53, Ingo Oeser wrote:
+> > On Friday 13 January 2006 00:31, Rafael J. Wysocki wrote:
+> > > On Thursday, 12 January 2006 23:09, Pavel Machek wrote:
+> > > > > +SNAPSHOT_IOCAVAIL_SWAP - check the amount of available swap (the last argument
+> > > > > +	should be a pointer to an unsigned int variable that will contain
+> > > > > +	the result if the call is successful)
+> > > > 
+> > > > Is this good idea? It will overflow on 32-bit systems. Ammount of
+> > > > available swap can be >4GB. [Or maybe it is in something else than
+> > > > bytes, then you need to specify it.]
+> > > 
+> > > It returns the number of pages.  Well, it should be written explicitly,
+> > > so I'll fix that.
 > > 
-> > You'd have to quantify that somehow, in terms of the max drift rate
-> > (ppm), and the max resolution available (< tsc frequency).  
-> > 
-> > Either that, or track an offset, and use one TSC as truth, and update
-> > the correction factor for the other TSCs as often as needed, maybe?
-> > 
-> > This is kind of analogous to the "drift" NTP calculates against a
-> > free-running oscillator. 
-> > 
-> > So you'd be pushing that functionality deeper into the OS-core.
-> > 
-> > Dave Mills had that "hardpps" stuff in there for a while, it might be a
-> > starting point.
-> > 
-> > Just some thoughts for now... 
+> > Please always talk to the kernel in bytes. Pagesize is only a kernel
+> > internal unit. Sth. like off64_t is fine.
 > 
-> There's some chatter here about a solution involving a lazy sync of TSCs
-> to the HPET (or other) whenever an app calls rdtsc after a potentially
-> unsyncing event.
+> These are values returned by the kernel, actually.  Of course I can convert them
+> to bytes before sending to the user space, if that's preferrable.
 > 
-> For example, 'hlt' will initiate C1 which may cause clock ramping (and TSC
-> skew).  We can trap rdtsc after a hlt and re-sync the TSCs to some truly
-> monotonic source, like HPET.
-> 
-> I don't have all the details, some problems remain, and the work is not
-> quite done yet, but it looks promising.
-> 
-> Even if we eventually get synced TSCs, it's too little too late.
-> basically, anything in-kernel that uses rdtsc is bound to break, and any
-> app that uses rdtsc had better be using CPU affinity.
+> Pavel, what do you think?
 
-I know this might be somewhat of an overhead, but what about resyncing
-on wakeup of the idle function?  Isn't that where they fall apart?
-
--- Steve
-
-
+Bytes, I'd say. It would be nice if preffered image size was in bytes,
+too, for consistency.
+								Pavel 
+-- 
+Thanks, Sharp!

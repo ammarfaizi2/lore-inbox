@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWAMMYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWAMMZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422640AbWAMMYA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 07:24:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422641AbWAMMYA
+	id S1422641AbWAMMZG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 07:25:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422644AbWAMMZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 07:24:00 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:53001 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422640AbWAMMX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 07:23:59 -0500
-Date: Fri, 13 Jan 2006 13:23:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jon Mason <jdmason@us.ibm.com>,
-       Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-Message-ID: <20060113122358.GH29663@stusta.de>
-References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu> <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de> <1137105731.2370.94.camel@mindpipe> <20060113113756.GL5399@granada.merseine.nu>
-MIME-Version: 1.0
+	Fri, 13 Jan 2006 07:25:05 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:35733 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422641AbWAMMZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 07:25:04 -0500
+Date: Fri, 13 Jan 2006 13:24:21 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390: show_task oops fix
+Message-ID: <20060113122421.GB8268@osiris.boeblingen.de.ibm.com>
+References: <20060112171516.GF16629@skybase.boeblingen.de.ibm.com> <20060112165826.5843e34c.akpm@osdl.org> <1137141942.6192.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060113113756.GL5399@granada.merseine.nu>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1137141942.6192.5.camel@localhost.localdomain>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 01:37:56PM +0200, Muli Ben-Yehuda wrote:
-> On Thu, Jan 12, 2006 at 05:42:10PM -0500, Lee Revell wrote:
-> > On Thu, 2006-01-12 at 23:00 +0100, Adrian Bunk wrote:
-> > > CYBER5050 is discussed in ALSA bug #1293 (tester wanted).
-> > 
-> > OK I set that bug to FEEDBACK, but it's open 5 months now and no testers
-> > are forthcoming.  I think if we don't find one as a result of this
-> > thread we can assume no one cares about this hardware anymore.
-> > 
-> > I'm still not sure that just adding it to the ALSA driver and hoping it
-> > works is the best solution.  Would we rather users see right away that
-> > their hardware isn't supported, or have the driver load and get no sound
-> > or hang the machine?
-> 
-> ... or use the known working OSS driver?
->...
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-In my experience with scheduling OSS drivers for removal, users simply 
-use the OSS drivers unless you tell them very explicitely that the OSS 
-driver will go.
+Use new stack page accessors as pointed out by Andrew Morton.
 
-It shouldn't be too hard to port the support to ALSA if someone with the  
-hardware is willing to test patches.
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-The goal is to get people still using OSS drivers where ALSA drivers 
-support the same hardware to use the ALSA drivers - and if there were 
-bugs in the ALSA drivers preventing them to switch to ALSA, to report 
-them to the ALSA bug tracking system.
+ arch/s390/kernel/process.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-This has the following advantages:
-- better ALSA drivers
-- get rid of some unmaintained code in the kernel
+diff -urN a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
+--- a/arch/s390/kernel/process.c	2006-01-13 12:15:44.000000000 +0100
++++ b/arch/s390/kernel/process.c	2006-01-13 12:43:32.000000000 +0100
+@@ -60,11 +60,10 @@
+ {
+ 	struct stack_frame *sf, *low, *high;
  
-> Cheers,
-> Muli
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-	if (!tsk || !tsk->thread_info)
++	if (!tsk || !task_stack_page(tsk))
+ 		return 0;
+-	low = (struct stack_frame *) tsk->thread_info;
+-	high = (struct stack_frame *)
+-		((unsigned long) tsk->thread_info + THREAD_SIZE) - 1;
++	low = task_stack_page(tsk);
++	high = (struct stack_frame *) task_pt_regs(tsk);
+ 	sf = (struct stack_frame *) (tsk->thread.ksp & PSW_ADDR_INSN);
+ 	if (sf <= low || sf > high)
+ 		return 0;

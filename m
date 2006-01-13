@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422964AbWAMVFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422966AbWAMVFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422964AbWAMVFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422967AbWAMVFg
+	id S1422966AbWAMVFU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422967AbWAMVFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:05:36 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:23545 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1422964AbWAMVFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:05:35 -0500
-Subject: RE: Dual core Athlons and unsynced TSCs
-From: Steven Rostedt <rostedt@goodmis.org>
-To: tglx@linutronix.de
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       Roger Heflin <rheflin@atipa.com>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>
-In-Reply-To: <1137185175.7634.37.camel@localhost.localdomain>
-References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
-	 <1137168254.7241.32.camel@localhost.localdomain>
-	 <1137174463.15108.4.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
-	 <1137174848.15108.11.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
-	 <1137178506.15108.38.camel@mindpipe>
-	 <1137182991.8283.7.camel@localhost.localdomain>
-	 <1137183980.6731.1.camel@localhost.localdomain>
-	 <1137184982.15108.69.camel@mindpipe>
-	 <1137185175.7634.37.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 16:05:19 -0500
-Message-Id: <1137186319.6731.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 16:05:20 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15376 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422966AbWAMVFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:05:18 -0500
+Date: Fri, 13 Jan 2006 22:05:18 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, adobriyan@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2: alpha broken
+Message-ID: <20060113210518.GR29663@stusta.de>
+References: <20060107052221.61d0b600.akpm@osdl.org> <20060107210646.GA26124@mipter.zuzino.mipt.ru> <20060107154842.5832af75.akpm@osdl.org> <20060110182422.d26c5d8b.pj@sgi.com> <20060113141154.GL29663@stusta.de> <20060113101054.d62acb0d.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113101054.d62acb0d.pj@sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 21:46 +0100, Thomas Gleixner wrote:
-> On Fri, 2006-01-13 at 15:43 -0500, Lee Revell wrote:
+On Fri, Jan 13, 2006 at 10:10:54AM -0800, Paul Jackson wrote:
+> Adrian wrote:
+> > This is the amout of testing I can afford.
 > 
-> > Ugh.  In arch/x86_64/kernel/time.c monotonic_clock() uses the TSC
-> > unconditionally.
+> It sounds to me like you are saying that a minute of your time is
+> more valuable than a minute of each of several other peoples time.
 > 
-> Can you try 
+> The only two people I gladly accept that argument from are Linus
+> and Andrew.
 > 
-> http://tglx.de/projects/hrtimers/2.6.15/patch-2.6.15-hrt2.patch
+> For the rest of us, it is important to minimize the total workload
+> of all us combined, not to optimize our individual output.
 > 
-> please ?
-> 
-> 	tglx
-> 
-> 
+> What you don't test, several others of us get to test.  Only its often
+> more work, for -each- of us, as we each have to figure out which of
+> 1000 patches caused the breakage.
 
-Hmm, it doesn't compile :(
+I'm working against -mm, and there it's quite common that the kernel 
+doesn't build on the majority of architectures due to one or two dozen 
+bugs other people introduced.
 
--- Steve
+I didn't know people consider the quality of my patches so under-average 
+that they want to require me to fix other people's compile errors first 
+and test the compilation on all 24 architectures before I'm allowed to 
+submit a patch that touches some architecture-independend code.
 
-rostedt@gandalf:~/work/kernels/linux-2.6.15-hrt2$ make
-amdmake
-  CHK     include/linux/version.h
-  CC      arch/x86_64/kernel/asm-offsets.s
-In file included from include/linux/timex.h:61,
-                 from include/linux/sched.h:11,
-                 from arch/x86_64/kernel/asm-offsets.c:7:
-include/asm/timex.h: In function 'get_cycles_sync':
-include/asm/timex.h:36: warning: implicit declaration of function 'alternative_io'
-include/asm/timex.h:37: error: called object '"=a"' is not a function
-include/asm/timex.h:37: error: called object '"0"' is not a function
-include/asm/timex.h:37: error: syntax error before ':' token
-make[1]: *** [arch/x86_64/kernel/asm-offsets.s] Error 1
-make: *** [prepare0] Error 2
+cu
+Adrian
 
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

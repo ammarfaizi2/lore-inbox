@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422960AbWAMVEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422964AbWAMVFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422960AbWAMVEm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422961AbWAMVEm
+	id S1422964AbWAMVFg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422967AbWAMVFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:04:42 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:35221 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422960AbWAMVEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:04:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=TdXjKJjlEXYKJ5lnbgEvJ+i8Eu5Ld8MF32SCga3Wjk8vcikiVjrS1RL/qImT3q9Ffnm+pBZLmweZURuIMVugijWNb0p3RhGfXklCoRP0py12CpICqxBd2bdyVzSpOgYfwOMQW6WKE+tNGSkGuI1a7VSLJNQYFi4UIB4VLFcCmGY=
-Message-ID: <43C815E3.10005@gmail.com>
-Date: Fri, 13 Jan 2006 23:04:35 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
-Subject: Re: [patch 00/62] sem2mutex: -V1
-References: <20060113124402.GA7351@elte.hu> <200601131400.00279.baldrick@free.fr> <20060113134412.GA20339@elte.hu> <200601131925.34971.ioe-lkml@rameria.de> <20060113195658.GA3780@elte.hu>
-In-Reply-To: <20060113195658.GA3780@elte.hu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Fri, 13 Jan 2006 16:05:36 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:23545 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1422964AbWAMVFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:05:35 -0500
+Subject: RE: Dual core Athlons and unsynced TSCs
+From: Steven Rostedt <rostedt@goodmis.org>
+To: tglx@linutronix.de
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       Roger Heflin <rheflin@atipa.com>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>
+In-Reply-To: <1137185175.7634.37.camel@localhost.localdomain>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
+	 <1137168254.7241.32.camel@localhost.localdomain>
+	 <1137174463.15108.4.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
+	 <1137174848.15108.11.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+	 <1137178506.15108.38.camel@mindpipe>
+	 <1137182991.8283.7.camel@localhost.localdomain>
+	 <1137183980.6731.1.camel@localhost.localdomain>
+	 <1137184982.15108.69.camel@mindpipe>
+	 <1137185175.7634.37.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 16:05:19 -0500
+Message-Id: <1137186319.6731.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> Ingo Oeser wrote:
->> Could we get for each of these and a mutex:
->>
->>  - description 
->>  - common use case
->>  - small argument why this and nothing else should be used there
+On Fri, 2006-01-13 at 21:46 +0100, Thomas Gleixner wrote:
+> On Fri, 2006-01-13 at 15:43 -0500, Lee Revell wrote:
 > 
-> like ... Documentation/mutex-design.txt?
+> > Ugh.  In arch/x86_64/kernel/time.c monotonic_clock() uses the TSC
+> > unconditionally.
+> 
+> Can you try 
+> 
+> http://tglx.de/projects/hrtimers/2.6.15/patch-2.6.15-hrt2.patch
+> 
+> please ?
+> 
+> 	tglx
+> 
+> 
 
-I think what he wanted was an explanation for the change of each and every 
-sem... Which is kind of hard with automated tools.
+Hmm, it doesn't compile :(
 
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
+-- Steve
+
+rostedt@gandalf:~/work/kernels/linux-2.6.15-hrt2$ make
+amdmake
+  CHK     include/linux/version.h
+  CC      arch/x86_64/kernel/asm-offsets.s
+In file included from include/linux/timex.h:61,
+                 from include/linux/sched.h:11,
+                 from arch/x86_64/kernel/asm-offsets.c:7:
+include/asm/timex.h: In function 'get_cycles_sync':
+include/asm/timex.h:36: warning: implicit declaration of function 'alternative_io'
+include/asm/timex.h:37: error: called object '"=a"' is not a function
+include/asm/timex.h:37: error: called object '"0"' is not a function
+include/asm/timex.h:37: error: syntax error before ':' token
+make[1]: *** [arch/x86_64/kernel/asm-offsets.s] Error 1
+make: *** [prepare0] Error 2
+
+
 

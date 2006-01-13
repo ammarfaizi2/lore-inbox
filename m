@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161212AbWAMAqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWAMAsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161212AbWAMAqL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 19:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWAMAqK
+	id S932523AbWAMAsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 19:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWAMAsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 19:46:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43966 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932678AbWAMAqJ (ORCPT
+	Thu, 12 Jan 2006 19:48:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64980 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932523AbWAMAsI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 19:46:09 -0500
-Date: Thu, 12 Jan 2006 19:46:00 -0500
-From: Dave Jones <davej@redhat.com>
-To: Adam Belay <ambx1@neo.rr.com>, Con Kolivas <kernel@kolivas.org>,
-       ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-ck1
-Message-ID: <20060113004600.GB6883@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adam Belay <ambx1@neo.rr.com>, Con Kolivas <kernel@kolivas.org>,
-	ck list <ck@vds.kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <20060112221133.GA11601@neo.rr.com> <20060112230315.GO19827@redhat.com> <20060113004236.GB11601@neo.rr.com>
+	Thu, 12 Jan 2006 19:48:08 -0500
+Date: Thu, 12 Jan 2006 16:50:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, erich@areca.com.tw
+Subject: Re: + areca-raid-driver-arcmsr-update2.patch added to -mm tree
+Message-Id: <20060112165001.7ca3fea3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0601111917570.21722@shark.he.net>
+References: <200601120312.k0C3Cw80026379@shell0.pdx.osdl.net>
+	<Pine.LNX.4.58.0601111917570.21722@shark.he.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060113004236.GB11601@neo.rr.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 07:42:36PM -0500, Adam Belay wrote:
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+>
+> Ugh.  I guess that there was some reason that this patch
+> reverts a lot of previous changes...?
 
- > > > It might be possible to do even a little better.  Currently, I'm developing a
- > > > new ACPI idle policy that tries to take advantage of the long time we may
- > > > be able to spend in a C3 state.
- > > 
- > > As soon as that usb timer hits (every 250ms iirc) you'll bounce back out
- > > of any low-power state you may be in. It's a bit craptastic that we do
- > > this, even if we don't have any USB devices plugged in.
- > 
- > I agree that's annoying, but isn't 250ms not often enough to make any
- > significant difference as far as power management is concerned?
- > Generally some bus master activity will come along in a shorter time frame,
- > causing a jump out of C3.
-
-All I know is that when I removed the usb modules, the power usage stopped
-fluctuating as often, and it spent longer times hovering around the 18-19W mark
-instead of bouncing anywhere between 18-22W.
-
-		Dave
-
+erp, sorry.  Erich's patch generated a single 5000-line reject so I kind of
+jammed it in and lost some of your changes.  I meant to go back and redo
+them on top but haven't got there yet.

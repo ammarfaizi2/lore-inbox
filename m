@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423005AbWAMWJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423006AbWAMWKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423005AbWAMWJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:09:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423004AbWAMWJ4
+	id S1423006AbWAMWKY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:10:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423008AbWAMWKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:09:56 -0500
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:37251 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S1423005AbWAMWJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:09:55 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch 00/62] sem2mutex: -V1
-References: <20060113124402.GA7351@elte.hu>
-	<200601131400.00279.baldrick@free.fr> <20060113134412.GA20339@elte.hu>
-	<200601131925.34971.ioe-lkml@rameria.de>
-	<20060113195658.GA3780@elte.hu> <43C815E3.10005@gmail.com>
-	<1137187555.2975.13.camel@laptopd505.fenrus.org>
-cc: Ingo Molnar <mingo@elte.hu>, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>,
-       chaosite@gmail.com
-Date: Fri, 13 Jan 2006 14:09:52 -0800
-In-Reply-To: <1137187555.2975.13.camel@laptopd505.fenrus.org> (Arjan van de
-	Ven's message of "Fri, 13 Jan 2006 22:25:54 +0100")
-Message-ID: <7v64on3hlb.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 13 Jan 2006 17:10:23 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:42421 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1423007AbWAMWKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:10:21 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades
+To: Free Ekanayaka <free@64studio.com>
+Subject: Re: [Free Ekanayaka] Re: realtime-preempt and suspend2
+Date: Sat, 14 Jan 2006 08:10:44 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <87ek3c8279.fsf@miu-ft.org>
+In-Reply-To: <87ek3c8279.fsf@miu-ft.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601140810.44818.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> writes:
+Hi.
 
-> On Fri, 2006-01-13 at 23:04 +0200, Matan Peled wrote:
->> Ingo Molnar wrote:
->> > Ingo Oeser wrote:
->> >> Could we get for each of these and a mutex:
->> >>
->> >>  - description 
->> >>  - common use case
->> >>  - small argument why this and nothing else should be used there
->> > 
->> > like ... Documentation/mutex-design.txt?
->> 
->> I think what he wanted was an explanation for the change of each and every 
->> sem... Which is kind of hard with automated tools.
-> `
-> it's also HIGHLY repetitive.
-> 1) The process is : Look at semaphore and it's uses.
-> 2) Decide it's a mutex
-> 3) Run script to convert to mutex
-> 4) Run script to validate the conversion
-> 5) build+boot test
+On Saturday 14 January 2006 03:31, Free Ekanayaka wrote:
+> Hi,
 >
-> I can't think of a way to describe that uniquely different for each
-> one ;0
+> I'm resending this email as for some reason it is not in the kernel ml
+> archives, so I suspect it wasn't delivered properly..
+>
+> |--==> Nigel Cunningham writes:
+>
+>   NC> Hi.
+>
+>   NC> On Wednesday 11 January 2006 20:39, Free Ekanayaka wrote:
+>   >>Hi,
+>   >>
+>   >>I'd like  to use both  the realtime-preempt  and the suspend2 patches,
+>   >>but the seem to conflict in (I tried to apply them on 2.6.15).
+>   >>
+>   >>Did anybody experiment such combination?
+>
+>   NC> Give me more detail and I'll see if I can help.
+>
+> Thanks, the patch sequence is:
+>
+> 1) pristine kernel 2.6.15
+> 2) suspend2 patch 2.2-rc16 (I used the apply script incl in the source
+> tarball) [0] 3) realtime-preempt 2.6.15-rt2
+>
+> Of  course the  suspend2  patch applies happily,   but when I try with
+> realtime-preempt I get some rejects, here is the log:
+>
+> http://people.miu-ft.org/~free/2.6.15+suspend2+rt.log
 
-I do not read Ingo Oeser's request as such, but if somebody does
-1) and 2), ideally, the knowledge obtained during that process,
-i.e. what is being protected and what the invariants are, and
-the reasoning why it is a mutex, could serve as a good
-documentation for people who want to further work on that code
-being converted to use mutex.
+Thanks. I did see the message, but simply haven't had the time to get around 
+to it yet. Thanks for the reminder.
 
-However, I think demanding Ingo (Molnar) to do all that is
-unfair.
+Regards,
 
+Nigel

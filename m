@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422719AbWAMPpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422714AbWAMPrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422719AbWAMPpY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422718AbWAMPpY
+	id S1422714AbWAMPrF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422717AbWAMPrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:45:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:15554 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422676AbWAMPpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:45:23 -0500
-Date: Fri, 13 Jan 2006 07:45:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, Evgeniy <dushistov@mail.ru>
-Subject: Re: Oops in ufs_fill_super at mount time
-In-Reply-To: <20060113102136.GA7868@mipter.zuzino.mipt.ru>
-Message-ID: <Pine.LNX.4.64.0601130739540.3535@g5.osdl.org>
-References: <20060113005450.GA7971@mipter.zuzino.mipt.ru>
- <Pine.LNX.4.64.0601121700041.3535@g5.osdl.org> <20060113102136.GA7868@mipter.zuzino.mipt.ru>
+	Fri, 13 Jan 2006 10:47:05 -0500
+Received: from uproxy.gmail.com ([66.249.92.194]:59319 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422714AbWAMPrE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 10:47:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VDWh9ZMSlT433bHkecfi+ObteKdYgbqT/cZ86binFgSKh9WLm3HC6HfQpi+WUF08ZD4At7ce1q5mdJmBfQLNX7ai0ztJdvLwcXxWhWhvC0xKQVYyoFthkPlpFLcwh4eyoXF2zFABHMec3w/FVWILswo0z6X1Qm+MvsX5JOGc3bQ=
+Message-ID: <58cb370e0601130747x452fca8dr798c1372b78e58b4@mail.gmail.com>
+Date: Fri, 13 Jan 2006 16:47:01 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
+Cc: axboe@suse.de, rmk@arm.linux.org.uk, james.steward@dynamicratings.com,
+       jgarzik@pobox.com, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <11371658562541-git-send-email-htejun@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <11371658562541-git-send-email-htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1/13/06, Tejun Heo <htejun@gmail.com> wrote:
+> Hello, all.
+>
+> This patchset tries to fix data corruption bug caused by not handling
+> cache coherency during block PIO.  This patch implements
+> blk_kmap/unmap helpers which take extra @dir argument and perform
+> appropriate coherency actions.  These are to block PIO what dma_map/
+> unmap are to block DMA transfers.
+>
+> IDE, libata, SCSI, rd and md are converted.  Still left are nbd, loop
+> and pktcddvd.  If I missed something, please let me know.
+>
+> Russell, can you please test whether this fixes the bug on arm?  If
+> this fixes the bug and people agree with the approach, I'll follow up
+> with patches for yet unconverted drivers and documentation update.
 
+Looks fine, if it works you can add Acked-by: to the IDE patch.
 
-On Fri, 13 Jan 2006, Alexey Dobriyan wrote:
-
-> On Thu, Jan 12, 2006 at 05:14:25PM -0800, Linus Torvalds wrote:
-> >
-> > This is a free'd page fault, so it's due to DEBUG_PAGEALLOC rather than a
-> > wild pointer.
-> 
-> That's true. Turning it off makes mounting reliable again.
-> 
-> > Is that something new for you? Maybe the bug is older, but you've enabled
-> > PAGEALLOC only recently?
-> 
-> Yup. In response to hangs re disk activity.
-
-Ok, That explains why it started happening for you only _now_, but not why 
-it happens in the first place.
-
-Can you test if the patch that Evgeniy sent out fixes it for you even with 
-PAGEALLOC debugging enabled?
-
-Evgeniy - That is one ugly macro, can you (or Alexey, for that matter: 
-somebody who can test it) turn it into an inline function or something to 
-make it half-way readable? I realize that means changing the arguments too 
-(right now that horrid macro accesses "uspi" directly - uggghhh).
-
-If somebody maintains - or is interested in doing so - UFS, please speak 
-up, we don't have anybody listed in the MAINTAINERS file, and when I look 
-through the history, all I see is updates due to secondary issues (ie 
-somebody did generic cleanups and just happened to touch UFS as part of 
-that, rather than working _directly_ on UFS issues).
-
-		Linus
+Thanks!
+Bartlomiej

@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422990AbWAMV5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422994AbWAMV5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422990AbWAMV5f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:57:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422992AbWAMV5f
+	id S1422994AbWAMV5u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422998AbWAMV5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:57:35 -0500
-Received: from gate.crashing.org ([63.228.1.57]:50569 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1422990AbWAMV5e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:57:34 -0500
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple
-	PowerBooks
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
-       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <1137189319.4854.12.camel@localhost.localdomain>
-References: <20051225212041.GA6094@hansmi.ch>
-	 <1137022900.5138.66.camel@localhost.localdomain>
-	 <20060112000830.GB10142@hansmi.ch>
-	 <200601122312.05210.dtor_core@ameritech.net>
-	 <1137189319.4854.12.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 08:57:14 +1100
-Message-Id: <1137189435.4854.15.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 16:57:50 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42508 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1422994AbWAMV5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:57:47 -0500
+Date: Fri, 13 Jan 2006 21:57:40 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+Subject: Re: [2.6 patch] drivers/serial/Kconfig: fix SERIAL_M32R_PLDSIO dependencies
+Message-ID: <20060113215740.GC31824@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+References: <20060110215801.GF3911@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060110215801.GF3911@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-14 at 08:55 +1100, Benjamin Herrenschmidt wrote:
-
+On Tue, Jan 10, 2006 at 10:58:01PM +0100, Adrian Bunk wrote:
+> This patch fixes a typo in the dependencies reported by
+> Jean-Luc Leger <reiga@dspnet.fr.eu.org>.
 > 
-> > > +		try_translate = test_bit(usage->code, usbhid_pb_numlock)?1:
-> > > +				test_bit(LED_NUML, input->led);
-> > > +		if (try_translate) {
-> > 
-> > Isn't this the same as 
-> > 
-> > 		if (test_bit(usage->code, usbhid_pb_numlock) || test_bit(LED_NUML, input->led))
-> > 
-> > but harder to read?
 > 
-> No. If the first one is 0, the second one will not matter in the first
-> version, while it will in yours.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Forget me, I'm stupid or rather I should finish by breakfast before
-writing stupid things ;) Of course you are right, they are equivalent.
+Applied, thanks.
 
-Ben.
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

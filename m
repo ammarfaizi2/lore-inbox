@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWAMQc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161392AbWAMQiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422734AbWAMQc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 11:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422735AbWAMQc6
+	id S1161392AbWAMQiK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 11:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161452AbWAMQiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 11:32:58 -0500
-Received: from uproxy.gmail.com ([66.249.92.205]:8411 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422734AbWAMQc5 convert rfc822-to-8bit
+	Fri, 13 Jan 2006 11:38:10 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:17589 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161392AbWAMQiJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 11:32:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=smh2F8rYKNxzWW9oEnrdDrY60vpVNjDoeCV4c8CThIbCvjTPW/2fGiK8kozQbhhGISzaa3iYWrDm6L7EB+vSU9MLY+QlnC4vY5JXw1SDFbwQZuWD9XUEIH+cu727JYmLfRBltyRNLvHwgNoJyhMOkBrcnXktV15rF0ZfDp+11jE=
-Message-ID: <728201270601130832h37eae980hc4e0d3de7522c81e@mail.gmail.com>
-Date: Fri, 13 Jan 2006 10:32:55 -0600
-From: Ram Gupta <ram.gupta5@gmail.com>
-To: Jim MacBaine <jmacbaine@gmail.com>
-Subject: Re: /proc/sys/vm/swappiness == 0 makes OOM killer go beserk
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3afbacad0601130755x507047eeqfdcfb1e54a163cdd@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 13 Jan 2006 11:38:09 -0500
+Date: Fri, 13 Jan 2006 16:37:53 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       adobriyan@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2: alpha broken
+Message-ID: <20060113163753.GJ27946@ftp.linux.org.uk>
+References: <20060107052221.61d0b600.akpm@osdl.org> <20060107210646.GA26124@mipter.zuzino.mipt.ru> <20060107154842.5832af75.akpm@osdl.org> <20060110182422.d26c5d8b.pj@sgi.com> <20060113141154.GL29663@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3afbacad0601130755x507047eeqfdcfb1e54a163cdd@mail.gmail.com>
+In-Reply-To: <20060113141154.GL29663@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/06, Jim MacBaine <jmacbaine@gmail.com> wrote:
-> Hello,
->
-> the OOM killer just killed some of my processes while the system still
-> had >2.5 GB of free swap. I'm running vanilla 2.6.15 on my desktop.
-> The machine is a single Athlon64, 1 GB RAM, 3 GB swap, x86_64 kernel,
+On Fri, Jan 13, 2006 at 03:11:54PM +0100, Adrian Bunk wrote:
+> It can always happen that one out of fifty patches breaks compilation on 
+> some architectures, and I'm for sure not the one with the worst 
+> errors/patches ratio.
+> 
+> -mm is an experimental kernel and although breakages are unfortunate, 
+> they do happen.
+> 
+> I'm already compiling every single patch with both a non-modular and a 
+> completely modular .config for i386. This is the amout of testing I can 
+> afford. If this isn't considered enough I have to stop submtting 
+> patches.
 
-This is ok. When the swappiness variable  is set to zero kernel does
-not try to swap out processes. So once all memory is used up by
-processes it can not free up memory by swapping and hence had to kill
-process.
-
-Regards
-Ram Gupta
+This is not considered enough.  If you can't be arsed to set up cross-compilers
+on your box, please *stop* shitting in headers that might affect something
+other than i386.  It's not like doing a cross-toolchain was something hard...

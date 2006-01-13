@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423008AbWAMWSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423015AbWAMWTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423008AbWAMWSX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423015AbWAMWSX
+	id S1423015AbWAMWTv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423016AbWAMWTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:18:23 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55022 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1423008AbWAMWSW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:18:22 -0500
-Subject: Re: Dual core Athlons and unsynced TSCs
-From: Sven-Thorsten Dietrich <sven@mvista.com>
-To: David Lang <dlang@digitalinsight.com>
-Cc: thockin@hockin.org, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz>
-References: <1137178855.15108.42.camel@mindpipe>
-	 <Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz>
-	 <20060113215609.GA30634@hockin.org>
-	 <Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Date: Fri, 13 Jan 2006 14:18:18 -0800
-Message-Id: <1137190698.2536.65.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 17:19:51 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:65040 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1423015AbWAMWTu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:19:50 -0500
+Date: Fri, 13 Jan 2006 17:19:36 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: wireless: recap of current issues (configuration)
+Message-ID: <20060113221935.GJ16166@tuxdriver.com>
+Mail-Followup-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113213011.GE16166@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 14:05 -0800, David Lang wrote:
-> On Fri, 13 Jan 2006 thockin@hockin.org wrote:
-> 
-> > On Fri, Jan 13, 2006 at 01:18:35PM -0800, David Lang wrote:
-> >> Lee, the last time I saw this discussion I thought it was identified that
-> >> the multiple cores (or IIRC the multiple chips in a SMP motherboard) would
-> >> only get out of sync when power management calls were made (hlt or
-> >> switching the c-state). IIRC the workaround that was posted then was to
-> >> just disable these in the kernel build.
-> >
-> > not using 'hlt' when idling means that you spend 10s of Watts more power
-> > on mostly idle systems.
-> 
-> true, but for people who need better time accruacy then the other 
-> workaround this may be very acceptable.
-> 
+Configuration
+=============
 
-1/4 KW / day for time synchronisation. 
+Configuration seems to be coalescing around netlink.  Among other
+things, this technology provides for muliticast requests and
+asynchronous event notification.
 
-The power company would love that.
+The kernel should provide generic handlers for netlink
+configuraion messages, and there should be a per-device 80211_ops
+(wireless_ops? akin to ethtool_ops) structure for drivers to
+populate appropriately.
 
-> David Lang
-> 
+At init, physical devices should be represented by a "WiPHY" device,
+not directly by a net_device.  The list of physical devices should
+be discoverable through netlink and/or sysfs.  (A WiPHY device is an
+abstraction representing the radio interface itself.)
+
+Virtual wlan devices should be associated to a WiPHY device many-to-one
+(one-to-one for some devices).  Virtual devices correspond to a net_device.
+
+Virtual devices will have a mode (e.g. station, AP, WDS, ad-hoc, rfmon,
+raw?, other modes?) which defines its "on the air" behaviour.  Should
+this mode be fixed when the wlan device is created?  Or something
+that can be changed when the net_device is down?
+
+It may be necessary to remove, suspend, and/or disable wlan devices
+in order to add, resume, and/or enable other types of wlan devices
+on the same WiPHY device (especialy true for rfmon).  A mechanism is
+needed for drivers to be able to influence or disallow combinations
+of wlan devices in accordance with capabilities of the hardware.
+
+Do "global" config requests go to any associated wlan device?
+Or must they be directed to the WiPHY device?  Does it matter?
+I think we should require "global" configuration to target the WiPHY
+device, while "local" configuration remains with the wlan device.
+(I'm not sure how important this point is?)  Either way, the WiPHY
+device will need some way to be able to reject configuration requests
+that are incompatible among its associated wlan devices.  Since the
+wlan interface implementations should not be device specific, perhaps
+the 802.11 stack can be smart enough to filter-out most conflicting
+config requests before they get to the WiPHY device?
 -- 
-***********************************
-Sven-Thorsten Dietrich
-Real-Time Software Architect
-MontaVista Software, Inc.
-1237 East Arques Ave.
-Sunnyvale, CA 94085
-
-Phone: 408.992.4515
-Fax: 408.328.9204
-
-http://www.mvista.com
-Platform To Innovate
-*********************************** 
-
+John W. Linville
+linville@tuxdriver.com

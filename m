@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161619AbWAMAjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWAMAoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161619AbWAMAjD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 19:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161620AbWAMAjB
+	id S932480AbWAMAoO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 19:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWAMAoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 19:39:01 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:5811 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1161619AbWAMAjB (ORCPT
+	Thu, 12 Jan 2006 19:44:14 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:60055 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S932480AbWAMAoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 19:39:01 -0500
-Date: Thu, 12 Jan 2006 19:42:36 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Dave Jones <davej@redhat.com>, Con Kolivas <kernel@kolivas.org>,
-       ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-ck1
-Message-ID: <20060113004236.GB11601@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Dave Jones <davej@redhat.com>, Con Kolivas <kernel@kolivas.org>,
-	ck list <ck@vds.kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <20060112221133.GA11601@neo.rr.com> <20060112230315.GO19827@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060112230315.GO19827@redhat.com>
-User-Agent: Mutt/1.5.11
+	Thu, 12 Jan 2006 19:44:14 -0500
+From: Zach Brown <zach.brown@oracle.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Message-Id: <20060113004356.11419.50021.sendpatchset@tetsuo.zabbo.net>
+Subject: [PATCH] [list.h] don't evaluate macro args multiple times
+Date: Thu, 12 Jan 2006 16:43:56 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 06:03:15PM -0500, Dave Jones wrote:
-> On Thu, Jan 12, 2006 at 05:11:33PM -0500, Adam Belay wrote:
->  > It might be possible to do even a little better.  Currently, I'm developing a
->  > new ACPI idle policy that tries to take advantage of the long time we may
->  > be able to spend in a C3 state.
-> 
-> As soon as that usb timer hits (every 250ms iirc) you'll bounce back out
-> of any low-power state you may be in. It's a bit craptastic that we do
-> this, even if we don't have any USB devices plugged in.
-> 
-> 		Dave
 
-I agree that's annoying, but isn't 250ms not often enough to make any
-significant difference as far as power management is concerned?
-Generally some bus master activity will come along in a shorter time frame,
-causing a jump out of C3.
+[list.h] don't evaluate macro args multiple times
 
-Thanks,
-Adam
+I noticed that list.h init functions were evaluating macro arguments multiple
+times and thought it might be nice to protect the unsuspecting caller.
+Converting the macros to inline functions seems to reduce code size, too.  A
+i386 defconfig build with gcc 3.3.3 from fc4:
+
+   text    data     bss     dec     hex filename
+3573148  565664  188828 4327640  4208d8 vmlinux.before
+3572177  565664  188828 4326669  42050d vmlinux
+
+add/remove: 0/0 grow/shrink: 11/144 up/down: 88/-1016 (-928)
+
+There was no difference in checkstack output.
+
+  Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
+
+ include/linux/list.h |   14 ++++++++++----
+ 1 files changed, 10 insertions(+), 4 deletions(-)
+
+Index: 2.6.15-git8-misc/include/linux/list.h
+===================================================================
+--- 2.6.15-git8-misc.orig/include/linux/list.h	2006-01-12 15:27:37.442709075 -0800
++++ 2.6.15-git8-misc/include/linux/list.h	2006-01-12 15:46:03.907589898 -0800
+@@ -34,9 +34,11 @@
+ #define LIST_HEAD(name) \
+ 	struct list_head name = LIST_HEAD_INIT(name)
+ 
+-#define INIT_LIST_HEAD(ptr) do { \
+-	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
+-} while (0)
++static inline void INIT_LIST_HEAD(struct list_head *list)
++{
++	list->next = list;
++	list->prev = list;
++}
+ 
+ /*
+  * Insert a new entry between two known consecutive entries.
+@@ -534,7 +536,11 @@
+ #define HLIST_HEAD_INIT { .first = NULL }
+ #define HLIST_HEAD(name) struct hlist_head name = {  .first = NULL }
+ #define INIT_HLIST_HEAD(ptr) ((ptr)->first = NULL)
+-#define INIT_HLIST_NODE(ptr) ((ptr)->next = NULL, (ptr)->pprev = NULL)
++static inline void INIT_HLIST_NODE(struct hlist_node *h)
++{
++	h->next = NULL;
++	h->pprev = NULL;
++}
+ 
+ static inline int hlist_unhashed(const struct hlist_node *h)
+ {

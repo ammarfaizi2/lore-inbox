@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422708AbWAMPCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422709AbWAMPGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422708AbWAMPCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422711AbWAMPCZ
+	id S1422709AbWAMPGb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422711AbWAMPGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:02:25 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29371 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1422708AbWAMPCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:02:25 -0500
-Date: Fri, 13 Jan 2006 16:02:24 +0100
-From: Jan Kara <jack@suse.cz>
-To: Valdis.Kletnieks@vt.edu
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.15-mm3 - make useless quota error message informative
-Message-ID: <20060113150224.GB9978@atrey.karlin.mff.cuni.cz>
-References: <200601122044.k0CKihol003230@turing-police.cc.vt.edu>
+	Fri, 13 Jan 2006 10:06:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52100 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422709AbWAMPGb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 10:06:31 -0500
+Subject: Re: 2.6.15-rt4 failure with LATENCY_TRACE on x86_64
+From: Clark Williams <williams@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1137122280.7338.6.camel@localhost.localdomain>
+References: <1137103652.11354.40.camel@localhost.localdomain>
+	 <1137122280.7338.6.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GMe4KpA1LsPrVGldLIjt"
+Date: Fri, 13 Jan 2006 09:06:01 -0600
+Message-Id: <1137164761.3332.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601122044.k0CKihol003230@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> fs/quota_v2.c can, under some conditions, issue a kernel message that
-> says, in totality, 'failed read'.  This patch does the following:
-> 
-> 1) Gives a hint who issued the error message, so people reading the logs
-> don't have to go grepping the entire kernel tree (with 11 false positives).
-> 
-> 2) Say what amount of data we expected, and actually got.
-> 
-> Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-> ---
-> --- linux-2.6.15-mm3/fs/quota_v2.c.quot-bug	2006-01-02 22:21:10.000000000 -0500
-> +++ linux-2.6.15-mm3/fs/quota_v2.c	2006-01-12 15:26:43.000000000 -0500
-> @@ -35,7 +35,8 @@ static int v2_check_quota_file(struct su
->   
->  	size = sb->s_op->quota_read(sb, type, (char *)&dqhead, sizeof(struct v2_disk_dqheader), 0);
->  	if (size != sizeof(struct v2_disk_dqheader)) {
-> -		printk("failed read\n");
-> +		printk("quota_v2: failed read expected=%d got=%d\n",
-> +			sizeof(struct v2_disk_dqheader), size);
->  		return 0;
->  	}
->  	if (le32_to_cpu(dqhead.dqh_magic) != quota_magics[type] ||
->  
 
-  The patch is fine. Thanks for fixing. I wonder how I managed to write such
-error message ;).
+--=-GMe4KpA1LsPrVGldLIjt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-									Honza
+On Thu, 2006-01-12 at 22:18 -0500, Steven Rostedt wrote:
+> OK, I'm actually sending you this email on a x86_64 running
+> 2.6.15-rt4-sr2, with latency tracing on.  But unfortunately, I have a
+> AMD X2 that each core has it's own tsc counter that is not in sync, and
+> since the latency tracer uses tsc, I get garbage.  But beware, the tsc
+> does slow down when the cpu idles, so it gives bad results even for non
+> x2 systems.
+>=20
+Hmm, I didn't realize that (I'm running on a uni-processor system). I
+just pulled your rt4-sr2 patch and will apply/rebuild/test.=20
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+> I finally was able to boot this with using the PM timer, but the
+> beginning of my dmesg is still filled with:
+>=20
+> read_tsc: ACK! TSC went backward! Unsynced TSCs?
+>=20
+> Have you tried booting with idle=3Dpoll? I wonder if that would help?
+
+No, I thought that was strictly an SMP issue. I'll try it as well.
+
+Thanks,
+Clark
+
+--=20
+Clark Williams <williams@redhat.com>
+
+--=-GMe4KpA1LsPrVGldLIjt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDx8HZHyuj/+TTEp0RAhUkAJ4qBsfVn64RdSHILo+jNmxnPpIqcwCg28Bv
++cAZey9Xy+H14I8kxTRoB9M=
+=J3uc
+-----END PGP SIGNATURE-----
+
+--=-GMe4KpA1LsPrVGldLIjt--
+

@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbWAMH43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161253AbWAMH4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932714AbWAMH43 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 02:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbWAMH43
+	id S1161253AbWAMH4L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 02:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWAMH4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 02:56:29 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:57031 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S932678AbWAMH42 (ORCPT
+	Fri, 13 Jan 2006 02:56:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62397 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932678AbWAMH4K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 02:56:28 -0500
-Message-ID: <43C75D2A.2050405@candelatech.com>
-Date: Thu, 12 Jan 2006 23:56:26 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Compile error with 2.6.15
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 13 Jan 2006 02:56:10 -0500
+Date: Thu, 12 Jan 2006 23:55:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [PATCH] reiserfs: use __GFP_NOFAIL instead of yield and retry
+ loop for allocation
+Message-Id: <20060112235548.0e1e4343.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0601130944360.20349@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0601130932090.17696@sbz-30.cs.Helsinki.FI>
+	<20060112234238.01979912.akpm@osdl.org>
+	<Pine.LNX.4.58.0601130944360.20349@sbz-30.cs.Helsinki.FI>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to compile out of a git repo (2.6.15) into a new directory, but
-it's failing:
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>
+> Hi,
+> 
+> Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+> > >
+> > >  -      retry:
+> > >  -	jl = kzalloc(sizeof(struct reiserfs_journal_list), GFP_NOFS);
+> > >  -	if (!jl) {
+> > >  -		yield();
+> > >  -		goto retry;
+> > >  -	}
+> > >  +	jl = kzalloc(sizeof(struct reiserfs_journal_list),
+> > >  +		     GFP_NOFS | __GFP_NOFAIL);
+> 
+> On Thu, 12 Jan 2006, Andrew Morton wrote:
+> > yup, that's what __GFP_NOFAIL is for: to consolidate and identify all those
+> > places which want to lock up when we're short of memory...  They all need
+> > fixing, really.
+> 
+> Out of curiosity, are there any potential problems with combining GFP_NOFS 
+> and __GFP_NOFAIL? Can we really guarantee to give out memory if we're not 
+> allowed to page out?
+> 
 
-[greear@xeon-dt linux-2.6]$ make O=~/kernel/2.6/linux-2.6.15.p4s bzImage   Using /home/greear/git/linux-2.6 as source for kernel
-   GEN    /home/greear/kernel/2.6/linux-2.6.15.p4s/Makefile
-   CHK     include/linux/version.h
-   CHK     include/linux/compile.h
-   CHK     usr/initramfs_list
-   AS      arch/i386/kernel/entry.o
-In file included from /home/greear/git/linux-2.6/arch/i386/kernel/entry.S:45:
-include2/asm/thread_info.h:51: asm/asm-offsets.h: No such file or directory
-make[2]: *** [arch/i386/kernel/entry.o] Error 1
-make[1]: *** [arch/i386/kernel] Error 2
-make: *** [bzImage] Error 2
-[greear@xeon-dt linux-2.6]$
+GFP_NOFS increases the risk (relative to GFP_KERNEL) because page reclaim
+can do less things than GFP_KERNEL to free memory.
 
-
-Any ideas?
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+GFP_NOFS allocations can still perform swapspace writes, however.  GFP_NOIO
+cannot even do that.

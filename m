@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWAMEaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWAMEi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWAMEaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 23:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWAMEaG
+	id S964841AbWAMEi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 23:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWAMEi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 23:30:06 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:39352 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S964816AbWAMEaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 23:30:05 -0500
-Subject: Re: [PATCH] [5/6] Handle TIF_RESTORE_SIGMASK for i386
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       David Howells <dhowells@redhat.com>
-In-Reply-To: <20060112195950.60188acf.akpm@osdl.org>
-References: <1136923488.3435.78.camel@localhost.localdomain>
-	 <1136924357.3435.107.camel@localhost.localdomain>
-	 <20060112195950.60188acf.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 04:30:05 +0000
-Message-Id: <1137126606.3085.44.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 12 Jan 2006 23:38:56 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:3270 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751393AbWAMEiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 23:38:55 -0500
+Date: Thu, 12 Jan 2006 22:37:39 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: machine check errors
+In-reply-to: <5ukd5-3kf-17@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43C72E93.1030602@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <5ukd5-3kf-17@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 19:59 -0800, Andrew Morton wrote:
-> applied, or with all of David's patches applied, an FC5-test1 machine hangs
-> during the login process (local vt or sshd).  An FC1 machine doesn't
-> exhibit the problem.
+don fisher wrote:
+> I have a Tyan S2892 board with a pair Opteron 288 dual core cpus and 
+> 16GB dram. I receive the errors shown in the attached file, mcelog. It 
+> appears that these occur when the free memory becomes small, there is a 
+> lot in the cache, and a lot of IO.
+> 
+> The Tyan S2892 has an Nvidia Crush K8-04, which I think they call the 
+> southbridge. My errors appear to be related to the north bridge. There 
+> is an AMD 8131 PCI-X controller that runs the PCI slots. There is a 
+> 3WARE 9500-12 located in one of the PCI-X slots.
+> 
+> I have run Memtest86+-1.65 for 24 hours without errors. I recently 
+> upgraded the BIOS to V2.00 without any remarkable changes.
+> 
+> I am running 2.6.15 within a current Fedora Core4 configuration.
+> 
+> I would appreciate any advice as to how to proceed. I have not noticed 
+> any adverse behavior from the mce's. But that could be masked is data 
+> transfered or ???.
+> 
+> Could there be any connection with the memory cache? Thanks in advance 
+> for your assistance.
 
-So the 'successful' login reported at 19:21:45 never actually completed
-and gave you a shell?
-
-I can't make out which process it is that's misbehaving... and your
-login was pid 2292 but I don't see your SysRq-T output going up that
-far. Am I missing something?
-
-I note you're running auditd -- FC5-test1 enabled syscall auditing by
-default. Does the problem persist if you prevent the auditd initscript
-from starting up? If so, let's turn auditing back on and actually make
-use of it -- assuming the offending process is actually one of your own
-after the login has changed uid, can you set an audit rule to log all
-syscalls from your own userid? (add '-Aexit,always -Fuid=500'
-to /etc/audit.rules, assuming 500 is your own uid). Then show me the
-appropriate section from /var/log/audit/audit.log. 
-
-I tested both with and without audit on PPC -- David, did you test this
-patch with auditing enabled on i386?
-
-Will attempt to reproduce locally... I've _also_ seen login hangs on
-current linus trees but they've been different (and on that machine I
-haven't had the TIF_RESTORE_SIGMASK patches either). It happens on disk
-activity though -- after 'rpm -i <kernelpackage>' the whole machine
-locks up and I have no more file system access. If your SysRq-T got to
-the disk, I suspect you aren't seeing the same problem.
+I would say you likely do have some bad RAM, that seems to be what those 
+MCEs are indicating. Depending on the configuration, Memtest86 may not 
+find all the errors if they are being corrected by ECC..
 
 -- 
-dwmw2
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

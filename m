@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422647AbWAMMmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWAMMnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422647AbWAMMmp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 07:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWAMMmp
+	id S1422649AbWAMMnx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 07:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422650AbWAMMnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 07:42:45 -0500
-Received: from soundwarez.org ([217.160.171.123]:8624 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1422647AbWAMMmo (ORCPT
+	Fri, 13 Jan 2006 07:43:53 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:61346 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1422649AbWAMMnw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 07:42:44 -0500
-Date: Fri, 13 Jan 2006 13:42:35 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: unify sysfs device tree
-Message-ID: <20060113124235.GB3246@vrfy.org>
-References: <20060113015652.GA30796@vrfy.org> <200601122324.49442.dtor_core@ameritech.net>
+	Fri, 13 Jan 2006 07:43:52 -0500
+Date: Fri, 13 Jan 2006 13:44:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org
+Subject: [patch 00/62] sem2mutex: -V1
+Message-ID: <20060113124402.GA7351@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200601122324.49442.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 11:24:49PM -0500, Dmitry Torokhov wrote:
-> On Thursday 12 January 2006 20:56, Kay Sievers wrote:
-> > Here is for illustration the "input" layer as a flat /sys/class directory. All
-> > devices point to /sys/devices which exposes the device hierarchy if userspace
-> > wants to know that:
-> >         /sys/class/
-> >         ...
-> >         |-- input
-> >         |   |-- input0 -> ../../devices/platform/i8042/serio1/input0
-> >         |   |-- input1 -> ../../devices/platform/i8042/serio0/input1
-> >         |   |-- input3 -> ../../devices/platform/i8042/serio0/serio2/input3
-> >         |   |-- input4 -> ../../devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input4
-> >         |   |-- mice -> ../../devices/mice
-> >         |   |-- mouse0 -> ../../devices/platform/i8042/serio0/input1/mouse0
-> >         |   |-- mouse1 -> ../../devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input4/mouse1
-> >         |   `-- mouse2 -> ../../devices/platform/i8042/serio0/serio2/input3/mouse2
-> 
-> Looks nice with exception of my standard argument that inputX and
-> mouseX are objects of different (but related) classes.
+this patch-queue converts 66% of all semaphore users in 2.6.15-git9 to 
+mutexes.
 
-You can easily distinguish them by the device instance name, we have this
-in a lot of other classes too: /class/sound/controlC0 is very different from
-/class/sound/pcmC0D0p, /class/sound/timer, ...
+The conversion was done by Arjan van de Ven, Jes Sorensen and myself, 
+via automatic tools, and the result was verified automatically as well.  
+Only minimal manual editing was done. We only converted semaphores that 
+are used as mutexes. The known "is not a mutex" list of semaphores
+collected in the -rt tree in past year was automatically added to the
+do-not-convert list as well. We also reviewed the resulting changes
+manually, and did testbuilds and test-boots.
 
-> I believe this also relies on overriding class' methods (release, uevent)
-> by individual devices and inability for class to define standard attributes
-> for such devices. Pretty yucky...
+the GIT tree can be pulled from:
 
-You can, if you want separate classes, put them in different classes.
-This will work fine with this model now, cause the device hierarchy is
-still nicely exposed in /sys/devices.
+  master.kernel.org/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
 
-Thanks,
-Kay
+or:
+
+  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
+
+(once master has resynced)
+
+the patch-queue can also be downloaded from:
+
+  http://redhat.com/~mingo/generic-mutex-subsystem/
+
+and a 'combo' patch is at:
+
+  http://redhat.com/~mingo/generic-mutex-subsystem/combo.patch
+
+which is useful to people who'd like to test the whole patchqueue at 
+once.
+
+the patch-queue has been build-tested with allyesconfig, and booted on 4 
+separate x86 systems.
+
+	Ingo

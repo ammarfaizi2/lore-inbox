@@ -1,114 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422997AbWAMWFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422998AbWAMWHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422997AbWAMWFL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422998AbWAMWFL
+	id S1422998AbWAMWHn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423002AbWAMWHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:05:11 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:14229 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422997AbWAMWFJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:05:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PLsvxIqB2+kLF0bIomDT1/XkBaS1mc79kGGjUNtzHjYxxxp56UQtukBDeEUHr30yd7T1KrsKdhpbBzDoOKQDXgkPGO7P+KLBTMqYGiMyJS1wO+VTmXwT4rK7/Z/7zF7mWQ9lWERz4F6vy9u1NUfonNMsLECdJC3w3uTAAvktRAY=
-Message-ID: <d120d5000601131405w4e20e37fna17767624a4ebf6@mail.gmail.com>
-Date: Fri, 13 Jan 2006 17:05:08 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
-       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <1137189319.4854.12.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 17:07:42 -0500
+Received: from mail.gmx.de ([213.165.64.21]:53417 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422998AbWAMWHl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:07:41 -0500
+X-Authenticated: #6666257
+Message-ID: <43C826D3.6040600@gmx.de>
+Date: Fri, 13 Jan 2006 23:16:51 +0100
+From: "M.Gehre" <M.Gehre@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051225212041.GA6094@hansmi.ch>
-	 <1137022900.5138.66.camel@localhost.localdomain>
-	 <20060112000830.GB10142@hansmi.ch>
-	 <200601122312.05210.dtor_core@ameritech.net>
-	 <1137189319.4854.12.camel@localhost.localdomain>
+To: kernel-janitors@lists.osdl.org
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [Patch] Fixes for output of scripts/checkversion.pl
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> > That should be "MODULE_PARM_DESC(pb_fn_mode, ...)". Also, since this is
-> > for compatibility with ADB, why do we have 3 options? Doesn't ADB have
-> > only 2?
->
-> No, the ADB keyboard can operate in 2 modes that can be set with a PMU
-> command, I forgot about that in my earlier comments. In one mode, you get
-> the "special" behaviour by default on the Fx keys and you get Fx when
-> pressing Fn-Fx, and in the other mode, you get the Fx by default and the
-> special behaviour when pressing Fn-Fx.
->
+From: Matthias Gehre <M.Gehre@gmx.de>
 
-Right, so do we need "no translation, fnkeyfirst and fnkeylast" option
-or just "fnkeyfirst and fnkeyast"?
+Included is a patch for the output of scripts/checkversion.pl:
+checkversion find uses of LINUX_VERSION_CODE, KERNEL_VERSION, or
+UTS_RELEASE without including <linux/version.h>, or cases of
+including <linux/version.h> that don't need it.
+The Patch was made against 2.6.15-git9.
 
-> > > +static inline struct hidinput_key_translation *find_translation(
-> >
-> > I thought is was agreed that we'd avoid "inlines" in .c files?
->
-> Ah ? I have certainly missed that discussion ...
+Signed-off-by: Matthias Gehre <M.Gehre@gmx.de>
 
-Newer GCCs, unit-at-a-time, etc. etc. - teher was pretty long
-discussion about letting GCC decide on inlining.
+---
+Please CC answer to me.
 
->
-> > > +   struct hidinput_key_translation *table, u16 from)
-> > > +{
-> > > +   struct hidinput_key_translation *trans;
-> > > +
-> > > +   /* Look for the translation */
-> > > +   for(trans = table; trans->from && (trans->from != from); trans++);
-> > > +
-> > > +   return (trans->from?trans:NULL);
-> > > +}
-> >
-> > I'd prefer liberal amount of spaces applied here </extreme nitpick mode>
->
-> Me too :)
->
-> > > +           try_translate = test_bit(usage->code, usbhid_pb_numlock)?1:
-> > > +                           test_bit(LED_NUML, input->led);
-> > > +           if (try_translate) {
-> >
-> > Isn't this the same as
-> >
-> >               if (test_bit(usage->code, usbhid_pb_numlock) || test_bit(LED_NUML, input->led))
-> >
-> > but harder to read?
->
-> No. If the first one is 0, the second one will not matter in the first
-> version, while it will in yours.
->
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/arch/arm/plat-omap/clock.c linux-2.6.15-git9_vpatch/arch/arm/plat-omap/clock.c
+--- linux-2.6.15-git9/arch/arm/plat-omap/clock.c	2006-01-13 23:00:55.000000000 +0100
++++ linux-2.6.15-git9_vpatch/arch/arm/plat-omap/clock.c	2006-01-13 21:16:25.000000000 +0100
+@@ -10,7 +10,6 @@
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  */
+-#include <linux/version.h>
+ #include <linux/config.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/arch/arm26/nwfpe/fpmodule.c linux-2.6.15-git9_vpatch/arch/arm26/nwfpe/fpmodule.c
+--- linux-2.6.15-git9/arch/arm26/nwfpe/fpmodule.c	2006-01-13 23:00:55.000000000 +0100
++++ linux-2.6.15-git9_vpatch/arch/arm26/nwfpe/fpmodule.c	2006-01-13 21:16:41.000000000 +0100
+@@ -24,7 +24,6 @@
+ #include "fpa11.h"
 
-Huh? You mean 1, right?
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <linux/config.h>
 
-    try_translate = 0;
-    if (test_bit(usage->code, usbhid_pb_numlock))
-         try_translate = 1;
-    else if (test_bit(LED_NUML, input->led))
-         try_translate = 1;
-    else
+ /* XXX */
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/atm/adummy.c linux-2.6.15-git9_vpatch/drivers/atm/adummy.c
+--- linux-2.6.15-git9/drivers/atm/adummy.c	2006-01-13 23:00:26.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/atm/adummy.c	2006-01-13 21:17:21.000000000 +0100
+@@ -4,7 +4,6 @@
 
+ #include <linux/config.h>
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/skbuff.h>
+ #include <linux/pci.h>
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/char/synclink_gt.c linux-2.6.15-git9_vpatch/drivers/char/synclink_gt.c
+--- linux-2.6.15-git9/drivers/char/synclink_gt.c	2006-01-13 23:00:56.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/char/synclink_gt.c	2006-01-13 21:19:46.000000000 +0100
+@@ -48,7 +48,6 @@
 
+ #include <linux/config.h>
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <linux/errno.h>
+ #include <linux/signal.h>
+ #include <linux/sched.h>
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/net/gianfar_sysfs.c linux-2.6.15-git9_vpatch/drivers/net/gianfar_sysfs.c
+--- linux-2.6.15-git9/drivers/net/gianfar_sysfs.c	2006-01-13 23:00:56.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/net/gianfar_sysfs.c	2006-01-13 21:17:39.000000000 +0100
+@@ -35,7 +35,6 @@
 
+ #include <asm/uaccess.h>
+ #include <linux/module.h>
+-#include <linux/version.h>
 
+ #include "gianfar.h"
 
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/net/ppp_mppe.c linux-2.6.15-git9_vpatch/drivers/net/ppp_mppe.c
+--- linux-2.6.15-git9/drivers/net/ppp_mppe.c	2006-01-13 23:00:28.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/net/ppp_mppe.c	2006-01-13 21:19:14.000000000 +0100
+@@ -46,7 +46,6 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+-#include <linux/version.h>
+ #include <linux/init.h>
+ #include <linux/types.h>
+ #include <linux/slab.h>
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/net/sky2.c linux-2.6.15-git9_vpatch/drivers/net/sky2.c
+--- linux-2.6.15-git9/drivers/net/sky2.c	2006-01-13 23:00:56.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/net/sky2.c	2006-01-13 21:17:51.000000000 +0100
+@@ -32,7 +32,6 @@
+ #include <linux/config.h>
+ #include <linux/crc32.h>
+ #include <linux/kernel.h>
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+ #include <linux/dma-mapping.h>
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/net/wireless/ipw2100.c linux-2.6.15-git9_vpatch/drivers/net/wireless/ipw2100.c
+--- linux-2.6.15-git9/drivers/net/wireless/ipw2100.c	2006-01-13 23:00:56.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/net/wireless/ipw2100.c	2006-01-13 21:18:43.000000000 +0100
+@@ -159,7 +159,6 @@
+ #include <linux/stringify.h>
+ #include <linux/tcp.h>
+ #include <linux/types.h>
+-#include <linux/version.h>
+ #include <linux/time.h>
+ #include <linux/firmware.h>
+ #include <linux/acpi.h>
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/net/wireless/ipw2200.c linux-2.6.15-git9_vpatch/drivers/net/wireless/ipw2200.c
+--- linux-2.6.15-git9/drivers/net/wireless/ipw2200.c	2006-01-13 23:00:56.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/net/wireless/ipw2200.c	2006-01-13 21:18:53.000000000 +0100
+@@ -31,7 +31,6 @@
+ ******************************************************************************/
 
+ #include "ipw2200.h"
+-#include <linux/version.h>
 
-> Ben.
->
->
->
+ #define IPW2200_VERSION "git-1.0.8"
+ #define DRV_DESCRIPTION	"Intel(R) PRO/Wireless 2200/2915 Network Driver"
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/scsi/gdth_proc.c linux-2.6.15-git9_vpatch/drivers/scsi/gdth_proc.c
+--- linux-2.6.15-git9/drivers/scsi/gdth_proc.c	2006-01-13 23:00:29.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/scsi/gdth_proc.c	2006-01-13 21:20:30.000000000 +0100
+@@ -3,6 +3,7 @@
+  */
 
+ #include <linux/completion.h>
++#include <linux/version.h>
 
---
-Dmitry
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+ int gdth_proc_info(struct Scsi_Host *host, char *buffer,char **start,off_t offset,int length,
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/drivers/usb/atm/ueagle-atm.c linux-2.6.15-git9_vpatch/drivers/usb/atm/ueagle-atm.c
+--- linux-2.6.15-git9/drivers/usb/atm/ueagle-atm.c	2006-01-13 23:00:57.000000000 +0100
++++ linux-2.6.15-git9_vpatch/drivers/usb/atm/ueagle-atm.c	2006-01-13 21:19:29.000000000 +0100
+@@ -62,7 +62,6 @@
+ #include <linux/firmware.h>
+ #include <linux/ctype.h>
+ #include <linux/kthread.h>
+-#include <linux/version.h>
+ #include <asm/unaligned.h>
+
+ #include "usbatm.h"
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/fs/9p/vfs_file.c linux-2.6.15-git9_vpatch/fs/9p/vfs_file.c
+--- linux-2.6.15-git9/fs/9p/vfs_file.c	2006-01-13 23:00:57.000000000 +0100
++++ linux-2.6.15-git9_vpatch/fs/9p/vfs_file.c	2006-01-13 21:16:10.000000000 +0100
+@@ -32,7 +32,6 @@
+ #include <linux/string.h>
+ #include <linux/smp_lock.h>
+ #include <linux/inet.h>
+-#include <linux/version.h>
+ #include <linux/list.h>
+ #include <asm/uaccess.h>
+ #include <linux/idr.h>
+diff -urN -X linux-2.6.15-git9/Documentation/dontdiff linux-2.6.15-git9/sound/mips/au1x00.c linux-2.6.15-git9_vpatch/sound/mips/au1x00.c
+--- linux-2.6.15-git9/sound/mips/au1x00.c	2006-01-13 23:00:58.000000000 +0100
++++ linux-2.6.15-git9_vpatch/sound/mips/au1x00.c	2006-01-13 21:17:11.000000000 +0100
+@@ -39,7 +39,6 @@
+ #include <sound/driver.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+-#include <linux/version.h>
+ #include <sound/core.h>
+ #include <sound/initval.h>
+ #include <sound/pcm.h>

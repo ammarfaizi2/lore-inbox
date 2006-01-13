@@ -1,100 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422897AbWAMTvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422898AbWAMT5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422897AbWAMTvm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422898AbWAMTvm
+	id S1422898AbWAMT5T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422900AbWAMT5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:51:42 -0500
-Received: from mail.kroah.org ([69.55.234.183]:2453 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422897AbWAMTuh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:37 -0500
-Cc: rmk@arm.linux.org.uk
-Subject: [PATCH] Add mmc_bus_type probe and remove methods
-In-Reply-To: <1137181811158@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 11:50:11 -0800
-Message-Id: <11371818113200@kroah.com>
+	Fri, 13 Jan 2006 14:57:13 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:54714 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1422898AbWAMT46 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:56:58 -0500
+Date: Fri, 13 Jan 2006 20:56:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
+Subject: Re: [patch 00/62] sem2mutex: -V1
+Message-ID: <20060113195658.GA3780@elte.hu>
+References: <20060113124402.GA7351@elte.hu> <200601131400.00279.baldrick@free.fr> <20060113134412.GA20339@elte.hu> <200601131925.34971.ioe-lkml@rameria.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601131925.34971.ioe-lkml@rameria.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add mmc_bus_type probe and remove methods
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+* Ingo Oeser <ioe-lkml@rameria.de> wrote:
 
----
-commit 4d0b653cdfde193944784c01fa3359b0a444dcf1
-tree d3f359a72bd4df788277c2bf518809ff184be058
-parent 413b486e18587fd53c9954252e6648f9450c734e
-author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:40:27 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:08 -0800
+> Hi there,
+> 
+> On Friday 13 January 2006 14:44, Ingo Molnar wrote:
+> >     - it should stay a semaphore (if it's a genuine counting 
+> >       semaphore)
+> > 
+> >     - or it should get converted to a completion (if it's used as
+> >       a completion)
+> > 
+> >     - or it should get converted to struct work (if it's used as a 
+> >       workflow synchronizer).
+> 
+> Could we get for each of these and a mutex:
+> 
+>  - description 
+>  - common use case
+>  - small argument why this and nothing else should be used there
 
- drivers/mmc/mmc_sysfs.c |   26 ++++++++++++--------------
- 1 files changed, 12 insertions(+), 14 deletions(-)
+like ... Documentation/mutex-design.txt?
 
-diff --git a/drivers/mmc/mmc_sysfs.c b/drivers/mmc/mmc_sysfs.c
-index ec70166..a2a35fd 100644
---- a/drivers/mmc/mmc_sysfs.c
-+++ b/drivers/mmc/mmc_sysfs.c
-@@ -136,17 +136,7 @@ static int mmc_bus_resume(struct device 
- 	return ret;
- }
- 
--static struct bus_type mmc_bus_type = {
--	.name		= "mmc",
--	.dev_attrs	= mmc_dev_attrs,
--	.match		= mmc_bus_match,
--	.uevent		= mmc_bus_uevent,
--	.suspend	= mmc_bus_suspend,
--	.resume		= mmc_bus_resume,
--};
--
--
--static int mmc_drv_probe(struct device *dev)
-+static int mmc_bus_probe(struct device *dev)
- {
- 	struct mmc_driver *drv = to_mmc_driver(dev->driver);
- 	struct mmc_card *card = dev_to_mmc_card(dev);
-@@ -154,7 +144,7 @@ static int mmc_drv_probe(struct device *
- 	return drv->probe(card);
- }
- 
--static int mmc_drv_remove(struct device *dev)
-+static int mmc_bus_remove(struct device *dev)
- {
- 	struct mmc_driver *drv = to_mmc_driver(dev->driver);
- 	struct mmc_card *card = dev_to_mmc_card(dev);
-@@ -164,6 +154,16 @@ static int mmc_drv_remove(struct device 
- 	return 0;
- }
- 
-+static struct bus_type mmc_bus_type = {
-+	.name		= "mmc",
-+	.dev_attrs	= mmc_dev_attrs,
-+	.match		= mmc_bus_match,
-+	.uevent		= mmc_bus_uevent,
-+	.probe		= mmc_bus_probe,
-+	.remove		= mmc_bus_remove,
-+	.suspend	= mmc_bus_suspend,
-+	.resume		= mmc_bus_resume,
-+};
- 
- /**
-  *	mmc_register_driver - register a media driver
-@@ -172,8 +172,6 @@ static int mmc_drv_remove(struct device 
- int mmc_register_driver(struct mmc_driver *drv)
- {
- 	drv->drv.bus = &mmc_bus_type;
--	drv->drv.probe = mmc_drv_probe;
--	drv->drv.remove = mmc_drv_remove;
- 	return driver_register(&drv->drv);
- }
- 
-
+	Ingo

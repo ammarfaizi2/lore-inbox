@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422823AbWAMS5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422824AbWAMTA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422823AbWAMS5r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 13:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422827AbWAMS5r
+	id S1422824AbWAMTA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:00:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422825AbWAMTA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 13:57:47 -0500
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:16615 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1422824AbWAMS5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 13:57:46 -0500
-Date: Fri, 13 Jan 2006 13:51:43 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: PROBLEM: Oops in Kernel 2.6.15 usbhid
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-stable <stable@kernel.org>
-Message-ID: <200601131354_MC3-1-B5D5-C29A@compuserve.com>
-MIME-Version: 1.0
+	Fri, 13 Jan 2006 14:00:58 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:47319 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1422824AbWAMTA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:00:57 -0500
+Subject: Re: Dual core Athlons and unsynced TSCs
+From: Lee Revell <rlrevell@joe-job.com>
+To: Sven-Thorsten Dietrich <sven@mvista.com>
+Cc: thockin@hockin.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1137178574.2536.13.camel@localhost.localdomain>
+References: <1137104260.2370.85.camel@mindpipe>
+	 <20060113180620.GA14382@hockin.org> <1137175117.15108.18.camel@mindpipe>
+	 <20060113181631.GA15366@hockin.org> <1137175792.15108.26.camel@mindpipe>
+	 <20060113185533.GA18301@hockin.org>
+	 <1137178574.2536.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 14:00:55 -0500
+Message-Id: <1137178855.15108.42.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060112011125.GO29663@stusta.de>
-
-On Thu, 12 Jan 2006, Adrian Bunk wrote:
-
-> On Wed, Jan 11, 2006 at 09:31:32AM -0500, Dmitry Torokhov wrote:
-> > On 1/11/06, Patrick Read <pread99999@gmail.com> wrote:
-> > > On 1/9/06, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > > > ===================================================================
-> > > > --- work.orig/drivers/usb/input/pid.c
-> > > > +++ work/drivers/usb/input/pid.c
-> > > > @@ -259,7 +259,7 @@ static int hid_pid_upload_effect(struct
-> > > >  int hid_pid_init(struct hid_device *hid)
-> > > >  {
-> > > >         struct hid_ff_pid *private;
-> > > > -       struct hid_input *hidinput = list_entry(&hid->inputs, struct hid_input, list);
-> > > > +       struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
-> > > >         struct input_dev *input_dev = hidinput->input;
-> > > >
-> > > >         private = hid->ff_private = kzalloc(sizeof(struct hid_ff_pid), GFP_KERNEL);
-> > > >
-> > >
-> > > The above fix works like a charm.  2.6.15 is running on this very
-> > > computer that I'm typing on.
-> > >
-> > > Thank you for your good work.  Please ensure that this fix gets
-> > > incorporated in the mainline kernel.
-> > >
+On Fri, 2006-01-13 at 10:56 -0800, Sven-Thorsten Dietrich wrote:
+> On Fri, 2006-01-13 at 10:55 -0800, thockin@hockin.org wrote:
+> > On Fri, Jan 13, 2006 at 01:09:51PM -0500, Lee Revell wrote:
+> > > > Some apps/users need higher resolution and lower overhead that only rdtsc
+> > > > can offer currently.
+> > > 
+> > > But obviously if the TSC gives wildly inaccurate results, it cannot be
+> > > used no matter how low the overhead.
 > > 
-> > Thank you for testing it, I will forward it to Linus.
+> > unless we can re-sync the TSCs often enough that apps don't notice.
+> > 
 > 
-> Could you also forward it stable@kernel.org for inclusion in 2.6.15.x?
+> You'd have to quantify that somehow, in terms of the max drift rate
+> (ppm), and the max resolution available (< tsc frequency).  
+> 
+> Either that, or track an offset, and use one TSC as truth, and update
+> the correction factor for the other TSCs as often as needed, maybe?
+> 
+> This is kind of analogous to the "drift" NTP calculates against a
+> free-running oscillator. 
+> 
+> So you'd be pushing that functionality deeper into the OS-core.
+> 
+> Dave Mills had that "hardpps" stuff in there for a while, it might be a
+> starting point.
+> 
+> Just some thoughts for now... 
+> 
 
+It kind of makes you wonder what in the heck AMD were thinking, whether
+they realized that this design decision would cause so many problems at
+the OS level (it's broken at least Linux and Solaris).  Maybe Windows
+keeps time in a way that was unaffected by this?
 
-I don't see it in Linus's tree yet.
+Lee
 
-Could it still be put into 2.6.15.1?
-
---
-
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-
-Fix oops in usbhid.
-
---- work.orig/drivers/usb/input/pid.c
-+++ work/drivers/usb/input/pid.c
-@@ -259,7 +259,7 @@ static int hid_pid_upload_effect(struct 
- int hid_pid_init(struct hid_device *hid)
- {
- 	struct hid_ff_pid *private;
--	struct hid_input *hidinput = list_entry(&hid->inputs, struct hid_input, list);
-+	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
- 	struct input_dev *input_dev = hidinput->input;
- 
- 	private = hid->ff_private = kzalloc(sizeof(struct hid_ff_pid), GFP_KERNEL);
--- 
-Chuck
-Currently reading: _Olympos_ by Dan Simmons

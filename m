@@ -1,37 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422970AbWAMVI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422973AbWAMVIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422970AbWAMVI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422971AbWAMVI0
+	id S1422973AbWAMVIt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422974AbWAMVIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:08:26 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:40696 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1422970AbWAMVIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:08:25 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Kumar Gala <galak@gate.crashing.org>
-Subject: Re: watchdog driver maintainer?
-Date: Fri, 13 Jan 2006 21:08:19 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-References: <Pine.LNX.4.44.0601131259520.21814-100000@gate.crashing.org>
-In-Reply-To: <Pine.LNX.4.44.0601131259520.21814-100000@gate.crashing.org>
+	Fri, 13 Jan 2006 16:08:49 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18448 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422973AbWAMVIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:08:48 -0500
+Date: Fri, 13 Jan 2006 22:08:48 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, adobriyan@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2: alpha broken
+Message-ID: <20060113210848.GS29663@stusta.de>
+References: <20060107052221.61d0b600.akpm@osdl.org> <20060107210646.GA26124@mipter.zuzino.mipt.ru> <20060107154842.5832af75.akpm@osdl.org> <20060110182422.d26c5d8b.pj@sgi.com> <20060113141154.GL29663@stusta.de> <20060113101054.d62acb0d.pj@sgi.com> <Pine.LNX.4.58.0601131014160.5563@shark.he.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601132108.19693.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <Pine.LNX.4.58.0601131014160.5563@shark.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 January 2006 19:00, Kumar Gala wrote:
-> Is there an overall maintainer of watchdog drivers? I didn't see one in 
-> the MAINTAINERS file. 
+On Fri, Jan 13, 2006 at 10:19:30AM -0800, Randy.Dunlap wrote:
+> On Fri, 13 Jan 2006, Paul Jackson wrote:
+> 
+> > Adrian wrote:
+> > > This is the amout of testing I can afford.
+> >
+> > It sounds to me like you are saying that a minute of your time is
+> > more valuable than a minute of each of several other peoples time.
+> >
+> > The only two people I gladly accept that argument from are Linus
+> > and Andrew.
+> >
+> > For the rest of us, it is important to minimize the total workload
+> > of all us combined, not to optimize our individual output.
+> >
+> > What you don't test, several others of us get to test.  Only its often
+> > more work, for -each- of us, as we each have to figure out which of
+> > 1000 patches caused the breakage.
+> 
+> I don't find building cross-toolchains quite as easy as Al does,
+> so I download and build with these (on i386):
+>   http://developer.osdl.org/dev/plm/cross_compile/
+> as Andrew has also mentioned in the past.
+> 
+> Or one can submit kernel patches for builds to an OSDL
+> build machine which does 8 or 9 $ARCH builds.
 
-Wim Van Sebroeck <wim@iguana.be> used to take care of that.
-No idea why he's not in MAINTAINERS.
+This leaves 15 or 16 other architectures for my puny 1,8 GHz CPU.
 
-	Arnd <><
+And does OSDL fix other people's compile breakages in the latest -mm 
+before I submit my patches, or am I required to play QA for every 
+single architecture before I can submit one single patch touching 
+architecture-independend files?
+
+> ~Randy
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

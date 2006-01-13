@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWAMPYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161549AbWAMPYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbWAMPYX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWAMPYX
+	id S1161549AbWAMPYr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161144AbWAMPYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:24:23 -0500
-Received: from xproxy.gmail.com ([66.249.82.197]:4995 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964971AbWAMPYW (ORCPT
+	Fri, 13 Jan 2006 10:24:24 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:49276 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964974AbWAMPYX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:24:22 -0500
+	Fri, 13 Jan 2006 10:24:23 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=PFydtBxBvGA0rcvAslsWKH4L4KhnDlS2M90b8v7vsdAst0kZkombnDbDE1PIegDDYaWW/bbClxo2Sda1mp9xOHTwU3fLzQYef6tS+SVE1O3+b4Gr/n4woX8H55Bm2KZBjtMKhtoYSPlfPSt6ticGpAP/Jy0urFNl77XiYSr3nMU=
+        b=NMwXFyN+jUm1VTwqKSpndKpgeTzFMXHuiSSJDzLbAeFkzXuX6Mor5Iz0+MhFLIJWmz+IYWlN6JmTbFjDkoB0lCW5a1MHkjbXlzQWhgLZVlMsq1EhEAxtGEXX7jgU4irFs2XzGtWICspHjl23LfNVxpPjnCG3eNGM4RYAt1bnoCk=
 Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCHSET] block: fix PIO cache coherency bug
-In-Reply-To: 
+Subject: [PATCH 1/8] highmem: include asm/kmap_types.h in linux/highmem.h
+In-Reply-To: <11371658562541-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
 Date: Sat, 14 Jan 2006 00:24:16 +0900
-Message-Id: <11371658562541-git-send-email-htejun@gmail.com>
+Message-Id: <11371658562238-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -30,49 +30,51 @@ From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, all.
+On architectures where highmem isn't used, arguments to kmap/unmap are
+simply thrown away without being evaluated.  This is fine until a
+wrapper function is written.  Even though it got ignored in the end,
+the arguments are evaulated.  As asm/highmem.h is not included by
+linux/highmem.h when CONFIG_HIGHMEM is off, none of KM_* constants get
+defined which results in error if those are evaluated.
 
-This patchset tries to fix data corruption bug caused by not handling
-cache coherency during block PIO.  This patch implements
-blk_kmap/unmap helpers which take extra @dir argument and perform
-appropriate coherency actions.  These are to block PIO what dma_map/
-unmap are to block DMA transfers.
+This patch makes linux/highmem.h include asm/kmap_types.h regardless
+of CONFIG_HIGHMEM.  To deal with the same problem, crypto subsystem
+used to include asm/kmap_types.h directly.  This patch kills it.
 
-IDE, libata, SCSI, rd and md are converted.  Still left are nbd, loop
-and pktcddvd.  If I missed something, please let me know.
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-Russell, can you please test whether this fixes the bug on arm?  If
-this fixes the bug and people agree with the approach, I'll follow up
-with patches for yet unconverted drivers and documentation update.
+---
 
- crypto/internal.h             |    1
- drivers/block/rd.c            |   20 ++++----
- drivers/ide/ide-floppy.c      |    8 +--
- drivers/ide/ide-taskfile.c    |    6 +-
- drivers/md/raid1.c            |   13 +++--
- drivers/md/raid5.c            |    9 ++-
- drivers/md/raid6main.c        |    9 ++-
- drivers/scsi/3w-9xxx.c        |    8 +--
- drivers/scsi/3w-xxxx.c        |    4 -
- drivers/scsi/aacraid/aachba.c |    4 -
- drivers/scsi/gdth.c           |    5 +-
- drivers/scsi/ide-scsi.c       |   14 +++--
- drivers/scsi/ips.c            |   21 +++++---
- drivers/scsi/iscsi_tcp.c      |    4 -
- drivers/scsi/libata-core.c    |   24 ++++++---
- drivers/scsi/libata-scsi.c    |    6 +-
- drivers/scsi/megaraid.c       |    8 ++-
- drivers/scsi/qlogicpti.c      |    5 +-
- drivers/scsi/scsi_debug.c     |   11 ++--
- drivers/scsi/scsi_lib.c       |    5 +-
- fs/bio.c                      |    5 --
- include/linux/bio.h           |   59 ------------------------
- include/linux/blkdev.h        |  101 +++++++++++++++++++++++++++++++++++++++++-
- include/linux/highmem.h       |    2
- 24 files changed, 213 insertions(+), 139 deletions(-)
+ crypto/internal.h       |    1 -
+ include/linux/highmem.h |    1 +
+ 2 files changed, 1 insertions(+), 1 deletions(-)
 
-Thanks.
+4e0462fa09e87da901867f37b2c7311ef714c3e7
+diff --git a/crypto/internal.h b/crypto/internal.h
+index 959e602..4188672 100644
+--- a/crypto/internal.h
++++ b/crypto/internal.h
+@@ -21,7 +21,6 @@
+ #include <linux/kernel.h>
+ #include <linux/rwsem.h>
+ #include <linux/slab.h>
+-#include <asm/kmap_types.h>
+ 
+ extern struct list_head crypto_alg_list;
+ extern struct rw_semaphore crypto_alg_sem;
+diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+index 6bece92..c605f01 100644
+--- a/include/linux/highmem.h
++++ b/include/linux/highmem.h
+@@ -6,6 +6,7 @@
+ #include <linux/mm.h>
+ 
+ #include <asm/cacheflush.h>
++#include <asm/kmap_types.h>
+ 
+ #ifdef CONFIG_HIGHMEM
+ 
+-- 
+1.0.6
 
---
-tejun
 

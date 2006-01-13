@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422854AbWAMTg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422861AbWAMTix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422854AbWAMTg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422855AbWAMTg1
+	id S1422861AbWAMTix (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:38:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422862AbWAMTix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:36:27 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:35202 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1422854AbWAMTg0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:36:26 -0500
-Date: Fri, 13 Jan 2006 11:39:36 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH 01/17] BRIDGE: Fix faulty check in br_stp_recalculate_bridge_id()
-Message-ID: <20060113193936.GN3335@sorel.sous-sol.org>
-References: <20060113032102.154909000@sorel.sous-sol.org> <20060113032238.565599000@sorel.sous-sol.org> <200601131946.46782.ioe-lkml@rameria.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Jan 2006 14:38:53 -0500
+Received: from c-67-174-241-67.hsd1.ca.comcast.net ([67.174.241.67]:63935 "EHLO
+	plato.virtuousgeek.org") by vger.kernel.org with ESMTP
+	id S1422861AbWAMTiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:38:52 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 05/15] pci: Add Toshiba PSA40U laptop to ohci1394 quirk dmi table.
+Date: Fri, 13 Jan 2006 11:38:42 -0800
+User-Agent: KMail/1.9
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+References: <0ISL00NV994G1L@a34-mta01.direcway.com> <20060111051532.GA3455@kroah.com>
+In-Reply-To: <20060111051532.GA3455@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200601131946.46782.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200601131138.43301.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Oeser (ioe-lkml@rameria.de) wrote:
-> Why not include a shorter version of this nice explanation
-> above the list_for_each_entry() loop?
-> 
-> Like:
-> 
-> /* We try to find the min MAC address to use in this bridge id. */
+On Tuesday, January 10, 2006 9:15 pm, Greg KH wrote:
+> On Wed, Jan 04, 2006 at 04:59:59PM -0500, Ben Collins wrote:
+> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> >
+> > ---
+> >
+> >  arch/i386/pci/fixup.c |    7 +++++++
+>
+> Hm, you might want to cc: the maintainers of the sections you are
+> patching to make sure they see the change you are making.
+>
+> Care to respin this against the latest -git tree and resend it to me?
 
-Send a patch to Stephen ;-)  I'll leave it as is for -stable, since it's
-not a candidate for janitorial cleanups.
+Didn't I already submit this patch?  (Checks...)  Yes, I did, and it's 
+already in the tree:
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=19272684b8e2fff39941e4c044d26ad349dd1a69
 
-thanks,
--chris
+Ben, did you get it from me or was it submitted to you separately?  Just 
+curious because I wasn't in the signed-off-by line...  Anyway, it should 
+work for you now hopefully.
+
+Jesse

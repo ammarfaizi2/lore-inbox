@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423082AbWAMWuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423069AbWAMWwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423082AbWAMWuA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:50:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423086AbWAMWt7
+	id S1423069AbWAMWwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423070AbWAMWwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:49:59 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:51153 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1423082AbWAMWt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:49:58 -0500
-Date: Fri, 13 Jan 2006 14:49:47 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Sven-Thorsten Dietrich <sven@mvista.com>
-cc: thockin@hockin.org, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual core Athlons and unsynced TSCs
-In-Reply-To: <1137190698.2536.65.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz>
-References: <1137178855.15108.42.camel@mindpipe><Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz><20060113215609.GA30634@hockin.org><Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz>
- <1137190698.2536.65.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 17:52:16 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:50699 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1423069AbWAMWwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:52:15 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: epoll_wait, epoll_ctl
+Date: Fri, 13 Jan 2006 14:51:10 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEPAJFAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <43C7AD5A.2000700@symas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 13 Jan 2006 14:48:05 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Fri, 13 Jan 2006 14:48:07 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jan 2006, Sven-Thorsten Dietrich wrote:
 
-> On Fri, 2006-01-13 at 14:05 -0800, David Lang wrote:
->> On Fri, 13 Jan 2006 thockin@hockin.org wrote:
->>
->>> On Fri, Jan 13, 2006 at 01:18:35PM -0800, David Lang wrote:
->>>> Lee, the last time I saw this discussion I thought it was identified that
->>>> the multiple cores (or IIRC the multiple chips in a SMP motherboard) would
->>>> only get out of sync when power management calls were made (hlt or
->>>> switching the c-state). IIRC the workaround that was posted then was to
->>>> just disable these in the kernel build.
->>>
->>> not using 'hlt' when idling means that you spend 10s of Watts more power
->>> on mostly idle systems.
->>
->> true, but for people who need better time accruacy then the other
->> workaround this may be very acceptable.
->>
->
-> 1/4 KW / day for time synchronisation.
->
-> The power company would love that.
+> So, what's supposed to happen in a threaded program where one thread
+> does an epoll_ctl on an epoll fd while another thread is currently
+> waiting in epoll_wait on the same fd?
 
-more precisely 1/4 KW Hour / day
+	Nothing special.
 
-$0.01 - $0.02/day (I had to lookup the current rates)
+> In particular, what happens if a
+> thread does an EPOLL_CTL_DEL on one of the fds that is currently being
+> waited on? Is there a possibility of an event being returned on the fd
+> even after the EPOLL_CTL_DEL completes?
 
-they probably won't notice.
+	Absolutely. The EPOLL_CTL_DEL might not even start until after the event
+has been determined to be returned and the wait is in the process of
+returning.
 
-David Lang
+	DS
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
 

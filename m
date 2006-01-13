@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161598AbWAMAQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161599AbWAMAVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161598AbWAMAQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 19:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161594AbWAMAQ4
+	id S1161599AbWAMAVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 19:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161597AbWAMAVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 19:16:56 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63932 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161598AbWAMAQz (ORCPT
+	Thu, 12 Jan 2006 19:21:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29347 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161599AbWAMAVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 19:16:55 -0500
-Date: Fri, 13 Jan 2006 01:16:40 +0100
+	Thu, 12 Jan 2006 19:21:53 -0500
+Date: Fri, 13 Jan 2006 01:21:38 +0100
 From: Pavel Machek <pavel@suse.cz>
 To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
-Message-ID: <20060113001640.GD10088@elf.ucw.cz>
-References: <200601122241.07363.rjw@sisk.pl> <20060112220940.GA10088@elf.ucw.cz> <200601130031.34624.rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Place for userland swsusp parts
+Message-ID: <20060113002138.GE10088@elf.ucw.cz>
+References: <20060111221511.GA8223@elf.ucw.cz> <200601120819.42512.ncunningham@linuxmail.org> <20060112143851.GB9752@elf.ucw.cz> <200601122113.24461.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601130031.34624.rjw@sisk.pl>
+In-Reply-To: <200601122113.24461.rjw@sisk.pl>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,40 +28,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > +commands defined in kernel/power/power.h.  The major and minor
-> > > +numbers of the device are, respectively, 10 and 231, and they can
-> > > +be read from /sys/class/misc/snapshot/dev.
+> > > On Thursday 12 January 2006 08:15, Pavel Machek wrote:
+> > > > Is there some place where we could  put userland swsusp parts under
+> > > > version control?
+> > > >
+> > > > swsusp.sf.net looks like possible place, but it has been in use by
+> > > > suspend2... Is it still being used? If not, would it be possible to
+> > > > "hijack" it for swsusp development?
+> > > 
+> > > It's not still being used (we have suspend2.net now). The only problem I see 
+> > > with that is that it still has all the old suspend2 stuff and Sourceforge 
+> > > make it really hard to clear out a project's files. You were talking about 
+> > > calling it uswsusp or something like that. How about starting a 
+> > > uswsusp.sf.net?
 > > 
-> > Is this still true?
+> > Rafael, do you have repository to place userland parts in, or should I
+> > start uswsusp.sf.net project, or do you want to do it?
 > 
-> You mean the /sys/class/misc/snapshot/dev?  Yes, until sysfs gets revamped.
+> I think I can host them (the box is moving tomorrow, hopefully, so it should get
+> enough bandwidth ;-)), but I'm afraid I won't have time to set up a mailing list
+> etc.
 
-Ahha, but it is not your code but misc-handling code in kernel, right?
+Actually, it would probably be better to put it on sourceforge or
+something like that. That way you don't have to care about sysadmin
+stuff (mailing lists etc), backups, backup conectivity, etc, etc.
 
-> > > +SNAPSHOT_IOCAVAIL_SWAP - check the amount of available swap (the last argument
-> > > +	should be a pointer to an unsigned int variable that will contain
-> > > +	the result if the call is successful)
-> > 
-> > Is this good idea? It will overflow on 32-bit systems. Ammount of
-> > available swap can be >4GB. [Or maybe it is in something else than
-> > bytes, then you need to specify it.]
-> 
-> It returns the number of pages.  Well, it should be written explicitly,
-> so I'll fix that.
-> 
-> [This feature is actually useful, because it allows you to check if you have
-> enough swap after creating the snapshot and retry for eg. image_size = 0
-> without unfreezing tasks.]
+> IMHO uswsusp.sf.net would be too similar to swsusp.sf.net, especially that
+> swsusp.sf.net is redirected to www.suspend2.net.
 
-Ok. [I was asking about unsigned int, it is clear that querying
-available swap is useful]. If you return swap offsets, you may want to
-specify if it is #bytes/#pages, too.
+Or maybe we can get hosting on suspend2.net? Or create
+userswsusp.sf.net (that name is ugly :-().
 
-> > Ouch and you have my ACK on next attempt :-).
-> 
-> Thanks (you are brave, though ;-)).
+...some revision control would be nice, but perhaps revision control
+is enough and we can just put git tree on kernel.org?
 
-I... think you can call it "brave", yes. Nice euphemism ;-)))).
 								Pavel
 -- 
 Thanks, Sharp!

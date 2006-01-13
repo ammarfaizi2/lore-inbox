@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422932AbWAMUeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422937AbWAMUlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422932AbWAMUeT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 15:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422934AbWAMUeS
+	id S1422937AbWAMUlI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 15:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422938AbWAMUlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 15:34:18 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.26]:48363 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1422932AbWAMUeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 15:34:18 -0500
-Date: Fri, 13 Jan 2006 12:34:15 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: Compile error with 2.6.15
-Message-Id: <20060113123415.932b4a80.pj@sgi.com>
-In-Reply-To: <43C76104.5090607@candelatech.com>
-References: <43C75D2A.2050405@candelatech.com>
-	<43C76104.5090607@candelatech.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 15:41:08 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:32764 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1422937AbWAMUlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 15:41:06 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [patch 1/13] s390: des crypto code cleanup.
+Date: Fri, 13 Jan 2006 20:40:55 +0000
+User-Agent: KMail/1.9.1
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+       jan.glauber@de.ibm.com, linux-kernel@vger.kernel.org
+References: <20060112171404.GB16629@skybase.boeblingen.de.ibm.com> <20060113125808.GA1868@elf.ucw.cz>
+In-Reply-To: <20060113125808.GA1868@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200601132040.55599.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Guess it is probably not a real problem...
+On Friday 13 January 2006 12:58, Pavel Machek wrote:
+> On Čt 12-01-06 18:14:04, Martin Schwidefsky wrote:
+> > From: Jan Glauber <jan.glauber@de.ibm.com>
+> > 
+> Why does s390 need to do des in arch-specific code, BTW? Is it driver
+> for some crypto accelerator or what?
 
-Or, it's probably a real problem.  The asm-offsets.h file
-has a long history of being a thorn in the side of Makefiles,
-including race conditions (such as you saw with -j4).  There
-is a natural circular dependency in the construction of the
-asm-offsets.h file and the rest of the build that's tricky
-to get right.
+Yes, newer s390 have CPU instructions for DES and a few other encryption
+standards.
 
-Whether or not someone sees enough evidence yet to deal with
-this instance of that breakage ... that's another matter.
-
-Often this kind of breakage remains until someone with the
-right mental weapons gets bit by it, and goes hunting it down.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	Arnd <><

@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422793AbWAMSMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422776AbWAMSTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422793AbWAMSMu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 13:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422789AbWAMSMu
+	id S1422776AbWAMSTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 13:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422794AbWAMSTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 13:12:50 -0500
-Received: from mail-gw1.turkuamk.fi ([195.148.208.125]:15018 "EHLO
-	mail-gw1.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S1422788AbWAMSMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 13:12:49 -0500
-Message-ID: <43C7EDCF.3050402@kolumbus.fi>
-Date: Fri, 13 Jan 2006 20:13:35 +0200
-From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: akpm@osdl.org, lhms-devel@lists.sourceforge.net, linux-mm@kvack.org,
+	Fri, 13 Jan 2006 13:19:33 -0500
+Received: from xenotime.net ([66.160.160.81]:184 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422776AbWAMSTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 13:19:32 -0500
+Date: Fri, 13 Jan 2006 10:19:30 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Paul Jackson <pj@sgi.com>
+cc: Adrian Bunk <bunk@stusta.de>, akpm@osdl.org, adobriyan@gmail.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG: gfp_zone() not mapping zone modifiers correctly
- and bad ordering of fallback lists
-References: <20060113155026.GA4811@skynet.ie>
-In-Reply-To: <20060113155026.GA4811@skynet.ie>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release
- 6.5.4FP2|September 12, 2005) at 13.01.2006 20:12:40,
-	Serialize by Router on marconi.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2|September
- 12, 2005) at 13.01.2006 20:12:40,
-	Serialize complete at 13.01.2006 20:12:40,
-	Itemize by SMTP Server on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2|September
- 12, 2005) at 13.01.2006 20:13:41,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2|September
- 12, 2005) at 13.01.2006 20:13:43,
-	Serialize complete at 13.01.2006 20:13:43
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: 2.6.15-mm2: alpha broken
+In-Reply-To: <20060113101054.d62acb0d.pj@sgi.com>
+Message-ID: <Pine.LNX.4.58.0601131014160.5563@shark.he.net>
+References: <20060107052221.61d0b600.akpm@osdl.org> <20060107210646.GA26124@mipter.zuzino.mipt.ru>
+ <20060107154842.5832af75.akpm@osdl.org> <20060110182422.d26c5d8b.pj@sgi.com>
+ <20060113141154.GL29663@stusta.de> <20060113101054.d62acb0d.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
+On Fri, 13 Jan 2006, Paul Jackson wrote:
 
->Hi Andrew,
+> Adrian wrote:
+> > This is the amout of testing I can afford.
 >
->This patch is divided into two parts and addresses a bug in how zone
->fallback lists are calculated and how __GFP_* zone modifiers are mapped to
->their equivilant ZONE_* type. It applies to 2.6.15-mm3 and has been tested
->on x86 and ppc64. It has been reported by Yasunori Goto that it boots on
->ia64. Details as follows;
+> It sounds to me like you are saying that a minute of your time is
+> more valuable than a minute of each of several other peoples time.
 >
->build_zonelists() attempts to be smart, and uses highest_zone() so that it
->doesn't attempt to call build_zonelists_node() for empty zones.  However,
->build_zonelists_node() is smart enough to do the right thing by itself and
->build_zonelists() already has the zone index that highest_zone() is meant
->to provide. So, remove the unnecessary function highest_zone().
+> The only two people I gladly accept that argument from are Linus
+> and Andrew.
 >
->The helper function gfp_zone() assumes that the bits used in the zone modifier
->of a GFP flag maps directory on to their ZONE_* equivalent and just applies a
->mask. However, the bits do not map directly and the wrong fallback lists can
->be used. If unluckly, the system can go OOM when plenty of suitable memory
->is available. This patch redefines the __GFP_ zone modifier flags to allow
->a simple mapping to their equivilant ZONE_ type.
+> For the rest of us, it is important to minimize the total workload
+> of all us combined, not to optimize our individual output.
 >
->  
->
-What's the exact failure case? Afaik, we loop though all the 
-GFP_ZONETYPES, building the appropriate zone lists at 0 - 
-GFP_ZONETYPES-1 indexes. So the direct GFP -> ZONE mapping should do the 
-right thing.
+> What you don't test, several others of us get to test.  Only its often
+> more work, for -each- of us, as we each have to figure out which of
+> 1000 patches caused the breakage.
 
---Mika
+I don't find building cross-toolchains quite as easy as Al does,
+so I download and build with these (on i386):
+  http://developer.osdl.org/dev/plm/cross_compile/
+as Andrew has also mentioned in the past.
 
+Or one can submit kernel patches for builds to an OSDL
+build machine which does 8 or 9 $ARCH builds.
+
+-- 
+~Randy

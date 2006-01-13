@@ -1,94 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932678AbWAMNoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbWAMNnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932678AbWAMNoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 08:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbWAMNoI
+	id S1030322AbWAMNnp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 08:43:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932715AbWAMNnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 08:44:08 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:18885 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932678AbWAMNoH (ORCPT
+	Fri, 13 Jan 2006 08:43:45 -0500
+Received: from smtp6-g19.free.fr ([212.27.42.36]:48046 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932711AbWAMNno (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 08:44:07 -0500
-Date: Fri, 13 Jan 2006 14:44:12 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: [patch 00/62] sem2mutex: -V1
-Message-ID: <20060113134412.GA20339@elte.hu>
-References: <20060113124402.GA7351@elte.hu> <200601131400.00279.baldrick@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Jan 2006 08:43:44 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 14/13] USBATM: semaphore to mutex conversion
+Date: Fri, 13 Jan 2006 14:43:42 +0100
+User-Agent: KMail/1.9.1
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200601131438.30181.baldrick@free.fr>
+In-Reply-To: <200601131438.30181.baldrick@free.fr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200601131400.00279.baldrick@free.fr>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200601131443.43415.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hi Greg, this is the usbatm part of the Arjan, Jes and Info
+                                                         ^^^^
+Too much star trek!  Sorry about that Ingo.
 
-* Duncan Sands <baldrick@free.fr> wrote:
+Best wishes,
 
-> > this patch-queue converts 66% of all semaphore users in 2.6.15-git9 to 
-> > mutexes.
-> 
-> Hi Ingo, the changes to drivers/usb/atm/usbatm.[ch] conflict with a 
-> bunch of patches I just sent to Greg KH.  How do you plan to handle 
-> this kind of thing?  If you like, I can tweak this part of your patch 
-> so it applies on top of mine, and push it to Greg.
-
-yeah, the best solution from our POV is if you pick it up and send it to 
-Greg on your own schedule. We'll probably still carry all the patches in 
-our tree up until your changes upstream, because it's hard to keep track 
-of who does what, and we try to cover all the conversions. In general, 
-the faster this phase is over, the better.
-
-we expect there to be two types of bugs introduced by these patches:
-
- - build error - if we forgot to add mutex.h somewhere.
-
-   We think we covered most of the build issues via allyesconfig QA, but 
-   it's possible in theory under some .config's.
-
- - we misidentified a semaphore and converted it to mutexes, albeit the 
-   use was not purely mutex.
-
-   all such misidentifications should trigger runtime warnings if 
-   CONFIG_DEBUG_MUTEXES is turned on. If this happens, then one of the 
-   following 3 scenarios should trigger:
-
-    - it should stay a semaphore (if it's a genuine counting 
-      semaphore)
-
-    - or it should get converted to a completion (if it's used as
-      a completion)
-
-    - or it should get converted to struct work (if it's used as a 
-      workflow synchronizer).
-
-   we _think_ we've identified all the converted semaphores correctly 
-   (and we have source-code-analyzing tools to underline that belief, 
-   plus we have a track record in -rt, which runs with all these 
-   semaphores converted to mutexes, plus we have done our own QA), but 
-   at 500+ files changed, it would be quite over-confident to claim that 
-   the patch is 100% perfect :-)
-
-   another thing raises the confidence in the analysis: none of the
-   runtime mutex checks ever triggered during the development of this
-   conversion patchset. We did find a handful of bugs in drivers, but
-   they were all caught at the source/analysis level. We occasionally
-   forgot to convert some affected .c or .h modules, which errors were
-   caught at the build stage.
-
-   famous last words? :-)
-
-	Ingo
+Duncan.

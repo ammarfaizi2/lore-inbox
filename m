@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422901AbWAMT7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422882AbWAMUAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422901AbWAMT7q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422880AbWAMT5y
+	id S1422882AbWAMUAf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 15:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422900AbWAMT77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:57:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:51092 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422883AbWAMTuc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:32 -0500
-Cc: rmk@arm.linux.org.uk
-Subject: [PATCH] Add SA1111 bus_type probe/remove methods
-In-Reply-To: <11371818084013@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 11:50:08 -0800
-Message-Id: <11371818081886@kroah.com>
+	Fri, 13 Jan 2006 14:59:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4248 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422882AbWAMT75 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:59:57 -0500
+Date: Fri, 13 Jan 2006 11:57:15 -0800
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/15] pci: Add Toshiba PSA40U laptop to ohci1394 quirk dmi table.
+Message-ID: <20060113195715.GA18869@kroah.com>
+References: <0ISL00NV994G1L@a34-mta01.direcway.com> <20060111051532.GA3455@kroah.com> <200601131138.43301.jbarnes@virtuousgeek.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601131138.43301.jbarnes@virtuousgeek.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add SA1111 bus_type probe/remove methods
+On Fri, Jan 13, 2006 at 11:38:42AM -0800, Jesse Barnes wrote:
+> On Tuesday, January 10, 2006 9:15 pm, Greg KH wrote:
+> > On Wed, Jan 04, 2006 at 04:59:59PM -0500, Ben Collins wrote:
+> > > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> > >
+> > > ---
+> > >
+> > >  arch/i386/pci/fixup.c |    7 +++++++
+> >
+> > Hm, you might want to cc: the maintainers of the sections you are
+> > patching to make sure they see the change you are making.
+> >
+> > Care to respin this against the latest -git tree and resend it to me?
+> 
+> Didn't I already submit this patch?  (Checks...)  Yes, I did, and it's 
+> already in the tree:
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=19272684b8e2fff39941e4c044d26ad349dd1a69
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+I thought so, and was also wondering about this...
 
----
-commit 2876ba4321f0f85c40726b736eeaadf317803f16
-tree bff3510763543ff92b613810347c34fcf7b4bdb7
-parent e08b754161d6de4f91e2d3c805f350b35a95d8b8
-author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:32:32 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:05 -0800
+Thanks for following up on it.
 
- arch/arm/common/sa1111.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm/common/sa1111.c b/arch/arm/common/sa1111.c
-index d0d6e6d..1475089 100644
---- a/arch/arm/common/sa1111.c
-+++ b/arch/arm/common/sa1111.c
-@@ -1247,14 +1247,14 @@ static int sa1111_bus_remove(struct devi
- struct bus_type sa1111_bus_type = {
- 	.name		= "sa1111-rab",
- 	.match		= sa1111_match,
-+	.probe		= sa1111_bus_probe,
-+	.remove		= sa1111_bus_remove,
- 	.suspend	= sa1111_bus_suspend,
- 	.resume		= sa1111_bus_resume,
- };
- 
- int sa1111_driver_register(struct sa1111_driver *driver)
- {
--	driver->drv.probe = sa1111_bus_probe;
--	driver->drv.remove = sa1111_bus_remove;
- 	driver->drv.bus = &sa1111_bus_type;
- 	return driver_register(&driver->drv);
- }
-
+greg k-h

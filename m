@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161573AbWAMVwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161572AbWAMVzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161573AbWAMVwf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:52:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161575AbWAMVwf
+	id S1161572AbWAMVzp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161574AbWAMVzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:52:35 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.26]:32211 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1161573AbWAMVwe (ORCPT
+	Fri, 13 Jan 2006 16:55:45 -0500
+Received: from gate.crashing.org ([63.228.1.57]:46985 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1161572AbWAMVzp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:52:34 -0500
-Date: Fri, 13 Jan 2006 13:52:10 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: rdunlap@xenotime.net, akpm@osdl.org, adobriyan@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm2: alpha broken
-Message-Id: <20060113135210.80aabc8d.pj@sgi.com>
-In-Reply-To: <20060113213259.GT29663@stusta.de>
-References: <20060107052221.61d0b600.akpm@osdl.org>
-	<20060107210646.GA26124@mipter.zuzino.mipt.ru>
-	<20060107154842.5832af75.akpm@osdl.org>
-	<20060110182422.d26c5d8b.pj@sgi.com>
-	<20060113141154.GL29663@stusta.de>
-	<20060113101054.d62acb0d.pj@sgi.com>
-	<Pine.LNX.4.58.0601131014160.5563@shark.he.net>
-	<20060113210848.GS29663@stusta.de>
-	<Pine.LNX.4.58.0601131310060.5563@shark.he.net>
-	<20060113213259.GT29663@stusta.de>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 13 Jan 2006 16:55:45 -0500
+Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple
+	PowerBooks
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
+       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <200601122312.05210.dtor_core@ameritech.net>
+References: <20051225212041.GA6094@hansmi.ch>
+	 <1137022900.5138.66.camel@localhost.localdomain>
+	 <20060112000830.GB10142@hansmi.ch>
+	 <200601122312.05210.dtor_core@ameritech.net>
+Content-Type: text/plain
+Date: Sat, 14 Jan 2006 08:55:19 +1100
+Message-Id: <1137189319.4854.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Which less extreme approach would for sure have prevented this?
 
-Clearly, if what I said leads inexorably to such extreme measures,
-then what I said is full of crock.
+> That should be "MODULE_PARM_DESC(pb_fn_mode, ...)". Also, since this is
+> for compatibility with ADB, why do we have 3 options? Doesn't ADB have
+> only 2?
 
-And Andrew made a good point, that matches up well with your mention
-of your "puny 1.8 GHz CPU."  There is some efficiency to be gained
-from doing crosstool builds against 100 changes at once, rather than
-100 developers each doing them for their one change.
+No, the ADB keyboard can operate in 2 modes that can be set with a PMU
+command, I forgot about that in my earlier comments. In one mode, you get
+the "special" behaviour by default on the Fx keys and you get Fx when
+pressing Fn-Fx, and in the other mode, you get the Fx by default and the
+special behaviour when pressing Fn-Fx.
 
-Personally, I recommend a half-way effort.  Do crosstool builds
-against a few arch's when doing more risky stuff; sometimes batch
-up crosstool builds for several fixes at once (which may mean that
-I actually send in the fix before the crosstool build succeeds);
-send in some fixes for what you see broken if it looks "easy enough"
-to you; post a description of some of the other breakages you don't
-have time or expertise to track down; sometimes just say to heck with
-it, and don't crosstool test, or ignore some of the breakage if it
-doesn't look like your problem.
+> > +static inline struct hidinput_key_translation *find_translation(
+> 
+> I thought is was agreed that we'd avoid "inlines" in .c files?
 
-But I'm still relatively junior around here.  Those with more battle
-scars than I are worth paying more attention to than I am.
+Ah ? I have certainly missed that discussion ...
 
-My basic rule of thumb, that I suspect scales rather well, is to
-try to clean up more crap of others than I drop on them.  If we all
-kept a slightly positive balance in our crap cleanup versus dropping
-statement, then life would be good.
+> > +	struct hidinput_key_translation *table, u16 from)
+> > +{
+> > +	struct hidinput_key_translation *trans;
+> > +
+> > +	/* Look for the translation */
+> > +	for(trans = table; trans->from && (trans->from != from); trans++);
+> > +
+> > +	return (trans->from?trans:NULL);
+> > +}
+> 
+> I'd prefer liberal amount of spaces applied here </extreme nitpick mode>
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Me too :)
+
+> > +		try_translate = test_bit(usage->code, usbhid_pb_numlock)?1:
+> > +				test_bit(LED_NUML, input->led);
+> > +		if (try_translate) {
+> 
+> Isn't this the same as 
+> 
+> 		if (test_bit(usage->code, usbhid_pb_numlock) || test_bit(LED_NUML, input->led))
+> 
+> but harder to read?
+
+No. If the first one is 0, the second one will not matter in the first
+version, while it will in yours.
+
+Ben.
+
+

@@ -1,88 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWAMSgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422810AbWAMShf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422805AbWAMSgT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 13:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422810AbWAMSgT
+	id S1422810AbWAMShf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 13:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422817AbWAMShf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 13:36:19 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:22746 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1422805AbWAMSgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 13:36:18 -0500
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Dave Miller <davem@redhat.com>, Tejun Heo <htejun@gmail.com>,
-       axboe@suse.de, bzolnier@gmail.com, james.steward@dynamicratings.com,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060113182035.GC25849@flint.arm.linux.org.uk>
-References: <11371658562541-git-send-email-htejun@gmail.com>
-	 <1137167419.3365.5.camel@mulgrave>
-	 <20060113182035.GC25849@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 12:35:24 -0600
-Message-Id: <1137177324.3365.67.camel@mulgrave>
+	Fri, 13 Jan 2006 13:37:35 -0500
+Received: from mail.summitinstruments.com ([66.132.4.236]:10690 "EHLO
+	mail2.visn.net") by vger.kernel.org with ESMTP id S1422810AbWAMShe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 13:37:34 -0500
+Message-ID: <43C7F35A.9010703@summitinstruments.com>
+Date: Fri, 13 Jan 2006 13:37:14 -0500
+From: "Arne R. van der Heyde" <vanderHeydeAR@summitinstruments.com>
+Organization: Summit Instruments, Inc.
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+To: linux-kernel@vger.kernel.org
+CC: c-d.hailfinger.kernel.2004@gmx.net
+Subject: no carrier when using forcedeth on MSI K8N Neo4-F
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=------------070809070606020204000203
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 18:20 +0000, Russell King wrote:
-> I think you're misunderstanding the issue.  I'll give you essentially
-> my understanding of the explaination that Dave Miller gave me a number
-> of years ago.  This is from memory, so Dave may wish to correct it.
-> 
-> 1. When a driver DMAs data into a page cache page, it is written directly
->    to RAM and is made visible to the kernel mapping via the DMA API.  As
->    a result, there will be no cache lines associated with the kernel
->    mapping at the point when the driver hands the page back to the page
->    cache.
+--------------070809070606020204000203
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes ... that's essentially what I said: DMA API makes us kernel
-coherent.  However, we explicitly *don't* mandate the way architectures
-do this.  It's certainly true, all the ones I know work by flushing the
-kernel mapping cache lines, but I don't think you're entitled to rely on
-this behaviour ... it's not inconcievable for large external cache
-machines that the DMA could be done straight into the kernel cache.
+I am trying to connect two identical MSI K8N Neo4-F servers with NVIDIA 
+nForce4 gigabit Lan ports. When the two ports are connected together via 
+a crossover cable, neither computer is able to detect a carrier on the 
+Lan ports and are not able to communicate. When either of the nForce4 
+gigabit port is connected to a Lan port on another computer with a 
+different Lan hardware or to a port on a switch the forcedeth drivers 
+detect a carrier and are able to communicate.
 
->    However, in the PIO case, there is the possibility that the data read
->    from the device into the kernel mapping results in cache lines
->    associated with the page.  Moreover, if the cache is write-allocate,
->    you _will_ have cache lines.
-> 
->    Therefore, you have two completely differing system states depending
->    on how the driver decided to transfer data from the device to the page
->    cache.
-> 
->    As such, drivers must ensure that PIO data transfers have the same
->    system state guarantees as DMA data transfers.
-> 
->    ISTR davem recommended flush_dcache_page() be used for this.
+It appears that the nForce4 Gigabit ports are not generating a carrier. 
+Does the nForce4 not provide standard ethernet ports? If they are 
+standard ethernet ports, how do I tell forcedeth to generate a carrier? 
+Also how do I get forcedeth to run at a Gigabit?
 
-Ah ... perhaps this is the misunderstanding.  To clear the kernel lines
-associated with the page you use flush_kernel_dcache_page().
-flush_dcache_page() is used to make a page cache page coherent with its
-user mappings.
+Thanks for any help,
 
-> 2. (this is my own)  The cachetlb document specifies quite clearly what
->    is required whenever a page cache page is written to - that is
->    flush_dcache_page() is called.  The situation when a driver uses PIO
->    quote clearly violates the requirements set out in that document.
-> 
-> >From (2), it is quite clear that flush_dcache_page() is the correct
-> function to use, otherwise we would end up with random set of state
-> of pages in the page cache.  (1) merely reinforces that it's the
-> correct place for the decision to be made.  In fact, it's the only
-> part of the kernel which _knows_ what needs to be done.
+Best regards,
+Arne R. van der Heyde
+vanderHeydeAR@summitinstruments.com
 
-True, but your assumption that a driver should be doing this is what I'm
-saying is incorrect.  A driver's job is to deliver data coherently to
-the kernel.  The kernel's job is to deliver it coherently to the user.
+Summit Instruments Inc.
+2236 N. Cleveland-Massillon Rd.
+Akron, Ohio 44333-1255  USA
 
-Perhaps we should take this to linux-arch ... the audience there is well
-versed in these arcane problems?
-
-James
+Phone (330)659-3312
+Fax   (330)659-3286
+www.summitinstruments.com
 
 
+--------------070809070606020204000203
+Content-Type: text/x-vcard; charset=utf-8; name=vanderHeydeAR.vcf
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="vanderHeydeAR.vcf"
+
+begin:vcard
+fn:Arne van der Heyde
+n:van der Heyde;Arne
+org:Summit Instruments, Inc.
+adr:;;2236 N Cleveland-Massillon Rd;Akron;OH;44333-1255;USA
+email;internet:vanderHeydeAR@SummitInstruments.com
+tel;work:(330) 659-3312
+tel;fax:(330) 659-3286
+x-mozilla-html:FALSE
+url:http://www.SummitInstruments.com
+version:2.1
+end:vcard
+
+
+--------------070809070606020204000203
+Content-Type: text/plain; x-avg=cert; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+Content-Description: "AVG certification"
+
+No virus found in this outgoing message.
+Checked by AVG Free Edition.
+Version: 7.1.371 / Virus Database: 267.14.17/226 - Release Date: 10-Jan-06
+
+--------------070809070606020204000203--

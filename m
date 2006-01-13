@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWAMVM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422979AbWAMVQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbWAMVM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWAMVM0
+	id S1422979AbWAMVQG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422980AbWAMVQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:12:26 -0500
-Received: from xenotime.net ([66.160.160.81]:25312 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964958AbWAMVM0 (ORCPT
+	Fri, 13 Jan 2006 16:16:05 -0500
+Received: from khc.piap.pl ([195.187.100.11]:63242 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1422979AbWAMVQE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:12:26 -0500
-Date: Fri, 13 Jan 2006 13:12:24 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Paul Jackson <pj@sgi.com>,
-       akpm@osdl.org, adobriyan@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm2: alpha broken
-In-Reply-To: <20060113210848.GS29663@stusta.de>
-Message-ID: <Pine.LNX.4.58.0601131310060.5563@shark.he.net>
-References: <20060107052221.61d0b600.akpm@osdl.org> <20060107210646.GA26124@mipter.zuzino.mipt.ru>
- <20060107154842.5832af75.akpm@osdl.org> <20060110182422.d26c5d8b.pj@sgi.com>
- <20060113141154.GL29663@stusta.de> <20060113101054.d62acb0d.pj@sgi.com>
- <Pine.LNX.4.58.0601131014160.5563@shark.he.net> <20060113210848.GS29663@stusta.de>
+	Fri, 13 Jan 2006 16:16:04 -0500
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Arne R. van der Heyde" <vanderHeydeAR@summitinstruments.com>,
+       <linux-kernel@vger.kernel.org>, <c-d.hailfinger.kernel.2004@gmx.net>
+Subject: Re: no carrier when using forcedeth on MSI K8N Neo4-F
+References: <43C7F35A.9010703@summitinstruments.com>
+	<Pine.LNX.4.61.0601131345260.8379@chaos.analogic.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 13 Jan 2006 22:16:01 +0100
+In-Reply-To: <Pine.LNX.4.61.0601131345260.8379@chaos.analogic.com> (linux-os@analogic.com's message of "Fri, 13 Jan 2006 13:56:27 -0500")
+Message-ID: <m3k6d3n81a.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jan 2006, Adrian Bunk wrote:
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
 
-> On Fri, Jan 13, 2006 at 10:19:30AM -0800, Randy.Dunlap wrote:
-> > On Fri, 13 Jan 2006, Paul Jackson wrote:
-> >
-> > > Adrian wrote:
-> > > > This is the amout of testing I can afford.
-> > >
-> > > It sounds to me like you are saying that a minute of your time is
-> > > more valuable than a minute of each of several other peoples time.
-> > >
-> > > The only two people I gladly accept that argument from are Linus
-> > > and Andrew.
-> > >
-> > > For the rest of us, it is important to minimize the total workload
-> > > of all us combined, not to optimize our individual output.
-> > >
-> > > What you don't test, several others of us get to test.  Only its often
-> > > more work, for -each- of us, as we each have to figure out which of
-> > > 1000 patches caused the breakage.
-> >
-> > I don't find building cross-toolchains quite as easy as Al does,
-> > so I download and build with these (on i386):
-> >   http://developer.osdl.org/dev/plm/cross_compile/
-> > as Andrew has also mentioned in the past.
-> >
-> > Or one can submit kernel patches for builds to an OSDL
-> > build machine which does 8 or 9 $ARCH builds.
->
-> This leaves 15 or 16 other architectures for my puny 1,8 GHz CPU.
->
-> And does OSDL fix other people's compile breakages in the latest -mm
-> before I submit my patches, or am I required to play QA for every
-> single architecture before I can submit one single patch touching
-> architecture-independend files?
+> You need to use the correct kind of cross-over cable for the Gigabit
+> ports.
 
--ETOOMUCHSARCASM
-(from someone who also uses sarcasm often)
+Correct, with all pairs crossed.
+I don't force-death but I think most gigabit cards (and some 100BaseTX)
+work with plain cable as well (using auto MDI-X, and auto-polarity
+if needed).
 
-But seriously, I don't think anyone suggested anything quite
-as extreme as your question implies.
+> Then, you need to set both ports manually because there
+> is no hardware (the switch) to handle the auto-configuration. The
+> default is usually `autoneg on`. This tells the switch to
+> auto-configure. Connected to another port, not a switch, this
+> means nothing and the device remains dormant.
 
+Again, I don't know nforce, but normal cards with autonegotiation
+(i.e., (almost?) all 100BaseTX and newer) can negotiate speed and
+duplex without need for a switch. BTW from net POI switches and
+cards are DTEs, there is no special distinction WRT autonegotiation.
 -- 
-~Randy
+Krzysztof Halasa

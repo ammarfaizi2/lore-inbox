@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161664AbWAMDWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161667AbWAMDYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161664AbWAMDWd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 22:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161669AbWAMDUO
+	id S1161667AbWAMDYb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 22:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161659AbWAMDYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 22:20:14 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9857 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161667AbWAMDUL
+	Thu, 12 Jan 2006 22:24:16 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:59777 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161648AbWAMDTj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 22:20:11 -0500
-Message-Id: <20060113032246.276436000@sorel.sous-sol.org>
+	Thu, 12 Jan 2006 22:19:39 -0500
+Message-Id: <20060113032239.731537000@sorel.sous-sol.org>
 References: <20060113032102.154909000@sorel.sous-sol.org>
-Date: Thu, 12 Jan 2006 18:37:50 -0800
+Date: Thu, 12 Jan 2006 18:37:41 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,55 +19,233 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "David S. Miller" <davem@davemloft.net>,
-       Richard Mortimer <richm@oldelvet.org.uk>
-Subject: [PATCH 12/17] [SPARC64]: Fix ptrace/strace
-Content-Disposition: inline; filename=sparc64-fix-ptrace.patch
+       Stephen Hemminger <shemminger@osdl.org>,
+       " Greg Kroah-Hartman " <gregkh@suse.de>
+Subject: [PATCH 03/17] [PATCH] skge: handle out of memory on ring changes
+Content-Disposition: inline; filename=skge-handle-out-of-memory-on-ring-changes.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Don't clobber register %l0 while checking TI_SYS_NOERROR value in
-syscall return path.  This bug was introduced by:
+Please consider this for 2.6.15.1; it fixes several cases where
+the skge driver can get in a bad state and later crash; if an
+admin operation that causes a restart fails from out of memory.
+Such as changing the MTU or increasing the ring size.
 
-db7d9a4eb700be766cc9f29241483dbb1e748832
+The fixes involve checking the return value and doing necessary
+unwinds. Or in some cases avoiding doing a full restart.
 
-Problem narrowed down by Luis F. Ortiz and Richard Mortimer.
+The same code is the netdev-2.6 tree for 2.6.16 but as separate pieces
 
-I tried using %l2 as suggested by Luis and that works for me.
-
-Looking at the code I wonder if it makes sense to simplify the code
-a little bit. The following works for me but I'm not sure how to
-exercise the "NOERROR" codepath.
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
 
- arch/sparc64/kernel/entry.S |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
 
-Index: linux-2.6.15.y/arch/sparc64/kernel/entry.S
+ drivers/net/skge.c |   80 +++++++++++++++++++++++++++++++----------------------
+ 1 files changed, 48 insertions(+), 32 deletions(-)
+
+Index: linux-2.6.15.y/drivers/net/skge.c
 ===================================================================
---- linux-2.6.15.y.orig/arch/sparc64/kernel/entry.S
-+++ linux-2.6.15.y/arch/sparc64/kernel/entry.S
-@@ -1657,13 +1657,10 @@ ret_sys_call:
- 	/* Check if force_successful_syscall_return()
- 	 * was invoked.
- 	 */
--	ldub		[%curptr + TI_SYS_NOERROR], %l0
--	brz,pt		%l0, 1f
--	 nop
--	ba,pt		%xcc, 80f
-+	ldub            [%curptr + TI_SYS_NOERROR], %l2
-+	brnz,a,pn       %l2, 80f
- 	 stb		%g0, [%curptr + TI_SYS_NOERROR]
+--- linux-2.6.15.y.orig/drivers/net/skge.c
++++ linux-2.6.15.y/drivers/net/skge.c
+@@ -43,7 +43,7 @@
+ #include "skge.h"
  
--1:
- 	cmp		%o0, -ERESTART_RESTARTBLOCK
- 	bgeu,pn		%xcc, 1f
- 	 andcc		%l0, (_TIF_SYSCALL_TRACE|_TIF_SECCOMP|_TIF_SYSCALL_AUDIT), %l6
+ #define DRV_NAME		"skge"
+-#define DRV_VERSION		"1.2"
++#define DRV_VERSION		"1.3"
+ #define PFX			DRV_NAME " "
+ 
+ #define DEFAULT_TX_RING_SIZE	128
+@@ -88,15 +88,14 @@ MODULE_DEVICE_TABLE(pci, skge_id_table);
+ 
+ static int skge_up(struct net_device *dev);
+ static int skge_down(struct net_device *dev);
++static void skge_phy_reset(struct skge_port *skge);
+ static void skge_tx_clean(struct skge_port *skge);
+ static int xm_phy_write(struct skge_hw *hw, int port, u16 reg, u16 val);
+ static int gm_phy_write(struct skge_hw *hw, int port, u16 reg, u16 val);
+ static void genesis_get_stats(struct skge_port *skge, u64 *data);
+ static void yukon_get_stats(struct skge_port *skge, u64 *data);
+ static void yukon_init(struct skge_hw *hw, int port);
+-static void yukon_reset(struct skge_hw *hw, int port);
+ static void genesis_mac_init(struct skge_hw *hw, int port);
+-static void genesis_reset(struct skge_hw *hw, int port);
+ static void genesis_link_up(struct skge_port *skge);
+ 
+ /* Avoid conditionals by using array */
+@@ -276,10 +275,9 @@ static int skge_set_settings(struct net_
+ 	skge->autoneg = ecmd->autoneg;
+ 	skge->advertising = ecmd->advertising;
+ 
+-	if (netif_running(dev)) {
+-		skge_down(dev);
+-		skge_up(dev);
+-	}
++	if (netif_running(dev))
++		skge_phy_reset(skge);
++
+ 	return (0);
+ }
+ 
+@@ -399,6 +397,7 @@ static int skge_set_ring_param(struct ne
+ 			       struct ethtool_ringparam *p)
+ {
+ 	struct skge_port *skge = netdev_priv(dev);
++	int err;
+ 
+ 	if (p->rx_pending == 0 || p->rx_pending > MAX_RX_RING_SIZE ||
+ 	    p->tx_pending == 0 || p->tx_pending > MAX_TX_RING_SIZE)
+@@ -409,7 +408,11 @@ static int skge_set_ring_param(struct ne
+ 
+ 	if (netif_running(dev)) {
+ 		skge_down(dev);
+-		skge_up(dev);
++		err = skge_up(dev);
++		if (err)
++			dev_close(dev);
++		else
++			dev->set_multicast_list(dev);
+ 	}
+ 
+ 	return 0;
+@@ -430,21 +433,11 @@ static void skge_set_msglevel(struct net
+ static int skge_nway_reset(struct net_device *dev)
+ {
+ 	struct skge_port *skge = netdev_priv(dev);
+-	struct skge_hw *hw = skge->hw;
+-	int port = skge->port;
+ 
+ 	if (skge->autoneg != AUTONEG_ENABLE || !netif_running(dev))
+ 		return -EINVAL;
+ 
+-	spin_lock_bh(&hw->phy_lock);
+-	if (hw->chip_id == CHIP_ID_GENESIS) {
+-		genesis_reset(hw, port);
+-		genesis_mac_init(hw, port);
+-	} else {
+-		yukon_reset(hw, port);
+-		yukon_init(hw, port);
+-	}
+-	spin_unlock_bh(&hw->phy_lock);
++	skge_phy_reset(skge);
+ 	return 0;
+ }
+ 
+@@ -516,10 +509,8 @@ static int skge_set_pauseparam(struct ne
+ 	else
+ 		skge->flow_control = FLOW_MODE_NONE;
+ 
+-	if (netif_running(dev)) {
+-		skge_down(dev);
+-		skge_up(dev);
+-	}
++	if (netif_running(dev))
++		skge_phy_reset(skge);
+ 	return 0;
+ }
+ 
+@@ -1935,7 +1926,6 @@ static void yukon_link_down(struct skge_
+ 
+ 	}
+ 
+-	yukon_reset(hw, port);
+ 	skge_link_down(skge);
+ 
+ 	yukon_init(hw, port);
+@@ -2019,6 +2009,22 @@ static void yukon_phy_intr(struct skge_p
+ 	/* XXX restart autonegotiation? */
+ }
+ 
++static void skge_phy_reset(struct skge_port *skge)
++{
++	struct skge_hw *hw = skge->hw;
++	int port = skge->port;
++
++	netif_stop_queue(skge->netdev);
++	netif_carrier_off(skge->netdev);
++
++	spin_lock_bh(&hw->phy_lock);
++	if (hw->chip_id == CHIP_ID_GENESIS)
++		genesis_mac_init(hw, port);
++	else
++		yukon_init(hw, port);
++	spin_unlock_bh(&hw->phy_lock);
++}
++
+ /* Basic MII support */
+ static int skge_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
+@@ -2187,6 +2193,7 @@ static int skge_up(struct net_device *de
+ 	kfree(skge->rx_ring.start);
+  free_pci_mem:
+ 	pci_free_consistent(hw->pdev, skge->mem_size, skge->mem, skge->dma);
++	skge->mem = NULL;
+ 
+ 	return err;
+ }
+@@ -2197,6 +2204,9 @@ static int skge_down(struct net_device *
+ 	struct skge_hw *hw = skge->hw;
+ 	int port = skge->port;
+ 
++	if (skge->mem == NULL)
++		return 0;
++
+ 	if (netif_msg_ifdown(skge))
+ 		printk(KERN_INFO PFX "%s: disabling interface\n", dev->name);
+ 
+@@ -2253,6 +2263,7 @@ static int skge_down(struct net_device *
+ 	kfree(skge->rx_ring.start);
+ 	kfree(skge->tx_ring.start);
+ 	pci_free_consistent(hw->pdev, skge->mem_size, skge->mem, skge->dma);
++	skge->mem = NULL;
+ 	return 0;
+ }
+ 
+@@ -2413,18 +2424,23 @@ static void skge_tx_timeout(struct net_d
+ 
+ static int skge_change_mtu(struct net_device *dev, int new_mtu)
+ {
+-	int err = 0;
+-	int running = netif_running(dev);
++	int err;
+ 
+ 	if (new_mtu < ETH_ZLEN || new_mtu > ETH_JUMBO_MTU)
+ 		return -EINVAL;
+ 
++	if (!netif_running(dev)) {
++		dev->mtu = new_mtu;
++		return 0;
++	}
++
++	skge_down(dev);
+ 
+-	if (running)
+-		skge_down(dev);
+ 	dev->mtu = new_mtu;
+-	if (running)
+-		skge_up(dev);
++
++	err = skge_up(dev);
++	if (err)
++		dev_close(dev);
+ 
+ 	return err;
+ }
+@@ -3398,8 +3414,8 @@ static int skge_resume(struct pci_dev *p
+ 		struct net_device *dev = hw->dev[i];
+ 		if (dev) {
+ 			netif_device_attach(dev);
+-			if (netif_running(dev))
+-				skge_up(dev);
++			if (netif_running(dev) && skge_up(dev))
++				dev_close(dev);
+ 		}
+ 	}
+ 	return 0;
 
 --

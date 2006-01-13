@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423063AbWAMWp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423065AbWAMWqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423063AbWAMWp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423064AbWAMWp4
+	id S1423065AbWAMWqH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423068AbWAMWqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:45:56 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41376
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1423063AbWAMWp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:45:56 -0500
-Date: Fri, 13 Jan 2006 14:43:01 -0800 (PST)
-Message-Id: <20060113.144301.09196399.davem@davemloft.net>
-To: James.Bottomley@SteelEye.com
-Cc: rmk+lkml@arm.linux.org.uk, htejun@gmail.com, axboe@suse.de,
-       bzolnier@gmail.com, james.steward@dynamicratings.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1137191930.3365.96.camel@mulgrave>
-References: <11371658562541-git-send-email-htejun@gmail.com>
-	<20060113220215.GD31824@flint.arm.linux.org.uk>
-	<1137191930.3365.96.camel@mulgrave>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 13 Jan 2006 17:46:06 -0500
+Received: from main.gmane.org ([80.91.229.2]:50401 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1423065AbWAMWqF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:46:05 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: [?] PCI BIOS masks some IDs to prevent OS detection?
+Date: Fri, 13 Jan 2006 14:45:29 -0800
+Message-ID: <20060113144529.56fa3166@darjeeling.triplehelix.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-223-223.dsl.pltn13.pacbell.net
+X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.8.9; x86_64-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@SteelEye.com>
-Date: Fri, 13 Jan 2006 16:38:49 -0600
+Hi,
 
-> Could someone explain (or give a reference to) the actual problem?  If
-> it's a cache coherency issue it should show up with VIPT arhictectures
-> as well as VIVT ones ... I have access to parisc systems (with SCSI),
-> which are VIPT.
+I'd like to tap some of the Linux-PCI gurus about something weird I've
+been helping a friend with...
 
-Not true, VIPT caches participate in cache coherency transactions
-with the PCI host controller (and thus the PCI device), whereas
-VIVT caches do not.
+He recently installed a PCI RAID card, and ever since, his Ethernet
+card stopped working. Further investigation revealed that his
+Realtek 8139 (10ec:8139) card had become 10ec:0139, and his 3Com Cyclone
+card had become 10b7:1055 from 10b7:9055.
 
-It does make a big difference, it's very hard to share datastructures
-with a device concurrently accessing them (what we call PCI consistent
-DMA mappings) on a VIVT cache.
+Did the PCI bus decide to mask those PCI IDs to prevent some sort of
+resource conflict that would ensue from loading an appropriate driver
+for these devices?
+
+-- 
+Joshua Kwan
+

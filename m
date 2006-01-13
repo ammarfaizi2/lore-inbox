@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422681AbWAMOUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422693AbWAMOVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422681AbWAMOUp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 09:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422689AbWAMOUp
+	id S1422693AbWAMOVd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 09:21:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422692AbWAMOVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 09:20:45 -0500
-Received: from odin2.bull.net ([192.90.70.84]:54239 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S1422681AbWAMOUo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 09:20:44 -0500
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: RT question : softirq and minimal user RT priority
-Date: Fri, 13 Jan 2006 15:27:00 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Message-Id: <200601131527.00828.Serge.Noiraud@bull.net>
-X-MIMETrack: Itemize by SMTP Server on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
- 01/13/2006 03:21:37 PM,
-	Serialize by Router on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
- 01/13/2006 03:21:39 PM,
-	Serialize complete at 01/13/2006 03:21:39 PM
+	Fri, 13 Jan 2006 09:21:33 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6021 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422690AbWAMOVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 09:21:32 -0500
+Subject: Re: Fwd: ide-cd turning off DMA when verifying DVD-R
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>,
+       Ondrej Zary <linux@rainbow-software.org>,
+       Robert Hancock <hancockr@shaw.ca>,
+       Volker Kuhlmann <list0570@paradise.net.nz>, Jens Axboe <axboe@suse.de>,
+       linux-ide <linux-ide@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <58cb370e0601130533n5842cb5fufc5058f9a1acc606@mail.gmail.com>
+References: <5ujmU-1UQ-665@gated-at.bofh.it> <5uoqr-Qq-7@gated-at.bofh.it>
+	 <43C72F41.5060207@shaw.ca> <20060113083009.GE12338@paradise.net.nz>
+	 <58cb370e0601130119g5c62b749r1bc5da59a0d4a56c@mail.gmail.com>
+	 <58cb370e0601130121s2f6c0a26jda00ff64df197342@mail.gmail.com>
+	 <20060113093818.GA22984@sci.fi>
+	 <58cb370e0601130149g32323b4axbf0ac55f83ac9148@mail.gmail.com>
+	 <20060113112510.GA23264@sci.fi>
+	 <58cb370e0601130533n5842cb5fufc5058f9a1acc606@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Disposition: inline
+Date: Fri, 13 Jan 2006 14:24:25 +0000
+Message-Id: <1137162265.4419.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Gwe, 2006-01-13 at 14:33 +0100, Bartlomiej Zolnierkiewicz wrote:
+> The patch was NACK-ed by Alan Cox and I agree with him (this should be
+> done differently).  This __ide_dma_off() chunk looks sensible but does it fix
+> the issue?  I was under impression that after a reset drive looses its DMA
+> xfer mode and needs to be reprogrammed (ATA spec has the answer).
 
-	I was testing 2.6.15-rt3. During my tests, I tried to run a program which made a loop at
-RT priority 10 and 30.
-I was very happy to see that after the tests, I can't use any command except those already in memory.
-My filesystems were in read-only after the test. I was unable to shutdown the machine : 
-top => command not found
-<CTRL><ALT><DEL> => INIT: cannot execute "/sbin/shutdown"
-/sbin/reboot   => Input/Output error
-I had to push the reset button.
+Yes and the behaviour is determined by hdparm -k/-K. Its all a bit
+random after a CRC error however as the recovery code does a polling
+speed change and the locking versus timers/irq's is totally broken.
 
-My questions are : 
-Did I find a bug ?
-Is the smallest usable real-time priority greater than the highest real-time softirq ?
-In this case could we forbid priority lesser than the highest softirq priority ?
+I did some minimal fixes in the older -ac patches but even with all the
+other locking cleanup I did back then this one remained. Essentially the
+old IDE layer needs to switch from polled speed changes in task context
+to issuing speed changes as state machine sequences.
+
+Thats non trivial
+
+Alan
+

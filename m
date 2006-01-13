@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWAMPxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWAMPxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWAMPxa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:53:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWAMPxa
+	id S964974AbWAMPxY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:53:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWAMPxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:53:30 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:61113 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964981AbWAMPx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:53:29 -0500
-Subject: Re: RT question : softirq and minimal user RT priority
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200601131527.00828.Serge.Noiraud@bull.net>
-References: <200601131527.00828.Serge.Noiraud@bull.net>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 10:53:20 -0500
-Message-Id: <1137167600.7241.22.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 10:53:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:53725 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964974AbWAMPxY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 10:53:24 -0500
+Date: Fri, 13 Jan 2006 07:52:59 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: akpm@osdl.org, adobriyan@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2: alpha broken
+Message-Id: <20060113075259.80d86ded.pj@sgi.com>
+In-Reply-To: <20060113141154.GL29663@stusta.de>
+References: <20060107052221.61d0b600.akpm@osdl.org>
+	<20060107210646.GA26124@mipter.zuzino.mipt.ru>
+	<20060107154842.5832af75.akpm@osdl.org>
+	<20060110182422.d26c5d8b.pj@sgi.com>
+	<20060113141154.GL29663@stusta.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 15:27 +0100, Serge Noiraud wrote:
-> Hi,
-> 
-> 	I was testing 2.6.15-rt3. During my tests, I tried to run a program which made a loop at
-> RT priority 10 and 30.
+Adrian wrote:
+> I'm already compiling every single patch with both a non-modular and a 
+> completely modular .config for i386. This is the amout of testing I can 
+> afford. If this isn't considered enough I have to stop submtting 
+> patches.
 
-So you have two programs running, one at priority 10 and 30 right?
+Whatever ... that's not my decision to make, either way.
 
-> I was very happy to see that after the tests, I can't use any command except those already in memory.
-
-So, are these programs still running?  Are they in busy loops?
-
-> My filesystems were in read-only after the test. I was unable to shutdown the machine : 
-
-How did the filesystems go into read-only?  Did the tests do that?
-
-> top => command not found
-> <CTRL><ALT><DEL> => INIT: cannot execute "/sbin/shutdown"
-> /sbin/reboot   => Input/Output error
-> I had to push the reset button.
-
-I'll need more info to understand these.
-
-> 
-> My questions are : 
-> Did I find a bug ?
-
-Don't know yet.
-
-> Is the smallest usable real-time priority greater than the highest real-time softirq ?
-
-Nope, you can use any rt priority you want.  It's up to you whether you
-want to preempt the softirqs or not. Be careful, timers may be preempted
-from delivering signals to high priority processes.  I have a patch to
-fix this, but I'm waiting on input from either Thomas Gleixner or Ingo.
-
-> In this case could we forbid priority lesser than the highest softirq priority ?
-
-No need.
-
--- Steve
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

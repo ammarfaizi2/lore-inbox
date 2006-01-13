@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422885AbWAMTxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422909AbWAMTvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422885AbWAMTxH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422889AbWAMTv5
+	id S1422909AbWAMTvl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422906AbWAMTvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:51:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:59284 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422888AbWAMTue convert rfc822-to-8bit
+	Fri, 13 Jan 2006 14:51:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:3477 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422898AbWAMTui convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:34 -0500
+	Fri, 13 Jan 2006 14:50:38 -0500
 Cc: rmk@arm.linux.org.uk
-Subject: [PATCH] Add MCP bus_type probe and remove methods
-In-Reply-To: <11371818103670@kroah.com>
+Subject: [PATCH] Add rio_bus_type probe and remove methods
+In-Reply-To: <1137181812570@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 11:50:10 -0800
-Message-Id: <11371818102735@kroah.com>
+Date: Fri, 13 Jan 2006 11:50:12 -0800
+Message-Id: <1137181812140@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,41 +24,43 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add MCP bus_type probe and remove methods
+[PATCH] Add rio_bus_type probe and remove methods
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 413b486e18587fd53c9954252e6648f9450c734e
-tree de5bb0cea40571fb97d93b54746cf21f214df971
-parent 4866b124a1ded3b94b0cea0bd543f46ffa9a3943
-author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:39:56 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:08 -0800
+commit fc3d3ddd3e628d9f22d4aa56a640d0b31c977a8f
+tree 78d353c96c168963c12a666bcfabaf87df6cec99
+parent b6a01e9bda69aaf22f3a23bafc91c0fb51420a7a
+author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:44:14 +0000
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:10 -0800
 
- drivers/mfd/mcp-core.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/rapidio/rio-driver.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/mcp-core.c b/drivers/mfd/mcp-core.c
-index 55ba230..75f401d 100644
---- a/drivers/mfd/mcp-core.c
-+++ b/drivers/mfd/mcp-core.c
-@@ -77,6 +77,8 @@ static int mcp_bus_resume(struct device 
- static struct bus_type mcp_bus_type = {
- 	.name		= "mcp",
- 	.match		= mcp_bus_match,
-+	.probe		= mcp_bus_probe,
-+	.remove		= mcp_bus_remove,
- 	.suspend	= mcp_bus_suspend,
- 	.resume		= mcp_bus_resume,
+diff --git a/drivers/rapidio/rio-driver.c b/drivers/rapidio/rio-driver.c
+index dc74960..5480119 100644
+--- a/drivers/rapidio/rio-driver.c
++++ b/drivers/rapidio/rio-driver.c
+@@ -147,8 +147,6 @@ int rio_register_driver(struct rio_drive
+ 	/* initialize common driver fields */
+ 	rdrv->driver.name = rdrv->name;
+ 	rdrv->driver.bus = &rio_bus_type;
+-	rdrv->driver.probe = rio_device_probe;
+-	rdrv->driver.remove = rio_device_remove;
+ 
+ 	/* register with core */
+ 	return driver_register(&rdrv->driver);
+@@ -204,7 +202,9 @@ static struct device rio_bus = {
+ struct bus_type rio_bus_type = {
+ 	.name = "rapidio",
+ 	.match = rio_match_bus,
+-	.dev_attrs = rio_dev_attrs
++	.dev_attrs = rio_dev_attrs,
++	.probe = rio_device_probe,
++	.remove = rio_device_remove,
  };
-@@ -227,8 +229,6 @@ EXPORT_SYMBOL(mcp_host_unregister);
- int mcp_driver_register(struct mcp_driver *mcpdrv)
- {
- 	mcpdrv->drv.bus = &mcp_bus_type;
--	mcpdrv->drv.probe = mcp_bus_probe;
--	mcpdrv->drv.remove = mcp_bus_remove;
- 	return driver_register(&mcpdrv->drv);
- }
- EXPORT_SYMBOL(mcp_driver_register);
+ 
+ /**
 

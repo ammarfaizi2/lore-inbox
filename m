@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161503AbWAMKWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161537AbWAMKW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161503AbWAMKWF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161538AbWAMKWE
+	id S1161537AbWAMKW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:22:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161538AbWAMKW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:22:04 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:2716
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1161503AbWAMKWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:22:03 -0500
-Date: Fri, 13 Jan 2006 02:19:32 -0800
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       david singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
-Message-ID: <20060113101932.GA23000@gnuppy.monkey.org>
-References: <20060113080734.GA22091@gnuppy.monkey.org> <Pine.LNX.4.44L0.0601130937540.9269-100000@lifa01.phys.au.dk>
+	Fri, 13 Jan 2006 05:22:57 -0500
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:2795 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1161537AbWAMKW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 05:22:56 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/5] sched - interactivity updates
+Date: Fri, 13 Jan 2006 21:22:37 +1100
+User-Agent: KMail/1.9
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0601130937540.9269-100000@lifa01.phys.au.dk>
-User-Agent: Mutt/1.5.11
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+X-Length: 1225
+Content-Type: multipart/signed;
+  boundary="nextPart7389272.111nWTJqXd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601132122.39758.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 09:47:39AM +0100, Esben Nielsen wrote:
-> On Fri, 13 Jan 2006, Bill Huey wrote:
-> 
-> > On Thu, Jan 12, 2006 at 01:54:23PM +0100, Esben Nielsen wrote:
-> > > turnstiles? What is that?
-> >
-> > http://www.freebsd.org/cgi/cvsweb.cgi/src/sys/kern/subr_turnstile.c
-> >
-> > Please, read. Now tell me or not if that looks familiar ? :)
-> 
-> Yes, it reminds me of Ingo's first approach to pi locking:
-> Everything is done under a global spin lock. In Ingo's approach it was the
-> pi_lock. In turnstiles it is sched_lock, which (without looking at other
-> code in FreeBSD) locks the whole scheduler.
-> 
-> Although making the code a lot simpler, scalability is ofcourse the main
-> issue here. But apparently FreeBSD does have a global lock protecting the
-> scheduler anyway.
+--nextPart7389272.111nWTJqXd
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-FreeBSD hasn't really address their scalability issues yet with their
-locking. The valuable thing about that file is how they manipulate
-threading priorities under priority inheritance. Some ideas might be
-stealable from it. That's all.
+Changes to the kernel over the last few versions have exposed some weakness=
+es=20
+and quirks in the interactivity estimator. The following 5 patches are aime=
+d=20
+at addressing these issues. Each changes one unique aspect of the=20
+interactivity estimator thus allowing easy comparison if desired.
 
-bill
+=46or those who wish to try them I've placed a simple rolled up patch for=20
+download to apply to 2.6.15 here:
 
+http://ck.kolivas.org/patches/interactivity/2.6.15-O22int.patch
+
+The separate patches are in that directory as well and will follow this ema=
+il.
+
+Andrew please apply the following 5 patches to -mm for testing.
+
+Cheers,
+Con
+
+--nextPart7389272.111nWTJqXd
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDx39vZUg7+tp6mRURAm9bAJ9rvxiIt8Ur6gCge3jj1BRdhym4qACcCNFR
+jhN77O8zuiodshmvLC6RKbE=
+=6ovd
+-----END PGP SIGNATURE-----
+
+--nextPart7389272.111nWTJqXd--

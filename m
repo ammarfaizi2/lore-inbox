@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422856AbWAMTeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422854AbWAMTg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422856AbWAMTeM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422855AbWAMTeM
+	id S1422854AbWAMTg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422855AbWAMTg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:34:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:55097 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1422853AbWAMTeL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:34:11 -0500
-Date: Fri, 13 Jan 2006 20:36:04 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [git patches] 2.6.x net driver updates
-Message-ID: <20060113193603.GA3945@suse.de>
-References: <20060112221322.GA25470@havoc.gtf.org> <Pine.LNX.4.64.0601121423120.3535@g5.osdl.org> <20060112143938.5cf7d6a5.akpm@osdl.org> <20060113192316.GX3945@suse.de> <20060113192813.GA10560@mars.ravnborg.org>
+	Fri, 13 Jan 2006 14:36:27 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:35202 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1422854AbWAMTg0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:36:26 -0500
+Date: Fri, 13 Jan 2006 11:39:36 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 01/17] BRIDGE: Fix faulty check in br_stp_recalculate_bridge_id()
+Message-ID: <20060113193936.GN3335@sorel.sous-sol.org>
+References: <20060113032102.154909000@sorel.sous-sol.org> <20060113032238.565599000@sorel.sous-sol.org> <200601131946.46782.ioe-lkml@rameria.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060113192813.GA10560@mars.ravnborg.org>
+In-Reply-To: <200601131946.46782.ioe-lkml@rameria.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13 2006, Sam Ravnborg wrote:
-> On Fri, Jan 13, 2006 at 08:23:16PM +0100, Jens Axboe wrote:
-> > 
-> > 'select' is really cool as a concept, but when you can't figure out why
-> > you cannot disable CONFIG_FOO because CONFIG_BAR selects it it's really
-> > annoying. Would be nice to actually be able to see if another option has
-> > selected this option.
+* Ingo Oeser (ioe-lkml@rameria.de) wrote:
+> Why not include a shorter version of this nice explanation
+> above the list_for_each_entry() loop?
 > 
-> In menuconfig:
+> Like:
 > 
-> Typing '?' on CONFIG_HOTPLUG revealed:
->  Selected by: PCCARD || HOTPLUG_PCI && PCI && EXPERIMENTAL || FW_LOADER
-> 
-> Then use '/' to search for the CONFIG_ symbols to see where they are
-> defined.
+> /* We try to find the min MAC address to use in this bridge id. */
 
-Live and learn, thanks, didn't know you could do that!
+Send a patch to Stephen ;-)  I'll leave it as is for -stable, since it's
+not a candidate for janitorial cleanups.
 
--- 
-Jens Axboe
-
+thanks,
+-chris

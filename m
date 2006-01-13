@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWAMQQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbWAMQSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWAMQQW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 11:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWAMQQW
+	id S965032AbWAMQSu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 11:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWAMQSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 11:16:22 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:9717 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S964856AbWAMQQV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 11:16:21 -0500
-Message-ID: <43C7D22E.70401@google.com>
-Date: Fri, 13 Jan 2006 08:15:42 -0800
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au> <200601120129.16315.kernel@kolivas.org> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <43C6A24E.9080901@google.com> <43C6B60E.2000003@bigpond.net.au> <43C6D636.8000105@bigpond.net.au> <43C75178.80809@bigpond.net.au>
-In-Reply-To: <43C75178.80809@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 11:18:50 -0500
+Received: from uproxy.gmail.com ([66.249.92.194]:54770 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965032AbWAMQSt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 11:18:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=YWiXL57bL9BZZn8Gp0xUa9IiewTBsvMhiTwGePyEwvt4rRp2U+CsVmEgaFiX1JHQAd5PmadExyobQ27L0Z/lPv6PhYHDt5EpfyjkUp6f+mW9oINogaFnE54h+ZYWccACMCZGz/zbWX7T3ClVLzu33xKXDDQNjJ8jgsplWUjbtOQ=
+Date: Fri, 13 Jan 2006 19:36:01 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Evgeniy <dushistov@mail.ru>
+Subject: Re: Oops in ufs_fill_super at mount time
+Message-ID: <20060113163601.GA13738@mipter.zuzino.mipt.ru>
+References: <20060113005450.GA7971@mipter.zuzino.mipt.ru> <Pine.LNX.4.64.0601121700041.3535@g5.osdl.org> <20060113102136.GA7868@mipter.zuzino.mipt.ru> <Pine.LNX.4.64.0601130739540.3535@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601130739540.3535@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Fri, Jan 13, 2006 at 07:45:12AM -0800, Linus Torvalds wrote:
+> On Fri, 13 Jan 2006, Alexey Dobriyan wrote:
 >
-> Attached is a new patch to fix the excessive idle problem.  This patch 
-> takes a new approach to the problem as it was becoming obvious that 
-> trying to alter the load balancing code to cope with biased load was 
-> harder than it seemed.
+> > On Thu, Jan 12, 2006 at 05:14:25PM -0800, Linus Torvalds wrote:
+> > >
+> > > This is a free'd page fault, so it's due to DEBUG_PAGEALLOC rather than a
+> > > wild pointer.
+> >
+> > That's true. Turning it off makes mounting reliable again.
+> >
+> > > Is that something new for you? Maybe the bug is older, but you've enabled
+> > > PAGEALLOC only recently?
+> >
+> > Yup. In response to hangs re disk activity.
 >
+> Ok, That explains why it started happening for you only _now_, but not why
+> it happens in the first place.
+>
+> Can you test if the patch that Evgeniy sent out fixes it for you even with
+> PAGEALLOC debugging enabled?
 
-OK, well the last one didn't work.
-(peterw-fix-excessive-idling-with-smp-move-load-not-tasks)
-
-If Andy is feeling very kind, perhaps he will kick this one too.
-This one is for real, right? ;-)
-
-M.
+It does the trick! And you saved me from going before 2.6.0. ;-)
 

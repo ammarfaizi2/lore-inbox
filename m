@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbWAMDwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161230AbWAMD7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932707AbWAMDwM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 22:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbWAMDwL
+	id S1161230AbWAMD7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 22:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161314AbWAMD7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 22:52:11 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:34318 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S932707AbWAMDwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 22:52:10 -0500
-Date: Fri, 13 Jan 2006 11:51:56 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: abandon gcc 295x main.c tidy
-Message-ID: <20060113035156.GA5665@localhost.localdomain>
+	Thu, 12 Jan 2006 22:59:43 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:717 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161230AbWAMD7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 22:59:43 -0500
+Date: Thu, 12 Jan 2006 19:59:36 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: yhlu <yhlu.kernel@gmail.com>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: can not compile in the latest git
+In-Reply-To: <86802c440601121236s47d5737fo45105ce3ebc746a6@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0601121958570.2740@schroedinger.engr.sgi.com>
+References: <86802c440601111021m7cb40881m7206d9342534f844@mail.gmail.com> 
+ <Pine.LNX.4.62.0601111213270.24355@schroedinger.engr.sgi.com>
+ <86802c440601121236s47d5737fo45105ce3ebc746a6@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 12 Jan 2006, yhlu wrote:
 
-After abandon-gcc-295x.patch, this relocates the
-error-out-early comment.
+> It turns out, if I disable "Support for paging of anonymous memory
+> (swap)" --- SWAP
+> 
+> the CONFIG_MIGRATION will disappear from the .config
+> 
+> the mm/mempolicy.c may need some #if CONFIG_MIRGRATION to comment out
+> these calling.
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
----
+Could you try this patch:
 
-diff --git a/init/main.c b/init/main.c
-index e092b19..22c4ff5 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -54,15 +54,15 @@
- #include <asm/sections.h>
- #include <asm/cacheflush.h>
+Index: linux-2.6/include/linux/swap.h
+===================================================================
+--- linux-2.6.orig/include/linux/swap.h	2006-01-08 22:37:45.504089980 -0800
++++ linux-2.6/include/linux/swap.h	2006-01-12 19:56:35.665086037 -0800
+@@ -180,6 +180,11 @@
+ extern int putback_lru_pages(struct list_head *l);
+ extern int migrate_pages(struct list_head *l, struct list_head *t,
+ 		struct list_head *moved, struct list_head *failed);
++#else
++static inline int isolate_lru_pages(struct page *p) { return -ENOSYS; }
++static inline int putback_lru_pages(struct list_head *) { return 0; }
++static inline int migrate_pages(struct list_head *l, struct list_head *t,
++	struct list_head *moved, struct list_head *failed) { return -ENOSYS; }
+ #endif
  
-+#ifdef CONFIG_X86_LOCAL_APIC
-+#include <asm/smp.h>
-+#endif
-+
- /*
-  * This is one of the first .c files built. Error out early
-  * if we have compiler trouble..
-  */
- 
--#ifdef CONFIG_X86_LOCAL_APIC
--#include <asm/smp.h>
--#endif
--
- /*
-  * Versions of gcc older than that listed below may actually compile
-  * and link okay, but the end product can have subtle run time bugs.
-
--- 
-Coywolf Qi Hunt
+ #ifdef CONFIG_MMU

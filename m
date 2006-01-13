@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422995AbWAMV77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422996AbWAMWCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422995AbWAMV77 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422996AbWAMV77
+	id S1422996AbWAMWCb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422997AbWAMWCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:59:59 -0500
-Received: from gate.crashing.org ([63.228.1.57]:55433 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1422995AbWAMV76 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:59:58 -0500
-Subject: Re: 2.6.15-mm3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sachin Sant <sachinp@in.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060113035229.0560a5dd.akpm@osdl.org>
-References: <20060111042135.24faf878.akpm@osdl.org>
-	 <43C76623.7060906@in.ibm.com>  <20060113035229.0560a5dd.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 08:59:38 +1100
-Message-Id: <1137189579.4854.17.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 17:02:31 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18707 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1422996AbWAMWCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:02:31 -0500
+Date: Fri, 13 Jan 2006 22:02:15 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tejun Heo <htejun@gmail.com>
+Cc: axboe@suse.de, bzolnier@gmail.com, james.steward@dynamicratings.com,
+       jgarzik@pobox.com, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
+Message-ID: <20060113220215.GD31824@flint.arm.linux.org.uk>
+Mail-Followup-To: Tejun Heo <htejun@gmail.com>, axboe@suse.de,
+	bzolnier@gmail.com, james.steward@dynamicratings.com,
+	jgarzik@pobox.com, James.Bottomley@SteelEye.com,
+	linux-kernel@vger.kernel.org
+References: <11371658562541-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11371658562541-git-send-email-htejun@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 14, 2006 at 12:24:16AM +0900, Tejun Heo wrote:
+> Russell, can you please test whether this fixes the bug on arm?  If
+> this fixes the bug and people agree with the approach, I'll follow up
+> with patches for yet unconverted drivers and documentation update.
 
-> > 
-> > Problem seems to be because of the following in 
-> > include/asm-powerpc/cputable.h
-> > 
-> > enum powerpc_oprofile_type {
-> >          INVALID = 0,
-> >          RS64 = 1,
-> >          POWER4 = 2,
-> >          G4 = 3,     <====Defined here
-> >          BOOKE = 4,
-> > };
-> > 
-> 
-> err, Ben.  Not a great choice of identifier...
+Unfortunately, as I previously explained, I'm not able to test this.
+The reason is that in order to reproduce the bug, you need a system
+with a VIVT write-back write-allocate cache.
 
-Very bad indeed, /me blames whoever did that oprofile support... I'll
-get that fixed asap.
+Unfortunately, the few systems I have which have such a cache do not
+have IDE, SCSI nor SATA (not even PCMCIA.)  I suggest contacting the
+folk who reported the bug in the first instance.
 
-Ben.
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

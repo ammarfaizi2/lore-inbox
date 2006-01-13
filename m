@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422896AbWAMT5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422901AbWAMT7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422896AbWAMT5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422880AbWAMTub
+	id S1422901AbWAMT7q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422880AbWAMT5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:50:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:40084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422870AbWAMTu2 convert rfc822-to-8bit
+	Fri, 13 Jan 2006 14:57:54 -0500
+Received: from mail.kroah.org ([69.55.234.183]:51092 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422883AbWAMTuc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:28 -0500
+	Fri, 13 Jan 2006 14:50:32 -0500
 Cc: rmk@arm.linux.org.uk
-Subject: [PATCH] Add Pseudo LLD bus_type probe and remove methods
-In-Reply-To: <11371818121788@kroah.com>
+Subject: [PATCH] Add SA1111 bus_type probe/remove methods
+In-Reply-To: <11371818084013@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 11:50:12 -0800
-Message-Id: <1137181812570@kroah.com>
+Date: Fri, 13 Jan 2006 11:50:08 -0800
+Message-Id: <11371818081886@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,41 +24,40 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add Pseudo LLD bus_type probe and remove methods
+[PATCH] Add SA1111 bus_type probe/remove methods
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit bbbe3a41f7ee529f7f4fdcc1bc1157234bac0766
-tree a1915bb813d98f68d231d19e762c57d6ddd52e5e
-parent fc3d3ddd3e628d9f22d4aa56a640d0b31c977a8f
-author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:44:46 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:10 -0800
+commit 2876ba4321f0f85c40726b736eeaadf317803f16
+tree bff3510763543ff92b613810347c34fcf7b4bdb7
+parent e08b754161d6de4f91e2d3c805f350b35a95d8b8
+author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:32:32 +0000
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:05 -0800
 
- drivers/scsi/scsi_debug.c |    4 ++--
+ arch/arm/common/sa1111.c |    4 ++--
  1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 3ded9da..0e529f8 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -221,8 +221,6 @@ static struct bus_type pseudo_lld_bus;
- static struct device_driver sdebug_driverfs_driver = {
- 	.name 		= sdebug_proc_name,
- 	.bus		= &pseudo_lld_bus,
--	.probe          = sdebug_driver_probe,
--	.remove         = sdebug_driver_remove,
+diff --git a/arch/arm/common/sa1111.c b/arch/arm/common/sa1111.c
+index d0d6e6d..1475089 100644
+--- a/arch/arm/common/sa1111.c
++++ b/arch/arm/common/sa1111.c
+@@ -1247,14 +1247,14 @@ static int sa1111_bus_remove(struct devi
+ struct bus_type sa1111_bus_type = {
+ 	.name		= "sa1111-rab",
+ 	.match		= sa1111_match,
++	.probe		= sa1111_bus_probe,
++	.remove		= sa1111_bus_remove,
+ 	.suspend	= sa1111_bus_suspend,
+ 	.resume		= sa1111_bus_resume,
  };
  
- static const int check_condition_result =
-@@ -1796,6 +1794,8 @@ static int pseudo_lld_bus_match(struct d
- static struct bus_type pseudo_lld_bus = {
-         .name = "pseudo",
-         .match = pseudo_lld_bus_match,
-+	.probe = sdebug_driver_probe,
-+	.remove = sdebug_driver_remove,
- };
- 
- static void sdebug_release_adapter(struct device * dev)
+ int sa1111_driver_register(struct sa1111_driver *driver)
+ {
+-	driver->drv.probe = sa1111_bus_probe;
+-	driver->drv.remove = sa1111_bus_remove;
+ 	driver->drv.bus = &sa1111_bus_type;
+ 	return driver_register(&driver->drv);
+ }
 

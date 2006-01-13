@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422913AbWAMTu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422877AbWAMTwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422913AbWAMTu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422908AbWAMTuw
+	id S1422877AbWAMTwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422917AbWAMTv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:50:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5781 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422900AbWAMTuj convert rfc822-to-8bit
+	Fri, 13 Jan 2006 14:51:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58004 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422887AbWAMTue convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:39 -0500
-Cc: mcr@sandelman.ottawa.on.ca
-Subject: [PATCH] device_shutdown can loop if the driver frees itself
-In-Reply-To: <11371818131321@kroah.com>
+	Fri, 13 Jan 2006 14:50:34 -0500
+Cc: rmk@arm.linux.org.uk
+Subject: [PATCH] Add tiocx bus_type probe/remove methods
+In-Reply-To: <11371818092544@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 11:50:13 -0800
-Message-Id: <11371818132698@kroah.com>
+Date: Fri, 13 Jan 2006 11:50:09 -0800
+Message-Id: <1137181809687@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,49 +24,60 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] device_shutdown can loop if the driver frees itself
+[PATCH] Add tiocx bus_type probe/remove methods
 
-This patch changes device_shutdown() to use the newly introduced safe
-reverse list traversal.  We experienced loops on system reboot if we had
-removed and re-inserted our device from the device list.
-
-We noticed this problem on PPC405. Our PCI IDE device comes and goes a lot.
-
-Our hypothesis was that there was a loop caused by the driver->shutdown
-freeing memory.  It is possible that we do something wrong as well, but
-being unable to reboot is kind of nasty.
-
-Signed-off-by: Michael Richardson <mcr@marajade.sandelman.ca>
-Cc: Patrick Mochel <mochel@digitalimplant.org>
-Cc: David Howells <dhowells@redhat.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 9c08a938ce5a3e1c9d5f764dc6ae844cb1af76ff
-tree 9bd0a984b2e5466454e2633783786a516fe14484
-parent 2d7b5a70e01ff8b1b054d8313362e454e3057c5a
-author Michael Richardson <mcr@sandelman.ottawa.on.ca> Mon, 09 Jan 2006 01:04:51 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:12 -0800
+commit 83dfb8b67522f6cf1fc5771a8be0a9095eea65d4
+tree b146d1eaa04b9ff40e0ce755bd041dcae23cccc6
+parent 5c0784c350516856ed15deb6adf6b053bf427792
+author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:34:06 +0000
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:05 -0800
 
- drivers/base/power/shutdown.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ arch/ia64/sn/kernel/tiocx.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/base/power/shutdown.c b/drivers/base/power/shutdown.c
-index a47bb74..c2475f3 100644
---- a/drivers/base/power/shutdown.c
-+++ b/drivers/base/power/shutdown.c
-@@ -35,10 +35,10 @@ extern int sysdev_shutdown(void);
-  */
- void device_shutdown(void)
- {
--	struct device * dev;
-+	struct device * dev, *devn;
+diff --git a/arch/ia64/sn/kernel/tiocx.c b/arch/ia64/sn/kernel/tiocx.c
+index 493fb3f..6a7939b 100644
+--- a/arch/ia64/sn/kernel/tiocx.c
++++ b/arch/ia64/sn/kernel/tiocx.c
+@@ -77,12 +77,6 @@ static void tiocx_bus_release(struct dev
+ 	kfree(to_cx_dev(dev));
+ }
  
- 	down_write(&devices_subsys.rwsem);
--	list_for_each_entry_reverse(dev, &devices_subsys.kset.list,
-+	list_for_each_entry_safe_reverse(dev, devn, &devices_subsys.kset.list,
- 				kobj.entry) {
- 		if (dev->bus && dev->bus->shutdown) {
- 			dev_dbg(dev, "shutdown\n");
+-struct bus_type tiocx_bus_type = {
+-	.name = "tiocx",
+-	.match = tiocx_match,
+-	.uevent = tiocx_uevent,
+-};
+-
+ /**
+  * cx_device_match - Find cx_device in the id table.
+  * @ids: id table from driver
+@@ -149,6 +143,14 @@ static int cx_driver_remove(struct devic
+ 	return 0;
+ }
+ 
++struct bus_type tiocx_bus_type = {
++	.name = "tiocx",
++	.match = tiocx_match,
++	.uevent = tiocx_uevent,
++	.probe = cx_device_probe,
++	.remove = cx_driver_remove,
++};
++
+ /**
+  * cx_driver_register - Register the driver.
+  * @cx_driver: driver table (cx_drv struct) from driver
+@@ -162,8 +164,6 @@ int cx_driver_register(struct cx_drv *cx
+ {
+ 	cx_driver->driver.name = cx_driver->name;
+ 	cx_driver->driver.bus = &tiocx_bus_type;
+-	cx_driver->driver.probe = cx_device_probe;
+-	cx_driver->driver.remove = cx_driver_remove;
+ 
+ 	return driver_register(&cx_driver->driver);
+ }
 

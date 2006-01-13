@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422877AbWAMTwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422887AbWAMTwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422877AbWAMTwZ (ORCPT <rfc822;willy@w.ods.org>);
+	id S1422887AbWAMTwZ (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 13 Jan 2006 14:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422917AbWAMTv7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422919AbWAMTwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:51:59 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58004 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422887AbWAMTue convert rfc822-to-8bit
+	Fri, 13 Jan 2006 14:52:02 -0500
+Received: from mail.kroah.org ([69.55.234.183]:54932 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422885AbWAMTud convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:34 -0500
+	Fri, 13 Jan 2006 14:50:33 -0500
 Cc: rmk@arm.linux.org.uk
-Subject: [PATCH] Add tiocx bus_type probe/remove methods
-In-Reply-To: <11371818092544@kroah.com>
+Subject: [PATCH] Add of_platform_bus_type probe and remove methods
+In-Reply-To: <113718180990@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Fri, 13 Jan 2006 11:50:09 -0800
-Message-Id: <1137181809687@kroah.com>
+Message-Id: <1137181809252@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,60 +24,41 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add tiocx bus_type probe/remove methods
+[PATCH] Add of_platform_bus_type probe and remove methods
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 83dfb8b67522f6cf1fc5771a8be0a9095eea65d4
-tree b146d1eaa04b9ff40e0ce755bd041dcae23cccc6
-parent 5c0784c350516856ed15deb6adf6b053bf427792
-author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:34:06 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:05 -0800
+commit 79f9fb8886d901fd549793a4ad632ece51c68405
+tree f51fb4fd185efde0cf2c82245ee1f9a67848d062
+parent c6a09196bab3bc9e515b713193d61e3e87c720f7
+author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:36:16 +0000
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:06 -0800
 
- arch/ia64/sn/kernel/tiocx.c |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
+ arch/powerpc/kernel/of_device.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/sn/kernel/tiocx.c b/arch/ia64/sn/kernel/tiocx.c
-index 493fb3f..6a7939b 100644
---- a/arch/ia64/sn/kernel/tiocx.c
-+++ b/arch/ia64/sn/kernel/tiocx.c
-@@ -77,12 +77,6 @@ static void tiocx_bus_release(struct dev
- 	kfree(to_cx_dev(dev));
- }
+diff --git a/arch/powerpc/kernel/of_device.c b/arch/powerpc/kernel/of_device.c
+index 7065e40..22d83d4 100644
+--- a/arch/powerpc/kernel/of_device.c
++++ b/arch/powerpc/kernel/of_device.c
+@@ -132,6 +132,8 @@ static int of_device_resume(struct devic
+ struct bus_type of_platform_bus_type = {
+        .name	= "of_platform",
+        .match	= of_platform_bus_match,
++       .probe	= of_device_probe,
++       .remove	= of_device_remove,
+        .suspend	= of_device_suspend,
+        .resume	= of_device_resume,
+ };
+@@ -150,8 +152,6 @@ int of_register_driver(struct of_platfor
+ 	/* initialize common driver fields */
+ 	drv->driver.name = drv->name;
+ 	drv->driver.bus = &of_platform_bus_type;
+-	drv->driver.probe = of_device_probe;
+-	drv->driver.remove = of_device_remove;
  
--struct bus_type tiocx_bus_type = {
--	.name = "tiocx",
--	.match = tiocx_match,
--	.uevent = tiocx_uevent,
--};
--
- /**
-  * cx_device_match - Find cx_device in the id table.
-  * @ids: id table from driver
-@@ -149,6 +143,14 @@ static int cx_driver_remove(struct devic
- 	return 0;
- }
- 
-+struct bus_type tiocx_bus_type = {
-+	.name = "tiocx",
-+	.match = tiocx_match,
-+	.uevent = tiocx_uevent,
-+	.probe = cx_device_probe,
-+	.remove = cx_driver_remove,
-+};
-+
- /**
-  * cx_driver_register - Register the driver.
-  * @cx_driver: driver table (cx_drv struct) from driver
-@@ -162,8 +164,6 @@ int cx_driver_register(struct cx_drv *cx
- {
- 	cx_driver->driver.name = cx_driver->name;
- 	cx_driver->driver.bus = &tiocx_bus_type;
--	cx_driver->driver.probe = cx_device_probe;
--	cx_driver->driver.remove = cx_driver_remove;
- 
- 	return driver_register(&cx_driver->driver);
- }
+ 	/* register with core */
+ 	count = driver_register(&drv->driver);
 

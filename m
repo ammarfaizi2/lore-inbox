@@ -1,212 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422834AbWAMTNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422835AbWAMTNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422834AbWAMTNY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422835AbWAMTNY
+	id S1422835AbWAMTNy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422836AbWAMTNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:13:24 -0500
-Received: from main.gmane.org ([80.91.229.2]:32237 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1422834AbWAMTNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:13:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Problem getting PCMCIA to compile in Kernel.
-Date: Sat, 14 Jan 2006 04:12:23 +0900
-Message-ID: <dq8u2p$jm1$1@sea.gmane.org>
-References: <43C8252F.6483.C6B2A8@mikes.kuentos.guam.net> <43C870E2.4989.4EE3A9@mikes.kuentos.guam.net>
+	Fri, 13 Jan 2006 14:13:53 -0500
+Received: from smtp5.wanadoo.fr ([193.252.22.26]:24794 "EHLO smtp5.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1422835AbWAMTNw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:13:52 -0500
+X-ME-UUID: 20060113191351925.E1EB61C01632@mwinf0507.wanadoo.fr
+Subject: Re: Dual core Athlons and unsynced TSCs
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Sven-Thorsten Dietrich <sven@mvista.com>
+Cc: thockin@hockin.org, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1137178574.2536.13.camel@localhost.localdomain>
+References: <1137104260.2370.85.camel@mindpipe>
+	 <20060113180620.GA14382@hockin.org> <1137175117.15108.18.camel@mindpipe>
+	 <20060113181631.GA15366@hockin.org> <1137175792.15108.26.camel@mindpipe>
+	 <20060113185533.GA18301@hockin.org>
+	 <1137178574.2536.13.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Fri, 13 Jan 2006 20:13:57 +0100
+Message-Id: <1137179637.9366.1.camel@bip.parateam.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060103)
-X-Accept-Language: en-us, en
-In-Reply-To: <43C870E2.4989.4EE3A9@mikes.kuentos.guam.net>
-X-Enigmail-Version: 0.93.0.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael D. Setzer II wrote:
-> On 14 Jan 2006 at 1:40, Kalin KOZHUHAROV wrote:
+Le vendredi 13 janvier 2006 à 10:56 -0800, Sven-Thorsten Dietrich a
+écrit :
+> On Fri, 2006-01-13 at 10:55 -0800, thockin@hockin.org wrote:
+> > On Fri, Jan 13, 2006 at 01:09:51PM -0500, Lee Revell wrote:
+> > > > Some apps/users need higher resolution and lower overhead that only rdtsc
+> > > > can offer currently.
+> > > 
+> > > But obviously if the TSC gives wildly inaccurate results, it cannot be
+> > > used no matter how low the overhead.
+> > 
+> > unless we can re-sync the TSCs often enough that apps don't notice.
+> > 
 > 
->>>Michael D. Setzer II wrote:
->>>
->>>>I've tried to set the PCMCIA options to Y in the kernel build, but get a 
->>>>message that something else is build as a modual, so these can not be 
->>>>changed to y.
->>>
->>>How did you do that?
->>>
->>>Use `make menuconfig` to configure kernel.
->>>
->>>
->>>>I went to the .config file and replaced every =m to =y, and then 
->>>>ran make. The kernel then was built with no problem, but it reset all these 
->>>>option back to =m.
->>>>
->>>>CONFIG_PCMCIA_AHA152X=m
->>>>CONFIG_PCMCIA_FDOMAIN=m
->>>>CONFIG_PCMCIA_NINJA_SCSI=m
->>>>CONFIG_PCMCIA_QLOGIC=m
->>>>CONFIG_PCMCIA_SYM53C500=m
->>>>CONFIG_I2C_STUB=m
->>>>
->>>>I build kernels for G4L, and build everything directly into the kernel, but 
->>>>these do not seem to work, and I don't have an ideal why, since everything 
->>>>else is built in. So what am I missing. This is the 2.6.15 kernel. 
->>>
->>>If you play with .config directly, run a `make oldconfig` after that.
->>>So, `make oldconfig && make && make` should always work.
->>>If you tired that ant it did NOT, please post your .config file (not
->>>compressed) here, or upload it to a website (somewhere).
+> You'd have to quantify that somehow, in terms of the max drift rate
+> (ppm), and the max resolution available (< tsc frequency).  
 > 
-> 
-> I ran the make oldconfig, then make menuconfig, and when I try to change 
-> the settings, it gives this message.
-> 
-> This feature depends on another which has been configured as  a module.
-> As a result,  this feature will be built as a module.
-> 
-> I had manually edited the .config file, and changed all =m to =y, so there is 
-> nothing in the file that has the module setting but these.
-> 
-> I placed a copy of the .config file at the link below. 
-> http://www.guam.net/home/mikes/bzImagez.config
-> 
-> Only those items with the PCMCIA and I2C_STUB have the =m.
-> 
-> Thanks for the reply. I'm trying to make a kernel that will suppor the most 
-> hardware, and avoid conflict.
-> 
-> 
-Michael D. Setzer II wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 14 Jan 2006 at 1:40, Kalin KOZHUHAROV wrote:
-> 
-> To:             	linux-kernel@vger.kernel.org
-> From:           	Kalin KOZHUHAROV <kalin@thinrope.net>
-> Subject:        	Re: Problem getting PCMCIA to compile in Kernel.
-> Date sent:      	Sat, 14 Jan 2006 01:40:28 +0900
-> 
-> 
->>Michael D. Setzer II wrote:
->>
->>>I've tried to set the PCMCIA options to Y in the kernel build, but get a 
->>>message that something else is build as a modual, so these can not be 
->>>changed to y.
->>
->>How did you do that?
->>
->>Use `make menuconfig` to configure kernel.
->>
->>
->>>I went to the .config file and replaced every =m to =y, and then 
->>>ran make. The kernel then was built with no problem, but it reset all these 
->>>option back to =m.
->>>
->>>CONFIG_PCMCIA_AHA152X=m
->>>CONFIG_PCMCIA_FDOMAIN=m
->>>CONFIG_PCMCIA_NINJA_SCSI=m
->>>CONFIG_PCMCIA_QLOGIC=m
->>>CONFIG_PCMCIA_SYM53C500=m
->>>CONFIG_I2C_STUB=m
->>>
+> Either that, or track an offset, and use one TSC as truth, and update
+> the correction factor for the other TSCs as often as needed, maybe?
 
-Hmm, I did reproduce this:
+As often as needed being each time a thread changes CPU ?
 
-$mkdir -p /var/kernels/src/linux-2.6.15 && cd /var/kernels/src/linux-2.6.15
-
-$tar xjf /usr/portage-distfiles/linux-2.6.15.tar.bz2
-
-$make allyesconfig
-
-$ find . -name Kconfig|xargs  egrep -h "depends on m | && m" -B2
-config SOUND_WAVEFRONT
-        tristate "Full support for Turtle Beach WaveFront (Tropez Plus,
-Tropez, Maui) synth/soundcards"
-        depends on SOUND_OSS && m && OBSOLETE_OSS_DRIVER
---
-config HOSTESS_SV11
-        tristate "Comtrol Hostess SV-11 support"
-        depends on WAN && ISA && m && ISA_DMA_API
---
-config COSA
-        tristate "COSA/SRP sync serial boards support"
-        depends on WAN && ISA && m && ISA_DMA_API
---
-config DSCC4
-        tristate "Etinc PCISYNC serial board support"
-        depends on WAN && PCI && m
---
-config SEALEVEL_4021
-        tristate "Sealevel Systems 4021 support"
-        depends on WAN && ISA && m && ISA_DMA_API
---
-config NE2000
-        tristate "NE2000/NE1000 support"
-        depends on NET_ISA || (Q40 && m) || M32R
---
-config HYSDN
-        tristate "Hypercope HYSDN cards (Champ, Ergo, Metro) support (module
-only)"
-        depends on m && PROC_FS && PCI && BROKEN_ON_SMP
---
-config ISDN_DIVAS_MAINT
-        tristate "DIVA Maint driver support"
-        depends on ISDN_DIVAS && m
---
-config PCMCIA_AHA152X
-        tristate "Adaptec AHA152X PCMCIA support"
-        depends on m && !64BIT
---
-config PCMCIA_NINJA_SCSI
-        tristate "NinjaSCSI-3 / NinjaSCSI-32Bi (16bit) PCMCIA support"
-        depends on m && !64BIT
-
-So there are things that have to be build as modules??
-Didn't know that...
-
->>>I build kernels for G4L, and build everything directly into the kernel, but 
->>>these do not seem to work, and I don't have an ideal why, since everything 
->>>else is built in. So what am I missing. This is the 2.6.15 kernel. 
->>
->>If you play with .config directly, run a `make oldconfig` after that.
->>So, `make oldconfig && make && make` should always work.
->>If you tired that ant it did NOT, please post your .config file (not
->>compressed) here, or upload it to a website (somewhere).
-> 
-> 
-> I ran the make oldconfig, then make menuconfig, and when I try to change 
-> the settings, it gives this message.
-> 
-> This feature depends on another which has been configured as  a module.
-> As a result,  this feature will be built as a module.
-> 
-> I had manually edited the .config file, and changed all =m to =y, so there is 
-> nothing in the file that has the module setting but these.
-> 
-> I placed a copy of the .config file at the link below. 
-> http://www.guam.net/home/mikes/bzImagez.config
-> 
-> Only those items with the PCMCIA and I2C_STUB have the =m.
-> 
-> Thanks for the reply. I'm trying to make a kernel that will suppor the most 
-> hardware, and avoid conflict.
-
-You can try `make allyesconfig` but that will produce huge kernel.
-Try better `make allmodconfig` and then manually edit some important stuff
-like IDE to be built in. Or use initrd.
-
-BTW, what is G4L ?
-
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
 

@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423049AbWAMWe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423053AbWAMWgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423049AbWAMWe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423048AbWAMWe5
+	id S1423053AbWAMWgN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423057AbWAMWgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:34:57 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:43216 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1423049AbWAMWe4 (ORCPT
+	Fri, 13 Jan 2006 17:36:12 -0500
+Received: from sipsolutions.net ([66.160.135.76]:45841 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1423053AbWAMWgK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:34:56 -0500
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
-To: "Brian Twichell" <tbrian@us.ibm.com>
-Subject: Re: [PATCH/RFC] Shared page tables
-Date: Fri, 13 Jan 2006 16:34:23 -0600
-User-Agent: KMail/1.8
-cc: "Dave McCracken" <dmccr@us.ibm.com>, "Hugh Dickins" <hugh@veritas.com>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management" <linux-mm@kvack.org>, slpratt@us.ibm.com
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
- <43C73767.5060506@us.ibm.com>
-In-Reply-To: <43C73767.5060506@us.ibm.com>
-MIME-Version: 1.0
-Message-ID: <200601131634.24913.raybry@mpdtxmail.amd.com>
-X-OriginalArrivalTime: 13 Jan 2006 22:34:21.0599 (UTC)
- FILETIME=[7F8E3AF0:01C61891]
-X-WSS-ID: 6FD6F5653983469381-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Fri, 13 Jan 2006 17:36:10 -0500
+Subject: Re: wireless: recap of current issues (actions)
+From: Johannes Berg <johannes@sipsolutions.net>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060113222512.GN16166@tuxdriver.com>
+References: <20060113195723.GB16166@tuxdriver.com>
+	 <20060113212605.GD16166@tuxdriver.com>
+	 <20060113213311.GI16166@tuxdriver.com>
+	 <20060113222512.GN16166@tuxdriver.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Hsuvyh0C7jkvO5uXtjq6"
+Date: Fri, 13 Jan 2006 23:36:05 +0100
+Message-Id: <1137191765.2520.71.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 January 2006 23:15, Brian Twichell wrote:
 
-> Hi,
->
-> We evaluated page table sharing on x86_64 and ppc64 setups, using a
-> database OLTP workload.  In both cases, 4-way systems with 64 GB of memory
-> were used.
->
-> On the x86_64 setup, page table sharing provided a 25% increase in
-> performance,
-> when the database buffers were in small (4 KB) pages.  In this case,
-> over 14 GB
-> of memory was freed, that had previously been taken up by page tables.
-> In the
-> case that the database buffers were in huge (2 MB) pages, page table
-> sharing provided a 4% increase in performance.
->
+--=-Hsuvyh0C7jkvO5uXtjq6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Brian,
+On Fri, 2006-01-13 at 17:25 -0500, John W. Linville wrote:
 
-Is that 25%-50% percent of overall performance (e. g. transaction throughput), 
-or is this a measurement of, say, DB process startup times, or what?   It 
-seems to me that the impact of the shared page table patch would mostly be 
-noticed at address space construction/destruction times, and for a big OLTP 
-workload, the processes are probably built once and stay around forever, no?
+> Since we are toying with the issue of multiple stacks (at least in the
+> wireless development kernels), some thought needs to be done w.r.t. how
+> to make a final decision between the two stacks.  An objective lists
+> of functional feature requirements seems like a good place to start.
+> IOW, I would like to have a list of features that would trigger the
+> removal of one stack shortly after the other stack achieves support
+> for the list.  Is this feasible?
 
-If the performance improvement is in overall throughput, do you understand why 
-the impact would be so large?   TLB reloads?   I don't understand why one 
-would see that kind of overall performance improvement, but I could be 
-overlooking something.   (Could very likely be overlooking something...:-) )
+I started collecting some info on
+http://johannes.sipsolutions.net/802.11_stacks
+That page should probably be moved somewhere (netdev wiki?) where it is
+writable by others. I also need to update it to include comments by Jean
+Tourrilhes.
 
-Oh, and yeah, was this an AMD x86_64 box or what?
--- 
-Ray Bryant
-AMD Performance Labs                   Austin, Tx
-512-602-0038 (o)                 512-507-7807 (c)
+johannes
+
+--=-Hsuvyh0C7jkvO5uXtjq6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
+
+iQIVAwUAQ8grUqVg1VMiehFYAQLOwQ/+N224/SglNCCoq2qJnXEPWWdaQ/NRJCID
+UhjlDR6/rlm+x/R3uEUNPPZEjslZDNbQ58CsiEHzWHZFG1W7gXpnCtNa/iVkthxe
+e0AXf5BpCuSbTamMRZOh930os1tM6WDJtxt3GIYRMeuc9Byq5PWq9SVyD1wzA8aI
+09NkUMa9jC/3vmuXnJ0Ej96+/HvL37ofvNnce3/k8Idqvmto65q4galzjGyUKks6
+FjWjJfuIHxD8Qq9KZcu7hVTmgbjPWomvFrztxwwnpZim52KD3xrL9onLM4Dcvgo/
+maHWSRqgJVJcyQHnG4g4FBvvr3EK5DUJcijsbE4fEi62v48jEd75sXLHv0tMxxAf
+NygTqGeRVhzhYZkh+yRt/78rOkaFuuejpGZBZ74aVK7gPjuT2VqA0InaivBhrBuY
+N67InAFlRdzuXc0Jp1fDbFac0pbkDBr5CxF8QGjmN/x452gqTs+GNysjdOU7yWra
+ASNEOr2LD1BdcfqRT7vqg+Aw1R37Wp/g6nkwPCjtj/iV18jwVHyUO4QamarYpTmu
++krpwRYH4MYCDWYpCLhoROB1j/wBF4EOeYYqJLgoXLWEqCoNxg9lkTDZwp7ydrfG
+1h01lq2pe75Oaggmfgq/wvX3Ffbr0uBYComblWPv6XjBrursgfqaXV2RCmPj5a1S
+1ZhWzUdPZWE=
+=62sS
+-----END PGP SIGNATURE-----
+
+--=-Hsuvyh0C7jkvO5uXtjq6--
 

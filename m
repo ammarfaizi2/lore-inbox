@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161661AbWAMDXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161664AbWAMDWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161661AbWAMDXm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 22:23:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161669AbWAMDXK
+	id S1161664AbWAMDWd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 22:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161669AbWAMDUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 22:23:10 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:51586 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161651AbWAMDTj
+	Thu, 12 Jan 2006 22:20:14 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9857 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161667AbWAMDUL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 22:19:39 -0500
-Message-Id: <20060113032238.565599000@sorel.sous-sol.org>
+	Thu, 12 Jan 2006 22:20:11 -0500
+Message-Id: <20060113032246.276436000@sorel.sous-sol.org>
 References: <20060113032102.154909000@sorel.sous-sol.org>
-Date: Thu, 12 Jan 2006 18:37:39 -0800
+Date: Thu, 12 Jan 2006 18:37:50 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,43 +19,55 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stephen Hemminger <shemminger@osdl.org>,
-       " Greg Kroah-Hartman " <gregkh@suse.de>
-Subject: [PATCH 01/17] BRIDGE: Fix faulty check in br_stp_recalculate_bridge_id()
-Content-Disposition: inline; filename=bridge-fix-faulty-check-in-br_stp_recalculate_bridge_id.patch
+       "David S. Miller" <davem@davemloft.net>,
+       Richard Mortimer <richm@oldelvet.org.uk>
+Subject: [PATCH 12/17] [SPARC64]: Fix ptrace/strace
+Content-Disposition: inline; filename=sparc64-fix-ptrace.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-There is a regression in 2.6.15.
-One of the conversions from memcmp to compare_ether_addr is incorrect.
-We need to do relative comparison to determine min MAC address to
-use in bridge id. This will cause the wrong bridge id to be chosen
-which violates 802.1d Spanning Tree Protocol, and may create forwarding
-loops.
+Don't clobber register %l0 while checking TI_SYS_NOERROR value in
+syscall return path.  This bug was introduced by:
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+db7d9a4eb700be766cc9f29241483dbb1e748832
+
+Problem narrowed down by Luis F. Ortiz and Richard Mortimer.
+
+I tried using %l2 as suggested by Luis and that works for me.
+
+Looking at the code I wonder if it makes sense to simplify the code
+a little bit. The following works for me but I'm not sure how to
+exercise the "NOERROR" codepath.
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
 
- net/bridge/br_stp_if.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ arch/sparc64/kernel/entry.S |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
 
-Index: linux-2.6.15.y/net/bridge/br_stp_if.c
+Index: linux-2.6.15.y/arch/sparc64/kernel/entry.S
 ===================================================================
---- linux-2.6.15.y.orig/net/bridge/br_stp_if.c
-+++ linux-2.6.15.y/net/bridge/br_stp_if.c
-@@ -158,7 +158,7 @@ void br_stp_recalculate_bridge_id(struct
+--- linux-2.6.15.y.orig/arch/sparc64/kernel/entry.S
++++ linux-2.6.15.y/arch/sparc64/kernel/entry.S
+@@ -1657,13 +1657,10 @@ ret_sys_call:
+ 	/* Check if force_successful_syscall_return()
+ 	 * was invoked.
+ 	 */
+-	ldub		[%curptr + TI_SYS_NOERROR], %l0
+-	brz,pt		%l0, 1f
+-	 nop
+-	ba,pt		%xcc, 80f
++	ldub            [%curptr + TI_SYS_NOERROR], %l2
++	brnz,a,pn       %l2, 80f
+ 	 stb		%g0, [%curptr + TI_SYS_NOERROR]
  
- 	list_for_each_entry(p, &br->port_list, list) {
- 		if (addr == br_mac_zero ||
--		    compare_ether_addr(p->dev->dev_addr, addr) < 0)
-+		    memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
- 			addr = p->dev->dev_addr;
- 
- 	}
+-1:
+ 	cmp		%o0, -ERESTART_RESTARTBLOCK
+ 	bgeu,pn		%xcc, 1f
+ 	 andcc		%l0, (_TIF_SYSCALL_TRACE|_TIF_SECCOMP|_TIF_SYSCALL_AUDIT), %l6
 
 --

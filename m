@@ -1,150 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161641AbWAMDO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161645AbWAMDPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161641AbWAMDO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 22:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161640AbWAMDO6
+	id S1161645AbWAMDPm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 22:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161644AbWAMDPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 22:14:58 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:31661 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S1161642AbWAMDOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 22:14:37 -0500
-From: NeilBrown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 13 Jan 2006 14:14:28 +1100
-Message-Id: <1060113031428.4672@cse.unsw.edu.au>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH kNFSd 003 of 3] Provide missing NFSv2 part of patch for checking vfs_getattr.
-References: <20060113141059.4573.patches@notabene>
-X-CSE-Spam-Checker-Version: SpamAssassin 3.0.4 (2005-06-05) on 
-	tone.orchestra.cse.unsw.EDU.AU
-X-CSE-Spam-Level: 
-X-CSE-Spam-Status: No, score=-4.5 required=5.0 tests=ALL_TRUSTED,BAYES_00 
-	autolearn=ham version=3.0.4
+	Thu, 12 Jan 2006 22:15:39 -0500
+Received: from [203.2.177.25] ([203.2.177.25]:22808 "EHLO pfeiffer.tusc.com.au")
+	by vger.kernel.org with ESMTP id S1161640AbWAMDPa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 22:15:30 -0500
+Subject: Re: [PATCH 2/4 - 2.6.15]net: 32 bit (socket layer) ioctl emulation
+	for 64 bit kernels
+From: Shaun Pereira <spereira@tusc.com.au>
+Reply-To: spereira@tusc.com.au
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Andi Kleen <ak@muc.de>,
+       linux-kenel <linux-kernel@vger.kernel.org>,
+       x25 maintainer <eis@baty.hanse.de>,
+       "David S. Miller" <davem@davemloft.net>,
+       netdev <netdev@vger.kernel.org>, SP <pereira.shaun@gmail.com>
+In-Reply-To: <200601121924.02747.arnd@arndb.de>
+References: <1137045732.5221.21.camel@spereira05.tusc.com.au>
+	 <200601121924.02747.arnd@arndb.de>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 14:14:39 +1100
+Message-Id: <1137122079.5589.34.camel@spereira05.tusc.com.au>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Arnd
+Thank you for reviewing that bit of code.  
+I had a look at compat_sys_gettimeofday and sys32_gettimeofday codes.
+They seem to work in a similar way, casting a pointer to the structure
+from user space to a compat_timeval type.
 
-From: David Shaw <dshaw@jabberwocky.com>
+But to make sure I have tested the routine by forcing the sk-
+>sk_stamp.tv_sec value to 0 in the x25_module ( for testing purposes
+only, as it is initialised to -1). Now when
+I make a 32 bit userspace SIOCGSTAMP ioctl to the 64 bit kernel I should
+get the current time back in user space. This seems to work, the ioctl
+returns the system time (just after TEST6:)
 
-A recent patch which checked the return status of vfs_getattr in nfsd,
-completely missed the nfsproc.c (NFSv2) part.  Here is it.
+So I have left the patch as is for now. However if necessary to use
+the element-by-element __put_user routine as in put_tv32, then I can
+make the change, just let me know.
 
-This patch moved the call to vfs_getattr from the xdr encoding (at
-which point it is too late to return an error) to the call handling.
-This means several calls to vfs_getattr are needed in nfsproc.c.  Many
-are encapsulated in nfsd_return_attrs and nfsd_return_dirop.
+Lastly, if anyone following this mail can help with adding this into the
+next release, that would be really helpful. We are building a network
+management application on linux for a telco and while they have 
+the support of the SuSE's and Redhat's, any patches accepted by the
+kernel community makes a difference, besides saving us from building
+custom patches. (BTW, the application used to run on HP-UX, we are now
+porting it to linux).
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+Many Thanks 
+Shaun
+------------------------------
+ghostview:/home/spereira/x25_32/src/func_tests/server # uname -a
+Linux ghostview 2.6.15-smp #9 SMP Fri Jan 13 12:43:27 EST 2006 x86_64
+x86_64 x86_64 GNU/Linux
+ghostview:/home/spereira/x25_32/src/func_tests/server # file server
+server: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for
+GNU/Linux 2.2.5, dynamically linked (uses shared libs), not stripped
+ghostview:/home/spereira/x25_32/src/func_tests/server # ./server
+usage: server <local X.121 address> <interface name>
+ghostview:/home/spereira/x25_32/src/func_tests/server # ./server
+05052384500000 x25tap0
+TEST1: create socket : passed
+TEST2: bind socket : passed
+TEST3: set subscription: passed
+TEST4: set facilities: passed
 
-### Diffstat output
- ./fs/nfsd/nfsproc.c |   37 ++++++++++++++++++++++++++++++-------
- 1 file changed, 30 insertions(+), 7 deletions(-)
+**************
+ Window size in = 2
+ Window size out = 2
+ Packet size in = 7
+ Packet size out = 7
+ Reverse flag = 00
+ Throughput  = DD
+**************
+TEST5: set call user data on listen passed
+cud[ 0 ] = 02
+cud[ 1 ] = 03
+TEST6: set matchlength on listen socket handle passed
+The time stamp is Fri Jan 13 13:37:17 2006
+TEST7: listen on socket: passed
+ Waiting for X25 packets
+-----------------------------------------------------------
 
-diff ./fs/nfsd/nfsproc.c~current~ ./fs/nfsd/nfsproc.c
---- ./fs/nfsd/nfsproc.c~current~	2006-01-13 13:42:09.000000000 +1100
-+++ ./fs/nfsd/nfsproc.c	2006-01-13 13:42:14.000000000 +1100
-@@ -36,6 +36,22 @@ nfsd_proc_null(struct svc_rqst *rqstp, v
- 	return nfs_ok;
- }
- 
-+static int
-+nfsd_return_attrs(int err, struct nfsd_attrstat *resp)
-+{
-+	if (err) return err;
-+	return nfserrno(vfs_getattr(resp->fh.fh_export->ex_mnt,
-+				    resp->fh.fh_dentry,
-+				    &resp->stat));
-+}
-+static int
-+nfsd_return_dirop(int err, struct nfsd_diropres *resp)
-+{
-+	if (err) return err;
-+	return nfserrno(vfs_getattr(resp->fh.fh_export->ex_mnt,
-+				    resp->fh.fh_dentry,
-+				    &resp->stat));
-+}
- /*
-  * Get a file's attributes
-  * N.B. After this call resp->fh needs an fh_put
-@@ -44,10 +60,12 @@ static int
- nfsd_proc_getattr(struct svc_rqst *rqstp, struct nfsd_fhandle  *argp,
- 					  struct nfsd_attrstat *resp)
- {
-+	int nfserr;
- 	dprintk("nfsd: GETATTR  %s\n", SVCFH_fmt(&argp->fh));
- 
- 	fh_copy(&resp->fh, &argp->fh);
--	return fh_verify(rqstp, &resp->fh, 0, MAY_NOP);
-+	nfserr = fh_verify(rqstp, &resp->fh, 0, MAY_NOP);
-+	return nfsd_return_attrs(nfserr, resp);
- }
- 
- /*
-@@ -58,12 +76,14 @@ static int
- nfsd_proc_setattr(struct svc_rqst *rqstp, struct nfsd_sattrargs *argp,
- 					  struct nfsd_attrstat  *resp)
- {
-+	int nfserr;
- 	dprintk("nfsd: SETATTR  %s, valid=%x, size=%ld\n",
- 		SVCFH_fmt(&argp->fh),
- 		argp->attrs.ia_valid, (long) argp->attrs.ia_size);
- 
- 	fh_copy(&resp->fh, &argp->fh);
--	return nfsd_setattr(rqstp, &resp->fh, &argp->attrs,0, (time_t)0);
-+	nfserr = nfsd_setattr(rqstp, &resp->fh, &argp->attrs,0, (time_t)0);
-+	return nfsd_return_attrs(nfserr, resp);
- }
- 
- /*
-@@ -86,7 +106,7 @@ nfsd_proc_lookup(struct svc_rqst *rqstp,
- 				 &resp->fh);
- 
- 	fh_put(&argp->fh);
--	return nfserr;
-+	return nfsd_return_dirop(nfserr, resp);
- }
- 
- /*
-@@ -142,7 +162,10 @@ nfsd_proc_read(struct svc_rqst *rqstp, s
- 			   	  argp->vec, argp->vlen,
- 				  &resp->count);
- 
--	return nfserr;
-+	if (nfserr) return nfserr;
-+	return nfserrno(vfs_getattr(resp->fh.fh_export->ex_mnt,
-+				    resp->fh.fh_dentry,
-+				    &resp->stat));
- }
- 
- /*
-@@ -165,7 +188,7 @@ nfsd_proc_write(struct svc_rqst *rqstp, 
- 				   argp->vec, argp->vlen,
- 				   argp->len,
- 				   &stable);
--	return nfserr;
-+	return nfsd_return_attrs(nfserr, resp);
- }
- 
- /*
-@@ -322,7 +345,7 @@ out_unlock:
- 
- done:
- 	fh_put(dirfhp);
--	return nfserr;
-+	return nfsd_return_dirop(nfserr, resp);
- }
- 
- static int
-@@ -425,7 +448,7 @@ nfsd_proc_mkdir(struct svc_rqst *rqstp, 
- 	nfserr = nfsd_create(rqstp, &argp->fh, argp->name, argp->len,
- 				    &argp->attrs, S_IFDIR, 0, &resp->fh);
- 	fh_put(&argp->fh);
--	return nfserr;
-+	return nfsd_return_dirop(nfserr, resp);
- }
- 
- /*
+
+
+
+
+On Thu, 2006-01-12 at 19:24 +0000, Arnd Bergmann wrote:
+> On Thursday 12 January 2006 06:02, Shaun Pereira wrote:
+> > +int compat_sock_get_timestamp(struct sock *sk, struct timeval __user
+> > *userstamp)
+> > +{
+> > +       struct compat_timeval __user *ctv;
+> > +       ctv = (struct compat_timeval __user*) userstamp;
+> > +       if(!sock_flag(sk, SOCK_TIMESTAMP))
+> > +               sock_enable_timestamp(sk);
+> > +       if(sk->sk_stamp.tv_sec == -1)
+> > +               return -ENOENT;
+> > +       if(sk->sk_stamp.tv_sec == 0)
+> > +               do_gettimeofday(&sk->sk_stamp);
+> > +       return copy_to_user(ctv, &sk->sk_stamp, sizeof(struct
+> > compat_timeval)) ?
+> > +                       -EFAULT : 0;
+> > +}
+> 
+> This looks wrong, you're not doing any conversion here.
+> You cannot just copy sk_stamp to ctv, they are not compatible.
+> See compat_sys_gettimeofday on how to copy a struct timeval
+> correctly.
+> 
+> The other patches look good.
+> 
+> 	Arnd <><
+

@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161540AbWAMKZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161542AbWAMK0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161540AbWAMKZb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161545AbWAMKZb
+	id S1161542AbWAMK0o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:26:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWAMK0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:25:31 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:51624 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1161540AbWAMKZa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:25:30 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: [PATCH 2 of 3] memcpy32 for x86_64
-Date: Fri, 13 Jan 2006 12:24:36 +0200
-User-Agent: KMail/1.8.2
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, ak@suse.de,
-       rdreier@cisco.com
-References: <b4863171295fdb6e8206.1136922838@serpentine.internal.keyresearch.com> <1137081882.28011.1.camel@serpentine.pathscale.com> <20060113095625.GA3707@taniwha.stupidest.org>
-In-Reply-To: <20060113095625.GA3707@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601131224.36545.vda@ilport.com.ua>
+	Fri, 13 Jan 2006 05:26:44 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19629 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161542AbWAMK0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 05:26:43 -0500
+Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Jon Mason <jdmason@us.ibm.com>,
+       Muli Ben-Yehuda <mulix@mulix.org>, Jiri Slaby <slaby@liberouter.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1137105731.2370.94.camel@mindpipe>
+References: <20060112175051.GA17539@us.ibm.com>
+	 <43C6ADDE.5060904@liberouter.org>
+	 <20060112200735.GD5399@granada.merseine.nu>
+	 <20060112214719.GE17539@us.ibm.com>  <20060112220039.GX29663@stusta.de>
+	 <1137105731.2370.94.camel@mindpipe>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Jan 2006 10:28:22 +0000
+Message-Id: <1137148102.3645.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 January 2006 11:56, Chris Wedgwood wrote:
-> On Thu, Jan 12, 2006 at 08:04:41AM -0800, Bryan O'Sullivan wrote:
-> 
-> > This is true for 64-bit writes over Hypertransport
-> 
-> is this something that will always be or just something current
-> hardware does?
+On Iau, 2006-01-12 at 17:42 -0500, Lee Revell wrote:
+> OK I set that bug to FEEDBACK, but it's open 5 months now and no testers
+> are forthcoming.  I think if we don't find one as a result of this
+> thread we can assume no one cares about this hardware anymore.
 
-Yes, why risking that things will go wrong?
-Also you'll get shorter code. Instead of
+Nobody reads ALSA bugzilla. You are probably right but its not clear,
+and if the audio is going the video component might as well go too.
 
-> +     .globl memcpy32
-> +memcpy32:
-> +     movl %edx,%ecx
-> +     shrl $1,%ecx
-> +     andl $1,%edx
-> +     rep movsq
-> +     movl %edx,%ecx
-> +     rep movsd
-> +     ret
+Have you checked with the ARM people or the person who added support (
+pwaechtler@loewe-komp.de) ?
 
-you need just
+It's also used in various appliances people "adjust" to run Linux - the
+Philips AOL-TV for example. Also on the SH reference boards for the
+hitachi sh series cpus (arch/sh*).
 
-	.globl memcpy32
-memcpy32:
-	movl %edx,%ecx
-	rep movsd
-	ret
+> I think the best approach might just be to drop it in lieu of a tester.
+> It will be trivial to add support later if someone finds one of these
+> boxes.
 
-With properly written inlined asms code will be
-reduced to just "rep movsd".
---
-vda
+Think it should stay for now at least. Pointing at ALSA bugzilla as
+proof of non-use is not a good test.
+
+Alan

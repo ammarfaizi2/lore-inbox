@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161533AbWAMKRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161503AbWAMKWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161533AbWAMKRh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161536AbWAMKRh
+	id S1161503AbWAMKWF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161538AbWAMKWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:17:37 -0500
-Received: from uproxy.gmail.com ([66.249.92.202]:25871 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161533AbWAMKRg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:17:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OMS0z26BvUUo1aM06Uuv4T4SLv1toBLY9ESMu4FvHM1j2XMr0MIQ40vfkhEWGGxgAdHIutel6Y3iMCMCSNMnIZstq3Z11cVopM3j8xhN9oOQJ1ZJnseea35/OoSPHP163xvvUW06heRyywEwQvyIT5GRhxu38CuJZ/RCLDE7u+E=
-Message-ID: <58cb370e0601130211j50b85af0w3fa2a1a5f872d0e@mail.gmail.com>
-Date: Fri, 13 Jan 2006 11:11:14 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: jeff shia <tshxiayu@gmail.com>
-Subject: Re: Is there any hard disk standard?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7cd5d4b40601130200m73798389p4939e9e43cb0db87@mail.gmail.com>
+	Fri, 13 Jan 2006 05:22:04 -0500
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:2716
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1161503AbWAMKWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 05:22:03 -0500
+Date: Fri, 13 Jan 2006 02:19:32 -0800
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       david singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
+Message-ID: <20060113101932.GA23000@gnuppy.monkey.org>
+References: <20060113080734.GA22091@gnuppy.monkey.org> <Pine.LNX.4.44L0.0601130937540.9269-100000@lifa01.phys.au.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7cd5d4b40601130200m73798389p4939e9e43cb0db87@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.44L0.0601130937540.9269-100000@lifa01.phys.au.dk>
+User-Agent: Mutt/1.5.11
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/06, jeff shia <tshxiayu@gmail.com> wrote:
-> Hello,everyone!
->
-> Many companies produce hard disks,Is there any hard disk standard?Or
-> where can I
-> get the standard?
+On Fri, Jan 13, 2006 at 09:47:39AM +0100, Esben Nielsen wrote:
+> On Fri, 13 Jan 2006, Bill Huey wrote:
+> 
+> > On Thu, Jan 12, 2006 at 01:54:23PM +0100, Esben Nielsen wrote:
+> > > turnstiles? What is that?
+> >
+> > http://www.freebsd.org/cgi/cvsweb.cgi/src/sys/kern/subr_turnstile.c
+> >
+> > Please, read. Now tell me or not if that looks familiar ? :)
+> 
+> Yes, it reminds me of Ingo's first approach to pi locking:
+> Everything is done under a global spin lock. In Ingo's approach it was the
+> pi_lock. In turnstiles it is sched_lock, which (without looking at other
+> code in FreeBSD) locks the whole scheduler.
+> 
+> Although making the code a lot simpler, scalability is ofcourse the main
+> issue here. But apparently FreeBSD does have a global lock protecting the
+> scheduler anyway.
 
-ATA: http://www.t13.org (seems to be down at the moment)
-SCSI: http://www.t10.org
-SerialATA: http://www.serialata.org
+FreeBSD hasn't really address their scalability issues yet with their
+locking. The valuable thing about that file is how they manipulate
+threading priorities under priority inheritance. Some ideas might be
+stealable from it. That's all.
 
-or use www.google.com
+bill
+

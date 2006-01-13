@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWAMAFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161605AbWAMAOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWAMAFT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 19:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWAMAFT
+	id S1161605AbWAMAOY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 19:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161589AbWAMAN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 19:05:19 -0500
-Received: from ns1.coraid.com ([65.14.39.133]:39634 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1751492AbWAMAFS (ORCPT
+	Thu, 12 Jan 2006 19:13:58 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:40908 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1161598AbWAMANj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 19:05:18 -0500
-Date: Thu, 12 Jan 2006 18:55:34 -0500
-From: "Ed L. Cashin" <ecashin@coraid.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Greg K-H <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] drivers/block/aoe/aoecmd.c: make aoecmd_cfg_pkts() static
-Message-ID: <20060112235534.GB6169@coraid.com>
-References: <20060111042135.24faf878.akpm@osdl.org> <20060112104833.GS29663@stusta.de>
+	Thu, 12 Jan 2006 19:13:39 -0500
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <43C6C23A.3080402@pobox.com>
+References: <20060109203711.GA25023@kroah.com>
+	 <Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>
+	 <20060109164410.3304a0f6.akpm@osdl.org>
+	 <1136857742.14532.0.camel@localhost.localdomain>
+	 <43C6C23A.3080402@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Jan 2006 00:16:19 +0000
+Message-Id: <1137111380.29693.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060112104833.GS29663@stusta.de>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 11:48:33AM +0100, Adrian Bunk wrote:
+On Iau, 2006-01-12 at 15:55 -0500, Jeff Garzik wrote:
+> > libata I think. I reproduced it on 2.6.14-mm2 by accident with a buggy
+> > pata driver.
+> 
+> 
+> Any additional info?  How can I reproduce?
 
-...
-> aoecmd_cfg_pkts() can be static.
+In my case I'm fairly sure (waves arms frantically) that it was
+registering a controller which then failed to add any drives so it got
+cleaned back up early
 
-Nice catch.  This patch follows a series of seven aoe driver patches
-that haven't made it into the mainline because they need a fix that
-I've just made.
-
-I'll be resending the patches with the fix included, and at that time
-I'll include this change.
-
-Thanks!
-
--- 
-  Ed L Cashin <ecashin@coraid.com>

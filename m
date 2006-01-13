@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422700AbWAMOyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422707AbWAMO7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422700AbWAMOyx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 09:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422706AbWAMOyx
+	id S1422707AbWAMO7O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 09:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422706AbWAMO7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 09:54:53 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:60290 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422700AbWAMOyw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 09:54:52 -0500
-Date: Fri, 13 Jan 2006 15:54:36 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com
-Subject: Re: [PATCH] reiserfs: remove kmalloc wrapper
-In-Reply-To: <Pine.LNX.4.58.0601130951160.22049@sbz-30.cs.Helsinki.FI>
-Message-ID: <Pine.LNX.4.61.0601131553570.7435@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.58.0601130930130.17696@sbz-30.cs.Helsinki.FI>
- <20060112233920.4b3b0a26.akpm@osdl.org> <Pine.LNX.4.58.0601130942540.20349@sbz-30.cs.Helsinki.FI>
- <20060112234846.3a20f5a1.akpm@osdl.org> <Pine.LNX.4.58.0601130951160.22049@sbz-30.cs.Helsinki.FI>
+	Fri, 13 Jan 2006 09:59:14 -0500
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:30897 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1422707AbWAMO7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 09:59:14 -0500
+Message-ID: <43C7C03B.7000305@gentoo.org>
+Date: Fri, 13 Jan 2006 14:59:07 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051223)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+CC: linux-kernel@vger.kernel.org, Reuben Farrelly <reuben-lkml@reub.net>
+Subject: Re: why sk98lin driver is not up-to date ?
+References: <Xns97496767C8536ericbelhommefreefr@80.91.229.5> <200601120339.17071.chase.venters@clientec.com> <43C63361.103@reub.net> <20060112181844.D8EF9BAE5@mx.dtiltas.lt>
+In-Reply-To: <20060112181844.D8EF9BAE5@mx.dtiltas.lt>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nerijus Baliunas wrote:
+> Which one is better and what is a difference between them? Which one
+> will support Marvell Technology Group Ltd. 88E8050 Gigabit Ethernet Controller
+> (rev 17)? skge in 2.6.14 does not support it.
 
->> It would have helped had you described the exact /proc pathname so people
->> could remember whether there's anything which actually uses it.
->
->That would be /proc/fs/reiserfs/super, I think.
+skge supports Yukon
+sky2 supports Yukon-2
 
-I am on 2.6.15-rc6 and there is no /proc/fs/reiserfs, even though my 
-rootfs is reiserfs (and therefore, is mounted, loaded, etc.).
+88E8050 is Yukon-2.
 
-
-Jan Engelhardt
--- 
+Daniel

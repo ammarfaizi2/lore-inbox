@@ -1,78 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422832AbWAMTIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422829AbWAMTJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422832AbWAMTIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422833AbWAMTIP
+	id S1422829AbWAMTJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422833AbWAMTJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:08:15 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:47632 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1422832AbWAMTIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:08:14 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Duncan Sands <duncan.sands@free.fr>
-Subject: Re: speedtch driver, 2.6.14.2
-Date: Fri, 13 Jan 2006 19:08:16 +0000
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <200511232125.25254.s0348365@sms.ed.ac.uk> <200601131315.55355.duncan.sands@free.fr>
-In-Reply-To: <200601131315.55355.duncan.sands@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 14:09:28 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:35969 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1422829AbWAMTJ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:09:27 -0500
+Date: Fri, 13 Jan 2006 11:09:52 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-stable <stable@kernel.org>
+Subject: Re: [stable] Re: PROBLEM: Oops in Kernel 2.6.15 usbhid
+Message-ID: <20060113190951.GK3335@sorel.sous-sol.org>
+References: <200601131354_MC3-1-B5D5-C29A@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601131908.16584.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200601131354_MC3-1-B5D5-C29A@compuserve.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 January 2006 12:15, Duncan Sands wrote:
-> > I recently switched from the userspace speedtouch driver to the in-kernel
-> > one. However, on my rev 4.0 Speedtouch 330, I periodically get the
-> > message:
-> >
-> > ATM dev 0: error -110 fetching device status
->
-> Is this correlated with disk activity (heavy use of the pci bus)?
+* Chuck Ebbert (76306.1226@compuserve.com) wrote:
+> I don't see it in Linus's tree yet.
+> 
+> Could it still be put into 2.6.15.1?
 
-No, the machine is completely idle. However I switched to the CVS driver (it 
-does not work in isochronous mode still), and in bulk-mode it gives me a new 
-set of messages:
-
-ATM dev 0: speedtch_read_status: MSG E failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG F failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG F failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG D failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG D failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG D failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG B failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG B failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG B failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG F failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG F failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG B failed
-ATM dev 0: error -110 fetching device status
-ATM dev 0: speedtch_read_status: MSG F failed
-ATM dev 0: error -110 fetching device status
-
-This seems to happen less often than with the kernel driver, however.
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+I'd rather queue it to 2.6.15.2.
+-chris

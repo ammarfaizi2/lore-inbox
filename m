@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161371AbWAMIDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161378AbWAMIKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161371AbWAMIDr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 03:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161373AbWAMIDr
+	id S1161378AbWAMIKB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 03:10:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161455AbWAMIKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 03:03:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24511 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161371AbWAMIDq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 03:03:46 -0500
-Date: Fri, 13 Jan 2006 00:03:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Moore, Eric" <Eric.Moore@lsil.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] - pci_ids - adding pci device id support for FC949ES
-Message-Id: <20060113000323.09cbff98.akpm@osdl.org>
-In-Reply-To: <F331B95B72AFFB4B87467BE1C8E9CF5F1AA29A@NAMAIL2.ad.lsil.com>
-References: <F331B95B72AFFB4B87467BE1C8E9CF5F1AA29A@NAMAIL2.ad.lsil.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 03:10:01 -0500
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:16359
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1161378AbWAMIKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 03:10:00 -0500
+Date: Fri, 13 Jan 2006 00:07:34 -0800
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       david singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
+Message-ID: <20060113080734.GA22091@gnuppy.monkey.org>
+References: <20060112113316.GA14416@gnuppy.monkey.org> <Pine.LNX.4.44L0.0601121337480.30644-100000@lifa03.phys.au.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0601121337480.30644-100000@lifa03.phys.au.dk>
+User-Agent: Mutt/1.5.11
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Moore, Eric" <Eric.Moore@lsil.com> wrote:
->
-> Adding support for new LSI Logic Fibre Channel controller.
-> 
->  Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
-> 
->  --- b/include/linux/pci_ids.h	2006-01-11 19:04:18.000000000 -0700
->  +++ a/include/linux/pci_ids.h	2006-01-12 14:19:43.000000000 -0700
->  @@ -181,6 +181,7 @@
->   #define PCI_DEVICE_ID_LSI_FC929X	0x0626
->   #define PCI_DEVICE_ID_LSI_FC939X	0x0642
->   #define PCI_DEVICE_ID_LSI_FC949X	0x0640
->  +#define PCI_DEVICE_ID_LSI_FC949ES	0x0646
->   #define PCI_DEVICE_ID_LSI_FC919X	0x0628
->   #define PCI_DEVICE_ID_NCR_YELLOWFIN	0x0701
->   #define PCI_DEVICE_ID_LSI_61C102	0x0901
+On Thu, Jan 12, 2006 at 01:54:23PM +0100, Esben Nielsen wrote:
+> turnstiles? What is that?
 
-That doesn't add support - it just adds the ID.  We've apparently decided
-not to keep IDs of devices which the kernel doesn't support.
+http://www.freebsd.org/cgi/cvsweb.cgi/src/sys/kern/subr_turnstile.c
 
-Also, there's a plan to stop using pci_ids.h - PCI IDs are supposed to go
-into a driver-private header file.  I guess drivers/scsi/megaraid.h is an
-example.
+Please, read. Now tell me or not if that looks familiar ? :)
+
+Moving closer an implementation is arguable, but it is something that
+should be considered somewhat since folks in both the Solaris (and
+FreeBSD) communities have given a lot more consideration to these issues.
+
+The stack allocated objects are fine for now. Priority inheritance
+chains should never get long with a fine grained kernel, so the use
+of a stack allocated object and migrating pi-ed waiters should not
+be a major real world issue in Linux yet.
+
+Folks should also consider using an adaptive spin in the __grab_lock() (sp?)
+related loops as a possible way of optimizing away the immediate blocks.
+FreeBSD actually checks the owner of a lock aacross another processor
+to see if it's actively running, "current", and will block or wait if
+it's running or not respectively. It's pretty trivial code, so it's
+not a big issue to implement. This is ignoring the CPU local storage
+issues.
+
+bill
+

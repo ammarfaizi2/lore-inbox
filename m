@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422796AbWAMSVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422802AbWAMSZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422796AbWAMSVE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 13:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422797AbWAMSVE
+	id S1422802AbWAMSZo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 13:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422803AbWAMSZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 13:21:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7699 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1422796AbWAMSVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 13:21:01 -0500
-Date: Fri, 13 Jan 2006 18:20:35 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-       Dave Miller <davem@redhat.com>
-Cc: Tejun Heo <htejun@gmail.com>, axboe@suse.de, bzolnier@gmail.com,
-       james.steward@dynamicratings.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-Message-ID: <20060113182035.GC25849@flint.arm.linux.org.uk>
-Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
-	Dave Miller <davem@redhat.com>, Tejun Heo <htejun@gmail.com>,
-	axboe@suse.de, bzolnier@gmail.com, james.steward@dynamicratings.com,
-	jgarzik@pobox.com, linux-kernel@vger.kernel.org
-References: <11371658562541-git-send-email-htejun@gmail.com> <1137167419.3365.5.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137167419.3365.5.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+	Fri, 13 Jan 2006 13:25:44 -0500
+Received: from smtprelay05.ispgateway.de ([80.67.18.43]:15812 "EHLO
+	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1422802AbWAMSZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 13:25:43 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch 00/62] sem2mutex: -V1
+Date: Fri, 13 Jan 2006 19:25:22 +0100
+User-Agent: KMail/1.7.2
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
+References: <20060113124402.GA7351@elte.hu> <200601131400.00279.baldrick@free.fr> <20060113134412.GA20339@elte.hu>
+In-Reply-To: <20060113134412.GA20339@elte.hu>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1567319.rGOSAX6T4g";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601131925.34971.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 09:50:19AM -0600, James Bottomley wrote:
-> Actually, this doesn't look to be the correct thing to do.  The
-> dma_map/unmap don't make the data coherent with respect to the user
-> space, only with respect to the kernel space.  I've never liked this
-> (and indeed I wrote an OLS paper in 2004 trying to explain how we could
-> fix it) but that's our current model.
-> 
-> Our classic path for data on machines is that the driver makes the
-> kernel coherent and then whatever's transferring from the page cache to
-> the user makes user space coherent.  It sounds, therefore, like
-> whatever's broken (what is the problem, by the way?) is broken in the
-> second half (page cache to user) not in the first half (driver to
-> kernel).
+--nextPart1567319.rGOSAX6T4g
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I think you're misunderstanding the issue.  I'll give you essentially
-my understanding of the explaination that Dave Miller gave me a number
-of years ago.  This is from memory, so Dave may wish to correct it.
+Hi there,
 
-1. When a driver DMAs data into a page cache page, it is written directly
-   to RAM and is made visible to the kernel mapping via the DMA API.  As
-   a result, there will be no cache lines associated with the kernel
-   mapping at the point when the driver hands the page back to the page
-   cache.
+On Friday 13 January 2006 14:44, Ingo Molnar wrote:
+>     - it should stay a semaphore (if it's a genuine counting=20
+>       semaphore)
+>=20
+>     - or it should get converted to a completion (if it's used as
+>       a completion)
+>=20
+>     - or it should get converted to struct work (if it's used as a=20
+>       workflow synchronizer).
 
-   However, in the PIO case, there is the possibility that the data read
-   from the device into the kernel mapping results in cache lines
-   associated with the page.  Moreover, if the cache is write-allocate,
-   you _will_ have cache lines.
+Could we get for each of these and a mutex:
 
-   Therefore, you have two completely differing system states depending
-   on how the driver decided to transfer data from the device to the page
-   cache.
+ - description=20
+ - common use case
+ - small argument why this and nothing else should be used there
 
-   As such, drivers must ensure that PIO data transfers have the same
-   system state guarantees as DMA data transfers.
+This would help driver writers a lot deciding what to use when, I think.
 
-   ISTR davem recommended flush_dcache_page() be used for this.
+PS: After reading the Linux Kernel one could write a PhD thesis
+    just containing explanations, examples and measurements
+    of sychronization primitives, since Linux implements at least=20
+    most of them AFAIK :-)
 
-2. (this is my own)  The cachetlb document specifies quite clearly what
-   is required whenever a page cache page is written to - that is
-   flush_dcache_page() is called.  The situation when a driver uses PIO
-   quote clearly violates the requirements set out in that document.
 
->From (2), it is quite clear that flush_dcache_page() is the correct
-function to use, otherwise we would end up with random set of state
-of pages in the page cache.  (1) merely reinforces that it's the
-correct place for the decision to be made.  In fact, it's the only
-part of the kernel which _knows_ what needs to be done.
+Thanks & Regards
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Ingo Oeser
+
+
+--nextPart1567319.rGOSAX6T4g
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDx/CeU56oYWuOrkARAvVWAKDHzIzqE75rypTvRycxCuWmtEm06wCfUoXC
+XnYHFdixISMk2M4laoKdgfU=
+=nO6r
+-----END PGP SIGNATURE-----
+
+--nextPart1567319.rGOSAX6T4g--

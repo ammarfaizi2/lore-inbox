@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423009AbWAMWNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423012AbWAMWO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423009AbWAMWNz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423010AbWAMWNz
+	id S1423012AbWAMWO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423015AbWAMWO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:13:55 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:1252 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1423009AbWAMWNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:13:54 -0500
-Date: Fri, 13 Jan 2006 14:23:49 -0800
-From: thockin@hockin.org
-To: David Lang <dlang@digitalinsight.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Sven-Thorsten Dietrich <sven@mvista.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual core Athlons and unsynced TSCs
-Message-ID: <20060113222349.GA32363@hockin.org>
-References: <1137178855.15108.42.camel@mindpipe> <Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz> <20060113215609.GA30634@hockin.org> <Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz>
+	Fri, 13 Jan 2006 17:14:26 -0500
+Received: from gate.crashing.org ([63.228.1.57]:8586 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1423012AbWAMWOY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:14:24 -0500
+Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple
+	PowerBooks
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: dtor_core@ameritech.net
+Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
+       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <d120d5000601131405w4e20e37fna17767624a4ebf6@mail.gmail.com>
+References: <20051225212041.GA6094@hansmi.ch>
+	 <1137022900.5138.66.camel@localhost.localdomain>
+	 <20060112000830.GB10142@hansmi.ch>
+	 <200601122312.05210.dtor_core@ameritech.net>
+	 <1137189319.4854.12.camel@localhost.localdomain>
+	 <d120d5000601131405w4e20e37fna17767624a4ebf6@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 14 Jan 2006 09:14:04 +1100
+Message-Id: <1137190444.4854.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 02:05:23PM -0800, David Lang wrote:
-> On Fri, 13 Jan 2006 thockin@hockin.org wrote:
-> 
-> >On Fri, Jan 13, 2006 at 01:18:35PM -0800, David Lang wrote:
-> >>Lee, the last time I saw this discussion I thought it was identified that
-> >>the multiple cores (or IIRC the multiple chips in a SMP motherboard) would
-> >>only get out of sync when power management calls were made (hlt or
-> >>switching the c-state). IIRC the workaround that was posted then was to
-> >>just disable these in the kernel build.
-> >
-> >not using 'hlt' when idling means that you spend 10s of Watts more power
-> >on mostly idle systems.
-> 
-> true, but for people who need better time accruacy then the other 
-> workaround this may be very acceptable.
+> Right, so do we need "no translation, fnkeyfirst and fnkeylast" option
+> or just "fnkeyfirst and fnkeyast"?
 
-sure, if power doesn't matter use idle=poll => problem solved.
+I think "no translation" should still be around if people want to handle
+it entirely from userland no ?
+
+That is:
+
+ - no translation : nothing special is done, Fx sends Fx keycode
+regardless of Fn key, Fn key itsef sends a keycode for itself, there is
+no emulation of numlock
+
+ - fnkeyfirst / fnkeylast : Either Fx is translated and Fn-Fx is not or
+the opposite. Numlock emulation is enabled.
+
+> Huh? You mean 1, right?
+
+Yah, forget it, I was on crack.
+
+

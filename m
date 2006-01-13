@@ -1,60 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422986AbWAMV0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422985AbWAMV1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422986AbWAMV0E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422988AbWAMV0E
+	id S1422985AbWAMV1f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422987AbWAMV1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:26:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:19885 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422986AbWAMV0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:26:02 -0500
-Subject: Re: [patch 00/62] sem2mutex: -V1
-From: Arjan van de Ven <arjan@infradead.org>
-To: chaosite@gmail.com
-Cc: Ingo Molnar <mingo@elte.hu>, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
-In-Reply-To: <43C815E3.10005@gmail.com>
-References: <20060113124402.GA7351@elte.hu>
-	 <200601131400.00279.baldrick@free.fr> <20060113134412.GA20339@elte.hu>
-	 <200601131925.34971.ioe-lkml@rameria.de> <20060113195658.GA3780@elte.hu>
-	 <43C815E3.10005@gmail.com>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 22:25:54 +0100
-Message-Id: <1137187555.2975.13.camel@laptopd505.fenrus.org>
+	Fri, 13 Jan 2006 16:27:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21951 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422985AbWAMV1e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:27:34 -0500
+Date: Fri, 13 Jan 2006 13:27:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Singleton <daviado@gmail.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, drepper@gmail.com,
+       robustmutexes@lists.osdl.org
+Subject: Re: Robust futex patch for Linux 2.6.15
+Message-Id: <20060113132704.207336d7.akpm@osdl.org>
+In-Reply-To: <b324b5ad0601131316m721f959eu37b741f9e5557a2e@mail.gmail.com>
+References: <b324b5ad0601131316m721f959eu37b741f9e5557a2e@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 23:04 +0200, Matan Peled wrote:
-> Ingo Molnar wrote:
-> > Ingo Oeser wrote:
-> >> Could we get for each of these and a mutex:
-> >>
-> >>  - description 
-> >>  - common use case
-> >>  - small argument why this and nothing else should be used there
-> > 
-> > like ... Documentation/mutex-design.txt?
+David Singleton <daviado@gmail.com> wrote:
+>
+> Andrew and Ingo,
 > 
-> I think what he wanted was an explanation for the change of each and every 
-> sem... Which is kind of hard with automated tools.
-`
-it's also HIGHLY repetitive.
-1) The process is : Look at semaphore and it's uses.
-2) Decide it's a mutex
-3) Run script to convert to mutex
-4) Run script to validate the conversion
-5) build+boot test
+>      here is a patchthat I'd like to see tested in the mm kernel.  The patch
+>  supports robust futexes for Linux without any RT support.
+> Ulrich Drepper has been asking me for a while for a patch that just has
+> robustness
+> in it, no RT or PI or PQ.   He'd like to see it in Linux and said he'd
+> support
+> it in glibc if/when it gets in.
+> 
+>      This patch was originally done by Todd Kneisel for the robust-mutex SIG
+> at
+> OSDL.  I've fixed a few bugs and added slab support.
+> 
+>      The patch is at
+> 
+>       http://source.mvista.com/~dsingleton/patch-2.6.15-robust-futex-1
+> 
+>      There are also some simple tests for robustness in the same directory
+>       in robust-tests.tar.gz.  These simple tests test register, deregister,
+> waiting,
+>       timed waiting,  waiting for robustness from a dieing thread to wake,
+> etc.
+> 
 
-I can't think of a way to describe that uniquely different for each
-one ;0
+Please send the patch to this mailing list with a full description, as per
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt.  And by "full" I
+mean something which tells us what a "robust futex" actually is (it's been
+a year since I thought about them) and why we would want such a thing.
 
+This code looks racy:
 
++static int futex_deadlock(struct rt_mutex *lock)
++{
++	DEFINE_WAIT(wait);
++
++	_raw_spin_unlock(&lock->wait_lock);
++	_raw_spin_unlock(&current->pi_lock);
++
++	prepare_to_wait(&deadlocked_futex, &wait, TASK_INTERRUPTIBLE);
++	schedule();
++	finish_wait(&deadlocked_futex, &wait);
++
++	return -EDEADLK;
++}
 
+If the spin_unlocks happened after the prepare_to_wait then it would be
+more idoimatic, but without having analysed the wakeup path, I wonder if a
+wakeup which occurs after the spin_unlocks and before the prepare_to_wait()
+will get lost.

@@ -1,36 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423083AbWAMWta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423082AbWAMWuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423083AbWAMWta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423081AbWAMWta
+	id S1423082AbWAMWuA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423086AbWAMWt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:49:30 -0500
-Received: from quechua.inka.de ([193.197.184.2]:22212 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1423083AbWAMWt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:49:29 -0500
-From: be-news06@lina.inka.de (Bernd Eckenfels)
-To: linux-kernel@vger.kernel.org
-Subject: Re: Quota on xfs vfsroot
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <Pine.LNX.4.61.0601132126110.25429@yvahk01.tjqt.qr>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1ExXjb-00022r-00@calista.inka.de>
-Date: Fri, 13 Jan 2006 23:49:27 +0100
+	Fri, 13 Jan 2006 17:49:59 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:51153 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1423082AbWAMWt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:49:58 -0500
+Date: Fri, 13 Jan 2006 14:49:47 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Sven-Thorsten Dietrich <sven@mvista.com>
+cc: thockin@hockin.org, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dual core Athlons and unsynced TSCs
+In-Reply-To: <1137190698.2536.65.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz>
+References: <1137178855.15108.42.camel@mindpipe><Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz><20060113215609.GA30634@hockin.org><Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz>
+ <1137190698.2536.65.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> the xfs_quota manpage says that one needs to use the "root-flags=" boot 
-> parameter to enable quota for the root filesystem, but I do not see a 
-> matching __setup() definition anywhere in the fs/xfs/ folder. So, how do I 
-> have quota activated then?
+On Fri, 13 Jan 2006, Sven-Thorsten Dietrich wrote:
 
-init/do_mounts.c:__setup("rootflags=", root_data_setup);
+> On Fri, 2006-01-13 at 14:05 -0800, David Lang wrote:
+>> On Fri, 13 Jan 2006 thockin@hockin.org wrote:
+>>
+>>> On Fri, Jan 13, 2006 at 01:18:35PM -0800, David Lang wrote:
+>>>> Lee, the last time I saw this discussion I thought it was identified that
+>>>> the multiple cores (or IIRC the multiple chips in a SMP motherboard) would
+>>>> only get out of sync when power management calls were made (hlt or
+>>>> switching the c-state). IIRC the workaround that was posted then was to
+>>>> just disable these in the kernel build.
+>>>
+>>> not using 'hlt' when idling means that you spend 10s of Watts more power
+>>> on mostly idle systems.
+>>
+>> true, but for people who need better time accruacy then the other
+>> workaround this may be very acceptable.
+>>
+>
+> 1/4 KW / day for time synchronisation.
+>
+> The power company would love that.
 
-It is a general boot line flag, not xfs specific.
+more precisely 1/4 KW Hour / day
 
-Gruss
-Bernd
-y
+$0.01 - $0.02/day (I had to lookup the current rates)
+
+they probably won't notice.
+
+David Lang
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
+

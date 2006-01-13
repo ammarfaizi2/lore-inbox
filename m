@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423052AbWAMWhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161151AbWAMWic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423052AbWAMWhl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423055AbWAMWhk
+	id S1161151AbWAMWic (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161577AbWAMWic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:37:40 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51103 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423052AbWAMWhj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:37:39 -0500
-Date: Fri, 13 Jan 2006 23:37:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Weber Ress <ress.weber@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Education
-Message-ID: <20060113223730.GA1896@elf.ucw.cz>
-References: <9c2327970601090500i78fec178mb197c0fa5732e4a4@mail.gmail.com> <Pine.LNX.4.61.0601090805140.17451@chaos.analogic.com> <9c2327970601111042i126c7dfbk10aa2bd35310b6c3@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9c2327970601111042i126c7dfbk10aa2bd35310b6c3@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 13 Jan 2006 17:38:32 -0500
+Received: from zrtps0kp.nortel.com ([47.140.192.56]:42641 "EHLO
+	zrtps0kp.nortel.com") by vger.kernel.org with ESMTP
+	id S1161151AbWAMWib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:38:31 -0500
+Message-ID: <43C82BD5.2050904@nortel.com>
+Date: Fri, 13 Jan 2006 16:38:13 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+CC: "Arne R. van der Heyde" <vanderHeydeAR@summitinstruments.com>,
+       linux-kernel@vger.kernel.org, c-d.hailfinger.kernel.2004@gmx.net
+Subject: Re: no carrier when using forcedeth on MSI K8N Neo4-F
+References: <43C7F35A.9010703@summitinstruments.com> <20060113222647.GB18972@csclub.uwaterloo.ca>
+In-Reply-To: <20060113222647.GB18972@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Jan 2006 22:38:15.0567 (UTC) FILETIME=[0B02E9F0:01C61892]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 11-01-06 16:42:32, Weber Ress wrote:
-> Somebody knows the Nachos? http://www.cs.washington.edu/homes/tom/nachos/
-> 
-> Is a good idea use this software in my educational project ?
+Lennart Sorensen wrote:
 
-No. Nachos is ****. Just let them hack something simple on latest
-linux.
+> Gigabit does NOT use cross over cables.
 
-								Pavel
+I don't think this is always true.  Some gigabit ports can autosense 
+polarity and are able to use standard cables.  Others require gigabit 
+crossover cables.
 
--- 
-Thanks, Sharp!
+Chris

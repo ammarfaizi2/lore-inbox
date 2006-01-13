@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWAMM0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWAMMcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWAMM0e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 07:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWAMM0e
+	id S1422643AbWAMMcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 07:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422644AbWAMMcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 07:26:34 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:8670 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S964813AbWAMM0d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 07:26:33 -0500
-Date: Fri, 13 Jan 2006 13:26:26 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: fix blk_queue_ordered call in dasd.c fixup
-Message-ID: <20060113122626.GC8268@osiris.boeblingen.de.ibm.com>
-References: <20060112171727.GK16629@skybase.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060112171727.GK16629@skybase.boeblingen.de.ibm.com>
-User-Agent: mutt-ng/devel (Linux)
+	Fri, 13 Jan 2006 07:32:18 -0500
+Received: from mtaout1.012.net.il ([84.95.2.1]:17559 "EHLO mtaout1.012.net.il")
+	by vger.kernel.org with ESMTP id S1422643AbWAMMcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 07:32:18 -0500
+Date: Fri, 13 Jan 2006 14:32:15 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
+In-reply-to: <20060113122358.GH29663@stusta.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Jon Mason <jdmason@us.ibm.com>,
+       Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
+Message-id: <20060113123215.GQ5399@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20060112175051.GA17539@us.ibm.com>
+ <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu>
+ <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de>
+ <1137105731.2370.94.camel@mindpipe>
+ <20060113113756.GL5399@granada.merseine.nu> <20060113122358.GH29663@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Fri, Jan 13, 2006 at 01:23:58PM +0100, Adrian Bunk wrote:
 
-The QUEUE_ORDERED_* numbers got renumbered and by accident the dasd driver
-was changed to use QUEUE_ORDERED_DRAIN instead of QUEUE_ORDERED_TAG.
+> In my experience with scheduling OSS drivers for removal, users simply 
+> use the OSS drivers unless you tell them very explicitely that the OSS 
+> driver will go.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+If the OSS drivers satisfy them, what's wrong with it?
 
- drivers/s390/block/dasd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> It shouldn't be too hard to port the support to ALSA if someone with the  
+> hardware is willing to test patches.
 
-diff -urN a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
---- a/drivers/s390/block/dasd.c	2006-01-13 12:15:58.000000000 +0100
-+++ b/drivers/s390/block/dasd.c	2006-01-13 12:25:42.000000000 +0100
-@@ -1635,7 +1635,7 @@
- 	blk_queue_max_hw_segments(device->request_queue, -1L);
- 	blk_queue_max_segment_size(device->request_queue, -1L);
- 	blk_queue_segment_boundary(device->request_queue, -1L);
--	blk_queue_ordered(device->request_queue, QUEUE_ORDERED_DRAIN, NULL);
-+	blk_queue_ordered(device->request_queue, QUEUE_ORDERED_TAG, NULL);
- }
- 
- /*
+Unfortunately, I have a different trident variant (the 5451).
+
+> The goal is to get people still using OSS drivers where ALSA drivers 
+> support the same hardware to use the ALSA drivers - and if there were 
+> bugs in the ALSA drivers preventing them to switch to ALSA, to report 
+> them to the ALSA bug tracking system.
+> 
+> This has the following advantages:
+> - better ALSA drivers
+
+This one is fine.
+
+> - get rid of some unmaintained code in the kernel
+
+This one is irrelevant for trident - I maintain it.
+
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
+

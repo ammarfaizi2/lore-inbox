@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161644AbWAMDSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161657AbWAMDTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161644AbWAMDSK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 22:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161642AbWAMDSK
+	id S1161657AbWAMDTj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 22:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161651AbWAMDTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 22:18:10 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:47787 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161644AbWAMDSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 22:18:08 -0500
-Subject: Re: 2.6.15-rt4 failure with LATENCY_TRACE on x86_64
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Clark Williams <clark.williams@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1137103652.11354.40.camel@localhost.localdomain>
-References: <1137103652.11354.40.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 12 Jan 2006 22:18:00 -0500
-Message-Id: <1137122280.7338.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jan 2006 22:19:22 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:43139 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161650AbWAMDTU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 22:19:20 -0500
+Message-Id: <20060113032248.205414000@sorel.sous-sol.org>
+References: <20060113032102.154909000@sorel.sous-sol.org>
+Date: Thu, 12 Jan 2006 18:37:53 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Alan Cox <alan@redhat.com>
+Subject: [PATCH 15/17] [PATCH] moxa serial: add proper capability check
+Content-Disposition: inline; filename=moxa-serial-add-proper-capability-check.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 16:07 -0600, Clark Williams wrote:
-> Ingo/Steve,
-> 
-> Did I miss a "Don't turn on latency tracing for x86_64" message
-> somewhere?
-> 
-> I'm seeing a failure on my Athlon64 3000+ where, when I turn on
-> CONFIG_LATENCY_TRACE, the init program segfaults. Doesn't happen with a
-> statically linked shell like sash (e.g. init=/sbin/sash boots ok), but
-> if /sbin/init or /bin/sh is used, the init program segfaults. Presumably
-> any dynamically linked program will fail. 
-> 
-> Attached is console output for a boot failure (segfault messages
-> truncated after four lines, since they're all the same) as well as the
-> config files for both working and failing kernels.
-> 
-> I'm not sure where to start looking on this one. Barring any advise, I'm
-> going to look for occurrences of CONFIG_LATENCY_TRACE, especially in
-> proximity to exec.
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-OK, I'm actually sending you this email on a x86_64 running
-2.6.15-rt4-sr2, with latency tracing on.  But unfortunately, I have a
-AMD X2 that each core has it's own tsc counter that is not in sync, and
-since the latency tracer uses tsc, I get garbage.  But beware, the tsc
-does slow down when the cpu idles, so it gives bad results even for non
-x2 systems.
+This requires the proper capabilities for the moxa bios update ioctl's.
 
-I finally was able to boot this with using the PM timer, but the
-beginning of my dmesg is still filled with:
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ drivers/char/moxa.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-read_tsc: ACK! TSC went backward! Unsynced TSCs?
+--- linux-2.6.15.y.orig/drivers/char/moxa.c
++++ linux-2.6.15.y/drivers/char/moxa.c
+@@ -1661,6 +1661,8 @@ int MoxaDriverIoctl(unsigned int cmd, un
+ 	case MOXA_FIND_BOARD:
+ 	case MOXA_LOAD_C320B:
+ 	case MOXA_LOAD_CODE:
++		if (!capable(CAP_SYS_RAWIO))
++			return -EPERM;
+ 		break;
+ 	}
+ 
 
-Have you tried booting with idle=poll? I wonder if that would help?
-
--- Steve
-
-
+--

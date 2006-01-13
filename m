@@ -1,172 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423042AbWAMWbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423046AbWAMWcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423042AbWAMWbP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423043AbWAMWbO
+	id S1423046AbWAMWcL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:32:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423044AbWAMWcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:31:14 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:59272 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1423042AbWAMWbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:31:13 -0500
-Date: Fri, 13 Jan 2006 14:31:09 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: linux-kernel@vger.kernel.org
-Cc: clameter@engr.sgi.com
-Subject: 2.6.15-git9 build failure when CONFIG_SWAP is not set
-Message-ID: <20060113223108.GA3709@localhost.localdomain>
+	Fri, 13 Jan 2006 17:32:10 -0500
+Received: from sipsolutions.net ([66.160.135.76]:37137 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1423041AbWAMWcI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:32:08 -0500
+Subject: Re: wireless: recap of current issues (configuration)
+From: Johannes Berg <johannes@sipsolutions.net>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060113221935.GJ16166@tuxdriver.com>
+References: <20060113195723.GB16166@tuxdriver.com>
+	 <20060113212605.GD16166@tuxdriver.com>
+	 <20060113213011.GE16166@tuxdriver.com>
+	 <20060113221935.GJ16166@tuxdriver.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RADtLkFmpaw1z7cysBCk"
+Date: Fri, 13 Jan 2006 23:32:02 +0100
+Message-Id: <1137191522.2520.63.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-RADtLkFmpaw1z7cysBCk
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Compile fails when CONFIG_SWAP is not set.  Attaching the .config for
-reference.
+[since none our replies made it to the lists, here mine are again.
+apologies to those who see it twice, just skip it, I only pasted my
+previous replies]
 
-...
+> Virtual devices will have a mode (e.g. station, AP, WDS, ad-hoc, rfmon,
+> raw?, other modes?) which defines its "on the air" behaviour.  Should
+> this mode be fixed when the wlan device is created?  Or something
+> that can be changed when the net_device is down?
 
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-mm/built-in.o: In function `swap_pages':
-mm/mempolicy.c:576: undefined reference to `migrate_pages'
-mm/mempolicy.c:577: undefined reference to `putback_lru_pages'
-mm/mempolicy.c:578: undefined reference to `putback_lru_pages'
-mm/built-in.o: In function `migrate_page_add':
-mm/mempolicy.c:558: undefined reference to `isolate_lru_page'
-mm/built-in.o: In function `do_mbind':
-mm/mempolicy.c:677: undefined reference to `putback_lru_pages'
-mm/built-in.o: In function `do_migrate_pages':
-mm/mempolicy.c:606: undefined reference to `putback_lru_pages'
-make: *** [.tmp_vmlinux1] Error 1
+IMHO there's not much point in allowing changes. I have a feeling that
+might create icky issues you don't want to have to tackle when the
+solution is easy by just not allowing it. Part of my thinking is that
+different virtual types have different structures associated, so
+changing it needs re-creating structures anyway. And different virtual
+device types might even be provided by different kernel modules so you
+don't carry around AP mode if you don't need it.
 
+> Do "global" config requests go to any associated wlan device?
+> Or must they be directed to the WiPHY device?  Does it matter?
+> I think we should require "global" configuration to target the WiPHY
+> device, while "local" configuration remains with the wlan device.
+> (I'm not sure how important this point is?)
 
-Thanks,
-Kiran
+Right [global config targets wiphy]. I do think this is an important UI
+issue that userspace will have to tackle, but I think the correct way
+for the kernel is to surface this issue instead of creating workarounds.
 
+> Either way, the WiPHY
+> device will need some way to be able to reject configuration requests
+> that are incompatible among its associated wlan devices.  Since the
+> wlan interface implementations should not be device specific, perhaps
+> the 802.11 stack can be smart enough to filter-out most conflicting
+> config requests before they get to the WiPHY device?
 
+I'm not sure this is worth it. While putting this into the WiPHY device
+creates more logic there, putting knowledge like 'how many different
+channels can this WiPHY device support' etc. into some representation
+that can be used by the stack to decide is much more trouble than it is
+worth.
 
+johannes
 
---dDRMvlgZJXvWKvBx
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="config-2.6.15-git9.gz"
-Content-Transfer-Encoding: base64
+--=-RADtLkFmpaw1z7cysBCk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-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
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
 
---dDRMvlgZJXvWKvBx--
+iQIVAwUAQ8gqX6Vg1VMiehFYAQL+PRAAs7JIxUCwh+yw+O7t7KU0v2e6uwE+ZZem
+fIqI+Z9DF/UH21lUhXqzfjueSZXJecZXEJk7XoWo8VHLCPmx0FOD0MJnUYJ3jqE+
+BX/ZSWP1cVU9H1jbnC1gudh4LhGz1B+5Mpg1ntAbmaydDDSLidPTEeyD5i0D/iMR
+Mr0m8qcD+Ld72pQ3ZarSi8rZM6Rgv7n4QSWpxUOE+mFsPdzC56OorIAfkvpPampT
+qTCa0Z9EJFEvdHtC/fjBCpxe1C62bMCciJ5AwbSTjoaxw+sdhutSA8+GiisR2xiE
+/m0X1qve5ST+mN5LivkU3KCVpufcQ52wQ4sX5kMrp1DGaqiu78RWXylVWWanerrf
+GYtEQFlRxJVA/WpM1pQodRiHoQrK1deIY6d8p/kN7VbxHa8HcHkeDrSruRpyejyh
+hbIrOmHoYll41UPa7RVlMmwEuDp1nRNYz0iK5BqIpMS3qgICn/rhDUVQ3140HwSQ
+SxdTtVWKn7EOtbSeFf3Useq0Kq3+p1yEl4dRCKQcbePN7xpJNw0PbSOxS+gQWZzs
+T4G6f7evWv6U7QE6VDKKdNpx/vcye8/YuPLsAsC7jULtQErxzvGtHDJyxKb9YI8k
+7UDSJgjYJXmfymXkFyrQ8j3jQwR65Rm5aQSAwpnyD8SUgTUQtRxpxmFJz8UYycGg
+kigqMqtZag8=
+=nmN4
+-----END PGP SIGNATURE-----
+
+--=-RADtLkFmpaw1z7cysBCk--
+

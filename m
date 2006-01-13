@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWAMVUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422983AbWAMVWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbWAMVUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422982AbWAMVUW
+	id S1422983AbWAMVWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422984AbWAMVWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:20:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9916 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422980AbWAMVUU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:20:20 -0500
-Date: Fri, 13 Jan 2006 13:19:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: sho@tnes.nec.co.jp, torvalds@osdl.org, viro@zeniv.linux.org.uk,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       trond.myklebust@fys.uio.no
-Subject: Re: [PATCH 2/3] Fix problems on multi-TB filesystem and file
-Message-Id: <20060113131947.05ee9ffc.akpm@osdl.org>
-In-Reply-To: <20060113205152.GD7641@schatzie.adilger.int>
-References: <20060112183319.526b877a.akpm@osdl.org>
-	<000101c61848$4dd3b5b0$4168010a@bsd.tnes.nec.co.jp>
-	<20060113122820.18b751b0.akpm@osdl.org>
-	<20060113205152.GD7641@schatzie.adilger.int>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 16:22:55 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:29149 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1422983AbWAMVWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:22:54 -0500
+Date: Fri, 13 Jan 2006 13:18:35 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Sven-Thorsten Dietrich <sven@mvista.com>, thockin@hockin.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dual core Athlons and unsynced TSCs
+In-Reply-To: <1137178855.15108.42.camel@mindpipe>
+Message-ID: <Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz>
+References: <1137104260.2370.85.camel@mindpipe><20060113180620.GA14382@hockin.org>
+ <1137175117.15108.18.camel@mindpipe><20060113181631.GA15366@hockin.org>
+ <1137175792.15108.26.camel@mindpipe><20060113185533.GA18301@hockin.org><1137178574.2536.13.camel@localhost.localdomain>
+ <1137178855.15108.42.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> wrote:
+On Fri, 13 Jan 2006, Lee Revell wrote:
+
+> On Fri, 2006-01-13 at 10:56 -0800, Sven-Thorsten Dietrich wrote:
+>> On Fri, 2006-01-13 at 10:55 -0800, thockin@hockin.org wrote:
+>>> On Fri, Jan 13, 2006 at 01:09:51PM -0500, Lee Revell wrote:
+>>>>> Some apps/users need higher resolution and lower overhead that only rdtsc
+>>>>> can offer currently.
+>>>>
+>>>> But obviously if the TSC gives wildly inaccurate results, it cannot be
+>>>> used no matter how low the overhead.
+>>>
+>>> unless we can re-sync the TSCs often enough that apps don't notice.
+>>>
+>>
+>> You'd have to quantify that somehow, in terms of the max drift rate
+>> (ppm), and the max resolution available (< tsc frequency).
+>>
+>> Either that, or track an offset, and use one TSC as truth, and update
+>> the correction factor for the other TSCs as often as needed, maybe?
+>>
+>> This is kind of analogous to the "drift" NTP calculates against a
+>> free-running oscillator.
+>>
+>> So you'd be pushing that functionality deeper into the OS-core.
+>>
+>> Dave Mills had that "hardpps" stuff in there for a while, it might be a
+>> starting point.
+>>
+>> Just some thoughts for now...
+>>
 >
-> On Jan 13, 2006  12:28 -0800, Andrew Morton wrote:
-> > So now we're proposing to repeat the sector_t problem with a bunch of new
-> > fields.  Fortunately we're less likely to be putting these particular
-> > fields into printk statements but I note that CIFS (at least) has a couple
-> > such statements and with your patch they're now generating warnings (and
-> > potential runtime bugs).
-> > 
-> > On the other hand, for a fairly fat .config which has 17 filesystems in
-> > .vmlinux:
-> > 
-> >    text    data     bss     dec     hex filename
-> > 4633032 1011304  248288 5892624  59ea10 vmlinux		CONFIG_LSF=y
-> > 4633680 1011304  248288 5893272  59ec98 vmlinux		CONFIG_LSF=n
-> > 
-> > It's probably less 0.5 kbytes for usual embedded .config.
-> > I just don't think the benefit of CONFIG_LSF outweighs its costs.
-> 
-> We were originally going to use CONFIG_LBD, but there were some complaints
-> that "sector_t" isn't the right variable to use for this, even though they
-> are remarkably close.  That would at least remove one config change.
-> 
-> I don't think the cost is in the vmlinux itself, but rather that having a
-> long long for i_blocks is overkill for any but the very largest systems
-> (Lustre has been running fine w/o this, at the expense of some accuracy
-> for the i_blocks count on many-TB files).  Growing struct inode for these
-> 0.0000001% of systems is probably harmful for small systems, given how
-> many inodes are used in a system.
+> It kind of makes you wonder what in the heck AMD were thinking, whether
+> they realized that this design decision would cause so many problems at
+> the OS level (it's broken at least Linux and Solaris).  Maybe Windows
+> keeps time in a way that was unaffected by this?
 
-I'd expect that rh and suse and others will turn on the >2TB option, so
-that's most systems.
+Lee, the last time I saw this discussion I thought it was identified that 
+the multiple cores (or IIRC the multiple chips in a SMP motherboard) would 
+only get out of sync when power management calls were made (hlt or 
+switching the c-state). IIRC the workaround that was posted then was to 
+just disable these in the kernel build.
 
-> Two options exist IMHO:
-> - remove the new CONFIG_* parameters and stick with CONFIG_LBD (this could
->   still use a separate type from sector_t if desired) to reduce the amount
->   of testing combinations needed
-> - make the new CONFIG_* default to on and allow it to be disabled with
->   CONFIG_BASE_SMALL
+if this is the case then I could easily see the hardware engineers 
+thinking that if the software did a sleep thing then it was up to the 
+software to re-sync the TSC clocks when the wakeup takes place.
 
-Well yes, but we still have the printk problem.
+David Lang
 
-CONFIG_LFS would become a specialised option for embedded systems and for
-the minority of people who self-compile kernels.  I just don't think that's
-worth the maintainability hassle.
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 
-Ho hum.  But then, people don't printk these fields as much.  I spose we
-could live with your option 1).  And we need to find all those places (like
-CIFS) which are presently trying to print a blkcnt_t and add the %llu and
-the typecast.

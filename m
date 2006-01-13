@@ -1,109 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422991AbWAMVhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422982AbWAMVoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422991AbWAMVhs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422989AbWAMVhs
+	id S1422982AbWAMVoM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422989AbWAMVoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:37:48 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:12560 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1422988AbWAMVhr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:37:47 -0500
-Date: Fri, 13 Jan 2006 16:26:08 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Benc <jbenc@suse.cz>,
-       Stefan Rompf <stefan@loplof.de>,
-       Mike Kershaw <dragorn@kismetwireless.net>,
-       Krzysztof Halasa <khc@pm.waw.pl>, Robert Hancock <hancockr@shaw.ca>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Denis Vlasenko <vda@ilport.com.ua>,
-       Danny van Dyk <kugelfang@gentoo.org>,
-       Stephen Hemminger <shemminger@osdl.org>, feyd <feyd@nmskb.cz>,
-       Chase Venters <chase.venters@clientec.com>,
-       Andreas Mohr <andim2@users.sourceforge.net>,
-       Bas Vermeulen <bvermeul@blackstar.nl>, Jean Tourrilhes <jt@hpl.hp.com>,
-       Daniel Drake <dsd@gentoo.org>, Ulrich Kunitz <kune@deine-taler.de>,
-       Phil Dibowitz <phil@ipom.com>, Simon Kelley <simon@thekelleys.org.uk>,
-       Michael Buesch <mbuesch@freenet.de>,
-       Marcel Holtmann <marcel@holtmann.org>,
-       Patrick McHardy <kaber@trash.net>, Ingo Oeser <netdev@axxeo.de>,
-       Harald Welte <laforge@gnumonks.org>,
-       Ben Greear <greearb@candelatech.com>, Thomas Graf <tgraf@suug.ch>
-Subject: wireless: recap of current issues (intro)
-Message-ID: <20060113212605.GD16166@tuxdriver.com>
-Mail-Followup-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Jiri Benc <jbenc@suse.cz>, Stefan Rompf <stefan@loplof.de>,
-	Mike Kershaw <dragorn@kismetwireless.net>,
-	Krzysztof Halasa <khc@pm.waw.pl>, Robert Hancock <hancockr@shaw.ca>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Denis Vlasenko <vda@ilport.com.ua>,
-	Danny van Dyk <kugelfang@gentoo.org>,
-	Stephen Hemminger <shemminger@osdl.org>, feyd <feyd@nmskb.cz>,
-	Chase Venters <chase.venters@clientec.com>,
-	Andreas Mohr <andim2@users.sourceforge.net>,
-	Bas Vermeulen <bvermeul@blackstar.nl>,
-	Jean Tourrilhes <jt@hpl.hp.com>, Daniel Drake <dsd@gentoo.org>,
-	Ulrich Kunitz <kune@deine-taler.de>, Phil Dibowitz <phil@ipom.com>,
-	Simon Kelley <simon@thekelleys.org.uk>,
-	Michael Buesch <mbuesch@freenet.de>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Patrick McHardy <kaber@trash.net>, Ingo Oeser <netdev@axxeo.de>,
-	Harald Welte <laforge@gnumonks.org>,
-	Ben Greear <greearb@candelatech.com>, Thomas Graf <tgraf@suug.ch>
-Mime-Version: 1.0
+	Fri, 13 Jan 2006 16:44:12 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:30457 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1422982AbWAMVoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:44:11 -0500
+Message-ID: <43C81F2B.3020802@namesys.com>
+Date: Fri, 13 Jan 2006 13:44:11 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Pekka J Enberg <penberg@cs.Helsinki.FI>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+Subject: Re: [PATCH] reiserfs: use __GFP_NOFAIL instead of yield and retry
+ loop for allocation
+References: <Pine.LNX.4.58.0601130932090.17696@sbz-30.cs.Helsinki.FI>	<20060112234238.01979912.akpm@osdl.org>	<Pine.LNX.4.58.0601130944360.20349@sbz-30.cs.Helsinki.FI> <20060112235548.0e1e4343.akpm@osdl.org>
+In-Reply-To: <20060112235548.0e1e4343.akpm@osdl.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060113195723.GB16166@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
-X-Original-Status: RO
-X-Original-Status: RO
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My original post got eaten by the lists -- probably too big...
+Do you guys think you could write some nice long comments on these flags
+regarding what they mean and the policies for using them?
 
-I'm reposting in sections.  After this intro follow sections on
-Configuration, Compatibility, Stack, Other Issues, and Actions.
-Enjoy! :-)
+I gotta tell you, lots of people end up just guessing as best as they can.
 
----
+Hans
 
-WiFi-ers...
+Andrew Morton wrote:
 
-Here I am, still feeling "up to the challenge"...  I have stopped
-hyper-ventilating and the nervous vomiting is all over... :-)
+>Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>  
+>
+>>Hi,
+>>
+>>Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>>    
+>>
+>>>> -      retry:
+>>>> -	jl = kzalloc(sizeof(struct reiserfs_journal_list), GFP_NOFS);
+>>>> -	if (!jl) {
+>>>> -		yield();
+>>>> -		goto retry;
+>>>> -	}
+>>>> +	jl = kzalloc(sizeof(struct reiserfs_journal_list),
+>>>> +		     GFP_NOFS | __GFP_NOFAIL);
+>>>>        
+>>>>
+>>On Thu, 12 Jan 2006, Andrew Morton wrote:
+>>    
+>>
+>>>yup, that's what __GFP_NOFAIL is for: to consolidate and identify all those
+>>>places which want to lock up when we're short of memory...  They all need
+>>>fixing, really.
+>>>      
+>>>
+>>Out of curiosity, are there any potential problems with combining GFP_NOFS 
+>>and __GFP_NOFAIL? Can we really guarantee to give out memory if we're not 
+>>allowed to page out?
+>>
+>>    
+>>
+>
+>GFP_NOFS increases the risk (relative to GFP_KERNEL) because page reclaim
+>can do less things than GFP_KERNEL to free memory.
+>
+>GFP_NOFS allocations can still perform swapspace writes, however.  GFP_NOIO
+>cannot even do that.
+>
+>
+>  
+>
 
-Having accepted the wireless role, I wanted to review the discussions
-prompted by Jeff's "State of the Union" message from a little over a
-week ago.  There is lots of good talent involved in these discussions,
-and I believe a surprisingly high level of agreement (some of it
-nearly violent!) amongst the players.
-
-Below I have recapped what I saw as most of the important issues.
-I have endorsed some of the ideas, mostly those which seem to have
-broad agreement.  I have also thrown-out a few ideas of my own.
-Please do comment on all of them, as neither my summaries nor my
-original ideas are likely to be without fault. :-)
-
-I have primarily grouped the issues into configuration, compatibility,
-and stack concerns.  I also included an "other" group for a few other
-concerns that I though were worth mentioning.
-
-Finally, I have included an "actions" section to reveal some of my
-near-term plans and some of what I am thinking about beyond that.
-I would love to hear any comments you might have on these items
-as well.
-
-Thanks for taking the time to look this over.  Creating this recap
-has reinforced one thing: this is far too big for just a single person
-(or even a small group) to tackle alone!
-
-Thanks,
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com

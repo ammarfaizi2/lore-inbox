@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423029AbWAMW0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423032AbWAMW1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423029AbWAMW0u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423032AbWAMW0u
+	id S1423032AbWAMW1T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:27:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423034AbWAMW1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:26:50 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:61313 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1423029AbWAMW0t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:26:49 -0500
-Date: Fri, 13 Jan 2006 17:26:48 -0500
-To: "Arne R. van der Heyde" <vanderHeydeAR@summitinstruments.com>
-Cc: linux-kernel@vger.kernel.org, c-d.hailfinger.kernel.2004@gmx.net
-Subject: Re: no carrier when using forcedeth on MSI K8N Neo4-F
-Message-ID: <20060113222647.GB18972@csclub.uwaterloo.ca>
-References: <43C7F35A.9010703@summitinstruments.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Jan 2006 17:27:18 -0500
+Received: from uproxy.gmail.com ([66.249.92.195]:41294 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1423031AbWAMW1Q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:27:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bOU2S43T3f9m1/SSsWKEGjC0V9n+HMTgW2Mqd6vuyHuhwHAr7YCr38n6EHCyrOR8KwJC1QoQMCQScfvQziNG1eAZ125bVnwWwSt92liFOwx2su+Oc6+BlBZq2+2cRli9Z+fZUVkFMthZrXMmmCmFUzIkPbLVtmv4bAtZvXiaiaU=
+Message-ID: <a4e6962a0601131427m4fc2f88p74da20cdc2fd7fe@mail.gmail.com>
+Date: Fri, 13 Jan 2006 16:27:14 -0600
+From: Eric Van Hensbergen <ericvh@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]: v9fs: add readpage support
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060113141445.14b6469a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43C7F35A.9010703@summitinstruments.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+References: <20060111011437.451FD5A809A@localhost.localdomain>
+	 <20060111033821.4b3d4d7b.akpm@osdl.org>
+	 <a4e6962a0601131345x6bf4ef3ftf3e6c6fb7bb2b530@mail.gmail.com>
+	 <20060113141445.14b6469a.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 01:37:14PM -0500, Arne R. van der Heyde wrote:
-> I am trying to connect two identical MSI K8N Neo4-F servers with NVIDIA 
-> nForce4 gigabit Lan ports. When the two ports are connected together via 
-> a crossover cable, neither computer is able to detect a carrier on the 
-> Lan ports and are not able to communicate. When either of the nForce4 
-> gigabit port is connected to a Lan port on another computer with a 
-> different Lan hardware or to a port on a switch the forcedeth drivers 
-> detect a carrier and are able to communicate.
+On 1/13/06, Andrew Morton <akpm@osdl.org> wrote:
+> Eric Van Hensbergen <ericvh@gmail.com> wrote:
+> >
+> > I went looking for an example of how to do this better.  More or less,
+> > v9fs reads and writes are similar to DirectIO since they don't go
+> > through the page-cache.
+>
+> hm.  Why not?
+>
 
-Gigabit does NOT use cross over cables.  You connect gig ports with a
-normal ethernet cable at all times unless you are connecting to a 10 or
-100mbit port at the other end.  When running at gigabit speed, there are
-4 pairs of wire in use with full duplex on all 4 pairs.  10 and 100mbit
-have a single pair for data each way, and hence need the cross over when
-not connecting to a switch/router.
+At the moment we'd rather not cache anything with v9fs as it hides
+operations from the servers, and in the case of synthetic servers it
+can be a bad thing.  There is a somewhat well-understood strategy for
+how to do cacheing of static files in a sane manner under 9P, but we
+were holding off on trying to move that into v9fs for the time being. 
+The only reason we added the read-only mmap support back in was to
+support users who were trying to access executables over 9P
+connections.
 
-> It appears that the nForce4 Gigabit ports are not generating a carrier. 
-> Does the nForce4 not provide standard ethernet ports? If they are 
-> standard ethernet ports, how do I tell forcedeth to generate a carrier? 
-> Also how do I get forcedeth to run at a Gigabit?
+> >
+> > Now, that being said, it still seems to me to be a bit heavy weight --
+> > do folks have a better pointer to code that I can use as an example of
+> > how to do this more efficiently?
+>
+> Not really.  If that's what you need to do then that's the way to do it.
+> We've had nasty races and other problems wrt invalidate_inode_pages2 and
+> pagefaults, so I suggest you test that mix carefully.
+>
+> Have you tried fsx-linux?  It's really good for finding data integrity
+> bugs.  There's a copy in
+> http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz.
+>
 
-Hopefully using the right cable type will solve the problem.
+We've been regression testing with vanilla fsx, I'll upgrade to
+fsx-linux and make sure we are clean.
 
-Len Sorensen
+>
+> I'd suggest that you want the mapping->nrpages test - it'll be a useful
+> speedup in the common case.
+>
+
+Yeah, as I was tracing through the invalidate_inode_pages2() this
+morning I realized this is probably a good idea.  Should have a new
+patch to you by the end of the weekend.
+
+          -eric

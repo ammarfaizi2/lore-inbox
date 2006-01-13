@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422706AbWAMPAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422708AbWAMPCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422706AbWAMPAd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422708AbWAMPAd
+	id S1422708AbWAMPCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:02:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422711AbWAMPCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:00:33 -0500
-Received: from host27-37.discord.birch.net ([65.16.27.37]:36704 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S1422706AbWAMPAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:00:32 -0500
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Lee Revell'" <rlrevell@joe-job.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: Dual core Athlons and unsynced TSCs
-Date: Fri, 13 Jan 2006 09:10:36 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcYXxZRC9OaNBs5sT0insUgU6cqR2wAjb+3w
-In-Reply-To: <1137104260.2370.85.camel@mindpipe>
-Message-ID: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 13 Jan 2006 14:54:07.0724 (UTC) FILETIME=[34674AC0:01C61851]
+	Fri, 13 Jan 2006 10:02:25 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29371 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1422708AbWAMPCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 10:02:25 -0500
+Date: Fri, 13 Jan 2006 16:02:24 +0100
+From: Jan Kara <jack@suse.cz>
+To: Valdis.Kletnieks@vt.edu
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.15-mm3 - make useless quota error message informative
+Message-ID: <20060113150224.GB9978@atrey.karlin.mff.cuni.cz>
+References: <200601122044.k0CKihol003230@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601122044.k0CKihol003230@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Lee Revell
-> Sent: Thursday, January 12, 2006 4:18 PM
-> To: linux-kernel
-> Subject: Dual core Athlons and unsynced TSCs
+> fs/quota_v2.c can, under some conditions, issue a kernel message that
+> says, in totality, 'failed read'.  This patch does the following:
 > 
-> It's been known for quite some time that the TSCs are not 
-> synced between cores on Athlon X2 machines and this screws up 
-> the kernel's timekeeping, as it still uses the TSC as the 
-> default time source on these machines.
+> 1) Gives a hint who issued the error message, so people reading the logs
+> don't have to go grepping the entire kernel tree (with 11 false positives).
 > 
-> This problem still seems to be present in the latest kernels. 
->  What is the plan to fix it?  Is the fix simply to make the 
-> kernel use the ACPI PM timer by default on Athlon X2?
+> 2) Say what amount of data we expected, and actually got.
+> 
+> Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+> ---
+> --- linux-2.6.15-mm3/fs/quota_v2.c.quot-bug	2006-01-02 22:21:10.000000000 -0500
+> +++ linux-2.6.15-mm3/fs/quota_v2.c	2006-01-12 15:26:43.000000000 -0500
+> @@ -35,7 +35,8 @@ static int v2_check_quota_file(struct su
+>   
+>  	size = sb->s_op->quota_read(sb, type, (char *)&dqhead, sizeof(struct v2_disk_dqheader), 0);
+>  	if (size != sizeof(struct v2_disk_dqheader)) {
+> -		printk("failed read\n");
+> +		printk("quota_v2: failed read expected=%d got=%d\n",
+> +			sizeof(struct v2_disk_dqheader), size);
+>  		return 0;
+>  	}
+>  	if (le32_to_cpu(dqhead.dqh_magic) != quota_magics[type] ||
+>  
 
+  The patch is fine. Thanks for fixing. I wonder how I managed to write such
+error message ;).
 
-Do we know if this also affects dual-core opterons?
+									Honza
 
-The symptoms are that the clocks run at 2x the speed, correct?
-
-                               Roger
-
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

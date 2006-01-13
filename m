@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423024AbWAMWZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423030AbWAMWZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423024AbWAMWZI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423025AbWAMWZH
+	id S1423030AbWAMWZY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423029AbWAMWZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:25:07 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:29550 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1423024AbWAMWZF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:25:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oVQ9F+VdNqW5sQg1vx4bx0CSARkbEOZ+o72YGiCWuhKyILjY9cwSKYfGyU5qVWAMSvti51iIXNAi9sPIdw2D382SERtxS/f/su79mOnw7DnCigzpbbnGVMe0YYEc2erW3Kyy20drJRm+fCoOHR9RpSicBViIisyhRdgA502mRnE=
-Message-ID: <d120d5000601131425m729e7aa5vc36fce77b09e33c1@mail.gmail.com>
-Date: Fri, 13 Jan 2006 17:25:04 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
-       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <1137190444.4854.21.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 13 Jan 2006 17:25:23 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:8465 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1423025AbWAMWZV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:25:21 -0500
+Date: Fri, 13 Jan 2006 17:25:12 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: wireless: recap of current issues (actions)
+Message-ID: <20060113222512.GN16166@tuxdriver.com>
+Mail-Followup-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213311.GI16166@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051225212041.GA6094@hansmi.ch>
-	 <1137022900.5138.66.camel@localhost.localdomain>
-	 <20060112000830.GB10142@hansmi.ch>
-	 <200601122312.05210.dtor_core@ameritech.net>
-	 <1137189319.4854.12.camel@localhost.localdomain>
-	 <d120d5000601131405w4e20e37fna17767624a4ebf6@mail.gmail.com>
-	 <1137190444.4854.21.camel@localhost.localdomain>
+In-Reply-To: <20060113213311.GI16166@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > Right, so do we need "no translation, fnkeyfirst and fnkeylast" option
-> > or just "fnkeyfirst and fnkeyast"?
->
-> I think "no translation" should still be around if people want to handle
-> it entirely from userland no ?
->
-> That is:
->
->  - no translation : nothing special is done, Fx sends Fx keycode
-> regardless of Fn key, Fn key itsef sends a keycode for itself, there is
-> no emulation of numlock
->
->  - fnkeyfirst / fnkeylast : Either Fx is translated and Fn-Fx is not or
-> the opposite. Numlock emulation is enabled.
+Actions
+=======
 
-OK then, I will push the patch to Linus.
+I need to establish a public git tree for wireless.  I would like for
+this to be on kernel.org, but I haven't got an account established
+there yet.  I've been dragging my feet a little, hoping that the
+kernel.org account would materialize.
 
---
-Dmitry
+I intend to get the sipsolutions softmac code into the wireless
+development kernels ASAP.  I hope this will spur driver writers that
+need this functionality to start consolidating on the in-kernel stack.
+
+Obviously, what to do with the DeviceScape stack is a pressing issue.
+I am open to taking patches to introduce the DeviceScape stack on a
+branch under the (still coming) wireless tree.  Obviously, patches
+that bring features from the DeviceScape stack to the ieee80211 stack
+would be generally welcome.
+
+Since we are toying with the issue of multiple stacks (at least in the
+wireless development kernels), some thought needs to be done w.r.t. how
+to make a final decision between the two stacks.  An objective lists
+of functional feature requirements seems like a good place to start.
+IOW, I would like to have a list of features that would trigger the
+removal of one stack shortly after the other stack achieves support
+for the list.  Is this feasible?
+-- 
+John W. Linville
+linville@tuxdriver.com

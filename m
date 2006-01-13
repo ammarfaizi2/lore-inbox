@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbWAMQSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422731AbWAMQWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965032AbWAMQSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 11:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWAMQSu
+	id S1422731AbWAMQWA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 11:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422735AbWAMQWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 11:18:50 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:54770 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965032AbWAMQSt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 11:18:49 -0500
+	Fri, 13 Jan 2006 11:22:00 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:55119 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422732AbWAMQV6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 11:21:58 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=YWiXL57bL9BZZn8Gp0xUa9IiewTBsvMhiTwGePyEwvt4rRp2U+CsVmEgaFiX1JHQAd5PmadExyobQ27L0Z/lPv6PhYHDt5EpfyjkUp6f+mW9oINogaFnE54h+ZYWccACMCZGz/zbWX7T3ClVLzu33xKXDDQNjJ8jgsplWUjbtOQ=
-Date: Fri, 13 Jan 2006 19:36:01 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Evgeniy <dushistov@mail.ru>
-Subject: Re: Oops in ufs_fill_super at mount time
-Message-ID: <20060113163601.GA13738@mipter.zuzino.mipt.ru>
-References: <20060113005450.GA7971@mipter.zuzino.mipt.ru> <Pine.LNX.4.64.0601121700041.3535@g5.osdl.org> <20060113102136.GA7868@mipter.zuzino.mipt.ru> <Pine.LNX.4.64.0601130739540.3535@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mEDaPyX04ntIYJBVXhh7ro8dm0y7QjONjvlC0zCkyKzGgBhIToV227fn+VTBPq8VMM8meJfw0hPLE6Z39kttisrYrzb0FxilQL/QpgwXtuZYQ8FF8/R7RzLOJBcosXMUJrNFSXg89nmfBo5FisPX6t89wD7T2RCMbtDPAH0lYrI=
+Message-ID: <728201270601130814k37c31f7bxd04a1fe44213b430@mail.gmail.com>
+Date: Fri, 13 Jan 2006 10:14:37 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: jeff shia <tshxiayu@gmail.com>
+Subject: Re: something about disk fragmentation
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7cd5d4b40601130158l274a3b19t13f2a58a28cc3819@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601130739540.3535@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+References: <7cd5d4b40601110501w40bc28f0peb13cdbb082e2b4a@mail.gmail.com>
+	 <728201270601110633i2eb8c71dq8a0c23d9e7ad724f@mail.gmail.com>
+	 <7cd5d4b40601130158l274a3b19t13f2a58a28cc3819@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 07:45:12AM -0800, Linus Torvalds wrote:
-> On Fri, 13 Jan 2006, Alexey Dobriyan wrote:
->
-> > On Thu, Jan 12, 2006 at 05:14:25PM -0800, Linus Torvalds wrote:
-> > >
-> > > This is a free'd page fault, so it's due to DEBUG_PAGEALLOC rather than a
-> > > wild pointer.
-> >
-> > That's true. Turning it off makes mounting reliable again.
-> >
-> > > Is that something new for you? Maybe the bug is older, but you've enabled
-> > > PAGEALLOC only recently?
-> >
-> > Yup. In response to hangs re disk activity.
->
-> Ok, That explains why it started happening for you only _now_, but not why
-> it happens in the first place.
->
-> Can you test if the patch that Evgeniy sent out fixes it for you even with
-> PAGEALLOC debugging enabled?
+On 1/13/06, jeff shia <tshxiayu@gmail.com> wrote:
+> Where Can I get the io schedulers?
+> Thank you!
 
-It does the trick! And you saved me from going before 2.6.0. ;-)
+See the documentation under the kernel source tree. The code is
+already there. You need only to select by passing correct kernel
+parameters.
+elevator=       [IOSCHED]
+                        Format: {"as" | "cfq" | "deadline" | "noop"}
+                        See Documentation/block/as-iosched.txt and
+                        Documentation/block/deadline-iosched.txt for details.
 
+Regards
+Ram Gupta

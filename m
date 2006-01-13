@@ -1,34 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161274AbWAMHrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWAMHtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161274AbWAMHrr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 02:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161253AbWAMHrr
+	id S932381AbWAMHtM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 02:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWAMHtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 02:47:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:57787 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161284AbWAMHrq (ORCPT
+	Fri, 13 Jan 2006 02:49:12 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37308 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932381AbWAMHtK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 02:47:46 -0500
-Date: Thu, 12 Jan 2006 23:47:26 -0800
+	Fri, 13 Jan 2006 02:49:10 -0500
+Date: Thu, 12 Jan 2006 23:48:46 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: hugh@veritas.com, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: smp race fix between invalidate_inode_pages* and do_no_page
-Message-Id: <20060112234726.676c3873.akpm@osdl.org>
-In-Reply-To: <43C75834.3040007@yahoo.com.au>
-References: <20051213193735.GE3092@opteron.random>
-	<20051213130227.2efac51e.akpm@osdl.org>
-	<20051213211441.GH3092@opteron.random>
-	<20051216135147.GV5270@opteron.random>
-	<20060110062425.GA15897@opteron.random>
-	<43C484BF.2030602@yahoo.com.au>
-	<20060111082359.GV15897@opteron.random>
-	<20060111005134.3306b69a.akpm@osdl.org>
-	<20060111090225.GY15897@opteron.random>
-	<20060111010638.0eb0f783.akpm@osdl.org>
-	<20060111091327.GZ15897@opteron.random>
-	<Pine.LNX.4.61.0601111949070.6448@goblin.wat.veritas.com>
-	<43C75834.3040007@yahoo.com.au>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [PATCH] reiserfs: remove kmalloc wrapper
+Message-Id: <20060112234846.3a20f5a1.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0601130942540.20349@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0601130930130.17696@sbz-30.cs.Helsinki.FI>
+	<20060112233920.4b3b0a26.akpm@osdl.org>
+	<Pine.LNX.4.58.0601130942540.20349@sbz-30.cs.Helsinki.FI>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -36,15 +26,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
 >
-> (I guess reclaim might be one, but quite rare -- any other significant
->  lock_page users that we might hit?)
+> Hi Andrew,
+> 
+> Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+> > > This patch removes kmalloc() wrapper from fs/reiserfs/. Please note that 
+> > >  a reiserfs /proc entry format is changed because kmalloc statistics is 
+> > >  removed.
+> 
+> On Thu, 12 Jan 2006, Andrew Morton wrote:
+> > I wonder if it'd be safer to just spit out a zero where that number used to
+> > be?
+> 
+> Yup but then again it has no business being there in the first place. 
+> Please let me know if you like printing out zero instead and I'll whack up 
+> a patch.
+> 
 
-The only time 2.6 holds lock_page() for a significant duration is when
-bringing the page uptodate with readpage or memset.
+That's up to the reiserfs guys (please).
 
-The scalability risk here is 100 CPUs all faulting in the same file in the
-same pattern.  Like the workload which caused the page_table_lock splitup
-(that was with anon pages).  All the CPUs could pretty easily get into sync
-and start arguing over every single page's lock.
+It would have helped had you described the exact /proc pathname so people
+could remember whether there's anything which actually uses it.

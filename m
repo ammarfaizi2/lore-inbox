@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423030AbWAMWZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423029AbWAMW0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423030AbWAMWZY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:25:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423029AbWAMWZX
+	id S1423029AbWAMW0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423032AbWAMW0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:25:23 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:8465 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1423025AbWAMWZV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:25:21 -0500
-Date: Fri, 13 Jan 2006 17:25:12 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: wireless: recap of current issues (actions)
-Message-ID: <20060113222512.GN16166@tuxdriver.com>
-Mail-Followup-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213311.GI16166@tuxdriver.com>
+	Fri, 13 Jan 2006 17:26:50 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:61313 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1423029AbWAMW0t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:26:49 -0500
+Date: Fri, 13 Jan 2006 17:26:48 -0500
+To: "Arne R. van der Heyde" <vanderHeydeAR@summitinstruments.com>
+Cc: linux-kernel@vger.kernel.org, c-d.hailfinger.kernel.2004@gmx.net
+Subject: Re: no carrier when using forcedeth on MSI K8N Neo4-F
+Message-ID: <20060113222647.GB18972@csclub.uwaterloo.ca>
+References: <43C7F35A.9010703@summitinstruments.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060113213311.GI16166@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <43C7F35A.9010703@summitinstruments.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actions
-=======
+On Fri, Jan 13, 2006 at 01:37:14PM -0500, Arne R. van der Heyde wrote:
+> I am trying to connect two identical MSI K8N Neo4-F servers with NVIDIA 
+> nForce4 gigabit Lan ports. When the two ports are connected together via 
+> a crossover cable, neither computer is able to detect a carrier on the 
+> Lan ports and are not able to communicate. When either of the nForce4 
+> gigabit port is connected to a Lan port on another computer with a 
+> different Lan hardware or to a port on a switch the forcedeth drivers 
+> detect a carrier and are able to communicate.
 
-I need to establish a public git tree for wireless.  I would like for
-this to be on kernel.org, but I haven't got an account established
-there yet.  I've been dragging my feet a little, hoping that the
-kernel.org account would materialize.
+Gigabit does NOT use cross over cables.  You connect gig ports with a
+normal ethernet cable at all times unless you are connecting to a 10 or
+100mbit port at the other end.  When running at gigabit speed, there are
+4 pairs of wire in use with full duplex on all 4 pairs.  10 and 100mbit
+have a single pair for data each way, and hence need the cross over when
+not connecting to a switch/router.
 
-I intend to get the sipsolutions softmac code into the wireless
-development kernels ASAP.  I hope this will spur driver writers that
-need this functionality to start consolidating on the in-kernel stack.
+> It appears that the nForce4 Gigabit ports are not generating a carrier. 
+> Does the nForce4 not provide standard ethernet ports? If they are 
+> standard ethernet ports, how do I tell forcedeth to generate a carrier? 
+> Also how do I get forcedeth to run at a Gigabit?
 
-Obviously, what to do with the DeviceScape stack is a pressing issue.
-I am open to taking patches to introduce the DeviceScape stack on a
-branch under the (still coming) wireless tree.  Obviously, patches
-that bring features from the DeviceScape stack to the ieee80211 stack
-would be generally welcome.
+Hopefully using the right cable type will solve the problem.
 
-Since we are toying with the issue of multiple stacks (at least in the
-wireless development kernels), some thought needs to be done w.r.t. how
-to make a final decision between the two stacks.  An objective lists
-of functional feature requirements seems like a good place to start.
-IOW, I would like to have a list of features that would trigger the
-removal of one stack shortly after the other stack achieves support
-for the list.  Is this feasible?
--- 
-John W. Linville
-linville@tuxdriver.com
+Len Sorensen

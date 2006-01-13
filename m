@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWAMOsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422704AbWAMOua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422701AbWAMOsp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 09:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWAMOsp
+	id S1422704AbWAMOua (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 09:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422707AbWAMOu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 09:48:45 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:2250 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1422701AbWAMOso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 09:48:44 -0500
-Subject: Re: [RFC: 2.6 patch] MTD_NAND_SHARPSL and MTD_NAND_NANDSIM should
-	be tristate's
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: dwmw2@infradead.org, LKML <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20060113114817.GG29663@stusta.de>
-References: <20060113114817.GG29663@stusta.de>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 14:45:02 +0000
-Message-Id: <1137163503.6644.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 09:50:29 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44555 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422705AbWAMOu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 09:50:28 -0500
+Date: Fri, 13 Jan 2006 15:50:27 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, git@vger.kernel.org
+Subject: Re: git pull on Linux/ACPI release tree
+Message-ID: <20060113145027.GN29663@stusta.de>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005A13505@hdsmsx401.amr.corp.intel.com> <Pine.LNX.4.64.0601081111190.3169@g5.osdl.org> <20060108230611.GP3774@stusta.de> <Pine.LNX.4.64.0601081909250.3169@g5.osdl.org> <20060110201909.GB3911@stusta.de> <20060112013706.GA3339@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060112013706.GA3339@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 12:48 +0100, Adrian Bunk wrote:
-> MTD_NAND=m and MTD_NAND_SHARPSL=y or MTD_NAND_NANDSIM=y are illegal 
-> combinations that mustn't be allowed.
+On Wed, Jan 11, 2006 at 05:37:06PM -0800, Greg KH wrote:
+> On Tue, Jan 10, 2006 at 09:19:09PM +0100, Adrian Bunk wrote:
+> > 
+> > I am using the workaround of carrying the patches in a mail folder, 
+> > applying them in a batch, and not pulling from your tree between 
+> > applying a batch of patches and you pulling from my tree.
 > 
-> This patch fixes this bug by making MTD_NAND_SHARPSL and 
-> MTD_NAND_NANDSIM tristate's.
-> 
-> Additionally, it fixes some whitespace damage at these options.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> ---
-> 
-> This patch was already sent on:
-> - 31 Dec 2005
-> 
+> Ick, I'd strongly recommend using quilt for this.  It works great for
+> just this kind of workflow.
 
+It works in my case because I'm only going through the folder with the 
+trivial patches in batches and ask Linus to pull from my tree 
+immediately after I'm finished.
 
-I can ack the MTD_NAND_SHARPSL part of the patch.
+That would certainly not be a recommended practice for a subsystem 
+maintainer, but I'm handling only trivial patches.
 
-Richard
+> thanks,
+> 
+> greg k-h
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

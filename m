@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422838AbWAMTSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422846AbWAMTVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422838AbWAMTSK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422839AbWAMTSK
+	id S1422846AbWAMTVk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:21:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422845AbWAMTVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:18:10 -0500
-Received: from amun.rz.tu-clausthal.de ([139.174.2.12]:7118 "EHLO
-	amun.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id S1422838AbWAMTSI convert rfc822-to-8bit (ORCPT
+	Fri, 13 Jan 2006 14:21:40 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:1586 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1422843AbWAMTVj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:18:08 -0500
-From: "Hemmann, Volker Armin" <volker.armin.hemmann@tu-clausthal.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: two (little) problems wit 2.6.15-git7 one with build, one with acpi
-Date: Fri, 13 Jan 2006 20:18:03 +0100
-User-Agent: KMail/1.9
-References: <20060112231528.025c3a0b.akpm@osdl.org>
-In-Reply-To: <20060112231528.025c3a0b.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 13 Jan 2006 14:21:39 -0500
+Date: Fri, 13 Jan 2006 20:23:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [git patches] 2.6.x net driver updates
+Message-ID: <20060113192316.GX3945@suse.de>
+References: <20060112221322.GA25470@havoc.gtf.org> <Pine.LNX.4.64.0601121423120.3535@g5.osdl.org> <20060112143938.5cf7d6a5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601132018.04013.volker.armin.hemmann@tu-clausthal.de>
+In-Reply-To: <20060112143938.5cf7d6a5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jan 12 2006, Andrew Morton wrote:
+> Linus Torvalds <torvalds@osdl.org> wrote:
+> >
+> > On Thu, 12 Jan 2006, Jeff Garzik wrote:
+> >  > 
+> >  > dann frazier:
+> >  >       CONFIG_AIRO needs CONFIG_CRYPTO
+> > 
+> >  I think this is done wrong.
+> > 
+> >  It should "select CRYPTO" rather than "depends on CRYPTO".
+> > 
+> >  Otherwise people won't see it just because they don't have crypto enabled, 
+> >  which is not very user-friendly.
+> > 
+> 
+> Yes, I think that's much more Aunt-Nellie-friendly, but Roman considers it
+> abuse of the Kconfig system in ways which I never completely understood?
 
-On Friday 13 January 2006 08:15, you wrote:
-> Volker, I think the `make install' thing is fixed, or will soon be.
->
-> If the resume problem doesn't get fixed within the next few days, please
-> raise a report at bugzilla.kernel.org.
->
-> This is a regression wrt 2.6.15, so we're keen to fix it.
->
+'select' is really cool as a concept, but when you can't figure out why
+you cannot disable CONFIG_FOO because CONFIG_BAR selects it it's really
+annoying. Would be nice to actually be able to see if another option has
+selected this option.
 
-I tried -git8 last night.
-make all modules_install install gave me again this error:
+-- 
+Jens Axboe
 
-if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map  
-2.6.15-git8; fi
-WARNING: Couldn't open directory /lib/modules/2.6.15-git8: No such file or 
-directory
-FATAL: Could not open /lib/modules/2.6.15-git8/modules.dep.temp for writing: 
-No such file or directory
-make: *** [_modinst_post] Fehler 1
-
-
-and trying echo mem > /sys/power/state again made my box more or less dead.
-I had to pull the plug, because the reset switch did not work.
-
-I will try the nexft git version this night, but I have to wait some more 
-hours.
-
-
-Glück Auf
-Volker

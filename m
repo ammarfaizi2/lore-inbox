@@ -1,165 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422759AbWAMSe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWAMSgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422759AbWAMSe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 13:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422809AbWAMSe4
+	id S1422805AbWAMSgT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 13:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422810AbWAMSgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 13:34:56 -0500
-Received: from smtp15.wanadoo.fr ([193.252.23.84]:33493 "EHLO
-	smtp15.wanadoo.fr") by vger.kernel.org with ESMTP id S1422759AbWAMSez
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 13:34:55 -0500
-X-ME-UUID: 20060113183444366.59615700008B@mwinf1501.wanadoo.fr
-Message-ID: <5880875.1137177284360.JavaMail.www@wwinf1509>
-From: Denis Semmau <denis.semmau@wanadoo.fr>
-Reply-To: denis.semmau@wanadoo.fr
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] RP filter support for IPv6, kernel 2.6.15
+	Fri, 13 Jan 2006 13:36:19 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:22746 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1422805AbWAMSgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 13:36:18 -0500
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Dave Miller <davem@redhat.com>, Tejun Heo <htejun@gmail.com>,
+       axboe@suse.de, bzolnier@gmail.com, james.steward@dynamicratings.com,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060113182035.GC25849@flint.arm.linux.org.uk>
+References: <11371658562541-git-send-email-htejun@gmail.com>
+	 <1137167419.3365.5.camel@mulgrave>
+	 <20060113182035.GC25849@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 12:35:24 -0600
+Message-Id: <1137177324.3365.67.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [86.201.114.6]
-X-Wum-Nature: EMAIL-NATURE
-X-WUM-FROM: |~|
-X-WUM-TO: |~|
-X-WUM-REPLYTO: |~|
-Date: Fri, 13 Jan 2006 19:34:44 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've made a patch in order to enable reverse path filtering for IPv6.
-The rp_filter sysctl has been added, and some structures have changed in order to support this new feature.
-The main part has been added into net/ipv6/ip6_output.c, with the same name of functions than for IPv4 (the new function is called rt6_validate_source).
+On Fri, 2006-01-13 at 18:20 +0000, Russell King wrote:
+> I think you're misunderstanding the issue.  I'll give you essentially
+> my understanding of the explaination that Dave Miller gave me a number
+> of years ago.  This is from memory, so Dave may wish to correct it.
+> 
+> 1. When a driver DMAs data into a page cache page, it is written directly
+>    to RAM and is made visible to the kernel mapping via the DMA API.  As
+>    a result, there will be no cache lines associated with the kernel
+>    mapping at the point when the driver hands the page back to the page
+>    cache.
 
+Yes ... that's essentially what I said: DMA API makes us kernel
+coherent.  However, we explicitly *don't* mandate the way architectures
+do this.  It's certainly true, all the ones I know work by flushing the
+kernel mapping cache lines, but I don't think you're entitled to rely on
+this behaviour ... it's not inconcievable for large external cache
+machines that the DMA could be done straight into the kernel cache.
 
-Signed-off-by: Denis Semmau <denis.semmau@wanadoo.fr>
+>    However, in the PIO case, there is the possibility that the data read
+>    from the device into the kernel mapping results in cache lines
+>    associated with the page.  Moreover, if the cache is write-allocate,
+>    you _will_ have cache lines.
+> 
+>    Therefore, you have two completely differing system states depending
+>    on how the driver decided to transfer data from the device to the page
+>    cache.
+> 
+>    As such, drivers must ensure that PIO data transfers have the same
+>    system state guarantees as DMA data transfers.
+> 
+>    ISTR davem recommended flush_dcache_page() be used for this.
 
+Ah ... perhaps this is the misunderstanding.  To clear the kernel lines
+associated with the page you use flush_kernel_dcache_page().
+flush_dcache_page() is used to make a page cache page coherent with its
+user mappings.
 
-diff -Naur linux-2.6.15.old/include/linux/ipv6.h linux-2.6.15.new/include/linux/ipv6.h
---- linux-2.6.15.old/include/linux/ipv6.h       2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.new/include/linux/ipv6.h       2006-01-11 20:12:03.000000000 +0100
-@@ -127,6 +127,7 @@
-  */
- struct ipv6_devconf {
-        __s32           forwarding;
-+        __s32           rp_filter;
-        __s32           hop_limit;
-        __s32           mtu6;
-        __s32           accept_ra;
-@@ -151,6 +152,7 @@
- /* index values for the variables in ipv6_devconf */
- enum {
-        DEVCONF_FORWARDING = 0,
-+       DEVCONF_RPFILTER = 0,
-        DEVCONF_HOPLIMIT,
-        DEVCONF_MTU6,
-        DEVCONF_ACCEPT_RA,
-diff -Naur linux-2.6.15.old/include/linux/sysctl.h linux-2.6.15.new/include/linux/sysctl.h
---- linux-2.6.15.old/include/linux/sysctl.h     2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.new/include/linux/sysctl.h     2006-01-11 20:11:51.000000000 +0100
-@@ -524,6 +524,7 @@
-        NET_IPV6_MAX_DESYNC_FACTOR=15,
-        NET_IPV6_MAX_ADDRESSES=16,
-        NET_IPV6_FORCE_MLD_VERSION=17,
-+       NET_IPV6_RPFILTER=18,
-        __NET_IPV6_MAX
- };
+> 2. (this is my own)  The cachetlb document specifies quite clearly what
+>    is required whenever a page cache page is written to - that is
+>    flush_dcache_page() is called.  The situation when a driver uses PIO
+>    quote clearly violates the requirements set out in that document.
+> 
+> >From (2), it is quite clear that flush_dcache_page() is the correct
+> function to use, otherwise we would end up with random set of state
+> of pages in the page cache.  (1) merely reinforces that it's the
+> correct place for the decision to be made.  In fact, it's the only
+> part of the kernel which _knows_ what needs to be done.
 
-diff -Naur linux-2.6.15.old/net/ipv6/addrconf.c linux-2.6.15.new/net/ipv6/addrconf.c
---- linux-2.6.15.old/net/ipv6/addrconf.c        2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.new/net/ipv6/addrconf.c        2006-01-11 20:12:30.000000000 +0100
-@@ -150,6 +150,7 @@
+True, but your assumption that a driver should be doing this is what I'm
+saying is incorrect.  A driver's job is to deliver data coherently to
+the kernel.  The kernel's job is to deliver it coherently to the user.
 
- struct ipv6_devconf ipv6_devconf = {
-        .forwarding             = 0,
-+       .rp_filter              = 0,
-        .hop_limit              = IPV6_DEFAULT_HOPLIMIT,
-        .mtu6                   = IPV6_MIN_MTU,
-        .accept_ra              = 1,
-@@ -172,6 +173,7 @@
+Perhaps we should take this to linux-arch ... the audience there is well
+versed in these arcane problems?
 
- static struct ipv6_devconf ipv6_devconf_dflt = {
-        .forwarding             = 0,
-+       .rp_filter              = 0,
-        .hop_limit              = IPV6_DEFAULT_HOPLIMIT,
-        .mtu6                   = IPV6_MIN_MTU,
-        .accept_ra              = 1,
-@@ -3111,6 +3113,7 @@
- {
-        memset(array, 0, bytes);
-        array[DEVCONF_FORWARDING] = cnf->forwarding;
-+       array[DEVCONF_RPFILTER] = cnf->rp_filter;
-        array[DEVCONF_HOPLIMIT] = cnf->hop_limit;
-        array[DEVCONF_MTU6] = cnf->mtu6;
-        array[DEVCONF_ACCEPT_RA] = cnf->accept_ra;
-@@ -3586,6 +3589,14 @@
-                        .proc_handler   =       &proc_dointvec,
-                },
-                {
-+                       .ctl_name       =       NET_IPV6_RPFILTER,
-+                       .procname       =       "rp_filter",
-+                       .data           =       &ipv6_devconf.rp_filter,
-+                       .maxlen         =       sizeof(int),
-+                       .mode           =       0644,
-+                       .proc_handler   =       &proc_dointvec,
-+               },
-+               {
-                        .ctl_name       =       0,      /* sentinel */
-                }
-        },
-diff -Naur linux-2.6.15.old/net/ipv6/ip6_output.c linux-2.6.15.new/net/ipv6/ip6_output.c
---- linux-2.6.15.old/net/ipv6/ip6_output.c      2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.new/net/ipv6/ip6_output.c      2006-01-13 01:24:22.000000000 +0100
-@@ -306,11 +306,24 @@
-        return 0;
- }
+James
 
-+static int rt6_validate_source( struct sk_buff *skb) {
-+         struct rt6_info *rt;
-+         rt=rt6_lookup(&skb->nh.ipv6h->saddr,NULL,0,0);
-+         if ( rt!=NULL ) {
-+           if (rt->rt6i_idev->dev == skb->dev )
-+             return 0;
-+         }
-+         return -1;
-+}
-+
-+
- static inline int ip6_forward_finish(struct sk_buff *skb)
- {
-        return dst_output(skb);
- }
-
-+
-+
- int ip6_forward(struct sk_buff *skb)
- {
-        struct dst_entry *dst = skb->dst;
-@@ -320,6 +333,26 @@
-        if (ipv6_devconf.forwarding == 0)
-                goto error;
-
-+       /*RP_FILTER*/
-+       struct inet6_dev *idev = NULL;
-+       idev = in6_dev_get(skb->dev);
-+       if (!idev) {
-+         printk(KERN_WARNING "idev error for RP_Filter\n");
-+         goto error;
-+       }
-+
-+       if (ipv6_devconf.rp_filter & idev->cnf.rp_filter ) {
-+         if (rt6_validate_source(skb)<0) {
-+           printk(KERN_WARNING "RP_FILTER-- Packet refused from %x:%x:%x:%x:%x:%x:%x:%x to %x:%x:%x:%x:%x:%x:%x:%x from %s\n",NIP6(skb->nh.ipv6h->saddr),NIP6(skb->nh.ipv6h->daddr),skb->dev->name);
-+           goto error;
-+         }
-+
-+       }
-+
-+       /*RP_FILTER END*/
-+
-+
-+
-        if (!xfrm6_policy_check(NULL, XFRM_POLICY_FWD, skb)) {
-                IP6_INC_STATS(IPSTATS_MIB_INDISCARDS);
-                goto drop;
 

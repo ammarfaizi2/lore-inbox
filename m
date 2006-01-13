@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161629AbWAMBVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWAMBcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161629AbWAMBVE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 20:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161630AbWAMBVE
+	id S964800AbWAMBcU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 20:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWAMBcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 20:21:04 -0500
-Received: from mailhub1.uq.edu.au ([130.102.148.128]:62986 "EHLO
-	mailhub1.uq.edu.au") by vger.kernel.org with ESMTP id S1161629AbWAMBVD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 20:21:03 -0500
-Date: Fri, 13 Jan 2006 11:20:48 +1000
-From: Adam Nielsen <adam.nielsen@uq.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: "umount: device is busy" when device is not in use?
-Message-ID: <20060113112048.2cf1f3ae@orps-it1.research.uq.edu.au>
-X-Mailer: Sylpheed-Claws 1.9.99 (GTK+ 2.6.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Jan 2006 20:32:20 -0500
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:7385 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964800AbWAMBcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 20:32:20 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+Date: Fri, 13 Jan 2006 12:32:01 +1100
+User-Agent: KMail/1.9
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+References: <20051227190918.65c2abac@localhost> <20051230145221.301faa40@localhost> <200601131213.14832.kernel@kolivas.org>
+In-Reply-To: <200601131213.14832.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601131232.01846.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Friday 13 January 2006 12:13, Con Kolivas wrote:
+> On Saturday 31 December 2005 00:52, Paolo Ornati wrote:
+> > WAS: [SCHED] Totally WRONG prority calculation with specific test-case
+> > (since 2.6.10-bk12)
+> > http://lkml.org/lkml/2005/12/27/114/index.html
+> >
+> > On Wed, 28 Dec 2005 10:26:58 +1100
+> >
+> > Con Kolivas <kernel@kolivas.org> wrote:
+> > > The issue is that the scheduler interactivity estimator is a state
+> > > machine and can be fooled to some degree, and a cpu intensive task that
+> > > just happens to sleep a little bit gets significantly better priority
+> > > than one that is fully cpu bound all the time. Reverting that change is
+> > > not a solution because it can still be fooled by the same process
+> > > sleeping lots for a few seconds or so at startup and then changing to
+> > > the cpu mostly-sleeping slightly behaviour. This "fluctuating"
+> > > behaviour is in my opinion worse which is why I removed it.
+> >
+> > Trying to find a "as simple as possible" test case for this problem
+> > (that I consider a BUG in priority calculation) I've come up with this
+> > very simple program:
+>
+> Hi Paolo.
+>
+> Can you try the following patch on 2.6.15 please? I'm interested in how
+> adversely this affects interactive performance as well as whether it helps
+> your test case.
 
-Is it possible to ask the kernel what processes are using a particular
-filesystem?
+I should make it clear. This patch _will_ adversely affect interactivity 
+because your test case desires that I/O bound tasks get higher priority, and 
+this patch will do that. This means that I/O bound tasks will be more 
+noticeable now. The question is how much do we trade off one for the other. 
+We almost certainly are biased a little too much on the interactive side on 
+the mainline kernel at the moment.
 
-The reason being I have a stubborn NFS mount that refuses to unmount
-saying it's in use, but I can't find what's using it:
-
-$ umount /mnt/data
-umount: /mnt/data: device is busy
-umount: /mnt/data: device is busy
-
-$ umount -f /mnt/data
-umount2: Device or resource busy
-umount: /mnt/data: device is busy
-umount2: Device or resource busy
-umount: /mnt/data: device is busy
-
-$ lsof | grep data
-<nothing>
-
-So the kernel obviously thinks the filesystem is in use, but I'm
-not sure how to find out what's using it.  No processes have their
-current working directory on this filesystem, and I'm sure there
-aren't any open files on it.
-
-Even forcefully unmounting the filesystem (-f) doesn't work, although
-I've never gotten that to work before.  Is it even possible to force an
-unmount of a filesystem that's in use?
-
-This is under kernel 2.6.14.
-
-Thanks,
-Adam.
+Cheers,
+Con

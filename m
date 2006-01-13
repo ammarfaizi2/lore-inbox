@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423071AbWAMWyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423070AbWAMW52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423071AbWAMWyU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423072AbWAMWyU
+	id S1423070AbWAMW52 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423073AbWAMW52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:54:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27609 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423071AbWAMWyT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:54:19 -0500
-Date: Fri, 13 Jan 2006 14:52:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kumar Gala <galak@gate.crashing.org>
-Cc: wim@iguana.be, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       iinuxppc-embedded@gate.crashing.org, dave@cray.org, paulus@samba.org
-Subject: Re: [PATCH] powerpc: Add support for the MPC83xx watchdog
-Message-Id: <20060113145259.6d38e296.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0601131618020.26648-100000@gate.crashing.org>
-References: <Pine.LNX.4.44.0601131618020.26648-100000@gate.crashing.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 17:57:28 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:60006 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1423070AbWAMW51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 17:57:27 -0500
+X-IronPort-AV: i="3.99,366,1131350400"; 
+   d="scan'208"; a="391640018:sNHT44725423968"
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [git pull] IB changes for 2.6.16-rc1
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 13 Jan 2006 14:57:03 -0800
+Message-ID: <ada64on4tz4.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 13 Jan 2006 22:57:04.0301 (UTC) FILETIME=[ABCA0DD0:01C61894]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kumar Gala <galak@gate.crashing.org> wrote:
->
-> Added support for the PowerPC MPC83xx watchdog.  The MPC83xx has a simple
-> watchdog that once enabled it can not be stopped, has some simple timeout
-> range selection, and the ability to either reset the processor or take
-> a machine check.
-> 
->
-> +static ushort timeout = 0xffff;
+Linus, please pull from
 
-There's no such thing ;)  I'll change this to u16, OK?
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
+This tree is also available from kernel.org mirrors at:
 
-> +static int mpc83xx_wdt_ioctl(struct inode *inode, struct file *file,
-> +			     unsigned int cmd,
-> +	unsigned long arg)
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-Whitespace went nutty in various places.  I'll fix that up.  Please see the
-followup patch.
+The pull will get the following changes:
 
+Eli Cohen:
+      IPoIB: Fix error path in ipoib_mcast_dev_flush()
+      IPoIB: Fix address handle refcounting for multicast groups
+      IPoIB: Fix memory leak of multicast group structures
+
+Ingo Molnar:
+      IB: convert from semaphores to mutexes
+
+Ishai Rabinovitz:
+      IB/mthca: Fix memory leak of multicast group structures
+
+Jack Morgenstein:
+      IB/mthca: Fix memory leaks in error handling
+
+Michael S. Tsirkin:
+      IB/mthca: fix page shift calculation in mthca_reg_phys_mr()
+      IB/mthca: prevent event queue overrun
+      IPoIB: Take dev->xmit_lock around mc_list accesses
+      IB/mthca: Cosmetic: use the ALIGN macro
+      IB/mthca: Initialize grh_present before using it
+
+Roland Dreier:
+      IB/mthca: kzalloc conversions
+      IB/mthca: Factor common MAD initialization code
+
+Sean Hefty:
+      IB: Add node_guid to struct ib_device
+
+ drivers/infiniband/core/cm.c                   |   29 +----
+ drivers/infiniband/core/device.c               |   23 ++--
+ drivers/infiniband/core/sysfs.c                |   22 +--
+ drivers/infiniband/core/ucm.c                  |   23 ++--
+ drivers/infiniband/core/uverbs.h               |    5 -
+ drivers/infiniband/core/uverbs_cmd.c           |  152 ++++++++++++------------
+ drivers/infiniband/core/uverbs_main.c          |    8 +
+ drivers/infiniband/hw/mthca/mthca_av.c         |   10 +-
+ drivers/infiniband/hw/mthca/mthca_cmd.c        |    7 +
+ drivers/infiniband/hw/mthca/mthca_dev.h        |    1 
+ drivers/infiniband/hw/mthca/mthca_eq.c         |   28 ++--
+ drivers/infiniband/hw/mthca/mthca_provider.c   |  132 ++++++++++++---------
+ drivers/infiniband/hw/mthca/mthca_qp.c         |    2 
+ drivers/infiniband/ulp/ipoib/ipoib.h           |    6 -
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c        |   31 ++---
+ drivers/infiniband/ulp/ipoib/ipoib_main.c      |   12 +-
+ drivers/infiniband/ulp/ipoib/ipoib_multicast.c |  105 +++++------------
+ drivers/infiniband/ulp/ipoib/ipoib_verbs.c     |    8 +
+ drivers/infiniband/ulp/ipoib/ipoib_vlan.c      |   10 +-
+ drivers/infiniband/ulp/srp/ib_srp.c            |   23 +---
+ include/rdma/ib_verbs.h                        |    2 
+ 21 files changed, 287 insertions(+), 352 deletions(-)

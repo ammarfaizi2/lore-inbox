@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161649AbWAMDTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161654AbWAMDUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161649AbWAMDTV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 22:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161651AbWAMDTU
+	id S1161654AbWAMDUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 22:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161667AbWAMDU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 22:19:20 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:28288 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161649AbWAMDTT
+	Thu, 12 Jan 2006 22:20:26 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:3457 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161654AbWAMDTv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 22:19:19 -0500
-Message-Id: <20060113032241.970014000@sorel.sous-sol.org>
+	Thu, 12 Jan 2006 22:19:51 -0500
+Message-Id: <20060113032245.823423000@sorel.sous-sol.org>
 References: <20060113032102.154909000@sorel.sous-sol.org>
-Date: Thu, 12 Jan 2006 18:37:43 -0800
+Date: Thu, 12 Jan 2006 18:37:49 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, jacmet@sunsite.dk
-Subject: [PATCH 05/17] ppc32: Re-add embed_config.c to ml300/ep405
-Content-Disposition: inline; filename=ppc32-re-add-embed_configc-to-ml300-ep405.patch
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "David S. Miller" <davem@davemloft.net>,
+       Bart De Schuymer <bdschuym@pandora.be>
+Subject: [PATCH 11/17] [EBTABLES] Dont match tcp/udp source/destination port for IP fragments
+Content-Disposition: inline; filename=fix-bridge-netfilter-matching-ip-fragments.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Commit 3e9e7c1d0b7a36fb8affb973a054c5098e27baa8 (ppc32: cleanup AMCC PPC40x
-eval boards to support U-Boot) broke the kernel for ML300 / EP405.
-
-It still compiles as there's a weak definition of the function in
-misc-embedded.c, but the kernel crashes as the bd_t fixup isn't performed.
-
-Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/ppc/boot/simple/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ net/bridge/netfilter/ebt_ip.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- linux-2.6.15.y.orig/arch/ppc/boot/simple/Makefile
-+++ linux-2.6.15.y/arch/ppc/boot/simple/Makefile
-@@ -190,6 +190,8 @@ boot-$(CONFIG_REDWOOD_5)	+= embed_config
- boot-$(CONFIG_REDWOOD_6)	+= embed_config.o
- boot-$(CONFIG_8xx)		+= embed_config.o
- boot-$(CONFIG_8260)		+= embed_config.o
-+boot-$(CONFIG_EP405)		+= embed_config.o
-+boot-$(CONFIG_XILINX_ML300)	+= embed_config.o
- boot-$(CONFIG_BSEIP)		+= iic.o
- boot-$(CONFIG_MBX)		+= iic.o pci.o qspan_pci.o
- boot-$(CONFIG_MV64X60)		+= misc-mv64x60.o
+--- linux-2.6.15.y.orig/net/bridge/netfilter/ebt_ip.c
++++ linux-2.6.15.y/net/bridge/netfilter/ebt_ip.c
+@@ -15,6 +15,7 @@
+ #include <linux/netfilter_bridge/ebtables.h>
+ #include <linux/netfilter_bridge/ebt_ip.h>
+ #include <linux/ip.h>
++#include <net/ip.h>
+ #include <linux/in.h>
+ #include <linux/module.h>
+ 
+@@ -51,6 +52,8 @@ static int ebt_filter_ip(const struct sk
+ 		if (!(info->bitmask & EBT_IP_DPORT) &&
+ 		    !(info->bitmask & EBT_IP_SPORT))
+ 			return EBT_MATCH;
++		if (ntohs(ih->frag_off) & IP_OFFSET)
++			return EBT_NOMATCH;
+ 		pptr = skb_header_pointer(skb, ih->ihl*4,
+ 					  sizeof(_ports), &_ports);
+ 		if (pptr == NULL)
 
 --

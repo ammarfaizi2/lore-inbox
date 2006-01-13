@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422892AbWAMTyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422946AbWAMTye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422892AbWAMTyP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:54:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422896AbWAMTvw
+	id S1422946AbWAMTye (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:54:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422639AbWAMTyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:51:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:61844 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422892AbWAMTuf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:35 -0500
-Cc: rmk@arm.linux.org.uk
-Subject: [PATCH] Add gameport bus_type probe and remove methods
-In-Reply-To: <11371818102241@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 11:50:10 -0800
-Message-Id: <11371818102581@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
+	Fri, 13 Jan 2006 14:54:14 -0500
+Received: from smtprelay05.ispgateway.de ([80.67.18.43]:44243 "EHLO
+	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1422892AbWAMTxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:53:48 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
+Date: Fri, 13 Jan 2006 20:53:37 +0100
+User-Agent: KMail/1.7.2
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
+       Linux PM <linux-pm@osdl.org>
+References: <200601122241.07363.rjw@sisk.pl> <20060112220940.GA10088@elf.ucw.cz> <200601130031.34624.rjw@sisk.pl>
+In-Reply-To: <200601130031.34624.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1178421.APgeozDvNR";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601132053.43085.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add gameport bus_type probe and remove methods
+--nextPart1178421.APgeozDvNR
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Hi,
 
----
-commit 29a4a20e9fe7459f9d464b8be070ce8b7335be7e
-tree fab8064c3d917482ee8c885ed10f75860f240d70
-parent b864c7d5d17c171c4ead0791b44ab05d7a21dc0c
-author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:38:22 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:07 -0800
+On Friday 13 January 2006 00:31, Rafael J. Wysocki wrote:
+> On Thursday, 12 January 2006 23:09, Pavel Machek wrote:
+> > > +SNAPSHOT_IOCAVAIL_SWAP - check the amount of available swap (the las=
+t argument
+> > > +	should be a pointer to an unsigned int variable that will contain
+> > > +	the result if the call is successful)
+> >=20
+> > Is this good idea? It will overflow on 32-bit systems. Ammount of
+> > available swap can be >4GB. [Or maybe it is in something else than
+> > bytes, then you need to specify it.]
+>=20
+> It returns the number of pages.  Well, it should be written explicitly,
+> so I'll fix that.
 
- drivers/input/gameport/gameport.c |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
+Please always talk to the kernel in bytes. Pagesize is only a kernel
+internal unit. Sth. like off64_t is fine.
 
-diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
-index caac6d6..b765a15 100644
---- a/drivers/input/gameport/gameport.c
-+++ b/drivers/input/gameport/gameport.c
-@@ -50,9 +50,7 @@ static DECLARE_MUTEX(gameport_sem);
- 
- static LIST_HEAD(gameport_list);
- 
--static struct bus_type gameport_bus = {
--	.name =	"gameport",
--};
-+static struct bus_type gameport_bus;
- 
- static void gameport_add_port(struct gameport *gameport);
- static void gameport_destroy_port(struct gameport *gameport);
-@@ -703,11 +701,15 @@ static int gameport_driver_remove(struct
- 	return 0;
- }
- 
-+static struct bus_type gameport_bus = {
-+	.name =	"gameport",
-+	.probe = gameport_driver_probe,
-+	.remove = gameport_driver_remove,
-+};
-+
- void __gameport_register_driver(struct gameport_driver *drv, struct module *owner)
- {
- 	drv->driver.bus = &gameport_bus;
--	drv->driver.probe = gameport_driver_probe;
--	drv->driver.remove = gameport_driver_remove;
- 	gameport_queue_event(drv, owner, GAMEPORT_REGISTER_DRIVER);
- }
- 
 
+Regards
+
+Ingo Oeser
+
+
+--nextPart1178421.APgeozDvNR
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDyAVHU56oYWuOrkARAqalAJ9h4PHCadTL5Xdq+VKWHsXSl83EpQCgpKG9
+5LlCZ4b0IeyN+PuwMsVlJm4=
+=H5YZ
+-----END PGP SIGNATURE-----
+
+--nextPart1178421.APgeozDvNR--

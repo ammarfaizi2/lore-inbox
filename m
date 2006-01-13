@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161557AbWAMKim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWAMKnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161557AbWAMKim (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161558AbWAMKim
+	id S964819AbWAMKnc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:43:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWAMKnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:38:42 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:46292 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1161559AbWAMKil
+	Fri, 13 Jan 2006 05:43:32 -0500
+Received: from uproxy.gmail.com ([66.249.92.192]:62562 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964819AbWAMKnc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:38:41 -0500
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
-       John Hesterberg <jh@sgi.com>
-Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors
-References: <43BB05D8.6070101@watson.ibm.com>
-	<43BB09D4.2060209@watson.ibm.com> <43BC1C43.9020101@engr.sgi.com>
-	<1136414431.22868.115.camel@stark>
-	<20060104151730.77df5bf6.akpm@osdl.org>
-	<1136486566.22868.127.camel@stark> <1136488842.22868.142.camel@stark>
-	<20060105151016.732612fd.akpm@osdl.org>
-	<1136505973.22868.192.camel@stark> <yq08xttybrx.fsf@jaguar.mkp.net>
-	<43BE9E91.9060302@watson.ibm.com> <yq0wth72gr6.fsf@jaguar.mkp.net>
-	<1137013330.6673.80.camel@stark> <yq0k6d53hb1.fsf@jaguar.mkp.net>
-	<1137106871.6673.238.camel@stark>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 13 Jan 2006 05:38:39 -0500
-In-Reply-To: <1137106871.6673.238.camel@stark>
-Message-ID: <yq03bjs2z0w.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Fri, 13 Jan 2006 05:43:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O/AmlyuXRGXvYSeYwOC1FqP8/3XiwNTJgxoLUYvwpiPihecXYiahaZYOXj+dTp3EcbHZF3prJ5evZyPT6NlOViLZmtf/0ly8bXHV2wVhhTivgEkCy3VQAxE406BWm+L/JfjC1rvnymbL6+VkC40X2fzK/thGWLIrYPNiBIziPgw=
+Message-ID: <1e62d1370601130243r584eb6e2u57a4e7280f493d97@mail.gmail.com>
+Date: Fri, 13 Jan 2006 15:43:30 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: Is there any hard disk standard?
+Cc: jeff shia <tshxiayu@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e0601130211j50b85af0w3fa2a1a5f872d0e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7cd5d4b40601130200m73798389p4939e9e43cb0db87@mail.gmail.com>
+	 <58cb370e0601130211j50b85af0w3fa2a1a5f872d0e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Matt" == Matt Helsley <matthltc@us.ibm.com> writes:
+On 1/13/06, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> On 1/13/06, jeff shia <tshxiayu@gmail.com> wrote:
+> >
+> > Many companies produce hard disks,Is there any hard disk standard?Or
+> > where can I
+> > get the standard?
+>
+> ATA: http://www.t13.org (seems to be down at the moment)
+> SCSI: http://www.t10.org
+> SerialATA: http://www.serialata.org
+>
+> or use www.google.com
 
-Matt> On Thu, 2006-01-12 at 04:51 -0500, Jes Sorensen wrote:
-Matt> Have you looked at Alan Stern's notifier chain fix patch?  Could
-Matt> that be used in task_notify?
->>  No sorry, do you have a pointer?
+Adding some explanation in Bartlomiej reply :
 
-Matt> No problem. Here it is:
-Matt> http://marc.theaimsgroup.com/?l=linux-kernel&m=113407207418475&w=2
+The standards are related to bus on which the device (hard disk in
+your case) are attached ! As HDD can be connected to IDE/ATA, SCSI or
+SATA or so on .... so they are the standard for connectivity between
+the device and system ... And the device (like HDD) need to provide
+that standard interface for connectivity but can do what-ever they
+like internally through its firmware or driver (CMIIW)
 
-Matt> I think it would be ideal if task_notify could simply be a
-Matt> notifier chain for notifying users of task events/changes.
-
-Ok, went back and looked at this. I think the core concept is fine,
-but there are details such as having a data pointer associated with
-the notifier block which is too important to leave out. Otherwise we
-have to stick things into the task struct in many cases which is a
-waste of space. I also think it needs to be possible to search the
-list for special slow path uses to avoid us adding excessive amounts
-of callbacks that are only used in one place by one client.
-
-If we can cross-API it for task-group-notifiers then that should be
-fine.
-
-Cheers,
-Jes
+--
+Fawad Lateef

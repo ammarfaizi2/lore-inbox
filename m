@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422848AbWAMTWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422844AbWAMTWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422848AbWAMTWz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 14:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422849AbWAMTWy
+	id S1422844AbWAMTWs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 14:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422845AbWAMTWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 14:22:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17459 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1422848AbWAMTWy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:22:54 -0500
-Date: Fri, 13 Jan 2006 20:24:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Cc: jeff shia <tshxiayu@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: something about disk fragmentation
-Message-ID: <20060113192452.GY3945@suse.de>
-References: <7cd5d4b40601110501w40bc28f0peb13cdbb082e2b4a@mail.gmail.com> <728201270601110633i2eb8c71dq8a0c23d9e7ad724f@mail.gmail.com> <7cd5d4b40601130158l274a3b19t13f2a58a28cc3819@mail.gmail.com> <728201270601130814k37c31f7bxd04a1fe44213b430@mail.gmail.com>
+	Fri, 13 Jan 2006 14:22:48 -0500
+Received: from teetot.devrandom.net ([66.35.250.243]:7090 "EHLO
+	teetot.devrandom.net") by vger.kernel.org with ESMTP
+	id S1422844AbWAMTWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 14:22:47 -0500
+Date: Fri, 13 Jan 2006 11:32:34 -0800
+From: thockin@hockin.org
+To: Sven-Thorsten Dietrich <sven@mvista.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dual core Athlons and unsynced TSCs
+Message-ID: <20060113193234.GA20519@hockin.org>
+References: <1137104260.2370.85.camel@mindpipe> <20060113180620.GA14382@hockin.org> <1137175117.15108.18.camel@mindpipe> <20060113181631.GA15366@hockin.org> <1137175792.15108.26.camel@mindpipe> <20060113185533.GA18301@hockin.org> <1137178574.2536.13.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <728201270601130814k37c31f7bxd04a1fe44213b430@mail.gmail.com>
+In-Reply-To: <1137178574.2536.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13 2006, Ram Gupta wrote:
-> On 1/13/06, jeff shia <tshxiayu@gmail.com> wrote:
-> > Where Can I get the io schedulers?
-> > Thank you!
+On Fri, Jan 13, 2006 at 10:56:13AM -0800, Sven-Thorsten Dietrich wrote:
+> On Fri, 2006-01-13 at 10:55 -0800, thockin@hockin.org wrote:
+> > unless we can re-sync the TSCs often enough that apps don't notice.
 > 
-> See the documentation under the kernel source tree. The code is
-> already there. You need only to select by passing correct kernel
-> parameters.
-> elevator=       [IOSCHED]
->                         Format: {"as" | "cfq" | "deadline" | "noop"}
->                         See Documentation/block/as-iosched.txt and
->                         Documentation/block/deadline-iosched.txt for details.
+> You'd have to quantify that somehow, in terms of the max drift rate
+> (ppm), and the max resolution available (< tsc frequency).  
+> 
+> Either that, or track an offset, and use one TSC as truth, and update
+> the correction factor for the other TSCs as often as needed, maybe?
+> 
+> This is kind of analogous to the "drift" NTP calculates against a
+> free-running oscillator. 
+> 
+> So you'd be pushing that functionality deeper into the OS-core.
+> 
+> Dave Mills had that "hardpps" stuff in there for a while, it might be a
+> starting point.
+> 
+> Just some thoughts for now... 
 
-It's much more convenient to do it dynamically (and saves you a reboot).
-Just do
+There's some chatter here about a solution involving a lazy sync of TSCs
+to the HPET (or other) whenever an app calls rdtsc after a potentially
+unsyncing event.
 
-# echo deadline > /sys/block/dev/queue/scheduler
+For example, 'hlt' will initiate C1 which may cause clock ramping (and TSC
+skew).  We can trap rdtsc after a hlt and re-sync the TSCs to some truly
+monotonic source, like HPET.
 
-to switch it at runtime, replace 'dev' with your hard drive name, eg
-hda or sda etc.
+I don't have all the details, some problems remain, and the work is not
+quite done yet, but it looks promising.
 
-BTW, that option needs updating, you are supposed to use "anticipatory"
-for that scheduler (patch accepted :-).
+Even if we eventually get synced TSCs, it's too little too late.
+basically, anything in-kernel that uses rdtsc is bound to break, and any
+app that uses rdtsc had better be using CPU affinity.
 
--- 
-Jens Axboe
-
+Tim

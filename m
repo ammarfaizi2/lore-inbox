@@ -1,138 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWAMRbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161546AbWAMRdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422738AbWAMRbl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 12:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWAMRbl
+	id S1161546AbWAMRdR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 12:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161567AbWAMRdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 12:31:41 -0500
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:42035 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1422738AbWAMRbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 12:31:40 -0500
-X-IronPort-AV: i="3.99,366,1131343200"; 
-   d="scan'208"; a="26948329:sNHT17989178"
-Date: Fri, 13 Jan 2006 11:31:18 -0600
-From: Abhay Salunke <Abhay_Salunke@dell.com>
-To: linux-kernel@vger.kernel.org, abhay_salunke@dell.com,
-       Michael_E_Brown@dell.com
-Cc: akpm@osdl.org
-Subject: [patch 2.6.15] dell_rbu: [Bug 5854] New: dell firmware loader makes load grow up to 1, and permanently
-Message-ID: <20060113173118.GA31721@littleblue.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 13 Jan 2006 12:33:17 -0500
+Received: from palakse.guam.net ([202.128.0.38]:45223 "EHLO palakse.guam.net")
+	by vger.kernel.org with ESMTP id S1161546AbWAMRdQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 12:33:16 -0500
+From: "Michael D. Setzer II" <mikes@kuentos.guam.net>
+To: Kalin KOZHUHAROV <kalin@thinrope.net>, linux-kernel@vger.kernel.org
+Date: Sat, 14 Jan 2006 03:32:50 +1000
+MIME-Version: 1.0
+Subject: Re: Problem getting PCMCIA to compile in Kernel.
+Message-ID: <43C870E2.4989.4EE3A9@mikes.kuentos.guam.net>
+In-reply-to: <dq8l5t$fg0$1@sea.gmane.org>
+References: <43C8252F.6483.C6B2A8@mikes.kuentos.guam.net>
+X-PM-Encryptor: QDPGP, 4
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the bug 
-[Bug 5854] New: dell firmware loader makes load grow up to 1, and permanently 
-stay there 
-See http://bugzilla.kernel.org/show_bug.cgi?id=5854
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Root cause:
-The dell_rbu driver creates entries in /sys/class/firmware/dell_rbu/
-by calling request_firmware_nowait (without hotplug ) this function inturn 
-starts a kernel thread which creates the entries in 
-/sys/class/firmware/dell_rbu/loading , data and the thread waits on the user 
-action to return control back to the callback fucntion of dell_rbu. The 
-thread calls wait_on_completion which puts it in a D state until the user action 
-happens. If there is no user action happening the load average goes up as the thread
-D state is taken in to account. 
-Also after downloading the BIOS image the enrties go away momentarily but they 
-are recreated from the callback function in dell_rbu. This causes the thread to get
-recreated causing the load average to permenently stay around 1.
+On 14 Jan 2006 at 1:40, Kalin KOZHUHAROV wrote:
 
-Fix:
-The dell_rbu also creates the entry /sys/devices/platform/dell_rbu/image_type at 
-driver load time. The image type by default is mono if required the user can echo 
-packet to image_type to make the BIOS update mechanism using packets. 
-Also by echoing init in to image_type the /sys/class/firmware/dell_rbu entries 
-can be created.
+To:             	linux-kernel@vger.kernel.org
+From:           	Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject:        	Re: Problem getting PCMCIA to compile in Kernel.
+Date sent:      	Sat, 14 Jan 2006 01:40:28 +0900
 
-The driver code was changed to not create /sys/class/firmware/dell_rbu entries during 
-load time, and also to not create the above entries from the callback function. 
-The entries are only created by echoing init to /sys/devices/platform/dell_rbu/image_type
-The user now needs to create the entries to download the image monolithic or packet.
-This fixes the issue since the kernel thread only is created when ever the user is ready 
-to download the BIOS image; this minimizes the life span of the kernel thread and the load
-average goes back to normal.
+> Michael D. Setzer II wrote:
+> > I've tried to set the PCMCIA options to Y in the kernel build, but get a 
+> > message that something else is build as a modual, so these can not be 
+> > changed to y.
+> 
+> How did you do that?
+> 
+> Use `make menuconfig` to configure kernel.
+> 
+> > I went to the .config file and replaced every =m to =y, and then 
+> > ran make. The kernel then was built with no problem, but it reset all these 
+> > option back to =m.
+> > 
+> > CONFIG_PCMCIA_AHA152X=m
+> > CONFIG_PCMCIA_FDOMAIN=m
+> > CONFIG_PCMCIA_NINJA_SCSI=m
+> > CONFIG_PCMCIA_QLOGIC=m
+> > CONFIG_PCMCIA_SYM53C500=m
+> > CONFIG_I2C_STUB=m
+> > 
+> > I build kernels for G4L, and build everything directly into the kernel, but 
+> > these do not seem to work, and I don't have an ideal why, since everything 
+> > else is built in. So what am I missing. This is the 2.6.15 kernel. 
+> 
+> If you play with .config directly, run a `make oldconfig` after that.
+> So, `make oldconfig && make && make` should always work.
+> If you tired that ant it did NOT, please post your .config file (not
+> compressed) here, or upload it to a website (somewhere).
+
+I ran the make oldconfig, then make menuconfig, and when I try to change 
+the settings, it gives this message.
+
+This feature depends on another which has been configured as  a module.
+As a result,  this feature will be built as a module.
+
+I had manually edited the .config file, and changed all =m to =y, so there is 
+nothing in the file that has the module setting but these.
+
+I placed a copy of the .config file at the link below. 
+http://www.guam.net/home/mikes/bzImagez.config
+
+Only those items with the PCMCIA and I2C_STUB have the =m.
+
+Thanks for the reply. I'm trying to make a kernel that will suppor the most 
+hardware, and avoid conflict.
+
+> 
+> Kalin.
+> 
+> -- 
+> |[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
+> +-> http://ThinRope.net/ <-+
+> |[ ______________________ ]|
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-Signed off by Abhay Salunke <abhay_salunke@dell.com>
++----------------------------------------------------------+
+  Michael D. Setzer II -  Computer Science Instructor      
+  Guam Community College  Computer Center                  
+  mailto:mikes@kuentos.guam.net                            
+  mailto:msetzerii@gmail.com
+  http://www.guam.net/home/mikes
+  Guam - Where America's Day Begins                        
++----------------------------------------------------------+
 
-Thanks
-Abhay Salunke
-Software Engineer.
-DELL Inc
+http://setiathome.berkeley.edu
+Number of Seti Units Returned:  19,471
+Processing time:  32 years, 290 days, 12 hours, 58 minutes
+(Total Hours: 287,489)
 
-diff -uprN linux-2.6.15.clean/drivers/firmware/dell_rbu.c linux-2.6.15.new/drivers/firmware/dell_rbu.c
---- linux-2.6.15.clean/drivers/firmware/dell_rbu.c	2006-01-02 21:21:10.000000000 -0600
-+++ linux-2.6.15.new/drivers/firmware/dell_rbu.c	2006-01-13 11:52:08.000000000 -0600
-@@ -49,7 +49,7 @@
- MODULE_AUTHOR("Abhay Salunke <abhay_salunke@dell.com>");
- MODULE_DESCRIPTION("Driver for updating BIOS image on DELL systems");
- MODULE_LICENSE("GPL");
--MODULE_VERSION("3.1");
-+MODULE_VERSION("3.2");
- 
- #define BIOS_SCAN_LIMIT 0xffffffff
- #define MAX_IMAGE_LENGTH 16
-@@ -308,7 +308,7 @@ static int packet_read_list(char *data, 
- 
- 	remaining_bytes = *pread_length;
- 	bytes_read = rbu_data.packet_read_count;
--
-+	
- 	ptemp_list = (&packet_data_head.list)->next;
- 	while (!list_empty(ptemp_list)) {
- 		bytes_copied = do_packet_read(pdest, ptemp_list,
-@@ -564,12 +564,10 @@ static ssize_t read_rbu_data(struct kobj
- 
- static void callbackfn_rbu(const struct firmware *fw, void *context)
- {
--	int rc = 0;
-+	rbu_data.entry_created = 0;
- 
--	if (!fw || !fw->size) {
--		rbu_data.entry_created = 0;
-+	if (!fw || !fw->size)
- 		return;
--	}
- 
- 	spin_lock(&rbu_data.lock);
- 	if (!strcmp(image_type, "mono")) {
-@@ -592,15 +590,6 @@ static void callbackfn_rbu(const struct 
- 	} else
- 		pr_debug("invalid image type specified.\n");
- 	spin_unlock(&rbu_data.lock);
--
--	rc = request_firmware_nowait(THIS_MODULE, FW_ACTION_NOHOTPLUG,
--		"dell_rbu", &rbu_device->dev, &context, callbackfn_rbu);
--	if (rc)
--		printk(KERN_ERR
--			"dell_rbu:%s request_firmware_nowait failed"
--			" %d\n", __FUNCTION__, rc);
--	else
--		rbu_data.entry_created = 1;
- }
- 
- static ssize_t read_rbu_image_type(struct kobject *kobj, char *buffer,
-@@ -734,15 +723,8 @@ static int __init dcdrbu_init(void)
- 	sysfs_create_bin_file(&rbu_device->dev.kobj, &rbu_image_type_attr);
- 	sysfs_create_bin_file(&rbu_device->dev.kobj,
- 		&rbu_packet_size_attr);
--
--	rc = request_firmware_nowait(THIS_MODULE, FW_ACTION_NOHOTPLUG,
--		"dell_rbu", &rbu_device->dev, &context, callbackfn_rbu);
--	if (rc)
--		printk(KERN_ERR "dell_rbu:%s:request_firmware_nowait"
--			" failed %d\n", __FUNCTION__, rc);
--	else
--		rbu_data.entry_created = 1;
--
-+	
-+	rbu_data.entry_created = 0;
- 	return rc;
- 
- }
+
+BOINC Seti@Home Total Credits 264500.664176 
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8 -- QDPGP 2.61c
+Comment: http://community.wow.net/grt/qdpgp.html
+
+iQA/AwUBQ8dXoyzGQcr/2AKZEQLA8gCfaxZfvwlTNSMkHkXIdrJq0OM/ia8AnAlT
+5kUyXZofk9mXe+et5oyU/vqg
+=qbg4
+-----END PGP SIGNATURE-----
+

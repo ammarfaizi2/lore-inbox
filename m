@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422983AbWAMVWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422976AbWAMVWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422983AbWAMVWz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422984AbWAMVWz
+	id S1422976AbWAMVWp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422981AbWAMVWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:22:55 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:29149 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1422983AbWAMVWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:22:54 -0500
-Date: Fri, 13 Jan 2006 13:18:35 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Sven-Thorsten Dietrich <sven@mvista.com>, thockin@hockin.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual core Athlons and unsynced TSCs
-In-Reply-To: <1137178855.15108.42.camel@mindpipe>
-Message-ID: <Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz>
-References: <1137104260.2370.85.camel@mindpipe><20060113180620.GA14382@hockin.org>
- <1137175117.15108.18.camel@mindpipe><20060113181631.GA15366@hockin.org>
- <1137175792.15108.26.camel@mindpipe><20060113185533.GA18301@hockin.org><1137178574.2536.13.camel@localhost.localdomain>
- <1137178855.15108.42.camel@mindpipe>
+	Fri, 13 Jan 2006 16:22:45 -0500
+Received: from h144-158.u.wavenet.pl ([217.79.144.158]:54146 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1422976AbWAMVWp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:22:45 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
+Date: Fri, 13 Jan 2006 22:24:27 +0100
+User-Agent: KMail/1.9
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Linux PM <linux-pm@osdl.org>
+References: <200601122241.07363.rjw@sisk.pl> <200601132149.39159.rjw@sisk.pl> <20060113205927.GN1906@elf.ucw.cz>
+In-Reply-To: <20060113205927.GN1906@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601132224.27529.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jan 2006, Lee Revell wrote:
+On Friday, 13 January 2006 21:59, Pavel Machek wrote:
+> On Pá 13-01-06 21:49:38, Rafael J. Wysocki wrote:
+> > On Friday, 13 January 2006 20:53, Ingo Oeser wrote:
+> > > On Friday 13 January 2006 00:31, Rafael J. Wysocki wrote:
+> > > > On Thursday, 12 January 2006 23:09, Pavel Machek wrote:
+> > > > > > +SNAPSHOT_IOCAVAIL_SWAP - check the amount of available swap (the last argument
+> > > > > > +	should be a pointer to an unsigned int variable that will contain
+> > > > > > +	the result if the call is successful)
+> > > > > 
+> > > > > Is this good idea? It will overflow on 32-bit systems. Ammount of
+> > > > > available swap can be >4GB. [Or maybe it is in something else than
+> > > > > bytes, then you need to specify it.]
+> > > > 
+> > > > It returns the number of pages.  Well, it should be written explicitly,
+> > > > so I'll fix that.
+> > > 
+> > > Please always talk to the kernel in bytes. Pagesize is only a kernel
+> > > internal unit. Sth. like off64_t is fine.
+> > 
+> > These are values returned by the kernel, actually.  Of course I can convert them
+> > to bytes before sending to the user space, if that's preferrable.
+> > 
+> > Pavel, what do you think?
+> 
+> Bytes, I'd say. It would be nice if preffered image size was in bytes,
+> too, for consistency.
 
-> On Fri, 2006-01-13 at 10:56 -0800, Sven-Thorsten Dietrich wrote:
->> On Fri, 2006-01-13 at 10:55 -0800, thockin@hockin.org wrote:
->>> On Fri, Jan 13, 2006 at 01:09:51PM -0500, Lee Revell wrote:
->>>>> Some apps/users need higher resolution and lower overhead that only rdtsc
->>>>> can offer currently.
->>>>
->>>> But obviously if the TSC gives wildly inaccurate results, it cannot be
->>>> used no matter how low the overhead.
->>>
->>> unless we can re-sync the TSCs often enough that apps don't notice.
->>>
->>
->> You'd have to quantify that somehow, in terms of the max drift rate
->> (ppm), and the max resolution available (< tsc frequency).
->>
->> Either that, or track an offset, and use one TSC as truth, and update
->> the correction factor for the other TSCs as often as needed, maybe?
->>
->> This is kind of analogous to the "drift" NTP calculates against a
->> free-running oscillator.
->>
->> So you'd be pushing that functionality deeper into the OS-core.
->>
->> Dave Mills had that "hardpps" stuff in there for a while, it might be a
->> starting point.
->>
->> Just some thoughts for now...
->>
->
-> It kind of makes you wonder what in the heck AMD were thinking, whether
-> they realized that this design decision would cause so many problems at
-> the OS level (it's broken at least Linux and Solaris).  Maybe Windows
-> keeps time in a way that was unaffected by this?
+OK
 
-Lee, the last time I saw this discussion I thought it was identified that 
-the multiple cores (or IIRC the multiple chips in a SMP motherboard) would 
-only get out of sync when power management calls were made (hlt or 
-switching the c-state). IIRC the workaround that was posted then was to 
-just disable these in the kernel build.
-
-if this is the case then I could easily see the hardware engineers 
-thinking that if the software did a sleep thing then it was up to the 
-software to re-sync the TSC clocks when the wakeup takes place.
-
-David Lang
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
-
+Rafael

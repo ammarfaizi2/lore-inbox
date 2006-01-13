@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422873AbWAMUDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422869AbWAMUD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422873AbWAMUDc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 15:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422943AbWAMUCK
+	id S1422869AbWAMUD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 15:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422875AbWAMUCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 15:02:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:45204 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422875AbWAMTua convert rfc822-to-8bit
+	Fri, 13 Jan 2006 15:02:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:43156 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422874AbWAMTu3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 14:50:30 -0500
+	Fri, 13 Jan 2006 14:50:29 -0500
 Cc: rmk@arm.linux.org.uk
-Subject: [PATCH] Add serio bus_type probe and remove methods
-In-Reply-To: <1137181810928@kroah.com>
+Subject: [PATCH] Add ccwgroup_bus_type probe and remove methods
+In-Reply-To: <11371818111878@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 11:50:10 -0800
-Message-Id: <11371818101175@kroah.com>
+Date: Fri, 13 Jan 2006 11:50:11 -0800
+Message-Id: <11371818111724@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,52 +24,60 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add serio bus_type probe and remove methods
+[PATCH] Add ccwgroup_bus_type probe and remove methods
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 30226f8199cb7f5ace767f65bcebb85941612dfc
-tree 8155e420d407bf831aa6aa838328a5a2fbfe3ee0
-parent 29a4a20e9fe7459f9d464b8be070ce8b7335be7e
-author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:38:53 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:07 -0800
+commit f9ccf4569ac4597e9e09d301ca362d90b4a1046d
+tree 67a3eaf663e26e9b6b6625fbc1114237db28f43c
+parent 4681fc320889de4591f945c4fdf08546eb9ab266
+author Russell King <rmk@arm.linux.org.uk> Thu, 05 Jan 2006 14:42:09 +0000
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 11:26:09 -0800
 
- drivers/input/serio/serio.c |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/s390/cio/ccwgroup.c |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 8e530cc..2f76813 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -59,9 +59,7 @@ static DECLARE_MUTEX(serio_sem);
- 
- static LIST_HEAD(serio_list);
- 
--static struct bus_type serio_bus = {
--	.name =	"serio",
--};
-+static struct bus_type serio_bus;
- 
- static void serio_add_port(struct serio *serio);
- static void serio_destroy_port(struct serio *serio);
-@@ -750,11 +748,15 @@ static int serio_driver_remove(struct de
+diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
+index e849289..503a568 100644
+--- a/drivers/s390/cio/ccwgroup.c
++++ b/drivers/s390/cio/ccwgroup.c
+@@ -52,11 +52,7 @@ ccwgroup_uevent (struct device *dev, cha
  	return 0;
  }
  
-+static struct bus_type serio_bus = {
-+	.name =	"serio",
-+	.probe = serio_driver_probe,
-+	.remove = serio_driver_remove,
+-static struct bus_type ccwgroup_bus_type = {
+-	.name    = "ccwgroup",
+-	.match   = ccwgroup_bus_match,
+-	.uevent = ccwgroup_uevent,
+-};
++static struct bus_type ccwgroup_bus_type;
+ 
+ static inline void
+ __ccwgroup_remove_symlinks(struct ccwgroup_device *gdev)
+@@ -389,6 +385,14 @@ ccwgroup_remove (struct device *dev)
+ 	return 0;
+ }
+ 
++static struct bus_type ccwgroup_bus_type = {
++	.name   = "ccwgroup",
++	.match  = ccwgroup_bus_match,
++	.uevent = ccwgroup_uevent,
++	.probe  = ccwgroup_probe,
++	.remove = ccwgroup_remove,
 +};
 +
- void __serio_register_driver(struct serio_driver *drv, struct module *owner)
+ int
+ ccwgroup_driver_register (struct ccwgroup_driver *cdriver)
  {
- 	drv->driver.bus = &serio_bus;
--	drv->driver.probe = serio_driver_probe;
--	drv->driver.remove = serio_driver_remove;
+@@ -396,8 +400,6 @@ ccwgroup_driver_register (struct ccwgrou
+ 	cdriver->driver = (struct device_driver) {
+ 		.bus = &ccwgroup_bus_type,
+ 		.name = cdriver->name,
+-		.probe = ccwgroup_probe,
+-		.remove = ccwgroup_remove,
+ 	};
  
- 	serio_queue_event(drv, owner, SERIO_REGISTER_DRIVER);
- }
+ 	return driver_register(&cdriver->driver);
 

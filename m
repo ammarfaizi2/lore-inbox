@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWAMPSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWAMPTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161001AbWAMPSh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161367AbWAMPSh
+	id S964829AbWAMPTg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWAMPTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:18:37 -0500
-Received: from mail01.fortunecookiestudios.com ([209.208.125.101]:3254 "EHLO
-	mail01.fortunecookiestudios.com") by vger.kernel.org with ESMTP
-	id S1161001AbWAMPSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:18:36 -0500
-Message-ID: <43C7C4C7.8050409@cfl.rr.com>
-Date: Fri, 13 Jan 2006 10:18:31 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 13 Jan 2006 10:19:36 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18956 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964829AbWAMPTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 10:19:35 -0500
+Date: Fri, 13 Jan 2006 16:19:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, hch@infradead.org,
+       rdreier@cisco.com, sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
+Message-ID: <20060113151934.GO29663@stusta.de>
+References: <20060110011844.7a4a1f90.akpm@osdl.org> <adaslrw3zfu.fsf@cisco.com> <1136909276.32183.28.camel@serpentine.pathscale.com> <20060110170722.GA3187@infradead.org> <1136915386.6294.8.camel@serpentine.pathscale.com> <20060110175131.GA5235@infradead.org> <1136915714.6294.10.camel@serpentine.pathscale.com> <20060110140557.41e85f7d.akpm@osdl.org> <1136932162.6294.31.camel@serpentine.pathscale.com> <20060110153257.1aac5370.akpm@osdl.org>
 MIME-Version: 1.0
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
-In-Reply-To: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060110153257.1aac5370.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shouldn't those kind of applications already be using threads to share 
-page tables rather than forking hundreds of processes that all mmap() 
-the same file?
+On Tue, Jan 10, 2006 at 03:32:57PM -0800, Andrew Morton wrote:
+> "Bryan O'Sullivan" <bos@pathscale.com> wrote:
+> >
+> > On Tue, 2006-01-10 at 14:05 -0800, Andrew Morton wrote:
+> > 
+> > > It's kinda fun playing Brian along like this ;)
+> > 
+> > A regular barrel of monkeys, indeed...
+> > 
+> > > One option is to just stick the thing in an existing lib/ or kernel/ file
+> > > and mark it __attribute__((weak)).  That way architectures can override it
+> > > for free with no ifdefs, no Makefile trickery, no Kconfig trickery, etc.
+> > 
+> > I'm easy.  Would you prefer to take that, or the Kconfig-trickery-based
+> > patch series I already posted earlier?
+> > 
+> 
+> Unless someone can think of a problem with attribute(weak), I think you'll
+> find that it's the simplest-by-far solution.
 
+__attribute__((weak)) can turn compile error into runtime errors - you 
+won't notice at compile time if it was forgotten to compile the 
+non-weak version into the kernel (e.g. due to a typo in the Makefile).
 
-Dave McCracken wrote:
-> Here's a new version of my shared page tables patch.
->
-> The primary purpose of sharing page tables is improved performance for
-> large applications that share big memory areas between multiple processes.
-> It eliminates the redundant page tables and significantly reduces the
-> number of minor page faults.  Tests show significant performance
-> improvement for large database applications, including those using large
-> pages.  There is no measurable performance degradation for small processes.
->
-> This version of the patch uses Hugh's new locking mechanism, extending it
-> up the page table tree as far as necessary for proper concurrency control.
->
-> The patch also includes the proper locking for following the vma chains.
->
-> Hugh, I believe I have all the lock points nailed down.  I'd appreciate
-> your input on any I might have missed.
->
-> The architectures supported are i386 and x86_64.  I'm working on 64 bit
-> ppc, but there are still some issues around proper segment handling that
-> need more testing.  This will be available in a separate patch once it's
-> solid.
->
-> Dave McCracken
->   
+Patch 05/17 from the 2.6.15.1 patchset contains a fix for such a bug
+present in 2.6.15.
+
+A variation of this problem can occur in cases like __raw_memcpy_toio32 
+if it was forgotten to compile the non-weak version into the kernel and 
+the kernel therefore uses the non-optimized version. That's not fatal, 
+but it might take years until someone notices that there might be a few 
+percent of performance missing.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

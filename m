@@ -1,59 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161158AbWAMLiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbWAMLlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161158AbWAMLiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 06:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161180AbWAMLiI
+	id S932701AbWAMLlh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 06:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161180AbWAMLlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 06:38:08 -0500
-Received: from mtaout3.012.net.il ([84.95.2.7]:16436 "EHLO mtaout3.012.net.il")
-	by vger.kernel.org with ESMTP id S1161158AbWAMLiG (ORCPT
+	Fri, 13 Jan 2006 06:41:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:23684 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932701AbWAMLlg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 06:38:06 -0500
-Date: Fri, 13 Jan 2006 13:37:56 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-In-reply-to: <1137105731.2370.94.camel@mindpipe>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Jon Mason <jdmason@us.ibm.com>,
-       Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
-Message-id: <20060113113756.GL5399@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060112175051.GA17539@us.ibm.com>
- <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu>
- <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de>
- <1137105731.2370.94.camel@mindpipe>
-User-Agent: Mutt/1.5.11
+	Fri, 13 Jan 2006 06:41:36 -0500
+Date: Fri, 13 Jan 2006 03:40:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com
+Subject: Re: [PATCH] [1/6] Add pselect/ppoll system call implementation
+Message-Id: <20060113034058.066a2a8b.akpm@osdl.org>
+In-Reply-To: <1136924299.3435.103.camel@localhost.localdomain>
+References: <1136923488.3435.78.camel@localhost.localdomain>
+	<1136924299.3435.103.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 12, 2006 at 05:42:10PM -0500, Lee Revell wrote:
-> On Thu, 2006-01-12 at 23:00 +0100, Adrian Bunk wrote:
-> > CYBER5050 is discussed in ALSA bug #1293 (tester wanted).
-> 
-> OK I set that bug to FEEDBACK, but it's open 5 months now and no testers
-> are forthcoming.  I think if we don't find one as a result of this
-> thread we can assume no one cares about this hardware anymore.
-> 
-> I'm still not sure that just adding it to the ALSA driver and hoping it
-> works is the best solution.  Would we rather users see right away that
-> their hardware isn't supported, or have the driver load and get no sound
-> or hang the machine?
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> This patch adds the pselect() and ppoll() system calls, providing core
+>  routines usable by the original select() and poll() system calls and
+>  also the new calls (with their semantics w.r.t timeouts).
 
-... or use the known working OSS driver?
+This patch sends python into a busywait:
 
-> I think the best approach might just be to drop it in lieu of a tester.
-> It will be trivial to add support later if someone finds one of these
-> boxes.
+root      2041 98.6  0.4  11192  4656 ?        R    02:36   5:29 python ./hpssd.py
 
-So you advocate removing a known working driver in favor of a known
-not to be working driver? nice.
+strace says:
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+select(6, [4 5], [], [], {0, 500000})   = 0 (Timeout)
+
+
+The below fixes it.
+
+A few slipups here, so please can you re-review the code that lands in next
+-mm, make sure we got everything?
+
+
+--- devel/fs/select.c~add-pselect-ppoll-system-call-implementation-fix	2006-01-13 03:24:53.000000000 -0800
++++ devel-akpm/fs/select.c	2006-01-13 03:30:27.000000000 -0800
+@@ -390,7 +390,7 @@ asmlinkage long sys_select(int n, fd_set
+ 		if ((u64)tv.tv_sec >= (u64)MAX_INT64_SECONDS)
+ 			timeout = -1;	/* infinite */
+ 		else {
+-			timeout = ROUND_UP(tv.tv_sec, 1000000/HZ);
++			timeout = ROUND_UP(tv.tv_usec, USEC_PER_SEC/HZ);
+ 			timeout += tv.tv_sec * HZ;
+ 		}
+ 	}
+@@ -441,7 +441,7 @@ asmlinkage long sys_pselect7(int n, fd_s
+ 		if ((u64)ts.tv_sec >= (u64)MAX_INT64_SECONDS)
+ 			timeout = -1;	/* infinite */
+ 		else {
+-			timeout = ROUND_UP(ts.tv_sec, 1000000000/HZ);
++			timeout = ROUND_UP(ts.tv_nsec, NSEC_PER_SEC/HZ);
+ 			timeout += ts.tv_sec * HZ;
+ 		}
+ 	}
+@@ -723,7 +723,7 @@ asmlinkage long sys_ppoll(struct pollfd 
+ 		if ((u64)ts.tv_sec >= (u64)MAX_INT64_SECONDS)
+ 			timeout = -1;	/* infinite */
+ 		else {
+-			timeout = ROUND_UP(ts.tv_sec, 1000000000/HZ);
++			timeout = ROUND_UP(ts.tv_nsec, NSEC_PER_SEC/HZ);
+ 			timeout += ts.tv_sec * HZ;
+ 		}
+ 	}
+_
 

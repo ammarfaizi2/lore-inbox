@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422977AbWAMVKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWAMVM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422977AbWAMVKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422976AbWAMVKJ
+	id S964958AbWAMVM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWAMVM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:10:09 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:30872
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1422974AbWAMVKG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:10:06 -0500
-Subject: RE: Dual core Athlons and unsynced TSCs
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       Roger Heflin <rheflin@atipa.com>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>
-In-Reply-To: <1137186319.6731.6.camel@localhost.localdomain>
-References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
-	 <1137168254.7241.32.camel@localhost.localdomain>
-	 <1137174463.15108.4.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
-	 <1137174848.15108.11.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
-	 <1137178506.15108.38.camel@mindpipe>
-	 <1137182991.8283.7.camel@localhost.localdomain>
-	 <1137183980.6731.1.camel@localhost.localdomain>
-	 <1137184982.15108.69.camel@mindpipe>
-	 <1137185175.7634.37.camel@localhost.localdomain>
-	 <1137186319.6731.6.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 22:10:12 +0100
-Message-Id: <1137186612.7634.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 16:12:26 -0500
+Received: from xenotime.net ([66.160.160.81]:25312 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964958AbWAMVM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:12:26 -0500
+Date: Fri, 13 Jan 2006 13:12:24 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Adrian Bunk <bunk@stusta.de>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Paul Jackson <pj@sgi.com>,
+       akpm@osdl.org, adobriyan@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm2: alpha broken
+In-Reply-To: <20060113210848.GS29663@stusta.de>
+Message-ID: <Pine.LNX.4.58.0601131310060.5563@shark.he.net>
+References: <20060107052221.61d0b600.akpm@osdl.org> <20060107210646.GA26124@mipter.zuzino.mipt.ru>
+ <20060107154842.5832af75.akpm@osdl.org> <20060110182422.d26c5d8b.pj@sgi.com>
+ <20060113141154.GL29663@stusta.de> <20060113101054.d62acb0d.pj@sgi.com>
+ <Pine.LNX.4.58.0601131014160.5563@shark.he.net> <20060113210848.GS29663@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 16:05 -0500, Steven Rostedt wrote:
-> On Fri, 2006-01-13 at 21:46 +0100, Thomas Gleixner wrote:
-> > On Fri, 2006-01-13 at 15:43 -0500, Lee Revell wrote:
-> > 
-> > > Ugh.  In arch/x86_64/kernel/time.c monotonic_clock() uses the TSC
-> > > unconditionally.
-> > 
-> > Can you try 
-> > 
-> > http://tglx.de/projects/hrtimers/2.6.15/patch-2.6.15-hrt2.patch
-> > 
-> > please ?
-> > 
-> > 	tglx
-> > 
-> > 
-> 
-> Hmm, it doesn't compile :(
+On Fri, 13 Jan 2006, Adrian Bunk wrote:
 
-Grmbl, I check this tomorrow. Getting late here
+> On Fri, Jan 13, 2006 at 10:19:30AM -0800, Randy.Dunlap wrote:
+> > On Fri, 13 Jan 2006, Paul Jackson wrote:
+> >
+> > > Adrian wrote:
+> > > > This is the amout of testing I can afford.
+> > >
+> > > It sounds to me like you are saying that a minute of your time is
+> > > more valuable than a minute of each of several other peoples time.
+> > >
+> > > The only two people I gladly accept that argument from are Linus
+> > > and Andrew.
+> > >
+> > > For the rest of us, it is important to minimize the total workload
+> > > of all us combined, not to optimize our individual output.
+> > >
+> > > What you don't test, several others of us get to test.  Only its often
+> > > more work, for -each- of us, as we each have to figure out which of
+> > > 1000 patches caused the breakage.
+> >
+> > I don't find building cross-toolchains quite as easy as Al does,
+> > so I download and build with these (on i386):
+> >   http://developer.osdl.org/dev/plm/cross_compile/
+> > as Andrew has also mentioned in the past.
+> >
+> > Or one can submit kernel patches for builds to an OSDL
+> > build machine which does 8 or 9 $ARCH builds.
+>
+> This leaves 15 or 16 other architectures for my puny 1,8 GHz CPU.
+>
+> And does OSDL fix other people's compile breakages in the latest -mm
+> before I submit my patches, or am I required to play QA for every
+> single architecture before I can submit one single patch touching
+> architecture-independend files?
 
-	tglx
+-ETOOMUCHSARCASM
+(from someone who also uses sarcasm often)
 
+But seriously, I don't think anyone suggested anything quite
+as extreme as your question implies.
 
+-- 
+~Randy

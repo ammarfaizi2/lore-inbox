@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932712AbWAMMJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161266AbWAMMKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932712AbWAMMJf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 07:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbWAMMJf
+	id S1161266AbWAMMKL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 07:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbWAMMKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 07:09:35 -0500
-Received: from palakse.guam.net ([202.128.0.38]:25728 "EHLO palakse.guam.net")
-	by vger.kernel.org with ESMTP id S932712AbWAMMJf (ORCPT
+	Fri, 13 Jan 2006 07:10:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29391 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932715AbWAMMKK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 07:09:35 -0500
-From: "Michael D. Setzer II" <mikes@kuentos.guam.net>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 13 Jan 2006 22:09:51 +1000
-MIME-Version: 1.0
-Subject: Problem getting PCMCIA to compile in Kernel. 
-Message-ID: <43C8252F.6483.C6B2A8@mikes.kuentos.guam.net>
-X-PM-Encryptor: QDPGP, 4
-X-mailer: Pegasus Mail for Windows (4.31)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Fri, 13 Jan 2006 07:10:10 -0500
+Date: Fri, 13 Jan 2006 13:09:58 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Place for userland swsusp parts
+Message-ID: <20060113120958.GJ10088@elf.ucw.cz>
+References: <20060111221511.GA8223@elf.ucw.cz> <200601122113.24461.rjw@sisk.pl> <20060113002138.GE10088@elf.ucw.cz> <200601131225.51635.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601131225.51635.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-I've tried to set the PCMCIA options to Y in the kernel build, but get a 
-message that something else is build as a modual, so these can not be 
-changed to y. I went to the .config file and replaced every =m to =y, and then 
-ran make. The kernel then was built with no problem, but it reset all these 
-option back to =m.
+> > > IMHO uswsusp.sf.net would be too similar to swsusp.sf.net, especially that
+> > > swsusp.sf.net is redirected to www.suspend2.net.
+> > 
+> > Or maybe we can get hosting on suspend2.net? Or create
+> > userswsusp.sf.net (that name is ugly :-().
+> 
+> suspend.sf.net seems to be available.  We can use it, I think.
 
-CONFIG_PCMCIA_AHA152X=m
-CONFIG_PCMCIA_FDOMAIN=m
-CONFIG_PCMCIA_NINJA_SCSI=m
-CONFIG_PCMCIA_QLOGIC=m
-CONFIG_PCMCIA_SYM53C500=m
-CONFIG_I2C_STUB=m
+Ok. <evil>Or we can register suspend2.sf.net, and manage exchange for
+swsusp.sf.net :-)))))</evil>
 
-I build kernels for G4L, and build everything directly into the kernel, but 
-these do not seem to work, and I don't have an ideal why, since everything 
-else is built in. So what am I missing. This is the 2.6.15 kernel. 
+> > ...some revision control would be nice, but perhaps revision control
+> > is enough and we can just put git tree on kernel.org?
+> 
+> IMHO quilt will suffice to manage patches, at least for starters, but we'll
+> need a mailing list and an intro web page.
 
-Thanks.
+Well, we'll just get the kernel patch merged, so I don't see a need
+for quilt. But we'll need some CVS/SVN/something for userland parts.
 
-+----------------------------------------------------------+
-  Michael D. Setzer II -  Computer Science Instructor      
-  Guam Community College  Computer Center                  
-  mailto:mikes@kuentos.guam.net                            
-  mailto:msetzerii@gmail.com
-  http://www.guam.net/home/mikes
-  Guam - Where America's Day Begins                        
-+----------------------------------------------------------+
-
-http://setiathome.berkeley.edu
-Number of Seti Units Returned:  19,471
-Processing time:  32 years, 290 days, 12 hours, 58 minutes
-(Total Hours: 287,489)
-
-
-BOINC Seti@Home Total Credits 264500.664176 
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8 -- QDPGP 2.61c
-Comment: http://community.wow.net/grt/qdpgp.html
-
-iQA+AwUBQ8cL8SzGQcr/2AKZEQKFsACYrTbOYFUCiiXUp4gSHLMCM2ODNACg3QcP
-nIbkp5rVOhFHrMIdspQA4AY=
-=gLiv
------END PGP SIGNATURE-----
-
+Do you want to register suspend.sf.net, or should I do it?
+								Pavel
+-- 
+Thanks, Sharp!

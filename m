@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161596AbWAMAPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161598AbWAMAQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161596AbWAMAPB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 19:15:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161594AbWAMANz
+	id S1161598AbWAMAQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 19:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161594AbWAMAQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 19:13:55 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:64036 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1161596AbWAMAN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 19:13:29 -0500
-X-IronPort-AV: i="3.99,361,1131350400"; 
-   d="scan'208"; a="391186730:sNHT1905873354"
-Subject: [git patch review 3/6] IB/mthca: Fix memory leak of multicast group
-	structures
-From: Roland Dreier <rolandd@cisco.com>
-Date: Fri, 13 Jan 2006 00:13:17 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1137111197380-7741e9b26c0a0236@cisco.com>
-In-Reply-To: <1137111197380-f482e88c451680c0@cisco.com>
-X-OriginalArrivalTime: 13 Jan 2006 00:13:22.0498 (UTC) FILETIME=[2A31BA20:01C617D6]
+	Thu, 12 Jan 2006 19:16:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63932 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161598AbWAMAQz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 19:16:55 -0500
+Date: Fri, 13 Jan 2006 01:16:40 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
+Message-ID: <20060113001640.GD10088@elf.ucw.cz>
+References: <200601122241.07363.rjw@sisk.pl> <20060112220940.GA10088@elf.ucw.cz> <200601130031.34624.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601130031.34624.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert "/ (1 << lg)" to ">> lg" for a slight code size reduction.
+Hi!
 
-add/remove: 0/0 grow/shrink: 0/1 up/down: 0/-24 (-24)
-function                                     old     new   delta
-mthca_map_cmd                                613     589     -24
+> > > +commands defined in kernel/power/power.h.  The major and minor
+> > > +numbers of the device are, respectively, 10 and 231, and they can
+> > > +be read from /sys/class/misc/snapshot/dev.
+> > 
+> > Is this still true?
+> 
+> You mean the /sys/class/misc/snapshot/dev?  Yes, until sysfs gets revamped.
 
-Signed-off-by: Ishai Rabinovitz <ishai@mellanox.co.il>
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+Ahha, but it is not your code but misc-handling code in kernel, right?
 
----
+> > > +SNAPSHOT_IOCAVAIL_SWAP - check the amount of available swap (the last argument
+> > > +	should be a pointer to an unsigned int variable that will contain
+> > > +	the result if the call is successful)
+> > 
+> > Is this good idea? It will overflow on 32-bit systems. Ammount of
+> > available swap can be >4GB. [Or maybe it is in something else than
+> > bytes, then you need to specify it.]
+> 
+> It returns the number of pages.  Well, it should be written explicitly,
+> so I'll fix that.
+> 
+> [This feature is actually useful, because it allows you to check if you have
+> enough swap after creating the snapshot and retry for eg. image_size = 0
+> without unfreezing tasks.]
 
- drivers/infiniband/hw/mthca/mthca_cmd.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Ok. [I was asking about unsigned int, it is clear that querying
+available swap is useful]. If you return swap offsets, you may want to
+specify if it is #bytes/#pages, too.
 
-59f174faffd5dfee709fa0ead320cc6daf827e93
-diff --git a/drivers/infiniband/hw/mthca/mthca_cmd.c b/drivers/infiniband/hw/mthca/mthca_cmd.c
-index 22ac72b..f69e489 100644
---- a/drivers/infiniband/hw/mthca/mthca_cmd.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cmd.c
-@@ -606,7 +606,7 @@ static int mthca_map_cmd(struct mthca_de
- 			err = -EINVAL;
- 			goto out;
- 		}
--		for (i = 0; i < mthca_icm_size(&iter) / (1 << lg); ++i) {
-+		for (i = 0; i < mthca_icm_size(&iter) >> lg; ++i) {
- 			if (virt != -1) {
- 				pages[nent * 2] = cpu_to_be64(virt);
- 				virt += 1 << lg;
+> > Ouch and you have my ACK on next attempt :-).
+> 
+> Thanks (you are brave, though ;-)).
+
+I... think you can call it "brave", yes. Nice euphemism ;-)))).
+								Pavel
 -- 
-1.0.7
+Thanks, Sharp!

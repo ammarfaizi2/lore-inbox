@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWAMONo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422681AbWAMOUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422687AbWAMONo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 09:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWAMONo
+	id S1422681AbWAMOUp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 09:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422689AbWAMOUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 09:13:44 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6155 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422686AbWAMONn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 09:13:43 -0500
-Date: Fri, 13 Jan 2006 15:13:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, David Woodhouse <dwmw2@infradead.org>,
-       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] schedule SHAPER for removal
-Message-ID: <20060113141343.GM29663@stusta.de>
-References: <20060111003747.GJ3911@stusta.de> <1136940409.3435.126.camel@localhost.localdomain> <200601110153.21989.ak@suse.de> <1136944738.28616.0.camel@localhost.localdomain>
+	Fri, 13 Jan 2006 09:20:45 -0500
+Received: from odin2.bull.net ([192.90.70.84]:54239 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S1422681AbWAMOUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 09:20:44 -0500
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: RT question : softirq and minimal user RT priority
+Date: Fri, 13 Jan 2006 15:27:00 +0100
+User-Agent: KMail/1.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <200601131527.00828.Serge.Noiraud@bull.net>
+X-MIMETrack: Itemize by SMTP Server on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 01/13/2006 03:21:37 PM,
+	Serialize by Router on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 01/13/2006 03:21:39 PM,
+	Serialize complete at 01/13/2006 03:21:39 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Disposition: inline
-In-Reply-To: <1136944738.28616.0.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 01:58:58AM +0000, Alan Cox wrote:
-> On Mer, 2006-01-11 at 01:53 +0100, Andi Kleen wrote:
-> > shaper is completely obsolete and it's probably best to just remove
-> > all references to it and the kernel driver too.
-> 
-> I would agree with that but it nees to go through a proper obsolesence
-> and obliteration cycle not just vanish.
+Hi,
 
-Patch below.
+	I was testing 2.6.15-rt3. During my tests, I tried to run a program which made a loop at
+RT priority 10 and 30.
+I was very happy to see that after the tests, I can't use any command except those already in memory.
+My filesystems were in read-only after the test. I was unable to shutdown the machine : 
+top => command not found
+<CTRL><ALT><DEL> => INIT: cannot execute "/sbin/shutdown"
+/sbin/reboot   => Input/Output error
+I had to push the reset button.
 
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-mm3-full/Documentation/feature-removal-schedule.txt.old	2006-01-13 15:02:15.000000000 +0100
-+++ linux-2.6.15-mm3-full/Documentation/feature-removal-schedule.txt	2006-01-13 15:06:19.000000000 +0100
-@@ -164,0 +165,6 @@
-+---------------------------
-+
-+What:   Traffic Shaper (CONFIG_SHAPER)
-+When:   July 2006
-+Why:    obsoleted by the code in net/sched/
-+Who:    Adrian Bunk <bunk@stusta.de
---- linux-2.6.15-mm3-full/drivers/net/Kconfig.old	2006-01-13 15:06:34.000000000 +0100
-+++ linux-2.6.15-mm3-full/drivers/net/Kconfig	2006-01-13 15:06:49.000000000 +0100
-@@ -2663,7 +2663,7 @@
- 	  "SCSI generic support".
- 
- config SHAPER
--	tristate "Traffic Shaper (EXPERIMENTAL)"
-+	tristate "Traffic Shaper (OBSOLETE)"
- 	depends on EXPERIMENTAL
- 	---help---
- 	  The traffic shaper is a virtual network device that allows you to
-
+My questions are : 
+Did I find a bug ?
+Is the smallest usable real-time priority greater than the highest real-time softirq ?
+In this case could we forbid priority lesser than the highest softirq priority ?

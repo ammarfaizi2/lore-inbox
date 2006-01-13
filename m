@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423016AbWAMWT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423019AbWAMWVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423016AbWAMWT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423017AbWAMWT5
+	id S1423019AbWAMWVH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423020AbWAMWVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:19:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:34000 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423016AbWAMWT4 (ORCPT
+	Fri, 13 Jan 2006 17:21:07 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:529 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1423019AbWAMWVE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:19:56 -0500
-Date: Fri, 13 Jan 2006 14:18:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: bunk@stusta.de, rdunlap@xenotime.net, adobriyan@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm2: alpha broken
-Message-Id: <20060113141839.39887ce0.akpm@osdl.org>
-In-Reply-To: <20060113135210.80aabc8d.pj@sgi.com>
-References: <20060107052221.61d0b600.akpm@osdl.org>
-	<20060107210646.GA26124@mipter.zuzino.mipt.ru>
-	<20060107154842.5832af75.akpm@osdl.org>
-	<20060110182422.d26c5d8b.pj@sgi.com>
-	<20060113141154.GL29663@stusta.de>
-	<20060113101054.d62acb0d.pj@sgi.com>
-	<Pine.LNX.4.58.0601131014160.5563@shark.he.net>
-	<20060113210848.GS29663@stusta.de>
-	<Pine.LNX.4.58.0601131310060.5563@shark.he.net>
-	<20060113213259.GT29663@stusta.de>
-	<20060113135210.80aabc8d.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 13 Jan 2006 17:21:04 -0500
+Date: Fri, 13 Jan 2006 17:20:54 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: wireless: recap of current issues (compatibility)
+Message-ID: <20060113222054.GK16166@tuxdriver.com>
+Mail-Followup-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213126.GF16166@tuxdriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113213126.GF16166@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> And Andrew made a good point,
+Compatibility
+=============
 
-It's January - time for my annual good point.
+The netlink configuration mechanism needs compatibility code to
+translate wireless extension ioctls into netlink transactions.
 
-> that matches up well with your mention
-> of your "puny 1.8 GHz CPU."  There is some efficiency to be gained
-> from doing crosstool builds against 100 changes at once, rather than
-> 100 developers each doing them for their one change.
+We need to be an 802.11 stack (i.e. drivers need to handle 802.11
+frames).  Ethernet emulation is bound to paint us into a corner
+eventually (if it hasn't already).
 
-Of course, people other than myself can and do run cross-builds on -mm
-trees, which is doubleplus efficient.  It appears that Adrian is doing
-this, for one.
+We need an ethernet<->802.11 translational bridging interface for
+compatibility, and to enable 802.1 bridging with ethernet.  This could
+be a configuration setting for a wlan interface.  It might be limited
+to wlan interfaces in station (or WDS) mode?
 
-So the 100-or-more people write their patches, they go into -mm and then I
-and a few others do the cross-compiling, feed back or fix any problems.
+802.11 framing may break older protocols (e.g. DECnet).  I don't
+see this as a big problem, as I imagine such installations aren't
+rolling-out lots of WiFi...if I'm wrong, will the translational
+bridging code resolve this issue?
 
+Should a default wlan device be created at WiPHY init?  Should it
+enable translational bridging?  I'm inclined against this, but is it
+worthwhile for compatibility?  Could/should this be a configuration
+option for the stack?
+
+How about if WiPHY initialization triggered a netlink broadcast?
+Then a daemon could monitor those broadcasts and create whatever wlan
+devices (ethernet emulation, rfmon, none at all) that the daemon was
+configured to create.  How would this effect modprobe behaviour?
+-- 
+John W. Linville
+linville@tuxdriver.com

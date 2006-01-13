@@ -1,87 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422810AbWAMShf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422814AbWAMSlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422810AbWAMShf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 13:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422817AbWAMShf
+	id S1422814AbWAMSlW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 13:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422818AbWAMSlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 13:37:35 -0500
-Received: from mail.summitinstruments.com ([66.132.4.236]:10690 "EHLO
-	mail2.visn.net") by vger.kernel.org with ESMTP id S1422810AbWAMShe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 13:37:34 -0500
-Message-ID: <43C7F35A.9010703@summitinstruments.com>
-Date: Fri, 13 Jan 2006 13:37:14 -0500
-From: "Arne R. van der Heyde" <vanderHeydeAR@summitinstruments.com>
-Organization: Summit Instruments, Inc.
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-To: linux-kernel@vger.kernel.org
-CC: c-d.hailfinger.kernel.2004@gmx.net
-Subject: no carrier when using forcedeth on MSI K8N Neo4-F
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=------------070809070606020204000203
+	Fri, 13 Jan 2006 13:41:22 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:45814 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1422814AbWAMSlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 13:41:21 -0500
+Date: Fri, 13 Jan 2006 13:41:16 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Roger Heflin <rheflin@atipa.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Dual core Athlons and unsynced TSCs
+In-Reply-To: <1137174848.15108.11.camel@mindpipe>
+Message-ID: <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com> 
+ <1137168254.7241.32.camel@localhost.localdomain>  <1137174463.15108.4.camel@mindpipe>
+  <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com> <1137174848.15108.11.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---------------070809070606020204000203
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-I am trying to connect two identical MSI K8N Neo4-F servers with NVIDIA 
-nForce4 gigabit Lan ports. When the two ports are connected together via 
-a crossover cable, neither computer is able to detect a carrier on the 
-Lan ports and are not able to communicate. When either of the nForce4 
-gigabit port is connected to a Lan port on another computer with a 
-different Lan hardware or to a port on a switch the forcedeth drivers 
-detect a carrier and are able to communicate.
+On Fri, 13 Jan 2006, Lee Revell wrote:
 
-It appears that the nForce4 Gigabit ports are not generating a carrier. 
-Does the nForce4 not provide standard ethernet ports? If they are 
-standard ethernet ports, how do I tell forcedeth to generate a carrier? 
-Also how do I get forcedeth to run at a Gigabit?
-
-Thanks for any help,
-
-Best regards,
-Arne R. van der Heyde
-vanderHeydeAR@summitinstruments.com
-
-Summit Instruments Inc.
-2236 N. Cleveland-Massillon Rd.
-Akron, Ohio 44333-1255  USA
-
-Phone (330)659-3312
-Fax   (330)659-3286
-www.summitinstruments.com
+> On Fri, 2006-01-13 at 12:52 -0500, Steven Rostedt wrote:
+> > On Fri, 13 Jan 2006, Lee Revell wrote:
+> >
+> > > I don't have hardware to test this, can you confirm that the only
+> > > workaround needed is to boot with "clock=pmtmr"?
+> >
+> > For which kernel?
+>
+> I believe the problem exists on all kernels, it should not matter.
 
 
---------------070809070606020204000203
-Content-Type: text/x-vcard; charset=utf-8; name=vanderHeydeAR.vcf
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="vanderHeydeAR.vcf"
+Well, I just booted up (and am currently running) 2.6.15-rt4-sr2 and I
+used "clock=pmtmr".  I haven't got any
 
-begin:vcard
-fn:Arne van der Heyde
-n:van der Heyde;Arne
-org:Summit Instruments, Inc.
-adr:;;2236 N Cleveland-Massillon Rd;Akron;OH;44333-1255;USA
-email;internet:vanderHeydeAR@SummitInstruments.com
-tel;work:(330) 659-3312
-tel;fax:(330) 659-3286
-x-mozilla-html:FALSE
-url:http://www.SummitInstruments.com
-version:2.1
-end:vcard
+read_tsc: ACK! TSC went backward! Unsynced TSCs?
 
 
---------------070809070606020204000203
-Content-Type: text/plain; x-avg=cert; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-Content-Description: "AVG certification"
+If that's what you want to know?
 
-No virus found in this outgoing message.
-Checked by AVG Free Edition.
-Version: 7.1.371 / Virus Database: 267.14.17/226 - Release Date: 10-Jan-06
+But the latency traces are still screwed up.
 
---------------070809070606020204000203--
+
+-- Steve
+

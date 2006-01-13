@@ -1,113 +1,342 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWAMNdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWAMNif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWAMNdh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 08:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWAMNdg
+	id S1030321AbWAMNif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 08:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWAMNif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 08:33:36 -0500
-Received: from uproxy.gmail.com ([66.249.92.195]:19235 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422662AbWAMNdg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 08:33:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AoHRZ1Om3KoDtkqxtjdzg9cvfXVE7XYBvlhqjRN3Oe/AyM+N2GLEJR8rkPbT78ebP8E+2gy/X46kkkXzPrAf02reZTruf+l1EHpGTQiYcXOjtATdzk1HNdBCZw7TPmjjF//ClnSz6crLeadtwCL3X+nlv/JbP+Cn58CLsl3KFp8=
-Message-ID: <58cb370e0601130533n5842cb5fufc5058f9a1acc606@mail.gmail.com>
-Date: Fri, 13 Jan 2006 14:33:34 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: Fwd: ide-cd turning off DMA when verifying DVD-R
-Cc: Ondrej Zary <linux@rainbow-software.org>,
-       Robert Hancock <hancockr@shaw.ca>,
-       Volker Kuhlmann <list0570@paradise.net.nz>, Jens Axboe <axboe@suse.de>,
-       linux-ide <linux-ide@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060113112510.GA23264@sci.fi>
+	Fri, 13 Jan 2006 08:38:35 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:726 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1030321AbWAMNie (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 08:38:34 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>
+Subject: [PATCH 14/13] USBATM: semaphore to mutex conversion
+Date: Fri, 13 Jan 2006 14:38:29 +0100
+User-Agent: KMail/1.9.1
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <5ujmU-1UQ-665@gated-at.bofh.it> <5uoqr-Qq-7@gated-at.bofh.it>
-	 <43C72F41.5060207@shaw.ca> <20060113083009.GE12338@paradise.net.nz>
-	 <58cb370e0601130119g5c62b749r1bc5da59a0d4a56c@mail.gmail.com>
-	 <58cb370e0601130121s2f6c0a26jda00ff64df197342@mail.gmail.com>
-	 <20060113093818.GA22984@sci.fi>
-	 <58cb370e0601130149g32323b4axbf0ac55f83ac9148@mail.gmail.com>
-	 <20060113112510.GA23264@sci.fi>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_W16xDjcm23ruJ4W"
+Message-Id: <200601131438.30181.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm adding missing cc:, I hope I didn't forget about anybody this time.
+--Boundary-00=_W16xDjcm23ruJ4W
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-There is now bugzilla entry for this bug (thanks Ondrej):
-http://bugzilla.kernel.org/show_bug.cgi?id=5882
+Hi Greg, this is the usbatm part of the Arjan, Jes and Info
+mass semaphore to mutex conversion, reworked to apply on top
+of the patches I just sent to you.
 
-Jens, could you take a look at the part related to ide-cd timeouts?
+Signed-off-by:	Duncan Sands <baldrick@free.fr>
 
-On 1/13/06, Ville Syrjälä <syrjala@sci.fi> wrote:
-> On Fri, Jan 13, 2006 at 10:49:22AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On 1/13/06, Ville Syrjälä <syrjala@sci.fi> wrote:
-> > > On Fri, Jan 13, 2006 at 10:21:44AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > > On 1/13/06, Volker Kuhlmann <list0570@paradise.net.nz> wrote:
-> > > > > On Fri 13 Jan 2006 17:40:33 NZDT +1300, Robert Hancock wrote:
-> > > > >
-> > > > > > I'm thinking the IDE code is too aggressive in assuming that the failure
-> > > > > >  is because of a DMA problem and disabling it.. Most likely all that's
-> > > > > > happening is the drive is taking a long time to complete the current
-> > > > > > command.
-> > > >
-> > > > What actually happened is that normal command timed out
-> > > > and because of that driver reset the device which caused
-> > > > it to loose DMA:
-> > > >
-> > > > ->ide_atapi_error()
-> > > >     ->ide_do_reset()
-> > > >       ->pre_reset()
-> > > >         ->check_dma_crc()
-> > > >           ->__ide_dma_off()
-> > > >
-> > > > Somebody needs to investigate why __ide_dma_off() is called
-> > > > et all and if we need to restore DMA after reset (don't count ATM
-> > > > on me, I'm buried by bugreports).  Ondrej, could you fill the bug at
-> > > > http://bugzilla.kernel.org so we don't lose it?
-> > >
-> > > It looks like this has been fixed recently. In 2.6.14-rc4-mm1
-> > > check_dma_crc() used to call __ide_dma_off() when no CRC errors were
-> > > registered. The bug has been fixed before 2.6.15-rc5-mm1. I'm still
-> > > running 2.6.14-rc4-mm1 on my burning system so I haven't actually tested
-> > > this on a recent kernel.
-> >
-> > I don't see it being fixed, could you point me at the patch?
->
-> It seems the patch was carried along during the 2.6.15-rc-mm series but
-> was later dropped.
->
-> Here it is:
-> http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/broken-out/ide-promise-flushing-hang-fix.patch
->
-> There's a bunch of other stuff in that patch besides the __ide_dma_off()
-> change. Maybe that approach isn't correct and just increasing some
-> timeout value would work. LG burners are just really slow recognizing
-> discs.
+--Boundary-00=_W16xDjcm23ruJ4W
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="14-mutex"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="14-mutex"
 
-The patch was NACK-ed by Alan Cox and I agree with him (this should be
-done differently).  This __ide_dma_off() chunk looks sensible but does it fix
-the issue?  I was under impression that after a reset drive looses its DMA
-xfer mode and needs to be reprogrammed (ATA spec has the answer).
+Index: Linux/drivers/usb/atm/cxacru.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/cxacru.c	2006-01-13 09:35:07.000000000 +0100
++++ Linux/drivers/usb/atm/cxacru.c	2006-01-13 14:14:41.000000000 +0100
+@@ -36,6 +36,7 @@
+ #include <linux/init.h>
+ #include <linux/device.h>	/* FIXME: linux/firmware.h should include it itself */
+ #include <linux/firmware.h>
++#include <linux/mutex.h>
+ 
+ #include "usbatm.h"
+ 
+@@ -160,7 +161,7 @@
+ 	struct work_struct poll_work;
+ 
+ 	/* contol handles */
+-	struct semaphore cm_serialize;
++	struct mutex cm_serialize;
+ 	u8 *rcv_buf;
+ 	u8 *snd_buf;
+ 	struct urb *rcv_urb;
+@@ -219,7 +220,7 @@
+ 		goto fail;
+ 	}
+ 
+-	down(&instance->cm_serialize);
++	mutex_lock(&instance->cm_serialize);
+ 
+ 	/* submit reading urb before the writing one */
+ 	init_completion(&instance->rcv_done);
+@@ -288,7 +289,7 @@
+ 	ret = offd;
+ 	dbg("cm %#x", cm);
+ fail:
+-	up(&instance->cm_serialize);
++	mutex_unlock(&instance->cm_serialize);
+ 	return ret;
+ }
+ 
+@@ -717,7 +718,7 @@
+ 			instance->snd_buf, PAGE_SIZE,
+ 			cxacru_blocking_completion, &instance->snd_done, 4);
+ 
+-	init_MUTEX(&instance->cm_serialize);
++	mutex_init(&instance->cm_serialize);
+ 
+ 	INIT_WORK(&instance->poll_work, (void *)cxacru_poll_status, instance);
+ 
+Index: Linux/drivers/usb/atm/ueagle-atm.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/ueagle-atm.c	2006-01-13 09:35:07.000000000 +0100
++++ Linux/drivers/usb/atm/ueagle-atm.c	2006-01-13 14:14:41.000000000 +0100
+@@ -63,6 +63,7 @@
+ #include <linux/ctype.h>
+ #include <linux/kthread.h>
+ #include <linux/version.h>
++#include <linux/mutex.h>
+ #include <asm/unaligned.h>
+ 
+ #include "usbatm.h"
+@@ -358,7 +359,7 @@
+ #define INTR_PKT_SIZE 28
+ 
+ static struct usb_driver uea_driver;
+-static DECLARE_MUTEX(uea_semaphore);
++static DEFINE_MUTEX(uea_mutex);
+ static const char *chip_name[] = {"ADI930", "Eagle I", "Eagle II", "Eagle III"};
+ 
+ static int modem_index;
+@@ -1418,13 +1419,13 @@
+ 	int ret = -ENODEV;
+ 	struct uea_softc *sc;
+ 
+-	down(&uea_semaphore);
++	mutex_lock(&uea_mutex);
+ 	sc = dev_to_uea(dev);
+ 	if (!sc)
+ 		goto out;
+ 	ret = snprintf(buf, 10, "%08x\n", sc->stats.phy.state);
+ out:
+-	up(&uea_semaphore);
++	mutex_unlock(&uea_mutex);
+ 	return ret;
+ }
+ 
+@@ -1434,14 +1435,14 @@
+ 	int ret = -ENODEV;
+ 	struct uea_softc *sc;
+ 
+-	down(&uea_semaphore);
++	mutex_lock(&uea_mutex);
+ 	sc = dev_to_uea(dev);
+ 	if (!sc)
+ 		goto out;
+ 	sc->reset = 1;
+ 	ret = count;
+ out:
+-	up(&uea_semaphore);
++	mutex_unlock(&uea_mutex);
+ 	return ret;
+ }
+ 
+@@ -1453,7 +1454,7 @@
+ 	int ret = -ENODEV;
+ 	struct uea_softc *sc;
+ 
+-	down(&uea_semaphore);
++	mutex_lock(&uea_mutex);
+ 	sc = dev_to_uea(dev);
+ 	if (!sc)
+ 		goto out;
+@@ -1473,7 +1474,7 @@
+ 		break;
+ 	}
+ out:
+-	up(&uea_semaphore);
++	mutex_unlock(&uea_mutex);
+ 	return ret;
+ }
+ 
+@@ -1485,7 +1486,7 @@
+ 	int ret = -ENODEV;
+ 	struct uea_softc *sc;
+ 
+-	down(&uea_semaphore);
++	mutex_lock(&uea_mutex);
+ 	sc = dev_to_uea(dev);
+ 	if (!sc)
+ 		goto out;
+@@ -1497,7 +1498,7 @@
+ 	else
+ 		ret = sprintf(buf, "GOOD\n");
+ out:
+-	up(&uea_semaphore);
++	mutex_unlock(&uea_mutex);
+ 	return ret;
+ }
+ 
+@@ -1511,7 +1512,7 @@
+ 	int ret = -ENODEV; 					\
+ 	struct uea_softc *sc; 					\
+  								\
+-	down(&uea_semaphore); 					\
++	mutex_lock(&uea_mutex); 					\
+ 	sc = dev_to_uea(dev);					\
+ 	if (!sc) 						\
+ 		goto out; 					\
+@@ -1519,7 +1520,7 @@
+ 	if (reset)						\
+ 		sc->stats.phy.name = 0;				\
+ out: 								\
+-	up(&uea_semaphore); 					\
++	mutex_unlock(&uea_mutex); 					\
+ 	return ret; 						\
+ } 								\
+ 								\
+@@ -1737,9 +1738,9 @@
+ 	 * Pre-firmware device has one interface
+ 	 */
+ 	if (usb->config->desc.bNumInterfaces != 1 && ifnum == 0) {
+-		down(&uea_semaphore);
++		mutex_lock(&uea_mutex);
+ 		usbatm_usb_disconnect(intf);
+-		up(&uea_semaphore);
++		mutex_unlock(&uea_mutex);
+ 		uea_info(usb, "ADSL device removed\n");
+ 	}
+ 
+Index: Linux/drivers/usb/atm/usbatm.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/usbatm.c	2006-01-13 09:35:09.000000000 +0100
++++ Linux/drivers/usb/atm/usbatm.c	2006-01-13 14:20:19.000000000 +0100
+@@ -823,7 +823,7 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	down(&instance->serialize);	/* vs self, usbatm_atm_close, usbatm_usb_disconnect */
++	mutex_lock(&instance->serialize);	/* vs self, usbatm_atm_close, usbatm_usb_disconnect */
+ 
+ 	if (instance->disconnected) {
+ 		atm_dbg(instance, "%s: disconnected!\n", __func__);
+@@ -867,7 +867,7 @@
+ 	set_bit(ATM_VF_PARTIAL, &vcc->flags);
+ 	set_bit(ATM_VF_READY, &vcc->flags);
+ 
+-	up(&instance->serialize);
++	mutex_unlock(&instance->serialize);
+ 
+ 	atm_dbg(instance, "%s: allocated vcc data 0x%p\n", __func__, new);
+ 
+@@ -875,7 +875,7 @@
+ 
+ fail:
+ 	kfree(new);
+-	up(&instance->serialize);
++	mutex_unlock(&instance->serialize);
+ 	return ret;
+ }
+ 
+@@ -896,7 +896,7 @@
+ 
+ 	usbatm_cancel_send(instance, vcc);
+ 
+-	down(&instance->serialize);	/* vs self, usbatm_atm_open, usbatm_usb_disconnect */
++	mutex_lock(&instance->serialize);	/* vs self, usbatm_atm_open, usbatm_usb_disconnect */
+ 
+ 	tasklet_disable(&instance->rx_channel.tasklet);
+ 	if (instance->cached_vcc == vcc_data) {
+@@ -919,7 +919,7 @@
+ 	clear_bit(ATM_VF_PARTIAL, &vcc->flags);
+ 	clear_bit(ATM_VF_ADDR, &vcc->flags);
+ 
+-	up(&instance->serialize);
++	mutex_unlock(&instance->serialize);
+ 
+ 	atm_dbg(instance, "%s successful\n", __func__);
+ }
+@@ -1009,9 +1009,9 @@
+ 	if (!ret)
+ 		ret = usbatm_atm_init(instance);
+ 
+-	down(&instance->serialize);
++	mutex_lock(&instance->serialize);
+ 	instance->thread_pid = -1;
+-	up(&instance->serialize);
++	mutex_unlock(&instance->serialize);
+ 
+ 	complete_and_exit(&instance->thread_exited, ret);
+ }
+@@ -1025,9 +1025,9 @@
+ 		return ret;
+ 	}
+ 
+-	down(&instance->serialize);
++	mutex_lock(&instance->serialize);
+ 	instance->thread_pid = ret;
+-	up(&instance->serialize);
++	mutex_unlock(&instance->serialize);
+ 
+ 	wait_for_completion(&instance->thread_started);
+ 
+@@ -1110,7 +1110,7 @@
+ 	/* private fields */
+ 
+ 	kref_init(&instance->refcount);		/* dropped in usbatm_usb_disconnect */
+-	init_MUTEX(&instance->serialize);
++	mutex_init(&instance->serialize);
+ 
+ 	instance->thread_pid = -1;
+ 	init_completion(&instance->thread_started);
+@@ -1273,18 +1273,18 @@
+ 
+ 	usb_set_intfdata(intf, NULL);
+ 
+-	down(&instance->serialize);
++	mutex_lock(&instance->serialize);
+ 	instance->disconnected = 1;
+ 	if (instance->thread_pid >= 0)
+ 		kill_proc(instance->thread_pid, SIGTERM, 1);
+-	up(&instance->serialize);
++	mutex_unlock(&instance->serialize);
+ 
+ 	wait_for_completion(&instance->thread_exited);
+ 
+-	down(&instance->serialize);
++	mutex_lock(&instance->serialize);
+ 	list_for_each_entry(vcc_data, &instance->vcc_list, list)
+ 		vcc_release_async(vcc_data->vcc, -EPIPE);
+-	up(&instance->serialize);
++	mutex_unlock(&instance->serialize);
+ 
+ 	tasklet_disable(&instance->rx_channel.tasklet);
+ 	tasklet_disable(&instance->tx_channel.tasklet);
+Index: Linux/drivers/usb/atm/usbatm.h
+===================================================================
+--- Linux.orig/drivers/usb/atm/usbatm.h	2006-01-13 09:35:09.000000000 +0100
++++ Linux/drivers/usb/atm/usbatm.h	2006-01-13 14:18:42.000000000 +0100
+@@ -34,6 +34,7 @@
+ #include <linux/list.h>
+ #include <linux/stringify.h>
+ #include <linux/usb.h>
++#include <linux/mutex.h>
+ 
+ /*
+ #define VERBOSE_DEBUG
+@@ -171,7 +172,7 @@
+         ********************************/
+ 
+ 	struct kref refcount;
+-	struct semaphore serialize;
++	struct mutex serialize;
+ 	int disconnected;
+ 
+ 	/* heavy init */
 
-> I just took some random discs from my colletion and measured the time it
-> took for the drive to recognize them.
->
-> ~12 seconds for CD-R
-> ~15 seconds for some DVD+R
-> ~27 seconds for some DVD+R
->
-> I'm not sure why it takes so long for some discs. I know they aren't
-> bad burns because my laptop DVD-ROM drive, which is more sensitive to
-> disc quality than the LG, can read them without any problems and it
-> recognizes them in a few seconds.
-
-I'll let Jens comment on this one. :)
-
-Bartlomiej
+--Boundary-00=_W16xDjcm23ruJ4W--

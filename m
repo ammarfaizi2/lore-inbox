@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423054AbWAMWfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423049AbWAMWe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423054AbWAMWfT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423053AbWAMWfT
+	id S1423049AbWAMWe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423048AbWAMWe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:35:19 -0500
-Received: from sipsolutions.net ([66.160.135.76]:44817 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1423051AbWAMWfR (ORCPT
+	Fri, 13 Jan 2006 17:34:57 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:43216 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1423049AbWAMWe4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:35:17 -0500
-Subject: Re: wireless: recap of current issues (other issues)
-From: Johannes Berg <johannes@sipsolutions.net>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060113222408.GM16166@tuxdriver.com>
-References: <20060113195723.GB16166@tuxdriver.com>
-	 <20060113212605.GD16166@tuxdriver.com>
-	 <20060113213237.GH16166@tuxdriver.com>
-	 <20060113222408.GM16166@tuxdriver.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ykjEvNySpsB7NBD/naZC"
-Date: Fri, 13 Jan 2006 23:35:11 +0100
-Message-Id: <1137191711.2520.69.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Fri, 13 Jan 2006 17:34:56 -0500
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Brian Twichell" <tbrian@us.ibm.com>
+Subject: Re: [PATCH/RFC] Shared page tables
+Date: Fri, 13 Jan 2006 16:34:23 -0600
+User-Agent: KMail/1.8
+cc: "Dave McCracken" <dmccr@us.ibm.com>, "Hugh Dickins" <hugh@veritas.com>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>, slpratt@us.ibm.com
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
+ <43C73767.5060506@us.ibm.com>
+In-Reply-To: <43C73767.5060506@us.ibm.com>
+MIME-Version: 1.0
+Message-ID: <200601131634.24913.raybry@mpdtxmail.amd.com>
+X-OriginalArrivalTime: 13 Jan 2006 22:34:21.0599 (UTC)
+ FILETIME=[7F8E3AF0:01C61891]
+X-WSS-ID: 6FD6F5653983469381-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 12 January 2006 23:15, Brian Twichell wrote:
 
---=-ykjEvNySpsB7NBD/naZC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Hi,
+>
+> We evaluated page table sharing on x86_64 and ppc64 setups, using a
+> database OLTP workload.  In both cases, 4-way systems with 64 GB of memory
+> were used.
+>
+> On the x86_64 setup, page table sharing provided a 25% increase in
+> performance,
+> when the database buffers were in small (4 KB) pages.  In this case,
+> over 14 GB
+> of memory was freed, that had previously been taken up by page tables.
+> In the
+> case that the database buffers were in huge (2 MB) pages, page table
+> sharing provided a 4% increase in performance.
+>
 
-On Fri, 2006-01-13 at 17:24 -0500, John W. Linville wrote:
+Brian,
 
-> Radiotap headers make sense for an rfmon virtual device.  I don't
-> think it makes sense for "normal" usage.  Should there be an option
-> for radiotap headers on non-rfmon links?
+Is that 25%-50% percent of overall performance (e. g. transaction throughput), 
+or is this a measurement of, say, DB process startup times, or what?   It 
+seems to me that the impact of the shared page table patch would mostly be 
+noticed at address space construction/destruction times, and for a big OLTP 
+workload, the processes are probably built once and stay around forever, no?
 
-Yes. For hardware debugging.
+If the performance improvement is in overall throughput, do you understand why 
+the impact would be so large?   TLB reloads?   I don't understand why one 
+would see that kind of overall performance improvement, but I could be 
+overlooking something.   (Could very likely be overlooking something...:-) )
 
-> Rfmon interferes w/ other interfaces, but may be handy to enter/leave
-> w/ little effort.  Perhaps a config option for physical device to
-> suspend/resume all (non-rfmon) virtual devices before/after enabling
-> rfmon virtual device?  (Would multiple rfmon devices even make sense?
-> If not, is it worth restricting that?)
-
-Multiple rfmon devices make sense in hypothetical or future hardware if
-different channels are supported on one WiPHY at once, but the rfmon
-device shall be restricted to a single one. Since we probably need a way
-to deactivate virtual devices anyway, having a config option to
-suspend/resume all others doesn't make sense -- userspace programs can
-just as well cycle over them and do it themselves.
-
-johannes
-
---=-ykjEvNySpsB7NBD/naZC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQ8grHaVg1VMiehFYAQKR3xAAmJDpSsqv5KKOH4vuzA7FpqEswRPfKzgu
-XtZq0DbsjRbi2P8cRG1wyBuswHxu3kQaoU46HAuICJmbpxj/VMuzIuZOlwQXqUE8
-V+XneiwH4Aj09OxLOjlzvg6hmzy10+8XOvA9PrlnLQWmFLkpMHsoahdtG46ho6Da
-t7AU/Atzb7KuefkQgeMFejqiEmDnw5IZQTMSUwjkThwKqTowd7dxdmpv1M1EOkhA
-bK/Ion4x+4Tkkd4gX7vVuvCfK3dEGsr//PSq0pRo1pBZZlap6w+IZZ6Sxc2qOmgh
-JrUo5i314GcQIdAT4GVkbU1Ryr6vLjqCnAY9Cd/PQu8EhP0QX2weO3fB9SQZ4ktb
-ZXbgQwshV40F1RF+S7Azmyg94wK+7tixcYZFMo95GPGsKUmcMz9NP6Hv7cpfk9P1
-y/MxyVEz5zVyOEvy1Uz3vfJ09vj5P6nc0aumk2rCve3P+v/ptZp1Dxm4rHTd3sFw
-TqYODhBj7kM6hbS3RWetVZZDPbNeYxwXoZSJtmOTeLf6CnIAuVtXOUI5ma5QnGCb
-2XK+ovPm/+SeAUuW1i7nESimFjZavlOR865JGbVyXm9lP0BcoM2ZYeWaRU927atn
-U8wuC/zs3K8EA7Z6lic2kuISaXxzn0naemkISbr5UFF440LKqTjF4i3D0hlVjCmn
-DitDzVXjIMY=
-=FWgz
------END PGP SIGNATURE-----
-
---=-ykjEvNySpsB7NBD/naZC--
+Oh, and yeah, was this an AMD x86_64 box or what?
+-- 
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
 

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161545AbWAMK2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161171AbWAMKaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161545AbWAMK2k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:28:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161546AbWAMK2k
+	id S1161171AbWAMKaG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161549AbWAMKaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:28:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41954 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161171AbWAMK2j (ORCPT
+	Fri, 13 Jan 2006 05:30:06 -0500
+Received: from smtp6-g19.free.fr ([212.27.42.36]:61624 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1161171AbWAMKaC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:28:39 -0500
-Date: Fri, 13 Jan 2006 02:28:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [PATCH 1/5] sched-cleanup_task_activated.patch
-Message-Id: <20060113022819.432a1b6d.akpm@osdl.org>
-In-Reply-To: <200601132123.01338.kernel@kolivas.org>
-References: <200601132123.01338.kernel@kolivas.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Jan 2006 05:30:02 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: [PATCH 00/13] USBATM: summary
+Date: Fri, 13 Jan 2006 11:30:04 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       usbatm@lists.infradead.org
+References: <200601121729.52596.baldrick@free.fr> <20060112183001.GA23777@kroah.com>
+In-Reply-To: <20060112183001.GA23777@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601131130.04762.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> +enum sleep_type {
-> +	SLEEP_NORMAL,
-> +	SLEEP_NONINTERACTIVE,
-> +	SLEEP_INTERACTIVE,
-> +	SLEEP_INTERRUPTED,
-> +};
+> I only got 2 of these, is my mail just being slow (which it does at odd
+> times), or did you stop sending them based on some problems on your end?
 
-If you make these 1, 2, 4 and 8
+Hi Greg, I stopped because I noticed that part of patch 2 had slipped
+into patch 3 (the bit that slipped was exactly the tweak I made to patch 2
+to have it compile by itself... probably ended up in patch 3 due to a
+forgotten "quilt refresh"), and I wanted to check all the other patches.
+They are fine, so I have now sent them.  However, patch 2 won't compile
+unless you apply patch 3 as well. Since they are both trivial, I hope you
+are ok with that, otherwise I can rediff them
 
-> +static inline int interactive_sleep(enum sleep_type sleep_type)
-> +{
-> +	return (sleep_type == SLEEP_INTERACTIVE ||
-> +		sleep_type == SLEEP_INTERRUPTED);
-> +}
+All the best,
 
-then this can be
-
-	return sleep_type & (SLEEP_INTERACTIVE|SLEEP_INTERRUPTED);
-
-which would save, oh, about nothing.
-
+Duncan.

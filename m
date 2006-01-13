@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161330AbWAMA4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030425AbWAMA4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161330AbWAMA4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jan 2006 19:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbWAMA4U
+	id S1030425AbWAMA4e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jan 2006 19:56:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbWAMA4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jan 2006 19:56:20 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:38817 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030428AbWAMA4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jan 2006 19:56:18 -0500
-Subject: Re: soft lockup detected in acpi_processor_idle() -- false
-	positive?
-From: Shaohua Li <shaohua.li@intel.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
-In-Reply-To: <200601122054.14128.rjw@sisk.pl>
-References: <20060112184305.GA7068@isilmar.linta.de>
-	 <200601122054.14128.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 08:55:24 +0800
-Message-Id: <1137113724.5750.113.camel@sli10-desk.sh.intel.com>
+	Thu, 12 Jan 2006 19:56:34 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42199 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030425AbWAMA4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jan 2006 19:56:32 -0500
+Date: Thu, 12 Jan 2006 16:58:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/13] s390: show_task oops.
+Message-Id: <20060112165826.5843e34c.akpm@osdl.org>
+In-Reply-To: <20060112171516.GF16629@skybase.boeblingen.de.ibm.com>
+References: <20060112171516.GF16629@skybase.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-12 at 20:54 +0100, Rafael J. Wysocki wrote:
-> On Thursday, 12 January 2006 19:43, Dominik Brodowski wrote:
-> > Latest git, fresh after resuming from suspend-to-disk (in-kernel variant):
-> > 
-> > [4294914.586000] Restarting tasks... done
-> > [4294922.657000] BUG: soft lockup detected on CPU#0!
-> > [4294922.657000] 
-> > [4294922.657000] Pid: 0, comm:              swapper
-> > [4294922.657000] EIP: 0060:[<f003084c>] CPU: 0
-> > [4294922.657000] EIP is at acpi_processor_idle+0x1f3/0x2d5 [processor]
-> > [4294922.657000]  EFLAGS: 00000282    Not tainted  (2.6.15)
-> > [4294922.657000] EAX: fffff000 EBX: 005543a8 ECX: 00000000 EDX: 00000000
-> > [4294922.657000] ESI: edcc3064 EDI: edcc2f60 EBP: c041cfdc DS: 007b ES: 007b
-> > [4294922.657000] CR0: 8005003b CR2: 080c3000 CR3: 2d530000 CR4: 000006d0
-> > 
-> > 
-> > As acpi_processor_idle doesn't take any locks AFAIK, it seems to me to be a
-> > false positive -- or do I miss something obvious?
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+>
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
 > 
-> I think it's a false-positive.
+> [patch 5/13] s390: show_task oops.
 > 
-> This "soft lockup" message has been appearing for me for quite some time now
-> (actually since the softlockup patch made it into -mm ;-)), in a
-> non-reproducible manner, but I haven't been able to nail it down.
+> The show_task function walks the kernel stack backchain of
+> processes assuming that the processes are not running. Since
+> this assumption is not correct walking the backchain can lead
+> to an addressing exception and therefore to a kernel hang.
+> So prevent the kernel hang (you still get incorrect results)
+> verity that all read accesses are within the bounds of the
+> kernel stack before performing them.
 > 
-> Still, I thought it was x86-64-specific, but your machine is an i386,
-> so there's more to it, apparently.  Probably there's missing
-> touch_softlockup_watchdog() somewhere, or the timer .suspend()/.resume()
-> routines need some additional review.
-I got some similar reports for S3:
-http://bugzilla.kernel.org/show_bug.cgi?id=5825
-I guess x86-64 lacks .suspend/.resume for timer. Last time I looked at
-such issue in ia32, and I fixed it, but I didn't fix x86-64.
 
-Thanks,
-Shaohua
+This one needs to be thought about and tested versus the just-merged
+s390-task_stack_page.patch.  I guess it'll still work, but some of the
+pretty new accessors could be used in there, at least.
 
+> --- linux-2.6/arch/s390/kernel/process.c	2006-01-12 15:43:19.000000000 +0100
+> +++ linux-2.6-patched/arch/s390/kernel/process.c	2006-01-12 15:43:55.000000000 +0100
+> @@ -58,10 +58,19 @@ asmlinkage void ret_from_fork(void) __as
+>   */
+>  unsigned long thread_saved_pc(struct task_struct *tsk)
+>  {
+> -	struct stack_frame *sf;
+> +	struct stack_frame *sf, *low, *high;
+>  
+> -	sf = (struct stack_frame *) tsk->thread.ksp;
+> -	sf = (struct stack_frame *) sf->back_chain;
+> +	if (!tsk || !tsk->thread_info)
+> +		return 0;
+> +	low = (struct stack_frame *) tsk->thread_info;
+> +	high = (struct stack_frame *)
+> +		((unsigned long) tsk->thread_info + THREAD_SIZE) - 1;
+> +	sf = (struct stack_frame *) (tsk->thread.ksp & PSW_ADDR_INSN);
+> +	if (sf <= low || sf > high)
+> +		return 0;
+> +	sf = (struct stack_frame *) (sf->back_chain & PSW_ADDR_INSN);
+> +	if (sf <= low || sf > high)
+> +		return 0;
+>  	return sf->gprs[8];
+>  }
+>  

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161549AbWAMPYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161488AbWAMPYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161549AbWAMPYr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161144AbWAMPYY
+	id S1161488AbWAMPYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161548AbWAMPYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:24:24 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:49276 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964974AbWAMPYX (ORCPT
+	Fri, 13 Jan 2006 10:24:46 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:52135 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161488AbWAMPY3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:24:23 -0500
+	Fri, 13 Jan 2006 10:24:29 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=NMwXFyN+jUm1VTwqKSpndKpgeTzFMXHuiSSJDzLbAeFkzXuX6Mor5Iz0+MhFLIJWmz+IYWlN6JmTbFjDkoB0lCW5a1MHkjbXlzQWhgLZVlMsq1EhEAxtGEXX7jgU4irFs2XzGtWICspHjl23LfNVxpPjnCG3eNGM4RYAt1bnoCk=
+        b=UA08+FCSHMtQ78mDljEhIBKUiljdCbFTId2pTFNQz8Rp0tuB0c3AA/LZ0PNkr97TF8OGz8GtSrnyrpHVGAGGiJmi+R68Fbyv3m/J335ceHgp16l4kqZ9i6U6LcpBxbmir54DQ8srjnzZKqkgd+CIZxp6ksD8QCDWWjRBT4VdREY=
 Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 1/8] highmem: include asm/kmap_types.h in linux/highmem.h
+Subject: [PATCH 7/8] block: convert block/rd.c to use blk_kmap helpers
 In-Reply-To: <11371658562541-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
-Date: Sat, 14 Jan 2006 00:24:16 +0900
-Message-Id: <11371658562238-git-send-email-htejun@gmail.com>
+Date: Sat, 14 Jan 2006 00:24:17 +0900
+Message-Id: <11371658574014-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -30,50 +30,56 @@ From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On architectures where highmem isn't used, arguments to kmap/unmap are
-simply thrown away without being evaluated.  This is fine until a
-wrapper function is written.  Even though it got ignored in the end,
-the arguments are evaulated.  As asm/highmem.h is not included by
-linux/highmem.h when CONFIG_HIGHMEM is off, none of KM_* constants get
-defined which results in error if those are evaluated.
-
-This patch makes linux/highmem.h include asm/kmap_types.h regardless
-of CONFIG_HIGHMEM.  To deal with the same problem, crypto subsystem
-used to include asm/kmap_types.h directly.  This patch kills it.
+Convert block/rd.c to use blk_kmap/unmap helpers.  rd already had all
+needed cache flushes, so this patch doesn't change its functionality.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
 ---
 
- crypto/internal.h       |    1 -
- include/linux/highmem.h |    1 +
- 2 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/block/rd.c |   19 +++++++++++--------
+ 1 files changed, 11 insertions(+), 8 deletions(-)
 
-4e0462fa09e87da901867f37b2c7311ef714c3e7
-diff --git a/crypto/internal.h b/crypto/internal.h
-index 959e602..4188672 100644
---- a/crypto/internal.h
-+++ b/crypto/internal.h
-@@ -21,7 +21,6 @@
- #include <linux/kernel.h>
- #include <linux/rwsem.h>
- #include <linux/slab.h>
--#include <asm/kmap_types.h>
+f09db99a6eb5be8a6a793c3a73e1457bfa61c928
+diff --git a/drivers/block/rd.c b/drivers/block/rd.c
+index ffd6abd..d0ff693 100644
+--- a/drivers/block/rd.c
++++ b/drivers/block/rd.c
+@@ -232,9 +232,11 @@ static int rd_blkdev_pagecache_IO(int rw
  
- extern struct list_head crypto_alg_list;
- extern struct rw_semaphore crypto_alg_sem;
-diff --git a/include/linux/highmem.h b/include/linux/highmem.h
-index 6bece92..c605f01 100644
---- a/include/linux/highmem.h
-+++ b/include/linux/highmem.h
-@@ -6,6 +6,7 @@
- #include <linux/mm.h>
+ 		if (rw == READ) {
+ 			src = kmap_atomic(page, KM_USER0) + offset;
+-			dst = kmap_atomic(vec->bv_page, KM_USER1) + vec_offset;
++			dst = blk_kmap_atomic(vec->bv_page, KM_USER1,
++					      DMA_FROM_DEVICE) + vec_offset;
+ 		} else {
+-			src = kmap_atomic(vec->bv_page, KM_USER0) + vec_offset;
++			src = blk_kmap_atomic(vec->bv_page, KM_USER0,
++					      DMA_TO_DEVICE) + vec_offset;
+ 			dst = kmap_atomic(page, KM_USER1) + offset;
+ 		}
+ 		offset = 0;
+@@ -242,13 +244,14 @@ static int rd_blkdev_pagecache_IO(int rw
  
- #include <asm/cacheflush.h>
-+#include <asm/kmap_types.h>
+ 		memcpy(dst, src, count);
  
- #ifdef CONFIG_HIGHMEM
- 
+-		kunmap_atomic(src, KM_USER0);
+-		kunmap_atomic(dst, KM_USER1);
+-
+-		if (rw == READ)
+-			flush_dcache_page(vec->bv_page);
+-		else
++		if (rw == READ) {
++			kunmap_atomic(src, KM_USER0);
++			blk_kunmap_atomic(dst, KM_USER1, DMA_FROM_DEVICE);
++		} else {
++			blk_kunmap_atomic(src, KM_USER0, DMA_TO_DEVICE);
++			kunmap_atomic(dst, KM_USER1);
+ 			set_page_dirty(page);
++		}
+ 		unlock_page(page);
+ 		put_page(page);
+ 	} while (size);
 -- 
 1.0.6
 

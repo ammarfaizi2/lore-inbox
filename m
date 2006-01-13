@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423006AbWAMWKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423004AbWAMWNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423006AbWAMWKY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 17:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423008AbWAMWKX
+	id S1423004AbWAMWNA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 17:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423009AbWAMWNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 17:10:23 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:42421 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S1423007AbWAMWKV (ORCPT
+	Fri, 13 Jan 2006 17:13:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45262 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423004AbWAMWM7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 17:10:21 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades
-To: Free Ekanayaka <free@64studio.com>
-Subject: Re: [Free Ekanayaka] Re: realtime-preempt and suspend2
-Date: Sat, 14 Jan 2006 08:10:44 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <87ek3c8279.fsf@miu-ft.org>
-In-Reply-To: <87ek3c8279.fsf@miu-ft.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 13 Jan 2006 17:12:59 -0500
+Date: Fri, 13 Jan 2006 14:14:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Van Hensbergen <ericvh@gmail.com>
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH]: v9fs: add readpage support
+Message-Id: <20060113141445.14b6469a.akpm@osdl.org>
+In-Reply-To: <a4e6962a0601131345x6bf4ef3ftf3e6c6fb7bb2b530@mail.gmail.com>
+References: <20060111011437.451FD5A809A@localhost.localdomain>
+	<20060111033821.4b3d4d7b.akpm@osdl.org>
+	<a4e6962a0601131345x6bf4ef3ftf3e6c6fb7bb2b530@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601140810.44818.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Eric Van Hensbergen <ericvh@gmail.com> wrote:
+>
+> > > @@ -289,6 +289,8 @@ v9fs_file_write(struct file *filp, const
+> > >               total += result;
+> > >       } while (count);
+> > >
+> > > +     invalidate_inode_pages2(inode->i_mapping);
+> > > +
+> > >       return total;
+> > >  }
+> >
+> 
+> I went looking for an example of how to do this better.  More or less,
+> v9fs reads and writes are similar to DirectIO since they don't go
+> through the page-cache.
 
-On Saturday 14 January 2006 03:31, Free Ekanayaka wrote:
-> Hi,
->
-> I'm resending this email as for some reason it is not in the kernel ml
-> archives, so I suspect it wasn't delivered properly..
->
-> |--==> Nigel Cunningham writes:
->
->   NC> Hi.
->
->   NC> On Wednesday 11 January 2006 20:39, Free Ekanayaka wrote:
->   >>Hi,
->   >>
->   >>I'd like  to use both  the realtime-preempt  and the suspend2 patches,
->   >>but the seem to conflict in (I tried to apply them on 2.6.15).
->   >>
->   >>Did anybody experiment such combination?
->
->   NC> Give me more detail and I'll see if I can help.
->
-> Thanks, the patch sequence is:
->
-> 1) pristine kernel 2.6.15
-> 2) suspend2 patch 2.2-rc16 (I used the apply script incl in the source
-> tarball) [0] 3) realtime-preempt 2.6.15-rt2
->
-> Of  course the  suspend2  patch applies happily,   but when I try with
-> realtime-preempt I get some rejects, here is the log:
->
-> http://people.miu-ft.org/~free/2.6.15+suspend2+rt.log
+hm.  Why not?
 
-Thanks. I did see the message, but simply haven't had the time to get around 
-to it yet. Thanks for the reminder.
+>  So, I looked at what NFS does when it gets a
+> DirectIO write, and it looks (to me) like it does more or less the
+> same thing:
+> (from nfs_file_direct_write() in fs/nfs/direct.c)
+>         retval = nfs_direct_write(inode, ctx, &iov, pos, 1);
+>         if (mapping->nrpages)
+>                 invalidate_inode_pages2(mapping);
+> 
+> Now, that being said, it still seems to me to be a bit heavy weight --
+> do folks have a better pointer to code that I can use as an example of
+> how to do this more efficiently?
 
-Regards,
+Not really.  If that's what you need to do then that's the way to do it. 
+We've had nasty races and other problems wrt invalidate_inode_pages2 and
+pagefaults, so I suggest you test that mix carefully.
 
-Nigel
+Have you tried fsx-linux?  It's really good for finding data integrity
+bugs.  There's a copy in
+http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz.
+
+I'd suggest that you want the mapping->nrpages test - it'll be a useful
+speedup in the common case.
+
+Of course, someone could come in and add a page to pagecache via a
+pagefault at any time after that test, but that's true of
+invalidate_inode_pages2() in general.

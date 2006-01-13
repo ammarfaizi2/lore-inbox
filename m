@@ -1,147 +1,379 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161521AbWAMJ7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161522AbWAMJ7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161521AbWAMJ7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 04:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161522AbWAMJ7E
+	id S1161522AbWAMJ7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 04:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161523AbWAMJ7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 04:59:04 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:14036 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1161521AbWAMJ7B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 04:59:01 -0500
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>,
-       John Hesterberg <jh@sgi.com>
-Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors
-References: <43BB05D8.6070101@watson.ibm.com>
-	<43BB09D4.2060209@watson.ibm.com> <43BC1C43.9020101@engr.sgi.com>
-	<1136414431.22868.115.camel@stark>
-	<20060104151730.77df5bf6.akpm@osdl.org>
-	<1136486566.22868.127.camel@stark> <1136488842.22868.142.camel@stark>
-	<20060105151016.732612fd.akpm@osdl.org>
-	<1136505973.22868.192.camel@stark> <yq08xttybrx.fsf@jaguar.mkp.net>
-	<43BE9E91.9060302@watson.ibm.com> <yq0wth72gr6.fsf@jaguar.mkp.net>
-	<1137013330.6673.80.camel@stark> <yq0k6d53hb1.fsf@jaguar.mkp.net>
-	<1137106871.6673.238.camel@stark>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 13 Jan 2006 04:59:00 -0500
-In-Reply-To: <1137106871.6673.238.camel@stark>
-Message-ID: <yq07j9430uz.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Fri, 13 Jan 2006 04:59:24 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:51883 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1161522AbWAMJ7X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 04:59:23 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>
+Subject: [PATCH 10/13] USBATM: allow isochronous transfer
+Date: Fri, 13 Jan 2006 10:59:23 +0100
+User-Agent: KMail/1.9.1
+Cc: usbatm@lists.infradead.org, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <200601121729.52596.baldrick@free.fr>
+In-Reply-To: <200601121729.52596.baldrick@free.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_8n3xDFDmsaSsV6w"
+Message-Id: <200601131059.24275.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Matt" == Matt Helsley <matthltc@us.ibm.com> writes:
+--Boundary-00=_8n3xDFDmsaSsV6w
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Matt> On Thu, 2006-01-12 at 04:51 -0500, Jes Sorensen wrote:
->> Using the notifier block's address won't work, they are often
->> dynamically allocated so a client searching for it will rarely know
->> the address.
+While the usbatm core has had some support for using isoc urbs
+for some time, there was no way for users to turn it on.  While
+use of isoc transfer should still be considered experimental, it
+now works well enough to let users turn it on.  Minidrivers signal
+to the core that they want to use isoc transfer by setting the new
+UDSL_USE_ISOC flag.  The speedtch minidriver gets a new module
+parameter enable_isoc (defaults to false), plus some logic that
+checks for the existence of an isoc receive endpoint (not all
+speedtouch modems have one).
 
-Matt> 	If the task_notify user is responsible for allocating the
-Matt> notifier block then it could easily keep a copy of the pointer
-Matt> handy for the corresponding deregistration.
+Signed-off-by: Duncan Sands <baldrick@free.fr>
 
-And when they are dynamically allocated on a per-object level? Then
-you'd have to keep linked lists around to keep track of them. Sorry,
-doesn't work.
+--Boundary-00=_8n3xDFDmsaSsV6w
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="10-isoc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="10-isoc"
 
->> The alternative is to search for a function pointer of one of the
->> call out functions, howevere it requires all users all provide a
->> specific function pointer or we need to add some flags for the
->> search function (eg. one of the TN_ ones could be passed in), but
->> this would complicate the search function and make it slower. This
->> is the approach Jack took in his original approach, however Jack's
->> patch had just a single notifier function and it was the user's
->> respoinsibility to write the code for the demultiplexing of the
->> callouts. I do not like this approach as it will be a lot more
->> error prone with everyone doing their own version.
+Index: Linux/drivers/usb/atm/cxacru.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/cxacru.c	2006-01-13 09:05:06.000000000 +0100
++++ Linux/drivers/usb/atm/cxacru.c	2006-01-13 09:12:53.000000000 +0100
+@@ -836,8 +836,8 @@
+ 	.heavy_init	= cxacru_heavy_init,
+ 	.unbind		= cxacru_unbind,
+ 	.atm_start	= cxacru_atm_start,
+-	.in		= CXACRU_EP_DATA,
+-	.out		= CXACRU_EP_DATA,
++	.bulk_in	= CXACRU_EP_DATA,
++	.bulk_out	= CXACRU_EP_DATA,
+ 	.rx_padding	= 3,
+ 	.tx_padding	= 11,
+ };
+Index: Linux/drivers/usb/atm/speedtch.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/speedtch.c	2006-01-13 09:08:53.000000000 +0100
++++ Linux/drivers/usb/atm/speedtch.c	2006-01-13 09:23:12.000000000 +0100
+@@ -35,6 +35,8 @@
+ #include <linux/slab.h>
+ #include <linux/stat.h>
+ #include <linux/timer.h>
++#include <linux/types.h>
++#include <linux/usb_ch9.h>
+ #include <linux/workqueue.h>
+ 
+ #include "usbatm.h"
+@@ -66,24 +68,33 @@
+ 
+ #define RESUBMIT_DELAY		1000	/* milliseconds */
+ 
+-#define DEFAULT_ALTSETTING	1
++#define DEFAULT_BULK_ALTSETTING	1
++#define DEFAULT_ISOC_ALTSETTING	2
+ #define DEFAULT_DL_512_FIRST	0
++#define DEFAULT_ENABLE_ISOC	0
+ #define DEFAULT_SW_BUFFERING	0
+ 
+-static int altsetting = DEFAULT_ALTSETTING;
++static unsigned int altsetting = 0; /* zero means: use the default */
+ static int dl_512_first = DEFAULT_DL_512_FIRST;
++static int enable_isoc = DEFAULT_ENABLE_ISOC;
+ static int sw_buffering = DEFAULT_SW_BUFFERING;
+ 
+-module_param(altsetting, int, S_IRUGO | S_IWUSR);
++module_param(altsetting, uint, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(altsetting,
+-		 "Alternative setting for data interface (default: "
+-		 __MODULE_STRING(DEFAULT_ALTSETTING) ")");
++		"Alternative setting for data interface (bulk_default: "
++		__MODULE_STRING(DEFAULT_BULK_ALTSETTING) "; isoc_default: "
++		__MODULE_STRING(DEFAULT_ISOC_ALTSETTING) ")");
+ 
+ module_param(dl_512_first, bool, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(dl_512_first,
+ 		 "Read 512 bytes before sending firmware (default: "
+ 		 __MODULE_STRING(DEFAULT_DL_512_FIRST) ")");
+ 
++module_param(enable_isoc, bool, S_IRUGO | S_IWUSR);
++MODULE_PARM_DESC(enable_isoc,
++		"Use isochronous transfers if available (default: "
++		__MODULE_STRING(DEFAULT_ENABLE_ISOC) ")");
++
+ module_param(sw_buffering, bool, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(sw_buffering,
+ 		 "Enable software buffering (default: "
+@@ -91,7 +102,8 @@
+ 
+ #define INTERFACE_DATA		1
+ #define ENDPOINT_INT		0x81
+-#define ENDPOINT_DATA		0x07
++#define ENDPOINT_BULK_DATA	0x07
++#define ENDPOINT_ISOC_DATA	0x07
+ #define ENDPOINT_FIRMWARE	0x05
+ 
+ #define hex2int(c) ( (c >= '0') && (c <= '9') ? (c - '0') : ((c & 0xf) + 9) )
+@@ -687,11 +699,12 @@
+ 			 const struct usb_device_id *id)
+ {
+ 	struct usb_device *usb_dev = interface_to_usbdev(intf);
+-	struct usb_interface *cur_intf;
++	struct usb_interface *cur_intf, *data_intf;
+ 	struct speedtch_instance_data *instance;
+ 	int ifnum = intf->altsetting->desc.bInterfaceNumber;
+ 	int num_interfaces = usb_dev->actconfig->desc.bNumInterfaces;
+ 	int i, ret;
++	int use_isoc;
+ 
+ 	usb_dbg(usbatm, "%s entered\n", __func__);
+ 
+@@ -702,6 +715,11 @@
+ 		return -ENODEV;
+ 	}
+ 
++	if (!(data_intf = usb_ifnum_to_if(usb_dev, INTERFACE_DATA))) {
++		usb_err(usbatm, "%s: data interface not found!\n", __func__);
++		return -ENODEV;
++	}
++
+ 	/* claim all interfaces */
+ 
+ 	for (i=0; i < num_interfaces; i++) {
+@@ -728,8 +746,9 @@
+ 
+ 	instance->usbatm = usbatm;
+ 
+-	/* altsetting may change at any moment, so take a snapshot */
++	/* altsetting and enable_isoc may change at any moment, so take a snapshot */
+ 	instance->altsetting = altsetting;
++	use_isoc = enable_isoc;
+ 
+ 	if (instance->altsetting)
+ 		if ((ret = usb_set_interface(usb_dev, INTERFACE_DATA, instance->altsetting)) < 0) {
+@@ -737,14 +756,44 @@
+ 			instance->altsetting = 0; /* fall back to default */
+ 		}
+ 
+-	if (!instance->altsetting) {
+-		if ((ret = usb_set_interface(usb_dev, INTERFACE_DATA, DEFAULT_ALTSETTING)) < 0) {
+-			usb_err(usbatm, "%s: setting interface to %2d failed (%d)!\n", __func__, DEFAULT_ALTSETTING, ret);
+-			goto fail_free;
++	if (!instance->altsetting && use_isoc)
++		if ((ret = usb_set_interface(usb_dev, INTERFACE_DATA, DEFAULT_ISOC_ALTSETTING)) < 0) {
++			usb_dbg(usbatm, "%s: setting interface to %2d failed (%d)!\n", __func__, DEFAULT_ISOC_ALTSETTING, ret);
++			use_isoc = 0; /* fall back to bulk */
+ 		}
+-		instance->altsetting = DEFAULT_ALTSETTING;
++
++	if (use_isoc) {
++		const struct usb_host_interface *desc = data_intf->cur_altsetting;
++		const __u8 target_address = USB_DIR_IN | usbatm->driver->isoc_in;
++		int i;
++
++		use_isoc = 0; /* fall back to bulk if endpoint not found */
++
++		for (i=0; i<desc->desc.bNumEndpoints; i++) {
++			const struct usb_endpoint_descriptor *endpoint_desc = &desc->endpoint[i].desc;
++
++			if ((endpoint_desc->bEndpointAddress == target_address)) {
++				use_isoc = (endpoint_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) ==
++					USB_ENDPOINT_XFER_ISOC;
++				break;
++			}
++		}
++
++		if (!use_isoc)
++			usb_info(usbatm, "isochronous transfer not supported - using bulk\n");
+ 	}
+ 
++	if (!use_isoc && !instance->altsetting)
++		if ((ret = usb_set_interface(usb_dev, INTERFACE_DATA, DEFAULT_BULK_ALTSETTING)) < 0) {
++			usb_err(usbatm, "%s: setting interface to %2d failed (%d)!\n", __func__, DEFAULT_BULK_ALTSETTING, ret);
++			goto fail_free;
++		}
++
++	if (!instance->altsetting)
++		instance->altsetting = use_isoc ? DEFAULT_ISOC_ALTSETTING : DEFAULT_BULK_ALTSETTING;
++
++	usbatm->flags |= (use_isoc ? UDSL_USE_ISOC : 0);
++
+ 	INIT_WORK(&instance->status_checker, (void *)speedtch_check_status, instance);
+ 
+ 	instance->status_checker.timer.function = speedtch_status_poll;
+@@ -771,7 +820,7 @@
+ 			      0x12, 0xc0, 0x07, 0x00,
+ 			      instance->scratch_buffer + OFFSET_7, SIZE_7, 500);
+ 
+-	usbatm->flags = (ret == SIZE_7 ? UDSL_SKIP_HEAVY_INIT : 0);
++	usbatm->flags |= (ret == SIZE_7 ? UDSL_SKIP_HEAVY_INIT : 0);
+ 
+ 	usb_dbg(usbatm, "%s: firmware %s loaded\n", __func__, usbatm->flags & UDSL_SKIP_HEAVY_INIT ? "already" : "not");
+ 
+@@ -817,8 +866,9 @@
+ 	.unbind		= speedtch_unbind,
+ 	.atm_start	= speedtch_atm_start,
+ 	.atm_stop	= speedtch_atm_stop,
+-	.in		= ENDPOINT_DATA,
+-	.out		= ENDPOINT_DATA
++	.bulk_in	= ENDPOINT_BULK_DATA,
++	.bulk_out	= ENDPOINT_BULK_DATA,
++	.isoc_in	= ENDPOINT_ISOC_DATA
+ };
+ 
+ static int speedtch_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+Index: Linux/drivers/usb/atm/ueagle-atm.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/ueagle-atm.c	2006-01-13 09:05:06.000000000 +0100
++++ Linux/drivers/usb/atm/ueagle-atm.c	2006-01-13 09:12:53.000000000 +0100
+@@ -1705,8 +1705,8 @@
+ 	.atm_start = uea_atm_open,
+ 	.unbind = uea_unbind,
+ 	.heavy_init = uea_heavy,
+-	.in = UEA_BULK_DATA_PIPE,
+-	.out = UEA_BULK_DATA_PIPE,
++	.bulk_in = UEA_BULK_DATA_PIPE,
++	.bulk_out = UEA_BULK_DATA_PIPE,
+ };
+ 
+ static int uea_probe(struct usb_interface *intf, const struct usb_device_id *id)
+Index: Linux/drivers/usb/atm/usbatm.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/usbatm.c	2006-01-13 09:05:06.000000000 +0100
++++ Linux/drivers/usb/atm/usbatm.c	2006-01-13 09:12:53.000000000 +0100
+@@ -1049,17 +1049,23 @@
+ 	init_completion(&instance->thread_exited);
+ 
+ 	INIT_LIST_HEAD(&instance->vcc_list);
++	skb_queue_head_init(&instance->sndqueue);
+ 
+ 	usbatm_init_channel(&instance->rx_channel);
+ 	usbatm_init_channel(&instance->tx_channel);
+ 	tasklet_init(&instance->rx_channel.tasklet, usbatm_rx_process, (unsigned long)instance);
+ 	tasklet_init(&instance->tx_channel.tasklet, usbatm_tx_process, (unsigned long)instance);
+-	instance->rx_channel.endpoint = usb_rcvbulkpipe(usb_dev, driver->in);
+-	instance->tx_channel.endpoint = usb_sndbulkpipe(usb_dev, driver->out);
+ 	instance->rx_channel.stride = ATM_CELL_SIZE + driver->rx_padding;
+ 	instance->tx_channel.stride = ATM_CELL_SIZE + driver->tx_padding;
+ 	instance->rx_channel.usbatm = instance->tx_channel.usbatm = instance;
+ 
++	if ((instance->flags & UDSL_USE_ISOC) && driver->isoc_in)
++		instance->rx_channel.endpoint = usb_rcvisocpipe(usb_dev, driver->isoc_in);
++	else
++		instance->rx_channel.endpoint = usb_rcvbulkpipe(usb_dev, driver->bulk_in);
++
++	instance->tx_channel.endpoint = usb_sndbulkpipe(usb_dev, driver->bulk_out);
++
+ 	/* tx buffer size must be a positive multiple of the stride */
+ 	instance->tx_channel.buf_size = max (instance->tx_channel.stride,
+ 			snd_buf_bytes - (snd_buf_bytes % instance->tx_channel.stride));
+@@ -1080,6 +1086,7 @@
+ 		num_packets--;
+ 
+ 	instance->rx_channel.buf_size = num_packets * maxpacket;
++	instance->rx_channel.packet_size = maxpacket;
+ 
+ #ifdef DEBUG
+ 	for (i = 0; i < 2; i++) {
+@@ -1090,22 +1097,16 @@
+ 	}
+ #endif
+ 
+-	skb_queue_head_init(&instance->sndqueue);
++	/* initialize urbs */
+ 
+ 	for (i = 0; i < num_rcv_urbs + num_snd_urbs; i++) {
+-		struct urb *urb;
+ 		u8 *buffer;
+-		unsigned int iso_packets = 0, iso_size = 0;
+ 		struct usbatm_channel *channel = i < num_rcv_urbs ?
+ 			&instance->rx_channel : &instance->tx_channel;
++		struct urb *urb;
++		unsigned int iso_packets = usb_pipeisoc(channel->endpoint) ? channel->buf_size / channel->packet_size : 0;
+ 
+-		if (usb_pipeisoc(channel->endpoint)) {
+-			/* don't expect iso out endpoints */
+-			iso_size = usb_maxpacket(instance->usb_dev, channel->endpoint, 0);
+-			iso_size -= iso_size % channel->stride;	/* alignment */
+-			BUG_ON(!iso_size);
+-			iso_packets = (channel->buf_size - 1) / iso_size + 1;
+-		}
++		UDSL_ASSERT(!usb_pipeisoc(channel->endpoint) || usb_pipein(channel->endpoint));
+ 
+ 		urb = usb_alloc_urb(iso_packets, GFP_KERNEL);
+ 		if (!urb) {
+@@ -1132,9 +1133,8 @@
+ 			urb->transfer_flags = URB_ISO_ASAP;
+ 			urb->number_of_packets = iso_packets;
+ 			for (j = 0; j < iso_packets; j++) {
+-				urb->iso_frame_desc[j].offset = iso_size * j;
+-				urb->iso_frame_desc[j].length = min_t(int, iso_size,
+-								      channel->buf_size - urb->iso_frame_desc[j].offset);
++				urb->iso_frame_desc[j].offset = channel->packet_size * j;
++				urb->iso_frame_desc[j].length = channel->packet_size;
+ 			}
+ 		}
+ 
+Index: Linux/drivers/usb/atm/usbatm.h
+===================================================================
+--- Linux.orig/drivers/usb/atm/usbatm.h	2006-01-13 09:05:06.000000000 +0100
++++ Linux/drivers/usb/atm/usbatm.h	2006-01-13 09:12:53.000000000 +0100
+@@ -87,6 +87,7 @@
+ /* flags, set by mini-driver in bind() */
+ 
+ #define UDSL_SKIP_HEAVY_INIT	(1<<0)
++#define UDSL_USE_ISOC		(1<<1)
+ 
+ 
+ /* mini driver */
+@@ -118,8 +119,9 @@
+ 	/* cleanup ATM device ... can sleep, but can't fail */
+ 	void (*atm_stop) (struct usbatm_data *, struct atm_dev *);
+ 
+-        int in;		/* rx endpoint */
+-        int out;	/* tx endpoint */
++        int bulk_in;	/* bulk rx endpoint */
++        int isoc_in;	/* isochronous rx endpoint */
++        int bulk_out;	/* bulk tx endpoint */
+ 
+ 	unsigned rx_padding;
+ 	unsigned tx_padding;
+@@ -134,6 +136,7 @@
+ 	int endpoint;			/* usb pipe */
+ 	unsigned int stride;		/* ATM cell size + padding */
+ 	unsigned int buf_size;		/* urb buffer size */
++	unsigned int packet_size;	/* endpoint maxpacket */
+ 	spinlock_t lock;
+ 	struct list_head list;
+ 	struct tasklet_struct tasklet;
+Index: Linux/drivers/usb/atm/xusbatm.c
+===================================================================
+--- Linux.orig/drivers/usb/atm/xusbatm.c	2006-01-13 09:05:06.000000000 +0100
++++ Linux/drivers/usb/atm/xusbatm.c	2006-01-13 09:12:53.000000000 +0100
+@@ -210,8 +210,8 @@
+ 		xusbatm_drivers[i].bind		= xusbatm_bind;
+ 		xusbatm_drivers[i].unbind	= xusbatm_unbind;
+ 		xusbatm_drivers[i].atm_start	= xusbatm_atm_start;
+-		xusbatm_drivers[i].in		= rx_endpoint[i];
+-		xusbatm_drivers[i].out		= tx_endpoint[i];
++		xusbatm_drivers[i].bulk_in	= rx_endpoint[i];
++		xusbatm_drivers[i].bulk_out	= tx_endpoint[i];
+ 		xusbatm_drivers[i].rx_padding	= rx_padding[i];
+ 		xusbatm_drivers[i].tx_padding	= tx_padding[i];
+ 	}
 
-Matt> 	I don't see how it will be error prone. Jack's interface was
-Matt> simple.  And if we're really worred about users messing it up we
-Matt> could generate a set of macros that users must use to
-Matt> demultiplex the call.
-
-Because experience shows that the more some people copy the same code
-someone will get it wrong.
-
-Matt> 	One function pointer per event does bloat the notifier block
-Matt> structure.  Given that this notifier block may need to be
-Matt> replicated per-task this is a significant amount of
-Matt> space. Jack's demultiplexing approach requires that the space be
-Matt> proportional to the number of event functions instead of
-Matt> proportional to the number of notifier blocks.
-
-Matt> 	Furthermore, if new task events are added this structure would
-Matt> need to be expanded. In contrast, Jack's approach only required
-Matt> the addition of a new event value.
-
-Matt> 	For these reasons I think using a single function pointer will
-Matt> be much more effective.
-
-So you add a few pointers per task compared to the code that does the
-demultiplexing. We're talkin 3-4 extra pointers in comparison to the
-demultiplexing code *and* the extra function call.
-
-My approach is consitent with the rest of the kernel does for most
-structures, struct file operations etc.
-
-But if thats what makes the difference as to whether we go for this
-type of API, then lets change it back. I am not married to the API,
-but rather the functionality.
-
-Matt> No problem. Here it is:
-Matt> http://marc.theaimsgroup.com/?l=linux-kernel&m=113407207418475&w=2
-
-Matt> I think it would be ideal if task_notify could simply be a
-Matt> notifier chain for notifying users of task events/changes.
-
-Thats really what it was intended for, but of course only in the
-task's own context.
-
->>  That could be the approach to take to get around it, but I must
->> admit I don't know the schedule enough to say whether we will be
->> able to assign all tasks to one single CPU at any given time and
->> then there's the issue of locking when they migrate. But again, the
->> latter may already be handled by the scheduler?
-
-Matt> 	"all-task" means the notification block calls its function
-Matt> when any task triggers a traversal of the notification
-Matt> lists. This does not imply that registration/call/deregister of
-Matt> an all-task notification must traverse all tasks.
-
-Well then the name is somewhat misleading ;-) Sounds almost like
-something that could fit into Erik's Job stuff, but I guess it's a
-question of what criteria those tasks are put onto that list with.
-
-Being a little short on the history, are there any pointers to
-examples or descriptions of what this would be used for? Curious to
-understand the usage pattern.
-
-Matt> I'd like to see the all-task notification I mentioned above.
-Matt> Notifications where uid/gids change could be useful for auditing
-Matt> and process events connector.
->>  If anybody is willing to step up and propose a patch for this I'd
->> be interested in taking a look. I don't off hand see a simple
->> solution for it.
-
-Matt> 	Keith posted an interesting patch for notification chains that
-Matt> I believe could address your concerns -- though from what I've
-Matt> read it needs to disable preemption. As far as adding
-Matt> notifications for uid/gid change, that's relatively trivial. You
-Matt> might look at some revisions of task_notify that Chandra
-Matt> Seetharaman and I have posted.
-
-I did go through the archives a while back and I did notice that both
-Jack and Erik pointed out a number of issues with those approaches. If
-we are going to do the task-group-notify thing, then going to Keith's
-approach is probably the best.
-
-Cheers,
-Jes
+--Boundary-00=_8n3xDFDmsaSsV6w--

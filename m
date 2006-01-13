@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422979AbWAMVQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWAMVRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422979AbWAMVQG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 16:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422980AbWAMVQF
+	id S964895AbWAMVRW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 16:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWAMVRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 16:16:05 -0500
-Received: from khc.piap.pl ([195.187.100.11]:63242 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1422979AbWAMVQE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 16:16:04 -0500
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: "Arne R. van der Heyde" <vanderHeydeAR@summitinstruments.com>,
-       <linux-kernel@vger.kernel.org>, <c-d.hailfinger.kernel.2004@gmx.net>
-Subject: Re: no carrier when using forcedeth on MSI K8N Neo4-F
-References: <43C7F35A.9010703@summitinstruments.com>
-	<Pine.LNX.4.61.0601131345260.8379@chaos.analogic.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 13 Jan 2006 22:16:01 +0100
-In-Reply-To: <Pine.LNX.4.61.0601131345260.8379@chaos.analogic.com> (linux-os@analogic.com's message of "Fri, 13 Jan 2006 13:56:27 -0500")
-Message-ID: <m3k6d3n81a.fsf@defiant.localdomain>
+	Fri, 13 Jan 2006 16:17:22 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:15007 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964895AbWAMVRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 16:17:22 -0500
+Date: Fri, 13 Jan 2006 16:17:11 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Lee Revell <rlrevell@joe-job.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       Roger Heflin <rheflin@atipa.com>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>
+Subject: RE: Dual core Athlons and unsynced TSCs
+In-Reply-To: <1137186612.7634.41.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0601131616001.8385@gandalf.stny.rr.com>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com> 
+ <1137168254.7241.32.camel@localhost.localdomain>  <1137174463.15108.4.camel@mindpipe>
+  <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com> 
+ <1137174848.15108.11.camel@mindpipe>  <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+  <1137178506.15108.38.camel@mindpipe>  <1137182991.8283.7.camel@localhost.localdomain>
+  <1137183980.6731.1.camel@localhost.localdomain>  <1137184982.15108.69.camel@mindpipe>
+  <1137185175.7634.37.camel@localhost.localdomain> 
+ <1137186319.6731.6.camel@localhost.localdomain> <1137186612.7634.41.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
 
-> You need to use the correct kind of cross-over cable for the Gigabit
-> ports.
+On Fri, 13 Jan 2006, Thomas Gleixner wrote:
 
-Correct, with all pairs crossed.
-I don't force-death but I think most gigabit cards (and some 100BaseTX)
-work with plain cable as well (using auto MDI-X, and auto-polarity
-if needed).
+> On Fri, 2006-01-13 at 16:05 -0500, Steven Rostedt wrote:
+> > On Fri, 2006-01-13 at 21:46 +0100, Thomas Gleixner wrote:
+> > > On Fri, 2006-01-13 at 15:43 -0500, Lee Revell wrote:
+> > >
+> > > > Ugh.  In arch/x86_64/kernel/time.c monotonic_clock() uses the TSC
+> > > > unconditionally.
+> > >
+> > > Can you try
+> > >
+> > > http://tglx.de/projects/hrtimers/2.6.15/patch-2.6.15-hrt2.patch
+> > >
+> > > please ?
+> > >
+> > > 	tglx
+> > >
+> > >
+> >
+> > Hmm, it doesn't compile :(
+>
+> Grmbl, I check this tomorrow. Getting late here
+>
 
-> Then, you need to set both ports manually because there
-> is no hardware (the switch) to handle the auto-configuration. The
-> default is usually `autoneg on`. This tells the switch to
-> auto-configure. Connected to another port, not a switch, this
-> means nothing and the device remains dormant.
+OK, I'll probably wont work on it till Monday then (wifes rules ;)
 
-Again, I don't know nforce, but normal cards with autonegotiation
-(i.e., (almost?) all 100BaseTX and newer) can negotiate speed and
-duplex without need for a switch. BTW from net POI switches and
-cards are DTEs, there is no special distinction WRT autonegotiation.
--- 
-Krzysztof Halasa
+-- Steve
+
+

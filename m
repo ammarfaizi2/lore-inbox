@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWAMPTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWAMPVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbWAMPTg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWAMPTg
+	id S964968AbWAMPVO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbWAMPVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 10:19:36 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18956 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964829AbWAMPTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:19:35 -0500
-Date: Fri, 13 Jan 2006 16:19:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, hch@infradead.org,
-       rdreier@cisco.com, sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-Message-ID: <20060113151934.GO29663@stusta.de>
-References: <20060110011844.7a4a1f90.akpm@osdl.org> <adaslrw3zfu.fsf@cisco.com> <1136909276.32183.28.camel@serpentine.pathscale.com> <20060110170722.GA3187@infradead.org> <1136915386.6294.8.camel@serpentine.pathscale.com> <20060110175131.GA5235@infradead.org> <1136915714.6294.10.camel@serpentine.pathscale.com> <20060110140557.41e85f7d.akpm@osdl.org> <1136932162.6294.31.camel@serpentine.pathscale.com> <20060110153257.1aac5370.akpm@osdl.org>
+	Fri, 13 Jan 2006 10:21:14 -0500
+Received: from host27-37.discord.birch.net ([65.16.27.37]:51043 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S964968AbWAMPVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 10:21:13 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'don fisher'" <dfisher@as.arizona.edu>, <linux-kernel@vger.kernel.org>
+Subject: RE: machine check errors
+Date: Fri, 13 Jan 2006 09:31:18 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060110153257.1aac5370.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcYX0HnBtpjb5n5vTe6edg+IiojdiAAg+MJg
+In-Reply-To: <43C6E834.7040402@as.arizona.edu>
+Message-ID: <EXCHG2003THfyQgeDKv00000c7e@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 13 Jan 2006 15:14:49.0201 (UTC) FILETIME=[1861A610:01C61854]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 03:32:57PM -0800, Andrew Morton wrote:
-> "Bryan O'Sullivan" <bos@pathscale.com> wrote:
-> >
-> > On Tue, 2006-01-10 at 14:05 -0800, Andrew Morton wrote:
-> > 
-> > > It's kinda fun playing Brian along like this ;)
-> > 
-> > A regular barrel of monkeys, indeed...
-> > 
-> > > One option is to just stick the thing in an existing lib/ or kernel/ file
-> > > and mark it __attribute__((weak)).  That way architectures can override it
-> > > for free with no ifdefs, no Makefile trickery, no Kconfig trickery, etc.
-> > 
-> > I'm easy.  Would you prefer to take that, or the Kconfig-trickery-based
-> > patch series I already posted earlier?
-> > 
+ 
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of don fisher
+> Sent: Thursday, January 12, 2006 5:37 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: machine check errors
 > 
-> Unless someone can think of a problem with attribute(weak), I think you'll
-> find that it's the simplest-by-far solution.
+> I have a Tyan S2892 board with a pair Opteron 288 dual core 
+> cpus and 16GB dram. I receive the errors shown in the 
+> attached file, mcelog. It appears that these occur when the 
+> free memory becomes small, there is a lot in the cache, and a 
+> lot of IO.
 
-__attribute__((weak)) can turn compile error into runtime errors - you 
-won't notice at compile time if it was forgotten to compile the 
-non-weak version into the kernel (e.g. due to a typo in the Makefile).
+You probably mean Opteron 285's. or Opteron 280's.
 
-Patch 05/17 from the 2.6.15.1 patchset contains a fix for such a bug
-present in 2.6.15.
+> 
+> The Tyan S2892 has an Nvidia Crush K8-04, which I think they 
+> call the southbridge. My errors appear to be related to the 
+> north bridge. There is an AMD 8131 PCI-X controller that runs 
+> the PCI slots. There is a 3WARE 9500-12 located in one of the 
+> PCI-X slots.
+> 
+> I have run Memtest86+-1.65 for 24 hours without errors. I 
+> recently upgraded the BIOS to V2.00 without any remarkable changes.
 
-A variation of this problem can occur in cases like __raw_memcpy_toio32 
-if it was forgotten to compile the non-weak version into the kernel and 
-the kernel therefore uses the non-optimized version. That's not fatal, 
-but it might take years until someone notices that there might be a few 
-percent of performance missing.
+Does memtest86+ support reading of ecc errors on that motherboard,
+if it does not, memtest won't tell you anything as the hardware
+ecc will correct the errors and memtest will not find anything, if
+that version of memtest is ecc aware it will register an ecc error.
 
-cu
-Adrian
+> 
+> I am running 2.6.15 within a current Fedora Core4 configuration.
+> 
+> I would appreciate any advice as to how to proceed. I have 
+> not noticed any adverse behavior from the mce's. But that 
+> could be masked is data transfered or ???.
 
--- 
+Download edac/bluesmoke from sourceforge and compile and install
+it, this will monitor ecc errors from linux, and should tell you
+if you are getting ecc errors.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+If you were running certain other Linux distributions they won't
+report mces as they are missing the mcelog program, but the errors
+would have been there.
+
+> 
+> Could there be any connection with the memory cache? Thanks 
+> in advance for your assistance.
+> 
+> don
+
+Non-fatal mce's are usually ecc faults, and *USUALLY* track back
+to bad memory, though it can also be overheating cpu, or a problematic cpu, 
+or rarely the MB could be the fault.
+
+ECC/MCE counts will get worse under load, unless the problem is
+really severe you won't see them at idle.
+
+                     Roger
+			   Atipa Technologies
 

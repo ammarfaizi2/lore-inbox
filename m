@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWAMMnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWAMMru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422649AbWAMMnx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 07:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422650AbWAMMnx
+	id S1422650AbWAMMru (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 07:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422653AbWAMMrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 07:43:53 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:61346 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1422649AbWAMMnw (ORCPT
+	Fri, 13 Jan 2006 07:47:49 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:44550 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1422650AbWAMMrt convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 07:43:52 -0500
-Date: Fri, 13 Jan 2006 13:44:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org
-Subject: [patch 00/62] sem2mutex: -V1
-Message-ID: <20060113124402.GA7351@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 13 Jan 2006 07:47:49 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <62439.61.247.248.51.1137144158.squirrel@66.98.166.28>
+X-OriginalArrivalTime: 13 Jan 2006 12:47:47.0512 (UTC) FILETIME=[8E3EBB80:01C6183F]
+Content-class: urn:content-classes:message
+Subject: Re: REG:problem i am facing
+Date: Fri, 13 Jan 2006 07:47:42 -0500
+Message-ID: <Pine.LNX.4.61.0601130745020.7579@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: REG:problem i am facing
+Thread-Index: AcYYP45lYrdcMRz/S2Skvt1Val6VeA==
+References: <62439.61.247.248.51.1137144158.squirrel@66.98.166.28>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: <balamurugan@sahasrasolutions.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch-queue converts 66% of all semaphore users in 2.6.15-git9 to 
-mutexes.
 
-The conversion was done by Arjan van de Ven, Jes Sorensen and myself, 
-via automatic tools, and the result was verified automatically as well.  
-Only minimal manual editing was done. We only converted semaphores that 
-are used as mutexes. The known "is not a mutex" list of semaphores
-collected in the -rt tree in past year was automatically added to the
-do-not-convert list as well. We also reviewed the resulting changes
-manually, and did testbuilds and test-boots.
+On Fri, 13 Jan 2006 balamurugan@sahasrasolutions.com wrote:
 
-the GIT tree can be pulled from:
+> Dear all,
+>
+> i am compiling kernel-2.4.32 with i386 processor with wirless lan and all
+> other facilites, it will compaile in make ,make dep, make menuconfig but i
+> going to intall with make install, the initrd is missing the following
+> error is displayed , please help on this issue.
+>
+> warning: kernel is too big for standalone boot from floppy
+> sh -x ./install.sh 2.4.32 bzImage /bala/linux-2.4.32/System.map ""
+> + '[' -x /root/bin/installkernel ']'
+> + '[' -x /sbin/installkernel ']'
+> + exec /sbin/installkernel 2.4.32 bzImage /bala/linux-2.4.32/System.map ''
+> depmod: Can't open /lib/modules/2.4.32/modules.dep for writing
+> /lib/modules/2.4.32 is not a directory.
+> mkinitrd failed
 
-  master.kernel.org/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
 
-or:
+Yes. No modules directory for this kernel version...
 
-  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/mingo/mutex-2.6.git/
+> make[1]: *** [install] Error 1
+> make[1]: Leaving directory `/bala/linux-2.4.32/arch/i386/boot'
+> make: *** [install] Error 2
+>
+> the issue is very urgent , u please clear the doute asap .
+>
+> thanks & regards
+> balamurugan.j
+>
 
-(once master has resynced)
+For linux-2.4.x, you need ....
 
-the patch-queue can also be downloaded from:
+`make`
+`make modules`
+`make modules_install`
+`make install`
 
-  http://redhat.com/~mingo/generic-mutex-subsystem/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
 
-and a 'combo' patch is at:
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-  http://redhat.com/~mingo/generic-mutex-subsystem/combo.patch
-
-which is useful to people who'd like to test the whole patchqueue at 
-once.
-
-the patch-queue has been build-tested with allyesconfig, and booted on 4 
-separate x86 systems.
-
-	Ingo
+Thank you.

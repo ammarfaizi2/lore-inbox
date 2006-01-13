@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161543AbWAMKYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161540AbWAMKZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161543AbWAMKYT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 05:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161542AbWAMKX4
+	id S1161540AbWAMKZb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 05:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161545AbWAMKZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 05:23:56 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:32165 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1161540AbWAMKXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 05:23:53 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 5/5] sched-include_noninteractive_sleep_in_idle_detect.patch
-Date: Fri, 13 Jan 2006 21:23:37 +1100
-User-Agent: KMail/1.9
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+	Fri, 13 Jan 2006 05:25:31 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:51624 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1161540AbWAMKZa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 05:25:30 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: [PATCH 2 of 3] memcpy32 for x86_64
+Date: Fri, 13 Jan 2006 12:24:36 +0200
+User-Agent: KMail/1.8.2
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, ak@suse.de,
+       rdreier@cisco.com
+References: <b4863171295fdb6e8206.1136922838@serpentine.internal.keyresearch.com> <1137081882.28011.1.camel@serpentine.pathscale.com> <20060113095625.GA3707@taniwha.stupidest.org>
+In-Reply-To: <20060113095625.GA3707@taniwha.stupidest.org>
 MIME-Version: 1.0
-X-Length: 1517
-Content-Type: multipart/signed;
-  boundary="nextPart1181150.FPnX3hh632";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601132123.39481.kernel@kolivas.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601131224.36545.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1181150.FPnX3hh632
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Friday 13 January 2006 11:56, Chris Wedgwood wrote:
+> On Thu, Jan 12, 2006 at 08:04:41AM -0800, Bryan O'Sullivan wrote:
+> 
+> > This is true for 64-bit writes over Hypertransport
+> 
+> is this something that will always be or just something current
+> hardware does?
 
-Tasks waiting in SLEEP_NONINTERACTIVE state can now get to best priority so
-they need to be included in the idle detection code.
+Yes, why risking that things will go wrong?
+Also you'll get shorter code. Instead of
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+> +     .globl memcpy32
+> +memcpy32:
+> +     movl %edx,%ecx
+> +     shrl $1,%ecx
+> +     andl $1,%edx
+> +     rep movsq
+> +     movl %edx,%ecx
+> +     rep movsd
+> +     ret
 
- kernel/sched.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+you need just
 
-Index: linux-2.6.15/kernel/sched.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=2D-- linux-2.6.15.orig/kernel/sched.c
-+++ linux-2.6.15/kernel/sched.c
-@@ -752,8 +752,7 @@ static int recalc_task_prio(task_t *p, u
- 		 * active yet prevent them suddenly becoming cpu hogs and
- 		 * starving other processes.
- 		 */
-=2D		if (p->mm && p->sleep_type !=3D SLEEP_NONINTERACTIVE &&
-=2D			sleep_time > INTERACTIVE_SLEEP(p)) {
-+		if (p->mm && sleep_time > INTERACTIVE_SLEEP(p)) {
- 				unsigned long ceiling;
-=20
- 				ceiling =3D JIFFIES_TO_NS(MAX_SLEEP_AVG -
+	.globl memcpy32
+memcpy32:
+	movl %edx,%ecx
+	rep movsd
+	ret
 
---nextPart1181150.FPnX3hh632
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDx3+rZUg7+tp6mRURAtdbAJ4uVzgRsyG9/bINPuIZiKHLT7crXwCeLGPE
-/hE2ld8BgWhX2sldaEHXKKw=
-=MCL5
------END PGP SIGNATURE-----
-
---nextPart1181150.FPnX3hh632--
+With properly written inlined asms code will be
+reduced to just "rep movsd".
+--
+vda

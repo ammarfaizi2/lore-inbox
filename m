@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWAMQEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422723AbWAMQMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbWAMQEU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 11:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWAMQEU
+	id S1422723AbWAMQMM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 11:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422725AbWAMQMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 11:04:20 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:49391 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964984AbWAMQET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 11:04:19 -0500
-Subject: RE: Dual core Athlons and unsynced TSCs
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Roger Heflin <rheflin@atipa.com>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       "'Lee Revell'" <rlrevell@joe-job.com>
-In-Reply-To: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
-References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 11:04:14 -0500
-Message-Id: <1137168254.7241.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 11:12:12 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:56264 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1422723AbWAMQML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 11:12:11 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 13 Jan 2006 08:12:08 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@localhost.localdomain
+To: Howard Chu <hyc@symas.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: epoll_wait, epoll_ctl
+In-Reply-To: <43C7AD5A.2000700@symas.com>
+Message-ID: <Pine.LNX.4.63.0601130806240.19904@localhost.localdomain>
+References: <43C7AD5A.2000700@symas.com>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 09:10 -0600, Roger Heflin wrote:
->  
-> > -----Original Message-----
-> > From: linux-kernel-owner@vger.kernel.org 
-> > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Lee Revell
-> > Sent: Thursday, January 12, 2006 4:18 PM
-> > To: linux-kernel
-> > Subject: Dual core Athlons and unsynced TSCs
-> > 
-> > It's been known for quite some time that the TSCs are not 
-> > synced between cores on Athlon X2 machines and this screws up 
-> > the kernel's timekeeping, as it still uses the TSC as the 
-> > default time source on these machines.
-> > 
-> > This problem still seems to be present in the latest kernels. 
-> >  What is the plan to fix it?  Is the fix simply to make the 
-> > kernel use the ACPI PM timer by default on Athlon X2?
-> 
-> 
-> Do we know if this also affects dual-core opterons?
-> 
-> The symptoms are that the clocks run at 2x the speed, correct?
+On Fri, 13 Jan 2006, Howard Chu wrote:
 
-No, worse.  The monotonic clock can go backwards.  The tscs of the CPUs
-are not in sync when one slows down due to idle.  So if you read from
-two different CPUs, you may get the second read have an earlier time
-than the first.  Breaks the rule of what a monotonic clock is.
+> So, what's supposed to happen in a threaded program where one thread does an 
+> epoll_ctl on an epoll fd while another thread is currently waiting in 
+> epoll_wait on the same fd? In particular, what happens if a thread does an 
+> EPOLL_CTL_DEL on one of the fds that is currently being waited on? Is there a 
+> possibility of an event being returned on the fd even after the EPOLL_CTL_DEL 
+> completes?
 
--- Steve
+The same thing that happens when you close a file on another thread, 
+nothing (besides the file being automatically removed from the set). 
+Removing a file (either by close or by EPOLL_CTL_DEL) is not an event.
+
+
+
+- Davide
 
 

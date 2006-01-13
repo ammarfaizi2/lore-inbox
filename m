@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422755AbWAMRzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422749AbWAMRzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422755AbWAMRzn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 12:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWAMRzn
+	id S1422749AbWAMRzl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 12:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422752AbWAMRzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 12:55:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26855 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422752AbWAMRzm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 12:55:42 -0500
-Date: Fri, 13 Jan 2006 09:55:33 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: WCONF, netlink based WE replacement.
-Message-ID: <20060113095533.5d5df015@dxpl.pdx.osdl.net>
-In-Reply-To: <200601121824.02892.mbuesch@freenet.de>
-References: <200601121824.02892.mbuesch@freenet.de>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Fri, 13 Jan 2006 12:55:41 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:58568 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1422749AbWAMRzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 12:55:40 -0500
+Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Adrian Bunk <bunk@stusta.de>, Jon Mason <jdmason@us.ibm.com>,
+       Muli Ben-Yehuda <mulix@mulix.org>, Jiri Slaby <slaby@liberouter.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1137148102.3645.15.camel@localhost.localdomain>
+References: <20060112175051.GA17539@us.ibm.com>
+	 <43C6ADDE.5060904@liberouter.org>
+	 <20060112200735.GD5399@granada.merseine.nu>
+	 <20060112214719.GE17539@us.ibm.com>  <20060112220039.GX29663@stusta.de>
+	 <1137105731.2370.94.camel@mindpipe>
+	 <1137148102.3645.15.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 12:55:38 -0500
+Message-Id: <1137174938.15108.15.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jan 2006 18:24:02 +0100
-Michael Buesch <mbuesch@freenet.de> wrote:
-
-> This is an attempt to rewrite the Wireless Extensions
-> userspace API, using netlink sockets.
-> There should also be a notification API, to inform
-> userspace for changes (config changes, state changes, etc).
-> It is not implemented, yet.
+On Fri, 2006-01-13 at 10:28 +0000, Alan Cox wrote:
+> Have you checked with the ARM people or the person who added support (
+> pwaechtler@loewe-komp.de) ?
 > 
-> This is against the devicescape stack.
-> This patch is not to be used, but only to be commented on. ;)
-> Basically I would like comments on the API definition
-> in wconf.h
+> It's also used in various appliances people "adjust" to run Linux - the
+> Philips AOL-TV for example. Also on the SH reference boards for the
+> hitachi sh series cpus (arch/sh*).
 > 
 
-1. You will need more documentation, eventually in Documentation directory.
+Yes he was the person I quoted in my previous message, who recommended
+we drop it, but it looks like this device is more widely used than we
+thought.
 
-2. Is there 1:1 relationship between ieee80211_device and net_device or 
-    N net_devices per ieee80211_device?
+I agree that if there's any doubt then we should not remove code.
 
-3. Don't put a version number on the protocol messages. The way to
-   us netlink is to us Type Length Variable structures. And write the
-   code to ignore unknown types.  Once you decide on a particular Type
-   then it has to be frozen for ABI compatibility.  The version numbering
-   in the WE API is part of the problem
+Lee 
 
-4. What about non-ieee80211 devices? With the growth of (mostly proprietary)
-   cell phone carrier wireless, you don't want to shut out that.

@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWAMPYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWAMPYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWAMPYW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 10:24:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWAMPYW
+	id S964971AbWAMPYX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 10:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWAMPYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 13 Jan 2006 10:24:23 -0500
+Received: from xproxy.gmail.com ([66.249.82.197]:4995 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964971AbWAMPYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 13 Jan 2006 10:24:22 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22540 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964966AbWAMPYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 10:24:21 -0500
-Date: Fri, 13 Jan 2006 16:24:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jon Mason <jdmason@us.ibm.com>,
-       Jiri Slaby <slaby@liberouter.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent trident driver from grabbing pcnet32 hardware
-Message-ID: <20060113152421.GP29663@stusta.de>
-References: <20060112175051.GA17539@us.ibm.com> <43C6ADDE.5060904@liberouter.org> <20060112200735.GD5399@granada.merseine.nu> <20060112214719.GE17539@us.ibm.com> <20060112220039.GX29663@stusta.de> <1137105731.2370.94.camel@mindpipe> <20060113113756.GL5399@granada.merseine.nu> <20060113122358.GH29663@stusta.de> <20060113123215.GQ5399@granada.merseine.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060113123215.GQ5399@granada.merseine.nu>
-User-Agent: Mutt/1.5.11
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
+        b=PFydtBxBvGA0rcvAslsWKH4L4KhnDlS2M90b8v7vsdAst0kZkombnDbDE1PIegDDYaWW/bbClxo2Sda1mp9xOHTwU3fLzQYef6tS+SVE1O3+b4Gr/n4woX8H55Bm2KZBjtMKhtoYSPlfPSt6ticGpAP/Jy0urFNl77XiYSr3nMU=
+Cc: Tejun Heo <htejun@gmail.com>
+Subject: [PATCHSET] block: fix PIO cache coherency bug
+In-Reply-To: 
+X-Mailer: git-send-email
+Date: Sat, 14 Jan 2006 00:24:16 +0900
+Message-Id: <11371658562541-git-send-email-htejun@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de, bzolnier@gmail.com, rmk@arm.linux.org.uk,
+       james.steward@dynamicratings.com, jgarzik@pobox.com,
+       James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 02:32:15PM +0200, Muli Ben-Yehuda wrote:
-> On Fri, Jan 13, 2006 at 01:23:58PM +0100, Adrian Bunk wrote:
-> 
-> > In my experience with scheduling OSS drivers for removal, users simply 
-> > use the OSS drivers unless you tell them very explicitely that the OSS 
-> > driver will go.
-> 
-> If the OSS drivers satisfy them, what's wrong with it?
->...
+Hello, all.
 
-There are two drivers, each with it's own features and bugs.
+This patchset tries to fix data corruption bug caused by not handling
+cache coherency during block PIO.  This patch implements
+blk_kmap/unmap helpers which take extra @dir argument and perform
+appropriate coherency actions.  These are to block PIO what dma_map/
+unmap are to block DMA transfers.
 
-Either the ALSA driver is better in any respect making the OSS driver 
-simply obsolete, or there are problems in the ALSA driver that should be 
-reported and fixed.
+IDE, libata, SCSI, rd and md are converted.  Still left are nbd, loop
+and pktcddvd.  If I missed something, please let me know.
 
-Removing the OSS driver forces users to report the problems with the 
-ALSA driver making the latter better for everyone.
+Russell, can you please test whether this fixes the bug on arm?  If
+this fixes the bug and people agree with the approach, I'll follow up
+with patches for yet unconverted drivers and documentation update.
 
-> Cheers,
-> Muli
+ crypto/internal.h             |    1
+ drivers/block/rd.c            |   20 ++++----
+ drivers/ide/ide-floppy.c      |    8 +--
+ drivers/ide/ide-taskfile.c    |    6 +-
+ drivers/md/raid1.c            |   13 +++--
+ drivers/md/raid5.c            |    9 ++-
+ drivers/md/raid6main.c        |    9 ++-
+ drivers/scsi/3w-9xxx.c        |    8 +--
+ drivers/scsi/3w-xxxx.c        |    4 -
+ drivers/scsi/aacraid/aachba.c |    4 -
+ drivers/scsi/gdth.c           |    5 +-
+ drivers/scsi/ide-scsi.c       |   14 +++--
+ drivers/scsi/ips.c            |   21 +++++---
+ drivers/scsi/iscsi_tcp.c      |    4 -
+ drivers/scsi/libata-core.c    |   24 ++++++---
+ drivers/scsi/libata-scsi.c    |    6 +-
+ drivers/scsi/megaraid.c       |    8 ++-
+ drivers/scsi/qlogicpti.c      |    5 +-
+ drivers/scsi/scsi_debug.c     |   11 ++--
+ drivers/scsi/scsi_lib.c       |    5 +-
+ fs/bio.c                      |    5 --
+ include/linux/bio.h           |   59 ------------------------
+ include/linux/blkdev.h        |  101 +++++++++++++++++++++++++++++++++++++++++-
+ include/linux/highmem.h       |    2
+ 24 files changed, 213 insertions(+), 139 deletions(-)
 
-cu
-Adrian
+Thanks.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--
+tejun
 

@@ -1,105 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161174AbWANMJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWANMSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161174AbWANMJw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWANMJw
+	id S1751030AbWANMSM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWANMSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:09:52 -0500
-Received: from 213-140-2-73.ip.fastwebnet.it ([213.140.2.73]:32416 "EHLO
-	aa006msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1751046AbWANMJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 07:09:51 -0500
-Date: Sat, 14 Jan 2006 13:08:16 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3 oops on suspend and more (bonus oops shot!)]
-Message-ID: <20060114120816.GA3554@inferi.kami.home>
-Mail-Followup-To: john stultz <johnstul@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060110170037.4a614245.akpm@osdl.org> <15632.83.103.117.254.1136989660.squirrel@picard.linux.it> <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060111100016.GC2574@elf.ucw.cz> <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060111184027.GB4735@inferi.kami.home> <20060112220825.GA3490@inferi.kami.home> <1137108362.2890.141.camel@cog.beaverton.ibm.com>
+	Sat, 14 Jan 2006 07:18:12 -0500
+Received: from h144-158.u.wavenet.pl ([217.79.144.158]:64135 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1751030AbWANMSL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 07:18:11 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
+Date: Sat, 14 Jan 2006 13:19:53 +0100
+User-Agent: KMail/1.9
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Linux PM <linux-pm@osdl.org>
+References: <200601122241.07363.rjw@sisk.pl> <200601141040.00088.rjw@sisk.pl> <20060114112950.GA2571@ucw.cz>
+In-Reply-To: <20060114112950.GA2571@ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1137108362.2890.141.camel@cog.beaverton.ibm.com>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.15-rc5-mm3-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11
+Message-Id: <200601141319.53573.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-sorry, it took me a while to come back to this issue.
-
-On Thu, Jan 12, 2006 at 03:26:01PM -0800, john stultz wrote:
-> On Thu, 2006-01-12 at 23:08 +0100, Mattia Dongili wrote:
-> > [cleaned up some Cc as this is not interesting to all MLs]
+On Saturday, 14 January 2006 12:29, Pavel Machek wrote:
+> > > > > > > It returns the number of pages.  Well, it should be written explicitly,
+> > > > > > > so I'll fix that.
+> > > > > > 
+> > > > > > Please always talk to the kernel in bytes. Pagesize is only a kernel
+> > > > > > internal unit. Sth. like off64_t is fine.
+> > > > > 
+> > > > > These are values returned by the kernel, actually.  Of course I can convert them
+> > > > > to bytes before sending to the user space, if that's preferrable.
+> > > > > 
+> > > > > Pavel, what do you think?
+> > > > 
+> > > > Bytes, I'd say. It would be nice if preffered image size was in bytes,
+> > > > too, for consistency.
+> > > 
+> > > OK
 > > 
-> > Andrew,
+> > Having actually tried to do that I see two reasons for keeping the image size
+> > in megs.
 > > 
-> > first bisection spotted the cause of the stalls at boot (happening while
-> > starting portmap and after usb-storage scan):
-> > 
-> > time-clocksource-infrastructure.patch
-> > time-generic-timekeeping-infrastructure.patch
-> > time-i386-conversion-part-1-move-timer_pitc-to-i8253c.patch
-> > time-i386-conversion-part-2-rework-tsc-support.patch
-> > time-i386-conversion-part-3-enable-generic-timekeeping.patch
-> > time-i386-conversion-part-4-remove-old-timer_opts-code.patch
-> > time-i386-conversion-part-5-acpi-pm-variable-renaming-and-config-change.patch
-> > time-i386-clocksource-drivers.patch
-> > time-fix-cpu-frequency-detection.patch
-> > 
-> > Cc-ed john stultz
-> > 
-> > actually git bisect[1] pointed to time-fix-cpu-frequency-detection.patch
-> > but it's clearly wrong. Reverting all the above patches (I suppose they
-> > are somewhat related) fixes the stalls I experience. I can test
-> > corrections if necessary.
+> > First, if that was in bytes, I'd have to pass it via a pointer, because
+> > unsigned long might overflow on i386.  Then I'd have to use get_user()
 > 
-> Hmmm. I'm not quite understanding. Does reverting just
-> time-fix-cpu-frequency-detection.patch change anything? I just sent out
+> Actually unsigned long is okay. We can't do images > 1.5GB, anyway,
+> on i386.
 
-no, that's why I reverted the full thing.
+Right.  In fact 1/2 of lowmem is the limit.
 
-> a fix for an error case that patch, but I doubt you'd be hitting it.
+> > to read the value.  However, afterwards I'd have to rescale that value
+> > to megs for swsusp_shrink_memory().  It's just easier to pass the value
+> > in megs using the last argument of ioctl() directly (which is consistent
+> > with the /sys/power/image_size thing, BTW).
 > 
-> Looking at the log here:
-> http://oioio.altervista.org/linux/boot-2.6.15-mm2.3
+> Well, I'd be inclined to make image_size in bytes, too. Having
+> each ioctl/sys file in different units seems wrong.
+
+I'll add these changes to the userland interface patch, then.  There won't
+be too many of them, I think.
+
+> > Second, if that's in bytes, it would suggest that the memory-shrinking
+> > mechanism had byte granularity (ie. way off).
 > 
-> I'm curious if you're getting cpufreq effects during interval while the
-> TSC is being used as a clocksource before we switch to using the acpi_pm
-> clocksource.
+> Yep, but it is not that bad.
+> 
+> > There also is a reason for which SNAPSHOT_AVAIL_SWAP should return
+> > the number of pages, IMO.  Namely, if that's in pages, the number is directly
+> > comparable with the number of image pages which the suspending
+> > utility can read from the image header.  Otherwise it would have to rescale
+> > one of these values using PAGE_SIZE, but that's exactly what we'd like
+> > to avoid.
+> 
+> I see.... We could put #bytes into image header (unsigned long) :-).
+> 
+> Its not too bad one way or another, because uswsusp tools are
+> intimately tied to kernel, anyway.
 
-What should I expect? I didn't notice anything in particular and
-actually the box stays alive for just a few minutes, then reiserfs
-explodes so I have no chance to notice anything in the long run.
+Exactly. :-)
 
-> After the system boots up, does it keep accurate time? Time doesn't
-> obviously move too fast or to slow compared to a watch?
-
-yes, during the short time it stays alive there's no difference between
-my watch and my laptop.
-
-> Few things to try (independently):
-> 1. Does booting w/ idle=poll change the behavior?
-
-yes, no more stalls
-
-> 2. Does booting w/ clocksource=jiffies change the behavior?
-
-yes, same as above
-
-> 3. After booting up, run: 
->    echo tsc > /sys/devices/system/clocksource/clocksource0/current_clocksource
->    And check that the system keeps accurate time.
-
-didn't try as there seems to be no problem in timekeeping
-
-thanks
--- 
-mattia
-:wq!
+Greetings,
+Rafael

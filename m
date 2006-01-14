@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWANRym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWANSDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWANRym (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 12:54:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWANRym
+	id S1750745AbWANSDB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 13:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWANSDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 12:54:42 -0500
-Received: from [62.38.115.213] ([62.38.115.213]:30396 "EHLO pfn3.pefnos")
-	by vger.kernel.org with ESMTP id S1750738AbWANRyl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 12:54:41 -0500
-From: "P. Christeas" <p_christ@hol.gr>
-To: Ian Kent <raven@themaw.net>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Regression in Autofs, 2.6.15-git
-Date: Sat, 14 Jan 2006 19:54:20 +0200
-User-Agent: KMail/1.9
-Cc: hch@lst.de, linux-kernel@vger.kernel.org
-References: <200601140217.56724.p_christ@hol.gr> <200601141725.28347.p_christ@hol.gr> <1137258375.2847.19.camel@eagle.themaw.net>
-In-Reply-To: <1137258375.2847.19.camel@eagle.themaw.net>
+	Sat, 14 Jan 2006 13:03:01 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:16028 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750745AbWANSDA (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sat, 14 Jan 2006 13:03:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=SXOL+WFNrWUSmdHl9fzlCvi41QUSysbvVQlS0pH0uZ1WpPXYazOYzgxztxM4WWJaAB5LruRkBP3641FZvNNOWMRfkZPgi5Z1J8hY+oT69NlYKA4/QL3h/yrqrIBoAP16XnS35dSoR5VNsKygYP6XMyC82SaTD5d43b0kgG/pMIM=  ;
+Message-ID: <43C93CCA.9080503@yahoo.com.au>
+Date: Sun, 15 Jan 2006 05:02:50 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [patch] mm: cleanup bootmem
+References: <43C8F198.3010609@yahoo.com.au> <Pine.LNX.4.64.0601140949460.13339@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601140949460.13339@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601141954.22724.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well done Ian!
-That patch fixes the problem.
-That explains the conditions needed to reproduce the oops. Konqueror would 
-perform a number of lookups (some failing) before requesting the mountpoint 
-directory.
+Linus Torvalds wrote:
+> 
+> On Sat, 14 Jan 2006, Nick Piggin wrote:
+> 
+>>Objections?
+> 
+> 
+> The whole point of the pre-batching was that apparently the non-batched 
+> bootmem code took ages to boot in simulation with lots of memory. I think 
+> it was the ia64 people who used simulation a lot. So..
+> 
+> 		Linus
+> 
 
-On Saturday 14 January 2006 7:06 pm, Ian Kent wrote:
+Changelog doesn't mention it: a226f6c899799fe2c4919daa0767ac579c88f7bd
 
-> Yes. It's me again.
->
-> Could you try this patch please.
->
-> --- linux-2.6.15/fs/autofs4/root.c.dumb-nameidata	2006-01-15
-> 01:01:26.000000000 +0800 +++ linux-2.6.15/fs/autofs4/root.c	2006-01-15
-> 01:02:12.000000000 +0800 @@ -193,6 +193,8 @@ static int
-> autofs4_dir_open(struct inode
->  		if (!empty)
->  			d_invalidate(dentry);
->
-> +		nd.dentry = dentry;
-> +		nd.mnt = mnt;
->  		nd.flags = LOOKUP_DIRECTORY;
->  		status = (dentry->d_op->d_revalidate)(dentry, &nd);
+Or... what do you mean by pre-batching? (maybe I'm confused and you're
+talking about my prefetching change or something)
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

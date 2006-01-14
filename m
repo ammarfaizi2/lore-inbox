@@ -1,114 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWANUPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWANUYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWANUPt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 15:15:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWANUPt
+	id S1751064AbWANUYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 15:24:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWANUYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 15:15:49 -0500
-Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:24772 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751055AbWANUPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 15:15:49 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fuse: fix bitfield race
-Message-Id: <E1Exro1-0002AX-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 14 Jan 2006 21:15:21 +0100
+	Sat, 14 Jan 2006 15:24:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39652 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751062AbWANUYX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 15:24:23 -0500
+Date: Sat, 14 Jan 2006 12:24:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [GIT PATCH] SCSI update for 2.6.15
+In-Reply-To: <1137268015.3579.14.camel@mulgrave>
+Message-ID: <Pine.LNX.4.64.0601141215400.13339@g5.osdl.org>
+References: <1137268015.3579.14.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix race in setting bitfields of fuse_conn.  Spotted by Andrew Morton.
 
-The two fields ->connected and ->mounted were always changed with the
-fuse_lock held.  But other bitfields in the same structure were
-changed without the lock.  In theory this could lead to losing the
-assignment of even the ones under lock.  The chosen solution is to
-change these two fields to be a full unsigned type.  The other
-bitfields aren't "important" enough to warrant the extra complexity of
-full locking or changing them to bitops.
 
-For all bitfields document why they are safe wrt. concurrent
-assignments.
+On Sat, 14 Jan 2006, James Bottomley wrote:
+>
+> This should represent the final pieces of SCSI for the merge window.
 
-Also make the initialization of the 'num_waiting' atomic counter
-explicit.
+This is a final warning.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+If the next SCSI merge tries to come in the day before the release window 
+closes, I WILL SIMPLY IGNORE IT, and the damn thing can wait until next 
+release.
 
-Index: linux/fs/fuse/inode.c
-===================================================================
---- linux.orig/fs/fuse/inode.c	2006-01-14 20:57:08.000000000 +0100
-+++ linux/fs/fuse/inode.c	2006-01-14 20:58:31.000000000 +0100
-@@ -397,6 +397,7 @@ static struct fuse_conn *new_conn(void)
- 		init_rwsem(&fc->sbput_sem);
- 		kobj_set_kset_s(fc, connections_subsys);
- 		kobject_init(&fc->kobj);
-+		atomic_set(&fc->num_waiting, 0);
- 		for (i = 0; i < FUSE_MAX_OUTSTANDING; i++) {
- 			struct fuse_req *req = fuse_request_alloc();
- 			if (!req) {
-@@ -492,6 +493,7 @@ static void fuse_send_init(struct fuse_c
- 	   to be exactly one request available */
- 	struct fuse_req *req = fuse_get_request(fc);
- 	struct fuse_init_in *arg = &req->misc.init_in;
-+
- 	arg->major = FUSE_KERNEL_VERSION;
- 	arg->minor = FUSE_KERNEL_MINOR_VERSION;
- 	req->in.h.opcode = FUSE_INIT;
-Index: linux/fs/fuse/fuse_i.h
-===================================================================
---- linux.orig/fs/fuse/fuse_i.h	2006-01-14 20:56:57.000000000 +0100
-+++ linux/fs/fuse/fuse_i.h	2006-01-14 20:58:42.000000000 +0100
-@@ -94,6 +94,11 @@ struct fuse_out {
- 	/** Header returned from userspace */
- 	struct fuse_out_header h;
- 
-+	/*
-+	 * The following bitfields are not changed during the request
-+	 * processing
-+	 */
-+
- 	/** Last argument is variable length (can be shorter than
- 	    arg->size) */
- 	unsigned argvar:1;
-@@ -136,6 +141,12 @@ struct fuse_req {
- 	/** refcount */
- 	atomic_t count;
- 
-+	/*
-+	 * The following bitfields are either set once before the
-+	 * request is queued or setting/clearing them is protected by
-+	 * fuse_lock
-+	 */
-+
- 	/** True if the request has reply */
- 	unsigned isreply:1;
- 
-@@ -250,15 +261,22 @@ struct fuse_conn {
- 	u64 reqctr;
- 
- 	/** Mount is active */
--	unsigned mounted : 1;
-+	unsigned mounted;
- 
- 	/** Connection established, cleared on umount, connection
- 	    abort and device release */
--	unsigned connected : 1;
-+	unsigned connected;
- 
--	/** Connection failed (version mismatch) */
-+	/** Connection failed (version mismatch).  Cannot race with
-+	    setting other bitfields since it is only set once in INIT
-+	    reply, before any other request, and never cleared */
- 	unsigned conn_error : 1;
- 
-+	/*
-+	 * The following bitfields are only for optimization purposes
-+	 * and hence races in setting them will not cause malfunction
-+	 */
-+
- 	/** Is fsync not implemented by fs? */
- 	unsigned no_fsync : 1;
- 
+We discussed this last time around. You guys had SIX WEEKS of calming-down 
+time during the last tree to do your SCSI development. Instead, you're 
+apparently AGAIN trying to cram it into the two weeks when merges are 
+supposed to happen, and then going in under the radar the day before I'm 
+about to do a -rc1, so that we won't have any time at all to fix even 
+obvious problems, is not how it's supposed to work.
 
+So as far as big SCSI merges (and I'm seriously considering this same 
+policy for networking too, because it worked so badly this time around) is 
+concerned, they'd better be ready in the _first_ week of the two-week 
+window, simply because I'm fed up with this last-minute thing.
+
+The point of having a TWO WEEK merge window is not that you use two weeks 
+for development, and then merge the last possible chance. Not at all. The 
+point of giving people two weeks is so that people don't have to be 
+totally synchronized - somebody can be on vacation, some problem could 
+have cropped up that people wanted fixed first, etc etc.
+
+So next time around: merge in the first week. And you can merge more than 
+once, so if there's something missing MERGE ANYWAY, for christ sake! Then, 
+if you have a small further feature the last day, at least it's _small_, 
+and most of the new stuff has been getting some testing.
+
+I'm pissed off. No more of these "developer limbo dance" games. I thought 
+it was clear last time around. 
+
+And hell yes, I'm serious. The SCSI merge window next time is one week. 
+Not a day more. After that first week, you get an additional _smaller_ 
+merge window of another week for smaller new features. Because I'm not 
+going to take this a third time in a row.
+
+			Linus

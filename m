@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWANKnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWANLCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751749AbWANKnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 05:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751747AbWANKnU
+	id S1751231AbWANLCt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 06:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWANLCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 05:43:20 -0500
-Received: from cpc4-cmbg4-4-0-cust18.cmbg.cable.ntl.com ([81.108.205.18]:43536
-	"EHLO thekelleys.org.uk") by vger.kernel.org with ESMTP
-	id S1751227AbWANKnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 05:43:19 -0500
-Message-ID: <43C8D685.70805@thekelleys.org.uk>
-Date: Sat, 14 Jan 2006 10:46:29 +0000
-From: Simon Kelley <simon@thekelleys.org.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jiri Benc <jbenc@suse.cz>, Stefan Rompf <stefan@loplof.de>,
-       Mike Kershaw <dragorn@kismetwireless.net>,
-       Krzysztof Halasa <khc@pm.waw.pl>, Robert Hancock <hancockr@shaw.ca>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Denis Vlasenko <vda@ilport.com.ua>,
-       Danny van Dyk <kugelfang@gentoo.org>,
-       Stephen Hemminger <shemminger@osdl.org>, feyd <feyd@nmskb.cz>,
-       Andreas Mohr <andim2@users.sourceforge.net>,
-       Bas Vermeulen <bvermeul@blackstar.nl>, Jean Tourrilhes <jt@hpl.hp.com>,
-       Daniel Drake <dsd@gentoo.org>, Ulrich Kunitz <kune@deine-taler.de>,
-       Phil Dibowitz <phil@ipom.com>, Michael Buesch <mbuesch@freenet.de>,
-       Marcel Holtmann <marcel@holtmann.org>,
-       Patrick McHardy <kaber@trash.net>, Ingo Oeser <netdev@axxeo.de>,
-       Harald Welte <laforge@gnumonks.org>,
-       Ben Greear <greearb@candelatech.com>, Thomas Graf <tgraf@suug.ch>
-Subject: Re: wireless: recap of current issues (stack)
-References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213200.GG16166@tuxdriver.com> <200601131703.29677.chase.venters@clientec.com>
-In-Reply-To: <200601131703.29677.chase.venters@clientec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 06:02:49 -0500
+Received: from boxa.alphawave.net ([207.218.5.130]:61359 "EHLO
+	box.alphawave.net") by vger.kernel.org with ESMTP id S1751231AbWANLCs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 06:02:48 -0500
+To: Jim MacBaine <jmacbaine@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/sys/vm/swappiness == 0 makes OOM killer go beserk
+In-Reply-To: <5uzvD-8tr-19@gated-at.bofh.it>
+References: <5uzvD-8tr-19@gated-at.bofh.it>
+Date: Sat, 14 Jan 2006 11:02:31 +0000
+Message-Id: <20060114110231.06B6F14C6FD@irishsea.home.craig-wood.com>
+From: nick@craig-wood.com (Nick Craig-Wood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters wrote:
+In linux.kernel, you wrote:
+>  the OOM killer just killed some of my processes while the system
+>  still had >2.5 GB of free swap. I'm running vanilla 2.6.15 on my
+>  desktop.  The machine is a single Athlon64, 1 GB RAM, 3 GB swap,
+>  x86_64 kernel, (mostly) i386 userland.  A few days ago I have set
+>  /proc/sys/vm/swappiness to 0 to see whether it would increase the
+>  interactive performance.
 
-> As an aside to this whole thing, I know we're talking about *kernel* wireless 
-> but it's worthless to most people without good userland support as well. 
-> Anyone have any thoughts and feelings on what things look like on the 
-> desktop? I think if we work closely with some desktop people, we can shepard 
-> in some wonderful new desktop support on top of the new netlink API.
-> 
+I have to say I've noticed the same thing.
 
-An obvious place to start is the NetworkManager project. They should be 
-asked the obvious "what do you need" and "does this provide it" 
-questions. Dan Williams has been active recently producing small kernel 
-patches which make the kernel side stuff work better with NM, so he 
-might be a good contact to start with.
+On my home workstation I do a lot of stuff with very large video
+files, so set swappiness to 0 some time ago so using these large files
+would stop all the applications getting pushed out into swap.
 
-Cheers,
+However I've noticed that ocassionally the kernel has killed large
+memory processes (eg firefox!) even when there was lots of swap free.
 
-Simon.
+Recently, I found I just could not use gimp to edit a very large image
+(about 800MB on a 1 GB machine) without the OOM killer killing it.
+When I reset swappiness to 60 I could then use gimp fine.
+
+This doesn't seem like correct behaviour to me!  (Though I note the
+caveat I read somewhere that swappiness probably doesn't do what I
+think it does - it probably doesn't!)
+
+-- 
+Nick Craig-Wood <nick@craig-wood.com> -- http://www.craig-wood.com/nick

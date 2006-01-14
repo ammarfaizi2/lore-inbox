@@ -1,78 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945928AbWANAom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945904AbWANAlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945928AbWANAom (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 19:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945925AbWANAm1
+	id S1945904AbWANAlu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 19:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945902AbWANAla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 19:42:27 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:29967 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S1945922AbWANAmX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 19:42:23 -0500
-Message-ID: <43C848C7.1070701@domdv.de>
-Date: Sat, 14 Jan 2006 01:41:43 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Lang <dlang@digitalinsight.com>
-CC: Sven-Thorsten Dietrich <sven@mvista.com>, thockin@hockin.org,
-       Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual core Athlons and unsynced TSCs
-References: <1137178855.15108.42.camel@mindpipe><Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz><20060113215609.GA30634@hockin.org><Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz> <1137190698.2536.65.camel@localhost.localdomain> <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 19:41:30 -0500
+Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:16046 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1423250AbWANAl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 19:41:27 -0500
+Message-Id: <20060114004048.517453000@dorka.pomaz.szeredi.hu>
+References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
+Date: Sat, 14 Jan 2006 01:39:54 +0100
+From: Miklos Szeredi <miklos@szeredi.hu>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 06/17] fuse: miscellaneous cleanup
+Content-Disposition: inline; filename=fuse_cleanup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> On Fri, 13 Jan 2006, Sven-Thorsten Dietrich wrote:
-> 
->> On Fri, 2006-01-13 at 14:05 -0800, David Lang wrote:
->>
->>> On Fri, 13 Jan 2006 thockin@hockin.org wrote:
->>>
->>>> On Fri, Jan 13, 2006 at 01:18:35PM -0800, David Lang wrote:
->>>>
->>>>> Lee, the last time I saw this discussion I thought it was
->>>>> identified that
->>>>> the multiple cores (or IIRC the multiple chips in a SMP
->>>>> motherboard) would
->>>>> only get out of sync when power management calls were made (hlt or
->>>>> switching the c-state). IIRC the workaround that was posted then
->>>>> was to
->>>>> just disable these in the kernel build.
->>>>
->>>>
->>>> not using 'hlt' when idling means that you spend 10s of Watts more
->>>> power
->>>> on mostly idle systems.
->>>
->>>
->>> true, but for people who need better time accruacy then the other
->>> workaround this may be very acceptable.
->>>
->>
->> 1/4 KW / day for time synchronisation.
->>
->> The power company would love that.
-> 
-> 
-> more precisely 1/4 KW Hour / day
-> 
-> $0.01 - $0.02/day (I had to lookup the current rates)
-> 
-> they probably won't notice.
-> 
+ - remove some unneeded assignments
 
-Well, wait until there's AMD based dual core x86_64 laptops out there
-(this email being written on a single core x86_64 one). I can already
-see the faces of the unhappy future owners being told "use idle=poll"
-when on battery and anyway going deaf by fan noise.
+ - use kzalloc instead of kmalloc + memset
 
-(/me ducks and runs)
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+ - simplify setting sb->s_fs_info
+
+ - in fuse_send_init() use fuse_get_request() instead of
+   do_get_request() helper
+
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+
+Index: linux/fs/fuse/inode.c
+===================================================================
+--- linux.orig/fs/fuse/inode.c	2006-01-13 23:12:58.000000000 +0100
++++ linux/fs/fuse/inode.c	2006-01-13 23:40:48.000000000 +0100
+@@ -200,9 +200,6 @@ static void fuse_put_super(struct super_
+ 
+ 	spin_lock(&fuse_lock);
+ 	fc->mounted = 0;
+-	fc->user_id = 0;
+-	fc->group_id = 0;
+-	fc->flags = 0;
+ 	/* Flush all readers on this fs */
+ 	wake_up_all(&fc->waitq);
+ 	up_write(&fc->sbput_sem);
+@@ -379,16 +376,15 @@ static struct fuse_conn *new_conn(void)
+ {
+ 	struct fuse_conn *fc;
+ 
+-	fc = kmalloc(sizeof(*fc), GFP_KERNEL);
++	fc = kzalloc(sizeof(*fc), GFP_KERNEL);
+ 	if (fc != NULL) {
+ 		int i;
+-		memset(fc, 0, sizeof(*fc));
+ 		init_waitqueue_head(&fc->waitq);
+ 		INIT_LIST_HEAD(&fc->pending);
+ 		INIT_LIST_HEAD(&fc->processing);
+ 		INIT_LIST_HEAD(&fc->unused_list);
+ 		INIT_LIST_HEAD(&fc->background);
+-		sema_init(&fc->outstanding_sem, 0);
++		sema_init(&fc->outstanding_sem, 1); /* One for INIT */
+ 		init_rwsem(&fc->sbput_sem);
+ 		for (i = 0; i < FUSE_MAX_OUTSTANDING; i++) {
+ 			struct fuse_req *req = fuse_request_alloc();
+@@ -420,7 +416,7 @@ static struct fuse_conn *get_conn(struct
+ 		fc = ERR_PTR(-EINVAL);
+ 	} else {
+ 		file->private_data = fc;
+-		*get_fuse_conn_super_p(sb) = fc;
++		sb->s_fs_info = fc;
+ 		fc->mounted = 1;
+ 		fc->connected = 1;
+ 		fc->count = 2;
+Index: linux/fs/fuse/fuse_i.h
+===================================================================
+--- linux.orig/fs/fuse/fuse_i.h	2006-01-13 23:12:57.000000000 +0100
++++ linux/fs/fuse/fuse_i.h	2006-01-13 23:40:18.000000000 +0100
+@@ -280,14 +280,9 @@ struct fuse_conn {
+ 	struct backing_dev_info bdi;
+ };
+ 
+-static inline struct fuse_conn **get_fuse_conn_super_p(struct super_block *sb)
+-{
+-	return (struct fuse_conn **) &sb->s_fs_info;
+-}
+-
+ static inline struct fuse_conn *get_fuse_conn_super(struct super_block *sb)
+ {
+-	return *get_fuse_conn_super_p(sb);
++	return (struct fuse_conn *) sb->s_fs_info;
+ }
+ 
+ static inline struct fuse_conn *get_fuse_conn(struct inode *inode)
+Index: linux/fs/fuse/dev.c
+===================================================================
+--- linux.orig/fs/fuse/dev.c	2006-01-13 23:40:09.000000000 +0100
++++ linux/fs/fuse/dev.c	2006-01-13 23:40:18.000000000 +0100
+@@ -361,8 +361,8 @@ void request_send_background(struct fuse
+ void fuse_send_init(struct fuse_conn *fc)
+ {
+ 	/* This is called from fuse_read_super() so there's guaranteed
+-	   to be a request available */
+-	struct fuse_req *req = do_get_request(fc);
++	   to be exactly one request available */
++	struct fuse_req *req = fuse_get_request(fc);
+ 	struct fuse_init_in *arg = &req->misc.init_in;
+ 	arg->major = FUSE_KERNEL_VERSION;
+ 	arg->minor = FUSE_KERNEL_MINOR_VERSION;
+
+--

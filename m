@@ -1,114 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWANOhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWANOgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWANOhI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWANOhI
+	id S1751745AbWANOgn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 09:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWANOgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:37:08 -0500
-Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:8606 "EHLO
-	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932131AbWANOhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:37:02 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: [PATCH] sched - fix interactive typo
-Date: Sun, 15 Jan 2006 01:36:35 +1100
-User-Agent: KMail/1.9
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-References: <5.2.1.1.2.20060114134639.00c453d0@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20060114134639.00c453d0@pop.gmx.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3369888.LTQhgQEFAO";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601150136.38176.kernel@kolivas.org>
+	Sat, 14 Jan 2006 09:36:43 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:28322 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751456AbWANOgm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 09:36:42 -0500
+Date: Sat, 14 Jan 2006 15:36:50 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       raven@themaw.net
+Subject: [patch 2.6.15-mm4] sem2mutex: autofs4 wq_sem
+Message-ID: <20060114143650.GA18567@elte.hu>
+References: <20060114143042.GA17675@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060114143042.GA17675@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3369888.LTQhgQEFAO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+From: Ingo Molnar <mingo@elte.hu>
 
-On Saturday 14 January 2006 23:56, Mike Galbraith wrote:
-> Greetings,
->
-> At 09:23 PM 1/13/2006 +1100, Con Kolivas wrote:
-> >Index: linux-2.6.15/kernel/sched.c
-> >=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> >--- linux-2.6.15.orig/kernel/sched.c
-> >+++ linux-2.6.15/kernel/sched.c
-> >@@ -756,26 +756,17 @@ static int recalc_task_prio(task_t *p, u
->
-> <snip>
->
-> >+                       * If a task was sleeping with the noninteractive
-> >+                       * label do not apply this non-linear boost
-> >                         */
-> >-                       if (p->sleep_type =3D=3D SLEEP_NONINTERACTIVE &&
-> > p->mm) { -                               if (p->sleep_avg >=3D
-> > INTERACTIVE_SLEEP(p)) -                                       sleep_time
-> > =3D 0;
-> >-                               else if (p->sleep_avg + sleep_time >=3D
-> >-                                               INTERACTIVE_SLEEP(p)) {
-> >-                                       p->sleep_avg =3D
-> > INTERACTIVE_SLEEP(p); -                                       sleep_time
-> > =3D 0;
-> >-                               }
-> >-                       }
-> >+                       if (p->sleep_type !=3D SLEEP_NONINTERACTIVE ||
-> > p->mm)
->
-> Typo alert.  Looks like that should be ||
-> !p->mm.                                     ^
+semaphore to mutex conversion.
 
-Good catch!=20
+the conversion was generated via scripts, and the result was validated
+automatically via a script as well.
 
-That would have hurt like that too.
+build and boot tested.
 
-Andrew please apply to or rollup into interactivity series.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+----
 
-Cheers,
-Con
-=2D--
-=46ix typo thanks Mike Galbraith for spotting.
+ fs/autofs4/autofs_i.h |    3 ++-
+ fs/autofs4/inode.c    |    2 +-
+ fs/autofs4/waitq.c    |   16 ++++++++--------
+ 3 files changed, 11 insertions(+), 10 deletions(-)
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
- kernel/sched.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.15/kernel/sched.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=2D-- linux-2.6.15.orig/kernel/sched.c
-+++ linux-2.6.15/kernel/sched.c
-@@ -768,7 +768,7 @@ static int recalc_task_prio(task_t *p, u
- 			 * If a task was sleeping with the noninteractive
- 			 * label do not apply this non-linear boost
- 			 */
-=2D			if (p->sleep_type !=3D SLEEP_NONINTERACTIVE || p->mm)
-+			if (p->sleep_type !=3D SLEEP_NONINTERACTIVE || !p->mm)
- 				sleep_time *=3D
- 					(MAX_BONUS - CURRENT_BONUS(p)) ? : 1;
-=20
-
---nextPart3369888.LTQhgQEFAO
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDyQx2ZUg7+tp6mRURAnU/AJwJ6wifYrZSPotBFTMqxdcf6zOwPgCeJwGZ
-JNqVYvye4bvW9CjJdnUfMAQ=
-=0EJp
------END PGP SIGNATURE-----
-
---nextPart3369888.LTQhgQEFAO--
+Index: linux/fs/autofs4/autofs_i.h
+===================================================================
+--- linux.orig/fs/autofs4/autofs_i.h
++++ linux/fs/autofs4/autofs_i.h
+@@ -13,6 +13,7 @@
+ /* Internal header file for autofs */
+ 
+ #include <linux/auto_fs4.h>
++#include <linux/mutex.h>
+ #include <linux/list.h>
+ 
+ /* This is the range of ioctl() numbers we claim as ours */
+@@ -102,7 +103,7 @@ struct autofs_sb_info {
+ 	int reghost_enabled;
+ 	int needs_reghost;
+ 	struct super_block *sb;
+-	struct semaphore wq_sem;
++	struct mutex wq_mutex;
+ 	spinlock_t fs_lock;
+ 	struct autofs_wait_queue *queues; /* Wait queue pointer */
+ };
+Index: linux/fs/autofs4/inode.c
+===================================================================
+--- linux.orig/fs/autofs4/inode.c
++++ linux/fs/autofs4/inode.c
+@@ -269,7 +269,7 @@ int autofs4_fill_super(struct super_bloc
+ 	sbi->sb = s;
+ 	sbi->version = 0;
+ 	sbi->sub_version = 0;
+-	init_MUTEX(&sbi->wq_sem);
++	mutex_init(&sbi->wq_mutex);
+ 	spin_lock_init(&sbi->fs_lock);
+ 	sbi->queues = NULL;
+ 	s->s_blocksize = 1024;
+Index: linux/fs/autofs4/waitq.c
+===================================================================
+--- linux.orig/fs/autofs4/waitq.c
++++ linux/fs/autofs4/waitq.c
+@@ -178,7 +178,7 @@ int autofs4_wait(struct autofs_sb_info *
+ 		return -ENOENT;
+ 	}
+ 
+-	if (down_interruptible(&sbi->wq_sem)) {
++	if (mutex_lock_interruptible(&sbi->wq_mutex)) {
+ 		kfree(name);
+ 		return -EINTR;
+ 	}
+@@ -194,7 +194,7 @@ int autofs4_wait(struct autofs_sb_info *
+ 		/* Can't wait for an expire if there's no mount */
+ 		if (notify == NFY_NONE && !d_mountpoint(dentry)) {
+ 			kfree(name);
+-			up(&sbi->wq_sem);
++			mutex_unlock(&sbi->wq_mutex);
+ 			return -ENOENT;
+ 		}
+ 
+@@ -202,7 +202,7 @@ int autofs4_wait(struct autofs_sb_info *
+ 		wq = kmalloc(sizeof(struct autofs_wait_queue),GFP_KERNEL);
+ 		if ( !wq ) {
+ 			kfree(name);
+-			up(&sbi->wq_sem);
++			mutex_unlock(&sbi->wq_mutex);
+ 			return -ENOMEM;
+ 		}
+ 
+@@ -218,10 +218,10 @@ int autofs4_wait(struct autofs_sb_info *
+ 		wq->status = -EINTR; /* Status return if interrupted */
+ 		atomic_set(&wq->wait_ctr, 2);
+ 		atomic_set(&wq->notified, 1);
+-		up(&sbi->wq_sem);
++		mutex_unlock(&sbi->wq_mutex);
+ 	} else {
+ 		atomic_inc(&wq->wait_ctr);
+-		up(&sbi->wq_sem);
++		mutex_unlock(&sbi->wq_mutex);
+ 		kfree(name);
+ 		DPRINTK("existing wait id = 0x%08lx, name = %.*s, nfy=%d",
+ 			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify);
+@@ -282,19 +282,19 @@ int autofs4_wait_release(struct autofs_s
+ {
+ 	struct autofs_wait_queue *wq, **wql;
+ 
+-	down(&sbi->wq_sem);
++	mutex_lock(&sbi->wq_mutex);
+ 	for ( wql = &sbi->queues ; (wq = *wql) != 0 ; wql = &wq->next ) {
+ 		if ( wq->wait_queue_token == wait_queue_token )
+ 			break;
+ 	}
+ 
+ 	if ( !wq ) {
+-		up(&sbi->wq_sem);
++		mutex_unlock(&sbi->wq_mutex);
+ 		return -EINVAL;
+ 	}
+ 
+ 	*wql = wq->next;	/* Unlink from chain */
+-	up(&sbi->wq_sem);
++	mutex_unlock(&sbi->wq_mutex);
+ 	kfree(wq->name);
+ 	wq->name = NULL;	/* Do not wait on this queue */
+ 

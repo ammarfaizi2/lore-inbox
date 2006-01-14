@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWANRqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWANRrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWANRqm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 12:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWANRqm
+	id S1750724AbWANRrh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 12:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWANRrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 12:46:42 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7608 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750722AbWANRql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 12:46:41 -0500
-Subject: Re: PROBLEM: PCI WiFi card works with livecd's but not with HD
-	install with Ali mobo.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matthew Marshall <matthew@matthewmarshall.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200601141445.49962.matthew@matthewmarshall.org>
-References: <200601141427.36915.matthew@matthewmarshall.org>
-	 <1137260253.1408.55.camel@mindpipe>
-	 <200601141445.49962.matthew@matthewmarshall.org>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 12:46:39 -0500
-Message-Id: <1137260799.1408.58.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 12:47:36 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:28024 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750724AbWANRrg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 12:47:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=t9/6JNDC3IJS3AArmsMTM8WXvBj+zEuMc/kYiX6hDa+YwNQDCm4hjGYgaCdCYNIHFJTbKpWdv5e5e7Otemb+8cseJhFw1yYUpbbfJtWrDo3Yzn5SbRpHck48YGF5Ig43RmhtH1UyTAqcB/+dQrSCDSM4hnEhVvbGVZoy9hHSNJ4=
+Message-ID: <58cb370e0601140947medcb66flf6b7281976683765@mail.gmail.com>
+Date: Sat, 14 Jan 2006 18:47:31 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2.6 patch] Fix PDC202XX_FORCE kconfig selection
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, "Andrey J. Melnikoff" <temnota@kmv.ru>
+In-Reply-To: <1137255183.20915.0.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060114152119.GN29663@stusta.de>
+	 <1137255183.20915.0.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-14 at 14:45 -0300, Matthew Marshall wrote:
-> On Saturday 14 January 2006 14:37, you wrote:
-> > We can't help you with proprietary drivers on this list.  Can you
-> > reproduce the problem with no proprietary drivers loaded?
-> 
-> I have a PCI Ethernet card I'll try with.
-> 
-> Since bother drivers had the same result, and they both worked fine with 
-> another mobo, I thought it was a problem with the drivers for the mobo.  But, 
-> I'll see if I get the same result with an untainted kernel.
+On 1/14/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Sad, 2006-01-14 at 16:21 +0100, Adrian Bunk wrote:
+> > Split PDC202XX_FORCE selection into two independ option and allow user
+> > select it only for specific driver.
+>
+> Seems pointless. We should always grab the raid cards. The option itself
+> is a mistake
 
-OK.
+Alan is right, these cards should always be grabbed in 2.6.x kernels.
+This option is a leftover from earlier 2.4.x days when Promise binary
+driver was available for using software RAID.
 
-Anyone know why the MadWifi site does not say up front in big letters
-that it's just a GPL'ed wrapper around a proprietary HAL?  To read the
-Wiki you would think it's open source...
+Could somebody submit a patch removing CONFIG_PDC202XX_FORCE?
 
-Lee
-
+Bartlomiej

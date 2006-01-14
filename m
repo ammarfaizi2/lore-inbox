@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945927AbWANEOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423028AbWANEmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945927AbWANEOX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 23:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945993AbWANEOX
+	id S1423028AbWANEmM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 23:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423035AbWANEmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 23:14:23 -0500
-Received: from mxfep02.bredband.com ([195.54.107.73]:52919 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1945927AbWANEOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 23:14:22 -0500
-Message-ID: <43C88833.9050107@karett.se>
-Date: Sat, 14 Jan 2006 06:12:19 +0100
-From: Mikael Andersson <mikael@karett.se>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051218)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Clark Williams <williams@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-rt4 failure with LATENCY_TRACE on x86_64
-References: <1137103652.11354.40.camel@localhost.localdomain>  <1137122280.7338.6.camel@localhost.localdomain>  <1137164761.3332.2.camel@localhost.localdomain>  <1137167679.7241.25.camel@localhost.localdomain> <1137193088.3170.34.camel@localhost.localdomain> <Pine.LNX.4.58.0601131807350.10046@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0601131807350.10046@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jan 2006 23:42:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34012 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1423028AbWANEmL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 23:42:11 -0500
+Date: Fri, 13 Jan 2006 23:41:52 -0500
+From: Dave Jones <davej@redhat.com>
+To: Philipp Rumpf <prumpf@gmail.com>
+Cc: Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-ck1
+Message-ID: <20060114044152.GA3127@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Philipp Rumpf <prumpf@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+	ck list <ck@vds.kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <e5bb8d810601131942r53712423kbd924757195f398b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e5bb8d810601131942r53712423kbd924757195f398b@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Fri, 13 Jan 2006, Clark Williams wrote:
->>Have you tried booting your system with a up kernel?
->>
-> Not a x86_64 up.  But serveral up i386 boxes.
-> 
+On Fri, Jan 13, 2006 at 09:42:26PM -0600, Philipp Rumpf wrote:
+ > Out of curiosity, why didn't you do the monitoring using
+ > /proc/acpi/battery/.../{state,info} (while running off battery)?  I
+ > think that should have much finer granularity, and avoid various
+ > capacitors that might be in the way and explain the effect you
+ > noticed.
 
-I had a very similar problem on a x86_64 up. I got a segfault in init 
-with LATENCY_TRACE enabled on 2.6.15-rt2.
-I get it at ffffffff8010fe30, which should be mcount according to my 
-System.map [1]. It seems a bit weird because i have tried to alter 
-mcount somewhat. Initially by removing the initial comparison, but later
-i tried a few other things also. Nothing had any effect at all.
+ACPI battery reporting seems hit-or-miss at times.
+Sometimes it seems to not update for ages, and then suddenly
+there's a burst when suddenly 5% of the battery drains in
+seconds.   As an overall 'how much battery is left' thing it seems
+ok, but I don't trust it for accurate measurements of power drain.
 
-AFAIK glibc also has a mcount symbol, and it's almost as if ld.so would 
-have linked the glibc mcount symbol to the kernel symbol mcount. That
-would naturally lead to a pagefault :)
-  And it would be consistent with the fact that statically linked shells
-works.
+Whether this is a firmware deficiency causing us not to see
+regular interrupts, or a problem with the acpi parser I don't know.
 
-It's probably something completely different, bevause that would be 
-really weird. OTOH, it was really weird that i could change the asm for 
-mcount in entry.S without any effect whatsoever.
+		Dave
 
-I'll verify that it hasn't gone away in lates 2.6.15-rt tomorrow.
-
-[1]
-ffffffff8010fd68 T machine_check
-ffffffff8010fdf0 T call_debug
-ffffffff8010fe00 T call_softirq
-ffffffff8010fe30 T mcount
-ffffffff8010fe65 t skiptrace
-ffffffff8010fe7c t out
-
-/Mikael

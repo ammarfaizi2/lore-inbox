@@ -1,152 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWANOgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWANOgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751745AbWANOgn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWANOgn
+	id S1751456AbWANOgs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 09:36:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWANOgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:36:43 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:28322 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751456AbWANOgm (ORCPT
+	Sat, 14 Jan 2006 09:36:48 -0500
+Received: from nsm.pl ([62.111.143.37]:37663 "EHLO nsm.pl")
+	by vger.kernel.org with ESMTP id S1751456AbWANOgr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:36:42 -0500
-Date: Sat, 14 Jan 2006 15:36:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       raven@themaw.net
-Subject: [patch 2.6.15-mm4] sem2mutex: autofs4 wq_sem
-Message-ID: <20060114143650.GA18567@elte.hu>
-References: <20060114143042.GA17675@elte.hu>
+	Sat, 14 Jan 2006 09:36:47 -0500
+Date: Sat, 14 Jan 2006 15:36:42 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Bernd Eckenfels <be-news06@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: change eth0 to sn0        ?
+Message-ID: <20060114143642.GA13111@irc.pl>
+Mail-Followup-To: Bernd Eckenfels <be-news06@lina.inka.de>,
+	linux-kernel@vger.kernel.org
+References: <BAY17-F23F48DE88AB5E02BB7AF8A97190@phx.gbl> <E1ExmHK-00087S-00@calista.inka.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
 Content-Disposition: inline
-In-Reply-To: <20060114143042.GA17675@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <E1ExmHK-00087S-00@calista.inka.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
 
-semaphore to mutex conversion.
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-the conversion was generated via scripts, and the result was validated
-automatically via a script as well.
+On Sat, Jan 14, 2006 at 03:21:14PM +0100, Bernd Eckenfels wrote:
+> >     $ ifconfig eth0 down
+>       # nameif sn0 00:11:2F:38:07:D9
 
-build and boot tested.
+ Better use standard tools:
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-----
+ ip link set name sn0 dev nf
 
- fs/autofs4/autofs_i.h |    3 ++-
- fs/autofs4/inode.c    |    2 +-
- fs/autofs4/waitq.c    |   16 ++++++++--------
- 3 files changed, 11 insertions(+), 10 deletions(-)
+--=20
+Tomasz Torcz                Only gods can safely risk perfection,
+zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia
 
-Index: linux/fs/autofs4/autofs_i.h
-===================================================================
---- linux.orig/fs/autofs4/autofs_i.h
-+++ linux/fs/autofs4/autofs_i.h
-@@ -13,6 +13,7 @@
- /* Internal header file for autofs */
- 
- #include <linux/auto_fs4.h>
-+#include <linux/mutex.h>
- #include <linux/list.h>
- 
- /* This is the range of ioctl() numbers we claim as ours */
-@@ -102,7 +103,7 @@ struct autofs_sb_info {
- 	int reghost_enabled;
- 	int needs_reghost;
- 	struct super_block *sb;
--	struct semaphore wq_sem;
-+	struct mutex wq_mutex;
- 	spinlock_t fs_lock;
- 	struct autofs_wait_queue *queues; /* Wait queue pointer */
- };
-Index: linux/fs/autofs4/inode.c
-===================================================================
---- linux.orig/fs/autofs4/inode.c
-+++ linux/fs/autofs4/inode.c
-@@ -269,7 +269,7 @@ int autofs4_fill_super(struct super_bloc
- 	sbi->sb = s;
- 	sbi->version = 0;
- 	sbi->sub_version = 0;
--	init_MUTEX(&sbi->wq_sem);
-+	mutex_init(&sbi->wq_mutex);
- 	spin_lock_init(&sbi->fs_lock);
- 	sbi->queues = NULL;
- 	s->s_blocksize = 1024;
-Index: linux/fs/autofs4/waitq.c
-===================================================================
---- linux.orig/fs/autofs4/waitq.c
-+++ linux/fs/autofs4/waitq.c
-@@ -178,7 +178,7 @@ int autofs4_wait(struct autofs_sb_info *
- 		return -ENOENT;
- 	}
- 
--	if (down_interruptible(&sbi->wq_sem)) {
-+	if (mutex_lock_interruptible(&sbi->wq_mutex)) {
- 		kfree(name);
- 		return -EINTR;
- 	}
-@@ -194,7 +194,7 @@ int autofs4_wait(struct autofs_sb_info *
- 		/* Can't wait for an expire if there's no mount */
- 		if (notify == NFY_NONE && !d_mountpoint(dentry)) {
- 			kfree(name);
--			up(&sbi->wq_sem);
-+			mutex_unlock(&sbi->wq_mutex);
- 			return -ENOENT;
- 		}
- 
-@@ -202,7 +202,7 @@ int autofs4_wait(struct autofs_sb_info *
- 		wq = kmalloc(sizeof(struct autofs_wait_queue),GFP_KERNEL);
- 		if ( !wq ) {
- 			kfree(name);
--			up(&sbi->wq_sem);
-+			mutex_unlock(&sbi->wq_mutex);
- 			return -ENOMEM;
- 		}
- 
-@@ -218,10 +218,10 @@ int autofs4_wait(struct autofs_sb_info *
- 		wq->status = -EINTR; /* Status return if interrupted */
- 		atomic_set(&wq->wait_ctr, 2);
- 		atomic_set(&wq->notified, 1);
--		up(&sbi->wq_sem);
-+		mutex_unlock(&sbi->wq_mutex);
- 	} else {
- 		atomic_inc(&wq->wait_ctr);
--		up(&sbi->wq_sem);
-+		mutex_unlock(&sbi->wq_mutex);
- 		kfree(name);
- 		DPRINTK("existing wait id = 0x%08lx, name = %.*s, nfy=%d",
- 			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify);
-@@ -282,19 +282,19 @@ int autofs4_wait_release(struct autofs_s
- {
- 	struct autofs_wait_queue *wq, **wql;
- 
--	down(&sbi->wq_sem);
-+	mutex_lock(&sbi->wq_mutex);
- 	for ( wql = &sbi->queues ; (wq = *wql) != 0 ; wql = &wq->next ) {
- 		if ( wq->wait_queue_token == wait_queue_token )
- 			break;
- 	}
- 
- 	if ( !wq ) {
--		up(&sbi->wq_sem);
-+		mutex_unlock(&sbi->wq_mutex);
- 		return -EINVAL;
- 	}
- 
- 	*wql = wq->next;	/* Unlink from chain */
--	up(&sbi->wq_sem);
-+	mutex_unlock(&sbi->wq_mutex);
- 	kfree(wq->name);
- 	wq->name = NULL;	/* Do not wait on this queue */
- 
+
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFDyQx6ThhlKowQALQRAh56AJ9U/HKmk0NqXfUf21zrbTqH7JdF8ACfUU7a
+i7bzudEZ4qBL//SEs6T/TEU=
+=8ORZ
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--

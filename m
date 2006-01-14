@@ -1,48 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423243AbWANBOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423251AbWANBRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423243AbWANBOT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 20:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423245AbWANBOT
+	id S1423251AbWANBRk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 20:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423245AbWANBRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 20:14:19 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:24499 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1423243AbWANBOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 20:14:18 -0500
-Subject: RE: Dual core Athlons and unsynced TSCs
-From: Lee Revell <rlrevell@joe-job.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, Roger Heflin <rheflin@atipa.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1137201012.6727.1.camel@localhost.localdomain>
-References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
-	 <1137168254.7241.32.camel@localhost.localdomain>
-	 <1137174463.15108.4.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
-	 <1137174848.15108.11.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
-	 <1137178506.15108.38.camel@mindpipe>
-	 <1137182991.8283.7.camel@localhost.localdomain>
-	 <1137198221.11300.21.camel@cog.beaverton.ibm.com>
-	 <1137201012.6727.1.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 20:14:09 -0500
-Message-Id: <1137201250.1408.39.camel@mindpipe>
+	Fri, 13 Jan 2006 20:17:39 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:36481 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S1422883AbWANBRj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 20:17:39 -0500
+Date: Fri, 13 Jan 2006 20:17:26 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (configuration)
+Message-ID: <20060114011726.GA19950@shaftnet.org>
+Mail-Followup-To: Johannes Berg <johannes@sipsolutions.net>,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com> <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+In-Reply-To: <1137191522.2520.63.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Fri, 13 Jan 2006 20:17:27 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 20:10 -0500, Steven Rostedt wrote:
-> 
-> Thanks, I'll add that to my list of tests too.
-> 
-> Oh and 2.6.15 passed as well (with clock=pmtmr) 
 
-It really seems like it would fail if you gave it enough time due to the
-rdtsc in monotonic_clock()...
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Lee
+On Fri, Jan 13, 2006 at 11:32:02PM +0100, Johannes Berg wrote:
+> I'm not sure this is worth it. While putting this into the WiPHY device
+> creates more logic there, putting knowledge like 'how many different
+> channels can this WiPHY device support' etc. into some representation
+> that can be used by the stack to decide is much more trouble than it is
+> worth.
 
+Do you mean 'simultaneous' channel operation, or something more mundane=20
+like simply 'what frequencies can I run on'?
+
+If you're talking about the former.. things get quite complicated, but=20
+that could be handled by having two WiPHY devices registered.
+
+As for the latter, when you factor in the needs of 802.11d and its
+dependents (802.11j, 802.11k, and others) the stack is going to need to
+be aware of the available channel sets; both in the sense of hardware
+support and also the various regulatory requirements.=20
+
+The hardware knows what frequencies it supports.  Unfortunately this has=20
+to be a somewhat dynamic thing, as this is often not queryable until the=20
+device firmware is up and running. =20
+
+This can be accomplished by passing a static table to the=20
+register_wiphy_device() call (or perhaps via a struct wiphy_dev=20
+parameter) or through a more explicit, dynamic interface like:
+
+  wiphy_register_supported_frequency(hw, 2412).=20
+
+ - Solomon
+--=20
+Solomon Peachy        				 ICQ: 1318344
+Melbourne, FL 					=20
+Quidquid latine dictum sit, altum viditur.
+
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDyFEmPuLgii2759ARApk7AJ9vrsX3JKIgGn2/b6PhUQIkEF5jQACgzUaE
+GZgZOrx7cdf72jqEHRGsRCk=
+=QDWO
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--

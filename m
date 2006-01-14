@@ -1,104 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWANMqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWANMrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWANMqh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWANMqQ
+	id S1751257AbWANMrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWANMqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:46:16 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:10402 "EHLO
+	Sat, 14 Jan 2006 07:46:14 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:11170 "EHLO
 	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751257AbWANMqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751249AbWANMqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 14 Jan 2006 07:46:06 -0500
 From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Date: Sat, 14 Jan 2006 14:46:05 +0200
-Message-Id: <20060114122440.260372000@localhost>
+Date: Sat, 14 Jan 2006 14:46:04 +0200
+Message-Id: <20060114122432.277486000@localhost>
 References: <20060114122249.246354000@localhost>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: [patch 08/10] slab: extract virt_to_{cache|slab}
+Subject: [patch 06/10] slab: extract slab_{put|get}_obj
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+From: Matthew Dobson <colpatch@us.ibm.com>
 
-This patch introduces virt_to_cache() and virt_to_slab() functions
-to reduce duplicate code and introduce a proper abstraction should
-we want to support other kind of mapping for address to slab and
-cache (eg. for vmalloc() or I/O memory).
+This patch create two helper functions slab_get_obj() and
+slab_put_obj() to replace duplicated code in mm/slab.c
 
+Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 Acked-by: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- mm/slab.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ mm/slab.c |   77 ++++++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 40 insertions(+), 37 deletions(-)
 
 Index: 2.6/mm/slab.c
 ===================================================================
 --- 2.6.orig/mm/slab.c
 +++ 2.6/mm/slab.c
-@@ -594,6 +594,18 @@ static inline struct slab *page_get_slab
- 	return (struct slab *)page->lru.prev;
+@@ -2223,6 +2223,42 @@ static void kmem_flagcheck(kmem_cache_t 
+ 	}
  }
  
-+static inline struct kmem_cache *virt_to_cache(const void *obj)
++static void *slab_get_obj(kmem_cache_t *cachep, struct slab *slabp, int nodeid)
 +{
-+	struct page *page = virt_to_page(obj);
-+	return page_get_cache(page);
++	void *objp = slabp->s_mem + (slabp->free * cachep->buffer_size);
++	kmem_bufctl_t next;
++
++	slabp->inuse++;
++	next = slab_bufctl(slabp)[slabp->free];
++#if DEBUG
++	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
++	WARN_ON(slabp->nodeid != nodeid);
++#endif
++	slabp->free = next;
++
++	return objp;
 +}
 +
-+static inline struct slab *virt_to_slab(const void *obj)
++static void slab_put_obj(kmem_cache_t *cachep, struct slab *slabp, void *objp,
++			  int nodeid)
 +{
-+	struct page *page = virt_to_page(obj);
-+	return page_get_slab(page);
++	unsigned int objnr = (objp - slabp->s_mem) / cachep->buffer_size;
++
++#if DEBUG
++	/* Verify that the slab belongs to the intended node */
++	WARN_ON(slabp->nodeid != nodeid);
++
++	if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
++		printk(KERN_ERR "slab: double free detected in cache "
++		       "'%s', objp %p\n", cachep->name, objp);
++		BUG();
++	}
++#endif
++	slab_bufctl(slabp)[objnr] = slabp->free;
++	slabp->free = objnr;
++	slabp->inuse--;
 +}
 +
- /* These are the default caches for kmalloc. Custom caches can have other sizes. */
- struct cache_sizes malloc_sizes[] = {
- #define CACHE(x) { .cs_size = (x) },
-@@ -1434,7 +1446,7 @@ static void check_poison_obj(kmem_cache_
- 		/* Print some data about the neighboring objects, if they
- 		 * exist:
- 		 */
--		struct slab *slabp = page_get_slab(virt_to_page(objp));
-+		struct slab *slabp = virt_to_slab(objp);
- 		int objnr;
+ static void set_slab_attr(kmem_cache_t *cachep, struct slab *slabp, void *objp)
+ {
+ 	int i;
+@@ -2512,22 +2548,12 @@ static void *cache_alloc_refill(kmem_cac
+ 		check_slabp(cachep, slabp);
+ 		check_spinlock_acquired(cachep);
+ 		while (slabp->inuse < cachep->num && batchcount--) {
+-			kmem_bufctl_t next;
+ 			STATS_INC_ALLOCED(cachep);
+ 			STATS_INC_ACTIVE(cachep);
+ 			STATS_SET_HIGH(cachep);
  
- 		objnr = (objp - slabp->s_mem) / cachep->buffer_size;
-@@ -2755,7 +2767,7 @@ static void free_block(kmem_cache_t *cac
+-			/* get obj pointer */
+-			ac->entry[ac->avail++] = slabp->s_mem +
+-			    slabp->free * cachep->buffer_size;
+-
+-			slabp->inuse++;
+-			next = slab_bufctl(slabp)[slabp->free];
+-#if DEBUG
+-			slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
+-			WARN_ON(numa_node_id() != slabp->nodeid);
+-#endif
+-			slabp->free = next;
++			ac->entry[ac->avail++] = slab_get_obj(cachep, slabp,
++							    numa_node_id());
+ 		}
+ 		check_slabp(cachep, slabp);
+ 
+@@ -2663,7 +2689,6 @@ static void *__cache_alloc_node(kmem_cac
+ 	struct slab *slabp;
+ 	struct kmem_list3 *l3;
+ 	void *obj;
+-	kmem_bufctl_t next;
+ 	int x;
+ 
+ 	l3 = cachep->nodelists[nodeid];
+@@ -2689,14 +2714,7 @@ static void *__cache_alloc_node(kmem_cac
+ 
+ 	BUG_ON(slabp->inuse == cachep->num);
+ 
+-	/* get obj pointer */
+-	obj = slabp->s_mem + slabp->free * cachep->buffer_size;
+-	slabp->inuse++;
+-	next = slab_bufctl(slabp)[slabp->free];
+-#if DEBUG
+-	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
+-#endif
+-	slabp->free = next;
++	obj = slab_get_obj(cachep, slabp, nodeid);
+ 	check_slabp(cachep, slabp);
+ 	l3->free_objects--;
+ 	/* move slabp to correct slabp list: */
+@@ -2736,29 +2754,14 @@ static void free_block(kmem_cache_t *cac
+ 	for (i = 0; i < nr_objects; i++) {
  		void *objp = objpp[i];
  		struct slab *slabp;
+-		unsigned int objnr;
  
--		slabp = page_get_slab(virt_to_page(objp));
-+		slabp = virt_to_slab(objp);
+ 		slabp = page_get_slab(virt_to_page(objp));
  		l3 = cachep->nodelists[node];
  		list_del(&slabp->list);
+-		objnr = (objp - slabp->s_mem) / cachep->buffer_size;
  		check_spinlock_acquired_node(cachep, node);
-@@ -2855,7 +2867,7 @@ static inline void __cache_free(kmem_cac
- #ifdef CONFIG_NUMA
- 	{
- 		struct slab *slabp;
--		slabp = page_get_slab(virt_to_page(objp));
-+		slabp = virt_to_slab(objp);
- 		if (unlikely(slabp->nodeid != numa_node_id())) {
- 			struct array_cache *alien = NULL;
- 			int nodeid = slabp->nodeid;
-@@ -3118,7 +3130,7 @@ void kfree(const void *objp)
- 		return;
- 	local_irq_save(flags);
- 	kfree_debugcheck(objp);
--	c = page_get_cache(virt_to_page(objp));
-+	c = virt_to_cache(objp);
- 	mutex_debug_check_no_locks_freed(objp, obj_size(c));
- 	__cache_free(c, (void *)objp);
- 	local_irq_restore(flags);
-@@ -3692,5 +3704,5 @@ unsigned int ksize(const void *objp)
- 	if (unlikely(objp == NULL))
- 		return 0;
+ 		check_slabp(cachep, slabp);
+-
+-#if DEBUG
+-		/* Verify that the slab belongs to the intended node */
+-		WARN_ON(slabp->nodeid != node);
+-
+-		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
+-			printk(KERN_ERR "slab: double free detected in cache "
+-			       "'%s', objp %p\n", cachep->name, objp);
+-			BUG();
+-		}
+-#endif
+-		slab_bufctl(slabp)[objnr] = slabp->free;
+-		slabp->free = objnr;
++		slab_put_obj(cachep, slabp, objp, node);
+ 		STATS_DEC_ACTIVE(cachep);
+-		slabp->inuse--;
+ 		l3->free_objects++;
+ 		check_slabp(cachep, slabp);
  
--	return obj_size(page_get_cache(virt_to_page(objp)));
-+	return obj_size(virt_to_cache(objp));
- }
 
 --
 

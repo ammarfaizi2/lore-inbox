@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWANOLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWANONy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWANOLp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWANOLp
+	id S1751495AbWANONy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 09:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbWANONy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:11:45 -0500
-Received: from soundwarez.org ([217.160.171.123]:18314 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751448AbWANOLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:11:44 -0500
-Date: Sat, 14 Jan 2006 15:11:35 +0100
-From: Kay Sievers <kay.sievers@suse.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: Greg K-H <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] INPUT: add MODALIAS to the event environment
-Message-ID: <20060114141135.GA12581@vrfy.org>
-References: <11371818082670@kroah.com> <11371818084013@kroah.com> <43C88898.10900@ums.usu.ru> <20060114110401.GA11237@vrfy.org> <43C8F962.9030409@ums.usu.ru> <20060114132138.GA12273@vrfy.org> <43C8FFD7.3030408@ums.usu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C8FFD7.3030408@ums.usu.ru>
-User-Agent: Mutt/1.5.9i
+	Sat, 14 Jan 2006 09:13:54 -0500
+Received: from deine-taler.de ([217.160.107.63]:32184 "EHLO
+	p15091797.pureserver.info") by vger.kernel.org with ESMTP
+	id S1751522AbWANONx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 09:13:53 -0500
+Date: Sat, 14 Jan 2006 15:13:39 +0100 (CET)
+From: Ulrich Kunitz <kune@deine-taler.de>
+To: "John W. Linville" <linville@tuxdriver.com>
+cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (stack)
+In-Reply-To: <20060113213200.GG16166@tuxdriver.com>
+Message-ID: <Pine.LNX.4.58.0601141448480.5587@p15091797.pureserver.info>
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com>
+ <20060113213200.GG16166@tuxdriver.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 14, 2006 at 06:42:47PM +0500, Alexander E. Patrakov wrote:
-> Kay Sievers wrote:
-> >On Sat, Jan 14, 2006 at 06:15:14PM +0500, Alexander E. Patrakov wrote:
-> >
-> >>i.e., there is the "modalias" file in sysfs but no $MODALIAS in the 
-> >>environment. Is this the problem that your patch solves (note: I haven't 
-> >>tried it yet)?
-> >
-> >Well, you could have read the mail's subject, before posting.
-> >
-> Indeed, sorry.
-> 
-> I have applied your patch on top of gregkh-all-2.6.15.patch and changed 
-> my module-loading udev rule to:
-> 
-> ENV{MODALIAS}=="?*",    RUN+="/sbin/modprobe $env{MODALIAS}"
-> 
-> Now this works and loads modules for my PS/2 mouse. Thanks for the patch.
+On Fri, 13 Jan 2006, John W. Linville wrote:
 
-Great, thanks for testing it. Do you have any subsystem left, that could
-support modalias, but doesn't?
+> Can the in-kernel stack be saved?  With the addition of softmac?
+> Is it possible to extend softmac to support virtual wlan devices?
+> If not, how do we proceed?
 
-Thanks,
-Kay
+I don't think, that we can continue with the current model of the
+stacks. There appears a great variance in the HOST-device
+interfaces between WLAN devices of several vendors. The other
+problem is, that there is a difference depending on the bus the
+device is connected to. Register accesses in USB devices should be
+able to sleep. However the 80211 stacks I've seen so far have a
+fixed set of capabilities and do also assume, that at the driver
+layer everything can be done in atomic mode, which is only true
+for buses that support memory-mapping.
+
+In my point of view each stack layer must allow drivers to
+overwrite all entry-functions. Drivers could then do
+cherry-picking of the provided standard-functions. This is of
+course the library approach. The discussion about multiple
+stacks will then be muted, because we would have several stacks in
+the kernel and on the devices, which would have compatible interfaces.
+
+> Do we need to have both wireless-stable and wireless-devel kernels?
+> What about the suggestion of having both stacks in the kernel at once?
+> I'm not very excited about two in-kernel stacks.  Still, consolidating
+> wireless drivers down to two stacks is probably better than what we
+> have now...?  Either way, we would have to have general understanding
+> that at some point (not too far away), one of the stacks would have
+> to disappear.
+
+See above.
+
+-- 
+Ulrich Kunitz - kune@deine-taler.de

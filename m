@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWANRpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWANRqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWANRpG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 12:45:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWANRpF
+	id S1750722AbWANRqm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 12:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWANRqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 12:45:05 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50393 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750720AbWANRpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 12:45:04 -0500
-Date: Sat, 14 Jan 2006 18:44:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-pm@osdl.org, linux-kernel@vger.kernel.org,
-       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-Subject: Re: [2.6 patch] SOFTWARE_SUSPEND: fix a typo in the dependencies
-Message-ID: <20060114174453.GB16427@elf.ucw.cz>
-References: <20060110043627.GD3911@stusta.de> <20060106202948.GB2736@ucw.cz> <20060114023515.GJ29663@stusta.de>
+	Sat, 14 Jan 2006 12:46:42 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7608 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750722AbWANRql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 12:46:41 -0500
+Subject: Re: PROBLEM: PCI WiFi card works with livecd's but not with HD
+	install with Ali mobo.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matthew Marshall <matthew@matthewmarshall.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200601141445.49962.matthew@matthewmarshall.org>
+References: <200601141427.36915.matthew@matthewmarshall.org>
+	 <1137260253.1408.55.camel@mindpipe>
+	 <200601141445.49962.matthew@matthewmarshall.org>
+Content-Type: text/plain
+Date: Sat, 14 Jan 2006 12:46:39 -0500
+Message-Id: <1137260799.1408.58.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060114023515.GJ29663@stusta.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 14-01-06 03:35:15, Adrian Bunk wrote:
-> This patch fixes a typo in the dependencies of SOFTWARE_SUSPEND.
+On Sat, 2006-01-14 at 14:45 -0300, Matthew Marshall wrote:
+> On Saturday 14 January 2006 14:37, you wrote:
+> > We can't help you with proprietary drivers on this list.  Can you
+> > reproduce the problem with no proprietary drivers loaded?
 > 
-> This patch is based on a report by
-> Jean-Luc Leger <reiga@dspnet.fr.eu.org>.
+> I have a PCI Ethernet card I'll try with.
+> 
+> Since bother drivers had the same result, and they both worked fine with 
+> another mobo, I thought it was a problem with the drivers for the mobo.  But, 
+> I'll see if I get the same result with an untainted kernel.
 
-Applied to my tree, but feel free to push it yourself. It will take me
-a while to sync.
-								Pavel
+OK.
 
--- 
-Thanks, Sharp!
+Anyone know why the MadWifi site does not say up front in big letters
+that it's just a GPL'ed wrapper around a proprietary HAL?  To read the
+Wiki you would think it's open source...
+
+Lee
+

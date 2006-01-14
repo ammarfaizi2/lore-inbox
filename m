@@ -1,161 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945913AbWANAm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945918AbWANAng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945913AbWANAm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 19:42:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945917AbWANAmc
+	id S1945918AbWANAng (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 19:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945916AbWANAm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 19:42:32 -0500
-Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:20398 "EHLO
+	Fri, 13 Jan 2006 19:42:29 -0500
+Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:21422 "EHLO
 	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1945913AbWANAmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 19:42:14 -0500
-Message-Id: <20060114004132.683704000@dorka.pomaz.szeredi.hu>
+	id S1945906AbWANAmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 19:42:25 -0500
+Message-Id: <20060114004143.743157000@dorka.pomaz.szeredi.hu>
 References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
-Date: Sat, 14 Jan 2006 01:40:02 +0100
+Date: Sat, 14 Jan 2006 01:40:04 +0100
 From: Miklos Szeredi <miklos@szeredi.hu>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 14/17] fuse: move INIT handling to inode.c
-Content-Disposition: inline; filename=fuse_send_init_cleanup.patch
+Subject: [PATCH 16/17] fuse: use asynchronous READ requests for readpages
+Content-Disposition: inline; filename=fuse_async_read.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now the INIT requests can be completely handled in inode.c and the
-fuse_send_init() function need not be global any more.
+This patch changes fuse_readpages() to send READ requests
+asynchronously.  This makes it possible for userspace filesystems to
+utilize the kernel readahead logic instead of having to implement
+their own (resulting in double caching).
 
 Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-Index: linux/fs/fuse/dev.c
+Index: linux/fs/fuse/file.c
 ===================================================================
---- linux.orig/fs/fuse/dev.c	2006-01-14 00:43:41.000000000 +0100
-+++ linux/fs/fuse/dev.c	2006-01-14 00:45:13.000000000 +0100
-@@ -154,28 +154,6 @@ void fuse_release_background(struct fuse
- 	spin_unlock(&fuse_lock);
+--- linux.orig/fs/fuse/file.c	2006-01-14 00:48:17.000000000 +0100
++++ linux/fs/fuse/file.c	2006-01-14 00:53:07.000000000 +0100
+@@ -265,7 +265,7 @@ void fuse_read_fill(struct fuse_req *req
+ 	req->file = file;
+ 	req->in.numargs = 1;
+ 	req->in.args[0].size = sizeof(struct fuse_read_in);
+-	req->in.args[0].value = &inarg;
++	req->in.args[0].value = inarg;
+ 	req->out.argpages = 1;
+ 	req->out.argvar = 1;
+ 	req->out.numargs = 1;
+@@ -311,21 +311,33 @@ static int fuse_readpage(struct file *fi
+ 	return err;
  }
  
--static void process_init_reply(struct fuse_conn *fc, struct fuse_req *req)
--{
--	int i;
--	struct fuse_init_out *arg = &req->misc.init_out;
--
--	if (req->out.h.error || arg->major != FUSE_KERNEL_VERSION)
--		fc->conn_error = 1;
--	else {
--		fc->minor = arg->minor;
--		fc->max_write = arg->minor < 5 ? 4096 : arg->max_write;
--	}
--
--	/* After INIT reply is received other requests can go
--	   out.  So do (FUSE_MAX_OUTSTANDING - 1) number of
--	   up()s on outstanding_sem.  The last up() is done in
--	   fuse_putback_request() */
--	for (i = 1; i < FUSE_MAX_OUTSTANDING; i++)
--		up(&fc->outstanding_sem);
--
--	fuse_put_request(fc, req);
--}
--
- /*
-  * This function is called when a request is finished.  Either a reply
-  * has arrived or it was interrupted (and not yet sent) or some error
-@@ -366,29 +344,6 @@ void request_send_background(struct fuse
- 	request_send_nowait(fc, req);
- }
- 
--void fuse_send_init(struct fuse_conn *fc)
--{
--	/* This is called from fuse_read_super() so there's guaranteed
--	   to be exactly one request available */
--	struct fuse_req *req = fuse_get_request(fc);
--	struct fuse_init_in *arg = &req->misc.init_in;
--	arg->major = FUSE_KERNEL_VERSION;
--	arg->minor = FUSE_KERNEL_MINOR_VERSION;
--	req->in.h.opcode = FUSE_INIT;
--	req->in.numargs = 1;
--	req->in.args[0].size = sizeof(*arg);
--	req->in.args[0].value = arg;
--	req->out.numargs = 1;
--	/* Variable length arguement used for backward compatibility
--	   with interface version < 7.5.  Rest of init_out is zeroed
--	   by do_get_request(), so a short reply is not a problem */
--	req->out.argvar = 1;
--	req->out.args[0].size = sizeof(struct fuse_init_out);
--	req->out.args[0].value = &req->misc.init_out;
--	req->end = process_init_reply;
--	request_send_background(fc, req);
--}
--
- /*
-  * Lock the request.  Up to the next unlock_request() there mustn't be
-  * anything that could cause a page-fault.  If the request was already
-Index: linux/fs/fuse/fuse_i.h
-===================================================================
---- linux.orig/fs/fuse/fuse_i.h	2006-01-14 00:43:41.000000000 +0100
-+++ linux/fs/fuse/fuse_i.h	2006-01-14 00:45:13.000000000 +0100
-@@ -480,8 +480,3 @@ int fuse_do_getattr(struct inode *inode)
-  * Invalidate inode attributes
-  */
- void fuse_invalidate_attr(struct inode *inode);
--
--/**
-- * Send the INIT message
-- */
--void fuse_send_init(struct fuse_conn *fc);
-Index: linux/fs/fuse/inode.c
-===================================================================
---- linux.orig/fs/fuse/inode.c	2006-01-14 00:41:33.000000000 +0100
-+++ linux/fs/fuse/inode.c	2006-01-14 00:45:13.000000000 +0100
-@@ -464,6 +464,51 @@ static struct super_operations fuse_supe
- 	.show_options	= fuse_show_options,
- };
- 
-+static void process_init_reply(struct fuse_conn *fc, struct fuse_req *req)
-+{
+-static int fuse_send_readpages(struct fuse_req *req, struct file *file,
+-			       struct inode *inode)
++static void fuse_readpages_end(struct fuse_conn *fc, struct fuse_req *req)
+ {
+-	loff_t pos = page_offset(req->pages[0]);
+-	size_t count = req->num_pages << PAGE_CACHE_SHIFT;
+-	unsigned i;
+-	req->out.page_zeroing = 1;
+-	fuse_send_read(req, file, inode, pos, count);
 +	int i;
-+	struct fuse_init_out *arg = &req->misc.init_out;
 +
-+	if (req->out.h.error || arg->major != FUSE_KERNEL_VERSION)
-+		fc->conn_error = 1;
-+	else {
-+		fc->minor = arg->minor;
-+		fc->max_write = arg->minor < 5 ? 4096 : arg->max_write;
-+	}
++	fuse_invalidate_attr(req->pages[0]->mapping->host); /* atime changed */
 +
-+	/* After INIT reply is received other requests can go
-+	   out.  So do (FUSE_MAX_OUTSTANDING - 1) number of
-+	   up()s on outstanding_sem.  The last up() is done in
-+	   fuse_putback_request() */
-+	for (i = 1; i < FUSE_MAX_OUTSTANDING; i++)
-+		up(&fc->outstanding_sem);
-+
+ 	for (i = 0; i < req->num_pages; i++) {
+ 		struct page *page = req->pages[i];
+ 		if (!req->out.h.error)
+ 			SetPageUptodate(page);
++		else
++			SetPageError(page);
+ 		unlock_page(page);
+ 	}
+-	return req->out.h.error;
 +	fuse_put_request(fc, req);
 +}
 +
-+static void fuse_send_init(struct fuse_conn *fc)
++static void fuse_send_readpages(struct fuse_req *req, struct file *file,
++				struct inode *inode)
 +{
-+	/* This is called from fuse_read_super() so there's guaranteed
-+	   to be exactly one request available */
-+	struct fuse_req *req = fuse_get_request(fc);
-+	struct fuse_init_in *arg = &req->misc.init_in;
-+	arg->major = FUSE_KERNEL_VERSION;
-+	arg->minor = FUSE_KERNEL_MINOR_VERSION;
-+	req->in.h.opcode = FUSE_INIT;
-+	req->in.numargs = 1;
-+	req->in.args[0].size = sizeof(*arg);
-+	req->in.args[0].value = arg;
-+	req->out.numargs = 1;
-+	/* Variable length arguement used for backward compatibility
-+	   with interface version < 7.5.  Rest of init_out is zeroed
-+	   by do_get_request(), so a short reply is not a problem */
-+	req->out.argvar = 1;
-+	req->out.args[0].size = sizeof(struct fuse_init_out);
-+	req->out.args[0].value = &req->misc.init_out;
-+	req->end = process_init_reply;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++	loff_t pos = page_offset(req->pages[0]);
++	size_t count = req->num_pages << PAGE_CACHE_SHIFT;
++	req->out.page_zeroing = 1;
++	req->end = fuse_readpages_end;
++	fuse_read_fill(req, file, inode, pos, count, FUSE_READ);
 +	request_send_background(fc, req);
-+}
-+
- static unsigned long long conn_id(void)
- {
- 	static unsigned long long ctr = 1;
+ }
+ 
+ struct fuse_readpages_data {
+@@ -345,12 +357,12 @@ static int fuse_readpages_fill(void *_da
+ 	    (req->num_pages == FUSE_MAX_PAGES_PER_REQ ||
+ 	     (req->num_pages + 1) * PAGE_CACHE_SIZE > fc->max_read ||
+ 	     req->pages[req->num_pages - 1]->index + 1 != page->index)) {
+-		int err = fuse_send_readpages(req, data->file, inode);
+-		if (err) {
++		fuse_send_readpages(req, data->file, inode);
++		data->req = req = fuse_get_request(fc);
++		if (!req) {
+ 			unlock_page(page);
+-			return err;
++			return -EINTR;
+ 		}
+-		fuse_reset_request(req);
+ 	}
+ 	req->pages[req->num_pages] = page;
+ 	req->num_pages ++;
+@@ -375,10 +387,8 @@ static int fuse_readpages(struct file *f
+ 		return -EINTR;
+ 
+ 	err = read_cache_pages(mapping, pages, fuse_readpages_fill, &data);
+-	if (!err && data.req->num_pages)
+-		err = fuse_send_readpages(data.req, file, inode);
+-	fuse_put_request(fc, data.req);
+-	fuse_invalidate_attr(inode); /* atime changed */
++	if (!err)
++		fuse_send_readpages(data.req, file, inode);
+ 	return err;
+ }
+ 
 
 --

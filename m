@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWANWRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWANWTA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWANWRi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 17:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWANWRi
+	id S1751310AbWANWTA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 17:19:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWANWTA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 17:17:38 -0500
-Received: from uproxy.gmail.com ([66.249.92.200]:5334 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751322AbWANWRh (ORCPT
+	Sat, 14 Jan 2006 17:19:00 -0500
+Received: from mx3.mail.ru ([194.67.23.149]:20856 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S1751310AbWANWS7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 17:17:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=XQrxNRBkCuSm2BhLhPmi/8JDZp3C82vq8LoUgNEXfE+AXY6SzBXOg8hSEpQXiXEWefuB0nAwwAupk77YhRTwWQqOaiMbpzgmoDAkLYhPP9eo5Ocq+02rF6kXuJ8P4UponGBZba2y4P/xZ4bnZL2t4e1Ejv4dDhL72iI8dFOV8e4=
-Date: Sun, 15 Jan 2006 01:34:48 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] arm26: add L1_CACHE_SHIFT
-Message-ID: <20060114223448.GA8002@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 14 Jan 2006 17:18:59 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: acpi-devel@lists.sourceforge.net
+Subject: cannot unload acpi-cpufreq
+Date: Sun, 15 Jan 2006 01:18:56 +0300
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200601150118.57542.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix reiserfs compilation as a side effect =)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Running 2.6.15 vanilla. I am unable to unload acpi-cpufreq - I always get 
 
- include/asm-arm26/cache.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+{pts/1}% sudo rmmod acpi_cpufreq
+ERROR: Module acpi_cpufreq is in use
 
---- a/include/asm-arm26/cache.h
-+++ b/include/asm-arm26/cache.h
-@@ -4,7 +4,8 @@
- #ifndef __ASMARM_CACHE_H
- #define __ASMARM_CACHE_H
- 
--#define        L1_CACHE_BYTES  32
-+#define        L1_CACHE_SHIFT  5
-+#define        L1_CACHE_BYTES  (1 << L1_CACHE_SHIFT)
- #define        L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
- #define        SMP_CACHE_BYTES L1_CACHE_BYTES
- 
+I do not see, how can I actually "release" it. Also, the reason I need to 
+unload it - I am testing alternative CPU frequency driver and would like to 
+avoid reboot when switching. This driver unloads just fine (it is written by 
+me and contains the minimal set of functions).
 
+Ay idea?
+
+regards
+
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDyXjRR6LMutpd94wRAnVfAJ0Tbrq/NyPyFFG/wsB+mnaOSPpIrgCfeRqs
+aJ1ieQrVCpyytz8R+yxgnXM=
+=a2Kj
+-----END PGP SIGNATURE-----

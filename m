@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWANSn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWANSpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWANSn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 13:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWANSn3
+	id S1750756AbWANSpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 13:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWANSpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 13:43:29 -0500
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:38746 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750754AbWANSn3 (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 13:43:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=QAHGp79nFG2QkZO0Py+gmWhtMgmT0RP56a9fffYI6AulO+mseswtS6g04I9wo09CMnegJej9aemnbdgf2DMhk4hhuwr4Ph9wqDiJ/WGEiK+UPxUaX33f/EInBlQPaeY6XL4UVFhHAUr7bzq2A5JCRIkPk+4f6T1xdbvGv/J4tKs=  ;
-Message-ID: <43C9464D.6060509@yahoo.com.au>
-Date: Sun, 15 Jan 2006 05:43:25 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 14 Jan 2006 13:45:17 -0500
+Received: from mx2.suse.de ([195.135.220.15]:17342 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750756AbWANSpQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 13:45:16 -0500
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: 2.6.15-git breaks Xorg on em64t
+Date: Sat, 14 Jan 2006 19:43:27 +0100
+User-Agent: KMail/1.8
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060114065235.GA4539@redhat.com>
+In-Reply-To: <20060114065235.GA4539@redhat.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [patch] mm: cleanup bootmem
-References: <43C8F198.3010609@yahoo.com.au> <Pine.LNX.4.64.0601140949460.13339@g5.osdl.org> <43C93CCA.9080503@yahoo.com.au> <43C93DA0.3040506@yahoo.com.au> <Pine.LNX.4.64.0601141011300.13339@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601141011300.13339@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601141943.28027.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sun, 15 Jan 2006, Nick Piggin wrote:
-> 
->>Oh the BITS_PER_LONG batching?
-> 
-> 
-> Yes.
-> 
-> 
->>			 That's still completely functional after
->>my patch. In fact, as I said in a followup it is likely to work better
->>than with David's change to free batched pages as order-0, because I
->>reverted back to freeing them as higher order pages.
-> 
-> 
-> Ok. Then I doubt anybody will complain. I'm still wondering if some of the 
-> other ugliness was due to some simulator strangeness issues, but maybe 
+On Saturday 14 January 2006 07:52, Dave Jones wrote:
+> Andi,
+>  Sometime in the last week something was introduced to Linus'
+> tree which makes my dual EM64T go nuts when X tries to start.
+> By "go nuts", I mean it does various random things, seen so
+> far..
+> - Machine check. (I'm convinced this isn't a hardware problem
+>   despite the new addition telling me otherwise :)
 
-I'm a little unsure. That's what I suspected when I saw David's
-changeset was part of an FRV: prefixed batch but wasn't directly
-related to FRV code. (ie. normally such a patch would be mm: or
-bootmem:)
+Normally it should be impossible to cause machine checks from software
+on Intel systems.
 
--- 
-SUSE Labs, Novell Inc.
+> - Reboot
+> - Total lockup
+> - NMI watchdog firing, and then lockup
+>
+> I've tried backing out a handful of the x86-64 patches, and
+> didn't get too far, as some of them are dependant on others,
+> it quickly became a real mess to try to bisect where exactly it broke.\
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Shouldn't be too bad - i did a binary search for something else and it worked 
+pretty well.
+>
+> Any ideas for potential candidates to try & back out ?
+
+Does it work when you revert all x86-64 changes?
+
+-Andi

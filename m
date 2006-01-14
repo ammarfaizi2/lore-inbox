@@ -1,94 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWANMrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWANMqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWANMrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWANMqM
+	id S1751438AbWANMqh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWANMqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:46:12 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:11682 "EHLO
+	Sat, 14 Jan 2006 07:46:16 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:10402 "EHLO
 	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751105AbWANMqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751257AbWANMqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 14 Jan 2006 07:46:06 -0500
 From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Date: Sat, 14 Jan 2006 14:46:04 +0200
-Message-Id: <20060114122418.490182000@localhost>
+Date: Sat, 14 Jan 2006 14:46:05 +0200
+Message-Id: <20060114122440.260372000@localhost>
 References: <20060114122249.246354000@localhost>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: [patch 05/10] slab: extract slab_destroy_objs()
+Subject: [patch 08/10] slab: extract virt_to_{cache|slab}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matthew Dobson <colpatch@us.ibm.com>
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-This patch creates a helper function, slab_destroy_objs() which called from
-slab_destroy(). This makes slab_destroy() smaller and more readable, and moves
-ifdefs outside the function body.
+This patch introduces virt_to_cache() and virt_to_slab() functions
+to reduce duplicate code and introduce a proper abstraction should
+we want to support other kind of mapping for address to slab and
+cache (eg. for vmalloc() or I/O memory).
 
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 Acked-by: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- mm/slab.c |   26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ mm/slab.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
 Index: 2.6/mm/slab.c
 ===================================================================
 --- 2.6.orig/mm/slab.c
 +++ 2.6/mm/slab.c
-@@ -1456,15 +1456,13 @@ static void check_poison_obj(kmem_cache_
+@@ -594,6 +594,18 @@ static inline struct slab *page_get_slab
+ 	return (struct slab *)page->lru.prev;
  }
- #endif
  
--/* Destroy all the objs in a slab, and release the mem back to the system.
-- * Before calling the slab must have been unlinked from the cache.
-- * The cache-lock is not held/needed.
-+#if DEBUG
-+/**
-+ * slab_destroy_objs - call the registered destructor for each object in
-+ *      a slab that is to be destroyed.
-  */
--static void slab_destroy(kmem_cache_t *cachep, struct slab *slabp)
-+static void slab_destroy_objs(kmem_cache_t *cachep, struct slab *slabp)
- {
--	void *addr = slabp->s_mem - slabp->colouroff;
--
--#if DEBUG
- 	int i;
- 	for (i = 0; i < cachep->num; i++) {
- 		void *objp = slabp->s_mem + cachep->buffer_size * i;
-@@ -1493,7 +1491,10 @@ static void slab_destroy(kmem_cache_t *c
- 		if (cachep->dtor && !(cachep->flags & SLAB_POISON))
- 			(cachep->dtor) (objp + obj_offset(cachep), cachep, 0);
- 	}
-+}
- #else
-+static void slab_destroy_objs(kmem_cache_t *cachep, struct slab *slabp)
++static inline struct kmem_cache *virt_to_cache(const void *obj)
 +{
- 	if (cachep->dtor) {
- 		int i;
- 		for (i = 0; i < cachep->num; i++) {
-@@ -1501,8 +1502,19 @@ static void slab_destroy(kmem_cache_t *c
- 			(cachep->dtor) (objp, cachep, 0);
- 		}
- 	}
++	struct page *page = virt_to_page(obj);
++	return page_get_cache(page);
 +}
- #endif
- 
-+/**
-+ * Destroy all the objs in a slab, and release the mem back to the system.
-+ * Before calling the slab must have been unlinked from the cache.
-+ * The cache-lock is not held/needed.
-+ */
-+static void slab_destroy(kmem_cache_t *cachep, struct slab *slabp)
-+{
-+	void *addr = slabp->s_mem - slabp->colouroff;
 +
-+	slab_destroy_objs(cachep, slabp);
- 	if (unlikely(cachep->flags & SLAB_DESTROY_BY_RCU)) {
- 		struct slab_rcu *slab_rcu;
++static inline struct slab *virt_to_slab(const void *obj)
++{
++	struct page *page = virt_to_page(obj);
++	return page_get_slab(page);
++}
++
+ /* These are the default caches for kmalloc. Custom caches can have other sizes. */
+ struct cache_sizes malloc_sizes[] = {
+ #define CACHE(x) { .cs_size = (x) },
+@@ -1434,7 +1446,7 @@ static void check_poison_obj(kmem_cache_
+ 		/* Print some data about the neighboring objects, if they
+ 		 * exist:
+ 		 */
+-		struct slab *slabp = page_get_slab(virt_to_page(objp));
++		struct slab *slabp = virt_to_slab(objp);
+ 		int objnr;
  
+ 		objnr = (objp - slabp->s_mem) / cachep->buffer_size;
+@@ -2755,7 +2767,7 @@ static void free_block(kmem_cache_t *cac
+ 		void *objp = objpp[i];
+ 		struct slab *slabp;
+ 
+-		slabp = page_get_slab(virt_to_page(objp));
++		slabp = virt_to_slab(objp);
+ 		l3 = cachep->nodelists[node];
+ 		list_del(&slabp->list);
+ 		check_spinlock_acquired_node(cachep, node);
+@@ -2855,7 +2867,7 @@ static inline void __cache_free(kmem_cac
+ #ifdef CONFIG_NUMA
+ 	{
+ 		struct slab *slabp;
+-		slabp = page_get_slab(virt_to_page(objp));
++		slabp = virt_to_slab(objp);
+ 		if (unlikely(slabp->nodeid != numa_node_id())) {
+ 			struct array_cache *alien = NULL;
+ 			int nodeid = slabp->nodeid;
+@@ -3118,7 +3130,7 @@ void kfree(const void *objp)
+ 		return;
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+-	c = page_get_cache(virt_to_page(objp));
++	c = virt_to_cache(objp);
+ 	mutex_debug_check_no_locks_freed(objp, obj_size(c));
+ 	__cache_free(c, (void *)objp);
+ 	local_irq_restore(flags);
+@@ -3692,5 +3704,5 @@ unsigned int ksize(const void *objp)
+ 	if (unlikely(objp == NULL))
+ 		return 0;
+ 
+-	return obj_size(page_get_cache(virt_to_page(objp)));
++	return obj_size(virt_to_cache(objp));
+ }
 
 --
 

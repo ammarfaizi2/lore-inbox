@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWANOFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWANOFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751507AbWANOFT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWANOFT
+	id S1751465AbWANOFc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 09:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWANOFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:05:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5019 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751431AbWANOFR (ORCPT
+	Sat, 14 Jan 2006 09:05:32 -0500
+Received: from [62.38.115.213] ([62.38.115.213]:60565 "EHLO pfn3.pefnos")
+	by vger.kernel.org with ESMTP id S1751465AbWANOFb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:05:17 -0500
-Date: Sat, 14 Jan 2006 06:04:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15] running tcpdump on 3c905b causes freeze (reproducable)
-Message-Id: <20060114060457.06efae88.akpm@osdl.org>
-In-Reply-To: <20060114132414.GN6087@vanheusden.com>
-References: <20060108114305.GA32425@vanheusden.com>
-	<20060109041114.6e797a9b.akpm@osdl.org>
-	<20060109144522.GB10955@vanheusden.com>
-	<20060109193754.GD12673@vanheusden.com>
-	<20060109224821.7a40bc69.akpm@osdl.org>
-	<20060110142725.GH12673@vanheusden.com>
-	<20060114132414.GN6087@vanheusden.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 14 Jan 2006 09:05:31 -0500
+From: "P. Christeas" <p_christ@hol.gr>
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Regression in Autofs, 2.6.15-git
+Date: Sat, 14 Jan 2006 16:05:09 +0200
+User-Agent: KMail/1.9
+Cc: Andrew Morton <akpm@osdl.org>, hch@lst.de, linux-kernel@vger.kernel.org,
+       raven@themaw.net
+References: <200601140217.56724.p_christ@hol.gr> <20060114051737.6e49dffe.akpm@osdl.org> <20060114140122.GK27946@ftp.linux.org.uk>
+In-Reply-To: <20060114140122.GK27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601141605.12355.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folkert van Heusden <folkert@vanheusden.com> wrote:
+On Saturday 14 January 2006 4:01 pm, Al Viro wrote:
+> On Sat, Jan 14, 2006 at 05:17:37AM -0800, Andrew Morton wrote:
+> > You oopsed accessing 0x00000030, and offsetof(super_block, s_flags) is
+> > 0x30.  So autofs4 has passed in a dentry which has a NULL
+> > dentry->d_inode->i_sb and the new code didn't expect that.
 >
->  > > > > > Have you tried enabling the NMI watchdog?  Enable CONFIG_X86_LOCAL_APIC and
->  > > > > > boot with `nmi_watchdog=1' on the command line, make sure that the NMI line
->  > > > > > of /proc/interrupts is incrementing.
->  > > > > I'll give it a try. I've added it to the append-line in the lilo config.
->  > > > > Am now compiling the kernel.
->  > > > No change. Well, that is: the last message on the console now is
->  > > > "setting eth1 to promiscues mode".
->  > > Did you confirm that the NMI counters in /proc/interrupts are incrementing?
->  > Yes:
->  > root@muur:/home/folkert# for i in `seq 1 5` ; do cat /proc/interrupts  | grep NMI ; sleep 1 ; done
->  > NMI:    6949080    6949067
->  > NMI:    6949182    6949169
->  > NMI:    6949284    6949271
->  > NMI:    6949386    6949373
->  > NMI:    6949488    6949475
-> 
->  Is there anything else I can try?
+> It's not just new code...  inode->i_sb should _never_ be NULL, period.
+> We set it immediately after memory had been allocated by alloc_inode()
+> and never modify afterwards, let alone reset to NULL.
 
-argh.   I haven't forgotten.  Hopefully after -rc1 I'll have more time...
-
-Your report didn't mention whether that card work OK under earlier 2.6
-kernels.  If it does, a bit of bisection searching would really help.
+Andrew's fix didn't work, so I'm seeking it further..

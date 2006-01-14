@@ -1,632 +1,557 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWANQBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWANQCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWANQBd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 11:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWANQBS
+	id S964791AbWANQCq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 11:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWANQCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 11:01:18 -0500
-Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:39008 "HELO
-	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932307AbWANQBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 11:01:10 -0500
-Message-Id: <20060114154833.001058000.dtor_core@ameritech.net>
-References: <20060114151645.035957000.dtor_core@ameritech.net>
-Date: Sat, 14 Jan 2006 10:16:49 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: [git pull 4/7] psmouse: attempt to re-synchronize mouse every 5 seconds
-Content-Disposition: inline; filename=psmouse-resync.patch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 11:02:46 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14520 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964791AbWANQCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 11:02:43 -0500
+Date: Sat, 14 Jan 2006 17:02:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       dtor_core@ameritech.net
+Subject: [patch 2.6.15-mm4] sem2mutex: drivers/input/, #2
+Message-ID: <20060114160253.GA1073@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: psmouse - attempt to re-synchronize mouse every 5 seconds
+From: Ingo Molnar <mingo@elte.hu>
 
-This should help driver to deal vith KVMs that reset mice when
-switching between boxes.
+semaphore to mutex conversion.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+the conversion was generated via scripts, and the result was validated
+automatically via a script as well.
 
- drivers/input/mouse/alps.c         |   38 ++++
- drivers/input/mouse/logips2pp.c    |    2 
- drivers/input/mouse/psmouse-base.c |  316 +++++++++++++++++++++++++++++--------
- drivers/input/mouse/psmouse.h      |    9 -
- drivers/input/mouse/synaptics.c    |    2 
- 5 files changed, 301 insertions(+), 66 deletions(-)
+build tested.
 
-Index: work/drivers/input/mouse/psmouse.h
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+----
+
+ drivers/input/joystick/db9.c                |   13 +++++-----
+ drivers/input/joystick/gamecon.c            |   13 +++++-----
+ drivers/input/joystick/iforce/iforce-ff.c   |   24 +++++++++----------
+ drivers/input/joystick/iforce/iforce-main.c |    2 -
+ drivers/input/joystick/iforce/iforce.h      |    5 ++--
+ drivers/input/joystick/turbografx.c         |   13 +++++-----
+ drivers/input/keyboard/atkbd.c              |    9 ++++---
+ drivers/input/mouse/psmouse-base.c          |   34 ++++++++++++++--------------
+ 8 files changed, 60 insertions(+), 53 deletions(-)
+
+Index: linux/drivers/input/joystick/db9.c
 ===================================================================
---- work.orig/drivers/input/mouse/psmouse.h
-+++ work/drivers/input/mouse/psmouse.h
-@@ -7,7 +7,7 @@
- #define PSMOUSE_CMD_GETINFO	0x03e9
- #define PSMOUSE_CMD_SETSTREAM	0x00ea
- #define PSMOUSE_CMD_SETPOLL	0x00f0
--#define PSMOUSE_CMD_POLL	0x03eb
-+#define PSMOUSE_CMD_POLL	0x00eb	/* caller sets number of bytes to receive */
- #define PSMOUSE_CMD_GETID	0x02f2
- #define PSMOUSE_CMD_SETRATE	0x10f3
- #define PSMOUSE_CMD_ENABLE	0x00f4
-@@ -23,6 +23,7 @@
- enum psmouse_state {
- 	PSMOUSE_IGNORE,
- 	PSMOUSE_INITIALIZING,
-+	PSMOUSE_RESYNCING,
- 	PSMOUSE_CMD_MODE,
- 	PSMOUSE_ACTIVATED,
- };
-@@ -38,15 +39,19 @@ struct psmouse {
- 	void *private;
- 	struct input_dev *dev;
- 	struct ps2dev ps2dev;
-+	struct work_struct resync_work;
- 	char *vendor;
- 	char *name;
- 	unsigned char packet[8];
-+	unsigned char badbyte;
- 	unsigned char pktcnt;
- 	unsigned char pktsize;
- 	unsigned char type;
-+	unsigned char acks_disable_command;
- 	unsigned int model;
- 	unsigned long last;
- 	unsigned long out_of_sync;
-+	unsigned long num_resyncs;
- 	enum psmouse_state state;
- 	char devname[64];
- 	char phys[32];
-@@ -54,6 +59,7 @@ struct psmouse {
- 	unsigned int rate;
- 	unsigned int resolution;
- 	unsigned int resetafter;
-+	unsigned int resync_time;
- 	unsigned int smartscroll;	/* Logitech only */
+--- linux.orig/drivers/input/joystick/db9.c
++++ linux/drivers/input/joystick/db9.c
+@@ -38,6 +38,7 @@
+ #include <linux/init.h>
+ #include <linux/parport.h>
+ #include <linux/input.h>
++#include <linux/mutex.h>
  
- 	psmouse_ret_t (*protocol_handler)(struct psmouse *psmouse, struct pt_regs *regs);
-@@ -62,6 +68,7 @@ struct psmouse {
- 
- 	int (*reconnect)(struct psmouse *psmouse);
- 	void (*disconnect)(struct psmouse *psmouse);
-+	int (*poll)(struct psmouse *psmouse);
- 
- 	void (*pt_activate)(struct psmouse *psmouse);
- 	void (*pt_deactivate)(struct psmouse *psmouse);
-Index: work/drivers/input/mouse/psmouse-base.c
-===================================================================
---- work.orig/drivers/input/mouse/psmouse-base.c
-+++ work/drivers/input/mouse/psmouse-base.c
-@@ -54,10 +54,14 @@ static unsigned int psmouse_smartscroll 
- module_param_named(smartscroll, psmouse_smartscroll, bool, 0644);
- MODULE_PARM_DESC(smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
- 
--static unsigned int psmouse_resetafter;
-+static unsigned int psmouse_resetafter = 5;
- module_param_named(resetafter, psmouse_resetafter, uint, 0644);
- MODULE_PARM_DESC(resetafter, "Reset device after so many bad packets (0 = never).");
- 
-+static unsigned int psmouse_resync_time = 5;
-+module_param_named(resync_time, psmouse_resync_time, uint, 0644);
-+MODULE_PARM_DESC(resync_time, "How long can mouse stay idle before forcing resync (in seconds, 0 = never).");
-+
- PSMOUSE_DEFINE_ATTR(protocol, S_IWUSR | S_IRUGO,
- 			NULL,
- 			psmouse_attr_show_protocol, psmouse_attr_set_protocol);
-@@ -70,12 +74,16 @@ PSMOUSE_DEFINE_ATTR(resolution, S_IWUSR 
- PSMOUSE_DEFINE_ATTR(resetafter, S_IWUSR | S_IRUGO,
- 			(void *) offsetof(struct psmouse, resetafter),
- 			psmouse_show_int_attr, psmouse_set_int_attr);
-+PSMOUSE_DEFINE_ATTR(resync_time, S_IWUSR | S_IRUGO,
-+			(void *) offsetof(struct psmouse, resync_time),
-+			psmouse_show_int_attr, psmouse_set_int_attr);
- 
- static struct attribute *psmouse_attributes[] = {
- 	&psmouse_attr_protocol.dattr.attr,
- 	&psmouse_attr_rate.dattr.attr,
- 	&psmouse_attr_resolution.dattr.attr,
- 	&psmouse_attr_resetafter.dattr.attr,
-+	&psmouse_attr_resync_time.dattr.attr,
- 	NULL
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Atari, Amstrad, Commodore, Amiga, Sega, etc. joystick driver");
+@@ -111,7 +112,7 @@ struct db9 {
+ 	struct pardevice *pd;
+ 	int mode;
+ 	int used;
+-	struct semaphore sem;
++	struct mutex mutex;
+ 	char phys[DB9_MAX_DEVICES][32];
  };
  
-@@ -98,6 +106,8 @@ __obsolete_setup("psmouse_rate=");
-  */
- static DECLARE_MUTEX(psmouse_sem);
+@@ -523,7 +524,7 @@ static int db9_open(struct input_dev *de
+ 	struct parport *port = db9->pd->port;
+ 	int err;
  
-+static struct workqueue_struct *kpsmoused_wq;
-+
- struct psmouse_protocol {
- 	enum psmouse_type type;
- 	char *name;
-@@ -178,15 +188,79 @@ static psmouse_ret_t psmouse_process_byt
- }
+-	err = down_interruptible(&db9->sem);
++	err = mutex_lock_interruptible(&db9->mutex);
+ 	if (err)
+ 		return err;
  
- /*
-- * psmouse_interrupt() handles incoming characters, either gathering them into
-- * packets or passing them to the command routine as command output.
-+ * __psmouse_set_state() sets new psmouse state and resets all flags.
-+ */
-+
-+static inline void __psmouse_set_state(struct psmouse *psmouse, enum psmouse_state new_state)
-+{
-+	psmouse->state = new_state;
-+	psmouse->pktcnt = psmouse->out_of_sync = 0;
-+	psmouse->ps2dev.flags = 0;
-+	psmouse->last = jiffies;
-+}
-+
-+
-+/*
-+ * psmouse_set_state() sets new psmouse state and resets all flags and
-+ * counters while holding serio lock so fighting with interrupt handler
-+ * is not a concern.
-+ */
-+
-+static void psmouse_set_state(struct psmouse *psmouse, enum psmouse_state new_state)
-+{
-+	serio_pause_rx(psmouse->ps2dev.serio);
-+	__psmouse_set_state(psmouse, new_state);
-+	serio_continue_rx(psmouse->ps2dev.serio);
-+}
-+
-+/*
-+ * psmouse_handle_byte() processes one byte of the input data stream
-+ * by calling corresponding protocol handler.
-+ */
-+
-+static int psmouse_handle_byte(struct psmouse *psmouse, struct pt_regs *regs)
-+{
-+	psmouse_ret_t rc = psmouse->protocol_handler(psmouse, regs);
-+
-+	switch (rc) {
-+		case PSMOUSE_BAD_DATA:
-+			if (psmouse->state == PSMOUSE_ACTIVATED) {
-+				printk(KERN_WARNING "psmouse.c: %s at %s lost sync at byte %d\n",
-+					psmouse->name, psmouse->phys, psmouse->pktcnt);
-+				if (++psmouse->out_of_sync == psmouse->resetafter) {
-+					__psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-+					printk(KERN_NOTICE "psmouse.c: issuing reconnect request\n");
-+					serio_reconnect(psmouse->ps2dev.serio);
-+					return -1;
-+				}
-+			}
-+			psmouse->pktcnt = 0;
-+			break;
-+
-+		case PSMOUSE_FULL_PACKET:
-+			psmouse->pktcnt = 0;
-+			if (psmouse->out_of_sync) {
-+				psmouse->out_of_sync = 0;
-+				printk(KERN_NOTICE "psmouse.c: %s at %s - driver resynched.\n",
-+					psmouse->name, psmouse->phys);
-+			}
-+			break;
-+
-+		case PSMOUSE_GOOD_DATA:
-+			break;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * psmouse_interrupt() handles incoming characters, either passing them
-+ * for normal processing or gathering them as command response.
-  */
- 
- static irqreturn_t psmouse_interrupt(struct serio *serio,
- 		unsigned char data, unsigned int flags, struct pt_regs *regs)
- {
- 	struct psmouse *psmouse = serio_get_drvdata(serio);
--	psmouse_ret_t rc;
- 
- 	if (psmouse->state == PSMOUSE_IGNORE)
- 		goto out;
-@@ -208,67 +282,58 @@ static irqreturn_t psmouse_interrupt(str
- 		if  (ps2_handle_response(&psmouse->ps2dev, data))
- 			goto out;
- 
--	if (psmouse->state == PSMOUSE_INITIALIZING)
-+	if (psmouse->state <= PSMOUSE_RESYNCING)
- 		goto out;
- 
- 	if (psmouse->state == PSMOUSE_ACTIVATED &&
- 	    psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/2)) {
--		printk(KERN_WARNING "psmouse.c: %s at %s lost synchronization, throwing %d bytes away.\n",
-+		printk(KERN_INFO "psmouse.c: %s at %s lost synchronization, throwing %d bytes away.\n",
- 		       psmouse->name, psmouse->phys, psmouse->pktcnt);
--		psmouse->pktcnt = 0;
-+		psmouse->badbyte = psmouse->packet[0];
-+		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-+		queue_work(kpsmoused_wq, &psmouse->resync_work);
-+		goto out;
+@@ -537,7 +538,7 @@ static int db9_open(struct input_dev *de
+ 		mod_timer(&db9->timer, jiffies + DB9_REFRESH_TIME);
  	}
  
--	psmouse->last = jiffies;
- 	psmouse->packet[psmouse->pktcnt++] = data;
--
--	if (psmouse->packet[0] == PSMOUSE_RET_BAT) {
-+/*
-+ * Check if this is a new device announcement (0xAA 0x00)
-+ */
-+	if (unlikely(psmouse->packet[0] == PSMOUSE_RET_BAT && psmouse->pktcnt <= 2)) {
- 		if (psmouse->pktcnt == 1)
- 			goto out;
+-	up(&db9->sem);
++	mutex_unlock(&db9->mutex);
+ 	return 0;
+ }
  
--		if (psmouse->pktcnt == 2) {
--			if (psmouse->packet[1] == PSMOUSE_RET_ID) {
--				psmouse->state = PSMOUSE_IGNORE;
--				serio_reconnect(serio);
--				goto out;
--			}
--			if (psmouse->type == PSMOUSE_SYNAPTICS) {
--				/* neither 0xAA nor 0x00 are valid first bytes
--				 * for a packet in absolute mode
--				 */
--				psmouse->pktcnt = 0;
--				goto out;
--			}
-+		if (psmouse->packet[1] == PSMOUSE_RET_ID) {
-+			__psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-+			serio_reconnect(serio);
-+			goto out;
+@@ -546,14 +547,14 @@ static void db9_close(struct input_dev *
+ 	struct db9 *db9 = dev->private;
+ 	struct parport *port = db9->pd->port;
+ 
+-	down(&db9->sem);
++	mutex_lock(&db9->mutex);
+ 	if (!--db9->used) {
+ 		del_timer_sync(&db9->timer);
+ 		parport_write_control(port, 0x00);
+ 		parport_data_forward(port);
+ 		parport_release(db9->pd);
+ 	}
+-	up(&db9->sem);
++	mutex_unlock(&db9->mutex);
+ }
+ 
+ static struct db9 __init *db9_probe(int parport, int mode)
+@@ -601,7 +602,7 @@ static struct db9 __init *db9_probe(int 
+ 		goto err_unreg_pardev;
+ 	}
+ 
+-	init_MUTEX(&db9->sem);
++	mutex_init(&db9->mutex);
+ 	db9->pd = pd;
+ 	db9->mode = mode;
+ 	init_timer(&db9->timer);
+Index: linux/drivers/input/joystick/gamecon.c
+===================================================================
+--- linux.orig/drivers/input/joystick/gamecon.c
++++ linux/drivers/input/joystick/gamecon.c
+@@ -36,6 +36,7 @@
+ #include <linux/init.h>
+ #include <linux/parport.h>
+ #include <linux/input.h>
++#include <linux/mutex.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("NES, SNES, N64, MultiSystem, PSX gamepad driver");
+@@ -83,7 +84,7 @@ struct gc {
+ 	struct timer_list timer;
+ 	unsigned char pads[GC_MAX + 1];
+ 	int used;
+-	struct semaphore sem;
++	struct mutex mutex;
+ 	char phys[GC_MAX_DEVICES][32];
+ };
+ 
+@@ -507,7 +508,7 @@ static int gc_open(struct input_dev *dev
+ 	struct gc *gc = dev->private;
+ 	int err;
+ 
+-	err = down_interruptible(&gc->sem);
++	err = mutex_lock_interruptible(&gc->mutex);
+ 	if (err)
+ 		return err;
+ 
+@@ -517,7 +518,7 @@ static int gc_open(struct input_dev *dev
+ 		mod_timer(&gc->timer, jiffies + GC_REFRESH_TIME);
+ 	}
+ 
+-	up(&gc->sem);
++	mutex_unlock(&gc->mutex);
+ 	return 0;
+ }
+ 
+@@ -525,13 +526,13 @@ static void gc_close(struct input_dev *d
+ {
+ 	struct gc *gc = dev->private;
+ 
+-	down(&gc->sem);
++	mutex_lock(&gc->mutex);
+ 	if (!--gc->used) {
+ 		del_timer_sync(&gc->timer);
+ 		parport_write_control(gc->pd->port, 0x00);
+ 		parport_release(gc->pd);
+ 	}
+-	up(&gc->sem);
++	mutex_unlock(&gc->mutex);
+ }
+ 
+ static int __init gc_setup_pad(struct gc *gc, int idx, int pad_type)
+@@ -648,7 +649,7 @@ static struct gc __init *gc_probe(int pa
+ 		goto err_unreg_pardev;
+ 	}
+ 
+-	init_MUTEX(&gc->sem);
++	mutex_init(&gc->mutex);
+ 	gc->pd = pd;
+ 	init_timer(&gc->timer);
+ 	gc->timer.data = (long) gc;
+Index: linux/drivers/input/joystick/iforce/iforce-ff.c
+===================================================================
+--- linux.orig/drivers/input/joystick/iforce/iforce-ff.c
++++ linux/drivers/input/joystick/iforce/iforce-ff.c
+@@ -42,14 +42,14 @@ static int make_magnitude_modifier(struc
+ 	unsigned char data[3];
+ 
+ 	if (!no_alloc) {
+-		down(&iforce->mem_mutex);
++		mutex_lock(&iforce->mem_mutex);
+ 		if (allocate_resource(&(iforce->device_memory), mod_chunk, 2,
+ 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+ 			NULL, NULL)) {
+-			up(&iforce->mem_mutex);
++			mutex_unlock(&iforce->mem_mutex);
+ 			return -ENOMEM;
  		}
--	}
--
--	rc = psmouse->protocol_handler(psmouse, regs);
-+/*
-+ * Not a new device, try processing first byte normally
-+ */
-+		psmouse->pktcnt = 1;
-+		if (psmouse_handle_byte(psmouse, regs))
-+			goto out;
+-		up(&iforce->mem_mutex);
++		mutex_unlock(&iforce->mem_mutex);
+ 	}
  
--	switch (rc) {
--		case PSMOUSE_BAD_DATA:
--			printk(KERN_WARNING "psmouse.c: %s at %s lost sync at byte %d\n",
--				psmouse->name, psmouse->phys, psmouse->pktcnt);
--			psmouse->pktcnt = 0;
-+		psmouse->packet[psmouse->pktcnt++] = data;
-+	}
+ 	data[0] = LO(mod_chunk->start);
+@@ -75,14 +75,14 @@ static int make_period_modifier(struct i
+ 	period = TIME_SCALE(period);
  
--			if (++psmouse->out_of_sync == psmouse->resetafter) {
--				psmouse->state = PSMOUSE_IGNORE;
--				printk(KERN_NOTICE "psmouse.c: issuing reconnect request\n");
--				serio_reconnect(psmouse->ps2dev.serio);
--			}
--			break;
-+/*
-+ * See if we need to force resync because mouse was idle for too long
-+ */
-+	if (psmouse->state == PSMOUSE_ACTIVATED &&
-+	    psmouse->pktcnt == 1 && psmouse->resync_time &&
-+	    time_after(jiffies, psmouse->last + psmouse->resync_time * HZ)) {
-+		psmouse->badbyte = psmouse->packet[0];
-+		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-+		queue_work(kpsmoused_wq, &psmouse->resync_work);
-+		goto out;
-+	}
+ 	if (!no_alloc) {
+-		down(&iforce->mem_mutex);
++		mutex_lock(&iforce->mem_mutex);
+ 		if (allocate_resource(&(iforce->device_memory), mod_chunk, 0x0c,
+ 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+ 			NULL, NULL)) {
+-			up(&iforce->mem_mutex);
++			mutex_unlock(&iforce->mem_mutex);
+ 			return -ENOMEM;
+ 		}
+-		up(&iforce->mem_mutex);
++		mutex_unlock(&iforce->mem_mutex);
+ 	}
  
--		case PSMOUSE_FULL_PACKET:
--			psmouse->pktcnt = 0;
--			if (psmouse->out_of_sync) {
--				psmouse->out_of_sync = 0;
--				printk(KERN_NOTICE "psmouse.c: %s at %s - driver resynched.\n",
--					psmouse->name, psmouse->phys);
--			}
--			break;
-+	psmouse->last = jiffies;
-+	psmouse_handle_byte(psmouse, regs);
+ 	data[0] = LO(mod_chunk->start);
+@@ -115,14 +115,14 @@ static int make_envelope_modifier(struct
+ 	fade_duration = TIME_SCALE(fade_duration);
  
--		case PSMOUSE_GOOD_DATA:
--			break;
--	}
--out:
-+ out:
- 	return IRQ_HANDLED;
- }
+ 	if (!no_alloc) {
+-		down(&iforce->mem_mutex);
++		mutex_lock(&iforce->mem_mutex);
+ 		if (allocate_resource(&(iforce->device_memory), mod_chunk, 0x0e,
+ 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+ 			NULL, NULL)) {
+-			up(&iforce->mem_mutex);
++			mutex_unlock(&iforce->mem_mutex);
+ 			return -ENOMEM;
+ 		}
+-		up(&iforce->mem_mutex);
++		mutex_unlock(&iforce->mem_mutex);
+ 	}
  
-@@ -752,21 +817,6 @@ static void psmouse_initialize(struct ps
- }
+ 	data[0] = LO(mod_chunk->start);
+@@ -152,14 +152,14 @@ static int make_condition_modifier(struc
+ 	unsigned char data[10];
  
- /*
-- * psmouse_set_state() sets new psmouse state and resets all flags and
-- * counters while holding serio lock so fighting with interrupt handler
-- * is not a concern.
-- */
--
--static void psmouse_set_state(struct psmouse *psmouse, enum psmouse_state new_state)
--{
--	serio_pause_rx(psmouse->ps2dev.serio);
--	psmouse->state = new_state;
--	psmouse->pktcnt = psmouse->out_of_sync = 0;
--	psmouse->ps2dev.flags = 0;
--	serio_continue_rx(psmouse->ps2dev.serio);
--}
--
--/*
-  * psmouse_activate() enables the mouse so that we get motion reports from it.
+ 	if (!no_alloc) {
+-		down(&iforce->mem_mutex);
++		mutex_lock(&iforce->mem_mutex);
+ 		if (allocate_resource(&(iforce->device_memory), mod_chunk, 8,
+ 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+ 			NULL, NULL)) {
+-			up(&iforce->mem_mutex);
++			mutex_unlock(&iforce->mem_mutex);
+ 			return -ENOMEM;
+ 		}
+-		up(&iforce->mem_mutex);
++		mutex_unlock(&iforce->mem_mutex);
+ 	}
+ 
+ 	data[0] = LO(mod_chunk->start);
+Index: linux/drivers/input/joystick/iforce/iforce-main.c
+===================================================================
+--- linux.orig/drivers/input/joystick/iforce/iforce-main.c
++++ linux/drivers/input/joystick/iforce/iforce-main.c
+@@ -350,7 +350,7 @@ int iforce_init_device(struct iforce *if
+ 
+ 	init_waitqueue_head(&iforce->wait);
+ 	spin_lock_init(&iforce->xmit_lock);
+-	init_MUTEX(&iforce->mem_mutex);
++	mutex_init(&iforce->mem_mutex);
+ 	iforce->xmit.buf = iforce->xmit_data;
+ 	iforce->dev = input_dev;
+ 
+Index: linux/drivers/input/joystick/iforce/iforce.h
+===================================================================
+--- linux.orig/drivers/input/joystick/iforce/iforce.h
++++ linux/drivers/input/joystick/iforce/iforce.h
+@@ -37,7 +37,7 @@
+ #include <linux/serio.h>
+ #include <linux/config.h>
+ #include <linux/circ_buf.h>
+-#include <asm/semaphore.h>
++#include <linux/mutex.h>
+ 
+ /* This module provides arbitrary resource management routines.
+  * I use it to manage the device's memory.
+@@ -45,6 +45,7 @@
   */
+ #include <linux/ioport.h>
  
-@@ -794,6 +844,111 @@ static void psmouse_deactivate(struct ps
- 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
- }
++
+ #define IFORCE_MAX_LENGTH	16
  
-+/*
-+ * psmouse_poll() - default poll hanlder. Everyone except for ALPS uses it.
-+ */
-+
-+static int psmouse_poll(struct psmouse *psmouse)
-+{
-+	return ps2_command(&psmouse->ps2dev, psmouse->packet,
-+			   PSMOUSE_CMD_POLL | (psmouse->pktsize << 8));
-+}
-+
-+
-+/*
-+ * psmouse_resync() attempts to re-validate current protocol.
-+ */
-+
-+static void psmouse_resync(void *p)
-+{
-+	struct psmouse *psmouse = p, *parent = NULL;
-+	struct serio *serio = psmouse->ps2dev.serio;
-+	psmouse_ret_t rc = PSMOUSE_GOOD_DATA;
-+	int failed = 0, enabled = 0;
-+	int i;
-+
-+	down(&psmouse_sem);
-+
-+	if (psmouse->state != PSMOUSE_RESYNCING)
-+		goto out;
-+
-+	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-+		parent = serio_get_drvdata(serio->parent);
-+		psmouse_deactivate(parent);
-+	}
-+
-+/*
-+ * Some mice don't ACK commands sent while they are in the middle of
-+ * transmitting motion packet. To avoid delay we use ps2_sendbyte()
-+ * instead of ps2_command() which would wait for 200ms for an ACK
-+ * that may never come.
-+ * As an additional quirk ALPS touchpads may not only forget to ACK
-+ * disable command but will stop reporting taps, so if we see that
-+ * mouse at least once ACKs disable we will do full reconnect if ACK
-+ * is missing.
-+ */
-+	psmouse->num_resyncs++;
-+
-+	if (ps2_sendbyte(&psmouse->ps2dev, PSMOUSE_CMD_DISABLE, 20)) {
-+		if (psmouse->num_resyncs < 3 || psmouse->acks_disable_command)
-+			failed = 1;
-+	} else
-+		psmouse->acks_disable_command = 1;
-+
-+/*
-+ * Poll the mouse. If it was reset the packet will be shorter than
-+ * psmouse->pktsize and ps2_command will fail. We do not expect and
-+ * do not handle scenario when mouse "upgrades" its protocol while
-+ * disconnected since it would require additional delay. If we ever
-+ * see a mouse that does it we'll adjust the code.
-+ */
-+	if (!failed) {
-+		if (psmouse->poll(psmouse))
-+			failed = 1;
-+		else {
-+			psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
-+			for (i = 0; i < psmouse->pktsize; i++) {
-+				psmouse->pktcnt++;
-+				rc = psmouse->protocol_handler(psmouse, NULL);
-+				if (rc != PSMOUSE_GOOD_DATA)
-+					break;
-+			}
-+			if (rc != PSMOUSE_FULL_PACKET)
-+				failed = 1;
-+			psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-+		}
-+	}
-+/*
-+ * Now try to enable mouse. We try to do that even if poll failed and also
-+ * repeat our attempts 5 times, otherwise we may be left out with disabled
-+ * mouse.
-+ */
-+	for (i = 0; i < 5; i++) {
-+		if (!ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE)) {
-+			enabled = 1;
-+			break;
-+		}
-+		msleep(200);
-+	}
-+
-+	if (!enabled) {
-+		printk(KERN_WARNING "psmouse.c: failed to re-enable mouse on %s\n",
-+			psmouse->ps2dev.serio->phys);
-+		failed = 1;
-+	}
-+
-+	if (failed) {
-+		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-+		printk(KERN_INFO "psmouse.c: resync failed, issuing reconnect request\n");
-+		serio_reconnect(serio);
-+	} else
-+		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
-+
-+	if (parent)
-+		psmouse_activate(parent);
-+ out:
-+	up(&psmouse_sem);
-+}
+ /* iforce::bus */
+@@ -146,7 +147,7 @@ struct iforce {
+ 	wait_queue_head_t wait;
+ 	struct resource device_memory;
+ 	struct iforce_core_effect core_effects[FF_EFFECTS_MAX];
+-	struct semaphore mem_mutex;
++	struct mutex mem_mutex;
+ };
+ 
+ /* Get hi and low bytes of a 16-bits int */
+Index: linux/drivers/input/joystick/turbografx.c
+===================================================================
+--- linux.orig/drivers/input/joystick/turbografx.c
++++ linux/drivers/input/joystick/turbografx.c
+@@ -37,6 +37,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
++#include <linux/mutex.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("TurboGraFX parallel port interface driver");
+@@ -86,7 +87,7 @@ static struct tgfx {
+ 	char phys[TGFX_MAX_DEVICES][32];
+ 	int sticks;
+ 	int used;
+-	struct semaphore sem;
++	struct mutex sem;
+ } *tgfx_base[TGFX_MAX_PORTS];
  
  /*
-  * psmouse_cleanup() resets the mouse into power-on state.
-@@ -822,6 +977,11 @@ static void psmouse_disconnect(struct se
+@@ -128,7 +129,7 @@ static int tgfx_open(struct input_dev *d
+ 	struct tgfx *tgfx = dev->private;
+ 	int err;
+ 
+-	err = down_interruptible(&tgfx->sem);
++	err = mutex_lock_interruptible(&tgfx->sem);
+ 	if (err)
+ 		return err;
+ 
+@@ -138,7 +139,7 @@ static int tgfx_open(struct input_dev *d
+ 		mod_timer(&tgfx->timer, jiffies + TGFX_REFRESH_TIME);
+ 	}
+ 
+-	up(&tgfx->sem);
++	mutex_unlock(&tgfx->sem);
+ 	return 0;
+ }
+ 
+@@ -146,13 +147,13 @@ static void tgfx_close(struct input_dev 
+ {
+ 	struct tgfx *tgfx = dev->private;
+ 
+-	down(&tgfx->sem);
++	mutex_lock(&tgfx->sem);
+ 	if (!--tgfx->used) {
+ 		del_timer_sync(&tgfx->timer);
+ 		parport_write_control(tgfx->pd->port, 0x00);
+ 		parport_release(tgfx->pd);
+ 	}
+-	up(&tgfx->sem);
++	mutex_unlock(&tgfx->sem);
+ }
+ 
+ 
+@@ -191,7 +192,7 @@ static struct tgfx __init *tgfx_probe(in
+ 		goto err_unreg_pardev;
+ 	}
+ 
+-	init_MUTEX(&tgfx->sem);
++	mutex_init(&tgfx->sem);
+ 	tgfx->pd = pd;
+ 	init_timer(&tgfx->timer);
+ 	tgfx->timer.data = (long) tgfx;
+Index: linux/drivers/input/keyboard/atkbd.c
+===================================================================
+--- linux.orig/drivers/input/keyboard/atkbd.c
++++ linux/drivers/input/keyboard/atkbd.c
+@@ -27,6 +27,7 @@
+ #include <linux/serio.h>
+ #include <linux/workqueue.h>
+ #include <linux/libps2.h>
++#include <linux/mutex.h>
+ 
+ #define DRIVER_DESC	"AT and PS/2 keyboard driver"
+ 
+@@ -216,7 +217,7 @@ struct atkbd {
+ 	unsigned long time;
+ 
+ 	struct work_struct event_work;
+-	struct semaphore event_sem;
++	struct mutex event_mutex;
+ 	unsigned long event_mask;
+ };
+ 
+@@ -452,7 +453,7 @@ static void atkbd_event_work(void *data)
+ 	unsigned char param[2];
+ 	int i, j;
+ 
+-	down(&atkbd->event_sem);
++	mutex_lock(&atkbd->event_mutex);
+ 
+ 	if (test_and_clear_bit(ATKBD_LED_EVENT_BIT, &atkbd->event_mask)) {
+ 		param[0] = (test_bit(LED_SCROLLL, dev->led) ? 1 : 0)
+@@ -483,7 +484,7 @@ static void atkbd_event_work(void *data)
+ 		ps2_command(&atkbd->ps2dev, param, ATKBD_CMD_SETREP);
+ 	}
+ 
+-	up(&atkbd->event_sem);
++	mutex_unlock(&atkbd->event_mutex);
+ }
+ 
+ /*
+@@ -849,7 +850,7 @@ static int atkbd_connect(struct serio *s
+ 	atkbd->dev = dev;
+ 	ps2_init(&atkbd->ps2dev, serio);
+ 	INIT_WORK(&atkbd->event_work, atkbd_event_work, atkbd);
+-	init_MUTEX(&atkbd->event_sem);
++	mutex_init(&atkbd->event_mutex);
+ 
+ 	switch (serio->id.type) {
+ 
+Index: linux/drivers/input/mouse/psmouse-base.c
+===================================================================
+--- linux.orig/drivers/input/mouse/psmouse-base.c
++++ linux/drivers/input/mouse/psmouse-base.c
+@@ -20,6 +20,8 @@
+ #include <linux/serio.h>
+ #include <linux/init.h>
+ #include <linux/libps2.h>
++#include <linux/mutex.h>
++
+ #include "psmouse.h"
+ #include "synaptics.h"
+ #include "logips2pp.h"
+@@ -99,13 +101,13 @@ __obsolete_setup("psmouse_resetafter=");
+ __obsolete_setup("psmouse_rate=");
+ 
+ /*
+- * psmouse_sem protects all operations changing state of mouse
++ * psmouse_mutex protects all operations changing state of mouse
+  * (connecting, disconnecting, changing rate or resolution via
+  * sysfs). We could use a per-device semaphore but since there
+  * rarely more than one PS/2 mouse connected and since semaphore
+  * is taken in "slow" paths it is not worth it.
+  */
+-static DECLARE_MUTEX(psmouse_sem);
++static DEFINE_MUTEX(psmouse_mutex);
+ 
+ static struct workqueue_struct *kpsmoused_wq;
+ 
+@@ -882,7 +884,7 @@ static void psmouse_resync(void *p)
+ 	int failed = 0, enabled = 0;
+ 	int i;
+ 
+-	down(&psmouse_sem);
++	mutex_lock(&psmouse_mutex);
+ 
+ 	if (psmouse->state != PSMOUSE_RESYNCING)
+ 		goto out;
+@@ -962,7 +964,7 @@ static void psmouse_resync(void *p)
+ 	if (parent)
+ 		psmouse_activate(parent);
+  out:
+-	up(&psmouse_sem);
++	mutex_unlock(&psmouse_mutex);
+ }
+ 
+ /*
+@@ -988,14 +990,14 @@ static void psmouse_disconnect(struct se
+ 
+ 	sysfs_remove_group(&serio->dev.kobj, &psmouse_attribute_group);
+ 
+-	down(&psmouse_sem);
++	mutex_lock(&psmouse_mutex);
  
  	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
  
-+	/* make sure we don't have a resync in progress */
-+	up(&psmouse_sem);
-+	flush_workqueue(kpsmoused_wq);
-+	down(&psmouse_sem);
-+
+ 	/* make sure we don't have a resync in progress */
+-	up(&psmouse_sem);
++	mutex_unlock(&psmouse_mutex);
+ 	flush_workqueue(kpsmoused_wq);
+-	down(&psmouse_sem);
++	mutex_lock(&psmouse_mutex);
+ 
  	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
  		parent = serio_get_drvdata(serio->parent);
- 		psmouse_deactivate(parent);
-@@ -859,6 +1019,7 @@ static int psmouse_switch_protocol(struc
+@@ -1018,7 +1020,7 @@ static void psmouse_disconnect(struct se
+ 	if (parent)
+ 		psmouse_activate(parent);
  
- 	psmouse->set_rate = psmouse_set_rate;
- 	psmouse->set_resolution = psmouse_set_resolution;
-+	psmouse->poll = psmouse_poll;
- 	psmouse->protocol_handler = psmouse_process_byte;
- 	psmouse->pktsize = 3;
- 
-@@ -874,6 +1035,23 @@ static int psmouse_switch_protocol(struc
- 	else
- 		psmouse->type = psmouse_extensions(psmouse, psmouse_max_proto, 1);
- 
-+	/*
-+	 * If mouse's packet size is 3 there is no point in polling the
-+	 * device in hopes to detect protocol reset - we won't get less
-+	 * than 3 bytes response anyhow.
-+	 */
-+	if (psmouse->pktsize == 3)
-+		psmouse->resync_time = 0;
-+
-+	/*
-+	 * Some smart KVMs fake response to POLL command returning just
-+	 * 3 bytes and messing up our resync logic, so if initial poll
-+	 * fails we won't try polling the device anymore. Hopefully
-+	 * such KVM will maintain initially selected protocol.
-+	 */
-+	if (psmouse->resync_time && psmouse->poll(psmouse))
-+		psmouse->resync_time = 0;
-+
- 	sprintf(psmouse->devname, "%s %s %s",
- 		psmouse_protocol_by_type(psmouse->type)->name, psmouse->vendor, psmouse->name);
- 
-@@ -914,6 +1092,7 @@ static int psmouse_connect(struct serio 
- 		goto out;
- 
- 	ps2_init(&psmouse->ps2dev, serio);
-+	INIT_WORK(&psmouse->resync_work, psmouse_resync, psmouse);
- 	psmouse->dev = input_dev;
- 	sprintf(psmouse->phys, "%s/input0", serio->phys);
- 
-@@ -934,6 +1113,7 @@ static int psmouse_connect(struct serio 
- 	psmouse->rate = psmouse_rate;
- 	psmouse->resolution = psmouse_resolution;
- 	psmouse->resetafter = psmouse_resetafter;
-+	psmouse->resync_time = parent ? 0 : psmouse_resync_time;
- 	psmouse->smartscroll = psmouse_smartscroll;
- 
- 	psmouse_switch_protocol(psmouse, NULL);
-@@ -1278,13 +1458,21 @@ static int psmouse_get_maxproto(char *bu
- 
- static int __init psmouse_init(void)
- {
-+	kpsmoused_wq = create_singlethread_workqueue("kpsmoused");
-+	if (!kpsmoused_wq) {
-+		printk(KERN_ERR "psmouse: failed to create kpsmoused workqueue\n");
-+		return -ENOMEM;
-+	}
-+
- 	serio_register_driver(&psmouse_drv);
-+
- 	return 0;
+-	up(&psmouse_sem);
++	mutex_unlock(&psmouse_mutex);
  }
  
- static void __exit psmouse_exit(void)
- {
- 	serio_unregister_driver(&psmouse_drv);
-+	destroy_workqueue(kpsmoused_wq);
+ static int psmouse_switch_protocol(struct psmouse *psmouse, struct psmouse_protocol *proto)
+@@ -1090,7 +1092,7 @@ static int psmouse_connect(struct serio 
+ 	struct input_dev *input_dev;
+ 	int retval = -ENOMEM;
+ 
+-	down(&psmouse_sem);
++	mutex_lock(&psmouse_mutex);
+ 
+ 	/*
+ 	 * If this is a pass-through port deactivate parent so the device
+@@ -1158,7 +1160,7 @@ out:
+ 	if (parent)
+ 		psmouse_activate(parent);
+ 
+-	up(&psmouse_sem);
++	mutex_unlock(&psmouse_mutex);
+ 	return retval;
  }
  
- module_init(psmouse_init);
-Index: work/drivers/input/mouse/logips2pp.c
-===================================================================
---- work.orig/drivers/input/mouse/logips2pp.c
-+++ work/drivers/input/mouse/logips2pp.c
-@@ -117,7 +117,7 @@ static int ps2pp_cmd(struct psmouse *psm
- 	if (psmouse_sliced_command(psmouse, command))
+@@ -1175,7 +1177,7 @@ static int psmouse_reconnect(struct seri
  		return -1;
+ 	}
  
--	if (ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_POLL))
-+	if (ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_POLL | 0x0300))
- 		return -1;
+-	down(&psmouse_sem);
++	mutex_lock(&psmouse_mutex);
  
- 	return 0;
-Index: work/drivers/input/mouse/alps.c
-===================================================================
---- work.orig/drivers/input/mouse/alps.c
-+++ work/drivers/input/mouse/alps.c
-@@ -348,6 +348,40 @@ static int alps_tap_mode(struct psmouse 
- 	return 0;
+ 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
+ 		parent = serio_get_drvdata(serio->parent);
+@@ -1209,7 +1211,7 @@ out:
+ 	if (parent)
+ 		psmouse_activate(parent);
+ 
+-	up(&psmouse_sem);
++	mutex_unlock(&psmouse_mutex);
+ 	return rc;
  }
  
-+/*
-+ * alps_poll() - poll the touchpad for current motion packet.
-+ * Used in resync.
-+ */
-+static int alps_poll(struct psmouse *psmouse)
-+{
-+	struct alps_data *priv = psmouse->private;
-+	unsigned char buf[6];
-+	int poll_failed;
-+
-+	if (priv->i->flags & ALPS_PASS)
-+		alps_passthrough_mode(psmouse, 1);
-+
-+	poll_failed = ps2_command(&psmouse->ps2dev, buf,
-+				  PSMOUSE_CMD_POLL | (psmouse->pktsize << 8)) < 0;
-+
-+	if (priv->i->flags & ALPS_PASS)
-+		alps_passthrough_mode(psmouse, 0);
-+
-+	if (poll_failed || (buf[0] & priv->i->mask0) != priv->i->byte0)
-+		return -1;
-+
-+	if ((psmouse->badbyte & 0xc8) == 0x08) {
-+/*
-+ * Poll the track stick ...
-+ */
-+		if (ps2_command(&psmouse->ps2dev, buf, PSMOUSE_CMD_POLL | (3 << 8)))
-+			return -1;
-+	}
-+
-+	memcpy(psmouse->packet, buf, sizeof(buf));
-+	return 0;
-+}
-+
- static int alps_reconnect(struct psmouse *psmouse)
- {
- 	struct alps_data *priv = psmouse->private;
-@@ -451,10 +485,14 @@ int alps_init(struct psmouse *psmouse)
- 	input_register_device(priv->dev2);
+@@ -1287,7 +1289,7 @@ ssize_t psmouse_attr_set_helper(struct d
+ 		goto out_unpin;
+ 	}
  
- 	psmouse->protocol_handler = alps_process_byte;
-+	psmouse->poll = alps_poll;
- 	psmouse->disconnect = alps_disconnect;
- 	psmouse->reconnect = alps_reconnect;
- 	psmouse->pktsize = 6;
+-	retval = down_interruptible(&psmouse_sem);
++	retval = mutex_lock_interruptible(&psmouse_mutex);
+ 	if (retval)
+ 		goto out_unpin;
  
-+	/* We are having trouble resyncing ALPS touchpads so disable it for now */
-+	psmouse->resync_time = 0;
-+
- 	return 0;
+@@ -1314,7 +1316,7 @@ ssize_t psmouse_attr_set_helper(struct d
+ 		psmouse_activate(parent);
  
- init_fail:
-Index: work/drivers/input/mouse/synaptics.c
-===================================================================
---- work.orig/drivers/input/mouse/synaptics.c
-+++ work/drivers/input/mouse/synaptics.c
-@@ -652,6 +652,8 @@ int synaptics_init(struct psmouse *psmou
- 	psmouse->disconnect = synaptics_disconnect;
- 	psmouse->reconnect = synaptics_reconnect;
- 	psmouse->pktsize = 6;
-+	/* Synaptics can usually stay in sync without extra help */
-+	psmouse->resync_time = 0;
+  out_up:
+-	up(&psmouse_sem);
++	mutex_unlock(&psmouse_mutex);
+  out_unpin:
+ 	serio_unpin_driver(serio);
+ 	return retval;
+@@ -1371,11 +1373,11 @@ static ssize_t psmouse_attr_set_protocol
+ 			return -EIO;
+ 		}
  
- 	if (SYN_CAP_PASS_THROUGH(priv->capabilities))
- 		synaptics_pt_create(psmouse);
-
+-		up(&psmouse_sem);
++		mutex_unlock(&psmouse_mutex);
+ 		serio_unpin_driver(serio);
+ 		serio_unregister_child_port(serio);
+ 		serio_pin_driver_uninterruptible(serio);
+-		down(&psmouse_sem);
++		mutex_lock(&psmouse_mutex);
+ 
+ 		if (serio->drv != &psmouse_drv) {
+ 			input_free_device(new_dev);

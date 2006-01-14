@@ -1,94 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945942AbWANBMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423243AbWANBOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945942AbWANBMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 20:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423259AbWANBMS
+	id S1423243AbWANBOT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 20:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423245AbWANBOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 20:12:18 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:65453 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423248AbWANBMR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 20:12:17 -0500
-Subject: Fall back io scheduler for 2.6.15?
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Seetharami Seelam <seelam@cs.utep.edu>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-In-Reply-To: <20060111114303.45540193.akpm@osdl.org>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113288087.4319.49.camel@localhost.localdomain>
-	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1114207837.7339.50.camel@localhost.localdomain>
-	 <1114659912.16933.5.camel@mindpipe>
-	 <1114715665.18996.29.camel@localhost.localdomain>
-	 <1136935562.4901.41.camel@dyn9047017067.beaverton.ibm.com>
-	 <20060110212551.411a766d.akpm@osdl.org>
-	 <1137007032.4395.24.camel@localhost.localdomain>
-	 <20060111114303.45540193.akpm@osdl.org>
+	Fri, 13 Jan 2006 20:14:19 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:24499 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1423243AbWANBOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 20:14:18 -0500
+Subject: RE: Dual core Athlons and unsynced TSCs
+From: Lee Revell <rlrevell@joe-job.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Roger Heflin <rheflin@atipa.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1137201012.6727.1.camel@localhost.localdomain>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
+	 <1137168254.7241.32.camel@localhost.localdomain>
+	 <1137174463.15108.4.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
+	 <1137174848.15108.11.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+	 <1137178506.15108.38.camel@mindpipe>
+	 <1137182991.8283.7.camel@localhost.localdomain>
+	 <1137198221.11300.21.camel@cog.beaverton.ibm.com>
+	 <1137201012.6727.1.camel@localhost.localdomain>
 Content-Type: text/plain
-Organization: IBM LTC
-Date: Fri, 13 Jan 2006 17:12:15 -0800
-Message-Id: <1137201135.4353.81.camel@localhost.localdomain>
+Date: Fri, 13 Jan 2006 20:14:09 -0500
+Message-Id: <1137201250.1408.39.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-11 at 11:43 -0800, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > # time ./filetst  -b 1048576 -w -f /mnt/a
-> >  	2.6.14		2.6.15
-> >  real    0m21.710s	0m25.773s
-> >  user    0m0.012s	0m0.004s
-> >  sys     0m14.569s	0m15.065s
+On Fri, 2006-01-13 at 20:10 -0500, Steven Rostedt wrote:
 > 
-> That's a big drop.
+> Thanks, I'll add that to my list of tests too.
 > 
-> Was it doing I/O, or was it all from pagecache?
-> 
-> >  I also found tiobench(sequential write test) and dbench has similar
-> >  regression between 2.6.14 and 2.6.15. Actually I found 2.6.15 rc2
-> >  already has the regression.  Is this a known issue?
-> 
-> No, it is not known.
-> 
-> > Anyway I will continue looking at the issue...
-> 
-> Thanks.
-Hi, Andrew,
+> Oh and 2.6.15 passed as well (with clock=pmtmr) 
 
-I did some trace, it turns out there isn't regression between 2.6.14 and
-2.6.15, and there is no problem in ext3 filesystem.  I am comparing
-apple to orange: the tests were run on two different io schedulers. That
-makes the bogus throughput difference that I reported to you earlier
-this week.
+It really seems like it would fail if you gave it enough time due to the
+rdtsc in monotonic_clock()...
 
-I gave the same boot option "elevator=as" for both 2.6.14 and 2.6.15-rc2
-(this has been working for me for a long time to get the anticipatory
-scheduler on), but the results are, the io schedulers turned on on the
-two kernels are different( see elevator_setup_default()). On 2.6.14, the
-fall back io scheduler (if the chosen io scheduler is not found) is set
-to the default io scheduler (anticipatory, in this case), but since
-2.6.15-rc1, this semanistic is changed to fall back to noop.
-
-Is there any reason to fall back to noop instead of as?  It seems
-anticipatory is much better than noop for ext3 with large sequential
-write tests (i.e, 1G dd test) ...
-
-Thanks,
-
-Mingming
-
+Lee
 

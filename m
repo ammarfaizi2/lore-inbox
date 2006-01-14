@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWANUeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWANUi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWANUeM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 15:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWANUeM
+	id S1751089AbWANUi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 15:38:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWANUi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 15:34:12 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40128 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751085AbWANUeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 15:34:11 -0500
-Date: Sat, 14 Jan 2006 21:34:10 +0100
-From: Jan Kara <jack@suse.cz>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jeffm@suse.com
-Subject: Re: reiserfs mount time
-Message-ID: <20060114203410.GB21901@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.61.0601082320520.2801@yvahk01.tjqt.qr>
+	Sat, 14 Jan 2006 15:38:27 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:55970 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751089AbWANUi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 15:38:27 -0500
+Date: Sat, 14 Jan 2006 21:38:19 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.15-mm4] fix warning in ip{,6}t_policy.c
+Message-ID: <20060114203818.GE6740@sunbeam.de.gnumonks.org>
+References: <20060114180917.GA26443@ens-lyon.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7QsOHKuLbhbLTwLB"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601082320520.2801@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060114180917.GA26443@ens-lyon.fr>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
 
-> brought to attentino on an irc channel, reiser seems to have the largest 
-> mount times for big partitions. I see this behavior on at least two 
-> machines (160G, 250G) and one specially-crafted virtual machine
-> (a 1.9TB disk / 1.9TB partition - took somewhere over 120 seconds).
-> Here's a dig http://linuxgazette.net/122/misc/piszcz/group001/image002.png 
-> from http://linuxgazette.net/122/TWDT.html#piszcz
-> So, any hint from the reiserfs developers how come reiserfs takes so long?
-> Standard mkreiserfs options (none extra passed).
-  If I remember correctly, the problem is reiserfs loads bitmaps on mount
-and that takes most of the time. Jeff Mahoney <jeffm@suse.com> has
-patches fixing this but I think Hans rejected them because he wants only
-bugfixes in reiser3...
+--7QsOHKuLbhbLTwLB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-								Honza
+On Sat, Jan 14, 2006 at 07:09:17PM +0100, Benoit Boissinot wrote:
+> Hi,
+>=20
+> the following warnings appeared in -mm4
+> net/ipv4/netfilter/ipt_policy.c:154: warning: initialization from incompa=
+tible pointer type
+> net/ipv4/netfilter/ipt_policy.c:155: warning: initialization from incompa=
+tible pointer type
+> net/ipv6/netfilter/ip6t_policy.c:160: warning: initialization from incomp=
+atible pointer type
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+oops, sorry. my mistake when merging patricks' ipt_policy code with
+x_tables.
+
+> It looks like they were missed in the x_tables conversion.
+
+yes, since they were developed separately and only later merged.
+
+> Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+I'll push this without any modifications via DaveM.
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--7QsOHKuLbhbLTwLB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDyWE6XaXGVTD0i/8RAmZ3AJ92ZzGPDY1kE1rTnMNYLksfcdQWAwCghZrO
+sANDD+HbTKMWKR9qOMe8lf4=
+=HYJk
+-----END PGP SIGNATURE-----
+
+--7QsOHKuLbhbLTwLB--

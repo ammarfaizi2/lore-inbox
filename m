@@ -1,103 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWANM5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWANM5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWANM5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWANM5R
+	id S1751759AbWANM5E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751656AbWANM5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:57:17 -0500
-Received: from [62.38.115.213] ([62.38.115.213]:45965 "EHLO pfn3.pefnos")
-	by vger.kernel.org with ESMTP id S1751251AbWANM5P (ORCPT
+	Sat, 14 Jan 2006 07:57:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27276 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932091AbWANM47 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 07:57:15 -0500
-From: "P. Christeas" <p_christ@hol.gr>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Regression in Autofs, 2.6.15-git
-Date: Sat, 14 Jan 2006 14:56:53 +0200
-User-Agent: KMail/1.9
-Cc: hch@lst.de, linux-kernel@vger.kernel.org, raven@themaw.net
-References: <200601140217.56724.p_christ@hol.gr> <200601141350.31033.p_christ@hol.gr> <20060114035456.3f50b0d8.akpm@osdl.org>
-In-Reply-To: <20060114035456.3f50b0d8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_XUPyDHkSKZAmhzf"
-Message-Id: <200601141456.55530.p_christ@hol.gr>
+	Sat, 14 Jan 2006 07:56:59 -0500
+Date: Sat, 14 Jan 2006 04:56:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jan Beulich" <JBeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] CONFIG_UNWIND_INFO
+Message-Id: <20060114045635.1462fb9e.akpm@osdl.org>
+In-Reply-To: <4370AF4A.76F0.0078.0@novell.com>
+References: <4370AF4A.76F0.0078.0@novell.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_XUPyDHkSKZAmhzf
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Saturday 14 January 2006 1:54 pm, Andrew Morton wrote:
-> "P. Christeas" <p_christ@hol.gr> wrote:
-> > On Saturday 14 January 2006 1:34 pm, you wrote:
-> > > Thanks for working that out.
-> > >
-> > > It works for me.  Are you able to capture the oops output?
-> >
-> > Works in what sense? Are you able to reproduce the oops?
+"Jan Beulich" <JBeulich@novell.com> wrote:
 >
-> No, I am not.  I did `cd /net/<host>/usr/src' and things worked OK.
->
-> > It is quite difficult to reproduce the oops, since it makes the whole
-> > system freeze (the fs part is oopsed, and then all processes depend on
-> > it). Hence I've called it "hard" . It may be captured with a serial
-> > console, I 'll give it a try..
->
-> OK, thanks.  Also if you're in the console a digital photo of the screen
-> works nicely.
+> As a foundation for reliable stack unwinding, this adds a config option
+> (available to all architectures except IA64) to enable the generation
+> of frame unwind information.
+> 
 
-Here it is.
-(how do I load the symbols into gdb, so that I can see the source listing? 
-With vmlinux on i386 it doesn't work.)
+This breaks ppc64.
 
-My auto.net supplied parameter is:
-opts="-fstype=nfs,soft,intr,nodev,nosuid,nonstrict"
-I use autofs-4.1.3 and mount-2.12r.
-The nfs server is a 2.6.15-rc6.
+> Index: linux/Makefile
+> ===================================================================
+> --- linux.orig/Makefile
+> +++ linux/Makefile
+> @@ -502,6 +502,10 @@ CFLAGS		+= $(call add-align,CONFIG_CC_AL
+>  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LOOPS,-loops)
+>  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_JUMPS,-jumps)
+>  
+> +ifdef CONFIG_UNWIND_INFO
+> +CFLAGS		+= -fasynchronous-unwind-tables
+> +endif
+> +
+>  ifdef CONFIG_FRAME_POINTER
+>  CFLAGS		+= -fno-omit-frame-pointer $(call cc-option,-fno-optimize-sibling-calls,)
+>  else
+> Index: linux/lib/Kconfig.debug
+> ===================================================================
+> --- linux.orig/lib/Kconfig.debug
+> +++ linux/lib/Kconfig.debug
+> @@ -195,6 +195,16 @@ config FRAME_POINTER
+>  	  some architectures or if you use external debuggers.
+>  	  If you don't debug the kernel, you can say N.
+>  
+> +config UNWIND_INFO
+> +	bool "Compile the kernel with frame unwind information"
+> +	depends on !IA64
+> +	default DEBUG_KERNEL
+> +	help
+> +	  If you say Y here the resulting kernel image will be slightly larger
+> +	  but not slower, and it will give very useful debugging information.
+> +	  If you don't debug the kernel, you can say N, but we may not be able
+> +	  to solve problems without frame unwind information or frame pointers.
+> +
+>  config RCU_TORTURE_TEST
+>  	tristate "torture tests for RCU"
+>  	depends on DEBUG_KERNEL
+> 
+
+If you do a `make oldconfig' with CONFIG_DEBUG_KERNEL you get
+-fasynchronous-unwind-tables and (on my yellowdog-4 toolchain at least) the
+ppc64 kernel doesn't like that one bit. 
 
 
---Boundary-00=_XUPyDHkSKZAmhzf
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="autofs.oops"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="autofs.oops"
+EXT3-fs: mounted filesystem with ordered data mode.
+ADDRCONF(NETDEV_UP): eth0: link is not ready
+tg3: eth0: Link is up at 100 Mbps, full duplex.
+tg3: eth0: Flow control is off for TX and off for RX.
+ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+autofs: Unknown ADD relocation: 44
+sunrpc: Unknown ADD relocation: 44
+lockd: Unknown symbol svc_recv
+lockd: Unknown symbol svc_create
+lockd: Unknown symbol rpciod_up
+lockd: Unknown symbol rpc_destroy_client
+lockd: Unknown symbol xdr_encode_netobj
+lockd: Unknown symbol svc_destroy
+lockd: Unknown symbol xprt_create_proto
+lockd: Unknown symbol rpc_delay
+lockd: Unknown symbol rpc_call_async
+lockd: Unknown symbol rpc_create_client
+lockd: Unknown symbol svc_makesock
+lockd: Unknown symbol nlm_debug
+lockd: Unknown symbol xdr_decode_netobj
+lockd: Unknown symbol svc_wake_up
+lockd: Unknown symbol rpc_force_rebind
+lockd: Unknown symbol rpciod_down
+lockd: Unknown symbol svc_exit_thread
+lockd: Unknown symbol xdr_encode_string
+lockd: Unknown symbol rpc_call_sync
+lockd: Unknown symbol xdr_decode_string_inplace
+lockd: Unknown symbol svc_set_client
+lockd: Unknown symbol svc_process
+lockd: Unknown symbol xprt_set_timeout
+lockd: Unknown symbol rpc_restart_call
+lockd: Unknown symbol svc_create_thread
+exportfs: Unknown ADD relocation: 44
+sunrpc: Unknown ADD relocation: 44
+lockd: Unknown symbol svc_recv
+lockd: Unknown symbol svc_create
+lockd: Unknown symbol rpciod_up
+lockd: Unknown symbol rpc_destroy_client
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000030
- printing eip:
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP 
-Modules linked in: nfs autofs4 cpufreq_ondemand cpufreq_userspace cpufreq_powersave p4_clockmod speedstep_lib freq_table nfsd exportfs lockd sunrpc irtty_sir sir_dev irda crc_ccitt rfcomm l2cap bluetooth snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_atiixp snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc i2c_isa 8139too eth1394 sd_mod ohci1394 ieee1394 loop cx88_blackbird cx8802 tda9887 tuner cx8800 cx88xx i2c_algo_bit video_buf ir_common tveeprom i2c_core btcx_risc usb_storage scsi_mod usbhid ehci_hcd ohci_hcd usbcore video container button battery
-CPU:    1
-EIP:    0060:[<c0162875>]    Not tainted VLI
-EFLAGS: 00210202   (2.6.15xrg-gf33dc619) 
-EIP is at touch_atime+0x43/0x9f
-eax: 40000000   ebx: db67435c   ecx: d8942a00   edx: 00000004
-esi: d3aba6c0   edi: d7e942b0   ebp: 00000004   esp: d3cede50
-ds: 007b   es: 007b   ss: 0068
-Process konqueror (pid: 4751, threadinfo=d3cec000 task=dfda6a90)
-Stack: <0>00000001 00000001 d362fd50 d3aba6c0 e1b0e727 00000004 d362fd50 00000000 
-       d3aba6c0 d362fd50 00000000 e1b0edd7 00000004 d362fd50 00000002 d371b8bc 
-       d362fd50 d362fd50 c1627d40 e1b0e909 d362fd50 d3cedea8 db67435c 00000004 
-Call Trace:
- [<e1b0e727>] autofs4_update_usage+0x2c/0x4b [autofs4]
- [<e1b0edd7>] autofs4_revalidate+0x10d/0x121 [autofs4]
- [<e1b0e909>] autofs4_dir_open+0xb7/0x19b [autofs4]
- [<c0158627>] permission+0x7f/0x8c
- [<c0158647>] vfs_permission+0x13/0x17
- [<c0159da5>] may_open+0x53/0x1a1
- [<e1b0e852>] autofs4_dir_open+0x0/0x19b [autofs4]
- [<c014c7cf>] __dentry_open+0xe7/0x1e5
- [<c014c98c>] nameidata_to_filp+0x1f/0x31
- [<c014c8fd>] filp_open+0x30/0x38
- [<c014cb69>] do_sys_open+0x3c/0xaf
- [<c01027cf>] sysenter_past_esp+0x54/0x75
-Code: a8 01 75 7e f6 83 78 01 00 00 02 75 75 f6 c4 04 75 70 f6 c4 08 74 10 0f b7 43 28 25 00 f0 00 00 3d 00 40 00 00 74 5b 85 d2 74 1b <8b> 42 2c a8 08 75 50 a8 10 74 10 0f b7 43 28 25 00 f0 00 00 3d 
- <6>note: konqueror[4751] exited with preempt_count 1
-
---Boundary-00=_XUPyDHkSKZAmhzf--
+I fixed it up for now by sticking an `&& !PPC64' in there, but why did it
+break, and what other architectures/toolchains broke?

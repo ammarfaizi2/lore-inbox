@@ -1,106 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWANSaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWANSn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWANSaq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 13:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWANSaq
+	id S1750754AbWANSn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 13:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWANSn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 13:30:46 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:25015 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750751AbWANSaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 13:30:46 -0500
-Date: Sat, 14 Jan 2006 18:29:28 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, lhms-devel@lists.sourceforge.net,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andy Whitcroft <apw@shadowen.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] BUG: gfp_zone() not mapping zone modifiers correctly
- and bad ordering of fallback lists
-In-Reply-To: <1137205485.7130.81.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0601141813380.26232@skynet>
-References: <20060113155026.GA4811@skynet.ie>  <20060113121652.114941a3.akpm@osdl.org>
- <1137205485.7130.81.camel@localhost.localdomain>
+	Sat, 14 Jan 2006 13:43:29 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:38746 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750754AbWANSn3 (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 13:43:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=QAHGp79nFG2QkZO0Py+gmWhtMgmT0RP56a9fffYI6AulO+mseswtS6g04I9wo09CMnegJej9aemnbdgf2DMhk4hhuwr4Ph9wqDiJ/WGEiK+UPxUaX33f/EInBlQPaeY6XL4UVFhHAUr7bzq2A5JCRIkPk+4f6T1xdbvGv/J4tKs=  ;
+Message-ID: <43C9464D.6060509@yahoo.com.au>
+Date: Sun, 15 Jan 2006 05:43:25 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [patch] mm: cleanup bootmem
+References: <43C8F198.3010609@yahoo.com.au> <Pine.LNX.4.64.0601140949460.13339@g5.osdl.org> <43C93CCA.9080503@yahoo.com.au> <43C93DA0.3040506@yahoo.com.au> <Pine.LNX.4.64.0601141011300.13339@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601141011300.13339@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jan 2006, Dave Hansen wrote:
+Linus Torvalds wrote:
+> 
+> On Sun, 15 Jan 2006, Nick Piggin wrote:
+> 
+>>Oh the BITS_PER_LONG batching?
+> 
+> 
+> Yes.
+> 
+> 
+>>			 That's still completely functional after
+>>my patch. In fact, as I said in a followup it is likely to work better
+>>than with David's change to free batched pages as order-0, because I
+>>reverted back to freeing them as higher order pages.
+> 
+> 
+> Ok. Then I doubt anybody will complain. I'm still wondering if some of the 
+> other ugliness was due to some simulator strangeness issues, but maybe 
 
-> On Fri, 2006-01-13 at 12:16 -0800, Andrew Morton wrote:
-> > mel@csn.ul.ie (Mel Gorman) wrote:
-> > > build_zonelists() attempts to be smart, and uses highest_zone() so that it
-> > > doesn't attempt to call build_zonelists_node() for empty zones.  However,
-> > > build_zonelists_node() is smart enough to do the right thing by itself and
-> > > build_zonelists() already has the zone index that highest_zone() is meant
-> > > to provide. So, remove the unnecessary function highest_zone().
-> >
-> > Dave, Andy: could you please have a think about the fallback list thing?
->
-> It's bogus.  Mel, I didn't take a close enough look when we were talking
-> about it earlier, and I fear I led you astray.  I misunderstood what it
-> was trying to do, and though that the zone_populated() check replaced
-> the highest_zone() check, when they actually do completely different
-> things.
->
-> highest_zone(zone_nr) actually means, given these "zone_bits" (which is
-> actually a set of __GFP_XXXX flags), what is the highest zone number
-> that we could possibly use to satisfy an allocation with those __GFP
-> flags.
->
-
-True, but what is passed in is not "zone_bits", but a ZONE_something type.
-Given the bits __GFP_HIGHMEM, it would return ZONE_HIGHMEM. What actually
-happens is highest_zone(ZONE_HIGHMEM) gets called and returns ZONE_DMA.
-The fallback lists then look like;
-
-[17179569.184000] Dumping pgdat fallback lists
-[17179569.184000] 0   Normal      DMA
-[17179569.184000] 1      DMA
-[17179569.184000] 2  HighMem   Normal      DMA
-[17179569.184000] 3      DMA
-
-This currently happens to work. It goes wrong when an additional zone is
-created unless more bits are consumed for the zone modifiers than is
-really required.
-
-The additional zone is for a zone-based approach to anti-fragmentation.
-
-> We can't just get rid of it.  If we do, we might put a highmem zone in
-> the fallback list for a normal zone.  Badness.
->
-
-That would be obviously broken, but I am having trouble seeing how it
-could happen as with this patch, we start with the highest possible zone
-that can be used and count back.
-
-> So, Mel, I have couple of patches that I put together that the two
-> copies of build_zonelists(), and move some of build_zonelists() itself
-> down into build_zonelists_node(), including the highest_zone() call.
-> They're no good to you by themselves.  But, I think we can make a little
-> function to go into the loop in build_zonelists_node().  The new
-> function would ask, "can this zone be used to satisfy this GFP mask?"
-> We'd start the loop at the absolutely highest-numbered zone.  I think
-> that's a decently clean way to do what you want with the reclaim zone.
->
-
-Ok.
-
-> In the process of investigating this, I noticed that Andy's nice
-> calculation and comment for GFP_ZONETYPES went away.  Might be nice to
-> put it back, just so we know how '5' got there:
->
-> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ac3461ad632e86e7debd871776683c05ef3ba4c6
->
-> Mel, you might also want to take a look at what Linus is suggesting
-> there.
->
-> -- Dave
->
+I'm a little unsure. That's what I suspected when I saw David's
+changeset was part of an FRV: prefixed batch but wasn't directly
+related to FRV code. (ie. normally such a patch would be mm: or
+bootmem:)
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

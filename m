@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWANXhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWANXns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWANXhH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 18:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWANXhG
+	id S1751031AbWANXns (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 18:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWANXns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 18:37:06 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:6115 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1750923AbWANXhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 18:37:04 -0500
-Date: Sun, 15 Jan 2006 00:36:59 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 14 Jan 2006 18:43:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28615 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750955AbWANXnr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 18:43:47 -0500
+Subject: Re: wireless: recap of current issues (configuration)
+From: Dan Williams <dcbw@redhat.com>
+To: "John W. Linville" <linville@tuxdriver.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15] running tcpdump on 3c905b causes freeze (reproducable)
-Message-ID: <20060114233648.GA24049@vanheusden.com>
-References: <20060108114305.GA32425@vanheusden.com>
-	<20060109041114.6e797a9b.akpm@osdl.org>
-	<20060109144522.GB10955@vanheusden.com>
-	<20060109193754.GD12673@vanheusden.com>
-	<20060109224821.7a40bc69.akpm@osdl.org>
-	<20060110142725.GH12673@vanheusden.com>
-	<20060114132414.GN6087@vanheusden.com>
-	<20060114060457.06efae88.akpm@osdl.org>
+In-Reply-To: <20060113221935.GJ16166@tuxdriver.com>
+References: <20060113195723.GB16166@tuxdriver.com>
+	 <20060113212605.GD16166@tuxdriver.com>
+	 <20060113213011.GE16166@tuxdriver.com>
+	 <20060113221935.GJ16166@tuxdriver.com>
+Content-Type: text/plain
+Date: Sat, 14 Jan 2006 18:41:56 -0500
+Message-Id: <1137282117.27849.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060114060457.06efae88.akpm@osdl.org>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Fri Jan 13 19:51:42 CET 2006
-X-Message-Flag: MultiTail - tail on steroids
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.5.4 (2.5.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  > > > > > Have you tried enabling the NMI watchdog?  Enable CONFIG_X86_LOCAL_APIC and
-> >  > > > > > boot with `nmi_watchdog=1' on the command line, make sure that the NMI line
-> >  > > > > > of /proc/interrupts is incrementing.
-> >  > > > > I'll give it a try. I've added it to the append-line in the lilo config.
-> >  > > > > Am now compiling the kernel.
-> >  > > > No change. Well, that is: the last message on the console now is
-> >  > > > "setting eth1 to promiscues mode".
-> >  > > Did you confirm that the NMI counters in /proc/interrupts are incrementing?
-> >  > Yes:
-> >  > root@muur:/home/folkert# for i in `seq 1 5` ; do cat /proc/interrupts  | grep NMI ; sleep 1 ; done
-> >  > NMI:    6949080    6949067
-...
-> >  > NMI:    6949488    6949475
-> > 
-> >  Is there anything else I can try?
-> argh.   I haven't forgotten.  Hopefully after -rc1 I'll have more time...
+On Fri, 2006-01-13 at 17:19 -0500, John W. Linville wrote:
+> Configuration
+> =============
+> 
+> Configuration seems to be coalescing around netlink.  Among other
+> things, this technology provides for muliticast requests and
+> asynchronous event notification.
+> 
+> The kernel should provide generic handlers for netlink
+> configuraion messages, and there should be a per-device 80211_ops
+> (wireless_ops? akin to ethtool_ops) structure for drivers to
+> populate appropriately.
 
-Sorry :-)
+One other thing: capability.  It's not enough to be able to configure
+the device, user-space tools also have to know what the device is
+capable of before they try touching it.  Ie, which ciphers, protocols,
+channels, etc.  Similar to the IWRANGE ioctl that there is now.  Half
+the problem now is that you can't reliably tell what drivers support
+which features, or how much they support a particular feature.  Think of
+ethernet devices and whether or not they support carrier detection,
+there's absolutely no way to tell that now (unless they respond to
+ethtool or MII, and some cards freeze if you touch them with MII too
+often).
 
-> Your report didn't mention whether that card work OK under earlier 2.6
-> kernels.  If it does, a bit of bisection searching would really help.
-
-2.6.15   crash
-2.6.14.4 crash
-2.6.14   crash
-2.6.12.6 crash "NMI watchdog detected LOCKUP"
-2.6.6    crash "NMI watchdog detected LOCKUP on CPU1 eip c02500aa, registers:"
-2.6.1    would not boot
+Dan
 
 
-Folkert van Heusden
-
--- 
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

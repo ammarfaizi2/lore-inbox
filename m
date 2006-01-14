@@ -1,48 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWANMo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWANMqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWANMo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWANMo5
+	id S932276AbWANMqi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWANMqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:44:57 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:28049 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932104AbWANMo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 07:44:56 -0500
-Subject: Re: So - What's going on with Reiser 4?
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Hesse, Christian" <mail@earthworm.de>
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200601141322.34520.mail@earthworm.de>
-References: <43C837B6.5070903@perkel.com>
-	 <1137236892.3014.12.camel@laptopd505.fenrus.org>
-	 <200601141322.34520.mail@earthworm.de>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 13:44:51 +0100
-Message-Id: <1137242691.3014.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 14 Jan 2006 07:46:15 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:12194 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751196AbWANMqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 07:46:06 -0500
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Date: Sat, 14 Jan 2006 14:46:05 +0200
+Message-Id: <20060114122436.009168000@localhost>
+References: <20060114122249.246354000@localhost>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: [patch 07/10] slab: reduce inlining
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-14 at 13:22 +0100, Hesse, Christian wrote:
-> On Saturday 14 January 2006 12:08, Arjan van de Ven wrote:
-> > On Fri, 2006-01-13 at 15:28 -0800, Marc Perkel wrote:
-> > > Still waiting. I thought it was ging to eventually be included. What's
-> > > holding it up?
-> >
-> > Is someone running a "lets all complain on lkml about reiser4" campaign?
-> > This was asked and answered 2 weeks ago, please read the archives.
-> > (and it was asked last week and we then pointed at the archives as well)
-> 
-> Maciej Soltysiak answered the question two weeks ago. But he started his mail 
-> with "I am not the r4 spokesman [...]". So could anybody write some words who 
-> really knows?
+From: Manfred Spraul <manfred@colorfullife.com>
 
-if you want an answer from the reiserfs people... why don't you ask on
-reiserfs-list@namesys.com ... that's the dedicated list after all ;-)
+Reduce the amount of inline functions in slab to the functions that
+are used in the hot path:
 
+  - no inline for debug functions
+  - no __always_inline, inline is already __always_inline
+  - remove inline from a few numa support functions.
+
+Before:
+
+   text    data     bss     dec     hex filename
+  13588     752      48   14388    3834 mm/slab.o (defconfig)
+  16671    2492      48   19211    4b0b mm/slab.o (numa)
+
+After:
+
+   text    data     bss     dec     hex filename
+  13366     752      48   14166    3756 mm/slab.o (defconfig)
+  16230    2492      48   18770    4952 mm/slab.o (numa)
+
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+
+ mm/slab.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+Index: 2.6/mm/slab.c
+===================================================================
+--- 2.6.orig/mm/slab.c
++++ 2.6/mm/slab.c
+@@ -335,7 +335,7 @@ static __always_inline int index_of(cons
+ #define INDEX_AC index_of(sizeof(struct arraycache_init))
+ #define INDEX_L3 index_of(sizeof(struct kmem_list3))
+ 
+-static inline void kmem_list3_init(struct kmem_list3 *parent)
++static void kmem_list3_init(struct kmem_list3 *parent)
+ {
+ 	INIT_LIST_HEAD(&parent->slabs_full);
+ 	INIT_LIST_HEAD(&parent->slabs_partial);
+@@ -814,7 +814,7 @@ static struct array_cache *alloc_arrayca
+ }
+ 
+ #ifdef CONFIG_NUMA
+-static inline struct array_cache **alloc_alien_cache(int node, int limit)
++static struct array_cache **alloc_alien_cache(int node, int limit)
+ {
+ 	struct array_cache **ac_ptr;
+ 	int memsize = sizeof(void *) * MAX_NUMNODES;
+@@ -841,7 +841,7 @@ static inline struct array_cache **alloc
+ 	return ac_ptr;
+ }
+ 
+-static inline void free_alien_cache(struct array_cache **ac_ptr)
++static void free_alien_cache(struct array_cache **ac_ptr)
+ {
+ 	int i;
+ 
+@@ -854,8 +854,8 @@ static inline void free_alien_cache(stru
+ 	kfree(ac_ptr);
+ }
+ 
+-static inline void __drain_alien_cache(kmem_cache_t *cachep,
+-				       struct array_cache *ac, int node)
++static void __drain_alien_cache(kmem_cache_t *cachep,
++				struct array_cache *ac, int node)
+ {
+ 	struct kmem_list3 *rl3 = cachep->nodelists[node];
+ 
+@@ -1531,7 +1531,7 @@ static void slab_destroy(kmem_cache_t *c
+ 
+ /* For setting up all the kmem_list3s for cache whose buffer_size is same
+    as size of kmem_list3. */
+-static inline void set_up_list3s(kmem_cache_t *cachep, int index)
++static void set_up_list3s(kmem_cache_t *cachep, int index)
+ {
+ 	int node;
+ 
+@@ -1934,7 +1934,7 @@ static void check_spinlock_acquired(kmem
+ #endif
+ }
+ 
+-static inline void check_spinlock_acquired_node(kmem_cache_t *cachep, int node)
++static void check_spinlock_acquired_node(kmem_cache_t *cachep, int node)
+ {
+ #ifdef CONFIG_SMP
+ 	check_irq_off();
+
+--
 

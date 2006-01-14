@@ -1,61 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWANNVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWANNWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWANNVs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 08:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWANNVs
+	id S932071AbWANNWU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 08:22:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWANNWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 08:21:48 -0500
-Received: from soundwarez.org ([217.160.171.123]:62855 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751244AbWANNVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 08:21:48 -0500
-Date: Sat, 14 Jan 2006 14:21:38 +0100
-From: Kay Sievers <kay.sievers@suse.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: Greg K-H <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] INPUT: add MODALIAS to the event environment
-Message-ID: <20060114132138.GA12273@vrfy.org>
-References: <11371818082670@kroah.com> <11371818084013@kroah.com> <43C88898.10900@ums.usu.ru> <20060114110401.GA11237@vrfy.org> <43C8F962.9030409@ums.usu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C8F962.9030409@ums.usu.ru>
-User-Agent: Mutt/1.5.9i
+	Sat, 14 Jan 2006 08:22:20 -0500
+Received: from smtprelay04.ispgateway.de ([80.67.18.16]:17028 "EHLO
+	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751404AbWANNWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 08:22:19 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org, chaosite@gmail.com
+Subject: Re: [patch 00/62] sem2mutex: -V1
+Date: Sat, 14 Jan 2006 14:22:10 +0100
+User-Agent: KMail/1.7.2
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
+References: <20060113124402.GA7351@elte.hu> <20060113195658.GA3780@elte.hu> <43C815E3.10005@gmail.com>
+In-Reply-To: <43C815E3.10005@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2287981.FuHF0FjZ6I";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601141422.16760.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 14, 2006 at 06:15:14PM +0500, Alexander E. Patrakov wrote:
-> Kay Sievers wrote:
-> >On Sat, Jan 14, 2006 at 10:14:00AM +0500, Alexander E. Patrakov wrote:
-> >>Greg KH wrote:
+--nextPart2287981.FuHF0FjZ6I
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+On Friday 13 January 2006 22:04, Matan Peled wrote:
+> Ingo Molnar wrote:
+> > Ingo Oeser wrote:
+> >> Could we get for each of these and a mutex:
 > >>
-> >>>[PATCH] INPUT: add MODALIAS to the event environment
-> >>>
-> >>>input: add MODALIAS to the event environment
-> >>>
-> >>Could you please tell me sample modaliases for a number of "common" 
-> >>devices (like a PS/2 mouse)?
-> >>
-> >>I ask because earlier (namely, in 
-> >>http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/old/gregkh-all-2.6.15.patch) 
-> >>such modaliases contained commas (",") and comma is not a "trusted" 
-> >>character in Udev (see replace_untrusted_chars() in udev_utils_string.c). 
-> >>Thus, such modaliases were mangled and didn't work.
-> >
-> >Only if you read it with $sysfs{modalias}, it's available in $env{MODALIAS}
-> >and does not get mangled there, right? If you have problems with that,
-> >let us know and we will fix it.
-> > 
-> >
-> With the old gregkh-all-2.6.15.patch, I have:
-> 
-> sh-3.1# cat /sys/class/input/input1/modalias
-> input:b0011v0002p0004e0000-e0,1,2,k110,111,112,113,114,r0,1,8,amlsfw
+> >>  - description=20
+> >>  - common use case
+> >>  - small argument why this and nothing else should be used there
+> >=20
+> > like ... Documentation/mutex-design.txt?
+>=20
+> I think what he wanted was an explanation for the change of each and ever=
+y=20
+> sem... Which is kind of hard with automated tools.
 
-> i.e., there is the "modalias" file in sysfs but no $MODALIAS in the 
-> environment. Is this the problem that your patch solves (note: I haven't 
-> tried it yet)?
+No this is too much! I wouldn't expect this.
 
-Well, you could have read the mail's subject, before posting.
+Just example conversions for each 3 conversion types with full discussion=20
+(or discussion at all) like we do for all other patches would be enough.
 
-Kay
+semaphore -> mutex is explained a bit in Documentation/mutex-design.txt
+
+Still missing:
+ - semaphore -> completion
+ - semaphore -> struct work
+
+
+Regards
+
+Ingo Oeser
+
+
+--nextPart2287981.FuHF0FjZ6I
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDyPsIU56oYWuOrkARAt55AKDkW3m7c+J/vUM/qeh49/oGRQhuhgCbBx26
+HEPuBsbwHUxDgfrFt8FfSM0=
+=/AaD
+-----END PGP SIGNATURE-----
+
+--nextPart2287981.FuHF0FjZ6I--

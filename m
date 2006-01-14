@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWANFBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWANFDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbWANFBE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 00:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWANFBE
+	id S1751380AbWANFDa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 00:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWANFDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 00:01:04 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:32641 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751233AbWANFBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 00:01:01 -0500
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rmk+lkml@arm.linux.org.uk, htejun@gmail.com, axboe@suse.de,
-       bzolnier@gmail.com, james.steward@dynamicratings.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060113.144301.09196399.davem@davemloft.net>
-References: <11371658562541-git-send-email-htejun@gmail.com>
-	 <20060113220215.GD31824@flint.arm.linux.org.uk>
-	 <1137191930.3365.96.camel@mulgrave>
-	 <20060113.144301.09196399.davem@davemloft.net>
-Content-Type: text/plain
-Date: Fri, 13 Jan 2006 22:58:50 -0600
-Message-Id: <1137214730.3365.106.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 14 Jan 2006 00:03:30 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:4197 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751380AbWANFDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 00:03:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=4H+lEE6LXxK1YnRSWOPETFpC05hsSqNCzAdGgJzZD6QJKVJoFm4XsMA8QLrFb2SjQVjdrHoC3dbo3etbdLPuMbbuamcLXx8c68ZGbMqQAxItPB82S45CLYB39Y7BjSU374nN31rna2+r9AhF+glnoHf0R0MuYONnnlywTl4Ra+M=  ;
+Message-ID: <43C8861E.5070203@yahoo.com.au>
+Date: Sat, 14 Jan 2006 16:03:26 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Martin Bligh <mbligh@google.com>, Andy Whitcroft <apw@shadowen.org>,
+       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au> <200601120129.16315.kernel@kolivas.org> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <43C6A24E.9080901@google.com> <43C6B60E.2000003@bigpond.net.au> <43C6D636.8000105@bigpond.net.au> <43C75178.80809@bigpond.net.au> <43C7D4D1.10200@shadowen.org> <43C7E96D.7000003@shadowen.org> <43C81073.1040805@google.com> <43C84496.6060506@bigpond.net.au>
+In-Reply-To: <43C84496.6060506@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 14:43 -0800, David S. Miller wrote:
-> Not true, VIPT caches participate in cache coherency transactions
-> with the PCI host controller (and thus the PCI device), whereas
-> VIVT caches do not.
+Peter Williams wrote:
+> Martin Bligh wrote:
+> 
+>> Andy Whitcroft wrote:
+>>
+>>> Andy Whitcroft wrote:
+>>>
+>>>> Peter Williams wrote:
+>>>>
+>>>>
+>>>>
+>>>>> Attached is a new patch to fix the excessive idle problem.  This patch
+>>>>> takes a new approach to the problem as it was becoming obvious that
+>>>>> trying to alter the load balancing code to cope with biased load was
+>>>>> harder than it seemed.
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> Ok.  Tried testing different-approach-to-smp-nice-problem against the
+>>>> transition release 2.6.14-rc2-mm1 but it doesn't apply.  Am testing
+>>>> against 2.6.15-mm3 right now.  Will let you know.
+>>>
+>>>
+>>>
+>>>
+>>> Doesn't appear to help if I am analysing the graphs right.  Martin?
+>>
+>>
+>>
+>> Nope. still broken.
+> 
+> 
+> Interesting.  The only real difference between this and Con's original 
+> patch is the stuff that he did in source_load() and target_load() to 
+> nobble the bias when nr_running is 1 or less.  With this new model it 
+> should be possible to do something similar in those functions but I'll 
+> hold off doing anything until a comparison against 2.6.15-mm3 with the 
+> patch removed is available (as there are other scheduler changes in -mm3).
+> 
 
-Yes ... I understand that.  However for VIPT caches, we can only specify
-one Virtual Index to be coherent (and the user mappings and the kernel
-are at different virtual indexes) so we specify the kernel mapping in
-the current implementation.  We rely on the page cache cache<->user
-piece making the rest of the user mappings coherent.  So on parisc we
-come out of the dma_unmap with the kernel coherent but not userspace.
-The content of these patches was to put a flush_dcache_page() in the PIO
-path, which makes both kernel and user mappings fully coherent.  If
-there was a bug because that is necessary, then it should show up on the
-VIPT machines like parisc because user space isn't currently coherent
-after a dma_unmap.  But like I asked, is there a pointer to the original
-bug ... I really think I need to look at that.
+Ideally, balancing should be completely unaffected when all tasks are
+of priority 0 which is what I thought yours did, and why I think the
+current system is not great.
 
-> It does make a big difference, it's very hard to share datastructures
-> with a device concurrently accessing them (what we call PCI consistent
-> DMA mappings) on a VIVT cache.
+I'll probably end up taking a look at it one day, if it doesn't get fixed.
+I think your patch is pretty close but I didn't quite look close enough to
+work out what's going wrong.
 
-Yes ... I've always fancied a VIVT machine to play with ... but no-one's
-ever sent me such a toy, sigh.
+-- 
+SUSE Labs, Novell Inc.
 
-James
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

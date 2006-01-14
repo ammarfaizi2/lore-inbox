@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423138AbWANADl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423148AbWANAGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423138AbWANADl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 19:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423139AbWANADl
+	id S1423148AbWANAGF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 19:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423149AbWANAGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 19:03:41 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37513 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1423138AbWANADk (ORCPT
+	Fri, 13 Jan 2006 19:06:04 -0500
+Received: from khc.piap.pl ([195.187.100.11]:48914 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1423148AbWANAGC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 19:03:40 -0500
-Date: Fri, 13 Jan 2006 16:02:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kobject: don't oops on null kobject.name
-Message-ID: <20060114000246.GA7549@kroah.com>
-References: <200601122004_MC3-1-B5C5-4B72@compuserve.com> <20060113143013.0ed0f9c0.akpm@osdl.org> <20060113225537.GA25522@kroah.com> <20060113151213.61e40f2b.akpm@osdl.org>
-Mime-Version: 1.0
+	Fri, 13 Jan 2006 19:06:02 -0500
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (configuration)
+References: <20060113195723.GB16166@tuxdriver.com>
+	<20060113212605.GD16166@tuxdriver.com>
+	<20060113213011.GE16166@tuxdriver.com>
+	<20060113221935.GJ16166@tuxdriver.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 14 Jan 2006 01:05:59 +0100
+In-Reply-To: <20060113221935.GJ16166@tuxdriver.com> (John W. Linville's message of "Fri, 13 Jan 2006 17:19:36 -0500")
+Message-ID: <m3oe2fd66w.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060113151213.61e40f2b.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 03:12:13PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > > 
-> > > I'd have thought that we'd want the test right at the start of
-> > > kobject_add() - fail it if ->name is zero.  I don't know if that'd work for
-> > > all callers, but kobject_add() does play around with the ->name field and
-> > > will go oops if ->name==NULL and debugging is enabled.
-> > 
-> > Something like this instead?
-> 
-> I think so.
-> 
-> >   (warning, untested...)
-> 
-> Ship it!
+"John W. Linville" <linville@tuxdriver.com> writes:
 
-Heh, it works for me, I'm running with it right now :)
+> Virtual devices will have a mode (e.g. station, AP, WDS, ad-hoc, rfmon,
+> raw?, other modes?) which defines its "on the air" behaviour.  Should
+> this mode be fixed when the wlan device is created?
 
-> 
-> > I'll try it out in a reboot cycle...
-> > 
-> > --- gregkh-2.6.orig/lib/kobject.c	2006-01-13 09:15:18.000000000 -0800
-> > +++ gregkh-2.6/lib/kobject.c	2006-01-13 14:54:40.000000000 -0800
-> > @@ -164,6 +164,11 @@ int kobject_add(struct kobject * kobj)
-> >  		return -ENOENT;
-> >  	if (!kobj->k_name)
-> >  		kobj->k_name = kobj->name;
-> > +	if (!kobj->k_name) {
-> > +		pr_debug("kobject attempted to be registered with no name!\n");
-> > +		WARN_ON(1);
-> > +		return -EINVAL;
-> > +	}
-> >  	parent = kobject_get(kobj->parent);
-> >  
-> >  	pr_debug("kobject %s: registering. parent: %s, set: %s\n",
-> 
-> It might be worth emitting the warning and then proceeding rather than
-> failing - minimise potential disruption.  I guess we'll see...
+I think so. If needed one can delete and create.
 
-Hm, I looked at the only user of kobjects in the kernel that I know of
-that doesn't use sysfs (the cdev code) and even it sets the kobject name
-to something sane, so I think we should be safe with this.
+>  Or something
+> that can be changed when the net_device is down?
 
-I'll add it to my tree and let's see what the next -mm causes to pop up
-:)
+IMHO: unnecessary complicates things.
 
-thanks,
+> It may be necessary to remove, suspend, and/or disable wlan devices
+> in order to add, resume, and/or enable other types of wlan devices
+> on the same WiPHY device (especialy true for rfmon).  A mechanism is
+> needed for drivers to be able to influence or disallow combinations
+> of wlan devices in accordance with capabilities of the hardware.
 
-greg k-h
+If the control messages go through the main (WiPHY) driver it can
+decide and/or forward the request further, to the library.
+
+Not sure about netlink. OTOH I'm at all not sure netlink should be
+used for configuration. sysfs, ioctl seem a better options. Netlink
+is better for state monitoring etc. I don't know it very well though.
+
+> Do "global" config requests go to any associated wlan device?
+
+Are they any global config settings?
+sysctl or sysfs maybe?
+
+> Or must they be directed to the WiPHY device?  Does it matter?
+
+If you mean "settings for a particular physical card" then WiPHY.
+
+> I think we should require "global" configuration to target the WiPHY
+> device, while "local" configuration remains with the wlan device.
+
+If "local" means "concerning the wlan device" then sure, yes.
+
+> (I'm not sure how important this point is?)  Either way, the WiPHY
+> device will need some way to be able to reject configuration requests
+> that are incompatible among its associated wlan devices.  Since the
+> wlan interface implementations should not be device specific, perhaps
+> the 802.11 stack can be smart enough to filter-out most conflicting
+> config requests before they get to the WiPHY device?
+
+I don't think so. The hardware driver should get the request first,
+the rest should look like a library.
+
+I've played with both approaches for years and I would avoid
+"802.11 using the hw driver" scenario if at all possible.
+-- 
+Krzysztof Halasa

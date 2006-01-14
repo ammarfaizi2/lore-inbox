@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWANNlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWANNoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWANNlr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 08:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbWANNlr
+	id S1030437AbWANNoS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 08:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWANNoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 08:41:47 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:39308 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1030316AbWANNlq (ORCPT
+	Sat, 14 Jan 2006 08:44:18 -0500
+Received: from khc.piap.pl ([195.187.100.11]:36871 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1030336AbWANNoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 08:41:46 -0500
-Message-ID: <43C8FFD7.3030408@ums.usu.ru>
-Date: Sat, 14 Jan 2006 18:42:47 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Sat, 14 Jan 2006 08:44:17 -0500
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (compatibility)
+References: <20060113195723.GB16166@tuxdriver.com>
+	<20060113212605.GD16166@tuxdriver.com>
+	<20060113213126.GF16166@tuxdriver.com>
+	<20060113222054.GK16166@tuxdriver.com>
+	<1137191590.2520.65.camel@localhost>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 14 Jan 2006 14:44:03 +0100
+In-Reply-To: <1137191590.2520.65.camel@localhost> (Johannes Berg's message of "Fri, 13 Jan 2006 23:33:10 +0100")
+Message-ID: <m3u0c69b6k.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Kay Sievers <kay.sievers@suse.de>
-Cc: Greg K-H <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] INPUT: add MODALIAS to the event environment
-References: <11371818082670@kroah.com> <11371818084013@kroah.com> <43C88898.10900@ums.usu.ru> <20060114110401.GA11237@vrfy.org> <43C8F962.9030409@ums.usu.ru> <20060114132138.GA12273@vrfy.org>
-In-Reply-To: <20060114132138.GA12273@vrfy.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.27; VDF: 6.33.0.123; host: usu2.usu.ru)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers wrote:
+Johannes Berg <johannes@sipsolutions.net> writes:
 
->On Sat, Jan 14, 2006 at 06:15:14PM +0500, Alexander E. Patrakov wrote:
->  
->
->>i.e., there is the "modalias" file in sysfs but no $MODALIAS in the 
->>environment. Is this the problem that your patch solves (note: I haven't 
->>tried it yet)?
->>    
->>
->
->Well, you could have read the mail's subject, before posting.
->  
->
-Indeed, sorry.
+> If you want the old userspace API to 'just work' you have to create one
+> default wlan device at WiPHY init.
 
-I have applied your patch on top of gregkh-all-2.6.15.patch and changed 
-my module-loading udev rule to:
+I'm not sure the old API is that important. This isn't something
+programs (third party, kernel utils don't count) rely on. Most users
+would switch to the new stack immediately anyway.
 
-ENV{MODALIAS}=="?*",    RUN+="/sbin/modprobe $env{MODALIAS}"
-
-Now this works and loads modules for my PS/2 mouse. Thanks for the patch.
-
+It could probably be a separate compatibility module, the core stack
+probably don't have to know about it. The last to worry about I'd say.
 -- 
-Alexander E. Patrakov
+Krzysztof Halasa

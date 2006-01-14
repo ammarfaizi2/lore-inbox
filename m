@@ -1,108 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945926AbWANAnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945924AbWANAm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945926AbWANAnn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 19:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945906AbWANAnk
+	id S1945924AbWANAm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 19:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945917AbWANAmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 19:43:40 -0500
-Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:21678 "EHLO
+	Fri, 13 Jan 2006 19:42:13 -0500
+Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:18862 "EHLO
 	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1945926AbWANAm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 19:42:28 -0500
-Message-Id: <20060114004150.643338000@dorka.pomaz.szeredi.hu>
+	id S1945916AbWANAl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 19:41:58 -0500
+Message-Id: <20060114004114.241169000@dorka.pomaz.szeredi.hu>
 References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
-Date: Sat, 14 Jan 2006 01:40:05 +0100
+Date: Sat, 14 Jan 2006 01:39:59 +0100
 From: Miklos Szeredi <miklos@szeredi.hu>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 17/17] fuse: update documentation for sysfs
-Content-Disposition: inline; filename=fuse_update_doc.patch
+Subject: [PATCH 11/17] fuse: add number of waiting requests attribute
+Content-Disposition: inline; filename=fuse_num_waiting.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add documentation for new attributes in sysfs.  Also describe the
-different ways a connection may be aborted to a hung or deadlocked
+This patch adds the 'waiting' attribute which indicates how many
+filesystem requests are currently waiting to be completed.  A non-zero
+value without any filesystem activity indicates a hung or deadlocked
 filesystem.
 
 Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-Index: linux/Documentation/filesystems/fuse.txt
+Index: linux/fs/fuse/inode.c
 ===================================================================
---- linux.orig/Documentation/filesystems/fuse.txt	2006-01-03 04:21:10.000000000 +0100
-+++ linux/Documentation/filesystems/fuse.txt	2006-01-14 01:31:13.000000000 +0100
-@@ -86,6 +86,62 @@ Mount options
-   The default is infinite.  Note that the size of read requests is
-   limited anyway to 32 pages (which is 128kbyte on i386).
+--- linux.orig/fs/fuse/inode.c	2006-01-14 00:22:44.000000000 +0100
++++ linux/fs/fuse/inode.c	2006-01-14 00:33:16.000000000 +0100
+@@ -555,7 +555,16 @@ static struct file_system_type fuse_fs_t
+ 	.kill_sb	= kill_anon_super,
+ };
  
-+Sysfs
-+~~~~~
++static ssize_t fuse_conn_waiting_show(struct fuse_conn *fc, char *page)
++{
++	return sprintf(page, "%i\n", atomic_read(&fc->num_waiting));
++}
 +
-+FUSE sets up the following hierarchy in sysfs:
++static struct fuse_conn_attr fuse_conn_waiting =
++	__ATTR(waiting, 0400, fuse_conn_waiting_show, NULL);
 +
-+  /sys/fs/fuse/connections/N/
-+
-+where N is an increasing number allocated to each new connection.
-+
-+For each connection the following attributes are defined:
-+
-+ 'waiting'
-+
-+  The number of requests which are waiting to be transfered to
-+  userspace or being processed by the filesystem daemon.  If there is
-+  no filesystem activity and 'waiting' is non-zero, then the
-+  filesystem is hung or deadlocked.
-+
-+ 'abort'
-+
-+  Writing anything into this file will abort the filesystem
-+  connection.  This means that all waiting requests will be aborted an
-+  error returned for all aborted and new requests.
-+
-+Only a privileged user may read or write these attributes.
-+
-+Aborting a filesystem connection
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+It is possible to get into certain situations where the filesystem is
-+not responding.  Reasons for this may be:
-+
-+  a) Broken userspace filesystem implementation
-+
-+  b) Network connection down
-+
-+  c) Accidental deadlock
-+
-+  d) Malicious deadlock
-+
-+(For more on c) and d) see later sections)
-+
-+In either of these cases it may be useful to abort the connection to
-+the filesystem.  There are several ways to do this:
-+
-+  - Kill the filesystem daemon.  Works in case of a) and b)
-+
-+  - Kill the filesystem daemon and all users of the filesystem.  Works
-+    in all cases except some malicious deadlocks
-+
-+  - Use forced umount (umount -f).  Works in all cases but only if
-+    filesystem is still attached (it hasn't been lazy unmounted)
-+
-+  - Abort filesystem through the sysfs interface.  Most powerful
-+    method, always works.
-+
- How do non-privileged mounts work?
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ static struct attribute *fuse_conn_attrs[] = {
++	&fuse_conn_waiting.attr,
+ 	NULL,
+ };
  
-@@ -313,3 +369,10 @@ faulted with get_user_pages().  The 'req
- when the copy is taking place, and interruption is delayed until
- this flag is unset.
+Index: linux/fs/fuse/dev.c
+===================================================================
+--- linux.orig/fs/fuse/dev.c	2006-01-14 00:22:44.000000000 +0100
++++ linux/fs/fuse/dev.c	2006-01-14 00:23:16.000000000 +0100
+@@ -109,18 +109,24 @@ struct fuse_req *fuse_get_request(struct
+ 	int intr;
+ 	sigset_t oldset;
  
-+Scenario 3 - Tricky deadlock with asynchronous read
-+---------------------------------------------------
++	atomic_inc(&fc->num_waiting);
+ 	block_sigs(&oldset);
+ 	intr = down_interruptible(&fc->outstanding_sem);
+ 	restore_sigs(&oldset);
+-	return intr ? NULL : do_get_request(fc);
++	if (intr) {
++		atomic_dec(&fc->num_waiting);
++		return NULL;
++	} 
++	return do_get_request(fc);
+ }
+ 
+ static void fuse_putback_request(struct fuse_conn *fc, struct fuse_req *req)
+ {
+ 	spin_lock(&fuse_lock);
+-	if (req->preallocated)
++	if (req->preallocated) {
++		atomic_dec(&fc->num_waiting);
+ 		list_add(&req->list, &fc->unused_list);
+-	else
++	} else
+ 		fuse_request_free(req);
+ 
+ 	/* If we are in debt decrease that first */
+Index: linux/fs/fuse/fuse_i.h
+===================================================================
+--- linux.orig/fs/fuse/fuse_i.h	2006-01-14 00:22:44.000000000 +0100
++++ linux/fs/fuse/fuse_i.h	2006-01-14 00:23:16.000000000 +0100
+@@ -280,6 +280,9 @@ struct fuse_conn {
+ 	/** Is create not implemented by fs? */
+ 	unsigned no_create : 1;
+ 
++	/** The number of requests waiting for completion */
++	atomic_t num_waiting;
 +
-+The same situation as above, except thread-1 will wait on page lock
-+and hence it will be uninterruptible as well.  The solution is to
-+abort the connection with forced umount (if mount is attached) or
-+through the abort attribute in sysfs.
+ 	/** Negotiated minor version */
+ 	unsigned minor;
+ 
 
 --

@@ -1,36 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWANRu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWANRyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWANRu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 12:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWANRu5
+	id S1750736AbWANRyN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 12:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWANRyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 12:50:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64710 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750723AbWANRu4 (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sat, 14 Jan 2006 12:50:56 -0500
-Date: Sat, 14 Jan 2006 09:50:46 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [patch] mm: cleanup bootmem
-In-Reply-To: <43C8F198.3010609@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0601140949460.13339@g5.osdl.org>
-References: <43C8F198.3010609@yahoo.com.au>
+	Sat, 14 Jan 2006 12:54:13 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:13064 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750736AbWANRyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 12:54:12 -0500
+Date: Sat, 14 Jan 2006 18:54:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Harald Dunkel <harald.dunkel@t-online.de>
+Cc: linux-kernel@vger.kernel.org,
+       Nerijus Baliunas <nerijus@users.sourceforge.net>,
+       Reuben Farrelly <reuben-lkml@reub.net>, dsd@gentoo.org
+Subject: Re: why sk98lin driver is not up-to date ?
+Message-ID: <20060114175411.GO29663@stusta.de>
+References: <Xns97496767C8536ericbelhommefreefr@80.91.229.5> <200601120339.17071.chase.venters@clientec.com> <43C63361.103@reub.net> <20060112181844.D8EF9BAE5@mx.dtiltas.lt> <43C7C03B.7000305@gentoo.org> <43C93760.7040502@t-online.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43C93760.7040502@t-online.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 14, 2006 at 06:39:44PM +0100, Harald Dunkel wrote:
+> Daniel Drake wrote:
+> > Nerijus Baliunas wrote:
+> > 
+> >> Which one is better and what is a difference between them? Which one
+> >> will support Marvell Technology Group Ltd. 88E8050 Gigabit Ethernet
+> >> Controller
+> >> (rev 17)? skge in 2.6.14 does not support it.
+> > 
+> > 
+> > skge supports Yukon
+> > sky2 supports Yukon-2
+> > 
+> > 88E8050 is Yukon-2.
+> > 
+> 
+> Probably you need some testers for sky2. The -mm kernel would be a
+> little bit too experimental for me, but it seems to be in -git10.
+> Does this mean that it might appear in 2.6.15.1, or do I have to
+> wait for 2.6.16?
 
+2.6.15-git10 will become 2.6.16.
 
-On Sat, 14 Jan 2006, Nick Piggin wrote:
->
-> Objections?
+There won't be new drivers added in 2.6.15.x.
 
-The whole point of the pre-batching was that apparently the non-batched 
-bootmem code took ages to boot in simulation with lots of memory. I think 
-it was the ia64 people who used simulation a lot. So..
+> Regards
+> 
+> Harri
 
-		Linus
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

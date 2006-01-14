@@ -1,95 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWANQZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWANQbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWANQZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 11:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWANQZP
+	id S964801AbWANQbx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 11:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWANQbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 11:25:15 -0500
-Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:9085 "HELO
-	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964792AbWANQZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 11:25:14 -0500
-Message-Id: <20060114154833.237457000.dtor_core@ameritech.net>
-References: <20060114151645.035957000.dtor_core@ameritech.net>
-Date: Sat, 14 Jan 2006 10:16:51 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: [git pull 6/7] Wacom: fix compile on PowerPC
-Content-Disposition: inline; filename=wacom-fix-powerpc-compile.patch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 11:31:53 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:6087 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964801AbWANQbw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 11:31:52 -0500
+Date: Sat, 14 Jan 2006 17:32:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: [patch 2.6.15-mm4] sem2mutex: serial ->port_write_mutex
+Message-ID: <20060114163206.GA6131@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: wacom - fix compile on PowerPC
+From: Ingo Molnar <mingo@elte.hu>
 
-Rename G4 (new Graphire4) to WACOM_G4 to avoid clashes on PowerPC
+semaphore to mutex conversion.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+the conversion was generated via scripts, and the result was validated
+automatically via a script as well.
 
- drivers/usb/input/wacom.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+build and boot tested.
 
-Index: work/drivers/usb/input/wacom.c
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+----
+
+ drivers/char/generic_serial.c  |   14 +++++++-------
+ drivers/char/ser_a2232.c       |    4 ++--
+ drivers/char/sx.c              |    2 +-
+ drivers/char/vme_scc.c         |    2 +-
+ include/linux/generic_serial.h |    2 +-
+ 5 files changed, 12 insertions(+), 12 deletions(-)
+
+Index: linux/drivers/char/generic_serial.c
 ===================================================================
---- work.orig/drivers/usb/input/wacom.c
-+++ work/drivers/usb/input/wacom.c
-@@ -95,7 +95,7 @@ MODULE_LICENSE(DRIVER_LICENSE);
- enum {
- 	PENPARTNER = 0,
- 	GRAPHIRE,
--	G4,
-+	WACOM_G4,
- 	PL,
- 	INTUOS,
- 	INTUOS3,
-@@ -373,7 +373,7 @@ static void wacom_graphire_irq(struct ur
+--- linux.orig/drivers/char/generic_serial.c
++++ linux/drivers/char/generic_serial.c
+@@ -49,8 +49,8 @@ static int gs_debug;
+ #define NEW_WRITE_LOCKING 1
+ #if NEW_WRITE_LOCKING
+ #define DECL      /* Nothing */
+-#define LOCKIT    down (& port->port_write_sem);
+-#define RELEASEIT up (&port->port_write_sem);
++#define LOCKIT    mutex_lock(& port->port_write_mutex);
++#define RELEASEIT mutex_unlock(&port->port_write_mutex);
+ #else
+ #define DECL      unsigned long flags;
+ #define LOCKIT    save_flags (flags);cli ()
+@@ -125,14 +125,14 @@ int gs_write(struct tty_struct * tty, 
+ 	/* get exclusive "write" access to this port (problem 3) */
+ 	/* This is not a spinlock because we can have a disk access (page 
+ 		 fault) in copy_from_user */
+-	down (& port->port_write_sem);
++	mutex_lock(& port->port_write_mutex);
  
- 			case 2: /* Mouse with wheel */
- 				input_report_key(dev, BTN_MIDDLE, data[1] & 0x04);
--				if (wacom->features->type == G4) {
-+				if (wacom->features->type == WACOM_G4) {
- 					rw = data[7] & 0x04 ? -(data[7] & 0x03) : (data[7] & 0x03);
- 					input_report_rel(dev, REL_WHEEL, rw);
- 				} else
-@@ -385,7 +385,7 @@ static void wacom_graphire_irq(struct ur
- 				id = CURSOR_DEVICE_ID;
- 				input_report_key(dev, BTN_LEFT, data[1] & 0x01);
- 				input_report_key(dev, BTN_RIGHT, data[1] & 0x02);
--				if (wacom->features->type == G4)
-+				if (wacom->features->type == WACOM_G4)
- 					input_report_abs(dev, ABS_DISTANCE, data[6]);
- 				else
- 					input_report_abs(dev, ABS_DISTANCE, data[7]);
-@@ -410,7 +410,7 @@ static void wacom_graphire_irq(struct ur
- 	input_sync(dev);
+ 	while (1) {
  
- 	/* send pad data */
--	if (wacom->features->type == G4) {
-+	if (wacom->features->type == WACOM_G4) {
- 		/* fist time sending pad data */
- 		if (wacom->tool[1] != BTN_TOOL_FINGER) {
- 			wacom->id[1] = 0;
-@@ -713,8 +713,8 @@ static struct wacom_features wacom_featu
- 	{ "Wacom Graphire2 5x7", 8,  13918, 10206,  511, 32, GRAPHIRE,   wacom_graphire_irq },
- 	{ "Wacom Graphire3",     8,  10208,  7424,  511, 32, GRAPHIRE,   wacom_graphire_irq },
- 	{ "Wacom Graphire3 6x8", 8,  16704, 12064,  511, 32, GRAPHIRE,   wacom_graphire_irq },
--	{ "Wacom Graphire4 4x5", 8,  10208,  7424,  511, 32, G4,	 wacom_graphire_irq },
--	{ "Wacom Graphire4 6x8", 8,  16704, 12064,  511, 32, G4,	 wacom_graphire_irq },
-+	{ "Wacom Graphire4 4x5", 8,  10208,  7424,  511, 32, WACOM_G4,	 wacom_graphire_irq },
-+	{ "Wacom Graphire4 6x8", 8,  16704, 12064,  511, 32, WACOM_G4,	 wacom_graphire_irq },
- 	{ "Wacom Volito",        8,   5104,  3712,  511, 32, GRAPHIRE,   wacom_graphire_irq },
- 	{ "Wacom PenStation2",   8,   3250,  2320,  255, 32, GRAPHIRE,   wacom_graphire_irq },
- 	{ "Wacom Volito2 4x5",   8,   5104,  3712,  511, 32, GRAPHIRE,   wacom_graphire_irq },
-@@ -859,7 +859,7 @@ static int wacom_probe(struct usb_interf
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, wacom->features->pressure_max, 0, 0);
+ 		c = count;
+  
+ 		/* This is safe because we "OWN" the "head". Noone else can 
+-		   change the "head": we own the port_write_sem. */
++		   change the "head": we own the port_write_mutex. */
+ 		/* Don't overrun the end of the buffer */
+ 		t = SERIAL_XMIT_SIZE - port->xmit_head;
+ 		if (t < c) c = t;
+@@ -154,7 +154,7 @@ int gs_write(struct tty_struct * tty, 
+ 		count -= c;
+ 		total += c;
+ 	}
+-	up (& port->port_write_sem);
++	mutex_unlock(& port->port_write_mutex);
  
- 	switch (wacom->features->type) {
--		case G4:
-+		case WACOM_G4:
- 			input_dev->evbit[0] |= BIT(EV_MSC);
- 			input_dev->mscbit[0] |= BIT(MSC_SERIAL);
- 			input_dev->keybit[LONG(BTN_DIGI)] |= BIT(BTN_TOOL_FINGER);
-
+ 	gs_dprintk (GS_DEBUG_WRITE, "write: interrupts are %s\n", 
+ 	            (port->flags & GS_TX_INTEN)?"enabled": "disabled"); 
+@@ -215,7 +215,7 @@ int gs_write(struct tty_struct * tty,
+ 		c = count;
+ 
+ 		/* This is safe because we "OWN" the "head". Noone else can 
+-		   change the "head": we own the port_write_sem. */
++		   change the "head": we own the port_write_mutex. */
+ 		/* Don't overrun the end of the buffer */
+ 		t = SERIAL_XMIT_SIZE - port->xmit_head;
+ 		if (t < c) c = t;
+@@ -889,7 +889,7 @@ int gs_init_port(struct gs_port *port)
+ 	spin_lock_irqsave (&port->driver_lock, flags);
+ 	if (port->tty) 
+ 		clear_bit(TTY_IO_ERROR, &port->tty->flags);
+-	init_MUTEX(&port->port_write_sem);
++	mutex_init(&port->port_write_mutex);
+ 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
+ 	spin_unlock_irqrestore(&port->driver_lock, flags);
+ 	gs_set_termios(port->tty, NULL);
+Index: linux/drivers/char/ser_a2232.c
+===================================================================
+--- linux.orig/drivers/char/ser_a2232.c
++++ linux/drivers/char/ser_a2232.c
+@@ -97,7 +97,7 @@
+ #include <asm/amigahw.h>
+ #include <linux/zorro.h>
+ #include <asm/irq.h>
+-#include <asm/semaphore.h>
++#include <linux/mutex.h>
+ 
+ #include <linux/delay.h>
+ 
+@@ -653,7 +653,7 @@ static void a2232_init_portstructs(void)
+ 		port->gs.closing_wait = 30 * HZ;
+ 		port->gs.rd = &a2232_real_driver;
+ #ifdef NEW_WRITE_LOCKING
+-		init_MUTEX(&(port->gs.port_write_sem));
++		init_MUTEX(&(port->gs.port_write_mutex));
+ #endif
+ 		init_waitqueue_head(&port->gs.open_wait);
+ 		init_waitqueue_head(&port->gs.close_wait);
+Index: linux/drivers/char/sx.c
+===================================================================
+--- linux.orig/drivers/char/sx.c
++++ linux/drivers/char/sx.c
+@@ -2314,7 +2314,7 @@ static int sx_init_portstructs (int nboa
+ 			port->board = board;
+ 			port->gs.rd = &sx_real_driver;
+ #ifdef NEW_WRITE_LOCKING
+-			port->gs.port_write_sem = MUTEX;
++			port->gs.port_write_mutex = MUTEX;
+ #endif
+ 			port->gs.driver_lock = SPIN_LOCK_UNLOCKED;
+ 			/*
+Index: linux/drivers/char/vme_scc.c
+===================================================================
+--- linux.orig/drivers/char/vme_scc.c
++++ linux/drivers/char/vme_scc.c
+@@ -184,7 +184,7 @@ static void scc_init_portstructs(void)
+ 		port->gs.closing_wait = 30 * HZ;
+ 		port->gs.rd = &scc_real_driver;
+ #ifdef NEW_WRITE_LOCKING
+-		port->gs.port_write_sem = MUTEX;
++		port->gs.port_write_mutex = MUTEX;
+ #endif
+ 		init_waitqueue_head(&port->gs.open_wait);
+ 		init_waitqueue_head(&port->gs.close_wait);
+Index: linux/include/linux/generic_serial.h
+===================================================================
+--- linux.orig/include/linux/generic_serial.h
++++ linux/include/linux/generic_serial.h
+@@ -34,7 +34,7 @@ struct gs_port {
+   int                     xmit_head;
+   int                     xmit_tail;
+   int                     xmit_cnt;
+-  struct semaphore        port_write_sem;
++  struct mutex            port_write_mutex;
+   int                     flags;
+   wait_queue_head_t       open_wait;
+   wait_queue_head_t       close_wait;

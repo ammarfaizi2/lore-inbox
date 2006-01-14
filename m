@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWANSOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWANSSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWANSOO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 13:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWANSOO
+	id S1750744AbWANSSh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 13:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWANSSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 13:14:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:1739 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750734AbWANSON (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 13:14:13 -0500
-Date: Sat, 14 Jan 2006 10:13:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [patch] mm: cleanup bootmem
-In-Reply-To: <43C93DA0.3040506@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0601141011300.13339@g5.osdl.org>
-References: <43C8F198.3010609@yahoo.com.au> <Pine.LNX.4.64.0601140949460.13339@g5.osdl.org>
- <43C93CCA.9080503@yahoo.com.au> <43C93DA0.3040506@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 14 Jan 2006 13:18:37 -0500
+Received: from mo00.po.2iij.Net ([210.130.202.204]:40385 "EHLO
+	mo00.po.2iij.net") by vger.kernel.org with ESMTP id S1750744AbWANSSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 13:18:36 -0500
+Date: Sun, 15 Jan 2006 03:18:27 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yoichi_yuasa@tripeaks.co.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [-mm PATCH] mips: add pm_power_off
+Message-Id: <20060115031828.0b5fda9f.yoichi_yuasa@tripeaks.co.jp>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+This patch adds pm_power_off() to MIPS.
+This patch exists only for 2.6.15-mm4.
+
+Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+
+diff -Npru -X dontdiff mm4-orig/arch/mips/kernel/reset.c mm4/arch/mips/kernel/reset.c
+--- mm4-orig/arch/mips/kernel/reset.c	2006-01-03 12:21:10.000000000 +0900
++++ mm4/arch/mips/kernel/reset.c	2006-01-15 02:44:26.000000000 +0900
+@@ -12,6 +12,9 @@
+ #include <linux/reboot.h>
+ #include <asm/reboot.h>
+ 
++void (*pm_power_off)(void);
++EXPORT_SYMBOL(pm_power_off);
++
+ /*
+  * Urgs ...  Too many MIPS machines to handle this in a generic way.
+  * So handle all using function pointers to machine specific
+@@ -33,6 +36,9 @@ void machine_halt(void)
+ 
+ void machine_power_off(void)
+ {
++	if (pm_power_off)
++		pm_power_off();
++
+ 	_machine_power_off();
+ }
+ 
 
 
-On Sun, 15 Jan 2006, Nick Piggin wrote:
-> 
-> Oh the BITS_PER_LONG batching?
 
-Yes.
 
->			 That's still completely functional after
-> my patch. In fact, as I said in a followup it is likely to work better
-> than with David's change to free batched pages as order-0, because I
-> reverted back to freeing them as higher order pages.
-
-Ok. Then I doubt anybody will complain. I'm still wondering if some of the 
-other ugliness was due to some simulator strangeness issues, but maybe 
-even ia64 doesn't care that much any more..
-
-		Linus

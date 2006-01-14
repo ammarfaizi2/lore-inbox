@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWANHCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbWANHDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751728AbWANHCk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 02:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWANHCk
+	id S1751702AbWANHDv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 02:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWANHDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 02:02:40 -0500
-Received: from xenotime.net ([66.160.160.81]:60065 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751728AbWANHCj (ORCPT
+	Sat, 14 Jan 2006 02:03:51 -0500
+Received: from gold.veritas.com ([143.127.12.110]:35622 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751702AbWANHDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 02:02:39 -0500
-Date: Fri, 13 Jan 2006 23:02:37 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: akpm <akpm@osdl.org>
-Cc: buraphalinuxserver@gmail.com, linux-kernel@vger.kernel.org, okir@suse.de
-Subject: [PATCH] nlm kernel-parameters update
-Message-Id: <20060113230237.3c5983d6.rdunlap@xenotime.net>
-In-Reply-To: <20060113223309.011188f1.rdunlap@xenotime.net>
-References: <5d75f4610601132130s4870d9eaq9261450905d6b888@mail.gmail.com>
-	<20060113223309.011188f1.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 02:03:50 -0500
+Date: Sat, 14 Jan 2006 07:04:24 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Brent Casavant <bcasavan@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Add tmpfs options for memory placement policies (Resend
+ with corrected addresses).
+In-Reply-To: <20060113152228.W18980@chenjesu.americas.sgi.com>
+Message-ID: <Pine.LNX.4.61.0601140648490.4260@goblin.wat.veritas.com>
+References: <20060113160406.GE19156@lnx-holt.americas.sgi.com>
+ <20060113162119.GF19156@lnx-holt.americas.sgi.com> <20060113122349.5c367e05.akpm@osdl.org>
+ <20060113152228.W18980@chenjesu.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 14 Jan 2006 07:03:50.0440 (UTC) FILETIME=[AC013280:01C618D8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Fri, 13 Jan 2006, Brent Casavant wrote:
+> On Fri, 13 Jan 2006, Andrew Morton wrote:
+> 
+> > Confused.  Is this for applications which cannot be taught to use the
+> > mempolicy API?
+> 
+> In general yes.  Anything that writes into a tmpfs filesystem is liable
+> to disproportionately decrease the available memory on a particular node.
+> Since there's no telling what sort of application (e.g. dd/cp/cat) might be
+> dropping large files there, this lets the admin choose the appropriate
+> default behavior for their site's situation.
 
-Add 2 lockd kernel parameters and spell 2 others correctly.
+I look at it differently, and would answer Andrew's question with "no"
+rather than "yes".  The mempolicy API applies only to userspace mappings:
+so it covers shared memory fine, but cannot be applied to tmpfs files.
+Whereas mount's mpol= applies to tmpfs files, and (unfortunately?) cannot
+be applied to shm (since that's on an internal mount with no options).
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/kernel-parameters.txt |   12 ++++++++++--
- 1 files changed, 10 insertions(+), 2 deletions(-)
+The only overlap comes when a tmpfs file is mmap'ed: then it's possible
+to apply the mempolicy API to it, and refine what mount's mpol= defined.
+There's been talk in the past of mempolicy for pagecache, which would
+also allow mount's mpol= to be refined per file; but that's not appeared.
 
---- linux-2615-g9.orig/Documentation/kernel-parameters.txt
-+++ linux-2615-g9/Documentation/kernel-parameters.txt
-@@ -712,9 +712,17 @@ running once the system is up.
- 	load_ramdisk=	[RAM] List of ramdisks to load from floppy
- 			See Documentation/ramdisk.txt.
- 
--	lockd.udpport=	[NFS]
-+	lockd.nlm_grace_period=P  [NFS] Assign grace period.
-+			Format: <integer>
-+
-+	lockd.nlm_tcpport=N	[NFS] Assign TCP port.
-+			Format: <integer>
- 
--	lockd.tcpport=	[NFS]
-+	lockd.nlm_timeout=T	[NFS] Assign timeout value.
-+			Format: <integer>
-+
-+	lockd.nlm_udpport=M	[NFS] Assign UDP port.
-+			Format: <integer>
- 
- 	logibm.irq=	[HW,MOUSE] Logitech Bus Mouse Driver
- 			Format: <irq>
-
-
----
+Hugh

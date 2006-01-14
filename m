@@ -1,32 +1,32 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1030333AbWAGEQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932271AbWANGeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030333AbWAGEQk (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 6 Jan 2006 23:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbWAGEQk
+	id S932271AbWANGeq (ORCPT <rfc822;akpm@zip.com.au>);
+	Sat, 14 Jan 2006 01:34:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWANGeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jan 2006 23:16:40 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:54298 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030333AbWAGEQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jan 2006 23:16:39 -0500
+	Sat, 14 Jan 2006 01:34:46 -0500
+Received: from web53705.mail.yahoo.com ([206.190.37.26]:33381 "HELO
+	web53705.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932271AbWANGep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 01:34:45 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding:from;
-        b=MORnPqjClTrZ2pT3bXVYL/+0TgpcTIVbTWixYiprxEt4YyANEXPJZVcqFFYdINVpk1FflC2bhvXSkOgZrSlM1Xif3rr/jizB2pmmt17LandycT+HlFw2Q2B9NGA14LjaqGhMpl/yxraDb3vWIH99giHAGYfyDwMWlkxoTT1chsY=
-Message-ID: <43BF40A1.7000302@gmail.com>
-Date: Sat, 07 Jan 2006 09:46:33 +0530
-Reply-To: Chaitanya Vinay Hazarey <c.v.hazarey@gmail.com>
-Organization: Grid Comp & Ecom Lab (C-212), School of Technology and Computer
- Science, Tata Institue of Fundamental Research, Mumbai
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=FNmNja5QQFp2klgBbS0GtbgEY7MtdR4tUrJen7hIkrpPXSDF3koZntWtjK+7p0SgDKLWRhJb2Jl6eaKUYl2vR+nIZAT0jzkap9KT7mPkIoYXR5LzEu6s5ibszTWD/VgGtNpb7m3J4qfHbRVa0JVX9WOHYxxcM+3oEemJUXA8TaI=  ;
+Message-ID: <20060114063444.43617.qmail@web53705.mail.yahoo.com>
+Date: Fri, 13 Jan 2006 22:34:44 -0800 (PST)
+From: Mikado <mikado4vn@yahoo.com>
+Subject: test sending mail
 To: linux-kernel@vger.kernel.org
-Subject: (no subject)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-From: Chaitanya Vinay Hazarey <c.v.hazarey@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-subscribe linux-kernel
+test sending mail
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

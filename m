@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWANQPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWANQVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbWANQPv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 11:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751775AbWANQPv
+	id S1751776AbWANQVs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 11:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWANQVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 11:15:51 -0500
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:37774 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751060AbWANQPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 11:15:51 -0500
-Date: Sat, 14 Jan 2006 11:10:09 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Fall back io scheduler for 2.6.15?
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>
-Message-ID: <200601141113_MC3-1-B5DA-F6EC@compuserve.com>
+	Sat, 14 Jan 2006 11:21:48 -0500
+Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:8593 "HELO
+	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751776AbWANQVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 11:21:47 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 2.6.15-mm4] sem2mutex: drivers/input/, #2
+Date: Sat, 14 Jan 2006 11:21:42 -0500
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org
+References: <20060114160253.GA1073@elte.hu>
+In-Reply-To: <20060114160253.GA1073@elte.hu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200601141121.43749.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060113174914.7907bf2c.akpm@osdl.org>
+On Saturday 14 January 2006 11:02, Ingo Molnar wrote:
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> semaphore to mutex conversion.
+> 
+> the conversion was generated via scripts, and the result was validated
+> automatically via a script as well.
+>
 
-On Fri, 13 Jan 2006, Andrew Morton wrote:
+All input related mutex conversions look fine so far. What are the plans
+on merging it? Do you want to trickle them in through subsystems or just
+submit as one batch? IOW do you want me to apply these patches?
 
-> OK.  And I assume that AS wasn't compiled, so that's why it fell back?
-
-As of 2.6.15 you need to use "anticipatory" instead of "as".
-
-Maybe this patch would help?
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.15a.orig/block/elevator.c
-+++ 2.6.15a/block/elevator.c
-@@ -150,6 +150,13 @@ static void elevator_setup_default(void)
- 	if (!chosen_elevator[0])
- 		strcpy(chosen_elevator, CONFIG_DEFAULT_IOSCHED);
- 
-+	/*
-+	 * Be backwards-compatible with previous kernels, so users
-+	 * won't get the wrong elevator.
-+	 */
-+	if (!strcmp(chosen_elevator, "as"))
-+		strcpy(chosen_elevator, "anticipatory");
-+
-  	/*
-  	 * If the given scheduler is not available, fall back to no-op.
-  	 */
 -- 
-Chuck
-Currently reading: _Olympos_ by Dan Simmons
+Dmitry

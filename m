@@ -1,63 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWANJva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWANJxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWANJva (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 04:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWANJva
+	id S1751743AbWANJxu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 04:53:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWANJxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 04:51:30 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:10257 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1751213AbWANJva
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 04:51:30 -0500
-Date: Sat, 14 Jan 2006 18:52:13 +0900 (JST)
-Message-Id: <20060114.185213.131923397.yoshfuji@linux-ipv6.org>
-To: pavel@ucw.cz
-Cc: davem@davemloft.net, drepper@redhat.com, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: ntohs/ntohl and bitops
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20060112010406.GA2367@ucw.cz>
-References: <43C42F0C.10008@redhat.com>
-	<20060111.000020.25886635.davem@davemloft.net>
-	<20060112010406.GA2367@ucw.cz>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Sat, 14 Jan 2006 04:53:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51420 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751218AbWANJxu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 04:53:50 -0500
+Date: Sat, 14 Jan 2006 01:53:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/17] fuse: add number of waiting requests attribute
+Message-Id: <20060114015331.6c4a7618.akpm@osdl.org>
+In-Reply-To: <E1ExhxA-0004Bz-00@dorka.pomaz.szeredi.hu>
+References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
+	<20060114004114.241169000@dorka.pomaz.szeredi.hu>
+	<20060113172846.3ea49670.akpm@osdl.org>
+	<E1ExhxA-0004Bz-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20060112010406.GA2367@ucw.cz> (at Thu, 12 Jan 2006 01:04:06 +0000), Pavel Machek <pavel@ucw.cz> says:
-
-> 
-> On Wed 11-01-06 00:00:20, David S. Miller wrote:
-> > From: Ulrich Drepper <drepper@redhat.com>
-> > Date: Tue, 10 Jan 2006 14:02:52 -0800
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> > This doesn't get initialised anywhere.
 > > 
-> > > I just saw this in a patch:
-> > > 
-> > > +               if (ntohs(ih->frag_off) & IP_OFFSET)
-> > > +                       return EBT_NOMATCH;
-> > > 
-> > > This isn't optimal, it requires a byte switch little endian machines.
-> > > The compiler isn't smart enough.  It would be better to use
-> > > 
-> > >      if (ih->frag_off & ntohs(IP_OFFSET))
-:
-> Could you possibly 
-> #define IP_OFFSET htons(1234)
-> ?
+> > Presumably you're relying on a memset somewhere.  That might work on all
+> > architectures, AFAIK.  But in theory it's wrong.  If, for example, the
+> > architecture implements atomic_t via a spinlock-plus-integer, and that
+> > spinlock's unlocked state is not all-bits-zero, we're dead.
+> > 
+> > So we should initialise it with
+> > 
+> > 	foo->num_waiting = ATOMIC_INIT(0);
+> > 
+> 
+> Is it correct to use a structure initializer this way?
 
-In this case, you should use __constant_htons().
-I still prefer:
-   if (ih->frag_off & htons(IP_OFFSET))
-though.
+Yes, if it's typecast to the right type.
 
---yoshfuji
+ATOMIC_INIT is not.  I had a brainfart.
+
+> > nb: it is not correct to initialise an atomic_t with
+> > 
+> > 	atomic_set(a, 0);
+> > 
+> > because in the above theoretical case case where the arch uses a spinlock
+> > in the atomic_t, that spinlock doesn't get initialised.  I bet we've got code
+> > in there which does this.
+> 
+> According to Documentation/atomic_ops.txt, this is the correct usage
+> of atomic_set():
+> 
+> |           The first operations to implement for atomic_t's are the
+> |   initializers and plain reads.
+> |   
+> |           #define ATOMIC_INIT(i)          { (i) }
+> |           #define atomic_set(v, i)        ((v)->counter = (i))
+> |   
+> |   The first macro is used in definitions, such as:
+> |   
+> |   static atomic_t my_counter = ATOMIC_INIT(1);
+> |   
+> |   The second interface can be used at runtime, as in:
+> |   
+> |           struct foo { atomic_t counter; };
+> |           ...
+> |   
+> |           struct foo *k;
+> |   
+> |           k = kmalloc(sizeof(*k), GFP_KERNEL);
+> |           if (!k)
+> |                   return -ENOMEM;
+> |           atomic_set(&k->counter, 0);
+> 
+> So in fact atomic_set() is an initializer, and should be named
+> atomic_init() accordingly.
+
+Yes, we're screwed.  I don't think it's possible to implement atomic_t as
+spinlock+int due to this.
+
+>  Is atomic_set() ever used as an atomic
+> operation rather than an initializer?
+> 
+
+Sure, lots of places.  Lots of places where you _don't_ want your
+atomic_t's spinlock to be reinitialised.
+
+hmm.

@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423066AbWANFFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWANFFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423066AbWANFFw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 00:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbWANFFw
+	id S1030371AbWANFFj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 00:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWANFFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 00:05:52 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:58843 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1030394AbWANFFu (ORCPT
+	Sat, 14 Jan 2006 00:05:38 -0500
+Received: from xenotime.net ([66.160.160.81]:63121 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030371AbWANFFi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 00:05:50 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
-Date: Fri, 13 Jan 2006 22:05:30 -0700
-User-Agent: KMail/1.8.3
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-ia64@vger.kernel.org,
-       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       linux-kernel@vger.kernel.org
-References: <20060104221627.GA26064@lists.us.dell.com> <200601131724.42054.bjorn.helgaas@hp.com> <200601140219.39765.ak@suse.de>
-In-Reply-To: <200601140219.39765.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200601132205.30675.bjorn.helgaas@hp.com>
+	Sat, 14 Jan 2006 00:05:38 -0500
+Date: Fri, 13 Jan 2006 21:05:35 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: sam@ravnborg.org, axboe@suse.de, akpm@osdl.org, torvalds@osdl.org,
+       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       zippel@linux-m68k.org
+Subject: Re: [git patches] 2.6.x net driver updates
+Message-Id: <20060113210535.21ed3317.rdunlap@xenotime.net>
+In-Reply-To: <20060114022949.GI29663@stusta.de>
+References: <20060112221322.GA25470@havoc.gtf.org>
+	<Pine.LNX.4.64.0601121423120.3535@g5.osdl.org>
+	<20060112143938.5cf7d6a5.akpm@osdl.org>
+	<20060113192316.GX3945@suse.de>
+	<20060113192813.GA10560@mars.ravnborg.org>
+	<20060114022949.GI29663@stusta.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 January 2006 18:19, Andi Kleen wrote:
-> On Saturday 14 January 2006 01:24, Bjorn Helgaas wrote:
-> > On Friday 06 January 2006 15:39, Matt Domsch wrote:
-> > > diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-> > > ...
-> > > +config DMI
-> > > +       bool
-> > > +       default y
-> >
-> > Should we have a way to turn this off?
-> 
-> At least on i386/x86-64 it is largely used for hardware/firmware bug 
-> workaround and these have been traditionally always compiled in
-> 
-> Or do you want to spend a lot of time on a bug report from
-> a user only to discover they didn't enable the workarounds for
-> their particular platform?
+On Sat, 14 Jan 2006 03:29:49 +0100 Adrian Bunk wrote:
 
-Yeah, that was a dumb idea.  I just need to fix whatever's
-currently broken and then there'll be no harm in having it
-all the time.
+> On Fri, Jan 13, 2006 at 08:28:13PM +0100, Sam Ravnborg wrote:
+> > On Fri, Jan 13, 2006 at 08:23:16PM +0100, Jens Axboe wrote:
+> > > 
+> > > 'select' is really cool as a concept, but when you can't figure out why
+> > > you cannot disable CONFIG_FOO because CONFIG_BAR selects it it's really
+> > > annoying. Would be nice to actually be able to see if another option has
+> > > selected this option.
+> > 
+> > In menuconfig:
+> > 
+> > Typing '?' on CONFIG_HOTPLUG revealed:
+> >  Selected by: PCCARD || HOTPLUG_PCI && PCI && EXPERIMENTAL || FW_LOADER
+> >...
+> 
+> Is there any trick to see them all when they are longer than the line in 
+> the terminal (e.g. what selects FW_LOADER?)?
+
+Use the right/left arrow keys to scroll horizontally.
+
+---
+~Randy

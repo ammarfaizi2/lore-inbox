@@ -1,67 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWANMXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWANMmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWANMXX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWANMXX
+	id S1751103AbWANMmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWANMmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:23:23 -0500
-Received: from lugor.de ([212.112.242.222]:41432 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1751100AbWANMXW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 07:23:22 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: So - What's going on with Reiser 4?
-Date: Sat, 14 Jan 2006 13:22:23 +0100
-User-Agent: KMail/1.9
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-References: <43C837B6.5070903@perkel.com> <1137236892.3014.12.camel@laptopd505.fenrus.org>
-In-Reply-To: <1137236892.3014.12.camel@laptopd505.fenrus.org>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Sat, 14 Jan 2006 07:42:07 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:36957 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751103AbWANMmF (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sat, 14 Jan 2006 07:42:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:Content-Type;
+  b=OFtwYKOpxfB3tZqfCvolMIy35nvLUY334x9UnMBFFUEWPt13SXG2V3eNZ3lzHT4+6gWCL8t9c3FFZJiO32aYggL248UhkHFV2y1gJGMw3RTYwjMASSNgzcx+UXGCuzo+Mz+N2IcI+Wk27SIEd7jLNQXxaVZnLcS353U3Pr8Kyrk=  ;
+Message-ID: <43C8F198.3010609@yahoo.com.au>
+Date: Sat, 14 Jan 2006 23:42:00 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1286969.Q8diUhe7EK";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601141322.34520.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Sat, 14 Jan 2006 15:22:40 +0100 (CET)
-X-Spam-Flag: NO
+To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: [patch] mm: cleanup bootmem
+Content-Type: multipart/mixed;
+ boundary="------------020406020704010703060408"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1286969.Q8diUhe7EK
+This is a multi-part message in MIME format.
+--------------020406020704010703060408
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Objections?
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+--------------020406020704010703060408
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+ name="mm-cleanup-bootmem.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mm-cleanup-bootmem.patch"
 
-On Saturday 14 January 2006 12:08, Arjan van de Ven wrote:
-> On Fri, 2006-01-13 at 15:28 -0800, Marc Perkel wrote:
-> > Still waiting. I thought it was ging to eventually be included. What's
-> > holding it up?
->
-> Is someone running a "lets all complain on lkml about reiser4" campaign?
-> This was asked and answered 2 weeks ago, please read the archives.
-> (and it was asked last week and we then pointed at the archives as well)
+The bootmem code added to page_alloc.c duplicated some page freeing code
+that it really doesn't need to because it is not so performance critical.
 
-Maciej Soltysiak answered the question two weeks ago. But he started his ma=
-il=20
-with "I am not the r4 spokesman [...]". So could anybody write some words w=
-ho=20
-really knows?
-=2D-=20
-Christian
+While we're here, make prefetching work properly by actually prefetching
+the page we're about to use before prefetching ahead to the next one (ie.
+get the most important transaction started first). Also prefetch just a
+single page ahead rather than leaving a gap of 16.
 
---nextPart1286969.Q8diUhe7EK
-Content-Type: application/pgp-signature
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.19 (GNU/Linux)
+Index: linux-2.6/mm/page_alloc.c
+===================================================================
+--- linux-2.6.orig/mm/page_alloc.c
++++ linux-2.6/mm/page_alloc.c
+@@ -55,8 +55,6 @@ unsigned long totalhigh_pages __read_mos
+ long nr_swap_pages;
+ int percpu_pagelist_fraction;
+ 
+-static void fastcall free_hot_cold_page(struct page *page, int cold);
+-
+ /*
+  * results with 256, 32 in the lowmem_reserve sysctl:
+  *	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
+@@ -444,28 +442,23 @@ void fastcall __init __free_pages_bootme
+ 	if (order == 0) {
+ 		__ClearPageReserved(page);
+ 		set_page_count(page, 0);
+-
+-		free_hot_cold_page(page, 0);
++		set_page_refs(page, 0);
++		__free_page(page);
+ 	} else {
+-		LIST_HEAD(list);
+ 		int loop;
+ 
++		prefetchw(page);
+ 		for (loop = 0; loop < BITS_PER_LONG; loop++) {
+ 			struct page *p = &page[loop];
+ 
+-			if (loop + 16 < BITS_PER_LONG)
+-				prefetchw(p + 16);
++			if (loop + 1 < BITS_PER_LONG)
++				prefetchw(p + 1);
+ 			__ClearPageReserved(p);
+ 			set_page_count(p, 0);
+ 		}
+ 
+-		arch_free_page(page, order);
+-
+-		mod_page_state(pgfree, 1 << order);
+-
+-		list_add(&page->lru, &list);
+-		kernel_map_pages(page, 1 << order, 0);
+-		free_pages_bulk(page_zone(page), 1, &list, order);
++		set_page_refs(page, order);
++		__free_pages(page, order);
+ 	}
+ }
+ 
 
-iD8DBQBDyO0KlZfG2c8gdSURAodTAJ9jgR9JfSLWarVgYWyj/taqGDzQWQCfT68x
-tvrSVB/Ni5fQPkYvECWfpw4=
-=Mnrc
------END PGP SIGNATURE-----
-
---nextPart1286969.Q8diUhe7EK--
+--------------020406020704010703060408--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWANRYC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWANR00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWANRYC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 12:24:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWANRYC
+	id S1750706AbWANR00 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 12:26:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWANR00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 12:24:02 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:41395 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750705AbWANRYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 12:24:00 -0500
-Subject: Re: So - What's going on with Reiser 4?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: Arjan van de Ven <arjan@infradead.org>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200601141104.04060.edt@aei.ca>
-References: <43C837B6.5070903@perkel.com>
-	 <1137236892.3014.12.camel@laptopd505.fenrus.org>
-	 <200601141104.04060.edt@aei.ca>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 12:23:48 -0500
-Message-Id: <1137259429.1408.52.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Sat, 14 Jan 2006 12:26:26 -0500
+Received: from ip-205-196-208-25.dreamhost.com ([205.196.208.25]:13469 "EHLO
+	hannibal.dreamhost.com") by vger.kernel.org with ESMTP
+	id S1750706AbWANR0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 12:26:25 -0500
+From: Matthew Marshall <matthew@matthewmarshall.org>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: PCI WiFi card works with livecd's but not with HD install with Ali mobo.
+Date: Sat, 14 Jan 2006 14:27:36 -0300
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200601141427.36915.matthew@matthewmarshall.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-14 at 11:04 -0500, Ed Tomlinson wrote:
-> On Saturday 14 January 2006 06:08, Arjan van de Ven wrote:
-> > On Fri, 2006-01-13 at 15:28 -0800, Marc Perkel wrote:
-> > > Still waiting. I thought it was ging to eventually be included. What's 
-> > > holding it up?
-> > 
-> > Is someone running a "lets all complain on lkml about reiser4" campaign?
-> > This was asked and answered 2 weeks ago, please read the archives.
-> > (and it was asked last week and we then pointed at the archives as well)
-> 
-> It being ask since its important to many people not all of whom read lkml
-> or check archives as diligently as they might.  
-> 
-> I hope the reiserfs people are ready soon to have their code reviewed again.
-> Hope that this time its just a code review and does not degenerate as has
-> happened.
+I am having problems using a DWL-G510 PCI 802.11g card (Atheros chipset) with 
+my ASROCK 939Dual-SATA2.  The really strange thing is that it works perfectly 
+fine with every live-cd I have tried, but always fails from a hd install.
 
-Um, it was just a code review last time...
+The problem is that, instead of flashing, one of the lights on the card is 
+held constant, while the other remains off.  This happens with both 
+ndiswrapper and madwifi.  Both of these drivers work fine without a hitch in 
+both knoppix and slax.
 
-Lee
+This seems to be a bug with the driver for the southbridge (ULi M1567) as I 
+had the card working fine with another mobo (with the same distro.)
 
+Here is my hardware setup:
+ASROCK 939Dual-SATA2 (with ULi M1567 southbridge)
+AMD64 3000+  (running in 32 bit mode)
+ATI Radeon 9200 AGP  (probably not relevent)
+DWL-G510 PCI 802.11g
+Lite-On DVD Burner (on Primary IDE)
+Seagate Barracuda 7200RPM 80GB (on SATA; possibly problematic?)
+
+I am currently running kernel 2.6.15.  However, I have also tried a number of 
+other versions, including the -mm tree, and using the kernel and modules from 
+the Slax livecd.  There wasn't any difference.  pci=routeirq and noacip 
+doesn't seem to change anything either.
+
+dmesg output (with autoloading ath_pci):
+http://pastebin.com/505478
+
+lspci -v output:
+http://pastebin.com/505481
+
+Some more observations:
+ath_pci (madwifi) loads and unloads without reporting any errors.  However 
+modprobe ndiswrapper shows the following in dmesg:
+http://pastebin.com/505525
+modprobe -r ndiswraper segfaults.
+
+I would really appreciate some help here.  Please let me know if there is 
+anything more I can do.  It seems that using a new/uncommon/weird chipset 
+like this is almost begging for trouble :D
+
+Thanks for reading,
+	Matthew Marshall

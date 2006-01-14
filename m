@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWANGB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWANGFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWANGB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 01:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWANGBy
+	id S1750748AbWANGFh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 01:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWANGFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 01:01:54 -0500
-Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:35662 "HELO
-	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751680AbWANGB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 01:01:29 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Frank Sorenson <frank@tuxrocks.com>
-Subject: Re: Mouse stalls (again) with 2.6.15-mm2
-Date: Sat, 14 Jan 2006 01:01:17 -0500
-User-Agent: KMail/1.8.3
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <9a8748490601091237s57071e57mbd2c4172a0e4dd@mail.gmail.com> <200601130154.47813.dtor_core@ameritech.net> <43C7B4C8.8060405@tuxrocks.com>
-In-Reply-To: <43C7B4C8.8060405@tuxrocks.com>
+	Sat, 14 Jan 2006 01:05:37 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:28273 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750748AbWANGFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 01:05:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Z8wL0fP/54+6vVtfxlbGCC+ufYR78FwkvW7SxMIt/oFm9EEVh31ZdcDXFAy4m7L+7s6QfMRqn+h50xp61w6Ea+8rPBB6cPMR+uxuReGb05dhkh55TUhIbRa5Jt7md5zTJoxE10C07/jJVsongL3fLOzhes3KMGJK6sh267iLAK4=  ;
+Message-ID: <43C894AD.1060202@yahoo.com.au>
+Date: Sat, 14 Jan 2006 17:05:33 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Con Kolivas <kernel@kolivas.org>
+CC: Peter Williams <pwil3058@bigpond.net.au>, Martin Bligh <mbligh@google.com>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C84496.6060506@bigpond.net.au> <43C8861E.5070203@yahoo.com.au> <200601141640.45582.kernel@kolivas.org>
+In-Reply-To: <200601141640.45582.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601140101.19800.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 January 2006 09:10, Frank Sorenson wrote:
-> Dmitry Torokhov wrote:
-> > Hi,
-> >
-> > Here is the latest version of psmouse resync patch, it should have all
-> > the fixes and handle both Jesper's KVM and Frank's touchpad. I would
-> > appreciate if you give it a spin.
-> >
-> > The patch is against Linus, not -mm; for -mm you will have to revert
-> > original resync patch.
-> >
-> > Thanks!
+Con Kolivas wrote:
+> On Saturday 14 January 2006 16:03, Nick Piggin wrote:
 > 
-> For me, the mouse and tapping both continue to work, but it is impossible
-> to turn on resync (resync_time immediately switches back to 0).  Since
-> things seem to continue working for me, that's fine by me, but is this
-> the intended behavior?
->
+>>Ideally, balancing should be completely unaffected when all tasks are
+>>of priority 0 which is what I thought yours did, and why I think the
+>>current system is not great.
+> 
+> 
+> The current smp nice in mainline 2.6.15 is performance neutral when all are 
+> the same priority. It's only this improved version in -mm that is not.
+> 
 
-FYI:
-
-There was a confusion over psmouse sysfs attributes (they require "echo -n"),
-Frank later confirmed that the resync was working for him so I am planning
-getting this into mainline.
+Oh sure. I wasn't talking about performance though.
 
 -- 
-Dmitry
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

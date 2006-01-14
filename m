@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751750AbWANHR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbWANH2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751750AbWANHR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 02:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWANHR4
+	id S932745AbWANH2v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 02:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWANH2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 02:17:56 -0500
-Received: from xenotime.net ([66.160.160.81]:40375 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751748AbWANHR4 (ORCPT
+	Sat, 14 Jan 2006 02:28:51 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:39181 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751233AbWANH2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 02:17:56 -0500
-Date: Fri, 13 Jan 2006 23:17:53 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jens Axboe <axboe@suse.de>, akpm <akpm@osdl.org>
-Cc: ram.gupta5@gmail.com, tshxiayu@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: something about disk fragmentation
-Message-Id: <20060113231753.34d58e1f.rdunlap@xenotime.net>
-In-Reply-To: <20060113192452.GY3945@suse.de>
-References: <7cd5d4b40601110501w40bc28f0peb13cdbb082e2b4a@mail.gmail.com>
-	<728201270601110633i2eb8c71dq8a0c23d9e7ad724f@mail.gmail.com>
-	<7cd5d4b40601130158l274a3b19t13f2a58a28cc3819@mail.gmail.com>
-	<728201270601130814k37c31f7bxd04a1fe44213b430@mail.gmail.com>
-	<20060113192452.GY3945@suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 14 Jan 2006 02:28:50 -0500
+Date: Sat, 14 Jan 2006 08:28:10 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: ide <linux-ide@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
+Message-ID: <20060114072810.GA7866@mars.ravnborg.org>
+References: <20060113224252.38d8890f.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113224252.38d8890f.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-Update kernel-parameters.txt IOSCHED to spell out 'anticipatory'.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/kernel-parameters.txt |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2615-g9.orig/Documentation/kernel-parameters.txt
-+++ linux-2615-g9/Documentation/kernel-parameters.txt
-@@ -471,7 +471,7 @@ running once the system is up.
- 			arch/i386/kernel/cpu/cpufreq/elanfreq.c.
+Hi Randy
  
- 	elevator=	[IOSCHED]
--			Format: {"as" | "cfq" | "deadline" | "noop"}
-+			Format: {"anticipatory" | "cfq" | "deadline" | "noop"}
- 			See Documentation/block/as-iosched.txt and
- 			Documentation/block/deadline-iosched.txt for details.
- 
+> --- linux-2615-g9.orig/drivers/scsi/Makefile
+> +++ linux-2615-g9/drivers/scsi/Makefile
+> @@ -164,6 +164,9 @@ CFLAGS_ncr53c8xx.o	:= $(ncr53c8xx-flags-
+>  zalon7xx-objs	:= zalon.o ncr53c8xx.o
+>  NCR_Q720_mod-objs	:= NCR_Q720.o ncr53c8xx.o
+>  libata-objs	:= libata-core.o libata-scsi.o
+> +ifeq ($(CONFIG_SCSI_SATA_ACPI),y)
+> +  libata-objs	+= libata-acpi.o
+> +endif
 
+How about:
+libata-y	:= libata-core.o libata-scsi.o
+libata-$(CONFIG_SCSI_SATA_ACPI) += libata-acpi.o
 
----
+	Sam
+

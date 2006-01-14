@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423250AbWANBVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423245AbWANBVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423250AbWANBVf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 20:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423253AbWANBVf
+	id S1423245AbWANBVE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 20:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423253AbWANBVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 20:21:35 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:12304 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S1423250AbWANBVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 20:21:34 -0500
-Message-ID: <43C85213.40808@domdv.de>
-Date: Sat, 14 Jan 2006 02:21:23 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
-X-Accept-Language: en-us, en
+	Fri, 13 Jan 2006 20:21:04 -0500
+Received: from ns2.suse.de ([195.135.220.15]:36067 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423245AbWANBVC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 20:21:02 -0500
+From: Andi Kleen <ak@suse.de>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
+Date: Sat, 14 Jan 2006 02:19:39 +0100
+User-Agent: KMail/1.8
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-ia64@vger.kernel.org,
+       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       linux-kernel@vger.kernel.org
+References: <20060104221627.GA26064@lists.us.dell.com> <20060106223932.GB9230@lists.us.dell.com> <200601131724.42054.bjorn.helgaas@hp.com>
+In-Reply-To: <200601131724.42054.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
-To: David Lang <dlang@digitalinsight.com>
-CC: Sven-Thorsten Dietrich <sven@mvista.com>, thockin@hockin.org,
-       Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual core Athlons and unsynced TSCs
-References: <1137178855.15108.42.camel@mindpipe><Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz><20060113215609.GA30634@hockin.org><Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz> <1137190698.2536.65.camel@localhost.localdomain> <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz> <43C848C7.1070701@domdv.de> <Pine.LNX.4.62.0601131701590.9821@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0601131701590.9821@qynat.qvtvafvgr.pbz>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601140219.39765.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-[snip]
-> I'm not saying it's the right answer, but it's one of two workarounds
-> currently available.
-> 
-> idle=poll causes increased power useage
-> 
-> timer source change (mentioned earlier in this thread) limits timer
-> precision
-> 
-> neither of these are fixes, but by understanding the different costs
-> people can choose the work around they want to use while waiting for a
-> better fix.
+On Saturday 14 January 2006 01:24, Bjorn Helgaas wrote:
+> On Friday 06 January 2006 15:39, Matt Domsch wrote:
+> > diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+> > ...
+> > +config DMI
+> > +       bool
+> > +       default y
+>
+> Should we have a way to turn this off?
 
-The problem being that some of us use their laptops for audio work too.
-And then high battery usage, noisy fans or lack of high res timers will
-be really bad.
+At least on i386/x86-64 it is largely used for hardware/firmware bug 
+workaround and these have been traditionally always compiled in
 
-Simple example:
-I do final mastering work using my laptop and Ardour/Jack/JAMin out of
-house in a place with a good stage audio system (Mackie mixer, 2KW
-Dynacord Amp/Syrincs S3) and a sufficient listening space to get a
-proper bass mix. I run on battery in this case to avoid any kind of
-audio interference (ground loops, etc). Now thinking of a dual core
-laptop...
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Or do you want to spend a lot of time on a bug report from
+a user only to discover they didn't enable the workarounds for
+their particular platform?
+
+You might not need that right now but I can predict that 
+at some point you'll need board specific workarounds - and
+then it will be very useful to have.
+
+>
+> > diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+> > ...
+> > +dmi_scan-y                     += ../../i386/kernel/dmi_scan.o
+>
+> Ugh.  I really hate this sort of sharing.  Could dmi_scan.c go in
+> drivers/firmware/ or something instead?
+
+Well, i suppose it will be more common in the future. Perhaps
+get over that particular hatered?
+
+-Andi

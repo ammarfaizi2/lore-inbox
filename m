@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWANV15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWANV3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbWANV15 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 16:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWANV1U
+	id S1751308AbWANV3e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 16:29:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWANV1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 16:27:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6292 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751306AbWANV1C convert rfc822-to-8bit
+	Sat, 14 Jan 2006 16:27:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4244 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751308AbWANV1D convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 16:27:02 -0500
+	Sat, 14 Jan 2006 16:27:03 -0500
 Cc: david-b@pacbell.net
-Subject: [PATCH] SPI: add spi_butterfly driver
-In-Reply-To: <1137199593773@kroah.com>
+Subject: [PATCH] spi: mtd dataflash driver
+In-Reply-To: <20060114004403.GA21106@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 16:46:33 -0800
-Message-Id: <11371995933448@kroah.com>
+Date: Fri, 13 Jan 2006 16:46:31 -0800
+Message-Id: <1137199591234@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,537 +24,724 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] SPI: add spi_butterfly driver
+[PATCH] spi: mtd dataflash driver
 
-This adds a bitbanging parport based adaptor cable for AVR Butterfly, giving
-SPI links to its DataFlash chip and (eventually) firmware running in the card.
+This is a conversion of the AT91rm9200 DataFlash MTD driver to use the
+lightweight SPI framework, and no longer be AT91-specific.  It compiles
+down to less than 3KBytes on ARM.
 
+The driver allows board-specific init code to provide platform_data with
+the relevant MTD partitioning information, and hotplugs.
+
+This version has been lightly tested.  Its parent at91_dataflash driver has
+been pretty well banged on, although kernel.org JFFS2 dataflash support was
+acting broken the last time I tried it.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 2e10c84b9cf0b2d269c5629048d8d6e35eaf6b2b
-tree 2b338e8282d4e740529aeb3d5f303c4883f8d667
-parent 5d870c8e216f121307445c71caa72e7e10a20061
-author David Brownell <david-b@pacbell.net> Wed, 11 Jan 2006 11:23:49 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:56 -0800
+commit 1d6432fe10c3e724e307dd7137cd293a0edcae80
+tree e32ba2eaecff99b2b86455ed2df8365b082cd396
+parent ffa458c1bd9b6f653008d450f337602f3d52a646
+author David Brownell <david-b@pacbell.net> Sun, 08 Jan 2006 13:34:22 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:54 -0800
 
- Documentation/spi/butterfly |   57 ++++++
- drivers/spi/Kconfig         |   10 +
- drivers/spi/spi_butterfly.c |  423 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 490 insertions(+), 0 deletions(-)
+ drivers/mtd/devices/Kconfig         |    8 
+ drivers/mtd/devices/Makefile        |    1 
+ drivers/mtd/devices/mtd_dataflash.c |  623 +++++++++++++++++++++++++++++++++++
+ include/linux/spi/flash.h           |   27 ++
+ 4 files changed, 659 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/spi/butterfly b/Documentation/spi/butterfly
-new file mode 100644
-index 0000000..a2e8c8d
---- /dev/null
-+++ b/Documentation/spi/butterfly
-@@ -0,0 +1,57 @@
-+spi_butterfly - parport-to-butterfly adapter driver
-+===================================================
-+
-+This is a hardware and software project that includes building and using
-+a parallel port adapter cable, together with an "AVR Butterfly" to run
-+firmware for user interfacing and/or sensors.  A Butterfly is a $US20
-+battery powered card with an AVR microcontroller and lots of goodies:
-+sensors, LCD, flash, toggle stick, and more.  You can use AVR-GCC to
-+develop firmware for this, and flash it using this adapter cable.
-+
-+You can make this adapter from an old printer cable and solder things
-+directly to the Butterfly.  Or (if you have the parts and skills) you
-+can come up with something fancier, providing ciruit protection to the
-+Butterfly and the printer port, or with a better power supply than two
-+signal pins from the printer port.
-+
-+
-+The first cable connections will hook Linux up to one SPI bus, with the
-+AVR and a DataFlash chip; and to the AVR reset line.  This is all you
-+need to reflash the firmware, and the pins are the standard Atmel "ISP"
-+connector pins (used also on non-Butterfly AVR boards).
-+
-+	Signal	  Butterfly	  Parport (DB-25)
-+	------	  ---------	  ---------------
-+	SCK	= J403.PB1/SCK	= pin 2/D0
-+	RESET	= J403.nRST	= pin 3/D1
-+	VCC	= J403.VCC_EXT	= pin 8/D6
-+	MOSI	= J403.PB2/MOSI	= pin 9/D7
-+	MISO	= J403.PB3/MISO	= pin 11/S7,nBUSY
-+	GND	= J403.GND	= pin 23/GND
-+
-+Then to let Linux master that bus to talk to the DataFlash chip, you must
-+(a) flash new firmware that disables SPI (set PRR.2, and disable pullups
-+by clearing PORTB.[0-3]); (b) configure the mtd_dataflash driver; and
-+(c) cable in the chipselect.
-+
-+	Signal	  Butterfly	  Parport (DB-25)
-+	------	  ---------	  ---------------
-+	VCC	= J400.VCC_EXT	= pin 7/D5
-+	SELECT	= J400.PB0/nSS	= pin 17/C3,nSELECT
-+	GND	= J400.GND	= pin 24/GND
-+
-+The "USI" controller, using J405, can be used for a second SPI bus.  That
-+would let you talk to the AVR over SPI, running firmware that makes it act
-+as an SPI slave, while letting either Linux or the AVR use the DataFlash.
-+There are plenty of spare parport pins to wire this one up, such as:
-+
-+	Signal	  Butterfly	  Parport (DB-25)
-+	------	  ---------	  ---------------
-+	SCK	= J403.PE4/USCK	= pin 5/D3
-+	MOSI	= J403.PE5/DI	= pin 6/D4
-+	MISO	= J403.PE6/DO	= pin 12/S5,nPAPEROUT
-+	GND	= J403.GND	= pin 22/GND
-+
-+	IRQ	= J402.PF4	= pin 10/S6,ACK
-+	GND	= J402.GND(P2)	= pin 25/GND
-+
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index 7a75fae..b77dbd6 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -75,6 +75,16 @@ config SPI_BUTTERFLY
- 	  inexpensive battery powered microcontroller evaluation board.
- 	  This same cable can be used to flash new firmware.
+diff --git a/drivers/mtd/devices/Kconfig b/drivers/mtd/devices/Kconfig
+index 9a2aa40..84f2eb1 100644
+--- a/drivers/mtd/devices/Kconfig
++++ b/drivers/mtd/devices/Kconfig
+@@ -47,6 +47,14 @@ config MTD_MS02NV
+ 	  accelerator.  Say Y here if you have a DECstation 5000/2x0 or a
+ 	  DECsystem 5900 equipped with such a module.
  
-+config SPI_BUTTERFLY
-+	tristate "Parallel port adapter for AVR Butterfly (DEVELOPMENT)"
-+	depends on SPI_MASTER && PARPORT && EXPERIMENTAL
-+	select SPI_BITBANG
++config MTD_DATAFLASH
++	tristate "Support for AT45xxx DataFlash"
++	depends on MTD && SPI_MASTER && EXPERIMENTAL
 +	help
-+	  This uses a custom parallel port cable to connect to an AVR
-+	  Butterfly <http://www.atmel.com/products/avr/butterfly>, an
-+	  inexpensive battery powered microcontroller evaluation board.
-+	  This same cable can be used to flash new firmware.
++	  This enables access to AT45xxx DataFlash chips, using SPI.
++	  Sometimes DataFlash chips are packaged inside MMC-format
++	  cards; at this writing, the MMC stack won't handle those.
 +
- #
- # Add new SPI master controllers in alphabetical order above this line
- #
-diff --git a/drivers/spi/spi_butterfly.c b/drivers/spi/spi_butterfly.c
+ config MTD_SLRAM
+ 	tristate "Uncached system RAM"
+ 	depends on MTD
+diff --git a/drivers/mtd/devices/Makefile b/drivers/mtd/devices/Makefile
+index e38db34..cd8d807 100644
+--- a/drivers/mtd/devices/Makefile
++++ b/drivers/mtd/devices/Makefile
+@@ -23,3 +23,4 @@ obj-$(CONFIG_MTD_MTDRAM)	+= mtdram.o
+ obj-$(CONFIG_MTD_LART)		+= lart.o
+ obj-$(CONFIG_MTD_BLKMTD)	+= blkmtd.o
+ obj-$(CONFIG_MTD_BLOCK2MTD)	+= block2mtd.o
++obj-$(CONFIG_MTD_DATAFLASH)	+= mtd_dataflash.o
+diff --git a/drivers/mtd/devices/mtd_dataflash.c b/drivers/mtd/devices/mtd_dataflash.c
 new file mode 100644
-index 0000000..79a3c59
+index 0000000..a39b3b6
 --- /dev/null
-+++ b/drivers/spi/spi_butterfly.c
-@@ -0,0 +1,423 @@
++++ b/drivers/mtd/devices/mtd_dataflash.c
+@@ -0,0 +1,623 @@
 +/*
-+ * spi_butterfly.c - parport-to-butterfly adapter
++ * Atmel AT45xxx DataFlash MTD driver for lightweight SPI framework
 + *
-+ * Copyright (C) 2005 David Brownell
++ * Largely derived from at91_dataflash.c:
++ *  Copyright (C) 2003-2005 SAN People (Pty) Ltd
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++*/
 +#include <linux/config.h>
-+#include <linux/kernel.h>
++#include <linux/module.h>
 +#include <linux/init.h>
++#include <linux/slab.h>
 +#include <linux/delay.h>
-+#include <linux/platform_device.h>
-+#include <linux/parport.h>
-+
++#include <linux/device.h>
 +#include <linux/spi/spi.h>
-+#include <linux/spi/spi_bitbang.h>
 +#include <linux/spi/flash.h>
 +
++#include <linux/mtd/mtd.h>
 +#include <linux/mtd/partitions.h>
 +
 +
 +/*
-+ * This uses SPI to talk with an "AVR Butterfly", which is a $US20 card
-+ * with a battery powered AVR microcontroller and lots of goodies.  You
-+ * can use GCC to develop firmware for this.
++ * DataFlash is a kind of SPI flash.  Most AT45 chips have two buffers in
++ * each chip, which may be used for double buffered I/O; but this driver
++ * doesn't (yet) use these for any kind of i/o overlap or prefetching.
 + *
-+ * See Documentation/spi/butterfly for information about how to build
-+ * and use this custom parallel port cable.
++ * Sometimes DataFlash is packaged in MMC-format cards, although the
++ * MMC stack can't use SPI (yet), or distinguish between MMC and DataFlash
++ * protocols during enumeration.
 + */
 +
-+#undef	HAVE_USI	/* nyet */
++#define CONFIG_DATAFLASH_WRITE_VERIFY
++
++/* reads can bypass the buffers */
++#define OP_READ_CONTINUOUS	0xE8
++#define OP_READ_PAGE		0xD2
++
++/* group B requests can run even while status reports "busy" */
++#define OP_READ_STATUS		0xD7	/* group B */
++
++/* move data between host and buffer */
++#define OP_READ_BUFFER1		0xD4	/* group B */
++#define OP_READ_BUFFER2		0xD6	/* group B */
++#define OP_WRITE_BUFFER1	0x84	/* group B */
++#define OP_WRITE_BUFFER2	0x87	/* group B */
++
++/* erasing flash */
++#define OP_ERASE_PAGE		0x81
++#define OP_ERASE_BLOCK		0x50
++
++/* move data between buffer and flash */
++#define OP_TRANSFER_BUF1	0x53
++#define OP_TRANSFER_BUF2	0x55
++#define OP_MREAD_BUFFER1	0xD4
++#define OP_MREAD_BUFFER2	0xD6
++#define OP_MWERASE_BUFFER1	0x83
++#define OP_MWERASE_BUFFER2	0x86
++#define OP_MWRITE_BUFFER1	0x88	/* sector must be pre-erased */
++#define OP_MWRITE_BUFFER2	0x89	/* sector must be pre-erased */
++
++/* write to buffer, then write-erase to flash */
++#define OP_PROGRAM_VIA_BUF1	0x82
++#define OP_PROGRAM_VIA_BUF2	0x85
++
++/* compare buffer to flash */
++#define OP_COMPARE_BUF1		0x60
++#define OP_COMPARE_BUF2		0x61
++
++/* read flash to buffer, then write-erase to flash */
++#define OP_REWRITE_VIA_BUF1	0x58
++#define OP_REWRITE_VIA_BUF2	0x59
++
++/* newer chips report JEDEC manufacturer and device IDs; chip
++ * serial number and OTP bits; and per-sector writeprotect.
++ */
++#define OP_READ_ID		0x9F
++#define OP_READ_SECURITY	0x77
++#define OP_WRITE_SECURITY	0x9A	/* OTP bits */
 +
 +
-+/* DATA output bits (pins 2..9 == D0..D7) */
-+#define	butterfly_nreset (1 << 1)		/* pin 3 */
++struct dataflash {
++	u8			command[4];
++	char			name[24];
 +
-+#define	spi_sck_bit	(1 << 0)		/* pin 2 */
-+#define	spi_mosi_bit	(1 << 7)		/* pin 9 */
++	unsigned		partitioned:1;
 +
-+#define	usi_sck_bit	(1 << 3)		/* pin 5 */
-+#define	usi_mosi_bit	(1 << 4)		/* pin 6 */
++	unsigned short		page_offset;	/* offset in flash address */
++	unsigned int		page_size;	/* of bytes per page */
 +
-+#define	vcc_bits	((1 << 6) | (1 << 5))	/* pins 7, 8 */
++	struct semaphore	lock;
++	struct spi_device	*spi;
 +
-+/* STATUS input bits */
-+#define	spi_miso_bit	PARPORT_STATUS_BUSY	/* pin 11 */
-+
-+#define	usi_miso_bit	PARPORT_STATUS_PAPEROUT	/* pin 12 */
-+
-+/* CONTROL output bits */
-+#define	spi_cs_bit	PARPORT_CONTROL_SELECT	/* pin 17 */
-+/* USI uses no chipselect */
-+
-+
-+
-+static inline struct butterfly *spidev_to_pp(struct spi_device *spi)
-+{
-+	return spi->controller_data;
-+}
-+
-+static inline int is_usidev(struct spi_device *spi)
-+{
-+#ifdef	HAVE_USI
-+	return spi->chip_select != 1;
-+#else
-+	return 0;
-+#endif
-+}
-+
-+
-+struct butterfly {
-+	/* REVISIT ... for now, this must be first */
-+	struct spi_bitbang	bitbang;
-+
-+	struct parport		*port;
-+	struct pardevice	*pd;
-+
-+	u8			lastbyte;
-+
-+	struct spi_device	*dataflash;
-+	struct spi_device	*butterfly;
-+	struct spi_board_info	info[2];
-+
++	struct mtd_info		mtd;
 +};
 +
-+/*----------------------------------------------------------------------*/
++#ifdef CONFIG_MTD_PARTITIONS
++#define	mtd_has_partitions()	(1)
++#else
++#define	mtd_has_partitions()	(0)
++#endif
++
++/* ......................................................................... */
 +
 +/*
-+ * these routines may be slower than necessary because they're hiding
-+ * the fact that there are two different SPI busses on this cable: one
-+ * to the DataFlash chip (or AVR SPI controller), the other to the
-+ * AVR USI controller.
++ * Return the status of the DataFlash device.
 + */
-+
-+static inline void
-+setsck(struct spi_device *spi, int is_on)
++static inline int dataflash_status(struct spi_device *spi)
 +{
-+	struct butterfly	*pp = spidev_to_pp(spi);
-+	u8			bit, byte = pp->lastbyte;
-+
-+	if (is_usidev(spi))
-+		bit = usi_sck_bit;
-+	else
-+		bit = spi_sck_bit;
-+
-+	if (is_on)
-+		byte |= bit;
-+	else
-+		byte &= ~bit;
-+	parport_write_data(pp->port, byte);
-+	pp->lastbyte = byte;
-+}
-+
-+static inline void
-+setmosi(struct spi_device *spi, int is_on)
-+{
-+	struct butterfly	*pp = spidev_to_pp(spi);
-+	u8			bit, byte = pp->lastbyte;
-+
-+	if (is_usidev(spi))
-+		bit = usi_mosi_bit;
-+	else
-+		bit = spi_mosi_bit;
-+
-+	if (is_on)
-+		byte |= bit;
-+	else
-+		byte &= ~bit;
-+	parport_write_data(pp->port, byte);
-+	pp->lastbyte = byte;
-+}
-+
-+static inline int getmiso(struct spi_device *spi)
-+{
-+	struct butterfly	*pp = spidev_to_pp(spi);
-+	int			value;
-+	u8			bit;
-+
-+	if (is_usidev(spi))
-+		bit = usi_miso_bit;
-+	else
-+		bit = spi_miso_bit;
-+
-+	/* only STATUS_BUSY is NOT negated */
-+	value = !(parport_read_status(pp->port) & bit);
-+	return (bit == PARPORT_STATUS_BUSY) ? value : !value;
-+}
-+
-+static void butterfly_chipselect(struct spi_device *spi, int value)
-+{
-+	struct butterfly	*pp = spidev_to_pp(spi);
-+
-+	/* set default clock polarity */
-+	if (value)
-+		setsck(spi, spi->mode & SPI_CPOL);
-+
-+	/* no chipselect on this USI link config */
-+	if (is_usidev(spi))
-+		return;
-+
-+	/* here, value == "activate or not" */
-+
-+	/* most PARPORT_CONTROL_* bits are negated */
-+	if (spi_cs_bit == PARPORT_CONTROL_INIT)
-+		value = !value;
-+
-+	/* here, value == "bit value to write in control register"  */
-+
-+	parport_frob_control(pp->port, spi_cs_bit, value ? spi_cs_bit : 0);
-+}
-+
-+
-+/* we only needed to implement one mode here, and choose SPI_MODE_0 */
-+
-+#define	spidelay(X)	do{}while(0)
-+//#define	spidelay	ndelay
-+
-+#define	EXPAND_BITBANG_TXRX
-+#include <linux/spi/spi_bitbang.h>
-+
-+static u32
-+butterfly_txrx_word_mode0(struct spi_device *spi,
-+		unsigned nsecs,
-+		u32 word, u8 bits)
-+{
-+	return bitbang_txrx_be_cpha0(spi, nsecs, 0, word, bits);
-+}
-+
-+/*----------------------------------------------------------------------*/
-+
-+/* override default partitioning with cmdlinepart */
-+static struct mtd_partition partitions[] = { {
-+	/* JFFS2 wants partitions of 4*N blocks for this device ... */
-+
-+	/* sector 0 = 8 pages * 264 bytes/page (1 block)
-+	 * sector 1 = 248 pages * 264 bytes/page
++	/* NOTE:  at45db321c over 25 MHz wants to write
++	 * a dummy byte after the opcode...
 +	 */
-+	.name		= "bookkeeping",	// 66 KB
-+	.offset		= 0,
-+	.size		= (8 + 248) * 264,
-+//	.mask_flags	= MTD_WRITEABLE,
-+}, {
-+	/* sector 2 = 256 pages * 264 bytes/page
-+	 * sectors 3-5 = 512 pages * 264 bytes/page
-+	 */
-+	.name		= "filesystem",		// 462 KB
-+	.offset		= MTDPART_OFS_APPEND,
-+	.size		= MTDPART_SIZ_FULL,
-+} };
++	return spi_w8r8(spi, OP_READ_STATUS);
++}
 +
-+static struct flash_platform_data flash = {
-+	.name		= "butterflash",
-+	.parts		= partitions,
-+	.nr_parts	= ARRAY_SIZE(partitions),
-+};
-+
-+
-+/* REVISIT remove this ugly global and its "only one" limitation */
-+static struct butterfly *butterfly;
-+
-+static void butterfly_attach(struct parport *p)
++/*
++ * Poll the DataFlash device until it is READY.
++ * This usually takes 5-20 msec or so; more for sector erase.
++ */
++static int dataflash_waitready(struct spi_device *spi)
 +{
-+	struct pardevice	*pd;
-+	int			status;
-+	struct butterfly	*pp;
-+	struct spi_master	*master;
-+	struct platform_device	*pdev;
++	int	status;
 +
-+	if (butterfly)
-+		return;
++	for (;;) {
++		status = dataflash_status(spi);
++		if (status < 0) {
++			DEBUG(MTD_DEBUG_LEVEL1, "%s: status %d?\n",
++					spi->dev.bus_id, status);
++			status = 0;
++		}
 +
-+	/* REVISIT:  this just _assumes_ a butterfly is there ... no probe,
-+	 * and no way to be selective about what it binds to.
-+	 */
++		if (status & (1 << 7))	/* RDY/nBSY */
++			return status;
 +
-+	/* FIXME where should master->cdev.dev come from?
-+	 * e.g. /sys/bus/pnp0/00:0b, some PCI thing, etc
-+	 * setting up a platform device like this is an ugly kluge...
-+	 */
-+	pdev = platform_device_register_simple("butterfly", -1, NULL, 0);
-+
-+	master = spi_alloc_master(&pdev->dev, sizeof *pp);
-+	if (!master) {
-+		status = -ENOMEM;
-+		goto done;
++		msleep(3);
 +	}
-+	pp = spi_master_get_devdata(master);
-+
-+	/*
-+	 * SPI and bitbang hookup
-+	 *
-+	 * use default setup(), cleanup(), and transfer() methods; and
-+	 * only bother implementing mode 0.  Start it later.
-+	 */
-+	master->bus_num = 42;
-+	master->num_chipselect = 2;
-+
-+	pp->bitbang.master = spi_master_get(master);
-+	pp->bitbang.chipselect = butterfly_chipselect;
-+	pp->bitbang.txrx_word[SPI_MODE_0] = butterfly_txrx_word_mode0;
-+
-+	/*
-+	 * parport hookup
-+	 */
-+	pp->port = p;
-+	pd = parport_register_device(p, "spi_butterfly",
-+			NULL, NULL, NULL,
-+			0 /* FLAGS */, pp);
-+	if (!pd) {
-+		status = -ENOMEM;
-+		goto clean0;
-+	}
-+	pp->pd = pd;
-+
-+	status = parport_claim(pd);
-+	if (status < 0)
-+		goto clean1;
-+
-+	/*
-+	 * Butterfly reset, powerup, run firmware
-+	 */
-+	pr_debug("%s: powerup/reset Butterfly\n", p->name);
-+
-+	/* nCS for dataflash (this bit is inverted on output) */
-+	parport_frob_control(pp->port, spi_cs_bit, 0);
-+
-+	/* stabilize power with chip in reset (nRESET), and
-+	 * both spi_sck_bit and usi_sck_bit clear (CPOL=0)
-+	 */
-+	pp->lastbyte |= vcc_bits;
-+	parport_write_data(pp->port, pp->lastbyte);
-+	msleep(5);
-+
-+	/* take it out of reset; assume long reset delay */
-+	pp->lastbyte |= butterfly_nreset;
-+	parport_write_data(pp->port, pp->lastbyte);
-+	msleep(100);
-+
-+
-+	/*
-+	 * Start SPI ... for now, hide that we're two physical busses.
-+	 */
-+	status = spi_bitbang_start(&pp->bitbang);
-+	if (status < 0)
-+		goto clean2;
-+
-+	/* Bus 1 lets us talk to at45db041b (firmware disables AVR)
-+	 * or AVR (firmware resets at45, acts as spi slave)
-+	 */
-+	pp->info[0].max_speed_hz = 15 * 1000 * 1000;
-+	strcpy(pp->info[0].modalias, "mtd_dataflash");
-+	pp->info[0].platform_data = &flash;
-+	pp->info[0].chip_select = 1;
-+	pp->info[0].controller_data = pp;
-+	pp->dataflash = spi_new_device(pp->bitbang.master, &pp->info[0]);
-+	if (pp->dataflash)
-+		pr_debug("%s: dataflash at %s\n", p->name,
-+				pp->dataflash->dev.bus_id);
-+
-+#ifdef	HAVE_USI
-+	/* even more custom AVR firmware */
-+	pp->info[1].max_speed_hz = 10 /* ?? */ * 1000 * 1000;
-+	strcpy(pp->info[1].modalias, "butterfly");
-+	// pp->info[1].platform_data = ... TBD ... ;
-+	pp->info[1].chip_select = 2,
-+	pp->info[1].controller_data = pp;
-+	pp->butterfly = spi_new_device(pp->bitbang.master, &pp->info[1]);
-+	if (pp->butterfly)
-+		pr_debug("%s: butterfly at %s\n", p->name,
-+				pp->butterfly->dev.bus_id);
-+
-+	/* FIXME setup ACK for the IRQ line ...  */
-+#endif
-+
-+	// dev_info(_what?_, ...)
-+	pr_info("%s: AVR Butterfly\n", p->name);
-+	butterfly = pp;
-+	return;
-+
-+clean2:
-+	/* turn off VCC */
-+	parport_write_data(pp->port, 0);
-+
-+	parport_release(pp->pd);
-+clean1:
-+	parport_unregister_device(pd);
-+clean0:
-+	(void) spi_master_put(pp->bitbang.master);
-+done:
-+	platform_device_unregister(pdev);
-+	pr_debug("%s: butterfly probe, fail %d\n", p->name, status);
 +}
 +
-+static void butterfly_detach(struct parport *p)
++/* ......................................................................... */
++
++/*
++ * Erase pages of flash.
++ */
++static int dataflash_erase(struct mtd_info *mtd, struct erase_info *instr)
 +{
-+	struct butterfly	*pp;
-+	struct platform_device	*pdev;
++	struct dataflash	*priv = (struct dataflash *)mtd->priv;
++	struct spi_device	*spi = priv->spi;
++	struct spi_transfer	x[1] = { { .tx_dma = 0, }, };
++	struct spi_message	msg;
++	unsigned		blocksize = priv->page_size << 3;
++	u8			*command;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: erase addr=0x%x len 0x%x\n",
++			spi->dev.bus_id,
++			instr->addr, instr->len);
++
++	/* Sanity checks */
++	if ((instr->addr + instr->len) > mtd->size
++			|| (instr->len % priv->page_size) != 0
++			|| (instr->addr % priv->page_size) != 0)
++		return -EINVAL;
++
++	x[0].tx_buf = command = priv->command;
++	x[0].len = 4;
++	msg.transfers = x;
++	msg.n_transfer = 1;
++
++	down(&priv->lock);
++	while (instr->len > 0) {
++		unsigned int	pageaddr;
++		int		status;
++		int		do_block;
++
++		/* Calculate flash page address; use block erase (for speed) if
++		 * we're at a block boundary and need to erase the whole block.
++		 */
++		pageaddr = instr->addr / priv->page_size;
++		do_block = (pageaddr & 0x7) == 0 && instr->len <= blocksize;
++		pageaddr = pageaddr << priv->page_offset;
++
++		command[0] = do_block ? OP_ERASE_BLOCK : OP_ERASE_PAGE;
++		command[1] = (u8)(pageaddr >> 16);
++		command[2] = (u8)(pageaddr >> 8);
++		command[3] = 0;
++
++		DEBUG(MTD_DEBUG_LEVEL3, "ERASE %s: (%x) %x %x %x [%i]\n",
++			do_block ? "block" : "page",
++			command[0], command[1], command[2], command[3],
++			pageaddr);
++
++		status = spi_sync(spi, &msg);
++		(void) dataflash_waitready(spi);
++
++		if (status < 0) {
++			printk(KERN_ERR "%s: erase %x, err %d\n",
++				spi->dev.bus_id, pageaddr, status);
++			/* REVISIT:  can retry instr->retries times; or
++			 * giveup and instr->fail_addr = instr->addr;
++			 */
++			continue;
++		}
++
++		if (do_block) {
++			instr->addr += blocksize;
++			instr->len -= blocksize;
++		} else {
++			instr->addr += priv->page_size;
++			instr->len -= priv->page_size;
++		}
++	}
++	up(&priv->lock);
++
++	/* Inform MTD subsystem that erase is complete */
++	instr->state = MTD_ERASE_DONE;
++	mtd_erase_callback(instr);
++
++	return 0;
++}
++
++/*
++ * Read from the DataFlash device.
++ *   from   : Start offset in flash device
++ *   len    : Amount to read
++ *   retlen : About of data actually read
++ *   buf    : Buffer containing the data
++ */
++static int dataflash_read(struct mtd_info *mtd, loff_t from, size_t len,
++			       size_t *retlen, u_char *buf)
++{
++	struct dataflash	*priv = (struct dataflash *)mtd->priv;
++	struct spi_transfer	x[2] = { { .tx_dma = 0, }, };
++	struct spi_message	msg;
++	unsigned int		addr;
++	u8			*command;
 +	int			status;
 +
-+	/* FIXME this global is ugly ... but, how to quickly get from
-+	 * the parport to the "struct butterfly" associated with it?
-+	 * "old school" driver-internal device lists?
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: read 0x%x..0x%x\n",
++		priv->spi->dev.bus_id, (unsigned)from, (unsigned)(from + len));
++
++	*retlen = 0;
++
++	/* Sanity checks */
++	if (!len)
++		return 0;
++	if (from + len > mtd->size)
++		return -EINVAL;
++
++	/* Calculate flash page/byte address */
++	addr = (((unsigned)from / priv->page_size) << priv->page_offset)
++		+ ((unsigned)from % priv->page_size);
++
++	command = priv->command;
++
++	DEBUG(MTD_DEBUG_LEVEL3, "READ: (%x) %x %x %x\n",
++		command[0], command[1], command[2], command[3]);
++
++	x[0].tx_buf = command;
++	x[0].len = 8;
++	x[1].rx_buf = buf;
++	x[1].len = len;
++	msg.transfers = x;
++	msg.n_transfer = 2;
++
++	down(&priv->lock);
++
++	/* Continuous read, max clock = f(car) which may be less than
++	 * the peak rate available.  Some chips support commands with
++	 * fewer "don't care" bytes.  Both buffers stay unchanged.
 +	 */
-+	if (!butterfly || butterfly->port != p)
-+		return;
-+	pp = butterfly;
-+	butterfly = NULL;
++	command[0] = OP_READ_CONTINUOUS;
++	command[1] = (u8)(addr >> 16);
++	command[2] = (u8)(addr >> 8);
++	command[3] = (u8)(addr >> 0);
++	/* plus 4 "don't care" bytes */
 +
-+#ifdef	HAVE_USI
-+	spi_unregister_device(pp->butterfly);
-+	pp->butterfly = NULL;
-+#endif
-+	spi_unregister_device(pp->dataflash);
-+	pp->dataflash = NULL;
++	status = spi_sync(priv->spi, &msg);
++	up(&priv->lock);
 +
-+	status = spi_bitbang_stop(&pp->bitbang);
-+
-+	/* turn off VCC */
-+	parport_write_data(pp->port, 0);
-+	msleep(10);
-+
-+	parport_release(pp->pd);
-+	parport_unregister_device(pp->pd);
-+
-+	pdev = to_platform_device(pp->bitbang.master->cdev.dev);
-+
-+	(void) spi_master_put(pp->bitbang.master);
-+
-+	platform_device_unregister(pdev);
++	if (status >= 0) {
++		*retlen = msg.actual_length - 8;
++		status = 0;
++	} else
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: read %x..%x --> %d\n",
++			priv->spi->dev.bus_id,
++			(unsigned)from, (unsigned)(from + len),
++			status);
++	return status;
 +}
 +
-+static struct parport_driver butterfly_driver = {
-+	.name =		"spi_butterfly",
-+	.attach =	butterfly_attach,
-+	.detach =	butterfly_detach,
++/*
++ * Write to the DataFlash device.
++ *   to     : Start offset in flash device
++ *   len    : Amount to write
++ *   retlen : Amount of data actually written
++ *   buf    : Buffer containing the data
++ */
++static int dataflash_write(struct mtd_info *mtd, loff_t to, size_t len,
++				size_t * retlen, const u_char * buf)
++{
++	struct dataflash	*priv = (struct dataflash *)mtd->priv;
++	struct spi_device	*spi = priv->spi;
++	struct spi_transfer	x[2] = { { .tx_dma = 0, }, };
++	struct spi_message	msg;
++	unsigned int		pageaddr, addr, offset, writelen;
++	size_t			remaining = len;
++	u_char			*writebuf = (u_char *) buf;
++	int			status = -EINVAL;
++	u8			*command;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: write 0x%x..0x%x\n",
++		spi->dev.bus_id, (unsigned)to, (unsigned)(to + len));
++
++	*retlen = 0;
++
++	/* Sanity checks */
++	if (!len)
++		return 0;
++	if ((to + len) > mtd->size)
++		return -EINVAL;
++
++	x[0].tx_buf = command = priv->command;
++	x[0].len = 4;
++	msg.transfers = x;
++
++	pageaddr = ((unsigned)to / priv->page_size);
++	offset = ((unsigned)to % priv->page_size);
++	if (offset + len > priv->page_size)
++		writelen = priv->page_size - offset;
++	else
++		writelen = len;
++
++	down(&priv->lock);
++	while (remaining > 0) {
++		DEBUG(MTD_DEBUG_LEVEL3, "write @ %i:%i len=%i\n",
++			pageaddr, offset, writelen);
++
++		/* REVISIT:
++		 * (a) each page in a sector must be rewritten at least
++		 *     once every 10K sibling erase/program operations.
++		 * (b) for pages that are already erased, we could
++		 *     use WRITE+MWRITE not PROGRAM for ~30% speedup.
++		 * (c) WRITE to buffer could be done while waiting for
++		 *     a previous MWRITE/MWERASE to complete ...
++		 * (d) error handling here seems to be mostly missing.
++		 *
++		 * Two persistent bits per page, plus a per-sector counter,
++		 * could support (a) and (b) ... we might consider using
++		 * the second half of sector zero, which is just one block,
++		 * to track that state.  (On AT91, that sector should also
++		 * support boot-from-DataFlash.)
++		 */
++
++		addr = pageaddr << priv->page_offset;
++
++		/* (1) Maybe transfer partial page to Buffer1 */
++		if (writelen != priv->page_size) {
++			command[0] = OP_TRANSFER_BUF1;
++			command[1] = (addr & 0x00FF0000) >> 16;
++			command[2] = (addr & 0x0000FF00) >> 8;
++			command[3] = 0;
++
++			DEBUG(MTD_DEBUG_LEVEL3, "TRANSFER: (%x) %x %x %x\n",
++				command[0], command[1], command[2], command[3]);
++
++			msg.n_transfer = 1;
++			status = spi_sync(spi, &msg);
++			if (status < 0)
++				DEBUG(MTD_DEBUG_LEVEL1, "%s: xfer %u -> %d \n",
++					spi->dev.bus_id, addr, status);
++
++			(void) dataflash_waitready(priv->spi);
++		}
++
++		/* (2) Program full page via Buffer1 */
++		addr += offset;
++		command[0] = OP_PROGRAM_VIA_BUF1;
++		command[1] = (addr & 0x00FF0000) >> 16;
++		command[2] = (addr & 0x0000FF00) >> 8;
++		command[3] = (addr & 0x000000FF);
++
++		DEBUG(MTD_DEBUG_LEVEL3, "PROGRAM: (%x) %x %x %x\n",
++			command[0], command[1], command[2], command[3]);
++
++		x[1].tx_buf = writebuf;
++		x[1].len = writelen;
++		msg.n_transfer = 2;
++		status = spi_sync(spi, &msg);
++		if (status < 0)
++			DEBUG(MTD_DEBUG_LEVEL1, "%s: pgm %u/%u -> %d \n",
++				spi->dev.bus_id, addr, writelen, status);
++
++		(void) dataflash_waitready(priv->spi);
++
++#ifdef	CONFIG_DATAFLASH_WRITE_VERIFY
++
++		/* (3) Compare to Buffer1 */
++		addr = pageaddr << priv->page_offset;
++		command[0] = OP_COMPARE_BUF1;
++		command[1] = (addr & 0x00FF0000) >> 16;
++		command[2] = (addr & 0x0000FF00) >> 8;
++		command[3] = 0;
++
++		DEBUG(MTD_DEBUG_LEVEL3, "COMPARE: (%x) %x %x %x\n",
++			command[0], command[1], command[2], command[3]);
++
++		msg.n_transfer = 1;
++		status = spi_sync(spi, &msg);
++		if (status < 0)
++			DEBUG(MTD_DEBUG_LEVEL1, "%s: compare %u -> %d \n",
++				spi->dev.bus_id, addr, status);
++
++		status = dataflash_waitready(priv->spi);
++
++		/* Check result of the compare operation */
++		if ((status & (1 << 6)) == 1) {
++			printk(KERN_ERR "%s: compare page %u, err %d\n",
++				spi->dev.bus_id, pageaddr, status);
++			remaining = 0;
++			status = -EIO;
++			break;
++		} else
++			status = 0;
++
++#endif	/* CONFIG_DATAFLASH_WRITE_VERIFY */
++
++		remaining = remaining - writelen;
++		pageaddr++;
++		offset = 0;
++		writebuf += writelen;
++		*retlen += writelen;
++
++		if (remaining > priv->page_size)
++			writelen = priv->page_size;
++		else
++			writelen = remaining;
++	}
++	up(&priv->lock);
++
++	return status;
++}
++
++/* ......................................................................... */
++
++/*
++ * Register DataFlash device with MTD subsystem.
++ */
++static int __devinit
++add_dataflash(struct spi_device *spi, char *name,
++		int nr_pages, int pagesize, int pageoffset)
++{
++	struct dataflash		*priv;
++	struct mtd_info			*device;
++	struct flash_platform_data	*pdata = spi->dev.platform_data;
++
++	priv = (struct dataflash *) kzalloc(sizeof *priv, GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	init_MUTEX(&priv->lock);
++	priv->spi = spi;
++	priv->page_size = pagesize;
++	priv->page_offset = pageoffset;
++
++	/* name must be usable with cmdlinepart */
++	sprintf(priv->name, "spi%d.%d-%s",
++			spi->master->bus_num, spi->chip_select,
++			name);
++
++	device = &priv->mtd;
++	device->name = (pdata && pdata->name) ? pdata->name : priv->name;
++	device->size = nr_pages * pagesize;
++	device->erasesize = pagesize;
++	device->owner = THIS_MODULE;
++	device->type = MTD_DATAFLASH;
++	device->flags = MTD_CAP_NORFLASH;
++	device->erase = dataflash_erase;
++	device->read = dataflash_read;
++	device->write = dataflash_write;
++	device->priv = priv;
++
++	dev_info(&spi->dev, "%s (%d KBytes)\n", name, device->size/1024);
++	dev_set_drvdata(&spi->dev, priv);
++
++	if (mtd_has_partitions()) {
++		struct mtd_partition	*parts;
++		int			nr_parts = 0;
++
++#ifdef CONFIG_MTD_CMDLINE_PARTS
++		static const char *part_probes[] = { "cmdlinepart", NULL, };
++
++		nr_parts = parse_mtd_partitions(device, part_probes, &parts, 0);
++#endif
++
++		if (nr_parts <= 0 && pdata && pdata->parts) {
++			parts = pdata->parts;
++			nr_parts = pdata->nr_parts;
++		}
++
++		if (nr_parts > 0) {
++			priv->partitioned = 1;
++			return add_mtd_partitions(device, parts, nr_parts);
++		}
++	} else if (pdata->nr_parts)
++		dev_warn(&spi->dev, "ignoring %d default partitions on %s\n",
++				pdata->nr_parts, device->name);
++
++	return add_mtd_device(device) == 1 ? -ENODEV : 0;
++}
++
++/*
++ * Detect and initialize DataFlash device:
++ *
++ *   Device      Density         ID code          #Pages PageSize  Offset
++ *   AT45DB011B  1Mbit   (128K)  xx0011xx (0x0c)    512    264      9
++ *   AT45DB021B  2Mbit   (256K)  xx0101xx (0x14)   1025    264      9
++ *   AT45DB041B  4Mbit   (512K)  xx0111xx (0x1c)   2048    264      9
++ *   AT45DB081B  8Mbit   (1M)    xx1001xx (0x24)   4096    264      9
++ *   AT45DB0161B 16Mbit  (2M)    xx1011xx (0x2c)   4096    528     10
++ *   AT45DB0321B 32Mbit  (4M)    xx1101xx (0x34)   8192    528     10
++ *   AT45DB0642  64Mbit  (8M)    xx111xxx (0x3c)   8192   1056     11
++ *   AT45DB1282  128Mbit (16M)   xx0100xx (0x10)  16384   1056     11
++ */
++static int __devinit dataflash_probe(struct spi_device *spi)
++{
++	int status;
++
++	status = dataflash_status(spi);
++	if (status <= 0 || status == 0xff) {
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: status error %d\n",
++				spi->dev.bus_id, status);
++		if (status == 0xff)
++			status = -ENODEV;
++		return status;
++	}
++
++	/* if there's a device there, assume it's dataflash.
++	 * board setup should have set spi->max_speed_max to
++	 * match f(car) for continuous reads, mode 0 or 3.
++	 */
++	switch (status & 0x3c) {
++	case 0x0c:	/* 0 0 1 1 x x */
++		status = add_dataflash(spi, "AT45DB011B", 512, 264, 9);
++		break;
++	case 0x14:	/* 0 1 0 1 x x */
++		status = add_dataflash(spi, "AT45DB021B", 1025, 264, 9);
++		break;
++	case 0x1c:	/* 0 1 1 1 x x */
++		status = add_dataflash(spi, "AT45DB041x", 2048, 264, 9);
++		break;
++	case 0x24:	/* 1 0 0 1 x x */
++		status = add_dataflash(spi, "AT45DB081B", 4096, 264, 9);
++		break;
++	case 0x2c:	/* 1 0 1 1 x x */
++		status = add_dataflash(spi, "AT45DB161x", 4096, 528, 10);
++		break;
++	case 0x34:	/* 1 1 0 1 x x */
++		status = add_dataflash(spi, "AT45DB321x", 8192, 528, 10);
++		break;
++	case 0x38:	/* 1 1 1 x x x */
++	case 0x3c:
++		status = add_dataflash(spi, "AT45DB642x", 8192, 1056, 11);
++		break;
++	/* obsolete AT45DB1282 not (yet?) supported */
++	default:
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: unsupported device (%x)\n",
++				spi->dev.bus_id, status & 0x3c);
++		status = -ENODEV;
++	}
++
++	if (status < 0)
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: add_dataflash --> %d\n",
++				spi->dev.bus_id, status);
++
++	return status;
++}
++
++static int __devexit dataflash_remove(struct spi_device *spi)
++{
++	struct dataflash	*flash = dev_get_drvdata(&spi->dev);
++	int			status;
++
++	DEBUG(MTD_DEBUG_LEVEL1, "%s: remove\n", spi->dev.bus_id);
++
++	if (mtd_has_partitions() && flash->partitioned)
++		status = del_mtd_partitions(&flash->mtd);
++	else
++		status = del_mtd_device(&flash->mtd);
++	if (status == 0)
++		kfree(flash);
++	return status;
++}
++
++static struct spi_driver dataflash_driver = {
++	.driver = {
++		.name		= "mtd_dataflash",
++		.bus		= &spi_bus_type,
++		.owner		= THIS_MODULE,
++	},
++
++	.probe		= dataflash_probe,
++	.remove		= __devexit_p(dataflash_remove),
++
++	/* FIXME:  investigate suspend and resume... */
 +};
 +
-+
-+static int __init butterfly_init(void)
++static int __init dataflash_init(void)
 +{
-+	return parport_register_driver(&butterfly_driver);
++	return spi_register_driver(&dataflash_driver);
 +}
-+device_initcall(butterfly_init);
++module_init(dataflash_init);
 +
-+static void __exit butterfly_exit(void)
++static void __exit dataflash_exit(void)
 +{
-+	parport_unregister_driver(&butterfly_driver);
++	spi_unregister_driver(&dataflash_driver);
 +}
-+module_exit(butterfly_exit);
++module_exit(dataflash_exit);
++
 +
 +MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Andrew Victor, David Brownell");
++MODULE_DESCRIPTION("MTD DataFlash driver");
+diff --git a/include/linux/spi/flash.h b/include/linux/spi/flash.h
+new file mode 100644
+index 0000000..2ce6558
+--- /dev/null
++++ b/include/linux/spi/flash.h
+@@ -0,0 +1,27 @@
++#ifndef LINUX_SPI_FLASH_H
++#define LINUX_SPI_FLASH_H
++
++struct mtd_partition;
++
++/**
++ * struct flash_platform_data: board-specific flash data
++ * @name: optional flash device name (eg, as used with mtdparts=)
++ * @parts: optional array of mtd_partitions for static partitioning
++ * @nr_parts: number of mtd_partitions for static partitoning
++ *
++ * Board init code (in arch/.../mach-xxx/board-yyy.c files) can
++ * provide information about SPI flash parts (such as DataFlash) to
++ * help set up the device and its appropriate default partitioning.
++ *
++ * Note that for DataFlash, sizes for pages, blocks, and sectors are
++ * rarely powers of two; and partitions should be sector-aligned.
++ */
++struct flash_platform_data {
++	char		*name;
++	struct mtd_partition *parts;
++	unsigned int	nr_parts;
++
++	/* we'll likely add more ... use JEDEC IDs, etc */
++};
++
++#endif
 

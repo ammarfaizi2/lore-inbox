@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWANNdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWANNib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWANNdg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 08:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWANNdg
+	id S932441AbWANNib (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 08:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932715AbWANNib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 08:33:36 -0500
-Received: from smtprelay06.ispgateway.de ([80.67.18.44]:39903 "EHLO
-	smtprelay06.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932261AbWANNdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 08:33:35 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/17] BRIDGE: Fix faulty check in br_stp_recalculate_bridge_id()
-Date: Sat, 14 Jan 2006 14:33:23 +0100
-User-Agent: KMail/1.7.2
-Cc: Chris Wright <chrisw@sous-sol.org>, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-References: <20060113032102.154909000@sorel.sous-sol.org> <200601131946.46782.ioe-lkml@rameria.de> <20060113193936.GN3335@sorel.sous-sol.org>
-In-Reply-To: <20060113193936.GN3335@sorel.sous-sol.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1958724.GnkhArbXZe";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601141433.32682.ioe-lkml@rameria.de>
+	Sat, 14 Jan 2006 08:38:31 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:4061 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932441AbWANNib (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 08:38:31 -0500
+Date: Sat, 14 Jan 2006 14:38:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
+Subject: Re: [patch 00/62] sem2mutex: -V1
+Message-ID: <20060114133840.GA4038@elte.hu>
+References: <20060113124402.GA7351@elte.hu> <200601131925.34971.ioe-lkml@rameria.de> <20060113195658.GA3780@elte.hu> <200601141416.20055.ioe-lkml@rameria.de> <1137245466.3014.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137245466.3014.20.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1958724.GnkhArbXZe
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Friday 13 January 2006 20:39, Chris Wright wrote:
-> * Ingo Oeser (ioe-lkml@rameria.de) wrote:
-> > Why not include a shorter version of this nice explanation
-> > above the list_for_each_entry() loop?
-> >=20
-> > Like:
-> >=20
-> > /* We try to find the min MAC address to use in this bridge id. */
->=20
-> Send a patch to Stephen ;-)  I'll leave it as is for -stable, since it's
-> not a candidate for janitorial cleanups.
+* Arjan van de Ven <arjan@infradead.org> wrote:
 
-=46ine with me. Your argument is perfectly reasonable for me.
+> That case is the simple (and most common) case. Since it uses down() 
+> only, it can't be irq context. (trylock could be a sign of irq context 
+> use), and all up()'s are 1) not in irq context either because they're 
+> in the same function as the down() which isn;t and 2) perfectly 
+> matched to the down(), eg each down gets one up ---> perfect 
+> semaphore.
 
+one of the most frequent exceptions to the 'up in a separate function' 
+rule are seqfile implementations, which all have start(), mid(), stop() 
+methods, where start() does the down(), stop() does the up(). These can 
+still be converted to mutexes (and i converted a couple of them), after 
+manual review.
 
-Regards
+> The other case on the other side of the spectrum is a down in one 
+> function and an up in an irq function. Which is a pretty good sign of 
+> a completion.... (same is true for a specific scenario where kernel 
+> thread creation is involved and the up() is done in the just created 
+> thread).
 
-Ingo Oeser
+another good sign of completion type of semaphores is the use of 
+DECLARE_MUTEX_LOCKED(), init_MUTEX_LOCKED(), or sema_init(&sem, 0). In 
+95% of these cases these signal semaphores used as completions. That is 
+one reason why i did not add DEFINE_MUTEX_LOCKED(), nor 
+mutex_init_locked() to the mutex APIs.
 
+the 'struct work' conversion is rare, i've only seen it in XFS so far.
 
---nextPart1958724.GnkhArbXZe
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDyP2sU56oYWuOrkARAqeIAJwP/3vfb/PIO5gw/5DfkisgqadXxgCfWLWJ
-L5+3l0cXNYr4iUQWXWPmU4c=
-=Zag1
------END PGP SIGNATURE-----
-
---nextPart1958724.GnkhArbXZe--
+	Ingo

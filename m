@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945969AbWANBlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945970AbWANBnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945969AbWANBlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 20:41:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945972AbWANBlX
+	id S1945970AbWANBnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 20:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945971AbWANBnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 20:41:23 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:27264 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1945969AbWANBlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 20:41:22 -0500
-Date: Fri, 13 Jan 2006 17:51:24 -0800
-From: thockin@hockin.org
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: David Lang <dlang@digitalinsight.com>,
-       Sven-Thorsten Dietrich <sven@mvista.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual core Athlons and unsynced TSCs
-Message-ID: <20060114015124.GA11611@hockin.org>
-References: <1137190698.2536.65.camel@localhost.localdomain> <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz> <43C848C7.1070701@domdv.de> <Pine.LNX.4.62.0601131701590.9821@qynat.qvtvafvgr.pbz> <43C85213.40808@domdv.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C85213.40808@domdv.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 13 Jan 2006 20:43:25 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:65517 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1945970AbWANBnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 20:43:24 -0500
+Date: Fri, 13 Jan 2006 20:43:07 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: john stultz <johnstul@us.ibm.com>
+cc: Lee Revell <rlrevell@joe-job.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Roger Heflin <rheflin@atipa.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Dual core Athlons and unsynced TSCs
+In-Reply-To: <1137202773.11300.37.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0601132042050.7584@gandalf.stny.rr.com>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com> 
+ <1137168254.7241.32.camel@localhost.localdomain>  <1137174463.15108.4.camel@mindpipe>
+  <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com> 
+ <1137174848.15108.11.camel@mindpipe>  <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+  <1137178506.15108.38.camel@mindpipe>  <1137182991.8283.7.camel@localhost.localdomain>
+  <1137198221.11300.21.camel@cog.beaverton.ibm.com> 
+ <1137201012.6727.1.camel@localhost.localdomain>  <1137201250.1408.39.camel@mindpipe>
+  <1137201821.11300.30.camel@cog.beaverton.ibm.com>  <1137202039.1408.42.camel@mindpipe>
+ <1137202773.11300.37.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 14, 2006 at 02:21:23AM +0100, Andreas Steinmetz wrote:
-> > neither of these are fixes, but by understanding the different costs
-> > people can choose the work around they want to use while waiting for a
-> > better fix.
-> 
-> The problem being that some of us use their laptops for audio work too.
-> And then high battery usage, noisy fans or lack of high res timers will
-> be really bad.
-> 
-> Simple example:
-> I do final mastering work using my laptop and Ardour/Jack/JAMin out of
-> house in a place with a good stage audio system (Mackie mixer, 2KW
-> Dynacord Amp/Syrincs S3) and a sufficient listening space to get a
-> proper bass mix. I run on battery in this case to avoid any kind of
-> audio interference (ground loops, etc). Now thinking of a dual core
-> laptop...
 
-Fixes are coming, just need to sort out the fidlly bits.
+On Fri, 13 Jan 2006, john stultz wrote:
+
+>
+> This is as I understand it:
+>
+> With 2.6.15 on x86-64:
+> 	If available, alternate timesources (HPET, ACPI PM) will be used if
+> available on AMD SMP systems. (clock= is i386 only)
+
+Hmm, should I boot without the clock= to prove this?
+
+-- Steve
+
+>
+> With 2.6.15 on i386:
+> 	If CONFIG_X86_PM_TIMER is enabled, and available it is the preferred
+> clocksource over the TSC.  Some distros have changed this priority
+> causing the TSC to be preferred. In these cases clock=pmtmr is needed.
+>
+> How's that?
+> -john
+>
+>
+>

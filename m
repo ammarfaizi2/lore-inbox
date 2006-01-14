@@ -1,147 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWANMrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWANMte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751235AbWANMrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWANMqL
+	id S932513AbWANMte (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWANMte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:46:11 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:10402 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751235AbWANMqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 07:46:05 -0500
+	Sat, 14 Jan 2006 07:49:34 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:11682 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932228AbWANMqH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 07:46:07 -0500
 From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Date: Sat, 14 Jan 2006 14:46:04 +0200
-Message-Id: <20060114122415.163755000@localhost>
+Date: Sat, 14 Jan 2006 14:46:06 +0200
+Message-Id: <20060114122442.077039000@localhost>
 References: <20060114122249.246354000@localhost>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: [patch 04/10] slab: cache_estimate cleanup
+Subject: [patch 09/10] slab: rename ac_data to cpu_cache_get
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-This patch cleans up cache_estimate() in mm/slab.c and improves the
-algorithm from O(n) to O(1). We first calculate the maximum number of
-objects a slab can hold after struct slab and kmem_bufctl_t for each
-object has been given enough space. After that, to respect alignment
-rules, we decrease the number of objects if necessary. As required
-padding is at most align-1 and memory of obj_size is at least align,
-it is always enough to decrease number of objects by one.
+This patch renames the ac_data() function to more descriptive cpu_cache_get().
 
-The optimization was originally made by Balbir Singh with more 
-improvements from Steven Rostedt. Manfred Spraul provider further
-modifications: no loop at all for the off-slab case and added comments
-to explain the background.
-
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Acked-by: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- mm/slab.c |   87 ++++++++++++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 62 insertions(+), 25 deletions(-)
+ mm/slab.c |   36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
 Index: 2.6/mm/slab.c
 ===================================================================
 --- 2.6.orig/mm/slab.c
 +++ 2.6/mm/slab.c
-@@ -700,32 +700,69 @@ kmem_cache_t *kmem_find_general_cachep(s
- }
- EXPORT_SYMBOL(kmem_find_general_cachep);
+@@ -677,7 +677,7 @@ static void enable_cpucache(kmem_cache_t
+ static void cache_reap(void *unused);
+ static int __node_shrink(kmem_cache_t *cachep, int node);
  
--/* Cal the num objs, wastage, and bytes left over for a given slab size. */
--static void cache_estimate(unsigned long gfporder, size_t size, size_t align,
--			   int flags, size_t *left_over, unsigned int *num)
-+static size_t slab_mgmt_size(size_t nr_objs, size_t align)
+-static inline struct array_cache *ac_data(kmem_cache_t *cachep)
++static inline struct array_cache *cpu_cache_get(kmem_cache_t *cachep)
  {
--	int i;
--	size_t wastage = PAGE_SIZE << gfporder;
--	size_t extra = 0;
--	size_t base = 0;
--
--	if (!(flags & CFLGS_OFF_SLAB)) {
--		base = sizeof(struct slab);
--		extra = sizeof(kmem_bufctl_t);
--	}
--	i = 0;
--	while (i * size + ALIGN(base + i * extra, align) <= wastage)
--		i++;
--	if (i > 0)
--		i--;
--
--	if (i > SLAB_LIMIT)
--		i = SLAB_LIMIT;
--
--	*num = i;
--	wastage -= i * size;
--	wastage -= ALIGN(base + i * extra, align);
--	*left_over = wastage;
-+	return ALIGN(sizeof(struct slab)+nr_objs*sizeof(kmem_bufctl_t), align);
-+}
-+
-+/* Calculate the number of objects and left-over bytes for a given
-+   buffer size. */
-+static void cache_estimate(unsigned long gfporder, size_t buffer_size,
-+			   size_t align, int flags, size_t *left_over,
-+			   unsigned int *num)
-+{
-+	int nr_objs;
-+	size_t mgmt_size;
-+	size_t slab_size = PAGE_SIZE << gfporder;
-+
-+	/*
-+	 * The slab management structure can be either off the slab or
-+	 * on it. For the latter case, the memory allocated for a
-+	 * slab is used for:
-+	 *
-+	 * - The struct slab
-+	 * - One kmem_bufctl_t for each object
-+	 * - Padding to respect alignment of @align
-+	 * - @buffer_size bytes for each object
-+	 *
-+	 * If the slab management structure is off the slab, then the
-+	 * alignment will already be calculated into the size. Because
-+	 * the slabs are all pages aligned, the objects will be at the
-+	 * correct alignment when allocated.
-+	 */
-+	if (flags & CFLGS_OFF_SLAB) {
-+		mgmt_size = 0;
-+		nr_objs = slab_size / buffer_size;
-+
-+		if (nr_objs > SLAB_LIMIT)
-+			nr_objs = SLAB_LIMIT;
-+	} else {
-+		/*
-+		 * Ignore padding for the initial guess. The padding
-+		 * is at most @align-1 bytes, and @buffer_size is at
-+		 * least @align. In the worst case, this result will
-+		 * be one greater than the number of objects that fit
-+		 * into the memory allocation when taking the padding
-+		 * into account.
-+		 */
-+		nr_objs = (slab_size - sizeof(struct slab)) /
-+			  (buffer_size + sizeof(kmem_bufctl_t));
-+
-+		/*
-+		 * This calculated number will be either the right
-+		 * amount, or one greater than what we want.
-+		 */
-+		if (slab_mgmt_size(nr_objs, align) + nr_objs*buffer_size
-+		       > slab_size)
-+			nr_objs--;
-+
-+		if (nr_objs > SLAB_LIMIT)
-+			nr_objs = SLAB_LIMIT;
-+
-+		mgmt_size = slab_mgmt_size(nr_objs, align);
-+	}
-+	*num = nr_objs;
-+	*left_over = slab_size - nr_objs*buffer_size - mgmt_size;
+ 	return cachep->array[smp_processor_id()];
  }
+@@ -1183,8 +1183,8 @@ void __init kmem_cache_init(void)
+ 		ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
  
- #define slab_error(cachep, msg) __slab_error(__FUNCTION__, cachep, msg)
+ 		local_irq_disable();
+-		BUG_ON(ac_data(&cache_cache) != &initarray_cache.cache);
+-		memcpy(ptr, ac_data(&cache_cache),
++		BUG_ON(cpu_cache_get(&cache_cache) != &initarray_cache.cache);
++		memcpy(ptr, cpu_cache_get(&cache_cache),
+ 		       sizeof(struct arraycache_init));
+ 		cache_cache.array[smp_processor_id()] = ptr;
+ 		local_irq_enable();
+@@ -1192,9 +1192,9 @@ void __init kmem_cache_init(void)
+ 		ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
+ 
+ 		local_irq_disable();
+-		BUG_ON(ac_data(malloc_sizes[INDEX_AC].cs_cachep)
++		BUG_ON(cpu_cache_get(malloc_sizes[INDEX_AC].cs_cachep)
+ 		       != &initarray_generic.cache);
+-		memcpy(ptr, ac_data(malloc_sizes[INDEX_AC].cs_cachep),
++		memcpy(ptr, cpu_cache_get(malloc_sizes[INDEX_AC].cs_cachep),
+ 		       sizeof(struct arraycache_init));
+ 		malloc_sizes[INDEX_AC].cs_cachep->array[smp_processor_id()] =
+ 		    ptr;
+@@ -1232,7 +1232,7 @@ void __init kmem_cache_init(void)
+ 	g_cpucache_up = FULL;
+ 
+ 	/* Register a cpu startup notifier callback
+-	 * that initializes ac_data for all new cpus
++	 * that initializes cpu_cache_get for all new cpus
+ 	 */
+ 	register_cpu_notifier(&cpucache_notifier);
+ 
+@@ -1906,11 +1906,11 @@ kmem_cache_create (const char *name, siz
+ 		    jiffies + REAPTIMEOUT_LIST3 +
+ 		    ((unsigned long)cachep) % REAPTIMEOUT_LIST3;
+ 
+-		BUG_ON(!ac_data(cachep));
+-		ac_data(cachep)->avail = 0;
+-		ac_data(cachep)->limit = BOOT_CPUCACHE_ENTRIES;
+-		ac_data(cachep)->batchcount = 1;
+-		ac_data(cachep)->touched = 0;
++		BUG_ON(!cpu_cache_get(cachep));
++		cpu_cache_get(cachep)->avail = 0;
++		cpu_cache_get(cachep)->limit = BOOT_CPUCACHE_ENTRIES;
++		cpu_cache_get(cachep)->batchcount = 1;
++		cpu_cache_get(cachep)->touched = 0;
+ 		cachep->batchcount = 1;
+ 		cachep->limit = BOOT_CPUCACHE_ENTRIES;
+ 	}
+@@ -1989,7 +1989,7 @@ static void do_drain(void *arg)
+ 	int node = numa_node_id();
+ 
+ 	check_irq_off();
+-	ac = ac_data(cachep);
++	ac = cpu_cache_get(cachep);
+ 	spin_lock(&cachep->nodelists[node]->list_lock);
+ 	free_block(cachep, ac->entry, ac->avail, node);
+ 	spin_unlock(&cachep->nodelists[node]->list_lock);
+@@ -2515,7 +2515,7 @@ static void *cache_alloc_refill(kmem_cac
+ 	struct array_cache *ac;
+ 
+ 	check_irq_off();
+-	ac = ac_data(cachep);
++	ac = cpu_cache_get(cachep);
+       retry:
+ 	batchcount = ac->batchcount;
+ 	if (!ac->touched && batchcount > BATCHREFILL_LIMIT) {
+@@ -2587,7 +2587,7 @@ static void *cache_alloc_refill(kmem_cac
+ 		x = cache_grow(cachep, flags, numa_node_id());
+ 
+ 		// cache_grow can reenable interrupts, then ac could change.
+-		ac = ac_data(cachep);
++		ac = cpu_cache_get(cachep);
+ 		if (!x && ac->avail == 0)	// no objects in sight? abort
+ 			return NULL;
+ 
+@@ -2663,7 +2663,7 @@ static inline void *____cache_alloc(kmem
+ 	struct array_cache *ac;
+ 
+ 	check_irq_off();
+-	ac = ac_data(cachep);
++	ac = cpu_cache_get(cachep);
+ 	if (likely(ac->avail)) {
+ 		STATS_INC_ALLOCHIT(cachep);
+ 		ac->touched = 1;
+@@ -2856,7 +2856,7 @@ static void cache_flusharray(kmem_cache_
+  */
+ static inline void __cache_free(kmem_cache_t *cachep, void *objp)
+ {
+-	struct array_cache *ac = ac_data(cachep);
++	struct array_cache *ac = cpu_cache_get(cachep);
+ 
+ 	check_irq_off();
+ 	objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
+@@ -3241,7 +3241,7 @@ static void do_ccupdate_local(void *info
+ 	struct array_cache *old;
+ 
+ 	check_irq_off();
+-	old = ac_data(new->cachep);
++	old = cpu_cache_get(new->cachep);
+ 
+ 	new->cachep->array[smp_processor_id()] = new->new[smp_processor_id()];
+ 	new->new[smp_processor_id()] = old;
+@@ -3407,7 +3407,7 @@ static void cache_reap(void *unused)
+ 			drain_alien_cache(searchp, l3);
+ 		spin_lock_irq(&l3->list_lock);
+ 
+-		drain_array_locked(searchp, ac_data(searchp), 0,
++		drain_array_locked(searchp, cpu_cache_get(searchp), 0,
+ 				   numa_node_id());
+ 
+ 		if (time_after(l3->next_reap, jiffies))
 
 --
 

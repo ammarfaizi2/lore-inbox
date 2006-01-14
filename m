@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWANIye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWANIzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWANIye (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 03:54:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWANIye
+	id S1750821AbWANIzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 03:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWANIzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 03:54:34 -0500
-Received: from bay17-f29.bay17.hotmail.com ([64.4.43.79]:58131 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1750740AbWANIyd
+	Sat, 14 Jan 2006 03:55:17 -0500
+Received: from bay17-f23.bay17.hotmail.com ([64.4.43.73]:26577 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750821AbWANIzP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 03:54:33 -0500
-Message-ID: <BAY17-F29079CAE51CD9B122B8FC997190@phx.gbl>
+	Sat, 14 Jan 2006 03:55:15 -0500
+Message-ID: <BAY17-F23F48DE88AB5E02BB7AF8A97190@phx.gbl>
 X-Originating-IP: [203.197.150.66]
 X-Originating-Email: [ratheesh.ksz@hotmail.com]
 From: "Ratheesh k" <ratheesh.ksz@hotmail.com>
 To: linux-kernel@vger.kernel.org
 Subject: change eth0 to sn0        ? 
-Date: Sat, 14 Jan 2006 14:24:33 +0530
+Date: Sat, 14 Jan 2006 14:25:14 +0530
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 14 Jan 2006 08:54:33.0304 (UTC) FILETIME=[2375CD80:01C618E8]
+X-OriginalArrivalTime: 14 Jan 2006 08:55:14.0917 (UTC) FILETIME=[3C437150:01C618E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -61,6 +61,6 @@ $ ifconfig  sno 172.16.8.1 mtu 1500 irq 193 hw ether 00:11:2f:77:fd:c2
 what i have to do ?
 
 _________________________________________________________________
-How good are you in a Formula One car? Play now 
-http://server1.msn.co.in/sp05/tataracing/onlinegame.asp
+Spice up your IM conversations. New, colorful and animated emoticons. Get 
+chatting! http://server1.msn.co.in/SP05/emoticons/
 

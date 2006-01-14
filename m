@@ -1,60 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWANUIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWANUPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWANUIv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 15:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWANUIv
+	id S1751056AbWANUPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 15:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWANUPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 15:08:51 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:50188 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751050AbWANUIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 15:08:50 -0500
-Date: Sat, 14 Jan 2006 21:08:39 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Calin A. Culianu" <calin@ajvar.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Watchdog: Winsystems EPX-C3 SBC
-Message-ID: <20060114200839.GA14036@w.ods.org>
-References: <Pine.LNX.4.64.0601132149430.9231@rtlab.med.cornell.edu> <1137266649.23269.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137266649.23269.2.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.10i
+	Sat, 14 Jan 2006 15:15:49 -0500
+Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:24772 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751055AbWANUPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 15:15:49 -0500
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fuse: fix bitfield race
+Message-Id: <E1Exro1-0002AX-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 14 Jan 2006 21:15:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 14, 2006 at 07:24:09PM +0000, Alan Cox wrote:
-> Some quick comments:
-> 
-> +       if (len) {
-> +               epx_c3_pet();
-> +       }
-> 
-> Doesn't need brackets (minor style)
-> 
-> Otherwise it looks excellent but should use request_region and friends
-> to claim the two ports it uses.
+Fix race in setting bitfields of fuse_conn.  Spotted by Andrew Morton.
 
-You just remind me that I had to comment out the request_region in another
-watchdog driver I wrote, because the hardware was mapped on I/O port 0xF2
-which is within the FPU I/O space :
+The two fields ->connected and ->mounted were always changed with the
+fuse_lock held.  But other bitfields in the same structure were
+changed without the lock.  In theory this could lead to losing the
+assignment of even the ones under lock.  The chosen solution is to
+change these two fields to be a full unsigned type.  The other
+bitfields aren't "important" enough to warrant the extra complexity of
+full locking or changing them to bitops.
 
-   00f0-00ff : fpu
+For all bitfields document why they are safe wrt. concurrent
+assignments.
 
-I did not know how to correctly fix this problem, and I could live without
-the check, but I found it dirty and never proposed it for inclusion.
+Also make the initialization of the 'num_waiting' atomic counter
+explicit.
 
-It's not the first time I notice that write-only hardware share a reserved
-I/O range with other components, and I don't know how to cope with this.
-Perhaps it sounds logical not to request_region() as the hardware is meant
-to be 100% transparent afterall ?
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-> The see the "Sign your work:" bit of Documentation/SubmittingPatches are
-> it looks ready to go in.
-> 
-> Alan
-
-Willy
+Index: linux/fs/fuse/inode.c
+===================================================================
+--- linux.orig/fs/fuse/inode.c	2006-01-14 20:57:08.000000000 +0100
++++ linux/fs/fuse/inode.c	2006-01-14 20:58:31.000000000 +0100
+@@ -397,6 +397,7 @@ static struct fuse_conn *new_conn(void)
+ 		init_rwsem(&fc->sbput_sem);
+ 		kobj_set_kset_s(fc, connections_subsys);
+ 		kobject_init(&fc->kobj);
++		atomic_set(&fc->num_waiting, 0);
+ 		for (i = 0; i < FUSE_MAX_OUTSTANDING; i++) {
+ 			struct fuse_req *req = fuse_request_alloc();
+ 			if (!req) {
+@@ -492,6 +493,7 @@ static void fuse_send_init(struct fuse_c
+ 	   to be exactly one request available */
+ 	struct fuse_req *req = fuse_get_request(fc);
+ 	struct fuse_init_in *arg = &req->misc.init_in;
++
+ 	arg->major = FUSE_KERNEL_VERSION;
+ 	arg->minor = FUSE_KERNEL_MINOR_VERSION;
+ 	req->in.h.opcode = FUSE_INIT;
+Index: linux/fs/fuse/fuse_i.h
+===================================================================
+--- linux.orig/fs/fuse/fuse_i.h	2006-01-14 20:56:57.000000000 +0100
++++ linux/fs/fuse/fuse_i.h	2006-01-14 20:58:42.000000000 +0100
+@@ -94,6 +94,11 @@ struct fuse_out {
+ 	/** Header returned from userspace */
+ 	struct fuse_out_header h;
+ 
++	/*
++	 * The following bitfields are not changed during the request
++	 * processing
++	 */
++
+ 	/** Last argument is variable length (can be shorter than
+ 	    arg->size) */
+ 	unsigned argvar:1;
+@@ -136,6 +141,12 @@ struct fuse_req {
+ 	/** refcount */
+ 	atomic_t count;
+ 
++	/*
++	 * The following bitfields are either set once before the
++	 * request is queued or setting/clearing them is protected by
++	 * fuse_lock
++	 */
++
+ 	/** True if the request has reply */
+ 	unsigned isreply:1;
+ 
+@@ -250,15 +261,22 @@ struct fuse_conn {
+ 	u64 reqctr;
+ 
+ 	/** Mount is active */
+-	unsigned mounted : 1;
++	unsigned mounted;
+ 
+ 	/** Connection established, cleared on umount, connection
+ 	    abort and device release */
+-	unsigned connected : 1;
++	unsigned connected;
+ 
+-	/** Connection failed (version mismatch) */
++	/** Connection failed (version mismatch).  Cannot race with
++	    setting other bitfields since it is only set once in INIT
++	    reply, before any other request, and never cleared */
+ 	unsigned conn_error : 1;
+ 
++	/*
++	 * The following bitfields are only for optimization purposes
++	 * and hence races in setting them will not cause malfunction
++	 */
++
+ 	/** Is fsync not implemented by fs? */
+ 	unsigned no_fsync : 1;
+ 
 

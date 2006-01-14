@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWANLkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWANLlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWANLkU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 06:40:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWANLkU
+	id S1750749AbWANLlD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 06:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWANLlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 06:40:20 -0500
-Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96]:33246 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S1750730AbWANLkU (ORCPT
+	Sat, 14 Jan 2006 06:41:02 -0500
+Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96]:35038 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1750749AbWANLlA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 06:40:20 -0500
-Message-ID: <43C8E37D.7090907@free.fr>
-Date: Sat, 14 Jan 2006 12:41:49 +0100
+	Sat, 14 Jan 2006 06:41:00 -0500
+Message-ID: <43C8E3A6.2050103@free.fr>
+Date: Sat, 14 Jan 2006 12:42:30 +0100
 From: matthieu castet <castet.matthieu@free.fr>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: fr-fr, en, en-us
@@ -18,87 +18,42 @@ MIME-Version: 1.0
 To: greg@kroah.com
 CC: linux-kernel@vger.kernel.org, usbatm@lists.infradead.org,
        linux-usb-devel@lists.sourceforge.net, ueagle <ueagleatm-dev@gna.org>
-Subject: [PATCH 2/2] UEAGLE : cosmetic
+Subject: [PATCH 3/2] UEAGLE : cosmetic
 Content-Type: multipart/mixed;
- boundary="------------080900090504060905070205"
+ boundary="------------080101090309000502050009"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080900090504060905070205
+--------------080101090309000502050009
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-hi,
+Hi,
 
-this patch is purely cosmetic. There is :
-- indentation cleaning
-- unneeded cast removing
-- comments cleaning
+this patch correct a possible bug with cmv_name being static. If there 
+is 2 modems and the driver is scheduled when filling cmv_name this could 
+result with garbage in cmv_name. We allocate cmv_name on the stack but 
+with a small size in order to avoid that.
 
 
 Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
 
---------------080900090504060905070205
+--------------080101090309000502050009
 Content-Type: text/plain;
- name="ueagle_cosmetic"
+ name="ueagle_cmv_name"
 Content-Transfer-Encoding: base64
 Content-Disposition: inline;
- filename="ueagle_cosmetic"
+ filename="ueagle_cmv_name"
 
 SW5kZXg6IExpbnV4L2RyaXZlcnMvdXNiL2F0bS91ZWFnbGUtYXRtLmMKPT09PT09PT09PT09
 PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
 PQotLS0gTGludXgub3JpZy9kcml2ZXJzL3VzYi9hdG0vdWVhZ2xlLWF0bS5jCTIwMDYtMDEt
-MTQgMTI6MzY6MjYuMDAwMDAwMDAwICswMTAwCisrKyBMaW51eC9kcml2ZXJzL3VzYi9hdG0v
-dWVhZ2xlLWF0bS5jCTIwMDYtMDEtMTQgMTI6Mzc6MDAuMDAwMDAwMDAwICswMTAwCkBAIC02
-MzEsOCArNjMxLDcgQEAKIAkJCWRzcF9uYW1lID0gRldfRElSICJEU1BlcC5iaW4iOwogCX0K
-IAotCXJldCA9IHJlcXVlc3RfZmlybXdhcmUoJnNjLT5kc3BfZmlybSwKLQkJCQlkc3BfbmFt
-ZSwgJnNjLT51c2JfZGV2LT5kZXYpOworCXJldCA9IHJlcXVlc3RfZmlybXdhcmUoJnNjLT5k
-c3BfZmlybSwgZHNwX25hbWUsICZzYy0+dXNiX2Rldi0+ZGV2KTsKIAlpZiAocmV0IDwgMCkg
-ewogCQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLAogCQkgICAgICAgInJlcXVlc3Rpbmcg
-ZmlybXdhcmUgJXMgZmFpbGVkIHdpdGggZXJyb3IgJWRcbiIsCkBAIC03NDcsNyArNzQ2LDYg
-QEAKIAkJcmV0dXJuIHJldDsKIAogCXJldHVybiAocmV0ID09IDApID8gLUVUSU1FRE9VVCA6
-IDA7Ci0KIH0KIAogI2RlZmluZSBVQ0RDX1NFTkRfRU5DQVBTVUxBVEVEX0NPTU1BTkQgMHgw
-MApAQCAtMTE4OCw4ICsxMTg2LDcgQEAKIAkJfQogCX0KIAotCS8qIGZpbmlzaCB0byBzZW5k
-IHRoZSBmcGdhCi0JICovCisJLyogZmluaXNoIHRvIHNlbmQgdGhlIGZwZ2EgKi8KIAlyZXQg
-PSB1ZWFfcmVxdWVzdChzYywgMHhlLCAxLCAwLCBOVUxMKTsKIAlpZiAocmV0IDwgMCkgewog
-CQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLApAQCAtMTE5Nyw5ICsxMTk0LDcgQEAKIAkJ
-Z290byBlcnIxOwogCX0KIAotCS8qCi0JICogVGVsbCB0aGUgbW9kZW0gd2UgZmluaXNoIDog
-ZGUtYXNzZXJ0IHJlc2V0Ci0JICovCisJLyogVGVsbCB0aGUgbW9kZW0gd2UgZmluaXNoIDog
-ZGUtYXNzZXJ0IHJlc2V0ICovCiAJdmFsdWUgPSAwOwogCXJldCA9IHVlYV9zZW5kX21vZGVt
-X2NtZChzYy0+dXNiX2RldiwgMHhlLCAxLCAmdmFsdWUpOwogCWlmIChyZXQgPCAwKQpAQCAt
-MTIxMyw2ICsxMjA4LDcgQEAKIAlyZXR1cm4gcmV0OwogfQogCisvKiBUaGUgbW9kZW0gc2Vu
-ZCB1cyBhbiBhY2suIEZpcnN0IHdpdGggY2hlY2sgaWYgaXQgcmlnaHQgKi8KIHN0YXRpYyB2
-b2lkIHVlYV9kaXNwYXRjaF9jbXYoc3RydWN0IHVlYV9zb2Z0YyAqc2MsIHN0cnVjdCBjbXYq
-IGNtdikKIHsKIAl1ZWFfZW50ZXJzKElOU19UT19VU0JERVYoc2MpKTsKQEAgLTEyNzIsMjMg
-KzEyNjgsMTkgQEAKICAqLwogc3RhdGljIHZvaWQgdWVhX2ludHIoc3RydWN0IHVyYiAqdXJi
-LCBzdHJ1Y3QgcHRfcmVncyAqcmVncykKIHsKLQlzdHJ1Y3QgdWVhX3NvZnRjICpzYyA9IChz
-dHJ1Y3QgdWVhX3NvZnRjICopdXJiLT5jb250ZXh0OwotCXN0cnVjdCBpbnRyX3BrdCAqaW50
-cjsKKwlzdHJ1Y3QgdWVhX3NvZnRjICpzYyA9IHVyYi0+Y29udGV4dDsKKwlzdHJ1Y3QgaW50
-cl9wa3QgKmludHIgPSB1cmItPnRyYW5zZmVyX2J1ZmZlcjsKIAl1ZWFfZW50ZXJzKElOU19U
-T19VU0JERVYoc2MpKTsKIAotCWlmICh1cmItPnN0YXR1cyA8IDApIHsKKwlpZiAodW5saWtl
-bHkodXJiLT5zdGF0dXMgPCAwKSkgewogCQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLCAi
-dWVhX2ludHIoKSBmYWlsZWQgd2l0aCAlZFxuIiwKIAkJICAgICAgIHVyYi0+c3RhdHVzKTsK
-IAkJcmV0dXJuOwogCX0KIAotCWludHIgPSAoc3RydWN0IGludHJfcGt0ICopIHVyYi0+dHJh
-bnNmZXJfYnVmZmVyOwotCiAJLyogZGV2aWNlLXRvLWhvc3QgaW50ZXJydXB0ICovCiAJaWYg
-KGludHItPmJUeXBlICE9IDB4MDggfHwgc2MtPmJvb3RpbmcpIHsKLQkJdWVhX2VycihJTlNf
-VE9fVVNCREVWKHNjKSwgIndyb25nIGludHJcbiIpOwotCQkvLyByZWJvb3RpbmcgPwotCQkv
-LyBzYy0+cmVzZXQgPSAxOworCQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLCAid3Jvbmcg
-aW50ZXJydXB0XG4iKTsKIAkJZ290byByZXN1Ym1pdDsKIAl9CiAKQEAgLTEzMDQsNyArMTI5
-Niw3IEBACiAJCWJyZWFrOwogCiAJZGVmYXVsdDoKLQkJdWVhX2VycihJTlNfVE9fVVNCREVW
-KHNjKSwgInVua25vd24gaW50ciAldVxuIiwKKwkJdWVhX2VycihJTlNfVE9fVVNCREVWKHNj
-KSwgInVua25vd24gaW50ZXJydXB0ICV1XG4iLAogCQkgICAgICAgbGUxNl90b19jcHUoaW50
-ci0+d0ludGVycnVwdCkpOwogCX0KIApAQCAtMTM4Myw3ICsxMzc1LDcgQEAKIAlpbnQgcmV0
-OwogCXVlYV9lbnRlcnMoSU5TX1RPX1VTQkRFVihzYykpOwogCXJldCA9IGt0aHJlYWRfc3Rv
-cChzYy0+a3RocmVhZCk7Ci0JdWVhX2luZm8oSU5TX1RPX1VTQkRFVihzYyksICJrdGhyZWFk
-IGZpbmlzaCB3aXRoIHN0YXR1cyAlZFxuIiwgcmV0KTsKKwl1ZWFfZGJnKElOU19UT19VU0JE
-RVYoc2MpLCAia3RocmVhZCBmaW5pc2ggd2l0aCBzdGF0dXMgJWRcbiIsIHJldCk7CiAKIAkv
-KiBzdG9wIGFueSBwZW5kaW5nIGJvb3QgcHJvY2VzcyAqLwogCWZsdXNoX3NjaGVkdWxlZF93
-b3JrKCk7CkBAIC0xNjQwLDkgKzE2MzIsNyBAQAogCWlmIChyZXQgPCAwKQogCQlyZXR1cm4g
-cmV0OwogCi0JLyogQURJOTMwIGhhcyBvbmx5IDIgaW50ZXJmYWNlcyBhbmQgaW5ib3VuZCB0
-cmFmZmljCi0JICogaXMgb24gaW50ZXJmYWNlIDEKLQkgKi8KKwkvKiBBREk5MzAgaGFzIG9u
-bHkgMiBpbnRlcmZhY2VzIGFuZCBpbmJvdW5kIHRyYWZmaWMgaXMgb24gaW50ZXJmYWNlIDEg
-Ki8KIAlpZiAoVUVBX0NISVBfVkVSU0lPTihpZCkgIT0gQURJOTMwKSB7CiAJCS8qIGludGVy
-ZmFjZSAyIGlzIGZvciBpbmJvdW5kIHRyYWZmaWMgKi8KIAkJcmV0ID0gY2xhaW1faW50ZXJm
-YWNlKHVzYiwgdXNiYXRtLCBVRUFfRFNfSUZBQ0VfTk8pOwo=
---------------080900090504060905070205--
+MTQgMTI6Mzc6MDAuMDAwMDAwMDAwICswMTAwCisrKyBMaW51eC9kcml2ZXJzL3VzYi9hdG0v
+dWVhZ2xlLWF0bS5jCTIwMDYtMDEtMTQgMTI6Mzc6MzkuMDAwMDAwMDAwICswMTAwCkBAIC0x
+MDEyLDcgKzEwMTIsNyBAQAogCWludCByZXQsIHNpemU7CiAJdTggKmRhdGE7CiAJY2hhciAq
+ZmlsZTsKLQlzdGF0aWMgY2hhciBjbXZfbmFtZVsyNTZdID0gRldfRElSOworCWNoYXIgY212
+X25hbWVbRklSTVdBUkVfTkFNRV9NQVhdOyAvKiAzMCBieXRlcyBzdGFjayB2YXJpYWJsZSAq
+LwogCiAJaWYgKGNtdl9maWxlW3NjLT5tb2RlbV9pbmRleF0gPT0gTlVMTCkgewogCQlpZiAo
+VUVBX0NISVBfVkVSU0lPTihzYykgPT0gQURJOTMwKQo=
+--------------080101090309000502050009--

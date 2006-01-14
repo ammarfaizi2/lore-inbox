@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWANTM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWANTUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWANTM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 14:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWANTM6
+	id S1750830AbWANTUs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 14:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWANTUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 14:12:58 -0500
-Received: from fisek2.ada.net.tr ([195.112.153.19]:29351 "EHLO
-	mail.fisek.com.tr") by vger.kernel.org with ESMTP id S1750801AbWANTM5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 14:12:57 -0500
-X-Mail-Scanner: Scanned by qSheff 1.0 (http://www.enderunix.org/qsheff/)
-Date: Sat, 14 Jan 2006 21:12:42 +0200
-From: Onur =?UTF-8?B?S8O8w6fDvGs=?= <onur@delipenguen.net>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [?] PCI BIOS masks some IDs to prevent OS detection?
-Message-Id: <20060114211242.b8ffaddb.onur@delipenguen.net>
-In-Reply-To: <20060113144529.56fa3166@darjeeling.triplehelix.org>
-References: <20060113144529.56fa3166@darjeeling.triplehelix.org>
-X-Mailer: Sylpheed version 2.2.0beta4 (GTK+ 2.8.7; i686-pc-linux-gnu)
+	Sat, 14 Jan 2006 14:20:48 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28091 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750830AbWANTUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 14:20:48 -0500
+Subject: Re: [PATCH] Watchdog: Winsystems EPX-C3 SBC
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Calin A. Culianu" <calin@ajvar.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Willy Tarreau <willy@w.ods.org>
+In-Reply-To: <Pine.LNX.4.64.0601132149430.9231@rtlab.med.cornell.edu>
+References: <Pine.LNX.4.64.0601132149430.9231@rtlab.med.cornell.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 14 Jan 2006 19:24:09 +0000
+Message-Id: <1137266649.23269.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some quick comments:
 
-> He recently installed a PCI RAID card, and ever since, his Ethernet
-> card stopped working. Further investigation revealed that his
-> Realtek 8139 (10ec:8139) card had become 10ec:0139, and his 3Com
-> Cyclone card had become 10b7:1055 from 10b7:9055.
-> 
-> Did the PCI bus decide to mask those PCI IDs to prevent some sort of
-> resource conflict that would ensue from loading an appropriate driver
-> for these devices?
++       if (len) {
++               epx_c3_pet();
++       }
 
- Probably just 1 pin somewhere does not connect well to the board, if
-it did not burn or got scratched. I once had a soundblaster turn into a
-graphics card :) Make sure you plug in clean slots (clean the dust) and
-plug the cards well.
+Doesn't need brackets (minor style)
 
--- 
- Onur Küçük                                      Knowledge speaks,   
- <onur.--.-.delipenguen.net>                     but wisdom listens  
+Otherwise it looks excellent but should use request_region and friends
+to claim the two ports it uses.
+
+The see the "Sign your work:" bit of Documentation/SubmittingPatches are
+it looks ready to go in.
+
+Alan
 

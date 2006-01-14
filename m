@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932740AbWANGs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWANGws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932740AbWANGs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 01:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932745AbWANGs1
+	id S1751172AbWANGws (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 01:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbWANGws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 01:48:27 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15053 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932769AbWANGs0 (ORCPT
+	Sat, 14 Jan 2006 01:52:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9640 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751047AbWANGwr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 01:48:26 -0500
-Date: Sat, 14 Jan 2006 07:48:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miroslaw Mieszczak <mirek@mieszczak.com.pl>, linux-kernel@vger.kernel.org,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Seth, Rohit" <rohit.seth@intel.com>
-Subject: Re: [2.6] Problem with PDC20265 on system with I865 chipset and PIV HT
-Message-ID: <20060114064836.GB9699@elte.hu>
-References: <43C6DA9D.4060300@mieszczak.com.pl> <20060113001618.66821fcb.akpm@osdl.org>
+	Sat, 14 Jan 2006 01:52:47 -0500
+Date: Sat, 14 Jan 2006 01:52:35 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: ak@suse.de
+Subject: 2.6.15-git breaks Xorg on em64t
+Message-ID: <20060114065235.GA4539@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060113001618.66821fcb.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi,
+ Sometime in the last week something was introduced to Linus'
+tree which makes my dual EM64T go nuts when X tries to start.
+By "go nuts", I mean it does various random things, seen so
+far..
+- Machine check. (I'm convinced this isn't a hardware problem
+  despite the new addition telling me otherwise :)
+- Reboot
+- Total lockup
+- NMI watchdog firing, and then lockup
 
-* Andrew Morton <akpm@osdl.org> wrote:
+I've tried backing out a handful of the x86-64 patches, and
+didn't get too far, as some of them are dependant on others,
+it quickly became a real mess to try to bisect where exactly it broke.
 
-> That's oopsing when trying to write to the APIC:
-> 
-> 	apic_write_around(APIC_EOI, 0);
-> 
-> <cc's x86 people>
-> 
-> Is there any sane way in which APIC accesses can fault, or does this 
-> indicate bad hardware?
+Any ideas for potential candidates to try & back out ?
 
-no - the local APIC in that context is like ordinary memory. If there's  
-fault, it must be the pagetables.
+		Dave
 
-perhaps the "data corruption and system crash" mentioned in the report 
-corrupted kernel pagetables?
-
-	Ingo

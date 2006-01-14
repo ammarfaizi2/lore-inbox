@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWANRn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWANRog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWANRn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 12:43:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWANRn5
+	id S1750719AbWANRog (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 12:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWANRog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 12:43:57 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49369 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750717AbWANRn5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 12:43:57 -0500
-Date: Sat, 14 Jan 2006 18:43:45 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       Linux PM <linux-pm@osdl.org>
-Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
-Message-ID: <20060114174345.GA16427@elf.ucw.cz>
-References: <200601122241.07363.rjw@sisk.pl> <200601141040.00088.rjw@sisk.pl> <20060114112950.GA2571@ucw.cz> <200601141319.53573.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 14 Jan 2006 12:44:36 -0500
+Received: from baracus.dreamhost.com ([66.33.205.11]:49566 "EHLO
+	baracus.dreamhost.com") by vger.kernel.org with ESMTP
+	id S1750719AbWANRof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 12:44:35 -0500
+From: Matthew Marshall <matthew@matthewmarshall.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: PROBLEM: PCI WiFi card works with livecd's but not with HD install with Ali mobo.
+Date: Sat, 14 Jan 2006 14:45:49 -0300
+User-Agent: KMail/1.9.1
+References: <200601141427.36915.matthew@matthewmarshall.org> <1137260253.1408.55.camel@mindpipe>
+In-Reply-To: <1137260253.1408.55.camel@mindpipe>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200601141319.53573.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200601141445.49962.matthew@matthewmarshall.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > to read the value.  However, afterwards I'd have to rescale that value
-> > > to megs for swsusp_shrink_memory().  It's just easier to pass the value
-> > > in megs using the last argument of ioctl() directly (which is consistent
-> > > with the /sys/power/image_size thing, BTW).
-> > 
-> > Well, I'd be inclined to make image_size in bytes, too. Having
-> > each ioctl/sys file in different units seems wrong.
-> 
-> I'll add these changes to the userland interface patch, then.  There won't
-> be too many of them, I think.
+On Saturday 14 January 2006 14:37, you wrote:
+> We can't help you with proprietary drivers on this list.  Can you
+> reproduce the problem with no proprietary drivers loaded?
 
-Thanks.
-									Pavel
--- 
-Thanks, Sharp!
+I have a PCI Ethernet card I'll try with.
+
+Since bother drivers had the same result, and they both worked fine with 
+another mobo, I thought it was a problem with the drivers for the mobo.  But, 
+I'll see if I get the same result with an untainted kernel.
+
+Thanks,
+	Matthew Marshall

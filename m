@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbWAMXlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423138AbWANADl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161246AbWAMXlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 18:41:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161576AbWAMXlX
+	id S1423138AbWANADl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 19:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423139AbWANADl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 18:41:23 -0500
-Received: from main.gmane.org ([80.91.229.2]:40398 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1161246AbWAMXlX (ORCPT
+	Fri, 13 Jan 2006 19:03:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37513 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1423138AbWANADk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 18:41:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: git pull on Linux/ACPI release tree
-Date: Sat, 14 Jan 2006 00:35:01 +0100
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2006.01.13.23.34.58.269921@smurf.noris.de>
-References: <20060109225143.60520.qmail@web31807.mail.mud.yahoo.com> <Pine.LNX.4.64.0601091845160.5588@g5.osdl.org> <99D82C29-4F19-4DD3-A961-698C3FC0631D@mac.com> <46a038f90601092238r3476556apf948bfe5247da484@mail.gmail.com> <252A408D-0B42-49F3-92BC-B80F94F19F40@mac.com> <Pine.LNX.4.64.0601101015260.4939@g5.osdl.org> <Pine.LNX.4.63.0601101938420.26999@wbgn013.biozentrum.uni-wuerzburg.de> <Pine.LNX.4.64.0601101048440.4939@g5.osdl.org>
+	Fri, 13 Jan 2006 19:03:40 -0500
+Date: Fri, 13 Jan 2006 16:02:46 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kobject: don't oops on null kobject.name
+Message-ID: <20060114000246.GA7549@kroah.com>
+References: <200601122004_MC3-1-B5C5-4B72@compuserve.com> <20060113143013.0ed0f9c0.akpm@osdl.org> <20060113225537.GA25522@kroah.com> <20060113151213.61e40f2b.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
-Cc: git@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113151213.61e40f2b.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Linus Torvalds wrote:
+On Fri, Jan 13, 2006 at 03:12:13PM -0800, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> >
+> > > 
+> > > I'd have thought that we'd want the test right at the start of
+> > > kobject_add() - fail it if ->name is zero.  I don't know if that'd work for
+> > > all callers, but kobject_add() does play around with the ->name field and
+> > > will go oops if ->name==NULL and debugging is enabled.
+> > 
+> > Something like this instead?
+> 
+> I think so.
+> 
+> >   (warning, untested...)
+> 
+> Ship it!
 
-> I'm pretty proud of it. It's simple, and it's obvious once you think about 
-> it, but it is pretty novel as far as I know. BK certainly had nothing 
-> similar, not have I heard of anythign else that does it.
+Heh, it works for me, I'm running with it right now :)
 
-Actually, I've written a hackish script that tries to do simple-minded
-bisection (read: it searched for the 50% point on the shortest path
-between any-of-GOOD and any-of-BAD, instead of considering the whole
-graph) on BK trees. I haven't exactly published the thing anyplace though,
-because, well, it was ugly. :-/
+> 
+> > I'll try it out in a reboot cycle...
+> > 
+> > --- gregkh-2.6.orig/lib/kobject.c	2006-01-13 09:15:18.000000000 -0800
+> > +++ gregkh-2.6/lib/kobject.c	2006-01-13 14:54:40.000000000 -0800
+> > @@ -164,6 +164,11 @@ int kobject_add(struct kobject * kobj)
+> >  		return -ENOENT;
+> >  	if (!kobj->k_name)
+> >  		kobj->k_name = kobj->name;
+> > +	if (!kobj->k_name) {
+> > +		pr_debug("kobject attempted to be registered with no name!\n");
+> > +		WARN_ON(1);
+> > +		return -EINVAL;
+> > +	}
+> >  	parent = kobject_get(kobj->parent);
+> >  
+> >  	pr_debug("kobject %s: registering. parent: %s, set: %s\n",
+> 
+> It might be worth emitting the warning and then proceeding rather than
+> failing - minimise potential disruption.  I guess we'll see...
 
-Besides, actually working with the current bisection point is no problem
-at all for git. Doing the same thing in BK's world view is *painful*,
-esp. given the size of the kernel tree.
+Hm, I looked at the only user of kobjects in the kernel that I know of
+that doesn't use sysfs (the cdev code) and even it sets the kobject name
+to something sane, so I think we should be safe with this.
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-Arthur felt at a bit of a loss. There was a whole Galaxy
-of stuff out there for him, and he wondered if it was
-churlish of him to complain to himself that it lacked just
-two things: the world he was born on and the woman he loved.
+I'll add it to my tree and let's see what the next -mm causes to pop up
+:)
 
+thanks,
 
+greg k-h

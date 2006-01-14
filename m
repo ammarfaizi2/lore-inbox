@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWANV3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWANV3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWANV3A (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751300AbWANV3A (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 14 Jan 2006 16:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWANV1P
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWANV1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 16:27:15 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4500 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751298AbWANV1D convert rfc822-to-8bit
+	Sat, 14 Jan 2006 16:27:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:10644 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751300AbWANV1C convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 16:27:03 -0500
-Cc: vwool@ru.mvista.com
-Subject: [PATCH] spi: use linked lists rather than an array
-In-Reply-To: <11371995933018@kroah.com>
+	Sat, 14 Jan 2006 16:27:02 -0500
+Cc: david-b@pacbell.net
+Subject: [PATCH] SPI core tweaks, bugfix
+In-Reply-To: <11371995923994@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 16:46:33 -0800
-Message-Id: <11371995931802@kroah.com>
+Date: Fri, 13 Jan 2006 16:46:32 -0800
+Message-Id: <1137199592832@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,695 +24,366 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] spi: use linked lists rather than an array
+[PATCH] SPI core tweaks, bugfix
 
-This makes the SPI core and its users access transfers in the SPI message
-structure as linked list not as an array, as discussed on LKML.
+This includes various updates to the SPI core:
 
-From: David Brownell <dbrownell@users.sourceforge.net>
+  - Fixes a driver model refcount bug in spi_unregister_master() paths.
 
-  Updates including doc, bugfixes to the list code, add
-  spi_message_add_tail().  Plus, initialize things _before_ grabbing the
-  locks in some cases (in case it grows more expensive).  This also merges
-  some bitbang updates of mine that didn't yet make it into the mm tree.
+  - The spi_master structures now have wrappers which help keep drivers
+    from needing class-level get/put for device data or for refcounts.
 
-Signed-off-by: Vitaly Wool <vwool@ru.mvista.com>
-Signed-off-by: Dmitry Pervushin <dpervushin@gmail.com>
+  - Check for a few setup errors that would cause oopsing later.
+
+  - Docs say more about memory management.  Highlights the use of DMA-safe
+    i/o buffers, and zero-initializing spi_message and such metadata.
+
+  - Provide a simple alloc/free for spi_message and its spi_transfer;
+    this is only one of the possible memory management policies.
+
+Nothing to break code that already works.
+
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 8275c642ccdce09a2146d0a9eb022e3698ee927e
-tree ea330810f665fcbdf36d31b0da1643db528ad83f
-parent 2f9f762879015d738a5ec2ac8a16be94b3a4a06d
-author Vitaly Wool <vwool@ru.mvista.com> Sun, 08 Jan 2006 13:34:28 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:56 -0800
+commit 0c868461fcb8413cb9f691d68e5b99b0fd3c0737
+tree b43db6239f5d72a279b35b14de85cf34d8f6bc74
+parent b885244eb2628e0b8206e7edaaa6a314da78e9a4
+author David Brownell <david-b@pacbell.net> Sun, 08 Jan 2006 13:34:25 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:55 -0800
 
- drivers/input/touchscreen/ads7846.c |   12 +++--
- drivers/mtd/devices/m25p80.c        |   50 ++++++++++---------
- drivers/mtd/devices/mtd_dataflash.c |   28 ++++++-----
- drivers/spi/spi.c                   |   18 ++++---
- drivers/spi/spi_bitbang.c           |   86 +++++++++++++++++++--------------
- include/linux/spi/spi.h             |   92 ++++++++++++++++++++++++-----------
- include/linux/spi/spi_bitbang.h     |    7 +++
- 7 files changed, 180 insertions(+), 113 deletions(-)
+ Documentation/spi/spi-summary |   16 +++++++++
+ drivers/spi/spi.c             |   45 +++++++++++++++----------
+ include/linux/spi/spi.h       |   75 ++++++++++++++++++++++++++++++++++++++---
+ 3 files changed, 113 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index c741776..dd8c6a9 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -155,10 +155,13 @@ static int ads7846_read12_ser(struct dev
- 	struct ser_req		*req = kzalloc(sizeof *req, SLAB_KERNEL);
- 	int			status;
- 	int			sample;
-+	int 			i;
+diff --git a/Documentation/spi/spi-summary b/Documentation/spi/spi-summary
+index c6152d1..761debf 100644
+--- a/Documentation/spi/spi-summary
++++ b/Documentation/spi/spi-summary
+@@ -363,6 +363,22 @@ upper boundaries might include sysfs (es
+ the input layer, ALSA, networking, MTD, the character device framework,
+ or other Linux subsystems.
  
- 	if (!req)
- 		return -ENOMEM;
- 
-+	INIT_LIST_HEAD(&req->msg.transfers);
++Note that there are two types of memory your driver must manage as part
++of interacting with SPI devices.
 +
- 	/* activate reference, so it has time to settle; */
- 	req->xfer[0].tx_buf = &ref_on;
- 	req->xfer[0].len = 1;
-@@ -192,8 +195,8 @@ static int ads7846_read12_ser(struct dev
- 	/* group all the transfers together, so we can't interfere with
- 	 * reading touchscreen state; disable penirq while sampling
- 	 */
--	req->msg.transfers = req->xfer;
--	req->msg.n_transfer = 6;
-+	for (i = 0; i < 6; i++)
-+		spi_message_add_tail(&req->xfer[i], &req->msg);
- 
- 	disable_irq(spi->irq);
- 	status = spi_sync(spi, &req->msg);
-@@ -398,6 +401,7 @@ static int __devinit ads7846_probe(struc
- 	struct ads7846			*ts;
- 	struct ads7846_platform_data	*pdata = spi->dev.platform_data;
- 	struct spi_transfer		*x;
-+	int				i;
- 
- 	if (!spi->irq) {
- 		dev_dbg(&spi->dev, "no IRQ?\n");
-@@ -500,8 +504,8 @@ static int __devinit ads7846_probe(struc
- 
- 	CS_CHANGE(x[-1]);
- 
--	ts->msg.transfers = ts->xfer;
--	ts->msg.n_transfer = x - ts->xfer;
-+	for (i = 0; i < x - ts->xfer; i++)
-+		spi_message_add_tail(&ts->xfer[i], &ts->msg);
- 	ts->msg.complete = ads7846_rx;
- 	ts->msg.context = ts;
- 
-diff --git a/drivers/mtd/devices/m25p80.c b/drivers/mtd/devices/m25p80.c
-index 71a0721..45108ed 100644
---- a/drivers/mtd/devices/m25p80.c
-+++ b/drivers/mtd/devices/m25p80.c
-@@ -245,6 +245,21 @@ static int m25p80_read(struct mtd_info *
- 	if (from + len > flash->mtd.size)
- 		return -EINVAL;
- 
-+	spi_message_init(&m);
-+	memset(t, 0, (sizeof t));
++  - I/O buffers use the usual Linux rules, and must be DMA-safe.
++    You'd normally allocate them from the heap or free page pool.
++    Don't use the stack, or anything that's declared "static".
 +
-+	t[0].tx_buf = flash->command;
-+	t[0].len = sizeof(flash->command);
-+	spi_message_add_tail(&t[0], &m);
++  - The spi_message and spi_transfer metadata used to glue those
++    I/O buffers into a group of protocol transactions.  These can
++    be allocated anywhere it's convenient, including as part of
++    other allocate-once driver data structures.  Zero-init these.
 +
-+	t[1].rx_buf = buf;
-+	t[1].len = len;
-+	spi_message_add_tail(&t[1], &m);
++If you like, spi_message_alloc() and spi_message_free() convenience
++routines are available to allocate and zero-initialize an spi_message
++with several transfers.
 +
-+	/* Byte count starts at zero. */
-+	if (retlen)
-+		*retlen = 0;
-+
- 	down(&flash->lock);
  
- 	/* Wait till previous write/erase is done. */
-@@ -254,8 +269,6 @@ static int m25p80_read(struct mtd_info *
- 		return 1;
- 	}
- 
--	memset(t, 0, (sizeof t));
--
- 	/* NOTE:  OPCODE_FAST_READ (if available) is faster... */
- 
- 	/* Set up the write data buffer. */
-@@ -264,19 +277,6 @@ static int m25p80_read(struct mtd_info *
- 	flash->command[2] = from >> 8;
- 	flash->command[3] = from;
- 
--	/* Byte count starts at zero. */
--	if (retlen)
--		*retlen = 0;
--
--	t[0].tx_buf = flash->command;
--	t[0].len = sizeof(flash->command);
--
--	t[1].rx_buf = buf;
--	t[1].len = len;
--
--	m.transfers = t;
--	m.n_transfer = 2;
--
- 	spi_sync(flash->spi, &m);
- 
- 	*retlen = m.actual_length - sizeof(flash->command);
-@@ -313,6 +313,16 @@ static int m25p80_write(struct mtd_info 
- 	if (to + len > flash->mtd.size)
- 		return -EINVAL;
- 
-+	spi_message_init(&m);
-+	memset(t, 0, (sizeof t));
-+
-+	t[0].tx_buf = flash->command;
-+	t[0].len = sizeof(flash->command);
-+	spi_message_add_tail(&t[0], &m);
-+
-+	t[1].tx_buf = buf;
-+	spi_message_add_tail(&t[1], &m);
-+
-   	down(&flash->lock);
- 
- 	/* Wait until finished previous write command. */
-@@ -321,26 +331,17 @@ static int m25p80_write(struct mtd_info 
- 
- 	write_enable(flash);
- 
--	memset(t, 0, (sizeof t));
--
- 	/* Set up the opcode in the write buffer. */
- 	flash->command[0] = OPCODE_PP;
- 	flash->command[1] = to >> 16;
- 	flash->command[2] = to >> 8;
- 	flash->command[3] = to;
- 
--	t[0].tx_buf = flash->command;
--	t[0].len = sizeof(flash->command);
--
--	m.transfers = t;
--	m.n_transfer = 2;
--
- 	/* what page do we start with? */
- 	page_offset = to % FLASH_PAGESIZE;
- 
- 	/* do all the bytes fit onto one page? */
- 	if (page_offset + len <= FLASH_PAGESIZE) {
--		t[1].tx_buf = buf;
- 		t[1].len = len;
- 
- 		spi_sync(flash->spi, &m);
-@@ -352,7 +353,6 @@ static int m25p80_write(struct mtd_info 
- 		/* the size of data remaining on the first page */
- 		page_size = FLASH_PAGESIZE - page_offset;
- 
--		t[1].tx_buf = buf;
- 		t[1].len = page_size;
- 		spi_sync(flash->spi, &m);
- 
-diff --git a/drivers/mtd/devices/mtd_dataflash.c b/drivers/mtd/devices/mtd_dataflash.c
-index a39b3b6..99d3a03 100644
---- a/drivers/mtd/devices/mtd_dataflash.c
-+++ b/drivers/mtd/devices/mtd_dataflash.c
-@@ -147,7 +147,7 @@ static int dataflash_erase(struct mtd_in
- {
- 	struct dataflash	*priv = (struct dataflash *)mtd->priv;
- 	struct spi_device	*spi = priv->spi;
--	struct spi_transfer	x[1] = { { .tx_dma = 0, }, };
-+	struct spi_transfer	x = { .tx_dma = 0, };
- 	struct spi_message	msg;
- 	unsigned		blocksize = priv->page_size << 3;
- 	u8			*command;
-@@ -162,10 +162,11 @@ static int dataflash_erase(struct mtd_in
- 			|| (instr->addr % priv->page_size) != 0)
- 		return -EINVAL;
- 
--	x[0].tx_buf = command = priv->command;
--	x[0].len = 4;
--	msg.transfers = x;
--	msg.n_transfer = 1;
-+	spi_message_init(&msg);
-+
-+	x.tx_buf = command = priv->command;
-+	x.len = 4;
-+	spi_message_add_tail(&x, &msg);
- 
- 	down(&priv->lock);
- 	while (instr->len > 0) {
-@@ -256,12 +257,15 @@ static int dataflash_read(struct mtd_inf
- 	DEBUG(MTD_DEBUG_LEVEL3, "READ: (%x) %x %x %x\n",
- 		command[0], command[1], command[2], command[3]);
- 
-+	spi_message_init(&msg);
-+
- 	x[0].tx_buf = command;
- 	x[0].len = 8;
-+	spi_message_add_tail(&x[0], &msg);
-+
- 	x[1].rx_buf = buf;
- 	x[1].len = len;
--	msg.transfers = x;
--	msg.n_transfer = 2;
-+	spi_message_add_tail(&x[1], &msg);
- 
- 	down(&priv->lock);
- 
-@@ -320,9 +324,11 @@ static int dataflash_write(struct mtd_in
- 	if ((to + len) > mtd->size)
- 		return -EINVAL;
- 
-+	spi_message_init(&msg);
-+
- 	x[0].tx_buf = command = priv->command;
- 	x[0].len = 4;
--	msg.transfers = x;
-+	spi_message_add_tail(&x[0], &msg);
- 
- 	pageaddr = ((unsigned)to / priv->page_size);
- 	offset = ((unsigned)to % priv->page_size);
-@@ -364,7 +370,6 @@ static int dataflash_write(struct mtd_in
- 			DEBUG(MTD_DEBUG_LEVEL3, "TRANSFER: (%x) %x %x %x\n",
- 				command[0], command[1], command[2], command[3]);
- 
--			msg.n_transfer = 1;
- 			status = spi_sync(spi, &msg);
- 			if (status < 0)
- 				DEBUG(MTD_DEBUG_LEVEL1, "%s: xfer %u -> %d \n",
-@@ -385,14 +390,16 @@ static int dataflash_write(struct mtd_in
- 
- 		x[1].tx_buf = writebuf;
- 		x[1].len = writelen;
--		msg.n_transfer = 2;
-+		spi_message_add_tail(x + 1, &msg);
- 		status = spi_sync(spi, &msg);
-+		spi_transfer_del(x + 1);
- 		if (status < 0)
- 			DEBUG(MTD_DEBUG_LEVEL1, "%s: pgm %u/%u -> %d \n",
- 				spi->dev.bus_id, addr, writelen, status);
- 
- 		(void) dataflash_waitready(priv->spi);
- 
-+
- #ifdef	CONFIG_DATAFLASH_WRITE_VERIFY
- 
- 		/* (3) Compare to Buffer1 */
-@@ -405,7 +412,6 @@ static int dataflash_write(struct mtd_in
- 		DEBUG(MTD_DEBUG_LEVEL3, "COMPARE: (%x) %x %x %x\n",
- 			command[0], command[1], command[2], command[3]);
- 
--		msg.n_transfer = 1;
- 		status = spi_sync(spi, &msg);
- 		if (status < 0)
- 			DEBUG(MTD_DEBUG_LEVEL1, "%s: compare %u -> %d \n",
+ How do I write an "SPI Master Controller Driver"?
+ -------------------------------------------------
 diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 3ecedcc..cdb242d 100644
+index 2ecb86c..3ecedcc 100644
 --- a/drivers/spi/spi.c
 +++ b/drivers/spi/spi.c
-@@ -557,6 +557,17 @@ int spi_write_then_read(struct spi_devic
- 	if ((n_tx + n_rx) > SPI_BUFSIZ)
- 		return -EINVAL;
+@@ -38,7 +38,7 @@ static void spidev_release(struct device
+ 	if (spi->master->cleanup)
+ 		spi->master->cleanup(spi);
  
-+	spi_message_init(&message);
-+	memset(x, 0, sizeof x);
-+	if (n_tx) {
-+		x[0].len = n_tx;
-+		spi_message_add_tail(&x[0], &message);
-+	}
-+	if (n_rx) {
-+		x[1].len = n_rx;
-+		spi_message_add_tail(&x[1], &message);
-+	}
+-	class_device_put(&spi->master->cdev);
++	spi_master_put(spi->master);
+ 	kfree(dev);
+ }
+ 
+@@ -90,7 +90,7 @@ static int spi_suspend(struct device *de
+ 	int			value;
+ 	struct spi_driver	*drv = to_spi_driver(dev->driver);
+ 
+-	if (!drv || !drv->suspend)
++	if (!drv->suspend)
+ 		return 0;
+ 
+ 	/* suspend will stop irqs and dma; no more i/o */
+@@ -105,7 +105,7 @@ static int spi_resume(struct device *dev
+ 	int			value;
+ 	struct spi_driver	*drv = to_spi_driver(dev->driver);
+ 
+-	if (!drv || !drv->resume)
++	if (!drv->resume)
+ 		return 0;
+ 
+ 	/* resume may restart the i/o queue */
+@@ -198,7 +198,7 @@ spi_new_device(struct spi_master *master
+ 
+ 	/* NOTE:  caller did any chip->bus_num checks necessary */
+ 
+-	if (!class_device_get(&master->cdev))
++	if (!spi_master_get(master))
+ 		return NULL;
+ 
+ 	proxy = kzalloc(sizeof *proxy, GFP_KERNEL);
+@@ -244,7 +244,7 @@ spi_new_device(struct spi_master *master
+ 	return proxy;
+ 
+ fail:
+-	class_device_put(&master->cdev);
++	spi_master_put(master);
+ 	kfree(proxy);
+ 	return NULL;
+ }
+@@ -324,8 +324,6 @@ static void spi_master_release(struct cl
+ 	struct spi_master *master;
+ 
+ 	master = container_of(cdev, struct spi_master, cdev);
+-	put_device(master->cdev.dev);
+-	master->cdev.dev = NULL;
+ 	kfree(master);
+ }
+ 
+@@ -339,8 +337,9 @@ static struct class spi_master_class = {
+ /**
+  * spi_alloc_master - allocate SPI master controller
+  * @dev: the controller, possibly using the platform_bus
+- * @size: how much driver-private data to preallocate; a pointer to this
+- * 	memory in the class_data field of the returned class_device
++ * @size: how much driver-private data to preallocate; the pointer to this
++ * 	memory is in the class_data field of the returned class_device,
++ *	accessible with spi_master_get_devdata().
+  *
+  * This call is used only by SPI master controller drivers, which are the
+  * only ones directly touching chip registers.  It's how they allocate
+@@ -350,14 +349,17 @@ static struct class spi_master_class = {
+  * master structure on success, else NULL.
+  *
+  * The caller is responsible for assigning the bus number and initializing
+- * the master's methods before calling spi_add_master(), or else (on error)
+- * calling class_device_put() to prevent a memory leak.
++ * the master's methods before calling spi_add_master(); and (after errors
++ * adding the device) calling spi_master_put() to prevent a memory leak.
+  */
+ struct spi_master * __init_or_module
+ spi_alloc_master(struct device *dev, unsigned size)
+ {
+ 	struct spi_master	*master;
+ 
++	if (!dev)
++		return NULL;
 +
- 	/* ... unless someone else is using the pre-allocated buffer */
- 	if (down_trylock(&lock)) {
- 		local_buf = kmalloc(SPI_BUFSIZ, GFP_KERNEL);
-@@ -565,18 +576,11 @@ int spi_write_then_read(struct spi_devic
- 	} else
- 		local_buf = buf;
+ 	master = kzalloc(size + sizeof *master, SLAB_KERNEL);
+ 	if (!master)
+ 		return NULL;
+@@ -365,7 +367,7 @@ spi_alloc_master(struct device *dev, uns
+ 	class_device_initialize(&master->cdev);
+ 	master->cdev.class = &spi_master_class;
+ 	master->cdev.dev = get_device(dev);
+-	class_set_devdata(&master->cdev, &master[1]);
++	spi_master_set_devdata(master, &master[1]);
  
--	memset(x, 0, sizeof x);
--
- 	memcpy(local_buf, txbuf, n_tx);
- 	x[0].tx_buf = local_buf;
--	x[0].len = n_tx;
--
- 	x[1].rx_buf = local_buf + n_tx;
--	x[1].len = n_rx;
+ 	return master;
+ }
+@@ -387,6 +389,8 @@ EXPORT_SYMBOL_GPL(spi_alloc_master);
+  *
+  * This must be called from context that can sleep.  It returns zero on
+  * success, else a negative error code (dropping the master's refcount).
++ * After a successful return, the caller is responsible for calling
++ * spi_unregister_master().
+  */
+ int __init_or_module
+ spi_register_master(struct spi_master *master)
+@@ -396,6 +400,9 @@ spi_register_master(struct spi_master *m
+ 	int			status = -ENODEV;
+ 	int			dynamic = 0;
  
- 	/* do the i/o */
--	message.transfers = x;
--	message.n_transfer = ARRAY_SIZE(x);
- 	status = spi_sync(spi, &message);
- 	if (status == 0) {
- 		memcpy(rxbuf, x[1].rx_buf, n_rx);
-diff --git a/drivers/spi/spi_bitbang.c b/drivers/spi/spi_bitbang.c
-index 44aff19..f037e55 100644
---- a/drivers/spi/spi_bitbang.c
-+++ b/drivers/spi/spi_bitbang.c
-@@ -146,6 +146,9 @@ int spi_bitbang_setup(struct spi_device 
- 	struct spi_bitbang_cs	*cs = spi->controller_state;
- 	struct spi_bitbang	*bitbang;
- 
-+	if (!spi->max_speed_hz)
-+		return -EINVAL;
++	if (!dev)
++		return -ENODEV;
 +
- 	if (!cs) {
- 		cs = kzalloc(sizeof *cs, SLAB_KERNEL);
- 		if (!cs)
-@@ -172,13 +175,8 @@ int spi_bitbang_setup(struct spi_device 
- 	if (!cs->txrx_word)
- 		return -EINVAL;
+ 	/* convention:  dynamically assigned bus IDs count down from the max */
+ 	if (master->bus_num == 0) {
+ 		master->bus_num = atomic_dec_return(&dyn_bus_id);
+@@ -425,7 +432,7 @@ EXPORT_SYMBOL_GPL(spi_register_master);
+ static int __unregister(struct device *dev, void *unused)
+ {
+ 	/* note: before about 2.6.14-rc1 this would corrupt memory: */
+-	device_unregister(dev);
++	spi_unregister_device(to_spi_device(dev));
+ 	return 0;
+ }
  
--	if (!spi->max_speed_hz)
--		spi->max_speed_hz = 500 * 1000;
--
--	/* nsecs = max(50, (clock period)/2), be optimistic */
-+	/* nsecs = (clock period)/2 */
- 	cs->nsecs = (1000000000/2) / (spi->max_speed_hz);
--	if (cs->nsecs < 50)
--		cs->nsecs = 50;
- 	if (cs->nsecs > MAX_UDELAY_MS * 1000)
- 		return -EINVAL;
+@@ -440,8 +447,9 @@ static int __unregister(struct device *d
+  */
+ void spi_unregister_master(struct spi_master *master)
+ {
+-	class_device_unregister(&master->cdev);
+ 	(void) device_for_each_child(master->cdev.dev, NULL, __unregister);
++	class_device_unregister(&master->cdev);
++	master->cdev.dev = NULL;
+ }
+ EXPORT_SYMBOL_GPL(spi_unregister_master);
  
-@@ -194,7 +192,7 @@ int spi_bitbang_setup(struct spi_device 
- 	/* deselect chip (low or high) */
- 	spin_lock(&bitbang->lock);
- 	if (!bitbang->busy) {
--		bitbang->chipselect(spi, 0);
-+		bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
- 		ndelay(cs->nsecs);
- 	}
- 	spin_unlock(&bitbang->lock);
-@@ -244,9 +242,9 @@ static void bitbang_work(void *_bitbang)
- 		struct spi_message	*m;
- 		struct spi_device	*spi;
- 		unsigned		nsecs;
--		struct spi_transfer	*t;
-+		struct spi_transfer	*t = NULL;
- 		unsigned		tmp;
--		unsigned		chipselect;
-+		unsigned		cs_change;
- 		int			status;
- 
- 		m = container_of(bitbang->queue.next, struct spi_message,
-@@ -254,37 +252,49 @@ static void bitbang_work(void *_bitbang)
- 		list_del_init(&m->queue);
- 		spin_unlock_irqrestore(&bitbang->lock, flags);
- 
--// FIXME this is made-up
--nsecs = 100;
-+		/* FIXME this is made-up ... the correct value is known to
-+		 * word-at-a-time bitbang code, and presumably chipselect()
-+		 * should enforce these requirements too?
-+		 */
-+		nsecs = 100;
- 
- 		spi = m->spi;
--		t = m->transfers;
- 		tmp = 0;
--		chipselect = 0;
-+		cs_change = 1;
- 		status = 0;
- 
--		for (;;t++) {
-+		list_for_each_entry (t, &m->transfers, transfer_list) {
- 			if (bitbang->shutdown) {
- 				status = -ESHUTDOWN;
- 				break;
- 			}
- 
--			/* set up default clock polarity, and activate chip */
--			if (!chipselect) {
--				bitbang->chipselect(spi, 1);
-+			/* set up default clock polarity, and activate chip;
-+			 * this implicitly updates clock and spi modes as
-+			 * previously recorded for this device via setup().
-+			 * (and also deselects any other chip that might be
-+			 * selected ...)
-+			 */
-+			if (cs_change) {
-+				bitbang->chipselect(spi, BITBANG_CS_ACTIVE);
- 				ndelay(nsecs);
- 			}
-+			cs_change = t->cs_change;
- 			if (!t->tx_buf && !t->rx_buf && t->len) {
- 				status = -EINVAL;
- 				break;
- 			}
- 
--			/* transfer data */
-+			/* transfer data.  the lower level code handles any
-+			 * new dma mappings it needs. our caller always gave
-+			 * us dma-safe buffers.
-+			 */
- 			if (t->len) {
--				/* FIXME if bitbang->use_dma, dma_map_single()
--				 * before the transfer, and dma_unmap_single()
--				 * afterwards, for either or both buffers...
-+				/* REVISIT dma API still needs a designated
-+				 * DMA_ADDR_INVALID; ~0 might be better.
- 				 */
-+				if (!m->is_dma_mapped)
-+					t->rx_dma = t->tx_dma = 0;
- 				status = bitbang->txrx_bufs(spi, t);
- 			}
- 			if (status != t->len) {
-@@ -299,29 +309,31 @@ nsecs = 100;
- 			if (t->delay_usecs)
- 				udelay(t->delay_usecs);
- 
--			tmp++;
--			if (tmp >= m->n_transfer)
--				break;
--
--			chipselect = !t->cs_change;
--			if (chipselect);
-+			if (!cs_change)
- 				continue;
-+			if (t->transfer_list.next == &m->transfers)
-+				break;
- 
--			bitbang->chipselect(spi, 0);
--
--			/* REVISIT do we want the udelay here instead? */
--			msleep(1);
-+			/* sometimes a short mid-message deselect of the chip
-+			 * may be needed to terminate a mode or command
-+			 */
-+			ndelay(nsecs);
-+			bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
-+			ndelay(nsecs);
- 		}
- 
--		tmp = m->n_transfer - 1;
--		tmp = m->transfers[tmp].cs_change;
--
- 		m->status = status;
- 		m->complete(m->context);
- 
--		ndelay(2 * nsecs);
--		bitbang->chipselect(spi, status == 0 && tmp);
--		ndelay(nsecs);
-+		/* normally deactivate chipselect ... unless no error and
-+		 * cs_change has hinted that the next message will probably
-+		 * be for this chip too.
-+		 */
-+		if (!(status == 0 && cs_change)) {
-+			ndelay(nsecs);
-+			bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
-+			ndelay(nsecs);
-+		}
- 
- 		spin_lock_irqsave(&bitbang->lock, flags);
- 	}
+@@ -487,6 +495,9 @@ EXPORT_SYMBOL_GPL(spi_busnum_to_master);
+  * by leaving it selected in anticipation that the next message will go
+  * to the same chip.  (That may increase power usage.)
+  *
++ * Also, the caller is guaranteeing that the memory associated with the
++ * message will not be freed before this call returns.
++ *
+  * The return value is a negative error code if the message could not be
+  * submitted, else zero.  When the value is zero, then message->status is
+  * also defined:  it's the completion code for the transfer, either zero
+@@ -524,9 +535,9 @@ static u8	*buf;
+  * is zero for success, else a negative errno status code.
+  * This call may only be used from a context that may sleep.
+  *
+- * Parameters to this routine are always copied using a small buffer,
+- * large transfers should use use spi_{async,sync}() calls with
+- * dma-safe buffers.
++ * Parameters to this routine are always copied using a small buffer;
++ * performance-sensitive or bulk transfer code should instead use
++ * spi_{async,sync}() calls with dma-safe buffers.
+  */
+ int spi_write_then_read(struct spi_device *spi,
+ 		const u8 *txbuf, unsigned n_tx,
 diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
-index 6a41e26..939afd3 100644
+index c851b3d..6a41e26 100644
 --- a/include/linux/spi/spi.h
 +++ b/include/linux/spi/spi.h
-@@ -263,15 +263,16 @@ extern struct spi_master *spi_busnum_to_
+@@ -60,8 +60,8 @@ struct spi_device {
+ 	u8			mode;
+ #define	SPI_CPHA	0x01			/* clock phase */
+ #define	SPI_CPOL	0x02			/* clock polarity */
+-#define	SPI_MODE_0	(0|0)
+-#define	SPI_MODE_1	(0|SPI_CPHA)		/* (original MicroWire) */
++#define	SPI_MODE_0	(0|0)			/* (original MicroWire) */
++#define	SPI_MODE_1	(0|SPI_CPHA)
+ #define	SPI_MODE_2	(SPI_CPOL|0)
+ #define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
+ #define	SPI_CS_HIGH	0x04			/* chipselect active high? */
+@@ -209,6 +209,30 @@ struct spi_master {
+ 	void			(*cleanup)(const struct spi_device *spi);
+ };
  
- /**
-  * struct spi_transfer - a read/write buffer pair
-- * @tx_buf: data to be written (dma-safe address), or NULL
-- * @rx_buf: data to be read (dma-safe address), or NULL
-- * @tx_dma: DMA address of buffer, if spi_message.is_dma_mapped
-- * @rx_dma: DMA address of buffer, if spi_message.is_dma_mapped
-+ * @tx_buf: data to be written (dma-safe memory), or NULL
-+ * @rx_buf: data to be read (dma-safe memory), or NULL
-+ * @tx_dma: DMA address of tx_buf, if spi_message.is_dma_mapped
-+ * @rx_dma: DMA address of rx_buf, if spi_message.is_dma_mapped
-  * @len: size of rx and tx buffers (in bytes)
-  * @cs_change: affects chipselect after this transfer completes
-  * @delay_usecs: microseconds to delay after this transfer before
-  * 	(optionally) changing the chipselect status, then starting
-  * 	the next transfer or completing this spi_message.
-+ * @transfer_list: transfers are sequenced through spi_message.transfers
-  *
-  * SPI transfers always write the same number of bytes as they read.
-  * Protocol drivers should always provide rx_buf and/or tx_buf.
-@@ -279,11 +280,16 @@ extern struct spi_master *spi_busnum_to_
-  * the data being transferred; that may reduce overhead, when the
-  * underlying driver uses dma.
-  *
-- * All SPI transfers start with the relevant chipselect active.  Drivers
-- * can change behavior of the chipselect after the transfer finishes
-- * (including any mandatory delay).  The normal behavior is to leave it
-- * selected, except for the last transfer in a message.  Setting cs_change
-- * allows two additional behavior options:
-+ * If the transmit buffer is null, undefined data will be shifted out
-+ * while filling rx_buf.  If the receive buffer is null, the data
-+ * shifted in will be discarded.  Only "len" bytes shift out (or in).
-+ * It's an error to try to shift out a partial word.  (For example, by
-+ * shifting out three bytes with word size of sixteen or twenty bits;
-+ * the former uses two bytes per word, the latter uses four bytes.)
++static inline void *spi_master_get_devdata(struct spi_master *master)
++{
++	return class_get_devdata(&master->cdev);
++}
++
++static inline void spi_master_set_devdata(struct spi_master *master, void *data)
++{
++	class_set_devdata(&master->cdev, data);
++}
++
++static inline struct spi_master *spi_master_get(struct spi_master *master)
++{
++	if (!master || !class_device_get(&master->cdev))
++		return NULL;
++	return master;
++}
++
++static inline void spi_master_put(struct spi_master *master)
++{
++	if (master)
++		class_device_put(&master->cdev);
++}
++
++
+ /* the spi driver core manages memory for the spi_master classdev */
+ extern struct spi_master *
+ spi_alloc_master(struct device *host, unsigned size);
+@@ -271,11 +295,17 @@ extern struct spi_master *spi_busnum_to_
+  * stay selected until the next transfer.  This is purely a performance
+  * hint; the controller driver may need to select a different device
+  * for the next message.
 + *
-+ * All SPI transfers start with the relevant chipselect active.  Normally
-+ * it stays selected until after the last transfer in a message.  Drivers
-+ * can affect the chipselect signal using cs_change:
-  *
-  * (i) If the transfer isn't the last one in the message, this flag is
-  * used to make the chipselect briefly go inactive in the middle of the
-@@ -299,7 +305,8 @@ extern struct spi_master *spi_busnum_to_
-  * The code that submits an spi_message (and its spi_transfers)
-  * to the lower layers is responsible for managing its memory.
-  * Zero-initialize every field you don't set up explicitly, to
-- * insulate against future API updates.
-+ * insulate against future API updates.  After you submit a message
-+ * and its transfers, ignore them until its completion callback.
++ * The code that submits an spi_message (and its spi_transfers)
++ * to the lower layers is responsible for managing its memory.
++ * Zero-initialize every field you don't set up explicitly, to
++ * insulate against future API updates.
   */
  struct spi_transfer {
  	/* it's ok if tx_buf == rx_buf (right?)
-@@ -316,12 +323,13 @@ struct spi_transfer {
- 
- 	unsigned	cs_change:1;
- 	u16		delay_usecs;
-+
-+	struct list_head transfer_list;
- };
- 
- /**
-  * struct spi_message - one multi-segment SPI transaction
-- * @transfers: the segements of the transaction
-- * @n_transfer: how many segments
-+ * @transfers: list of transfer segments in this transaction
-  * @spi: SPI device to which the transaction is queued
-  * @is_dma_mapped: if true, the caller provided both dma and cpu virtual
-  *	addresses for each transfer buffer
-@@ -333,14 +341,22 @@ struct spi_transfer {
+ 	 * for MicroWire, one buffer must be null
+-	 * buffers must work with dma_*map_single() calls
++	 * buffers must work with dma_*map_single() calls, unless
++	 *   spi_message.is_dma_mapped reports a pre-existing mapping
+ 	 */
+ 	const void	*tx_buf;
+ 	void		*rx_buf;
+@@ -302,6 +332,11 @@ struct spi_transfer {
+  * @status: zero for success, else negative errno
   * @queue: for use by whichever driver currently owns the message
   * @state: for use by whichever driver currently owns the message
-  *
-+ * An spi_message is used to execute an atomic sequence of data transfers,
-+ * each represented by a struct spi_transfer.  The sequence is "atomic"
-+ * in the sense that no other spi_message may use that SPI bus until that
-+ * sequence completes.  On some systems, many such sequences can execute as
-+ * as single programmed DMA transfer.  On all systems, these messages are
-+ * queued, and might complete after transactions to other devices.  Messages
-+ * sent to a given spi_device are alway executed in FIFO order.
 + *
-  * The code that submits an spi_message (and its spi_transfers)
-  * to the lower layers is responsible for managing its memory.
-  * Zero-initialize every field you don't set up explicitly, to
-- * insulate against future API updates.
-+ * insulate against future API updates.  After you submit a message
-+ * and its transfers, ignore them until its completion callback.
++ * The code that submits an spi_message (and its spi_transfers)
++ * to the lower layers is responsible for managing its memory.
++ * Zero-initialize every field you don't set up explicitly, to
++ * insulate against future API updates.
   */
  struct spi_message {
--	struct spi_transfer	*transfers;
--	unsigned		n_transfer;
-+	struct list_head 	transfers;
- 
- 	struct spi_device	*spi;
- 
-@@ -371,6 +387,24 @@ struct spi_message {
+ 	struct spi_transfer	*transfers;
+@@ -336,6 +371,29 @@ struct spi_message {
  	void			*state;
  };
  
-+static inline void spi_message_init(struct spi_message *m)
++/* It's fine to embed message and transaction structures in other data
++ * structures so long as you don't free them while they're in use.
++ */
++
++static inline struct spi_message *spi_message_alloc(unsigned ntrans, gfp_t flags)
 +{
-+	memset(m, 0, sizeof *m);
-+	INIT_LIST_HEAD(&m->transfers);
++	struct spi_message *m;
++
++	m = kzalloc(sizeof(struct spi_message)
++			+ ntrans * sizeof(struct spi_transfer),
++			flags);
++	if (m) {
++		m->transfers = (void *)(m + 1);
++		m->n_transfer = ntrans;
++	}
++	return m;
 +}
 +
-+static inline void
-+spi_message_add_tail(struct spi_transfer *t, struct spi_message *m)
++static inline void spi_message_free(struct spi_message *m)
 +{
-+	list_add_tail(&t->transfer_list, &m->transfers);
++	kfree(m);
 +}
 +
-+static inline void
-+spi_transfer_del(struct spi_transfer *t)
-+{
-+	list_del(&t->transfer_list);
-+}
-+
- /* It's fine to embed message and transaction structures in other data
-  * structures so long as you don't free them while they're in use.
-  */
-@@ -383,8 +417,12 @@ static inline struct spi_message *spi_me
- 			+ ntrans * sizeof(struct spi_transfer),
- 			flags);
- 	if (m) {
--		m->transfers = (void *)(m + 1);
--		m->n_transfer = ntrans;
-+		int i;
-+		struct spi_transfer *t = (struct spi_transfer *)(m + 1);
-+
-+		INIT_LIST_HEAD(&m->transfers);
-+		for (i = 0; i < ntrans; i++, t++)
-+			spi_message_add_tail(t, m);
- 	}
- 	return m;
- }
-@@ -402,6 +440,8 @@ static inline void spi_message_free(stru
-  * device doesn't work with the mode 0 default.  They may likewise need
-  * to update clock rates or word sizes from initial values.  This function
-  * changes those settings, and must be called from a context that can sleep.
-+ * The changes take effect the next time the device is selected and data
-+ * is transferred to or from it.
-  */
- static inline int
- spi_setup(struct spi_device *spi)
-@@ -468,15 +508,12 @@ spi_write(struct spi_device *spi, const 
- {
- 	struct spi_transfer	t = {
- 			.tx_buf		= buf,
--			.rx_buf		= NULL,
- 			.len		= len,
--			.cs_change	= 0,
--		};
--	struct spi_message	m = {
--			.transfers	= &t,
--			.n_transfer	= 1,
- 		};
-+	struct spi_message	m;
- 
-+	spi_message_init(&m);
-+	spi_message_add_tail(&t, &m);
+ /**
+  * spi_setup -- setup SPI mode and clock rate
+  * @spi: the device whose settings are being modified
+@@ -363,7 +421,10 @@ spi_setup(struct spi_device *spi)
+  * The completion callback is invoked in a context which can't sleep.
+  * Before that invocation, the value of message->status is undefined.
+  * When the callback is issued, message->status holds either zero (to
+- * indicate complete success) or a negative error code.
++ * indicate complete success) or a negative error code.  After that
++ * callback returns, the driver which issued the transfer request may
++ * deallocate the associated memory; it's no longer in use by any SPI
++ * core or controller driver code.
+  *
+  * Note that although all messages to a spi_device are handled in
+  * FIFO order, messages may go to different devices in other orders.
+@@ -445,6 +506,7 @@ spi_read(struct spi_device *spi, u8 *buf
  	return spi_sync(spi, &m);
  }
  
-@@ -493,16 +530,13 @@ static inline int
- spi_read(struct spi_device *spi, u8 *buf, size_t len)
- {
- 	struct spi_transfer	t = {
--			.tx_buf		= NULL,
- 			.rx_buf		= buf,
- 			.len		= len,
--			.cs_change	= 0,
--		};
--	struct spi_message	m = {
--			.transfers	= &t,
--			.n_transfer	= 1,
- 		};
-+	struct spi_message	m;
++/* this copies txbuf and rxbuf data; for small transfers only! */
+ extern int spi_write_then_read(struct spi_device *spi,
+ 		const u8 *txbuf, unsigned n_tx,
+ 		u8 *rxbuf, unsigned n_rx);
+@@ -555,8 +617,9 @@ spi_register_board_info(struct spi_board
  
-+	spi_message_init(&m);
-+	spi_message_add_tail(&t, &m);
- 	return spi_sync(spi, &m);
- }
  
-diff --git a/include/linux/spi/spi_bitbang.h b/include/linux/spi/spi_bitbang.h
-index 8dfe61a..c961fe9 100644
---- a/include/linux/spi/spi_bitbang.h
-+++ b/include/linux/spi/spi_bitbang.h
-@@ -31,8 +31,15 @@ struct spi_bitbang {
- 	struct spi_master	*master;
- 
- 	void	(*chipselect)(struct spi_device *spi, int is_on);
-+#define	BITBANG_CS_ACTIVE	1	/* normally nCS, active low */
-+#define	BITBANG_CS_INACTIVE	0
- 
-+	/* txrx_bufs() may handle dma mapping for transfers that don't
-+	 * already have one (transfer.{tx,rx}_dma is zero), or use PIO
-+	 */
- 	int	(*txrx_bufs)(struct spi_device *spi, struct spi_transfer *t);
-+
-+	/* txrx_word[SPI_MODE_*]() just looks like a shift register */
- 	u32	(*txrx_word[4])(struct spi_device *spi,
- 			unsigned nsecs,
- 			u32 word, u8 bits);
+ /* If you're hotplugging an adapter with devices (parport, usb, etc)
+- * use spi_new_device() to describe each device.  You would then call
+- * spi_unregister_device() to start making that device vanish.
++ * use spi_new_device() to describe each device.  You can also call
++ * spi_unregister_device() to start making that device vanish, but
++ * normally that would be handled by spi_unregister_master().
+  */
+ extern struct spi_device *
+ spi_new_device(struct spi_master *, struct spi_board_info *);
 

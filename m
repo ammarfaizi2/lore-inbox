@@ -1,96 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWANJxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751740AbWANJ5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751743AbWANJxu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 04:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWANJxu
+	id S1751740AbWANJ5r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 04:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWANJ5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 04:53:50 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51420 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751218AbWANJxu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 04:53:50 -0500
-Date: Sat, 14 Jan 2006 01:53:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/17] fuse: add number of waiting requests attribute
-Message-Id: <20060114015331.6c4a7618.akpm@osdl.org>
-In-Reply-To: <E1ExhxA-0004Bz-00@dorka.pomaz.szeredi.hu>
-References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
-	<20060114004114.241169000@dorka.pomaz.szeredi.hu>
-	<20060113172846.3ea49670.akpm@osdl.org>
-	<E1ExhxA-0004Bz-00@dorka.pomaz.szeredi.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 14 Jan 2006 04:57:47 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57102 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751745AbWANJ5r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 04:57:47 -0500
+Date: Sat, 14 Jan 2006 09:55:25 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Yaroslav Rastrigin <yarick@it-territory.ru>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT?] Re: Why the DOS has many ntfs read and write driver,but the linux can't for a long time
+Message-ID: <20060114095525.GC2436@ucw.cz>
+References: <174467f50601082354y7ca871c7k@mail.gmail.com> <200601091403.46304.yarick@it-territory.ru> <1136814862.9957.5.camel@mindpipe> <200601091751.27405.yarick@it-territory.ru> <1136819703.9957.10.camel@mindpipe> <Pine.LNX.4.58.0601090735520.15949@shark.he.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0601090735520.15949@shark.he.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
->
-> > This doesn't get initialised anywhere.
-> > 
-> > Presumably you're relying on a memset somewhere.  That might work on all
-> > architectures, AFAIK.  But in theory it's wrong.  If, for example, the
-> > architecture implements atomic_t via a spinlock-plus-integer, and that
-> > spinlock's unlocked state is not all-bits-zero, we're dead.
-> > 
-> > So we should initialise it with
-> > 
-> > 	foo->num_waiting = ATOMIC_INIT(0);
-> > 
+
+On Mon 09-01-06 07:36:37, Randy.Dunlap wrote:
+> On Mon, 9 Jan 2006, Lee Revell wrote:
 > 
-> Is it correct to use a structure initializer this way?
-
-Yes, if it's typecast to the right type.
-
-ATOMIC_INIT is not.  I had a brainfart.
-
-> > nb: it is not correct to initialise an atomic_t with
-> > 
-> > 	atomic_set(a, 0);
-> > 
-> > because in the above theoretical case case where the arch uses a spinlock
-> > in the atomic_t, that spinlock doesn't get initialised.  I bet we've got code
-> > in there which does this.
+> > On Mon, 2006-01-09 at 17:51 +0300, Yaroslav Rastrigin wrote:
+> > > Hi, Lee,
+> > > On 9 January 2006 16:54, you wrote:
+> > > > >
+> > > >
+> > > > Where are the bug reports?  You didn't expect these to just fix
+> > > > themselves did you?
+> > > Been there, done that. Bugreport about malfunctioning (due to ACPI) 3c556 in IBM ThinkPad T20 was looked at once in a few months without any progress,
+> > > and I've finally lost track of it after changing hardware. In more than a year this problem wasn't solved, so I'm assuming bugreports aren't so effective.
+> > > 2200BG ping and packet loss problem was reported in ipw2200-devel mailing list recently (by another user), and the only answer was
+> > > "Switch to version 1.0.0" (which is tooo old and missing needed features and bugfixes, so recommentation was unacceptable). So I'm assuming addressing
+> > > developers directly is not too effective either.
+> > > Two other options I see are to debug/fix it by myself and try to stimulate others monetarily. First option isn't really affordable for me ,
+> > > so I'm trying to research second.
+> >
+> > Bug reports certainly are effective, but if no one else can reproduce
+> > your problem then obviously it can't be fixed.
 > 
-> According to Documentation/atomic_ops.txt, this is the correct usage
-> of atomic_set():
-> 
-> |           The first operations to implement for atomic_t's are the
-> |   initializers and plain reads.
-> |   
-> |           #define ATOMIC_INIT(i)          { (i) }
-> |           #define atomic_set(v, i)        ((v)->counter = (i))
-> |   
-> |   The first macro is used in definitions, such as:
-> |   
-> |   static atomic_t my_counter = ATOMIC_INIT(1);
-> |   
-> |   The second interface can be used at runtime, as in:
-> |   
-> |           struct foo { atomic_t counter; };
-> |           ...
-> |   
-> |           struct foo *k;
-> |   
-> |           k = kmalloc(sizeof(*k), GFP_KERNEL);
-> |           if (!k)
-> |                   return -ENOMEM;
-> |           atomic_set(&k->counter, 0);
-> 
-> So in fact atomic_set() is an initializer, and should be named
-> atomic_init() accordingly.
+> That's not a good attitude IMO.  I'd bet that Linus and Andrew have fixed
+> lots of bugs that they couldn't reproduce.
 
-Yes, we're screwed.  I don't think it's possible to implement atomic_t as
-spinlock+int due to this.
+It makes sense for not-yet-mature stuff like ipw....
 
->  Is atomic_set() ever used as an atomic
-> operation rather than an initializer?
-> 
-
-Sure, lots of places.  Lots of places where you _don't_ want your
-atomic_t's spinlock to be reinitialised.
-
-hmm.
+-- 
+Thanks, Sharp!

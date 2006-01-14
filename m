@@ -1,93 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWANL5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161174AbWANMJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWANL5r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 06:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWANL5r
+	id S1161174AbWANMJw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWANMJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 06:57:47 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:7722 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751030AbWANL5q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 06:57:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=MpD4YILP8PIvxZSoo97KapxUaxKppf9mbkmgHLtPqUjGrUgv/x4oYL7475kRqrtgjZ6/W6itn2ZPUkoffqLyzAlSlZ8O0qL8F89p4CSVJu57EexV3l5iiwQiaviSKTKJv/Mpp+0CY7VGozhdgusaRXQ8ycSvUMu08Akd3Ds2buw=
-Message-ID: <43C8E735.6080305@gmail.com>
-Date: Sat, 14 Jan 2006 12:57:41 +0100
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 14 Jan 2006 07:09:52 -0500
+Received: from 213-140-2-73.ip.fastwebnet.it ([213.140.2.73]:32416 "EHLO
+	aa006msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751046AbWANMJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 07:09:51 -0500
+Date: Sat, 14 Jan 2006 13:08:16 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3 oops on suspend and more (bonus oops shot!)]
+Message-ID: <20060114120816.GA3554@inferi.kami.home>
+Mail-Followup-To: john stultz <johnstul@us.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060110170037.4a614245.akpm@osdl.org> <15632.83.103.117.254.1136989660.squirrel@picard.linux.it> <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060111100016.GC2574@elf.ucw.cz> <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060111184027.GB4735@inferi.kami.home> <20060112220825.GA3490@inferi.kami.home> <1137108362.2890.141.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  2.6.15-rc1-git1 1/1] docs: updated some code docs
-References: <437CD9C5.6060308@gmail.com> <20051117224619.22649dc5.rdunlap@xenotime.net>
-In-Reply-To: <20051117224619.22649dc5.rdunlap@xenotime.net>
-Content-Type: multipart/mixed;
- boundary="------------050206080408040103010808"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137108362.2890.141.camel@cog.beaverton.ibm.com>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.15-rc5-mm3-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050206080408040103010808
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello,
 
-Randy.Dunlap wrote:
+sorry, it took me a while to come back to this issue.
 
->  Linux USB project:
-> -	http://sourceforge.net/projects/linux-usb/
-> +	http://linux-usb.sourceforge.net/
+On Thu, Jan 12, 2006 at 03:26:01PM -0800, john stultz wrote:
+> On Thu, 2006-01-12 at 23:08 +0100, Mattia Dongili wrote:
+> > [cleaned up some Cc as this is not interesting to all MLs]
+> > 
+> > Andrew,
+> > 
+> > first bisection spotted the cause of the stalls at boot (happening while
+> > starting portmap and after usb-storage scan):
+> > 
+> > time-clocksource-infrastructure.patch
+> > time-generic-timekeeping-infrastructure.patch
+> > time-i386-conversion-part-1-move-timer_pitc-to-i8253c.patch
+> > time-i386-conversion-part-2-rework-tsc-support.patch
+> > time-i386-conversion-part-3-enable-generic-timekeeping.patch
+> > time-i386-conversion-part-4-remove-old-timer_opts-code.patch
+> > time-i386-conversion-part-5-acpi-pm-variable-renaming-and-config-change.patch
+> > time-i386-clocksource-drivers.patch
+> > time-fix-cpu-frequency-detection.patch
+> > 
+> > Cc-ed john stultz
+> > 
+> > actually git bisect[1] pointed to time-fix-cpu-frequency-detection.patch
+> > but it's clearly wrong. Reverting all the above patches (I suppose they
+> > are somewhat related) fixes the stalls I experience. I can test
+> > corrections if necessary.
 > 
-> We generally prefer http://www.linux-usb.org/ here.
-> 
-> 
-> +Greg Kroah, "How to piss off a kernel subsystem maintainer".
-> 
-> That should be Greg Kroah-Hartman.
+> Hmmm. I'm not quite understanding. Does reverting just
+> time-fix-cpu-frequency-detection.patch change anything? I just sent out
 
-done against 2.6.15-git10, please apply.
+no, that's why I reverted the full thing.
 
--thanks-
+> a fix for an error case that patch, but I doubt you'd be hitting it.
+> 
+> Looking at the log here:
+> http://oioio.altervista.org/linux/boot-2.6.15-mm2.3
+> 
+> I'm curious if you're getting cpufreq effects during interval while the
+> TSC is being used as a clocksource before we switch to using the acpi_pm
+> clocksource.
 
+What should I expect? I didn't notice anything in particular and
+actually the box stays alive for just a few minutes, then reiserfs
+explodes so I have no chance to notice anything in the long run.
+
+> After the system boots up, does it keep accurate time? Time doesn't
+> obviously move too fast or to slow compared to a watch?
+
+yes, during the short time it stays alive there's no difference between
+my watch and my laptop.
+
+> Few things to try (independently):
+> 1. Does booting w/ idle=poll change the behavior?
+
+yes, no more stalls
+
+> 2. Does booting w/ clocksource=jiffies change the behavior?
+
+yes, same as above
+
+> 3. After booting up, run: 
+>    echo tsc > /sys/devices/system/clocksource/clocksource0/current_clocksource
+>    And check that the system keeps accurate time.
+
+didn't try as there seems to be no problem in timekeeping
+
+thanks
 -- 
-Politicos de mierda, yo no soy un terrorista.
-
---------------050206080408040103010808
-Content-Type: text/x-patch;
- name="Submitting_code.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Submitting_code.diff"
-
-diff -Nuar a/Documentation/SubmittingDrivers b/Documentation/SubmittingDrivers
---- a/Documentation/SubmittingDrivers	2006-01-14 12:47:02.000000000 +0100
-+++ b/Documentation/SubmittingDrivers	2006-01-14 12:50:33.000000000 +0100
-@@ -143,7 +143,7 @@
- 	http://kernelnewbies.org/
- 
- Linux USB project:
--	http://linux-usb.sourceforge.net/
-+	http://www.linux-usb.org/
- 
- How to NOT write kernel driver by arjanv@redhat.com
- 	http://people.redhat.com/arjanv/olspaper.pdf
-diff -Nuar a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
---- a/Documentation/SubmittingPatches	2006-01-14 12:47:02.000000000 +0100
-+++ b/Documentation/SubmittingPatches	2006-01-14 12:49:58.000000000 +0100
-@@ -478,10 +478,11 @@
- Jeff Garzik, "Linux kernel patch submission format."
-   <http://linux.yyz.us/patch-format.html>
- 
--Greg Kroah, "How to piss off a kernel subsystem maintainer".
-+Greg Kroah-Hartman "How to piss off a kernel subsystem maintainer".
-   <http://www.kroah.com/log/2005/03/31/>
-   <http://www.kroah.com/log/2005/07/08/>
-   <http://www.kroah.com/log/2005/10/19/>
-+  <http://www.kroah.com/log/2006/01/11/>
- 
- NO!!!! No more huge patch bombs to linux-kernel@vger.kernel.org people!.
-   <http://marc.theaimsgroup.com/?l=linux-kernel&m=112112749912944&w=2>
-
---------------050206080408040103010808--
+mattia
+:wq!

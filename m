@@ -1,91 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWANMSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWANMXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751030AbWANMSM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 07:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWANMSM
+	id S1751100AbWANMXX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 07:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWANMXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 07:18:12 -0500
-Received: from h144-158.u.wavenet.pl ([217.79.144.158]:64135 "EHLO
-	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1751030AbWANMSL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 07:18:11 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC/RFT][PATCH -mm] swsusp: userland interface
-Date: Sat, 14 Jan 2006 13:19:53 +0100
+	Sat, 14 Jan 2006 07:23:23 -0500
+Received: from lugor.de ([212.112.242.222]:41432 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S1751100AbWANMXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 07:23:22 -0500
+From: "Hesse, Christian" <mail@earthworm.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: So - What's going on with Reiser 4?
+Date: Sat, 14 Jan 2006 13:22:23 +0100
 User-Agent: KMail/1.9
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       Linux PM <linux-pm@osdl.org>
-References: <200601122241.07363.rjw@sisk.pl> <200601141040.00088.rjw@sisk.pl> <20060114112950.GA2571@ucw.cz>
-In-Reply-To: <20060114112950.GA2571@ucw.cz>
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+References: <43C837B6.5070903@perkel.com> <1137236892.3014.12.camel@laptopd505.fenrus.org>
+In-Reply-To: <1137236892.3014.12.camel@laptopd505.fenrus.org>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart1286969.Q8diUhe7EK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601141319.53573.rjw@sisk.pl>
+Message-Id: <200601141322.34520.mail@earthworm.de>
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Sat, 14 Jan 2006 15:22:40 +0100 (CET)
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart1286969.Q8diUhe7EK
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Saturday, 14 January 2006 12:29, Pavel Machek wrote:
-> > > > > > > It returns the number of pages.  Well, it should be written explicitly,
-> > > > > > > so I'll fix that.
-> > > > > > 
-> > > > > > Please always talk to the kernel in bytes. Pagesize is only a kernel
-> > > > > > internal unit. Sth. like off64_t is fine.
-> > > > > 
-> > > > > These are values returned by the kernel, actually.  Of course I can convert them
-> > > > > to bytes before sending to the user space, if that's preferrable.
-> > > > > 
-> > > > > Pavel, what do you think?
-> > > > 
-> > > > Bytes, I'd say. It would be nice if preffered image size was in bytes,
-> > > > too, for consistency.
-> > > 
-> > > OK
-> > 
-> > Having actually tried to do that I see two reasons for keeping the image size
-> > in megs.
-> > 
-> > First, if that was in bytes, I'd have to pass it via a pointer, because
-> > unsigned long might overflow on i386.  Then I'd have to use get_user()
-> 
-> Actually unsigned long is okay. We can't do images > 1.5GB, anyway,
-> on i386.
+On Saturday 14 January 2006 12:08, Arjan van de Ven wrote:
+> On Fri, 2006-01-13 at 15:28 -0800, Marc Perkel wrote:
+> > Still waiting. I thought it was ging to eventually be included. What's
+> > holding it up?
+>
+> Is someone running a "lets all complain on lkml about reiser4" campaign?
+> This was asked and answered 2 weeks ago, please read the archives.
+> (and it was asked last week and we then pointed at the archives as well)
 
-Right.  In fact 1/2 of lowmem is the limit.
+Maciej Soltysiak answered the question two weeks ago. But he started his ma=
+il=20
+with "I am not the r4 spokesman [...]". So could anybody write some words w=
+ho=20
+really knows?
+=2D-=20
+Christian
 
-> > to read the value.  However, afterwards I'd have to rescale that value
-> > to megs for swsusp_shrink_memory().  It's just easier to pass the value
-> > in megs using the last argument of ioctl() directly (which is consistent
-> > with the /sys/power/image_size thing, BTW).
-> 
-> Well, I'd be inclined to make image_size in bytes, too. Having
-> each ioctl/sys file in different units seems wrong.
+--nextPart1286969.Q8diUhe7EK
+Content-Type: application/pgp-signature
 
-I'll add these changes to the userland interface patch, then.  There won't
-be too many of them, I think.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.19 (GNU/Linux)
 
-> > Second, if that's in bytes, it would suggest that the memory-shrinking
-> > mechanism had byte granularity (ie. way off).
-> 
-> Yep, but it is not that bad.
-> 
-> > There also is a reason for which SNAPSHOT_AVAIL_SWAP should return
-> > the number of pages, IMO.  Namely, if that's in pages, the number is directly
-> > comparable with the number of image pages which the suspending
-> > utility can read from the image header.  Otherwise it would have to rescale
-> > one of these values using PAGE_SIZE, but that's exactly what we'd like
-> > to avoid.
-> 
-> I see.... We could put #bytes into image header (unsigned long) :-).
-> 
-> Its not too bad one way or another, because uswsusp tools are
-> intimately tied to kernel, anyway.
+iD8DBQBDyO0KlZfG2c8gdSURAodTAJ9jgR9JfSLWarVgYWyj/taqGDzQWQCfT68x
+tvrSVB/Ni5fQPkYvECWfpw4=
+=Mnrc
+-----END PGP SIGNATURE-----
 
-Exactly. :-)
-
-Greetings,
-Rafael
+--nextPart1286969.Q8diUhe7EK--

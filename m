@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWANV14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWANV3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWANV14 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 16:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWANV1V
+	id S1751306AbWANV3A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 16:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWANV1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 16:27:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6036 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751304AbWANV1C convert rfc822-to-8bit
+	Sat, 14 Jan 2006 16:27:15 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4500 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751298AbWANV1D convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 16:27:02 -0500
-Cc: mike@steroidmicros.com
-Subject: [PATCH] spi: M25 series SPI flash
-In-Reply-To: <11371995921674@kroah.com>
+	Sat, 14 Jan 2006 16:27:03 -0500
+Cc: vwool@ru.mvista.com
+Subject: [PATCH] spi: use linked lists rather than an array
+In-Reply-To: <11371995933018@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 16:46:32 -0800
-Message-Id: <1137199592102@kroah.com>
+Date: Fri, 13 Jan 2006 16:46:33 -0800
+Message-Id: <11371995931802@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,668 +24,695 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] spi: M25 series SPI flash
+[PATCH] spi: use linked lists rather than an array
 
-This was originally a driver for the ST M25P80 SPI flash.  It's been
-updated slightly to handle other M25P series chips.
+This makes the SPI core and its users access transfers in the SPI message
+structure as linked list not as an array, as discussed on LKML.
 
-For many of these chips, the specific type could be probed, but for now
-this just requires static setup with flash_platform_data that lists the
-chip type (size, format) and any default partitioning to use.
+From: David Brownell <dbrownell@users.sourceforge.net>
 
+  Updates including doc, bugfixes to the list code, add
+  spi_message_add_tail().  Plus, initialize things _before_ grabbing the
+  locks in some cases (in case it grows more expensive).  This also merges
+  some bitbang updates of mine that didn't yet make it into the mm tree.
+
+Signed-off-by: Vitaly Wool <vwool@ru.mvista.com>
+Signed-off-by: Dmitry Pervushin <dpervushin@gmail.com>
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Cc: Mike Lavender <mike@steroidmicros.com>
-Cc: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 2f9f762879015d738a5ec2ac8a16be94b3a4a06d
-tree 73efe8bcdb970ee9c815c08358fb707b46aab983
-parent 9904f22a7202c6b54e96b0cc9870817013c350a1
-author Mike Lavender <mike@steroidmicros.com> Sun, 08 Jan 2006 13:34:27 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:55 -0800
+commit 8275c642ccdce09a2146d0a9eb022e3698ee927e
+tree ea330810f665fcbdf36d31b0da1643db528ad83f
+parent 2f9f762879015d738a5ec2ac8a16be94b3a4a06d
+author Vitaly Wool <vwool@ru.mvista.com> Sun, 08 Jan 2006 13:34:28 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:56 -0800
 
- drivers/mtd/devices/Kconfig  |    8 +
- drivers/mtd/devices/Makefile |    1 
- drivers/mtd/devices/m25p80.c |  580 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/spi/flash.h    |    4 
- 4 files changed, 593 insertions(+), 0 deletions(-)
+ drivers/input/touchscreen/ads7846.c |   12 +++--
+ drivers/mtd/devices/m25p80.c        |   50 ++++++++++---------
+ drivers/mtd/devices/mtd_dataflash.c |   28 ++++++-----
+ drivers/spi/spi.c                   |   18 ++++---
+ drivers/spi/spi_bitbang.c           |   86 +++++++++++++++++++--------------
+ include/linux/spi/spi.h             |   92 ++++++++++++++++++++++++-----------
+ include/linux/spi/spi_bitbang.h     |    7 +++
+ 7 files changed, 180 insertions(+), 113 deletions(-)
 
-diff --git a/drivers/mtd/devices/Kconfig b/drivers/mtd/devices/Kconfig
-index 84f2eb1..5038e90 100644
---- a/drivers/mtd/devices/Kconfig
-+++ b/drivers/mtd/devices/Kconfig
-@@ -55,6 +55,14 @@ config MTD_DATAFLASH
- 	  Sometimes DataFlash chips are packaged inside MMC-format
- 	  cards; at this writing, the MMC stack won't handle those.
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index c741776..dd8c6a9 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -155,10 +155,13 @@ static int ads7846_read12_ser(struct dev
+ 	struct ser_req		*req = kzalloc(sizeof *req, SLAB_KERNEL);
+ 	int			status;
+ 	int			sample;
++	int 			i;
  
-+config MTD_M25P80
-+	tristate "Support for M25 SPI Flash"
-+	depends on MTD && SPI_MASTER && EXPERIMENTAL
-+	help
-+	  This enables access to ST M25P80 and similar SPI flash chips,
-+	  used for program and data storage.  Set up your spi devices
-+	  with the right board-specific platform data.
+ 	if (!req)
+ 		return -ENOMEM;
+ 
++	INIT_LIST_HEAD(&req->msg.transfers);
 +
- config MTD_SLRAM
- 	tristate "Uncached system RAM"
- 	depends on MTD
-diff --git a/drivers/mtd/devices/Makefile b/drivers/mtd/devices/Makefile
-index cd8d807..7c5ed21 100644
---- a/drivers/mtd/devices/Makefile
-+++ b/drivers/mtd/devices/Makefile
-@@ -24,3 +24,4 @@ obj-$(CONFIG_MTD_LART)		+= lart.o
- obj-$(CONFIG_MTD_BLKMTD)	+= blkmtd.o
- obj-$(CONFIG_MTD_BLOCK2MTD)	+= block2mtd.o
- obj-$(CONFIG_MTD_DATAFLASH)	+= mtd_dataflash.o
-+obj-$(CONFIG_MTD_M25P80)	+= m25p80.o
+ 	/* activate reference, so it has time to settle; */
+ 	req->xfer[0].tx_buf = &ref_on;
+ 	req->xfer[0].len = 1;
+@@ -192,8 +195,8 @@ static int ads7846_read12_ser(struct dev
+ 	/* group all the transfers together, so we can't interfere with
+ 	 * reading touchscreen state; disable penirq while sampling
+ 	 */
+-	req->msg.transfers = req->xfer;
+-	req->msg.n_transfer = 6;
++	for (i = 0; i < 6; i++)
++		spi_message_add_tail(&req->xfer[i], &req->msg);
+ 
+ 	disable_irq(spi->irq);
+ 	status = spi_sync(spi, &req->msg);
+@@ -398,6 +401,7 @@ static int __devinit ads7846_probe(struc
+ 	struct ads7846			*ts;
+ 	struct ads7846_platform_data	*pdata = spi->dev.platform_data;
+ 	struct spi_transfer		*x;
++	int				i;
+ 
+ 	if (!spi->irq) {
+ 		dev_dbg(&spi->dev, "no IRQ?\n");
+@@ -500,8 +504,8 @@ static int __devinit ads7846_probe(struc
+ 
+ 	CS_CHANGE(x[-1]);
+ 
+-	ts->msg.transfers = ts->xfer;
+-	ts->msg.n_transfer = x - ts->xfer;
++	for (i = 0; i < x - ts->xfer; i++)
++		spi_message_add_tail(&ts->xfer[i], &ts->msg);
+ 	ts->msg.complete = ads7846_rx;
+ 	ts->msg.context = ts;
+ 
 diff --git a/drivers/mtd/devices/m25p80.c b/drivers/mtd/devices/m25p80.c
-new file mode 100644
-index 0000000..71a0721
---- /dev/null
+index 71a0721..45108ed 100644
+--- a/drivers/mtd/devices/m25p80.c
 +++ b/drivers/mtd/devices/m25p80.c
-@@ -0,0 +1,580 @@
-+/*
-+ * MTD SPI driver for ST M25Pxx flash chips
-+ *
-+ * Author: Mike Lavender, mike@steroidmicros.com
-+ *
-+ * Copyright (c) 2005, Intec Automation Inc.
-+ *
-+ * Some parts are based on lart.c by Abraham Van Der Merwe
-+ *
-+ * Cleaned up and generalized based on mtd_dataflash.c
-+ *
-+ * This code is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/interrupt.h>
-+#include <linux/interrupt.h>
-+#include <linux/mtd/mtd.h>
-+#include <linux/mtd/partitions.h>
-+#include <linux/spi/spi.h>
-+#include <linux/spi/flash.h>
-+
-+#include <asm/semaphore.h>
-+
-+
-+/* NOTE: AT 25F and SST 25LF series are very similar,
-+ * but commands for sector erase and chip id differ...
-+ */
-+
-+#define FLASH_PAGESIZE		256
-+
-+/* Flash opcodes. */
-+#define	OPCODE_WREN		6	/* Write enable */
-+#define	OPCODE_RDSR		5	/* Read status register */
-+#define	OPCODE_READ		3	/* Read data bytes */
-+#define	OPCODE_PP		2	/* Page program */
-+#define	OPCODE_SE		0xd8	/* Sector erase */
-+#define	OPCODE_RES		0xab	/* Read Electronic Signature */
-+#define	OPCODE_RDID		0x9f	/* Read JEDEC ID */
-+
-+/* Status Register bits. */
-+#define	SR_WIP			1	/* Write in progress */
-+#define	SR_WEL			2	/* Write enable latch */
-+#define	SR_BP0			4	/* Block protect 0 */
-+#define	SR_BP1			8	/* Block protect 1 */
-+#define	SR_BP2			0x10	/* Block protect 2 */
-+#define	SR_SRWD			0x80	/* SR write protect */
-+
-+/* Define max times to check status register before we give up. */
-+#define	MAX_READY_WAIT_COUNT	100000
-+
-+
-+#ifdef CONFIG_MTD_PARTITIONS
-+#define	mtd_has_partitions()	(1)
-+#else
-+#define	mtd_has_partitions()	(0)
-+#endif
-+
-+/****************************************************************************/
-+
-+struct m25p {
-+	struct spi_device	*spi;
-+	struct semaphore	lock;
-+	struct mtd_info		mtd;
-+	unsigned		partitioned;
-+	u8			command[4];
-+};
-+
-+static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
-+{
-+	return container_of(mtd, struct m25p, mtd);
-+}
-+
-+/****************************************************************************/
-+
-+/*
-+ * Internal helper functions
-+ */
-+
-+/*
-+ * Read the status register, returning its value in the location
-+ * Return the status register value.
-+ * Returns negative if error occurred.
-+ */
-+static int read_sr(struct m25p *flash)
-+{
-+	ssize_t retval;
-+	u8 code = OPCODE_RDSR;
-+	u8 val;
-+
-+	retval = spi_write_then_read(flash->spi, &code, 1, &val, 1);
-+
-+	if (retval < 0) {
-+		dev_err(&flash->spi->dev, "error %d reading SR\n",
-+				(int) retval);
-+		return retval;
-+	}
-+
-+	return val;
-+}
-+
-+
-+/*
-+ * Set write enable latch with Write Enable command.
-+ * Returns negative if error occurred.
-+ */
-+static inline int write_enable(struct m25p *flash)
-+{
-+	u8	code = OPCODE_WREN;
-+
-+	return spi_write_then_read(flash->spi, &code, 1, NULL, 0);
-+}
-+
-+
-+/*
-+ * Service routine to read status register until ready, or timeout occurs.
-+ * Returns non-zero if error.
-+ */
-+static int wait_till_ready(struct m25p *flash)
-+{
-+	int count;
-+	int sr;
-+
-+	/* one chip guarantees max 5 msec wait here after page writes,
-+	 * but potentially three seconds (!) after page erase.
-+	 */
-+	for (count = 0; count < MAX_READY_WAIT_COUNT; count++) {
-+		if ((sr = read_sr(flash)) < 0)
-+			break;
-+		else if (!(sr & SR_WIP))
-+			return 0;
-+
-+		/* REVISIT sometimes sleeping would be best */
-+	}
-+
-+	return 1;
-+}
-+
-+
-+/*
-+ * Erase one sector of flash memory at offset ``offset'' which is any
-+ * address within the sector which should be erased.
-+ *
-+ * Returns 0 if successful, non-zero otherwise.
-+ */
-+static int erase_sector(struct m25p *flash, u32 offset)
-+{
-+	DEBUG(MTD_DEBUG_LEVEL3, "%s: %s at 0x%08x\n", flash->spi->dev.bus_id,
-+			__FUNCTION__, offset);
-+
-+	/* Wait until finished previous write command. */
-+	if (wait_till_ready(flash))
-+		return 1;
-+
-+	/* Send write enable, then erase commands. */
-+	write_enable(flash);
-+
-+	/* Set up command buffer. */
-+	flash->command[0] = OPCODE_SE;
-+	flash->command[1] = offset >> 16;
-+	flash->command[2] = offset >> 8;
-+	flash->command[3] = offset;
-+
-+	spi_write(flash->spi, flash->command, sizeof(flash->command));
-+
-+	return 0;
-+}
-+
-+/****************************************************************************/
-+
-+/*
-+ * MTD implementation
-+ */
-+
-+/*
-+ * Erase an address range on the flash chip.  The address range may extend
-+ * one or more erase sectors.  Return an error is there is a problem erasing.
-+ */
-+static int m25p80_erase(struct mtd_info *mtd, struct erase_info *instr)
-+{
-+	struct m25p *flash = mtd_to_m25p(mtd);
-+	u32 addr,len;
-+
-+	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
-+			flash->spi->dev.bus_id, __FUNCTION__, "at",
-+			(u32)instr->addr, instr->len);
-+
-+	/* sanity checks */
-+	if (instr->addr + instr->len > flash->mtd.size)
-+		return -EINVAL;
-+	if ((instr->addr % mtd->erasesize) != 0
-+			|| (instr->len % mtd->erasesize) != 0) {
-+		return -EINVAL;
-+	}
-+
-+	addr = instr->addr;
-+	len = instr->len;
-+
-+  	down(&flash->lock);
-+
-+	/* now erase those sectors */
-+	while (len) {
-+		if (erase_sector(flash, addr)) {
-+			instr->state = MTD_ERASE_FAILED;
-+			up(&flash->lock);
-+			return -EIO;
-+		}
-+
-+		addr += mtd->erasesize;
-+		len -= mtd->erasesize;
-+	}
-+
-+  	up(&flash->lock);
-+
-+	instr->state = MTD_ERASE_DONE;
-+	mtd_erase_callback(instr);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Read an address range from the flash chip.  The address range
-+ * may be any size provided it is within the physical boundaries.
-+ */
-+static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
-+	size_t *retlen, u_char *buf)
-+{
-+	struct m25p *flash = mtd_to_m25p(mtd);
-+	struct spi_transfer t[2];
-+	struct spi_message m;
-+
-+	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
-+			flash->spi->dev.bus_id, __FUNCTION__, "from",
-+			(u32)from, len);
-+
-+	/* sanity checks */
-+	if (!len)
-+		return 0;
-+
-+	if (from + len > flash->mtd.size)
-+		return -EINVAL;
-+
-+	down(&flash->lock);
-+
-+	/* Wait till previous write/erase is done. */
-+	if (wait_till_ready(flash)) {
-+		/* REVISIT status return?? */
-+		up(&flash->lock);
-+		return 1;
-+	}
-+
+@@ -245,6 +245,21 @@ static int m25p80_read(struct mtd_info *
+ 	if (from + len > flash->mtd.size)
+ 		return -EINVAL;
+ 
++	spi_message_init(&m);
 +	memset(t, 0, (sizeof t));
 +
-+	/* NOTE:  OPCODE_FAST_READ (if available) is faster... */
++	t[0].tx_buf = flash->command;
++	t[0].len = sizeof(flash->command);
++	spi_message_add_tail(&t[0], &m);
 +
-+	/* Set up the write data buffer. */
-+	flash->command[0] = OPCODE_READ;
-+	flash->command[1] = from >> 16;
-+	flash->command[2] = from >> 8;
-+	flash->command[3] = from;
++	t[1].rx_buf = buf;
++	t[1].len = len;
++	spi_message_add_tail(&t[1], &m);
 +
 +	/* Byte count starts at zero. */
 +	if (retlen)
 +		*retlen = 0;
 +
-+	t[0].tx_buf = flash->command;
-+	t[0].len = sizeof(flash->command);
-+
-+	t[1].rx_buf = buf;
-+	t[1].len = len;
-+
-+	m.transfers = t;
-+	m.n_transfer = 2;
-+
-+	spi_sync(flash->spi, &m);
-+
-+	*retlen = m.actual_length - sizeof(flash->command);
-+
-+  	up(&flash->lock);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Write an address range to the flash chip.  Data must be written in
-+ * FLASH_PAGESIZE chunks.  The address range may be any size provided
-+ * it is within the physical boundaries.
-+ */
-+static int m25p80_write(struct mtd_info *mtd, loff_t to, size_t len,
-+	size_t *retlen, const u_char *buf)
-+{
-+	struct m25p *flash = mtd_to_m25p(mtd);
-+	u32 page_offset, page_size;
-+	struct spi_transfer t[2];
-+	struct spi_message m;
-+
-+	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
-+			flash->spi->dev.bus_id, __FUNCTION__, "to",
-+			(u32)to, len);
-+
-+	if (retlen)
-+		*retlen = 0;
-+
-+	/* sanity checks */
-+	if (!len)
-+		return(0);
-+
-+	if (to + len > flash->mtd.size)
-+		return -EINVAL;
-+
-+  	down(&flash->lock);
-+
-+	/* Wait until finished previous write command. */
-+	if (wait_till_ready(flash))
-+		return 1;
-+
-+	write_enable(flash);
-+
+ 	down(&flash->lock);
+ 
+ 	/* Wait till previous write/erase is done. */
+@@ -254,8 +269,6 @@ static int m25p80_read(struct mtd_info *
+ 		return 1;
+ 	}
+ 
+-	memset(t, 0, (sizeof t));
+-
+ 	/* NOTE:  OPCODE_FAST_READ (if available) is faster... */
+ 
+ 	/* Set up the write data buffer. */
+@@ -264,19 +277,6 @@ static int m25p80_read(struct mtd_info *
+ 	flash->command[2] = from >> 8;
+ 	flash->command[3] = from;
+ 
+-	/* Byte count starts at zero. */
+-	if (retlen)
+-		*retlen = 0;
+-
+-	t[0].tx_buf = flash->command;
+-	t[0].len = sizeof(flash->command);
+-
+-	t[1].rx_buf = buf;
+-	t[1].len = len;
+-
+-	m.transfers = t;
+-	m.n_transfer = 2;
+-
+ 	spi_sync(flash->spi, &m);
+ 
+ 	*retlen = m.actual_length - sizeof(flash->command);
+@@ -313,6 +313,16 @@ static int m25p80_write(struct mtd_info 
+ 	if (to + len > flash->mtd.size)
+ 		return -EINVAL;
+ 
++	spi_message_init(&m);
 +	memset(t, 0, (sizeof t));
 +
-+	/* Set up the opcode in the write buffer. */
-+	flash->command[0] = OPCODE_PP;
-+	flash->command[1] = to >> 16;
-+	flash->command[2] = to >> 8;
-+	flash->command[3] = to;
-+
 +	t[0].tx_buf = flash->command;
 +	t[0].len = sizeof(flash->command);
++	spi_message_add_tail(&t[0], &m);
 +
-+	m.transfers = t;
-+	m.n_transfer = 2;
++	t[1].tx_buf = buf;
++	spi_message_add_tail(&t[1], &m);
 +
-+	/* what page do we start with? */
-+	page_offset = to % FLASH_PAGESIZE;
-+
-+	/* do all the bytes fit onto one page? */
-+	if (page_offset + len <= FLASH_PAGESIZE) {
-+		t[1].tx_buf = buf;
-+		t[1].len = len;
-+
-+		spi_sync(flash->spi, &m);
-+
-+		*retlen = m.actual_length - sizeof(flash->command);
-+	} else {
-+		u32 i;
-+
-+		/* the size of data remaining on the first page */
-+		page_size = FLASH_PAGESIZE - page_offset;
-+
-+		t[1].tx_buf = buf;
-+		t[1].len = page_size;
-+		spi_sync(flash->spi, &m);
-+
-+		*retlen = m.actual_length - sizeof(flash->command);
-+
-+		/* write everything in PAGESIZE chunks */
-+		for (i = page_size; i < len; i += page_size) {
-+			page_size = len - i;
-+			if (page_size > FLASH_PAGESIZE)
-+				page_size = FLASH_PAGESIZE;
-+
-+			/* write the next page to flash */
-+			flash->command[1] = (to + i) >> 16;
-+			flash->command[2] = (to + i) >> 8;
-+			flash->command[3] = (to + i);
-+
-+			t[1].tx_buf = buf + i;
-+			t[1].len = page_size;
-+
-+			wait_till_ready(flash);
-+
-+			write_enable(flash);
-+
-+			spi_sync(flash->spi, &m);
-+
-+			*retlen += m.actual_length - sizeof(flash->command);
-+	        }
-+ 	}
-+
-+	up(&flash->lock);
-+
-+	return 0;
-+}
-+
-+
-+/****************************************************************************/
-+
-+/*
-+ * SPI device driver setup and teardown
-+ */
-+
-+struct flash_info {
-+	char		*name;
-+	u8		id;
-+	u16		jedec_id;
-+	unsigned	sector_size;
-+	unsigned	n_sectors;
-+};
-+
-+static struct flash_info __devinitdata m25p_data [] = {
-+	/* REVISIT: fill in JEDEC ids, for parts that have them */
-+	{ "m25p05", 0x05, 0x0000, 32 * 1024, 2 },
-+	{ "m25p10", 0x10, 0x0000, 32 * 1024, 4 },
-+	{ "m25p20", 0x11, 0x0000, 64 * 1024, 4 },
-+	{ "m25p40", 0x12, 0x0000, 64 * 1024, 8 },
-+	{ "m25p80", 0x13, 0x0000, 64 * 1024, 16 },
-+	{ "m25p16", 0x14, 0x0000, 64 * 1024, 32 },
-+	{ "m25p32", 0x15, 0x0000, 64 * 1024, 64 },
-+	{ "m25p64", 0x16, 0x2017, 64 * 1024, 128 },
-+};
-+
-+/*
-+ * board specific setup should have ensured the SPI clock used here
-+ * matches what the READ command supports, at least until this driver
-+ * understands FAST_READ (for clocks over 25 MHz).
-+ */
-+static int __devinit m25p_probe(struct spi_device *spi)
-+{
-+	struct flash_platform_data	*data;
-+	struct m25p			*flash;
-+	struct flash_info		*info;
-+	unsigned			i;
-+
-+	/* Platform data helps sort out which chip type we have, as
-+	 * well as how this board partitions it.
-+	 */
-+	data = spi->dev.platform_data;
-+	if (!data || !data->type) {
-+		/* FIXME some chips can identify themselves with RES
-+		 * or JEDEC get-id commands.  Try them ...
-+		 */
-+		DEBUG(MTD_DEBUG_LEVEL1, "%s: no chip id\n",
-+				flash->spi->dev.bus_id);
-+		return -ENODEV;
-+	}
-+
-+	for (i = 0, info = m25p_data; i < ARRAY_SIZE(m25p_data); i++, info++) {
-+		if (strcmp(data->type, info->name) == 0)
-+			break;
-+	}
-+	if (i == ARRAY_SIZE(m25p_data)) {
-+		DEBUG(MTD_DEBUG_LEVEL1, "%s: unrecognized id %s\n",
-+				flash->spi->dev.bus_id, data->type);
-+		return -ENODEV;
-+	}
-+
-+	flash = kzalloc(sizeof *flash, SLAB_KERNEL);
-+	if (!flash)
-+		return -ENOMEM;
-+
-+	flash->spi = spi;
-+	init_MUTEX(&flash->lock);
-+	dev_set_drvdata(&spi->dev, flash);
-+
-+	if (data->name)
-+		flash->mtd.name = data->name;
-+	else
-+		flash->mtd.name = spi->dev.bus_id;
-+
-+	flash->mtd.type = MTD_NORFLASH;
-+	flash->mtd.flags = MTD_CAP_NORFLASH;
-+	flash->mtd.size = info->sector_size * info->n_sectors;
-+	flash->mtd.erasesize = info->sector_size;
-+	flash->mtd.erase = m25p80_erase;
-+	flash->mtd.read = m25p80_read;
-+	flash->mtd.write = m25p80_write;
-+
-+	dev_info(&spi->dev, "%s (%d Kbytes)\n", info->name,
-+			flash->mtd.size / 1024);
-+
-+	DEBUG(MTD_DEBUG_LEVEL2,
-+		"mtd .name = %s, .size = 0x%.8x (%uM) "
-+			".erasesize = 0x%.8x (%uK) .numeraseregions = %d\n",
-+		flash->mtd.name,
-+		flash->mtd.size, flash->mtd.size / (1024*1024),
-+		flash->mtd.erasesize, flash->mtd.erasesize / 1024,
-+		flash->mtd.numeraseregions);
-+
-+	if (flash->mtd.numeraseregions)
-+		for (i = 0; i < flash->mtd.numeraseregions; i++)
-+			DEBUG(MTD_DEBUG_LEVEL2,
-+				"mtd.eraseregions[%d] = { .offset = 0x%.8x, "
-+				".erasesize = 0x%.8x (%uK), "
-+				".numblocks = %d }\n",
-+				i, flash->mtd.eraseregions[i].offset,
-+				flash->mtd.eraseregions[i].erasesize,
-+				flash->mtd.eraseregions[i].erasesize / 1024,
-+				flash->mtd.eraseregions[i].numblocks);
-+
-+
-+	/* partitions should match sector boundaries; and it may be good to
-+	 * use readonly partitions for writeprotected sectors (BP2..BP0).
-+	 */
-+	if (mtd_has_partitions()) {
-+		struct mtd_partition	*parts = NULL;
-+		int			nr_parts = 0;
-+
-+#ifdef CONFIG_MTD_CMDLINE_PARTS
-+		static const char *part_probes[] = { "cmdlinepart", NULL, };
-+
-+		nr_parts = parse_mtd_partitions(&flash->mtd,
-+				part_probes, &parts, 0);
-+#endif
-+
-+		if (nr_parts <= 0 && data && data->parts) {
-+			parts = data->parts;
-+			nr_parts = data->nr_parts;
-+		}
-+
-+		if (nr_parts > 0) {
-+			for (i = 0; i < data->nr_parts; i++) {
-+				DEBUG(MTD_DEBUG_LEVEL2, "partitions[%d] = "
-+					"{.name = %s, .offset = 0x%.8x, "
-+						".size = 0x%.8x (%uK) }\n",
-+					i, data->parts[i].name,
-+					data->parts[i].offset,
-+					data->parts[i].size,
-+					data->parts[i].size / 1024);
-+			}
-+			flash->partitioned = 1;
-+			return add_mtd_partitions(&flash->mtd, parts, nr_parts);
-+		}
-+	} else if (data->nr_parts)
-+		dev_warn(&spi->dev, "ignoring %d default partitions on %s\n",
-+				data->nr_parts, data->name);
-+
-+	return add_mtd_device(&flash->mtd) == 1 ? -ENODEV : 0;
-+}
-+
-+
-+static int __devexit m25p_remove(struct spi_device *spi)
-+{
-+	struct m25p	*flash = dev_get_drvdata(&spi->dev);
-+	int		status;
-+
-+	/* Clean up MTD stuff. */
-+	if (mtd_has_partitions() && flash->partitioned)
-+		status = del_mtd_partitions(&flash->mtd);
-+	else
-+		status = del_mtd_device(&flash->mtd);
-+	if (status == 0)
-+		kfree(flash);
-+	return 0;
-+}
-+
-+
-+static struct spi_driver m25p80_driver = {
-+	.driver = {
-+		.name	= "m25p80",
-+		.bus	= &spi_bus_type,
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe	= m25p_probe,
-+	.remove	= __devexit_p(m25p_remove),
-+};
-+
-+
-+static int m25p80_init(void)
-+{
-+	return spi_register_driver(&m25p80_driver);
-+}
-+
-+
-+static void m25p80_exit(void)
-+{
-+	spi_unregister_driver(&m25p80_driver);
-+}
-+
-+
-+module_init(m25p80_init);
-+module_exit(m25p80_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Mike Lavender");
-+MODULE_DESCRIPTION("MTD SPI driver for ST M25Pxx flash chips");
-diff --git a/include/linux/spi/flash.h b/include/linux/spi/flash.h
-index 2ce6558..3f22932 100644
---- a/include/linux/spi/flash.h
-+++ b/include/linux/spi/flash.h
-@@ -8,6 +8,8 @@ struct mtd_partition;
-  * @name: optional flash device name (eg, as used with mtdparts=)
-  * @parts: optional array of mtd_partitions for static partitioning
-  * @nr_parts: number of mtd_partitions for static partitoning
-+ * @type: optional flash device type (e.g. m25p80 vs m25p64), for use
-+ *	with chips that can't be queried for JEDEC or other IDs
-  *
-  * Board init code (in arch/.../mach-xxx/board-yyy.c files) can
-  * provide information about SPI flash parts (such as DataFlash) to
-@@ -21,6 +23,8 @@ struct flash_platform_data {
- 	struct mtd_partition *parts;
- 	unsigned int	nr_parts;
+   	down(&flash->lock);
  
-+	char		*type;
+ 	/* Wait until finished previous write command. */
+@@ -321,26 +331,17 @@ static int m25p80_write(struct mtd_info 
+ 
+ 	write_enable(flash);
+ 
+-	memset(t, 0, (sizeof t));
+-
+ 	/* Set up the opcode in the write buffer. */
+ 	flash->command[0] = OPCODE_PP;
+ 	flash->command[1] = to >> 16;
+ 	flash->command[2] = to >> 8;
+ 	flash->command[3] = to;
+ 
+-	t[0].tx_buf = flash->command;
+-	t[0].len = sizeof(flash->command);
+-
+-	m.transfers = t;
+-	m.n_transfer = 2;
+-
+ 	/* what page do we start with? */
+ 	page_offset = to % FLASH_PAGESIZE;
+ 
+ 	/* do all the bytes fit onto one page? */
+ 	if (page_offset + len <= FLASH_PAGESIZE) {
+-		t[1].tx_buf = buf;
+ 		t[1].len = len;
+ 
+ 		spi_sync(flash->spi, &m);
+@@ -352,7 +353,6 @@ static int m25p80_write(struct mtd_info 
+ 		/* the size of data remaining on the first page */
+ 		page_size = FLASH_PAGESIZE - page_offset;
+ 
+-		t[1].tx_buf = buf;
+ 		t[1].len = page_size;
+ 		spi_sync(flash->spi, &m);
+ 
+diff --git a/drivers/mtd/devices/mtd_dataflash.c b/drivers/mtd/devices/mtd_dataflash.c
+index a39b3b6..99d3a03 100644
+--- a/drivers/mtd/devices/mtd_dataflash.c
++++ b/drivers/mtd/devices/mtd_dataflash.c
+@@ -147,7 +147,7 @@ static int dataflash_erase(struct mtd_in
+ {
+ 	struct dataflash	*priv = (struct dataflash *)mtd->priv;
+ 	struct spi_device	*spi = priv->spi;
+-	struct spi_transfer	x[1] = { { .tx_dma = 0, }, };
++	struct spi_transfer	x = { .tx_dma = 0, };
+ 	struct spi_message	msg;
+ 	unsigned		blocksize = priv->page_size << 3;
+ 	u8			*command;
+@@ -162,10 +162,11 @@ static int dataflash_erase(struct mtd_in
+ 			|| (instr->addr % priv->page_size) != 0)
+ 		return -EINVAL;
+ 
+-	x[0].tx_buf = command = priv->command;
+-	x[0].len = 4;
+-	msg.transfers = x;
+-	msg.n_transfer = 1;
++	spi_message_init(&msg);
 +
- 	/* we'll likely add more ... use JEDEC IDs, etc */
++	x.tx_buf = command = priv->command;
++	x.len = 4;
++	spi_message_add_tail(&x, &msg);
+ 
+ 	down(&priv->lock);
+ 	while (instr->len > 0) {
+@@ -256,12 +257,15 @@ static int dataflash_read(struct mtd_inf
+ 	DEBUG(MTD_DEBUG_LEVEL3, "READ: (%x) %x %x %x\n",
+ 		command[0], command[1], command[2], command[3]);
+ 
++	spi_message_init(&msg);
++
+ 	x[0].tx_buf = command;
+ 	x[0].len = 8;
++	spi_message_add_tail(&x[0], &msg);
++
+ 	x[1].rx_buf = buf;
+ 	x[1].len = len;
+-	msg.transfers = x;
+-	msg.n_transfer = 2;
++	spi_message_add_tail(&x[1], &msg);
+ 
+ 	down(&priv->lock);
+ 
+@@ -320,9 +324,11 @@ static int dataflash_write(struct mtd_in
+ 	if ((to + len) > mtd->size)
+ 		return -EINVAL;
+ 
++	spi_message_init(&msg);
++
+ 	x[0].tx_buf = command = priv->command;
+ 	x[0].len = 4;
+-	msg.transfers = x;
++	spi_message_add_tail(&x[0], &msg);
+ 
+ 	pageaddr = ((unsigned)to / priv->page_size);
+ 	offset = ((unsigned)to % priv->page_size);
+@@ -364,7 +370,6 @@ static int dataflash_write(struct mtd_in
+ 			DEBUG(MTD_DEBUG_LEVEL3, "TRANSFER: (%x) %x %x %x\n",
+ 				command[0], command[1], command[2], command[3]);
+ 
+-			msg.n_transfer = 1;
+ 			status = spi_sync(spi, &msg);
+ 			if (status < 0)
+ 				DEBUG(MTD_DEBUG_LEVEL1, "%s: xfer %u -> %d \n",
+@@ -385,14 +390,16 @@ static int dataflash_write(struct mtd_in
+ 
+ 		x[1].tx_buf = writebuf;
+ 		x[1].len = writelen;
+-		msg.n_transfer = 2;
++		spi_message_add_tail(x + 1, &msg);
+ 		status = spi_sync(spi, &msg);
++		spi_transfer_del(x + 1);
+ 		if (status < 0)
+ 			DEBUG(MTD_DEBUG_LEVEL1, "%s: pgm %u/%u -> %d \n",
+ 				spi->dev.bus_id, addr, writelen, status);
+ 
+ 		(void) dataflash_waitready(priv->spi);
+ 
++
+ #ifdef	CONFIG_DATAFLASH_WRITE_VERIFY
+ 
+ 		/* (3) Compare to Buffer1 */
+@@ -405,7 +412,6 @@ static int dataflash_write(struct mtd_in
+ 		DEBUG(MTD_DEBUG_LEVEL3, "COMPARE: (%x) %x %x %x\n",
+ 			command[0], command[1], command[2], command[3]);
+ 
+-		msg.n_transfer = 1;
+ 		status = spi_sync(spi, &msg);
+ 		if (status < 0)
+ 			DEBUG(MTD_DEBUG_LEVEL1, "%s: compare %u -> %d \n",
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 3ecedcc..cdb242d 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -557,6 +557,17 @@ int spi_write_then_read(struct spi_devic
+ 	if ((n_tx + n_rx) > SPI_BUFSIZ)
+ 		return -EINVAL;
+ 
++	spi_message_init(&message);
++	memset(x, 0, sizeof x);
++	if (n_tx) {
++		x[0].len = n_tx;
++		spi_message_add_tail(&x[0], &message);
++	}
++	if (n_rx) {
++		x[1].len = n_rx;
++		spi_message_add_tail(&x[1], &message);
++	}
++
+ 	/* ... unless someone else is using the pre-allocated buffer */
+ 	if (down_trylock(&lock)) {
+ 		local_buf = kmalloc(SPI_BUFSIZ, GFP_KERNEL);
+@@ -565,18 +576,11 @@ int spi_write_then_read(struct spi_devic
+ 	} else
+ 		local_buf = buf;
+ 
+-	memset(x, 0, sizeof x);
+-
+ 	memcpy(local_buf, txbuf, n_tx);
+ 	x[0].tx_buf = local_buf;
+-	x[0].len = n_tx;
+-
+ 	x[1].rx_buf = local_buf + n_tx;
+-	x[1].len = n_rx;
+ 
+ 	/* do the i/o */
+-	message.transfers = x;
+-	message.n_transfer = ARRAY_SIZE(x);
+ 	status = spi_sync(spi, &message);
+ 	if (status == 0) {
+ 		memcpy(rxbuf, x[1].rx_buf, n_rx);
+diff --git a/drivers/spi/spi_bitbang.c b/drivers/spi/spi_bitbang.c
+index 44aff19..f037e55 100644
+--- a/drivers/spi/spi_bitbang.c
++++ b/drivers/spi/spi_bitbang.c
+@@ -146,6 +146,9 @@ int spi_bitbang_setup(struct spi_device 
+ 	struct spi_bitbang_cs	*cs = spi->controller_state;
+ 	struct spi_bitbang	*bitbang;
+ 
++	if (!spi->max_speed_hz)
++		return -EINVAL;
++
+ 	if (!cs) {
+ 		cs = kzalloc(sizeof *cs, SLAB_KERNEL);
+ 		if (!cs)
+@@ -172,13 +175,8 @@ int spi_bitbang_setup(struct spi_device 
+ 	if (!cs->txrx_word)
+ 		return -EINVAL;
+ 
+-	if (!spi->max_speed_hz)
+-		spi->max_speed_hz = 500 * 1000;
+-
+-	/* nsecs = max(50, (clock period)/2), be optimistic */
++	/* nsecs = (clock period)/2 */
+ 	cs->nsecs = (1000000000/2) / (spi->max_speed_hz);
+-	if (cs->nsecs < 50)
+-		cs->nsecs = 50;
+ 	if (cs->nsecs > MAX_UDELAY_MS * 1000)
+ 		return -EINVAL;
+ 
+@@ -194,7 +192,7 @@ int spi_bitbang_setup(struct spi_device 
+ 	/* deselect chip (low or high) */
+ 	spin_lock(&bitbang->lock);
+ 	if (!bitbang->busy) {
+-		bitbang->chipselect(spi, 0);
++		bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
+ 		ndelay(cs->nsecs);
+ 	}
+ 	spin_unlock(&bitbang->lock);
+@@ -244,9 +242,9 @@ static void bitbang_work(void *_bitbang)
+ 		struct spi_message	*m;
+ 		struct spi_device	*spi;
+ 		unsigned		nsecs;
+-		struct spi_transfer	*t;
++		struct spi_transfer	*t = NULL;
+ 		unsigned		tmp;
+-		unsigned		chipselect;
++		unsigned		cs_change;
+ 		int			status;
+ 
+ 		m = container_of(bitbang->queue.next, struct spi_message,
+@@ -254,37 +252,49 @@ static void bitbang_work(void *_bitbang)
+ 		list_del_init(&m->queue);
+ 		spin_unlock_irqrestore(&bitbang->lock, flags);
+ 
+-// FIXME this is made-up
+-nsecs = 100;
++		/* FIXME this is made-up ... the correct value is known to
++		 * word-at-a-time bitbang code, and presumably chipselect()
++		 * should enforce these requirements too?
++		 */
++		nsecs = 100;
+ 
+ 		spi = m->spi;
+-		t = m->transfers;
+ 		tmp = 0;
+-		chipselect = 0;
++		cs_change = 1;
+ 		status = 0;
+ 
+-		for (;;t++) {
++		list_for_each_entry (t, &m->transfers, transfer_list) {
+ 			if (bitbang->shutdown) {
+ 				status = -ESHUTDOWN;
+ 				break;
+ 			}
+ 
+-			/* set up default clock polarity, and activate chip */
+-			if (!chipselect) {
+-				bitbang->chipselect(spi, 1);
++			/* set up default clock polarity, and activate chip;
++			 * this implicitly updates clock and spi modes as
++			 * previously recorded for this device via setup().
++			 * (and also deselects any other chip that might be
++			 * selected ...)
++			 */
++			if (cs_change) {
++				bitbang->chipselect(spi, BITBANG_CS_ACTIVE);
+ 				ndelay(nsecs);
+ 			}
++			cs_change = t->cs_change;
+ 			if (!t->tx_buf && !t->rx_buf && t->len) {
+ 				status = -EINVAL;
+ 				break;
+ 			}
+ 
+-			/* transfer data */
++			/* transfer data.  the lower level code handles any
++			 * new dma mappings it needs. our caller always gave
++			 * us dma-safe buffers.
++			 */
+ 			if (t->len) {
+-				/* FIXME if bitbang->use_dma, dma_map_single()
+-				 * before the transfer, and dma_unmap_single()
+-				 * afterwards, for either or both buffers...
++				/* REVISIT dma API still needs a designated
++				 * DMA_ADDR_INVALID; ~0 might be better.
+ 				 */
++				if (!m->is_dma_mapped)
++					t->rx_dma = t->tx_dma = 0;
+ 				status = bitbang->txrx_bufs(spi, t);
+ 			}
+ 			if (status != t->len) {
+@@ -299,29 +309,31 @@ nsecs = 100;
+ 			if (t->delay_usecs)
+ 				udelay(t->delay_usecs);
+ 
+-			tmp++;
+-			if (tmp >= m->n_transfer)
+-				break;
+-
+-			chipselect = !t->cs_change;
+-			if (chipselect);
++			if (!cs_change)
+ 				continue;
++			if (t->transfer_list.next == &m->transfers)
++				break;
+ 
+-			bitbang->chipselect(spi, 0);
+-
+-			/* REVISIT do we want the udelay here instead? */
+-			msleep(1);
++			/* sometimes a short mid-message deselect of the chip
++			 * may be needed to terminate a mode or command
++			 */
++			ndelay(nsecs);
++			bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
++			ndelay(nsecs);
+ 		}
+ 
+-		tmp = m->n_transfer - 1;
+-		tmp = m->transfers[tmp].cs_change;
+-
+ 		m->status = status;
+ 		m->complete(m->context);
+ 
+-		ndelay(2 * nsecs);
+-		bitbang->chipselect(spi, status == 0 && tmp);
+-		ndelay(nsecs);
++		/* normally deactivate chipselect ... unless no error and
++		 * cs_change has hinted that the next message will probably
++		 * be for this chip too.
++		 */
++		if (!(status == 0 && cs_change)) {
++			ndelay(nsecs);
++			bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
++			ndelay(nsecs);
++		}
+ 
+ 		spin_lock_irqsave(&bitbang->lock, flags);
+ 	}
+diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+index 6a41e26..939afd3 100644
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -263,15 +263,16 @@ extern struct spi_master *spi_busnum_to_
+ 
+ /**
+  * struct spi_transfer - a read/write buffer pair
+- * @tx_buf: data to be written (dma-safe address), or NULL
+- * @rx_buf: data to be read (dma-safe address), or NULL
+- * @tx_dma: DMA address of buffer, if spi_message.is_dma_mapped
+- * @rx_dma: DMA address of buffer, if spi_message.is_dma_mapped
++ * @tx_buf: data to be written (dma-safe memory), or NULL
++ * @rx_buf: data to be read (dma-safe memory), or NULL
++ * @tx_dma: DMA address of tx_buf, if spi_message.is_dma_mapped
++ * @rx_dma: DMA address of rx_buf, if spi_message.is_dma_mapped
+  * @len: size of rx and tx buffers (in bytes)
+  * @cs_change: affects chipselect after this transfer completes
+  * @delay_usecs: microseconds to delay after this transfer before
+  * 	(optionally) changing the chipselect status, then starting
+  * 	the next transfer or completing this spi_message.
++ * @transfer_list: transfers are sequenced through spi_message.transfers
+  *
+  * SPI transfers always write the same number of bytes as they read.
+  * Protocol drivers should always provide rx_buf and/or tx_buf.
+@@ -279,11 +280,16 @@ extern struct spi_master *spi_busnum_to_
+  * the data being transferred; that may reduce overhead, when the
+  * underlying driver uses dma.
+  *
+- * All SPI transfers start with the relevant chipselect active.  Drivers
+- * can change behavior of the chipselect after the transfer finishes
+- * (including any mandatory delay).  The normal behavior is to leave it
+- * selected, except for the last transfer in a message.  Setting cs_change
+- * allows two additional behavior options:
++ * If the transmit buffer is null, undefined data will be shifted out
++ * while filling rx_buf.  If the receive buffer is null, the data
++ * shifted in will be discarded.  Only "len" bytes shift out (or in).
++ * It's an error to try to shift out a partial word.  (For example, by
++ * shifting out three bytes with word size of sixteen or twenty bits;
++ * the former uses two bytes per word, the latter uses four bytes.)
++ *
++ * All SPI transfers start with the relevant chipselect active.  Normally
++ * it stays selected until after the last transfer in a message.  Drivers
++ * can affect the chipselect signal using cs_change:
+  *
+  * (i) If the transfer isn't the last one in the message, this flag is
+  * used to make the chipselect briefly go inactive in the middle of the
+@@ -299,7 +305,8 @@ extern struct spi_master *spi_busnum_to_
+  * The code that submits an spi_message (and its spi_transfers)
+  * to the lower layers is responsible for managing its memory.
+  * Zero-initialize every field you don't set up explicitly, to
+- * insulate against future API updates.
++ * insulate against future API updates.  After you submit a message
++ * and its transfers, ignore them until its completion callback.
+  */
+ struct spi_transfer {
+ 	/* it's ok if tx_buf == rx_buf (right?)
+@@ -316,12 +323,13 @@ struct spi_transfer {
+ 
+ 	unsigned	cs_change:1;
+ 	u16		delay_usecs;
++
++	struct list_head transfer_list;
  };
  
+ /**
+  * struct spi_message - one multi-segment SPI transaction
+- * @transfers: the segements of the transaction
+- * @n_transfer: how many segments
++ * @transfers: list of transfer segments in this transaction
+  * @spi: SPI device to which the transaction is queued
+  * @is_dma_mapped: if true, the caller provided both dma and cpu virtual
+  *	addresses for each transfer buffer
+@@ -333,14 +341,22 @@ struct spi_transfer {
+  * @queue: for use by whichever driver currently owns the message
+  * @state: for use by whichever driver currently owns the message
+  *
++ * An spi_message is used to execute an atomic sequence of data transfers,
++ * each represented by a struct spi_transfer.  The sequence is "atomic"
++ * in the sense that no other spi_message may use that SPI bus until that
++ * sequence completes.  On some systems, many such sequences can execute as
++ * as single programmed DMA transfer.  On all systems, these messages are
++ * queued, and might complete after transactions to other devices.  Messages
++ * sent to a given spi_device are alway executed in FIFO order.
++ *
+  * The code that submits an spi_message (and its spi_transfers)
+  * to the lower layers is responsible for managing its memory.
+  * Zero-initialize every field you don't set up explicitly, to
+- * insulate against future API updates.
++ * insulate against future API updates.  After you submit a message
++ * and its transfers, ignore them until its completion callback.
+  */
+ struct spi_message {
+-	struct spi_transfer	*transfers;
+-	unsigned		n_transfer;
++	struct list_head 	transfers;
+ 
+ 	struct spi_device	*spi;
+ 
+@@ -371,6 +387,24 @@ struct spi_message {
+ 	void			*state;
+ };
+ 
++static inline void spi_message_init(struct spi_message *m)
++{
++	memset(m, 0, sizeof *m);
++	INIT_LIST_HEAD(&m->transfers);
++}
++
++static inline void
++spi_message_add_tail(struct spi_transfer *t, struct spi_message *m)
++{
++	list_add_tail(&t->transfer_list, &m->transfers);
++}
++
++static inline void
++spi_transfer_del(struct spi_transfer *t)
++{
++	list_del(&t->transfer_list);
++}
++
+ /* It's fine to embed message and transaction structures in other data
+  * structures so long as you don't free them while they're in use.
+  */
+@@ -383,8 +417,12 @@ static inline struct spi_message *spi_me
+ 			+ ntrans * sizeof(struct spi_transfer),
+ 			flags);
+ 	if (m) {
+-		m->transfers = (void *)(m + 1);
+-		m->n_transfer = ntrans;
++		int i;
++		struct spi_transfer *t = (struct spi_transfer *)(m + 1);
++
++		INIT_LIST_HEAD(&m->transfers);
++		for (i = 0; i < ntrans; i++, t++)
++			spi_message_add_tail(t, m);
+ 	}
+ 	return m;
+ }
+@@ -402,6 +440,8 @@ static inline void spi_message_free(stru
+  * device doesn't work with the mode 0 default.  They may likewise need
+  * to update clock rates or word sizes from initial values.  This function
+  * changes those settings, and must be called from a context that can sleep.
++ * The changes take effect the next time the device is selected and data
++ * is transferred to or from it.
+  */
+ static inline int
+ spi_setup(struct spi_device *spi)
+@@ -468,15 +508,12 @@ spi_write(struct spi_device *spi, const 
+ {
+ 	struct spi_transfer	t = {
+ 			.tx_buf		= buf,
+-			.rx_buf		= NULL,
+ 			.len		= len,
+-			.cs_change	= 0,
+-		};
+-	struct spi_message	m = {
+-			.transfers	= &t,
+-			.n_transfer	= 1,
+ 		};
++	struct spi_message	m;
+ 
++	spi_message_init(&m);
++	spi_message_add_tail(&t, &m);
+ 	return spi_sync(spi, &m);
+ }
+ 
+@@ -493,16 +530,13 @@ static inline int
+ spi_read(struct spi_device *spi, u8 *buf, size_t len)
+ {
+ 	struct spi_transfer	t = {
+-			.tx_buf		= NULL,
+ 			.rx_buf		= buf,
+ 			.len		= len,
+-			.cs_change	= 0,
+-		};
+-	struct spi_message	m = {
+-			.transfers	= &t,
+-			.n_transfer	= 1,
+ 		};
++	struct spi_message	m;
+ 
++	spi_message_init(&m);
++	spi_message_add_tail(&t, &m);
+ 	return spi_sync(spi, &m);
+ }
+ 
+diff --git a/include/linux/spi/spi_bitbang.h b/include/linux/spi/spi_bitbang.h
+index 8dfe61a..c961fe9 100644
+--- a/include/linux/spi/spi_bitbang.h
++++ b/include/linux/spi/spi_bitbang.h
+@@ -31,8 +31,15 @@ struct spi_bitbang {
+ 	struct spi_master	*master;
+ 
+ 	void	(*chipselect)(struct spi_device *spi, int is_on);
++#define	BITBANG_CS_ACTIVE	1	/* normally nCS, active low */
++#define	BITBANG_CS_INACTIVE	0
+ 
++	/* txrx_bufs() may handle dma mapping for transfers that don't
++	 * already have one (transfer.{tx,rx}_dma is zero), or use PIO
++	 */
+ 	int	(*txrx_bufs)(struct spi_device *spi, struct spi_transfer *t);
++
++	/* txrx_word[SPI_MODE_*]() just looks like a shift register */
+ 	u32	(*txrx_word[4])(struct spi_device *spi,
+ 			unsigned nsecs,
+ 			u32 word, u8 bits);
 

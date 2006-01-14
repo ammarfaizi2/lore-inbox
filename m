@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWANNbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWANNdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWANNbL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 08:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWANNbL
+	id S932261AbWANNdg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 08:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWANNdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 08:31:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60604 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932248AbWANNbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 08:31:09 -0500
-Subject: Re: [patch 00/62] sem2mutex: -V1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
-In-Reply-To: <200601141416.20055.ioe-lkml@rameria.de>
-References: <20060113124402.GA7351@elte.hu>
-	 <200601131925.34971.ioe-lkml@rameria.de> <20060113195658.GA3780@elte.hu>
-	 <200601141416.20055.ioe-lkml@rameria.de>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 14:31:06 +0100
-Message-Id: <1137245466.3014.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 14 Jan 2006 08:33:36 -0500
+Received: from smtprelay06.ispgateway.de ([80.67.18.44]:39903 "EHLO
+	smtprelay06.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932261AbWANNdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 08:33:35 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/17] BRIDGE: Fix faulty check in br_stp_recalculate_bridge_id()
+Date: Sat, 14 Jan 2006 14:33:23 +0100
+User-Agent: KMail/1.7.2
+Cc: Chris Wright <chrisw@sous-sol.org>, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+References: <20060113032102.154909000@sorel.sous-sol.org> <200601131946.46782.ioe-lkml@rameria.de> <20060113193936.GN3335@sorel.sous-sol.org>
+In-Reply-To: <20060113193936.GN3335@sorel.sous-sol.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1958724.GnkhArbXZe";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200601141433.32682.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-14 at 14:16 +0100, Ingo Oeser wrote:
-> On Friday 13 January 2006 20:56, Ingo Molnar wrote:
-> > * Ingo Oeser <ioe-lkml@rameria.de> wrote:
-> > > On Friday 13 January 2006 14:44, Ingo Molnar wrote:
-> > > Could we get for each of these and a mutex:
-> > > 
-> > >  - description 
-> > >  - common use case
-> > >  - small argument why this and nothing else should be used there
-> > 
-> > like ... Documentation/mutex-design.txt?
-> 
-> Much simpler. 
-> 
-> Take your favorite conversion 
+--nextPart1958724.GnkhArbXZe
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-ok the most simple case is really simple.
+On Friday 13 January 2006 20:39, Chris Wright wrote:
+> * Ingo Oeser (ioe-lkml@rameria.de) wrote:
+> > Why not include a shorter version of this nice explanation
+> > above the list_for_each_entry() loop?
+> >=20
+> > Like:
+> >=20
+> > /* We try to find the min MAC address to use in this bridge id. */
+>=20
+> Send a patch to Stephen ;-)  I'll leave it as is for -stable, since it's
+> not a candidate for janitorial cleanups.
 
-ALL uses of it have a down() ..... ip() scenario, where all down's are
-matched with up's in the same function, no trylocks in sight.
-
-That case is the simple (and most common) case. Since it uses down()
-only, it can't be irq context. (trylock could be a sign of irq context
-use), and all up()'s are 1) not in irq context either because they're in
-the same function as the down() which isn;t and 2) perfectly matched to
-the down(), eg each down gets one up ---> perfect semaphore.
+=46ine with me. Your argument is perfectly reasonable for me.
 
 
-The other case on the other side of the spectrum is a down in one
-function and an up in an irq function. Which is a pretty good sign of a
-completion.... (same is true for a specific scenario where kernel thread
-creation is involved and the up() is done in the just created thread).
+Regards
+
+Ingo Oeser
 
 
+--nextPart1958724.GnkhArbXZe
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDyP2sU56oYWuOrkARAqeIAJwP/3vfb/PIO5gw/5DfkisgqadXxgCfWLWJ
+L5+3l0cXNYr4iUQWXWPmU4c=
+=Zag1
+-----END PGP SIGNATURE-----
+
+--nextPart1958724.GnkhArbXZe--

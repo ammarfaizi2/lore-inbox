@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWANWxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWANWzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbWANWxl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 17:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWANWxl
+	id S1751361AbWANWzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 17:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWANWzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 17:53:41 -0500
-Received: from smtp1.pp.htv.fi ([213.243.153.37]:8835 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1751346AbWANWxg (ORCPT
+	Sat, 14 Jan 2006 17:55:20 -0500
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:25219 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1751361AbWANWzR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 17:53:36 -0500
-Date: Sun, 15 Jan 2006 00:53:29 +0200
+	Sat, 14 Jan 2006 17:55:17 -0500
+Date: Sun, 15 Jan 2006 00:55:11 +0200
 From: Paul Mundt <lethal@linux-sh.org>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/8] sh: IRQ handler updates.
-Message-ID: <20060114225329.GF4045@linux-sh.org>
+Subject: [PATCH 6/8] sh: Simplistic clock framework.
+Message-ID: <20060114225511.GH4045@linux-sh.org>
 Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>, akpm@osdl.org,
 	linux-kernel@vger.kernel.org
 References: <20060114225018.GB4045@linux-sh.org>
@@ -26,2241 +26,2158 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This moves the various IRQ controller drivers into a new subdirectory,
-and also extends the INTC2 IRQ handler to also deal with SH7760 and
-SH7780 interrupts, rather than just ST-40.
+This adds a relatively simplistic clock framework for sh. The initial
+goal behind this is to clean up the arch/sh/kernel/time.c mess and to get
+the CPU subtype-specific frequency setting and calculation code moved
+somewhere more sensible.
 
-The old CONFIG_SH_GENERIC has also been removed from the IRQ definitions,
-as new ports are expected to be based off of CONFIG_SH_UNKNOWN. Since
-there are plenty of incompatible machvecs, CONFIG_SH_GENERIC doesn't make
-sense anymore.
+This only deals with the core clocks at the moment, though it's trivial
+for other drivers to define their own clocks as desired.
 
 Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
 ---
 
- arch/sh/kernel/cpu/Makefile        |    9 
- arch/sh/kernel/cpu/irq/Makefile    |    7 
- arch/sh/kernel/cpu/irq/imask.c     |  110 +++++++++++
- arch/sh/kernel/cpu/irq/intc2.c     |  284 ++++++++++++++++++++++++++++++
- arch/sh/kernel/cpu/irq/ipr.c       |  206 +++++++++++++++++++++
- arch/sh/kernel/cpu/irq/pint.c      |  169 +++++++++++++++++
- arch/sh/kernel/cpu/irq_imask.c     |  116 ------------
- arch/sh/kernel/cpu/irq_ipr.c       |  339 -----------------------------------
- arch/sh/kernel/cpu/sh4/irq_intc2.c |  222 -----------------------
- arch/sh/kernel/irq.c               |   64 ++----
- include/asm-sh/irq-sh73180.h       |   16 -
- include/asm-sh/irq-sh7780.h        |  349 +++++++++++++++++++++++++++++++++++++
- include/asm-sh/irq.h               |  143 ++++++++-------
- 13 files changed, 1240 insertions(+), 794 deletions(-)
+ arch/sh/boards/overdrive/Makefile      |    2 
+ arch/sh/boards/overdrive/setup.c       |    6 
+ arch/sh/boards/overdrive/time.c        |  119 -------
+ arch/sh/kernel/cpu/clock.c             |  287 ++++++++++++++++++
+ arch/sh/kernel/cpu/sh3/Makefile        |    7 
+ arch/sh/kernel/cpu/sh3/clock-sh3.c     |   89 +++++
+ arch/sh/kernel/cpu/sh3/clock-sh7300.c  |   78 ++++
+ arch/sh/kernel/cpu/sh3/clock-sh7705.c  |   84 +++++
+ arch/sh/kernel/cpu/sh3/clock-sh7709.c  |   96 ++++++
+ arch/sh/kernel/cpu/sh4/Makefile        |   13 
+ arch/sh/kernel/cpu/sh4/clock-sh4-202.c |  179 +++++++++++
+ arch/sh/kernel/cpu/sh4/clock-sh4.c     |   80 +++++
+ arch/sh/kernel/cpu/sh4/clock-sh73180.c |   81 +++++
+ arch/sh/kernel/cpu/sh4/clock-sh7770.c  |   73 ++++
+ arch/sh/kernel/cpu/sh4/clock-sh7780.c  |  126 ++++++++
+ arch/sh/kernel/time.c                  |  518 ++-------------------------------
+ include/asm-sh/clock.h                 |   61 +++
+ include/asm-sh/cpu-sh4/freq.h          |    2 
+ include/asm-sh/freq.h                  |   11 
+ 19 files changed, 1288 insertions(+), 624 deletions(-)
 
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/Makefile sh-2.6.15/arch/sh/kernel/cpu/Makefile
---- linux-2.6.15/arch/sh/kernel/cpu/Makefile	2004-08-14 20:27:37.000000000 +0300
-+++ sh-2.6.15/arch/sh/kernel/cpu/Makefile	2006-01-07 22:13:59.118151154 +0200
-@@ -2,15 +2,12 @@
- # Makefile for the Linux/SuperH CPU-specifc backends.
- #
- 
--obj-y	:= irq_ipr.o irq_imask.o init.o bus.o
-+obj-y	+= irq/ init.o bus.o clock.o
- 
- obj-$(CONFIG_CPU_SH2)		+= sh2/
- obj-$(CONFIG_CPU_SH3)		+= sh3/
- obj-$(CONFIG_CPU_SH4)		+= sh4/
- 
--obj-$(CONFIG_SH_RTC)            += rtc.o
-+obj-$(CONFIG_SH_RTC)		+= rtc.o
- obj-$(CONFIG_UBC_WAKEUP)	+= ubc.o
--obj-$(CONFIG_SH_ADC)            += adc.o
--
--USE_STANDARD_AS_RULE := true
--
-+obj-$(CONFIG_SH_ADC)		+= adc.o
-
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/irq/Makefile sh-2.6.15/arch/sh/kernel/cpu/irq/Makefile
---- linux-2.6.15/arch/sh/kernel/cpu/irq/Makefile	1970-01-01 02:00:00.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/irq/Makefile	2006-01-07 22:13:59.123150761 +0200
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for the Linux/SuperH CPU-specifc IRQ handlers.
-+#
-+obj-y	+= ipr.o imask.o
-+
-+obj-$(CONFIG_CPU_HAS_PINT_IRQ)	+= pint.o
-+obj-$(CONFIG_CPU_HAS_INTC2_IRQ)	+= intc2.o
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/irq/imask.c sh-2.6.15/arch/sh/kernel/cpu/irq/imask.c
---- linux-2.6.15/arch/sh/kernel/cpu/irq/imask.c	1970-01-01 02:00:00.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/irq/imask.c	2006-01-07 22:13:59.127150447 +0200
-@@ -0,0 +1,110 @@
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/clock.c sh-2.6.15/arch/sh/kernel/cpu/clock.c
+--- linux-2.6.15/arch/sh/kernel/cpu/clock.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/clock.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,287 @@
 +/*
-+ * arch/sh/kernel/cpu/irq/imask.c
++ * arch/sh/kernel/cpu/clock.c - SuperH clock framework
 + *
-+ * Copyright (C) 1999, 2000  Niibe Yutaka
++ *  Copyright (C) 2005  Paul Mundt
 + *
-+ * Simple interrupt handling using IMASK of SR register.
++ * This clock framework is derived from the OMAP version by:
 + *
-+ */
-+/* NOTE: Will not work on level 15 */
-+#include <linux/ptrace.h>
-+#include <linux/errno.h>
-+#include <linux/kernel_stat.h>
-+#include <linux/signal.h>
-+#include <linux/sched.h>
-+#include <linux/interrupt.h>
-+#include <linux/init.h>
-+#include <linux/bitops.h>
-+#include <linux/spinlock.h>
-+#include <linux/cache.h>
-+#include <linux/irq.h>
-+#include <asm/system.h>
-+#include <asm/irq.h>
-+
-+/* Bitmap of IRQ masked */
-+static unsigned long imask_mask = 0x7fff;
-+static int interrupt_priority = 0;
-+
-+static void enable_imask_irq(unsigned int irq);
-+static void disable_imask_irq(unsigned int irq);
-+static void shutdown_imask_irq(unsigned int irq);
-+static void mask_and_ack_imask(unsigned int);
-+static void end_imask_irq(unsigned int irq);
-+
-+#define IMASK_PRIORITY	15
-+
-+static unsigned int startup_imask_irq(unsigned int irq)
-+{
-+	/* Nothing to do */
-+	return 0; /* never anything pending */
-+}
-+
-+static struct hw_interrupt_type imask_irq_type = {
-+	.typename = "SR.IMASK",
-+	.startup = startup_imask_irq,
-+	.shutdown = shutdown_imask_irq,
-+	.enable = enable_imask_irq,
-+	.disable = disable_imask_irq,
-+	.ack = mask_and_ack_imask,
-+	.end = end_imask_irq
-+};
-+
-+void static inline set_interrupt_registers(int ip)
-+{
-+	unsigned long __dummy;
-+
-+	asm volatile("ldc	%2, r6_bank\n\t"
-+		     "stc	sr, %0\n\t"
-+		     "and	#0xf0, %0\n\t"
-+		     "shlr2	%0\n\t"
-+		     "cmp/eq	#0x3c, %0\n\t"
-+		     "bt/s	1f	! CLI-ed\n\t"
-+		     " stc	sr, %0\n\t"
-+		     "and	%1, %0\n\t"
-+		     "or	%2, %0\n\t"
-+		     "ldc	%0, sr\n"
-+		     "1:"
-+		     : "=&z" (__dummy)
-+		     : "r" (~0xf0), "r" (ip << 4)
-+		     : "t");
-+}
-+
-+static void disable_imask_irq(unsigned int irq)
-+{
-+	clear_bit(irq, &imask_mask);
-+	if (interrupt_priority < IMASK_PRIORITY - irq)
-+		interrupt_priority = IMASK_PRIORITY - irq;
-+
-+	set_interrupt_registers(interrupt_priority);
-+}
-+
-+static void enable_imask_irq(unsigned int irq)
-+{
-+	set_bit(irq, &imask_mask);
-+	interrupt_priority = IMASK_PRIORITY - ffz(imask_mask);
-+
-+	set_interrupt_registers(interrupt_priority);
-+}
-+
-+static void mask_and_ack_imask(unsigned int irq)
-+{
-+	disable_imask_irq(irq);
-+}
-+
-+static void end_imask_irq(unsigned int irq)
-+{
-+	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
-+		enable_imask_irq(irq);
-+}
-+
-+static void shutdown_imask_irq(unsigned int irq)
-+{
-+	/* Nothing to do */
-+}
-+
-+void make_imask_irq(unsigned int irq)
-+{
-+	disable_irq_nosync(irq);
-+	irq_desc[irq].handler = &imask_irq_type;
-+	enable_irq(irq);
-+}
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/irq/intc2.c sh-2.6.15/arch/sh/kernel/cpu/irq/intc2.c
---- linux-2.6.15/arch/sh/kernel/cpu/irq/intc2.c	1970-01-01 02:00:00.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/irq/intc2.c	2006-01-07 22:13:59.133149975 +0200
-@@ -0,0 +1,284 @@
-+/*
-+ * Interrupt handling for INTC2-based IRQ.
-+ *
-+ * Copyright (C) 2001 David J. Mckay (david.mckay@st.com)
-+ * Copyright (C) 2005, 2006 Paul Mundt (lethal@linux-sh.org)
-+ *
-+ * May be copied or modified under the terms of the GNU General Public
-+ * License.  See linux/COPYING for more information.
-+ *
-+ * These are the "new Hitachi style" interrupts, as present on the
-+ * Hitachi 7751, the STM ST40 STB1, SH7760, and SH7780.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/irq.h>
-+#include <asm/system.h>
-+#include <asm/io.h>
-+#include <asm/machvec.h>
-+
-+struct intc2_data {
-+	unsigned char msk_offset;
-+	unsigned char msk_shift;
-+
-+	int (*clear_irq) (int);
-+};
-+
-+static struct intc2_data intc2_data[NR_INTC2_IRQS];
-+
-+static void enable_intc2_irq(unsigned int irq);
-+static void disable_intc2_irq(unsigned int irq);
-+
-+/* shutdown is same as "disable" */
-+#define shutdown_intc2_irq disable_intc2_irq
-+
-+static void mask_and_ack_intc2(unsigned int);
-+static void end_intc2_irq(unsigned int irq);
-+
-+static unsigned int startup_intc2_irq(unsigned int irq)
-+{
-+	enable_intc2_irq(irq);
-+	return 0; /* never anything pending */
-+}
-+
-+static struct hw_interrupt_type intc2_irq_type = {
-+	.typename	= "INTC2-IRQ",
-+	.startup	= startup_intc2_irq,
-+	.shutdown	= shutdown_intc2_irq,
-+	.enable		= enable_intc2_irq,
-+	.disable	= disable_intc2_irq,
-+	.ack		= mask_and_ack_intc2,
-+	.end		= end_intc2_irq
-+};
-+
-+static void disable_intc2_irq(unsigned int irq)
-+{
-+	int irq_offset = irq - INTC2_FIRST_IRQ;
-+	int msk_shift, msk_offset;
-+
-+	/* Sanity check */
-+	if (unlikely(irq_offset < 0 || irq_offset >= NR_INTC2_IRQS))
-+		return;
-+
-+	msk_shift = intc2_data[irq_offset].msk_shift;
-+	msk_offset = intc2_data[irq_offset].msk_offset;
-+
-+	ctrl_outl(1 << msk_shift,
-+		  INTC2_BASE + INTC2_INTMSK_OFFSET + msk_offset);
-+}
-+
-+static void enable_intc2_irq(unsigned int irq)
-+{
-+	int irq_offset = irq - INTC2_FIRST_IRQ;
-+	int msk_shift, msk_offset;
-+
-+	/* Sanity check */
-+	if (unlikely(irq_offset < 0 || irq_offset >= NR_INTC2_IRQS))
-+		return;
-+
-+	msk_shift = intc2_data[irq_offset].msk_shift;
-+	msk_offset = intc2_data[irq_offset].msk_offset;
-+
-+	ctrl_outl(1 << msk_shift,
-+		  INTC2_BASE + INTC2_INTMSKCLR_OFFSET + msk_offset);
-+}
-+
-+static void mask_and_ack_intc2(unsigned int irq)
-+{
-+	disable_intc2_irq(irq);
-+}
-+
-+static void end_intc2_irq(unsigned int irq)
-+{
-+	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
-+		enable_intc2_irq(irq);
-+
-+	if (unlikely(intc2_data[irq - INTC2_FIRST_IRQ].clear_irq))
-+		intc2_data[irq - INTC2_FIRST_IRQ].clear_irq(irq);
-+}
-+
-+/*
-+ * Setup an INTC2 style interrupt.
-+ * NOTE: Unlike IPR interrupts, parameters are not shifted by this code,
-+ * allowing the use of the numbers straight out of the datasheet.
-+ * For example:
-+ *    PIO1 which is INTPRI00[19,16] and INTMSK00[13]
-+ * would be:               ^     ^             ^  ^
-+ *                         |     |             |  |
-+ *    make_intc2_irq(84,   0,   16,            0, 13);
-+ */
-+void make_intc2_irq(unsigned int irq,
-+		    unsigned int ipr_offset, unsigned int ipr_shift,
-+		    unsigned int msk_offset, unsigned int msk_shift,
-+		    unsigned int priority)
-+{
-+	int irq_offset = irq - INTC2_FIRST_IRQ;
-+	unsigned int flags;
-+	unsigned long ipr;
-+
-+	if (unlikely(irq_offset < 0 || irq_offset >= NR_INTC2_IRQS))
-+		return;
-+
-+	disable_irq_nosync(irq);
-+
-+	/* Fill the data we need */
-+	intc2_data[irq_offset].msk_offset = msk_offset;
-+	intc2_data[irq_offset].msk_shift  = msk_shift;
-+	intc2_data[irq_offset].clear_irq = NULL;
-+
-+	/* Set the priority level */
-+	local_irq_save(flags);
-+
-+	ipr = ctrl_inl(INTC2_BASE + INTC2_INTPRI_OFFSET + ipr_offset);
-+	ipr &= ~(0xf << ipr_shift);
-+	ipr |= priority << ipr_shift;
-+	ctrl_outl(ipr, INTC2_BASE + INTC2_INTPRI_OFFSET + ipr_offset);
-+
-+	local_irq_restore(flags);
-+
-+	irq_desc[irq].handler = &intc2_irq_type;
-+
-+	disable_intc2_irq(irq);
-+}
-+
-+static struct intc2_init {
-+	unsigned short irq;
-+	unsigned char ipr_offset, ipr_shift;
-+	unsigned char msk_offset, msk_shift;
-+	unsigned char priority;
-+} intc2_init_data[]  __initdata = {
-+#if defined(CONFIG_CPU_SUBTYPE_ST40)
-+	{64,  0,  0, 0,  0, 13},	/* PCI serr */
-+	{65,  0,  4, 0,  1, 13},	/* PCI err */
-+	{66,  0,  4, 0,  2, 13},	/* PCI ad */
-+	{67,  0,  4, 0,  3, 13},	/* PCI pwd down */
-+	{72,  0,  8, 0,  5, 13},	/* DMAC INT0 */
-+	{73,  0,  8, 0,  6, 13},	/* DMAC INT1 */
-+	{74,  0,  8, 0,  7, 13},	/* DMAC INT2 */
-+	{75,  0,  8, 0,  8, 13},	/* DMAC INT3 */
-+	{76,  0,  8, 0,  9, 13},	/* DMAC INT4 */
-+	{78,  0,  8, 0, 11, 13},	/* DMAC ERR */
-+	{80,  0, 12, 0, 12, 13},	/* PIO0 */
-+	{84,  0, 16, 0, 13, 13},	/* PIO1 */
-+	{88,  0, 20, 0, 14, 13},	/* PIO2 */
-+	{112, 4,  0, 4,  0, 13},	/* Mailbox */
-+ #ifdef CONFIG_CPU_SUBTYPE_ST40GX1
-+	{116, 4,  4, 4,  4, 13},	/* SSC0 */
-+	{120, 4,  8, 4,  8, 13},	/* IR Blaster */
-+	{124, 4, 12, 4, 12, 13},	/* USB host */
-+	{128, 4, 16, 4, 16, 13},	/* Video processor BLITTER */
-+	{132, 4, 20, 4, 20, 13},	/* UART0 */
-+	{134, 4, 20, 4, 22, 13},	/* UART2 */
-+	{136, 4, 24, 4, 24, 13},	/* IO_PIO0 */
-+	{140, 4, 28, 4, 28, 13},	/* EMPI */
-+	{144, 8,  0, 8,  0, 13},	/* MAFE */
-+	{148, 8,  4, 8,  4, 13},	/* PWM */
-+	{152, 8,  8, 8,  8, 13},	/* SSC1 */
-+	{156, 8, 12, 8, 12, 13},	/* IO_PIO1 */
-+	{160, 8, 16, 8, 16, 13},	/* USB target */
-+	{164, 8, 20, 8, 20, 13},	/* UART1 */
-+	{168, 8, 24, 8, 24, 13},	/* Teletext */
-+	{172, 8, 28, 8, 28, 13},	/* VideoSync VTG */
-+	{173, 8, 28, 8, 29, 13},	/* VideoSync DVP0 */
-+	{174, 8, 28, 8, 30, 13},	/* VideoSync DVP1 */
-+#endif
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7760)
-+/*
-+ * SH7760 INTC2-Style interrupts, vectors IRQ48-111 INTEVT 0x800-0xFE0
-+ */
-+	/* INTPRIO0 | INTMSK0 */
-+	{48,  0, 28, 0, 31,  3},	/* IRQ 4 */
-+	{49,  0, 24, 0, 30,  3},	/* IRQ 3 */
-+	{50,  0, 20, 0, 29,  3},	/* IRQ 2 */
-+	{51,  0, 16, 0, 28,  3},	/* IRQ 1 */
-+	/* 52-55 (INTEVT 0x880-0x8E0) unused/reserved */
-+	/* INTPRIO4 | INTMSK0 */
-+	{56,  4, 28, 0, 25,  3},	/* HCAN2_CHAN0 */
-+	{57,  4, 24, 0, 24,  3},	/* HCAN2_CHAN1 */
-+	{58,  4, 20, 0, 23,  3},	/* I2S_CHAN0   */
-+	{59,  4, 16, 0, 22,  3},	/* I2S_CHAN1   */
-+	{60,  4, 12, 0, 21,  3},	/* AC97_CHAN0  */
-+	{61,  4,  8, 0, 20,  3},	/* AC97_CHAN1  */
-+	{62,  4,  4, 0, 19,  3},	/* I2C_CHAN0   */
-+	{63,  4,  0, 0, 18,  3},	/* I2C_CHAN1   */
-+	/* INTPRIO8 | INTMSK0 */
-+	{52,  8, 16, 0, 11,  3},	/* SCIF0_ERI_IRQ */
-+	{53,  8, 16, 0, 10,  3},	/* SCIF0_RXI_IRQ */
-+	{54,  8, 16, 0,  9,  3},	/* SCIF0_BRI_IRQ */
-+	{55,  8, 16, 0,  8,  3},	/* SCIF0_TXI_IRQ */
-+	{64,  8, 28, 0, 17,  3},	/* USBHI_IRQ */
-+	{65,  8, 24, 0, 16,  3},	/* LCDC      */
-+	/* 66, 67 unused */
-+	{68,  8, 20, 0, 14, 13},	/* DMABRGI0_IRQ */
-+	{69,  8, 20, 0, 13, 13},	/* DMABRGI1_IRQ */
-+	{70,  8, 20, 0, 12, 13},	/* DMABRGI2_IRQ */
-+	/* 71 unused */
-+	{72,  8, 12, 0,  7,  3},	/* SCIF1_ERI_IRQ */
-+	{73,  8, 12, 0,  6,  3},	/* SCIF1_RXI_IRQ */
-+	{74,  8, 12, 0,  5,  3},	/* SCIF1_BRI_IRQ */
-+	{75,  8, 12, 0,  4,  3},	/* SCIF1_TXI_IRQ */
-+	{76,  8,  8, 0,  3,  3},	/* SCIF2_ERI_IRQ */
-+	{77,  8,  8, 0,  2,  3},	/* SCIF2_RXI_IRQ */
-+	{78,  8,  8, 0,  1,  3},	/* SCIF2_BRI_IRQ */
-+	{79,  8,  8, 0,  0,  3},	/* SCIF2_TXI_IRQ */
-+	/*          | INTMSK4 */
-+	{80,  8,  4, 4, 23,  3},	/* SIM_ERI */
-+	{81,  8,  4, 4, 22,  3},	/* SIM_RXI */
-+	{82,  8,  4, 4, 21,  3},	/* SIM_TXI */
-+	{83,  8,  4, 4, 20,  3},	/* SIM_TEI */
-+	{84,  8,  0, 4, 19,  3},	/* HSPII */
-+	/* INTPRIOC | INTMSK4 */
-+	/* 85-87 unused/reserved */
-+	{88, 12, 20, 4, 18,  3},	/* MMCI0 */
-+	{89, 12, 20, 4, 17,  3},	/* MMCI1 */
-+	{90, 12, 20, 4, 16,  3},	/* MMCI2 */
-+	{91, 12, 20, 4, 15,  3},	/* MMCI3 */
-+	{92, 12, 12, 4,  6,  3},	/* MFI (unsure, bug? in my 7760 manual*/
-+	/* 93-107 reserved/undocumented */
-+	{108,12,  4, 4,  1,  3},	/* ADC  */
-+	{109,12,  0, 4,  0,  3},	/* CMTI */
-+	/* 110-111 reserved/unused */
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7780)
-+	{ TIMER_IRQ, 0, 24, 0, INTC_TMU0_MSK, 2},
-+#ifdef CONFIG_SH_RTC
-+	{ RTC_IRQ, 4, 0, 0, INTC_RTC_MSK, TIMER_PRIORITY },
-+#endif
-+	{ SCIF0_ERI_IRQ, 8, 24, 0, INTC_SCIF0_MSK, SCIF0_PRIORITY },
-+	{ SCIF0_RXI_IRQ, 8, 24, 0, INTC_SCIF0_MSK, SCIF0_PRIORITY },
-+	{ SCIF0_BRI_IRQ, 8, 24, 0, INTC_SCIF0_MSK, SCIF0_PRIORITY },
-+	{ SCIF0_TXI_IRQ, 8, 24, 0, INTC_SCIF0_MSK, SCIF0_PRIORITY },
-+
-+	{ SCIF1_ERI_IRQ, 8, 16, 0, INTC_SCIF1_MSK, SCIF1_PRIORITY },
-+	{ SCIF1_RXI_IRQ, 8, 16, 0, INTC_SCIF1_MSK, SCIF1_PRIORITY },
-+	{ SCIF1_BRI_IRQ, 8, 16, 0, INTC_SCIF1_MSK, SCIF1_PRIORITY },
-+	{ SCIF1_TXI_IRQ, 8, 16, 0, INTC_SCIF1_MSK, SCIF1_PRIORITY },
-+
-+	{ PCIC0_IRQ, 0x10,  8, 0, INTC_PCIC0_MSK, PCIC0_PRIORITY },
-+	{ PCIC1_IRQ, 0x10,  0, 0, INTC_PCIC1_MSK, PCIC1_PRIORITY },
-+	{ PCIC2_IRQ, 0x14, 24, 0, INTC_PCIC2_MSK, PCIC2_PRIORITY },
-+	{ PCIC3_IRQ, 0x14, 16, 0, INTC_PCIC3_MSK, PCIC3_PRIORITY },
-+	{ PCIC4_IRQ, 0x14,  8, 0, INTC_PCIC4_MSK, PCIC4_PRIORITY },
-+#endif
-+};
-+
-+void __init init_IRQ_intc2(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(intc2_init_data); i++) {
-+		struct intc2_init *p = intc2_init_data + i;
-+		make_intc2_irq(p->irq, p->ipr_offset, p->ipr_shift,
-+			       p-> msk_offset, p->msk_shift, p->priority);
-+	}
-+}
-+
-+/* Adds a termination callback to the interrupt */
-+void intc2_add_clear_irq(int irq, int (*fn)(int))
-+{
-+	if (unlikely(irq < INTC2_FIRST_IRQ))
-+		return;
-+
-+	intc2_data[irq - INTC2_FIRST_IRQ].clear_irq = fn;
-+}
-+
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/irq/ipr.c sh-2.6.15/arch/sh/kernel/cpu/irq/ipr.c
---- linux-2.6.15/arch/sh/kernel/cpu/irq/ipr.c	1970-01-01 02:00:00.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/irq/ipr.c	2006-01-07 22:13:59.139149503 +0200
-@@ -0,0 +1,206 @@
-+/*
-+ * arch/sh/kernel/cpu/irq/ipr.c
-+ *
-+ * Copyright (C) 1999  Niibe Yutaka & Takeshi Yaegashi
-+ * Copyright (C) 2000  Kazumoto Kojima
-+ * Copyright (C) 2003 Takashi Kusuda <kusuda-takashi@hitachi-ul.co.jp>
-+ *
-+ * Interrupt handling for IPR-based IRQ.
-+ *
-+ * Supported system:
-+ *	On-chip supporting modules (TMU, RTC, etc.).
-+ *	On-chip supporting modules for SH7709/SH7709A/SH7729/SH7300.
-+ *	Hitachi SolutionEngine external I/O:
-+ *		MS7709SE01, MS7709ASE01, and MS7750SE01
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/irq.h>
-+#include <linux/module.h>
-+
-+#include <asm/system.h>
-+#include <asm/io.h>
-+#include <asm/machvec.h>
-+
-+struct ipr_data {
-+	unsigned int addr;	/* Address of Interrupt Priority Register */
-+	int shift;		/* Shifts of the 16-bit data */
-+	int priority;		/* The priority */
-+};
-+static struct ipr_data ipr_data[NR_IRQS];
-+
-+static void enable_ipr_irq(unsigned int irq);
-+static void disable_ipr_irq(unsigned int irq);
-+
-+/* shutdown is same as "disable" */
-+#define shutdown_ipr_irq disable_ipr_irq
-+
-+static void mask_and_ack_ipr(unsigned int);
-+static void end_ipr_irq(unsigned int irq);
-+
-+static unsigned int startup_ipr_irq(unsigned int irq)
-+{
-+	enable_ipr_irq(irq);
-+	return 0; /* never anything pending */
-+}
-+
-+static struct hw_interrupt_type ipr_irq_type = {
-+	.typename = "IPR-IRQ",
-+	.startup = startup_ipr_irq,
-+	.shutdown = shutdown_ipr_irq,
-+	.enable = enable_ipr_irq,
-+	.disable = disable_ipr_irq,
-+	.ack = mask_and_ack_ipr,
-+	.end = end_ipr_irq
-+};
-+
-+static void disable_ipr_irq(unsigned int irq)
-+{
-+	unsigned long val, flags;
-+	unsigned int addr = ipr_data[irq].addr;
-+	unsigned short mask = 0xffff ^ (0x0f << ipr_data[irq].shift);
-+
-+	/* Set the priority in IPR to 0 */
-+	local_irq_save(flags);
-+	val = ctrl_inw(addr);
-+	val &= mask;
-+	ctrl_outw(val, addr);
-+	local_irq_restore(flags);
-+}
-+
-+static void enable_ipr_irq(unsigned int irq)
-+{
-+	unsigned long val, flags;
-+	unsigned int addr = ipr_data[irq].addr;
-+	int priority = ipr_data[irq].priority;
-+	unsigned short value = (priority << ipr_data[irq].shift);
-+
-+	/* Set priority in IPR back to original value */
-+	local_irq_save(flags);
-+	val = ctrl_inw(addr);
-+	val |= value;
-+	ctrl_outw(val, addr);
-+	local_irq_restore(flags);
-+}
-+
-+static void mask_and_ack_ipr(unsigned int irq)
-+{
-+	disable_ipr_irq(irq);
-+
-+#if defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709) || \
-+    defined(CONFIG_CPU_SUBTYPE_SH7300) || defined(CONFIG_CPU_SUBTYPE_SH7705)
-+	/* This is needed when we use edge triggered setting */
-+	/* XXX: Is it really needed? */
-+	if (IRQ0_IRQ <= irq && irq <= IRQ5_IRQ) {
-+		/* Clear external interrupt request */
-+		int a = ctrl_inb(INTC_IRR0);
-+		a &= ~(1 << (irq - IRQ0_IRQ));
-+		ctrl_outb(a, INTC_IRR0);
-+	}
-+#endif
-+}
-+
-+static void end_ipr_irq(unsigned int irq)
-+{
-+	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
-+		enable_ipr_irq(irq);
-+}
-+
-+void make_ipr_irq(unsigned int irq, unsigned int addr, int pos,
-+		  int priority, int maskpos)
-+{
-+	disable_irq_nosync(irq);
-+	ipr_data[irq].addr = addr;
-+	ipr_data[irq].shift = pos*4; /* POSition (0-3) x 4 means shift */
-+	ipr_data[irq].priority = priority;
-+
-+	irq_desc[irq].handler = &ipr_irq_type;
-+	disable_ipr_irq(irq);
-+}
-+
-+void __init init_IRQ(void)
-+{
-+#ifndef CONFIG_CPU_SUBTYPE_SH7780
-+	make_ipr_irq(TIMER_IRQ, TIMER_IPR_ADDR, TIMER_IPR_POS, TIMER_PRIORITY, 0);
-+	make_ipr_irq(TIMER1_IRQ, TIMER1_IPR_ADDR, TIMER1_IPR_POS, TIMER1_PRIORITY, 0);
-+#if defined(CONFIG_SH_RTC)
-+	make_ipr_irq(RTC_IRQ, RTC_IPR_ADDR, RTC_IPR_POS, RTC_PRIORITY, 0);
-+#endif
-+
-+#ifdef SCI_ERI_IRQ
-+	make_ipr_irq(SCI_ERI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY, 0);
-+	make_ipr_irq(SCI_RXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY, 0);
-+	make_ipr_irq(SCI_TXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY, 0);
-+#endif
-+
-+#ifdef SCIF1_ERI_IRQ
-+	make_ipr_irq(SCIF1_ERI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
-+	make_ipr_irq(SCIF1_RXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
-+	make_ipr_irq(SCIF1_BRI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
-+	make_ipr_irq(SCIF1_TXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
-+#endif
-+
-+#if defined(CONFIG_CPU_SUBTYPE_SH7300)
-+	make_ipr_irq(SCIF0_IRQ, SCIF0_IPR_ADDR, SCIF0_IPR_POS, SCIF0_PRIORITY, 0);
-+	make_ipr_irq(DMTE2_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY, 0);
-+	make_ipr_irq(DMTE3_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY, 0);
-+	make_ipr_irq(VIO_IRQ, VIO_IPR_ADDR, VIO_IPR_POS, VIO_PRIORITY, 0);
-+#endif
-+
-+#ifdef SCIF_ERI_IRQ
-+	make_ipr_irq(SCIF_ERI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
-+	make_ipr_irq(SCIF_RXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
-+	make_ipr_irq(SCIF_BRI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
-+	make_ipr_irq(SCIF_TXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
-+#endif
-+
-+#ifdef IRDA_ERI_IRQ
-+	make_ipr_irq(IRDA_ERI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
-+	make_ipr_irq(IRDA_RXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
-+	make_ipr_irq(IRDA_BRI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
-+	make_ipr_irq(IRDA_TXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
-+#endif
-+
-+#if defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709) || \
-+    defined(CONFIG_CPU_SUBTYPE_SH7300) || defined(CONFIG_CPU_SUBTYPE_SH7705)
-+	/*
-+	 * Initialize the Interrupt Controller (INTC)
-+	 * registers to their power on values
-+	 */
-+
-+	/*
-+	 * Enable external irq (INTC IRQ mode).
-+	 * You should set corresponding bits of PFC to "00"
-+	 * to enable these interrupts.
-+	 */
-+	make_ipr_irq(IRQ0_IRQ, IRQ0_IPR_ADDR, IRQ0_IPR_POS, IRQ0_PRIORITY, 0);
-+	make_ipr_irq(IRQ1_IRQ, IRQ1_IPR_ADDR, IRQ1_IPR_POS, IRQ1_PRIORITY, 0);
-+	make_ipr_irq(IRQ2_IRQ, IRQ2_IPR_ADDR, IRQ2_IPR_POS, IRQ2_PRIORITY, 0);
-+	make_ipr_irq(IRQ3_IRQ, IRQ3_IPR_ADDR, IRQ3_IPR_POS, IRQ3_PRIORITY, 0);
-+	make_ipr_irq(IRQ4_IRQ, IRQ4_IPR_ADDR, IRQ4_IPR_POS, IRQ4_PRIORITY, 0);
-+	make_ipr_irq(IRQ5_IRQ, IRQ5_IPR_ADDR, IRQ5_IPR_POS, IRQ5_PRIORITY, 0);
-+#endif
-+#endif
-+
-+#ifdef CONFIG_CPU_HAS_PINT_IRQ
-+	init_IRQ_pint();
-+#endif
-+
-+#ifdef CONFIG_CPU_HAS_INTC2_IRQ
-+	init_IRQ_intc2();
-+#endif
-+	/* Perform the machine specific initialisation */
-+	if (sh_mv.mv_init_irq != NULL)
-+		sh_mv.mv_init_irq();
-+}
-+
-+#if !defined(CONFIG_CPU_HAS_PINT_IRQ)
-+int ipr_irq_demux(int irq)
-+{
-+	return irq;
-+}
-+#endif
-+
-+EXPORT_SYMBOL(make_ipr_irq);
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/irq/pint.c sh-2.6.15/arch/sh/kernel/cpu/irq/pint.c
---- linux-2.6.15/arch/sh/kernel/cpu/irq/pint.c	1970-01-01 02:00:00.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/irq/pint.c	2006-01-07 22:13:59.144149110 +0200
-@@ -0,0 +1,169 @@
-+/*
-+ * arch/sh/kernel/cpu/irq/pint.c - Interrupt handling for PINT-based IRQs.
-+ *
-+ * Copyright (C) 1999  Niibe Yutaka & Takeshi Yaegashi
-+ * Copyright (C) 2000  Kazumoto Kojima
-+ * Copyright (C) 2003 Takashi Kusuda <kusuda-takashi@hitachi-ul.co.jp>
++ *	Copyright (C) 2004 Nokia Corporation
++ *	Written by Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>
 + *
 + * This file is subject to the terms and conditions of the GNU General Public
 + * License.  See the file "COPYING" in the main directory of this archive
 + * for more details.
 + */
-+
-+#include <linux/config.h>
++#include <linux/kernel.h>
 +#include <linux/init.h>
-+#include <linux/irq.h>
 +#include <linux/module.h>
++#include <linux/list.h>
++#include <linux/kref.h>
++#include <linux/seq_file.h>
++#include <linux/err.h>
++#include <asm/clock.h>
++#include <asm/timer.h>
 +
-+#include <asm/system.h>
-+#include <asm/io.h>
-+#include <asm/machvec.h>
++static LIST_HEAD(clock_list);
++static DEFINE_SPINLOCK(clock_lock);
++static DECLARE_MUTEX(clock_list_sem);
 +
-+static unsigned char pint_map[256];
-+static unsigned long portcr_mask;
-+
-+static void enable_pint_irq(unsigned int irq);
-+static void disable_pint_irq(unsigned int irq);
-+
-+/* shutdown is same as "disable" */
-+#define shutdown_pint_irq disable_pint_irq
-+
-+static void mask_and_ack_pint(unsigned int);
-+static void end_pint_irq(unsigned int irq);
-+
-+static unsigned int startup_pint_irq(unsigned int irq)
-+{
-+	enable_pint_irq(irq);
-+	return 0; /* never anything pending */
-+}
-+
-+static struct hw_interrupt_type pint_irq_type = {
-+	.typename = "PINT-IRQ",
-+	.startup = startup_pint_irq,
-+	.shutdown = shutdown_pint_irq,
-+	.enable = enable_pint_irq,
-+	.disable = disable_pint_irq,
-+	.ack = mask_and_ack_pint,
-+	.end = end_pint_irq
++/*
++ * Each subtype is expected to define the init routines for these clocks,
++ * as each subtype (or processor family) will have these clocks at the
++ * very least. These are all provided through the CPG, which even some of
++ * the more quirky parts (such as ST40, SH4-202, etc.) still have.
++ *
++ * The processor-specific code is expected to register any additional
++ * clock sources that are of interest.
++ */
++static struct clk master_clk = {
++	.name		= "master_clk",
++	.flags		= CLK_ALWAYS_ENABLED | CLK_RATE_PROPAGATES,
++#ifdef CONFIG_SH_PCLK_FREQ_BOOL
++	.rate		= CONFIG_SH_PCLK_FREQ,
++#endif
 +};
 +
-+static void disable_pint_irq(unsigned int irq)
-+{
-+	unsigned long val, flags;
++static struct clk module_clk = {
++	.name		= "module_clk",
++	.parent		= &master_clk,
++	.flags		= CLK_ALWAYS_ENABLED | CLK_RATE_PROPAGATES,
++};
 +
-+	local_irq_save(flags);
-+	val = ctrl_inw(INTC_INTER);
-+	val &= ~(1 << (irq - PINT_IRQ_BASE));
-+	ctrl_outw(val, INTC_INTER);	/* disable PINTn */
-+	portcr_mask &= ~(3 << (irq - PINT_IRQ_BASE)*2);
-+	local_irq_restore(flags);
++static struct clk bus_clk = {
++	.name		= "bus_clk",
++	.parent		= &master_clk,
++	.flags		= CLK_ALWAYS_ENABLED | CLK_RATE_PROPAGATES,
++};
++
++static struct clk cpu_clk = {
++	.name		= "cpu_clk",
++	.parent		= &master_clk,
++	.flags		= CLK_ALWAYS_ENABLED,
++};
++
++/*
++ * The ordering of these clocks matters, do not change it.
++ */
++static struct clk *onchip_clocks[] = {
++	&master_clk,
++	&module_clk,
++	&bus_clk,
++	&cpu_clk,
++};
++
++static void propagate_rate(struct clk *clk)
++{
++	struct clk *clkp;
++
++	list_for_each_entry(clkp, &clock_list, node) {
++		if (likely(clkp->parent != clk))
++			continue;
++		if (likely(clkp->ops && clkp->ops->recalc))
++			clkp->ops->recalc(clkp);
++	}
 +}
 +
-+static void enable_pint_irq(unsigned int irq)
++int __clk_enable(struct clk *clk)
 +{
-+	unsigned long val, flags;
++	/*
++	 * See if this is the first time we're enabling the clock, some
++	 * clocks that are always enabled still require "special"
++	 * initialization. This is especially true if the clock mode
++	 * changes and the clock needs to hunt for the proper set of
++	 * divisors to use before it can effectively recalc.
++	 */
++	if (unlikely(atomic_read(&clk->kref.refcount) == 1))
++		if (clk->ops && clk->ops->init)
++			clk->ops->init(clk);
 +
-+	local_irq_save(flags);
-+	val = ctrl_inw(INTC_INTER);
-+	val |= 1 << (irq - PINT_IRQ_BASE);
-+	ctrl_outw(val, INTC_INTER);	/* enable PINTn */
-+	portcr_mask |= 3 << (irq - PINT_IRQ_BASE)*2;
-+	local_irq_restore(flags);
++	if (clk->flags & CLK_ALWAYS_ENABLED)
++		return 0;
++
++	if (likely(clk->ops && clk->ops->enable))
++		clk->ops->enable(clk);
++
++	kref_get(&clk->kref);
++	return 0;
 +}
 +
-+static void mask_and_ack_pint(unsigned int irq)
++int clk_enable(struct clk *clk)
 +{
-+	disable_pint_irq(irq);
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(&clock_lock, flags);
++	ret = __clk_enable(clk);
++	spin_unlock_irqrestore(&clock_lock, flags);
++
++	return ret;
 +}
 +
-+static void end_pint_irq(unsigned int irq)
++static void clk_kref_release(struct kref *kref)
 +{
-+	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
-+		enable_pint_irq(irq);
++	/* Nothing to do */
 +}
 +
-+void make_pint_irq(unsigned int irq)
++void __clk_disable(struct clk *clk)
 +{
-+	disable_irq_nosync(irq);
-+	irq_desc[irq].handler = &pint_irq_type;
-+	disable_pint_irq(irq);
++	if (clk->flags & CLK_ALWAYS_ENABLED)
++		return;
++
++	kref_put(&clk->kref, clk_kref_release);
 +}
 +
-+void __init init_IRQ_pint(void)
++void clk_disable(struct clk *clk)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&clock_lock, flags);
++	__clk_disable(clk);
++	spin_unlock_irqrestore(&clock_lock, flags);
++}
++
++int clk_register(struct clk *clk)
++{
++	down(&clock_list_sem);
++
++	list_add(&clk->node, &clock_list);
++	kref_init(&clk->kref);
++
++	up(&clock_list_sem);
++
++	return 0;
++}
++
++void clk_unregister(struct clk *clk)
++{
++	down(&clock_list_sem);
++	list_del(&clk->node);
++	up(&clock_list_sem);
++}
++
++inline unsigned long clk_get_rate(struct clk *clk)
++{
++	return clk->rate;
++}
++
++int clk_set_rate(struct clk *clk, unsigned long rate)
++{
++	int ret = -EOPNOTSUPP;
++
++	if (likely(clk->ops && clk->ops->set_rate)) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&clock_lock, flags);
++		ret = clk->ops->set_rate(clk, rate);
++		spin_unlock_irqrestore(&clock_lock, flags);
++	}
++
++	if (unlikely(clk->flags & CLK_RATE_PROPAGATES))
++		propagate_rate(clk);
++
++	return ret;
++}
++
++void clk_recalc_rate(struct clk *clk)
++{
++	if (likely(clk->ops && clk->ops->recalc)) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&clock_lock, flags);
++		clk->ops->recalc(clk);
++		spin_unlock_irqrestore(&clock_lock, flags);
++	}
++
++	if (unlikely(clk->flags & CLK_RATE_PROPAGATES))
++		propagate_rate(clk);
++}
++
++struct clk *clk_get(const char *id)
++{
++	struct clk *p, *clk = ERR_PTR(-ENOENT);
++
++	down(&clock_list_sem);
++	list_for_each_entry(p, &clock_list, node) {
++		if (strcmp(id, p->name) == 0 && try_module_get(p->owner)) {
++			clk = p;
++			break;
++		}
++	}
++	up(&clock_list_sem);
++
++	return clk;
++}
++
++void clk_put(struct clk *clk)
++{
++	if (clk && !IS_ERR(clk))
++		module_put(clk->owner);
++}
++
++void __init __attribute__ ((weak))
++arch_init_clk_ops(struct clk_ops **ops, int type)
++{
++}
++
++int __init clk_init(void)
++{
++	int i, ret = 0;
++
++	if (unlikely(!master_clk.rate))
++		/*
++		 * NOTE: This will break if the default divisor has been
++		 * changed.
++		 *
++		 * No one should be changing the default on us however,
++		 * expect that a sane value for CONFIG_SH_PCLK_FREQ will
++		 * be defined in the event of a different divisor.
++		 */
++		master_clk.rate = get_timer_frequency() * 4;
++
++	for (i = 0; i < ARRAY_SIZE(onchip_clocks); i++) {
++		struct clk *clk = onchip_clocks[i];
++
++		arch_init_clk_ops(&clk->ops, i);
++		ret |= clk_register(clk);
++		clk_enable(clk);
++	}
++
++	/* Kick the child clocks.. */
++	propagate_rate(&master_clk);
++	propagate_rate(&bus_clk);
++
++	return ret;
++}
++
++int show_clocks(struct seq_file *m)
++{
++	struct clk *clk;
++
++	list_for_each_entry_reverse(clk, &clock_list, node) {
++		unsigned long rate = clk_get_rate(clk);
++
++		/*
++		 * Don't bother listing dummy clocks with no ancestry
++		 * that only support enable and disable ops.
++		 */
++		if (unlikely(!rate && !clk->parent))
++			continue;
++
++		seq_printf(m, "%-12s\t: %ld.%02ldMHz\n", clk->name,
++			   rate / 1000000, (rate % 1000000) / 10000);
++	}
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(clk_register);
++EXPORT_SYMBOL_GPL(clk_unregister);
++EXPORT_SYMBOL_GPL(clk_get);
++EXPORT_SYMBOL_GPL(clk_put);
++EXPORT_SYMBOL_GPL(clk_enable);
++EXPORT_SYMBOL_GPL(clk_disable);
++EXPORT_SYMBOL_GPL(__clk_enable);
++EXPORT_SYMBOL_GPL(__clk_disable);
++EXPORT_SYMBOL_GPL(clk_get_rate);
++EXPORT_SYMBOL_GPL(clk_set_rate);
++EXPORT_SYMBOL_GPL(clk_recalc_rate);
+
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh3/Makefile sh-2.6.15/arch/sh/kernel/cpu/sh3/Makefile
+--- linux-2.6.15/arch/sh/kernel/cpu/sh3/Makefile	2004-12-26 05:37:10.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh3/Makefile	2006-01-04 00:15:27.000000000 +0200
+@@ -4,3 +4,10 @@
+ 
+ obj-y	:= ex.o probe.o
+ 
++clock-$(CONFIG_CPU_SH3)			:= clock-sh3.o
++clock-$(CONFIG_CPU_SUBTYPE_SH7300)	:= clock-sh7300.o
++clock-$(CONFIG_CPU_SUBTYPE_SH7705)	:= clock-sh7705.o
++clock-$(CONFIG_CPU_SUBTYPE_SH7709)	:= clock-sh7709.o
++
++obj-y	+= $(clock-y)
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh3.c sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh3.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh3.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh3.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,89 @@
++/*
++ * arch/sh/kernel/cpu/sh3/clock-sh3.c
++ *
++ * Generic SH-3 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * FRQCR parsing hacked out of arch/sh/kernel/time.c
++ *
++ *  Copyright (C) 1999  Tetsuya Okada & Niibe Yutaka
++ *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
++ *  Copyright (C) 2002, 2003, 2004  Paul Mundt
++ *  Copyright (C) 2002  M. R. Brown  <mrbrown@linux-sh.org>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++static int stc_multipliers[] = { 1, 2, 3, 4, 6, 1, 1, 1 };
++static int ifc_divisors[]    = { 1, 2, 3, 4, 1, 1, 1, 1 };
++static int pfc_divisors[]    = { 1, 2, 3, 4, 6, 1, 1, 1 };
++
++static void master_clk_init(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = ((frqcr & 0x2000) >> 11) | (frqcr & 0x0003);
++
++	clk->rate *= pfc_divisors[idx];
++}
++
++static struct clk_ops sh3_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = ((frqcr & 0x2000) >> 11) | (frqcr & 0x0003);
++
++	clk->rate = clk->parent->rate / pfc_divisors[idx];
++}
++
++static struct clk_ops sh3_module_clk_ops = {
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = ((frqcr & 0x8000) >> 13) | ((frqcr & 0x0030) >> 4);
++
++	clk->rate = clk->parent->rate / stc_multipliers[idx];
++}
++
++static struct clk_ops sh3_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = ((frqcr & 0x4000) >> 12) | ((frqcr & 0x000c) >> 2);
++
++	clk->rate = clk->parent->rate / ifc_divisors[idx];
++}
++
++static struct clk_ops sh3_cpu_clk_ops = {
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh3_clk_ops[] = {
++	&sh3_master_clk_ops,
++	&sh3_module_clk_ops,
++	&sh3_bus_clk_ops,
++	&sh3_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh3_clk_ops))
++		*ops = sh3_clk_ops[idx];
++}
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7300.c sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7300.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7300.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7300.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,78 @@
++/*
++ * arch/sh/kernel/cpu/sh3/clock-sh7300.c
++ *
++ * SH7300 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * FRQCR parsing hacked out of arch/sh/kernel/time.c
++ *
++ *  Copyright (C) 1999  Tetsuya Okada & Niibe Yutaka
++ *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
++ *  Copyright (C) 2002, 2003, 2004  Paul Mundt
++ *  Copyright (C) 2002  M. R. Brown  <mrbrown@linux-sh.org>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++static int md_table[] = { 1, 2, 3, 4, 6, 8, 12 };
++
++static void master_clk_init(struct clk *clk)
++{
++	clk->rate *= md_table[ctrl_inw(FRQCR) & 0x0007];
++}
++
++static struct clk_ops sh7300_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) & 0x0007);
++	clk->rate = clk->parent->rate / md_table[idx];
++}
++
++static struct clk_ops sh7300_module_clk_ops = {
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) & 0x0700) >> 8;
++	clk->rate = clk->parent->rate / md_table[idx];
++}
++
++static struct clk_ops sh7300_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) & 0x0070) >> 4;
++	clk->rate = clk->parent->rate / md_table[idx];
++}
++
++static struct clk_ops sh7300_cpu_clk_ops = {
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh7300_clk_ops[] = {
++	&sh7300_master_clk_ops,
++	&sh7300_module_clk_ops,
++	&sh7300_bus_clk_ops,
++	&sh7300_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh7300_clk_ops))
++		*ops = sh7300_clk_ops[idx];
++}
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7705.c sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7705.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7705.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7705.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,84 @@
++/*
++ * arch/sh/kernel/cpu/sh3/clock-sh7705.c
++ *
++ * SH7705 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * FRQCR parsing hacked out of arch/sh/kernel/time.c
++ *
++ *  Copyright (C) 1999  Tetsuya Okada & Niibe Yutaka
++ *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
++ *  Copyright (C) 2002, 2003, 2004  Paul Mundt
++ *  Copyright (C) 2002  M. R. Brown  <mrbrown@linux-sh.org>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++/*
++ * SH7705 uses the same divisors as the generic SH-3 case, it's just the
++ * FRQCR layout that is a bit different..
++ */
++static int stc_multipliers[] = { 1, 2, 3, 4, 6, 1, 1, 1 };
++static int ifc_divisors[]    = { 1, 2, 3, 4, 1, 1, 1, 1 };
++static int pfc_divisors[]    = { 1, 2, 3, 4, 6, 1, 1, 1 };
++
++static void master_clk_init(struct clk *clk)
++{
++	clk->rate *= pfc_divisors[ctrl_inw(FRQCR) & 0x0003];
++}
++
++static struct clk_ops sh7705_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int idx = ctrl_inw(FRQCR) & 0x0003;
++	clk->rate = clk->parent->rate / pfc_divisors[idx];
++}
++
++static struct clk_ops sh7705_module_clk_ops = {
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) & 0x0300) >> 8;
++	clk->rate = clk->parent->rate / stc_multipliers[idx];
++}
++
++static struct clk_ops sh7705_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) & 0x0030) >> 4;
++	clk->rate = clk->parent->rate / ifc_divisors[idx];
++}
++
++static struct clk_ops sh7705_cpu_clk_ops = {
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh7705_clk_ops[] = {
++	&sh7705_master_clk_ops,
++	&sh7705_module_clk_ops,
++	&sh7705_bus_clk_ops,
++	&sh7705_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh7705_clk_ops))
++		*ops = sh7705_clk_ops[idx];
++}
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7709.c sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7709.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7709.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh3/clock-sh7709.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,96 @@
++/*
++ * arch/sh/kernel/cpu/sh3/clock-sh7709.c
++ *
++ * SH7709 support for the clock framework
++ *
++ *  Copyright (C) 2005  Andriy Skulysh
++ *
++ * Based on arch/sh/kernel/cpu/sh3/clock-sh7705.c
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++static int stc_multipliers[] = { 1, 2, 4, 8, 3, 6, 1, 1 };
++static int ifc_divisors[]    = { 1, 2, 4, 1, 3, 1, 1, 1 };
++static int pfc_divisors[]    = { 1, 2, 4, 1, 3, 6, 1, 1 };
++
++static void set_bus_parent(struct clk *clk)
++{
++	struct clk *bus_clk = clk_get("bus_clk");
++	clk->parent = bus_clk;
++	clk_put(bus_clk);
++}
++
++static void master_clk_init(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = ((frqcr & 0x2000) >> 11) | (frqcr & 0x0003);
++
++	clk->rate *= pfc_divisors[idx];
++}
++
++static struct clk_ops sh7709_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = ((frqcr & 0x2000) >> 11) | (frqcr & 0x0003);
++
++	clk->rate = clk->parent->rate / pfc_divisors[idx];
++}
++
++static struct clk_ops sh7709_module_clk_ops = {
++#ifdef CLOCK_MODE_0_1_2_7
++	.init		= set_bus_parent,
++#endif
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = (frqcr & 0x0080) ?
++		((frqcr & 0x8000) >> 13) | ((frqcr & 0x0030) >> 4) : 1;
++
++	clk->rate = clk->parent->rate * stc_multipliers[idx];
++}
++
++static struct clk_ops sh7709_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int frqcr = ctrl_inw(FRQCR);
++	int idx = ((frqcr & 0x4000) >> 12) | ((frqcr & 0x000c) >> 2);
++
++	clk->rate = clk->parent->rate / ifc_divisors[idx];
++}
++
++static struct clk_ops sh7709_cpu_clk_ops = {
++	.init		= set_bus_parent,
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh7709_clk_ops[] = {
++	&sh7709_master_clk_ops,
++	&sh7709_module_clk_ops,
++	&sh7709_bus_clk_ops,
++	&sh7709_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh7709_clk_ops))
++		*ops = sh7709_clk_ops[idx];
++}
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh4/Makefile sh-2.6.15/arch/sh/kernel/cpu/sh4/Makefile
+--- linux-2.6.15/arch/sh/kernel/cpu/sh4/Makefile	2004-12-26 05:37:10.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh4/Makefile	2006-01-07 22:13:59.197144942 +0200
+@@ -4,7 +4,16 @@
+ 
+ obj-y	:= ex.o probe.o
+ 
+-obj-$(CONFIG_SH_FPU)                    += fpu.o
+-obj-$(CONFIG_CPU_SUBTYPE_ST40STB1)	+= irq_intc2.o
++obj-$(CONFIG_SH_FPU)                    += fpu.o
+ obj-$(CONFIG_SH_STORE_QUEUES)		+= sq.o
+ 
++# Primary on-chip clocks (common)
++clock-$(CONFIG_CPU_SH4)			:= clock-sh4.o
++clock-$(CONFIG_CPU_SUBTYPE_SH73180)	:= clock-sh73180.o
++clock-$(CONFIG_CPU_SUBTYPE_SH7770)	:= clock-sh7770.o
++clock-$(CONFIG_CPU_SUBTYPE_SH7780)	:= clock-sh7780.o
++
++# Additional clocks by subtype
++clock-$(CONFIG_CPU_SUBTYPE_SH4_202)	+= clock-sh4-202.o
++
++obj-y	+= $(clock-y)
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4-202.c sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4-202.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4-202.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4-202.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,179 @@
++/*
++ * arch/sh/kernel/cpu/sh4/clock-sh4-202.c
++ *
++ * Additional SH4-202 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++#define CPG2_FRQCR3	0xfe0a0018
++
++static int frqcr3_divisors[] = { 1, 2, 3, 4, 6, 8, 16 };
++static int frqcr3_values[]   = { 0, 1, 2, 3, 4, 5, 6  };
++
++static void emi_clk_recalc(struct clk *clk)
++{
++	int idx = ctrl_inl(CPG2_FRQCR3) & 0x0007;
++	clk->rate = clk->parent->rate / frqcr3_divisors[idx];
++}
++
++static inline int frqcr3_lookup(struct clk *clk, unsigned long rate)
++{
++	int divisor = clk->parent->rate / rate;
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(frqcr3_divisors); i++)
++		if (frqcr3_divisors[i] == divisor)
++			return frqcr3_values[i];
++
++	/* Safe fallback */
++	return 5;
++}
++
++static struct clk_ops sh4202_emi_clk_ops = {
++	.recalc		= emi_clk_recalc,
++};
++
++static struct clk sh4202_emi_clk = {
++	.name		= "emi_clk",
++	.flags		= CLK_ALWAYS_ENABLED,
++	.ops		= &sh4202_emi_clk_ops,
++};
++
++static void femi_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inl(CPG2_FRQCR3) >> 3) & 0x0007;
++	clk->rate = clk->parent->rate / frqcr3_divisors[idx];
++}
++
++static struct clk_ops sh4202_femi_clk_ops = {
++	.recalc		= femi_clk_recalc,
++};
++
++static struct clk sh4202_femi_clk = {
++	.name		= "femi_clk",
++	.flags		= CLK_ALWAYS_ENABLED,
++	.ops		= &sh4202_femi_clk_ops,
++};
++
++static void shoc_clk_init(struct clk *clk)
 +{
 +	int i;
 +
-+	make_ipr_irq(PINT0_IRQ, PINT0_IPR_ADDR, PINT0_IPR_POS, PINT0_PRIORITY);
-+	make_ipr_irq(PINT8_IRQ, PINT8_IPR_ADDR, PINT8_IPR_POS, PINT8_PRIORITY);
++	/*
++	 * For some reason, the shoc_clk seems to be set to some really
++	 * insane value at boot (values outside of the allowable frequency
++	 * range for instance). We deal with this by scaling it back down
++	 * to something sensible just in case.
++	 *
++	 * Start scaling from the high end down until we find something
++	 * that passes rate verification..
++	 */
++	for (i = 0; i < ARRAY_SIZE(frqcr3_divisors); i++) {
++		int divisor = frqcr3_divisors[i];
 +
-+	enable_irq(PINT0_IRQ);
-+	enable_irq(PINT8_IRQ);
-+
-+	for(i = 0; i < 16; i++)
-+		make_pint_irq(PINT_IRQ_BASE + i);
-+
-+	for(i = 0; i < 256; i++) {
-+		if (i & 1)
-+			pint_map[i] = 0;
-+		else if (i & 2)
-+			pint_map[i] = 1;
-+		else if (i & 4)
-+			pint_map[i] = 2;
-+		else if (i & 8)
-+			pint_map[i] = 3;
-+		else if (i & 0x10)
-+			pint_map[i] = 4;
-+		else if (i & 0x20)
-+			pint_map[i] = 5;
-+		else if (i & 0x40)
-+			pint_map[i] = 6;
-+		else if (i & 0x80)
-+			pint_map[i] = 7;
++		if (clk->ops->set_rate(clk, clk->parent->rate / divisor) == 0)
++			break;
 +	}
++
++	WARN_ON(i == ARRAY_SIZE(frqcr3_divisors));	/* Undefined clock */
 +}
 +
-+int ipr_irq_demux(int irq)
++static void shoc_clk_recalc(struct clk *clk)
 +{
-+	unsigned long creg, dreg, d, sav;
-+
-+	if (irq == PINT0_IRQ) {
-+#if defined(CONFIG_CPU_SUBTYPE_SH7707)
-+		creg = PORT_PACR;
-+		dreg = PORT_PADR;
-+#else
-+		creg = PORT_PCCR;
-+		dreg = PORT_PCDR;
-+#endif
-+		sav = ctrl_inw(creg);
-+		ctrl_outw(sav | portcr_mask, creg);
-+		d = (~ctrl_inb(dreg) ^ ctrl_inw(INTC_ICR2)) &
-+			ctrl_inw(INTC_INTER) & 0xff;
-+		ctrl_outw(sav, creg);
-+
-+		if (d == 0)
-+			return irq;
-+
-+		return PINT_IRQ_BASE + pint_map[d];
-+	} else if (irq == PINT8_IRQ) {
-+#if defined(CONFIG_CPU_SUBTYPE_SH7707)
-+		creg = PORT_PBCR;
-+		dreg = PORT_PBDR;
-+#else
-+		creg = PORT_PFCR;
-+		dreg = PORT_PFDR;
-+#endif
-+		sav = ctrl_inw(creg);
-+		ctrl_outw(sav | (portcr_mask >> 16), creg);
-+		d = (~ctrl_inb(dreg) ^ (ctrl_inw(INTC_ICR2) >> 8)) &
-+			(ctrl_inw(INTC_INTER) >> 8) & 0xff;
-+		ctrl_outw(sav, creg);
-+
-+		if (d == 0)
-+			return irq;
-+
-+		return PINT_IRQ_BASE + 8 + pint_map[d];
-+	}
-+
-+	return irq;
++	int idx = (ctrl_inl(CPG2_FRQCR3) >> 6) & 0x0007;
++	clk->rate = clk->parent->rate / frqcr3_divisors[idx];
 +}
 +
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/irq_imask.c sh-2.6.15/arch/sh/kernel/cpu/irq_imask.c
---- linux-2.6.15/arch/sh/kernel/cpu/irq_imask.c	2005-11-12 20:17:23.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/irq_imask.c	1970-01-01 02:00:00.000000000 +0200
-@@ -1,116 +0,0 @@
--/* $Id: irq_imask.c,v 1.1.2.1 2002/11/17 10:53:43 mrbrown Exp $
-- *
-- * linux/arch/sh/kernel/irq_imask.c
-- *
-- * Copyright (C) 1999, 2000  Niibe Yutaka
-- *
-- * Simple interrupt handling using IMASK of SR register.
-- *
-- */
--
--/* NOTE: Will not work on level 15 */
--
--
--#include <linux/ptrace.h>
--#include <linux/errno.h>
--#include <linux/kernel_stat.h>
--#include <linux/signal.h>
--#include <linux/sched.h>
--#include <linux/interrupt.h>
--#include <linux/init.h>
--#include <linux/bitops.h>
--
--#include <asm/system.h>
--#include <asm/irq.h>
--
--#include <linux/spinlock.h>
--#include <linux/cache.h>
--#include <linux/irq.h>
--
--/* Bitmap of IRQ masked */
--static unsigned long imask_mask = 0x7fff;
--static int interrupt_priority = 0;
--
--static void enable_imask_irq(unsigned int irq);
--static void disable_imask_irq(unsigned int irq);
--static void shutdown_imask_irq(unsigned int irq);
--static void mask_and_ack_imask(unsigned int);
--static void end_imask_irq(unsigned int irq);
--
--#define IMASK_PRIORITY	15
--
--static unsigned int startup_imask_irq(unsigned int irq)
--{ 
--	/* Nothing to do */
--	return 0; /* never anything pending */
--}
--
--static struct hw_interrupt_type imask_irq_type = {
--	.typename = "SR.IMASK",
--	.startup = startup_imask_irq,
--	.shutdown = shutdown_imask_irq,
--	.enable = enable_imask_irq,
--	.disable = disable_imask_irq,
--	.ack = mask_and_ack_imask,
--	.end = end_imask_irq
--};
--
--void static inline set_interrupt_registers(int ip)
--{
--	unsigned long __dummy;
--
--	asm volatile("ldc	%2, r6_bank\n\t"
--		     "stc	sr, %0\n\t"
--		     "and	#0xf0, %0\n\t"
--		     "shlr2	%0\n\t"
--		     "cmp/eq	#0x3c, %0\n\t"
--		     "bt/s	1f	! CLI-ed\n\t"
--		     " stc	sr, %0\n\t"
--		     "and	%1, %0\n\t"
--		     "or	%2, %0\n\t"
--		     "ldc	%0, sr\n"
--		     "1:"
--		     : "=&z" (__dummy)
--		     : "r" (~0xf0), "r" (ip << 4)
--		     : "t");
--}
--
--static void disable_imask_irq(unsigned int irq)
--{
--	clear_bit(irq, &imask_mask);
--	if (interrupt_priority < IMASK_PRIORITY - irq)
--		interrupt_priority = IMASK_PRIORITY - irq;
--
--	set_interrupt_registers(interrupt_priority);
--}
--
--static void enable_imask_irq(unsigned int irq)
--{
--	set_bit(irq, &imask_mask);
--	interrupt_priority = IMASK_PRIORITY - ffz(imask_mask);
--
--	set_interrupt_registers(interrupt_priority);
--}
--
--static void mask_and_ack_imask(unsigned int irq)
--{
--	disable_imask_irq(irq);
--}
--
--static void end_imask_irq(unsigned int irq)
--{
--	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
--		enable_imask_irq(irq);
--}
--
--static void shutdown_imask_irq(unsigned int irq)
--{
--	/* Nothing to do */
--}
--
--void make_imask_irq(unsigned int irq)
--{
--	disable_irq_nosync(irq);
--	irq_desc[irq].handler = &imask_irq_type;
--	enable_irq(irq);
--}
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/irq_ipr.c sh-2.6.15/arch/sh/kernel/cpu/irq_ipr.c
---- linux-2.6.15/arch/sh/kernel/cpu/irq_ipr.c	2005-11-12 20:17:23.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/irq_ipr.c	1970-01-01 02:00:00.000000000 +0200
-@@ -1,339 +0,0 @@
--/* $Id: irq_ipr.c,v 1.1.2.1 2002/11/17 10:53:43 mrbrown Exp $
-- *
-- * linux/arch/sh/kernel/irq_ipr.c
-- *
-- * Copyright (C) 1999  Niibe Yutaka & Takeshi Yaegashi
-- * Copyright (C) 2000  Kazumoto Kojima
-- * Copyright (C) 2003 Takashi Kusuda <kusuda-takashi@hitachi-ul.co.jp>
-- *
-- * Interrupt handling for IPR-based IRQ.
-- *
-- * Supported system:
-- *	On-chip supporting modules (TMU, RTC, etc.).
-- *	On-chip supporting modules for SH7709/SH7709A/SH7729/SH7300.
-- *	Hitachi SolutionEngine external I/O:
-- *		MS7709SE01, MS7709ASE01, and MS7750SE01
-- *
-- */
--
--#include <linux/config.h>
--#include <linux/init.h>
--#include <linux/irq.h>
--#include <linux/module.h>
--
--#include <asm/system.h>
--#include <asm/io.h>
--#include <asm/machvec.h>
--
--struct ipr_data {
--	unsigned int addr;	/* Address of Interrupt Priority Register */
--	int shift;		/* Shifts of the 16-bit data */
--	int priority;		/* The priority */
--};
--static struct ipr_data ipr_data[NR_IRQS];
--
--static void enable_ipr_irq(unsigned int irq);
--static void disable_ipr_irq(unsigned int irq);
--
--/* shutdown is same as "disable" */
--#define shutdown_ipr_irq disable_ipr_irq
--
--static void mask_and_ack_ipr(unsigned int);
--static void end_ipr_irq(unsigned int irq);
--
--static unsigned int startup_ipr_irq(unsigned int irq)
--{
--	enable_ipr_irq(irq);
--	return 0; /* never anything pending */
--}
--
--static struct hw_interrupt_type ipr_irq_type = {
--	.typename = "IPR-IRQ",
--	.startup = startup_ipr_irq,
--	.shutdown = shutdown_ipr_irq,
--	.enable = enable_ipr_irq,
--	.disable = disable_ipr_irq,
--	.ack = mask_and_ack_ipr,
--	.end = end_ipr_irq
--};
--
--static void disable_ipr_irq(unsigned int irq)
--{
--	unsigned long val, flags;
--	unsigned int addr = ipr_data[irq].addr;
--	unsigned short mask = 0xffff ^ (0x0f << ipr_data[irq].shift);
--
--	/* Set the priority in IPR to 0 */
--	local_irq_save(flags);
--	val = ctrl_inw(addr);
--	val &= mask;
--	ctrl_outw(val, addr);
--	local_irq_restore(flags);
--}
--
--static void enable_ipr_irq(unsigned int irq)
--{
--	unsigned long val, flags;
--	unsigned int addr = ipr_data[irq].addr;
--	int priority = ipr_data[irq].priority;
--	unsigned short value = (priority << ipr_data[irq].shift);
--
--	/* Set priority in IPR back to original value */
--	local_irq_save(flags);
--	val = ctrl_inw(addr);
--	val |= value;
--	ctrl_outw(val, addr);
--	local_irq_restore(flags);
--}
--
--static void mask_and_ack_ipr(unsigned int irq)
--{
--	disable_ipr_irq(irq);
--
--#if defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709) || \
--    defined(CONFIG_CPU_SUBTYPE_SH7300) || defined(CONFIG_CPU_SUBTYPE_SH7705)
--	/* This is needed when we use edge triggered setting */
--	/* XXX: Is it really needed? */
--	if (IRQ0_IRQ <= irq && irq <= IRQ5_IRQ) {
--		/* Clear external interrupt request */
--		int a = ctrl_inb(INTC_IRR0);
--		a &= ~(1 << (irq - IRQ0_IRQ));
--		ctrl_outb(a, INTC_IRR0);
--	}
--#endif
--}
--
--static void end_ipr_irq(unsigned int irq)
--{
--	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
--		enable_ipr_irq(irq);
--}
--
--void make_ipr_irq(unsigned int irq, unsigned int addr, int pos, int priority)
--{
--	disable_irq_nosync(irq);
--	ipr_data[irq].addr = addr;
--	ipr_data[irq].shift = pos*4; /* POSition (0-3) x 4 means shift */
--	ipr_data[irq].priority = priority;
--
--	irq_desc[irq].handler = &ipr_irq_type;
--	disable_ipr_irq(irq);
--}
--
--#if defined(CONFIG_CPU_SUBTYPE_SH7705) || \
--    defined(CONFIG_CPU_SUBTYPE_SH7707) || \
--    defined(CONFIG_CPU_SUBTYPE_SH7709)
--static unsigned char pint_map[256];
--static unsigned long portcr_mask = 0;
--
--static void enable_pint_irq(unsigned int irq);
--static void disable_pint_irq(unsigned int irq);
--
--/* shutdown is same as "disable" */
--#define shutdown_pint_irq disable_pint_irq
--
--static void mask_and_ack_pint(unsigned int);
--static void end_pint_irq(unsigned int irq);
--
--static unsigned int startup_pint_irq(unsigned int irq)
--{
--	enable_pint_irq(irq);
--	return 0; /* never anything pending */
--}
--
--static struct hw_interrupt_type pint_irq_type = {
--	.typename = "PINT-IRQ",
--	.startup = startup_pint_irq,
--	.shutdown = shutdown_pint_irq,
--	.enable = enable_pint_irq,
--	.disable = disable_pint_irq,
--	.ack = mask_and_ack_pint,
--	.end = end_pint_irq
--};
--
--static void disable_pint_irq(unsigned int irq)
--{
--	unsigned long val, flags;
--
--	local_irq_save(flags);
--	val = ctrl_inw(INTC_INTER);
--	val &= ~(1 << (irq - PINT_IRQ_BASE));
--	ctrl_outw(val, INTC_INTER);	/* disable PINTn */
--	portcr_mask &= ~(3 << (irq - PINT_IRQ_BASE)*2);
--	local_irq_restore(flags);
--}
--
--static void enable_pint_irq(unsigned int irq)
--{
--	unsigned long val, flags;
--
--	local_irq_save(flags);
--	val = ctrl_inw(INTC_INTER);
--	val |= 1 << (irq - PINT_IRQ_BASE);
--	ctrl_outw(val, INTC_INTER);	/* enable PINTn */
--	portcr_mask |= 3 << (irq - PINT_IRQ_BASE)*2;
--	local_irq_restore(flags);
--}
--
--static void mask_and_ack_pint(unsigned int irq)
--{
--	disable_pint_irq(irq);
--}
--
--static void end_pint_irq(unsigned int irq)
--{
--	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
--		enable_pint_irq(irq);
--}
--
--void make_pint_irq(unsigned int irq)
--{
--	disable_irq_nosync(irq);
--	irq_desc[irq].handler = &pint_irq_type;
--	disable_pint_irq(irq);
--}
--#endif
--
--void __init init_IRQ(void)
--{
--#if defined(CONFIG_CPU_SUBTYPE_SH7705) || \
--    defined(CONFIG_CPU_SUBTYPE_SH7707) || \
--    defined(CONFIG_CPU_SUBTYPE_SH7709)
--	int i;
--#endif
--
--	make_ipr_irq(TIMER_IRQ, TIMER_IPR_ADDR, TIMER_IPR_POS, TIMER_PRIORITY);
--	make_ipr_irq(TIMER1_IRQ, TIMER1_IPR_ADDR, TIMER1_IPR_POS, TIMER1_PRIORITY);
--#if defined(CONFIG_SH_RTC)
--	make_ipr_irq(RTC_IRQ, RTC_IPR_ADDR, RTC_IPR_POS, RTC_PRIORITY);
--#endif
--
--#ifdef SCI_ERI_IRQ
--	make_ipr_irq(SCI_ERI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY);
--	make_ipr_irq(SCI_RXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY);
--	make_ipr_irq(SCI_TXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY);
--#endif
--
--#ifdef SCIF1_ERI_IRQ
--	make_ipr_irq(SCIF1_ERI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
--	make_ipr_irq(SCIF1_RXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
--	make_ipr_irq(SCIF1_BRI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
--	make_ipr_irq(SCIF1_TXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
--#endif
--
--#if defined(CONFIG_CPU_SUBTYPE_SH7300)
--	make_ipr_irq(SCIF0_IRQ, SCIF0_IPR_ADDR, SCIF0_IPR_POS, SCIF0_PRIORITY);
--	make_ipr_irq(DMTE2_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY);
--	make_ipr_irq(DMTE3_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY);
--	make_ipr_irq(VIO_IRQ, VIO_IPR_ADDR, VIO_IPR_POS, VIO_PRIORITY);
--#endif
--
--#ifdef SCIF_ERI_IRQ
--	make_ipr_irq(SCIF_ERI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
--	make_ipr_irq(SCIF_RXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
--	make_ipr_irq(SCIF_BRI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
--	make_ipr_irq(SCIF_TXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
--#endif
--
--#ifdef IRDA_ERI_IRQ
--	make_ipr_irq(IRDA_ERI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
--	make_ipr_irq(IRDA_RXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
--	make_ipr_irq(IRDA_BRI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
--	make_ipr_irq(IRDA_TXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
--#endif
--
--#if defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709) || \
--    defined(CONFIG_CPU_SUBTYPE_SH7300) || defined(CONFIG_CPU_SUBTYPE_SH7705)
--	/*
--	 * Initialize the Interrupt Controller (INTC)
--	 * registers to their power on values
--	 */
--
--	/*
--	 * Enable external irq (INTC IRQ mode).
--	 * You should set corresponding bits of PFC to "00"
--	 * to enable these interrupts.
--	 */
--	make_ipr_irq(IRQ0_IRQ, IRQ0_IPR_ADDR, IRQ0_IPR_POS, IRQ0_PRIORITY);
--	make_ipr_irq(IRQ1_IRQ, IRQ1_IPR_ADDR, IRQ1_IPR_POS, IRQ1_PRIORITY);
--	make_ipr_irq(IRQ2_IRQ, IRQ2_IPR_ADDR, IRQ2_IPR_POS, IRQ2_PRIORITY);
--	make_ipr_irq(IRQ3_IRQ, IRQ3_IPR_ADDR, IRQ3_IPR_POS, IRQ3_PRIORITY);
--	make_ipr_irq(IRQ4_IRQ, IRQ4_IPR_ADDR, IRQ4_IPR_POS, IRQ4_PRIORITY);
--	make_ipr_irq(IRQ5_IRQ, IRQ5_IPR_ADDR, IRQ5_IPR_POS, IRQ5_PRIORITY);
--#if !defined(CONFIG_CPU_SUBTYPE_SH7300)
--	make_ipr_irq(PINT0_IRQ, PINT0_IPR_ADDR, PINT0_IPR_POS, PINT0_PRIORITY);
--	make_ipr_irq(PINT8_IRQ, PINT8_IPR_ADDR, PINT8_IPR_POS, PINT8_PRIORITY);
--	enable_ipr_irq(PINT0_IRQ);
--	enable_ipr_irq(PINT8_IRQ);
--
--	for(i = 0; i < 16; i++)
--		make_pint_irq(PINT_IRQ_BASE + i);
--	for(i = 0; i < 256; i++)
--	{
--		if(i & 1) pint_map[i] = 0;
--		else if(i & 2) pint_map[i] = 1;
--		else if(i & 4) pint_map[i] = 2;
--		else if(i & 8) pint_map[i] = 3;
--		else if(i & 0x10) pint_map[i] = 4;
--		else if(i & 0x20) pint_map[i] = 5;
--		else if(i & 0x40) pint_map[i] = 6;
--		else if(i & 0x80) pint_map[i] = 7;
--	}
--#endif /* !CONFIG_CPU_SUBTYPE_SH7300 */
--#endif /* CONFIG_CPU_SUBTYPE_SH7707 || CONFIG_CPU_SUBTYPE_SH7709  || CONFIG_CPU_SUBTYPE_SH7300*/
--
--#ifdef CONFIG_CPU_SUBTYPE_ST40
--	init_IRQ_intc2();
--#endif
--
--	/* Perform the machine specific initialisation */
--	if (sh_mv.mv_init_irq != NULL) {
--		sh_mv.mv_init_irq();
--	}
--}
--#if defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709) || \
--    defined(CONFIG_CPU_SUBTYPE_SH7300) || defined(CONFIG_CPU_SUBTYPE_SH7705)
--int ipr_irq_demux(int irq)
--{
--#if !defined(CONFIG_CPU_SUBTYPE_SH7300)
--	unsigned long creg, dreg, d, sav;
--
--	if(irq == PINT0_IRQ)
--	{
--#if defined(CONFIG_CPU_SUBTYPE_SH7707)
--		creg = PORT_PACR;
--		dreg = PORT_PADR;
--#else
--		creg = PORT_PCCR;
--		dreg = PORT_PCDR;
--#endif
--		sav = ctrl_inw(creg);
--		ctrl_outw(sav | portcr_mask, creg);
--		d = (~ctrl_inb(dreg) ^ ctrl_inw(INTC_ICR2)) & ctrl_inw(INTC_INTER) & 0xff;
--		ctrl_outw(sav, creg);
--		if(d == 0) return irq;
--		return PINT_IRQ_BASE + pint_map[d];
--	}
--	else if(irq == PINT8_IRQ)
--	{
--#if defined(CONFIG_CPU_SUBTYPE_SH7707)
--		creg = PORT_PBCR;
--		dreg = PORT_PBDR;
--#else
--		creg = PORT_PFCR;
--		dreg = PORT_PFDR;
--#endif
--		sav = ctrl_inw(creg);
--		ctrl_outw(sav | (portcr_mask >> 16), creg);
--		d = (~ctrl_inb(dreg) ^ (ctrl_inw(INTC_ICR2) >> 8)) & (ctrl_inw(INTC_INTER) >> 8) & 0xff;
--		ctrl_outw(sav, creg);
--		if(d == 0) return irq;
--		return PINT_IRQ_BASE + 8 + pint_map[d];
--	}
--#endif
--	return irq;
--}
--#endif
--
--EXPORT_SYMBOL(make_ipr_irq);
--
++static int shoc_clk_verify_rate(struct clk *clk, unsigned long rate)
++{
++	struct clk *bclk = clk_get("bus_clk");
++	unsigned long bclk_rate = clk_get_rate(bclk);
++
++	clk_put(bclk);
++
++	if (rate > bclk_rate)
++		return 1;
++	if (rate > 66000000)
++		return 1;
++
++	return 0;
++}
++
++static int shoc_clk_set_rate(struct clk *clk, unsigned long rate)
++{
++	unsigned long frqcr3;
++	unsigned int tmp;
++
++	/* Make sure we have something sensible to switch to */
++	if (shoc_clk_verify_rate(clk, rate) != 0)
++		return -EINVAL;
++
++	tmp = frqcr3_lookup(clk, rate);
++
++	frqcr3 = ctrl_inl(CPG2_FRQCR3);
++	frqcr3 &= ~(0x0007 << 6);
++	frqcr3 |= tmp << 6;
++	ctrl_outl(frqcr3, CPG2_FRQCR3);
++
++	clk->rate = clk->parent->rate / frqcr3_divisors[tmp];
++
++	return 0;
++}
++
++static struct clk_ops sh4202_shoc_clk_ops = {
++	.init		= shoc_clk_init,
++	.recalc		= shoc_clk_recalc,
++	.set_rate	= shoc_clk_set_rate,
++};
++
++static struct clk sh4202_shoc_clk = {
++	.name		= "shoc_clk",
++	.flags		= CLK_ALWAYS_ENABLED,
++	.ops		= &sh4202_shoc_clk_ops,
++};
++
++static struct clk *sh4202_onchip_clocks[] = {
++	&sh4202_emi_clk,
++	&sh4202_femi_clk,
++	&sh4202_shoc_clk,
++};
++
++static int __init sh4202_clk_init(void)
++{
++	struct clk *clk = clk_get("master_clk");
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(sh4202_onchip_clocks); i++) {
++		struct clk *clkp = sh4202_onchip_clocks[i];
++
++		clkp->parent = clk;
++		clk_register(clkp);
++		clk_enable(clkp);
++	}
++
++	/*
++	 * Now that we have the rest of the clocks registered, we need to
++	 * force the parent clock to propagate so that these clocks will
++	 * automatically figure out their rate. We cheat by handing the
++	 * parent clock its current rate and forcing child propagation.
++	 */
++	clk_set_rate(clk, clk_get_rate(clk));
++
++	clk_put(clk);
++
++	return 0;
++}
++
++arch_initcall(sh4202_clk_init);
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4.c sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh4.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,80 @@
++/*
++ * arch/sh/kernel/cpu/sh4/clock-sh4.c
++ *
++ * Generic SH-4 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * FRQCR parsing hacked out of arch/sh/kernel/time.c
++ *
++ *  Copyright (C) 1999  Tetsuya Okada & Niibe Yutaka
++ *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
++ *  Copyright (C) 2002, 2003, 2004  Paul Mundt
++ *  Copyright (C) 2002  M. R. Brown  <mrbrown@linux-sh.org>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++static int ifc_divisors[] = { 1, 2, 3, 4, 6, 8, 1, 1 };
++#define bfc_divisors ifc_divisors	/* Same */
++static int pfc_divisors[] = { 2, 3, 4, 6, 8, 2, 2, 2 };
++
++static void master_clk_init(struct clk *clk)
++{
++	clk->rate *= pfc_divisors[ctrl_inw(FRQCR) & 0x0007];
++}
++
++static struct clk_ops sh4_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) & 0x0007);
++	clk->rate = clk->parent->rate / pfc_divisors[idx];
++}
++
++static struct clk_ops sh4_module_clk_ops = {
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) >> 3) & 0x0007;
++	clk->rate = clk->parent->rate / bfc_divisors[idx];
++}
++
++static struct clk_ops sh4_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inw(FRQCR) >> 6) & 0x0007;
++	clk->rate = clk->parent->rate / ifc_divisors[idx];
++}
++
++static struct clk_ops sh4_cpu_clk_ops = {
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh4_clk_ops[] = {
++	&sh4_master_clk_ops,
++	&sh4_module_clk_ops,
++	&sh4_bus_clk_ops,
++	&sh4_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh4_clk_ops))
++		*ops = sh4_clk_ops[idx];
++}
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh73180.c sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh73180.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh73180.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh73180.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,81 @@
++/*
++ * arch/sh/kernel/cpu/sh4/clock-sh73180.c
++ *
++ * SH73180 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * FRQCR parsing hacked out of arch/sh/kernel/time.c
++ *
++ *  Copyright (C) 1999  Tetsuya Okada & Niibe Yutaka
++ *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
++ *  Copyright (C) 2002, 2003, 2004  Paul Mundt
++ *  Copyright (C) 2002  M. R. Brown  <mrbrown@linux-sh.org>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++/*
++ * SH73180 uses a common set of divisors, so this is quite simple..
++ */
++static int divisors[] = { 1, 2, 3, 4, 6, 8, 12, 16 };
++
++static void master_clk_init(struct clk *clk)
++{
++	clk->rate *= divisors[ctrl_inl(FRQCR) & 0x0007];
++}
++
++static struct clk_ops sh73180_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inl(FRQCR) & 0x0007);
++	clk->rate = clk->parent->rate / divisors[idx];
++}
++
++static struct clk_ops sh73180_module_clk_ops = {
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inl(FRQCR) >> 12) & 0x0007;
++	clk->rate = clk->parent->rate / divisors[idx];
++}
++
++static struct clk_ops sh73180_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inl(FRQCR) >> 20) & 0x0007;
++	clk->rate = clk->parent->rate / divisors[idx];
++}
++
++static struct clk_ops sh73180_cpu_clk_ops = {
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh73180_clk_ops[] = {
++	&sh73180_master_clk_ops,
++	&sh73180_module_clk_ops,
++	&sh73180_bus_clk_ops,
++	&sh73180_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh73180_clk_ops))
++		*ops = sh73180_clk_ops[idx];
++}
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7770.c sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7770.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7770.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7770.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,73 @@
++/*
++ * arch/sh/kernel/cpu/sh4/clock-sh7770.c
++ *
++ * SH7770 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++static int ifc_divisors[] = { 1, 1, 1, 1, 1, 1, 1, 1 };
++static int bfc_divisors[] = { 1, 1, 1, 1, 1, 8,12, 1 };
++static int pfc_divisors[] = { 1, 8, 1,10,12,16, 1, 1 };
++
++static void master_clk_init(struct clk *clk)
++{
++	clk->rate *= pfc_divisors[(ctrl_inl(FRQCR) >> 28) & 0x000f];
++}
++
++static struct clk_ops sh7770_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int idx = ((ctrl_inl(FRQCR) >> 28) & 0x000f);
++	clk->rate = clk->parent->rate / pfc_divisors[idx];
++}
++
++static struct clk_ops sh7770_module_clk_ops = {
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inl(FRQCR) & 0x000f);
++	clk->rate = clk->parent->rate / bfc_divisors[idx];
++}
++
++static struct clk_ops sh7770_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int idx = ((ctrl_inl(FRQCR) >> 24) & 0x000f);
++	clk->rate = clk->parent->rate / ifc_divisors[idx];
++}
++
++static struct clk_ops sh7770_cpu_clk_ops = {
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh7770_clk_ops[] = {
++	&sh7770_master_clk_ops,
++	&sh7770_module_clk_ops,
++	&sh7770_bus_clk_ops,
++	&sh7770_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh7770_clk_ops))
++		*ops = sh7770_clk_ops[idx];
++}
++
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7780.c sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7780.c
+--- linux-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7780.c	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/cpu/sh4/clock-sh7780.c	2006-01-04 00:15:27.000000000 +0200
+@@ -0,0 +1,126 @@
++/*
++ * arch/sh/kernel/cpu/sh4/clock-sh7780.c
++ *
++ * SH7780 support for the clock framework
++ *
++ *  Copyright (C) 2005  Paul Mundt
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/clock.h>
++#include <asm/freq.h>
++#include <asm/io.h>
++
++static int ifc_divisors[] = { 2, 4 };
++static int bfc_divisors[] = { 1, 1, 1, 8, 12, 16, 24, 1 };
++static int pfc_divisors[] = { 1, 24, 24, 1 };
++static int cfc_divisors[] = { 1, 1, 4, 1, 6, 1, 1, 1 };
++
++static void master_clk_init(struct clk *clk)
++{
++	clk->rate *= pfc_divisors[ctrl_inl(FRQCR) & 0x0003];
++}
++
++static struct clk_ops sh7780_master_clk_ops = {
++	.init		= master_clk_init,
++};
++
++static void module_clk_recalc(struct clk *clk)
++{
++	int idx = (ctrl_inl(FRQCR) & 0x0003);
++	clk->rate = clk->parent->rate / pfc_divisors[idx];
++}
++
++static struct clk_ops sh7780_module_clk_ops = {
++	.recalc		= module_clk_recalc,
++};
++
++static void bus_clk_recalc(struct clk *clk)
++{
++	int idx = ((ctrl_inl(FRQCR) >> 16) & 0x0007);
++	clk->rate = clk->parent->rate / bfc_divisors[idx];
++}
++
++static struct clk_ops sh7780_bus_clk_ops = {
++	.recalc		= bus_clk_recalc,
++};
++
++static void cpu_clk_recalc(struct clk *clk)
++{
++	int idx = ((ctrl_inl(FRQCR) >> 24) & 0x0001);
++	clk->rate = clk->parent->rate / ifc_divisors[idx];
++}
++
++static struct clk_ops sh7780_cpu_clk_ops = {
++	.recalc		= cpu_clk_recalc,
++};
++
++static struct clk_ops *sh7780_clk_ops[] = {
++	&sh7780_master_clk_ops,
++	&sh7780_module_clk_ops,
++	&sh7780_bus_clk_ops,
++	&sh7780_cpu_clk_ops,
++};
++
++void __init arch_init_clk_ops(struct clk_ops **ops, int idx)
++{
++	if (idx < ARRAY_SIZE(sh7780_clk_ops))
++		*ops = sh7780_clk_ops[idx];
++}
++
++static void shyway_clk_recalc(struct clk *clk)
++{
++	int idx = ((ctrl_inl(FRQCR) >> 20) & 0x0007);
++	clk->rate = clk->parent->rate / cfc_divisors[idx];
++}
++
++static struct clk_ops sh7780_shyway_clk_ops = {
++	.recalc		= shyway_clk_recalc,
++};
++
++static struct clk sh7780_shyway_clk = {
++	.name		= "shyway_clk",
++	.flags		= CLK_ALWAYS_ENABLED,
++	.ops		= &sh7780_shyway_clk_ops,
++};
++
++/*
++ * Additional SH7780-specific on-chip clocks that aren't already part of the
++ * clock framework
++ */
++static struct clk *sh7780_onchip_clocks[] = {
++	&sh7780_shyway_clk,
++};
++
++static int __init sh7780_clk_init(void)
++{
++	struct clk *clk = clk_get("master_clk");
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(sh7780_onchip_clocks); i++) {
++		struct clk *clkp = sh7780_onchip_clocks[i];
++
++		clkp->parent = clk;
++		clk_register(clkp);
++		clk_enable(clkp);
++	}
++
++	/*
++	 * Now that we have the rest of the clocks registered, we need to
++	 * force the parent clock to propagate so that these clocks will
++	 * automatically figure out their rate. We cheat by handing the
++	 * parent clock its current rate and forcing child propagation.
++	 */
++	clk_set_rate(clk, clk_get_rate(clk));
++
++	clk_put(clk);
++
++	return 0;
++}
++
++arch_initcall(sh7780_clk_init);
++
 
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/cpu/sh4/irq_intc2.c sh-2.6.15/arch/sh/kernel/cpu/sh4/irq_intc2.c
---- linux-2.6.15/arch/sh/kernel/cpu/sh4/irq_intc2.c	2005-11-12 20:17:23.000000000 +0200
-+++ sh-2.6.15/arch/sh/kernel/cpu/sh4/irq_intc2.c	1970-01-01 02:00:00.000000000 +0200
-@@ -1,222 +0,0 @@
--/*
-- * linux/arch/sh/kernel/irq_intc2.c
-- *
-- * Copyright (C) 2001 David J. Mckay (david.mckay@st.com)
-- *
-- * May be copied or modified under the terms of the GNU General Public
-- * License.  See linux/COPYING for more information.                            
-- *
-- * Interrupt handling for INTC2-based IRQ.
-- *
-- * These are the "new Hitachi style" interrupts, as present on the 
-- * Hitachi 7751 and the STM ST40 STB1.
-- */
--
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/irq.h>
--
--#include <asm/system.h>
--#include <asm/io.h>
--#include <asm/machvec.h>
--
--
--struct intc2_data {
--	unsigned char msk_offset;
--	unsigned char msk_shift;
--#ifdef CONFIG_CPU_SUBTYPE_ST40
--	int (*clear_irq) (int);
--#endif
--};
--
--
--static struct intc2_data intc2_data[NR_INTC2_IRQS];
--
--static void enable_intc2_irq(unsigned int irq);
--static void disable_intc2_irq(unsigned int irq);
--
--/* shutdown is same as "disable" */
--#define shutdown_intc2_irq disable_intc2_irq
--
--static void mask_and_ack_intc2(unsigned int);
--static void end_intc2_irq(unsigned int irq);
--
--static unsigned int startup_intc2_irq(unsigned int irq)
--{ 
--	enable_intc2_irq(irq);
--	return 0; /* never anything pending */
--}
--
--static struct hw_interrupt_type intc2_irq_type = {
--	.typename = "INTC2-IRQ",
--	.startup = startup_intc2_irq,
--	.shutdown = shutdown_intc2_irq,
--	.enable = enable_intc2_irq,
--	.disable = disable_intc2_irq,
--	.ack = mask_and_ack_intc2,
--	.end = end_intc2_irq
--};
--
--static void disable_intc2_irq(unsigned int irq)
--{
--	int irq_offset = irq - INTC2_FIRST_IRQ;
--	int msk_shift, msk_offset;
--
--	// Sanity check
--	if((irq_offset<0) || (irq_offset>=NR_INTC2_IRQS))
--		return;
--
--	msk_shift = intc2_data[irq_offset].msk_shift;
--	msk_offset = intc2_data[irq_offset].msk_offset;
--
--	ctrl_outl(1<<msk_shift,
--		  INTC2_BASE+INTC2_INTMSK_OFFSET+msk_offset);
--}
--
--static void enable_intc2_irq(unsigned int irq)
--{
--	int irq_offset = irq - INTC2_FIRST_IRQ;
--	int msk_shift, msk_offset;
--
--	/* Sanity check */
--	if((irq_offset<0) || (irq_offset>=NR_INTC2_IRQS))
--		return;
--
--	msk_shift = intc2_data[irq_offset].msk_shift;
--	msk_offset = intc2_data[irq_offset].msk_offset;
--
--	ctrl_outl(1<<msk_shift,
--		  INTC2_BASE+INTC2_INTMSKCLR_OFFSET+msk_offset);
--}
--
--static void mask_and_ack_intc2(unsigned int irq)
--{
--	disable_intc2_irq(irq);
--}
--
--static void end_intc2_irq(unsigned int irq)
--{
--	if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)))
--		enable_intc2_irq(irq);
--
--#ifdef CONFIG_CPU_SUBTYPE_ST40
--	if (intc2_data[irq - INTC2_FIRST_IRQ].clear_irq)
--		intc2_data[irq - INTC2_FIRST_IRQ].clear_irq (irq);
--#endif
--}
--
--/*
-- * Setup an INTC2 style interrupt.
-- * NOTE: Unlike IPR interrupts, parameters are not shifted by this code,
-- * allowing the use of the numbers straight out of the datasheet.
-- * For example:
-- *    PIO1 which is INTPRI00[19,16] and INTMSK00[13]
-- * would be:               ^     ^             ^  ^
-- *                         |     |             |  |
-- *    make_intc2_irq(84,   0,   16,            0, 13);
-- */
--void make_intc2_irq(unsigned int irq,
--		    unsigned int ipr_offset, unsigned int ipr_shift,
--		    unsigned int msk_offset, unsigned int msk_shift,
--		    unsigned int priority)
--{
--	int irq_offset = irq - INTC2_FIRST_IRQ;
--	unsigned int flags;
--	unsigned long ipr;
--
--	if((irq_offset<0) || (irq_offset>=NR_INTC2_IRQS))
--		return;
--
--	disable_irq_nosync(irq);
--
--	/* Fill the data we need */
--	intc2_data[irq_offset].msk_offset = msk_offset;
--	intc2_data[irq_offset].msk_shift  = msk_shift;
--#ifdef CONFIG_CPU_SUBTYPE_ST40
--	intc2_data[irq_offset].clear_irq = NULL;
--#endif
--		
--	/* Set the priority level */
--	local_irq_save(flags);
--
--	ipr=ctrl_inl(INTC2_BASE+INTC2_INTPRI_OFFSET+ipr_offset);
--	ipr&=~(0xf<<ipr_shift);
--	ipr|=(priority)<<ipr_shift;
--	ctrl_outl(ipr, INTC2_BASE+INTC2_INTPRI_OFFSET+ipr_offset);
--
--	local_irq_restore(flags);
--
--	irq_desc[irq].handler=&intc2_irq_type;
--
--	disable_intc2_irq(irq);
--}
--
--#ifdef CONFIG_CPU_SUBTYPE_ST40
--
--struct intc2_init {
--	unsigned short irq;
--	unsigned char ipr_offset, ipr_shift;
--	unsigned char msk_offset, msk_shift;
--};
--
--static struct intc2_init intc2_init_data[]  __initdata = {
--	{64,  0,  0, 0,  0},	/* PCI serr */
--	{65,  0,  4, 0,  1},	/* PCI err */
--	{66,  0,  4, 0,  2},	/* PCI ad */
--	{67,  0,  4, 0,  3},	/* PCI pwd down */
--	{72,  0,  8, 0,  5},	/* DMAC INT0 */
--	{73,  0,  8, 0,  6},	/* DMAC INT1 */
--	{74,  0,  8, 0,  7},	/* DMAC INT2 */
--	{75,  0,  8, 0,  8},	/* DMAC INT3 */
--	{76,  0,  8, 0,  9},	/* DMAC INT4 */
--	{78,  0,  8, 0, 11},	/* DMAC ERR */
--	{80,  0, 12, 0, 12},	/* PIO0 */
--	{84,  0, 16, 0, 13},	/* PIO1 */
--	{88,  0, 20, 0, 14},	/* PIO2 */
--	{112, 4,  0, 4,  0},	/* Mailbox */
--#ifdef CONFIG_CPU_SUBTYPE_ST40GX1
--	{116, 4,  4, 4,  4},	/* SSC0 */
--	{120, 4,  8, 4,  8},	/* IR Blaster */
--	{124, 4, 12, 4, 12},	/* USB host */
--	{128, 4, 16, 4, 16},	/* Video processor BLITTER */
--	{132, 4, 20, 4, 20},	/* UART0 */
--	{134, 4, 20, 4, 22},	/* UART2 */
--	{136, 4, 24, 4, 24},	/* IO_PIO0 */
--	{140, 4, 28, 4, 28},	/* EMPI */
--	{144, 8,  0, 8,  0},	/* MAFE */
--	{148, 8,  4, 8,  4},	/* PWM */
--	{152, 8,  8, 8,  8},	/* SSC1 */
--	{156, 8, 12, 8, 12},	/* IO_PIO1 */
--	{160, 8, 16, 8, 16},	/* USB target */
--	{164, 8, 20, 8, 20},	/* UART1 */
--	{168, 8, 24, 8, 24},	/* Teletext */
--	{172, 8, 28, 8, 28},	/* VideoSync VTG */
--	{173, 8, 28, 8, 29},	/* VideoSync DVP0 */
--	{174, 8, 28, 8, 30},	/* VideoSync DVP1 */
--#endif
--};
--
--void __init init_IRQ_intc2(void)
--{
--	struct intc2_init *p;
--
--	printk(KERN_ALERT "init_IRQ_intc2\n");
--
--	for (p = intc2_init_data;
--	     p<intc2_init_data+ARRAY_SIZE(intc2_init_data);
--	     p++) {
--		make_intc2_irq(p->irq, p->ipr_offset, p->ipr_shift,
--			       p-> msk_offset, p->msk_shift, 13);
--	}
--}
--
--/* Adds a termination callback to the interrupt */
--void intc2_add_clear_irq(int irq, int (*fn)(int))
--{
--	if (irq < INTC2_FIRST_IRQ)
--		return;
--
--	intc2_data[irq - INTC2_FIRST_IRQ].clear_irq = fn;
--}
--
--#endif /* CONFIG_CPU_SUBTYPE_ST40 */
-
-diff -urN -X exclude linux-2.6.15/arch/sh/kernel/irq.c sh-2.6.15/arch/sh/kernel/irq.c
---- linux-2.6.15/arch/sh/kernel/irq.c	2005-06-20 22:45:19.000000000 +0300
-+++ sh-2.6.15/arch/sh/kernel/irq.c	2006-01-07 22:13:59.229142425 +0200
-@@ -8,38 +8,13 @@
-  * SuperH version:  Copyright (C) 1999  Niibe Yutaka
+diff -urN -X exclude linux-2.6.15/arch/sh/kernel/time.c sh-2.6.15/arch/sh/kernel/time.c
+--- linux-2.6.15/arch/sh/kernel/time.c	2006-01-04 14:19:57.000000000 +0200
++++ sh-2.6.15/arch/sh/kernel/time.c	2006-01-04 00:15:28.000000000 +0200
+@@ -3,7 +3,7 @@
+  *
+  *  Copyright (C) 1999  Tetsuya Okada & Niibe Yutaka
+  *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
+- *  Copyright (C) 2002, 2003, 2004  Paul Mundt
++ *  Copyright (C) 2002, 2003, 2004, 2005  Paul Mundt
+  *  Copyright (C) 2002  M. R. Brown  <mrbrown@linux-sh.org>
+  *
+  *  Some code taken from i386 version.
+@@ -11,50 +11,21 @@
   */
  
--/*
-- * IRQs are in fact implemented a bit like signal handlers for the kernel.
-- * Naturally it's not a 1:1 relation, but there are similarities.
-- */
--
--#include <linux/config.h>
--#include <linux/module.h>
--#include <linux/ptrace.h>
+ #include <linux/config.h>
 -#include <linux/errno.h>
--#include <linux/kernel_stat.h>
--#include <linux/signal.h>
+-#include <linux/module.h>
 -#include <linux/sched.h>
--#include <linux/ioport.h>
-+#include <linux/irq.h>
- #include <linux/interrupt.h>
--#include <linux/timex.h>
+ #include <linux/kernel.h>
+-#include <linux/param.h>
+-#include <linux/string.h>
 -#include <linux/mm.h>
--#include <linux/slab.h>
--#include <linux/random.h>
+-#include <linux/interrupt.h>
+-#include <linux/time.h>
+-#include <linux/delay.h>
++#include <linux/module.h>
+ #include <linux/init.h>
 -#include <linux/smp.h>
--#include <linux/smp_lock.h>
--#include <linux/init.h>
-+#include <linux/kernel_stat.h>
- #include <linux/seq_file.h>
--#include <linux/kallsyms.h>
--#include <linux/bitops.h>
+ #include <linux/profile.h>
 -
--#include <asm/system.h>
+-#include <asm/processor.h>
+-#include <asm/uaccess.h>
 -#include <asm/io.h>
--#include <asm/pgalloc.h>
+-#include <asm/irq.h>
 -#include <asm/delay.h>
- #include <asm/irq.h>
+-#include <asm/machvec.h>
++#include <asm/clock.h>
+ #include <asm/rtc.h>
+-#include <asm/freq.h>
+-#include <asm/cpu/timer.h>
+-#ifdef CONFIG_SH_KGDB
++#include <asm/timer.h>
+ #include <asm/kgdb.h>
+-#endif
+-
+-#include <linux/timex.h>
 -#include <linux/irq.h>
 -
-+#include <asm/processor.h>
-+#include <asm/cpu/mmu_context.h>
+-#define TMU_TOCR_INIT	0x00
+-#define TMU0_TCR_INIT	0x0020
+-#define TMU_TSTR_INIT	1
+-
+-#define TMU0_TCR_CALIB	0x0000
+-
+-#ifdef CONFIG_CPU_SUBTYPE_ST40STB1
+-#define CLOCKGEN_MEMCLKCR 0xbb040038
+-#define MEMCLKCR_RATIO_MASK 0x7
+-#endif /* CONFIG_CPU_SUBTYPE_ST40STB1 */
+ 
+ extern unsigned long wall_jiffies;
+-#define TICK_SIZE (tick_nsec / 1000)
+-DEFINE_SPINLOCK(tmu0_lock);
++struct sys_timer *sys_timer;
++
++/* Move this somewhere more sensible.. */
++DEFINE_SPINLOCK(rtc_lock);
++EXPORT_SYMBOL(rtc_lock);
+ 
+ /* XXX: Can we initialize this in a routine somewhere?  Dreamcast doesn't want
+  * these routines anywhere... */
+@@ -66,98 +37,14 @@
+ int (*rtc_set_time)(const time_t);
+ #endif
+ 
+-#if defined(CONFIG_CPU_SUBTYPE_SH7300)
+-static int md_table[] = { 1, 2, 3, 4, 6, 8, 12 };
+-#endif
+-#if defined(CONFIG_CPU_SH3)
+-static int stc_multipliers[] = { 1, 2, 3, 4, 6, 1, 1, 1 };
+-static int stc_values[]      = { 0, 1, 4, 2, 5, 0, 0, 0 };
+-#define bfc_divisors stc_multipliers
+-#define bfc_values stc_values
+-static int ifc_divisors[]    = { 1, 2, 3, 4, 1, 1, 1, 1 };
+-static int ifc_values[]      = { 0, 1, 4, 2, 0, 0, 0, 0 };
+-static int pfc_divisors[]    = { 1, 2, 3, 4, 6, 1, 1, 1 };
+-static int pfc_values[]      = { 0, 1, 4, 2, 5, 0, 0, 0 };
+-#elif defined(CONFIG_CPU_SH4)
+-#if defined(CONFIG_CPU_SUBTYPE_SH73180)
+-static int ifc_divisors[] = { 1, 2, 3, 4, 6, 8, 12, 16 };
+-static int ifc_values[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+-#define bfc_divisors ifc_divisors	/* Same */
+-#define bfc_values ifc_values
+-#define pfc_divisors ifc_divisors	/* Same */
+-#define pfc_values ifc_values
+-#else
+-static int ifc_divisors[] = { 1, 2, 3, 4, 6, 8, 1, 1 };
+-static int ifc_values[]   = { 0, 1, 2, 3, 0, 4, 0, 5 };
+-#define bfc_divisors ifc_divisors	/* Same */
+-#define bfc_values ifc_values
+-static int pfc_divisors[] = { 2, 3, 4, 6, 8, 2, 2, 2 };
+-static int pfc_values[]   = { 0, 0, 1, 2, 0, 3, 0, 4 };
+-#endif
+-#else
+-#error "Unknown ifc/bfc/pfc/stc values for this processor"
+-#endif
+-
+ /*
+  * Scheduler clock - returns current time in nanosec units.
+  */
+-unsigned long long sched_clock(void)
++unsigned long long __attribute__ ((weak)) sched_clock(void)
+ {
+ 	return (unsigned long long)jiffies * (1000000000 / HZ);
+ }
+ 
+-static unsigned long do_gettimeoffset(void)
+-{
+-	int count;
+-	unsigned long flags;
+-
+-	static int count_p = 0x7fffffff;    /* for the first call after boot */
+-	static unsigned long jiffies_p = 0;
+-
+-	/*
+-	 * cache volatile jiffies temporarily; we have IRQs turned off.
+-	 */
+-	unsigned long jiffies_t;
+-
+-	spin_lock_irqsave(&tmu0_lock, flags);
+-	/* timer count may underflow right here */
+-	count = ctrl_inl(TMU0_TCNT);	/* read the latched count */
+-
+-	jiffies_t = jiffies;
+-
+-	/*
+-	 * avoiding timer inconsistencies (they are rare, but they happen)...
+-	 * there is one kind of problem that must be avoided here:
+-	 *  1. the timer counter underflows
+-	 */
+-
+-	if( jiffies_t == jiffies_p ) {
+-		if( count > count_p ) {
+-			/* the nutcase */
+-
+-			if(ctrl_inw(TMU0_TCR) & 0x100) { /* Check UNF bit */
+-				/*
+-				 * We cannot detect lost timer interrupts ...
+-				 * well, that's why we call them lost, don't we? :)
+-				 * [hmm, on the Pentium and Alpha we can ... sort of]
+-				 */
+-				count -= LATCH;
+-			} else {
+-				printk("do_slow_gettimeoffset(): hardware timer problem?\n");
+-			}
+-		}
+-	} else
+-		jiffies_p = jiffies_t;
+-
+-	count_p = count;
+-	spin_unlock_irqrestore(&tmu0_lock, flags);
+-
+-	count = ((LATCH-1) - count) * TICK_SIZE;
+-	count = (count + LATCH/2) / LATCH;
+-
+-	return count;
+-}
+-
+ void do_gettimeofday(struct timeval *tv)
+ {
+ 	unsigned long seq;
+@@ -166,7 +53,7 @@
+ 
+ 	do {
+ 		seq = read_seqbegin(&xtime_lock);
+-		usec = do_gettimeoffset();
++		usec = get_timer_offset();
+ 
+ 		lost = jiffies - wall_jiffies;
+ 		if (lost)
+@@ -202,7 +89,7 @@
+ 	 * wall time.  Discover what correction gettimeofday() would have
+ 	 * made, and then undo it!
+ 	 */
+-	nsec -= 1000 * (do_gettimeoffset() +
++	nsec -= 1000 * (get_timer_offset() +
+ 				(jiffies - wall_jiffies) * (1000000 / HZ));
+ 
+ 	wtm_sec  = wall_to_monotonic.tv_sec + (xtime.tv_sec - sec);
+@@ -224,10 +111,10 @@
+ static long last_rtc_update;
  
  /*
-  * 'what should we do if we get a hw irq event on an illegal vector'.
-@@ -66,7 +41,7 @@
- 		seq_putc(p, '\n');
- 	}
- 
--	if (i < ACTUAL_NR_IRQS) {
-+	if (i < NR_IRQS) {
- 		spin_lock_irqsave(&irq_desc[i].lock, flags);
- 		action = irq_desc[i].action;
- 		if (!action)
-@@ -86,19 +61,32 @@
- }
- #endif
- 
-+
- asmlinkage int do_IRQ(unsigned long r4, unsigned long r5,
- 		      unsigned long r6, unsigned long r7,
- 		      struct pt_regs regs)
--{	
--	int irq;
-+{
-+	int irq = r4;
- 
- 	irq_enter();
--	asm volatile("stc	r2_bank, %0\n\t"
--		     "shlr2	%0\n\t"
--		     "shlr2	%0\n\t"
--		     "shlr	%0\n\t"
--		     "add	#-16, %0\n\t"
--		     :"=z" (irq));
-+
-+#ifdef CONFIG_CPU_HAS_INTEVT
-+	__asm__ __volatile__ (
-+#ifdef CONFIG_CPU_HAS_SR_RB
-+		"stc	r2_bank, %0\n\t"
-+#else
-+		"mov.l	@%1, %0\n\t"
-+#endif
-+		"shlr2	%0\n\t"
-+		"shlr2	%0\n\t"
-+		"shlr	%0\n\t"
-+		"add	#-16, %0\n\t"
-+		: "=z" (irq), "=r" (r4)
-+		: "1" (INTEVT)
-+		: "memory"
-+	);
-+#endif
-+
- 	irq = irq_demux(irq);
- 	__do_IRQ(irq, &regs);
- 	irq_exit();
-
-diff -urN -X exclude linux-2.6.15/include/asm-sh/irq-sh73180.h sh-2.6.15/include/asm-sh/irq-sh73180.h
---- linux-2.6.15/include/asm-sh/irq-sh73180.h	2004-12-26 05:37:56.000000000 +0200
-+++ sh-2.6.15/include/asm-sh/irq-sh73180.h	2006-01-04 00:15:30.000000000 +0200
-@@ -12,14 +12,14 @@
- #undef INTC_IPRC
- #undef INTC_IPRD
- 
--#undef DMTE0_IRQ
--#undef DMTE1_IRQ
--#undef DMTE2_IRQ
--#undef DMTE3_IRQ
--#undef DMTE4_IRQ
--#undef DMTE5_IRQ
--#undef DMTE6_IRQ
--#undef DMTE7_IRQ
-+#undef DMTE0_IRQ	
-+#undef DMTE1_IRQ	
-+#undef DMTE2_IRQ	
-+#undef DMTE3_IRQ	
-+#undef DMTE4_IRQ	
-+#undef DMTE5_IRQ	
-+#undef DMTE6_IRQ	
-+#undef DMTE7_IRQ	
- #undef DMAE_IRQ
- #undef DMA_IPR_ADDR
- #undef DMA_IPR_POS
-diff -urN -X exclude linux-2.6.15/include/asm-sh/irq-sh7780.h sh-2.6.15/include/asm-sh/irq-sh7780.h
---- linux-2.6.15/include/asm-sh/irq-sh7780.h	1970-01-01 02:00:00.000000000 +0200
-+++ sh-2.6.15/include/asm-sh/irq-sh7780.h	2006-01-07 22:13:59.261139909 +0200
-@@ -0,0 +1,349 @@
-+#ifndef __ASM_SH_IRQ_SH7780_H
-+#define __ASM_SH_IRQ_SH7780_H
-+
-+/*
-+ * linux/include/asm-sh/irq-sh7780.h
-+ *
-+ * Copyright (C) 2004 Takashi SHUDO <shudo@hitachi-ul.co.jp>
-+ */
-+
-+#ifdef CONFIG_IDE
-+# ifndef IRQ_CFCARD
-+#  define IRQ_CFCARD	14
-+# endif
-+# ifndef IRQ_PCMCIA
-+#  define IRQ_PCMCIA	15
-+# endif
-+#endif
-+
-+#define INTC_BASE	0xffd00000
-+#define INTC_ICR0	(INTC_BASE+0x0)
-+#define INTC_ICR1	(INTC_BASE+0x1c)
-+#define INTC_INTPRI	(INTC_BASE+0x10)
-+#define INTC_INTREQ	(INTC_BASE+0x24)
-+#define INTC_INTMSK0	(INTC_BASE+0x44)
-+#define INTC_INTMSK1	(INTC_BASE+0x48)
-+#define INTC_INTMSK2	(INTC_BASE+0x40080)
-+#define INTC_INTMSKCLR0	(INTC_BASE+0x64)
-+#define INTC_INTMSKCLR1	(INTC_BASE+0x68)
-+#define INTC_INTMSKCLR2	(INTC_BASE+0x40084)
-+#define INTC_NMIFCR	(INTC_BASE+0xc0)
-+#define INTC_USERIMASK	(INTC_BASE+0x30000)
-+
-+#define	INTC_INT2PRI0	(INTC_BASE+0x40000)
-+#define	INTC_INT2PRI1	(INTC_BASE+0x40004)
-+#define	INTC_INT2PRI2	(INTC_BASE+0x40008)
-+#define	INTC_INT2PRI3	(INTC_BASE+0x4000c)
-+#define	INTC_INT2PRI4	(INTC_BASE+0x40010)
-+#define	INTC_INT2PRI5	(INTC_BASE+0x40014)
-+#define	INTC_INT2PRI6	(INTC_BASE+0x40018)
-+#define	INTC_INT2PRI7	(INTC_BASE+0x4001c)
-+#define	INTC_INT2A0	(INTC_BASE+0x40030)
-+#define	INTC_INT2A1	(INTC_BASE+0x40034)
-+#define	INTC_INT2MSKR	(INTC_BASE+0x40038)
-+#define	INTC_INT2MSKCR	(INTC_BASE+0x4003c)
-+#define	INTC_INT2B0	(INTC_BASE+0x40040)
-+#define	INTC_INT2B1	(INTC_BASE+0x40044)
-+#define	INTC_INT2B2	(INTC_BASE+0x40048)
-+#define	INTC_INT2B3	(INTC_BASE+0x4004c)
-+#define	INTC_INT2B4	(INTC_BASE+0x40050)
-+#define	INTC_INT2B5	(INTC_BASE+0x40054)
-+#define	INTC_INT2B6	(INTC_BASE+0x40058)
-+#define	INTC_INT2B7	(INTC_BASE+0x4005c)
-+#define	INTC_INT2GPIC	(INTC_BASE+0x40090)
-+/*
-+  NOTE:
-+  *_IRQ = (INTEVT2 - 0x200)/0x20
-+*/
-+/* IRQ 0-7 line external int*/
-+#define IRQ0_IRQ	2
-+#define IRQ0_IPR_ADDR	INTC_INTPRI
-+#define IRQ0_IPR_POS	7
-+#define IRQ0_PRIORITY	2
-+
-+#define IRQ1_IRQ	4
-+#define IRQ1_IPR_ADDR	INTC_INTPRI
-+#define IRQ1_IPR_POS	6
-+#define IRQ1_PRIORITY	2
-+
-+#define IRQ2_IRQ	6
-+#define IRQ2_IPR_ADDR	INTC_INTPRI
-+#define IRQ2_IPR_POS	5
-+#define IRQ2_PRIORITY	2
-+
-+#define IRQ3_IRQ	8
-+#define IRQ3_IPR_ADDR	INTC_INTPRI
-+#define IRQ3_IPR_POS	4
-+#define IRQ3_PRIORITY	2
-+
-+#define IRQ4_IRQ	10
-+#define IRQ4_IPR_ADDR	INTC_INTPRI
-+#define IRQ4_IPR_POS	3
-+#define IRQ4_PRIORITY	2
-+
-+#define IRQ5_IRQ	12
-+#define IRQ5_IPR_ADDR	INTC_INTPRI
-+#define IRQ5_IPR_POS	2
-+#define IRQ5_PRIORITY	2
-+
-+#define IRQ6_IRQ	14
-+#define IRQ6_IPR_ADDR	INTC_INTPRI
-+#define IRQ6_IPR_POS	1
-+#define IRQ6_PRIORITY	2
-+
-+#define IRQ7_IRQ	0
-+#define IRQ7_IPR_ADDR	INTC_INTPRI
-+#define IRQ7_IPR_POS	0
-+#define IRQ7_PRIORITY	2
-+
-+/* TMU */
-+/* ch0 */
-+#define TMU_IRQ		28
-+#define	TMU_IPR_ADDR	INTC_INT2PRI0
-+#define	TMU_IPR_POS	3
-+#define TMU_PRIORITY	2
-+
-+#define TIMER_IRQ	28
-+#define	TIMER_IPR_ADDR	INTC_INT2PRI0
-+#define	TIMER_IPR_POS	3
-+#define TIMER_PRIORITY	2
-+
-+/* ch 1*/
-+#define TMU_CH1_IRQ		29
-+#define	TMU_CH1_IPR_ADDR	INTC_INT2PRI0
-+#define	TMU_CH1_IPR_POS		2
-+#define TMU_CH1_PRIORITY	2
-+
-+#define TIMER1_IRQ	29
-+#define	TIMER1_IPR_ADDR	INTC_INT2PRI0
-+#define	TIMER1_IPR_POS	2
-+#define TIMER1_PRIORITY	2
-+
-+/* ch 2*/
-+#define TMU_CH2_IRQ		30
-+#define	TMU_CH2_IPR_ADDR	INTC_INT2PRI0
-+#define	TMU_CH2_IPR_POS		1
-+#define TMU_CH2_PRIORITY	2
-+/* ch 2 Input capture */
-+#define TMU_CH2IC_IRQ		31
-+#define	TMU_CH2IC_IPR_ADDR	INTC_INT2PRI0
-+#define	TMU_CH2IC_IPR_POS	0
-+#define TMU_CH2IC_PRIORITY	2
-+/* ch 3 */
-+#define TMU_CH3_IRQ		96
-+#define	TMU_CH3_IPR_ADDR	INTC_INT2PRI1
-+#define	TMU_CH3_IPR_POS		3
-+#define TMU_CH3_PRIORITY	2
-+/* ch 4 */
-+#define TMU_CH4_IRQ		97
-+#define	TMU_CH4_IPR_ADDR	INTC_INT2PRI1
-+#define	TMU_CH4_IPR_POS		2
-+#define TMU_CH4_PRIORITY	2
-+/* ch 5*/
-+#define TMU_CH5_IRQ		98
-+#define	TMU_CH5_IPR_ADDR	INTC_INT2PRI1
-+#define	TMU_CH5_IPR_POS		1
-+#define TMU_CH5_PRIORITY	2
-+
-+#define	RTC_IRQ		22
-+#define	RTC_IPR_ADDR	INTC_INT2PRI1
-+#define	RTC_IPR_POS	0
-+#define	RTC_PRIORITY	TIMER_PRIORITY
-+
-+/* SCIF0 */
-+#define SCIF0_ERI_IRQ	40
-+#define SCIF0_RXI_IRQ	41
-+#define SCIF0_BRI_IRQ	42
-+#define SCIF0_TXI_IRQ	43
-+#define	SCIF0_IPR_ADDR	INTC_INT2PRI2
-+#define	SCIF0_IPR_POS	3
-+#define SCIF0_PRIORITY	3
-+
-+/* SCIF1 */
-+#define SCIF1_ERI_IRQ	76
-+#define SCIF1_RXI_IRQ	77
-+#define SCIF1_BRI_IRQ	78
-+#define SCIF1_TXI_IRQ	79
-+#define	SCIF1_IPR_ADDR	INTC_INT2PRI2
-+#define	SCIF1_IPR_POS	2
-+#define SCIF1_PRIORITY	3
-+
-+#define	WDT_IRQ		27
-+#define	WDT_IPR_ADDR	INTC_INT2PRI2
-+#define	WDT_IPR_POS	1
-+#define	WDT_PRIORITY	2
-+
-+/* DMAC(0) */
-+#define	DMINT0_IRQ	34
-+#define	DMINT1_IRQ	35
-+#define	DMINT2_IRQ	36
-+#define	DMINT3_IRQ	37
-+#define	DMINT4_IRQ	44
-+#define	DMINT5_IRQ	45
-+#define	DMINT6_IRQ	46
-+#define	DMINT7_IRQ	47
-+#define	DMAE_IRQ	38
-+#define	DMA0_IPR_ADDR	INTC_INT2PRI3
-+#define	DMA0_IPR_POS	2
-+#define	DMA0_PRIORITY	7
-+
-+/* DMAC(1) */
-+#define	DMINT8_IRQ	92
-+#define	DMINT9_IRQ	93
-+#define	DMINT10_IRQ	94
-+#define	DMINT11_IRQ	95
-+#define	DMA1_IPR_ADDR	INTC_INT2PRI3
-+#define	DMA1_IPR_POS	1
-+#define	DMA1_PRIORITY	7
-+
-+#define	DMTE0_IRQ	DMINT0_IRQ
-+#define	DMTE4_IRQ	DMINT4_IRQ
-+#define	DMA_IPR_ADDR	DMA0_IPR_ADDR
-+#define	DMA_IPR_POS	DMA0_IPR_POS
-+#define	DMA_PRIORITY	DMA0_PRIORITY
-+
-+/* CMT */
-+#define	CMT_IRQ		56
-+#define	CMT_IPR_ADDR	INTC_INT2PRI4
-+#define	CMT_IPR_POS	3
-+#define	CMT_PRIORITY	0
-+
-+/* HAC */
-+#define	HAC_IRQ		60
-+#define	HAC_IPR_ADDR	INTC_INT2PRI4
-+#define	HAC_IPR_POS	2
-+#define	CMT_PRIORITY	0
-+
-+/* PCIC(0) */
-+#define	PCIC0_IRQ	64
-+#define	PCIC0_IPR_ADDR	INTC_INT2PRI4
-+#define	PCIC0_IPR_POS	1
-+#define	PCIC0_PRIORITY	2
-+
-+/* PCIC(1) */
-+#define	PCIC1_IRQ	65
-+#define	PCIC1_IPR_ADDR	INTC_INT2PRI4
-+#define	PCIC1_IPR_POS	0
-+#define	PCIC1_PRIORITY	2
-+
-+/* PCIC(2) */
-+#define	PCIC2_IRQ	66
-+#define	PCIC2_IPR_ADDR	INTC_INT2PRI5
-+#define	PCIC2_IPR_POS	3
-+#define	PCIC2_PRIORITY	2
-+
-+/* PCIC(3) */
-+#define	PCIC3_IRQ	67
-+#define	PCIC3_IPR_ADDR	INTC_INT2PRI5
-+#define	PCIC3_IPR_POS	2
-+#define	PCIC3_PRIORITY	2
-+
-+/* PCIC(4) */
-+#define	PCIC4_IRQ	68
-+#define	PCIC4_IPR_ADDR	INTC_INT2PRI5
-+#define	PCIC4_IPR_POS	1
-+#define	PCIC4_PRIORITY	2
-+
-+/* PCIC(5) */
-+#define	PCICERR_IRQ	69
-+#define	PCICPWD3_IRQ	70
-+#define	PCICPWD2_IRQ	71
-+#define	PCICPWD1_IRQ	72
-+#define	PCICPWD0_IRQ	73
-+#define	PCIC5_IPR_ADDR	INTC_INT2PRI5
-+#define	PCIC5_IPR_POS	0
-+#define	PCIC5_PRIORITY	2
-+
-+/* SIOF */
-+#define	SIOF_IRQ	80
-+#define	SIOF_IPR_ADDR	INTC_INT2PRI6
-+#define	SIOF_IPR_POS	3
-+#define	SIOF_PRIORITY	3
-+
-+/* HSPI */
-+#define	HSPI_IRQ	84
-+#define	HSPI_IPR_ADDR	INTC_INT2PRI6
-+#define	HSPI_IPR_POS	2
-+#define	HSPI_PRIORITY	3
-+
-+/* MMCIF */
-+#define	MMCIF_FSTAT_IRQ	88
-+#define	MMCIF_TRAN_IRQ	89
-+#define	MMCIF_ERR_IRQ	90
-+#define	MMCIF_FRDY_IRQ	91
-+#define	MMCIF_IPR_ADDR	INTC_INT2PRI6
-+#define	MMCIF_IPR_POS	1
-+#define	HSPI_PRIORITY	3
-+
-+/* SSI */
-+#define	SSI_IRQ		100
-+#define	SSI_IPR_ADDR	INTC_INT2PRI6
-+#define	SSI_IPR_POS	0
-+#define	SSI_PRIORITY	3
-+
-+/* FLCTL */
-+#define	FLCTL_FLSTE_IRQ		104
-+#define	FLCTL_FLTEND_IRQ	105
-+#define	FLCTL_FLTRQ0_IRQ	106
-+#define	FLCTL_FLTRQ1_IRQ	107
-+#define	FLCTL_IPR_ADDR		INTC_INT2PRI7
-+#define	FLCTL_IPR_POS		3
-+#define	FLCTL_PRIORITY		3
-+
-+/* GPIO */
-+#define	GPIO0_IRQ	108
-+#define	GPIO1_IRQ	109
-+#define	GPIO2_IRQ	110
-+#define	GPIO3_IRQ	111
-+#define	GPIO_IPR_ADDR	INTC_INT2PRI7
-+#define	GPIO_IPR_POS	2
-+#define	GPIO_PRIORITY	3
-+
-+/* ONCHIP_NR_IRQS */
-+#define NR_IRQS 150	/* 111 + 16 */
-+
-+/* In a generic kernel, NR_IRQS is an upper bound, and we should use
-+ * ACTUAL_NR_IRQS (which uses the machine vector) to get the correct value.
-+ */
-+#define ACTUAL_NR_IRQS NR_IRQS
-+
-+extern void disable_irq(unsigned int);
-+extern void disable_irq_nosync(unsigned int);
-+extern void enable_irq(unsigned int);
-+
-+/*
-+ * Simple Mask Register Support
-+ */
-+extern void make_maskreg_irq(unsigned int irq);
-+extern unsigned short *irq_mask_register;
-+
-+/*
-+ * Function for "on chip support modules".
-+ */
-+extern void make_imask_irq(unsigned int irq);
-+
-+#define	INTC_TMU0_MSK	0
-+#define	INTC_TMU3_MSK	1
-+#define	INTC_RTC_MSK	2
-+#define	INTC_SCIF0_MSK	3
-+#define	INTC_SCIF1_MSK	4
-+#define	INTC_WDT_MSK	5
-+#define	INTC_HUID_MSK	7
-+#define	INTC_DMAC0_MSK	8
-+#define	INTC_DMAC1_MSK	9
-+#define	INTC_CMT_MSK	12
-+#define	INTC_HAC_MSK	13
-+#define	INTC_PCIC0_MSK	14
-+#define	INTC_PCIC1_MSK	15
-+#define	INTC_PCIC2_MSK	16
-+#define	INTC_PCIC3_MSK	17
-+#define	INTC_PCIC4_MSK	18
-+#define	INTC_PCIC5_MSK	19
-+#define	INTC_SIOF_MSK	20
-+#define	INTC_HSPI_MSK	21
-+#define	INTC_MMCIF_MSK	22
-+#define	INTC_SSI_MSK	23
-+#define	INTC_FLCTL_MSK	24
-+#define	INTC_GPIO_MSK	25
-+
-+#endif /* __ASM_SH_IRQ_SH7780_H */
-diff -urN -X exclude linux-2.6.15/include/asm-sh/irq.h sh-2.6.15/include/asm-sh/irq.h
---- linux-2.6.15/include/asm-sh/irq.h	2005-11-12 20:18:07.000000000 +0200
-+++ sh-2.6.15/include/asm-sh/irq.h	2006-01-07 22:13:59.279138493 +0200
-@@ -15,13 +15,20 @@
- #include <asm/machvec.h>
- #include <asm/ptrace.h>		/* for pt_regs */
- 
--#if defined(CONFIG_SH_HP600) || \
-+#if defined(CONFIG_SH_HP6XX) || \
-     defined(CONFIG_SH_RTS7751R2D) || \
-     defined(CONFIG_SH_HS7751RVOIP) || \
--    defined(CONFIG_SH_SH03)
-+    defined(CONFIG_SH_HS7751RVOIP) || \
-+    defined(CONFIG_SH_SH03) || \
-+    defined(CONFIG_SH_R7780RP) || \
-+    defined(CONFIG_SH_LANDISK)
- #include <asm/mach/ide.h>
- #endif
- 
-+#ifndef CONFIG_CPU_SUBTYPE_SH7780
-+
-+#define INTC_DMAC0_MSK	0
-+
- #if defined(CONFIG_CPU_SH3)
- #define INTC_IPRA	0xfffffee2UL
- #define INTC_IPRB	0xfffffee4UL
-@@ -235,8 +242,9 @@
- #define SCIF1_IPR_ADDR	INTC_IPRB
- #define SCIF1_IPR_POS	1
- #define SCIF1_PRIORITY	3
--#endif
--#endif
-+#endif /* ST40STB1 */
-+
-+#endif /* 775x / SH4-202 / ST40STB1 */
- 
- /* NR_IRQS is made from three components:
-  *   1. ONCHIP_NR_IRQS - number of IRLS + on-chip peripherial modules
-@@ -245,37 +253,35 @@
+- * timer_interrupt() needs to keep up the real-time clock,
++ * handle_timer_tick() needs to keep up the real-time clock,
+  * as well as call the "do_timer()" routine every clocktick
   */
- 
- /* 1. ONCHIP_NR_IRQS */
--#ifdef CONFIG_SH_GENERIC
-+#if defined(CONFIG_CPU_SUBTYPE_SH7604)
-+# define ONCHIP_NR_IRQS 24	// Actually 21
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7707)
-+# define ONCHIP_NR_IRQS 64
-+# define PINT_NR_IRQS   16
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7708)
-+# define ONCHIP_NR_IRQS 32
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7709) || \
-+      defined(CONFIG_CPU_SUBTYPE_SH7705)
-+# define ONCHIP_NR_IRQS 64	// Actually 61
-+# define PINT_NR_IRQS   16
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7750)
-+# define ONCHIP_NR_IRQS 48	// Actually 44
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7751)
-+# define ONCHIP_NR_IRQS 72
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7760)
-+# define ONCHIP_NR_IRQS 112	/* XXX */
-+#elif defined(CONFIG_CPU_SUBTYPE_SH4_202)
-+# define ONCHIP_NR_IRQS 72
-+#elif defined(CONFIG_CPU_SUBTYPE_ST40STB1)
-+# define ONCHIP_NR_IRQS 144
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7300)
-+# define ONCHIP_NR_IRQS 109
-+#elif defined(CONFIG_SH_UNKNOWN)	/* Most be last */
- # define ONCHIP_NR_IRQS 144
--#else
--# if defined(CONFIG_CPU_SUBTYPE_SH7604)
--#  define ONCHIP_NR_IRQS 24	// Actually 21
--# elif defined(CONFIG_CPU_SUBTYPE_SH7707)
--#  define ONCHIP_NR_IRQS 64
--#  define PINT_NR_IRQS   16
--# elif defined(CONFIG_CPU_SUBTYPE_SH7708)
--#  define ONCHIP_NR_IRQS 32
--# elif defined(CONFIG_CPU_SUBTYPE_SH7709) || \
--       defined(CONFIG_CPU_SUBTYPE_SH7705)
--#  define ONCHIP_NR_IRQS 64	// Actually 61
--#  define PINT_NR_IRQS   16
--# elif defined(CONFIG_CPU_SUBTYPE_SH7750)
--#  define ONCHIP_NR_IRQS 48	// Actually 44
--# elif defined(CONFIG_CPU_SUBTYPE_SH7751)
--#  define ONCHIP_NR_IRQS 72
--# elif defined(CONFIG_CPU_SUBTYPE_SH7760)
--#  define ONCHIP_NR_IRQS 110
--# elif defined(CONFIG_CPU_SUBTYPE_SH4_202)
--#  define ONCHIP_NR_IRQS 72
--# elif defined(CONFIG_CPU_SUBTYPE_ST40STB1)
--#  define ONCHIP_NR_IRQS 144
--# elif defined(CONFIG_CPU_SUBTYPE_SH7300)
--#  define ONCHIP_NR_IRQS 109
--# endif
- #endif
- 
- /* 2. PINT_NR_IRQS */
--#ifdef CONFIG_SH_GENERIC
-+#ifdef CONFIG_SH_UNKNOWN
- # define PINT_NR_IRQS 16
- #else
- # ifndef PINT_NR_IRQS
-@@ -288,22 +294,22 @@
- #endif
- 
- /* 3. OFFCHIP_NR_IRQS */
--#ifdef CONFIG_SH_GENERIC
-+#if defined(CONFIG_HD64461)
-+# define OFFCHIP_NR_IRQS 18
-+#elif defined (CONFIG_SH_BIGSUR) /* must be before CONFIG_HD64465 */
-+# define OFFCHIP_NR_IRQS 48
-+#elif defined(CONFIG_HD64465)
- # define OFFCHIP_NR_IRQS 16
-+#elif defined (CONFIG_SH_EC3104)
-+# define OFFCHIP_NR_IRQS 16
-+#elif defined (CONFIG_SH_DREAMCAST)
-+# define OFFCHIP_NR_IRQS 96
-+#elif defined (CONFIG_SH_TITAN)
-+# define OFFCHIP_NR_IRQS 4
-+#elif defined(CONFIG_SH_UNKNOWN)
-+# define OFFCHIP_NR_IRQS 16	/* Must also be last */
- #else
--# if defined(CONFIG_HD64461)
--#  define OFFCHIP_NR_IRQS 18
--# elif defined (CONFIG_SH_BIGSUR) /* must be before CONFIG_HD64465 */
--#  define OFFCHIP_NR_IRQS 48
--# elif defined(CONFIG_HD64465)
--#  define OFFCHIP_NR_IRQS 16
--# elif defined (CONFIG_SH_EC3104)
--#  define OFFCHIP_NR_IRQS 16
--# elif defined (CONFIG_SH_DREAMCAST)
--#  define OFFCHIP_NR_IRQS 96
--# else
--#  define OFFCHIP_NR_IRQS 0
--# endif
-+# define OFFCHIP_NR_IRQS 0
- #endif
- 
- #if OFFCHIP_NR_IRQS > 0
-@@ -313,16 +319,6 @@
- /* NR_IRQS. 1+2+3 */
- #define NR_IRQS (ONCHIP_NR_IRQS + PINT_NR_IRQS + OFFCHIP_NR_IRQS)
- 
--/* In a generic kernel, NR_IRQS is an upper bound, and we should use
-- * ACTUAL_NR_IRQS (which uses the machine vector) to get the correct value.
-- */
--#ifdef CONFIG_SH_GENERIC
--# define ACTUAL_NR_IRQS (sh_mv.mv_nr_irqs)
--#else
--# define ACTUAL_NR_IRQS NR_IRQS
--#endif
--
--
- extern void disable_irq(unsigned int);
- extern void disable_irq_nosync(unsigned int);
- extern void enable_irq(unsigned int);
-@@ -542,9 +538,6 @@
- 
- extern int ipr_irq_demux(int irq);
- #define __irq_demux(irq) ipr_irq_demux(irq)
--
--#else
--#define __irq_demux(irq) irq
- #endif /* CONFIG_CPU_SUBTYPE_SH7707 || CONFIG_CPU_SUBTYPE_SH7709 */
- 
- #if defined(CONFIG_CPU_SUBTYPE_SH7750) || defined(CONFIG_CPU_SUBTYPE_SH7751) || \
-@@ -557,18 +550,35 @@
- #define INTC_ICR_IRLM	(1<<7)
- #endif
- 
--#ifdef CONFIG_CPU_SUBTYPE_ST40STB1
-+#else
-+#include <asm/irq-sh7780.h>
-+#endif
- 
-+/* SH with INTC2-style interrupts */
-+#ifdef CONFIG_CPU_HAS_INTC2_IRQ
-+#if defined(CONFIG_CPU_SUBTYPE_ST40STB1)
-+#define INTC2_BASE	0xfe080000
- #define INTC2_FIRST_IRQ 64
--#define NR_INTC2_IRQS 25
--
-+#define INTC2_INTREQ_OFFSET	0x20
-+#define INTC2_INTMSK_OFFSET	0x40
-+#define INTC2_INTMSKCLR_OFFSET	0x60
-+#define NR_INTC2_IRQS	25
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7760)
- #define INTC2_BASE	0xfe080000
--#define INTC2_INTC2MODE	(INTC2_BASE+0x80)
--
--#define INTC2_INTPRI_OFFSET	0x00
-+#define INTC2_FIRST_IRQ 48	/* INTEVT 0x800 */
- #define INTC2_INTREQ_OFFSET	0x20
- #define INTC2_INTMSK_OFFSET	0x40
- #define INTC2_INTMSKCLR_OFFSET	0x60
-+#define NR_INTC2_IRQS	64
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7780)
-+#define INTC2_BASE	0xffd40000
-+#define INTC2_FIRST_IRQ	22
-+#define INTC2_INTMSK_OFFSET	(0x38)
-+#define INTC2_INTMSKCLR_OFFSET	(0x3c)
-+#define NR_INTC2_IRQS	60
-+#endif
-+
-+#define INTC2_INTPRI_OFFSET	0x00
- 
- void make_intc2_irq(unsigned int irq,
- 		    unsigned int ipr_offset, unsigned int ipr_shift,
-@@ -577,13 +587,16 @@
- void init_IRQ_intc2(void);
- void intc2_add_clear_irq(int irq, int (*fn)(int));
- 
--#endif	/* CONFIG_CPU_SUBTYPE_ST40STB1 */
-+#endif
- 
- static inline int generic_irq_demux(int irq)
+-static inline void do_timer_interrupt(int irq, struct pt_regs *regs)
++void handle_timer_tick(struct pt_regs *regs)
  {
- 	return irq;
+ 	do_timer(regs);
+ #ifndef CONFIG_SMP
+@@ -252,337 +139,35 @@
+ 		if (rtc_set_time(xtime.tv_sec) == 0)
+ 			last_rtc_update = xtime.tv_sec;
+ 		else
+-			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
++			/* do it again in 60s */
++			last_rtc_update = xtime.tv_sec - 600;
+ 	}
  }
  
-+#ifndef __irq_demux
-+#define __irq_demux(irq)	(irq)
-+#endif
- #define irq_canonicalize(irq)	(irq)
- #define irq_demux(irq)		__irq_demux(sh_mv.mv_irq_demux(irq))
+-/*
+- * This is the same as the above, except we _also_ save the current
+- * Time Stamp Counter value at the time of the timer interrupt, so that
+- * we later on can estimate the time of day more exactly.
+- */
+-static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+-{
+-	unsigned long timer_status;
+-
+-	/* Clear UNF bit */
+-	timer_status = ctrl_inw(TMU0_TCR);
+-	timer_status &= ~0x100;
+-	ctrl_outw(timer_status, TMU0_TCR);
+-
+-	/*
+-	 * Here we are in the timer irq handler. We just have irqs locally
+-	 * disabled but we don't know if the timer_bh is running on the other
+-	 * CPU. We need to avoid to SMP race with it. NOTE: we don' t need
+-	 * the irq version of write_lock because as just said we have irq
+-	 * locally disabled. -arca
+-	 */
+-	write_seqlock(&xtime_lock);
+-	do_timer_interrupt(irq, regs);
+-	write_sequnlock(&xtime_lock);
+-
+-	return IRQ_HANDLED;
+-}
+-
+-/*
+- * Hah!  We'll see if this works (switching from usecs to nsecs).
+- */
+-static unsigned int __init get_timer_frequency(void)
+-{
+-	u32 freq;
+-	struct timespec ts1, ts2;
+-	unsigned long diff_nsec;
+-	unsigned long factor;
+-
+-	/* Setup the timer:  We don't want to generate interrupts, just
+-	 * have it count down at its natural rate.
+-	 */
+-	ctrl_outb(0, TMU_TSTR);
+-#if !defined(CONFIG_CPU_SUBTYPE_SH7300)
+-	ctrl_outb(TMU_TOCR_INIT, TMU_TOCR);
+-#endif
+-	ctrl_outw(TMU0_TCR_CALIB, TMU0_TCR);
+-	ctrl_outl(0xffffffff, TMU0_TCOR);
+-	ctrl_outl(0xffffffff, TMU0_TCNT);
+-
+-	rtc_get_time(&ts2);
+-
+-	do {
+-		rtc_get_time(&ts1);
+-	} while (ts1.tv_nsec == ts2.tv_nsec && ts1.tv_sec == ts2.tv_sec);
+-
+-	/* actually start the timer */
+-	ctrl_outb(TMU_TSTR_INIT, TMU_TSTR);
+-
+-	do {
+-		rtc_get_time(&ts2);
+-	} while (ts1.tv_nsec == ts2.tv_nsec && ts1.tv_sec == ts2.tv_sec);
+-
+-	freq = 0xffffffff - ctrl_inl(TMU0_TCNT);
+-	if (ts2.tv_nsec < ts1.tv_nsec) {
+-		ts2.tv_nsec += 1000000000;
+-		ts2.tv_sec--;
+-	}
+-
+-	diff_nsec = (ts2.tv_sec - ts1.tv_sec) * 1000000000 + (ts2.tv_nsec - ts1.tv_nsec);
+-
+-	/* this should work well if the RTC has a precision of n Hz, where
+-	 * n is an integer.  I don't think we have to worry about the other
+-	 * cases. */
+-	factor = (1000000000 + diff_nsec/2) / diff_nsec;
+-
+-	if (factor * diff_nsec > 1100000000 ||
+-	    factor * diff_nsec <  900000000)
+-		panic("weird RTC (diff_nsec %ld)", diff_nsec);
+-
+-	return freq * factor;
+-}
+-
+-void (*board_time_init)(void);
+-void (*board_timer_setup)(struct irqaction *irq);
+-
+-static unsigned int sh_pclk_freq __initdata = CONFIG_SH_PCLK_FREQ;
+-
+-static int __init sh_pclk_setup(char *str)
+-{
+-        unsigned int freq;
+-
+-	if (get_option(&str, &freq))
+-		sh_pclk_freq = freq;
+-
+-	return 1;
+-}
+-__setup("sh_pclk=", sh_pclk_setup);
+-
+-static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, CPU_MASK_NONE, "timer", NULL, NULL};
+-
+-void get_current_frequency_divisors(unsigned int *ifc, unsigned int *bfc, unsigned int *pfc)
+-{
+-	unsigned int frqcr = ctrl_inw(FRQCR);
+-
+-#if defined(CONFIG_CPU_SH3)
+-#if defined(CONFIG_CPU_SUBTYPE_SH7300)
+-	*ifc = md_table[((frqcr & 0x0070) >> 4)];
+-	*bfc = md_table[((frqcr & 0x0700) >> 8)];
+-	*pfc = md_table[frqcr & 0x0007];
+-#elif defined(CONFIG_CPU_SUBTYPE_SH7705)
+-	*bfc = stc_multipliers[(frqcr & 0x0300) >> 8];
+-	*ifc = ifc_divisors[(frqcr & 0x0030) >> 4];
+-	*pfc = pfc_divisors[frqcr & 0x0003];
+-#else
+-	unsigned int tmp;
+-
+-	tmp  = (frqcr & 0x8000) >> 13;
+-	tmp |= (frqcr & 0x0030) >>  4;
+-	*bfc = stc_multipliers[tmp];
+-	tmp  = (frqcr & 0x4000)  >> 12;
+-	tmp |= (frqcr & 0x000c) >> 2;
+-	*ifc = ifc_divisors[tmp];
+-	tmp  = (frqcr & 0x2000) >> 11;
+-	tmp |= frqcr & 0x0003;
+-	*pfc = pfc_divisors[tmp];
+-#endif
+-#elif defined(CONFIG_CPU_SH4)
+-#if defined(CONFIG_CPU_SUBTYPE_SH73180)
+-	*ifc = ifc_divisors[(frqcr>> 20) & 0x0007];
+-	*bfc = bfc_divisors[(frqcr>> 12) & 0x0007];
+-	*pfc = pfc_divisors[frqcr & 0x0007];
+-#else
+-	*ifc = ifc_divisors[(frqcr >> 6) & 0x0007];
+-	*bfc = bfc_divisors[(frqcr >> 3) & 0x0007];
+-	*pfc = pfc_divisors[frqcr & 0x0007];
+-#endif
+-#endif
+-}
+-
+-/*
+- * This bit of ugliness builds up accessor routines to get at both
+- * the divisors and the physical values.
+- */
+-#define _FREQ_TABLE(x) \
+-	unsigned int get_##x##_divisor(unsigned int value)	\
+-		{ return x##_divisors[value]; }			\
+-								\
+-	unsigned int get_##x##_value(unsigned int divisor)	\
+-		{ return x##_values[(divisor - 1)]; }
+-
+-_FREQ_TABLE(ifc);
+-_FREQ_TABLE(bfc);
+-_FREQ_TABLE(pfc);
+-
+-#ifdef CONFIG_CPU_SUBTYPE_ST40STB1
+-
+-/*
+- * The ST40 divisors are totally different so we set the cpu data
+- * clocks using a different algorithm
+- *
+- * I've just plugged this from the 2.4 code
+- *	- Alex Bennee <kernel-hacker@bennee.com>
+- */
+-#define CCN_PVR_CHIP_SHIFT 24
+-#define CCN_PVR_CHIP_MASK  0xff
+-#define CCN_PVR_CHIP_ST40STB1 0x4
+-
+-
+-struct frqcr_data {
+-	unsigned short frqcr;
+-
+-	struct {
+-		unsigned char multiplier;
+-		unsigned char divisor;
+-	} factor[3];
++static struct sysdev_class timer_sysclass = {
++	set_kset_name("timer"),
+ };
+ 
+-static struct frqcr_data st40_frqcr_table[] = {
+-	{ 0x000, {{1,1}, {1,1}, {1,2}}},
+-	{ 0x002, {{1,1}, {1,1}, {1,4}}},
+-	{ 0x004, {{1,1}, {1,1}, {1,8}}},
+-	{ 0x008, {{1,1}, {1,2}, {1,2}}},
+-	{ 0x00A, {{1,1}, {1,2}, {1,4}}},
+-	{ 0x00C, {{1,1}, {1,2}, {1,8}}},
+-	{ 0x011, {{1,1}, {2,3}, {1,6}}},
+-	{ 0x013, {{1,1}, {2,3}, {1,3}}},
+-	{ 0x01A, {{1,1}, {1,2}, {1,4}}},
+-	{ 0x01C, {{1,1}, {1,2}, {1,8}}},
+-	{ 0x023, {{1,1}, {2,3}, {1,3}}},
+-	{ 0x02C, {{1,1}, {1,2}, {1,8}}},
+-	{ 0x048, {{1,2}, {1,2}, {1,4}}},
+-	{ 0x04A, {{1,2}, {1,2}, {1,6}}},
+-	{ 0x04C, {{1,2}, {1,2}, {1,8}}},
+-	{ 0x05A, {{1,2}, {1,3}, {1,6}}},
+-	{ 0x05C, {{1,2}, {1,3}, {1,6}}},
+-	{ 0x063, {{1,2}, {1,4}, {1,4}}},
+-	{ 0x06C, {{1,2}, {1,4}, {1,8}}},
+-	{ 0x091, {{1,3}, {1,3}, {1,6}}},
+-	{ 0x093, {{1,3}, {1,3}, {1,6}}},
+-	{ 0x0A3, {{1,3}, {1,6}, {1,6}}},
+-	{ 0x0DA, {{1,4}, {1,4}, {1,8}}},
+-	{ 0x0DC, {{1,4}, {1,4}, {1,8}}},
+-	{ 0x0EC, {{1,4}, {1,8}, {1,8}}},
+-	{ 0x123, {{1,4}, {1,4}, {1,8}}},
+-	{ 0x16C, {{1,4}, {1,8}, {1,8}}},
+-};
+-
+-struct memclk_data {
+-	unsigned char multiplier;
+-	unsigned char divisor;
+-};
+-
+-static struct memclk_data st40_memclk_table[8] = {
+-	{1,1},	// 000
+-	{1,2},	// 001
+-	{1,3},	// 010
+-	{2,3},	// 011
+-	{1,4},	// 100
+-	{1,6},	// 101
+-	{1,8},	// 110
+-	{1,8}	// 111
+-};
+-
+-static void st40_specific_time_init(unsigned int module_clock, unsigned short frqcr)
++static int __init timer_init_sysfs(void)
+ {
+-	unsigned int cpu_clock, master_clock, bus_clock, memory_clock;
+-	struct frqcr_data *d;
+-	int a;
+-	unsigned long memclkcr;
+-	struct memclk_data *e;
+-
+-	for (a = 0; a < ARRAY_SIZE(st40_frqcr_table); a++) {
+-		d = &st40_frqcr_table[a];
+-
+-		if (d->frqcr == (frqcr & 0x1ff))
+-			break;
+-	}
+-
+-	if (a == ARRAY_SIZE(st40_frqcr_table)) {
+-		d = st40_frqcr_table;
++	int ret = sysdev_class_register(&timer_sysclass);
++	if (ret != 0)
++		return ret;
+ 
+-		printk("ERROR: Unrecognised FRQCR value (0x%x), "
+-		       "using default multipliers\n", frqcr);
+-	}
++	sys_timer->dev.cls = &timer_sysclass;
++	return sysdev_register(&sys_timer->dev);
++}
+ 
+-	memclkcr = ctrl_inl(CLOCKGEN_MEMCLKCR);
+-	e = &st40_memclk_table[memclkcr & MEMCLKCR_RATIO_MASK];
++device_initcall(timer_init_sysfs);
+ 
+-	printk(KERN_INFO "Clock multipliers: CPU: %d/%d Bus: %d/%d "
+-	       "Mem: %d/%d Periph: %d/%d\n",
+-	       d->factor[0].multiplier, d->factor[0].divisor,
+-	       d->factor[1].multiplier, d->factor[1].divisor,
+-	       e->multiplier,           e->divisor,
+-	       d->factor[2].multiplier, d->factor[2].divisor);
+-
+-	master_clock = module_clock * d->factor[2].divisor
+-				    / d->factor[2].multiplier;
+-	bus_clock    = master_clock * d->factor[1].multiplier
+-				    / d->factor[1].divisor;
+-	memory_clock = master_clock * e->multiplier
+-				    / e->divisor;
+-	cpu_clock    = master_clock * d->factor[0].multiplier
+-				    / d->factor[0].divisor;
+-
+-	current_cpu_data.cpu_clock    = cpu_clock;
+-	current_cpu_data.master_clock = master_clock;
+-	current_cpu_data.bus_clock    = bus_clock;
+-	current_cpu_data.memory_clock = memory_clock;
+-	current_cpu_data.module_clock = module_clock;
+-}
+-#endif
++void (*board_time_init)(void);
+ 
+ void __init time_init(void)
+ {
+-	unsigned int timer_freq = 0;
+-	unsigned int ifc, pfc, bfc;
+-	unsigned long interval;
+-#ifdef CONFIG_CPU_SUBTYPE_ST40STB1
+-	unsigned long pvr;
+-	unsigned short frqcr;
+-#endif
+-
+ 	if (board_time_init)
+ 		board_time_init();
+ 
+-	/*
+-	 * If we don't have an RTC (such as with the SH7300), don't attempt to
+-	 * probe the timer frequency. Rely on an either hardcoded peripheral
+-	 * clock value, or on the sh_pclk command line option. Note that we
+-	 * still need to have CONFIG_SH_PCLK_FREQ set in order for things like
+-	 * CLOCK_TICK_RATE to be sane.
+-	 */
+-	current_cpu_data.module_clock = sh_pclk_freq;
+-
+-#ifdef CONFIG_SH_PCLK_CALC
+-	/* XXX: Switch this over to a more generic test. */
+-	{
+-		unsigned int freq;
+-
+-		/*
+-		 * If we've specified a peripheral clock frequency, and we have
+-		 * an RTC, compare it against the autodetected value. Complain
+-		 * if there's a mismatch.
+-		 */
+-		timer_freq = get_timer_frequency();
+-		freq = timer_freq * 4;
+-
+-		if (sh_pclk_freq && (sh_pclk_freq/100*99 > freq || sh_pclk_freq/100*101 < freq)) {
+-			printk(KERN_NOTICE "Calculated peripheral clock value "
+-			       "%d differs from sh_pclk value %d, fixing..\n",
+-			       freq, sh_pclk_freq);
+-			current_cpu_data.module_clock = freq;
+-		}
+-	}
+-#endif
+-
+-#ifdef CONFIG_CPU_SUBTYPE_ST40STB1
+-	/* XXX: Update ST40 code to use board_time_init() */
+-	pvr = ctrl_inl(CCN_PVR);
+-	frqcr = ctrl_inw(FRQCR);
+-	printk("time.c ST40 Probe: PVR %08lx, FRQCR %04hx\n", pvr, frqcr);
+-
+-	if (((pvr >> CCN_PVR_CHIP_SHIFT) & CCN_PVR_CHIP_MASK) == CCN_PVR_CHIP_ST40STB1)
+-		st40_specific_time_init(current_cpu_data.module_clock, frqcr);
+-	else
+-#endif
+-		get_current_frequency_divisors(&ifc, &bfc, &pfc);
++	clk_init();
+ 
+ 	if (rtc_get_time) {
+ 		rtc_get_time(&xtime);
+@@ -594,51 +179,12 @@
+         set_normalized_timespec(&wall_to_monotonic,
+                                 -xtime.tv_sec, -xtime.tv_nsec);
+ 
+-	if (board_timer_setup) {
+-		board_timer_setup(&irq0);
+-	} else {
+-		setup_irq(TIMER_IRQ, &irq0);
+-	}
+-
+ 	/*
+-	 * for ST40 chips the current_cpu_data should already be set
+-	 * so not having valid pfc/bfc/ifc shouldn't be a problem
++	 * Find the timer to use as the system timer, it will be
++	 * initialized for us.
+ 	 */
+-	if (!current_cpu_data.master_clock)
+-		current_cpu_data.master_clock = current_cpu_data.module_clock * pfc;
+-	if (!current_cpu_data.bus_clock)
+-		current_cpu_data.bus_clock = current_cpu_data.master_clock / bfc;
+-	if (!current_cpu_data.cpu_clock)
+-		current_cpu_data.cpu_clock = current_cpu_data.master_clock / ifc;
+-
+-	printk("CPU clock: %d.%02dMHz\n",
+-	       (current_cpu_data.cpu_clock / 1000000),
+-	       (current_cpu_data.cpu_clock % 1000000)/10000);
+-	printk("Bus clock: %d.%02dMHz\n",
+-	       (current_cpu_data.bus_clock / 1000000),
+-	       (current_cpu_data.bus_clock % 1000000)/10000);
+-#ifdef CONFIG_CPU_SUBTYPE_ST40STB1
+-	printk("Memory clock: %d.%02dMHz\n",
+-	       (current_cpu_data.memory_clock / 1000000),
+-	       (current_cpu_data.memory_clock % 1000000)/10000);
+-#endif
+-	printk("Module clock: %d.%02dMHz\n",
+-	       (current_cpu_data.module_clock / 1000000),
+-	       (current_cpu_data.module_clock % 1000000)/10000);
+-
+-	interval = (current_cpu_data.module_clock/4 + HZ/2) / HZ;
+-
+-	printk("Interval = %ld\n", interval);
+-
+-	/* Start TMU0 */
+-	ctrl_outb(0, TMU_TSTR);
+-#if !defined(CONFIG_CPU_SUBTYPE_SH7300)
+-	ctrl_outb(TMU_TOCR_INIT, TMU_TOCR);
+-#endif
+-	ctrl_outw(TMU0_TCR_INIT, TMU0_TCR);
+-	ctrl_outl(interval, TMU0_TCOR);
+-	ctrl_outl(interval, TMU0_TCNT);
+-	ctrl_outb(TMU_TSTR_INIT, TMU_TSTR);
++	sys_timer = get_sys_timer();
++	printk(KERN_INFO "Using %s for system timer\n", sys_timer->name);
+ 
+ #if defined(CONFIG_SH_KGDB)
+ 	/*
+
+
+diff -urN -X exclude linux-2.6.15/arch/sh/boards/overdrive/Makefile sh-2.6.15/arch/sh/boards/overdrive/Makefile
+--- linux-2.6.15/arch/sh/boards/overdrive/Makefile	2004-07-15 22:21:13.000000000 +0300
++++ sh-2.6.15/arch/sh/boards/overdrive/Makefile	2006-01-04 00:15:26.000000000 +0200
+@@ -2,7 +2,7 @@
+ # Makefile for the STMicroelectronics Overdrive specific parts of the kernel
+ #
+ 
+-obj-y	 := mach.o setup.o io.o irq.o led.o time.o
++obj-y	 := mach.o setup.o io.o irq.o led.o
+ 
+ obj-$(CONFIG_PCI) += fpga.o galileo.o pcidma.o
+ 
+diff -urN -X exclude linux-2.6.15/arch/sh/boards/overdrive/setup.c sh-2.6.15/arch/sh/boards/overdrive/setup.c
+--- linux-2.6.15/arch/sh/boards/overdrive/setup.c	2004-07-15 22:21:13.000000000 +0300
++++ sh-2.6.15/arch/sh/boards/overdrive/setup.c	2006-01-04 00:15:26.000000000 +0200
+@@ -17,8 +17,6 @@
+ #include <asm/overdrive/overdrive.h>
+ #include <asm/overdrive/fpga.h>
+ 
+-extern void od_time_init(void);
+-
+ const char *get_system_type(void)
+ {
+ 	return "SH7750 Overdrive";
+@@ -31,11 +29,9 @@
+ {
+ #ifdef CONFIG_PCI
+ 	init_overdrive_fpga();
+-	galileo_init(); 
++	galileo_init();
+ #endif
+ 
+-	board_time_init = od_time_init;
+-
+         /* Enable RS232 receive buffers */
+ 	writel(0x1e, OVERDRIVE_CTRL);
+ }
+diff -urN -X exclude linux-2.6.15/arch/sh/boards/overdrive/time.c sh-2.6.15/arch/sh/boards/overdrive/time.c
+--- linux-2.6.15/arch/sh/boards/overdrive/time.c	2004-07-15 22:21:13.000000000 +0300
++++ sh-2.6.15/arch/sh/boards/overdrive/time.c	1970-01-01 02:00:00.000000000 +0200
+@@ -1,119 +0,0 @@
+-/*
+- * arch/sh/boards/overdrive/time.c
+- *
+- * Copyright (C) 2000 Stuart Menefy (stuart.menefy@st.com)
+- * Copyright (C) 2002 Paul Mundt (lethal@chaoticdreams.org)
+- *
+- * May be copied or modified under the terms of the GNU General Public
+- * License.  See linux/COPYING for more information.
+- *
+- * STMicroelectronics Overdrive Support.
+- */
+-
+-void od_time_init(void)
+-{
+-	struct frqcr_data {
+-		unsigned short frqcr;
+-		struct {
+-			unsigned char multiplier;
+-			unsigned char divisor;
+-		} factor[3];
+-	};
+-
+-	static struct frqcr_data st40_frqcr_table[] = {		
+-		{ 0x000, {{1,1}, {1,1}, {1,2}}},
+-		{ 0x002, {{1,1}, {1,1}, {1,4}}},
+-		{ 0x004, {{1,1}, {1,1}, {1,8}}},
+-		{ 0x008, {{1,1}, {1,2}, {1,2}}},
+-		{ 0x00A, {{1,1}, {1,2}, {1,4}}},
+-		{ 0x00C, {{1,1}, {1,2}, {1,8}}},
+-		{ 0x011, {{1,1}, {2,3}, {1,6}}},
+-		{ 0x013, {{1,1}, {2,3}, {1,3}}},
+-		{ 0x01A, {{1,1}, {1,2}, {1,4}}},
+-		{ 0x01C, {{1,1}, {1,2}, {1,8}}},
+-		{ 0x023, {{1,1}, {2,3}, {1,3}}},
+-		{ 0x02C, {{1,1}, {1,2}, {1,8}}},
+-		{ 0x048, {{1,2}, {1,2}, {1,4}}},
+-		{ 0x04A, {{1,2}, {1,2}, {1,6}}},
+-		{ 0x04C, {{1,2}, {1,2}, {1,8}}},
+-		{ 0x05A, {{1,2}, {1,3}, {1,6}}},
+-		{ 0x05C, {{1,2}, {1,3}, {1,6}}},
+-		{ 0x063, {{1,2}, {1,4}, {1,4}}},
+-		{ 0x06C, {{1,2}, {1,4}, {1,8}}},
+-		{ 0x091, {{1,3}, {1,3}, {1,6}}},
+-		{ 0x093, {{1,3}, {1,3}, {1,6}}},
+-		{ 0x0A3, {{1,3}, {1,6}, {1,6}}},
+-		{ 0x0DA, {{1,4}, {1,4}, {1,8}}},
+-		{ 0x0DC, {{1,4}, {1,4}, {1,8}}},
+-		{ 0x0EC, {{1,4}, {1,8}, {1,8}}},
+-		{ 0x123, {{1,4}, {1,4}, {1,8}}},
+-		{ 0x16C, {{1,4}, {1,8}, {1,8}}},
+-	};
+-
+-	struct memclk_data {
+-		unsigned char multiplier;
+-		unsigned char divisor;
+-	};
+-	static struct memclk_data st40_memclk_table[8] = {
+-		{1,1},	// 000
+-		{1,2},	// 001
+-		{1,3},	// 010
+-		{2,3},	// 011
+-		{1,4},	// 100
+-		{1,6},	// 101
+-		{1,8},	// 110
+-		{1,8}	// 111
+-	};
+-
+-	unsigned long pvr;
+-
+-	/* 
+-	 * This should probably be moved into the SH3 probing code, and then
+-	 * use the processor structure to determine which CPU we are running
+-	 * on.
+-	 */
+-	pvr = ctrl_inl(CCN_PVR);
+-	printk("PVR %08x\n", pvr);
+-
+-	if (((pvr >> CCN_PVR_CHIP_SHIFT) & CCN_PVR_CHIP_MASK) == CCN_PVR_CHIP_ST40STB1) {
+-		/* 
+-		 * Unfortunatly the STB1 FRQCR values are different from the
+-		 * 7750 ones.
+-		 */
+-		struct frqcr_data *d;
+-		int a;
+-		unsigned long memclkcr;
+-		struct memclk_data *e;
+-
+-		for (a=0; a<ARRAY_SIZE(st40_frqcr_table); a++) {
+-			d = &st40_frqcr_table[a];
+-			if (d->frqcr == (frqcr & 0x1ff))
+-				break;
+-		}
+-		if (a == ARRAY_SIZE(st40_frqcr_table)) {
+-			d = st40_frqcr_table;
+-			printk("ERROR: Unrecognised FRQCR value, using default multipliers\n");
+-		}
+-
+-		memclkcr = ctrl_inl(CLOCKGEN_MEMCLKCR);
+-		e = &st40_memclk_table[memclkcr & MEMCLKCR_RATIO_MASK];
+-
+-		printk("Clock multipliers: CPU: %d/%d Bus: %d/%d Mem: %d/%d Periph: %d/%d\n",
+-		       d->factor[0].multiplier, d->factor[0].divisor,
+-		       d->factor[1].multiplier, d->factor[1].divisor,
+-		       e->multiplier,           e->divisor,
+-		       d->factor[2].multiplier, d->factor[2].divisor);
+-		
+-		current_cpu_data.master_clock = current_cpu_data.module_clock *
+-						d->factor[2].divisor /
+-						d->factor[2].multiplier;
+-		current_cpu_data.bus_clock    = current_cpu_data.master_clock *
+-						d->factor[1].multiplier /
+-						d->factor[1].divisor;
+-		current_cpu_data.memory_clock = current_cpu_data.master_clock *
+-						e->multiplier / e->divisor;
+-		current_cpu_data.cpu_clock    = current_cpu_data.master_clock *
+-						d->factor[0].multiplier /
+-						d->factor[0].divisor;
+-}
+-
+diff -urN -X exclude linux-2.6.15/include/asm-sh/clock.h sh-2.6.15/include/asm-sh/clock.h
+--- linux-2.6.15/include/asm-sh/clock.h	1970-01-01 02:00:00.000000000 +0200
++++ sh-2.6.15/include/asm-sh/clock.h	2006-01-04 00:15:30.000000000 +0200
+@@ -0,0 +1,61 @@
++#ifndef __ASM_SH_CLOCK_H
++#define __ASM_SH_CLOCK_H
++
++#include <linux/kref.h>
++#include <linux/list.h>
++#include <linux/seq_file.h>
++
++struct clk;
++
++struct clk_ops {
++	void (*init)(struct clk *clk);
++	void (*enable)(struct clk *clk);
++	void (*disable)(struct clk *clk);
++	void (*recalc)(struct clk *clk);
++	int (*set_rate)(struct clk *clk, unsigned long rate);
++};
++
++struct clk {
++	struct list_head	node;
++	const char		*name;
++
++	struct module		*owner;
++
++	struct clk		*parent;
++	struct clk_ops		*ops;
++
++	struct kref		kref;
++
++	unsigned long		rate;
++	unsigned long		flags;
++};
++
++#define CLK_ALWAYS_ENABLED	(1 << 0)
++#define CLK_RATE_PROPAGATES	(1 << 1)
++
++/* Should be defined by processor-specific code */
++void arch_init_clk_ops(struct clk_ops **, int type);
++
++/* arch/sh/kernel/cpu/clock.c */
++int clk_init(void);
++
++int __clk_enable(struct clk *);
++int clk_enable(struct clk *);
++
++void __clk_disable(struct clk *);
++void clk_disable(struct clk *);
++
++int clk_set_rate(struct clk *, unsigned long rate);
++unsigned long clk_get_rate(struct clk *);
++void clk_recalc_rate(struct clk *);
++
++struct clk *clk_get(const char *id);
++void clk_put(struct clk *);
++
++int clk_register(struct clk *);
++void clk_unregister(struct clk *);
++
++int show_clocks(struct seq_file *m);
++
++#endif /* __ASM_SH_CLOCK_H */
++
+diff -urN -X exclude linux-2.6.15/include/asm-sh/cpu-sh4/freq.h sh-2.6.15/include/asm-sh/cpu-sh4/freq.h
+--- linux-2.6.15/include/asm-sh/cpu-sh4/freq.h	2004-12-26 05:37:56.000000000 +0200
++++ sh-2.6.15/include/asm-sh/cpu-sh4/freq.h	2006-01-04 00:15:29.000000000 +0200
+@@ -12,6 +12,8 @@
+ 
+ #if defined(CONFIG_CPU_SUBTYPE_SH73180)
+ #define FRQCR		        0xa4150000
++#elif defined(CONFIG_CPU_SUBTYPE_SH7780)
++#define	FRQCR			0xffc80000
+ #else
+ #define FRQCR			0xffc00000
+ #endif
+
+
+diff -urN -X exclude linux-2.6.15/include/asm-sh/freq.h sh-2.6.15/include/asm-sh/freq.h
+--- linux-2.6.15/include/asm-sh/freq.h	2004-12-26 05:37:56.000000000 +0200
++++ sh-2.6.15/include/asm-sh/freq.h	2006-01-04 00:15:29.000000000 +0200
+@@ -14,16 +14,5 @@
+ 
+ #include <asm/cpu/freq.h>
+ 
+-/* arch/sh/kernel/time.c */
+-extern void get_current_frequency_divisors(unsigned int *ifc, unsigned int *pfc, unsigned int *bfc);
+-
+-extern unsigned int get_ifc_divisor(unsigned int value);
+-extern unsigned int get_ifc_divisor(unsigned int value);
+-extern unsigned int get_ifc_divisor(unsigned int value);
+-
+-extern unsigned int get_ifc_value(unsigned int divisor);
+-extern unsigned int get_pfc_value(unsigned int divisor);
+-extern unsigned int get_bfc_value(unsigned int divisor);
+-
+ #endif /* __KERNEL__ */
+ #endif /* __ASM_SH_FREQ_H */

@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423028AbWANEmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWANEsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423028AbWANEmM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 23:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423035AbWANEmM
+	id S1030278AbWANEsk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 23:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbWANEsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 23:42:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34012 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1423028AbWANEmL (ORCPT
+	Fri, 13 Jan 2006 23:48:40 -0500
+Received: from main.gmane.org ([80.91.229.2]:25296 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030278AbWANEsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 23:42:11 -0500
-Date: Fri, 13 Jan 2006 23:41:52 -0500
-From: Dave Jones <davej@redhat.com>
-To: Philipp Rumpf <prumpf@gmail.com>
-Cc: Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-ck1
-Message-ID: <20060114044152.GA3127@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Philipp Rumpf <prumpf@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-	ck list <ck@vds.kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <e5bb8d810601131942r53712423kbd924757195f398b@mail.gmail.com>
+	Fri, 13 Jan 2006 23:48:39 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: [GIT PATCH] SPI patches for 2.6.15
+Date: Sat, 14 Jan 2006 13:48:30 +0900
+Message-ID: <dq9vqv$6o7$1@sea.gmane.org>
+References: <20060114004403.GA21106@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e5bb8d810601131942r53712423kbd924757195f398b@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060103)
+X-Accept-Language: en-us, en
+In-Reply-To: <20060114004403.GA21106@kroah.com>
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13, 2006 at 09:42:26PM -0600, Philipp Rumpf wrote:
- > Out of curiosity, why didn't you do the monitoring using
- > /proc/acpi/battery/.../{state,info} (while running off battery)?  I
- > think that should have much finer granularity, and avoid various
- > capacitors that might be in the way and explain the effect you
- > noticed.
+Greg KH wrote:
+> Here are a few patches for 2.6.15 that add a SPI driver subsystem to the
+> kernel tree.  All of these patches have been in the -mm tree for a long
+> time, and David and Vitaly have finally agreed that this code base is
+> the proper one to work from for future SPI development.
+> 
+> These patches also add a few SPI drivers that use the subsystem, with
+> more promised to be coming soon.
 
-ACPI battery reporting seems hit-or-miss at times.
-Sometimes it seems to not update for ages, and then suddenly
-there's a burst when suddenly 5% of the battery drains in
-seconds.   As an overall 'how much battery is left' thing it seems
-ok, but I don't trust it for accurate measurements of power drain.
+Well, it turns out that google does not (yet) know what a SPI driver
+subsystem is yet... And SPI can be any of these in LKML context:
 
-Whether this is a firmware deficiency causing us not to see
-regular interrupts, or a problem with the acpi parser I don't know.
+SCSI Parallel Interface
+Serial Peripheral Interface
+Service Provider Interface
+Stateful Packet Inspection
+System Packet Interface
 
-		Dave
+http://en.wikipedia.org/wiki/SPI
+
+Betting on the last, based on the filenames in the changelog...
+
+> Please pull from:
+> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/spi-2.6.git/
+> or if master.kernel.org hasn't synced up yet:
+> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/spi-2.6.git/
+> 
+> The full patches will be sent to the linux-kernel mailing list, if
+> anyone wants to see them.
+
+May be just a browser accessible URL for Documentation/spi/spi-summary or at
+least a definition of SPI in the header of the mail.
+
+git is just too complex for me at htemoment (haven't found the time to learn it)
+
+Sorry for bugging you, Greg :-|
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 

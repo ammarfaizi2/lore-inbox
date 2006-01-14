@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWANWTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWANWTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWANWTA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 17:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWANWTA
+	id S1751328AbWANWTr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 17:19:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWANWTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 17:19:00 -0500
-Received: from mx3.mail.ru ([194.67.23.149]:20856 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S1751310AbWANWS7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 17:18:59 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: acpi-devel@lists.sourceforge.net
-Subject: cannot unload acpi-cpufreq
-Date: Sun, 15 Jan 2006 01:18:56 +0300
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 17:19:47 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:63753 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751328AbWANWTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 17:19:47 -0500
+Date: Sat, 14 Jan 2006 23:19:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Scott H Kilau <Scott_Kilau@digi.com>,
+       Wendy Xiong <wendyx@us.ltcfwd.linux.ibm.com>
+Subject: Re: jsm serial driver broken with flip buffer changes
+Message-ID: <20060114221947.GT29663@stusta.de>
+References: <Pine.SOC.4.61.0601142359120.15808@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601150118.57542.arvidjaar@mail.ru>
+In-Reply-To: <Pine.SOC.4.61.0601142359120.15808@math.ut.ee>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Jan 15, 2006 at 12:02:59AM +0200, Meelis Roos wrote:
+> In current 1.6.15+git jsm serial driver is broken:
+> 
+>   CC [M]  drivers/serial/jsm/jsm_tty.o
+> drivers/serial/jsm/jsm_tty.c: In function `jsm_input':
+> drivers/serial/jsm/jsm_tty.c:592: error: structure has no member named 
+> `flip'
+>...
 
-Running 2.6.15 vanilla. I am unable to unload acpi-cpufreq - I always get 
+Don't say "no" at
+  Code maturity level options
+    Prompt for development and/or incomplete code/drivers
+      Select only drivers expected to compile cleanly
 
-{pts/1}% sudo rmmod acpi_cpufreq
-ERROR: Module acpi_cpufreq is in use
+> Meelis Roos (mroos@linux.ee)
 
-I do not see, how can I actually "release" it. Also, the reason I need to 
-unload it - I am testing alternative CPU frequency driver and would like to 
-avoid reboot when switching. This driver unloads just fine (it is written by 
-me and contains the minimal set of functions).
+cu
+Adrian
 
-Ay idea?
+-- 
 
-regards
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDyXjRR6LMutpd94wRAnVfAJ0Tbrq/NyPyFFG/wsB+mnaOSPpIrgCfeRqs
-aJ1ieQrVCpyytz8R+yxgnXM=
-=a2Kj
------END PGP SIGNATURE-----

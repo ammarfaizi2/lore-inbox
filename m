@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751760AbWANOtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWANOt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751760AbWANOtk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:49:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWANOtk
+	id S1751044AbWANOt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 09:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWANOt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:49:40 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:32656 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1751758AbWANOtk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:49:40 -0500
-Message-ID: <43C90FC1.6020200@ums.usu.ru>
-Date: Sat, 14 Jan 2006 19:50:41 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Sat, 14 Jan 2006 09:49:57 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:35979 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751739AbWANOt4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 09:49:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=F0UlJYJ8EnBg1twqSnzcM70xtX1qsZ1d6UtFy3ua/EPsAyv9XuWj7eZbYhQlMyjY3PmkqLbV/aBJv39baN8Rla828q1prpCRfi0Ojyu8eLZLAxr4sHjjKzP1FeOM8oqa0G/xu/9ACYznQv9VRcbEWfCTSX0b5hbYZEv9P+5wXUw=
+Message-ID: <5a4c581d0601140649s1500040fke19de7850c10fa01@mail.gmail.com>
+Date: Sat, 14 Jan 2006 15:49:50 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       ak@suse.de
+Subject: Re: 2.6.15-git breaks Xorg on em64t
+In-Reply-To: <20060114065235.GA4539@redhat.com>
 MIME-Version: 1.0
-To: Kay Sievers <kay.sievers@suse.de>
-Cc: Greg K-H <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] INPUT: add MODALIAS to the event environment
-References: <11371818082670@kroah.com> <11371818084013@kroah.com> <43C88898.10900@ums.usu.ru> <20060114110401.GA11237@vrfy.org> <43C8F962.9030409@ums.usu.ru> <20060114132138.GA12273@vrfy.org> <43C8FFD7.3030408@ums.usu.ru> <20060114141135.GA12581@vrfy.org>
-In-Reply-To: <20060114141135.GA12581@vrfy.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.27; VDF: 6.33.0.123; host: usu2.usu.ru)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060114065235.GA4539@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers wrote:
-
->Do you have any subsystem left, that could
->support modalias, but doesn't?
->  
+On 1/14/06, Dave Jones <davej@redhat.com> wrote:
+> Andi,
+>  Sometime in the last week something was introduced to Linus'
+> tree which makes my dual EM64T go nuts when X tries to start.
+> By "go nuts", I mean it does various random things, seen so
+> far..
+> - Machine check. (I'm convinced this isn't a hardware problem
+>   despite the new addition telling me otherwise :)
+> - Reboot
+> - Total lockup
+> - NMI watchdog firing, and then lockup
 >
-Probably not. On my system, udev loads every module it should.
+> I've tried backing out a handful of the x86-64 patches, and
+> didn't get too far, as some of them are dependant on others,
+> it quickly became a real mess to try to bisect where exactly it broke.
+>
+> Any ideas for potential candidates to try & back out ?
 
--- 
-Alexander E. Patrakov
+Did you perhaps take a look at my report ? -git{6,7} were
+ bad for me, and the netconsole stack was, uhm, interesting.
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0601.1/2130.html
+
+-git8 made the problem disappear. Haven't tested more recent
+ snapshots.
+
+Ciao,
+
+--alessandro
+
+ "Somehow all you ever need is, never really quite enough, you know"
+
+   (Bruce Springsteen - "Reno")

@@ -1,83 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423251AbWANBRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423250AbWANBVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423251AbWANBRk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 20:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423245AbWANBRj
+	id S1423250AbWANBVf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 20:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423253AbWANBVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 20:17:39 -0500
-Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:36481 "EHLO
-	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S1422883AbWANBRj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 20:17:39 -0500
-Date: Fri, 13 Jan 2006 20:17:26 -0500
-From: Stuffed Crust <pizza@shaftnet.org>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: wireless: recap of current issues (configuration)
-Message-ID: <20060114011726.GA19950@shaftnet.org>
-Mail-Followup-To: Johannes Berg <johannes@sipsolutions.net>,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com> <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-In-Reply-To: <1137191522.2520.63.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Fri, 13 Jan 2006 20:17:27 -0500 (EST)
+	Fri, 13 Jan 2006 20:21:35 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:12304 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S1423250AbWANBVe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 20:21:34 -0500
+Message-ID: <43C85213.40808@domdv.de>
+Date: Sat, 14 Jan 2006 02:21:23 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Lang <dlang@digitalinsight.com>
+CC: Sven-Thorsten Dietrich <sven@mvista.com>, thockin@hockin.org,
+       Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dual core Athlons and unsynced TSCs
+References: <1137178855.15108.42.camel@mindpipe><Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz><20060113215609.GA30634@hockin.org><Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz> <1137190698.2536.65.camel@localhost.localdomain> <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz> <43C848C7.1070701@domdv.de> <Pine.LNX.4.62.0601131701590.9821@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0601131701590.9821@qynat.qvtvafvgr.pbz>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Lang wrote:
+[snip]
+> I'm not saying it's the right answer, but it's one of two workarounds
+> currently available.
+> 
+> idle=poll causes increased power useage
+> 
+> timer source change (mentioned earlier in this thread) limits timer
+> precision
+> 
+> neither of these are fixes, but by understanding the different costs
+> people can choose the work around they want to use while waiting for a
+> better fix.
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The problem being that some of us use their laptops for audio work too.
+And then high battery usage, noisy fans or lack of high res timers will
+be really bad.
 
-On Fri, Jan 13, 2006 at 11:32:02PM +0100, Johannes Berg wrote:
-> I'm not sure this is worth it. While putting this into the WiPHY device
-> creates more logic there, putting knowledge like 'how many different
-> channels can this WiPHY device support' etc. into some representation
-> that can be used by the stack to decide is much more trouble than it is
-> worth.
-
-Do you mean 'simultaneous' channel operation, or something more mundane=20
-like simply 'what frequencies can I run on'?
-
-If you're talking about the former.. things get quite complicated, but=20
-that could be handled by having two WiPHY devices registered.
-
-As for the latter, when you factor in the needs of 802.11d and its
-dependents (802.11j, 802.11k, and others) the stack is going to need to
-be aware of the available channel sets; both in the sense of hardware
-support and also the various regulatory requirements.=20
-
-The hardware knows what frequencies it supports.  Unfortunately this has=20
-to be a somewhat dynamic thing, as this is often not queryable until the=20
-device firmware is up and running. =20
-
-This can be accomplished by passing a static table to the=20
-register_wiphy_device() call (or perhaps via a struct wiphy_dev=20
-parameter) or through a more explicit, dynamic interface like:
-
-  wiphy_register_supported_frequency(hw, 2412).=20
-
- - Solomon
---=20
-Solomon Peachy        				 ICQ: 1318344
-Melbourne, FL 					=20
-Quidquid latine dictum sit, altum viditur.
-
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFDyFEmPuLgii2759ARApk7AJ9vrsX3JKIgGn2/b6PhUQIkEF5jQACgzUaE
-GZgZOrx7cdf72jqEHRGsRCk=
-=QDWO
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+Simple example:
+I do final mastering work using my laptop and Ardour/Jack/JAMin out of
+house in a place with a good stage audio system (Mackie mixer, 2KW
+Dynacord Amp/Syrincs S3) and a sufficient listening space to get a
+proper bass mix. I run on battery in this case to avoid any kind of
+audio interference (ground loops, etc). Now thinking of a dual core
+laptop...
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

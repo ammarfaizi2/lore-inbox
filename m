@@ -1,98 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945924AbWANAm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945906AbWANAno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945924AbWANAm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 19:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945917AbWANAmN
+	id S1945906AbWANAno (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 19:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945922AbWANAnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 19:42:13 -0500
-Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:18862 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1945916AbWANAl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 19:41:58 -0500
-Message-Id: <20060114004114.241169000@dorka.pomaz.szeredi.hu>
-References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
-Date: Sat, 14 Jan 2006 01:39:59 +0100
-From: Miklos Szeredi <miklos@szeredi.hu>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 11/17] fuse: add number of waiting requests attribute
-Content-Disposition: inline; filename=fuse_num_waiting.patch
+	Fri, 13 Jan 2006 19:43:39 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50097 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1945906AbWANAn0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 19:43:26 -0500
+Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-ia64@vger.kernel.org, ak@suse.de,
+       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200601131724.42054.bjorn.helgaas@hp.com>
+References: <20060104221627.GA26064@lists.us.dell.com>
+	 <20060106172140.GB19605@lists.us.dell.com>
+	 <20060106223932.GB9230@lists.us.dell.com>
+	 <200601131724.42054.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 14 Jan 2006 00:45:22 +0000
+Message-Id: <1137199522.9161.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the 'waiting' attribute which indicates how many
-filesystem requests are currently waiting to be completed.  A non-zero
-value without any filesystem activity indicates a hung or deadlocked
-filesystem.
+> Ugh.  I really hate this sort of sharing.  Could dmi_scan.c go in
+> drivers/firmware/ or something instead?
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Not unreasonable. The DMI standard for the tables isn't specifically an
+x86 thing but drawn mostly from the management group stuff. The arch
+specific stuff is whether you scan for a table or ask the EFIng firmware
 
-Index: linux/fs/fuse/inode.c
-===================================================================
---- linux.orig/fs/fuse/inode.c	2006-01-14 00:22:44.000000000 +0100
-+++ linux/fs/fuse/inode.c	2006-01-14 00:33:16.000000000 +0100
-@@ -555,7 +555,16 @@ static struct file_system_type fuse_fs_t
- 	.kill_sb	= kill_anon_super,
- };
- 
-+static ssize_t fuse_conn_waiting_show(struct fuse_conn *fc, char *page)
-+{
-+	return sprintf(page, "%i\n", atomic_read(&fc->num_waiting));
-+}
-+
-+static struct fuse_conn_attr fuse_conn_waiting =
-+	__ATTR(waiting, 0400, fuse_conn_waiting_show, NULL);
-+
- static struct attribute *fuse_conn_attrs[] = {
-+	&fuse_conn_waiting.attr,
- 	NULL,
- };
- 
-Index: linux/fs/fuse/dev.c
-===================================================================
---- linux.orig/fs/fuse/dev.c	2006-01-14 00:22:44.000000000 +0100
-+++ linux/fs/fuse/dev.c	2006-01-14 00:23:16.000000000 +0100
-@@ -109,18 +109,24 @@ struct fuse_req *fuse_get_request(struct
- 	int intr;
- 	sigset_t oldset;
- 
-+	atomic_inc(&fc->num_waiting);
- 	block_sigs(&oldset);
- 	intr = down_interruptible(&fc->outstanding_sem);
- 	restore_sigs(&oldset);
--	return intr ? NULL : do_get_request(fc);
-+	if (intr) {
-+		atomic_dec(&fc->num_waiting);
-+		return NULL;
-+	} 
-+	return do_get_request(fc);
- }
- 
- static void fuse_putback_request(struct fuse_conn *fc, struct fuse_req *req)
- {
- 	spin_lock(&fuse_lock);
--	if (req->preallocated)
-+	if (req->preallocated) {
-+		atomic_dec(&fc->num_waiting);
- 		list_add(&req->list, &fc->unused_list);
--	else
-+	} else
- 		fuse_request_free(req);
- 
- 	/* If we are in debt decrease that first */
-Index: linux/fs/fuse/fuse_i.h
-===================================================================
---- linux.orig/fs/fuse/fuse_i.h	2006-01-14 00:22:44.000000000 +0100
-+++ linux/fs/fuse/fuse_i.h	2006-01-14 00:23:16.000000000 +0100
-@@ -280,6 +280,9 @@ struct fuse_conn {
- 	/** Is create not implemented by fs? */
- 	unsigned no_create : 1;
- 
-+	/** The number of requests waiting for completion */
-+	atomic_t num_waiting;
-+
- 	/** Negotiated minor version */
- 	unsigned minor;
- 
-
---

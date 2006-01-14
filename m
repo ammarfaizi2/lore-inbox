@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWANHBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWANHCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbWANHBM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 02:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWANHBL
+	id S1751728AbWANHCk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 02:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWANHCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 02:01:11 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:35994 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751678AbWANHBK (ORCPT
+	Sat, 14 Jan 2006 02:02:40 -0500
+Received: from xenotime.net ([66.160.160.81]:60065 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751728AbWANHCj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 02:01:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=TToQZePeNIp82UmgLyQrbCNqhNeAdrKaFGkxTXPyVyGVdywFQOT2wPGviP88dtBMdUuc0MOOpC2fovdQnZyJ8R7aiTxP6Z9oDq5GZwHnBTB0+16t4VI1HqvcqofnCnuACXhxEIhRuWPlXj+c3hfjBE1IQl+89ydtiLhfZkqYTuI=
-Message-ID: <43C8A1B1.2030903@gmail.com>
-Date: Sat, 14 Jan 2006 16:01:05 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re:  ignore this message
-References: <11372219012212-git-send-email-htejun@gmail.com>
-In-Reply-To: <11372219012212-git-send-email-htejun@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 14 Jan 2006 02:02:39 -0500
+Date: Fri, 13 Jan 2006 23:02:37 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: akpm <akpm@osdl.org>
+Cc: buraphalinuxserver@gmail.com, linux-kernel@vger.kernel.org, okir@suse.de
+Subject: [PATCH] nlm kernel-parameters update
+Message-Id: <20060113230237.3c5983d6.rdunlap@xenotime.net>
+In-Reply-To: <20060113223309.011188f1.rdunlap@xenotime.net>
+References: <5d75f4610601132130s4870d9eaq9261450905d6b888@mail.gmail.com>
+	<20060113223309.011188f1.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> barrier.txt got lost while the new barrier patchset was climbing up
-> the ladder to the mainline.  Add it back.
-> 
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
-> 
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Sh*t, script screw up.  Please ignore this message.  Sorry.
+Add 2 lockd kernel parameters and spell 2 others correctly.
 
--- 
-tejun
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/kernel-parameters.txt |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+--- linux-2615-g9.orig/Documentation/kernel-parameters.txt
++++ linux-2615-g9/Documentation/kernel-parameters.txt
+@@ -712,9 +712,17 @@ running once the system is up.
+ 	load_ramdisk=	[RAM] List of ramdisks to load from floppy
+ 			See Documentation/ramdisk.txt.
+ 
+-	lockd.udpport=	[NFS]
++	lockd.nlm_grace_period=P  [NFS] Assign grace period.
++			Format: <integer>
++
++	lockd.nlm_tcpport=N	[NFS] Assign TCP port.
++			Format: <integer>
+ 
+-	lockd.tcpport=	[NFS]
++	lockd.nlm_timeout=T	[NFS] Assign timeout value.
++			Format: <integer>
++
++	lockd.nlm_udpport=M	[NFS] Assign UDP port.
++			Format: <integer>
+ 
+ 	logibm.irq=	[HW,MOUSE] Logitech Bus Mouse Driver
+ 			Format: <irq>
+
+
+---

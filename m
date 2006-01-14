@@ -1,87 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWANBem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945967AbWANBjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbWANBem (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 20:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWANBem
+	id S1945967AbWANBjh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 20:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945969AbWANBjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 20:34:42 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1810 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030365AbWANBel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 20:34:41 -0500
-Date: Sat, 14 Jan 2006 02:34:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Domen Puncer <domen@coderock.org>,
-       linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
-       davem@davemloft.net
-Subject: [2.6 patch] Remove arch/mips/arc/salone.c
-Message-ID: <20060114013440.GV29663@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Fri, 13 Jan 2006 20:39:37 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:30652 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1945967AbWANBjg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 20:39:36 -0500
+Subject: RE: Dual core Athlons and unsynced TSCs
+From: john stultz <johnstul@us.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Roger Heflin <rheflin@atipa.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1137202039.1408.42.camel@mindpipe>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
+	 <1137168254.7241.32.camel@localhost.localdomain>
+	 <1137174463.15108.4.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
+	 <1137174848.15108.11.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+	 <1137178506.15108.38.camel@mindpipe>
+	 <1137182991.8283.7.camel@localhost.localdomain>
+	 <1137198221.11300.21.camel@cog.beaverton.ibm.com>
+	 <1137201012.6727.1.camel@localhost.localdomain>
+	 <1137201250.1408.39.camel@mindpipe>
+	 <1137201821.11300.30.camel@cog.beaverton.ibm.com>
+	 <1137202039.1408.42.camel@mindpipe>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 17:39:33 -0800
+Message-Id: <1137202773.11300.37.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Domen Puncer <domen@coderock.org>
+On Fri, 2006-01-13 at 20:27 -0500, Lee Revell wrote:
+> On Fri, 2006-01-13 at 17:23 -0800, john stultz wrote:
+> > On Fri, 2006-01-13 at 20:14 -0500, Lee Revell wrote:
+> > > On Fri, 2006-01-13 at 20:10 -0500, Steven Rostedt wrote:
+> > > > 
+> > > > Thanks, I'll add that to my list of tests too.
+> > > > 
+> > > > Oh and 2.6.15 passed as well (with clock=pmtmr) 
+> > > 
+> > > It really seems like it would fail if you gave it enough time due to the
+> > > rdtsc in monotonic_clock()...
+> > 
+> > Currently monotonic_clock()is only used by the hangcheck-timer, and is
+> > not used by gettimeofday/clock_gettime (even w/ CLOCK_MONOTONIC). 
+> > 
+> > So there may still be an issue there w/ the hangcheck-timer(for x86-64,
+> > on i386 the acpi pm timer can be used for monotonic_clock), but its
+> > doesn't affect the time related userland interfaces.
+> 
+> OK so the last question is how do we make sure the kernel uses the
+> clock=pmtmr behavior by default on those machines?
 
-ArcLoad(), ArcInvoke(), ArcExecute() aren't used.
+This is as I understand it:
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+With 2.6.15 on x86-64:
+	If available, alternate timesources (HPET, ACPI PM) will be used if
+available on AMD SMP systems. (clock= is i386 only)
 
----
+With 2.6.15 on i386:
+	If CONFIG_X86_PM_TIMER is enabled, and available it is the preferred
+clocksource over the TSC.  Some distros have changed this priority
+causing the TSC to be preferred. In these cases clock=pmtmr is needed.
 
-This patch was already sent on:
-- 5 Jan 2006
+How's that?
+-john
 
-This patch was sent by Alexey Dobriyan on:
-- 8 Nov 2005
-
- arch/mips/arc/Makefile |    2 +-
- arch/mips/arc/salone.c |   25 -------------------------
- 2 files changed, 1 insertion(+), 26 deletions(-)
-
---- linux-kj.orig/arch/mips/arc/Makefile	2005-11-08 20:46:24.000000000 +0300
-+++ linux-kj/arch/mips/arc/Makefile	2005-11-08 20:47:36.000000000 +0300
-@@ -3,7 +3,7 @@
- #
- 
- lib-y				+= cmdline.o env.o file.o identify.o init.o \
--				   misc.o salone.o time.o tree.o
-+				   misc.o time.o tree.o
- 
- lib-$(CONFIG_ARC_MEMORY)	+= memory.o
- lib-$(CONFIG_ARC_CONSOLE)	+= arc_con.o
-Index: linux-kj/arch/mips/arc/salone.c
-===================================================================
---- linux-kj.orig/arch/mips/arc/salone.c	2005-11-08 20:46:24.000000000 +0300
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,24 +0,0 @@
--/*
-- * Routines to load into memory and execute stand-along program images using
-- * ARCS PROM firmware.
-- *
-- * Copyright (C) 1996 David S. Miller (dm@engr.sgi.com)
-- */
--#include <linux/init.h>
--#include <asm/sgialib.h>
--
--LONG __init ArcLoad(CHAR *Path, ULONG TopAddr, ULONG *ExecAddr, ULONG *LowAddr)
--{
--	return ARC_CALL4(load, Path, TopAddr, ExecAddr, LowAddr);
--}
--
--LONG __init ArcInvoke(ULONG ExecAddr, ULONG StackAddr, ULONG Argc, CHAR *Argv[],
--	CHAR *Envp[])
--{
--	return ARC_CALL5(invoke, ExecAddr, StackAddr, Argc, Argv, Envp);
--}
--
--LONG __init ArcExecute(CHAR *Path, LONG Argc, CHAR *Argv[], CHAR *Envp[])
--{
--	return ARC_CALL4(exec, Path, Argc, Argv, Envp);
--}
 

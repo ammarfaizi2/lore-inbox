@@ -1,73 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945988AbWANDm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945992AbWANDs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945988AbWANDm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 22:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945992AbWANDm3
+	id S1945992AbWANDs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 22:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945993AbWANDs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 22:42:29 -0500
-Received: from uproxy.gmail.com ([66.249.92.206]:17377 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1945988AbWANDm3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 22:42:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=btxDJH0N/f98FRJ1UR5qky14PQ6AxVwhLX2E2VIyAce+bnCs8F+faTpBKWjZH1TU7TOT4Dkjns9yPR/jrHgw/JZEJl469mX2t5VQpYW4sv+fwuagCUyql+72X7+S0m4R+fIRYbpLqA/70tfK+HQDuv8CtXel9t5gDOzpj+QCdXk=
-Message-ID: <e5bb8d810601131942r53712423kbd924757195f398b@mail.gmail.com>
-Date: Fri, 13 Jan 2006 21:42:26 -0600
-From: Philipp Rumpf <prumpf@gmail.com>
-To: Dave Jones <davej@redhat.com>, Con Kolivas <kernel@kolivas.org>,
-       ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-ck1
-In-Reply-To: <20060104190554.GG10592@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 13 Jan 2006 22:48:58 -0500
+Received: from mail.kroah.org ([69.55.234.183]:57305 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1945992AbWANDs6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 22:48:58 -0500
+Date: Fri, 13 Jan 2006 19:44:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] kobject: don't oops on null kobject.name
+Message-ID: <20060114034404.GA23061@kroah.com>
+References: <200601132209_MC3-1-B5D3-F9A9@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200601041200.03593.kernel@kolivas.org>
-	 <20060104190554.GG10592@redhat.com>
+In-Reply-To: <200601132209_MC3-1-B5D3-F9A9@compuserve.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Out of curiosity, why didn't you do the monitoring using
-/proc/acpi/battery/.../{state,info} (while running off battery)?  I
-think that should have much finer granularity, and avoid various
-capacitors that might be in the way and explain the effect you
-noticed.
+On Fri, Jan 13, 2006 at 10:07:33PM -0500, Chuck Ebbert wrote:
+> In-Reply-To: <20060114000246.GA7549@kroah.com>
+> 
+> On Fri, 13 Jan 2006, Greg KH wrote:
+> 
+> > Hm, I looked at the only user of kobjects in the kernel that I know of
+> > that doesn't use sysfs (the cdev code) and even it sets the kobject name
+> > to something sane, so I think we should be safe with this.
+> 
+> Well, something is still wrong.
+> 
+> I applied your patch to prevent registration of objects with null names on
+> top of my patch, then applied this to see if my test still triggered, and
+> the message was printed:
 
-I also tried something that sounds like dynticks a couple of years
-back, but found that TCP timers made the really long idle times I was
-looking for (my idea was actually to use the RTC to wake up the CPU)
-impossible.
+What was the message?  What traceback?
 
-prumpf
+So, I think the point is that it isn't a kobject_add() issue, right?
 
-On 1/4/06, Dave Jones <davej@redhat.com> wrote:
-> On Wed, Jan 04, 2006 at 12:00:00PM +1100, Con Kolivas wrote:
->  >  +2.6.15-dynticks-060101.patch
->  >  +dynticks-disable_smp_config.patch
->  > Latest version of the dynticks patch. This is proving stable and effective on
->  > virtually all uniprocessor machines and will benefit systems that desire
->  > power savings. SMP kernels (even on UP machines) still misbehave so this
->  > config option is not available by default for this stable kernel.
->
-> I've been curious for some time if this would actually show any measurable
-> power savings. So I hooked up my laptop to a gizmo[1] that shows how much
-> power is being sucked.
->
-> both before, and after, it shows my laptop when idle is pulling 21W.
-> So either the savings here are <1W (My device can't measure more accurately
-> than a single watt), or this isn't actually buying us anything at all, or
-> something needs tuning.
->
->                 Dave
->
-> [1] http://www.thinkgeek.com/gadgets/electronic/7657/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+> 
+> 
+> --- 2.6.15a.orig/lib/kobject.c
+> +++ 2.6.15a/lib/kobject.c
+> @@ -72,8 +72,10 @@ static int get_kobj_path_length(struct k
+>  	 * Add 1 to strlen for leading '/' of each level.
+>  	 */
+>  	do {
+> -		if (kobject_name(parent) == NULL)
+> +		if (kobject_name(parent) == NULL) {
+> +			printk("get_kobj_path_length: encountered NULL name\n");
+>  			return 0;
+> +		}
+>  		length += strlen(kobject_name(parent)) + 1;
+>  		parent = parent->parent;
+>  	} while (parent);
+> 
+> 
+> To reproduce:
+> 
+> Start with vanilla 2.6.15 and apply the three patches, which I called:
+> 
+>         kobject_dont_register_null_name.patch  <- my original
+>         kobject_handle_null_object_name.patch  <- Greg's
+>         kobject_debug_null_path.patch          <- included above
+> 
+> On a machine with an ATAPI CD-ROM, boot with "hdx=ide-scsi" where
+> hdx is the CD-ROM's drivename.  Then try to mount a CD:
+> 
+>         mount -t iso9660 /dev/hdx /mnt/cdrom
+> 
+> Note that hdx is being controlled by ide-scsi so this should fail.  You
+> will see the message from my new patch print in the kernel log.
+> 
+> NOTE:  This won't happen on 2.6.15-current because
+> fs/super.c::kill_block_super() no longer calls kobject_uevent().
+
+So everything's fixed and we don't have to worry about it anymore :)
+
+Seriously, I agree, we still need to fix it for -stable.
+
+thanks,
+
+greg k-h

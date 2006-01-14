@@ -1,34 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWANO5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751766AbWANPJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751758AbWANO5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWANO5y
+	id S1751766AbWANPJj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 10:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751767AbWANPJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:57:54 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:28367 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751758AbWANO5x (ORCPT
+	Sat, 14 Jan 2006 10:09:39 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53905 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751766AbWANPJi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:57:53 -0500
-Date: Sat, 14 Jan 2006 15:58:04 +0100
+	Sat, 14 Jan 2006 10:09:38 -0500
+Date: Sat, 14 Jan 2006 16:09:49 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       aia21@cantab.net
-Subject: [patch 2.6.15-mm4] sem2mutex: NTFS
-Message-ID: <20060114145804.GA21978@elte.hu>
-References: <20060114142633.GA17012@elte.hu>
+       rolandd@cisco.com
+Subject: [patch 2.6.15-mm4] sem2mutex: infiniband, #2
+Message-ID: <20060114150949.GA24284@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060114142633.GA17012@elte.hu>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.1
+X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.1 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -40,557 +37,581 @@ semaphore to mutex conversion.
 the conversion was generated via scripts, and the result was validated
 automatically via a script as well.
 
-build and boot tested.
+build tested.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ----
 
- fs/ntfs/aops.c     |    6 ++---
- fs/ntfs/compress.c |    4 +--
- fs/ntfs/inode.c    |    8 +++----
- fs/ntfs/inode.h    |    6 ++---
- fs/ntfs/mft.c      |   58 ++++++++++++++++++++++++++---------------------------
- fs/ntfs/ntfs.h     |    2 -
- fs/ntfs/super.c    |   42 +++++++++++++++++++-------------------
- 7 files changed, 63 insertions(+), 63 deletions(-)
+ drivers/infiniband/core/ucm.c                |   32 ++++++++++++------------
+ drivers/infiniband/core/user_mad.c           |    2 -
+ drivers/infiniband/hw/mthca/mthca_cmd.c      |    6 ++--
+ drivers/infiniband/hw/mthca/mthca_dev.h      |   10 ++++---
+ drivers/infiniband/hw/mthca/mthca_mcg.c      |   10 +++----
+ drivers/infiniband/hw/mthca/mthca_memfree.c  |   36 +++++++++++++--------------
+ drivers/infiniband/hw/mthca/mthca_memfree.h  |    8 +++---
+ drivers/infiniband/hw/mthca/mthca_provider.c |    6 ++--
+ drivers/infiniband/ulp/srp/ib_srp.c          |   14 +++++-----
+ drivers/infiniband/ulp/srp/ib_srp.h          |    5 +--
+ 10 files changed, 66 insertions(+), 63 deletions(-)
 
-Index: linux/fs/ntfs/aops.c
+Index: linux/drivers/infiniband/core/ucm.c
 ===================================================================
---- linux.orig/fs/ntfs/aops.c
-+++ linux/fs/ntfs/aops.c
-@@ -1279,18 +1279,18 @@ unm_done:
- 		
- 		tni = locked_nis[nr_locked_nis];
- 		/* Get the base inode. */
--		down(&tni->extent_lock);
-+		mutex_lock(&tni->extent_lock);
- 		if (tni->nr_extents >= 0)
- 			base_tni = tni;
- 		else {
- 			base_tni = tni->ext.base_ntfs_ino;
- 			BUG_ON(!base_tni);
- 		}
--		up(&tni->extent_lock);
-+		mutex_unlock(&tni->extent_lock);
- 		ntfs_debug("Unlocking %s inode 0x%lx.",
- 				tni == base_tni ? "base" : "extent",
- 				tni->mft_no);
--		up(&tni->mrec_lock);
-+		mutex_unlock(&tni->mrec_lock);
- 		atomic_dec(&tni->count);
- 		iput(VFS_I(base_tni));
- 	}
-Index: linux/fs/ntfs/compress.c
-===================================================================
---- linux.orig/fs/ntfs/compress.c
-+++ linux/fs/ntfs/compress.c
-@@ -67,7 +67,7 @@ static DEFINE_SPINLOCK(ntfs_cb_lock);
- /**
-  * allocate_compression_buffers - allocate the decompression buffers
-  *
-- * Caller has to hold the ntfs_lock semaphore.
-+ * Caller has to hold the ntfs_lock mutex.
-  *
-  * Return 0 on success or -ENOMEM if the allocations failed.
-  */
-@@ -84,7 +84,7 @@ int allocate_compression_buffers(void)
- /**
-  * free_compression_buffers - free the decompression buffers
-  *
-- * Caller has to hold the ntfs_lock semaphore.
-+ * Caller has to hold the ntfs_lock mutex.
-  */
- void free_compression_buffers(void)
+--- linux.orig/drivers/infiniband/core/ucm.c
++++ linux/drivers/infiniband/core/ucm.c
+@@ -61,7 +61,7 @@ struct ib_ucm_device {
+ };
+ 
+ struct ib_ucm_file {
+-	struct semaphore mutex;
++	struct mutex mutex;
+ 	struct file *filp;
+ 	struct ib_ucm_device *device;
+ 
+@@ -150,7 +150,7 @@ static void ib_ucm_cleanup_events(struct
  {
-Index: linux/fs/ntfs/inode.c
-===================================================================
---- linux.orig/fs/ntfs/inode.c
-+++ linux/fs/ntfs/inode.c
-@@ -382,7 +382,7 @@ void __ntfs_init_inode(struct super_bloc
- 	atomic_set(&ni->count, 1);
- 	ni->vol = NTFS_SB(sb);
- 	ntfs_init_runlist(&ni->runlist);
--	init_MUTEX(&ni->mrec_lock);
-+	mutex_init(&ni->mrec_lock);
- 	ni->page = NULL;
- 	ni->page_ofs = 0;
- 	ni->attr_list_size = 0;
-@@ -394,7 +394,7 @@ void __ntfs_init_inode(struct super_bloc
- 	ni->itype.index.collation_rule = 0;
- 	ni->itype.index.block_size_bits = 0;
- 	ni->itype.index.vcn_size_bits = 0;
--	init_MUTEX(&ni->extent_lock);
-+	mutex_init(&ni->extent_lock);
- 	ni->nr_extents = 0;
- 	ni->ext.base_ntfs_ino = NULL;
- }
-@@ -3023,7 +3023,7 @@ int ntfs_write_inode(struct inode *vi, i
- 	if (NInoDirty(ni))
- 		err = write_mft_record(ni, m, sync);
- 	/* Write all attached extent mft records. */
--	down(&ni->extent_lock);
-+	mutex_lock(&ni->extent_lock);
- 	if (ni->nr_extents > 0) {
- 		ntfs_inode **extent_nis = ni->ext.extent_ntfs_inos;
- 		int i;
-@@ -3050,7 +3050,7 @@ int ntfs_write_inode(struct inode *vi, i
- 			}
- 		}
+ 	struct ib_ucm_event *uevent;
+ 
+-	down(&ctx->file->mutex);
++	mutex_lock(&ctx->file->mutex);
+ 	list_del(&ctx->file_list);
+ 	while (!list_empty(&ctx->events)) {
+ 
+@@ -165,7 +165,7 @@ static void ib_ucm_cleanup_events(struct
+ 
+ 		kfree(uevent);
  	}
--	up(&ni->extent_lock);
-+	mutex_unlock(&ni->extent_lock);
- 	unmap_mft_record(ni);
- 	if (unlikely(err))
- 		goto err_out;
-Index: linux/fs/ntfs/inode.h
+-	up(&ctx->file->mutex);
++	mutex_unlock(&ctx->file->mutex);
+ }
+ 
+ static struct ib_ucm_context *ib_ucm_ctx_alloc(struct ib_ucm_file *file)
+@@ -400,11 +400,11 @@ static int ib_ucm_event_handler(struct i
+ 	if (result)
+ 		goto err2;
+ 
+-	down(&ctx->file->mutex);
++	mutex_lock(&ctx->file->mutex);
+ 	list_add_tail(&uevent->file_list, &ctx->file->events);
+ 	list_add_tail(&uevent->ctx_list, &ctx->events);
+ 	wake_up_interruptible(&ctx->file->poll_wait);
+-	up(&ctx->file->mutex);
++	mutex_unlock(&ctx->file->mutex);
+ 	return 0;
+ 
+ err2:
+@@ -430,7 +430,7 @@ static ssize_t ib_ucm_event(struct ib_uc
+ 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
+ 		return -EFAULT;
+ 
+-	down(&file->mutex);
++	mutex_lock(&file->mutex);
+ 	while (list_empty(&file->events)) {
+ 
+ 		if (file->filp->f_flags & O_NONBLOCK) {
+@@ -445,9 +445,9 @@ static ssize_t ib_ucm_event(struct ib_uc
+ 
+ 		prepare_to_wait(&file->poll_wait, &wait, TASK_INTERRUPTIBLE);
+ 
+-		up(&file->mutex);
++		mutex_unlock(&file->mutex);
+ 		schedule();
+-		down(&file->mutex);
++		mutex_lock(&file->mutex);
+ 
+ 		finish_wait(&file->poll_wait, &wait);
+ 	}
+@@ -507,7 +507,7 @@ static ssize_t ib_ucm_event(struct ib_uc
+ 	kfree(uevent->info);
+ 	kfree(uevent);
+ done:
+-	up(&file->mutex);
++	mutex_unlock(&file->mutex);
+ 	return result;
+ }
+ 
+@@ -526,9 +526,9 @@ static ssize_t ib_ucm_create_id(struct i
+ 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
+ 		return -EFAULT;
+ 
+-	down(&file->mutex);
++	mutex_lock(&file->mutex);
+ 	ctx = ib_ucm_ctx_alloc(file);
+-	up(&file->mutex);
++	mutex_unlock(&file->mutex);
+ 	if (!ctx)
+ 		return -ENOMEM;
+ 
+@@ -1261,7 +1261,7 @@ static int ib_ucm_open(struct inode *ino
+ 	INIT_LIST_HEAD(&file->ctxs);
+ 	init_waitqueue_head(&file->poll_wait);
+ 
+-	init_MUTEX(&file->mutex);
++	mutex_init(&file->mutex);
+ 
+ 	filp->private_data = file;
+ 	file->filp = filp;
+@@ -1275,11 +1275,11 @@ static int ib_ucm_close(struct inode *in
+ 	struct ib_ucm_file *file = filp->private_data;
+ 	struct ib_ucm_context *ctx;
+ 
+-	down(&file->mutex);
++	mutex_lock(&file->mutex);
+ 	while (!list_empty(&file->ctxs)) {
+ 		ctx = list_entry(file->ctxs.next,
+ 				 struct ib_ucm_context, file_list);
+-		up(&file->mutex);
++		mutex_unlock(&file->mutex);
+ 
+ 		mutex_lock(&ctx_id_mutex);
+ 		idr_remove(&ctx_id_table, ctx->id);
+@@ -1289,9 +1289,9 @@ static int ib_ucm_close(struct inode *in
+ 		ib_ucm_cleanup_events(ctx);
+ 		kfree(ctx);
+ 
+-		down(&file->mutex);
++		mutex_lock(&file->mutex);
+ 	}
+-	up(&file->mutex);
++	mutex_unlock(&file->mutex);
+ 	kfree(file);
+ 	return 0;
+ }
+Index: linux/drivers/infiniband/core/user_mad.c
 ===================================================================
---- linux.orig/fs/ntfs/inode.h
-+++ linux/fs/ntfs/inode.h
-@@ -29,7 +29,7 @@
- #include <linux/seq_file.h>
- #include <linux/list.h>
- #include <asm/atomic.h>
+--- linux.orig/drivers/infiniband/core/user_mad.c
++++ linux/drivers/infiniband/core/user_mad.c
+@@ -47,7 +47,7 @@
+ #include <linux/kref.h>
+ 
+ #include <asm/uaccess.h>
 -#include <asm/semaphore.h>
 +#include <linux/mutex.h>
  
- #include "layout.h"
- #include "volume.h"
-@@ -81,7 +81,7 @@ struct _ntfs_inode {
- 	 * The following fields are only valid for real inodes and extent
- 	 * inodes.
- 	 */
--	struct semaphore mrec_lock; /* Lock for serializing access to the
-+	struct mutex mrec_lock; /* Lock for serializing access to the
- 				   mft record belonging to this inode. */
- 	struct page *page;	/* The page containing the mft record of the
- 				   inode. This should only be touched by the
-@@ -119,7 +119,7 @@ struct _ntfs_inode {
- 			u8 block_clusters;	/* Number of clusters per cb. */
- 		} compressed;
- 	} itype;
--	struct semaphore extent_lock;	/* Lock for accessing/modifying the
-+	struct mutex extent_lock;	/* Lock for accessing/modifying the
- 					   below . */
- 	s32 nr_extents;	/* For a base mft record, the number of attached extent
- 			   inodes (0 if none), for extent records and for fake
-Index: linux/fs/ntfs/mft.c
+ #include <rdma/ib_mad.h>
+ #include <rdma/ib_user_mad.h>
+Index: linux/drivers/infiniband/hw/mthca/mthca_cmd.c
 ===================================================================
---- linux.orig/fs/ntfs/mft.c
-+++ linux/fs/ntfs/mft.c
-@@ -104,8 +104,8 @@ err_out:
-  * map_mft_record - map, pin and lock an mft record
-  * @ni:		ntfs inode whose MFT record to map
-  *
-- * First, take the mrec_lock semaphore. We might now be sleeping, while waiting
-- * for the semaphore if it was already locked by someone else.
-+ * First, take the mrec_lock mutex. We might now be sleeping, while waiting
-+ * for the mutex if it was already locked by someone else.
-  *
-  * The page of the record is mapped using map_mft_record_page() before being
-  * returned to the caller.
-@@ -135,7 +135,7 @@ err_out:
-  * So that code will end up having to own the mrec_lock of all mft
-  * records/inodes present in the page before I/O can proceed. In that case we
-  * wouldn't need to bother with PG_locked and PG_uptodate as nobody will be
-- * accessing anything without owning the mrec_lock semaphore. But we do need
-+ * accessing anything without owning the mrec_lock mutex. But we do need
-  * to use them because of the read_cache_page() invocation and the code becomes
-  * so much simpler this way that it is well worth it.
-  *
-@@ -160,13 +160,13 @@ MFT_RECORD *map_mft_record(ntfs_inode *n
- 	atomic_inc(&ni->count);
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_cmd.c
++++ linux/drivers/infiniband/hw/mthca/mthca_cmd.c
+@@ -199,7 +199,7 @@ static int mthca_cmd_post(struct mthca_d
+ {
+ 	int err = 0;
  
- 	/* Serialize access to this mft record. */
--	down(&ni->mrec_lock);
-+	mutex_lock(&ni->mrec_lock);
+-	if (down_interruptible(&dev->cmd.hcr_sem))
++	if (mutex_lock_interruptible(&dev->cmd.hcr_mutex))
+ 		return -EINTR;
  
- 	m = map_mft_record_page(ni);
- 	if (likely(!IS_ERR(m)))
- 		return m;
+ 	if (event) {
+@@ -238,7 +238,7 @@ static int mthca_cmd_post(struct mthca_d
+ 					       op),                       dev->hcr + 6 * 4);
  
--	up(&ni->mrec_lock);
-+	mutex_unlock(&ni->mrec_lock);
- 	atomic_dec(&ni->count);
- 	ntfs_error(ni->vol->sb, "Failed with error code %lu.", -PTR_ERR(m));
- 	return m;
-@@ -217,7 +217,7 @@ void unmap_mft_record(ntfs_inode *ni)
- 	ntfs_debug("Entering for mft_no 0x%lx.", ni->mft_no);
- 
- 	unmap_mft_record_page(ni);
--	up(&ni->mrec_lock);
-+	mutex_unlock(&ni->mrec_lock);
- 	atomic_dec(&ni->count);
- 	/*
- 	 * If pure ntfs_inode, i.e. no vfs inode attached, we leave it to
-@@ -261,7 +261,7 @@ MFT_RECORD *map_extent_mft_record(ntfs_i
- 	 * in which case just return it. If not found, add it to the base
- 	 * inode before returning it.
- 	 */
--	down(&base_ni->extent_lock);
-+	mutex_lock(&base_ni->extent_lock);
- 	if (base_ni->nr_extents > 0) {
- 		extent_nis = base_ni->ext.extent_ntfs_inos;
- 		for (i = 0; i < base_ni->nr_extents; i++) {
-@@ -274,7 +274,7 @@ MFT_RECORD *map_extent_mft_record(ntfs_i
- 		}
- 	}
- 	if (likely(ni != NULL)) {
--		up(&base_ni->extent_lock);
-+		mutex_unlock(&base_ni->extent_lock);
- 		atomic_dec(&base_ni->count);
- 		/* We found the record; just have to map and return it. */
- 		m = map_mft_record(ni);
-@@ -301,7 +301,7 @@ map_err_out:
- 	/* Record wasn't there. Get a new ntfs inode and initialize it. */
- 	ni = ntfs_new_extent_inode(base_ni->vol->sb, mft_no);
- 	if (unlikely(!ni)) {
--		up(&base_ni->extent_lock);
-+		mutex_unlock(&base_ni->extent_lock);
- 		atomic_dec(&base_ni->count);
- 		return ERR_PTR(-ENOMEM);
- 	}
-@@ -312,7 +312,7 @@ map_err_out:
- 	/* Now map the record. */
- 	m = map_mft_record(ni);
- 	if (IS_ERR(m)) {
--		up(&base_ni->extent_lock);
-+		mutex_unlock(&base_ni->extent_lock);
- 		atomic_dec(&base_ni->count);
- 		ntfs_clear_extent_inode(ni);
- 		goto map_err_out;
-@@ -347,14 +347,14 @@ map_err_out:
- 		base_ni->ext.extent_ntfs_inos = tmp;
- 	}
- 	base_ni->ext.extent_ntfs_inos[base_ni->nr_extents++] = ni;
--	up(&base_ni->extent_lock);
-+	mutex_unlock(&base_ni->extent_lock);
- 	atomic_dec(&base_ni->count);
- 	ntfs_debug("Done 2.");
- 	*ntfs_ino = ni;
- 	return m;
- unm_err_out:
- 	unmap_mft_record(ni);
--	up(&base_ni->extent_lock);
-+	mutex_unlock(&base_ni->extent_lock);
- 	atomic_dec(&base_ni->count);
- 	/*
- 	 * If the extent inode was not attached to the base inode we need to
-@@ -399,12 +399,12 @@ void __mark_mft_record_dirty(ntfs_inode 
- 	BUG_ON(NInoAttr(ni));
- 	mark_ntfs_record_dirty(ni->page, ni->page_ofs);
- 	/* Determine the base vfs inode and mark it dirty, too. */
--	down(&ni->extent_lock);
-+	mutex_lock(&ni->extent_lock);
- 	if (likely(ni->nr_extents >= 0))
- 		base_ni = ni;
- 	else
- 		base_ni = ni->ext.base_ntfs_ino;
--	up(&ni->extent_lock);
-+	mutex_unlock(&ni->extent_lock);
- 	__mark_inode_dirty(VFS_I(base_ni), I_DIRTY_SYNC | I_DIRTY_DATASYNC);
- }
- 
-@@ -983,7 +983,7 @@ BOOL ntfs_may_write_mft_record(ntfs_volu
- 		}
- 		ntfs_debug("Inode 0x%lx is not dirty.", mft_no);
- 		/* The inode is not dirty, try to take the mft record lock. */
--		if (unlikely(down_trylock(&ni->mrec_lock))) {
-+		if (unlikely(!mutex_trylock(&ni->mrec_lock))) {
- 			ntfs_debug("Mft record 0x%lx is already locked, do "
- 					"not write it.", mft_no);
- 			atomic_dec(&ni->count);
-@@ -1043,13 +1043,13 @@ BOOL ntfs_may_write_mft_record(ntfs_volu
- 	 * corresponding to this extent mft record attached.
- 	 */
- 	ni = NTFS_I(vi);
--	down(&ni->extent_lock);
-+	mutex_lock(&ni->extent_lock);
- 	if (ni->nr_extents <= 0) {
- 		/*
- 		 * The base inode has no attached extent inodes, write this
- 		 * extent mft record.
- 		 */
--		up(&ni->extent_lock);
-+		mutex_unlock(&ni->extent_lock);
- 		iput(vi);
- 		ntfs_debug("Base inode 0x%lx has no attached extent inodes, "
- 				"write the extent record.", na.mft_no);
-@@ -1072,7 +1072,7 @@ BOOL ntfs_may_write_mft_record(ntfs_volu
- 	 * extent mft record.
- 	 */
- 	if (!eni) {
--		up(&ni->extent_lock);
-+		mutex_unlock(&ni->extent_lock);
- 		iput(vi);
- 		ntfs_debug("Extent inode 0x%lx is not attached to its base "
- 				"inode 0x%lx, write the extent record.",
-@@ -1083,12 +1083,12 @@ BOOL ntfs_may_write_mft_record(ntfs_volu
- 			mft_no, na.mft_no);
- 	/* Take a reference to the extent ntfs inode. */
- 	atomic_inc(&eni->count);
--	up(&ni->extent_lock);
-+	mutex_unlock(&ni->extent_lock);
- 	/*
- 	 * Found the extent inode coresponding to this extent mft record.
- 	 * Try to take the mft record lock.
- 	 */
--	if (unlikely(down_trylock(&eni->mrec_lock))) {
-+	if (unlikely(!mutex_trylock(&eni->mrec_lock))) {
- 		atomic_dec(&eni->count);
- 		iput(vi);
- 		ntfs_debug("Extent mft record 0x%lx is already locked, do "
-@@ -2711,7 +2711,7 @@ mft_rec_already_initialized:
- 		 * have its page mapped and it is very easy to do.
- 		 */
- 		atomic_inc(&ni->count);
--		down(&ni->mrec_lock);
-+		mutex_lock(&ni->mrec_lock);
- 		ni->page = page;
- 		ni->page_ofs = ofs;
- 		/*
-@@ -2798,22 +2798,22 @@ int ntfs_extent_mft_record_free(ntfs_ino
- 	BUG_ON(NInoAttr(ni));
- 	BUG_ON(ni->nr_extents != -1);
- 
--	down(&ni->extent_lock);
-+	mutex_lock(&ni->extent_lock);
- 	base_ni = ni->ext.base_ntfs_ino;
--	up(&ni->extent_lock);
-+	mutex_unlock(&ni->extent_lock);
- 
- 	BUG_ON(base_ni->nr_extents <= 0);
- 
- 	ntfs_debug("Entering for extent inode 0x%lx, base inode 0x%lx.\n",
- 			mft_no, base_ni->mft_no);
- 
--	down(&base_ni->extent_lock);
-+	mutex_lock(&base_ni->extent_lock);
- 
- 	/* Make sure we are holding the only reference to the extent inode. */
- 	if (atomic_read(&ni->count) > 2) {
- 		ntfs_error(vol->sb, "Tried to free busy extent inode 0x%lx, "
- 				"not freeing.", base_ni->mft_no);
--		up(&base_ni->extent_lock);
-+		mutex_unlock(&base_ni->extent_lock);
- 		return -EBUSY;
- 	}
- 
-@@ -2831,7 +2831,7 @@ int ntfs_extent_mft_record_free(ntfs_ino
- 		break;
- 	}
- 
--	up(&base_ni->extent_lock);
-+	mutex_unlock(&base_ni->extent_lock);
- 
- 	if (unlikely(err)) {
- 		ntfs_error(vol->sb, "Extent inode 0x%lx is not attached to "
-@@ -2890,7 +2890,7 @@ rollback_error:
- 	return 0;
- rollback:
- 	/* Rollback what we did... */
--	down(&base_ni->extent_lock);
-+	mutex_lock(&base_ni->extent_lock);
- 	extent_nis = base_ni->ext.extent_ntfs_inos;
- 	if (!(base_ni->nr_extents & 3)) {
- 		int new_size = (base_ni->nr_extents + 4) * sizeof(ntfs_inode*);
-@@ -2899,7 +2899,7 @@ rollback:
- 		if (unlikely(!extent_nis)) {
- 			ntfs_error(vol->sb, "Failed to allocate internal "
- 					"buffer during rollback.%s", es);
--			up(&base_ni->extent_lock);
-+			mutex_unlock(&base_ni->extent_lock);
- 			NVolSetErrors(vol);
- 			goto rollback_error;
- 		}
-@@ -2914,7 +2914,7 @@ rollback:
- 	m->flags |= MFT_RECORD_IN_USE;
- 	m->sequence_number = old_seq_no;
- 	extent_nis[base_ni->nr_extents++] = ni;
--	up(&base_ni->extent_lock);
-+	mutex_unlock(&base_ni->extent_lock);
- 	mark_mft_record_dirty(ni);
+ out:
+-	up(&dev->cmd.hcr_sem);
++	mutex_unlock(&dev->cmd.hcr_mutex);
  	return err;
  }
-Index: linux/fs/ntfs/ntfs.h
-===================================================================
---- linux.orig/fs/ntfs/ntfs.h
-+++ linux/fs/ntfs/ntfs.h
-@@ -91,7 +91,7 @@ extern void free_compression_buffers(voi
  
- /* From fs/ntfs/super.c */
- #define default_upcase_len 0x10000
--extern struct semaphore ntfs_lock;
-+extern struct mutex ntfs_lock;
+@@ -438,7 +438,7 @@ static int mthca_cmd_imm(struct mthca_de
  
- typedef struct {
- 	int val;
-Index: linux/fs/ntfs/super.c
+ int mthca_cmd_init(struct mthca_dev *dev)
+ {
+-	sema_init(&dev->cmd.hcr_sem, 1);
++	mutex_init(&dev->cmd.hcr_mutex);
+ 	sema_init(&dev->cmd.poll_sem, 1);
+ 	dev->cmd.use_events = 0;
+ 
+Index: linux/drivers/infiniband/hw/mthca/mthca_dev.h
 ===================================================================
---- linux.orig/fs/ntfs/super.c
-+++ linux/fs/ntfs/super.c
-@@ -1635,11 +1635,11 @@ read_partial_upcase_page:
- 	ntfs_debug("Read %llu bytes from $UpCase (expected %zu bytes).",
- 			i_size, 64 * 1024 * sizeof(ntfschar));
- 	iput(ino);
--	down(&ntfs_lock);
-+	mutex_lock(&ntfs_lock);
- 	if (!default_upcase) {
- 		ntfs_debug("Using volume specified $UpCase since default is "
- 				"not present.");
--		up(&ntfs_lock);
-+		mutex_unlock(&ntfs_lock);
- 		return TRUE;
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_dev.h
++++ linux/drivers/infiniband/hw/mthca/mthca_dev.h
+@@ -44,7 +44,9 @@
+ #include <linux/pci.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/timer.h>
+-#include <asm/semaphore.h>
++#include <linux/mutex.h>
++#include <linux/mutex.h>
++
+ 
+ #include "mthca_provider.h"
+ #include "mthca_doorbell.h"
+@@ -111,7 +113,7 @@ enum {
+ struct mthca_cmd {
+ 	struct pci_pool          *pool;
+ 	int                       use_events;
+-	struct semaphore          hcr_sem;
++	struct mutex              hcr_mutex;
+ 	struct semaphore 	  poll_sem;
+ 	struct semaphore 	  event_sem;
+ 	int              	  max_cmds;
+@@ -256,7 +258,7 @@ struct mthca_av_table {
+ };
+ 
+ struct mthca_mcg_table {
+-	struct semaphore   	sem;
++	struct mutex		mutex;
+ 	struct mthca_alloc 	alloc;
+ 	struct mthca_icm_table *table;
+ };
+@@ -301,7 +303,7 @@ struct mthca_dev {
+ 	u64              ddr_end;
+ 
+ 	MTHCA_DECLARE_DOORBELL_LOCK(doorbell_lock)
+-	struct semaphore cap_mask_mutex;
++	struct mutex cap_mask_mutex;
+ 
+ 	void __iomem    *hcr;
+ 	void __iomem    *kar;
+Index: linux/drivers/infiniband/hw/mthca/mthca_mcg.c
+===================================================================
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_mcg.c
++++ linux/drivers/infiniband/hw/mthca/mthca_mcg.c
+@@ -154,7 +154,7 @@ int mthca_multicast_attach(struct ib_qp 
+ 		return PTR_ERR(mailbox);
+ 	mgm = mailbox->buf;
+ 
+-	if (down_interruptible(&dev->mcg_table.sem)) {
++	if (mutex_lock_interruptible(&dev->mcg_table.mutex)) {
+ 		err = -EINTR;
+ 		goto err_sem;
  	}
- 	max = default_upcase_len;
-@@ -1653,12 +1653,12 @@ read_partial_upcase_page:
- 		vol->upcase = default_upcase;
- 		vol->upcase_len = max;
- 		ntfs_nr_upcase_users++;
--		up(&ntfs_lock);
-+		mutex_unlock(&ntfs_lock);
- 		ntfs_debug("Volume specified $UpCase matches default. Using "
- 				"default.");
- 		return TRUE;
+@@ -241,7 +241,7 @@ int mthca_multicast_attach(struct ib_qp 
+ 		BUG_ON(index < dev->limits.num_mgms);
+ 		mthca_free(&dev->mcg_table.alloc, index);
  	}
--	up(&ntfs_lock);
-+	mutex_unlock(&ntfs_lock);
- 	ntfs_debug("Using volume specified $UpCase since it does not match "
- 			"the default.");
- 	return TRUE;
-@@ -1667,17 +1667,17 @@ iput_upcase_failed:
- 	ntfs_free(vol->upcase);
- 	vol->upcase = NULL;
- upcase_failed:
--	down(&ntfs_lock);
-+	mutex_lock(&ntfs_lock);
- 	if (default_upcase) {
- 		vol->upcase = default_upcase;
- 		vol->upcase_len = default_upcase_len;
- 		ntfs_nr_upcase_users++;
--		up(&ntfs_lock);
-+		mutex_unlock(&ntfs_lock);
- 		ntfs_error(sb, "Failed to load $UpCase from the volume. Using "
- 				"default.");
- 		return TRUE;
+-	up(&dev->mcg_table.sem);
++	mutex_unlock(&dev->mcg_table.mutex);
+  err_sem:
+ 	mthca_free_mailbox(dev, mailbox);
+ 	return err;
+@@ -263,7 +263,7 @@ int mthca_multicast_detach(struct ib_qp 
+ 		return PTR_ERR(mailbox);
+ 	mgm = mailbox->buf;
+ 
+-	if (down_interruptible(&dev->mcg_table.sem)) {
++	if (mutex_lock_interruptible(&dev->mcg_table.mutex)) {
+ 		err = -EINTR;
+ 		goto err_sem;
  	}
--	up(&ntfs_lock);
-+	mutex_unlock(&ntfs_lock);
- 	ntfs_error(sb, "Failed to initialize upcase table.");
- 	return FALSE;
+@@ -371,7 +371,7 @@ int mthca_multicast_detach(struct ib_qp 
+ 	}
+ 
+  out:
+-	up(&dev->mcg_table.sem);
++	mutex_unlock(&dev->mcg_table.mutex);
+  err_sem:
+ 	mthca_free_mailbox(dev, mailbox);
+ 	return err;
+@@ -389,7 +389,7 @@ int __devinit mthca_init_mcg_table(struc
+ 	if (err)
+ 		return err;
+ 
+-	init_MUTEX(&dev->mcg_table.sem);
++	mutex_init(&dev->mcg_table.mutex);
+ 
+ 	return 0;
  }
-@@ -2140,12 +2140,12 @@ iput_attrdef_err_out:
- iput_upcase_err_out:
- #endif /* NTFS_RW */
- 	vol->upcase_len = 0;
--	down(&ntfs_lock);
-+	mutex_lock(&ntfs_lock);
- 	if (vol->upcase == default_upcase) {
- 		ntfs_nr_upcase_users--;
- 		vol->upcase = NULL;
- 	}
--	up(&ntfs_lock);
-+	mutex_unlock(&ntfs_lock);
- 	if (vol->upcase) {
- 		ntfs_free(vol->upcase);
- 		vol->upcase = NULL;
-@@ -2350,7 +2350,7 @@ static void ntfs_put_super(struct super_
- 	 * Destroy the global default upcase table if necessary.  Also decrease
- 	 * the number of upcase users if we are a user.
- 	 */
--	down(&ntfs_lock);
-+	mutex_lock(&ntfs_lock);
- 	if (vol->upcase == default_upcase) {
- 		ntfs_nr_upcase_users--;
- 		vol->upcase = NULL;
-@@ -2361,7 +2361,7 @@ static void ntfs_put_super(struct super_
- 	}
- 	if (vol->cluster_size <= 4096 && !--ntfs_nr_compression_users)
- 		free_compression_buffers();
--	up(&ntfs_lock);
-+	mutex_unlock(&ntfs_lock);
- 	if (vol->upcase) {
- 		ntfs_free(vol->upcase);
- 		vol->upcase = NULL;
-@@ -2811,7 +2811,7 @@ static int ntfs_fill_super(struct super_
- 			ntfs_error(sb, "Failed to load essential metadata.");
- 		goto iput_tmp_ino_err_out_now;
- 	}
--	down(&ntfs_lock);
-+	mutex_lock(&ntfs_lock);
- 	/*
- 	 * The current mount is a compression user if the cluster size is
- 	 * less than or equal 4kiB.
-@@ -2822,7 +2822,7 @@ static int ntfs_fill_super(struct super_
- 			ntfs_error(NULL, "Failed to allocate buffers "
- 					"for compression engine.");
- 			ntfs_nr_compression_users--;
--			up(&ntfs_lock);
-+			mutex_unlock(&ntfs_lock);
- 			goto iput_tmp_ino_err_out_now;
- 		}
- 	}
-@@ -2834,7 +2834,7 @@ static int ntfs_fill_super(struct super_
- 	if (!default_upcase)
- 		default_upcase = generate_default_upcase();
- 	ntfs_nr_upcase_users++;
--	up(&ntfs_lock);
-+	mutex_unlock(&ntfs_lock);
- 	/*
- 	 * From now on, ignore @silent parameter. If we fail below this line,
- 	 * it will be due to a corrupt fs or a system error, so we report it.
-@@ -2852,12 +2852,12 @@ static int ntfs_fill_super(struct super_
- 		atomic_inc(&vol->root_ino->i_count);
- 		ntfs_debug("Exiting, status successful.");
- 		/* Release the default upcase if it has no users. */
--		down(&ntfs_lock);
-+		mutex_lock(&ntfs_lock);
- 		if (!--ntfs_nr_upcase_users && default_upcase) {
- 			ntfs_free(default_upcase);
- 			default_upcase = NULL;
- 		}
--		up(&ntfs_lock);
-+		mutex_unlock(&ntfs_lock);
- 		sb->s_export_op = &ntfs_export_ops;
- 		lock_kernel();
- 		return 0;
-@@ -2925,12 +2925,12 @@ static int ntfs_fill_super(struct super_
- 		vol->attrdef = NULL;
- 	}
- 	vol->upcase_len = 0;
--	down(&ntfs_lock);
-+	mutex_lock(&ntfs_lock);
- 	if (vol->upcase == default_upcase) {
- 		ntfs_nr_upcase_users--;
- 		vol->upcase = NULL;
- 	}
--	up(&ntfs_lock);
-+	mutex_unlock(&ntfs_lock);
- 	if (vol->upcase) {
- 		ntfs_free(vol->upcase);
- 		vol->upcase = NULL;
-@@ -2945,14 +2945,14 @@ unl_upcase_iput_tmp_ino_err_out_now:
- 	 * Decrease the number of upcase users and destroy the global default
- 	 * upcase table if necessary.
- 	 */
--	down(&ntfs_lock);
-+	mutex_lock(&ntfs_lock);
- 	if (!--ntfs_nr_upcase_users && default_upcase) {
- 		ntfs_free(default_upcase);
- 		default_upcase = NULL;
- 	}
- 	if (vol->cluster_size <= 4096 && !--ntfs_nr_compression_users)
- 		free_compression_buffers();
--	up(&ntfs_lock);
-+	mutex_unlock(&ntfs_lock);
- iput_tmp_ino_err_out_now:
- 	iput(tmp_ino);
- 	if (vol->mft_ino && vol->mft_ino != tmp_ino)
-@@ -3012,7 +3012,7 @@ kmem_cache_t *ntfs_attr_ctx_cache;
- kmem_cache_t *ntfs_index_ctx_cache;
+Index: linux/drivers/infiniband/hw/mthca/mthca_memfree.c
+===================================================================
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_memfree.c
++++ linux/drivers/infiniband/hw/mthca/mthca_memfree.c
+@@ -50,7 +50,7 @@ enum {
+ };
  
- /* Driver wide semaphore. */
--DECLARE_MUTEX(ntfs_lock);
-+DEFINE_MUTEX(ntfs_lock);
+ struct mthca_user_db_table {
+-	struct semaphore mutex;
++	struct mutex mutex;
+ 	struct {
+ 		u64                uvirt;
+ 		struct scatterlist mem;
+@@ -158,7 +158,7 @@ int mthca_table_get(struct mthca_dev *de
+ 	int ret = 0;
+ 	u8 status;
  
- static struct super_block *ntfs_get_sb(struct file_system_type *fs_type,
- 	int flags, const char *dev_name, void *data)
+-	down(&table->mutex);
++	mutex_lock(&table->mutex);
+ 
+ 	if (table->icm[i]) {
+ 		++table->icm[i]->refcount;
+@@ -184,7 +184,7 @@ int mthca_table_get(struct mthca_dev *de
+ 	++table->icm[i]->refcount;
+ 
+ out:
+-	up(&table->mutex);
++	mutex_unlock(&table->mutex);
+ 	return ret;
+ }
+ 
+@@ -198,7 +198,7 @@ void mthca_table_put(struct mthca_dev *d
+ 
+ 	i = (obj & (table->num_obj - 1)) * table->obj_size / MTHCA_TABLE_CHUNK_SIZE;
+ 
+-	down(&table->mutex);
++	mutex_lock(&table->mutex);
+ 
+ 	if (--table->icm[i]->refcount == 0) {
+ 		mthca_UNMAP_ICM(dev, table->virt + i * MTHCA_TABLE_CHUNK_SIZE,
+@@ -207,7 +207,7 @@ void mthca_table_put(struct mthca_dev *d
+ 		table->icm[i] = NULL;
+ 	}
+ 
+-	up(&table->mutex);
++	mutex_unlock(&table->mutex);
+ }
+ 
+ void *mthca_table_find(struct mthca_icm_table *table, int obj)
+@@ -220,7 +220,7 @@ void *mthca_table_find(struct mthca_icm_
+ 	if (!table->lowmem)
+ 		return NULL;
+ 
+-	down(&table->mutex);
++	mutex_lock(&table->mutex);
+ 
+ 	idx = (obj & (table->num_obj - 1)) * table->obj_size;
+ 	icm = table->icm[idx / MTHCA_TABLE_CHUNK_SIZE];
+@@ -240,7 +240,7 @@ void *mthca_table_find(struct mthca_icm_
+ 	}
+ 
+ out:
+-	up(&table->mutex);
++	mutex_unlock(&table->mutex);
+ 	return page ? lowmem_page_address(page) + offset : NULL;
+ }
+ 
+@@ -301,7 +301,7 @@ struct mthca_icm_table *mthca_alloc_icm_
+ 	table->num_obj  = nobj;
+ 	table->obj_size = obj_size;
+ 	table->lowmem   = use_lowmem;
+-	init_MUTEX(&table->mutex);
++	mutex_init(&table->mutex);
+ 
+ 	for (i = 0; i < num_icm; ++i)
+ 		table->icm[i] = NULL;
+@@ -380,7 +380,7 @@ int mthca_map_user_db(struct mthca_dev *
+ 	if (index < 0 || index > dev->uar_table.uarc_size / 8)
+ 		return -EINVAL;
+ 
+-	down(&db_tab->mutex);
++	mutex_lock(&db_tab->mutex);
+ 
+ 	i = index / MTHCA_DB_REC_PER_PAGE;
+ 
+@@ -424,7 +424,7 @@ int mthca_map_user_db(struct mthca_dev *
+ 	db_tab->page[i].refcount = 1;
+ 
+ out:
+-	up(&db_tab->mutex);
++	mutex_unlock(&db_tab->mutex);
+ 	return ret;
+ }
+ 
+@@ -439,11 +439,11 @@ void mthca_unmap_user_db(struct mthca_de
+ 	 * pages until we clean up the whole db table.
+ 	 */
+ 
+-	down(&db_tab->mutex);
++	mutex_lock(&db_tab->mutex);
+ 
+ 	--db_tab->page[index / MTHCA_DB_REC_PER_PAGE].refcount;
+ 
+-	up(&db_tab->mutex);
++	mutex_unlock(&db_tab->mutex);
+ }
+ 
+ struct mthca_user_db_table *mthca_init_user_db_tab(struct mthca_dev *dev)
+@@ -460,7 +460,7 @@ struct mthca_user_db_table *mthca_init_u
+ 	if (!db_tab)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	init_MUTEX(&db_tab->mutex);
++	mutex_init(&db_tab->mutex);
+ 	for (i = 0; i < npages; ++i) {
+ 		db_tab->page[i].refcount = 0;
+ 		db_tab->page[i].uvirt    = 0;
+@@ -499,7 +499,7 @@ int mthca_alloc_db(struct mthca_dev *dev
+ 	int ret = 0;
+ 	u8 status;
+ 
+-	down(&dev->db_tab->mutex);
++	mutex_lock(&dev->db_tab->mutex);
+ 
+ 	switch (type) {
+ 	case MTHCA_DB_TYPE_CQ_ARM:
+@@ -585,7 +585,7 @@ found:
+ 	*db = (__be32 *) &page->db_rec[j];
+ 
+ out:
+-	up(&dev->db_tab->mutex);
++	mutex_unlock(&dev->db_tab->mutex);
+ 
+ 	return ret;
+ }
+@@ -601,7 +601,7 @@ void mthca_free_db(struct mthca_dev *dev
+ 
+ 	page = dev->db_tab->page + i;
+ 
+-	down(&dev->db_tab->mutex);
++	mutex_lock(&dev->db_tab->mutex);
+ 
+ 	page->db_rec[j] = 0;
+ 	if (i >= dev->db_tab->min_group2)
+@@ -624,7 +624,7 @@ void mthca_free_db(struct mthca_dev *dev
+ 			++dev->db_tab->min_group2;
+ 	}
+ 
+-	up(&dev->db_tab->mutex);
++	mutex_unlock(&dev->db_tab->mutex);
+ }
+ 
+ int mthca_init_db_tab(struct mthca_dev *dev)
+@@ -638,7 +638,7 @@ int mthca_init_db_tab(struct mthca_dev *
+ 	if (!dev->db_tab)
+ 		return -ENOMEM;
+ 
+-	init_MUTEX(&dev->db_tab->mutex);
++	mutex_init(&dev->db_tab->mutex);
+ 
+ 	dev->db_tab->npages     = dev->uar_table.uarc_size / 4096;
+ 	dev->db_tab->max_group1 = 0;
+Index: linux/drivers/infiniband/hw/mthca/mthca_memfree.h
+===================================================================
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_memfree.h
++++ linux/drivers/infiniband/hw/mthca/mthca_memfree.h
+@@ -40,7 +40,9 @@
+ #include <linux/list.h>
+ #include <linux/pci.h>
+ 
+-#include <asm/semaphore.h>
++#include <linux/mutex.h>
++#include <linux/mutex.h>
++
+ 
+ #define MTHCA_ICM_CHUNK_LEN \
+ 	((256 - sizeof (struct list_head) - 2 * sizeof (int)) /		\
+@@ -64,7 +66,7 @@ struct mthca_icm_table {
+ 	int               num_obj;
+ 	int               obj_size;
+ 	int               lowmem;
+-	struct semaphore  mutex;
++	struct mutex      mutex;
+ 	struct mthca_icm *icm[0];
+ };
+ 
+@@ -147,7 +149,7 @@ struct mthca_db_table {
+ 	int 	       	      max_group1;
+ 	int 	       	      min_group2;
+ 	struct mthca_db_page *page;
+-	struct semaphore      mutex;
++	struct mutex          mutex;
+ };
+ 
+ enum mthca_db_type {
+Index: linux/drivers/infiniband/hw/mthca/mthca_provider.c
+===================================================================
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_provider.c
++++ linux/drivers/infiniband/hw/mthca/mthca_provider.c
+@@ -185,7 +185,7 @@ static int mthca_modify_port(struct ib_d
+ 	int err;
+ 	u8 status;
+ 
+-	if (down_interruptible(&to_mdev(ibdev)->cap_mask_mutex))
++	if (mutex_lock_interruptible(&to_mdev(ibdev)->cap_mask_mutex))
+ 		return -ERESTARTSYS;
+ 
+ 	err = mthca_query_port(ibdev, port, &attr);
+@@ -207,7 +207,7 @@ static int mthca_modify_port(struct ib_d
+ 	}
+ 
+ out:
+-	up(&to_mdev(ibdev)->cap_mask_mutex);
++	mutex_unlock(&to_mdev(ibdev)->cap_mask_mutex);
+ 	return err;
+ }
+ 
+@@ -1185,7 +1185,7 @@ int mthca_register_device(struct mthca_d
+ 		dev->ib_dev.post_recv     = mthca_tavor_post_receive;
+ 	}
+ 
+-	init_MUTEX(&dev->cap_mask_mutex);
++	mutex_init(&dev->cap_mask_mutex);
+ 
+ 	ret = ib_register_device(&dev->ib_dev);
+ 	if (ret)
+Index: linux/drivers/infiniband/ulp/srp/ib_srp.c
+===================================================================
+--- linux.orig/drivers/infiniband/ulp/srp/ib_srp.c
++++ linux/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -357,9 +357,9 @@ static void srp_remove_work(void *target
+ 	target->state = SRP_TARGET_REMOVED;
+ 	spin_unlock_irq(target->scsi_host->host_lock);
+ 
+-	down(&target->srp_host->target_mutex);
++	mutex_lock(&target->srp_host->target_mutex);
+ 	list_del(&target->list);
+-	up(&target->srp_host->target_mutex);
++	mutex_unlock(&target->srp_host->target_mutex);
+ 
+ 	scsi_remove_host(target->scsi_host);
+ 	ib_destroy_cm_id(target->cm_id);
+@@ -1254,9 +1254,9 @@ static int srp_add_target(struct srp_hos
+ 	if (scsi_add_host(target->scsi_host, host->dev->dma_device))
+ 		return -ENODEV;
+ 
+-	down(&host->target_mutex);
++	mutex_lock(&host->target_mutex);
+ 	list_add_tail(&target->list, &host->target_list);
+-	up(&host->target_mutex);
++	mutex_unlock(&host->target_mutex);
+ 
+ 	target->state = SRP_TARGET_LIVE;
+ 
+@@ -1525,7 +1525,7 @@ static struct srp_host *srp_add_port(str
+ 		return NULL;
+ 
+ 	INIT_LIST_HEAD(&host->target_list);
+-	init_MUTEX(&host->target_mutex);
++	mutex_init(&host->target_mutex);
+ 	init_completion(&host->released);
+ 	host->dev  = device;
+ 	host->port = port;
+@@ -1626,7 +1626,7 @@ static void srp_remove_one(struct ib_dev
+ 		 * Mark all target ports as removed, so we stop queueing
+ 		 * commands and don't try to reconnect.
+ 		 */
+-		down(&host->target_mutex);
++		mutex_lock(&host->target_mutex);
+ 		list_for_each_entry_safe(target, tmp_target,
+ 					 &host->target_list, list) {
+ 			spin_lock_irqsave(target->scsi_host->host_lock, flags);
+@@ -1634,7 +1634,7 @@ static void srp_remove_one(struct ib_dev
+ 				target->state = SRP_TARGET_REMOVED;
+ 			spin_unlock_irqrestore(target->scsi_host->host_lock, flags);
+ 		}
+-		up(&host->target_mutex);
++		mutex_unlock(&host->target_mutex);
+ 
+ 		/*
+ 		 * Wait for any reconnection tasks that may have
+Index: linux/drivers/infiniband/ulp/srp/ib_srp.h
+===================================================================
+--- linux.orig/drivers/infiniband/ulp/srp/ib_srp.h
++++ linux/drivers/infiniband/ulp/srp/ib_srp.h
+@@ -37,8 +37,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/list.h>
+-
+-#include <asm/semaphore.h>
++#include <linux/mutex.h>
+ 
+ #include <scsi/scsi_host.h>
+ #include <scsi/scsi_cmnd.h>
+@@ -85,7 +84,7 @@ struct srp_host {
+ 	struct ib_mr	       *mr;
+ 	struct class_device	class_dev;
+ 	struct list_head	target_list;
+-	struct semaphore        target_mutex;
++	struct mutex            target_mutex;
+ 	struct completion	released;
+ 	struct list_head	list;
+ };

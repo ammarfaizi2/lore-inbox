@@ -1,99 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWANS4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWANS6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWANS4d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 13:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWANS4d
+	id S1750764AbWANS6h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 13:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWANS6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 13:56:33 -0500
-Received: from uproxy.gmail.com ([66.249.92.205]:2837 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750762AbWANS4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 13:56:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
-        b=bsEMHoNnv5mlPtKJ+VZ1vf8qrQU7J1erQwpTbKFKcjfnRiUkRzU6I/Gph1i5q3u057VKReVvDu6h8P3Imyg1UCnJ2E+pQa4O49vQobhbOlTWn/9JrMMRskyaPasM3pgqB7M9ukea1V4tkfgo518uZWvW7magcpJs9N6CL1tGKHI=
-Message-ID: <43C9495C.6080200@gmail.com>
-Date: Sat, 14 Jan 2006 19:56:28 +0100
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 14 Jan 2006 13:58:37 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:3490 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750764AbWANS6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 13:58:36 -0500
+Date: Sat, 14 Jan 2006 10:58:25 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Nick Piggin <npiggin@suse.de>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+In-Reply-To: <20060114181949.GA27382@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+References: <20060114155517.GA30543@wotan.suse.de>
+ <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+ <20060114181949.GA27382@wotan.suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] README updated
-Content-Type: multipart/mixed;
- boundary="------------040603070902090703050107"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040603070902090703050107
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, 14 Jan 2006, Nick Piggin wrote:
 
-Replace old information with newer from kernel.org
+> > We take that reference count on the page:
+> Yes, after you have dropped all your claims to pin this page
+> (ie. pte lock). You really can't take a refcount on a page that
 
--- 
-Politicos de mierda, yo no soy un terrorista.
+Oh. Now I see. I screwed that up by a fix I added.... We cannot drop the 
+ptl here. So back to the way it was before. Remove the draining from 
+isolate_lru_page and do it before scanning for pages so that we do not
+have to drop the ptl. 
 
---------------040603070902090703050107
-Content-Type: text/x-patch;
- name="README.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="README.diff"
+Also remove the WARN_ON since its now even possible that other actions of 
+the VM move the pages into the LRU lists while we scan for pages to
+migrate.
 
-diff -Nuar a/README b/README
---- a/README	2006-01-14 14:55:37.000000000 +0100
-+++ b/README	2006-01-14 19:52:29.000000000 +0100
-@@ -1,4 +1,4 @@
--	Linux kernel release 2.6.xx
-+	Linux kernel release 2.6.xx <http://kernel.org>
+This increases the chance that we find pages that cannot be migrated.
+
+Needs to be applied to Linus tree.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.15/mm/mempolicy.c
+===================================================================
+--- linux-2.6.15.orig/mm/mempolicy.c	2006-01-11 20:55:08.000000000 -0800
++++ linux-2.6.15/mm/mempolicy.c	2006-01-14 10:37:19.000000000 -0800
+@@ -216,11 +216,8 @@ static int check_pte_range(struct vm_are
  
- These are the release notes for Linux version 2.6.  Read them carefully,
- as they tell you what this is all about, explain how to install the
-@@ -6,23 +6,31 @@
+ 		if (flags & MPOL_MF_STATS)
+ 			gather_stats(page, private);
+-		else if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) {
+-			spin_unlock(ptl);
++		else if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL))
+ 			migrate_page_add(vma, page, private, flags);
+-			spin_lock(ptl);
+-		}
+ 		else
+ 			break;
+ 	} while (pte++, addr += PAGE_SIZE, addr != end);
+@@ -297,6 +294,11 @@ static inline int vma_migratable(struct 
+ 	return 1;
+ }
  
- WHAT IS LINUX?
++static void lru_add_drain_per_cpu(void *dummy)
++{
++	lru_add_drain();
++}
++
+ /*
+  * Check if all pages in a range are on a set of nodes.
+  * If pagelist != NULL then isolate pages from the LRU and
+@@ -309,6 +311,12 @@ check_range(struct mm_struct *mm, unsign
+ 	int err;
+ 	struct vm_area_struct *first, *vma, *prev;
  
--  Linux is a Unix clone written from scratch by Linus Torvalds with
--  assistance from a loosely-knit team of hackers across the Net.
--  It aims towards POSIX compliance. 
++	/*
++	 * Clear the LRU lists so that we can isolate the pages
++	 */
++	if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL))
++		schedule_on_each_cpu(lru_add_drain_per_cpu, NULL);
++
+ 	first = find_vma(mm, start);
+ 	if (!first)
+ 		return ERR_PTR(-EFAULT);
+@@ -554,17 +562,9 @@ static void migrate_page_add(struct vm_a
+ 	 */
+ 	if ((flags & MPOL_MF_MOVE_ALL) || !page->mapping || PageAnon(page) ||
+ 	    mapping_writably_mapped(page->mapping) ||
+-	    single_mm_mapping(vma->vm_mm, page->mapping)) {
+-		int rc = isolate_lru_page(page);
 -
--  It has all the features you would expect in a modern fully-fledged
--  Unix, including true multitasking, virtual memory, shared libraries,
--  demand loading, shared copy-on-write executables, proper memory
--  management and TCP/IP networking. 
-+  Linux is a clone of the operating system Unix, written from scratch by
-+  Linus Torvalds with assistance from a loosely-knit team of hackers across
-+  the Net. It aims towards POSIX and Single UNIX Specification compliance.
-+
-+  It has all the features you would expect in a modern fully-fledged Unix,
-+  including true multitasking, virtual memory, shared libraries, demand
-+  loading, shared copy-on-write executables, proper memory management,
-+  and multistack networking including IPv4 and IPv6.
+-		if (rc == 1)
++	    single_mm_mapping(vma->vm_mm, page->mapping))
++		if (isolate_lru_page(page) == 1)
+ 			list_add(&page->lru, pagelist);
+-		/*
+-		 * If the isolate attempt was not successful then we just
+-		 * encountered an unswappable page. Something must be wrong.
+-	 	 */
+-		WARN_ON(rc == 0);
+-	}
+ }
  
-   It is distributed under the GNU General Public License - see the
-   accompanying COPYING file for more details. 
+ static int swap_pages(struct list_head *pagelist)
+Index: linux-2.6.15/mm/vmscan.c
+===================================================================
+--- linux-2.6.15.orig/mm/vmscan.c	2006-01-11 12:49:03.000000000 -0800
++++ linux-2.6.15/mm/vmscan.c	2006-01-14 10:39:15.000000000 -0800
+@@ -760,11 +760,6 @@ next:
+ 	return nr_failed + retry;
+ }
  
- ON WHAT HARDWARE DOES IT RUN?
+-static void lru_add_drain_per_cpu(void *dummy)
+-{
+-	lru_add_drain();
+-}
+-
+ /*
+  * Isolate one page from the LRU lists and put it on the
+  * indicated list. Do necessary cache draining if the
+@@ -780,7 +775,6 @@ int isolate_lru_page(struct page *page)
+ 	int rc = 0;
+ 	struct zone *zone = page_zone(page);
  
--  Linux was first developed for 386/486-based PCs.  These days it also
--  runs on ARMs, DEC Alphas, SUN Sparcs, M68000 machines (like Atari and
--  Amiga), MIPS and PowerPC, and others.
-+  Although originally developed first for 32-bit x86-based PCs (386 or higher),
-+  today Linux also runs on (at least) the Compaq Alpha AXP, Sun SPARC and
-+  UltraSPARC, Motorola 68000, PowerPC, PowerPC64, ARM, Hitachi SuperH,
-+  IBM S/390, MIPS, HP PA-RISC, Intel IA-64, DEC VAX, AMD x86-64, AXIS CRIS,
-+  and Renesas M32R architectures.
-+
-+  Linux is easily portable to most general-purpose 32- or 64-bit architectures
-+  as long as they have a paged memory management unit (PMMU) and a port of the
-+  GNU C compiler (gcc) (part of The GNU Compiler Collection, GCC). Linux has
-+  also been ported to a number of architectures without a PMMU, although
-+  functionality is then obviously somewhat limited.
- 
- DOCUMENTATION:
- 
-
---------------040603070902090703050107--
+-redo:
+ 	spin_lock_irq(&zone->lru_lock);
+ 	rc = __isolate_lru_page(page);
+ 	if (rc == 1) {
+@@ -790,15 +784,6 @@ redo:
+ 			del_page_from_inactive_list(zone, page);
+ 	}
+ 	spin_unlock_irq(&zone->lru_lock);
+-	if (rc == 0) {
+-		/*
+-		 * Maybe this page is still waiting for a cpu to drain it
+-		 * from one of the lru lists?
+-		 */
+-		rc = schedule_on_each_cpu(lru_add_drain_per_cpu, NULL);
+-		if (rc == 0 && PageLRU(page))
+-			goto redo;
+-	}
+ 	return rc;
+ }
+ #endif

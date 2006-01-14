@@ -1,121 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWANFxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWANGB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751536AbWANFxM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 00:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWANFxM
+	id S1751821AbWANGB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 01:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWANGBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 00:53:12 -0500
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:24674 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751515AbWANFxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 00:53:11 -0500
-Message-ID: <43C891C5.2030807@bigpond.net.au>
-Date: Sat, 14 Jan 2006 16:53:09 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 14 Jan 2006 01:01:54 -0500
+Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:35662 "HELO
+	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751680AbWANGB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 01:01:29 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Frank Sorenson <frank@tuxrocks.com>
+Subject: Re: Mouse stalls (again) with 2.6.15-mm2
+Date: Sat, 14 Jan 2006 01:01:17 -0500
+User-Agent: KMail/1.8.3
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+References: <9a8748490601091237s57071e57mbd2c4172a0e4dd@mail.gmail.com> <200601130154.47813.dtor_core@ameritech.net> <43C7B4C8.8060405@tuxrocks.com>
+In-Reply-To: <43C7B4C8.8060405@tuxrocks.com>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Martin Bligh <mbligh@google.com>, Andy Whitcroft <apw@shadowen.org>,
-       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au> <200601120129.16315.kernel@kolivas.org> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <43C6A24E.9080901@google.com> <43C6B60E.2000003@bigpond.net.au> <43C6D636.8000105@bigpond.net.au> <43C75178.80809@bigpond.net.au> <43C7D4D1.10200@shadowen.org> <43C7E96D.7000003@shadowen.org> <43C81073.1040805@google.com> <43C84496.6060506@bigpond.net.au> <43C8861E.5070203@yahoo.com.au>
-In-Reply-To: <43C8861E.5070203@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 14 Jan 2006 05:53:09 +0000
+Content-Disposition: inline
+Message-Id: <200601140101.19800.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Peter Williams wrote:
+On Friday 13 January 2006 09:10, Frank Sorenson wrote:
+> Dmitry Torokhov wrote:
+> > Hi,
+> >
+> > Here is the latest version of psmouse resync patch, it should have all
+> > the fixes and handle both Jesper's KVM and Frank's touchpad. I would
+> > appreciate if you give it a spin.
+> >
+> > The patch is against Linus, not -mm; for -mm you will have to revert
+> > original resync patch.
+> >
+> > Thanks!
 > 
->> Martin Bligh wrote:
->>
->>> Andy Whitcroft wrote:
->>>
->>>> Andy Whitcroft wrote:
->>>>
->>>>> Peter Williams wrote:
->>>>>
->>>>>
->>>>>
->>>>>> Attached is a new patch to fix the excessive idle problem.  This 
->>>>>> patch
->>>>>> takes a new approach to the problem as it was becoming obvious that
->>>>>> trying to alter the load balancing code to cope with biased load was
->>>>>> harder than it seemed.
->>>>>
->>>>>
->>>>>
->>>>>
->>>>>
->>>>> Ok.  Tried testing different-approach-to-smp-nice-problem against the
->>>>> transition release 2.6.14-rc2-mm1 but it doesn't apply.  Am testing
->>>>> against 2.6.15-mm3 right now.  Will let you know.
->>>>
->>>>
->>>>
->>>>
->>>>
->>>> Doesn't appear to help if I am analysing the graphs right.  Martin?
->>>
->>>
->>>
->>>
->>> Nope. still broken.
->>
->>
->>
->> Interesting.  The only real difference between this and Con's original 
->> patch is the stuff that he did in source_load() and target_load() to 
->> nobble the bias when nr_running is 1 or less.  With this new model it 
->> should be possible to do something similar in those functions but I'll 
->> hold off doing anything until a comparison against 2.6.15-mm3 with the 
->> patch removed is available (as there are other scheduler changes in 
->> -mm3).
->>
-> 
-> Ideally, balancing should be completely unaffected when all tasks are
-> of priority 0 which is what I thought yours did, and why I think the
-> current system is not great.
+> For me, the mouse and tapping both continue to work, but it is impossible
+> to turn on resync (resync_time immediately switches back to 0).  Since
+> things seem to continue working for me, that's fine by me, but is this
+> the intended behavior?
+>
 
-This latest change should make that happen as the weights for nice=0 
-tasks is unity.
+FYI:
 
-> 
-> I'll probably end up taking a look at it one day, if it doesn't get fixed.
-> I think your patch is pretty close
+There was a confusion over psmouse sysfs attributes (they require "echo -n"),
+Frank later confirmed that the resync was working for him so I am planning
+getting this into mainline.
 
-I thought that it was there :-).
-
-I figured using the weights (which go away for nice=0 tasks) would make 
-it behave nicely with the rest of the load balancing code.
-
-> but I didn't quite look close enough to
-> work out what's going wrong.
-
-My testing (albeit on an old 2 cpu Celeron) showed no statistically 
-significant difference between with the patch and without.  If you 
-ignored the standard deviations and statistical practice and just looked 
-at the raw numbers you'd think it was better with the patch than without 
-it.  :-)
-
-I assume that Andy Whitcroft is doing a kernbench with the patch removed 
-from 2.6.15-mm3 (otherwise why would he ask for a patch to do that) and 
-I'm waiting to see how that compares with the run he did with it in. 
-There were other scheduling changes in 2.6.15-mm3 so I think this 
-comparison is needed in order to be sure that any degradation is still 
-due to my patch.
-
-Peter
-PS As load balancing maintainer, is the value 128 set in cement for 
-SCHED_LOAD_SCALE?  The reason I ask is that if it was changed to be a 
-multiple of NICE_TO_BIAS_PRIO(0) (i.e. 20) my modification could be made 
-slightly more efficient.
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Dmitry

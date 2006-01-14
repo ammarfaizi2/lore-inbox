@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWANONy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWANOVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751495AbWANONy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbWANONy
+	id S1750860AbWANOVR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 09:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbWANOVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:13:54 -0500
-Received: from deine-taler.de ([217.160.107.63]:32184 "EHLO
-	p15091797.pureserver.info") by vger.kernel.org with ESMTP
-	id S1751522AbWANONx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:13:53 -0500
-Date: Sat, 14 Jan 2006 15:13:39 +0100 (CET)
-From: Ulrich Kunitz <kune@deine-taler.de>
-To: "John W. Linville" <linville@tuxdriver.com>
-cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: wireless: recap of current issues (stack)
-In-Reply-To: <20060113213200.GG16166@tuxdriver.com>
-Message-ID: <Pine.LNX.4.58.0601141448480.5587@p15091797.pureserver.info>
-References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com>
- <20060113213200.GG16166@tuxdriver.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 14 Jan 2006 09:21:17 -0500
+Received: from quechua.inka.de ([193.197.184.2]:59559 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1750860AbWANOVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 09:21:16 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: change eth0 to sn0        ?
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <BAY17-F23F48DE88AB5E02BB7AF8A97190@phx.gbl>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1ExmHK-00087S-00@calista.inka.de>
+Date: Sat, 14 Jan 2006 15:21:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jan 2006, John W. Linville wrote:
+Ratheesh k <ratheesh.ksz@hotmail.com> wrote:
+> eth0      Link encap:Ethernet  HWaddr 00:11:2F:38:07:D9
+>           inet addr:172.16.7.104  Bcast:172.16.7.255  Mask:255.255.252.0
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>           RX packets:6506 errors:0 dropped:0 overruns:0 frame:0
+>          TX packets:5120 errors:0 dropped:0 overruns:0 carrier:0
+>          collisions:1256 txqueuelen:1000
+>          RX bytes:1951142 (1.8 Mb)  TX bytes:1027381 (1003.3 Kb)
+>          Interrupt:23 Base address:0x3800
 
-> Can the in-kernel stack be saved?  With the addition of softmac?
-> Is it possible to extend softmac to support virtual wlan devices?
-> If not, how do we proceed?
+>     $ ifconfig eth0 down
+      # nameif sn0 00:11:2F:38:07:D9
 
-I don't think, that we can continue with the current model of the
-stacks. There appears a great variance in the HOST-device
-interfaces between WLAN devices of several vendors. The other
-problem is, that there is a difference depending on the bus the
-device is connected to. Register accesses in USB devices should be
-able to sleep. However the 80211 stacks I've seen so far have a
-fixed set of capabilities and do also assume, that at the driver
-layer everything can be done in atomic mode, which is only true
-for buses that support memory-mapping.
-
-In my point of view each stack layer must allow drivers to
-overwrite all entry-functions. Drivers could then do
-cherry-picking of the provided standard-functions. This is of
-course the library approach. The discussion about multiple
-stacks will then be muted, because we would have several stacks in
-the kernel and on the devices, which would have compatible interfaces.
-
-> Do we need to have both wireless-stable and wireless-devel kernels?
-> What about the suggestion of having both stacks in the kernel at once?
-> I'm not very excited about two in-kernel stacks.  Still, consolidating
-> wireless drivers down to two stacks is probably better than what we
-> have now...?  Either way, we would have to have general understanding
-> that at some point (not too far away), one of the stacks would have
-> to disappear.
-
-See above.
-
--- 
-Ulrich Kunitz - kune@deine-taler.de
+Gruss
+Bernd

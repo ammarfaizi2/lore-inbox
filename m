@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWANWqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWANWrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbWANWqD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 17:46:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWANWqC
+	id S1751340AbWANWrV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 17:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWANWrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 17:46:02 -0500
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:65498 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751335AbWANWqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 17:46:00 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Subject: Re: [PATCH] 2.6.15: access permission filesystem 0.17
-Date: Sat, 14 Jan 2006 23:45:37 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <87ek3a8qpy.fsf@goat.bogus.local>
-In-Reply-To: <87ek3a8qpy.fsf@goat.bogus.local>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart29178540.bdWEDVAG6U";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601142345.47473.ioe-lkml@rameria.de>
+	Sat, 14 Jan 2006 17:47:21 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:178 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751340AbWANWrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 17:47:20 -0500
+Date: Sat, 14 Jan 2006 16:47:07 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: sched_yield() makes OpenLDAP slow
+In-reply-to: <5uZqb-4fo-15@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43C97F6B.7020600@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <5uZqb-4fo-15@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart29178540.bdWEDVAG6U
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Howard Chu wrote:
+> POSIX requires a reschedule to occur, as noted here:
+> http://blog.firetree.net/2005/06/22/thread-yield-after-mutex-unlock/
 
-Hi Olaf,
+No, it doesn't:
 
-On Saturday 14 January 2006 22:06, Olaf Dietsche wrote:
-[PATCH]
+> 
+> The relevant SUSv3 text is here
+> http://www.opengroup.org/onlinepubs/000095399/functions/pthread_mutex_unlock.html 
 
-accessfs_readdir_aux() in fs/accessfs/inode.c=20
+"If there are threads blocked on the mutex object referenced by mutex 
+when pthread_mutex_unlock() is called, resulting in the mutex becoming 
+available, the scheduling policy shall determine which thread shall 
+acquire the mutex."
 
-should set DT_REG, since accessfs supports just directories
-and regular files. The directory is already handled before
-in the sole caller of accessfs_readdir_aux().
+This says nothing about requiring a reschedule. The "scheduling policy" 
+can well decide that the thread which just released the mutex can 
+re-acquire it.
 
-This saves the superflous stat(2) call after readdir(2).
+> I suppose if pthread_mutex_unlock() actually behaved correctly we could 
+> remove the other sched_yield() hacks that didn't belong there in the 
+> first place and go on our merry way.
 
-All in all I like the concept! It makes the life of admins
-much easier.
+Generally, needing to implement hacks like this is a sign that there are 
+problems with the synchronization design of the code (like a mutex which 
+has excessive contention). Programs should not rely on the scheduling 
+behavior of the kernel for proper operation when that behavior is not 
+defined.
 
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Regards
-
-Ingo Oeser
-
-
-
---nextPart29178540.bdWEDVAG6U
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDyX8bU56oYWuOrkARAjgNAJ9P7Qs+iKxU94r8k1HzQFjQipEszACfTd2/
-xqb4X9SImi7k35zGJa8mWrg=
-=Me5g
------END PGP SIGNATURE-----
-
---nextPart29178540.bdWEDVAG6U--

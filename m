@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWANSG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWANSNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWANSG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 13:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWANSGZ
+	id S1750741AbWANSNH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 13:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWANSNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 13:06:25 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:37258 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750718AbWANSGZ (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sat, 14 Jan 2006 13:06:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=4FxL3GFxaec7F4W0tslA83BPr00dnNmMwFMGj0wZxER4BULzHPdBVRpl7s87ExR/i0//AY1GB/FloMOvUjDdVzGAprQvVJFZjG1+vSCUcBwh+MudEFkdt92w8+P604Hlxgpxqe2o65hOm4sFtuT8rydr1SBwxockkmhwU1cKsVw=  ;
-Message-ID: <43C93DA0.3040506@yahoo.com.au>
-Date: Sun, 15 Jan 2006 05:06:24 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [patch] mm: cleanup bootmem
-References: <43C8F198.3010609@yahoo.com.au> <Pine.LNX.4.64.0601140949460.13339@g5.osdl.org> <43C93CCA.9080503@yahoo.com.au>
-In-Reply-To: <43C93CCA.9080503@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 13:13:07 -0500
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:18347 "EHLO
+	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1750741AbWANSNG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 13:13:06 -0500
+Date: Sat, 14 Jan 2006 19:09:17 +0100
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Harald Welte <laforge@netfilter.org>, linux-kernel@vger.kernel.org
+Subject: [patch 2.6.15-mm4] fix warning in ip{,6}t_policy.c
+Message-ID: <20060114180917.GA26443@ens-lyon.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Linus Torvalds wrote:
-> 
->>
->> On Sat, 14 Jan 2006, Nick Piggin wrote:
->>
->>> Objections?
->>
->>
->>
->> The whole point of the pre-batching was that apparently the 
->> non-batched bootmem code took ages to boot in simulation with lots of 
->> memory. I think it was the ia64 people who used simulation a lot. So..
->>
->>         Linus
->>
-> 
-> Changelog doesn't mention it: a226f6c899799fe2c4919daa0767ac579c88f7bd
-> 
-> Or... what do you mean by pre-batching? (maybe I'm confused and you're
-> talking about my prefetching change or something)
-> 
+Hi,
 
-Oh the BITS_PER_LONG batching? That's still completely functional after
-my patch. In fact, as I said in a followup it is likely to work better
-than with David's change to free batched pages as order-0, because I
-reverted back to freeing them as higher order pages.
+the following warnings appeared in -mm4
+net/ipv4/netfilter/ipt_policy.c:154: warning: initialization from incompatible pointer type
+net/ipv4/netfilter/ipt_policy.c:155: warning: initialization from incompatible pointer type
+net/ipv6/netfilter/ip6t_policy.c:160: warning: initialization from incompatible pointer type
 
--- 
-SUSE Labs, Novell Inc.
+It looks like they were missed in the x_tables conversion.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+--- a/net/ipv4/netfilter/ipt_policy.c	2006-01-14 16:11:52.000000000 +0100
++++ b/net/ipv4/netfilter/ipt_policy.c	2006-01-14 18:55:26.000000000 +0100
+@@ -95,7 +95,10 @@
+ static int match(const struct sk_buff *skb,
+                  const struct net_device *in,
+                  const struct net_device *out,
+-                 const void *matchinfo, int offset, int *hotdrop)
++                 const void *matchinfo,
++                 int offset,
++                 unsigned int protoff,
++                 int *hotdrop)
+ {
+ 	const struct ipt_policy_info *info = matchinfo;
+ 	int ret;
+@@ -113,7 +116,7 @@
+ 	return ret;
+ }
+ 
+-static int checkentry(const char *tablename, const struct ipt_ip *ip,
++static int checkentry(const char *tablename, const void *ip_void,
+                       void *matchinfo, unsigned int matchsize,
+                       unsigned int hook_mask)
+ {
+--- a/net/ipv6/netfilter/ip6t_policy.c	2006-01-14 16:11:52.000000000 +0100
++++ b/net/ipv6/netfilter/ip6t_policy.c	2006-01-14 18:52:58.000000000 +0100
+@@ -118,7 +118,7 @@
+ 	return ret;
+ }
+ 
+-static int checkentry(const char *tablename, const struct ip6t_ip6 *ip,
++static int checkentry(const char *tablename, const void *ip_void,
+                       void *matchinfo, unsigned int matchsize,
+                       unsigned int hook_mask)
+ {

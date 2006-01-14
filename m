@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWANEsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423062AbWANExd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030278AbWANEsk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 23:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbWANEsk
+	id S1423062AbWANExd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 23:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423060AbWANExd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 23:48:40 -0500
-Received: from main.gmane.org ([80.91.229.2]:25296 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030278AbWANEsj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 23:48:39 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: [GIT PATCH] SPI patches for 2.6.15
-Date: Sat, 14 Jan 2006 13:48:30 +0900
-Message-ID: <dq9vqv$6o7$1@sea.gmane.org>
-References: <20060114004403.GA21106@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060103)
-X-Accept-Language: en-us, en
-In-Reply-To: <20060114004403.GA21106@kroah.com>
-X-Enigmail-Version: 0.93.0.0
+	Fri, 13 Jan 2006 23:53:33 -0500
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:43427 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S1423035AbWANExc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 23:53:32 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.1.2
+Date: Fri, 13 Jan 2006 20:53:29 -0800
+Message-ID: <7vd5ivwgty.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Here are a few patches for 2.6.15 that add a SPI driver subsystem to the
-> kernel tree.  All of these patches have been in the -mm tree for a long
-> time, and David and Vitaly have finally agreed that this code base is
-> the proper one to work from for future SPI development.
-> 
-> These patches also add a few SPI drivers that use the subsystem, with
-> more promised to be coming soon.
+The latest maintenance release GIT 1.1.2 is available at the
+usual places:
 
-Well, it turns out that google does not (yet) know what a SPI driver
-subsystem is yet... And SPI can be any of these in LKML context:
+	http://www.kernel.org/pub/software/scm/git/
 
-SCSI Parallel Interface
-Serial Peripheral Interface
-Service Provider Interface
-Stateful Packet Inspection
-System Packet Interface
+	git-1.1.2.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.1.2-1.$arch.rpm	(RPM)
 
-http://en.wikipedia.org/wiki/SPI
+----------------------------------------------------------------
 
-Betting on the last, based on the filenames in the changelog...
+Changes since v1.1.1 are as follows:
 
-> Please pull from:
-> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/spi-2.6.git/
-> or if master.kernel.org hasn't synced up yet:
-> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/spi-2.6.git/
-> 
-> The full patches will be sent to the linux-kernel mailing list, if
-> anyone wants to see them.
+J. Bruce Fields:
+      Documentation: clarify fetch parameter descriptions.
 
-May be just a browser accessible URL for Documentation/spi/spi-summary or at
-least a definition of SPI in the header of the mail.
+Junio C Hamano:
+      update-index: work with c-quoted name
+      describe: do not silently ignore indescribable commits
+      name-rev: do not omit leading components of ref name.
+      show-branch: handle [] globs as well.
+      Documentation: git-commit -a
+      Documentation: git-reset - interrupted workflow.
 
-git is just too complex for me at htemoment (haven't found the time to learn it)
+Tom Prince:
+      Add git-describe to .gitignore.
 
-Sorry for bugging you, Greg :-|
+----------------------------------------------------------------
 
-Kalin.
+These have been added to the "master" branch lately, in addition
+to all of the above fixes:
 
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+      Makefile: add 'strip' target.
+      octopus: allow criss-cross and clarify the message when it rejects.
+      checkout: automerge local changes while switching branches.
+      checkout: merge local modifications while switching branches.
+      git-push: avoid falling back on pushing "matching" refs.
+      Exec git programs without using PATH (Michal Ostrowski)
+      Fix the installation location.
+
+These are still waiting their turn in the proposed updates
+("pu") branch:
+
+      git-cvsimport: Add -A <author-conv-file> option (Andreas Ericsson)
+      convert-packs: futureproofing.
+      Require packfiles to follow the naming convention (preparation).
+      format-patch: always --mbox and show sane Date:
+      octopus: allow manual resolve on the last round.
+      Documentation: show-branch.
+      show-branch: make the current branch and merge commits stand out.
+      Disable USE_SYMLINK_HEAD by default (Pavel Roskin)
 

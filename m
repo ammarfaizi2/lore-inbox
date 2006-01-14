@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423068AbWANCAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423259AbWANCGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423068AbWANCAR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 21:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423257AbWANCAR
+	id S1423259AbWANCGN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 21:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423261AbWANCGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 21:00:17 -0500
-Received: from xenotime.net ([66.160.160.81]:25031 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1423068AbWANCAP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 21:00:15 -0500
-Date: Fri, 13 Jan 2006 18:00:12 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH/RFT] SATA ACPI objects support
-Message-Id: <20060113180012.2aefca8f.rdunlap@xenotime.net>
-In-Reply-To: <20060113171225.377c11e5.akpm@osdl.org>
-References: <20060113163348.4346ea51.randy_d_dunlap@linux.intel.com>
-	<20060113171225.377c11e5.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Jan 2006 21:06:13 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:23460 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1423259AbWANCGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 21:06:13 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+Date: Sat, 14 Jan 2006 13:05:49 +1100
+User-Agent: KMail/1.9
+Cc: Paolo Ornati <ornati@fastwebnet.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>
+References: <5.2.1.1.2.20060113124751.00bf2660@pop.gmx.net> <5.2.1.1.2.20060113165958.00beb8e0@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20060113165958.00beb8e0@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601141305.49925.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jan 2006 17:12:25 -0800 Andrew Morton wrote:
-
-> Randy Dunlap <randy_d_dunlap@linux.intel.com> wrote:
+On Saturday 14 January 2006 03:15, Mike Galbraith wrote:
+> At 01:34 AM 1/14/2006 +1100, Con Kolivas wrote:
+> >On Saturday 14 January 2006 00:01, Mike Galbraith wrote:
+> > > At 09:51 PM 1/13/2006 +1100, Con Kolivas wrote:
+> > > >See my followup patches that I have posted following "[PATCH 0/5]
+> > > > sched - interactivity updates". The first 3 patches are what you
+> > > > tested. These patches are being put up for testing hopefully in -mm.
+> > >
+> > > Then the (buggy) version of my simple throttling patch will need to
+> > > come out.  (which is OK, I have a debugged potent++ version)
 > >
-> > This is the quilt 'combined' patch.  The patch series is also
-> > available at
-> >   http://www.xenotime.net/linux/SATA/2.6.16-git9/
-> 
-> It's better all-round if I have the broken-out patches, really.  That way
-> we're better able to keep track of which of your patches needs to be
-> patched by a fixup patch.
-> 
-> Could you mail them over please?
+> >Your code need not be mutually exclusive with mine. I've simply damped the
+> >current behaviour. Your sanity throttling is a good idea.
+>
+> I didn't mean to imply that they're mutually exclusive, and after doing
+> some testing, I concluded that it (or something like it) is definitely
+> still needed.  The version that's in mm2 _is_ buggy however, so ripping it
+> back out wouldn't hurt my delicate little feelings one bit.  In fact, it
+> would give me some more time to instrument and test integration with your
+> changes.  
 
-Sure, will do.
+Ok I've communicated this to Andrew (cc'ed here too) so he should remove your 
+patch pending a new version from you.
 
----
-~Randy
+> (Which I think are good btw because they remove what I considered 
+> to be warts; the pipe and uninterruptible sleep barriers.  
+
+Yes I felt your abuse wrt to these in an earlier email...
+
+> Um... try irman2 
+> now... pure evilness)
+
+Hrm I've been using staircase which is immune for so long I'd all but 
+forgotten about this test case. Looking at your code I assume your changes 
+should help this?
+
+Con

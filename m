@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWANC4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWANCz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWANC4l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 21:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWANC4l
+	id S1751106AbWANCz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 21:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWANCz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 21:56:41 -0500
-Received: from mail.gmx.net ([213.165.64.21]:35295 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750770AbWANC4l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 21:56:41 -0500
-X-Authenticated: #14349625
-Message-Id: <5.2.1.1.2.20060114032117.00be7230@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Sat, 14 Jan 2006 03:56:27 +0100
-To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
-Cc: Paolo Ornati <ornati@fastwebnet.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200601141305.49925.kernel@kolivas.org>
-References: <5.2.1.1.2.20060113165958.00beb8e0@pop.gmx.net>
- <5.2.1.1.2.20060113124751.00bf2660@pop.gmx.net>
- <5.2.1.1.2.20060113165958.00beb8e0@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Antivirus: avast! (VPS 0601-0, 01/02/2006), Outbound message
-X-Antivirus-Status: Clean
-X-Y-GMX-Trusted: 0
+	Fri, 13 Jan 2006 21:55:29 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:7377 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750770AbWANCz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 21:55:29 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: 2.4: e100 accounting bust for multiple adapters
+Date: Sat, 14 Jan 2006 13:55:16 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <53pgs11trhj0f6ik29hk41n4p5fegbft55@4ax.com>
+References: <e196s1pj6u4apbjhgdm3imij4a10s6nb87@4ax.com> <4807377b0601101624m1e1eb636q99ae0792b0903c5a@mail.gmail.com> <cln8s1diqmsei30gqo0dbuv1hclgl4m2lu@4ax.com> <4807377b0601112059je92091ch73f3788aeca452ce@mail.gmail.com>
+In-Reply-To: <4807377b0601112059je92091ch73f3788aeca452ce@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:05 PM 1/14/2006 +1100, Con Kolivas wrote:
->On Saturday 14 January 2006 03:15, Mike Galbraith wrote:
+On Wed, 11 Jan 2006 20:59:50 -0800, Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
+
+>> Anyway the solution is simple: modular e100 is borked on 2.4,
+>> compiled in is okay.
 >
-> > Um... try irman2
-> > now... pure evilness)
->
->Hrm I've been using staircase which is immune for so long I'd all but
->forgotten about this test case. Looking at your code I assume your changes
->should help this?
+>modular e100 2.X is borked, right? if you have a moment could you try
+>the 3.X e100 driver from sourceforge?
+>(http://prdownloads.sf.net/e1000) it should work fine on 2.4 and I
+>haven't heard any reports of icky stats.
 
-Yes.   How much very much depends on how strictly I try to enforce.  In my 
-experimental tree, I have four stages of throttling: 1 threshold to begin 
-trying to consume the difference between measured slice_avg and sleep_avg 
-(kidd gloves), 2 to begin treating all new sleep as noninteractive (stern 
-talking to), 3 to cut off new sleep entirely (you're grounded), and 4 is 
-when to start using slice_avg instead of the out of balance sleep_avg for 
-the priority calculation (um, bitch-slap?).  Levels 1 and 2 won't stop 
-irman2, 3 will, and especially 4 will.
+Hi Jesse, 
 
-These are all /proc settings at the moment, so I can set set my starvation 
-pain threshold from super duper desktop (all off) to just as fair as a 
-running slice completion time average can possibly make it (all at 1ns 
-differential), and anywhere in between.
+Couple of compile warnings:
+grant@deltree:~/e100-3.5.10/src$ make clean; make CFLAGS_EXTRA=-DE100_NO_NAPI
+rm -rf e100.o e100.o e100.o e100.o e100.o e100.7.gz .*cmd .tmp_versions
+gcc -DLINUX -D__KERNEL__ -DMODULE -O2 -pipe -Wall -I/lib/modules/2.4.32-hf32.1x/build/include -I. -DMODVERSIONS -DEXPORT_SYMTAB -include /lib/modules/2.4.32-hf32.1x/build/include/linux/modversions.h -DE100_NO_NAPI   -c -o e100.o e100.c
+In file included from /lib/modules/2.4.32-hf32.1x/build/include/linux/spinlock.h:6,
+                 from /lib/modules/2.4.32-hf32.1x/build/include/linux/module.h:12,
+                 from e100.c:138:
+/lib/modules/2.4.32-hf32.1x/build/include/asm/system.h: In function `__set_64bit_var':
+/lib/modules/2.4.32-hf32.1x/build/include/asm/system.h:190: warning: dereferencing type-punned pointer will break strict-aliasing rules
+/lib/modules/2.4.32-hf32.1x/build/include/asm/system.h:190: warning: dereferencing type-punned pointer will break strict-aliasing rules
 
-         -Mike 
 
+**************************************************
+** e100.o built for 2.4.32-hf32.1x
+** SMP               Disabled
+**************************************************
+
+I have e100-3.5.10 up now and the stats now look okay.  Is this 
+driver update headed for 2.4 kernel inclusion?
+
+Grant.

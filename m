@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWANQoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWANQtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbWANQoU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 11:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWANQoU
+	id S1751204AbWANQtN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 11:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWANQtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 11:44:20 -0500
-Received: from styx.suse.cz ([82.119.242.94]:21906 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751778AbWANQoT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 11:44:19 -0500
-Date: Sat, 14 Jan 2006 17:44:41 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
+	Sat, 14 Jan 2006 11:49:13 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:16361 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751204AbWANQtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 11:49:13 -0500
+Subject: Re: [patch 2.6.15-mm4] sem2mutex: drivers/input/, #2
+From: Arjan van de Ven <arjan@infradead.org>
 To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git pull 0/7] Another input update for 2.6.15
-Message-ID: <20060114164441.GA19408@midnight.suse.cz>
-References: <20060114151645.035957000.dtor_core@ameritech.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200601141121.43749.dtor_core@ameritech.net>
+References: <20060114160253.GA1073@elte.hu>
+	 <200601141121.43749.dtor_core@ameritech.net>
+Content-Type: text/plain
+Date: Sat, 14 Jan 2006 17:49:07 +0100
+Message-Id: <1137257347.3014.38.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060114151645.035957000.dtor_core@ameritech.net>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 14, 2006 at 10:16:45AM -0500, Dmitry Torokhov wrote:
-> Hi Linus,
+On Sat, 2006-01-14 at 11:21 -0500, Dmitry Torokhov wrote:
+> On Saturday 14 January 2006 11:02, Ingo Molnar wrote:
+> > From: Ingo Molnar <mingo@elte.hu>
+> > 
+> > semaphore to mutex conversion.
+> > 
+> > the conversion was generated via scripts, and the result was validated
+> > automatically via a script as well.
+> >
 > 
-> Please do a pull from:
-> 
-> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/
-> or
-> 	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git/
-> 
-> The main feature is psmouse resync patch which should make PS/2 mice
-> useable with cheap KVMs that reset mice when switching between boxes.
-> Also there is a fix for OOps in PID code, build for for powerpc and
-> HID tweaks to make new USB-based keyboards behave like older ADB ones.
-> 
-> Changelog:
-> 
-> 	Input: i8042 - add Sony Vaio FSC-115b to MUX blacklist (Vojtech)
-> 	Input: HID - add support for Cherry Cymotion keyboard (Vojtech)
-> 	Input: HID - fix an oops in PID initialization code
-> 	Input: psmouse - attempt to re-synchronize mouse every 5 seconds
-> 	Input: HID - add more simulation usages
-> 	Input: wacom - fix compile on PowerPC
-> 	Input: HID - add support for fn key on Apple PowerBooks (Michael Hanselmann)
+> All input related mutex conversions look fine so far. What are the plans
+> on merging it? Do you want to trickle them in through subsystems or just
+> submit as one batch? IOW do you want me to apply these patches?
 
-Thanks for ccing me, the patches look all OK to me.
+please apply them to your queue; that's the best and easiest for
+everyone.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+

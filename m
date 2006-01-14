@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWANV3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWANV15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWANV3e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 16:29:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWANV1N
+	id S1751304AbWANV15 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 16:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWANV1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 16:27:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:9108 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751293AbWANV1C convert rfc822-to-8bit
+	Sat, 14 Jan 2006 16:27:20 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6292 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751306AbWANV1C convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 14 Jan 2006 16:27:02 -0500
 Cc: david-b@pacbell.net
-Subject: [PATCH] spi: add spi_driver to SPI framework
-In-Reply-To: <11371995913802@kroah.com>
+Subject: [PATCH] SPI: add spi_butterfly driver
+In-Reply-To: <1137199593773@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 13 Jan 2006 16:46:32 -0800
-Message-Id: <11371995921894@kroah.com>
+Date: Fri, 13 Jan 2006 16:46:33 -0800
+Message-Id: <11371995933448@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,561 +24,537 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] spi: add spi_driver to SPI framework
+[PATCH] SPI: add spi_butterfly driver
 
-This is a refresh of the "Simple SPI Framework" found in 2.6.15-rc3-mm1
-which makes the following changes:
+This adds a bitbanging parport based adaptor cable for AVR Butterfly, giving
+SPI links to its DataFlash chip and (eventually) firmware running in the card.
 
-  * There's now a "struct spi_driver".  This increase the footprint
-    of the core a bit, since it now includes code to do what the driver
-    core was previously handling directly.  Documentation and comments
-    were updated to match.
-
-  * spi_alloc_master() now does class_device_initialize(), so it can
-    at least be refcounted before spi_register_master().  To match,
-    spi_register_master() switched over to class_device_add().
-
-  * States explicitly that after transfer errors, spi_devices will be
-    deselected.  We want fault recovery procedures to work the same
-    for all controller drivers.
-
-  * Minor tweaks:  controller_data no longer points to readonly data;
-    prevent some potential cast-from-null bugs with container_of calls;
-    clarifies some existing kerneldoc,
-
-And a few small cleanups.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit b885244eb2628e0b8206e7edaaa6a314da78e9a4
-tree e548fb3a94603c4a5406920c97246a78fe16b64a
-parent 1d6432fe10c3e724e307dd7137cd293a0edcae80
-author David Brownell <david-b@pacbell.net> Sun, 08 Jan 2006 13:34:23 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:54 -0800
+commit 2e10c84b9cf0b2d269c5629048d8d6e35eaf6b2b
+tree 2b338e8282d4e740529aeb3d5f303c4883f8d667
+parent 5d870c8e216f121307445c71caa72e7e10a20061
+author David Brownell <david-b@pacbell.net> Wed, 11 Jan 2006 11:23:49 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:56 -0800
 
- Documentation/spi/spi-summary |   52 +++++++++++-------
- drivers/spi/spi.c             |  118 ++++++++++++++++++++++++++++++-----------
- include/linux/spi/spi.h       |   75 ++++++++++++++++++--------
- 3 files changed, 170 insertions(+), 75 deletions(-)
+ Documentation/spi/butterfly |   57 ++++++
+ drivers/spi/Kconfig         |   10 +
+ drivers/spi/spi_butterfly.c |  423 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 490 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/spi/spi-summary b/Documentation/spi/spi-summary
-index 00497f9..c6152d1 100644
---- a/Documentation/spi/spi-summary
-+++ b/Documentation/spi/spi-summary
-@@ -1,18 +1,19 @@
- Overview of Linux kernel SPI support
- ====================================
- 
--22-Nov-2005
-+02-Dec-2005
- 
- What is SPI?
- ------------
--The "Serial Peripheral Interface" (SPI) is a four-wire point-to-point
--serial link used to connect microcontrollers to sensors and memory.
-+The "Serial Peripheral Interface" (SPI) is a synchronous four wire serial
-+link used to connect microcontrollers to sensors, memory, and peripherals.
- 
- The three signal wires hold a clock (SCLK, often on the order of 10 MHz),
- and parallel data lines with "Master Out, Slave In" (MOSI) or "Master In,
- Slave Out" (MISO) signals.  (Other names are also used.)  There are four
- clocking modes through which data is exchanged; mode-0 and mode-3 are most
--commonly used.
-+commonly used.  Each clock cycle shifts data out and data in; the clock
-+doesn't cycle except when there is data to shift.
- 
- SPI masters may use a "chip select" line to activate a given SPI slave
- device, so those three signal wires may be connected to several chips
-@@ -79,11 +80,18 @@ The <linux/spi/spi.h> header file includ
- main source code, and you should certainly read that.  This is just
- an overview, so you get the big picture before the details.
- 
-+SPI requests always go into I/O queues.  Requests for a given SPI device
-+are always executed in FIFO order, and complete asynchronously through
-+completion callbacks.  There are also some simple synchronous wrappers
-+for those calls, including ones for common transaction types like writing
-+a command and then reading its response.
+diff --git a/Documentation/spi/butterfly b/Documentation/spi/butterfly
+new file mode 100644
+index 0000000..a2e8c8d
+--- /dev/null
++++ b/Documentation/spi/butterfly
+@@ -0,0 +1,57 @@
++spi_butterfly - parport-to-butterfly adapter driver
++===================================================
 +
- There are two types of SPI driver, here called:
- 
-   Controller drivers ... these are often built in to System-On-Chip
- 	processors, and often support both Master and Slave roles.
- 	These drivers touch hardware registers and may use DMA.
-+	Or they can be PIO bitbangers, needing just GPIO pins.
- 
-   Protocol drivers ... these pass messages through the controller
- 	driver to communicate with a Slave or Master device on the
-@@ -116,11 +124,6 @@ shows up in sysfs in several locations:
- 	managing bus "B".  All the spiB.* devices share the same
- 	physical SPI bus segment, with SCLK, MOSI, and MISO.
- 
--The basic I/O primitive submits an asynchronous message to an I/O queue
--maintained by the controller driver.  A completion callback is issued
--asynchronously when the data transfer(s) in that message completes.
--There are also some simple synchronous wrappers for those calls.
--
- 
- How does board-specific init code declare SPI devices?
- ------------------------------------------------------
-@@ -263,33 +266,40 @@ would just be another kernel driver, pro
- access through aio_read(), aio_write(), and ioctl() calls and using the
- standard userspace sysfs mechanisms to bind to a given SPI device.
- 
--SPI protocol drivers are normal device drivers, with no more wrapper
--than needed by platform devices:
-+SPI protocol drivers somewhat resemble platform device drivers:
++This is a hardware and software project that includes building and using
++a parallel port adapter cable, together with an "AVR Butterfly" to run
++firmware for user interfacing and/or sensors.  A Butterfly is a $US20
++battery powered card with an AVR microcontroller and lots of goodies:
++sensors, LCD, flash, toggle stick, and more.  You can use AVR-GCC to
++develop firmware for this, and flash it using this adapter cable.
 +
-+	static struct spi_driver CHIP_driver = {
-+		.driver = {
-+			.name		= "CHIP",
-+			.bus		= &spi_bus_type,
-+			.owner		= THIS_MODULE,
-+		},
- 
--	static struct device_driver CHIP_driver = {
--		.name		= "CHIP",
--		.bus		= &spi_bus_type,
- 		.probe		= CHIP_probe,
--		.remove		= __exit_p(CHIP_remove),
-+		.remove		= __devexit_p(CHIP_remove),
- 		.suspend	= CHIP_suspend,
- 		.resume		= CHIP_resume,
- 	};
- 
--The SPI core will autmatically attempt to bind this driver to any SPI
-+The driver core will autmatically attempt to bind this driver to any SPI
- device whose board_info gave a modalias of "CHIP".  Your probe() code
- might look like this unless you're creating a class_device:
- 
--	static int __init CHIP_probe(struct device *dev)
-+	static int __devinit CHIP_probe(struct spi_device *spi)
- 	{
--		struct spi_device		*spi = to_spi_device(dev);
- 		struct CHIP			*chip;
--		struct CHIP_platform_data	*pdata = dev->platform_data;
-+		struct CHIP_platform_data	*pdata;
++You can make this adapter from an old printer cable and solder things
++directly to the Butterfly.  Or (if you have the parts and skills) you
++can come up with something fancier, providing ciruit protection to the
++Butterfly and the printer port, or with a better power supply than two
++signal pins from the printer port.
 +
-+		/* assuming the driver requires board-specific data: */
-+		pdata = &spi->dev.platform_data;
-+		if (!pdata)
-+			return -ENODEV;
++
++The first cable connections will hook Linux up to one SPI bus, with the
++AVR and a DataFlash chip; and to the AVR reset line.  This is all you
++need to reflash the firmware, and the pins are the standard Atmel "ISP"
++connector pins (used also on non-Butterfly AVR boards).
++
++	Signal	  Butterfly	  Parport (DB-25)
++	------	  ---------	  ---------------
++	SCK	= J403.PB1/SCK	= pin 2/D0
++	RESET	= J403.nRST	= pin 3/D1
++	VCC	= J403.VCC_EXT	= pin 8/D6
++	MOSI	= J403.PB2/MOSI	= pin 9/D7
++	MISO	= J403.PB3/MISO	= pin 11/S7,nBUSY
++	GND	= J403.GND	= pin 23/GND
++
++Then to let Linux master that bus to talk to the DataFlash chip, you must
++(a) flash new firmware that disables SPI (set PRR.2, and disable pullups
++by clearing PORTB.[0-3]); (b) configure the mtd_dataflash driver; and
++(c) cable in the chipselect.
++
++	Signal	  Butterfly	  Parport (DB-25)
++	------	  ---------	  ---------------
++	VCC	= J400.VCC_EXT	= pin 7/D5
++	SELECT	= J400.PB0/nSS	= pin 17/C3,nSELECT
++	GND	= J400.GND	= pin 24/GND
++
++The "USI" controller, using J405, can be used for a second SPI bus.  That
++would let you talk to the AVR over SPI, running firmware that makes it act
++as an SPI slave, while letting either Linux or the AVR use the DataFlash.
++There are plenty of spare parport pins to wire this one up, such as:
++
++	Signal	  Butterfly	  Parport (DB-25)
++	------	  ---------	  ---------------
++	SCK	= J403.PE4/USCK	= pin 5/D3
++	MOSI	= J403.PE5/DI	= pin 6/D4
++	MISO	= J403.PE6/DO	= pin 12/S5,nPAPEROUT
++	GND	= J403.GND	= pin 22/GND
++
++	IRQ	= J402.PF4	= pin 10/S6,ACK
++	GND	= J402.GND(P2)	= pin 25/GND
++
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 7a75fae..b77dbd6 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -75,6 +75,16 @@ config SPI_BUTTERFLY
+ 	  inexpensive battery powered microcontroller evaluation board.
+ 	  This same cable can be used to flash new firmware.
  
- 		/* get memory for driver's per-chip state */
- 		chip = kzalloc(sizeof *chip, GFP_KERNEL);
- 		if (!chip)
- 			return -ENOMEM;
--		dev_set_drvdata(dev, chip);
-+		dev_set_drvdata(&spi->dev, chip);
- 
- 		... etc
- 		return 0;
-@@ -328,6 +338,8 @@ the driver guarantees that it won't subm
-   - The basic I/O primitive is spi_async().  Async requests may be
-     issued in any context (irq handler, task, etc) and completion
-     is reported using a callback provided with the message.
-+    After any detected error, the chip is deselected and processing
-+    of that spi_message is aborted.
- 
-   - There are also synchronous wrappers like spi_sync(), and wrappers
-     like spi_read(), spi_write(), and spi_write_then_read().  These
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 7cd356b..2ecb86c 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -26,13 +26,9 @@
- #include <linux/spi/spi.h>
- 
- 
--/* SPI bustype and spi_master class are registered during early boot,
-- * usually before board init code provides the SPI device tables, and
-- * are available later when driver init code needs them.
-- *
-- * Drivers for SPI devices started out like those for platform bus
-- * devices.  But both have changed in 2.6.15; maybe this should get
-- * an "spi_driver" structure at some point (not currently needed)
-+/* SPI bustype and spi_master class are registered after board init code
-+ * provides the SPI device tables, ensuring that both are present by the
-+ * time controller driver registration causes spi_devices to "enumerate".
-  */
- static void spidev_release(struct device *dev)
- {
-@@ -83,10 +79,7 @@ static int spi_uevent(struct device *dev
- 
- #ifdef	CONFIG_PM
- 
--/* Suspend/resume in "struct device_driver" don't really need that
-- * strange third parameter, so we just make it a constant and expect
-- * SPI drivers to ignore it just like most platform drivers do.
-- *
++config SPI_BUTTERFLY
++	tristate "Parallel port adapter for AVR Butterfly (DEVELOPMENT)"
++	depends on SPI_MASTER && PARPORT && EXPERIMENTAL
++	select SPI_BITBANG
++	help
++	  This uses a custom parallel port cable to connect to an AVR
++	  Butterfly <http://www.atmel.com/products/avr/butterfly>, an
++	  inexpensive battery powered microcontroller evaluation board.
++	  This same cable can be used to flash new firmware.
++
+ #
+ # Add new SPI master controllers in alphabetical order above this line
+ #
+diff --git a/drivers/spi/spi_butterfly.c b/drivers/spi/spi_butterfly.c
+new file mode 100644
+index 0000000..79a3c59
+--- /dev/null
++++ b/drivers/spi/spi_butterfly.c
+@@ -0,0 +1,423 @@
 +/*
-  * NOTE:  the suspend() method for an spi_master controller driver
-  * should verify that all its child devices are marked as suspended;
-  * suspend requests delivered through sysfs power/state files don't
-@@ -94,13 +87,14 @@ static int spi_uevent(struct device *dev
-  */
- static int spi_suspend(struct device *dev, pm_message_t message)
- {
--	int	value;
-+	int			value;
-+	struct spi_driver	*drv = to_spi_driver(dev->driver);
- 
--	if (!dev->driver || !dev->driver->suspend)
-+	if (!drv || !drv->suspend)
- 		return 0;
- 
- 	/* suspend will stop irqs and dma; no more i/o */
--	value = dev->driver->suspend(dev, message);
-+	value = drv->suspend(to_spi_device(dev), message);
- 	if (value == 0)
- 		dev->power.power_state = message;
- 	return value;
-@@ -108,13 +102,14 @@ static int spi_suspend(struct device *de
- 
- static int spi_resume(struct device *dev)
- {
--	int	value;
-+	int			value;
-+	struct spi_driver	*drv = to_spi_driver(dev->driver);
- 
--	if (!dev->driver || !dev->driver->resume)
-+	if (!drv || !drv->resume)
- 		return 0;
- 
- 	/* resume may restart the i/o queue */
--	value = dev->driver->resume(dev);
-+	value = drv->resume(to_spi_device(dev));
- 	if (value == 0)
- 		dev->power.power_state = PMSG_ON;
- 	return value;
-@@ -135,6 +130,41 @@ struct bus_type spi_bus_type = {
- };
- EXPORT_SYMBOL_GPL(spi_bus_type);
- 
-+
-+static int spi_drv_probe(struct device *dev)
-+{
-+	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
-+
-+	return sdrv->probe(to_spi_device(dev));
-+}
-+
-+static int spi_drv_remove(struct device *dev)
-+{
-+	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
-+
-+	return sdrv->remove(to_spi_device(dev));
-+}
-+
-+static void spi_drv_shutdown(struct device *dev)
-+{
-+	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
-+
-+	sdrv->shutdown(to_spi_device(dev));
-+}
-+
-+int spi_register_driver(struct spi_driver *sdrv)
-+{
-+	sdrv->driver.bus = &spi_bus_type;
-+	if (sdrv->probe)
-+		sdrv->driver.probe = spi_drv_probe;
-+	if (sdrv->remove)
-+		sdrv->driver.remove = spi_drv_remove;
-+	if (sdrv->shutdown)
-+		sdrv->driver.shutdown = spi_drv_shutdown;
-+	return driver_register(&sdrv->driver);
-+}
-+EXPORT_SYMBOL_GPL(spi_register_driver);
-+
- /*-------------------------------------------------------------------------*/
- 
- /* SPI devices should normally not be created by SPI device drivers; that
-@@ -208,13 +238,15 @@ spi_new_device(struct spi_master *master
- 	if (status < 0) {
- 		dev_dbg(dev, "can't %s %s, status %d\n",
- 				"add", proxy->dev.bus_id, status);
--fail:
--		class_device_put(&master->cdev);
--		kfree(proxy);
--		return NULL;
-+		goto fail;
- 	}
- 	dev_dbg(dev, "registered child %s\n", proxy->dev.bus_id);
- 	return proxy;
-+
-+fail:
-+	class_device_put(&master->cdev);
-+	kfree(proxy);
-+	return NULL;
- }
- EXPORT_SYMBOL_GPL(spi_new_device);
- 
-@@ -237,11 +269,11 @@ spi_register_board_info(struct spi_board
- {
- 	struct boardinfo	*bi;
- 
--	bi = kmalloc (sizeof (*bi) + n * sizeof (*info), GFP_KERNEL);
-+	bi = kmalloc(sizeof(*bi) + n * sizeof *info, GFP_KERNEL);
- 	if (!bi)
- 		return -ENOMEM;
- 	bi->n_board_info = n;
--	memcpy(bi->board_info, info, n * sizeof (*info));
-+	memcpy(bi->board_info, info, n * sizeof *info);
- 
- 	down(&board_lock);
- 	list_add_tail(&bi->list, &board_list);
-@@ -330,6 +362,7 @@ spi_alloc_master(struct device *dev, uns
- 	if (!master)
- 		return NULL;
- 
-+	class_device_initialize(&master->cdev);
- 	master->cdev.class = &spi_master_class;
- 	master->cdev.dev = get_device(dev);
- 	class_set_devdata(&master->cdev, &master[1]);
-@@ -366,7 +399,7 @@ spi_register_master(struct spi_master *m
- 	/* convention:  dynamically assigned bus IDs count down from the max */
- 	if (master->bus_num == 0) {
- 		master->bus_num = atomic_dec_return(&dyn_bus_id);
--		dynamic = 0;
-+		dynamic = 1;
- 	}
- 
- 	/* register the device, then userspace will see it.
-@@ -374,11 +407,9 @@ spi_register_master(struct spi_master *m
- 	 */
- 	snprintf(master->cdev.class_id, sizeof master->cdev.class_id,
- 		"spi%u", master->bus_num);
--	status = class_device_register(&master->cdev);
--	if (status < 0) {
--		class_device_put(&master->cdev);
-+	status = class_device_add(&master->cdev);
-+	if (status < 0)
- 		goto done;
--	}
- 	dev_dbg(dev, "registered master %s%s\n", master->cdev.class_id,
- 			dynamic ? " (dynamic)" : "");
- 
-@@ -491,6 +522,7 @@ static u8	*buf;
-  * This performs a half duplex MicroWire style transaction with the
-  * device, sending txbuf and then reading rxbuf.  The return value
-  * is zero for success, else a negative errno status code.
-+ * This call may only be used from a context that may sleep.
-  *
-  * Parameters to this routine are always copied using a small buffer,
-  * large transfers should use use spi_{async,sync}() calls with
-@@ -553,16 +585,38 @@ EXPORT_SYMBOL_GPL(spi_write_then_read);
- 
- static int __init spi_init(void)
- {
-+	int	status;
-+
- 	buf = kmalloc(SPI_BUFSIZ, SLAB_KERNEL);
--	if (!buf)
--		return -ENOMEM;
-+	if (!buf) {
-+		status = -ENOMEM;
-+		goto err0;
-+	}
- 
--	bus_register(&spi_bus_type);
--	class_register(&spi_master_class);
-+	status = bus_register(&spi_bus_type);
-+	if (status < 0)
-+		goto err1;
-+
-+	status = class_register(&spi_master_class);
-+	if (status < 0)
-+		goto err2;
- 	return 0;
-+
-+err2:
-+	bus_unregister(&spi_bus_type);
-+err1:
-+	kfree(buf);
-+	buf = NULL;
-+err0:
-+	return status;
- }
-+
- /* board_info is normally registered in arch_initcall(),
-  * but even essential drivers wait till later
++ * spi_butterfly.c - parport-to-butterfly adapter
 + *
-+ * REVISIT only boardinfo really needs static linking. the rest (device and
-+ * driver registration) _could_ be dynamically linked (modular) ... costs
-+ * include needing to have boardinfo data structures be much more public.
-  */
- subsys_initcall(spi_init);
- 
-diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
-index 51a6769..c851b3d 100644
---- a/include/linux/spi/spi.h
-+++ b/include/linux/spi/spi.h
-@@ -20,13 +20,8 @@
- #define __LINUX_SPI_H
- 
- /*
-- * INTERFACES between SPI master drivers and infrastructure
-+ * INTERFACES between SPI master-side drivers and SPI infrastructure.
-  * (There's no SPI slave support for Linux yet...)
-- *
-- * A "struct device_driver" for an spi_device uses "spi_bus_type" and
-- * needs no special API wrappers (much like platform_bus).  These drivers
-- * are bound to devices based on their names (much like platform_bus),
-- * and are available in dev->driver.
-  */
- extern struct bus_type spi_bus_type;
- 
-@@ -46,8 +41,8 @@ extern struct bus_type spi_bus_type;
-  * @irq: Negative, or the number passed to request_irq() to receive
-  * 	interrupts from this device.
-  * @controller_state: Controller's runtime state
-- * @controller_data: Static board-specific definitions for controller, such
-- * 	as FIFO initialization parameters; from board_info.controller_data
-+ * @controller_data: Board-specific definitions for controller, such as
-+ * 	FIFO initialization parameters; from board_info.controller_data
-  *
-  * An spi_device is used to interchange data between an SPI slave
-  * (usually a discrete chip) and CPU memory.
-@@ -63,31 +58,32 @@ struct spi_device {
- 	u32			max_speed_hz;
- 	u8			chip_select;
- 	u8			mode;
--#define	SPI_CPHA	0x01		/* clock phase */
--#define	SPI_CPOL	0x02		/* clock polarity */
-+#define	SPI_CPHA	0x01			/* clock phase */
-+#define	SPI_CPOL	0x02			/* clock polarity */
- #define	SPI_MODE_0	(0|0)
--#define	SPI_MODE_1	(0|SPI_CPHA)
-+#define	SPI_MODE_1	(0|SPI_CPHA)		/* (original MicroWire) */
- #define	SPI_MODE_2	(SPI_CPOL|0)
- #define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
--#define	SPI_CS_HIGH	0x04		/* chipselect active high? */
-+#define	SPI_CS_HIGH	0x04			/* chipselect active high? */
- 	u8			bits_per_word;
- 	int			irq;
- 	void			*controller_state;
--	const void		*controller_data;
-+	void			*controller_data;
- 	const char		*modalias;
- 
- 	// likely need more hooks for more protocol options affecting how
--	// the controller talks to its chips, like:
-+	// the controller talks to each chip, like:
- 	//  - bit order (default is wordwise msb-first)
- 	//  - memory packing (12 bit samples into low bits, others zeroed)
- 	//  - priority
-+	//  - drop chipselect after each word
- 	//  - chipselect delays
- 	//  - ...
- };
- 
- static inline struct spi_device *to_spi_device(struct device *dev)
- {
--	return container_of(dev, struct spi_device, dev);
-+	return dev ? container_of(dev, struct spi_device, dev) : NULL;
- }
- 
- /* most drivers won't need to care about device refcounting */
-@@ -117,12 +113,38 @@ static inline void spi_set_ctldata(struc
- struct spi_message;
- 
- 
++ * Copyright (C) 2005 David Brownell
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/platform_device.h>
++#include <linux/parport.h>
 +
-+struct spi_driver {
-+	int			(*probe)(struct spi_device *spi);
-+	int			(*remove)(struct spi_device *spi);
-+	void			(*shutdown)(struct spi_device *spi);
-+	int			(*suspend)(struct spi_device *spi, pm_message_t mesg);
-+	int			(*resume)(struct spi_device *spi);
-+	struct device_driver	driver;
++#include <linux/spi/spi.h>
++#include <linux/spi/spi_bitbang.h>
++#include <linux/spi/flash.h>
++
++#include <linux/mtd/partitions.h>
++
++
++/*
++ * This uses SPI to talk with an "AVR Butterfly", which is a $US20 card
++ * with a battery powered AVR microcontroller and lots of goodies.  You
++ * can use GCC to develop firmware for this.
++ *
++ * See Documentation/spi/butterfly for information about how to build
++ * and use this custom parallel port cable.
++ */
++
++#undef	HAVE_USI	/* nyet */
++
++
++/* DATA output bits (pins 2..9 == D0..D7) */
++#define	butterfly_nreset (1 << 1)		/* pin 3 */
++
++#define	spi_sck_bit	(1 << 0)		/* pin 2 */
++#define	spi_mosi_bit	(1 << 7)		/* pin 9 */
++
++#define	usi_sck_bit	(1 << 3)		/* pin 5 */
++#define	usi_mosi_bit	(1 << 4)		/* pin 6 */
++
++#define	vcc_bits	((1 << 6) | (1 << 5))	/* pins 7, 8 */
++
++/* STATUS input bits */
++#define	spi_miso_bit	PARPORT_STATUS_BUSY	/* pin 11 */
++
++#define	usi_miso_bit	PARPORT_STATUS_PAPEROUT	/* pin 12 */
++
++/* CONTROL output bits */
++#define	spi_cs_bit	PARPORT_CONTROL_SELECT	/* pin 17 */
++/* USI uses no chipselect */
++
++
++
++static inline struct butterfly *spidev_to_pp(struct spi_device *spi)
++{
++	return spi->controller_data;
++}
++
++static inline int is_usidev(struct spi_device *spi)
++{
++#ifdef	HAVE_USI
++	return spi->chip_select != 1;
++#else
++	return 0;
++#endif
++}
++
++
++struct butterfly {
++	/* REVISIT ... for now, this must be first */
++	struct spi_bitbang	bitbang;
++
++	struct parport		*port;
++	struct pardevice	*pd;
++
++	u8			lastbyte;
++
++	struct spi_device	*dataflash;
++	struct spi_device	*butterfly;
++	struct spi_board_info	info[2];
++
 +};
 +
-+static inline struct spi_driver *to_spi_driver(struct device_driver *drv)
++/*----------------------------------------------------------------------*/
++
++/*
++ * these routines may be slower than necessary because they're hiding
++ * the fact that there are two different SPI busses on this cable: one
++ * to the DataFlash chip (or AVR SPI controller), the other to the
++ * AVR USI controller.
++ */
++
++static inline void
++setsck(struct spi_device *spi, int is_on)
 +{
-+	return drv ? container_of(drv, struct spi_driver, driver) : NULL;
++	struct butterfly	*pp = spidev_to_pp(spi);
++	u8			bit, byte = pp->lastbyte;
++
++	if (is_usidev(spi))
++		bit = usi_sck_bit;
++	else
++		bit = spi_sck_bit;
++
++	if (is_on)
++		byte |= bit;
++	else
++		byte &= ~bit;
++	parport_write_data(pp->port, byte);
++	pp->lastbyte = byte;
 +}
 +
-+extern int spi_register_driver(struct spi_driver *sdrv);
-+
-+static inline void spi_unregister_driver(struct spi_driver *sdrv)
++static inline void
++setmosi(struct spi_device *spi, int is_on)
 +{
-+	if (!sdrv)
++	struct butterfly	*pp = spidev_to_pp(spi);
++	u8			bit, byte = pp->lastbyte;
++
++	if (is_usidev(spi))
++		bit = usi_mosi_bit;
++	else
++		bit = spi_mosi_bit;
++
++	if (is_on)
++		byte |= bit;
++	else
++		byte &= ~bit;
++	parport_write_data(pp->port, byte);
++	pp->lastbyte = byte;
++}
++
++static inline int getmiso(struct spi_device *spi)
++{
++	struct butterfly	*pp = spidev_to_pp(spi);
++	int			value;
++	u8			bit;
++
++	if (is_usidev(spi))
++		bit = usi_miso_bit;
++	else
++		bit = spi_miso_bit;
++
++	/* only STATUS_BUSY is NOT negated */
++	value = !(parport_read_status(pp->port) & bit);
++	return (bit == PARPORT_STATUS_BUSY) ? value : !value;
++}
++
++static void butterfly_chipselect(struct spi_device *spi, int value)
++{
++	struct butterfly	*pp = spidev_to_pp(spi);
++
++	/* set default clock polarity */
++	if (value)
++		setsck(spi, spi->mode & SPI_CPOL);
++
++	/* no chipselect on this USI link config */
++	if (is_usidev(spi))
 +		return;
-+	driver_unregister(&sdrv->driver);
++
++	/* here, value == "activate or not" */
++
++	/* most PARPORT_CONTROL_* bits are negated */
++	if (spi_cs_bit == PARPORT_CONTROL_INIT)
++		value = !value;
++
++	/* here, value == "bit value to write in control register"  */
++
++	parport_frob_control(pp->port, spi_cs_bit, value ? spi_cs_bit : 0);
 +}
 +
 +
++/* we only needed to implement one mode here, and choose SPI_MODE_0 */
 +
- /**
-  * struct spi_master - interface to SPI master controller
-  * @cdev: class interface to this driver
-  * @bus_num: board-specific (and often SOC-specific) identifier for a
-  * 	given SPI controller.
-- * @num_chipselects: chipselects are used to distinguish individual
-+ * @num_chipselect: chipselects are used to distinguish individual
-  * 	SPI slaves, and are numbered from zero to num_chipselects.
-  * 	each slave has a chipselect signal, but it's common that not
-  * 	every chipselect is connected to a slave.
-@@ -275,7 +297,8 @@ struct spi_transfer {
-  *	addresses for each transfer buffer
-  * @complete: called to report transaction completions
-  * @context: the argument to complete() when it's called
-- * @actual_length: how many bytes were transferd
-+ * @actual_length: the total number of bytes that were transferred in all
-+ *	successful segments
-  * @status: zero for success, else negative errno
-  * @queue: for use by whichever driver currently owns the message
-  * @state: for use by whichever driver currently owns the message
-@@ -295,7 +318,7 @@ struct spi_message {
- 	 *
- 	 * Some controller drivers (message-at-a-time queue processing)
- 	 * could provide that as their default scheduling algorithm.  But
--	 * others (with multi-message pipelines) would need a flag to
-+	 * others (with multi-message pipelines) could need a flag to
- 	 * tell them about such special cases.
- 	 */
- 
-@@ -346,6 +369,13 @@ spi_setup(struct spi_device *spi)
-  * FIFO order, messages may go to different devices in other orders.
-  * Some device might be higher priority, or have various "hard" access
-  * time requirements, for example.
-+ *
-+ * On detection of any fault during the transfer, processing of
-+ * the entire message is aborted, and the device is deselected.
-+ * Until returning from the associated message completion callback,
-+ * no other spi_message queued to that device will be processed.
-+ * (This rule applies equally to all the synchronous transfer calls,
-+ * which are wrappers around this core asynchronous primitive.)
-  */
- static inline int
- spi_async(struct spi_device *spi, struct spi_message *message)
-@@ -484,12 +514,12 @@ struct spi_board_info {
- 	 * "modalias" is normally the driver name.
- 	 *
- 	 * platform_data goes to spi_device.dev.platform_data,
--	 * controller_data goes to spi_device.platform_data,
-+	 * controller_data goes to spi_device.controller_data,
- 	 * irq is copied too
- 	 */
- 	char		modalias[KOBJ_NAME_LEN];
- 	const void	*platform_data;
--	const void	*controller_data;
-+	void		*controller_data;
- 	int		irq;
- 
- 	/* slower signaling on noisy or low voltage boards */
-@@ -525,9 +555,8 @@ spi_register_board_info(struct spi_board
- 
- 
- /* If you're hotplugging an adapter with devices (parport, usb, etc)
-- * use spi_new_device() to describe each device.  You can also call
-- * spi_unregister_device() to get start making that device vanish,
-- * but normally that would be handled by spi_unregister_master().
-+ * use spi_new_device() to describe each device.  You would then call
-+ * spi_unregister_device() to start making that device vanish.
-  */
- extern struct spi_device *
- spi_new_device(struct spi_master *, struct spi_board_info *);
++#define	spidelay(X)	do{}while(0)
++//#define	spidelay	ndelay
++
++#define	EXPAND_BITBANG_TXRX
++#include <linux/spi/spi_bitbang.h>
++
++static u32
++butterfly_txrx_word_mode0(struct spi_device *spi,
++		unsigned nsecs,
++		u32 word, u8 bits)
++{
++	return bitbang_txrx_be_cpha0(spi, nsecs, 0, word, bits);
++}
++
++/*----------------------------------------------------------------------*/
++
++/* override default partitioning with cmdlinepart */
++static struct mtd_partition partitions[] = { {
++	/* JFFS2 wants partitions of 4*N blocks for this device ... */
++
++	/* sector 0 = 8 pages * 264 bytes/page (1 block)
++	 * sector 1 = 248 pages * 264 bytes/page
++	 */
++	.name		= "bookkeeping",	// 66 KB
++	.offset		= 0,
++	.size		= (8 + 248) * 264,
++//	.mask_flags	= MTD_WRITEABLE,
++}, {
++	/* sector 2 = 256 pages * 264 bytes/page
++	 * sectors 3-5 = 512 pages * 264 bytes/page
++	 */
++	.name		= "filesystem",		// 462 KB
++	.offset		= MTDPART_OFS_APPEND,
++	.size		= MTDPART_SIZ_FULL,
++} };
++
++static struct flash_platform_data flash = {
++	.name		= "butterflash",
++	.parts		= partitions,
++	.nr_parts	= ARRAY_SIZE(partitions),
++};
++
++
++/* REVISIT remove this ugly global and its "only one" limitation */
++static struct butterfly *butterfly;
++
++static void butterfly_attach(struct parport *p)
++{
++	struct pardevice	*pd;
++	int			status;
++	struct butterfly	*pp;
++	struct spi_master	*master;
++	struct platform_device	*pdev;
++
++	if (butterfly)
++		return;
++
++	/* REVISIT:  this just _assumes_ a butterfly is there ... no probe,
++	 * and no way to be selective about what it binds to.
++	 */
++
++	/* FIXME where should master->cdev.dev come from?
++	 * e.g. /sys/bus/pnp0/00:0b, some PCI thing, etc
++	 * setting up a platform device like this is an ugly kluge...
++	 */
++	pdev = platform_device_register_simple("butterfly", -1, NULL, 0);
++
++	master = spi_alloc_master(&pdev->dev, sizeof *pp);
++	if (!master) {
++		status = -ENOMEM;
++		goto done;
++	}
++	pp = spi_master_get_devdata(master);
++
++	/*
++	 * SPI and bitbang hookup
++	 *
++	 * use default setup(), cleanup(), and transfer() methods; and
++	 * only bother implementing mode 0.  Start it later.
++	 */
++	master->bus_num = 42;
++	master->num_chipselect = 2;
++
++	pp->bitbang.master = spi_master_get(master);
++	pp->bitbang.chipselect = butterfly_chipselect;
++	pp->bitbang.txrx_word[SPI_MODE_0] = butterfly_txrx_word_mode0;
++
++	/*
++	 * parport hookup
++	 */
++	pp->port = p;
++	pd = parport_register_device(p, "spi_butterfly",
++			NULL, NULL, NULL,
++			0 /* FLAGS */, pp);
++	if (!pd) {
++		status = -ENOMEM;
++		goto clean0;
++	}
++	pp->pd = pd;
++
++	status = parport_claim(pd);
++	if (status < 0)
++		goto clean1;
++
++	/*
++	 * Butterfly reset, powerup, run firmware
++	 */
++	pr_debug("%s: powerup/reset Butterfly\n", p->name);
++
++	/* nCS for dataflash (this bit is inverted on output) */
++	parport_frob_control(pp->port, spi_cs_bit, 0);
++
++	/* stabilize power with chip in reset (nRESET), and
++	 * both spi_sck_bit and usi_sck_bit clear (CPOL=0)
++	 */
++	pp->lastbyte |= vcc_bits;
++	parport_write_data(pp->port, pp->lastbyte);
++	msleep(5);
++
++	/* take it out of reset; assume long reset delay */
++	pp->lastbyte |= butterfly_nreset;
++	parport_write_data(pp->port, pp->lastbyte);
++	msleep(100);
++
++
++	/*
++	 * Start SPI ... for now, hide that we're two physical busses.
++	 */
++	status = spi_bitbang_start(&pp->bitbang);
++	if (status < 0)
++		goto clean2;
++
++	/* Bus 1 lets us talk to at45db041b (firmware disables AVR)
++	 * or AVR (firmware resets at45, acts as spi slave)
++	 */
++	pp->info[0].max_speed_hz = 15 * 1000 * 1000;
++	strcpy(pp->info[0].modalias, "mtd_dataflash");
++	pp->info[0].platform_data = &flash;
++	pp->info[0].chip_select = 1;
++	pp->info[0].controller_data = pp;
++	pp->dataflash = spi_new_device(pp->bitbang.master, &pp->info[0]);
++	if (pp->dataflash)
++		pr_debug("%s: dataflash at %s\n", p->name,
++				pp->dataflash->dev.bus_id);
++
++#ifdef	HAVE_USI
++	/* even more custom AVR firmware */
++	pp->info[1].max_speed_hz = 10 /* ?? */ * 1000 * 1000;
++	strcpy(pp->info[1].modalias, "butterfly");
++	// pp->info[1].platform_data = ... TBD ... ;
++	pp->info[1].chip_select = 2,
++	pp->info[1].controller_data = pp;
++	pp->butterfly = spi_new_device(pp->bitbang.master, &pp->info[1]);
++	if (pp->butterfly)
++		pr_debug("%s: butterfly at %s\n", p->name,
++				pp->butterfly->dev.bus_id);
++
++	/* FIXME setup ACK for the IRQ line ...  */
++#endif
++
++	// dev_info(_what?_, ...)
++	pr_info("%s: AVR Butterfly\n", p->name);
++	butterfly = pp;
++	return;
++
++clean2:
++	/* turn off VCC */
++	parport_write_data(pp->port, 0);
++
++	parport_release(pp->pd);
++clean1:
++	parport_unregister_device(pd);
++clean0:
++	(void) spi_master_put(pp->bitbang.master);
++done:
++	platform_device_unregister(pdev);
++	pr_debug("%s: butterfly probe, fail %d\n", p->name, status);
++}
++
++static void butterfly_detach(struct parport *p)
++{
++	struct butterfly	*pp;
++	struct platform_device	*pdev;
++	int			status;
++
++	/* FIXME this global is ugly ... but, how to quickly get from
++	 * the parport to the "struct butterfly" associated with it?
++	 * "old school" driver-internal device lists?
++	 */
++	if (!butterfly || butterfly->port != p)
++		return;
++	pp = butterfly;
++	butterfly = NULL;
++
++#ifdef	HAVE_USI
++	spi_unregister_device(pp->butterfly);
++	pp->butterfly = NULL;
++#endif
++	spi_unregister_device(pp->dataflash);
++	pp->dataflash = NULL;
++
++	status = spi_bitbang_stop(&pp->bitbang);
++
++	/* turn off VCC */
++	parport_write_data(pp->port, 0);
++	msleep(10);
++
++	parport_release(pp->pd);
++	parport_unregister_device(pp->pd);
++
++	pdev = to_platform_device(pp->bitbang.master->cdev.dev);
++
++	(void) spi_master_put(pp->bitbang.master);
++
++	platform_device_unregister(pdev);
++}
++
++static struct parport_driver butterfly_driver = {
++	.name =		"spi_butterfly",
++	.attach =	butterfly_attach,
++	.detach =	butterfly_detach,
++};
++
++
++static int __init butterfly_init(void)
++{
++	return parport_register_driver(&butterfly_driver);
++}
++device_initcall(butterfly_init);
++
++static void __exit butterfly_exit(void)
++{
++	parport_unregister_driver(&butterfly_driver);
++}
++module_exit(butterfly_exit);
++
++MODULE_LICENSE("GPL");
 

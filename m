@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWANV1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWANV14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWANV1d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 16:27:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWANV1X
+	id S1751311AbWANV14 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 16:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWANV1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 16:27:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6548 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751299AbWANV1C convert rfc822-to-8bit
+	Sat, 14 Jan 2006 16:27:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6036 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751304AbWANV1C convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 14 Jan 2006 16:27:02 -0500
-Cc: david-b@pacbell.net
-Subject: [PATCH] spi: ads7836 uses spi_driver
-In-Reply-To: <1137199592832@kroah.com>
+Cc: mike@steroidmicros.com
+Subject: [PATCH] spi: M25 series SPI flash
+In-Reply-To: <11371995921674@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Fri, 13 Jan 2006 16:46:32 -0800
-Message-Id: <11371995921674@kroah.com>
+Message-Id: <1137199592102@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,243 +24,668 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] spi: ads7836 uses spi_driver
+[PATCH] spi: M25 series SPI flash
 
-This updates the ads7864 driver to use the new "spi_driver" struct, and
-includes some minor unrelated cleanup.
+This was originally a driver for the ST M25P80 SPI flash.  It's been
+updated slightly to handle other M25P series chips.
+
+For many of these chips, the specific type could be probed, but for now
+this just requires static setup with flash_platform_data that lists the
+chip type (size, format) and any default partitioning to use.
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Cc: Mike Lavender <mike@steroidmicros.com>
+Cc: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 2e5a7bd978bf4118a0c8edf2e6ff81d0a72fee47
-tree ee5b09d090c7a4a6cbf19ddf9f252d315b46eda1
-parent 0c868461fcb8413cb9f691d68e5b99b0fd3c0737
-author David Brownell <david-b@pacbell.net> Sun, 08 Jan 2006 13:34:25 -0800
+commit 2f9f762879015d738a5ec2ac8a16be94b3a4a06d
+tree 73efe8bcdb970ee9c815c08358fb707b46aab983
+parent 9904f22a7202c6b54e96b0cc9870817013c350a1
+author Mike Lavender <mike@steroidmicros.com> Sun, 08 Jan 2006 13:34:27 -0800
 committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 13 Jan 2006 16:29:55 -0800
 
- drivers/input/touchscreen/ads7846.c |   84 ++++++++++++++++++-----------------
- include/linux/spi/ads7846.h         |    2 -
- 2 files changed, 43 insertions(+), 43 deletions(-)
+ drivers/mtd/devices/Kconfig  |    8 +
+ drivers/mtd/devices/Makefile |    1 
+ drivers/mtd/devices/m25p80.c |  580 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/spi/flash.h    |    4 
+ 4 files changed, 593 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 24ff6c5..c741776 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -345,19 +345,15 @@ static irqreturn_t ads7846_irq(int irq, 
+diff --git a/drivers/mtd/devices/Kconfig b/drivers/mtd/devices/Kconfig
+index 84f2eb1..5038e90 100644
+--- a/drivers/mtd/devices/Kconfig
++++ b/drivers/mtd/devices/Kconfig
+@@ -55,6 +55,14 @@ config MTD_DATAFLASH
+ 	  Sometimes DataFlash chips are packaged inside MMC-format
+ 	  cards; at this writing, the MMC stack won't handle those.
  
- /*--------------------------------------------------------------------------*/
- 
--/* non-empty "extra" is needed before 2.6.14-git5 or so */
--#define	EXTRA	//	, u32 level
--#define	EXTRA2	//	, 0
--
- static int
--ads7846_suspend(struct device *dev, pm_message_t message EXTRA)
-+ads7846_suspend(struct spi_device *spi, pm_message_t message)
- {
--	struct ads7846 *ts = dev_get_drvdata(dev);
-+	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
- 	unsigned long	flags;
- 
- 	spin_lock_irqsave(&ts->lock, flags);
- 
--	ts->spi->dev.power.power_state = message;
-+	spi->dev.power.power_state = message;
- 
- 	/* are we waiting for IRQ, or polling? */
- 	if (!ts->pendown) {
-@@ -387,36 +383,35 @@ ads7846_suspend(struct device *dev, pm_m
- 	return 0;
- }
- 
--static int ads7846_resume(struct device *dev EXTRA)
-+static int ads7846_resume(struct spi_device *spi)
- {
--	struct ads7846 *ts = dev_get_drvdata(dev);
-+	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
- 
- 	ts->irq_disabled = 0;
- 	enable_irq(ts->spi->irq);
--	dev->power.power_state = PMSG_ON;
-+	spi->dev.power.power_state = PMSG_ON;
- 	return 0;
- }
- 
--static int __init ads7846_probe(struct device *dev)
-+static int __devinit ads7846_probe(struct spi_device *spi)
- {
--	struct spi_device		*spi = to_spi_device(dev);
- 	struct ads7846			*ts;
--	struct ads7846_platform_data	*pdata = dev->platform_data;
-+	struct ads7846_platform_data	*pdata = spi->dev.platform_data;
- 	struct spi_transfer		*x;
- 
- 	if (!spi->irq) {
--		dev_dbg(dev, "no IRQ?\n");
-+		dev_dbg(&spi->dev, "no IRQ?\n");
- 		return -ENODEV;
- 	}
- 
- 	if (!pdata) {
--		dev_dbg(dev, "no platform data?\n");
-+		dev_dbg(&spi->dev, "no platform data?\n");
- 		return -ENODEV;
- 	}
- 
- 	/* don't exceed max specified sample rate */
- 	if (spi->max_speed_hz > (125000 * 16)) {
--		dev_dbg(dev, "f(sample) %d KHz?\n",
-+		dev_dbg(&spi->dev, "f(sample) %d KHz?\n",
- 				(spi->max_speed_hz/16)/1000);
- 		return -EINVAL;
- 	}
-@@ -430,7 +425,7 @@ static int __init ads7846_probe(struct d
- 	if (!(ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL)))
- 		return -ENOMEM;
- 
--	dev_set_drvdata(dev, ts);
-+	dev_set_drvdata(&spi->dev, ts);
- 
- 	ts->spi = spi;
- 	spi->dev.power.power_state = PMSG_ON;
-@@ -445,9 +440,9 @@ static int __init ads7846_probe(struct d
- 
- 	init_input_dev(&ts->input);
- 
--	ts->input.dev = dev;
-+	ts->input.dev = &spi->dev;
- 	ts->input.name = "ADS784x Touchscreen";
--	snprintf(ts->phys, sizeof ts->phys, "%s/input0", dev->bus_id);
-+	snprintf(ts->phys, sizeof ts->phys, "%s/input0", spi->dev.bus_id);
- 	ts->input.phys = ts->phys;
- 
- 	ts->input.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-@@ -511,65 +506,68 @@ static int __init ads7846_probe(struct d
- 	ts->msg.context = ts;
- 
- 	if (request_irq(spi->irq, ads7846_irq, SA_SAMPLE_RANDOM,
--				dev->bus_id, ts)) {
--		dev_dbg(dev, "irq %d busy?\n", spi->irq);
-+				spi->dev.bus_id, ts)) {
-+		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
- 		input_unregister_device(&ts->input);
- 		kfree(ts);
- 		return -EBUSY;
- 	}
- 	set_irq_type(spi->irq, IRQT_FALLING);
- 
--	dev_info(dev, "touchscreen, irq %d\n", spi->irq);
-+	dev_info(&spi->dev, "touchscreen, irq %d\n", spi->irq);
- 
- 	/* take a first sample, leaving nPENIRQ active; avoid
- 	 * the touchscreen, in case it's not connected.
- 	 */
--	(void) ads7846_read12_ser(dev,
-+	(void) ads7846_read12_ser(&spi->dev,
- 			  READ_12BIT_SER(vaux) | ADS_PD10_ALL_ON);
- 
- 	/* ads7843/7845 don't have temperature sensors, and
- 	 * use the other sensors a bit differently too
- 	 */
- 	if (ts->model == 7846) {
--		device_create_file(dev, &dev_attr_temp0);
--		device_create_file(dev, &dev_attr_temp1);
-+		device_create_file(&spi->dev, &dev_attr_temp0);
-+		device_create_file(&spi->dev, &dev_attr_temp1);
- 	}
- 	if (ts->model != 7845)
--		device_create_file(dev, &dev_attr_vbatt);
--	device_create_file(dev, &dev_attr_vaux);
-+		device_create_file(&spi->dev, &dev_attr_vbatt);
-+	device_create_file(&spi->dev, &dev_attr_vaux);
- 
- 	return 0;
- }
- 
--static int __exit ads7846_remove(struct device *dev)
-+static int __devexit ads7846_remove(struct spi_device *spi)
- {
--	struct ads7846		*ts = dev_get_drvdata(dev);
-+	struct ads7846		*ts = dev_get_drvdata(&spi->dev);
- 
--	ads7846_suspend(dev, PMSG_SUSPEND EXTRA2);
-+	ads7846_suspend(spi, PMSG_SUSPEND);
- 	free_irq(ts->spi->irq, ts);
- 	if (ts->irq_disabled)
- 		enable_irq(ts->spi->irq);
- 
- 	if (ts->model == 7846) {
--		device_remove_file(dev, &dev_attr_temp0);
--		device_remove_file(dev, &dev_attr_temp1);
-+		device_remove_file(&spi->dev, &dev_attr_temp0);
-+		device_remove_file(&spi->dev, &dev_attr_temp1);
- 	}
- 	if (ts->model != 7845)
--		device_remove_file(dev, &dev_attr_vbatt);
--	device_remove_file(dev, &dev_attr_vaux);
-+		device_remove_file(&spi->dev, &dev_attr_vbatt);
-+	device_remove_file(&spi->dev, &dev_attr_vaux);
- 
- 	input_unregister_device(&ts->input);
- 	kfree(ts);
- 
--	dev_dbg(dev, "unregistered touchscreen\n");
-+	dev_dbg(&spi->dev, "unregistered touchscreen\n");
- 	return 0;
- }
- 
--static struct device_driver ads7846_driver = {
--	.name		= "ads7846",
--	.bus		= &spi_bus_type,
-+static struct spi_driver ads7846_driver = {
++config MTD_M25P80
++	tristate "Support for M25 SPI Flash"
++	depends on MTD && SPI_MASTER && EXPERIMENTAL
++	help
++	  This enables access to ST M25P80 and similar SPI flash chips,
++	  used for program and data storage.  Set up your spi devices
++	  with the right board-specific platform data.
++
+ config MTD_SLRAM
+ 	tristate "Uncached system RAM"
+ 	depends on MTD
+diff --git a/drivers/mtd/devices/Makefile b/drivers/mtd/devices/Makefile
+index cd8d807..7c5ed21 100644
+--- a/drivers/mtd/devices/Makefile
++++ b/drivers/mtd/devices/Makefile
+@@ -24,3 +24,4 @@ obj-$(CONFIG_MTD_LART)		+= lart.o
+ obj-$(CONFIG_MTD_BLKMTD)	+= blkmtd.o
+ obj-$(CONFIG_MTD_BLOCK2MTD)	+= block2mtd.o
+ obj-$(CONFIG_MTD_DATAFLASH)	+= mtd_dataflash.o
++obj-$(CONFIG_MTD_M25P80)	+= m25p80.o
+diff --git a/drivers/mtd/devices/m25p80.c b/drivers/mtd/devices/m25p80.c
+new file mode 100644
+index 0000000..71a0721
+--- /dev/null
++++ b/drivers/mtd/devices/m25p80.c
+@@ -0,0 +1,580 @@
++/*
++ * MTD SPI driver for ST M25Pxx flash chips
++ *
++ * Author: Mike Lavender, mike@steroidmicros.com
++ *
++ * Copyright (c) 2005, Intec Automation Inc.
++ *
++ * Some parts are based on lart.c by Abraham Van Der Merwe
++ *
++ * Cleaned up and generalized based on mtd_dataflash.c
++ *
++ * This code is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/interrupt.h>
++#include <linux/interrupt.h>
++#include <linux/mtd/mtd.h>
++#include <linux/mtd/partitions.h>
++#include <linux/spi/spi.h>
++#include <linux/spi/flash.h>
++
++#include <asm/semaphore.h>
++
++
++/* NOTE: AT 25F and SST 25LF series are very similar,
++ * but commands for sector erase and chip id differ...
++ */
++
++#define FLASH_PAGESIZE		256
++
++/* Flash opcodes. */
++#define	OPCODE_WREN		6	/* Write enable */
++#define	OPCODE_RDSR		5	/* Read status register */
++#define	OPCODE_READ		3	/* Read data bytes */
++#define	OPCODE_PP		2	/* Page program */
++#define	OPCODE_SE		0xd8	/* Sector erase */
++#define	OPCODE_RES		0xab	/* Read Electronic Signature */
++#define	OPCODE_RDID		0x9f	/* Read JEDEC ID */
++
++/* Status Register bits. */
++#define	SR_WIP			1	/* Write in progress */
++#define	SR_WEL			2	/* Write enable latch */
++#define	SR_BP0			4	/* Block protect 0 */
++#define	SR_BP1			8	/* Block protect 1 */
++#define	SR_BP2			0x10	/* Block protect 2 */
++#define	SR_SRWD			0x80	/* SR write protect */
++
++/* Define max times to check status register before we give up. */
++#define	MAX_READY_WAIT_COUNT	100000
++
++
++#ifdef CONFIG_MTD_PARTITIONS
++#define	mtd_has_partitions()	(1)
++#else
++#define	mtd_has_partitions()	(0)
++#endif
++
++/****************************************************************************/
++
++struct m25p {
++	struct spi_device	*spi;
++	struct semaphore	lock;
++	struct mtd_info		mtd;
++	unsigned		partitioned;
++	u8			command[4];
++};
++
++static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
++{
++	return container_of(mtd, struct m25p, mtd);
++}
++
++/****************************************************************************/
++
++/*
++ * Internal helper functions
++ */
++
++/*
++ * Read the status register, returning its value in the location
++ * Return the status register value.
++ * Returns negative if error occurred.
++ */
++static int read_sr(struct m25p *flash)
++{
++	ssize_t retval;
++	u8 code = OPCODE_RDSR;
++	u8 val;
++
++	retval = spi_write_then_read(flash->spi, &code, 1, &val, 1);
++
++	if (retval < 0) {
++		dev_err(&flash->spi->dev, "error %d reading SR\n",
++				(int) retval);
++		return retval;
++	}
++
++	return val;
++}
++
++
++/*
++ * Set write enable latch with Write Enable command.
++ * Returns negative if error occurred.
++ */
++static inline int write_enable(struct m25p *flash)
++{
++	u8	code = OPCODE_WREN;
++
++	return spi_write_then_read(flash->spi, &code, 1, NULL, 0);
++}
++
++
++/*
++ * Service routine to read status register until ready, or timeout occurs.
++ * Returns non-zero if error.
++ */
++static int wait_till_ready(struct m25p *flash)
++{
++	int count;
++	int sr;
++
++	/* one chip guarantees max 5 msec wait here after page writes,
++	 * but potentially three seconds (!) after page erase.
++	 */
++	for (count = 0; count < MAX_READY_WAIT_COUNT; count++) {
++		if ((sr = read_sr(flash)) < 0)
++			break;
++		else if (!(sr & SR_WIP))
++			return 0;
++
++		/* REVISIT sometimes sleeping would be best */
++	}
++
++	return 1;
++}
++
++
++/*
++ * Erase one sector of flash memory at offset ``offset'' which is any
++ * address within the sector which should be erased.
++ *
++ * Returns 0 if successful, non-zero otherwise.
++ */
++static int erase_sector(struct m25p *flash, u32 offset)
++{
++	DEBUG(MTD_DEBUG_LEVEL3, "%s: %s at 0x%08x\n", flash->spi->dev.bus_id,
++			__FUNCTION__, offset);
++
++	/* Wait until finished previous write command. */
++	if (wait_till_ready(flash))
++		return 1;
++
++	/* Send write enable, then erase commands. */
++	write_enable(flash);
++
++	/* Set up command buffer. */
++	flash->command[0] = OPCODE_SE;
++	flash->command[1] = offset >> 16;
++	flash->command[2] = offset >> 8;
++	flash->command[3] = offset;
++
++	spi_write(flash->spi, flash->command, sizeof(flash->command));
++
++	return 0;
++}
++
++/****************************************************************************/
++
++/*
++ * MTD implementation
++ */
++
++/*
++ * Erase an address range on the flash chip.  The address range may extend
++ * one or more erase sectors.  Return an error is there is a problem erasing.
++ */
++static int m25p80_erase(struct mtd_info *mtd, struct erase_info *instr)
++{
++	struct m25p *flash = mtd_to_m25p(mtd);
++	u32 addr,len;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
++			flash->spi->dev.bus_id, __FUNCTION__, "at",
++			(u32)instr->addr, instr->len);
++
++	/* sanity checks */
++	if (instr->addr + instr->len > flash->mtd.size)
++		return -EINVAL;
++	if ((instr->addr % mtd->erasesize) != 0
++			|| (instr->len % mtd->erasesize) != 0) {
++		return -EINVAL;
++	}
++
++	addr = instr->addr;
++	len = instr->len;
++
++  	down(&flash->lock);
++
++	/* now erase those sectors */
++	while (len) {
++		if (erase_sector(flash, addr)) {
++			instr->state = MTD_ERASE_FAILED;
++			up(&flash->lock);
++			return -EIO;
++		}
++
++		addr += mtd->erasesize;
++		len -= mtd->erasesize;
++	}
++
++  	up(&flash->lock);
++
++	instr->state = MTD_ERASE_DONE;
++	mtd_erase_callback(instr);
++
++	return 0;
++}
++
++/*
++ * Read an address range from the flash chip.  The address range
++ * may be any size provided it is within the physical boundaries.
++ */
++static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
++	size_t *retlen, u_char *buf)
++{
++	struct m25p *flash = mtd_to_m25p(mtd);
++	struct spi_transfer t[2];
++	struct spi_message m;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
++			flash->spi->dev.bus_id, __FUNCTION__, "from",
++			(u32)from, len);
++
++	/* sanity checks */
++	if (!len)
++		return 0;
++
++	if (from + len > flash->mtd.size)
++		return -EINVAL;
++
++	down(&flash->lock);
++
++	/* Wait till previous write/erase is done. */
++	if (wait_till_ready(flash)) {
++		/* REVISIT status return?? */
++		up(&flash->lock);
++		return 1;
++	}
++
++	memset(t, 0, (sizeof t));
++
++	/* NOTE:  OPCODE_FAST_READ (if available) is faster... */
++
++	/* Set up the write data buffer. */
++	flash->command[0] = OPCODE_READ;
++	flash->command[1] = from >> 16;
++	flash->command[2] = from >> 8;
++	flash->command[3] = from;
++
++	/* Byte count starts at zero. */
++	if (retlen)
++		*retlen = 0;
++
++	t[0].tx_buf = flash->command;
++	t[0].len = sizeof(flash->command);
++
++	t[1].rx_buf = buf;
++	t[1].len = len;
++
++	m.transfers = t;
++	m.n_transfer = 2;
++
++	spi_sync(flash->spi, &m);
++
++	*retlen = m.actual_length - sizeof(flash->command);
++
++  	up(&flash->lock);
++
++	return 0;
++}
++
++/*
++ * Write an address range to the flash chip.  Data must be written in
++ * FLASH_PAGESIZE chunks.  The address range may be any size provided
++ * it is within the physical boundaries.
++ */
++static int m25p80_write(struct mtd_info *mtd, loff_t to, size_t len,
++	size_t *retlen, const u_char *buf)
++{
++	struct m25p *flash = mtd_to_m25p(mtd);
++	u32 page_offset, page_size;
++	struct spi_transfer t[2];
++	struct spi_message m;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
++			flash->spi->dev.bus_id, __FUNCTION__, "to",
++			(u32)to, len);
++
++	if (retlen)
++		*retlen = 0;
++
++	/* sanity checks */
++	if (!len)
++		return(0);
++
++	if (to + len > flash->mtd.size)
++		return -EINVAL;
++
++  	down(&flash->lock);
++
++	/* Wait until finished previous write command. */
++	if (wait_till_ready(flash))
++		return 1;
++
++	write_enable(flash);
++
++	memset(t, 0, (sizeof t));
++
++	/* Set up the opcode in the write buffer. */
++	flash->command[0] = OPCODE_PP;
++	flash->command[1] = to >> 16;
++	flash->command[2] = to >> 8;
++	flash->command[3] = to;
++
++	t[0].tx_buf = flash->command;
++	t[0].len = sizeof(flash->command);
++
++	m.transfers = t;
++	m.n_transfer = 2;
++
++	/* what page do we start with? */
++	page_offset = to % FLASH_PAGESIZE;
++
++	/* do all the bytes fit onto one page? */
++	if (page_offset + len <= FLASH_PAGESIZE) {
++		t[1].tx_buf = buf;
++		t[1].len = len;
++
++		spi_sync(flash->spi, &m);
++
++		*retlen = m.actual_length - sizeof(flash->command);
++	} else {
++		u32 i;
++
++		/* the size of data remaining on the first page */
++		page_size = FLASH_PAGESIZE - page_offset;
++
++		t[1].tx_buf = buf;
++		t[1].len = page_size;
++		spi_sync(flash->spi, &m);
++
++		*retlen = m.actual_length - sizeof(flash->command);
++
++		/* write everything in PAGESIZE chunks */
++		for (i = page_size; i < len; i += page_size) {
++			page_size = len - i;
++			if (page_size > FLASH_PAGESIZE)
++				page_size = FLASH_PAGESIZE;
++
++			/* write the next page to flash */
++			flash->command[1] = (to + i) >> 16;
++			flash->command[2] = (to + i) >> 8;
++			flash->command[3] = (to + i);
++
++			t[1].tx_buf = buf + i;
++			t[1].len = page_size;
++
++			wait_till_ready(flash);
++
++			write_enable(flash);
++
++			spi_sync(flash->spi, &m);
++
++			*retlen += m.actual_length - sizeof(flash->command);
++	        }
++ 	}
++
++	up(&flash->lock);
++
++	return 0;
++}
++
++
++/****************************************************************************/
++
++/*
++ * SPI device driver setup and teardown
++ */
++
++struct flash_info {
++	char		*name;
++	u8		id;
++	u16		jedec_id;
++	unsigned	sector_size;
++	unsigned	n_sectors;
++};
++
++static struct flash_info __devinitdata m25p_data [] = {
++	/* REVISIT: fill in JEDEC ids, for parts that have them */
++	{ "m25p05", 0x05, 0x0000, 32 * 1024, 2 },
++	{ "m25p10", 0x10, 0x0000, 32 * 1024, 4 },
++	{ "m25p20", 0x11, 0x0000, 64 * 1024, 4 },
++	{ "m25p40", 0x12, 0x0000, 64 * 1024, 8 },
++	{ "m25p80", 0x13, 0x0000, 64 * 1024, 16 },
++	{ "m25p16", 0x14, 0x0000, 64 * 1024, 32 },
++	{ "m25p32", 0x15, 0x0000, 64 * 1024, 64 },
++	{ "m25p64", 0x16, 0x2017, 64 * 1024, 128 },
++};
++
++/*
++ * board specific setup should have ensured the SPI clock used here
++ * matches what the READ command supports, at least until this driver
++ * understands FAST_READ (for clocks over 25 MHz).
++ */
++static int __devinit m25p_probe(struct spi_device *spi)
++{
++	struct flash_platform_data	*data;
++	struct m25p			*flash;
++	struct flash_info		*info;
++	unsigned			i;
++
++	/* Platform data helps sort out which chip type we have, as
++	 * well as how this board partitions it.
++	 */
++	data = spi->dev.platform_data;
++	if (!data || !data->type) {
++		/* FIXME some chips can identify themselves with RES
++		 * or JEDEC get-id commands.  Try them ...
++		 */
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: no chip id\n",
++				flash->spi->dev.bus_id);
++		return -ENODEV;
++	}
++
++	for (i = 0, info = m25p_data; i < ARRAY_SIZE(m25p_data); i++, info++) {
++		if (strcmp(data->type, info->name) == 0)
++			break;
++	}
++	if (i == ARRAY_SIZE(m25p_data)) {
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: unrecognized id %s\n",
++				flash->spi->dev.bus_id, data->type);
++		return -ENODEV;
++	}
++
++	flash = kzalloc(sizeof *flash, SLAB_KERNEL);
++	if (!flash)
++		return -ENOMEM;
++
++	flash->spi = spi;
++	init_MUTEX(&flash->lock);
++	dev_set_drvdata(&spi->dev, flash);
++
++	if (data->name)
++		flash->mtd.name = data->name;
++	else
++		flash->mtd.name = spi->dev.bus_id;
++
++	flash->mtd.type = MTD_NORFLASH;
++	flash->mtd.flags = MTD_CAP_NORFLASH;
++	flash->mtd.size = info->sector_size * info->n_sectors;
++	flash->mtd.erasesize = info->sector_size;
++	flash->mtd.erase = m25p80_erase;
++	flash->mtd.read = m25p80_read;
++	flash->mtd.write = m25p80_write;
++
++	dev_info(&spi->dev, "%s (%d Kbytes)\n", info->name,
++			flash->mtd.size / 1024);
++
++	DEBUG(MTD_DEBUG_LEVEL2,
++		"mtd .name = %s, .size = 0x%.8x (%uM) "
++			".erasesize = 0x%.8x (%uK) .numeraseregions = %d\n",
++		flash->mtd.name,
++		flash->mtd.size, flash->mtd.size / (1024*1024),
++		flash->mtd.erasesize, flash->mtd.erasesize / 1024,
++		flash->mtd.numeraseregions);
++
++	if (flash->mtd.numeraseregions)
++		for (i = 0; i < flash->mtd.numeraseregions; i++)
++			DEBUG(MTD_DEBUG_LEVEL2,
++				"mtd.eraseregions[%d] = { .offset = 0x%.8x, "
++				".erasesize = 0x%.8x (%uK), "
++				".numblocks = %d }\n",
++				i, flash->mtd.eraseregions[i].offset,
++				flash->mtd.eraseregions[i].erasesize,
++				flash->mtd.eraseregions[i].erasesize / 1024,
++				flash->mtd.eraseregions[i].numblocks);
++
++
++	/* partitions should match sector boundaries; and it may be good to
++	 * use readonly partitions for writeprotected sectors (BP2..BP0).
++	 */
++	if (mtd_has_partitions()) {
++		struct mtd_partition	*parts = NULL;
++		int			nr_parts = 0;
++
++#ifdef CONFIG_MTD_CMDLINE_PARTS
++		static const char *part_probes[] = { "cmdlinepart", NULL, };
++
++		nr_parts = parse_mtd_partitions(&flash->mtd,
++				part_probes, &parts, 0);
++#endif
++
++		if (nr_parts <= 0 && data && data->parts) {
++			parts = data->parts;
++			nr_parts = data->nr_parts;
++		}
++
++		if (nr_parts > 0) {
++			for (i = 0; i < data->nr_parts; i++) {
++				DEBUG(MTD_DEBUG_LEVEL2, "partitions[%d] = "
++					"{.name = %s, .offset = 0x%.8x, "
++						".size = 0x%.8x (%uK) }\n",
++					i, data->parts[i].name,
++					data->parts[i].offset,
++					data->parts[i].size,
++					data->parts[i].size / 1024);
++			}
++			flash->partitioned = 1;
++			return add_mtd_partitions(&flash->mtd, parts, nr_parts);
++		}
++	} else if (data->nr_parts)
++		dev_warn(&spi->dev, "ignoring %d default partitions on %s\n",
++				data->nr_parts, data->name);
++
++	return add_mtd_device(&flash->mtd) == 1 ? -ENODEV : 0;
++}
++
++
++static int __devexit m25p_remove(struct spi_device *spi)
++{
++	struct m25p	*flash = dev_get_drvdata(&spi->dev);
++	int		status;
++
++	/* Clean up MTD stuff. */
++	if (mtd_has_partitions() && flash->partitioned)
++		status = del_mtd_partitions(&flash->mtd);
++	else
++		status = del_mtd_device(&flash->mtd);
++	if (status == 0)
++		kfree(flash);
++	return 0;
++}
++
++
++static struct spi_driver m25p80_driver = {
 +	.driver = {
-+		.name	= "ads7846",
++		.name	= "m25p80",
 +		.bus	= &spi_bus_type,
 +		.owner	= THIS_MODULE,
 +	},
- 	.probe		= ads7846_probe,
--	.remove		= __exit_p(ads7846_remove),
-+	.remove		= __devexit_p(ads7846_remove),
- 	.suspend	= ads7846_suspend,
- 	.resume		= ads7846_resume,
- };
-@@ -594,18 +592,20 @@ static int __init ads7846_init(void)
- 	// PXA:
- 	// also Dell Axim X50
- 	// also HP iPaq H191x/H192x/H415x/H435x
--	// also Intel Lubbock (alternate to UCB1400)
-+	// also Intel Lubbock (additional to UCB1400; as temperature sensor)
- 	// also Sharp Zaurus C7xx, C8xx (corgi/sheperd/husky)
- 
-+	// Atmel at91sam9261-EK uses ads7843
++	.probe	= m25p_probe,
++	.remove	= __devexit_p(m25p_remove),
++};
 +
- 	// also various AMD Au1x00 devel boards
- 
--	return driver_register(&ads7846_driver);
-+	return spi_register_driver(&ads7846_driver);
- }
- module_init(ads7846_init);
- 
- static void __exit ads7846_exit(void)
- {
--	driver_unregister(&ads7846_driver);
-+	spi_unregister_driver(&ads7846_driver);
- 
- #ifdef	CONFIG_ARCH_OMAP
- 	if (machine_is_omap_osk()) {
-diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
-index 84a2701..72261e0 100644
---- a/include/linux/spi/ads7846.h
-+++ b/include/linux/spi/ads7846.h
-@@ -1,7 +1,7 @@
- /* linux/spi/ads7846.h */
- 
- /* Touchscreen characteristics vary between boards and models.  The
-- * platform_data for the device's "struct device" holts this information.
-+ * platform_data for the device's "struct device" holds this information.
++
++static int m25p80_init(void)
++{
++	return spi_register_driver(&m25p80_driver);
++}
++
++
++static void m25p80_exit(void)
++{
++	spi_unregister_driver(&m25p80_driver);
++}
++
++
++module_init(m25p80_init);
++module_exit(m25p80_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mike Lavender");
++MODULE_DESCRIPTION("MTD SPI driver for ST M25Pxx flash chips");
+diff --git a/include/linux/spi/flash.h b/include/linux/spi/flash.h
+index 2ce6558..3f22932 100644
+--- a/include/linux/spi/flash.h
++++ b/include/linux/spi/flash.h
+@@ -8,6 +8,8 @@ struct mtd_partition;
+  * @name: optional flash device name (eg, as used with mtdparts=)
+  * @parts: optional array of mtd_partitions for static partitioning
+  * @nr_parts: number of mtd_partitions for static partitoning
++ * @type: optional flash device type (e.g. m25p80 vs m25p64), for use
++ *	with chips that can't be queried for JEDEC or other IDs
   *
-  * It's OK if the min/max values are zero.
-  */
+  * Board init code (in arch/.../mach-xxx/board-yyy.c files) can
+  * provide information about SPI flash parts (such as DataFlash) to
+@@ -21,6 +23,8 @@ struct flash_platform_data {
+ 	struct mtd_partition *parts;
+ 	unsigned int	nr_parts;
+ 
++	char		*type;
++
+ 	/* we'll likely add more ... use JEDEC IDs, etc */
+ };
+ 
 

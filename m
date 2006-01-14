@@ -1,96 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWANSTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWANSfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWANSTv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 13:19:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWANSTv
+	id S1750757AbWANSfX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 13:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWANSfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 13:19:51 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:27836 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750747AbWANSTv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 13:19:51 -0500
-Date: Sat, 14 Jan 2006 19:19:49 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: Race in new page migration code?
-Message-ID: <20060114181949.GA27382@wotan.suse.de>
-References: <20060114155517.GA30543@wotan.suse.de> <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.6i
+	Sat, 14 Jan 2006 13:35:23 -0500
+Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:3218 "EHLO
+	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1750757AbWANSfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 13:35:23 -0500
+Message-ID: <43C94464.4040500@cfl.rr.com>
+Date: Sat, 14 Jan 2006 13:35:16 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051010)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Osterlund <petero2@telia.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: [PATCH] pktcdvd & udf bugfixes
+References: <43C5D71B.1060002@cfl.rr.com> <m3oe2e2983.fsf@telia.com>
+In-Reply-To: <m3oe2e2983.fsf@telia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 14, 2006 at 10:01:43AM -0800, Christoph Lameter wrote:
-> On Sat, 14 Jan 2006, Nick Piggin wrote:
+Peter Osterlund wrote:
 > 
-> > I'm fairly sure there is a race in the page migration code
-> > due to your not taking a reference on the page. Taking the
-> > reference also can make things less convoluted.
 > 
-> We take that reference count on the page:
+> The variable is unsigned, so it supports values up to 255, ie no need
+> to change it.
+> 
 > 
 
-Yes, after you have dropped all your claims to pin this page
-(ie. pte lock). You really can't take a refcount on a page that
-you haven't somehow pinned (only I can ;)). This get_page_testone
-code used by reclaim is a tricky special case where the page is
-pinned by lru_lock even if it is "free" (ie. zero refcount).
+The packet length is read and left shifted by two before being stored in 
+that variable to convert it from 2048 byte sectors to 512 byte sectors, 
+thus a value of 128 overflowed and became zero.  be32_to_cpu returns a 
+32 bit value so I figured it should be stored in a 32 bit variable, not 
+an 8 bit one.
 
-It is not something that you can use without being very careful.
-And I don't understand why you would want to even if it did work,
-after you take a look at the simplicity of my patch.
-
-> /*
->  * Isolate one page from the LRU lists.
->  *
->  * - zone->lru_lock must be held
->  */
-> static inline int __isolate_lru_page(struct page *page)
-> {
->         if (unlikely(!TestClearPageLRU(page)))
->                 return 0;
 > 
-> >>>>        if (get_page_testone(page)) {
->                 /*
->                  * It is being freed elsewhere
->                  */
->                 __put_page(page);
->                 SetPageLRU(page);
->                 return -ENOENT;
->         }
+> That code is very old, I think Jens wrote it. I assume it wasn't just
+> for fun, but to be able to support drives with slightly
+> broken/non-standard firmware.
 > 
->         return 1;
-> }
 > 
 
-By this stage the page may have been freed, and reused by an
-unrelated pagecache on the LRU. I'm not sure if there are any
-worse races than this (ie. random page being moved), but I
-wouldn't like to risk it.
+Yes, I hope he can let me know if that is the case, but right now I do 
+not see how that can be.  As far as I know, that value is put there by 
+the utility used to format the track, and _should_ be the correct 
+length, never 0.  In any case, if it is zero, then assuming the maximum 
+supported size would cause errors if the actual packet size is larger 
+than the maximum that the driver supports.
 
->  
-> > Also, an unsuccessful isolation attempt does not mean something is
-> > wrong. I removed the WARN_ON, but you should probably be retrying
-> > on this level if you are really interested in migrating all pages.
 > 
-> It depends what you mean by unsuccessful isolate attempt. One reason for 
-> not being successful is that the page has been freed. Thats okay.
+> The current limit is 32 disc blocks, ie 64KB or 128 "linux sectors".
 > 
-> The other is that the page is not on the LRU, and is not being moved
-> back to the LRU by draining the lru caches. In that case we need to
-> have a WARN_ON at least for now. There may be other reasons that a page
-> is not on the LRU but I would like to be careful about that at first.
+> How do you make the packet size larger for a CDRW disc? Just changing
+> the constant is not going to help unless you can also format a disc
+> with larger packets.
 > 
-> Its not an error but something that is of concern thus WARN_ON.
+> 
 
-kswapd picks them off the lru as normal part of scanning. A
-WARN_ON is simply spam.
+I also have several patches to the udftools package, one of which 
+documents ( in the man page ) the previously undocumented -z packet_size 
+parameter to cdrwtool, and fixes the code so that it actually works with 
+values other than 32.
 
-Nick
+The upstream project for udftools on sourceforge appears to be dead.  I 
+have sent email to the two original authors and had no reply, and the 
+CVS repository has not been touched in over a year, and the mailing list 
+is dead.  I am not sure what I should do about that, but in the mean 
+time, I am maintaining ubuntu specific patches and have been speaking to 
+the debian package maintainer about merging them there as well.
+
+
+> Might be a good idea. On DVD discs the block size is only 32KB, so
+> half of the allocated memory is unused.
+> 
+
+Why is it only 32 KB on a dvd?  What utility was used to format it like 
+that?  My cd/dvd-rw drive blew out the cd laser the other day, and I got 
+the replacement last night with some dvd+rw media, so I guess I will 
+start playing with that soon.  From what I have read so far, dvd+rw 
+media does not require pktcdvd to write to it, but its use can improve 
+throughput.
 

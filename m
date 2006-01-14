@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWANUZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWANUcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbWANUZs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 15:25:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWANUZr
+	id S1751084AbWANUcj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 15:32:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWANUcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 15:25:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53220 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751074AbWANUZr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 15:25:47 -0500
-Date: Sat, 14 Jan 2006 12:25:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: chaosite@gmail.com
-Cc: daviado@gmail.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       drepper@gmail.com, robustmutexes@lists.osdl.org
-Subject: Re: Robust futex patch for Linux 2.6.15
-Message-Id: <20060114122521.39f86ed5.akpm@osdl.org>
-In-Reply-To: <43C9233A.20504@gmail.com>
-References: <b324b5ad0601131316m721f959eu37b741f9e5557a2e@mail.gmail.com>
-	<20060113132704.207336d7.akpm@osdl.org>
-	<43C9233A.20504@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Sat, 14 Jan 2006 15:32:39 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:32007 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751084AbWANUcj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 15:32:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FAQ6HVMTC9lGHjEJJTCDk9OpCnkiJHu4DjveIFzWlMXmMqGOxSi3f1iS3fgds0RHA0PuP1fX6xHjPM+QI8hOb6bQuxz6qr7wItUyqDbNcxLq7/ygoTCvHbYIi/S4H79swXp3S014X6gN7Yl7IJickdUBEHjBcZMiOAVgdCRfv2Q=
+Message-ID: <58cb370e0601141232y110e7876ide98d9ed1213285c@mail.gmail.com>
+Date: Sat, 14 Jan 2006 21:32:37 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Greg K-H <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add ide_bus_type probe and remove methods
+In-Reply-To: <20060114195753.GC24816@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <11371818112032@kroah.com> <11371818123046@kroah.com>
+	 <58cb370e0601131206u2507f8fewba34336c556ea61b@mail.gmail.com>
+	 <20060114195753.GC24816@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matan Peled <chaosite@gmail.com> wrote:
+On 1/14/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> On Fri, Jan 13, 2006 at 09:06:24PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > please fix ide-scsi.c (should be trivial)
 >
-> Andrew, I'm looking at this:
-> 
->  http://source.mvista.com/~dsingleton/robust-futex-1
-> 
->  And it doesn't seem to have a futex_deadlock function at all. In fact, its seems 
->  to have a rather lengthy description about robust futexes and why they're a Good 
->  Thing(TM).
-> 
->  What are you looking at?
+> Updated patch attached.  However, unable to even build-test since ide-scsi
+> is already broken:
+>
+> drivers/scsi/ide-scsi.c: In function `idescsi_eh_reset':
+> drivers/scsi/ide-scsi.c:1046: error: too few arguments to function `end_that_request_last'
+> drivers/scsi/ide-scsi.c:1056: error: too few arguments to function `end_that_request_last'
 
-A file which now appears to have been deleted..
+Thanks, I will look into this.

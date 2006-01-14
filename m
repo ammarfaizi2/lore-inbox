@@ -1,88 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWANNOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWANNQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWANNOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 08:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWANNOR
+	id S1751581AbWANNQg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 08:16:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWANNQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 08:14:17 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:9867 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1751286AbWANNOQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 08:14:16 -0500
-Message-ID: <43C8F962.9030409@ums.usu.ru>
-Date: Sat, 14 Jan 2006 18:15:14 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Sat, 14 Jan 2006 08:16:36 -0500
+Received: from smtprelay06.ispgateway.de ([80.67.18.44]:4569 "EHLO
+	smtprelay06.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751290AbWANNQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 08:16:35 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch 00/62] sem2mutex: -V1
+Date: Sat, 14 Jan 2006 14:16:13 +0100
+User-Agent: KMail/1.7.2
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Greg KH <greg@kroah.com>
+References: <20060113124402.GA7351@elte.hu> <200601131925.34971.ioe-lkml@rameria.de> <20060113195658.GA3780@elte.hu>
+In-Reply-To: <20060113195658.GA3780@elte.hu>
 MIME-Version: 1.0
-To: Kay Sievers <kay.sievers@suse.de>
-Cc: Greg K-H <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] INPUT: add MODALIAS to the event environment
-References: <11371818082670@kroah.com> <11371818084013@kroah.com> <43C88898.10900@ums.usu.ru> <20060114110401.GA11237@vrfy.org>
-In-Reply-To: <20060114110401.GA11237@vrfy.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1638038.euvqrMeBtZ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.27; VDF: 6.33.0.123; host: usu2.usu.ru)
+Message-Id: <200601141416.20055.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers wrote:
+--nextPart1638038.euvqrMeBtZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
->On Sat, Jan 14, 2006 at 10:14:00AM +0500, Alexander E. Patrakov wrote:
->  
->
->>Greg KH wrote:
->>    
->>
->>>[PATCH] INPUT: add MODALIAS to the event environment
->>>
->>>input: add MODALIAS to the event environment
->>>      
->>>
->>Could you please tell me sample modaliases for a number of "common" 
->>devices (like a PS/2 mouse)?
->>
->>I ask because earlier (namely, in 
->>http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/old/gregkh-all-2.6.15.patch) 
->>such modaliases contained commas (",") and comma is not a "trusted" 
->>character in Udev (see replace_untrusted_chars() in udev_utils_string.c). 
->>Thus, such modaliases were mangled and didn't work.
->>    
->>
->
->Only if you read it with $sysfs{modalias}, it's available in $env{MODALIAS}
->and does not get mangled there, right? If you have problems with that,
->let us know and we will fix it.
->  
->
-With the old gregkh-all-2.6.15.patch, I have:
+On Friday 13 January 2006 20:56, Ingo Molnar wrote:
+> * Ingo Oeser <ioe-lkml@rameria.de> wrote:
+> > On Friday 13 January 2006 14:44, Ingo Molnar wrote:
+> > Could we get for each of these and a mutex:
+> >=20
+> >  - description=20
+> >  - common use case
+> >  - small argument why this and nothing else should be used there
+>=20
+> like ... Documentation/mutex-design.txt?
 
-sh-3.1# cat /sys/class/input/input1/modalias
-input:b0011v0002p0004e0000-e0,1,2,k110,111,112,113,114,r0,1,8,amlsfw
-sh-3.1# echo "add" >/sys/class/input/input1/uevent
-sh-3.1# cat /events/1663
-PHYSDEVPATH=/devices/platform/i8042/serio0
-EV=7
-SUBSYSTEM=input
-DEVPATH=/class/input/input1
-NAME="GenPS/2 Genius <NULL>"
-ACTION=add
-PWD=/
-UDEV_LOG=7
-REL=103
-KEY=1f0000 0 0 0 0 0 0 0 0
-UDEVD_EVENT=1
-SHLVL=1
-PHYSDEVDRIVER=psmouse
-PHYS="isa0060/serio1/input0"
-PRODUCT=11/2/4/0
-PHYSDEVBUS=serio
-SEQNUM=1663
-_=/usr/bin/env
+Much simpler.=20
 
-i.e., there is the "modalias" file in sysfs but no $MODALIAS in the 
-environment. Is this the problem that your patch solves (note: I haven't 
-tried it yet)?
+Take your favorite conversion and optionally a discussable
+conversion. Now describe why mutex/completion/struct work can do=20
+the same and still reach the same level of safety.
 
--- 
-Alexander E. Patrakov
+Sth. like extending Documentation/DocBook/kernel-locking.tmpl
+which still misses completions and struct work queues,
+how all works together, possible nesting and so on.
+
+It all boils down to discussion one conversion of each type.
+If one could point me to such discussions in the archives=20
+I could write sth. up.
+
+
+Regards
+
+Ingo Oeser
+
+
+--nextPart1638038.euvqrMeBtZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDyPmjU56oYWuOrkARAu0FAKDapZhaYtXqX+/W+BeuRdxzMABn1QCgxQk3
+IrgCGRSg0QvM3gUu8+NQtKc=
+=GyvE
+-----END PGP SIGNATURE-----
+
+--nextPart1638038.euvqrMeBtZ--

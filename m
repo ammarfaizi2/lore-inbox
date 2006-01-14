@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751668AbWANJnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWANJoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751668AbWANJnj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 04:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751670AbWANJnj
+	id S1751670AbWANJoc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 04:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751737AbWANJoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 04:43:39 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:37019 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751636AbWANJni (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 04:43:38 -0500
-Date: Sat, 14 Jan 2006 04:43:33 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Adrian Bunk <bunk@stusta.de>, Tim Tassonis <timtas@cubic.ch>,
-       linux-kernel@vger.kernel.org
-Subject: Re: State of the Union: Wireless
-Message-ID: <20060114094333.GA9510@havoc.gtf.org>
-References: <43C3AAE2.1090900@cubic.ch> <20060110125357.GH3911@stusta.de> <43C3B7C8.8000708@cubic.ch> <20060110141324.GJ3911@stusta.de> <20060111203731.GF2456@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060111203731.GF2456@ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Sat, 14 Jan 2006 04:44:32 -0500
+Received: from adsl-510.mirage.euroweb.hu ([193.226.239.254]:57772 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751677AbWANJob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 04:44:31 -0500
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <20060113172846.3ea49670.akpm@osdl.org> (message from Andrew
+	Morton on Fri, 13 Jan 2006 17:28:46 -0800)
+Subject: Re: [PATCH 11/17] fuse: add number of waiting requests attribute
+References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
+	<20060114004114.241169000@dorka.pomaz.szeredi.hu> <20060113172846.3ea49670.akpm@osdl.org>
+Message-Id: <E1ExhxA-0004Bz-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 14 Jan 2006 10:44:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 08:37:32PM +0000, Pavel Machek wrote:
-> Hi!
+> This doesn't get initialised anywhere.
 > 
-> > > Like the OSS/Alsa or XFree3.x/XFree4.x situations.
-> > 
-> > And OSS/ALSA is an example why this is not a good thing:
-> > - OSS in the kernel is unmaintained
-> > - people forced to use OSS drivers can't use applications only 
-> >   supporting ALSA
+> Presumably you're relying on a memset somewhere.  That might work on all
+> architectures, AFAIK.  But in theory it's wrong.  If, for example, the
+> architecture implements atomic_t via a spinlock-plus-integer, and that
+> spinlock's unlocked state is not all-bits-zero, we're dead.
 > 
-> Well, it is different. Current ieee80211 stack is going to be
-> maintained by Intel -- because they need it for their hw.
-> And it will be very easy to find maintainer for the new stack...
+> So we should initialise it with
 > 
-> So we already have two-stack situation here.
+> 	foo->num_waiting = ATOMIC_INIT(0);
+> 
 
-No, ieee80211 has always been intended for use by all drivers.
-Read the archives... there have been a few efforts to start merging
-HostAP and ieee80211 code, and further efforts exist out of tree that
-add softmac support.
+Is it correct to use a structure initializer this way?
 
-Remember Linux's maxim:  do what you must, and no more.
+> nb: it is not correct to initialise an atomic_t with
+> 
+> 	atomic_set(a, 0);
+> 
+> because in the above theoretical case case where the arch uses a spinlock
+> in the atomic_t, that spinlock doesn't get initialised.  I bet we've got code
+> in there which does this.
 
-That implies that new users SHOULD update ieee80211 for their needs.
+According to Documentation/atomic_ops.txt, this is the correct usage
+of atomic_set():
 
-	Jeff
+|           The first operations to implement for atomic_t's are the
+|   initializers and plain reads.
+|   
+|           #define ATOMIC_INIT(i)          { (i) }
+|           #define atomic_set(v, i)        ((v)->counter = (i))
+|   
+|   The first macro is used in definitions, such as:
+|   
+|   static atomic_t my_counter = ATOMIC_INIT(1);
+|   
+|   The second interface can be used at runtime, as in:
+|   
+|           struct foo { atomic_t counter; };
+|           ...
+|   
+|           struct foo *k;
+|   
+|           k = kmalloc(sizeof(*k), GFP_KERNEL);
+|           if (!k)
+|                   return -ENOMEM;
+|           atomic_set(&k->counter, 0);
 
+So in fact atomic_set() is an initializer, and should be named
+atomic_init() accordingly.  Is atomic_set() ever used as an atomic
+operation rather than an initializer?
 
-
+Miklos

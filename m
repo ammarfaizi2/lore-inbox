@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWANRhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWANRjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWANRhl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 12:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWANRhk
+	id S1750712AbWANRjk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 12:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWANRjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 12:37:40 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:24502 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750707AbWANRhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 12:37:40 -0500
-Subject: Re: PROBLEM: PCI WiFi card works with livecd's but not with HD
-	install with Ali mobo.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matthew Marshall <matthew@matthewmarshall.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200601141427.36915.matthew@matthewmarshall.org>
-References: <200601141427.36915.matthew@matthewmarshall.org>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 12:37:32 -0500
-Message-Id: <1137260253.1408.55.camel@mindpipe>
+	Sat, 14 Jan 2006 12:39:40 -0500
+Received: from main.gmane.org ([80.91.229.2]:34741 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750712AbWANRjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 12:39:39 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: 2.6.13-mm3
+Date: Sat, 14 Jan 2006 18:39:04 +0100
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2006.01.14.17.39.03.90564@smurf.noris.de>
+References: <20050912024350.60e89eb1.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-14 at 14:27 -0300, Matthew Marshall wrote:
-> I am having problems using a DWL-G510 PCI 802.11g card (Atheros chipset) with 
-> my ASROCK 939Dual-SATA2.  The really strange thing is that it works perfectly 
-> fine with every live-cd I have tried, but always fails from a hd install.
-> 
-> The problem is that, instead of flashing, one of the lights on the card is 
-> held constant, while the other remains off.  This happens with both 
-> ndiswrapper and madwifi.  Both of these drivers work fine without a hitch in 
-> both knoppix and slax.
+Hi, Andrew Morton wrote:
 
-We can't help you with proprietary drivers on this list.  Can you
-reproduce the problem with no proprietary drivers loaded?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm3/
 
-Lee
+Imported into git as v2.6.15-mm3:
+http://www.kernel.org/git/?p=linux/kernel/git/smurf/linux-trees.git;a=tag;h=fa33a
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+"If a person can join the salvation army corps and still be
+ respected by his fellow-beings, he ought to be at liberty to enlist
+ in the ranks of reason and common sense and not forfeit respect."
+       [Lemuel K. Washburn, _Is The Bible Worth Reading
+                              And Other Essays_]
+
 

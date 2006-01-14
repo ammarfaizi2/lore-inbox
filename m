@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945947AbWANB0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945949AbWANB1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945947AbWANB0x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jan 2006 20:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423254AbWANB0v
+	id S1945949AbWANB1X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jan 2006 20:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423253AbWANB1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jan 2006 20:26:51 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39566 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423253AbWANB0u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jan 2006 20:26:50 -0500
-Date: Fri, 13 Jan 2006 17:28:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/17] fuse: add number of waiting requests attribute
-Message-Id: <20060113172846.3ea49670.akpm@osdl.org>
-In-Reply-To: <20060114004114.241169000@dorka.pomaz.szeredi.hu>
-References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>
-	<20060114004114.241169000@dorka.pomaz.szeredi.hu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 13 Jan 2006 20:27:22 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:26550 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1423254AbWANB1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jan 2006 20:27:21 -0500
+Subject: RE: Dual core Athlons and unsynced TSCs
+From: Lee Revell <rlrevell@joe-job.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Roger Heflin <rheflin@atipa.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1137201821.11300.30.camel@cog.beaverton.ibm.com>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
+	 <1137168254.7241.32.camel@localhost.localdomain>
+	 <1137174463.15108.4.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
+	 <1137174848.15108.11.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+	 <1137178506.15108.38.camel@mindpipe>
+	 <1137182991.8283.7.camel@localhost.localdomain>
+	 <1137198221.11300.21.camel@cog.beaverton.ibm.com>
+	 <1137201012.6727.1.camel@localhost.localdomain>
+	 <1137201250.1408.39.camel@mindpipe>
+	 <1137201821.11300.30.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 13 Jan 2006 20:27:18 -0500
+Message-Id: <1137202039.1408.42.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
->
-> +	/** The number of requests waiting for completion */
-> +	atomic_t num_waiting;
+On Fri, 2006-01-13 at 17:23 -0800, john stultz wrote:
+> On Fri, 2006-01-13 at 20:14 -0500, Lee Revell wrote:
+> > On Fri, 2006-01-13 at 20:10 -0500, Steven Rostedt wrote:
+> > > 
+> > > Thanks, I'll add that to my list of tests too.
+> > > 
+> > > Oh and 2.6.15 passed as well (with clock=pmtmr) 
+> > 
+> > It really seems like it would fail if you gave it enough time due to the
+> > rdtsc in monotonic_clock()...
+> 
+> Currently monotonic_clock()is only used by the hangcheck-timer, and is
+> not used by gettimeofday/clock_gettime (even w/ CLOCK_MONOTONIC). 
+> 
+> So there may still be an issue there w/ the hangcheck-timer(for x86-64,
+> on i386 the acpi pm timer can be used for monotonic_clock), but its
+> doesn't affect the time related userland interfaces.
 
-This doesn't get initialised anywhere.
+OK so the last question is how do we make sure the kernel uses the
+clock=pmtmr behavior by default on those machines?
 
-Presumably you're relying on a memset somewhere.  That might work on all
-architectures, AFAIK.  But in theory it's wrong.  If, for example, the
-architecture implements atomic_t via a spinlock-plus-integer, and that
-spinlock's unlocked state is not all-bits-zero, we're dead.
+Lee
 
-So we should initialise it with
-
-	foo->num_waiting = ATOMIC_INIT(0);
-
-
-
-nb: it is not correct to initialise an atomic_t with
-
-	atomic_set(a, 0);
-
-because in the above theoretical case case where the arch uses a spinlock
-in the atomic_t, that spinlock doesn't get initialised.  I bet we've got code
-in there which does this.

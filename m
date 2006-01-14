@@ -1,59 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWANLfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWANLkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbWANLfP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 06:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWANLfP
+	id S1750730AbWANLkU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 06:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWANLkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 06:35:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54507 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751240AbWANLfO (ORCPT
+	Sat, 14 Jan 2006 06:40:20 -0500
+Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96]:33246 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1750730AbWANLkU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 06:35:14 -0500
-Date: Sat, 14 Jan 2006 03:34:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "P. Christeas" <p_christ@hol.gr>
-Cc: hch@lst.de, linux-kernel@vger.kernel.org, Ian Kent <raven@themaw.net>
-Subject: Re: Regression in Autofs, 2.6.15-git
-Message-Id: <20060114033441.0d80b9f2.akpm@osdl.org>
-In-Reply-To: <200601140217.56724.p_christ@hol.gr>
-References: <200601140217.56724.p_christ@hol.gr>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 06:40:20 -0500
+Message-ID: <43C8E37D.7090907@free.fr>
+Date: Sat, 14 Jan 2006 12:41:49 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: greg@kroah.com
+CC: linux-kernel@vger.kernel.org, usbatm@lists.infradead.org,
+       linux-usb-devel@lists.sourceforge.net, ueagle <ueagleatm-dev@gna.org>
+Subject: [PATCH 2/2] UEAGLE : cosmetic
+Content-Type: multipart/mixed;
+ boundary="------------080900090504060905070205"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"P. Christeas" <p_christ@hol.gr> wrote:
->
-> I had been testing some other thing in the kernel, when I noticed that the 
-> commit (in Linus' tree) given below makes *autofs4* crash.
-> It does crash with a hard oops whenever I try to enter a /net/host/... address 
-> in konqueror's location bar.
-> Is this a known issue or should I provide more information?
-> 
-> 
-> commit fc33a7bb9c6dd8f6e4a014976200f8fdabb3a45c
-> Author: Christoph Hellwig <hch@lst.de>
-> Date:   Mon Jan 9 20:52:17 2006 -0800
-> 
->     [PATCH] per-mountpoint noatime/nodiratime
-> 
->     Turn noatime and nodiratime into per-mount instead of per-sb flags.
-> 
->     After all the preparations this is a rather trivial patch.  The mount code
->     needs to treat the two options as per-mount instead of per-superblock, and
->     touch_atime needs to be changed to check the new MNT_ flags in addition to
->     the MS_ flags that are kept for filesystems that are always
->     noatime/nodiratime but not user settable anymore.  Besides that core code
->     only nfs needed an update because it's leaving atime updates to the server
->     and thus sets the S_NOATIME flag on every inode, but needs to know whether
->     it's a real noatime mount for an getattr optimization.
-> 
->     While we're at it I've killed the IS_NOATIME/IS_NODIRATIME macros that 
-> were
->     only used by touch_atime.
+This is a multi-part message in MIME format.
+--------------080900090504060905070205
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thanks for working that out.
+hi,
 
-It works for me.  Are you able to capture the oops output?
+this patch is purely cosmetic. There is :
+- indentation cleaning
+- unneeded cast removing
+- comments cleaning
+
+
+Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
+
+--------------080900090504060905070205
+Content-Type: text/plain;
+ name="ueagle_cosmetic"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="ueagle_cosmetic"
+
+SW5kZXg6IExpbnV4L2RyaXZlcnMvdXNiL2F0bS91ZWFnbGUtYXRtLmMKPT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQotLS0gTGludXgub3JpZy9kcml2ZXJzL3VzYi9hdG0vdWVhZ2xlLWF0bS5jCTIwMDYtMDEt
+MTQgMTI6MzY6MjYuMDAwMDAwMDAwICswMTAwCisrKyBMaW51eC9kcml2ZXJzL3VzYi9hdG0v
+dWVhZ2xlLWF0bS5jCTIwMDYtMDEtMTQgMTI6Mzc6MDAuMDAwMDAwMDAwICswMTAwCkBAIC02
+MzEsOCArNjMxLDcgQEAKIAkJCWRzcF9uYW1lID0gRldfRElSICJEU1BlcC5iaW4iOwogCX0K
+IAotCXJldCA9IHJlcXVlc3RfZmlybXdhcmUoJnNjLT5kc3BfZmlybSwKLQkJCQlkc3BfbmFt
+ZSwgJnNjLT51c2JfZGV2LT5kZXYpOworCXJldCA9IHJlcXVlc3RfZmlybXdhcmUoJnNjLT5k
+c3BfZmlybSwgZHNwX25hbWUsICZzYy0+dXNiX2Rldi0+ZGV2KTsKIAlpZiAocmV0IDwgMCkg
+ewogCQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLAogCQkgICAgICAgInJlcXVlc3Rpbmcg
+ZmlybXdhcmUgJXMgZmFpbGVkIHdpdGggZXJyb3IgJWRcbiIsCkBAIC03NDcsNyArNzQ2LDYg
+QEAKIAkJcmV0dXJuIHJldDsKIAogCXJldHVybiAocmV0ID09IDApID8gLUVUSU1FRE9VVCA6
+IDA7Ci0KIH0KIAogI2RlZmluZSBVQ0RDX1NFTkRfRU5DQVBTVUxBVEVEX0NPTU1BTkQgMHgw
+MApAQCAtMTE4OCw4ICsxMTg2LDcgQEAKIAkJfQogCX0KIAotCS8qIGZpbmlzaCB0byBzZW5k
+IHRoZSBmcGdhCi0JICovCisJLyogZmluaXNoIHRvIHNlbmQgdGhlIGZwZ2EgKi8KIAlyZXQg
+PSB1ZWFfcmVxdWVzdChzYywgMHhlLCAxLCAwLCBOVUxMKTsKIAlpZiAocmV0IDwgMCkgewog
+CQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLApAQCAtMTE5Nyw5ICsxMTk0LDcgQEAKIAkJ
+Z290byBlcnIxOwogCX0KIAotCS8qCi0JICogVGVsbCB0aGUgbW9kZW0gd2UgZmluaXNoIDog
+ZGUtYXNzZXJ0IHJlc2V0Ci0JICovCisJLyogVGVsbCB0aGUgbW9kZW0gd2UgZmluaXNoIDog
+ZGUtYXNzZXJ0IHJlc2V0ICovCiAJdmFsdWUgPSAwOwogCXJldCA9IHVlYV9zZW5kX21vZGVt
+X2NtZChzYy0+dXNiX2RldiwgMHhlLCAxLCAmdmFsdWUpOwogCWlmIChyZXQgPCAwKQpAQCAt
+MTIxMyw2ICsxMjA4LDcgQEAKIAlyZXR1cm4gcmV0OwogfQogCisvKiBUaGUgbW9kZW0gc2Vu
+ZCB1cyBhbiBhY2suIEZpcnN0IHdpdGggY2hlY2sgaWYgaXQgcmlnaHQgKi8KIHN0YXRpYyB2
+b2lkIHVlYV9kaXNwYXRjaF9jbXYoc3RydWN0IHVlYV9zb2Z0YyAqc2MsIHN0cnVjdCBjbXYq
+IGNtdikKIHsKIAl1ZWFfZW50ZXJzKElOU19UT19VU0JERVYoc2MpKTsKQEAgLTEyNzIsMjMg
+KzEyNjgsMTkgQEAKICAqLwogc3RhdGljIHZvaWQgdWVhX2ludHIoc3RydWN0IHVyYiAqdXJi
+LCBzdHJ1Y3QgcHRfcmVncyAqcmVncykKIHsKLQlzdHJ1Y3QgdWVhX3NvZnRjICpzYyA9IChz
+dHJ1Y3QgdWVhX3NvZnRjICopdXJiLT5jb250ZXh0OwotCXN0cnVjdCBpbnRyX3BrdCAqaW50
+cjsKKwlzdHJ1Y3QgdWVhX3NvZnRjICpzYyA9IHVyYi0+Y29udGV4dDsKKwlzdHJ1Y3QgaW50
+cl9wa3QgKmludHIgPSB1cmItPnRyYW5zZmVyX2J1ZmZlcjsKIAl1ZWFfZW50ZXJzKElOU19U
+T19VU0JERVYoc2MpKTsKIAotCWlmICh1cmItPnN0YXR1cyA8IDApIHsKKwlpZiAodW5saWtl
+bHkodXJiLT5zdGF0dXMgPCAwKSkgewogCQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLCAi
+dWVhX2ludHIoKSBmYWlsZWQgd2l0aCAlZFxuIiwKIAkJICAgICAgIHVyYi0+c3RhdHVzKTsK
+IAkJcmV0dXJuOwogCX0KIAotCWludHIgPSAoc3RydWN0IGludHJfcGt0ICopIHVyYi0+dHJh
+bnNmZXJfYnVmZmVyOwotCiAJLyogZGV2aWNlLXRvLWhvc3QgaW50ZXJydXB0ICovCiAJaWYg
+KGludHItPmJUeXBlICE9IDB4MDggfHwgc2MtPmJvb3RpbmcpIHsKLQkJdWVhX2VycihJTlNf
+VE9fVVNCREVWKHNjKSwgIndyb25nIGludHJcbiIpOwotCQkvLyByZWJvb3RpbmcgPwotCQkv
+LyBzYy0+cmVzZXQgPSAxOworCQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLCAid3Jvbmcg
+aW50ZXJydXB0XG4iKTsKIAkJZ290byByZXN1Ym1pdDsKIAl9CiAKQEAgLTEzMDQsNyArMTI5
+Niw3IEBACiAJCWJyZWFrOwogCiAJZGVmYXVsdDoKLQkJdWVhX2VycihJTlNfVE9fVVNCREVW
+KHNjKSwgInVua25vd24gaW50ciAldVxuIiwKKwkJdWVhX2VycihJTlNfVE9fVVNCREVWKHNj
+KSwgInVua25vd24gaW50ZXJydXB0ICV1XG4iLAogCQkgICAgICAgbGUxNl90b19jcHUoaW50
+ci0+d0ludGVycnVwdCkpOwogCX0KIApAQCAtMTM4Myw3ICsxMzc1LDcgQEAKIAlpbnQgcmV0
+OwogCXVlYV9lbnRlcnMoSU5TX1RPX1VTQkRFVihzYykpOwogCXJldCA9IGt0aHJlYWRfc3Rv
+cChzYy0+a3RocmVhZCk7Ci0JdWVhX2luZm8oSU5TX1RPX1VTQkRFVihzYyksICJrdGhyZWFk
+IGZpbmlzaCB3aXRoIHN0YXR1cyAlZFxuIiwgcmV0KTsKKwl1ZWFfZGJnKElOU19UT19VU0JE
+RVYoc2MpLCAia3RocmVhZCBmaW5pc2ggd2l0aCBzdGF0dXMgJWRcbiIsIHJldCk7CiAKIAkv
+KiBzdG9wIGFueSBwZW5kaW5nIGJvb3QgcHJvY2VzcyAqLwogCWZsdXNoX3NjaGVkdWxlZF93
+b3JrKCk7CkBAIC0xNjQwLDkgKzE2MzIsNyBAQAogCWlmIChyZXQgPCAwKQogCQlyZXR1cm4g
+cmV0OwogCi0JLyogQURJOTMwIGhhcyBvbmx5IDIgaW50ZXJmYWNlcyBhbmQgaW5ib3VuZCB0
+cmFmZmljCi0JICogaXMgb24gaW50ZXJmYWNlIDEKLQkgKi8KKwkvKiBBREk5MzAgaGFzIG9u
+bHkgMiBpbnRlcmZhY2VzIGFuZCBpbmJvdW5kIHRyYWZmaWMgaXMgb24gaW50ZXJmYWNlIDEg
+Ki8KIAlpZiAoVUVBX0NISVBfVkVSU0lPTihpZCkgIT0gQURJOTMwKSB7CiAJCS8qIGludGVy
+ZmFjZSAyIGlzIGZvciBpbmJvdW5kIHRyYWZmaWMgKi8KIAkJcmV0ID0gY2xhaW1faW50ZXJm
+YWNlKHVzYiwgdXNiYXRtLCBVRUFfRFNfSUZBQ0VfTk8pOwo=
+--------------080900090504060905070205--

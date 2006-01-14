@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWANODJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWANOFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWANODJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 09:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWANODI
+	id S1751507AbWANOFT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 09:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWANOFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 09:03:08 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:48909 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751290AbWANODH (ORCPT
+	Sat, 14 Jan 2006 09:05:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5019 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751431AbWANOFR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 09:03:07 -0500
-Date: Sat, 14 Jan 2006 15:03:01 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] CONFIG_UNWIND_INFO
-Message-ID: <20060114140301.GA8443@mars.ravnborg.org>
-References: <4370AF4A.76F0.0078.0@novell.com> <20060114045635.1462fb9e.akpm@osdl.org>
+	Sat, 14 Jan 2006 09:05:17 -0500
+Date: Sat, 14 Jan 2006 06:04:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.15] running tcpdump on 3c905b causes freeze (reproducable)
+Message-Id: <20060114060457.06efae88.akpm@osdl.org>
+In-Reply-To: <20060114132414.GN6087@vanheusden.com>
+References: <20060108114305.GA32425@vanheusden.com>
+	<20060109041114.6e797a9b.akpm@osdl.org>
+	<20060109144522.GB10955@vanheusden.com>
+	<20060109193754.GD12673@vanheusden.com>
+	<20060109224821.7a40bc69.akpm@osdl.org>
+	<20060110142725.GH12673@vanheusden.com>
+	<20060114132414.GN6087@vanheusden.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060114045635.1462fb9e.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 14, 2006 at 04:56:35AM -0800, Andrew Morton wrote:
+Folkert van Heusden <folkert@vanheusden.com> wrote:
+>
+>  > > > > > Have you tried enabling the NMI watchdog?  Enable CONFIG_X86_LOCAL_APIC and
+>  > > > > > boot with `nmi_watchdog=1' on the command line, make sure that the NMI line
+>  > > > > > of /proc/interrupts is incrementing.
+>  > > > > I'll give it a try. I've added it to the append-line in the lilo config.
+>  > > > > Am now compiling the kernel.
+>  > > > No change. Well, that is: the last message on the console now is
+>  > > > "setting eth1 to promiscues mode".
+>  > > Did you confirm that the NMI counters in /proc/interrupts are incrementing?
+>  > Yes:
+>  > root@muur:/home/folkert# for i in `seq 1 5` ; do cat /proc/interrupts  | grep NMI ; sleep 1 ; done
+>  > NMI:    6949080    6949067
+>  > NMI:    6949182    6949169
+>  > NMI:    6949284    6949271
+>  > NMI:    6949386    6949373
+>  > NMI:    6949488    6949475
 > 
-> > Index: linux/Makefile
-> > ===================================================================
-> > --- linux.orig/Makefile
-> > +++ linux/Makefile
-> > @@ -502,6 +502,10 @@ CFLAGS		+= $(call add-align,CONFIG_CC_AL
-> >  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LOOPS,-loops)
-> >  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_JUMPS,-jumps)
-> >  
-> > +ifdef CONFIG_UNWIND_INFO
-> > +CFLAGS		+= -fasynchronous-unwind-tables
-> > +endif
-Is this option available on all gcc's for all archs?
-Otherwise you have to do:
-CFLAGS		+= $(call cc-option,-fasynchronous-unwind-tables,)
+>  Is there anything else I can try?
 
-	Sam
+argh.   I haven't forgotten.  Hopefully after -rc1 I'll have more time...
+
+Your report didn't mention whether that card work OK under earlier 2.6
+kernels.  If it does, a bit of bisection searching would really help.

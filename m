@@ -1,47 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWANIYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWANIVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWANIYj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 03:24:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWANIYj
+	id S1751268AbWANIVx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 03:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWANIVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 03:24:39 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:19898 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750709AbWANIYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 03:24:39 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: 2.4: e100 accounting bust for multiple adapters
-Date: Sat, 14 Jan 2006 19:24:34 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <5dbhs11efpi4ho3mciism8ppvt23pb7h53@4ax.com>
-References: <e196s1pj6u4apbjhgdm3imij4a10s6nb87@4ax.com> <4807377b0601101624m1e1eb636q99ae0792b0903c5a@mail.gmail.com> <cln8s1diqmsei30gqo0dbuv1hclgl4m2lu@4ax.com> <4807377b0601112059je92091ch73f3788aeca452ce@mail.gmail.com> <53pgs11trhj0f6ik29hk41n4p5fegbft55@4ax.com> <4807377b0601132350y41c47d3bpb46b7b9af3690038@mail.gmail.com>
-In-Reply-To: <4807377b0601132350y41c47d3bpb46b7b9af3690038@mail.gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Sat, 14 Jan 2006 03:21:53 -0500
+Received: from dd6424.kasserver.com ([83.133.49.41]:47745 "EHLO
+	dd6424.kasserver.com") by vger.kernel.org with ESMTP
+	id S1751047AbWANIVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 03:21:53 -0500
+Message-ID: <43C8B498.8010201@feuerpokemon.de>
+Date: Sat, 14 Jan 2006 09:21:44 +0100
+From: dragoran <dragoran@feuerpokemon.de>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: marvell lan and hwmon broken on dfi lan party expert
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jan 2006 23:50:38 -0800, Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
+hello!
+I bought a new mobo and have to problems with it:
+I keep getting such messages in dmesg:
+eth1: -- ERROR --
+        Class:  internal Software error
+        Nr:  0x19e
+        Msg:  Vpd: Cannot read VPD keys
+looked into the source and found that there is a hack to fix this for 
+asus boards. can this be done for this mobo too? if yes which kind of 
+info should I provide?
+second problem(hwmon):
+sensor-detect lets the system look up
+modprobe it87 does imeadeatley reboot.
+any idea what is causing this?
+I am using 2.6.15-1.1824_FC4
+lspci:
+00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller 
+(rev a3)
+00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
+00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
+00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
+00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3)
+00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev a2)
+00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller 
+(rev a3)
+00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller 
+(rev a3)
+00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
+00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
+00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
+HyperTransport Technology Configuration
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
+Address Map
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
+DRAM Controller
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
+Miscellaneous Control
+01:07.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 0a)
+01:07.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
+(rev 0a)
+01:09.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host 
+Controller (rev 80)
+01:0a.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 
+Gigabit Ethernet Controller (rev 13)
+05:00.0 VGA compatible controller: nVidia Corporation GeForce 7800 GTX 
+(rev a1)
 
->we've taken the position that 2.4 is legacy and if it ain't broke
->don't fix it.
-Okay.
-
-Had a look at the source but it is difficult to track the indirection, 
-I gave up ;)  After all, performance-wise the old driver is okay, just 
-odd accounting.  Annoying to know there's a missing (harmless) indirection
-in the module case but I don't have a clue where to look for it.
-
-
->I'm hoping you can get along with the 3.X driver, and I'll be glad to
->look into any issues that you come up with for that driver.
-
-Minor nit: lsmod shows zero when two e100-3.5.10 in use.  
-
-Grant.
+PS: please CC me

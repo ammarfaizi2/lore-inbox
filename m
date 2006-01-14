@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWANQHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWANQLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbWANQHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 11:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWANQHM
+	id S1751199AbWANQLi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 11:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWANQLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 11:07:12 -0500
-Received: from aeimail.aei.ca ([206.123.6.84]:9200 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S965035AbWANQHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 11:07:11 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: So - What's going on with Reiser 4?
-Date: Sat, 14 Jan 2006 11:04:03 -0500
-User-Agent: KMail/1.9.1
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-References: <43C837B6.5070903@perkel.com> <1137236892.3014.12.camel@laptopd505.fenrus.org>
-In-Reply-To: <1137236892.3014.12.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 14 Jan 2006 11:11:38 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17083 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751199AbWANQLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 11:11:37 -0500
+Subject: Re: [2.6 patch] Fix PDC202XX_FORCE kconfig selection
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, "Andrey J. Melnikoff" <temnota@kmv.ru>
+In-Reply-To: <20060114152119.GN29663@stusta.de>
+References: <20060114152119.GN29663@stusta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601141104.04060.edt@aei.ca>
+Date: Sat, 14 Jan 2006 16:13:03 +0000
+Message-Id: <1137255183.20915.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 14 January 2006 06:08, Arjan van de Ven wrote:
-> On Fri, 2006-01-13 at 15:28 -0800, Marc Perkel wrote:
-> > Still waiting. I thought it was ging to eventually be included. What's 
-> > holding it up?
-> 
-> Is someone running a "lets all complain on lkml about reiser4" campaign?
-> This was asked and answered 2 weeks ago, please read the archives.
-> (and it was asked last week and we then pointed at the archives as well)
+On Sad, 2006-01-14 at 16:21 +0100, Adrian Bunk wrote:
+> Split PDC202XX_FORCE selection into two independ option and allow user
+> select it only for specific driver.
 
-It being ask since its important to many people not all of whom read lkml
-or check archives as diligently as they might.  
+Seems pointless. We should always grab the raid cards. The option itself
+is a mistake
 
-I hope the reiserfs people are ready soon to have their code reviewed again.
-Hope that this time its just a code review and does not degenerate as has
-happened.
+Alan
 
-Ed Tomlinson 

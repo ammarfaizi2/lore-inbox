@@ -1,56 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWANXns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWANX4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751031AbWANXns (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 18:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWANXns
+	id S1751318AbWANX4q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 18:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWANX4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 18:43:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28615 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750955AbWANXnr (ORCPT
+	Sat, 14 Jan 2006 18:56:46 -0500
+Received: from main.gmane.org ([80.91.229.2]:61587 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751318AbWANX4p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 18:43:47 -0500
-Subject: Re: wireless: recap of current issues (configuration)
-From: Dan Williams <dcbw@redhat.com>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060113221935.GJ16166@tuxdriver.com>
-References: <20060113195723.GB16166@tuxdriver.com>
-	 <20060113212605.GD16166@tuxdriver.com>
-	 <20060113213011.GE16166@tuxdriver.com>
-	 <20060113221935.GJ16166@tuxdriver.com>
-Content-Type: text/plain
-Date: Sat, 14 Jan 2006 18:41:56 -0500
-Message-Id: <1137282117.27849.11.camel@localhost.localdomain>
+	Sat, 14 Jan 2006 18:56:45 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: [GIT PATCH] SPI patches for 2.6.15
+Date: Sun, 15 Jan 2006 08:56:32 +0900
+Message-ID: <dqc33h$5bv$1@sea.gmane.org>
+References: <20060114004403.GA21106@kroah.com> <dq9vqv$6o7$1@sea.gmane.org> <20060114112013.GA11446@vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 (2.5.4-6) 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060115)
+In-Reply-To: <20060114112013.GA11446@vrfy.org>
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 17:19 -0500, John W. Linville wrote:
-> Configuration
-> =============
+Kay Sievers wrote:
+> On Sat, Jan 14, 2006 at 01:48:30PM +0900, Kalin KOZHUHAROV wrote:
+>> Greg KH wrote:
+>>> Here are a few patches for 2.6.15 that add a SPI driver subsystem to the
+>>> kernel tree.
 > 
-> Configuration seems to be coalescing around netlink.  Among other
-> things, this technology provides for muliticast requests and
-> asynchronous event notification.
+>>> Please pull from:
+>>> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/spi-2.6.git/
 > 
-> The kernel should provide generic handlers for netlink
-> configuraion messages, and there should be a per-device 80211_ops
-> (wireless_ops? akin to ethtool_ops) structure for drivers to
-> populate appropriately.
+>> May be just a browser accessible URL for Documentation/spi/spi-summary or at
+>> least a definition of SPI in the header of the mail.
+>>
+>> git is just too complex for me at htemoment (haven't found the time to learn it)
+> 
+> If the git web interface is "too complex" for you, then you may not
+> need to know what SPI is too. :)
+> 
+>   http://www.kernel.org/git/?p=linux/kernel/git/gregkh/spi-2.6.git;a=commitdiff;h=8ae12a0d85987dc138f8c944cb78a92bf466cea0
 
-One other thing: capability.  It's not enough to be able to configure
-the device, user-space tools also have to know what the device is
-capable of before they try touching it.  Ie, which ciphers, protocols,
-channels, etc.  Similar to the IWRANGE ioctl that there is now.  Half
-the problem now is that you can't reliably tell what drivers support
-which features, or how much they support a particular feature.  Think of
-ethernet devices and whether or not they support carrier detection,
-there's absolutely no way to tell that now (unless they respond to
-ethtool or MII, and some cards freeze if you touch them with MII too
-often).
 
-Dan
+Thank you for the link, it turns I wasn't right about the meaning...
+What I had in mind is to include say the beginning two lines of
+Documentation/spi/spi-summary in the first mail (the usual procedure for
+patch-00 as I can see):
 
+The "Serial Peripheral Interface" (SPI) is a synchronous four wire serial
+link used to connect microcontrollers to sensors, memory, and peripherals.
+
+I always give the -ck patches as an example: even if you don't know what are
+they about, what does -ck mean and so on, just reading the first one or two
+sentences is enough to decide: to read on or to go next thread.
+
+By seeing this most people will be able to decide whether there are
+interested or not and those who are interested should spend the time to find
+the patch (learn to use git if needed), etc.
+
+I know we are not talking Web design here, but "Don't let me think" is an
+excellent book that I just finished and it teaches exactly what the title
+says is a good design, not only web.
+
+And I know Greg posts and comments and everything is very professional, I
+know basically who he is and how important he is. /me is mostly reading here
+and trying to be helpful, eventually asking for help/explanation of issues I
+run into.
+
+Thank you again for the time.
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 

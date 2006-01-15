@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751664AbWAOCLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751654AbWAOCu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751664AbWAOCLl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 21:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbWAOCLl
+	id S1751654AbWAOCu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 21:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWAOCu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 21:11:41 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:56515 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751654AbWAOCLk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 21:11:40 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Suggested janitor task - remove __init/__exit from function prototypes
+	Sat, 14 Jan 2006 21:50:59 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:61853 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751607AbWAOCu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 21:50:59 -0500
+Subject: Re: So - What's going on with Reiser 4?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Marc Perkel <marc@perkel.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Hesse, Christian" <mail@earthworm.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <43C99491.3080907@perkel.com>
+References: <43C837B6.5070903@perkel.com>
+	 <1137236892.3014.12.camel@laptopd505.fenrus.org>
+	 <200601141322.34520.mail@earthworm.de>
+	 <1137242691.3014.16.camel@laptopd505.fenrus.org>
+	 <43C99491.3080907@perkel.com>
+Content-Type: text/plain
+Date: Sat, 14 Jan 2006 21:50:53 -0500
+Message-Id: <1137293454.19972.6.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 15 Jan 2006 13:11:35 +1100
-Message-ID: <31582.1137291095@ocs3.ocs.com.au>
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some function prototypes (in both .h and .c files) specify attributes
-like __init and __exit in the prototype.  gcc (at least at 3.3.3) uses
-the last such attribute that is actually specified, without issuing a
-warning.  So we can have :-
+On Sat, 2006-01-14 at 16:17 -0800, Marc Perkel wrote:
+> Could 
+> someone please post a list of taboo subjects so that I don't ask the 
+> wrong question in the future?
 
-* Prototype declarations that use one attribute and a function body
-  that uses another attribute.
+Anything that you could easily get an answer to by searching the list
+archives.
 
-* Functions that from the .c code appear to be normal text but the .h
-  file is silently setting a special attribute.
-
-Both are potential sources of programmer confusion or bugs.  I suggest
-a janitor task to find all function prototypes that use __init, __exit,
-__devinit, __devexit, __cpuinit or __cpuexit and remove the attribute
-from the prototype.  If the function body does not already specify a
-suitable attribute then add the attribute to the function body.
-
-The same task could be done for extern data declarations.
-
-Once that is done, remove #include <linux/init.h> from all .h files.
-Only .[cS] files should specify which section the data and text are
-stored in, .h files should only define the C language information.
+Lee
 

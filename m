@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWAOOkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWAOOth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWAOOkd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 09:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWAOOkd
+	id S932068AbWAOOth (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 09:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWAOOth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 09:40:33 -0500
-Received: from dresden.studentenwerk.mhn.de ([141.84.225.229]:42966 "EHLO
-	email.studentenwerk.mhn.de") by vger.kernel.org with ESMTP
-	id S1750920AbWAOOkc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 09:40:32 -0500
-From: Wolfgang Walter <wolfgang.walter@studentenwerk.mhn.de>
-Organization: Studentenwerk =?iso-8859-1?q?M=FCnchen?=
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: patch: problem with sco
-Date: Sun, 15 Jan 2006 15:40:27 +0100
-User-Agent: KMail/1.7.2
-Cc: bluez-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       maxk@qualcomm.com
-References: <200601120138.31791.wolfgang.walter@studentenwerk.mhn.de> <200601130031.22063.wolfgang.walter@studentenwerk.mhn.de> <1137140826.3879.1.camel@localhost.localdomain>
-In-Reply-To: <1137140826.3879.1.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601151540.28879.wolfgang.walter@studentenwerk.mhn.de>
+	Sun, 15 Jan 2006 09:49:37 -0500
+Received: from ms-smtp-02-smtplb.rdc-nyc.rr.com ([24.29.109.6]:30605 "EHLO
+	ms-smtp-02.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S932068AbWAOOth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 09:49:37 -0500
+Subject: Re: [PATCH] Fix zoran_card compilation warning
+From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
+To: Andrew Morton <akpm@osdl.org>, Jean Delvare <khali@linux-fr.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+In-Reply-To: <20060115131313.04657ef5.khali@linux-fr.org>
+References: <20060112213437.3eb3f370.khali@linux-fr.org>
+	 <20060115131313.04657ef5.khali@linux-fr.org>
+Content-Type: text/plain
+Date: Sun, 15 Jan 2006 09:44:39 -0500
+Message-Id: <1137336280.7095.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcel,
+Hi Linus/Andrew,
 
-Am Freitag, 13. Januar 2006 09:27 schrieb Marcel Holtmann:
-> Hi Wolfgang,
->
-> > > send in the information from "hciconfig -a" for this device, because
-> > > this is a hardware bug and you can't be sure that you can have eight
-> > > outstanding SCO packets.
->
-> does anything changes if you load the hci_usb driver with reset=1 ?
->
+On Sun, 2006-01-15 at 13:13 +0100, Jean Delvare wrote:
+>   CC [M]  drivers/media/video/zoran_card.o
+> drivers/media/video/zoran_card.c: In function `zr36057_init':
+> drivers/media/video/zoran_card.c:1053: warning: assignment makes integer from pointer without a cast
+> 
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> ---
+>  drivers/media/video/zoran_card.c |    6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> --- linux-2.6.15-git.orig/drivers/media/video/zoran_card.c	2006-01-12 20:34:54.000000000 +0100
+> +++ linux-2.6.15-git/drivers/media/video/zoran_card.c	2006-01-12 20:47:26.000000000 +0100
+> @@ -995,7 +995,7 @@
+>  static int __devinit
+>  zr36057_init (struct zoran *zr)
+>  {
+> -	unsigned long mem;
+> +	u32 *mem;
+>  	void *vdev;
+>  	unsigned mem_needed;
+>  	int j;
+> @@ -1058,10 +1058,10 @@
+>  			"%s: zr36057_init() - kmalloc (STAT_COM) failed\n",
+>  			ZR_DEVNAME(zr));
+>  		kfree(vdev);
+> -		kfree((void *)mem);
+> +		kfree(mem);
+>  		return -ENOMEM;
+>  	}
+> -	zr->stat_com = (u32 *) mem;
+> +	zr->stat_com = mem;
+>  	for (j = 0; j < BUZ_NUM_STAT_COM; j++) {
+>  		zr->stat_com[j] = 1;	/* mark as unavailable to zr36057 */
+>  	}
+> 
 
-So, I tested this today: changed nothing. Neither the output of hciconfig has 
-changed nor any data is sent to the headset.
+I support this change, please apply it. It's something left-over from
+the time that all computers were 32-bit. Apart from this warning (which
+nobody really cared about), the driver was already tested to work fine
+on AMD64 computers in 64-bit mode.
 
-Regards,
+Thank you,
+Ronald
 
--- 
-Wolfgang Walter
-Studentenwerk München
-Anstalt des öffentlichen Rechts
-Leiter EDV
-Leopoldstraße 15
-80802 München
-Tel: +49 89 38196 276
-Fax: +49 89 38196 144
-wolfgang.walter@studentenwerk.mhn.de
-http://www.studentenwerk.mhn.de/

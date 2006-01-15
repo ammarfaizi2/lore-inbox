@@ -1,47 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWAOPaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWAOPjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWAOPaR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 10:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAOPaR
+	id S932079AbWAOPjh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 10:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWAOPjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 10:30:17 -0500
-Received: from h144-158.u.wavenet.pl ([217.79.144.158]:55436 "EHLO
-	ogre.sisk.pl") by vger.kernel.org with ESMTP id S932076AbWAOPaP
+	Sun, 15 Jan 2006 10:39:36 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:32205 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S932079AbWAOPjg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 10:30:15 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-mm4: sem2mutex problem in USB OHCI
-Date: Sun, 15 Jan 2006 16:31:35 +0100
-User-Agent: KMail/1.9
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-References: <200601150058.58518.rjw@sisk.pl> <20060114160526.228da734.akpm@osdl.org> <20060115043826.GB23968@elte.hu>
-In-Reply-To: <20060115043826.GB23968@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Jan 2006 10:39:36 -0500
+Date: Sun, 15 Jan 2006 10:39:20 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "John W. Linville" <linville@tuxdriver.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (other issues)
+Message-ID: <20060115153920.GB1722@shaftnet.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	"John W. Linville" <linville@tuxdriver.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213237.GH16166@tuxdriver.com> <20060113222408.GM16166@tuxdriver.com> <43C97693.7000109@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
 Content-Disposition: inline
-Message-Id: <200601151631.35450.rjw@sisk.pl>
+In-Reply-To: <43C97693.7000109@pobox.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Sun, 15 Jan 2006 10:39:21 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 15 January 2006 05:38, Ingo Molnar wrote:
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > >  Badness in __mutex_trylock_slowpath at kernel/mutex.c:281
-> > > 
-> > >  Call Trace: <IRQ> <ffffffff80148d8d>{mutex_trylock+141}
-> > >         <ffffffff880abaf0>{:ohci_hcd:ohci_hub_status_data+480}
-> > >         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d24c3>{usb_hcd_poll_rh_status+67}
-> 
-> > err, taking a mutex from softirq context.
-> 
-> hm. For now, the patch below undoes the struct device ->mutex 
-> conversion.
 
-That helps, thanks.
+--QKdGvSO+nmPlgiQ/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rafael
+On Sat, Jan 14, 2006 at 05:09:23PM -0500, Jeff Garzik wrote:
+> A big open issue:  should you fake ethernet, or represent 802.11=20
+> natively throughout the rest of the net stack?
+>=20
+> The former causes various and sundry hacks, and the latter requires that=
+=20
+> you touch a bunch of non-802.11 code to make it aware of a new frame clas=
+s.
+
+Internally, we're pure 802.11.  One thing to keep in mind that we're not=20
+going to be bridging/translating non-data traffic to other networks, and=20
+with that in mind, 802.3<->802.11 translation is trivial, and won't lose=20
+anything except for a bit of efficiency.  (and then, just to be=20
+contrary, the prism54 hardware actually requires 802.3 frames!)
+
+That said.. we need to make the rest of the stack 802.11-aware. =20
+Translating between 802.11 and 802.3 is trivial, as we only need to know=20
+about a few operating parameters in order to perform the conversion --=20
+AP/STA mode, BSSID, QoS parametsrs. WDS link parameters.   All of these=20
+can be attached to the net_device to be used by the hard_header code.
+
+(Part of the problem is that 802.11 has a variable-length header - 24,
+ 26, 30, or 32 bytes, and each address field means different things=20
+ depending on which mode we're using..)
+
+Meanwhile, A current "good enough for most" solution is to make all
+"data" interfaces to the 802.11 stack appear as 802.3 interfaces.  Each
+of these net_devices could translate to/from 802.11 on the fly.  Thus=20
+internally the stack would be pure 802.11, but interacting with the=20
+outside world would depend on the "mode" of the net_device.   You want=20
+to tx/rx 802.11 management frames with QoS enabled?  Create a "type=20
+802_11_a3_qos" inteface.=20
+
+ - Solomon
+--=20
+Solomon Peachy        				 ICQ: 1318344
+Melbourne, FL 					=20
+Quidquid latine dictum sit, altum viditur.
+
+--QKdGvSO+nmPlgiQ/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDymyoPuLgii2759ARAnhlAJoD0Kh8Mr2mSQEdHEq7Kw/rIaU1pwCgt2Xd
+uVPVb5TsGfGiKfl9yuTnyWk=
+=Mxyl
+-----END PGP SIGNATURE-----
+
+--QKdGvSO+nmPlgiQ/--

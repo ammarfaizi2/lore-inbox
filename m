@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWAOTs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWAOTta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWAOTs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 14:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWAOTs4
+	id S932116AbWAOTta (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 14:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWAOTta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 14:48:56 -0500
-Received: from ns.dn.farlep.net ([213.130.10.10]:48906 "EHLO dn.farlep.net")
-	by vger.kernel.org with ESMTP id S932117AbWAOTsz (ORCPT
+	Sun, 15 Jan 2006 14:49:30 -0500
+Received: from uproxy.gmail.com ([66.249.92.197]:35769 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932116AbWAOTt3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 14:48:55 -0500
-Posted-Date: Sun, 15 Jan 2006 21:48:43 +0200 (EET)
-X-Sagator-id: 20060115-214842-0001-67689-BruVdf
-Date: Sun, 15 Jan 2006 21:48:38 +0200
-From: "Vitaly V. Bursov" <vitalyb@telenet.dn.ua>
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.6.15.1 ppp_async panic on x86-64.
-Message-Id: <20060115214838.2034a56c.vitalyb@telenet.dn.ua>
-Organization: Telenet
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.8; x86_64-unknown-linux-gnu)
+	Sun, 15 Jan 2006 14:49:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=cP+PZspw+Rz1p+TdNnEO985XkqRCswVil5jrTteZw1euQFqm3rzgQ3PLmfMDiVmaFe8hU8XLPu24O50TJjsgKm7OLxDEFhB0CR/XNFkv4N2ctN/h0C3bKZM1fQgu0Toe2BEI1s6KaLCNmPLf13IsiK6xjjpWDK5p8nAlKFCb96M=
+Subject: Re: string to inode conversion
+From: "pablo.ferlop@gmail.com" <pablo.ferlop@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1137353054.3230.8.camel@laptopd505.fenrus.org>
+References: <1137351430.11284.2.camel@localhost.localdomain>
+	 <1137353054.3230.8.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 15 Jan 2006 20:49:36 +0100
+Message-Id: <1137354577.11981.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sun__15_Jan_2006_21_48_38_+0200_/ZFhhTNhiYC2k6O3"
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__15_Jan_2006_21_48_38_+0200_/ZFhhTNhiYC2k6O3
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi
 
-Hello,
+This should be in kernel space, in the context of system calls.
 
-PPP doesn't work for me on a x86-64 kernel. Kernel panics with a message
+Basically I'm trying to learn how sys_open() goes from char *filename to
+a struct inode. I know (or think) that sys_open() doesn't actually use a
+struct inode, but I wonder how that would go.
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3Dcut: dmesg
-Jan 15 20:24:12 vb skb_over_panic: text:ffffffff886700d9 len:1 put:1
-head:ffff81002b7ed000 data:ffff81012b7ed000 tail:ffff81012b7ed001
-end:ffff81002b7ed600 dev:<NULL>
-Jan 15 20:24:12 vb ----------- [cut here ] --------- [please bite here ] --=
--------
-Jan 15 20:24:12 vb Kernel BUG at net/core/skbuff.c:94
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3Dcut
-note the "tail" and "end" difference:
-0xffff81012b7ed001-0xffff81002b7ed600 =3D 0xfffffa01
+Thanks
 
 
-It looks like that problem is caused by this peace of code.
-At least it works better after commenting out "skb_reserve" line.
+El dom, 15-01-2006 a las 20:24 +0100, Arjan van de Ven escribió:
+> On Sun, 2006-01-15 at 19:57 +0100, pablo.ferlop@gmail.com wrote:
+> > Hi
+> > 
+> > I was wondering how I can get from a string with a path like "/home" or
+> > "/lib/libc-2.3.5.so" a struct inode.
+> 
+> which namespace do you want this in? The init one? or the one from the
+> user? (most traditional linux distributions only have one namespace, but
+> now that COW namespaces are merged I expect distros to start
+> experimenting with per user /tmp, or per-daemon data etc etc)
+> 
+> This is not a trivial thing... you need a "context" into which you can
+> ask that question (basically a process)
+> 
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3Dcut: ppp_async.c
- err:
-        /* frame had an error, remember that, reset SC_TOSS & SC_ESCAPE */
-        ap->state =3D SC_PREV_ERROR;
-        if (skb) {
-                /* make skb appear as freshly allocated */
-                skb_trim(skb, 0);
-                skb_reserve(skb, - skb_headroom(skb));
-        }
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3Dcut
-
-skb_headroom returns 32bit "int", skb_reserve takes 32bit "unsigned int" and
-adds it to a 64bit pointer, which is bad.
-
-I'm not at the list.
---=20
-Thank you,
-Vitaly                                                              DON'T P=
-ANIC
-GPG Key ID: F95A23B9
-
---Signature=_Sun__15_Jan_2006_21_48_38_+0200_/ZFhhTNhiYC2k6O3
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDyqca73PAj/laI7kRAuvbAJ4nDW5KrNbnmpSek/RkUr00vrgaJgCglQai
-wpV6fiecr5g7lv705CJKnKs=
-=8QQr
------END PGP SIGNATURE-----
-
---Signature=_Sun__15_Jan_2006_21_48_38_+0200_/ZFhhTNhiYC2k6O3--

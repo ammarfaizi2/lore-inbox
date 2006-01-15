@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWAOErw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWAOFS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751662AbWAOErw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 23:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWAOErw
+	id S1751659AbWAOFS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 00:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWAOFS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 23:47:52 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:6623 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751102AbWAOErv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 23:47:51 -0500
-Date: Sun, 15 Jan 2006 05:48:06 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Anton Blanchard <anton@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, rolandd@cisco.com
-Subject: Re: [patch 2.6.15-mm4] sem2mutex: infiniband, #2
-Message-ID: <20060115044806.GB7456@elte.hu>
-References: <20060114150949.GA24284@elte.hu> <20060115015910.GK26421@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Jan 2006 00:18:59 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:5585 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751114AbWAOFS6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 00:18:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hwru7AirxyD+5o57InYfouoXyiIJ/SHdATnrcUtM42j1FGmGklqgulUZpnrU4clRP+zyXmJh3ej/5YVddv3pjTkRUOQT6JYalQtvfndg8KLyManHYz7b8K353wG2WE45Eq2ume/uksY4xuJKhftxpU8TqONyhnEkk3ciO4tq9Z0=
+Message-ID: <a36005b50601142118h3a07a640ra668dab13129683b@mail.gmail.com>
+Date: Sat, 14 Jan 2006 21:18:57 -0800
+From: Ulrich Drepper <drepper@gmail.com>
+To: david singleton <dsingleton@mvista.com>
+Subject: Re: [robust-futex-1] futex: robust futex support
+Cc: akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060115015910.GK26421@krispykreme>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <43C84D4B.70407@mvista.com>
+	 <a36005b50601141602y641567ebh5ff9b6a1fad4d7d2@mail.gmail.com>
+	 <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1/14/06, david singleton <dsingleton@mvista.com> wrote:
+> can you suggest some error codes you like to use?  I'll use
+> whatever you suggest.
 
-* Anton Blanchard <anton@samba.org> wrote:
-
-> Hi Ingo,
-> 
-> Just a small thing, it looks like the script is doing a double include
-> of linux/mutex.h a few times:
-
-> > -#include <asm/semaphore.h>
-> > +#include <linux/mutex.h>
-> > +#include <linux/mutex.h>
-
-yeah. I fixed this up in later patches (and in the queue to Andrew). I 
-double-checked 2.6.15-mm4, it doesnt seem to be affected by this 
-problem.
-
-	Ingo
+How about EADDRNOTAVAIL.  The error message kind of makes sense, even
+though "address" is misused.  And there definitely won't be a clash
+with other error codes because it's currently only used in network
+contexts.

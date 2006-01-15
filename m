@@ -1,53 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751898AbWAOLXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751896AbWAOLTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751898AbWAOLXb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 06:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751903AbWAOLXb
+	id S1751896AbWAOLTb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 06:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbWAOLTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 06:23:31 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:29621 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751901AbWAOLXa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 06:23:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=r/kpmexX2NfFW3eiENU3NxKqx9pCbK3ir4FlhlPOPdMzcEH+Q7KpWv+9xKUDlfDKRFKkjrEOTssUk5QCMfBBrNfz3qmujOY+C4qGddJb4gw/Ri0YFqMnP0jP+HHBk7aS0EVCo1pYhfieDngah/TucII70vsBhwD4pTUCEgXyy+Y=
-Message-ID: <39e6f6c70601150323v5f2764d1x4bc10d90bf2104df@mail.gmail.com>
-Date: Sun, 15 Jan 2006 09:23:29 -0200
-From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: wireless: recap of current issues (other issues)
-Cc: jgarzik@pobox.com, linville@tuxdriver.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060114.175140.07007614.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 15 Jan 2006 06:19:31 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:17419 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751896AbWAOLTa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 06:19:30 -0500
+Date: Sun, 15 Jan 2006 12:19:22 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Ren? Rebe <rene@exactcode.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>, akpm@osdl.org
+Subject: Re: kbuild / KERNELRELEASE not rebuild correctly anymore
+Message-ID: <20060115111922.GA13673@mars.ravnborg.org>
+References: <200601151051.14827.rene@exactcode.de> <20060115100530.GB8195@mars.ravnborg.org> <200601151141.30876.rene@exactcode.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060113213237.GH16166@tuxdriver.com>
-	 <20060113222408.GM16166@tuxdriver.com> <43C97693.7000109@pobox.com>
-	 <20060114.175140.07007614.davem@davemloft.net>
+In-Reply-To: <200601151141.30876.rene@exactcode.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/14/06, David S. Miller <davem@davemloft.net> wrote:
-> From: Jeff Garzik <jgarzik@pobox.com>
-> Date: Sat, 14 Jan 2006 17:09:23 -0500
->
-> > A big open issue:  should you fake ethernet, or represent 802.11
-> > natively throughout the rest of the net stack?
+On Sun, Jan 15, 2006 at 11:41:30AM +0100, Ren? Rebe wrote:
 > >
-> > The former causes various and sundry hacks, and the latter requires that
-> > you touch a bunch of non-802.11 code to make it aware of a new frame class.
->
-> The former, most importantly, can cause the packet to get copied.
-> Actually, this depends upon how you implement things and when the
-> header change occurs.
->
-> My vote is for making the whole of the networking 802.11 frame class
-> aware.
+> > So the real fix is to error out when .kernelrelease does not exists.
+> > See attached patch.
+> 
+> You expect us to run make prepare before make menuconfig or simillar?
+> That sounds a bit odd ...
 
-Agreed :-)
+The kernelrelease depends on the actual configuration.
+So without having completed the make *config step kbuild cannot tell the
+correct kernelrelease.
 
-- Arnaldo
+Now with the patch attached to last mail kbuild will now error out in
+case there is no valid kernelrelease. Thats obviously only a hack, since
+we need to error out when .config has been updated and the new
+kernelrelease has not been created.
+
+Maybe the better approach would be always to create the .kernelrelease
+file as part of the configuration - based on the principle of least
+suprise.
+See attached patch.
+
+	Sam
+	
+diff --git a/Makefile b/Makefile
+index deedaf7..4ab0141 100644
+--- a/Makefile
++++ b/Makefile
+@@ -433,6 +433,7 @@ export KBUILD_DEFCONFIG
+ config %config: scripts_basic outputmakefile FORCE
+ 	$(Q)mkdir -p include/linux
+ 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
++	$(Q)$(MAKE) .kernelrelease
+ 
+ else
+ # ===========================================================================
+@@ -783,12 +784,13 @@ endif
+ localver-full = $(localver)$(localver-auto)
+ 
+ # Store (new) KERNELRELASE string in .kernelrelease
++quiet_cmd_kernelrelease = GEN     $@
++      cmd_kernelrelease = rm -f $@; echo $(kernelrelease) > $@
++
+ kernelrelease = \
+        $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(localver-full)
+ .kernelrelease: FORCE
+-	$(Q)rm -f .kernelrelease
+-	$(Q)echo $(kernelrelease) > .kernelrelease
+-	$(Q)echo "  Building kernel $(kernelrelease)"
++	$(call cmd,kernelrelease)
+ 
+ 
+ # Things we need to do before we recursively start building the kernel
+@@ -808,6 +810,7 @@ kernelrelease = \
+ # 1) Check that make has not been executed in the kernel src $(srctree)
+ # 2) Create the include2 directory, used for the second asm symlink
+ prepare3: .kernelrelease
++	$(Q)echo "  Building kernel $(kernelrelease)"
+ ifneq ($(KBUILD_SRC),)
+ 	@echo '  Using $(srctree) as source for kernel'
+ 	$(Q)if [ -f $(srctree)/.config ]; then \
+@@ -1301,7 +1304,8 @@ checkstack:
+ 	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
+ 
+ kernelrelease:
+-	@echo $(KERNELRELEASE)
++	$(if $(wildcard .kernelrelease), $(Q)echo $(KERNELRELEASE), \
++	$(error kernelrelease not valid - run 'make *config' to update it))
+ kernelversion:
+ 	@echo $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 

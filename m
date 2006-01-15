@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751911AbWAOMNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751912AbWAOMNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751911AbWAOMNG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 07:13:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWAOMNG
+	id S1751912AbWAOMNY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 07:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWAOMNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 07:13:06 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:51724 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751911AbWAOMNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 07:13:05 -0500
+	Sun, 15 Jan 2006 07:13:22 -0500
+Received: from mx02.qsc.de ([213.148.130.14]:47500 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S1751912AbWAOMNV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 07:13:21 -0500
+From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
+Organization: ExactCODE
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: kbuild / KERNELRELEASE not rebuild correctly anymore
 Date: Sun, 15 Jan 2006 13:12:42 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: Roberto Nibali <ratz@drugphish.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-Message-ID: <20060115121242.GA20277@w.ods.org>
-References: <20060105054348.GA28125@w.ods.org> <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu> <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch> <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch> <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch> <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu> <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>, akpm@osdl.org
+References: <200601151051.14827.rene@exactcode.de> <200601151141.30876.rene@exactcode.de> <20060115111922.GA13673@mars.ravnborg.org>
+In-Reply-To: <20060115111922.GA13673@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200601151312.42391.rene@exactcode.de>
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, On Sunday 15 January 2006 12:19, Sam Ravnborg wrote:
+	> On Sun, Jan 15, 2006 at 11:41:30AM +0100, Ren? Rebe wrote: > > > So
+	the real fix is to error out when .kernelrelease does not exists. > > >
+	See attached patch. > > > > You expect us to run make prepare before
+	make menuconfig or simillar? > > That sounds a bit odd ... > > The
+	kernelrelease depends on the actual configuration. > So without having
+	completed the make *config step kbuild cannot tell the > correct
+	kernelrelease. > > Now with the patch attached to last mail kbuild will
+	now error out in > case there is no valid kernelrelease. Thats obviously
+	only a hack, since > we need to error out when .config has been updated
+	and the new > kernelrelease has not been created. > > Maybe the better
+	approach would be always to create the .kernelrelease > file as part of
+	the configuration - based on the principle of least > suprise. [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15, 2006 at 03:29:15AM -0800, Chris Stromsoe wrote:
-> On Mon, 9 Jan 2006, Chris Stromsoe wrote:
-> >On Mon, 9 Jan 2006, Roberto Nibali wrote:
+Hi,
+
+On Sunday 15 January 2006 12:19, Sam Ravnborg wrote:
+> On Sun, Jan 15, 2006 at 11:41:30AM +0100, Ren? Rebe wrote:
+> > > So the real fix is to error out when .kernelrelease does not exists.
+> > > See attached patch.
 > >
-> >>>That is the SCSI BIOS rev.  The machine is a Dell PowerEdge 2650 and 
-> >>>that's the onboard AIC 7899.  It comes up as "BIOS Build 25309".
-> >>
-> >>Brain is engaged now, thanks ;). If you find time, could you maybe 
-> >>compile a 2.4.32 kernel using following config (slightly changed from 
-> >>yours):
-> >>
-> >>http://www.drugphish.ch/patches/ratz/kernel/configs/config-2.4.32-chris_s
-> >
-> >If/when the current run with DEBUG_SLAB oopses, I'll reboot with the 
-> >config modifications.
-> 
-> I've been running stable with the propsed changes since the 10th.  The 
-> original config and the currently running config are both at 
-> <http://hashbrown.cts.ucla.edu/pub/oops-200512/>.  This is the diff:
-> 
-> cbs@hashbrown:~ > diff config-2.4.32 config-2.4.32-20060115
-> 
-> 65c65
-> < CONFIG_HIGHIO=y
-> ---
-> ># CONFIG_HIGHIO is not set
+> > You expect us to run make prepare before make menuconfig or simillar?
+> > That sounds a bit odd ...
+>
+> The kernelrelease depends on the actual configuration.
+> So without having completed the make *config step kbuild cannot tell the
+> correct kernelrelease.
+>
+> Now with the patch attached to last mail kbuild will now error out in
+> case there is no valid kernelrelease. Thats obviously only a hack, since
+> we need to error out when .config has been updated and the new
+> kernelrelease has not been created.
+>
+> Maybe the better approach would be always to create the .kernelrelease
+> file as part of the configuration - based on the principle of least
+> suprise.
 
-I wonder if this change could be suspected of affecting stability. With
-this unset, data will be sent from the card to low memory, then bounced
-to high mem when needed. Maybe the card, northbridge or anything else
-sometimes corrupts memory during direct highmem I/O from PCI ? :-/
+Aside this "solution" still annoys me, you need at least patch the config 
+stuff to not display an empty version string ;-)
 
-Or perhaps it's simply too early to conclude anything.
+I'm curious, aside rsbac, what in the .config is altering the KERNELRELEASE?
 
-Thanks for your report anyway.
+Yours,
 
-Regards,
-Willy
-
+-- 
+René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+            http://www.exactcode.de | http://www.t2-project.org
+            +49 (0)30  255 897 45

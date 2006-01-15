@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWAOMMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751911AbWAOMNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751910AbWAOMMr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 07:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWAOMMq
+	id S1751911AbWAOMNG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 07:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWAOMNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 07:12:46 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:60423 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751910AbWAOMMq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 07:12:46 -0500
-Date: Sun, 15 Jan 2006 13:13:13 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Subject: Re: [PATCH] Fix zoran_card compilation warning
-Message-Id: <20060115131313.04657ef5.khali@linux-fr.org>
-In-Reply-To: <20060112213437.3eb3f370.khali@linux-fr.org>
-References: <20060112213437.3eb3f370.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Sun, 15 Jan 2006 07:13:06 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:51724 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751911AbWAOMNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 07:13:05 -0500
+Date: Sun, 15 Jan 2006 13:12:42 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Chris Stromsoe <cbs@cts.ucla.edu>
+Cc: Roberto Nibali <ratz@drugphish.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+Message-ID: <20060115121242.GA20277@w.ods.org>
+References: <20060105054348.GA28125@w.ods.org> <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu> <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch> <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch> <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch> <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu> <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, all,
+On Sun, Jan 15, 2006 at 03:29:15AM -0800, Chris Stromsoe wrote:
+> On Mon, 9 Jan 2006, Chris Stromsoe wrote:
+> >On Mon, 9 Jan 2006, Roberto Nibali wrote:
+> >
+> >>>That is the SCSI BIOS rev.  The machine is a Dell PowerEdge 2650 and 
+> >>>that's the onboard AIC 7899.  It comes up as "BIOS Build 25309".
+> >>
+> >>Brain is engaged now, thanks ;). If you find time, could you maybe 
+> >>compile a 2.4.32 kernel using following config (slightly changed from 
+> >>yours):
+> >>
+> >>http://www.drugphish.ch/patches/ratz/kernel/configs/config-2.4.32-chris_s
+> >
+> >If/when the current run with DEBUG_SLAB oopses, I'll reboot with the 
+> >config modifications.
+> 
+> I've been running stable with the propsed changes since the 10th.  The 
+> original config and the currently running config are both at 
+> <http://hashbrown.cts.ucla.edu/pub/oops-200512/>.  This is the diff:
+> 
+> cbs@hashbrown:~ > diff config-2.4.32 config-2.4.32-20060115
+> 
+> 65c65
+> < CONFIG_HIGHIO=y
+> ---
+> ># CONFIG_HIGHIO is not set
 
-Can we get this one merged before 2.6.16-rc1 please? Thanks.
+I wonder if this change could be suspected of affecting stability. With
+this unset, data will be sent from the card to low memory, then bounced
+to high mem when needed. Maybe the card, northbridge or anything else
+sometimes corrupts memory during direct highmem I/O from PCI ? :-/
 
-Fix the following warning which was introduced in 2.6.15-git8 by
-commit 7408187d223f63d46a13b6a35b8f96b032c2f623:
+Or perhaps it's simply too early to conclude anything.
 
-  CC [M]  drivers/media/video/zoran_card.o
-drivers/media/video/zoran_card.c: In function `zr36057_init':
-drivers/media/video/zoran_card.c:1053: warning: assignment makes integer from pointer without a cast
+Thanks for your report anyway.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/media/video/zoran_card.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Regards,
+Willy
 
---- linux-2.6.15-git.orig/drivers/media/video/zoran_card.c	2006-01-12 20:34:54.000000000 +0100
-+++ linux-2.6.15-git/drivers/media/video/zoran_card.c	2006-01-12 20:47:26.000000000 +0100
-@@ -995,7 +995,7 @@
- static int __devinit
- zr36057_init (struct zoran *zr)
- {
--	unsigned long mem;
-+	u32 *mem;
- 	void *vdev;
- 	unsigned mem_needed;
- 	int j;
-@@ -1058,10 +1058,10 @@
- 			"%s: zr36057_init() - kmalloc (STAT_COM) failed\n",
- 			ZR_DEVNAME(zr));
- 		kfree(vdev);
--		kfree((void *)mem);
-+		kfree(mem);
- 		return -ENOMEM;
- 	}
--	zr->stat_com = (u32 *) mem;
-+	zr->stat_com = mem;
- 	for (j = 0; j < BUZ_NUM_STAT_COM; j++) {
- 		zr->stat_com[j] = 1;	/* mark as unavailable to zr36057 */
- 	}
-
-
--- 
-Jean Delvare

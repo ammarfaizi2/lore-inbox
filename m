@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWAOU6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWAOVEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWAOU6r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 15:58:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWAOU6r
+	id S1750825AbWAOVEp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 16:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWAOVEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 15:58:47 -0500
-Received: from flock1.newmail.ru ([212.48.140.157]:41965 "HELO
-	flock1.newmail.ru") by vger.kernel.org with SMTP id S1750864AbWAOU6q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 15:58:46 -0500
-From: Andrey Borzenkov <arvidjaar@newmail.ru>
-To: Rudolf Marek <r.marek@sh.cvut.cz>
-Subject: Re: [lm-sensors] 2.6.15: lm90 0-004c: Register 0x13 read failed (-1)
-Date: Sun, 15 Jan 2006 23:58:34 +0300
-User-Agent: KMail/1.9.1
-Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-References: <200601142223.35838.arvidjaar@newmail.ru> <200601152248.07800.arvidjaar@newmail.ru> <43CAB1B7.6020903@sh.cvut.cz>
-In-Reply-To: <43CAB1B7.6020903@sh.cvut.cz>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Jan 2006 16:04:45 -0500
+Received: from pb142.tychy.sdi.tpnet.pl ([217.96.251.142]:30349 "EHLO
+	daper.net") by vger.kernel.org with ESMTP id S1750825AbWAOVEo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 16:04:44 -0500
+Date: Sun, 15 Jan 2006 22:04:43 +0100
+From: Damian Pietras <daper@daper.net>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with eject and pktcdvd
+Message-ID: <20060115210443.GA6096@daper.net>
+References: <20060115123546.GA21609@daper.net> <43CA8C15.8010402@cfl.rr.com> <20060115185025.GA15782@daper.net> <43CA9FC7.9000802@cfl.rr.com> <m3ek39z09f.fsf@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601152358.38095.arvidjaar@newmail.ru>
+In-Reply-To: <m3ek39z09f.fsf@telia.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Jan 15, 2006 at 09:47:40PM +0100, Peter Osterlund wrote:
+> Phillip Susi <psusi@cfl.rr.com> writes:
+> 
+> > Damian Pietras wrote:
+> > > On Sun, Jan 15, 2006 at 12:53:25PM -0500, Phillip Susi wrote:
+> > > Neither Ubuntu kernel nor this patch fixes the problem.
+> > >
+> > 
+> > You might want to try it under dapper then.  If you still have that
+> > problem, then it's got to be busted hardware.  You might try updating
+> > the firmware in the drive.
+> 
+> The irq timeout problem might be broken hardware/firmware, but there
+> is a problem with drive locking and the pktcdvd driver.
+> 
+> If you do
+> 
+> 	pktsetup 0 /dev/hdc
+> 	mount /dev/hdc /mnt/tmp
+> 	umount /mnt/tmp
+> 
+> the door will be left in a locked state. (It gets unlocked when you
+> run "pktsetup -d 0" though.) However, if you do:
+> 
+> 	pktsetup 0 /dev/hdc
+> 	mount /dev/pktcdvd/0 /mnt/tmp
+> 	umount /mnt/tmp
 
-On Sunday 15 January 2006 23:33, Rudolf Marek wrote:
->
-> Well it seems this ali 15x3 has maybe same hardware bug? It was mentioned
-> already here: http://www2.lm-sensors.nu/~lm78/readticket.cgi?ticket=2030
->
-> > In the log below you can see that the ALI15X3 chip seems to keep in
-> > idle-state without reporting "done", but it does not turn in "busy"
-> > state. I patched the driver to do the reset procedure (with
-> > ALI15X3_T_OUT) after the error, but afterwards, the chip turns to "busy"
-> > state until next reboot.
->
+Thanks!
 
-This is already done in i2c-ali1535 in current kernel. So it looks like HW 
-issue that can be ignored at best. After reset SMBus continues to work. The 
-only question is, should we provide an option to shut up those errors; 
-assuming user knows (s)he has buggy controller there is no reason to spam 
-dmesg with known issue. Will patch be accepted? I will emit first occurence 
-of this error to let users know something is fishy and supress further ones. 
-But this has to wait for next week, it is already too late here.
+It works this way without any irq timeout. Unfortunately I can't use it
+as a workaround, because CD-R media must be mounted with '-o ro' or I
+get 'pktcdvd: Wrong disc profile (9)', so I can't just put it in fstab
+and use 'mount /media/cdrom' for both CD-R and RW discs.
 
-Thank you for information
+This is very new model and I hope they will release new firmware soon.
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDyrd9R6LMutpd94wRAuNVAKCwq+yTwvFt6jYLS1wL5pIDr68IMwCbBHb+
-yXAnHp+jzVFW1ddKVbZVkY8=
-=ABky
------END PGP SIGNATURE-----
+-- 
+Damian Pietras

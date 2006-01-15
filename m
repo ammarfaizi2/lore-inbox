@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWAOKEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751891AbWAOKFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751893AbWAOKEd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 05:04:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751891AbWAOKEd
+	id S1751891AbWAOKFj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 05:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751892AbWAOKFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 05:04:33 -0500
-Received: from deine-taler.de ([217.160.107.63]:55224 "EHLO
-	p15091797.pureserver.info") by vger.kernel.org with ESMTP
-	id S1751890AbWAOKEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 05:04:32 -0500
-Date: Sun, 15 Jan 2006 11:04:05 +0100 (CET)
-From: Ulrich Kunitz <kune@deine-taler.de>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: Ulrich Kunitz <kune@deine-taler.de>, linville@tuxdriver.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org, dsd@gentoo.org
-Subject: Re: wireless: recap of current issues (stack)
-In-Reply-To: <20060114204211.72942d45.zaitcev@redhat.com>
-Message-ID: <Pine.LNX.4.58.0601151056140.31304@p15091797.pureserver.info>
-References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com>
- <20060113213200.GG16166@tuxdriver.com> <Pine.LNX.4.58.0601141448480.5587@p15091797.pureserver.info>
- <20060114204211.72942d45.zaitcev@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Jan 2006 05:05:38 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:26380 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751891AbWAOKFi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 05:05:38 -0500
+Date: Sun, 15 Jan 2006 11:05:30 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Ren? Rebe <rene@exactcode.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>, akpm@osdl.org
+Subject: Re: kbuild / KERNELRELEASE not rebuild correctly anymore
+Message-ID: <20060115100530.GB8195@mars.ravnborg.org>
+References: <200601151051.14827.rene@exactcode.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601151051.14827.rene@exactcode.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Jan 2006, Pete Zaitcev wrote:
-
-> On Sat, 14 Jan 2006 15:13:39 +0100 (CET), Ulrich Kunitz <kune@deine-taler.de> wrote:
+On Sun, Jan 15, 2006 at 10:51:14AM +0100, Ren? Rebe wrote:
+> Hi all,
 > 
-> > [...] Register accesses in USB devices should be
-> > able to sleep. However the 80211 stacks I've seen so far have a
-> > fixed set of capabilities and do also assume, that at the driver
-> > layer everything can be done in atomic mode, which is only true
-> > for buses that support memory-mapping.
+> with at least 2.6.15-mm{2,3,4} untaring the kernel and running make menuconfig
+> (or most other favourite config tools) do not display a version anymore since
+> .kernelrelease it not build as dependecy.
 > 
-> If this problem is real, then it's serious. However, I'm not seeing it
-> with prism54usb and Berg's softmac (yet?). Would you be so kind to provide
-> the file name and function name for the code which makes these assumptions?
-> 
-> Thanks,
-> -- Pete
-> 
+> I only noticed this because my build scripts grab the version before the build for
+> later file names on installations and leave this string empty after configuration of
+> latest linux kernels.
 
-Pete,
+It is correct that "make kernelrelease" does not display correct info
+until you have done a proper build of the kernel or at least the prepare
+step.
 
-I've been wrong.
+The issue here is that we shall avoid sideeffects when running "make
+kernelrelease" so it does not trigger all sorts of commands when running
+as root for instance.
 
-I couldn't find the problem in the latest version of the
-ieee80211softmac. Thank you for noticing me.
+So the real fix is to error out when .kernelrelease does not exists.
+See attached patch.
 
-Uli
+	Sam
 
--- 
-Ulrich Kunitz - kune@deine-taler.de
+diff --git a/Makefile b/Makefile
+index deedaf7..19a37a2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1301,7 +1301,8 @@ checkstack:
+ 	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
+ 
+ kernelrelease:
+-	@echo $(KERNELRELEASE)
++	$(if $(wildcard .kernelrelease), $(Q)echo $(KERNELRELEASE), \
++	$(error kernelrelease not valid - run 'make prepare' to update it))
+ kernelversion:
+ 	@echo $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 

@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751549AbWAOAnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWAOAz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751549AbWAOAnR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 19:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWAOAnR
+	id S1751590AbWAOAz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 19:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbWAOAz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 19:43:17 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:47626 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751330AbWAOAnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 19:43:16 -0500
-Date: Sun, 15 Jan 2006 01:43:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, saw@saw.sw.com.sg,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
-Message-ID: <20060115004315.GW29663@stusta.de>
-References: <20060105181826.GD12313@stusta.de> <43BD6C03.2080605@pobox.com> <20060105210444.GA5878@xi.wantstofly.org>
-MIME-Version: 1.0
+	Sat, 14 Jan 2006 19:55:27 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:41224 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751567AbWAOAz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 19:55:26 -0500
+Date: Sat, 14 Jan 2006 19:54:45 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (other issues)
+Message-ID: <20060115005442.GA32206@tuxdriver.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213237.GH16166@tuxdriver.com> <20060113222408.GM16166@tuxdriver.com> <43C97693.7000109@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060105210444.GA5878@xi.wantstofly.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43C97693.7000109@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 05, 2006 at 10:04:44PM +0100, Lennert Buytenhek wrote:
-> On Thu, Jan 05, 2006 at 01:57:07PM -0500, Jeff Garzik wrote:
+On Sat, Jan 14, 2006 at 05:09:23PM -0500, Jeff Garzik wrote:
+> John W. Linville wrote:
+> >Other Issues
+> >============
 > 
-> > >This patch removes the obsolete drivers/net/eepro100.c driver.
-> > >
-> > >Is there any known problem in e100 still preventing us from removing 
-> > >this driver (it seems noone was able anymore to verify the ARM problem)?
-> > 
-> > Still waiting to see if e100 in -mm works on ARM.
+> A big open issue:  should you fake ethernet, or represent 802.11 
+> natively throughout the rest of the net stack?
 > 
-> e100 seems to work okay on the (modern) ARM CPUs I've tried.  The case
-> where e100 failed but eepro100 worked was (I think) on older ARM hardware,
-> and I'm not sure whether that kind of hardware is used anymore..
+> The former causes various and sundry hacks, and the latter requires that 
+> you touch a bunch of non-802.11 code to make it aware of a new frame class.
 
-Jeff, is this enough to accept my patch?
+I had this entry in the "compatibility" section:
 
-> cheers,
-> Lennert
+We need to be an 802.11 stack (i.e. drivers need to handle 802.11
+frames).  Ethernet emulation is bound to paint us into a corner
+eventually (if it hasn't already)
 
-cu
-Adrian
+My opinion is that we need to 'bite the bullet' and make the kernel
+aware of 802.11.  I figure we can leverage some existing work by
+davem and acme for this.
 
+John
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+John W. Linville
+linville@tuxdriver.com

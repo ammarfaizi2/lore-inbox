@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWAOBuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWAOBub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWAOBuG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 20:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751567AbWAOBuG
+	id S1751572AbWAOBub (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 20:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWAOBua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 20:50:06 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:18363
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750847AbWAOBuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 20:50:05 -0500
-Date: Sat, 14 Jan 2006 17:46:59 -0800 (PST)
-Message-Id: <20060114.174659.16358136.davem@davemloft.net>
-To: pavel@ucw.cz
-Cc: drepper@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: ntohs/ntohl and bitops
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060112010406.GA2367@ucw.cz>
-References: <43C42F0C.10008@redhat.com>
-	<20060111.000020.25886635.davem@davemloft.net>
-	<20060112010406.GA2367@ucw.cz>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 20:50:30 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3083 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751572AbWAOBu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 20:50:27 -0500
+Date: Sun, 15 Jan 2006 02:50:27 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       "Andrey J. Melnikoff" <temnota@kmv.ru>
+Subject: Re: [2.6 patch] always enable CONFIG_PDC202XX_FORCE
+Message-ID: <20060115015027.GY29663@stusta.de>
+References: <20060114152119.GN29663@stusta.de> <1137255183.20915.0.camel@localhost.localdomain> <58cb370e0601140947medcb66flf6b7281976683765@mail.gmail.com> <20060114195521.GS29663@stusta.de> <1137287249.26046.13.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137287249.26046.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Machek <pavel@ucw.cz>
-Date: Thu, 12 Jan 2006 01:04:06 +0000
-
-> Could you possibly 
-> #define IP_OFFSET htons(1234)
-> ?
+On Sun, Jan 15, 2006 at 01:07:29AM +0000, Alan Cox wrote:
+> On Sad, 2006-01-14 at 20:55 +0100, Adrian Bunk wrote:
+> > This patch removes the CONFIG_PDC202XX_FORCE=n case.
 > 
-> Noone should need it in native endianity, no?
+> NAK. The Y case is the one you want to keep
 
-That's definitely going to be error prone.
-And I bet the BSD headers define it in cpu endainness
-as well.
+Removing the N case is the same as keeping the Y case...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

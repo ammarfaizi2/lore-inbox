@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWAOSaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWAOS3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWAOSaY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 13:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWAOSaY
+	id S1750761AbWAOS3k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 13:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWAOS3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 13:30:24 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30665 "HELO
+	Sun, 15 Jan 2006 13:29:40 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:24265 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750767AbWAOSaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 13:30:23 -0500
-Subject: Re: So - What's going on with Reiser 4?
+	id S1750761AbWAOS3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 13:29:39 -0500
+Subject: Re: Dual core Athlons and unsynced TSCs
 From: Lee Revell <rlrevell@joe-job.com>
-To: Marc Perkel <marc@perkel.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Hesse, Christian" <mail@earthworm.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <43CA9050.8080601@perkel.com>
-References: <43C837B6.5070903@perkel.com>
-	 <1137236892.3014.12.camel@laptopd505.fenrus.org>
-	 <200601141322.34520.mail@earthworm.de>
-	 <1137242691.3014.16.camel@laptopd505.fenrus.org>
-	 <43C99491.3080907@perkel.com> <1137293454.19972.6.camel@mindpipe>
-	 <43C9C042.5090000@perkel.com> <1137299139.25801.7.camel@mindpipe>
-	 <43C9D0CC.9040906@perkel.com>
-	 <1137348569.2350.6.camel@localhost.localdomain>
-	 <43CA9050.8080601@perkel.com>
+To: thockin@hockin.org
+Cc: Zan Lynx <zlynx@acm.org>, David Lang <dlang@digitalinsight.com>,
+       Andreas Steinmetz <ast@domdv.de>,
+       Sven-Thorsten Dietrich <sven@mvista.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060115182155.GA31941@hockin.org>
+References: <Pine.LNX.4.62.0601131315310.9821@qynat.qvtvafvgr.pbz>
+	 <20060113215609.GA30634@hockin.org>
+	 <Pine.LNX.4.62.0601131404311.9821@qynat.qvtvafvgr.pbz>
+	 <1137190698.2536.65.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0601131448150.9821@qynat.qvtvafvgr.pbz>
+	 <43C848C7.1070701@domdv.de>
+	 <Pine.LNX.4.62.0601131701590.9821@qynat.qvtvafvgr.pbz>
+	 <1137315165.28041.12.camel@localhost> <20060115162516.GA21791@hockin.org>
+	 <1137342817.25801.17.camel@mindpipe>  <20060115182155.GA31941@hockin.org>
 Content-Type: text/plain
-Date: Sun, 15 Jan 2006 13:30:20 -0500
-Message-Id: <1137349821.25801.30.camel@mindpipe>
+Date: Sun, 15 Jan 2006 13:29:36 -0500
+Message-Id: <1137349777.25801.29.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-15 at 10:11 -0800, Marc Perkel wrote:
+On Sun, 2006-01-15 at 10:21 -0800, thockin@hockin.org wrote:
+> On Sun, Jan 15, 2006 at 11:33:36AM -0500, Lee Revell wrote:
+> > On Sun, 2006-01-15 at 08:25 -0800, thockin@hockin.org wrote:
+> > > On Sun, Jan 15, 2006 at 01:52:44AM -0700, Zan Lynx wrote:
+> > > > A laptop user could also bind a process to a single CPU, and use the
+> > > > scaling min/max values to lock CPU speed to a single value.  The TSC may
+> > > > still stop during HLT, but software must be handling that already.
+> > > > 
+> > > > Wouldn't that provide an accurate TSC?
+> > > 
+> > > monotonic but not linear.  Also remember that the OS will use rdtsc here
+> > > and there, and you can't affine the OS :)
+> > > 
+> > 
+> > So the options are either to fix the TSC handling on these systems (by
+> > resyncing the TSCs when exiting from HLT), or eliminate the use of rdtsc
+> > by the OS?
 > 
-> Alan Cox wrote:
-> > On Sad, 2006-01-14 at 20:34 -0800, Marc Perkel wrote:
-> >   
-> >>>> I am not going to search the archives before asking a question.
-> >>>>         
-> >>>   
-> >>>       
-> >> I just asked a question. Obviously it's a question that seems to 
-> >> politically hot to handle. I didn't realize reiser 4 was a prohibited 
-> >> subject.
-> >>     
-> >
-> > Its not. Possibly your behaviour should come under "prohibited attitude"
-> > but we don't have thought crime on the list beyond that your government
-> > may be seeking to impose.
-> >
-> > Its an "oh god not again" subject that has been beaten to death
-> > repeatedly, and that is why people asked you to look at the archive
-> > instead of wasting everyones time.
-> >
-> > If you are really keen to get resierfs4 into the base kernel why not
-> > email the reiserfs4 people and ask to help clean up the code and test
-> > it ?
-> >
-> > Alan
-> >   
-> Look - all I did was ask a simple question about what was the status of 
-> Reiser 4 and everyone is freaking out that I asked the question. You 
-> guys are acting like you are members of a cult or something. I'm not 
-> advocating anything. I just asked a question.
+> Or both.  You can trap rdtsc users in userland, you have to manually audit
+> kernel users.
+> 
+> It should be abolished or properly wrapped in kernel code, as soon as a
+> resync path is available.
 > 
 
-No one freaked out, we just said "we have no idea, ask the reiser4
-developers".
+For the purposes of this discussion I was not considering direct use of
+rdtsc from userland for timing, I've accepted the arguments that this is
+a lost cause with today's hardware (although I maintain it was viable in
+practice on previous generations of hardware).  Besides, rdtsc is
+useless from userspace if the kernel traps it, because the whole point
+of using it over gettimeofday() was that it was dirt cheap.
+
+I'm content to make sure the kernel's internal timekeeping is solid.
 
 Lee
 

@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWAOT7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWAOUAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWAOT7x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 14:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWAOT7x
+	id S932127AbWAOUAb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 15:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWAOUAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 14:59:53 -0500
-Received: from [63.81.120.158] ([63.81.120.158]:62197 "EHLO hermes.mvista.com")
-	by vger.kernel.org with ESMTP id S932125AbWAOT7x (ORCPT
+	Sun, 15 Jan 2006 15:00:31 -0500
+Received: from thorn.pobox.com ([208.210.124.75]:42391 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S932127AbWAOUAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 14:59:53 -0500
-Message-ID: <43CAA9F2.2050807@mvista.com>
-Date: Sun, 15 Jan 2006 12:00:50 -0800
-From: David Singleton <dsingleton@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@gmail.com>
-Cc: akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [robust-futex-1] futex: robust futex support
-References: <43C84D4B.70407@mvista.com>	 <a36005b50601141602y641567ebh5ff9b6a1fad4d7d2@mail.gmail.com>	 <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com> <a36005b50601142118h3a07a640ra668dab13129683b@mail.gmail.com>
-In-Reply-To: <a36005b50601142118h3a07a640ra668dab13129683b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 15 Jan 2006 15:00:30 -0500
+Date: Sun, 15 Jan 2006 13:00:24 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org
+Subject: Re: state terminology
+Message-Id: <20060115130024.0db8fb1c.dickson@permanentmail.com>
+In-Reply-To: <200601151058.55369.ioe-lkml@rameria.de>
+References: <Pine.LNX.4.61.0601142234280.23423@yvahk01.tjqt.qr>
+	<200601151058.55369.ioe-lkml@rameria.de>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
+On Sun, 15 Jan 2006 10:58:48 +0100, Ingo Oeser wrote:
 
->On 1/14/06, david singleton <dsingleton@mvista.com> wrote:
->  
->
->>can you suggest some error codes you like to use?  I'll use
->>whatever you suggest.
->>    
->>
->
->How about EADDRNOTAVAIL.  The error message kind of makes sense, even
->though "address" is misused.  And there definitely won't be a clash
->with other error codes because it's currently only used in network
->contexts.
->  
->
-Will do.  I'm testing a patch that addresses Andi's suggestions now and 
-I'll add
-the return code today.
+> Hi Jan,
+> 
+> On Saturday 14 January 2006 22:34, you wrote:
+> > Is there a specific term (other than "hang") associated with this 
+> > situation? It's not a "dead-lock", because there is no other process 
+> > (anymore) which could potentially up the semaphore.
+> 
+> This is a simple "resource leak" (or "semaphore leak" in this case).
+> 
+> Explanation follows:
+> 
+> The resource semaphore is not usable by anyone anymore 
+> and is still around.
+> 
+> Its pretty much the same as a memory leak. There is no one, who
+> could free the memory anymore.
+> 
+> The reasons for the resource not being usable anymore is
+> not significant for a resource leak.
+> 
+> Also insignificant is the fact that the amount of semaphores
+> are just limited by available memory. If you repeat starting threads 
+> doing the semaphore leak game from your example, you'll run out
+> of memory and thus out of semaphores. This is another sign of leakage.
+> 
+> Do the above explanations sound ok?
 
-thanks
+But it's the functionality rather than the resource that's being lost.
+So I wouldn't consider it to be a leak.
+
+How about "locked-out" or "lock-out"?  It's akin to a locked room, with
+the keys left inside.
+
+	-Paul
 

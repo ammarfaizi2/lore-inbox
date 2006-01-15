@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWAOAEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWAOAFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWAOAEP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 19:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWAOAEP
+	id S1750738AbWAOAFt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 19:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWAOAFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 19:04:15 -0500
-Received: from [63.81.120.158] ([63.81.120.158]:65018 "EHLO hermes.mvista.com")
-	by vger.kernel.org with ESMTP id S1750831AbWAOAEO (ORCPT
+	Sat, 14 Jan 2006 19:05:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:31899 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750738AbWAOAFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 19:04:14 -0500
-In-Reply-To: <a36005b50601141602y641567ebh5ff9b6a1fad4d7d2@mail.gmail.com>
-References: <43C84D4B.70407@mvista.com> <a36005b50601141602y641567ebh5ff9b6a1fad4d7d2@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com>
+	Sat, 14 Jan 2006 19:05:48 -0500
+Date: Sat, 14 Jan 2006 16:05:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.15-mm4: sem2mutex problem in USB OHCI
+Message-Id: <20060114160526.228da734.akpm@osdl.org>
+In-Reply-To: <200601150058.58518.rjw@sisk.pl>
+References: <200601150058.58518.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-From: david singleton <dsingleton@mvista.com>
-Subject: Re: [robust-futex-1] futex: robust futex support
-Date: Sat, 14 Jan 2006 16:04:10 -0800
-To: Ulrich Drepper <drepper@gmail.com>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Jan 14, 2006, at 4:02 PM, Ulrich Drepper wrote:
-
-> On 1/13/06, David Singleton <dsingleton@mvista.com> wrote:
-> =============================================
->> --- linux-2.6.15.orig/include/asm-generic/errno.h
->> +++ linux-2.6.15/include/asm-generic/errno.h
->> @@ -105,5 +105,6 @@
->>  /* for robust mutexes */
->>  #define        EOWNERDEAD      130     /* Owner died */
->>  #define        ENOTRECOVERABLE 131     /* State not recoverable */
->> +#define ENOTSHARED     132     /* no pshared attribute */
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 >
-> Do not introduce a new error code if at all possible.  Adding
-> userlang-visible error codes means the ABI changes due to the stupid
-> _sys_errlist variable.  Just reuse an error code which cannot be
-> returned in the futex code so far and which has some kind of
-> resemblence with what the error means.
+> I get this on the system startup (Asus L5D, x86-64, 1 CPU):
+> 
+>  ACPI: PCI Interrupt Link [LUS1] enabled at IRQ 11
+>  ACPI: PCI Interrupt 0000:00:02.1[B] -> Link [LUS1] -> GSI 11 (level, low) -> IRQ 11
+>  ohci_hcd 0000:00:02.1: OHCI Host Controller
+>  ohci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 2
+>  ohci_hcd 0000:00:02.1: irq 11, io mem 0xfebfc000
+>  usb usb2: Product: OHCI Host Controller
+>  usb usb2: Manufacturer: Linux 2.6.15-mm4 ohci_hcd
+>  Badness in __mutex_trylock_slowpath at kernel/mutex.c:281
+> 
+>  Call Trace: <IRQ> <ffffffff80148d8d>{mutex_trylock+141}
+>         <ffffffff880abaf0>{:ohci_hcd:ohci_hub_status_data+480}
+>         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d24c3>{usb_hcd_poll_rh_status+67}
+>         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d25d9>{rh_timer_func+9}
+>         <ffffffff8013a3cc>{run_timer_softirq+396} <ffffffff801361c0>{__do_softirq+80}
+>         <ffffffff8010fd12>{call_softirq+30} <ffffffff80111715>{do_softirq+53}
+>         <ffffffff8013625f>{irq_exit+63} <ffffffff80111761>{do_IRQ+65}
+>         <ffffffff8010f266>{ret_from_intr+0} <EOI> <ffffffff80130c1d>{release_console_sem+333}
+>         <ffffffff801313f7>{vprintk+775} <ffffffff801314f2>{printk+162}
+>         <ffffffff801314f2>{printk+162} <ffffffff802d5b0b>{usb_cache_string+139}
+>         <ffffffff802cd170>{show_string+64} <ffffffff802ceec5>{usb_new_device+261}
+>         <ffffffff802d3769>{usb_add_hcd+1433} <ffffffff802dce83>{usb_hcd_pci_probe+691}
+>         <ffffffff8025a26a>{pci_device_probe+106} <ffffffff802b556c>{driver_probe_device+108}
+>         <ffffffff802b5636>{__driver_attach+86} <ffffffff802b55e0>{__driver_attach+0}
+>         <ffffffff802b4eef>{bus_for_each_dev+79} <ffffffff802b53fc>{driver_attach+28}
+>         <ffffffff802b48e8>{bus_add_driver+136} <ffffffff802b57af>{driver_register+207}
+>         <ffffffff8025a521>{__pci_register_driver+177} <ffffffff88012059>{:ohci_hcd:ohci_hcd_pci_init+89}
+>         <ffffffff8014f7af>{sys_init_module+239} <ffffffff8010ec9e>{system_call+126}
 
-can you suggest some error codes you like to use?  I'll use
-whatever you suggest.
-
-thanks
-
-David
-
+err, taking a mutex from softirq context.

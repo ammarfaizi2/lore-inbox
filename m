@@ -1,78 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWAOWs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWAOWvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbWAOWs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 17:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWAOWs3
+	id S1750946AbWAOWvF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 17:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWAOWvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 17:48:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:51897 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750941AbWAOWs2 (ORCPT
+	Sun, 15 Jan 2006 17:51:05 -0500
+Received: from tornado.reub.net ([202.89.145.182]:41425 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1750945AbWAOWvD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 17:48:28 -0500
-Date: Mon, 16 Jan 2006 09:48:17 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.15-mm3 bisection: git-xfs.patch makes reiserfs oops
-Message-ID: <20060116094817.A8425113@wobbly.melbourne.sgi.com>
-References: <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060115221458.GA3521@inferi.kami.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060115221458.GA3521@inferi.kami.home>; from malattia@linux.it on Sun, Jan 15, 2006 at 11:14:58PM +0100
+	Sun, 15 Jan 2006 17:51:03 -0500
+Message-ID: <43CAD1BB.60301@reub.net>
+Date: Mon, 16 Jan 2006 11:50:35 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060115)
+MIME-Version: 1.0
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, Greg KH <greg@kroah.com>,
+       linux-usb-devel@lists.sourceforge.net,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-acpi@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: 2.6.15-mm3 [USB lost interrupt bug]
+References: <Pine.LNX.4.44L0.0601121052190.5383-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0601121052190.5383-100000@iolanthe.rowland.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15, 2006 at 11:14:58PM +0100, Mattia Dongili wrote:
-> [CC-in relevant people/ML]
+On 13/01/2006 4:53 a.m., Alan Stern wrote:
+> On Thu, 12 Jan 2006, Reuben Farrelly wrote:
 > 
-> Hello!
+>>>> Initializing USB Mass Storage driver...
+>>>> irq 193: nobody cared (try booting with the "irqpoll" option)
 > 
-> second bisection result!
+>>>> handlers:
+>>>> [<c027017e>] (usb_hcd_irq+0x0/0x56)
+>>>> Disabling IRQ #193
+>>> USB lost its interrupt.  Could be USB, more likely ACPI.
+>> I've seen this one happen nearly every boot since then including bootups that 
+>> are otherwise OK (no oopses), so it's probably worth more looking into rather 
+>> than being written off as a 'once off':
+>>
+>> uhci_hcd 0000:00:1d.3: Unlink after no-IRQ?  Controller is probably using the 
+>> wrong IRQ.
 > 
-> On Tue, Jan 10, 2006 at 05:00:37PM -0800, Andrew Morton wrote:
-> > Mattia Dongili <malattia@linux.it> wrote:
-> [...]
-> > > 1- reiser3 oopsed[1] twice while suspending to ram. It seems
-> > >    reproducible (have some activity on the fs and suspend)
-> > 
-> > No significant reiser3 changes in there, so I'd be suspecting something
-> > else has gone haywire.
+>> It's a new regression to -mm3.
 > 
-> you're right: git-xfs.patch is the bad guy.
+> Did the same IRQ get assigned to that controller in earlier kernel 
+> versions?
 > 
-> Unfortunately netconsole isn't helpful in capturing the oops (no serial
-> ports here) but I have two more shots (more readable):
-> http://oioio.altervista.org/linux/dsc03148.jpg
-> http://oioio.altervista.org/linux/dsc03149.jpg
+> Alan Stern
 
-Hmm, thats odd.  It seems to be coming from:
-reiserfs_commit_page -> reiserfs_add_ordered_list -> __add_jh(inline)
+Hi Alan,
 
-I guess XFS may have left a buffer_head in an unusual state (with some
-private flag/b_private set), somehow, and perhaps that buffer_head has
-later been allocated for a page in a reiserfs write.  Does this patch,
-below, help at all?
+If it's any use, here's some simply and easy-to-get information which may even 
+be what you are looking for:
 
-I see one BUG check in __add_jh for non-NULL b_private, but can't see
-the top of your console output from the photos - is there a preceding
-line with "kernel BUG at ..." in it?
+[root@tornado dovecot]# uname -a
+Linux tornado.reub.net 2.6.15-mm1 #1 SMP Sun Jan 8 03:42:25 NZDT 2006 i686 i686 
+i386 GNU/Linux
+[root@tornado ~]# cat /proc/interrupts
+            CPU0       CPU1
+   0:   21638510          0    IO-APIC-edge  timer
+   4:        356          0    IO-APIC-edge  serial
+   8:          1          0    IO-APIC-edge  rtc
+   9:          0          0   IO-APIC-level  acpi
+  14:          1          0    IO-APIC-edge  ide0
+  50:          3          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2
+169:        120          0   IO-APIC-level  uhci_hcd:usb5
+177:    2837992          0   IO-APIC-level  sky2
+185:      61450          0   IO-APIC-level  uhci_hcd:usb4, serial
+193:    4722447          0   IO-APIC-level  libata, uhci_hcd:usb3
+NMI:          0          0
+LOC:   21638418   21638338
+ERR:          0
+MIS:          0
+[root@tornado ~]#
+[root@tornado ~]# lspci
+00:00.0 Host bridge: Intel Corporation 925X/XE Memory Controller Hub (rev 04)
+00:01.0 PCI bridge: Intel Corporation 925X/XE PCI Express Root Port (rev 04)
+00:1c.0 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI 
+Express Port 1 (rev 03)
+00:1c.1 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI 
+Express Port 2 (rev 03)
+00:1c.2 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI 
+Express Port 3 (rev 03)
+00:1c.3 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI 
+Express Port 4 (rev 03)
+00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+USB UHCI #1 (rev 03)
+00:1d.1 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+USB UHCI #2 (rev 03)
+00:1d.2 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+USB UHCI #3 (rev 03)
+00:1d.3 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+USB UHCI #4 (rev 03)
+00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+USB2 EHCI Controller (rev 03)
+00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev d3)
+00:1f.0 ISA bridge: Intel Corporation 82801FB/FR (ICH6/ICH6R) LPC Interface 
+Bridge (rev 03)
+00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE 
+Controller (rev 03)
+00:1f.2 SATA controller: Intel Corporation 82801FR/FRW (ICH6R/ICH6RW) SATA 
+Controller (rev 03)
+00:1f.3 SMBus: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) SMBus 
+Controller (rev 03)
+04:00.0 Ethernet controller: Marvell Technology Group Ltd. 88E8050 PCI-E ASF 
+Gigabit Ethernet Controller (rev 17)
+06:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W [Millennium] 
+(rev 01)
+06:02.0 Serial controller: Timedia Technology Co Ltd PCI2S550 (Dual 16550 UART) 
+(rev 01)
+[root@tornado ~]#
 
-cheers.
+I guess this looks like it was assigned the same IRQ ?
 
--- 
-Nathan
+Currently booted into -mm1 which is OK and hasn't shown any nasty symptoms yet.
+
+Reuben
 
 
---- fs/buffer.c.orig	2006-01-16 10:15:01.332010750 +1100
-+++ fs/buffer.c	2006-01-16 10:18:15.276131500 +1100
-@@ -1027,7 +1027,7 @@ try_again:
- 		/* Link the buffer to its page */
- 		set_bh_page(bh, page, offset);
- 
--		bh->b_end_io = NULL;
-+		init_buffer(bh, NULL, NULL);
- 	}
- 	return head;
- /*
+
+

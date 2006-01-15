@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWAOWVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWAOWXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWAOWVS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 17:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWAOWVS
+	id S1750936AbWAOWXW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 17:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWAOWXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 17:21:18 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:61390 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1750936AbWAOWVS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 17:21:18 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Sun, 15 Jan 2006 23:21:13 +0100
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       benh@kernel.crashing.org
-Subject: Re: spurious 8259A interrupt: IRQ7
-In-reply-to: <Pine.LNX.4.61.0601152211150.29696@yvahk01.tjqt.qr>
-References: <20060115172118.A9CE622B38F@anxur.fi.muni.cz>
-Message-Id: <20060115222111.664DB22B379@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Sun, 15 Jan 2006 17:23:22 -0500
+Received: from ms-smtp-04-smtplb.tampabay.rr.com ([65.32.5.134]:13755 "EHLO
+	ms-smtp-04.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1750935AbWAOWXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 17:23:22 -0500
+Message-ID: <43CACB53.40205@cfl.rr.com>
+Date: Sun, 15 Jan 2006 17:23:15 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051010)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Osterlund <petero2@telia.com>
+CC: Damian Pietras <daper@daper.net>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with eject and pktcdvd
+References: <20060115123546.GA21609@daper.net> <43CA8C15.8010402@cfl.rr.com> <20060115185025.GA15782@daper.net> <43CA9FC7.9000802@cfl.rr.com> <m3ek39z09f.fsf@telia.com>
+In-Reply-To: <m3ek39z09f.fsf@telia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>>  0:     367164          XT-PIC  timer
+So mounting opens it in blocking  mode, causing it to lock, but pktcdvd 
+does not open it in blocking mode, so it doesn't get locked until the 
+mount?  Why does the cdrom driver differentiate between the two?  
+Shouldn't it simply be locked when in use, no matter how it is used?  
+And shouldn't pktcdvd explicitly unlock the drive when the pktcdvd 
+device isn't open?  For that matter, why is mount opening the cdrom in 
+blocking mode?  Shouldn't the filesystem be sending down async bios?
+
+Peter Osterlund wrote:
+
+>If you do
 >
->>>01:05.0 VGA compatible controller: ATI Technologies Inc RS300M AGP [Radeon Mobility 9100IGP] (prog-if 00 [VGA])
->>>        Subsystem: ASUSTeK Computer Inc.: Unknown device 1902
+>	pktsetup 0 /dev/hdc
+>	mount /dev/hdc /mnt/tmp
+>	umount /mnt/tmp
 >
->You seem to have APIC disabled?
-Nope. There are also lines
-LOC:     367136
-and
-MIS:          0
-which are printed only with (io)apic enabled.
+>the door will be left in a locked state. (It gets unlocked when you
+>run "pktsetup -d 0" though.) However, if you do:
+>
+>	pktsetup 0 /dev/hdc
+>	mount /dev/pktcdvd/0 /mnt/tmp
+>	umount /mnt/tmp
+>
+>the door will be properly unlocked.
+>
+>The problem is that the cdrom driver locks the door the first time the
+>device is opened in blocking mode, but doesn't unlock it again until
+>the open count goes down to zero. The pktcdvd driver tries to work
+>around that, but it can't do it in the first example because the
+>mount/umount commands do not involve the pktcdvd driver at all.
+>
+>  
+>
 
-$ dmesg|grep -i apic
-Found and enabled local APIC!
-mapped APIC to ffffd000 (fee00000)
-$ grep APIC config 
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-
-dmesg and config are here (I forgot to attach before):
-http://www.fi.muni.cz/~xslaby/sklad/{dmesg,config}
-
-regards,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E

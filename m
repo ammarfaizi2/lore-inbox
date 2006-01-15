@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751876AbWAOJFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751879AbWAOJ1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751876AbWAOJFG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 04:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWAOJFG
+	id S1751879AbWAOJ1A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 04:27:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWAOJ1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 04:05:06 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:21668 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751876AbWAOJFF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 04:05:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=hQonY2sV0JLieC+EavgyLCIFmHo7ySkGUQweYY1NSr3XEEEdaS1Z2aLFuQu+rkHEmTsMY7UeY3DMaqyeUFG7zfFhTfBp/pI2gLItZ6ooUxXR9CWmAhsissro+i2/Kro5IPRRAE65a8asIGXlKvNEqaYFa+SycvFzEcCGNCXIKks=
-Message-ID: <eb0e02f40601150105u4c828b98l604cb8b798b6912f@mail.gmail.com>
-Date: Sun, 15 Jan 2006 20:05:04 +1100
-From: Grant Coady <gcoady@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: testing 2.6.15-mm4
+	Sun, 15 Jan 2006 04:27:00 -0500
+Received: from mx3.mail.ru ([194.67.23.149]:26917 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S1751879AbWAOJ1A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 04:27:00 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-xfs@oss.sgi.com
+Subject: 2.6: xfs is rebuilt on every .config change
+Date: Sun, 15 Jan 2006 12:26:46 +0300
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200601151226.49461.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Been running -mm4 on 'sempro' for over ten hours load avg 2.5 - 6
-Mostly compiling various
-kernels and also read / writing a USB connected hard drive, not
-noticed anything odd, which
-in itself is a little odd this early in merge/patch cycle ;-)
+This happened for a long time, actually in late 2.5.x (that I have started 
+with). Every time I make some changes to config - or simply do make oldconfig 
+- - xfs is rebuilt. This happens when there are *no* changes related to xfs 
+alltogether. E.g. I now applied 2.6.15.1 patch and xfs got rebuilt again.
 
-Cheers,
-Grant.
+It may be nitpicking, but it is huge module, I have relatively slow system ans 
+sometimes want to quickly test some trvial changes. xfs doubles compile time 
+(at the very least).
+
+Regards
+
+- -andrey 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDyhVZR6LMutpd94wRAufSAJkBc/y6KK5wkcyxVliZkuTYpdcn5QCgmovu
+xRdPIPFuQNbI+u3Bv+AI1hA=
+=cI9T
+-----END PGP SIGNATURE-----

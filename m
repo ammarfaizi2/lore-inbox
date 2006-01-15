@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751597AbWAOB1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWAOBuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751597AbWAOB1h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 20:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbWAOB1h
+	id S1750847AbWAOBuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 20:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751567AbWAOBuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 20:27:37 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:32195 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751143AbWAOB1g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 20:27:36 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: Quota on xfs vfsroot 
-In-reply-to: Your message of "Sat, 14 Jan 2006 10:35:34 BST."
-             <Pine.LNX.4.61.0601141033190.25932@yvahk01.tjqt.qr> 
+	Sat, 14 Jan 2006 20:50:06 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:18363
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750847AbWAOBuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 20:50:05 -0500
+Date: Sat, 14 Jan 2006 17:46:59 -0800 (PST)
+Message-Id: <20060114.174659.16358136.davem@davemloft.net>
+To: pavel@ucw.cz
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: ntohs/ntohl and bitops
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060112010406.GA2367@ucw.cz>
+References: <43C42F0C.10008@redhat.com>
+	<20060111.000020.25886635.davem@davemloft.net>
+	<20060112010406.GA2367@ucw.cz>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 15 Jan 2006 12:27:30 +1100
-Message-ID: <30975.1137288450@ocs3.ocs.com.au>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt (on Sat, 14 Jan 2006 10:35:34 +0100 (MET)) wrote:
->
->>> the xfs_quota manpage says that one needs to use the "root-flags=" boot 
->>> parameter to enable quota for the root filesystem, but I do not see a 
->>> matching __setup() definition anywhere in the fs/xfs/ folder. So, how do I 
->>> have quota activated then?
->>
->>init/do_mounts.c:__setup("rootflags=", root_data_setup);
->>It is a general boot line flag, not xfs specific.
->
->Ah, thank you.
->Weird manpage program wrapped rootflags into "root-\nflags" at EOL, sigh.
+From: Pavel Machek <pavel@ucw.cz>
+Date: Thu, 12 Jan 2006 01:04:06 +0000
 
-One of the many reasons that man pages should have hyphenation turned
-off.  In current *roff, the command is '.nh'.  Some older versions of
-*roff used '.hy off' or '.hy 0'.
+> Could you possibly 
+> #define IP_OFFSET htons(1234)
+> ?
+> 
+> Noone should need it in native endianity, no?
 
+That's definitely going to be error prone.
+And I bet the BSD headers define it in cpu endainness
+as well.

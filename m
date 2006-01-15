@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWAOXWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWAOX3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWAOXWM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 18:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWAOXWM
+	id S1750987AbWAOX3R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 18:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWAOX3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 18:22:12 -0500
-Received: from 213-140-2-70.ip.fastwebnet.it ([213.140.2.70]:37841 "EHLO
-	aa003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750945AbWAOXWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 18:22:12 -0500
-Date: Mon, 16 Jan 2006 00:22:51 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.15-mm3 bisection: git-xfs.patch makes reiserfs oops
-Message-ID: <20060115232250.GD3521@inferi.kami.home>
-Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	reiserfs-dev@namesys.com, linux-xfs@oss.sgi.com
-References: <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060115221458.GA3521@inferi.kami.home> <20060116094817.A8425113@wobbly.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060116094817.A8425113@wobbly.melbourne.sgi.com>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.15-rc5-mm3-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11
+	Sun, 15 Jan 2006 18:29:17 -0500
+Received: from smtpout.mac.com ([17.250.248.86]:16113 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750985AbWAOX3Q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 18:29:16 -0500
+In-Reply-To: <200601151526.34236.rene@exactcode.de>
+References: <200601151051.14827.rene@exactcode.de> <200601151312.42391.rene@exactcode.de> <20060115123133.GB15881@mars.ravnborg.org> <200601151526.34236.rene@exactcode.de>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
+Message-Id: <AF73D553-56EC-4EAE-BF1F-4ACF1E5CFFC3@mac.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>, akpm@osdl.org
+Content-Transfer-Encoding: 8BIT
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: kbuild / KERNELRELEASE not rebuild correctly anymore
+Date: Sun, 15 Jan 2006 18:29:00 -0500
+To: =?ISO-8859-1?Q?Ren=E9_Rebe?= <rene@exactcode.de>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 09:48:17AM +1100, Nathan Scott wrote:
-> On Sun, Jan 15, 2006 at 11:14:58PM +0100, Mattia Dongili wrote:
-[...]
-> > you're right: git-xfs.patch is the bad guy.
-> > 
-> > Unfortunately netconsole isn't helpful in capturing the oops (no serial
-> > ports here) but I have two more shots (more readable):
-> > http://oioio.altervista.org/linux/dsc03148.jpg
-> > http://oioio.altervista.org/linux/dsc03149.jpg
-> 
-> Hmm, thats odd.  It seems to be coming from:
-> reiserfs_commit_page -> reiserfs_add_ordered_list -> __add_jh(inline)
-> 
-> I guess XFS may have left a buffer_head in an unusual state (with some
-> private flag/b_private set), somehow, and perhaps that buffer_head has
-> later been allocated for a page in a reiserfs write.  Does this patch,
-> below, help at all?
+On Jan 15, 2006, at 09:26, René Rebe wrote:
+> Hi,
+>
+> On Sunday 15 January 2006 13:31, Sam Ravnborg wrote:
+>>> I'm curious, aside rsbac, what in the .config is altering the
+>>> KERNELRELEASE?
+>>
+>> CONFIG_LOCALVERSION
+>> CONFIG_LOCALVERSION_AUTO
+>
+> Ah, ok - I feared something less obviously more complex. Do we need  
+> this options at all? People can still just edit the EXTRAVERSION  
+> line in the Makefile - at least I always did so ...
 
-I won't be able to test and report until tomorrow afternoon (CET),
-please be patient.
+It makes it easy for people who build a lot of different kernel  
+versions and patchsets with similar configs.  When compiling a kernel  
+for "aphrodite", I use my "config.aphrodite4" which has  
+CONFIG_LOCALVERSION="-aphrodite4".  I may patch the kernel first with  
+-mm or another patchset for testing which modify EXTRAVERSION, and  
+with the localversion change I get the following kernels, depending  
+only on patchset and my config:
 
-> I see one BUG check in __add_jh for non-NULL b_private, but can't see
-> the top of your console output from the photos - is there a preceding
-> line with "kernel BUG at ..." in it?
+/boot/vmlinuz-2.6.15-aphrodite4
+/boot/vmlinuz-2.6.15-mm4-aphrodite4
+[...etc...]
 
-this is another shot of the same oops caught some days ago
-http://oioio.altervista.org/linux/dsc03133.jpg
-unfortunately it happened while running X so that's all I currently
-have... and I can't remember now about the BUG.
+Cheers,
+Kyle Moffett
 
-oh, and BTW I have / and /usr on reiserfs while /home is xfs and I can
-easily reproduce the oops by starting X (with a simple user so fiddling
-in /home) and then installing and removing software in /usr.
+--
+Somone asked me why I work on this free (http://www.fsf.org/ 
+philosophy/) software stuff and not get a real job. Charles Schulz  
+had the best answer:
 
-thanks.
--- 
-mattia
-:wq!
+"Why do musicians compose symphonies and poets write poems? They do  
+it because life wouldn't have any meaning for them if they didn't.  
+That's why I draw cartoons. It's my life."
+   -- Charles Schulz
+
+

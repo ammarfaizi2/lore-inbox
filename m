@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWAORYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWAORZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWAORYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 12:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWAORYi
+	id S932102AbWAORZf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 12:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWAORZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 12:24:38 -0500
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:42421 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932098AbWAORYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 12:24:37 -0500
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: [PATCH] pktcdvd & udf bugfixes
-References: <43C5D71B.1060002@cfl.rr.com> <m3oe2e2983.fsf@telia.com>
-	<43C94464.4040500@cfl.rr.com> <m3hd861o2r.fsf@telia.com>
-	<43C982C0.1070605@cfl.rr.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 Jan 2006 18:24:08 +0100
-In-Reply-To: <43C982C0.1070605@cfl.rr.com>
-Message-ID: <m3r779z9on.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 15 Jan 2006 12:25:35 -0500
+Received: from mx2.suse.de ([195.135.220.15]:44975 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932102AbWAORZf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 12:25:35 -0500
+From: Andi Kleen <ak@suse.de>
+To: 7eggert@gmx.de
+Subject: Re: Console debugging wishlist was: Re: oops pauser.
+Date: Sun, 15 Jan 2006 18:13:26 +0100
+User-Agent: KMail/1.8.2
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+References: <5rvok-5Sr-1@gated-at.bofh.it> <5tagc-6AZ-25@gated-at.bofh.it> <E1EyB3r-0000vP-G3@be1.lrz>
+In-Reply-To: <E1EyB3r-0000vP-G3@be1.lrz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601151813.26688.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi <psusi@cfl.rr.com> writes:
-
-> Peter Osterlund wrote:
->   > OK, so it appears you can make packets bigger than 64KB. Can I please
-> > have those patches so I can test this myself.
+On Sunday 15 January 2006 17:48, Bodo Eggert wrote:
+> Andi Kleen <ak@suse.de> wrote:
 > 
-> Sure, patches attached.
+> > (it is hard to understand that with 128MB+ graphic cards and 512+MB
+> > computers the scroll back must be still so short...)
 > 
-> patch-6 is the one you are interested in for the different sizes
+> The VGA scrollback buffer is limited by the text area of the video RAM.
+> The text area is in the DOS memory at 0xB800 (or 0xB000) and extends
+> 32 KB (or in case of MDA, 4 KB). Each character will use 2 Bytes.
+> Therefore you can store up to 16,000 characters or 4 pages of text.
 
-Thanks, it seems to work just fine. I have put the overflow and zero
-check changes in my kernel patch queue.
+It was a rhetorical question.
 
-However, I want to wait with the increased max packet size until the
-memory allocation strategy has been changed to avoid wasting lots of
-memory in the common cases. I will go work on a patch to do that now.
+-Andi
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

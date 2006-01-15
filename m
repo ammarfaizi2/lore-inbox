@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWAOUsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWAOUtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWAOUsY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 15:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWAOUsL
+	id S1750788AbWAOUtF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 15:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWAOUst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 15:48:11 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:31139 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750788AbWAOUrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 15:47:53 -0500
-Message-Id: <200601152139.k0FLdsTv027758@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: [PATCH 11/11] UML - TT mode softint fixes
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 15 Jan 2006 16:39:54 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Sun, 15 Jan 2006 15:48:49 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:57732 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750788AbWAOUs1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 15:48:27 -0500
+Date: Sun, 15 Jan 2006 21:48:23 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Stelian Pop <stelian@popies.net>
+cc: dtor_core@ameritech.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT] Sonypi: convert to the new platform device interface
+In-Reply-To: <1135724016.23182.5.camel@deep-space-9.dsnet>
+Message-ID: <Pine.LNX.4.61.0601152147530.4240@yvahk01.tjqt.qr>
+References: <200512130219.41034.dtor_core@ameritech.net> 
+ <d120d5000512131104x260fdbf2mcc58fb953559fec5@mail.gmail.com> 
+ <Pine.LNX.4.61.0512252207020.15152@yvahk01.tjqt.qr> 
+ <200512251617.09153.dtor_core@ameritech.net>  <Pine.LNX.4.61.0512271859240.3068@yvahk01.tjqt.qr>
+  <d120d5000512271418m26d3da41s18a3f97470eda912@mail.gmail.com>
+ <1135724016.23182.5.camel@deep-space-9.dsnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-Some fixes to make softints work in tt mode.
+On Dec 27 2005 23:53, Stelian Pop wrote:
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+>[sonypi3]
 
-Index: linux-2.6.15-mm/arch/um/kernel/time_kern.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/kernel/time_kern.c	2006-01-06 21:49:51.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/kernel/time_kern.c	2006-01-06 22:06:42.000000000 -0500
-@@ -187,8 +187,9 @@ void timer_handler(int sig, union uml_pt
- {
- 	local_irq_disable();
- 	irq_enter();
--	update_process_times(CHOOSE_MODE(user_context(UPT_SP(regs)),
--					 (regs)->skas.is_user));
-+	update_process_times(CHOOSE_MODE(
-+	                     (UPT_SC(regs) && user_context(UPT_SP(regs))),
-+			     (regs)->skas.is_user));
- 	irq_exit();
- 	local_irq_enable();
- 	if(current_thread->cpu == 0)
-Index: linux-2.6.15-mm/arch/um/kernel/tt/trap_user.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/kernel/tt/trap_user.c	2006-01-06 21:46:18.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/kernel/tt/trap_user.c	2006-01-06 22:06:42.000000000 -0500
-@@ -18,7 +18,7 @@ void sig_handler_common_tt(int sig, void
- {
- 	struct sigcontext *sc = sc_ptr;
- 	struct tt_regs save_regs, *r;
--	int save_errno = errno, is_user;
-+	int save_errno = errno, is_user = 0;
- 	void (*handler)(int, union uml_pt_regs *);
- 
- 	/* This is done because to allow SIGSEGV to be delivered inside a SEGV
-@@ -35,7 +35,8 @@ void sig_handler_common_tt(int sig, void
-                 GET_FAULTINFO_FROM_SC(r->faultinfo, sc);
-         }
- 	save_regs = *r;
--	is_user = user_context(SC_SP(sc));
-+	if (sc)
-+		is_user = user_context(SC_SP(sc));
- 	r->sc = sc;
- 	if(sig != SIGUSR2) 
- 		r->syscall = -1;
 
+When is this going to be merged?
+
+
+Jan Engelhardt
+-- 

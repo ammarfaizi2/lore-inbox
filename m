@@ -1,131 +1,356 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWAOUsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWAOUtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWAOUsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 15:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWAOUsA
+	id S1750827AbWAOUtr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 15:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWAOUtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 15:48:00 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:30627 "EHLO
+	Sun, 15 Jan 2006 15:49:19 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:39331 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750753AbWAOUrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 15:47:52 -0500
-Message-Id: <200601152139.k0FLdp1G027747@ccure.user-mode-linux.org>
+	id S1750753AbWAOUtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 15:49:08 -0500
+Message-Id: <200601152139.k0FLdapx027710@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 9/11] UML - Implement soft interrupts
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Gennady Sharapov <Gennady.V.Sharapov@intel.com>
+Subject: [PATCH 2/11] UML - Move libc-dependent utility procedures
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 15 Jan 2006 16:39:51 -0500
+Date: Sun, 15 Jan 2006 16:39:36 -0500
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements soft interrupts.  Interrupt enabling and
-disabling no longer map to sigprocmask.  Rather, a flag is set
-indicating whether interrupts may be handled.  If a signal comes in
-and interrupts are marked as OK, then it is handled normally.  If
-interrupts are marked as off, then the signal handler simply returns
-after noting that a signal needs handling.  When interrupts are enabled
-later on, this pending signals flag is checked, and the IRQ handlers
-are called at that point.
+From: Gennady Sharapov <Gennady.V.Sharapov@intel.com>
 
-The point of this is to reduce the cost of local_irq_save et al,
-since they are very much more common than the signals that they are
-enabling and disabling.  Soft interrupts produce a speed-up of ~25%
-on a kernel build.
+The serial UML OS-abstraction layer patch (um/kernel dir).
 
-Subtleties - 
-    UML uses sigsetjmp/siglongjmp to switch contexts.
-sigsetjmp has been wrapped in a save_flags-like macro which remembers
-the interrupt state at setjmp time, and restores it when it is
-longjmp-ed back to.
-    The enable_signals function has to loop because the IRQ handler
-disables interrupts before returning.  enable_signals has to return
-with signals enabled, and signals may come in between the disabling
-and the return to enable_signals.  So, it loops for as long as there
-are pending signals, ensuring that signals are enabled when it
-finally returns, and that there are no pending signals that need to
-be dealt with.
+This moves all systemcalls from user_util.c file under os-Linux dir
 
+Signed-off-by: Gennady Sharapov <Gennady.V.Sharapov@intel.com>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.15-mm/arch/um/include/longjmp.h
+Index: linux-2.6.15-mm/arch/um/drivers/fd.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15-mm/arch/um/include/longjmp.h	2006-01-09 11:44:53.000000000 -0500
-@@ -0,0 +1,19 @@
-+#ifndef __UML_LONGJMP_H
-+#define __UML_LONGJMP_H
-+
-+#include <setjmp.h>
+--- linux-2.6.15-mm.orig/arch/um/drivers/fd.c	2006-01-06 21:23:35.000000000 -0500
++++ linux-2.6.15-mm/arch/um/drivers/fd.c	2006-01-06 21:24:14.000000000 -0500
+@@ -11,6 +11,7 @@
+ #include "user.h"
+ #include "user_util.h"
+ #include "chan_user.h"
 +#include "os.h"
-+
-+#define UML_SIGLONGJMP(buf, val) do { \
-+	siglongjmp(*buf, val);		\
-+} while(0)
-+
-+#define UML_SIGSETJMP(buf, enable) ({ \
-+	int n; \
-+	enable = get_signals(); \
-+	n = sigsetjmp(*buf, 1); \
-+	if(n != 0) \
-+		set_signals(enable); \
-+	n; })
-+
-+#endif
-Index: linux-2.6.15-mm/arch/um/os-Linux/main.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/main.c	2006-01-09 11:26:24.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/main.c	2006-01-09 11:43:13.000000000 -0500
-@@ -81,20 +81,8 @@ extern void scan_elf_aux( char **envp);
- int main(int argc, char **argv, char **envp)
- {
- 	char **new_argv;
--	sigset_t mask;
- 	int ret, i, err;
  
--	/* Enable all signals except SIGIO - in some environments, we can
--	 * enter with some signals blocked
--	 */
--
--	sigemptyset(&mask);
--	sigaddset(&mask, SIGIO);
--	if(sigprocmask(SIG_SETMASK, &mask, NULL) < 0){
--		perror("sigprocmask");
--		exit(1);
--	}
--
- #ifdef UML_CONFIG_CMDLINE_ON_HOST
- 	/* Allocate memory for thread command lines */
- 	if(argc < 2 || strlen(argv[1]) < THREAD_NAME_LEN - 1){
-Index: linux-2.6.15-mm/arch/um/os-Linux/process.c
+ struct fd_chan {
+ 	int fd;
+Index: linux-2.6.15-mm/arch/um/include/os.h
 ===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/process.c	2006-01-09 10:27:19.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/process.c	2006-01-09 11:45:52.000000000 -0500
-@@ -18,6 +18,7 @@
- #include "process.h"
- #include "irq_user.h"
+--- linux-2.6.15-mm.orig/arch/um/include/os.h	2006-01-06 21:24:14.000000000 -0500
++++ linux-2.6.15-mm/arch/um/include/os.h	2006-01-06 21:46:20.000000000 -0500
+@@ -195,6 +195,8 @@ extern unsigned long long os_usecs(void)
+ /* tt.c
+  * for tt mode only (will be deleted in future...)
+  */
++extern void stop(void);
++extern int wait_for_stop(int pid, int sig, int cont_type, void *relay);
+ extern int protect_memory(unsigned long addr, unsigned long len,
+ 			  int r, int w, int x, int must_succeed);
+ extern void forward_pending_sigio(int target);
+@@ -235,4 +237,12 @@ extern int set_signals(int enable);
+ extern void os_fill_handlinfo(struct kern_handlers h);
+ extern void do_longjmp(void *p, int val);
+ 
++/* util.c */
++extern void stack_protections(unsigned long address);
++extern void task_protections(unsigned long address);
++extern int raw(int fd);
++extern void setup_machinename(char *machine_out);
++extern void setup_hostinfo(void);
++extern int setjmp_wrapper(void (*proc)(void *, void *), ...);
++
+ #endif
+Index: linux-2.6.15-mm/arch/um/include/user_util.h
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/include/user_util.h	2006-01-06 21:24:14.000000000 -0500
++++ linux-2.6.15-mm/arch/um/include/user_util.h	2006-01-06 21:24:14.000000000 -0500
+@@ -44,10 +44,6 @@ extern unsigned long brk_start;
+ extern int pty_output_sigio;
+ extern int pty_close_sigio;
+ 
+-extern void stop(void);
+-extern void stack_protections(unsigned long address);
+-extern void task_protections(unsigned long address);
+-extern int wait_for_stop(int pid, int sig, int cont_type, void *relay);
+ extern void *add_signal_handler(int sig, void (*handler)(int));
+ extern int linux_main(int argc, char **argv);
+ extern void set_cmdline(char *cmd);
+@@ -55,8 +51,6 @@ extern void input_cb(void (*proc)(void *
+ extern int get_pty(void);
+ extern void *um_kmalloc(int size);
+ extern int switcheroo(int fd, int prot, void *from, void *to, int size);
+-extern void setup_machinename(char *machine_out);
+-extern void setup_hostinfo(void);
+ extern void do_exec(int old_pid, int new_pid);
+ extern void tracer_panic(char *msg, ...);
+ extern int detach(int pid, int sig);
+@@ -70,18 +64,6 @@ extern int cpu_feature(char *what, char 
+ extern int arch_handle_signal(int sig, union uml_pt_regs *regs);
+ extern int arch_fixup(unsigned long address, void *sc_ptr);
+ extern void arch_init_thread(void);
+-extern int setjmp_wrapper(void (*proc)(void *, void *), ...);
+ extern int raw(int fd);
+ 
+ #endif
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
+Index: linux-2.6.15-mm/arch/um/kernel/Makefile
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/kernel/Makefile	2006-01-06 21:24:14.000000000 -0500
++++ linux-2.6.15-mm/arch/um/kernel/Makefile	2006-01-06 21:46:20.000000000 -0500
+@@ -10,8 +10,7 @@ obj-y = config.o exec_kern.o exitcode.o 
+ 	init_task.o irq.o irq_user.o ksyms.o mem.o physmem.o \
+ 	process_kern.o ptrace.o reboot.o resource.o sigio_user.o sigio_kern.o \
+ 	signal_kern.o smp.o syscall_kern.o sysrq.o time.o \
+-	time_kern.o tlb.o trap_kern.o uaccess.o um_arch.o umid.o \
+-	user_util.o
++	time_kern.o tlb.o trap_kern.o uaccess.o um_arch.o umid.o
+ 
+ obj-$(CONFIG_BLK_DEV_INITRD) += initrd.o
+ obj-$(CONFIG_GPROF)	+= gprof_syms.o
+@@ -24,7 +23,7 @@ obj-$(CONFIG_MODE_SKAS) += skas/
+ 
+ user-objs-$(CONFIG_TTY_LOG) += tty_log.o
+ 
+-USER_OBJS := $(user-objs-y) config.o time.o tty_log.o user_util.o
++USER_OBJS := $(user-objs-y) config.o time.o tty_log.o
+ 
+ include arch/um/scripts/Makefile.rules
+ 
+Index: linux-2.6.15-mm/arch/um/kernel/skas/uaccess.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/kernel/skas/uaccess.c	2006-01-06 21:23:35.000000000 -0500
++++ linux-2.6.15-mm/arch/um/kernel/skas/uaccess.c	2006-01-06 21:24:14.000000000 -0500
+@@ -13,7 +13,7 @@
+ #include "asm/pgtable.h"
+ #include "asm/uaccess.h"
  #include "kern_util.h"
-+#include "longjmp.h"
+-#include "user_util.h"
++#include "os.h"
  
- #define ARBITRARY_ADDR -1
- #define FAILURE_PID    -1
-@@ -205,24 +206,13 @@ void init_new_thread_signals(int altstac
+ extern void *um_virt_to_phys(struct task_struct *task, unsigned long addr,
+ 			     pte_t *pte_out);
+Index: linux-2.6.15-mm/arch/um/kernel/tt/gdb.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/kernel/tt/gdb.c	2006-01-06 21:23:35.000000000 -0500
++++ linux-2.6.15-mm/arch/um/kernel/tt/gdb.c	2006-01-06 21:24:14.000000000 -0500
+@@ -20,6 +20,7 @@
+ #include "user_util.h"
+ #include "tt.h"
+ #include "sysdep/thread.h"
++#include "os.h"
  
- int run_kernel_thread(int (*fn)(void *), void *arg, void **jmp_ptr)
- {
--       sigjmp_buf buf;
--       int n;
-+	sigjmp_buf buf;
-+	int n, enable;
+ extern int debugger_pid;
+ extern int debugger_fd;
+Index: linux-2.6.15-mm/arch/um/kernel/tt/ptproxy/ptrace.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/kernel/tt/ptproxy/ptrace.c	2006-01-06 21:23:35.000000000 -0500
++++ linux-2.6.15-mm/arch/um/kernel/tt/ptproxy/ptrace.c	2006-01-06 21:24:14.000000000 -0500
+@@ -20,6 +20,7 @@ Jeff Dike (jdike@karaya.com) : Modified 
+ #include "kern_util.h"
+ #include "ptrace_user.h"
+ #include "tt.h"
++#include "os.h"
  
--       *jmp_ptr = &buf;
--       n = sigsetjmp(buf, 1);
--       if(n != 0)
--               return(n);
--       (*fn)(arg);
--       return(0);
+ long proxy_ptrace(struct debugger *debugger, int arg1, pid_t arg2,
+ 		  long arg3, long arg4, pid_t child, int *ret)
+Index: linux-2.6.15-mm/arch/um/kernel/tt/ptproxy/sysdep.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/kernel/tt/ptproxy/sysdep.c	2006-01-06 21:23:35.000000000 -0500
++++ linux-2.6.15-mm/arch/um/kernel/tt/ptproxy/sysdep.c	2006-01-06 21:24:14.000000000 -0500
+@@ -15,6 +15,7 @@ terms and conditions.
+ #include "ptrace_user.h"
+ #include "user_util.h"
+ #include "user.h"
++#include "os.h"
+ 
+ int get_syscall(pid_t pid, long *arg1, long *arg2, long *arg3, long *arg4, 
+ 		long *arg5)
+Index: linux-2.6.15-mm/arch/um/kernel/user_util.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/kernel/user_util.c	2006-01-06 21:23:35.000000000 -0500
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,174 +0,0 @@
+-/* 
+- * Copyright (C) 2000, 2001, 2002 Jeff Dike (jdike@karaya.com)
+- * Licensed under the GPL
+- */
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include <limits.h>
+-#include <setjmp.h>
+-#include <sys/mman.h>
+-#include <sys/stat.h>
+-#include <sys/utsname.h>
+-#include <sys/param.h>
+-#include <sys/time.h>
+-#include "asm/types.h"
+-#include <ctype.h>
+-#include <signal.h>
+-#include <wait.h>
+-#include <errno.h>
+-#include <stdarg.h>
+-#include <sched.h>
+-#include <termios.h>
+-#include <string.h>
+-#include "user_util.h"
+-#include "kern_util.h"
+-#include "user.h"
+-#include "mem_user.h"
+-#include "init.h"
+-#include "ptrace_user.h"
+-#include "uml-config.h"
+-
+-void stop(void)
+-{
+-	while(1) sleep(1000000);
+-}
+-
+-void stack_protections(unsigned long address)
+-{
+-	int prot = PROT_READ | PROT_WRITE | PROT_EXEC;
+-
+-        if(mprotect((void *) address, page_size(), prot) < 0)
+-		panic("protecting stack failed, errno = %d", errno);
+-}
+-
+-void task_protections(unsigned long address)
+-{
+-	unsigned long guard = address + page_size();
+-	unsigned long stack = guard + page_size();
+-	int prot = 0, pages;
+-
+-#ifdef notdef
+-	if(mprotect((void *) stack, page_size(), prot) < 0)
+-		panic("protecting guard page failed, errno = %d", errno);
+-#endif
+-	pages = (1 << UML_CONFIG_KERNEL_STACK_ORDER) - 2;
+-	prot = PROT_READ | PROT_WRITE | PROT_EXEC;
+-	if(mprotect((void *) stack, pages * page_size(), prot) < 0)
+-		panic("protecting stack failed, errno = %d", errno);
+-}
+-
+-int wait_for_stop(int pid, int sig, int cont_type, void *relay)
+-{
+-	sigset_t *relay_signals = relay;
+-	int status, ret;
+-
+-	while(1){
+-		CATCH_EINTR(ret = waitpid(pid, &status, WUNTRACED));
+-		if((ret < 0) ||
+-		   !WIFSTOPPED(status) || (WSTOPSIG(status) != sig)){
+-			if(ret < 0){
+-				printk("wait failed, errno = %d\n",
+-				       errno);
+-			}
+-			else if(WIFEXITED(status)) 
+-				printk("process %d exited with status %d\n",
+-				       pid, WEXITSTATUS(status));
+-			else if(WIFSIGNALED(status))
+-				printk("process %d exited with signal %d\n",
+-				       pid, WTERMSIG(status));
+-			else if((WSTOPSIG(status) == SIGVTALRM) ||
+-				(WSTOPSIG(status) == SIGALRM) ||
+-				(WSTOPSIG(status) == SIGIO) ||
+-				(WSTOPSIG(status) == SIGPROF) ||
+-				(WSTOPSIG(status) == SIGCHLD) ||
+-				(WSTOPSIG(status) == SIGWINCH) ||
+-				(WSTOPSIG(status) == SIGINT)){
+-				ptrace(cont_type, pid, 0, WSTOPSIG(status));
+-				continue;
+-			}
+-			else if((relay_signals != NULL) &&
+-				sigismember(relay_signals, WSTOPSIG(status))){
+-				ptrace(cont_type, pid, 0, WSTOPSIG(status));
+-				continue;
+-			}
+-			else printk("process %d stopped with signal %d\n",
+-				    pid, WSTOPSIG(status));
+-			panic("wait_for_stop failed to wait for %d to stop "
+-			      "with %d\n", pid, sig);
+-		}
+-		return(status);
+-	}
+-}
+-
+-int raw(int fd)
+-{
+-	struct termios tt;
+-	int err;
+-
+-	CATCH_EINTR(err = tcgetattr(fd, &tt));
+-	if(err < 0)
+-		return -errno;
+-
+-	cfmakeraw(&tt);
+-
+- 	CATCH_EINTR(err = tcsetattr(fd, TCSADRAIN, &tt));
+-	if(err < 0)
+-		return -errno;
+-
+-	/* XXX tcsetattr could have applied only some changes
+-	 * (and cfmakeraw() is a set of changes) */
+-	return(0);
+-}
+-
+-void setup_machinename(char *machine_out)
+-{
+-	struct utsname host;
+-
+-	uname(&host);
+-#if defined(UML_CONFIG_UML_X86) && !defined(UML_CONFIG_64BIT)
+-	if (!strcmp(host.machine, "x86_64")) {
+-		strcpy(machine_out, "i686");
+-		return;
+-	}
+-#endif
+-	strcpy(machine_out, host.machine);
+-}
+-
+-char host_info[(_UTSNAME_LENGTH + 1) * 4 + _UTSNAME_NODENAME_LENGTH + 1];
+-
+-void setup_hostinfo(void)
+-{
+-	struct utsname host;
+-
+-	uname(&host);
+-	sprintf(host_info, "%s %s %s %s %s", host.sysname, host.nodename,
+-		host.release, host.version, host.machine);
+-}
+-
+-int setjmp_wrapper(void (*proc)(void *, void *), ...)
+-{
+-        va_list args;
+-	sigjmp_buf buf;
+-	int n;
+-
+-	n = sigsetjmp(buf, 1);
+-	if(n == 0){
+-		va_start(args, proc);
+-		(*proc)(&buf, &args);
+-	}
+-	va_end(args);
+-	return(n);
 -}
 -
 -/*
@@ -138,472 +363,203 @@ Index: linux-2.6.15-mm/arch/um/os-Linux/process.c
 - * c-file-style: "linux"
 - * End:
 - */
-+	*jmp_ptr = &buf;
-+	n = UML_SIGSETJMP(&buf, enable);
-+	if(n != 0)
-+		return(n);
-+	(*fn)(arg);
-+	return(0);
-+}
-Index: linux-2.6.15-mm/arch/um/os-Linux/signal.c
+Index: linux-2.6.15-mm/arch/um/os-Linux/Makefile
 ===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/signal.c	2006-01-09 11:35:10.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/signal.c	2006-01-09 11:47:54.000000000 -0500
-@@ -20,23 +20,58 @@
- #include "mode.h"
- #include "os.h"
+--- linux-2.6.15-mm.orig/arch/um/os-Linux/Makefile	2006-01-06 21:24:14.000000000 -0500
++++ linux-2.6.15-mm/arch/um/os-Linux/Makefile	2006-01-06 21:24:14.000000000 -0500
+@@ -5,12 +5,12 @@
  
-+/* These are the asynchronous signals.  SIGVTALRM and SIGARLM are handled
-+ * together under SIGVTALRM_BIT.  SIGPROF is excluded because we want to
-+ * be able to profile all of UML, not just the non-critical sections.  If
-+ * profiling is not thread-safe, then that is not my problem.  We can disable
-+ * profiling when SMP is enabled in that case.
-+ */
-+#define SIGIO_BIT 0
-+#define SIGIO_MASK (1 << SIGIO_BIT)
-+
-+#define SIGVTALRM_BIT 1
-+#define SIGVTALRM_MASK (1 << SIGVTALRM_BIT)
-+
-+#define SIGALRM_BIT 2
-+#define SIGALRM_MASK (1 << SIGALRM_BIT)
-+
-+static int signals_enabled = 1;
-+static int pending = 0;
-+
- void sig_handler(ARCH_SIGHDLR_PARAM)
- {
- 	struct sigcontext *sc;
-+	int enabled;
-+
-+	/* Must be the first thing that this handler does - x86_64 stores
-+	 * the sigcontext in %rdx, and we need to save it before it has a
-+	 * chance to get trashed.
-+	 */
+ obj-y = aio.o elf_aux.o file.o helper.o main.o mem.o process.o signal.o \
+ 	start_up.o time.o trap.o tt.o tty.o uaccess.o umid.o user_syms.o \
+-	drivers/ sys-$(SUBARCH)/
++	util.o drivers/ sys-$(SUBARCH)/
  
- 	ARCH_GET_SIGCONTEXT(sc, sig);
-+
-+	enabled = signals_enabled;
-+	if(!enabled && (sig == SIGIO)){
-+		pending |= SIGIO_MASK;
-+		return;
-+	}
-+
-+	block_signals();
-+
- 	CHOOSE_MODE_PROC(sig_handler_common_tt, sig_handler_common_skas,
- 			 sig, sc);
-+
-+	set_signals(enabled);
+ obj-$(CONFIG_MODE_SKAS) += skas/
+ 
+ USER_OBJS := aio.o elf_aux.o file.o helper.o main.o mem.o process.o signal.o \
+-	start_up.o time.o trap.o tt.o tty.o uaccess.o umid.o
++	start_up.o time.o trap.o tt.o tty.o uaccess.o umid.o util.o
+ 
+ elf_aux.o: $(ARCH_DIR)/kernel-offsets.h
+ CFLAGS_elf_aux.o += -I$(objtree)/arch/um
+Index: linux-2.6.15-mm/arch/um/os-Linux/tt.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/os-Linux/tt.c	2006-01-06 21:24:14.000000000 -0500
++++ linux-2.6.15-mm/arch/um/os-Linux/tt.c	2006-01-06 21:46:20.000000000 -0500
+@@ -63,6 +63,54 @@ void kill_child_dead(int pid)
+ 	} while(1);
  }
  
- extern int timer_irq_inited;
- 
--void alarm_handler(ARCH_SIGHDLR_PARAM)
-+static void real_alarm_handler(int sig, struct sigcontext *sc)
- {
--	struct sigcontext *sc;
--
--	ARCH_GET_SIGCONTEXT(sc, sig);
--	if(!timer_irq_inited) return;
-+	if(!timer_irq_inited){
-+		signals_enabled = 1;
-+		return;
-+	}
- 
- 	if(sig == SIGALRM)
- 		switch_timers(0);
-@@ -46,6 +81,29 @@ void alarm_handler(ARCH_SIGHDLR_PARAM)
- 
- 	if(sig == SIGALRM)
- 		switch_timers(1);
-+
-+}
-+
-+void alarm_handler(ARCH_SIGHDLR_PARAM)
++void stop(void)
 +{
-+	struct sigcontext *sc;
-+	int enabled;
++	while(1) sleep(1000000);
++}
 +
-+	ARCH_GET_SIGCONTEXT(sc, sig);
++int wait_for_stop(int pid, int sig, int cont_type, void *relay)
++{
++	sigset_t *relay_signals = relay;
++	int status, ret;
 +
-+	enabled = signals_enabled;
-+	if(!signals_enabled){
-+		if(sig == SIGVTALRM)
-+			pending |= SIGVTALRM_MASK;
-+		else pending |= SIGALRM_MASK;
-+
-+		return;
-+	}
-+
-+	block_signals();
-+
-+	real_alarm_handler(sig, sc);
-+	set_signals(enabled);
- }
- 
- extern void do_boot_timer_handler(struct sigcontext * sc);
-@@ -53,10 +111,22 @@ extern void do_boot_timer_handler(struct
- void boot_timer_handler(ARCH_SIGHDLR_PARAM)
- {
- 	struct sigcontext *sc;
-+	int enabled;
- 
- 	ARCH_GET_SIGCONTEXT(sc, sig);
- 
-+	enabled = signals_enabled;
-+	if(!enabled){
-+		if(sig == SIGVTALRM)
-+			pending |= SIGVTALRM_MASK;
-+		else pending |= SIGALRM_MASK;
-+		return;
-+	}
-+
-+	block_signals();
-+
- 	do_boot_timer_handler(sc);
-+	set_signals(enabled);
- }
- 
- void set_sigstack(void *sig_stack, int size)
-@@ -83,6 +153,7 @@ void set_handler(int sig, void (*handler
- {
- 	struct sigaction action;
- 	va_list ap;
-+	sigset_t sig_mask;
- 	int mask;
- 
- 	va_start(ap, flags);
-@@ -95,7 +166,12 @@ void set_handler(int sig, void (*handler
- 	action.sa_flags = flags;
- 	action.sa_restorer = NULL;
- 	if(sigaction(sig, &action, NULL) < 0)
--		panic("sigaction failed");
-+		panic("sigaction failed - errno = %d\n", errno);
-+
-+	sigemptyset(&sig_mask);
-+	sigaddset(&sig_mask, sig);
-+	if(sigprocmask(SIG_UNBLOCK, &sig_mask, NULL) < 0)
-+		panic("sigprocmask failed - errno = %d\n", errno);
- }
- 
- int change_sig(int signal, int on)
-@@ -108,91 +184,74 @@ int change_sig(int signal, int on)
- 	return(!sigismember(&old, signal));
- }
- 
--/* Both here and in set/get_signal we don't touch SIGPROF, because we must not
-- * disable profiling; it's safe because the profiling code does not interact
-- * with the kernel code at all.*/
--
--static void change_signals(int type)
--{
--	sigset_t mask;
--
--	sigemptyset(&mask);
--	sigaddset(&mask, SIGVTALRM);
--	sigaddset(&mask, SIGALRM);
--	sigaddset(&mask, SIGIO);
--	if(sigprocmask(type, &mask, NULL) < 0)
--		panic("Failed to change signal mask - errno = %d", errno);
--}
--
- void block_signals(void)
- {
--	change_signals(SIG_BLOCK);
-+	signals_enabled = 0;
- }
- 
- void unblock_signals(void)
- {
--	change_signals(SIG_UNBLOCK);
--}
-+	int save_pending;
- 
--/* These are the asynchronous signals.  SIGVTALRM and SIGARLM are handled
-- * together under SIGVTALRM_BIT.  SIGPROF is excluded because we want to
-- * be able to profile all of UML, not just the non-critical sections.  If
-- * profiling is not thread-safe, then that is not my problem.  We can disable
-- * profiling when SMP is enabled in that case.
-- */
--#define SIGIO_BIT 0
--#define SIGVTALRM_BIT 1
-+	if(signals_enabled == 1)
-+		return;
- 
--static int enable_mask(sigset_t *mask)
--{
--	int sigs;
-+	/* We loop because the IRQ handler returns with interrupts off.  So,
-+	 * interrupts may have arrived and we need to re-enable them and
-+	 * recheck pending.
-+	 */
 +	while(1){
-+		/* Save and reset save_pending after enabling signals.  This
-+		 * way, pending won't be changed while we're reading it.
-+		 */
-+		signals_enabled = 1;
-+
-+		save_pending = pending;
-+		if(save_pending == 0)
-+			return;
-+
-+		pending = 0;
-+
-+		/* We have pending interrupts, so disable signals, as the
-+		 * handlers expect them off when they are called.  They will
-+		 * be enabled again above.
-+		 */
-+
-+		signals_enabled = 0;
-+
-+		/* Deal with SIGIO first because the alarm handler might
-+		 * schedule, leaving the pending SIGIO stranded until we come
-+		 * back here.
-+		 */
-+		if(save_pending & SIGIO_MASK)
-+			CHOOSE_MODE_PROC(sig_handler_common_tt,
-+					 sig_handler_common_skas, SIGIO, NULL);
- 
--	sigs = sigismember(mask, SIGIO) ? 0 : 1 << SIGIO_BIT;
--	sigs |= sigismember(mask, SIGVTALRM) ? 0 : 1 << SIGVTALRM_BIT;
--	sigs |= sigismember(mask, SIGALRM) ? 0 : 1 << SIGVTALRM_BIT;
--	return(sigs);
-+		if(save_pending & SIGALRM_MASK)
-+			real_alarm_handler(SIGALRM, NULL);
-+
-+		if(save_pending & SIGVTALRM_MASK)
-+			real_alarm_handler(SIGVTALRM, NULL);
++		CATCH_EINTR(ret = waitpid(pid, &status, WUNTRACED));
++		if((ret < 0) ||
++		   !WIFSTOPPED(status) || (WSTOPSIG(status) != sig)){
++			if(ret < 0){
++				printk("wait failed, errno = %d\n",
++				       errno);
++			}
++			else if(WIFEXITED(status))
++				printk("process %d exited with status %d\n",
++				       pid, WEXITSTATUS(status));
++			else if(WIFSIGNALED(status))
++				printk("process %d exited with signal %d\n",
++				       pid, WTERMSIG(status));
++			else if((WSTOPSIG(status) == SIGVTALRM) ||
++				(WSTOPSIG(status) == SIGALRM) ||
++				(WSTOPSIG(status) == SIGIO) ||
++				(WSTOPSIG(status) == SIGPROF) ||
++				(WSTOPSIG(status) == SIGCHLD) ||
++				(WSTOPSIG(status) == SIGWINCH) ||
++				(WSTOPSIG(status) == SIGINT)){
++				ptrace(cont_type, pid, 0, WSTOPSIG(status));
++				continue;
++			}
++			else if((relay_signals != NULL) &&
++				sigismember(relay_signals, WSTOPSIG(status))){
++				ptrace(cont_type, pid, 0, WSTOPSIG(status));
++				continue;
++			}
++			else printk("process %d stopped with signal %d\n",
++				    pid, WSTOPSIG(status));
++			panic("wait_for_stop failed to wait for %d to stop "
++			      "with %d\n", pid, sig);
++		}
++		return(status);
 +	}
- }
- 
- int get_signals(void)
- {
--	sigset_t mask;
--
--	if(sigprocmask(SIG_SETMASK, NULL, &mask) < 0)
--		panic("Failed to get signal mask");
--	return(enable_mask(&mask));
-+	return signals_enabled;
- }
- 
- int set_signals(int enable)
- {
--	sigset_t mask;
- 	int ret;
-+	if(signals_enabled == enable)
-+		return enable;
- 
--	sigemptyset(&mask);
--	if(enable & (1 << SIGIO_BIT))
--		sigaddset(&mask, SIGIO);
--	if(enable & (1 << SIGVTALRM_BIT)){
--		sigaddset(&mask, SIGVTALRM);
--		sigaddset(&mask, SIGALRM);
--	}
--
--	/* This is safe - sigprocmask is guaranteed to copy locally the
--	 * value of new_set, do his work and then, at the end, write to
--	 * old_set.
--	 */
--	if(sigprocmask(SIG_UNBLOCK, &mask, &mask) < 0)
--		panic("Failed to enable signals");
--	ret = enable_mask(&mask);
--	sigemptyset(&mask);
--	if((enable & (1 << SIGIO_BIT)) == 0)
--		sigaddset(&mask, SIGIO);
--	if((enable & (1 << SIGVTALRM_BIT)) == 0){
--		sigaddset(&mask, SIGVTALRM);
--		sigaddset(&mask, SIGALRM);
--	}
--	if(sigprocmask(SIG_BLOCK, &mask, NULL) < 0)
--		panic("Failed to block signals");
-+	ret = signals_enabled;
-+	if(enable)
-+		unblock_signals();
-+	else block_signals();
- 
--	return(ret);
-+	return ret;
- }
- 
- void os_usr1_signal(int on)
-Index: linux-2.6.15-mm/arch/um/os-Linux/skas/process.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/skas/process.c	2006-01-09 11:40:33.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/skas/process.c	2006-01-09 11:47:54.000000000 -0500
-@@ -34,6 +34,7 @@
- #include "mem.h"
- #include "uml-config.h"
- #include "process.h"
-+#include "longjmp.h"
- 
- int is_skas_winch(int pid, int fd, void *data)
- {
-@@ -433,6 +434,7 @@ void new_thread(void *stack, void **swit
- {
- 	unsigned long flags;
- 	sigjmp_buf switch_buf, fork_buf;
-+	int enable;
- 
- 	*switch_buf_ptr = &switch_buf;
- 	*fork_buf_ptr = &fork_buf;
-@@ -447,7 +449,7 @@ void new_thread(void *stack, void **swit
- 	 */
- 	flags = get_signals();
- 	block_signals();
--	if(sigsetjmp(fork_buf, 1) == 0)
-+	if(UML_SIGSETJMP(&fork_buf, enable) == 0)
- 		new_thread_proc(stack, handler);
- 
- 	remove_sigstack();
-@@ -458,20 +460,22 @@ void new_thread(void *stack, void **swit
- void thread_wait(void *sw, void *fb)
- {
- 	sigjmp_buf buf, **switch_buf = sw, *fork_buf;
-+	int enable;
- 
- 	*switch_buf = &buf;
- 	fork_buf = fb;
--	if(sigsetjmp(buf, 1) == 0)
-+	if(UML_SIGSETJMP(&buf, enable) == 0)
- 		siglongjmp(*fork_buf, INIT_JMP_REMOVE_SIGSTACK);
- }
- 
- void switch_threads(void *me, void *next)
- {
- 	sigjmp_buf my_buf, **me_ptr = me, *next_buf = next;
-+	int enable;
- 
- 	*me_ptr = &my_buf;
--	if(sigsetjmp(my_buf, 1) == 0)
--		siglongjmp(*next_buf, 1);
-+	if(UML_SIGSETJMP(&my_buf, enable) == 0)
-+		UML_SIGLONGJMP(next_buf, 1);
- }
- 
- static sigjmp_buf initial_jmpbuf;
-@@ -484,14 +488,14 @@ static sigjmp_buf *cb_back;
- int start_idle_thread(void *stack, void *switch_buf_ptr, void **fork_buf_ptr)
- {
- 	sigjmp_buf **switch_buf = switch_buf_ptr;
--	int n;
-+	int n, enable;
- 
- 	set_handler(SIGWINCH, (__sighandler_t) sig_handler,
- 		    SA_ONSTACK | SA_RESTART, SIGUSR1, SIGIO, SIGALRM,
- 		    SIGVTALRM, -1);
- 
- 	*fork_buf_ptr = &initial_jmpbuf;
--	n = sigsetjmp(initial_jmpbuf, 1);
-+	n = UML_SIGSETJMP(&initial_jmpbuf, enable);
- 	switch(n){
- 	case INIT_JMP_NEW_THREAD:
- 		new_thread_proc((void *) stack, new_thread_handler);
-@@ -501,7 +505,7 @@ int start_idle_thread(void *stack, void 
- 		break;
- 	case INIT_JMP_CALLBACK:
- 		(*cb_proc)(cb_arg);
--		siglongjmp(*cb_back, 1);
-+		UML_SIGLONGJMP(cb_back, 1);
- 		break;
- 	case INIT_JMP_HALT:
- 		kmalloc_ok = 0;
-@@ -512,20 +516,21 @@ int start_idle_thread(void *stack, void 
- 	default:
- 		panic("Bad sigsetjmp return in start_idle_thread - %d\n", n);
- 	}
--	siglongjmp(**switch_buf, 1);
-+	UML_SIGLONGJMP(*switch_buf, 1);
- }
- 
- void initial_thread_cb_skas(void (*proc)(void *), void *arg)
- {
- 	sigjmp_buf here;
-+	int enable;
- 
- 	cb_proc = proc;
- 	cb_arg = arg;
- 	cb_back = &here;
- 
- 	block_signals();
--	if(sigsetjmp(here, 1) == 0)
--		siglongjmp(initial_jmpbuf, INIT_JMP_CALLBACK);
-+	if(UML_SIGSETJMP(&here, enable) == 0)
-+		UML_SIGLONGJMP(&initial_jmpbuf, INIT_JMP_CALLBACK);
- 	unblock_signals();
- 
- 	cb_proc = NULL;
-@@ -536,13 +541,13 @@ void initial_thread_cb_skas(void (*proc)
- void halt_skas(void)
- {
- 	block_signals();
--	siglongjmp(initial_jmpbuf, INIT_JMP_HALT);
-+	UML_SIGLONGJMP(&initial_jmpbuf, INIT_JMP_HALT);
- }
- 
- void reboot_skas(void)
- {
- 	block_signals();
--	siglongjmp(initial_jmpbuf, INIT_JMP_REBOOT);
-+	UML_SIGLONGJMP(&initial_jmpbuf, INIT_JMP_REBOOT);
- }
- 
- void switch_mm_skas(struct mm_id *mm_idp)
-Index: linux-2.6.15-mm/arch/um/os-Linux/trap.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/trap.c	2006-01-09 10:27:19.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/trap.c	2006-01-09 11:43:13.000000000 -0500
-@@ -10,6 +10,7 @@
- #include "user_util.h"
- #include "os.h"
- #include "mode.h"
-+#include "longjmp.h"
- 
- void usr2_handler(int sig, union uml_pt_regs *regs)
- {
-@@ -36,5 +37,5 @@ void do_longjmp(void *b, int val)
- {
- 	sigjmp_buf *buf = b;
- 
--	siglongjmp(*buf, val);
-+	UML_SIGLONGJMP(buf, val);
- }
-Index: linux-2.6.15-mm/arch/um/os-Linux/uaccess.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/uaccess.c	2006-01-09 10:27:19.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/uaccess.c	2006-01-09 11:47:54.000000000 -0500
-@@ -6,6 +6,7 @@
- 
- #include <setjmp.h>
- #include <string.h>
-+#include "longjmp.h"
- 
- unsigned long __do_user_copy(void *to, const void *from, int n,
- 			     void **fault_addr, void **fault_catcher,
-@@ -13,10 +14,11 @@ unsigned long __do_user_copy(void *to, c
- 					int n), int *faulted_out)
- {
- 	unsigned long *faddrp = (unsigned long *) fault_addr, ret;
-+	int enable;
- 
- 	sigjmp_buf jbuf;
- 	*fault_catcher = &jbuf;
--	if(sigsetjmp(jbuf, 1) == 0){
-+	if(UML_SIGSETJMP(&jbuf, enable) == 0){
- 		(*op)(to, from, n);
- 		ret = 0;
- 		*faulted_out = 0;
++}
++
+ /*
+  *-------------------------
+  * only for tt mode (will be deleted in future...)
 Index: linux-2.6.15-mm/arch/um/os-Linux/util.c
 ===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/util.c	2006-01-09 11:26:24.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/util.c	2006-01-09 11:43:13.000000000 -0500
-@@ -30,6 +30,7 @@
- #include "ptrace_user.h"
- #include "uml-config.h"
- #include "os.h"
-+#include "longjmp.h"
- 
- void stack_protections(unsigned long address)
- {
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.15-mm/arch/um/os-Linux/util.c	2006-01-06 21:46:42.000000000 -0500
+@@ -0,0 +1,116 @@
++/*
++ * Copyright (C) 2000, 2001, 2002 Jeff Dike (jdike@karaya.com)
++ * Licensed under the GPL
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <limits.h>
++#include <setjmp.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
++#include <sys/utsname.h>
++#include <sys/param.h>
++#include <sys/time.h>
++#include "asm/types.h"
++#include <ctype.h>
++#include <signal.h>
++#include <wait.h>
++#include <errno.h>
++#include <stdarg.h>
++#include <sched.h>
++#include <termios.h>
++#include <string.h>
++#include "user_util.h"
++#include "kern_util.h"
++#include "user.h"
++#include "mem_user.h"
++#include "init.h"
++#include "ptrace_user.h"
++#include "uml-config.h"
++#include "os.h"
++
++void stack_protections(unsigned long address)
++{
++	int prot = PROT_READ | PROT_WRITE | PROT_EXEC;
++
++	if(mprotect((void *) address, page_size(), prot) < 0)
++		panic("protecting stack failed, errno = %d", errno);
++}
++
++void task_protections(unsigned long address)
++{
++	unsigned long guard = address + page_size();
++	unsigned long stack = guard + page_size();
++	int prot = 0, pages;
++
++#ifdef notdef
++	if(mprotect((void *) stack, page_size(), prot) < 0)
++		panic("protecting guard page failed, errno = %d", errno);
++#endif
++	pages = (1 << UML_CONFIG_KERNEL_STACK_ORDER) - 2;
++	prot = PROT_READ | PROT_WRITE | PROT_EXEC;
++	if(mprotect((void *) stack, pages * page_size(), prot) < 0)
++		panic("protecting stack failed, errno = %d", errno);
++}
++
++int raw(int fd)
++{
++	struct termios tt;
++	int err;
++
++	CATCH_EINTR(err = tcgetattr(fd, &tt));
++	if(err < 0)
++		return -errno;
++
++	cfmakeraw(&tt);
++
++	CATCH_EINTR(err = tcsetattr(fd, TCSADRAIN, &tt));
++	if(err < 0)
++		return -errno;
++
++	/* XXX tcsetattr could have applied only some changes
++	 * (and cfmakeraw() is a set of changes) */
++	return(0);
++}
++
++void setup_machinename(char *machine_out)
++{
++	struct utsname host;
++
++	uname(&host);
++#if defined(UML_CONFIG_UML_X86) && !defined(UML_CONFIG_64BIT)
++	if (!strcmp(host.machine, "x86_64")) {
++		strcpy(machine_out, "i686");
++		return;
++	}
++#endif
++	strcpy(machine_out, host.machine);
++}
++
++char host_info[(_UTSNAME_LENGTH + 1) * 4 + _UTSNAME_NODENAME_LENGTH + 1];
++
++void setup_hostinfo(void)
++{
++	struct utsname host;
++
++	uname(&host);
++	sprintf(host_info, "%s %s %s %s %s", host.sysname, host.nodename,
++		host.release, host.version, host.machine);
++}
++
++int setjmp_wrapper(void (*proc)(void *, void *), ...)
++{
++	va_list args;
++	sigjmp_buf buf;
++	int n;
++
++	n = sigsetjmp(buf, 1);
++	if(n == 0){
++		va_start(args, proc);
++		(*proc)(&buf, &args);
++	}
++	va_end(args);
++	return(n);
++}
 

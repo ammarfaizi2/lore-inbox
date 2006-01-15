@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWAOSH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWAOSJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWAOSH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 13:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWAOSH5
+	id S932112AbWAOSJt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 13:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWAOSJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 13:07:57 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:42218 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932139AbWAOSH4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 13:07:56 -0500
-Subject: Re: jsm serial driver broken with flip buffer changes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Scott H Kilau <Scott_Kilau@digi.com>,
-       Wendy Xiong <wendyx@us.ltcfwd.linux.ibm.com>
-In-Reply-To: <Pine.SOC.4.61.0601142359120.15808@math.ut.ee>
-References: <Pine.SOC.4.61.0601142359120.15808@math.ut.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 15 Jan 2006 18:11:54 +0000
-Message-Id: <1137348715.2350.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 15 Jan 2006 13:09:49 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:13954 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932112AbWAOSJs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 13:09:48 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Sun, 15 Jan 2006 19:09:45 +0100
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: [SOLVED] Re: Synclient (synaptics driver) broken since 2.6.15-rc1 (shm related)
+Cc: linux-kernel@vger.kernel.org
+References: <20060115170502.6012822AEF3@anxur.fi.muni.cz>
+In-reply-to: <200601151251.45488.dtor_core@ameritech.net>
+Message-Id: <20060115180944.2F75722AEF3@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2006-01-15 at 00:02 +0200, Meelis Roos wrote:
-> In current 1.6.15+git jsm serial driver is broken:
-> 
->    CC [M]  drivers/serial/jsm/jsm_tty.o
+Dmitry Torokhov wrote:
+>Did Synaptics driver initialized successfully? IOW do you have
+>/dev/input/eventX nodes? IOW have you upgraded udev?
+Shame on me, I thought that I've updated, but actually I haven't, I had udev-58.
 
-We know, thats why its marked broken. They've had considerable time to
-fix it while the tty changes were in -mm.
-
-Alan
-
+thanks,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+B67499670407CE62ACC8 22A032CC55C339D47A7E

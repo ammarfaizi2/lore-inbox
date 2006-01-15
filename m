@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751894AbWAOKmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751897AbWAOK52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751894AbWAOKmk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 05:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWAOKmk
+	id S1751897AbWAOK52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 05:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751898AbWAOK52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 05:42:40 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:2268 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S1751894AbWAOKmj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 05:42:39 -0500
-From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
-Organization: ExactCODE
-To: Grant Coady <gcoady@gmail.com>
-Subject: Re: kbuild / KERNELRELEASE not rebuild correctly anymore
-Date: Sun, 15 Jan 2006 11:42:16 +0100
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>, akpm@osdl.org
-References: <200601151051.14827.rene@exactcode.de> <eb0e02f40601150213g4589820csfc508f4ba2271cb4@mail.gmail.com>
-In-Reply-To: <eb0e02f40601150213g4589820csfc508f4ba2271cb4@mail.gmail.com>
+	Sun, 15 Jan 2006 05:57:28 -0500
+Received: from gold.veritas.com ([143.127.12.110]:48162 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751897AbWAOK51 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 05:57:27 -0500
+Date: Sun, 15 Jan 2006 10:58:02 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Christoph Lameter <clameter@engr.sgi.com>
+cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+In-Reply-To: <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
+References: <20060114155517.GA30543@wotan.suse.de>
+ <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+ <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601151142.16256.rene@exactcode.de>
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Sunday 15 January 2006 11:13, Grant Coady wrote:
-	> On 1/15/06,  =?ISO-8859-1?Q?=20Ren=E9?= Rebe <rene@exactcode.de> wrote: > > with at least
-	2.6.15-mm{2,3,4} untaring the kernel and running make > > menuconfig (or
-	most other favourite config tools) do not display a > > version anymore
-	since .kernelrelease it not build as dependecy. > >
-	grant@sempro:~/linux/linux-2.6.15-mm4a$ cat .kernelrelease > 2.6.15-mm4a
-	> > Works for me ;) [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 15 Jan 2006 10:57:27.0636 (UTC) FILETIME=[79515140:01C619C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 14 Jan 2006, Christoph Lameter wrote:
+> 
+> Also remove the WARN_ON since its now even possible that other actions of 
+> the VM move the pages into the LRU lists while we scan for pages to
+> migrate.
 
-On Sunday 15 January 2006 11:13, Grant Coady wrote:
-> On 1/15/06, René Rebe <rene@exactcode.de> wrote:
-> > with at least 2.6.15-mm{2,3,4} untaring the kernel and running make
-> > menuconfig (or most other favourite config tools) do not display a
-> > version anymore since .kernelrelease it not build as dependecy.
->
-> grant@sempro:~/linux/linux-2.6.15-mm4a$ cat .kernelrelease
-> 2.6.15-mm4a
->
-> Works for me ;)
+Good.  And whether it's your or Nick's patch that goes in, please also
+remove that PageReserved test which you recently put in check_pte_range.
 
-After a build? Yes. But before? E.g. at make menuconfig time or thereafter?
-
-Yours,
-
--- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-            http://www.exactcode.de | http://www.t2-project.org
-            +49 (0)30  255 897 45
+Hugh

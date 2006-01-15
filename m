@@ -1,59 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWAOAFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWAOAFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWAOAFt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 19:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWAOAFs
+	id S1751065AbWAOAFk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 19:05:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWAOAFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 19:05:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:31899 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750738AbWAOAFs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 19:05:48 -0500
-Date: Sat, 14 Jan 2006 16:05:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-mm4: sem2mutex problem in USB OHCI
-Message-Id: <20060114160526.228da734.akpm@osdl.org>
-In-Reply-To: <200601150058.58518.rjw@sisk.pl>
-References: <200601150058.58518.rjw@sisk.pl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Jan 2006 19:05:40 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:47052 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750738AbWAOAFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 19:05:39 -0500
+Message-ID: <43C991D0.3040808@bigpond.net.au>
+Date: Sun, 15 Jan 2006 11:05:36 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andy Whitcroft <apw@shadowen.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C4A3E9.1040301@google.com> <43C4F8EE.50208@bigpond.net.au> <200601120129.16315.kernel@kolivas.org> <43C58117.9080706@bigpond.net.au> <43C5A8C6.1040305@bigpond.net.au> <43C6A24E.9080901@google.com> <43C6B60E.2000003@bigpond.net.au> <43C6D636.8000105@bigpond.net.au> <43C75178.80809@bigpond.net.au> <43C9477B.8060709@google.com>
+In-Reply-To: <43C9477B.8060709@google.com>
+Content-Type: multipart/mixed;
+ boundary="------------000105030803020607020600"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 15 Jan 2006 00:05:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> I get this on the system startup (Asus L5D, x86-64, 1 CPU):
-> 
->  ACPI: PCI Interrupt Link [LUS1] enabled at IRQ 11
->  ACPI: PCI Interrupt 0000:00:02.1[B] -> Link [LUS1] -> GSI 11 (level, low) -> IRQ 11
->  ohci_hcd 0000:00:02.1: OHCI Host Controller
->  ohci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 2
->  ohci_hcd 0000:00:02.1: irq 11, io mem 0xfebfc000
->  usb usb2: Product: OHCI Host Controller
->  usb usb2: Manufacturer: Linux 2.6.15-mm4 ohci_hcd
->  Badness in __mutex_trylock_slowpath at kernel/mutex.c:281
-> 
->  Call Trace: <IRQ> <ffffffff80148d8d>{mutex_trylock+141}
->         <ffffffff880abaf0>{:ohci_hcd:ohci_hub_status_data+480}
->         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d24c3>{usb_hcd_poll_rh_status+67}
->         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d25d9>{rh_timer_func+9}
->         <ffffffff8013a3cc>{run_timer_softirq+396} <ffffffff801361c0>{__do_softirq+80}
->         <ffffffff8010fd12>{call_softirq+30} <ffffffff80111715>{do_softirq+53}
->         <ffffffff8013625f>{irq_exit+63} <ffffffff80111761>{do_IRQ+65}
->         <ffffffff8010f266>{ret_from_intr+0} <EOI> <ffffffff80130c1d>{release_console_sem+333}
->         <ffffffff801313f7>{vprintk+775} <ffffffff801314f2>{printk+162}
->         <ffffffff801314f2>{printk+162} <ffffffff802d5b0b>{usb_cache_string+139}
->         <ffffffff802cd170>{show_string+64} <ffffffff802ceec5>{usb_new_device+261}
->         <ffffffff802d3769>{usb_add_hcd+1433} <ffffffff802dce83>{usb_hcd_pci_probe+691}
->         <ffffffff8025a26a>{pci_device_probe+106} <ffffffff802b556c>{driver_probe_device+108}
->         <ffffffff802b5636>{__driver_attach+86} <ffffffff802b55e0>{__driver_attach+0}
->         <ffffffff802b4eef>{bus_for_each_dev+79} <ffffffff802b53fc>{driver_attach+28}
->         <ffffffff802b48e8>{bus_add_driver+136} <ffffffff802b57af>{driver_register+207}
->         <ffffffff8025a521>{__pci_register_driver+177} <ffffffff88012059>{:ohci_hcd:ohci_hcd_pci_init+89}
->         <ffffffff8014f7af>{sys_init_module+239} <ffffffff8010ec9e>{system_call+126}
+This is a multi-part message in MIME format.
+--------------000105030803020607020600
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-err, taking a mutex from softirq context.
+Martin J. Bligh wrote:
+> 
+>>
+>> Attached is a new patch to fix the excessive idle problem.  This patch 
+>> takes a new approach to the problem as it was becoming obvious that 
+>> trying to alter the load balancing code to cope with biased load was 
+>> harder than it seemed.
+>>
+>> This approach reverts to the old load values but weights them 
+>> according to tasks' bias_prio values.  This means that any assumptions 
+>> by the load balancing code that the load generated by a single task is 
+>> SCHED_LOAD_SCALE will still hold.  Then, in find_busiest_group(), the 
+>> imbalance is scaled back up to bias_prio scale so that move_tasks() 
+>> can move biased load rather than tasks.
+>>
+> OK, this one seems to fix the issue that I had, AFAICS. Congrats, and 
+> thanks,
+
+Terrific, thanks for testing.
+
+Con,
+	Attached is a cleaned up version of this patch against 2.6.15-mm4 with 
+some (hopefully helpful) comments added.
+
+Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
+
+--------------000105030803020607020600
+Content-Type: text/plain;
+ name="different-approach-to-smp-nice-problem-v2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="different-approach-to-smp-nice-problem-v2"
+
+Index: MM-2.6.X/kernel/sched.c
+===================================================================
+--- MM-2.6.X.orig/kernel/sched.c	2006-01-15 09:54:27.000000000 +1100
++++ MM-2.6.X/kernel/sched.c	2006-01-15 10:50:11.000000000 +1100
+@@ -681,6 +681,13 @@ static int effective_prio(task_t *p)
+ }
+ 
+ #ifdef CONFIG_SMP
++/*
++ * To aid in avoiding the subversion of "niceness" due to uneven distribution
++ * of tasks with abnormal "nice" values accross CPUs the contribution that
++ * each task makes to its run queue's load is weighted according to its
++ * scheduling class and "nice" value.  The bias_prio field holds the value
++ * used to calculate the weight for each task.
++ */
+ static inline void set_bias_prio(task_t *p)
+ {
+ 	if (rt_task(p)) {
+@@ -718,6 +725,18 @@ static inline void dec_nr_running(task_t
+ 	rq->nr_running--;
+ 	dec_prio_bias(rq, p);
+ }
++
++/* convert biased priority to scaled weighted load */
++static inline unsigned long weighted_load(unsigned long bias)
++{
++	return (bias * SCHED_LOAD_SCALE) / NICE_TO_BIAS_PRIO(0);
++}
++
++/* convert scaled weighted load to unscaled biased load */
++static inline unsigned long biased_load(unsigned long wload)
++{
++	return (wload * NICE_TO_BIAS_PRIO(0)) / SCHED_LOAD_SCALE;
++}
+ #else
+ static inline void set_bias_prio(task_t *p)
+ {
+@@ -1011,7 +1030,8 @@ void kick_process(task_t *p)
+ }
+ 
+ /*
+- * Return a low guess at the load of a migration-source cpu.
++ * Return a low guess at the load of a migration-source cpu weighted
++ * according to the scheduling class and "nice" value.
+  *
+  * We want to under-estimate the load of migration sources, to
+  * balance conservatively.
+@@ -1019,7 +1039,7 @@ void kick_process(task_t *p)
+ static unsigned long source_load(int cpu, int type)
+ {
+ 	runqueue_t *rq = cpu_rq(cpu);
+-	unsigned long load_now = rq->prio_bias * SCHED_LOAD_SCALE;
++	unsigned long load_now = weighted_load(rq->prio_bias);
+ 
+ 	if (type == 0)
+ 		return load_now;
+@@ -1028,12 +1048,13 @@ static unsigned long source_load(int cpu
+ }
+ 
+ /*
+- * Return a high guess at the load of a migration-target cpu
++ * Return a high guess at the load of a migration-target cpu weighted
++ * according to the scheduling class and "nice" value.
+  */
+ static inline unsigned long target_load(int cpu, int type)
+ {
+ 	runqueue_t *rq = cpu_rq(cpu);
+-	unsigned long load_now = rq->prio_bias * SCHED_LOAD_SCALE;
++	unsigned long load_now = weighted_load(rq->prio_bias);
+ 
+ 	if (type == 0)
+ 		return load_now;
+@@ -1299,7 +1320,7 @@ static int try_to_wake_up(task_t *p, uns
+ 			 * of the current CPU:
+ 			 */
+ 			if (sync)
+-				tl -= p->bias_prio * SCHED_LOAD_SCALE;
++				tl -= weighted_load(p->bias_prio);
+ 
+ 			if ((tl <= load &&
+ 				tl + target_load(cpu, idx) <= SCHED_LOAD_SCALE) ||
+@@ -1903,9 +1924,9 @@ int can_migrate_task(task_t *p, runqueue
+ }
+ 
+ /*
+- * move_tasks tries to move up to max_nr_move tasks from busiest to this_rq,
+- * as part of a balancing operation within "domain". Returns the number of
+- * tasks moved.
++ * move_tasks tries to move up to max_nr_move tasks and max_bias_move biased
++ * load from busiest to this_rq, as part of a balancing operation within
++ * "domain". Returns the number of tasks moved.
+  *
+  * Called with both runqueues locked.
+  */
+@@ -2134,8 +2155,11 @@ find_busiest_group(struct sched_domain *
+ 		return busiest;
+ 	}
+ 
+-	/* Get rid of the scaling factor, rounding down as we divide */
+-	*imbalance = *imbalance / SCHED_LOAD_SCALE;
++	/*
++	 * Get rid of the scaling factor, rounding down as we divide and
++	 * converting to biased load for use by move_tasks()
++	 */
++	*imbalance = biased_load(*imbalance);
+ 	return busiest;
+ 
+ out_balanced:
+@@ -2448,7 +2472,8 @@ static void rebalance_tick(int this_cpu,
+ 	struct sched_domain *sd;
+ 	int i;
+ 
+-	this_load = this_rq->prio_bias * SCHED_LOAD_SCALE;
++	/* weight load according to scheduling class and "nice" value */
++	this_load = weighted_load(this_rq->prio_bias);
+ 	/* Update our load */
+ 	for (i = 0; i < 3; i++) {
+ 		unsigned long new_load = this_load;
+Index: MM-2.6.X/include/linux/sched.h
+===================================================================
+--- MM-2.6.X.orig/include/linux/sched.h	2006-01-15 09:54:27.000000000 +1100
++++ MM-2.6.X/include/linux/sched.h	2006-01-15 10:14:42.000000000 +1100
+@@ -714,7 +714,7 @@ struct task_struct {
+ #endif
+ 	int prio, static_prio;
+ #ifdef CONFIG_SMP
+-	int bias_prio;
++	int bias_prio;	/* load "weight" factor for load balancing purposes */
+ #endif
+ 	struct list_head run_list;
+ 	prio_array_t *array;
+
+--------------000105030803020607020600--

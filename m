@@ -1,98 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751896AbWAOLTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751902AbWAOL3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751896AbWAOLTb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 06:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbWAOLTb
+	id S1751902AbWAOL3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 06:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbWAOL3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 06:19:31 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:17419 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751896AbWAOLTa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 06:19:30 -0500
-Date: Sun, 15 Jan 2006 12:19:22 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ren? Rebe <rene@exactcode.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>, akpm@osdl.org
-Subject: Re: kbuild / KERNELRELEASE not rebuild correctly anymore
-Message-ID: <20060115111922.GA13673@mars.ravnborg.org>
-References: <200601151051.14827.rene@exactcode.de> <20060115100530.GB8195@mars.ravnborg.org> <200601151141.30876.rene@exactcode.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601151141.30876.rene@exactcode.de>
-User-Agent: Mutt/1.5.11
+	Sun, 15 Jan 2006 06:29:24 -0500
+Received: from smtp-6.smtp.ucla.edu ([169.232.48.138]:13503 "EHLO
+	smtp-6.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S1751902AbWAOL3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 06:29:23 -0500
+Date: Sun, 15 Jan 2006 03:29:15 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: Roberto Nibali <ratz@drugphish.ch>
+cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+In-Reply-To: <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
+Message-ID: <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
+References: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu>
+ <20051228001047.GA3607@dmt.cnet> <Pine.LNX.4.64.0512281806450.10419@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0512301610320.13624@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0512301732170.21145@potato.cts.ucla.edu>
+ <1136030901.28365.51.camel@localhost.localdomain> <20051231130151.GA15993@alpha.home.local>
+ <Pine.LNX.4.64.0601041402340.28134@potato.cts.ucla.edu> <20060105054348.GA28125@w.ods.org>
+ <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
+ <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
+ <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch>
+ <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Hits: 0.207
+X-Spam-Report: UPPERCASE_25_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15, 2006 at 11:41:30AM +0100, Ren? Rebe wrote:
-> >
-> > So the real fix is to error out when .kernelrelease does not exists.
-> > See attached patch.
-> 
-> You expect us to run make prepare before make menuconfig or simillar?
-> That sounds a bit odd ...
+On Mon, 9 Jan 2006, Chris Stromsoe wrote:
+> On Mon, 9 Jan 2006, Roberto Nibali wrote:
+>
+>>> That is the SCSI BIOS rev.  The machine is a Dell PowerEdge 2650 and 
+>>> that's the onboard AIC 7899.  It comes up as "BIOS Build 25309".
+>> 
+>> Brain is engaged now, thanks ;). If you find time, could you maybe 
+>> compile a 2.4.32 kernel using following config (slightly changed from 
+>> yours):
+>> 
+>> http://www.drugphish.ch/patches/ratz/kernel/configs/config-2.4.32-chris_s
+>
+> If/when the current run with DEBUG_SLAB oopses, I'll reboot with the 
+> config modifications.
 
-The kernelrelease depends on the actual configuration.
-So without having completed the make *config step kbuild cannot tell the
-correct kernelrelease.
+I've been running stable with the propsed changes since the 10th.  The 
+original config and the currently running config are both at 
+<http://hashbrown.cts.ucla.edu/pub/oops-200512/>.  This is the diff:
 
-Now with the patch attached to last mail kbuild will now error out in
-case there is no valid kernelrelease. Thats obviously only a hack, since
-we need to error out when .config has been updated and the new
-kernelrelease has not been created.
+cbs@hashbrown:~ > diff config-2.4.32 config-2.4.32-20060115
 
-Maybe the better approach would be always to create the .kernelrelease
-file as part of the configuration - based on the principle of least
-suprise.
-See attached patch.
+65c65
+< CONFIG_HIGHIO=y
+---
+> # CONFIG_HIGHIO is not set
+69c69
+< CONFIG_NR_CPUS=32
+---
+> CONFIG_NR_CPUS=4
+87c87
+< CONFIG_ISA=y
+---
+> # CONFIG_ISA is not set
+109c109
+< # CONFIG_ACPI is not set
+---
+> CONFIG_ACPI=y
+110a111,127
+> CONFIG_ACPI_BUS=y
+> CONFIG_ACPI_INTERPRETER=y
+> CONFIG_ACPI_EC=y
+> CONFIG_ACPI_POWER=y
+> CONFIG_ACPI_PCI=y
+> CONFIG_ACPI_MMCONFIG=y
+> CONFIG_ACPI_SLEEP=y
+> CONFIG_ACPI_SYSTEM=y
+> # CONFIG_ACPI_AC is not set
+> # CONFIG_ACPI_BATTERY is not set
+> # CONFIG_ACPI_BUTTON is not set
+> # CONFIG_ACPI_FAN is not set
+> # CONFIG_ACPI_PROCESSOR is not set
+> # CONFIG_ACPI_THERMAL is not set
+> # CONFIG_ACPI_ASUS is not set
+> # CONFIG_ACPI_TOSHIBA is not set
+> # CONFIG_ACPI_DEBUG is not set
+385c402
+< # CONFIG_AIC7XXX_DEBUG_ENABLE is not set
+---
+> CONFIG_AIC7XXX_DEBUG_ENABLE=y
+387c404
+< # CONFIG_AIC7XXX_REG_PRETTY_PRINT is not set
+---
+> CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+492,493d508
+< # CONFIG_AT1700 is not set
+< # CONFIG_DEPCA is not set
+500d514
+< # CONFIG_AC3200 is not set
+585,589d598
+< # Old CD-ROM drivers (not SCSI, not IDE)
+< #
+< # CONFIG_CD_NO_IDESCSI is not set
+<
+< #
+864,865c873,874
+< # CONFIG_DEBUG_HIGHMEM is not set
+< # CONFIG_DEBUG_SLAB is not set
+---
+> CONFIG_DEBUG_HIGHMEM=y
+> CONFIG_DEBUG_SLAB=y
 
-	Sam
-	
-diff --git a/Makefile b/Makefile
-index deedaf7..4ab0141 100644
---- a/Makefile
-+++ b/Makefile
-@@ -433,6 +433,7 @@ export KBUILD_DEFCONFIG
- config %config: scripts_basic outputmakefile FORCE
- 	$(Q)mkdir -p include/linux
- 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
-+	$(Q)$(MAKE) .kernelrelease
- 
- else
- # ===========================================================================
-@@ -783,12 +784,13 @@ endif
- localver-full = $(localver)$(localver-auto)
- 
- # Store (new) KERNELRELASE string in .kernelrelease
-+quiet_cmd_kernelrelease = GEN     $@
-+      cmd_kernelrelease = rm -f $@; echo $(kernelrelease) > $@
-+
- kernelrelease = \
-        $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(localver-full)
- .kernelrelease: FORCE
--	$(Q)rm -f .kernelrelease
--	$(Q)echo $(kernelrelease) > .kernelrelease
--	$(Q)echo "  Building kernel $(kernelrelease)"
-+	$(call cmd,kernelrelease)
- 
- 
- # Things we need to do before we recursively start building the kernel
-@@ -808,6 +810,7 @@ kernelrelease = \
- # 1) Check that make has not been executed in the kernel src $(srctree)
- # 2) Create the include2 directory, used for the second asm symlink
- prepare3: .kernelrelease
-+	$(Q)echo "  Building kernel $(kernelrelease)"
- ifneq ($(KBUILD_SRC),)
- 	@echo '  Using $(srctree) as source for kernel'
- 	$(Q)if [ -f $(srctree)/.config ]; then \
-@@ -1301,7 +1304,8 @@ checkstack:
- 	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
- 
- kernelrelease:
--	@echo $(KERNELRELEASE)
-+	$(if $(wildcard .kernelrelease), $(Q)echo $(KERNELRELEASE), \
-+	$(error kernelrelease not valid - run 'make *config' to update it))
- kernelversion:
- 	@echo $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
- 
+
+
+
+-Chris

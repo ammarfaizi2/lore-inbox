@@ -1,803 +1,694 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWAOUsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWAOUvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWAOUsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 15:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWAOUsG
+	id S1750882AbWAOUvv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 15:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWAOUve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 15:48:06 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:30883 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750777AbWAOUrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 15:47:52 -0500
-Message-Id: <200601152139.k0FLdkUq027737@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       Gennady Sharapov <Gennady.V.Sharapov@intel.com>
-Subject: [PATCH 7/11] UML - Move libc-dependent skas process handling
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 15 Jan 2006 16:39:46 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Sun, 15 Jan 2006 15:51:34 -0500
+Received: from amun.rz.tu-clausthal.de ([139.174.2.12]:19660 "EHLO
+	amun.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id S1750798AbWAOUsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 15:48:09 -0500
+From: "Hemmann, Volker Armin" <volker.armin.hemmann@tu-clausthal.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Fw: two (little) problems wit 2.6.15-git7 one with build, one with acpi
+Date: Sun, 15 Jan 2006 21:48:02 +0100
+User-Agent: KMail/1.9
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060112231528.025c3a0b.akpm@osdl.org> <200601132018.04013.volker.armin.hemmann@tu-clausthal.de> <20060115125546.GA16505@mars.ravnborg.org>
+In-Reply-To: <20060115125546.GA16505@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_CUryDX5jaArso8a"
+Message-Id: <200601152148.02445.volker.armin.hemmann@tu-clausthal.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Gennady Sharapov <Gennady.V.Sharapov@intel.com>
+--Boundary-00=_CUryDX5jaArso8a
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The serial UML OS-abstraction layer patch (um/kernel/skas dir).
+On Sunday 15 January 2006 13:55, Sam Ravnborg wrote:
+> On Fri, Jan 13, 2006 at 08:18:03PM +0100, Hemmann, Volker Armin wrote:
+> > I tried -git8 last night.
+> > make all modules_install install gave me again this error:
+> >
+> > if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
+> > System.map 2.6.15-git8; fi
+> > WARNING: Couldn't open directory /lib/modules/2.6.15-git8: No such file
+> > or directory
+> > FATAL: Could not open /lib/modules/2.6.15-git8/modules.dep.temp for
+> > writing: No such file or directory
+> > make: *** [_modinst_post] Fehler 1
+>
+> Do you have KBUILD_OUTPUT set in your environment?
 
-This moves all systemcalls from skas/process.c file under
-os-Linux dir and join skas/process.c and skas/process_kern.c files.
+no, at least I don't find it, when I type env.
 
-Signed-off-by: Gennady Sharapov <gennady.v.sharapov@intel.com>
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> That may explain it since things are running too much in parallel with
+> KBUILT_OUTPUT set - reported by Keith Owns a few days ago.
+>
+> I have tried the above on my machine and was not able to reproduce it.
+>
+> Can you please drop me the output with V=3D1 so I can see what is
+> happening. Maybe in private mail if it gets too big.
 
-Index: linux-2.6.15-mm/arch/um/include/os.h
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/include/os.h	2006-01-09 11:30:10.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/include/os.h	2006-01-09 11:35:10.000000000 -0500
-@@ -232,6 +232,7 @@ extern void block_signals(void);
- extern void unblock_signals(void);
- extern int get_signals(void);
- extern int set_signals(int enable);
-+extern void os_usr1_signal(int on);
- 
- /* trap.c */
- extern void os_fill_handlinfo(struct kern_handlers h);
-@@ -272,4 +273,22 @@ extern int protect(struct mm_id * mm_idp
- 		   unsigned long len, int r, int w, int x, int done,
- 		   void **data);
- 
-+/* skas/process.c */
-+extern int is_skas_winch(int pid, int fd, void *data);
-+extern int start_userspace(unsigned long stub_stack);
-+extern int copy_context_skas0(unsigned long stack, int pid);
-+extern void userspace(union uml_pt_regs *regs);
-+extern void map_stub_pages(int fd, unsigned long code,
-+			   unsigned long data, unsigned long stack);
-+extern void new_thread(void *stack, void **switch_buf_ptr,
-+			 void **fork_buf_ptr, void (*handler)(int));
-+extern void thread_wait(void *sw, void *fb);
-+extern void switch_threads(void *me, void *next);
-+extern int start_idle_thread(void *stack, void *switch_buf_ptr,
-+			     void **fork_buf_ptr);
-+extern void initial_thread_cb_skas(void (*proc)(void *),
-+				 void *arg);
-+extern void halt_skas(void);
-+extern void reboot_skas(void);
-+
- #endif
-Index: linux-2.6.15-mm/arch/um/include/skas/mode-skas.h
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/include/skas/mode-skas.h	2006-01-09 11:26:24.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/include/skas/mode-skas.h	2006-01-09 11:35:10.000000000 -0500
-@@ -14,9 +14,6 @@ extern unsigned long exec_fpx_regs[];
- extern int have_fpx_regs;
- 
- extern void sig_handler_common_skas(int sig, void *sc_ptr);
--extern void halt_skas(void);
--extern void reboot_skas(void);
- extern void kill_off_processes_skas(void);
--extern int is_skas_winch(int pid, int fd, void *data);
- 
- #endif
-Index: linux-2.6.15-mm/arch/um/include/skas/mode_kern_skas.h
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/include/skas/mode_kern_skas.h	2006-01-09 11:26:24.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/include/skas/mode_kern_skas.h	2006-01-09 11:35:10.000000000 -0500
-@@ -18,7 +18,6 @@ extern int copy_thread_skas(int nr, unsi
- 			    unsigned long sp, unsigned long stack_top,
- 			    struct task_struct *p, struct pt_regs *regs);
- extern void release_thread_skas(struct task_struct *task);
--extern void initial_thread_cb_skas(void (*proc)(void *), void *arg);
- extern void init_idle_skas(void);
- extern void flush_tlb_kernel_range_skas(unsigned long start,
- 					unsigned long end);
-Index: linux-2.6.15-mm/arch/um/include/skas/skas.h
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/include/skas/skas.h	2006-01-09 11:30:10.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/include/skas/skas.h	2006-01-09 11:35:37.000000000 -0500
-@@ -13,21 +13,12 @@ extern int userspace_pid[];
- extern int proc_mm, ptrace_faultinfo, ptrace_ldt;
- extern int skas_needs_stub;
- 
--extern void switch_threads(void *me, void *next);
--extern void thread_wait(void *sw, void *fb);
--extern void new_thread(void *stack, void **switch_buf_ptr, void **fork_buf_ptr,
--		       void (*handler)(int));
--extern int start_idle_thread(void *stack, void *switch_buf_ptr,
--			     void **fork_buf_ptr);
- extern int user_thread(unsigned long stack, int flags);
--extern void userspace(union uml_pt_regs *regs);
- extern void new_thread_proc(void *stack, void (*handler)(int sig));
- extern void new_thread_handler(int sig);
- extern void handle_syscall(union uml_pt_regs *regs);
- extern void user_signal(int sig, union uml_pt_regs *regs, int pid);
- extern int new_mm(unsigned long stack);
--extern int start_userspace(unsigned long stub_stack);
--extern int copy_context_skas0(unsigned long stack, int pid);
- extern void get_skas_faultinfo(int pid, struct faultinfo * fi);
- extern long execute_syscall_skas(void *r);
- extern unsigned long current_stub_stack(void);
-Index: linux-2.6.15-mm/arch/um/kernel/skas/Makefile
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/kernel/skas/Makefile	2006-01-09 11:30:10.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/kernel/skas/Makefile	2006-01-09 11:35:10.000000000 -0500
-@@ -3,10 +3,10 @@
- # Licensed under the GPL
- #
- 
--obj-y := clone.o exec_kern.o mem.o mmu.o process.o process_kern.o \
-+obj-y := clone.o exec_kern.o mem.o mmu.o process_kern.o \
- 	syscall.o tlb.o uaccess.o
- 
--USER_OBJS := process.o clone.o
-+USER_OBJS := clone.o
- 
- include arch/um/scripts/Makefile.rules
- 
-Index: linux-2.6.15-mm/arch/um/kernel/skas/process_kern.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/kernel/skas/process_kern.c	2006-01-09 11:26:24.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/kernel/skas/process_kern.c	2006-01-09 11:40:19.000000000 -0500
-@@ -1,4 +1,4 @@
--/* 
-+/*
-  * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-  * Licensed under the GPL
-  */
-@@ -32,7 +32,7 @@ void switch_to_skas(void *prev, void *ne
- 	if(current->pid == 0)
- 		switch_timers(0);
- 
--	switch_threads(&from->thread.mode.skas.switch_buf, 
-+	switch_threads(&from->thread.mode.skas.switch_buf,
- 		       to->thread.mode.skas.switch_buf);
- 
- 	if(current->pid == 0)
-@@ -48,8 +48,8 @@ void new_thread_handler(int sig)
- 
- 	fn = current->thread.request.u.thread.proc;
- 	arg = current->thread.request.u.thread.arg;
--	change_sig(SIGUSR1, 1);
--	thread_wait(&current->thread.mode.skas.switch_buf, 
-+	os_usr1_signal(1);
-+	thread_wait(&current->thread.mode.skas.switch_buf,
- 		    current->thread.mode.skas.fork_buf);
- 
- 	if(current->thread.prev_sched != NULL)
-@@ -80,8 +80,8 @@ void release_thread_skas(struct task_str
- 
- void fork_handler(int sig)
- {
--        change_sig(SIGUSR1, 1);
-- 	thread_wait(&current->thread.mode.skas.switch_buf, 
-+	os_usr1_signal(1);
-+	thread_wait(&current->thread.mode.skas.switch_buf,
- 		    current->thread.mode.skas.fork_buf);
-   	
- 	force_flush_all();
-@@ -91,13 +91,13 @@ void fork_handler(int sig)
- 	schedule_tail(current->thread.prev_sched);
- 	current->thread.prev_sched = NULL;
- 
--	/* Handle any immediate reschedules or signals */
-+/* Handle any immediate reschedules or signals */
- 	interrupt_end();
- 	userspace(&current->thread.regs.regs);
- }
- 
- int copy_thread_skas(int nr, unsigned long clone_flags, unsigned long sp,
--		     unsigned long stack_top, struct task_struct * p, 
-+		     unsigned long stack_top, struct task_struct * p,
- 		     struct pt_regs *regs)
- {
-   	void (*handler)(int);
-@@ -121,8 +121,6 @@ int copy_thread_skas(int nr, unsigned lo
- 	return(0);
- }
- 
--extern void map_stub_pages(int fd, unsigned long code,
--			   unsigned long data, unsigned long stack);
- int new_mm(unsigned long stack)
- {
- 	int fd;
-Index: linux-2.6.15-mm/arch/um/os-Linux/signal.c
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/signal.c	2006-01-09 11:26:24.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/signal.c	2006-01-09 11:35:10.000000000 -0500
-@@ -194,3 +194,8 @@ int set_signals(int enable)
- 
- 	return(ret);
- }
-+
-+void os_usr1_signal(int on)
-+{
-+	change_sig(SIGUSR1, on);
-+}
-Index: linux-2.6.15-mm/arch/um/os-Linux/skas/Makefile
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/os-Linux/skas/Makefile	2006-01-09 11:30:10.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/os-Linux/skas/Makefile	2006-01-09 11:35:10.000000000 -0500
-@@ -3,8 +3,8 @@
- # Licensed under the GPL
- #
- 
--obj-y := mem.o trap.o
-+obj-y := mem.o process.o trap.o
- 
--USER_OBJS := mem.o trap.o
-+USER_OBJS := mem.o process.o trap.o
- 
- include arch/um/scripts/Makefile.rules
-Index: linux-2.6.15-mm/arch/um/os-Linux/skas/process.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15-mm/arch/um/os-Linux/skas/process.c	2006-01-09 11:39:54.000000000 -0500
-@@ -0,0 +1,565 @@
-+/*
-+ * Copyright (C) 2002- 2004 Jeff Dike (jdike@addtoit.com)
-+ * Licensed under the GPL
-+ */
-+
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <signal.h>
-+#include <setjmp.h>
-+#include <sched.h>
-+#include "ptrace_user.h"
-+#include <sys/wait.h>
-+#include <sys/mman.h>
-+#include <sys/user.h>
-+#include <sys/time.h>
-+#include <asm/unistd.h>
-+#include <asm/types.h>
-+#include "user.h"
-+#include "sysdep/ptrace.h"
-+#include "user_util.h"
-+#include "kern_util.h"
-+#include "skas.h"
-+#include "stub-data.h"
-+#include "mm_id.h"
-+#include "sysdep/sigcontext.h"
-+#include "sysdep/stub.h"
-+#include "os.h"
-+#include "proc_mm.h"
-+#include "skas_ptrace.h"
-+#include "chan_user.h"
-+#include "registers.h"
-+#include "mem.h"
-+#include "uml-config.h"
-+#include "process.h"
-+
-+int is_skas_winch(int pid, int fd, void *data)
-+{
-+	if(pid != os_getpgrp())
-+		return(0);
-+
-+	register_winch_irq(-1, fd, -1, data);
-+	return(1);
-+}
-+
-+void wait_stub_done(int pid, int sig, char * fname)
-+{
-+	int n, status, err;
-+
-+	do {
-+		if ( sig != -1 ) {
-+			err = ptrace(PTRACE_CONT, pid, 0, sig);
-+			if(err)
-+				panic("%s : continue failed, errno = %d\n",
-+				      fname, errno);
-+		}
-+		sig = 0;
-+
-+		CATCH_EINTR(n = waitpid(pid, &status, WUNTRACED));
-+	} while((n >= 0) && WIFSTOPPED(status) &&
-+	        ((WSTOPSIG(status) == SIGVTALRM) ||
-+		 /* running UML inside a detached screen can cause
-+		  * SIGWINCHes
-+		  */
-+		 (WSTOPSIG(status) == SIGWINCH)));
-+
-+	if((n < 0) || !WIFSTOPPED(status) ||
-+	   (WSTOPSIG(status) != SIGUSR1 && WSTOPSIG(status) != SIGTRAP)){
-+		unsigned long regs[HOST_FRAME_SIZE];
-+
-+		if(ptrace(PTRACE_GETREGS, pid, 0, regs) < 0)
-+			printk("Failed to get registers from stub, "
-+			       "errno = %d\n", errno);
-+		else {
-+			int i;
-+
-+			printk("Stub registers -\n");
-+			for(i = 0; i < HOST_FRAME_SIZE; i++)
-+				printk("\t%d - %lx\n", i, regs[i]);
-+		}
-+		panic("%s : failed to wait for SIGUSR1/SIGTRAP, "
-+		      "pid = %d, n = %d, errno = %d, status = 0x%x\n",
-+		      fname, pid, n, errno, status);
-+	}
-+}
-+
-+extern unsigned long current_stub_stack(void);
-+
-+void get_skas_faultinfo(int pid, struct faultinfo * fi)
-+{
-+	int err;
-+
-+	if(ptrace_faultinfo){
-+		err = ptrace(PTRACE_FAULTINFO, pid, 0, fi);
-+		if(err)
-+			panic("get_skas_faultinfo - PTRACE_FAULTINFO failed, "
-+			      "errno = %d\n", errno);
-+
-+		/* Special handling for i386, which has different structs */
-+		if (sizeof(struct ptrace_faultinfo) < sizeof(struct faultinfo))
-+			memset((char *)fi + sizeof(struct ptrace_faultinfo), 0,
-+			       sizeof(struct faultinfo) -
-+			       sizeof(struct ptrace_faultinfo));
-+	}
-+	else {
-+		wait_stub_done(pid, SIGSEGV, "get_skas_faultinfo");
-+
-+		/* faultinfo is prepared by the stub-segv-handler at start of
-+		 * the stub stack page. We just have to copy it.
-+		 */
-+		memcpy(fi, (void *)current_stub_stack(), sizeof(*fi));
-+	}
-+}
-+
-+static void handle_segv(int pid, union uml_pt_regs * regs)
-+{
-+	get_skas_faultinfo(pid, &regs->skas.faultinfo);
-+	segv(regs->skas.faultinfo, 0, 1, NULL);
-+}
-+
-+/*To use the same value of using_sysemu as the caller, ask it that value (in local_using_sysemu)*/
-+static void handle_trap(int pid, union uml_pt_regs *regs, int local_using_sysemu)
-+{
-+	int err, status;
-+
-+	/* Mark this as a syscall */
-+	UPT_SYSCALL_NR(regs) = PT_SYSCALL_NR(regs->skas.regs);
-+
-+	if (!local_using_sysemu)
-+	{
-+		err = ptrace(PTRACE_POKEUSR, pid, PT_SYSCALL_NR_OFFSET,
-+			     __NR_getpid);
-+		if(err < 0)
-+			panic("handle_trap - nullifying syscall failed errno = %d\n",
-+			      errno);
-+
-+		err = ptrace(PTRACE_SYSCALL, pid, 0, 0);
-+		if(err < 0)
-+			panic("handle_trap - continuing to end of syscall failed, "
-+			      "errno = %d\n", errno);
-+
-+		CATCH_EINTR(err = waitpid(pid, &status, WUNTRACED));
-+		if((err < 0) || !WIFSTOPPED(status) ||
-+		   (WSTOPSIG(status) != SIGTRAP + 0x80))
-+			panic("handle_trap - failed to wait at end of syscall, "
-+			      "errno = %d, status = %d\n", errno, status);
-+	}
-+
-+	handle_syscall(regs);
-+}
-+
-+extern int __syscall_stub_start;
-+int stub_code_fd = -1;
-+__u64 stub_code_offset;
-+
-+static int userspace_tramp(void *stack)
-+{
-+	void *addr;
-+
-+	ptrace(PTRACE_TRACEME, 0, 0, 0);
-+
-+	init_new_thread_signals(1);
-+	enable_timer();
-+
-+	if(!proc_mm){
-+		/* This has a pte, but it can't be mapped in with the usual
-+		 * tlb_flush mechanism because this is part of that mechanism
-+		 */
-+		addr = mmap64((void *) UML_CONFIG_STUB_CODE, page_size(),
-+			      PROT_EXEC, MAP_FIXED | MAP_PRIVATE,
-+			      stub_code_fd, stub_code_offset);
-+		if(addr == MAP_FAILED){
-+			printk("mapping stub code failed, errno = %d\n",
-+			       errno);
-+			exit(1);
-+		}
-+
-+		if(stack != NULL){
-+			int fd;
-+			__u64 offset;
-+			fd = phys_mapping(to_phys(stack), &offset);
-+			addr = mmap((void *) UML_CONFIG_STUB_DATA, page_size(),
-+				    PROT_READ | PROT_WRITE,
-+				    MAP_FIXED | MAP_SHARED, fd, offset);
-+			if(addr == MAP_FAILED){
-+				printk("mapping stub stack failed, "
-+				       "errno = %d\n", errno);
-+				exit(1);
-+			}
-+		}
-+	}
-+	if(!ptrace_faultinfo){
-+		unsigned long v = UML_CONFIG_STUB_CODE +
-+				  (unsigned long) stub_segv_handler -
-+				  (unsigned long) &__syscall_stub_start;
-+
-+		set_sigstack((void *) UML_CONFIG_STUB_DATA, page_size());
-+		set_handler(SIGSEGV, (void *) v, SA_ONSTACK,
-+			    SIGIO, SIGWINCH, SIGALRM, SIGVTALRM,
-+			    SIGUSR1, -1);
-+	}
-+
-+	os_stop_process(os_getpid());
-+	return(0);
-+}
-+
-+/* Each element set once, and only accessed by a single processor anyway */
-+#undef NR_CPUS
-+#define NR_CPUS 1
-+int userspace_pid[NR_CPUS];
-+
-+int start_userspace(unsigned long stub_stack)
-+{
-+	void *stack;
-+	unsigned long sp;
-+	int pid, status, n, flags;
-+
-+	if ( stub_code_fd == -1 )
-+		stub_code_fd = phys_mapping(to_phys(&__syscall_stub_start),
-+					    &stub_code_offset);
-+
-+	stack = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC,
-+		     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-+	if(stack == MAP_FAILED)
-+		panic("start_userspace : mmap failed, errno = %d", errno);
-+	sp = (unsigned long) stack + PAGE_SIZE - sizeof(void *);
-+
-+	flags = CLONE_FILES | SIGCHLD;
-+	if(proc_mm) flags |= CLONE_VM;
-+	pid = clone(userspace_tramp, (void *) sp, flags, (void *) stub_stack);
-+	if(pid < 0)
-+		panic("start_userspace : clone failed, errno = %d", errno);
-+
-+	do {
-+		CATCH_EINTR(n = waitpid(pid, &status, WUNTRACED));
-+		if(n < 0)
-+			panic("start_userspace : wait failed, errno = %d",
-+			      errno);
-+	} while(WIFSTOPPED(status) && (WSTOPSIG(status) == SIGVTALRM));
-+
-+	if(!WIFSTOPPED(status) || (WSTOPSIG(status) != SIGSTOP))
-+		panic("start_userspace : expected SIGSTOP, got status = %d",
-+		      status);
-+
-+	if (ptrace(PTRACE_OLDSETOPTIONS, pid, NULL, (void *)PTRACE_O_TRACESYSGOOD) < 0)
-+		panic("start_userspace : PTRACE_OLDSETOPTIONS failed, errno=%d\n",
-+		      errno);
-+
-+	if(munmap(stack, PAGE_SIZE) < 0)
-+		panic("start_userspace : munmap failed, errno = %d\n", errno);
-+
-+	return(pid);
-+}
-+
-+void userspace(union uml_pt_regs *regs)
-+{
-+	int err, status, op, pid = userspace_pid[0];
-+	int local_using_sysemu; /*To prevent races if using_sysemu changes under us.*/
-+
-+	while(1){
-+		restore_registers(pid, regs);
-+
-+		/* Now we set local_using_sysemu to be used for one loop */
-+		local_using_sysemu = get_using_sysemu();
-+
-+		op = SELECT_PTRACE_OPERATION(local_using_sysemu, singlestepping(NULL));
-+
-+		err = ptrace(op, pid, 0, 0);
-+		if(err)
-+			panic("userspace - could not resume userspace process, "
-+			      "pid=%d, ptrace operation = %d, errno = %d\n",
-+			      op, errno);
-+
-+		CATCH_EINTR(err = waitpid(pid, &status, WUNTRACED));
-+		if(err < 0)
-+			panic("userspace - waitpid failed, errno = %d\n",
-+			      errno);
-+
-+		regs->skas.is_user = 1;
-+		save_registers(pid, regs);
-+		UPT_SYSCALL_NR(regs) = -1; /* Assume: It's not a syscall */
-+
-+		if(WIFSTOPPED(status)){
-+		  	switch(WSTOPSIG(status)){
-+			case SIGSEGV:
-+				if(PTRACE_FULL_FAULTINFO || !ptrace_faultinfo)
-+					user_signal(SIGSEGV, regs, pid);
-+				else handle_segv(pid, regs);
-+				break;
-+			case SIGTRAP + 0x80:
-+			        handle_trap(pid, regs, local_using_sysemu);
-+				break;
-+			case SIGTRAP:
-+				relay_signal(SIGTRAP, regs);
-+				break;
-+			case SIGIO:
-+			case SIGVTALRM:
-+			case SIGILL:
-+			case SIGBUS:
-+			case SIGFPE:
-+			case SIGWINCH:
-+				user_signal(WSTOPSIG(status), regs, pid);
-+				break;
-+			default:
-+			        printk("userspace - child stopped with signal "
-+				       "%d\n", WSTOPSIG(status));
-+			}
-+		    again:
-+			pid = userspace_pid[0];
-+			interrupt_end();
-+
-+			/* Avoid -ERESTARTSYS handling in host */
-+			if(PT_SYSCALL_NR_OFFSET != PT_SYSCALL_RET_OFFSET)
-+				PT_SYSCALL_NR(regs->skas.regs) = -1;
-+		}
-+	}
-+}
-+#define INIT_JMP_NEW_THREAD 0
-+#define INIT_JMP_REMOVE_SIGSTACK 1
-+#define INIT_JMP_CALLBACK 2
-+#define INIT_JMP_HALT 3
-+#define INIT_JMP_REBOOT 4
-+
-+int copy_context_skas0(unsigned long new_stack, int pid)
-+{
-+	int err;
-+	unsigned long regs[MAX_REG_NR];
-+	unsigned long current_stack = current_stub_stack();
-+	struct stub_data *data = (struct stub_data *) current_stack;
-+	struct stub_data *child_data = (struct stub_data *) new_stack;
-+	__u64 new_offset;
-+	int new_fd = phys_mapping(to_phys((void *)new_stack), &new_offset);
-+
-+	/* prepare offset and fd of child's stack as argument for parent's
-+	 * and child's mmap2 calls
-+	 */
-+	*data = ((struct stub_data) { .offset	= MMAP_OFFSET(new_offset),
-+				      .fd	= new_fd,
-+				      .timer    = ((struct itimerval)
-+					            { { 0, 1000000 / hz() },
-+						      { 0, 1000000 / hz() }})});
-+	get_safe_registers(regs);
-+
-+	/* Set parent's instruction pointer to start of clone-stub */
-+	regs[REGS_IP_INDEX] = UML_CONFIG_STUB_CODE +
-+				(unsigned long) stub_clone_handler -
-+				(unsigned long) &__syscall_stub_start;
-+	regs[REGS_SP_INDEX] = UML_CONFIG_STUB_DATA + PAGE_SIZE -
-+		sizeof(void *);
-+#ifdef __SIGNAL_FRAMESIZE
-+	regs[REGS_SP_INDEX] -= __SIGNAL_FRAMESIZE;
-+#endif
-+	err = ptrace_setregs(pid, regs);
-+	if(err < 0)
-+		panic("copy_context_skas0 : PTRACE_SETREGS failed, "
-+		      "pid = %d, errno = %d\n", pid, errno);
-+
-+	/* set a well known return code for detection of child write failure */
-+	child_data->err = 12345678;
-+
-+	/* Wait, until parent has finished its work: read child's pid from
-+	 * parent's stack, and check, if bad result.
-+	 */
-+	wait_stub_done(pid, 0, "copy_context_skas0");
-+
-+	pid = data->err;
-+	if(pid < 0)
-+		panic("copy_context_skas0 - stub-parent reports error %d\n",
-+		      pid);
-+
-+	/* Wait, until child has finished too: read child's result from
-+	 * child's stack and check it.
-+	 */
-+	wait_stub_done(pid, -1, "copy_context_skas0");
-+	if (child_data->err != UML_CONFIG_STUB_DATA)
-+		panic("copy_context_skas0 - stub-child reports error %d\n",
-+		      child_data->err);
-+
-+	if (ptrace(PTRACE_OLDSETOPTIONS, pid, NULL,
-+		   (void *)PTRACE_O_TRACESYSGOOD) < 0)
-+		panic("copy_context_skas0 : PTRACE_OLDSETOPTIONS failed, "
-+		      "errno = %d\n", errno);
-+
-+	return pid;
-+}
-+
-+/*
-+ * This is used only, if stub pages are needed, while proc_mm is
-+ * availabl. Opening /proc/mm creates a new mm_context, which lacks
-+ * the stub-pages. Thus, we map them using /proc/mm-fd
-+ */
-+void map_stub_pages(int fd, unsigned long code,
-+		    unsigned long data, unsigned long stack)
-+{
-+	struct proc_mm_op mmop;
-+	int n;
-+
-+	mmop = ((struct proc_mm_op) { .op        = MM_MMAP,
-+				      .u         =
-+				      { .mmap    =
-+					{ .addr    = code,
-+					  .len     = PAGE_SIZE,
-+					  .prot    = PROT_EXEC,
-+					  .flags   = MAP_FIXED | MAP_PRIVATE,
-+					  .fd      = stub_code_fd,
-+					  .offset  = stub_code_offset
-+	} } });
-+	n = os_write_file(fd, &mmop, sizeof(mmop));
-+	if(n != sizeof(mmop))
-+		panic("map_stub_pages : /proc/mm map for code failed, "
-+		      "err = %d\n", -n);
-+
-+	if ( stack ) {
-+		__u64 map_offset;
-+		int map_fd = phys_mapping(to_phys((void *)stack), &map_offset);
-+		mmop = ((struct proc_mm_op)
-+				{ .op        = MM_MMAP,
-+				  .u         =
-+				  { .mmap    =
-+				    { .addr    = data,
-+				      .len     = PAGE_SIZE,
-+				      .prot    = PROT_READ | PROT_WRITE,
-+				      .flags   = MAP_FIXED | MAP_SHARED,
-+				      .fd      = map_fd,
-+				      .offset  = map_offset
-+		} } });
-+		n = os_write_file(fd, &mmop, sizeof(mmop));
-+		if(n != sizeof(mmop))
-+			panic("map_stub_pages : /proc/mm map for data failed, "
-+			      "err = %d\n", -n);
-+	}
-+}
-+
-+void new_thread(void *stack, void **switch_buf_ptr, void **fork_buf_ptr,
-+		void (*handler)(int))
-+{
-+	unsigned long flags;
-+	sigjmp_buf switch_buf, fork_buf;
-+
-+	*switch_buf_ptr = &switch_buf;
-+	*fork_buf_ptr = &fork_buf;
-+
-+	/* Somewhat subtle - siglongjmp restores the signal mask before doing
-+	 * the longjmp.  This means that when jumping from one stack to another
-+	 * when the target stack has interrupts enabled, an interrupt may occur
-+	 * on the source stack.  This is bad when starting up a process because
-+	 * it's not supposed to get timer ticks until it has been scheduled.
-+	 * So, we disable interrupts around the sigsetjmp to ensure that
-+	 * they can't happen until we get back here where they are safe.
-+	 */
-+	flags = get_signals();
-+	block_signals();
-+	if(sigsetjmp(fork_buf, 1) == 0)
-+		new_thread_proc(stack, handler);
-+
-+	remove_sigstack();
-+
-+	set_signals(flags);
-+}
-+
-+void thread_wait(void *sw, void *fb)
-+{
-+	sigjmp_buf buf, **switch_buf = sw, *fork_buf;
-+
-+	*switch_buf = &buf;
-+	fork_buf = fb;
-+	if(sigsetjmp(buf, 1) == 0)
-+		siglongjmp(*fork_buf, INIT_JMP_REMOVE_SIGSTACK);
-+}
-+
-+void switch_threads(void *me, void *next)
-+{
-+	sigjmp_buf my_buf, **me_ptr = me, *next_buf = next;
-+
-+	*me_ptr = &my_buf;
-+	if(sigsetjmp(my_buf, 1) == 0)
-+		siglongjmp(*next_buf, 1);
-+}
-+
-+static sigjmp_buf initial_jmpbuf;
-+
-+/* XXX Make these percpu */
-+static void (*cb_proc)(void *arg);
-+static void *cb_arg;
-+static sigjmp_buf *cb_back;
-+
-+int start_idle_thread(void *stack, void *switch_buf_ptr, void **fork_buf_ptr)
-+{
-+	sigjmp_buf **switch_buf = switch_buf_ptr;
-+	int n;
-+
-+	set_handler(SIGWINCH, (__sighandler_t) sig_handler,
-+		    SA_ONSTACK | SA_RESTART, SIGUSR1, SIGIO, SIGALRM,
-+		    SIGVTALRM, -1);
-+
-+	*fork_buf_ptr = &initial_jmpbuf;
-+	n = sigsetjmp(initial_jmpbuf, 1);
-+	switch(n){
-+	case INIT_JMP_NEW_THREAD:
-+		new_thread_proc((void *) stack, new_thread_handler);
-+		break;
-+	case INIT_JMP_REMOVE_SIGSTACK:
-+		remove_sigstack();
-+		break;
-+	case INIT_JMP_CALLBACK:
-+		(*cb_proc)(cb_arg);
-+		siglongjmp(*cb_back, 1);
-+		break;
-+	case INIT_JMP_HALT:
-+		kmalloc_ok = 0;
-+		return(0);
-+	case INIT_JMP_REBOOT:
-+		kmalloc_ok = 0;
-+		return(1);
-+	default:
-+		panic("Bad sigsetjmp return in start_idle_thread - %d\n", n);
-+	}
-+	siglongjmp(**switch_buf, 1);
-+}
-+
-+void initial_thread_cb_skas(void (*proc)(void *), void *arg)
-+{
-+	sigjmp_buf here;
-+
-+	cb_proc = proc;
-+	cb_arg = arg;
-+	cb_back = &here;
-+
-+	block_signals();
-+	if(sigsetjmp(here, 1) == 0)
-+		siglongjmp(initial_jmpbuf, INIT_JMP_CALLBACK);
-+	unblock_signals();
-+
-+	cb_proc = NULL;
-+	cb_arg = NULL;
-+	cb_back = NULL;
-+}
-+
-+void halt_skas(void)
-+{
-+	block_signals();
-+	siglongjmp(initial_jmpbuf, INIT_JMP_HALT);
-+}
-+
-+void reboot_skas(void)
-+{
-+	block_signals();
-+	siglongjmp(initial_jmpbuf, INIT_JMP_REBOOT);
-+}
-+
-+void switch_mm_skas(struct mm_id *mm_idp)
-+{
-+	int err;
-+
-+#warning need cpu pid in switch_mm_skas
-+	if(proc_mm){
-+		err = ptrace(PTRACE_SWITCH_MM, userspace_pid[0], 0,
-+			     mm_idp->u.mm_fd);
-+		if(err)
-+			panic("switch_mm_skas - PTRACE_SWITCH_MM failed, "
-+			      "errno = %d\n", errno);
-+	}
-+	else userspace_pid[0] = mm_idp->u.pid;
-+}
+I tried make all modules_install install V=3D1 &>/tmp/kernel2.log and found=
+=20
+something interessting.
 
+The kernel-sources directory has to be 'virgin'. As soon as I build a kerne=
+l=20
+in it once, it worked without any problems - even after a make clean and ma=
+ke=20
+mrproper.
+
+So the steps to reproduce it are:
+unpack 2.6.15, patch it, copy .config from other kernel (this time I took t=
+he=20
+one from git8 I built earlier), make oldconfig, make all_modules_install=20
+install:
+
+f [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map=
+ =20
+2.
+6.15-git7; fi
+WARNING: Couldn't open directory /lib/modules/2.6.15-git7: No such file or=
+=20
+direc
+tory
+=46ATAL: Could not open /lib/modules/2.6.15-git7/modules.dep.temp for writi=
+ng:=20
+No
+such file or directory
+make: *** [_modinst_post] Fehler 1
+
+because kernel2.log is 748kb big., I packed it.
+
+Gl=FCck Auf
+Volker
+
+=20
+
+--Boundary-00=_CUryDX5jaArso8a
+Content-Type: application/x-bzip2;
+  name="kernel2.log.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="kernel2.log.bz2"
+
+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
+
+--Boundary-00=_CUryDX5jaArso8a
+Content-Type: application/x-bzip2;
+  name="config.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="config.bz2"
+
+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
+QmUzOCwiYaCpOLt4kgf4u5IpwoSAgLVAwA==
+
+--Boundary-00=_CUryDX5jaArso8a--

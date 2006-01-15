@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWAOVOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWAOVS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWAOVOo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 16:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWAOVOo
+	id S1750889AbWAOVS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 16:18:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWAOVS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 16:14:44 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:3239 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750883AbWAOVOn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 16:14:43 -0500
-Date: Sun, 15 Jan 2006 22:14:40 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+	Sun, 15 Jan 2006 16:18:28 -0500
+Received: from smtp-2.smtp.ucla.edu ([169.232.47.136]:65441 "EHLO
+	smtp-2.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S1750889AbWAOVS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 16:18:27 -0500
+Date: Sun, 15 Jan 2006 13:18:20 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
 To: Willy Tarreau <willy@w.ods.org>
-cc: Thomas Fazekas <thomas.fazekas@gmail.com>, linux-kernel@vger.kernel.org,
-       arch@archlinux.org
-Subject: Re: Modify setterm color palette
-In-Reply-To: <20060115133536.GN7142@w.ods.org>
-Message-ID: <Pine.LNX.4.61.0601152203380.29696@yvahk01.tjqt.qr>
-References: <421547be0601150407v8e087afh55a9ee12ae27ac8e@mail.gmail.com>
- <Pine.LNX.4.61.0601151313360.4174@yvahk01.tjqt.qr>
- <20060115131620.GA24976@flint.arm.linux.org.uk> <20060115133536.GN7142@w.ods.org>
+cc: Roberto Nibali <ratz@drugphish.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+In-Reply-To: <20060115121242.GA20277@w.ods.org>
+Message-ID: <Pine.LNX.4.64.0601151313590.5053@potato.cts.ucla.edu>
+References: <20060105054348.GA28125@w.ods.org> <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
+ <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
+ <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch>
+ <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu> <20060115121242.GA20277@w.ods.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > drivers/char/vt.c: default_red, default_grn, default_blu
->> > 
->> > You can also change them with `echo -en "\e]PXRRGGBB"`, where X is a hex 
->> > digit (range 0-F), and RGB are the components. Check console_codes(4) and 
->> > go figure. :)
->> 
->> I for one prefer the standard VT100 yellow instead of brown, and I
->> have an escape sequence to do that similar to the one you show above.
-
-Cool. I prefer "purified" colors, i.e. {0x00,0x00,0xFF} instead of
-{0x55,0x55,0xFF} for brightblue. :D
-
->> However, there's one major flaw - programs recently (and by that I mean
->> FC2-like recently) have started to do complete console resets, which
->> result in the users settings being completely wiped out.
->> So, in essence, this is a completely useless solution.  I think we need
->> a separate escape sequence to modify the system default so that peoples
->> preferences do not get inadvertently wiped out by programs.
+On Sun, 15 Jan 2006, Willy Tarreau wrote:
+> On Sun, Jan 15, 2006 at 03:29:15AM -0800, Chris Stromsoe wrote:
+>>
+>> I've been running stable with the propsed changes since the 10th.  The 
+>> original config and the currently running config are both at 
+>> <http://hashbrown.cts.ucla.edu/pub/oops-200512/>.  This is the diff:
+>>
+>> cbs@hashbrown:~ > diff config-2.4.32 config-2.4.32-20060115
+>>
+>> 65c65
+>> < CONFIG_HIGHIO=y
+>> ---
+>> > # CONFIG_HIGHIO is not set
 >
->Why not add an escape sequence to lock/unlock the palette ? It might be
->simpler, and we could even stack the locks to ensure recursive protection.
+> I wonder if this change could be suspected of affecting stability. With 
+> this unset, data will be sent from the card to low memory, then bounced 
+> to high mem when needed. Maybe the card, northbridge or anything else 
+> sometimes corrupts memory during direct highmem I/O from PCI ? :-/
 
-How about putting it into /sys...
-
-Signed-off-by: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Applies with fuzz 2 because my values for default_blu are already modified 
-and not the same as 2.6.15.
-
-diff --fast -Ndpru linux-2.6.15~/drivers/char/vt.c linux-2.6.15/drivers/char/vt.c
---- linux-2.6.15~/drivers/char/vt.c	2006-01-15 21:29:12.000000000 +0100
-+++ linux-2.6.15/drivers/char/vt.c	2006-01-15 22:07:22.225060000 +0100
-@@ -916,6 +916,10 @@ int default_grn[] =
- int default_blu[] =
- {0x00,0x00,0x00,0x00,0x80,0xaa,0xaa,0xaa,0x55,0x00,0x00,0x00,0xff,0xff,0xff,0xff};
- 
-+module_param_array(default_red, int, NULL, S_IRUGO | S_IWUSR);
-+module_param_array(default_grn, int, NULL, S_IRUGO | S_IWUSR);
-+module_param_array(default_blu, int, NULL, S_IRUGO | S_IWUSR);
-+
- /*
-  * gotoxy() must verify all boundaries, because the arguments
-  * might also be negative. If the given position is out of
-#<<eof>>
+I'll let it run for another week as it is. If it would be useful 
+information, I can switch CONFIG_HIGHIO back to =y and let that kernel run 
+for a while.  Otherwise, I'll probably switch permanently to 2.6.
 
 
-
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+-Chris

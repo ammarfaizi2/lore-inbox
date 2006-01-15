@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWAOFWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751655AbWAOF3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751665AbWAOFWg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 00:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWAOFWg
+	id S1751655AbWAOF3G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 00:29:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751671AbWAOF3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 00:22:36 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:27372 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751316AbWAOFWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 00:22:35 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] pci_ids: remove duplicates gathered during merge period
-Date: Sun, 15 Jan 2006 16:21:27 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <7qmjs1pg0terg55gjicjiejsf490tkpk23@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Sun, 15 Jan 2006 00:29:06 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:62347 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751655AbWAOF3F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 00:29:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Q95eJQJEtKXvu5/5vt0X+zjFT6PL1XiC3ddBhafw6mh1vyGjrT+00LUF9PJhJHI+e1mSM5ZzicsIRLL+8knHb3YNGF7+ojX4juSeMjfO1yLBsT1RnajHpaEa/x5jD0eZTxHMLRlaGwlUxOr9XX+6Z8Xa7aGTo7s2rtjGB0Wywn0=  ;
+Message-ID: <43C9DD98.5000506@yahoo.com.au>
+Date: Sun, 15 Jan 2006 16:28:56 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+References: <20060114155517.GA30543@wotan.suse.de> <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com> <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Lameter wrote:
+> On Sat, 14 Jan 2006, Nick Piggin wrote:
+> 
+> 
+>>>We take that reference count on the page:
+>>
+>>Yes, after you have dropped all your claims to pin this page
+>>(ie. pte lock). You really can't take a refcount on a page that
+> 
+> 
+> Oh. Now I see. I screwed that up by a fix I added.... We cannot drop the 
+> ptl here. So back to the way it was before. Remove the draining from 
+> isolate_lru_page and do it before scanning for pages so that we do not
+> have to drop the ptl. 
+> 
 
-From: Grant Coady <gcoady@gmail.com>
+OK (either way is fine), but you should still drop the __isolate_lru_page
+nonsense and revert it like my patch does.
 
-pci_ids.h: remove duplicates.  Compile tested allmodconfig.
+> Also remove the WARN_ON since its now even possible that other actions of 
+> the VM move the pages into the LRU lists while we scan for pages to
+> migrate.
+> 
 
-Signed-off-by: Grant Coady <gcoady@gmail.com>
+Well, it has always been possible since vmscan started batching scans a
+long time ago. Actually seeing as you only take a read lock on the semaphore
+it is probably also possible to have a concurrent migrate operation cause
+this as well.
 
----
- pci_ids.h |    7 -------
- 1 files changed, 7 deletions(-)
+Thanks,
+Nick
 
---- linux-2.6.15-git10a/include/linux/pci_ids.h	2006-01-15 09:01:39.000000000 +1100
-+++ linux-2.6.15-git10b/include/linux/pci_ids.h	2006-01-15 11:30:56.000000000 +1100
-@@ -393,14 +393,9 @@
- #define PCI_DEVICE_ID_NS_SC1100_SMI	0x0511
- #define PCI_DEVICE_ID_NS_SC1100_XBUS	0x0515
- #define PCI_DEVICE_ID_NS_87410		0xd001
--#define PCI_DEVICE_ID_NS_CS5535_IDE	0x002d
- 
- #define PCI_DEVICE_ID_NS_CS5535_HOST_BRIDGE  0x0028
- #define PCI_DEVICE_ID_NS_CS5535_ISA_BRIDGE   0x002b
--#define PCI_DEVICE_ID_NS_CS5535_IDE          0x002d
--#define PCI_DEVICE_ID_NS_CS5535_AUDIO        0x002e
--#define PCI_DEVICE_ID_NS_CS5535_USB          0x002f
--#define PCI_DEVICE_ID_NS_CS5535_VIDEO        0x0030
- 
- #define PCI_VENDOR_ID_TSENG		0x100c
- #define PCI_DEVICE_ID_TSENG_W32P_2	0x3202
-@@ -510,8 +505,6 @@
- #define PCI_DEVICE_ID_AMD_CS5536_UOC    0x2097
- #define PCI_DEVICE_ID_AMD_CS5536_IDE    0x209A
- 
--#define PCI_DEVICE_ID_AMD_CS5536_IDE	0x209A
--
- #define PCI_DEVICE_ID_AMD_LX_VIDEO  0x2081
- #define PCI_DEVICE_ID_AMD_LX_AES    0x2082
- 
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

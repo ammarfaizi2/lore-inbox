@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWAOCF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbWAOCKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751628AbWAOCF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jan 2006 21:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWAOCFZ
+	id S1751643AbWAOCKH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jan 2006 21:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWAOCKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jan 2006 21:05:25 -0500
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:1752 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751527AbWAOCFZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jan 2006 21:05:25 -0500
+	Sat, 14 Jan 2006 21:10:06 -0500
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:19640 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751643AbWAOCKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jan 2006 21:10:05 -0500
 From: Con Kolivas <kernel@kolivas.org>
 To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: -mm seems significanty slower than mainline on kernbench
-Date: Sun, 15 Jan 2006 13:04:50 +1100
+Subject: [PATCH] sched - remove unnecessary smpnice ifdefs
+Date: Sun, 15 Jan 2006 13:09:39 +1100
 User-Agent: KMail/1.9
 Cc: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
@@ -21,13 +21,20 @@ Cc: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
 References: <43C45BDC.1050402@google.com> <43C9477B.8060709@google.com> <43C991D0.3040808@bigpond.net.au>
 In-Reply-To: <43C991D0.3040808@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart1570655.c4494gqhY4";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601151304.52345.kernel@kolivas.org>
+Message-Id: <200601151309.41968.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+--nextPart1570655.c4494gqhY4
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
 On Sunday 15 January 2006 11:05, Peter Williams wrote:
 > Martin J. Bligh wrote:
@@ -52,8 +59,52 @@ On Sunday 15 January 2006 11:05, Peter Williams wrote:
 > 	Attached is a cleaned up version of this patch against 2.6.15-mm4 with
 > some (hopefully helpful) comments added.
 
-Great! Well done.
+One minor quibble.
 
-> Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+Cheers,
+Con
 
-Acked-by: Con Kolivas <kernel@kolivas.org>
+=2D--
+These #defines have no cost on !CONFIG_SMP without the ifdefs.
+Remove the unnecessary ifdefs.
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+ kernel/sched.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+Index: linux-2.6.15-mm4/kernel/sched.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2D-- linux-2.6.15-mm4.orig/kernel/sched.c
++++ linux-2.6.15-mm4/kernel/sched.c
+@@ -63,7 +63,6 @@
+ #define PRIO_TO_NICE(prio)	((prio) - MAX_RT_PRIO - 20)
+ #define TASK_NICE(p)		PRIO_TO_NICE((p)->static_prio)
+=20
+=2D#ifdef CONFIG_SMP
+ /*
+  * Priority bias for load balancing ranges from 1 (nice=3D=3D19) to 139 (RT
+  * priority of 100).
+@@ -71,7 +70,6 @@
+ #define NICE_TO_BIAS_PRIO(nice)	(20 - (nice))
+ #define PRIO_TO_BIAS_PRIO(prio)	NICE_TO_BIAS_PRIO(PRIO_TO_NICE(prio))
+ #define RTPRIO_TO_BIAS_PRIO(rp)	(40 + (rp))
+=2D#endif
+=20
+ /*
+  * 'User priority' is the nice value converted to something we
+
+--nextPart1570655.c4494gqhY4
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDya7lZUg7+tp6mRURAtTgAJ4hJT1w0smYjZbqkeBIxUCjxJw7ogCfcXLC
+C68RigY89HpfhyP8TxWoq2Q=
+=29n0
+-----END PGP SIGNATURE-----
+
+--nextPart1570655.c4494gqhY4--

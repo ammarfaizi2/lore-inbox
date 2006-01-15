@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWAOMHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWAOMMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWAOMHv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 07:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751909AbWAOMHv
+	id S1751910AbWAOMMr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 07:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWAOMMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 07:07:51 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:22463 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751066AbWAOMHu convert rfc822-to-8bit
+	Sun, 15 Jan 2006 07:12:46 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:60423 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751910AbWAOMMq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 07:07:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=szvFE9T94NJHgq5WDoylfRoycujrGpCyNLvy4oGcs3lgFCRt7SkG6rj5N9pCdnbvpGxmO0YPNkP9zYiA3U3ct27gjJqBf10ENLnlxKJQb2lgNSzmv6l6H9AGEEc3N1TnuEyuxZyiOTptioXBohMjfAQQADt1YK+t7igcGZ+KpEo=
-Message-ID: <421547be0601150407v8e087afh55a9ee12ae27ac8e@mail.gmail.com>
-Date: Sun, 15 Jan 2006 13:07:49 +0100
-From: Thomas Fazekas <thomas.fazekas@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Modify setterm color palette
-Cc: arch@archlinux.org
-MIME-Version: 1.0
+	Sun, 15 Jan 2006 07:12:46 -0500
+Date: Sun, 15 Jan 2006 13:13:13 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Subject: Re: [PATCH] Fix zoran_card compilation warning
+Message-Id: <20060115131313.04657ef5.khali@linux-fr.org>
+In-Reply-To: <20060112213437.3eb3f370.khali@linux-fr.org>
+References: <20060112213437.3eb3f370.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Linus, all,
 
-Sorry for the crosspost, I just wasn't sure which group should I target.
+Can we get this one merged before 2.6.16-rc1 please? Thanks.
 
-Here is what I try to do : I got to modify the standard colors used by setterm,
-the reason being my preference for using text consoles rather than xterms.
-I also prefer the fg green bg black setup. I can acheave that just by
-simply issuing a "setterm -foreground green -store". Now my problem is
-that the green I get is too dark on my screeen (even if I set the display
-luminosity to max). If I could modify the color used by setterm I
-could get a bit
-brighter green, but I'm not sure where/how to do that...
+Fix the following warning which was introduced in 2.6.15-git8 by
+commit 7408187d223f63d46a13b6a35b8f96b032c2f623:
 
-I've been looking in the kernel sources in the "console.c" and I think
-spotted the
-place where the colours are set but it seems to me that a more appropiate
-place to do such things would be the terminfo db.
+  CC [M]  drivers/media/video/zoran_card.o
+drivers/media/video/zoran_card.c: In function `zr36057_init':
+drivers/media/video/zoran_card.c:1053: warning: assignment makes integer from pointer without a cast
 
-Any hints ?
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/media/video/zoran_card.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-I'm using radeonfb under Suse/amd64 if that makes any difference...
+--- linux-2.6.15-git.orig/drivers/media/video/zoran_card.c	2006-01-12 20:34:54.000000000 +0100
++++ linux-2.6.15-git/drivers/media/video/zoran_card.c	2006-01-12 20:47:26.000000000 +0100
+@@ -995,7 +995,7 @@
+ static int __devinit
+ zr36057_init (struct zoran *zr)
+ {
+-	unsigned long mem;
++	u32 *mem;
+ 	void *vdev;
+ 	unsigned mem_needed;
+ 	int j;
+@@ -1058,10 +1058,10 @@
+ 			"%s: zr36057_init() - kmalloc (STAT_COM) failed\n",
+ 			ZR_DEVNAME(zr));
+ 		kfree(vdev);
+-		kfree((void *)mem);
++		kfree(mem);
+ 		return -ENOMEM;
+ 	}
+-	zr->stat_com = (u32 *) mem;
++	zr->stat_com = mem;
+ 	for (j = 0; j < BUZ_NUM_STAT_COM; j++) {
+ 		zr->stat_com[j] = 1;	/* mark as unavailable to zr36057 */
+ 	}
 
-Rgds
-Thomas
+
+-- 
+Jean Delvare

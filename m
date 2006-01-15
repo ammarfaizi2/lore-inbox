@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWAOP2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWAOPaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWAOP2J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 10:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWAOP2I
+	id S932076AbWAOPaR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 10:30:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWAOPaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 10:28:08 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:36567 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932075AbWAOP2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 10:28:07 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH 1 of 3] Introduce __raw_memcpy_toio32
-To: Andrew Morton <akpm@osdl.org>, "Bryan O'Sullivan" <bos@pathscale.com>,
-       hch@infradead.org, rdreier@cisco.com, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sun, 15 Jan 2006 16:33:51 +0100
-References: <5s6p8-1O3-29@gated-at.bofh.it> <5s6p8-1O3-27@gated-at.bofh.it> <5tnZx-1lb-17@gated-at.bofh.it> <5tt8U-xV-5@gated-at.bofh.it> <5tueu-2mb-9@gated-at.bofh.it> <5tvaH-3MA-55@gated-at.bofh.it> <5tvX6-4MO-13@gated-at.bofh.it> <5tvX6-4MO-11@gated-at.bofh.it> <5tvXa-4MO-23@gated-at.bofh.it> <5tzQR-2zH-11@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sun, 15 Jan 2006 10:30:17 -0500
+Received: from h144-158.u.wavenet.pl ([217.79.144.158]:55436 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S932076AbWAOPaP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 10:30:15 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.15-mm4: sem2mutex problem in USB OHCI
+Date: Sun, 15 Jan 2006 16:31:35 +0100
+User-Agent: KMail/1.9
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       greg@kroah.com
+References: <200601150058.58518.rjw@sisk.pl> <20060114160526.228da734.akpm@osdl.org> <20060115043826.GB23968@elte.hu>
+In-Reply-To: <20060115043826.GB23968@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1Ey9tA-0000sB-6f@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601151631.35450.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Sunday, 15 January 2006 05:38, Ingo Molnar wrote:
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > >  Badness in __mutex_trylock_slowpath at kernel/mutex.c:281
+> > > 
+> > >  Call Trace: <IRQ> <ffffffff80148d8d>{mutex_trylock+141}
+> > >         <ffffffff880abaf0>{:ohci_hcd:ohci_hub_status_data+480}
+> > >         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d24c3>{usb_hcd_poll_rh_status+67}
+> 
+> > err, taking a mutex from softirq context.
+> 
+> hm. For now, the patch below undoes the struct device ->mutex 
+> conversion.
 
-> One option is to just stick the thing in an existing lib/ or kernel/ file
-> and mark it __attribute__((weak)).  That way architectures can override it
-> for free with no ifdefs, no Makefile trickery, no Kconfig trickery, etc.
+That helps, thanks.
 
-What about "#define funcname funcname" in arch-specific headers iff it's
-redefined, and protecting the definition in the generic file by "#ifndef
-funcname"?
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Rafael

@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWAOWyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWAOWzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbWAOWyV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 17:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWAOWyV
+	id S1750954AbWAOWzl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 17:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWAOWzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 17:54:21 -0500
-Received: from smtp-7.smtp.ucla.edu ([169.232.46.137]:59867 "EHLO
-	smtp-7.smtp.ucla.edu") by vger.kernel.org with ESMTP
-	id S1750951AbWAOWyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 17:54:20 -0500
-Date: Sun, 15 Jan 2006 14:54:14 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: Willy TARREAU <willy@w.ods.org>
-cc: Roberto Nibali <ratz@drugphish.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Sun, 15 Jan 2006 17:55:40 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:57349 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750954AbWAOWzk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 17:55:40 -0500
+To: Peter Osterlund <petero2@telia.com>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Damian Pietras <daper@daper.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-In-Reply-To: <20060115224642.GA10069@w.ods.org>
-Message-ID: <Pine.LNX.4.64.0601151452460.5053@potato.cts.ucla.edu>
-References: <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
- <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
- <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch>
- <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0601151431250.5053@potato.cts.ucla.edu> <20060115224642.GA10069@w.ods.org>
+Subject: Re: Problems with eject and pktcdvd
+References: <20060115123546.GA21609@daper.net> <43CA8C15.8010402@cfl.rr.com>
+	<20060115185025.GA15782@daper.net> <43CA9FC7.9000802@cfl.rr.com>
+	<m3ek39z09f.fsf@telia.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: there's a reason it comes with a built-in psychotherapist.
+Date: Sun, 15 Jan 2006 22:55:22 +0000
+In-Reply-To: <m3ek39z09f.fsf@telia.com> (Peter Osterlund's message of "15
+ Jan 2006 20:48:38 -0000")
+Message-ID: <87wth19k4l.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Probable-Spam: no
-X-Spam-Report: none
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Jan 2006, Willy TARREAU wrote:
-> On Sun, Jan 15, 2006 at 02:38:51PM -0800, Chris Stromsoe wrote:
->> On Sun, 15 Jan 2006, Chris Stromsoe wrote:
->>> On Mon, 9 Jan 2006, Chris Stromsoe wrote:
->>>> On Mon, 9 Jan 2006, Roberto Nibali wrote:
->>>>
->>>>>> That is the SCSI BIOS rev.  The machine is a Dell PowerEdge 2650 
->>>>>> and that's the onboard AIC 7899.  It comes up as "BIOS Build 
->>>>>> 25309".
->>>>>
->>>>> Brain is engaged now, thanks ;). If you find time, could you maybe 
->>>>> compile a 2.4.32 kernel using following config (slightly changed 
->>>>> from yours):
->>>>>
->>>>> http://www.drugphish.ch/patches/ratz/kernel/configs/config-2.4.32-chris_s
->>>>
->>>> If/when the current run with DEBUG_SLAB oopses, I'll reboot with the 
->>>> config modifications.
->>>
->>> I've been running stable with the propsed changes since the 10th. 
->>> The original config and the currently running config are both at 
->>> <http://hashbrown.cts.ucla.edu/pub/oops-200512/>.  This is the diff:
->>
->> I made a mistake.
->>
->> The machine was /not/ booted into that config.  It is running the 
->> original config from 
->> http://hashbrown.cts.ucla.edu/pub/oops-200512/config-2.4.32 with 
->> DEBUG_SLAB defined and "pci=noacpi" passed in on the command line.
->>
->> The config with HIGHIO disabled an ACPI=y has not been tested.
->
-> Thanks for the precision. So logically we should expect it to break 
-> sooner or later ?
+On 15 Jan 2006, Peter Osterlund murmured:
+> If you do
+> 
+> 	pktsetup 0 /dev/hdc
+> 	mount /dev/hdc /mnt/tmp
+> 	umount /mnt/tmp
 
-It is the same .config as one that crashed before, except that it has 
-DEBUG_SLAB defined.  If it does not crash, then adding pci=noacpi to the 
-command fixes the problem for me.
+> the door will be left in a locked state.
 
+This is indeed what I see.
 
--Chris
+> 	pktsetup 0 /dev/hdc
+> 	mount /dev/pktcdvd/0 /mnt/tmp
+> 	umount /mnt/tmp
+> 
+> the door will be properly unlocked.
+
+... and this.
+
+... and my assumption that I couldn't mount non-packetwritten CDs via
+the /dev/pktcdvd/0 device is entirely erroneous. So it all works after
+all, as long as I never use the non-packetwritten device.
+
+Oh *good*. Thank you for this: this was my last real thing that worked
+better in 2.4 than in 2.6 :)))
+
+> The problem is that the cdrom driver locks the door the first time the
+> device is opened in blocking mode, but doesn't unlock it again until
+> the open count goes down to zero. The pktcdvd driver tries to work
+> around that, but it can't do it in the first example because the
+> mount/umount commands do not involve the pktcdvd driver at all.
+
+Yeah, well, it's obvious once you've explained it ;)
+
+-- 
+`Logic and human nature don't seem to mix very well,
+ unfortunately.' --- Velvet Wood

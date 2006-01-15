@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWAOJgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751883AbWAOJsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751881AbWAOJgI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 04:36:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751882AbWAOJgI
+	id S1751883AbWAOJsF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 04:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751884AbWAOJsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 04:36:08 -0500
-Received: from uproxy.gmail.com ([66.249.92.206]:31804 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751881AbWAOJgH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 04:36:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cnxR4MuWqzVCGKQ787Bp1QHrR1E/z5mJ0ASH960as8IHKS5mKEU7RS6V2gAG+8THFtjfT+F4CY+MSewlyRG5nKo3lVsfrCdt7a+hWiEWdmrYYku9YQm6T5yVXhV22Ws5TnTeqaZoghohMsfWpxKQRCgVTxSYavFfRmyZa00PEbo=
-Message-ID: <21d7e9970601150136m25ef428es139a641e2619997@mail.gmail.com>
-Date: Sun, 15 Jan 2006 20:36:05 +1100
-From: Dave Airlie <airlied@gmail.com>
-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-git breaks Xorg on em64t
-In-Reply-To: <20060115070658.GB6454@redhat.com>
+	Sun, 15 Jan 2006 04:48:05 -0500
+Received: from fed1rmmtao08.cox.net ([68.230.241.31]:2298 "EHLO
+	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S1751883AbWAOJsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 04:48:04 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: Kyle McMartin <kyle@parisc-linux.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Move read_mostly definition to asm/cache.h
+References: <20060111173321.GC28018@quicksilver.road.mcmartin.ca>
+	<Pine.LNX.4.64.0601110951210.5073@g5.osdl.org>
+	<7vslruqx5w.fsf@assigned-by-dhcp.cox.net>
+	<20060112053618.GH25353@tachyon.int.mcmartin.ca>
+Date: Sun, 15 Jan 2006 01:48:02 -0800
+In-Reply-To: <20060112053618.GH25353@tachyon.int.mcmartin.ca> (Kyle McMartin's
+	message of "Thu, 12 Jan 2006 00:36:18 -0500")
+Message-ID: <7vu0c57rfx.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060114065235.GA4539@redhat.com> <200601141943.28027.ak@suse.de>
-	 <20060114225137.GB23021@redhat.com> <200601150105.08197.ak@suse.de>
-	 <20060115070658.GB6454@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Another datapoint btw: I've another EM64T that works just fine.
-> The one that fails is the only one that isn't using onboard VGA,
-> this one has a PCIE Radeon.  Given it happens when X is starting up,
-> it could be that the X radeon driver does something special which
-> is why others aren't seeing this.
->
+Kyle McMartin <kyle@parisc-linux.org> writes:
 
-It might be due to the DRM update that went through, but I can't think
-what might have caused it, if you backout the DRM merge does it help
-any?
+> Alternatively, if I had (I haven't touched the tree, just format-patch'd
+> which looked right) used git-reset --hard HEAD and been up to date
+> (working tree and index file) with whatever ended up being pointed
+> to by HEAD, right?
 
-did the previous kernel have DRM support for that card?
+Yes.
 
-Dave.
+> I'll try to remember the symbolic-ref thing for next time, usually when
+> this happens I just blow away the last commit and try again, but I felt
+> adventurous today. :)
+
+After making the mistake of committing to "master":
+
+	$ git commit ;# oops, to the master
+        $ git show-branch origin master read-mostly
+	!  [origin] latest update from Linus
+         * [master] latest for read-mostly
+        --
+         * [master] latest for read-mostly
+        +* [origin] last update from Linus
+
+you could do this, which would be easier to visualize:
+
+	$ git branch read-mostly ;# may need branch "-f" if exists.
+        $ git reset --hard HEAD^ ;# rewind the current head by one.
+
+Which would give you this:
+
+        $ git show-branch origin master read-mostly
+	!   [origin] latest update from Linus
+         *  [master] latest update from Linus
+          ! [read-mostly] latest for read-mostly
+        --
+          ! [read-mostly] latest for read-mostly
+        +*! [origin] last update from Linus
+

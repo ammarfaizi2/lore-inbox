@@ -1,190 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWAOPFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWAOPLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWAOPFW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 10:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWAOPFW
+	id S932069AbWAOPLs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 10:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWAOPLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 10:05:22 -0500
-Received: from mail.host.bg ([85.196.174.5]:3220 "EHLO mail.host.bg")
-	by vger.kernel.org with ESMTP id S932070AbWAOPFW (ORCPT
+	Sun, 15 Jan 2006 10:11:48 -0500
+Received: from 8.ctyme.com ([69.50.231.8]:21131 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S932069AbWAOPLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 10:05:22 -0500
-Subject: OOM Killer killing whole system
-From: Anton Titov <a.titov@host.bg>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-p5JIzOVDu0ai7rcc5V6i"
-Organization: Host.bg
-Date: Sun, 15 Jan 2006 17:05:16 +0200
-Message-Id: <1137337516.11767.50.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Sun, 15 Jan 2006 10:11:47 -0500
+Message-ID: <43CA662C.1040204@perkel.com>
+Date: Sun, 15 Jan 2006 07:11:40 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Lee Revell <rlrevell@joe-job.com>, "Hesse, Christian" <mail@earthworm.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: So - What's going on with Reiser 4?
+References: <43C837B6.5070903@perkel.com>	 <1137236892.3014.12.camel@laptopd505.fenrus.org>	 <200601141322.34520.mail@earthworm.de>	 <1137242691.3014.16.camel@laptopd505.fenrus.org>	 <43C99491.3080907@perkel.com> <1137293454.19972.6.camel@mindpipe>	 <43C9C042.5090000@perkel.com> <1137299139.25801.7.camel@mindpipe>	 <43C9D0CC.9040906@perkel.com> <1137315139.3001.5.camel@laptopd505.fenrus.org>
+In-Reply-To: <1137315139.3001.5.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-p5JIzOVDu0ai7rcc5V6i
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-Yesterday I accidently noticed few OOM killer messages in the system log
-and leaved a console tailing the log for the night. In 6 in the morning
-OOM killer got mad generating 500 lines in the log and 5 minutes later
-system closed the ssh connection and became inresponsive. The guy in the
-datacenter told me that when he attached keyboard even caps lock was not
-working. Inspite of this the system still was responsive (only to) ping.
-
-The strange thing is this machine is relatively light loaded - now after
-6 hours being up free shows:
-             total       used       free     shared    buffers    cached
-Mem:       2075468    1148564     926904          0     123472    314516
--/+ buffers/cache:     710576    1364892
-Swap:      1004020          0    1004020
-
-Load average stays under 0.5 most of the time. In 6 in the morning it
-should be almost no load (there is no crons scheduled at that time).
-
-I'm attaching messages from the log and my .config.
-
-Anton Titov
-
---=-p5JIzOVDu0ai7rcc5V6i
-Content-Disposition: attachment; filename=log.gz
-Content-Type: application/x-gzip; name=log.gz
-Content-Transfer-Encoding: base64
-
-H4sICPFiykMCA2xvZwDtmW1PIzcQx9/zKfySo9COx88roYqqD/QqWqntu6pCS9aQiE023Q1w+fb1
-eh84dJuQELhCb4hEHHls/2fstX+zfp/OGFcMdAIqAcduJ3NWFNOj60me+zJhV5fz82laXR/DhwwO
-WVFmvjyGvfcDzc789GgyuyySwdrvz07Y3JdHo/nNsEGoYMDGxSJheXHHwmDjydW4/r5IF6Mx4+ym
-8lkCaxqPijx7amu+y9D8yUOHsAjsA8P8dL5YDhr+WpTTNH9SCLnVnRbRikG5VRg19s6opgNltonk
-gALBt4rmgILhgJ4G67ASnytQctdAiR3jxDnsGCg92P7H0ns2T698lbD4Z7lUQl9/x/YtGJQ2lNpY
-vhvs4GS0mNz6xFhukE1mafOTWww/s0m5WIYpRsnuysnCX6Sj6wTYzaxapBe5D8XLMHyCILSQrMrT
-iwS5lsawaTqf12F3QtsoLzaoEiHcym0l9iWUrSVPJ7NE14UQk8TKUKijknCAUOw0Yij3iuuKeekr
-P1skXIvYJsblvBqls1m90lia5+c3s9KP8nQyrQV9y2bFoJ4w7NRPz+v+ylv/199JWCbArAUWnF23
-BUQnoPUAWgeg0/+RelglHj4RDi8rvN2SmvAb6MQLo3SrX2qHnQtKC7z3wjktP3bEqljb+eKAc/zU
-Ie40WrY34NXSV1u4BcwhqLX7R/SqfxJqv1RcN7Vb3Mh+ZtDF5da6IQDNw+WlpYrh6JcYN1aAHJir
-vV0nK3xWLbCE8YN6TDiw8T/X8SvGHA50U8WxqcQomB80DvMDDihjAUE2FhJcbXLMmqdu9bJ+/EQL
-ypSL2oSI4kwjDhtxfL04WCsursl1s5wwAQbi6MiNdlEA11y2IkyobnVoZxspXHVi+CoxMCCmW0qD
-cv64S8OOno7GPmFpljFlJD9kmc/9wjMlQR2yy8ksYxykhm84OGEPWZmOPIOvYPX2XtXdhrERQINc
-FYs/i0V4iqNtNLWrTfte2zPjkZ4JJAkkCSQJJDcFSe0egqR65SD5AMU4PgqSjkCSQJJAkkCSQHI7
-kFQonMJmobPikv1+craTHTqpjL63O/35p9OzH1b0CVax9gHJmibDdhyUabusxmnps0EzIbpxq36u
-sp1FxhOysYxH5qARtBb9STpodX9iVu0hOqyuOWZbV8LBu8Jb15rcH8GvK8pvPnK/3Szq1RE2oaJc
-JuyXOt8KESyLka+qeg8KdvvTZfVPnr37+oV6oESPEr2XT/TwTSR6XKsvJtNDCxFY9i0GKoFNMz2p
-DTz5ysAAF4OZnrQoXsuVAZds59yCcr03muthoGu5Ra6H1gqjKdd7M7mexJDDxVwPjdBdridkl+tx
-2+ow4LpcTz0p10Medxe6NCCW/B+xpOTEkpuRnNFfDks6yZtbA8Rmq9yMJQWuZknxGEsKNXxrIA3g
-A5ZEJJYklqxZ0snPypLts7A5S5oGFIkl3whLcoEtS1rbsyT29wYIHUtysSNLNkuJ7g0+031AUIbP
-/KZaPNeb6v58e4431YibvakmsieyJ7InsieyJ7InsieyJ7InsieyJ7InsieyJ7InsieyJ7Insiey
-J7InsieyJ7InsieyJ7InsieyJ7InsieyJ7Insieyf2Gyt5LYntie2J7Yntie2J7Yntie2J7Yntie
-3toT2RPZE9kT2RPZE9kT2RPZE9kT2RPZE9kT2RPZE9kT2RPZE9kT2RPZE9kT2RPZb032NBv/1Wz8
-C0yZRlkEdwAA
-
-
---=-p5JIzOVDu0ai7rcc5V6i
-Content-Disposition: attachment; filename=config.gz
-Content-Type: application/x-gzip; name=config.gz
-Content-Transfer-Encoding: base64
-
-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
-
-
-
---=-p5JIzOVDu0ai7rcc5V6i--
-
+Arjan van de Ven wrote:
+>>> OK, suit yourself.
+>>>
+>>> Anyway, there was no need to get so defensive - Arjan was just telling
+>>> you that it's not up to the kernel developers when reiser4 gets in, it's
+>>> up the the reiser4 developers when they submit it in a mergeable state
+>>> (they know what that is), so you should ask the reiser4 people when they
+>>> plan to do that.
+>>>
+>>> Lee
+>>>
+>>>   
+>>>       
+>> I just asked a question. Obviously it's a question that seems to 
+>> politically hot to handle. I didn't realize reiser 4 was a prohibited 
+>> subject.
+>>     
+>
+> please stop trolling.
+>
+> I gave you a polite answer that the exact same question was asked
+> recently, and answered. If you are then too lazy to go look in the
+> archive even then..... ok here is it:
+>
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0601.0/1840.html
+>
+> I even pointed out a mailinglist that's best suited for detailed
+> follow-on questions. 
+>
+> Your "political" and other crap you're spewing here shows that you're
+> not actually interested in the answer, but just want to start a
+> flamewar. THAT is not reasonable on linux-kernel. If you want to start a
+> flamewar at least do it for a technical topic/reason.
+>
+>   
+I just asked a simple question about what the status of a merge was. No 
+one has responded to my question yet. All I'm hearing is that Reiser 4 
+is a prohibited subject.

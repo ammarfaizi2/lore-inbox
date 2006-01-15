@@ -1,77 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWAPHGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWAPHPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWAPHGY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 02:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWAPHGY
+	id S932213AbWAPHPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 02:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWAPHPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 02:06:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:60394 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932187AbWAPHGX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 02:06:23 -0500
-Date: Sun, 15 Jan 2006 23:05:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, paulus@au1.ibm.com, anton@au1.ibm.com,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: 2.6.15-mm4 failure on power5
-Message-Id: <20060115230557.0f07a55c.akpm@osdl.org>
-In-Reply-To: <20060116063530.GB23399@sergelap.austin.ibm.com>
-References: <20060116063530.GB23399@sergelap.austin.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 16 Jan 2006 02:15:25 -0500
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:11190 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932213AbWAPHPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 02:15:25 -0500
+Subject: 2.6.15 on powerbook 15" still oopsing on resume with cd/dvd in
+	drive
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Benjamin Herrenschmidt <benh@KERNEL.CRASHING.ORG>
+Content-Type: text/plain
+Date: Sun, 15 Jan 2006 10:46:38 +0100
+Message-Id: <1137318398.24666.25.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> wrote:
->
-> On my power5 partition, 2.6.15-mm4 hangs on boot with the following
->  console output.  2.6.15-mm3 booted fine.  .config attached.
-> 
->  boot: quicktest
->  Please wait, loading kernel...
->     Elf64 kernel loaded...
->  OF stdout device is: /vdevice/vty@30000000
->  Hypertas detected, assuming LPAR !
->  command line: ro console=hvc0 root=/dev/sda6 smt-enabled=1 
->  memory layout at init:
->    memory_limit : 0000000000000000 (16 MB aligned)
->    alloc_bottom : 0000000002223000
->    alloc_top    : 0000000008000000
->    alloc_top_hi : 0000000088000000
->    rmo_top      : 0000000008000000
->    ram_top      : 0000000088000000
->  Looking for displays
->  instantiating rtas at 0x00000000077d7000 ... done
->  0000000000000000 : boot cpu     0000000000000000
->  0000000000000002 : starting cpu hw idx 0000000000000002... done
->  0000000000000004 : starting cpu hw idx 0000000000000004... done
->  0000000000000006 : starting cpu hw idx 0000000000000006... done
->  copying OF device tree ...
->  Building dt strings...
->  Building dt structure...
->  Device tree strings 0x0000000002424000 -> 0x0000000002424f36
->  Device tree struct  0x0000000002425000 -> 0x000000000242c000
->  Calling quiesce ...
->  returning from prom_init
->  Page orders: linear mapping = 24, others = 12
+Hi,
 
-It might be worth reverting the changes to arch/powerpc/mm/hash_utils_64.c,
-see if that unbreaks it.
+happens this time w/o preemption:
 
--		base = lmb.memory.region[i].base + KERNELBASE;
-+		base = (unsigned long)__va(lmb.memory.region[i].base);
+CONFIG_PREEMPT_NONE=y
+# CONFIG_PREEMPT_VOLUNTARY is not set
+# CONFIG_PREEMPT is not set
 
-The nice comment in page.h:
 
- * KERNELBASE is the virtual address of the start of the kernel, it's often
- * the same as PAGE_OFFSET, but _might not be_.
- *
- * The kdump dump kernel is one example where KERNELBASE != PAGE_OFFSET.
- *
- * To get a physical address from a virtual one you subtract PAGE_OFFSET,
- * _not_ KERNELBASE.
+relevant dmesg part:
 
-Tells us that was not an equivalent transformation.
+radeonfb (0000:00:10.0): suspending to state: 2...
+uninorth-agp: disabling AGP on device 0000:00:10.0
+uninorth-agp: disabling AGP on bridge 0000:00:0b.0
+radeonfb (0000:00:10.0): switching to D2 state...
+radeonfb (0000:00:10.0): resuming from state: 2...
+radeonfb (0000:00:10.0): switching to D0 state...
+agpgart: Putting AGP V2 device at 0000:00:0b.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:00:10.0 into 4x mode
+eth0: resuming
+PHY ID: 2060e1, addr: 0
+hda: Enabling Ultra DMA 4
+BUG: soft lockup detected on CPU#0!
+NIP: C00068EC LR: C0285CA8 SP: ED37BC30 REGS: ed37bb80 TRAP: 0901    Not tainted
+MSR: 0200b032 EE: 1 PR: 0 FP: 1 ME: 1 IR/DR: 11
+TASK = ed377390[4714] 'pbbuttonsd' THREAD: ed37a000
+Last syscall: 54 
+GPR00: 00487AB0 ED37BC30 ED377390 000513B5 000088B8 00000000 00000000 C05445F0 
+GPR08: 00000000 C04B0000 00000000 00400000 00000000 
+NIP [c00068ec] __delay+0xc/0x14
+LR [c0285ca8] ide_wait_not_busy+0x34/0x90
+Call trace:
+ [c02845e4] ide_do_request+0x464/0x8c8
+ [c0284b20] ide_do_drive_cmd+0xd8/0x12c
+ [c028169c] generic_ide_resume+0x80/0x94
+ [c0269c44] resume_device+0xa8/0xec
+ [c0269dd8] dpm_resume+0xa0/0x120
+ [c0269e94] device_resume+0x3c/0x70
+ [c027c5e0] pmac_wakeup_devices+0xac/0xcc
+ [c027dc10] pmu_ioctl+0x718/0x8ec
+ [c0086d58] do_ioctl+0x70/0x88
+ [c0087100] vfs_ioctl+0x390/0x3cc
+ [c00871a4] sys_ioctl+0x68/0x98
+ [c00046dc] ret_from_syscall+0x0/0x44
+hdc: Enabling MultiWord DMA 2
+VFS: busy inodes on changed media.
+adb: starting probe task...
+adb devices: [2]: 2 c4 [3]: 3 1 [7]: 7 1f
+ADB keyboard at 2, handler 1
+ADB mouse at 3, handler set to 4 (trackpad)
+adb: finished probe task...
+agpgart: Putting AGP V2 device at 0000:00:0b.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:00:10.0 into 4x mode
+[drm] Loading R200 Microcode
+orinoco 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+airport 0.15rc3 (Benjamin Herrenschmidt <benh@kernel.crashing.org>)
+airport: Physical address 80030000
+eth1: Hardware identity 0005:0001:0001:0002
+eth1: Station identity  001f:0001:0008:0046
+eth1: Firmware determined as Lucent/Agere 8.70
+eth1: Ad-hoc demo mode supported
+eth1: IEEE standard IBSS ad-hoc mode supported
+eth1: WEP supported, 104-bit key
+eth1: MAC address 00:30:65:28:DD:B1
+eth1: Station name "HERMES I"
+eth1: ready
+airport: Card registered for interface eth1
+hdc: irq timeout: status=0xc0 { Busy }
+ide: failed opcode was: unknown
+hdc: DMA disabled
+hdc: ATAPI reset complete
+ADDRCONF(NETDEV_UP): eth1: link is not ready
+
+Note, the system is in a completely usable state afterwards... but still
+it is a bit annoying...
+
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
+

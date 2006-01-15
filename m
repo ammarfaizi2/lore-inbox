@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932958AbWAOR4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWAOSGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932958AbWAOR4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 12:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932953AbWAOR4I
+	id S932119AbWAOSGY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 13:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWAOSGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 12:56:08 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:20181 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S932958AbWAOR4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 12:56:07 -0500
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: [PATCH] pktcdvd & udf bugfixes
-References: <43C5D71B.1060002@cfl.rr.com> <m3oe2e2983.fsf@telia.com>
-	<43C94464.4040500@cfl.rr.com> <m3hd861o2r.fsf@telia.com>
-	<43C982C0.1070605@cfl.rr.com> <m3r779z9on.fsf@telia.com>
-	<43CA89A4.3010000@cfl.rr.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 Jan 2006 18:56:03 +0100
-In-Reply-To: <43CA89A4.3010000@cfl.rr.com>
-Message-ID: <m3k6d1z87g.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Jan 2006 13:06:24 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:63372 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932119AbWAOSGX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 13:06:23 -0500
+Subject: Re: So - What's going on with Reiser 4?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc Perkel <marc@perkel.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjan@infradead.org>,
+       "Hesse, Christian" <mail@earthworm.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <43C9D0CC.9040906@perkel.com>
+References: <43C837B6.5070903@perkel.com>
+	 <1137236892.3014.12.camel@laptopd505.fenrus.org>
+	 <200601141322.34520.mail@earthworm.de>
+	 <1137242691.3014.16.camel@laptopd505.fenrus.org>
+	 <43C99491.3080907@perkel.com> <1137293454.19972.6.camel@mindpipe>
+	 <43C9C042.5090000@perkel.com> <1137299139.25801.7.camel@mindpipe>
+	 <43C9D0CC.9040906@perkel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 15 Jan 2006 18:09:29 +0000
+Message-Id: <1137348569.2350.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi <psusi@cfl.rr.com> writes:
+On Sad, 2006-01-14 at 20:34 -0800, Marc Perkel wrote:
+> >> I am not going to search the archives before asking a question.
+> >   
+> I just asked a question. Obviously it's a question that seems to 
+> politically hot to handle. I didn't realize reiser 4 was a prohibited 
+> subject.
 
-> Peter Osterlund wrote:
-> 
-> >Phillip Susi <psusi@cfl.rr.com> writes:
-> >
-> >>Peter Osterlund wrote:
-> >>  > OK, so it appears you can make packets bigger than 64KB. Can I please
-> >>
-> >>>have those patches so I can test this myself.
-> >>>
-> >>Sure, patches attached.
-> >>
-> >>patch-6 is the one you are interested in for the different sizes
-> >
-> >Thanks, it seems to work just fine. I have put the overflow and zero
-> >check changes in my kernel patch queue.
-> >
-> >However, I want to wait with the increased max packet size until the
-> >memory allocation strategy has been changed to avoid wasting lots of
-> >memory in the common cases. I will go work on a patch to do that now.
-> >
-> Ahh, excellent.  Also, is the memory currently non pagable?  Is there
-> a reason for that?
+Its not. Possibly your behaviour should come under "prohibited attitude"
+but we don't have thought crime on the list beyond that your government
+may be seeking to impose.
 
-Yes the memory is non pagable. The linux kernel doesn't support
-pagable kernel memory, only user space memory can be swapped out.
+Its an "oh god not again" subject that has been beaten to death
+repeatedly, and that is why people asked you to look at the archive
+instead of wasting everyones time.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+If you are really keen to get resierfs4 into the base kernel why not
+email the reiserfs4 people and ask to help clean up the code and test
+it ?
+
+Alan
+

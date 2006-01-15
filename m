@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWAOV0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWAOV0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbWAOV0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 16:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWAOV0H
+	id S1750897AbWAOV0E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 16:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWAOV0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 16:26:07 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:16402 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750900AbWAOV0F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 16:26:05 -0500
-Date: Sun, 15 Jan 2006 22:26:02 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] kbuild: fix make -jN with multiple targets with make O=...
-Message-ID: <20060115212602.GB26627@mars.ravnborg.org>
-Mime-Version: 1.0
+	Sun, 15 Jan 2006 16:26:04 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:51906 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750897AbWAOV0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 16:26:02 -0500
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.15: Filesystem capabilities 0.16
+References: <8764om8pzl.fsf@goat.bogus.local>
+	<200601142358.31628.ioe-lkml@rameria.de>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Sun, 15 Jan 2006 22:25:56 +0100
+Message-ID: <87zmlx5gkb.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[It is pushed out at:
-git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git]
+Ingo Oeser <ioe-lkml@rameria.de> writes:
 
-The way multiple targets was handled with make O=...
-broke because for each high-level target make spawned
-a parallel make resulting in a broken build.
-Reported by Keith Owens <kaos@ocs.com.au>
+> On Saturday 14 January 2006 22:21, Olaf Dietsche wrote:
+>> This patch implements filesystem capabilities. It allows to run
+>> privileged executables without the need for suid root.
+>
+> Why not implement this via xattr framework and the "system." 
+> namespace there? I would suggest "system.posix_capabilties" for this.
 
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+This already exists. See
+<http://groups.google.com/group/linux.kernel/browse_frm/thread/bbcb9a5d4204db6d/92da59d319865d7b>,
+<http://groups.google.com/group/linux.kernel/browse_frm/thread/b8f2508c00c76938/d76a17c820b8a0a8>
+and <http://www.stanford.edu/~luto/linux-fscap/>
 
----
+> That way you can reduce your infrastructure, take advantage
+> of caching features, have user space tools for viewing and changing 
+> this and resize2fs works for it now or soon.
+>
+> What do you think?
 
- Makefile |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+Short (and lazy ;-) answer: <http://groups.google.com/group/linux.kernel/browse_frm/thread/6a4f4b26c110c742/83ad1d63035fd290>
 
-296e0855b0f9a4ec9be17106ac541745a55b2ce1
-diff --git a/Makefile b/Makefile
-index deedaf7..b3dd9db 100644
---- a/Makefile
-+++ b/Makefile
-@@ -106,12 +106,13 @@ KBUILD_OUTPUT := $(shell cd $(KBUILD_OUT
- $(if $(KBUILD_OUTPUT),, \
-      $(error output directory "$(saved-output)" does not exist))
- 
--.PHONY: $(MAKECMDGOALS)
-+.PHONY: $(MAKECMDGOALS) cdbuilddir
-+$(MAKECMDGOALS) _all: cdbuilddir
- 
--$(filter-out _all,$(MAKECMDGOALS)) _all:
-+cdbuilddir:
- 	$(if $(KBUILD_VERBOSE:1=),@)$(MAKE) -C $(KBUILD_OUTPUT) \
- 	KBUILD_SRC=$(CURDIR) \
--	KBUILD_EXTMOD="$(KBUILD_EXTMOD)" -f $(CURDIR)/Makefile $@
-+	KBUILD_EXTMOD="$(KBUILD_EXTMOD)" -f $(CURDIR)/Makefile $(MAKECMDGOALS)
- 
- # Leave processing to above invocation of make
- skip-makefile := 1
--- 
-1.0.GIT
-
-
-
+Regards, Olaf.

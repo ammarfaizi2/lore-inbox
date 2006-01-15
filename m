@@ -1,58 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWAOU0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWAOUeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWAOU0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 15:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWAOU0G
+	id S1750711AbWAOUeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 15:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWAOUeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 15:26:06 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:31245 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932080AbWAOU0E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 15:26:04 -0500
-Date: Sun, 15 Jan 2006 21:26:37 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com,
-       Russell King <rmk+kernel@arm.linux.org.uk>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH] Fix warning in dvb-btxx driver
-Message-Id: <20060115212637.23fda216.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Sun, 15 Jan 2006 15:34:18 -0500
+Received: from outmx026.isp.belgacom.be ([195.238.4.91]:10376 "EHLO
+	outmx026.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1750711AbWAOUeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 15:34:17 -0500
+Date: Sun, 15 Jan 2006 21:34:02 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [WATCHDOG] MAINTAINERS + sa1100_wdt.c sparse patch
+Message-ID: <20060115203402.GA4201@infomag.infomag.iguana.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mauro, all,
+Hi Linus,
 
-Fix the following warning I am seeing in 2.6.15-git11, which seems
-to have been introduced by commit 348290a4ae143a692124330942b464ccdb0d0365:
+please do a
 
-  CC [M]  drivers/media/dvb/bt8xx/dvb-bt8xx.o
-drivers/media/dvb/bt8xx/dvb-bt8xx.c:923: warning: initialization from incompatible pointer type
+	git pull rsync://rsync.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
 
-It would have also been possible to keep "void" as the return type and
-change the function itself instead, but given that the driver core's
-.remove method returns an int, my guess is that we want the same here.
+This will update the following files:
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/media/video/bttv.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ MAINTAINERS                        |    6 ++++++
+ drivers/char/watchdog/sa1100_wdt.c |   12 ++++++------
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
---- linux-2.6.15-git.orig/drivers/media/video/bttv.h	2006-01-15 10:49:37.000000000 +0100
-+++ linux-2.6.15-git/drivers/media/video/bttv.h	2006-01-15 20:47:24.000000000 +0100
-@@ -366,7 +366,7 @@
- 	struct device_driver   drv;
- 	char                   wanted[BUS_ID_SIZE];
- 	int                    (*probe)(struct bttv_sub_device *sub);
--	void                   (*remove)(struct bttv_sub_device *sub);
-+	int                    (*remove)(struct bttv_sub_device *sub);
- 	void                   (*gpio_irq)(struct bttv_sub_device *sub);
- };
- #define to_bttv_sub_drv(x) container_of((x), struct bttv_sub_driver, drv)
+with these Changes:
+
+Author: Wim Van Sebroeck <wim@iguana.be>
+Date:   Sun Jan 15 21:21:14 2006 +0100
+
+    [PATCH] MAINTAINERS: watchdog device drivers
+    
+    Add a MAINTAINER entry for the watchdog device drivers.
+    
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+Author: Ian Campbell <icampbell@arcom.com>
+Date:   Wed Nov 2 08:56:49 2005 +0000
+
+    [WATCHDOG] sa1100_wdt.c sparse cleanups
+    
+    The following makes drivers/char/watchdog/sa1100_wdt.c sparse clean.
+    
+    Signed-off-by: Ian Campbell <icampbell@arcom.com>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
 
--- 
-Jean Delvare
+The Changes can also be looked at on:
+	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 513f3b6..ce3c8f5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2965,6 +2965,12 @@ M:	dm@sangoma.com
+ W:	http://www.sangoma.com
+ S:	Supported
+ 
++WATCHDOG DEVICE DRIVERS
++P:	Wim Van Sebroeck
++M:	wim@iguana.be
++T:	git kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
++S:	Maintained
++
+ WAVELAN NETWORK DRIVER & WIRELESS EXTENSIONS
+ P:	Jean Tourrilhes
+ M:	jt@hpl.hp.com
+diff --git a/drivers/char/watchdog/sa1100_wdt.c b/drivers/char/watchdog/sa1100_wdt.c
+index fb88b40..b474ea5 100644
+--- a/drivers/char/watchdog/sa1100_wdt.c
++++ b/drivers/char/watchdog/sa1100_wdt.c
+@@ -74,7 +74,7 @@ static int sa1100dog_release(struct inod
+ 	return 0;
+ }
+ 
+-static ssize_t sa1100dog_write(struct file *file, const char *data, size_t len, loff_t *ppos)
++static ssize_t sa1100dog_write(struct file *file, const char __user *data, size_t len, loff_t *ppos)
+ {
+ 	if (len)
+ 		/* Refresh OSMR3 timer. */
+@@ -96,20 +96,20 @@ static int sa1100dog_ioctl(struct inode 
+ 
+ 	switch (cmd) {
+ 	case WDIOC_GETSUPPORT:
+-		ret = copy_to_user((struct watchdog_info *)arg, &ident,
++		ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
+ 				   sizeof(ident)) ? -EFAULT : 0;
+ 		break;
+ 
+ 	case WDIOC_GETSTATUS:
+-		ret = put_user(0, (int *)arg);
++		ret = put_user(0, (int __user *)arg);
+ 		break;
+ 
+ 	case WDIOC_GETBOOTSTATUS:
+-		ret = put_user(boot_status, (int *)arg);
++		ret = put_user(boot_status, (int __user *)arg);
+ 		break;
+ 
+ 	case WDIOC_SETTIMEOUT:
+-		ret = get_user(time, (int *)arg);
++		ret = get_user(time, (int __user *)arg);
+ 		if (ret)
+ 			break;
+ 
+@@ -123,7 +123,7 @@ static int sa1100dog_ioctl(struct inode 
+ 		/*fall through*/
+ 
+ 	case WDIOC_GETTIMEOUT:
+-		ret = put_user(pre_margin / OSCR_FREQ, (int *)arg);
++		ret = put_user(pre_margin / OSCR_FREQ, (int __user *)arg);
+ 		break;
+ 
+ 	case WDIOC_KEEPALIVE:

@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWAOUsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWAOUrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWAOUsH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 15:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWAOUr4
+	id S1750733AbWAOUrp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 15:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWAOUrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 15:47:56 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:30371 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750773AbWAOUrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 15:47:52 -0500
-Message-Id: <200601152139.k0FLdrwi027752@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 10/11] UML - Use setjmp/longjmp instead of sigsetjmp/siglongjmp
-Mime-Version: 1.0
+	Sun, 15 Jan 2006 15:47:45 -0500
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:57295 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1750733AbWAOUrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 15:47:45 -0500
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Damian Pietras <daper@daper.net>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with eject and pktcdvd
+References: <20060115123546.GA21609@daper.net> <43CA8C15.8010402@cfl.rr.com>
+	<20060115185025.GA15782@daper.net> <43CA9FC7.9000802@cfl.rr.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 15 Jan 2006 21:47:40 +0100
+In-Reply-To: <43CA9FC7.9000802@cfl.rr.com>
+Message-ID: <m3ek39z09f.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 15 Jan 2006 16:39:53 -0500
-From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that we are doing soft interrupts, there's no point in using
-sigsetjmp and siglongjmp.  Using setjmp and longjmp saves a
-sigprocmask on every jump.
+Phillip Susi <psusi@cfl.rr.com> writes:
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> Damian Pietras wrote:
+> > On Sun, Jan 15, 2006 at 12:53:25PM -0500, Phillip Susi wrote:
+> > Neither Ubuntu kernel nor this patch fixes the problem.
+> >
+> 
+> You might want to try it under dapper then.  If you still have that
+> problem, then it's got to be busted hardware.  You might try updating
+> the firmware in the drive.
 
-Index: linux-2.6.15-mm/arch/um/include/longjmp.h
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/include/longjmp.h	2006-01-09 11:44:53.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/include/longjmp.h	2006-01-09 11:48:47.000000000 -0500
-@@ -5,13 +5,13 @@
- #include "os.h"
- 
- #define UML_SIGLONGJMP(buf, val) do { \
--	siglongjmp(*buf, val);		\
-+	longjmp(*buf, val);	\
- } while(0)
- 
- #define UML_SIGSETJMP(buf, enable) ({ \
- 	int n; \
- 	enable = get_signals(); \
--	n = sigsetjmp(*buf, 1); \
-+	n = setjmp(*buf); \
- 	if(n != 0) \
- 		set_signals(enable); \
- 	n; })
+The irq timeout problem might be broken hardware/firmware, but there
+is a problem with drive locking and the pktcdvd driver.
 
+If you do
+
+	pktsetup 0 /dev/hdc
+	mount /dev/hdc /mnt/tmp
+	umount /mnt/tmp
+
+the door will be left in a locked state. (It gets unlocked when you
+run "pktsetup -d 0" though.) However, if you do:
+
+	pktsetup 0 /dev/hdc
+	mount /dev/pktcdvd/0 /mnt/tmp
+	umount /mnt/tmp
+
+the door will be properly unlocked.
+
+The problem is that the cdrom driver locks the door the first time the
+device is opened in blocking mode, but doesn't unlock it again until
+the open count goes down to zero. The pktcdvd driver tries to work
+around that, but it can't do it in the first example because the
+mount/umount commands do not involve the pktcdvd driver at all.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

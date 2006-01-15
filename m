@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWAOFS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWAOFWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751659AbWAOFS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 00:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWAOFS7
+	id S1751665AbWAOFWg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 00:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWAOFWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 00:18:59 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:5585 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751114AbWAOFS6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 00:18:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Hwru7AirxyD+5o57InYfouoXyiIJ/SHdATnrcUtM42j1FGmGklqgulUZpnrU4clRP+zyXmJh3ej/5YVddv3pjTkRUOQT6JYalQtvfndg8KLyManHYz7b8K353wG2WE45Eq2ume/uksY4xuJKhftxpU8TqONyhnEkk3ciO4tq9Z0=
-Message-ID: <a36005b50601142118h3a07a640ra668dab13129683b@mail.gmail.com>
-Date: Sat, 14 Jan 2006 21:18:57 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-To: david singleton <dsingleton@mvista.com>
-Subject: Re: [robust-futex-1] futex: robust futex support
-Cc: akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com>
+	Sun, 15 Jan 2006 00:22:36 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:27372 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751316AbWAOFWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 00:22:35 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] pci_ids: remove duplicates gathered during merge period
+Date: Sun, 15 Jan 2006 16:21:27 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <7qmjs1pg0terg55gjicjiejsf490tkpk23@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43C84D4B.70407@mvista.com>
-	 <a36005b50601141602y641567ebh5ff9b6a1fad4d7d2@mail.gmail.com>
-	 <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/14/06, david singleton <dsingleton@mvista.com> wrote:
-> can you suggest some error codes you like to use?  I'll use
-> whatever you suggest.
 
-How about EADDRNOTAVAIL.  The error message kind of makes sense, even
-though "address" is misused.  And there definitely won't be a clash
-with other error codes because it's currently only used in network
-contexts.
+From: Grant Coady <gcoady@gmail.com>
+
+pci_ids.h: remove duplicates.  Compile tested allmodconfig.
+
+Signed-off-by: Grant Coady <gcoady@gmail.com>
+
+---
+ pci_ids.h |    7 -------
+ 1 files changed, 7 deletions(-)
+
+--- linux-2.6.15-git10a/include/linux/pci_ids.h	2006-01-15 09:01:39.000000000 +1100
++++ linux-2.6.15-git10b/include/linux/pci_ids.h	2006-01-15 11:30:56.000000000 +1100
+@@ -393,14 +393,9 @@
+ #define PCI_DEVICE_ID_NS_SC1100_SMI	0x0511
+ #define PCI_DEVICE_ID_NS_SC1100_XBUS	0x0515
+ #define PCI_DEVICE_ID_NS_87410		0xd001
+-#define PCI_DEVICE_ID_NS_CS5535_IDE	0x002d
+ 
+ #define PCI_DEVICE_ID_NS_CS5535_HOST_BRIDGE  0x0028
+ #define PCI_DEVICE_ID_NS_CS5535_ISA_BRIDGE   0x002b
+-#define PCI_DEVICE_ID_NS_CS5535_IDE          0x002d
+-#define PCI_DEVICE_ID_NS_CS5535_AUDIO        0x002e
+-#define PCI_DEVICE_ID_NS_CS5535_USB          0x002f
+-#define PCI_DEVICE_ID_NS_CS5535_VIDEO        0x0030
+ 
+ #define PCI_VENDOR_ID_TSENG		0x100c
+ #define PCI_DEVICE_ID_TSENG_W32P_2	0x3202
+@@ -510,8 +505,6 @@
+ #define PCI_DEVICE_ID_AMD_CS5536_UOC    0x2097
+ #define PCI_DEVICE_ID_AMD_CS5536_IDE    0x209A
+ 
+-#define PCI_DEVICE_ID_AMD_CS5536_IDE	0x209A
+-
+ #define PCI_DEVICE_ID_AMD_LX_VIDEO  0x2081
+ #define PCI_DEVICE_ID_AMD_LX_AES    0x2082
+ 

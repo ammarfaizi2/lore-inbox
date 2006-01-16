@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWAPGyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWAPHBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWAPGyr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 01:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWAPGyr
+	id S932184AbWAPHBH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 02:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWAPHBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 01:54:47 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.26]:36297 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932185AbWAPGyq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 01:54:46 -0500
-Date: Sun, 15 Jan 2006 22:54:31 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Magnus Damm <magnus.damm@gmail.com>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Nick Piggin <npiggin@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: Race in new page migration code?
-In-Reply-To: <43C9DD98.5000506@yahoo.com.au>
-Message-ID: <Pine.LNX.4.62.0601152251550.17034@schroedinger.engr.sgi.com>
-References: <20060114155517.GA30543@wotan.suse.de>
- <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
- <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
- <43C9DD98.5000506@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jan 2006 02:01:07 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:3032 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932184AbWAPHBG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 02:01:06 -0500
+Date: Mon, 16 Jan 2006 09:00:56 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: [patch 04/10] slab: cache_estimate cleanup
+In-Reply-To: <20060115183822.38b1e807.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0601160854530.12291@sbz-30.cs.Helsinki.FI>
+References: <20060114122249.246354000@localhost> <20060114122415.163755000@localhost>
+ <20060115183822.38b1e807.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Jan 2006, Nick Piggin wrote:
+"Pekka Enberg" <penberg@cs.helsinki.fi> wrote:
+> > -	size_t wastage = PAGE_SIZE << gfporder;
+> > -	size_t extra = 0;
+> > -	size_t base = 0;
+> > ...
+> > +	size_t mgmt_size;
+> > +	size_t slab_size = PAGE_SIZE << gfporder;
 
-> OK (either way is fine), but you should still drop the __isolate_lru_page
-> nonsense and revert it like my patch does.
+On Sun, 15 Jan 2006, Andrew Morton wrote:
+> Can anyone think of a reason for using size_t in there instead of plain old
+> unsigned int?
 
-Ok with me. Magnus: You needed the __isolate_lru_page for some other 
-purpose. Is that still the case?
+Not really but unsigned long would probably be safer.
+
+			Pekka

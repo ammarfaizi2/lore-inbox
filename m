@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWAPCB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWAPCF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWAPCB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 21:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWAPCB5
+	id S932164AbWAPCF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 21:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWAPCF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 21:01:57 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38842 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932163AbWAPCB5
+	Sun, 15 Jan 2006 21:05:56 -0500
+Received: from cable-212.76.255.90.static.coditel.net ([212.76.255.90]:897
+	"EHLO jekyll.org") by vger.kernel.org with ESMTP id S932164AbWAPCFz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 21:01:57 -0500
-Subject: Re: So - What's going on with Reiser 4?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43CA9050.8080601@perkel.com>
-References: <43C837B6.5070903@perkel.com>
-	 <1137236892.3014.12.camel@laptopd505.fenrus.org>
-	 <200601141322.34520.mail@earthworm.de>
-	 <1137242691.3014.16.camel@laptopd505.fenrus.org>
-	 <43C99491.3080907@perkel.com> <1137293454.19972.6.camel@mindpipe>
-	 <43C9C042.5090000@perkel.com> <1137299139.25801.7.camel@mindpipe>
-	 <43C9D0CC.9040906@perkel.com>
-	 <1137348569.2350.6.camel@localhost.localdomain>
-	 <43CA9050.8080601@perkel.com>
-Content-Type: text/plain
+	Sun, 15 Jan 2006 21:05:55 -0500
+Message-ID: <43CAFF80.2020707@jekyll.org>
+Date: Mon, 16 Jan 2006 03:05:52 +0100
+From: Gilles May <gilles@jekyll.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SMP trouble
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Jan 2006 02:05:15 +0000
-Message-Id: <1137377117.2350.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2006-01-15 at 10:11 -0800, Marc Perkel wrote:
-> Look - all I did was ask a simple question about what was the status of 
-> Reiser 4
+Hello,
 
-And you were politely asked to read the archive and said you wouldn't.
-What else did you expect.
+I got a wierd problem with my dual Athlon box.
+The board is a K7D Master-L with 2 Athlon-MP 2800+ processors.
+Running it with SMP enabled in the kernel makes it freeze on heavy 
+activity. I can always reproduce a freeze
+by watching a movie while copying files to/from USB disk, or on ping -f 
+to a box on my LAN. Without SMP
+support in the kernel I can do this for hours and no freeze.
+The kernels I tried are ranging from 2.6.11-1.1369 (FC4) to 2.6.15 
+vanilla kernel. Running from console
+with no X nor any proprietary modules loaded.
 
-Alan
+I already tried diffent things to no avail like:
+Different preemtion models
+acpi=off on boot
+Enable kernel irq balancing on/off
+Lots of different BIOS setting (Using fail-safe most of the time though)
 
+As my HW monitors tell me there's no overheating going on on any of the 
+CPU's (at 53C and 54C now).
+
+I'd be really grateful for any ideas / workarounds as I really don't 
+know what to try anymore and a new machine is
+out of the question financially.
+
+Regards, Gilles May

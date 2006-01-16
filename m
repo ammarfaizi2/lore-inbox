@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWAPVv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWAPVw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbWAPVv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 16:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWAPVvZ
+	id S1751219AbWAPVw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 16:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWAPVw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 16:51:25 -0500
-Received: from smtp-out-01.utu.fi ([130.232.202.171]:65242 "EHLO
-	smtp-out-01.utu.fi") by vger.kernel.org with ESMTP id S1750995AbWAPVvZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 16:51:25 -0500
-Date: Mon, 16 Jan 2006 23:51:17 +0200
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: Shared memory usage
-In-reply-to: <Pine.LNX.4.61.0601160909590.22754@chaos.analogic.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <200601162351.19159.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <Pine.LNX.4.61.0601160909590.22754@chaos.analogic.com>
-User-Agent: KMail/1.6.2
+	Mon, 16 Jan 2006 16:52:59 -0500
+Received: from mail.cs.umn.edu ([128.101.34.202]:64418 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id S1751217AbWAPVw7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 16:52:59 -0500
+Date: Mon, 16 Jan 2006 15:52:52 -0600
+From: Dave C Boutcher <sleddog@us.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Michael Ellerman <michael@ellerman.id.au>, Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev@ozlabs.org, paulus@au1.ibm.com, anton@au1.ibm.com,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.15-mm4 failure on power5
+Message-ID: <20060116215252.GA10538@cs.umn.edu>
+Mail-Followup-To: "Serge E. Hallyn" <serue@us.ibm.com>,
+	Michael Ellerman <michael@ellerman.id.au>,
+	Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
+	paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@elte.hu>
+References: <20060116063530.GB23399@sergelap.austin.ibm.com> <20060115230557.0f07a55c.akpm@osdl.org> <200601170000.58134.michael@ellerman.id.au> <20060116153748.GA25866@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060116153748.GA25866@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 January 2006 16:15, linux-os (Dick Johnson) wrote:
+On Mon, Jan 16, 2006 at 09:37:48AM -0600, Serge E. Hallyn wrote:
+> Quoting Michael Ellerman (michael@ellerman.id.au):
+> > On Mon, 16 Jan 2006 18:05, Andrew Morton wrote:
+> > > "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+> > > > On my power5 partition, 2.6.15-mm4 hangs on boot
+> 
+> boot: quicktest
+> Please wait, loading kernel...
 
-> /proc/meminfo does not show any shared memory in use!
+...
 
-echo m > /proc/sysrq-trigger ; dmesg | grep shared
+> Page orders: linear mapping = 24, others = 12
+>  -> smp_release_cpus()
+>  <- smp_release_cpus()
+>  <- setup_system()
+> 
+> So setup_system() at least finishes, though I don't see the
+> printk's at the bottom of that function.
 
-> available in /proc as it was in the past before it was
-> removed.
+2.6.15-mm4 won't boot on my power5 either.  I tracked it down to the
+following mutex patch from Ingo: kernel-kernel-cpuc-to-mutexes.patch
 
-I think this was all over FAQs covering 2.4 -> 2.6 transition...
+If I revert just that patch, mm4 boots fine.  Its really not obvious to
+me at all why that patch is breaking things though...
+
+-- 
+Dave Boutcher

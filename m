@@ -1,56 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWAPNG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWAPNLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWAPNG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 08:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWAPNG6
+	id S1750747AbWAPNLf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 08:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWAPNLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 08:06:58 -0500
-Received: from 217-133-42-200.b2b.tiscali.it ([217.133.42.200]:52496 "EHLO
-	opteron.random") by vger.kernel.org with ESMTP id S1750739AbWAPNG5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 08:06:57 -0500
-Date: Mon, 16 Jan 2006 14:06:49 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       hugh@veritas.com, dvhltc@us.ibm.com, linux-mm@kvack.org,
-       blaisorblade@yahoo.it, jdike@addtoit.com
-Subject: differences between MADV_FREE and MADV_DONTNEED
-Message-ID: <20060116130649.GE15897@opteron.random>
-References: <20051029025119.GA14998@ccure.user-mode-linux.org> <1130788176.24503.19.camel@localhost.localdomain> <20051101000509.GA11847@ccure.user-mode-linux.org> <1130894101.24503.64.camel@localhost.localdomain> <20051102014321.GG24051@opteron.random> <1130947957.24503.70.camel@localhost.localdomain> <20051111162511.57ee1af3.akpm@osdl.org> <1131755660.25354.81.camel@localhost.localdomain> <20051111174309.5d544de4.akpm@osdl.org> <43757263.2030401@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43757263.2030401@us.ibm.com>
+	Mon, 16 Jan 2006 08:11:35 -0500
+Received: from tornado.reub.net ([202.89.145.182]:48345 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1750744AbWAPNLe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 08:11:34 -0500
+Message-ID: <43CB9B84.2060107@reub.net>
+Date: Tue, 17 Jan 2006 02:11:32 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060114)
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [GIT PATCH] PCI patches for 2.6.15 - retry
+References: <20060109203711.GA25023@kroah.com>	 <Pine.LNX.4.64.0601091557480.5588@g5.osdl.org>	 <20060109164410.3304a0f6.akpm@osdl.org>	 <1136857742.14532.0.camel@localhost.localdomain>	 <20060109174941.41b617f6.akpm@osdl.org>  <43C5D34B.1090903@reub.net> <1137066145.17090.20.camel@localhost.localdomain> <43C6C331.1030602@pobox.com>
+In-Reply-To: <43C6C331.1030602@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that MADV_REMOVE is in, should we discuss MADV_FREE?
 
-MADV_FREE in Solaris is destructive and only works on anonymous memory,
-while MADV_DONTNEED seems to never be destructive (which I assume it
-means it's a noop on anonymous memory).
 
-Our MADV_DONTNEED is destructive on anonymous memory, while it's
-non-destructive on file mappings.
+On 13/01/2006 9:59 a.m., Jeff Garzik wrote:
+> Alan Cox wrote:
+>> On Iau, 2006-01-12 at 16:55 +1300, Reuben Farrelly wrote:
+>>
+>>> ata1: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x0 irq 0
+>>> ata2: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x8 irq 0
+>>> Unable to handle kernel NULL pointer dereference at virtual address 
+>>> 00000000
+>>
+>>
+>> That is the critical bit. The SATA ports have no PCI resources assigned
+>> for bus mastering (BAR 4). libata should have driven the device PIO in
+>> this case but the resource should have been assigned.
+> 
+> Agreed.  This appears to be BIOS assigning bad values to SATA hardware.
+> 
+> However, libata should recognize this and not attempt to iomap or drive 
+> the hardware, in that case, rather than oops.
+> 
+>     Jeff
 
-Perhaps we could move the destructive anonymous part of MADV_DONTNEED to
-MADV_FREE?
+Some testing tonight has shown up a bit more about where this regression crept in.
 
-Or we could as well go relaxed and define MADV_FREE and MADV_DONTNEED
-the same way (that still leaves the question if we risk to break apps
-ported from solaris where MADV_DONTNEED is apparently always not
-destructive).
+Below the table reads release on left hand side, and the result of a given 
+reboot on  the right hand side after the dash.  I had to do so many reboots to 
+be sure that the bug was there or not - as you can see from the -mm1 test it 
+doesn't always show up.
 
-I only read the docs, I don't know in practice what MADV_DONTNEED does
-on solaris (does it return -EINVAL if run on anonymous memory or not?).
+2.6.15 - OK OK OK OK OK
+2.6.15-git1 - OK OK OK OK OK OK OK OK
+2.6.15-git2 - OK
+2.6.15-git6 - OK OK OK OK OK OK OK OK
+2.6.15-git12 - OK OK OK OK OK OK OK
 
-http://docs.sun.com/app/docs/doc/816-5168/6mbb3hrgk?a=view
+2.6.15-rc5-mm3 - OK OK OK(but oopsed in usb) OK OK(but oopsed in usb)
+    Those oopses in USB were only seen in this release so looks likely whatever
+    was causing them was fixed soon after.
+2.6.15-mm1 - OK OK OOPSED OOPSED OOPSED all in ATA
+2.6.15-mm2 + mm3 - [known to OOPS on this bug frequently but not tested in this 
+round]
+2.6.15-mm4 - OOPSED OK OOPSED TIMEOUT TIMEOUT OOPS OK
+2.6.15-mm1 with no git-acpi.patch - TIMEOUT TIMEOUT OOPSED TIMEOUT OK
 
-BTW, I don't know how other specifications define MADV_FREE, but besides
-MADV_REMOVE I've also got the request to provide MADV_FREE in linux,
-this is why I'm asking. (right now I'm telling them to use #ifdef
-__linux__ #define MADV_FREE MADV_DONTNEED but that's quite an hack since
-it could break if we make MADV_DONTNEED non-destructive in the future)
+OK means the system booted up to single user mode without issue, TIMEOUT means 
+that the controllers were assigned IRQ 50 and then failed to find any ATA disks 
+and OOPSED means that he SATA ports were not assigned IRQs at all and hence the 
+system oopsed out like this:
 
-Thanks.
+ahci: probe of 0000:00:1f.2 failed with error -12
+ata1: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x0 irq 0
+ata2: SATA max UDMA/133 cmd 0x0 ctl 0x2 bmdma 0x8 irq 0
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  printing eip:
+c023c873
+*pde = 00000000
+Oops: 0000 [#1]
+<plus a trace and a whole lot more>
+
+Full output on http://www.reub.net/files/kernel/outstanding-kernel-bugs.txt (as
+usual)
+
+In summary the good news is that 2.6.15-git12 (which is the latest linus tree)
+is GOOD and does not seem to exhibit this problem.  Not a single -git release 
+crapped out.  It seems some regression was introduced into 2.6.15-mm1 which has 
+been carried forward through to -mm4 so far though but never pushed to Linus.
+I guess it also suggests that it's not a hardware or bios issue given the sheer 
+number of successful reboots in a row, and I think reverting the git-acpi.patch 
+suggests that ACPI is not the cause of it, at least in this instance.  But 
+that's about as far as I have gotten.
+
+45 reboots later I'm finishing for tonight, but before I go back and hit it with
+git bisect to narrow it down any further, Andrew/Jeff does this make it any 
+easier to pinpoint, and/or do you have any preliminary patches to test or ideas 
+as to what other subsystems could be involved?
+
+Thanks,
+Reuben
+
+
+

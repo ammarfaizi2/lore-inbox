@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWAPUBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWAPUF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWAPUBy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 15:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWAPUBy
+	id S1751172AbWAPUF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 15:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWAPUF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 15:01:54 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:63896 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751156AbWAPUBx convert rfc822-to-8bit (ORCPT
+	Mon, 16 Jan 2006 15:05:27 -0500
+Received: from h144-158.u.wavenet.pl ([217.79.144.158]:3220 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751172AbWAPUF1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 15:01:53 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 16 Jan 2006 15:05:27 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: Suspend to RAM and disk
+Date: Mon, 16 Jan 2006 21:06:41 +0100
+User-Agent: KMail/1.9
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>, seife@suse.de
+References: <20060116114037.GA26986@elf.ucw.cz>
+In-Reply-To: <20060116114037.GA26986@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] acpi: remove function tracing macros
-Date: Mon, 16 Jan 2006 15:01:46 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005B8388F@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] acpi: remove function tracing macros
-Thread-Index: AcYazTugRYK0jp1nRH2pxWFu3EZoDQACOcgg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 16 Jan 2006 20:01:49.0566 (UTC) FILETIME=[AFC211E0:01C61AD7]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601162106.42512.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->I appreciate that but per-function tracing is overkill.
+Hi,
 
-I agree that 100% function coverage is overkill.
-However, 100% is preferable to 0%.
-The most desirable middle-ground will take some work
-on the part of the folks that actually use the tracing.
+On Monday, 16 January 2006 12:40, Pavel Machek wrote:
+> In good old days of Pentium MMX, when ACPI was not yet born and APM
+> ruled the world, I had and thinkpad 560X notebook. And that beast
+> supported suspend-to-both: It stored image on disk, but then suspended
+> to RAM, anyway. I think I want that feature back.
+> 
+> [Advantage was, that suspend/resume was reasonably fast for common
+> case, yet you did not loose your opened applications if your battery
+> ran flat. Speed advantage will be even greater these days -- boot of
+> "resume" kernel takes most of time.]
+> 
+> Unfortunately, suspend-to-RAM is not in quite good state these
+> days. It tends to work -- after you setup your video drivers according
+> to video.txt, with some scripting needed. Unfortunately, after we
+> suspended to disk, system is frozen -- we may not run scripts.
+> 
+> I guess the solution is to create userland application that will parse
+> the DMI, look into table, and if it is neccessary do the vbe
+> saving/restoring itself. (We may not run external binaries on frozen
+> system; everything has to be pagelocked.) I guess that will include
+> quite a lot of cut-copy-and-paste from various project, but I see no
+> other way :-(.
 
->Especially since
->the macros used for it are very obfuscating (i.e. return_VALUE, et al)
->and we have things like kprobes.
+Yes, I think we could embed the s2ram preparation in the suspending
+application, and program it to operate like that:
+1) freeze
+2) call atomic snapshot
+3) save the image
+4) prepare s2ram
+5) suspend to RAM
+6) sleep
+7) wake up (this would unfreeze processes too, if successful)
+8) zap the image header
 
-Everybody agreees with you about the return_VALUE syntax.
-The other irritating thing about this instrumentation is
-that the function trace header looks like a call, but
-is actually a declaration -- so sometimes DEBUG builds
-break when executable code is put before it.  The fortunate
-thing is that a relatively small group of people make
-changes to the ACPI sub-system and this is one of the
-things they learn about quickly:-)
+This would play some ping-pong with devices that would be suspended,
+woken up and then suspended again before s2ram, but I don't think that's
+avoidable in the current state of things.
 
-If kprobes can give us the same functionality,
-I'll be delighted if somebody can show me how.
-
->On Mon, 2006-01-16 at 13:14 -0500, Brown, Len wrote:
->> When we make GPL changes to those files, we diverge
->> from the rest of the universe and the overloaded
->> Linux/ACPI maintainer (me) starts to lose his sanity.
->> That said, if the author of the patch re-licenses it back
->> to Intel so it can be distributed under eitiher GPL or BSD,
->> then Intel can apply a change "up-stream" and divergence
->> can be avoided.  But per above, that isn't the primary
->> issue with ripping out tracing.
->> 
->> Note that tracing is built in only for CONFIG_ACPI_DEBUG.
->
->My main concern is that the ACPI subsystem uses obfuscating macros to
->implement function tracing in the kernel. Please note that we do not
->allow this in new code and there are janitor such as myself that are
->working to remove the existing ones.
->
->While I have no intention of making your life as Linux maintainer
->harder, I would appreciate if you would at least consider ripping out
->function tracing from upstream. I am certainly willing to relicense or
->even transfer copyrights of the patch if that's what you need.
-
-I share your concern about source code style.
-Note that as I mentioned, we've got some changes in the pipeline
-to clean up drivers/acpi/*.c already.
-Changing this in the upstream interpreter in drivers/acpi/*/
-will be harder and will take longer.
-
-thanks,
--Len
+Greetings,
+Rafael

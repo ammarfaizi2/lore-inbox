@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWAPIV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWAPIgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWAPIV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 03:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWAPIV5
+	id S932229AbWAPIgL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 03:36:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWAPIgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 03:21:57 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:21385 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932247AbWAPIV4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 03:21:56 -0500
-Date: Mon, 16 Jan 2006 09:21:59 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       greg@kroah.com, zaitcev@redhat.com
-Subject: Re: 2.6.15-mm4: sem2mutex problem in USB OHCI
-Message-ID: <20060116082159.GA9744@elte.hu>
-References: <200601150058.58518.rjw@sisk.pl> <20060114160526.228da734.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060114160526.228da734.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 16 Jan 2006 03:36:11 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:31155 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S932229AbWAPIgK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 03:36:10 -0500
+Date: Mon, 16 Jan 2006 09:35:42 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       david singleton <dsingleton@mvista.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
+In-Reply-To: <20060115042449.GA9871@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.4.44L0.0601160926360.4219-100000@lifa01.phys.au.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 14 Jan 2006, Bill Huey wrote:
 
-* Andrew Morton <akpm@osdl.org> wrote:
+> On Wed, Jan 11, 2006 at 06:25:36PM +0100, Esben Nielsen wrote:
+> > So how many locks do we have to worry about? Two.
+> > One for locking the lock. One for locking various PI related data on the
+> > task structure, as the pi_waiters list, blocked_on, pending_owner - and
+> > also prio.
+> > Therefore only lock->wait_lock and sometask->pi_lock will be locked at the
+> > same time. And in that order. There is therefore no spinlock deadlocks.
+> > And the code is simpler.
+>
+> Ok, got a question. How do deal with the false reporting and handling of
+> a lock circularity window involving the handoff of task A's BKL to another
+> task B ? Task A is blocked trying to get a mutex owned by task B, task A
+> is block B since it owns BKL which task B is contending on. It's not a
+> deadlock since it's a hand off situation.
+>
+I am not precisely sure what you mean by "false reporting".
 
-> >  Badness in __mutex_trylock_slowpath at kernel/mutex.c:281
-> > 
-> >  Call Trace: <IRQ> <ffffffff80148d8d>{mutex_trylock+141}
-> >
-> >         <ffffffff880abaf0>{:ohci_hcd:ohci_hub_status_data+480}
-> >         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d24c3>{usb_hcd_poll_rh_status+67}
-> >         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d25d9>{rh_timer_func+9}
-> >         <ffffffff8013a3cc>{run_timer_softirq+396}
+Handing off BKL is done in schedule() in sched.c. I.e. if B owns a normal
+mutex, A will give BKL to B when A calls schedule() in the down-operation
+of that mutex.
 
-> err, taking a mutex from softirq context.
+> I didn't see any handling of this case in the code and I was wondering
+> if the traversal logic you wrote avoids this case as an inherent property
+> and I missed that stuff ?
 
-btw., i'm wondering how the down_trylock() can be correct code: what 
-guarantees progress if the trylock happens to fail all the time? (or 
-just happens to fail frequently, due to some other, unrelated dev->mutex 
-workload)
+The stuff is in kernel/sched.c and lib/kernel_lock.c.
 
-Shouldnt this code use some other solution to process these timed events 
-more robustly?
 
-	Ingo
+>
+> bill
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

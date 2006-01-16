@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWAPPvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWAPPvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWAPPvY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 10:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWAPPvY
+	id S1751055AbWAPPvx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 10:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWAPPvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 10:51:24 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:52937 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751049AbWAPPvY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 10:51:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=aQz47FyHaXW0WSKpFUKuF4P7f0en5dzJSMoc/qLDAh8yne1a2gqmzoEL7KPkzSx1PuCbp3FHAmuWAETIN/Mr1ZR2ARcYBXI0CuMa0RHb3qu/538ecwFFLM0B+GbFsAbqDESGKescaflVr4CZkBCS7AB00Gs+DlcBWwxx85hcEiU=
-Message-ID: <6e6e20a10601160751v362d2312v6c99fa8db64ce7e1@mail.gmail.com>
-Date: Mon, 16 Jan 2006 16:51:22 +0100
-From: =?ISO-8859-1?Q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 3COM 3C940, does not work anymore after upgrade to 2.6.15
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 16 Jan 2006 10:51:53 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:33344 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751050AbWAPPvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 10:51:52 -0500
+Date: Tue, 17 Jan 2006 00:51:53 +0900
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] omit symbol size field in print_symbol()
+Message-ID: <20060116155153.GA6628@miraclelinux.com>
+References: <20060116121611.GA539@miraclelinux.com> <20060116121834.GD539@miraclelinux.com> <1137422221.3034.25.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1137422221.3034.25.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 16, 2006 at 03:37:01PM +0100, Arjan van de Ven wrote:
+> On Mon, 2006-01-16 at 21:18 +0900, Akinobu Mita wrote:
+> > I can't find useful usage for the symbol size in print_symbol().
+> > And symbolsize seems to be fixed when vmlinux or modules are compiled.
+> > So we can calculate it from vmlinux or modules.
+> 
+> 
+> the use is that you can see if the EIP actually is inside the function,
+> or if the decoder is going bonkers. Quite useful feature that...
+> 
 
-I have a problem with the network card attached to my motherboard
-after doing an upgrade of the kernel from 2.6.11 to 2.6.15.
-
-The Motherboard is an ASUS P4P800, and the network card is 3COM 3C940
-and is afaik a variant of SysKonnect SK-98xx.
-
-It worked with 2.6.15 until I shut the system down and started it up
-again for the first time with 2.6.15 running, and now the card does
-not work anymore. The driver is loaded, and it detects that the cable
-is plugged in and the interface is brought up (so says dmesg). The
-green led on the card is now turned off, it used to be on before.
-
-I have tried to reinstall the system from scratch (Using Debian 3.1
-installer cd), and to my astonishment the card is not working like it
-used to.
-
-It seems like 2.6.15 set the card in some state so it does not work
-anymore. Is this even possible? I have tried power cycling, even
-disconnected the power coord from the computer.
-
-When i used 2.6.11 I was using the sk98lin driver, when upgrading it
-is possible the newer skge driver was used, however I am not sure.
-
-Debian installer 3.1 uses 2.6.8 kernel with sk98lin driver.
-
-I have found others with the same/similar problem:
-http://bugs.gentoo.org/show_bug.cgi?id=100258
-http://marc.theaimsgroup.com/?l=linux-netdev&m=112268414417743&w=2
-
-But for me the card does not work even with 2.6.15. I dont have
-Wind*ws to test with, so I cant test the solution in one of the above
-emails.
-
-If the driver in 2.6.15 breaks cards of this type it is qiute a
-serious bug I think. Anyone have any suggestions as to how I can try
-to fix this? Reset the card in some way maybe?
-
-Please CC me.
-
-Regards
-/Björn
+If it is really useful, should we have it on x86-64 too?
+The patches 1/3 and 2/3 will do that.
+Andi Kleen doesn't want because The call trace on x86-64 could have more
+than one symbol per line, but my patches will print more characters than
+now.

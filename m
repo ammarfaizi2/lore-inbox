@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWAPIts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWAPIxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWAPIts (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 03:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWAPIts
+	id S1751072AbWAPIxc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 03:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWAPIxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 03:49:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29265 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932253AbWAPItr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 03:49:47 -0500
-Date: Mon, 16 Jan 2006 09:51:43 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm <akpm@osdl.org>, ram.gupta5@gmail.com, tshxiayu@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: something about disk fragmentation
-Message-ID: <20060116085143.GS3945@suse.de>
-References: <7cd5d4b40601110501w40bc28f0peb13cdbb082e2b4a@mail.gmail.com> <728201270601110633i2eb8c71dq8a0c23d9e7ad724f@mail.gmail.com> <7cd5d4b40601130158l274a3b19t13f2a58a28cc3819@mail.gmail.com> <728201270601130814k37c31f7bxd04a1fe44213b430@mail.gmail.com> <20060113192452.GY3945@suse.de> <20060113231753.34d58e1f.rdunlap@xenotime.net>
-Mime-Version: 1.0
+	Mon, 16 Jan 2006 03:53:32 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:27831 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751071AbWAPIxb
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 03:53:31 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Jack Steiner <steiner@sgi.com>
+Subject: Re: [patch] mm: cleanup bootmem
+References: <43C8F198.3010609@yahoo.com.au>
+	<Pine.LNX.4.64.0601140949460.13339@g5.osdl.org>
+	<43C93CCA.9080503@yahoo.com.au> <43C93DA0.3040506@yahoo.com.au>
+	<Pine.LNX.4.64.0601141011300.13339@g5.osdl.org>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 16 Jan 2006 03:53:08 -0500
+In-Reply-To: <Pine.LNX.4.64.0601141011300.13339@g5.osdl.org>
+Message-ID: <yq0slrotuyz.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060113231753.34d58e1f.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 13 2006, Randy.Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Update kernel-parameters.txt IOSCHED to spell out 'anticipatory'.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+>>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
 
-Thanks Randy, added.
+Linus> On Sun, 15 Jan 2006, Nick Piggin wrote:
+>> That's still completely functional after my patch. In fact, as I
+>> said in a followup it is likely to work better than with David's
+>> change to free batched pages as order-0, because I reverted back to
+>> freeing them as higher order pages.
 
--- 
-Jens Axboe
+Linus> Ok. Then I doubt anybody will complain. I'm still wondering if
+Linus> some of the other ugliness was due to some simulator
+Linus> strangeness issues, but maybe even ia64 doesn't care that much
+Linus> any more..
 
+We still use simulators for a bunch of stuff, but I don't know if this
+is affecting it or not. Jack Steiner may know more.
+
+Cheers,
+Jes

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWAPTKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWAPTT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWAPTKL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 14:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWAPTKL
+	id S1751166AbWAPTT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 14:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWAPTT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 14:10:11 -0500
-Received: from mgw-ext04.nokia.com ([131.228.20.96]:26024 "EHLO
-	mgw-ext04.nokia.com") by vger.kernel.org with ESMTP
-	id S1750859AbWAPTKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 14:10:09 -0500
-Date: Mon, 16 Jan 2006 21:07:52 +0200 (EET)
-From: Samuel Ortiz <samuel.ortiz@nokia.com>
-X-X-Sender: samuel@irie
-Reply-To: samuel.ortiz@nokia.com
-To: ext Stuffed Crust <pizza@shaftnet.org>
-cc: Sam Leffler <sam@errno.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: wireless: recap of current issues (configuration)
-In-Reply-To: <20060116172817.GB8596@shaftnet.org>
-Message-ID: <Pine.LNX.4.58.0601162056261.17348@irie>
-References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com>
- <20060113213011.GE16166@tuxdriver.com> <20060113221935.GJ16166@tuxdriver.com>
- <1137191522.2520.63.camel@localhost> <20060114011726.GA19950@shaftnet.org>
- <43C97605.9030907@pobox.com> <20060115152034.GA1722@shaftnet.org>
- <43CAA853.8020409@errno.com> <20060116172817.GB8596@shaftnet.org>
+	Mon, 16 Jan 2006 14:19:26 -0500
+Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:65141 "HELO
+	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751166AbWAPTTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 14:19:25 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Subject: Re: [2.6.15] screen remains blank after LID switch use
+Date: Mon, 16 Jan 2006 14:19:19 -0500
+User-Agent: KMail/1.9.1
+Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org
+References: <200601160946.51765.lkml@kcore.org> <E1EyQJ1-0006Do-00@chiark.greenend.org.uk>
+In-Reply-To: <E1EyQJ1-0006Do-00@chiark.greenend.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Jan 2006 19:07:50.0578 (UTC) FILETIME=[252BB920:01C61AD0]
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601161419.20633.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jan 2006, ext Stuffed Crust wrote:
+On Monday 16 January 2006 04:05, Matthew Garrett wrote:
+> Jan De Luyck <lkml@kcore.org> wrote:
+> 
+> > I've recently gotten an Dell D610 laptop from my company. After some digging I 
+> > managed to get Linux running on it, with kernel 2.6.15 at this moment.
+> 
+> It's a bug in Dell's BIOS. It seems to be present in all their current
+> machines that use Intel graphics, and it also happens in Windows if you
+> boot in safe mode. I'm trying to work this through with Dell, but it's
+> taking a long time and I'm ridiculously busy with real life right now.
+> 
 
-> Background scanning, yes -- but there are all sorts of different
-> thresholds and types of 'scanning' to be done, depending on how
-> disruptive you are willing to be, and how capable the hardware is.  Most
-> thin MACs don't filter out foreign BSSIDs on the same channel when
-> you're joined, which makes some things a lot easier.
-That is true, thin MACs usually don't filter beacons on the same channel.
-But in some cases (mainly power saving), you really want to avoid
-receiving useless beacons and having the host woken up for each of them.
-You may even want to not receive all the useful ones (the ones coming from
-the AP you're joined with) if your softmac allows that.
-This kind of beacon filtering is a big power saver, which is one of the
-most important requirement for some platforms (phones, PDA, etc...).
+Not only Intel. I've learned to never close lid of my Inspiron 8100
+(with nvidia chip) ;)
 
-Cheers,
-Samuel.
+-- 
+Dmitry

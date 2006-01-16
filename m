@@ -1,92 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWAPOPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWAPOQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWAPOPU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 09:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWAPOPU
+	id S1750811AbWAPOQk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 09:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWAPOQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 09:15:20 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:2834 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750802AbWAPOPT convert rfc822-to-8bit (ORCPT
+	Mon, 16 Jan 2006 09:16:39 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:28832 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750811AbWAPOQi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 09:15:19 -0500
+	Mon, 16 Jan 2006 09:16:38 -0500
+Message-ID: <43CBAABC.6070200@pobox.com>
+Date: Mon, 16 Jan 2006 09:16:28 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 16 Jan 2006 14:15:16.0278 (UTC) FILETIME=[45FE1D60:01C61AA7]
-Content-class: urn:content-classes:message
-Subject: Shared memory usage
-Date: Mon, 16 Jan 2006 09:15:16 -0500
-Message-ID: <Pine.LNX.4.61.0601160909590.22754@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Shared memory usage
-Thread-Index: AcYap0YHt6grN63kQZivoGaUrC0SFA==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: lkml <linux-kernel@vger.kernel.org>, jejb <james.bottomley@steeleye.com>
+Subject: Re: [PATCH/RFC] SATA in its own config menu
+References: <20060115135728.7b13996d.rdunlap@xenotime.net>
+In-Reply-To: <20060115135728.7b13996d.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Randy.Dunlap wrote: > From: Randy Dunlap
+	<rdunlap@xenotime.net> > > Put SATA into its own menu. Reason: using
+	SCSI is an > implementation detail that users need not know about. > >
+	Enabling SATA selects SCSI since SATA uses SCSI as a function > library
+	supplier. It also enables BLK_DEV_SD since that is > what SATA drives
+	look like in Linux. > > Signed-off-by: Randy Dunlap
+	<rdunlap@xenotime.net> > --- > drivers/Kconfig | 2 >
+	drivers/scsi/Kconfig | 138 > drivers/scsi/Kconfig.sata | 142
+	++++++++++++++++++++++++++++++++++++++++++++++ > 3 files changed, 144
+	insertions(+), 138 deletions(-) [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Randy.Dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> Put SATA into its own menu.  Reason:  using SCSI is an
+> implementation detail that users need not know about.
+> 
+> Enabling SATA selects SCSI since SATA uses SCSI as a function
+> library supplier.  It also enables BLK_DEV_SD since that is
+> what SATA drives look like in Linux.
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> ---
+>  drivers/Kconfig           |    2 
+>  drivers/scsi/Kconfig      |  138 --------------------------------------------
+>  drivers/scsi/Kconfig.sata |  142 ++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 144 insertions(+), 138 deletions(-)
+
+This needs to be done after the code gets moved to drivers/ata...
+
+	Jeff
 
 
-Hello,
 
-I have an embedded system in which there are about 18.4
-megabytes of shared libraries using shared memory, plus
-12 pages of shared memory, memory-mapped into user-space.
-This all works fine.
-
-But the customer complained during certification testing
-that shared memory in use is not measured and therefore
-cannot be verified. This means that there may be rogue
-communications channels, using shared memory, in the
-system. I need to prove that there are no such channels
-by metering the shared memory and then accounting for
-every bit shown.
-
-/proc/meminfo does not show any shared memory in use!
-
-         total:    used:    free:  shared: buffers:  cached:
-Mem:  255332352  7806976 247525376        0    94208  2764800
-Swap:        0        0        0
-MemTotal:       249348 kB
-MemFree:        241724 kB
-MemShared:           0 kB         <----------
-Buffers:            92 kB
-Cached:           2700 kB
-SwapCached:          0 kB
-Active:            608 kB
-Inactive:         4348 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       249348 kB
-LowFree:        241724 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-
-
-This used Linux version 2.4.26. In attempting to troubleshoot
-this, I found that current kernel versions don't even have a
-shared memory entry in /proc/meminfo.
-
-So, how do I find the total amount of shared memory in use
-on a system? This does not need to be in /proc. I could
-write a driver that finds all the shared memory and reports
-it, but I need to know how. Also, anybody certifying systems
-for secure use needs to know the amount of shared memory in
-use so it would be a real good idea if that information was
-available in /proc as it was in the past before it was
-removed.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

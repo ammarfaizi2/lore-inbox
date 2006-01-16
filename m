@@ -1,78 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWAPVWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWAPVYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWAPVWv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 16:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWAPVWv
+	id S1751214AbWAPVYu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 16:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWAPVYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 16:22:51 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18880 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751184AbWAPVWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 16:22:51 -0500
-Date: Mon, 16 Jan 2006 22:22:50 +0100
-From: Jan Kara <jack@suse.cz>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unmount oops in log_do_checkpoint
-Message-ID: <20060116212250.GD12159@atrey.karlin.mff.cuni.cz>
-References: <20060116160420.GA21064@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060116160420.GA21064@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+	Mon, 16 Jan 2006 16:24:50 -0500
+Received: from hera.kernel.org ([140.211.167.34]:44739 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751214AbWAPVYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 16:24:49 -0500
+Date: Mon, 16 Jan 2006 13:18:25 -0800
+From: Eric Van Hensbergen <ericvh@hera.kernel.org>
+Message-Id: <200601162118.k0GLIPYW015797@hera.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][RESEND] v9fs: add readpage support
+Cc: akpm@osdl.org, v9fs-developer@lists.sourceforge.org, ericvh@gmail.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.6.15-git12 (and 11, not sure when it started) oops when unmounting
-> an ext3 filesystem. Looks like 'transaction' in log_do_checkpoint is
-> garbage.
-> 
-> Reproduced it every time for about 3 or 4 reboots now.
->
-> Unable to handle kernel paging request at virtual address f63b4f7c
->  printing eip:
-> c019db03
-> *pde = 004b0067
-> *pte = 363b4000
-> Oops: 0000 [#1]
-> SMP DEBUG_PAGEALLOC
-> Modules linked in: ide_cd cdrom 8250_pnp 8250 serial_core piix ide_core
-> CPU:    1
-> EIP:    0060:[<c019db03>]    Not tainted VLI
-> EFLAGS: 00010206   (2.6.15-git12) 
-> EIP is at log_do_checkpoint+0x6b/0x47b
-> eax: f63b4f78   ebx: 00000001   ecx: 00000000   edx: 00015e0a
-> esi: f57b78cc   edi: f57e7e90   ebp: f57e7e6c   esp: f57e7d38
-> ds: 007b   es: 007b   ss: 0068
-> Process umount (pid: 2418, threadinfo=f57e7000 task=f5396ad0)
-> Stack: <0>00000001 c18364b8 00000082 c04aa3a8 348ea000 f642bf24 f642bdf8 f63b4f78 
->        00015e0a 00000001 c1836490 00000000 f57e7d80 c0114e96 00000000 00000000 
->        f57e7d98 f4e7bad0 f57e7d98 c01151a0 c0441788 0000001f 00000000 c0441780 
-> Call Trace:
->  [<c0103dc0>] show_stack_log_lvl+0xbb/0x105
->  [<c0103f69>] show_registers+0x15f/0x1ef
->  [<c010422a>] die+0x11b/0x22d
->  [<c0114217>] do_page_fault+0x1ea/0x5d4
->  [<c01037d7>] error_code+0x4f/0x54
->  [<c019ff19>] journal_destroy+0x10d/0x24b
->  [<c0195986>] ext3_put_super+0x20/0x1ec
->  [<c015c89d>] generic_shutdown_super+0x89/0x131
->  [<c015c954>] kill_block_super+0xf/0x20
->  [<c015cb60>] deactivate_super+0x62/0x75
->  [<c016f59c>] mntput_no_expire+0x44/0x62
->  [<c0162f85>] path_release_on_umount+0x15/0x18
->  [<c0170362>] sys_umount+0x3a/0x21d
->  [<c017055e>] sys_oldumount+0x19/0x1b
->  [<c0102bdf>] sysenter_past_esp+0x54/0x75
-> Code: e8 fe ff ff 89 d0 85 d2 0f 84 f2 01 00 00 8b 52 04 89 95 ec fe ff ff 39 85 e8 fe ff ff 74 15 8b 95 ec fe ff ff 8b 85 e8 fe ff ff <3b> 50 04 0f 85 cc 01 00 00 c7 45 f0 00 00 00 00 8b 85 e8 fe ff 
+v9fs mmap support was originally removed from v9fs at Al Viro's request,
+but recently there have been requests from folks who want readpage
+functionality (primarily to enable execution of files mounted via 9P).
+This patch adds readpage support (but not writepage which contained most of
+the objectionable code).  It passes fsx-linux (and other regressions) so it
+should be relatively safe.
 
-  It would be useful to find out which patch cause it (by git bisect)
-but one obvious suspect is my merged ext3 patch to checkpoint.c. I'll
-investigate tomorrow.
+Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
-								Honza
+---
+
+ fs/9p/Makefile    |    1 
+ fs/9p/v9fs_vfs.h  |    1 
+ fs/9p/vfs_addr.c  |  109 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/9p/vfs_file.c  |    4 ++
+ fs/9p/vfs_inode.c |    1 
+ 5 files changed, 116 insertions(+), 0 deletions(-)
+ create mode 100644 fs/9p/vfs_addr.c
+
+6a03e904a798fd5665bd484fcbcb4da5a3d0cfed
+diff --git a/fs/9p/Makefile b/fs/9p/Makefile
+index 3d02308..2f4ce43 100644
+--- a/fs/9p/Makefile
++++ b/fs/9p/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_9P_FS) := 9p2000.o
+ 	conv.o \
+ 	vfs_super.o \
+ 	vfs_inode.o \
++	vfs_addr.o \
+ 	vfs_file.o \
+ 	vfs_dir.o \
+ 	vfs_dentry.o \
+diff --git a/fs/9p/v9fs_vfs.h b/fs/9p/v9fs_vfs.h
+index c78502a..69cf290 100644
+--- a/fs/9p/v9fs_vfs.h
++++ b/fs/9p/v9fs_vfs.h
+@@ -39,6 +39,7 @@
+  */
+ 
+ extern struct file_system_type v9fs_fs_type;
++extern struct address_space_operations v9fs_addr_operations;
+ extern struct file_operations v9fs_file_operations;
+ extern struct file_operations v9fs_dir_operations;
+ extern struct dentry_operations v9fs_dentry_operations;
+diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
+new file mode 100644
+index 0000000..ee022f1
+--- /dev/null
++++ b/fs/9p/vfs_addr.c
+@@ -0,0 +1,109 @@
++/*
++ *  linux/fs/9p/vfs_addr.c
++ *
++ * This file contians vfs address (mmap) ops for 9P2000. 
++ *
++ *  Copyright (C) 2005 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to:
++ *  Free Software Foundation
++ *  51 Franklin Street, Fifth Floor
++ *  Boston, MA  02111-1301  USA
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/errno.h>
++#include <linux/fs.h>
++#include <linux/file.h>
++#include <linux/stat.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/inet.h>
++#include <linux/version.h>
++#include <linux/pagemap.h>
++#include <linux/idr.h>
++
++#include "debug.h"
++#include "v9fs.h"
++#include "9p.h"
++#include "v9fs_vfs.h"
++#include "fid.h"
++
++/**
++ * v9fs_vfs_readpage - read an entire page in from 9P
++ *
++ * @file: file being read 
++ * @page: structure to page
++ *
++ */
++
++static int v9fs_vfs_readpage(struct file *filp, struct page *page)
++{  
++	char *buffer = NULL;
++	int retval = -EIO;
++	loff_t offset = page_offset(page);
++	int count = PAGE_CACHE_SIZE;
++	struct inode *inode = filp->f_dentry->d_inode;
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(inode);
++	int rsize = v9ses->maxdata - V9FS_IOHDRSZ;
++	struct v9fs_fid *v9f = filp->private_data;
++	struct v9fs_fcall *fcall = NULL;
++	int fid = v9f->fid;
++	int total = 0;
++	int result = 0;
++
++	buffer = kmap(page);
++	do {
++		if (count < rsize)
++			rsize = count;
++
++		result = v9fs_t_read(v9ses, fid, offset, rsize, &fcall);
++
++		if (result < 0) {
++			printk(KERN_ERR "v9fs_t_read returned %d\n",
++			       result);
++
++			kfree(fcall);
++			goto UnmapAndUnlock;
++		} else
++			offset += result;
++
++		memcpy(buffer, fcall->params.rread.data, result);
++
++		count -= result;
++		buffer += result;
++		total += result;
++
++		kfree(fcall);
++
++		if (result < rsize)
++			break;
++	} while (count);
++
++	memset(buffer, 0, count);
++	flush_dcache_page(page);
++	SetPageUptodate(page);
++	retval = 0;
++
++UnmapAndUnlock:
++	kunmap(page);
++	unlock_page(page);
++	return retval;
++}
++
++struct address_space_operations v9fs_addr_operations = {
++      .readpage = v9fs_vfs_readpage,
++};
+diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
+index 6852f0e..c7e14d9 100644
+--- a/fs/9p/vfs_file.c
++++ b/fs/9p/vfs_file.c
+@@ -289,6 +289,9 @@ v9fs_file_write(struct file *filp, const
+ 		total += result;
+ 	} while (count);
+ 
++	if(inode->i_mapping->nrpages)
++		invalidate_inode_pages2(inode->i_mapping);
++
+ 	return total;
+ }
+ 
+@@ -299,4 +302,5 @@ struct file_operations v9fs_file_operati
+ 	.open = v9fs_file_open,
+ 	.release = v9fs_dir_release,
+ 	.lock = v9fs_file_lock,
++	.mmap = generic_file_mmap,
+ };
+diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
+index a17b288..91f5524 100644
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -177,6 +177,7 @@ struct inode *v9fs_get_inode(struct supe
+ 		inode->i_blocks = 0;
+ 		inode->i_rdev = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++		inode->i_mapping->a_ops = &v9fs_addr_operations;
+ 
+ 		switch (mode & S_IFMT) {
+ 		case S_IFIFO:
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+1.0.GIT

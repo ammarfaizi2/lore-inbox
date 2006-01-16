@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWAPQCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWAPQEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWAPQCV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 11:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWAPQCV
+	id S1751075AbWAPQEW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 11:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWAPQEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 11:02:21 -0500
-Received: from elvis.mu.org ([192.203.228.196]:3326 "EHLO elvis.mu.org")
-	by vger.kernel.org with ESMTP id S1751065AbWAPQCU (ORCPT
+	Mon, 16 Jan 2006 11:04:22 -0500
+Received: from mx2.suse.de ([195.135.220.15]:43467 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751073AbWAPQEW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 11:02:20 -0500
-Message-ID: <43CBC37F.60002@FreeBSD.org>
-Date: Mon, 16 Jan 2006 08:02:07 -0800
-From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, hugh@veritas.com, dvhltc@us.ibm.com,
-       linux-mm@kvack.org, blaisorblade@yahoo.it, jdike@addtoit.com
-Subject: Re: differences between MADV_FREE and MADV_DONTNEED
-References: <20051029025119.GA14998@ccure.user-mode-linux.org> <1130788176.24503.19.camel@localhost.localdomain> <20051101000509.GA11847@ccure.user-mode-linux.org> <1130894101.24503.64.camel@localhost.localdomain> <20051102014321.GG24051@opteron.random> <1130947957.24503.70.camel@localhost.localdomain> <20051111162511.57ee1af3.akpm@osdl.org> <1131755660.25354.81.camel@localhost.localdomain> <20051111174309.5d544de4.akpm@osdl.org> <43757263.2030401@us.ibm.com> <20060116130649.GE15897@opteron.random>
-In-Reply-To: <20060116130649.GE15897@opteron.random>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Jan 2006 11:04:22 -0500
+Date: Mon, 16 Jan 2006 17:04:20 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: unmount oops in log_do_checkpoint
+Message-ID: <20060116160420.GA21064@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> Now that MADV_REMOVE is in, should we discuss MADV_FREE?
-> 
-> MADV_FREE in Solaris is destructive and only works on anonymous memory,
-> while MADV_DONTNEED seems to never be destructive (which I assume it
-> means it's a noop on anonymous memory).
+2.6.15-git12 (and 11, not sure when it started) oops when unmounting
+an ext3 filesystem. Looks like 'transaction' in log_do_checkpoint is
+garbage.
 
-FWIW, in FreeBSD, MADV_DONTNEED is not destructive, and just makes pages 
-(including anonymous ones) more likely to get swapped out.
+Reproduced it every time for about 3 or 4 reboots now.
 
-> Our MADV_DONTNEED is destructive on anonymous memory, while it's
-> non-destructive on file mappings.
-> 
-> Perhaps we could move the destructive anonymous part of MADV_DONTNEED to
-> MADV_FREE?
+Unable to handle kernel paging request at virtual address f63b4f7c
+ printing eip:
+c019db03
+*pde = 004b0067
+*pte = 363b4000
+Oops: 0000 [#1]
+SMP DEBUG_PAGEALLOC
+Modules linked in: ide_cd cdrom 8250_pnp 8250 serial_core piix ide_core
+CPU:    1
+EIP:    0060:[<c019db03>]    Not tainted VLI
+EFLAGS: 00010206   (2.6.15-git12) 
+EIP is at log_do_checkpoint+0x6b/0x47b
+eax: f63b4f78   ebx: 00000001   ecx: 00000000   edx: 00015e0a
+esi: f57b78cc   edi: f57e7e90   ebp: f57e7e6c   esp: f57e7d38
+ds: 007b   es: 007b   ss: 0068
+Process umount (pid: 2418, threadinfo=f57e7000 task=f5396ad0)
+Stack: <0>00000001 c18364b8 00000082 c04aa3a8 348ea000 f642bf24 f642bdf8 f63b4f78 
+       00015e0a 00000001 c1836490 00000000 f57e7d80 c0114e96 00000000 00000000 
+       f57e7d98 f4e7bad0 f57e7d98 c01151a0 c0441788 0000001f 00000000 c0441780 
+Call Trace:
+ [<c0103dc0>] show_stack_log_lvl+0xbb/0x105
+ [<c0103f69>] show_registers+0x15f/0x1ef
+ [<c010422a>] die+0x11b/0x22d
+ [<c0114217>] do_page_fault+0x1ea/0x5d4
+ [<c01037d7>] error_code+0x4f/0x54
+ [<c019ff19>] journal_destroy+0x10d/0x24b
+ [<c0195986>] ext3_put_super+0x20/0x1ec
+ [<c015c89d>] generic_shutdown_super+0x89/0x131
+ [<c015c954>] kill_block_super+0xf/0x20
+ [<c015cb60>] deactivate_super+0x62/0x75
+ [<c016f59c>] mntput_no_expire+0x44/0x62
+ [<c0162f85>] path_release_on_umount+0x15/0x18
+ [<c0170362>] sys_umount+0x3a/0x21d
+ [<c017055e>] sys_oldumount+0x19/0x1b
+ [<c0102bdf>] sysenter_past_esp+0x54/0x75
+Code: e8 fe ff ff 89 d0 85 d2 0f 84 f2 01 00 00 8b 52 04 89 95 ec fe ff ff 39 85 e8 fe ff ff 74 15 8b 95 ec fe ff ff 8b 85 e8 fe ff ff <3b> 50 04 0f 85 cc 01 00 00 c7 45 f0 00 00 00 00 8b 85 e8 fe ff 
 
-This would seem like the best way to go, since it would bring Linux's 
-behavior more in line with what other systems do.
-
-> Or we could as well go relaxed and define MADV_FREE and MADV_DONTNEED
-> the same way (that still leaves the question if we risk to break apps
-> ported from solaris where MADV_DONTNEED is apparently always not
-> destructive).
-> 
-> I only read the docs, I don't know in practice what MADV_DONTNEED does
-> on solaris (does it return -EINVAL if run on anonymous memory or not?).
-> 
-> http://docs.sun.com/app/docs/doc/816-5168/6mbb3hrgk?a=view
-> 
-> BTW, I don't know how other specifications define MADV_FREE, but besides
-> MADV_REMOVE I've also got the request to provide MADV_FREE in linux,
-> this is why I'm asking. (right now I'm telling them to use #ifdef
-> __linux__ #define MADV_FREE MADV_DONTNEED but that's quite an hack since
-> it could break if we make MADV_DONTNEED non-destructive in the future)
-
-FreeBSD's MADV_FREE only works on anonymous memory (it's a noop for 
-vnode-backed memory), and marks the pages clean before moving them to 
-the inactive queue, so that they can be freed or reused quickly, without 
-causing a pagefault.
-
--- Suleiman

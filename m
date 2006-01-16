@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWAPHng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWAPHof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWAPHng (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 02:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWAPHng
+	id S932234AbWAPHof (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 02:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWAPHof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 02:43:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38791 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932189AbWAPHng convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 02:43:36 -0500
-Date: Sun, 15 Jan 2006 23:43:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] swsusp: userland interface
-Message-Id: <20060115234300.159688f7.akpm@osdl.org>
-In-Reply-To: <200601151831.32021.rjw@sisk.pl>
-References: <200601151831.32021.rjw@sisk.pl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 16 Jan 2006 02:44:35 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:46704 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932234AbWAPHof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 02:44:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=3s+XHCSwwsYOU3xnwaPSBUnE4YRYtw/Xnr/z182GkXkCStBvJB5hQUm1jbEpaa1XSCJYqpRtT3VxoEi9tnhsUFmoJ7RnVa6py8r5/ljDYZdn3Cg4yC6voTDHJns+i6rSnziG0UeV9W63CN//tEj7rgCn7IEqf5hTKZMm4F1SpUw=  ;
+Message-ID: <43CB4EDA.6070803@yahoo.com.au>
+Date: Mon, 16 Jan 2006 18:44:26 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+References: <20060114155517.GA30543@wotan.suse.de> <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com> <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com> <43C9DD98.5000506@yahoo.com.au> <Pine.LNX.4.62.0601152251550.17034@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0601152251550.17034@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> Hi,
+Christoph Lameter wrote:
+> On Sun, 15 Jan 2006, Nick Piggin wrote:
 > 
-> This patch introduces a user space interface for swsusp.
 > 
-> The interface is based on a special character device, called the snapshot
-> device, that allows user space processes to perform suspend and
-> resume-related operations with the help of some ioctls and the read()/write()
-> functions.  Additionally it allows these processes to allocate free swap pages
-> from a selected swap partition, called the resume partition, so that they know
-> which sectors of the resume partition are available to them.
+>>OK (either way is fine), but you should still drop the __isolate_lru_page
+>>nonsense and revert it like my patch does.
 > 
-> The interface uses the same low-level system memory snapshot-handling
-> functions that are used by the built-it swap-writing/reading code of swsusp.
-
-The identifiers and terminology are pretty similar to dm-snap.c.  But I
-don't see any clashes there.  Yet.
-
-> The interface documentation is included in the patch.
 > 
-> The patch assumes that the major and minor numbers of the snapshot device
-> will be 10 (ie. misc device) and 231, the registration of which has already been
-> requested.
+> Ok with me. Magnus: You needed the __isolate_lru_page for some other 
+> purpose. Is that still the case?
+> 
 
-Why does it need a statically-allocated major and minor?  misc_register()
-will generate a uevent and the device node should just appear...
+Either way, we can remove it from the tree for now.
 
+But I'm almost sure such a user would be wrong too. The reason it is
+required is very specific and it is because taking lru_lock and then
+looking up a page on the LRU uniquely does not pin the page. If you
+find the page via any other means other than simply looking on the
+LRU, then get_page_testone is wrong and you should either pin it or
+take a normal reference to it instead.
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

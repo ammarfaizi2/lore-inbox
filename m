@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWAPGt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWAPGv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWAPGt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 01:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWAPGt4
+	id S1751095AbWAPGv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 01:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWAPGv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 01:49:56 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:52125 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1750753AbWAPGtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 01:49:55 -0500
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: [PATCH] pktcdvd & udf bugfixes
-References: <43C5D71B.1060002@cfl.rr.com> <m3oe2e2983.fsf@telia.com>
-	<43C94464.4040500@cfl.rr.com> <m3hd861o2r.fsf@telia.com>
-	<43C982C0.1070605@cfl.rr.com> <m3r779z9on.fsf@telia.com>
-	<m31wz9yuoh.fsf@telia.com> <43CB0C81.1030605@cfl.rr.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 16 Jan 2006 07:49:51 +0100
-In-Reply-To: <43CB0C81.1030605@cfl.rr.com>
-Message-ID: <m3oe2cy8ds.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 16 Jan 2006 01:51:57 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5579 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751095AbWAPGv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 01:51:56 -0500
+Date: Sun, 15 Jan 2006 22:51:44 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+In-Reply-To: <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.62.0601152251080.17034@schroedinger.engr.sgi.com>
+References: <20060114155517.GA30543@wotan.suse.de>
+ <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+ <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi <psusi@cfl.rr.com> writes:
+On Sun, 15 Jan 2006, Hugh Dickins wrote:
 
-> I get this:
+> On Sat, 14 Jan 2006, Christoph Lameter wrote:
+> > 
+> > Also remove the WARN_ON since its now even possible that other actions of 
+> > the VM move the pages into the LRU lists while we scan for pages to
+> > migrate.
 > 
-> drivers/block/pktcdvd.c:1992: error: label ‘out_unclaim’ used but
-> not defined
-> 
-> Also the patch did not cleanly apply. It looks like you didn't get all
-> of your changes into the diff. Unless you have some other patches that
-> I don't? This is against 2.6.15 right?
+> Good.  And whether it's your or Nick's patch that goes in, please also
+> remove that PageReserved test which you recently put in check_pte_range.
 
-I thought it would apply on top of your patch, but didn't actually
-check. Try this patch series instead:
+Zero pages are still marked reserved AFAIK. Why not check for it?
 
-        http://web.telia.com/~u89404340/patches/packet/2.6/2.6.15-git11/
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWAPWlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWAPWlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWAPWlb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 17:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWAPWla
+	id S1751242AbWAPWlu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 17:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWAPWlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 17:41:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2374 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751237AbWAPWla (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 17:41:30 -0500
-Date: Mon, 16 Jan 2006 23:43:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jgarzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
-Message-ID: <20060116224325.GR3945@suse.de>
-References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060116123112.GZ3945@suse.de> <1137426710.15553.0.camel@localhost.localdomain> <Pine.LNX.4.58.0601160757480.24990@shark.he.net> <20060116160224.GM3945@suse.de> <Pine.LNX.4.58.0601160807470.24990@shark.he.net>
+	Mon, 16 Jan 2006 17:41:50 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:20154 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751239AbWAPWlt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 17:41:49 -0500
+Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3
+	oops on suspend and more (bonus oops shot!)]
+From: john stultz <johnstul@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <p738xtf24ts.fsf@verdi.suse.de>
+References: <20060110235554.GA3527@inferi.kami.home>
+	 <20060110170037.4a614245.akpm@osdl.org> <20060111100016.GC2574@elf.ucw.cz>
+	 <20060110235554.GA3527@inferi.kami.home>
+	 <20060110170037.4a614245.akpm@osdl.org>
+	 <20060111184027.GB4735@inferi.kami.home>
+	 <20060112220825.GA3490@inferi.kami.home>
+	 <1137108362.2890.141.camel@cog.beaverton.ibm.com>
+	 <20060114120816.GA3554@inferi.kami.home>
+	 <1137442582.27699.12.camel@cog.beaverton.ibm.com>
+	 <20060116204057.GC3639@inferi.kami.home>
+	 <1137447763.27699.27.camel@cog.beaverton.ibm.com>
+	 <p738xtf24ts.fsf@verdi.suse.de>
+Content-Type: text/plain
+Date: Mon, 16 Jan 2006 14:41:40 -0800
+Message-Id: <1137451300.27699.43.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601160807470.24990@shark.he.net>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16 2006, Randy.Dunlap wrote:
-> On Mon, 16 Jan 2006, Jens Axboe wrote:
+On Mon, 2006-01-16 at 23:19 +0100, Andi Kleen wrote:
+> john stultz <johnstul@us.ibm.com> writes:
+> > > bus master activity:     00000000
+> > > states:
+> > >     C1:                  type[C1] promotion[C2] demotion[--] latency[000] usage[00007790]
+> > >    *C2:                  type[C2] promotion[--] demotion[C1] latency[010] usage[02310093]
+> > 
+> > Hrmm. Interesting. I'm not aware of C2 causing TSC stalls. This may be
+> > in part why we don't disable the TSC earlier.
 > 
-> > On Mon, Jan 16 2006, Randy.Dunlap wrote:
-> > > On Mon, 16 Jan 2006, Alan Cox wrote:
-> > >
-> > > > On Llu, 2006-01-16 at 13:31 +0100, Jens Axboe wrote:
-> > > > > On Fri, Jan 13 2006, Randy.Dunlap wrote:
-> > > > > > From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-> > > > > >
-> > > > > > Add ata_acpi in Makefile and Kconfig.
-> > > > > > Add ACPI obj_handle.
-> > > > > > Add ata_acpi.c to libata kernel-doc template file.
-> > > > >
-> > > > > Randy,
-> > > > >
-> > > > > Any chance you can add PATA support as well for this?
-> > > >
-> > > > It should just work with pata devices using libata.
-> > >
-> > > ACPI namespace is different for PATA and SATA devices.
-> > > Once the device is found in the namespace, it may be very
-> > > similar (or it may not, I dunno yet).
-> >
-> > The naming seems different (eg IDEC -> PRID on SATA, IDE0 -> MSTR on
-> > PATA).
-> 
-> The names are just placeholders.  They can't be used by any
-> source code.  They could just as well be ASDF and QWER.
+> On the dual core athlons C1 occasionally loses some ticks (it's not a real stall) when going
+> in/out of HLT. Since the different cores have different HLT patterns depending on load 
+> that causes them to drift against slowly each other, and it adds up over longer runtime.
 
-Ah, I had no idea, as I said I'm completely acpi ignorant.
+Yes, AMD SMP systems already mark the TSC as unstable w/ my code.
 
--- 
-Jens Axboe
+Unfortunately in this case, we're dealing w/ a single 1Ghz PIII where
+the TSC is slowing down (due to what seems to be stalls, but could be
+cpufreq scaling).
+
+> Instead of adding lots of ugly checking code I would just check the CPUs like I do
+> in x86-64 and not use the TSC if the test fails. I believe the logic currently in there 
+> handles all modern hardware that is 64bit capable correctly.
+
+If you're suggesting disabling the TSC based off of the results of the
+unsynchronized_tsc() check in arch/x86-64/kerenl/time.c, I actually
+already do almost the same thing (very much inspired by your code).
+Although let me know if you mean something different.
+
+thanks
+-john
 

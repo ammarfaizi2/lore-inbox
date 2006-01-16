@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWAPMRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWAPMSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWAPMRH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 07:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWAPMRG
+	id S1750718AbWAPMSA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 07:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750700AbWAPMSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 07:17:06 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:24370 "EHLO
+	Mon, 16 Jan 2006 07:18:00 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:27698 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750740AbWAPMRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 07:17:05 -0500
-Date: Mon, 16 Jan 2006 21:17:07 +0900
+	id S1750718AbWAPMR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 07:17:59 -0500
+Date: Mon, 16 Jan 2006 21:18:01 +0900
 To: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] makes print_symbol() return int
-Message-ID: <20060116121706.GB539@miraclelinux.com>
+Subject: [PATCH 2/3] use usual call trace format on x86-64
+Message-ID: <20060116121800.GC539@miraclelinux.com>
 References: <20060116121611.GA539@miraclelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,70 +23,57 @@ From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes print_symbol() return the number of characters printed.
+Use print_symbol() to dump call trace.
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 ----
- include/linux/kallsyms.h |   17 ++++++++++-------
- kernel/kallsyms.c        |    4 ++--
- 2 files changed, 12 insertions(+), 9 deletions(-)
+ traps.c |   29 +++++++----------------------
+ 1 files changed, 7 insertions(+), 22 deletions(-)
 
---- 2.6-git.orig/include/linux/kallsyms.h	2006-01-03 12:21:10.000000000 +0900
-+++ 2.6-git/include/linux/kallsyms.h	2006-01-11 14:02:57.578291640 +0900
-@@ -20,7 +20,7 @@ const char *kallsyms_lookup(unsigned lon
- 			    char **modname, char *namebuf);
+--- 2.6-mm/arch/x86_64/kernel/traps.c.orig	2006-01-08 00:49:46.000000000 +0900
++++ 2.6-mm/arch/x86_64/kernel/traps.c	2006-01-08 00:54:07.000000000 +0900
+@@ -30,6 +30,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/nmi.h>
+ #include <linux/kprobes.h>
++#include <linux/kallsyms.h> 
  
- /* Replace "%s" in format with address, if found */
--extern void __print_symbol(const char *fmt, unsigned long address);
-+extern int __print_symbol(const char *fmt, unsigned long address);
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -93,30 +94,14 @@ static inline void conditional_sti(struc
  
- #else /* !CONFIG_KALLSYMS */
+ static int kstack_depth_to_print = 10;
  
-@@ -38,7 +38,10 @@ static inline const char *kallsyms_looku
- }
- 
- /* Stupid that this does nothing, but I didn't create this mess. */
--#define __print_symbol(fmt, addr)
-+static inline int __print_symbol(const char *fmt, unsigned long addr)
-+{
-+	return 0;
+-#ifdef CONFIG_KALLSYMS
+-#include <linux/kallsyms.h> 
+-int printk_address(unsigned long address)
+-{ 
+-	unsigned long offset = 0, symsize;
+-	const char *symname;
+-	char *modname;
+-	char *delim = ":"; 
+-	char namebuf[128];
+-
+-	symname = kallsyms_lookup(address, &symsize, &offset, &modname, namebuf); 
+-	if (!symname) 
+-		return printk("[<%016lx>]", address);
+-	if (!modname) 
+-		modname = delim = ""; 		
+-        return printk("<%016lx>{%s%s%s%s%+ld}",
+-		      address,delim,modname,delim,symname,offset); 
+-} 
+-#else
+ int printk_address(unsigned long address)
+ { 
+-	return printk("[<%016lx>]", address);
+-} 
+-#endif
++	int len;
++
++	len = printk("[<%016lx>]", address);
++	len += print_symbol(" %s", address);
++	return len;
 +}
- #endif /*CONFIG_KALLSYMS*/
  
- /* This macro allows us to keep printk typechecking */
-@@ -58,10 +61,10 @@ do {						\
- #define print_fn_descriptor_symbol(fmt, addr) print_symbol(fmt, addr)
- #endif
- 
--#define print_symbol(fmt, addr)			\
--do {						\
--	__check_printsym_format(fmt, "");	\
--	__print_symbol(fmt, addr);		\
--} while(0)
-+static inline int print_symbol(const char *fmt, unsigned long addr)
-+{
-+	__check_printsym_format(fmt, "");
-+	return __print_symbol(fmt, addr);
-+}
- 
- #endif /*_LINUX_KALLSYMS_H*/
---- 2.6-git.orig/kernel/kallsyms.c	2006-01-03 12:21:10.000000000 +0900
-+++ 2.6-git/kernel/kallsyms.c	2006-01-11 13:45:13.056123608 +0900
-@@ -231,7 +231,7 @@ const char *kallsyms_lookup(unsigned lon
- }
- 
- /* Replace "%s" in format with address, or returns -errno. */
--void __print_symbol(const char *fmt, unsigned long address)
-+int __print_symbol(const char *fmt, unsigned long address)
- {
- 	char *modname;
- 	const char *name;
-@@ -251,7 +251,7 @@ void __print_symbol(const char *fmt, uns
- 		else
- 			sprintf(buffer, "%s+%#lx/%#lx", name, offset, size);
- 	}
--	printk(fmt, buffer);
-+	return printk(fmt, buffer);
- }
- 
- /* To avoid using get_symbol_offset for every symbol, we carry prefix along. */
+ static unsigned long *in_exception_stack(unsigned cpu, unsigned long stack,
+ 					unsigned *usedp, const char **idp)

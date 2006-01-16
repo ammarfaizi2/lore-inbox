@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWAPR7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWAPSCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbWAPR7D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 12:59:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWAPR7D
+	id S1750982AbWAPSCF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 13:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWAPSCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 12:59:03 -0500
-Received: from ebb.errno.com ([69.12.149.25]:28932 "EHLO ebb.errno.com")
-	by vger.kernel.org with ESMTP id S1750778AbWAPR7C (ORCPT
+	Mon, 16 Jan 2006 13:02:05 -0500
+Received: from hera.kernel.org ([140.211.167.34]:48813 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750982AbWAPSCD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 12:59:02 -0500
-Message-ID: <43CBDF32.50109@errno.com>
-Date: Mon, 16 Jan 2006 10:00:18 -0800
-From: Sam Leffler <sam@errno.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051227)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stuffed Crust <pizza@shaftnet.org>
-CC: Johannes Berg <johannes@sipsolutions.net>, Jiri Benc <jbenc@suse.cz>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: wireless: recap of current issues (configuration)
-References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com> <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost> <20060116152312.6b9ddfd0@griffin.suse.cz> <1137423355.2520.112.camel@localhost> <20060116173325.GC8596@shaftnet.org>
-In-Reply-To: <20060116173325.GC8596@shaftnet.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Jan 2006 13:02:03 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: 3COM 3C940, does not work anymore after upgrade to 2.6.15
+Date: Mon, 16 Jan 2006 10:01:56 -0800
+Organization: OSDL
+Message-ID: <20060116100156.0a273b54@dxpl.pdx.osdl.net>
+References: <6e6e20a10601160751v362d2312v6c99fa8db64ce7e1@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: build.pdx.osdl.net 1137434519 10231 10.8.0.74 (16 Jan 2006 18:01:59 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Mon, 16 Jan 2006 18:01:59 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuffed Crust wrote:
-> On Mon, Jan 16, 2006 at 03:55:55PM +0100, Johannes Berg wrote:
-> 
->>I really don't see why a plain STA mode card should be required to carry
->>around all the code required for AP operation -- handling associations
->>of clients, powersave management wrt. buffering, ... Sure, fragmentation
-> 
-> 
-> From the perspective of the hardware driver, there is little AP or 
-> STA-specific code, especially when IBSS is thrown in.  Thick MACs 
-> excepted, there's little more than "frame tx/rx, and hardware control 
-> twiddling".  
-> 
-> The AP/STA smarts happen in the 802.11 stack.  And, speaking from 
-> experience, it is very hard to separate them cleanly, at least not 
-> without incurring even more overall complexity and bloat.
-> 
-> It's far simpler to build them intertwined, then add a bunch of #ifdefs 
-> if you want to disable AP or STA mode individually to save space.
+On Mon, 16 Jan 2006 16:51:22 +0100
+Björn Nilsson <bni.swe@gmail.com> wrote:
 
-Perhaps you haven't hit some of the more recent standards that place 
-more of a burden on the ap implementation?  Also some vendor-specific 
-protocol features suck up space for ap mode only and it is nice to be 
-able to include them only as needed.
+> Hi,
+> 
+> I have a problem with the network card attached to my motherboard
+> after doing an upgrade of the kernel from 2.6.11 to 2.6.15.
+> 
+> The Motherboard is an ASUS P4P800, and the network card is 3COM 3C940
+> and is afaik a variant of SysKonnect SK-98xx.
+> 
+> It worked with 2.6.15 until I shut the system down and started it up
+> again for the first time with 2.6.15 running, and now the card does
+> not work anymore. The driver is loaded, and it detects that the cable
+> is plugged in and the interface is brought up (so says dmesg). The
+> green led on the card is now turned off, it used to be on before.
+> 
+> I have tried to reinstall the system from scratch (Using Debian 3.1
+> installer cd), and to my astonishment the card is not working like it
+> used to.
+> 
+> It seems like 2.6.15 set the card in some state so it does not work
+> anymore. Is this even possible? I have tried power cycling, even
+> disconnected the power coord from the computer.
+> 
+> When i used 2.6.11 I was using the sk98lin driver, when upgrading it
+> is possible the newer skge driver was used, however I am not sure.
+> 
+> Debian installer 3.1 uses 2.6.8 kernel with sk98lin driver.
+> 
+> I have found others with the same/similar problem:
+> http://bugs.gentoo.org/show_bug.cgi?id=100258
+> http://marc.theaimsgroup.com/?l=linux-netdev&m=112268414417743&w=2
+> 
+> But for me the card does not work even with 2.6.15. I dont have
+> Wind*ws to test with, so I cant test the solution in one of the above
+> emails.
+> 
+> If the driver in 2.6.15 breaks cards of this type it is qiute a
+> serious bug I think. Anyone have any suggestions as to how I can try
+> to fix this? Reset the card in some way maybe?
+> 
+> Please CC me.
+> 
+> Regards
+> /Björn
 
-There are several advantages to splitting up the code such as reduced 
-audit complexity and real space savings but I agree that it is an open 
-question whethere there's a big gain to modularizing the code by 
-operating mode.
+Pleas send me some more info.
+* console output (dmesg)
+* lspci -v
+* which modules are loaded (lsmod)
 
-	Sam
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

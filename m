@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWAPSPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWAPSbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWAPSPE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 13:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWAPSPE
+	id S1751077AbWAPSbg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 13:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWAPSbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 13:15:04 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:16615 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751018AbWAPSPC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 13:15:02 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 16 Jan 2006 13:31:36 -0500
+Received: from mx02.qsc.de ([213.148.130.14]:45958 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S1751077AbWAPSbf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 13:31:35 -0500
+From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
+Organization: ExactCODE
+To: linux-kernel@vger.kernel.org
+Subject: Re: interrupt routing ATi RS480M (MSI Megabook S270)
+Date: Mon, 16 Jan 2006 19:31:52 +0100
+User-Agent: KMail/1.9
+References: <200601161607.24209.rene@exactcode.de>
+In-Reply-To: <200601161607.24209.rene@exactcode.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] acpi: remove function tracing macros
-Date: Mon, 16 Jan 2006 13:14:54 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005B835E4@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] acpi: remove function tracing macros
-Thread-Index: AcYWyJ3zpO/6/XK/SRyi17MNhClkogD/VRRQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 16 Jan 2006 18:14:56.0580 (UTC) FILETIME=[C1521040:01C61AC8]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601161931.52539.rene@exactcode.de>
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, since it is usually what I touch last, I now tried
+	an BIOS update which solved the IRQ routing oddities: old version: V3.20
+	06/27/05 new version: V4.30 10/01/06 [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->From: Pekka Enberg <penberg@cs.helsinki.fi>
+since it is usually what I touch last, I now tried an BIOS update which solved 
+the IRQ routing oddities:
+
+old version:  V3.20 06/27/05
+new version: V4.30 10/01/06
+
+The 2x timer sped can be circumvented with: disable_timer_pin_1
+
+However then, with APIC interrupts used, the machine does not come back 
+properly after suspend, it hangs on resume. I can post the debug output of 
+that if someone is interested.
+
+On Monday 16 January 2006 16:07, I wrote:
+
+> I have a MSI Megabook S270 with AMD Turion MT-30 and the interrupt routing
+> never worked quite right. I'll describe the problems with 2.6.15, since I
+> reinstalled the system recently and do not have older kernels to quote logs
+> for those.
 >
->This patch removes function tracing macro usage from drivers/acpi/. In
->particular, ACPI_FUNCTION_TRACE are ACPI_FUNCTION_NAME removed 
->completely and return_VALUE, return_PTR, and return_ACPI_STATUS
->are converted with proper use of return.
+> First I have to boot with e.g. noapic, otherwise the system time runs twice
+> as fast but with and without noapic. pci=routeirq, pci=assign-busses or
+> irqpoll the interrupt assigned to the USB controllers gets disabled and
+> thus renders USB unfunctional.
 >
->I have not included the actual patch in this mail because it 
->is 600 KB in size. You can find the patch here:
->
->http://www.cs.helsinki.fi/u/penberg/linux/acpi-remove-function-tracing-macros.patch
->
->Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+> Attached are dmesg and /proc/interrupts of 2.6.15 once vanilla and once
+> with noapic. Just drop a note if more information, option or patch to test
+> is welcome:
 
-I'm sorry, I can't apply this source clean-up patch.
-
-We need tracing to debug interpreter failures on hardware
-in the field.
-
-And there is more to the long story, which I'll try to makes short here.
-
-Linux shares the same dual-licensed ACPICA core interpreter with FreeBSD
-Apple etc. -- indeed every ACPI-enabled OS other than Windows.
-Linux gets a huge benefit from doing so.
-In Linux, ACPICA refers to almost all the files under drivers/acpi/*.
-(maybe I should re-arrange the source tree to make this more clear)
-
-When we make GPL changes to those files, we diverge
-from the rest of the universe and the overloaded
-Linux/ACPI maintainer (me) starts to lose his sanity.
-That said, if the author of the patch re-licenses it back
-to Intel so it can be distributed under eitiher GPL or BSD,
-then Intel can apply a change "up-stream" and divergence
-can be avoided.  But per above, that isn't the primary
-issue with ripping out tracing.
-
-Note that tracing is built in only for CONFIG_ACPI_DEBUG.
-
-Note that Patrick has an upcoming patch set that removes
-tracing from the "pure GPL" drivers in drivers/acpi/*.c
-where it isn't really needed.
-
-Note that ACPICA 20060113 includes an additional patch
-suggested by SuSE to split up CONFIG_ACPI_DEBUG
-so that the tracing can be left out and the warnings
-included.
-
-thank you for your understanding.
-
--Len
-
+-- 
+René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+            http://www.exactcode.de | http://www.t2-project.org
+            +49 (0)30  255 897 45

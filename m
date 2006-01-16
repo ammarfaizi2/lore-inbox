@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWAPJZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWAPJYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWAPJZH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWAPJYt
+	id S932296AbWAPJYh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWAPJYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:24:49 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55275 "EHLO
+	Mon, 16 Jan 2006 04:24:10 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:46571 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932270AbWAPJYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:24:05 -0500
+	id S932266AbWAPJXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:23:34 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Ricardo Cerqueira <v4l@cerqueira.org>,
-       Michael Krufky <mkrufky@m1k.net>,
+       akpm@osdl.org, Michael Krufky <mkrufky@m1k.net>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 21/25] fix some sound quality & distortion problems.
+Subject: [PATCH 23/25] tuner_params->tda988x is currently unused, so disable
 Date: Mon, 16 Jan 2006 07:11:25 -0200
-Message-id: <20060116091124.PS95124500021@infradead.org>
+Message-id: <20060116091125.PS49937100023@infradead.org>
 In-Reply-To: <20060116091105.PS83611600000@infradead.org>
 References: <20060116091105.PS83611600000@infradead.org>
 Mime-Version: 1.0
@@ -30,33 +29,38 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Ricardo Cerqueira <v4l@cerqueira.org>
+From: Michael Krufky <mkrufky@m1k.net>
 
-- Fix some sound quality & distortion problems.
+- Tuner_params->tda988x is unused right now, so let's disable it for 2.6.16
+- This is currently happening at the card level, but the plan
+  is to move this configuration into the tuner_params configuration.
 
-Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
 Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/cx88/cx88-alsa.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ include/media/tuner-types.h |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/video/cx88/cx88-alsa.c b/drivers/media/video/cx88/cx88-alsa.c
-index e649f67..a2e36a1 100644
---- a/drivers/media/video/cx88/cx88-alsa.c
-+++ b/drivers/media/video/cx88/cx88-alsa.c
-@@ -333,10 +333,10 @@ static snd_pcm_hardware_t snd_cx88_digit
- 	.channels_min = 1,
- 	.channels_max = 2,
- 	.buffer_bytes_max = (2*2048),
--	.period_bytes_min = 256,
-+	.period_bytes_min = 2048,
- 	.period_bytes_max = 2048,
- 	.periods_min = 2,
--	.periods_max = 16,
-+	.periods_max = 2,
- };
+diff --git a/include/media/tuner-types.h b/include/media/tuner-types.h
+index 9f0e9c1..15821ab 100644
+--- a/include/media/tuner-types.h
++++ b/include/media/tuner-types.h
+@@ -19,7 +19,6 @@ struct tuner_range {
  
- /*
+ struct tuner_params {
+ 	enum param_type type;
+-	unsigned int tda988x;
+ 	/* Many Philips based tuners have a comment like this in their
+ 	 * datasheet:
+ 	 *
+@@ -31,7 +30,7 @@ struct tuner_params {
+ 	 *   will result in very low tuning voltage which may drive the
+ 	 *   oscillator to extreme conditions.
+ 	 *
+-	 * Set cb_first_if_lower_freq to 1, if this check is 
++	 * Set cb_first_if_lower_freq to 1, if this check is
+ 	 * required for this tuner.
+ 	 *
+ 	 * I tested this for PAL by first setting the TV frequency to
 

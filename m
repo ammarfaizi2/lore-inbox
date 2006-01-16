@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWAPUMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWAPUNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWAPUMH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 15:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWAPUMG
+	id S1751185AbWAPUNU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 15:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWAPUNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 15:12:06 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14756 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751177AbWAPUMF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 15:12:05 -0500
-Date: Mon, 16 Jan 2006 21:11:48 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>, seife@suse.de
-Subject: Re: Suspend to RAM and disk
-Message-ID: <20060116201147.GP1666@elf.ucw.cz>
-References: <20060116114037.GA26986@elf.ucw.cz> <200601162106.42512.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601162106.42512.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 16 Jan 2006 15:13:20 -0500
+Received: from mgw-ext03.nokia.com ([131.228.20.95]:44679 "EHLO
+	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP
+	id S1751180AbWAPUNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 15:13:19 -0500
+Date: Mon, 16 Jan 2006 22:10:51 +0200 (EET)
+From: Samuel Ortiz <samuel.ortiz@nokia.com>
+X-X-Sender: samuel@irie
+Reply-To: samuel.ortiz@nokia.com
+To: ext Stuffed Crust <pizza@shaftnet.org>
+cc: Sam Leffler <sam@errno.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (configuration)
+In-Reply-To: <20060116195008.GB12748@shaftnet.org>
+Message-ID: <Pine.LNX.4.58.0601162204240.17348@irie>
+References: <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com>
+ <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost>
+ <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com>
+ <20060115152034.GA1722@shaftnet.org> <43CAA853.8020409@errno.com>
+ <20060116172817.GB8596@shaftnet.org> <Pine.LNX.4.58.0601162056261.17348@irie>
+ <20060116195008.GB12748@shaftnet.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 16 Jan 2006 20:10:47.0500 (UTC) FILETIME=[F06448C0:01C61AD8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 16-01-06 21:06:41, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Monday, 16 January 2006 12:40, Pavel Machek wrote:
-> > In good old days of Pentium MMX, when ACPI was not yet born and APM
-> > ruled the world, I had and thinkpad 560X notebook. And that beast
-> > supported suspend-to-both: It stored image on disk, but then suspended
-> > to RAM, anyway. I think I want that feature back.
-> > 
-> > [Advantage was, that suspend/resume was reasonably fast for common
-> > case, yet you did not loose your opened applications if your battery
-> > ran flat. Speed advantage will be even greater these days -- boot of
-> > "resume" kernel takes most of time.]
-> > 
-> > Unfortunately, suspend-to-RAM is not in quite good state these
-> > days. It tends to work -- after you setup your video drivers according
-> > to video.txt, with some scripting needed. Unfortunately, after we
-> > suspended to disk, system is frozen -- we may not run scripts.
-> > 
-> > I guess the solution is to create userland application that will parse
-> > the DMI, look into table, and if it is neccessary do the vbe
-> > saving/restoring itself. (We may not run external binaries on frozen
-> > system; everything has to be pagelocked.) I guess that will include
-> > quite a lot of cut-copy-and-paste from various project, but I see no
-> > other way :-(.
-> 
-> Yes, I think we could embed the s2ram preparation in the suspending
-> application, and program it to operate like that:
-> 1) freeze
-> 2) call atomic snapshot
-> 3) save the image
-> 4) prepare s2ram
-> 5) suspend to RAM
-> 6) sleep
-> 7) wake up (this would unfreeze processes too, if successful)
-> 8) zap the image header
+On Mon, 16 Jan 2006, ext Stuffed Crust wrote:
 
-Yep, that's the way go. Unfortunately s2ram is little complicated by
-need to save video state. Usually s2ram is done by script, and
-embedding means it needs to be done in C. So I'll hack C program to
-s2ram the machine.
+> You may hear another beacon when the STA is awake, you may not.  BSSID
+> filtering has nothing to do with 802.11 power save, but rather is
+> intented to reduce the host load (interrupts, processing overhead) and
+> thus the host power consumption.
+I know that and I know a bit about 802.11 PS as well.
+I was talking about host powersaving, not 802.11. Sorry for the confusion.
 
-> This would play some ping-pong with devices that would be suspended,
-> woken up and then suspended again before s2ram, but I don't think that's
-> avoidable in the current state of things.
+What I meant is that having an 802.11 stack capable of living with less
+than a beacon every couple of beacon intervals would be nice as well.
 
-We'll eventually need to do something with device ping-pong --
-devices/highmem take as long as saving to disk in my case...
+Cheers,
+Samuel.
 
-							Pavel
--- 
-Thanks, Sharp!

@@ -1,42 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWAPEsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWAPEym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWAPEsu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 23:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWAPEst
+	id S1751023AbWAPEym (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 23:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWAPEym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 23:48:49 -0500
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:45418 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751028AbWAPEst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 23:48:49 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [RFT] Sonypi: convert to the new platform device interface
-Date: Sun, 15 Jan 2006 23:48:47 -0500
-User-Agent: KMail/1.9.1
-Cc: Stelian Pop <stelian@popies.net>, LKML <linux-kernel@vger.kernel.org>
-References: <200512130219.41034.dtor_core@ameritech.net> <1135724016.23182.5.camel@deep-space-9.dsnet> <Pine.LNX.4.61.0601152147530.4240@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601152147530.4240@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 15 Jan 2006 23:54:42 -0500
+Received: from xenotime.net ([66.160.160.81]:54228 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751023AbWAPEyl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 23:54:41 -0500
+Date: Sun, 15 Jan 2006 20:54:34 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, pavel@suse.cz, mochel <mochel@digitalimplant.org>
+Subject: [PATCH] (-mm) kernel/power: move externs to header files
+Message-Id: <20060115205434.7b803673.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601152348.47812.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 January 2006 15:48, Jan Engelhardt wrote:
-> 
-> On Dec 27 2005 23:53, Stelian Pop wrote:
-> 
-> >[sonypi3]
-> 
-> 
-> When is this going to be merged?
->
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-It's in Linus's tree.
+Move externs from C source files to header files.
 
--- 
-Dmitry
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ include/linux/pm.h   |    3 ++-
+ kernel/power/disk.c  |   11 -----------
+ kernel/power/power.h |    6 +++++-
+ 3 files changed, 7 insertions(+), 13 deletions(-)
+
+--- linux-2615-mm4.orig/include/linux/pm.h
++++ linux-2615-mm4/include/linux/pm.h
+@@ -188,6 +188,8 @@ extern void device_power_up(void);
+ extern void device_resume(void);
+ 
+ #ifdef CONFIG_PM
++extern suspend_disk_method_t pm_disk_mode;
++
+ extern int device_suspend(pm_message_t state);
+ 
+ #define device_set_wakeup_enable(dev,val) \
+@@ -215,7 +217,6 @@ static inline int dpm_runtime_suspend(st
+ 
+ static inline void dpm_runtime_resume(struct device * dev)
+ {
+-
+ }
+ 
+ #endif
+--- linux-2615-mm4.orig/kernel/power/disk.c
++++ linux-2615-mm4/kernel/power/disk.c
+@@ -23,17 +23,6 @@
+ #include "power.h"
+ 
+ 
+-extern suspend_disk_method_t pm_disk_mode;
+-
+-extern int swsusp_shrink_memory(void);
+-extern int swsusp_suspend(void);
+-extern int swsusp_write(void);
+-extern int swsusp_check(void);
+-extern int swsusp_read(void);
+-extern void swsusp_close(void);
+-extern int swsusp_resume(void);
+-
+-
+ static int noresume = 0;
+ char resume_file[256] = CONFIG_PM_STD_PARTITION;
+ dev_t swsusp_resume_device;
+--- linux-2615-mm4.orig/kernel/power/power.h
++++ linux-2615-mm4/kernel/power/power.h
+@@ -59,7 +59,6 @@ extern asmlinkage int swsusp_arch_suspen
+ extern asmlinkage int swsusp_arch_resume(void);
+ 
+ extern unsigned int count_data_pages(void);
+-extern void swsusp_free(void);
+ 
+ struct snapshot_handle {
+ 	loff_t		offset;
+@@ -102,6 +101,11 @@ extern struct bitmap_page *alloc_bitmap(
+ extern unsigned long alloc_swap_page(int swap, struct bitmap_page *bitmap);
+ extern void free_all_swap_pages(int swap, struct bitmap_page *bitmap);
+ 
++extern int swsusp_check(void);
+ extern int swsusp_shrink_memory(void);
++extern void swsusp_free(void);
+ extern int swsusp_suspend(void);
+ extern int swsusp_resume(void);
++extern int swsusp_read(void);
++extern int swsusp_write(void);
++extern void swsusp_close(void);
+
+
+---
+~Randy

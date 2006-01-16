@@ -1,133 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWAPU4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWAPU7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWAPU4e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 15:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWAPU4e
+	id S1751194AbWAPU7b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 15:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWAPU7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 15:56:34 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:34526 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1751198AbWAPU4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 15:56:33 -0500
-Date: Mon, 16 Jan 2006 12:56:18 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       dipankar@in.ibm.com
-Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threadedprocess at getrusage()
-Message-ID: <20060116205618.GA5313@localhost.localdomain>
-References: <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru> <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <43C0FC4B.567D18DC@tv-sign.ru> <20060108195848.GA4124@localhost.localdomain> <43C2B1B7.635DDF0B@tv-sign.ru> <20060109205442.GB3691@localhost.localdomain> <43C40507.D1A85679@tv-sign.ru>
+	Mon, 16 Jan 2006 15:59:31 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:5808 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S1751194AbWAPU7a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 15:59:30 -0500
+Date: Mon, 16 Jan 2006 15:58:59 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: Sam Leffler <sam@errno.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Johannes Berg <johannes@sipsolutions.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (configuration)
+Message-ID: <20060116205859.GD12748@shaftnet.org>
+Mail-Followup-To: Sam Leffler <sam@errno.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost> <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com> <20060115152034.GA1722@shaftnet.org> <43CAA853.8020409@errno.com> <20060116172817.GB8596@shaftnet.org> <43CBDDC7.9060504@errno.com> <20060116194013.GA12748@shaftnet.org> <43CBFE90.8070208@errno.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5gxpn/Q6ypwruk0T"
 Content-Disposition: inline
-In-Reply-To: <43C40507.D1A85679@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <43CBFE90.8070208@errno.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Mon, 16 Jan 2006 15:59:00 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the delay..
 
-On Tue, Jan 10, 2006 at 10:03:35PM +0300, Oleg Nesterov wrote:
-> Ravikiran G Thirumalai wrote:
-> > 
-> > > >
-> > > > Don't we still need rmb for the RUSAGE_SELF case? we do not take the
-> > > > siglock for rusage self and the non c* signal fields are written to
-> > > > at __exit_signal...
-> > >
-> > > I think it is unneeded because RUSAGE_SELF case is "racy" anyway even
-> > > if we held both locks, task_struct->xxx counters can change at any
-> > > moment.
-> > >
-> > > But may be you are right.
-> > 
-> > Hmm...access to task_struct->xxx has been racy, but accessing the
-> > signal->* counters were not.  What if read of the signal->utime  was  a
-> > hoisted read and signal->stime was a read after the counter is updated?
-> > This was not a possibility earlier no?
-> 
-> Sorry, I can't undestand. Could you please be more verbose ?
+--5gxpn/Q6ypwruk0T
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What I meant to say was, if a thread has just exited, since we do not use
-locks anymore in ST case, the read of signal->utime may happen out of order,
+On Mon, Jan 16, 2006 at 12:14:08PM -0800, Sam Leffler wrote:
+> Please read what I wrote again.  Station mode power save work involves=20
+> communicating with the ap and managing the hardware.  The first=20
+> interacts with bg scanning.  We haven't even talked about how to handle=
+=20
+> sta mode power save.
 
-(excuse long lines)
+I think we're arguing over semantics; what's important here is that the
+STA tells the AP to buffer frames while we're performing a scan,
+correct?
+=20
+> If you wait until the end of the scan to return to the bss channel then=
+=20
+> you potentially miss buffered mcast frames.  You can up the station's=20
+> listen interval but that only gets you so far.  As I said there are=20
+> tradeoffs in doing this.
 
-Last thread (RUSAGE_SELF)		Exiting thread
+An excellent point.  This is particularly relevant for APs that have a
+DTIM interval of 1 -- if you're doing a passive scan, the dwell time on
+that other channel (you need at least one beacon interval) could cause
+you to miss bufferend MCAST frames.
 
+In all fairness I don't think I've seen any implementations that handle
+this cleanly.
 
-k_getrusage()				__exit_signal()
-	.					.
-	load sig->utime (hoisted read) 		.
-	.					sig->utime = cputime_add(sig->utime, tsk->utime);
-	.					sig->stime = cputime_add(sig->stime, tsk->stime);
-						.
-						.
-						spin_unlock(&sighand->siglock); --> (A)
-						.
-					__unhash_process()
-						.
-						detach_pid(p, PIDTYPE_PGID);
-	if (!thread_group_empty())		.
-	.
-	don't take any lock based on if --> (B)
-	.
-	.
-	utime = cputime_add(utime, p->signal->utime); /* use cached load above */
-	stime = cputime_add(stime, p->signal->stime); /* load from memory */
+ - Solomon
+--=20
+Solomon Peachy        				 ICQ: 1318344
+Melbourne, FL 					=20
+Quidquid latine dictum sit, altum viditur.
 
-So although writes happen in order due to (A) above, there is no guarantee
-interms of read order when we do not take locks,(as far as my understanding
-goes)  so I think a rmb() is needed at (B), else as in this example, some 
-counters may have values before the exiting thread updated  the sig-> fields 
-and some after the thread updated the sig-> fields.  This might have a 
-significant effect than the task_struct->xxx inaccuracies.  Of course 
-this is theoretical.  This was not a possibility earlier because 
-__exit_signal and k_getrusage() could not run at the same time due to the 
-exiting thread taking tasklist lock for write and k_getrusage thread taking 
-the lock for read.
-I am also cc'ing experts in memory re-ordering issues to check if I am
-missing something :)
+--5gxpn/Q6ypwruk0T
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I think we need a rmb() at sys_times too based on the above. I will make a
-patch for that.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFDzAkTPuLgii2759ARAm3JAJ9TPFf5WKVjYZ7jrn65IiFzJEAuiACgu2qZ
+l7BzmAzAGElff9QpgNACfBY=
+=dOnv
+-----END PGP SIGNATURE-----
 
-> 
-> > >
-> > > > What is wrong with optimizing by not taking the siglock in RUSAGE_BOTH
-> > > > and RUSAGE_CHILDREN?  I would like to add that in too unless  I am
-> > > > missing something and the optimization is incorrect.
-> > >
-> > > We can't have contention on ->siglock when need_lock == 0, so why should
-> > > we optimize this case?
-> > 
-> > We would be saving 1 buslocked operation in that case (on some arches), a
-> > cacheline fetch for exclusive (since signal and sighand are on different memory
-> > locations), and disabling/enabling onchip interrupts.  But yes, this would be a
-> > smaller optimization....Unless you have strong objections this can also
-> > go in?
-> 
-> I don't have strong objections, but I am not a maintainer.
-> 
-> However, do you have any numbers or thoughts why this optimization
-> can make any _visible_ effect?
-
-We know we don't need locks there, so I do not understand why we
-should keep them.  Locks are always serializing and expensive operations.  I
-believe on some arches disabling on-chip interrupts is also an expensive
-operation...some arches might use hypervisor calls to do that which I guess
-will have its own overhead...so why have it when we know we don't need it?
-
-Thanks,
-Kiran
+--5gxpn/Q6ypwruk0T--

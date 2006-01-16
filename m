@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWAPIJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWAPIV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWAPIJg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 03:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWAPIJg
+	id S932250AbWAPIV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 03:21:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWAPIV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 03:09:36 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29411 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932260AbWAPIJf (ORCPT
+	Mon, 16 Jan 2006 03:21:57 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:21385 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932247AbWAPIV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 03:09:35 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.15 __disk_stat_add() called without preempt disabled
+	Mon, 16 Jan 2006 03:21:56 -0500
+Date: Mon, 16 Jan 2006 09:21:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       greg@kroah.com, zaitcev@redhat.com
+Subject: Re: 2.6.15-mm4: sem2mutex problem in USB OHCI
+Message-ID: <20060116082159.GA9744@elte.hu>
+References: <200601150058.58518.rjw@sisk.pl> <20060114160526.228da734.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 16 Jan 2006 19:09:29 +1100
-Message-ID: <13179.1137398969@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20060114160526.228da734.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.15 on ia64, gcc 3.3.3, CONFIG_PREEMPT_DEBUG=y.
 
-scsi(0): Resetting Cmnd=0xe00000b479ea7810, Handle=0x0000000000000001, action=0x0
-scsi(0): Resetting Cmnd=0xe00000b479ea79e8, Handle=0x0000000000000002, action=0x0
-scsi(0): Resetting Cmnd=0xe00000b479ea63c8, Handle=0x0000000000000003, action=0x0
-scsi(0): Resetting Cmnd=0xe00000b479ea7810, Handle=0x0000000000000202, action=0x2
-scsi(0:0:2:0): Queueing device reset command.
-qla2300 0000:03:01.0: Mailbox command timeout occured. Issuing ISP abort.
-qla2300 0000:03:01.0: Performing ISP error recovery - ha= e0000034790b4518.
-scsi(0): mailbox timed out, mailbox0 4000, ictrl 0006, istatus 6006
-qla2300 0000:03:01.0: LIP reset occured (f7f7).
-qla2300 0000:03:01.0: LOOP UP detected (2 Gbps).
-qla2300 0000:03:01.0: scsi(2:2:1): Abort command issued -- 2ea 2003.
-sd 2:0:2:1: scsi: Device offlined - not ready after error recovery
-sd 2:0:2:1: scsi: Device offlined - not ready after error recovery
-BUG: using smp_processor_id() in preemptible [00000001] code: scsi_eh_2/4665
-caller is __end_that_request_first+0x1b0/0x8e0
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Call Trace:
- [<a000000100013280>] show_stack+0x40/0xa0
-                                sp=e00000b007dbfc00 bsp=e00000b007db90e8
- [<a000000100013b10>] dump_stack+0x30/0x60
-                                sp=e00000b007dbfdd0 bsp=e00000b007db90d0
- [<a0000001003d7880>] debug_smp_processor_id+0x160/0x1a0
-                                sp=e00000b007dbfdd0 bsp=e00000b007db90b0
- [<a000000100399c90>] __end_that_request_first+0x1b0/0x8e0
-                                sp=e00000b007dbfdd0 bsp=e00000b007db9028
- [<a00000010039a3f0>] end_that_request_chunk+0x30/0x60
-                                sp=e00000b007dbfdd0 bsp=e00000b007db8ff0
- [<a00000010052f6f0>] scsi_end_request+0x50/0x1e0
-                                sp=e00000b007dbfdd0 bsp=e00000b007db8fb0
- [<a00000010052fc60>] scsi_io_completion+0x3e0/0x840
- [<a00000010055dfe0>] sd_rw_intr+0x460/0x480
-                                sp=e00000b007dbfde0 bsp=e00000b007db8ec8
- [<a000000100522750>] scsi_finish_command+0x150/0x180
-                                sp=e00000b007dbfe00 bsp=e00000b007db8e98
- [<a00000010052c0d0>] scsi_error_handler+0x1230/0x15e0
-                                sp=e00000b007dbfe00 bsp=e00000b007db8e28
- [<a0000001000c68a0>] kthread+0x1a0/0x220
-                                sp=e00000b007dbfe20 bsp=e00000b007db8de8
- [<a000000100011860>] kernel_thread_helper+0xe0/0x100
-                                sp=e00000b007dbfe30 bsp=e00000b007db8dc0
- [<a000000100009120>] start_kernel_thread+0x20/0x40
-                                sp=e00000b007dbfe30 bsp=e00000b007db8dc0
+> >  Badness in __mutex_trylock_slowpath at kernel/mutex.c:281
+> > 
+> >  Call Trace: <IRQ> <ffffffff80148d8d>{mutex_trylock+141}
+> >
+> >         <ffffffff880abaf0>{:ohci_hcd:ohci_hub_status_data+480}
+> >         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d24c3>{usb_hcd_poll_rh_status+67}
+> >         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d25d9>{rh_timer_func+9}
+> >         <ffffffff8013a3cc>{run_timer_softirq+396}
 
-__end_that_request_first() calls __disk_stat_add() [inlined] without
-disabling preemption.
+> err, taking a mutex from softirq context.
 
+btw., i'm wondering how the down_trylock() can be correct code: what 
+guarantees progress if the trylock happens to fail all the time? (or 
+just happens to fail frequently, due to some other, unrelated dev->mutex 
+workload)
+
+Shouldnt this code use some other solution to process these timed events 
+more robustly?
+
+	Ingo

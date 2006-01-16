@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWAPHqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWAPIIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbWAPHqp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 02:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWAPHqp
+	id S932243AbWAPIIP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 03:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAPIIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 02:46:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17288 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932237AbWAPHqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 02:46:45 -0500
-Date: Sun, 15 Jan 2006 23:46:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Jan Beulich" <JBeulich@novell.com>
-Cc: sam@ravnborg.org, benh@kernel.crashing.org, ak@muc.de, paulus@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CONFIG_UNWIND_INFO
-Message-Id: <20060115234618.6745a7c8.akpm@osdl.org>
-In-Reply-To: <43CB5B15.76F0.0078.0@novell.com>
-References: <4370AF4A.76F0.0078.0@novell.com>
-	<20060114045635.1462fb9e.akpm@osdl.org>
-	<20060114140301.GA8443@mars.ravnborg.org>
-	<43CB5B15.76F0.0078.0@novell.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Jan 2006 03:08:15 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:11649 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S932243AbWAPIIO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 03:08:14 -0500
+Message-ID: <43CB4C03.7070304@wolfmountaingroup.com>
+Date: Mon, 16 Jan 2006 00:32:19 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+References: <43CB4CC3.4030904@fastmail.co.uk>
+In-Reply-To: <43CB4CC3.4030904@fastmail.co.uk>
+Content-Type: multipart/mixed;
+ boundary="------------020908010604050004060206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jan Beulich" <JBeulich@novell.com> wrote:
+This is a multi-part message in MIME format.
+--------------020908010604050004060206
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Max Waterman wrote:
+
+> Hi,
 >
-> >>> Sam Ravnborg <sam@ravnborg.org> 14.01.06 15:03:01 >>>
-> >On Sat, Jan 14, 2006 at 04:56:35AM -0800, Andrew Morton wrote:
-> >> 
-> >> > Index: linux/Makefile
-> >> > ===================================================================
-> >> > --- linux.orig/Makefile
-> >> > +++ linux/Makefile
-> >> > @@ -502,6 +502,10 @@ CFLAGS		+= $(call add-align,CONFIG_CC_AL
-> >> >  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LOOPS,-loops)
-> >> >  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_JUMPS,-jumps)
-> >> >  
-> >> > +ifdef CONFIG_UNWIND_INFO
-> >> > +CFLAGS		+= -fasynchronous-unwind-tables
-> >> > +endif
-> >Is this option available on all gcc's for all archs?
-> >Otherwise you have to do:
-> >CFLAGS		+= $(call cc-option,-fasynchronous-unwind-tables,)
-> 
-> Yes, it is (and it has been at least since 3.2.x). Apparently the PPC backend doesn't fully support this...
-> 
+> I've been referred to this list from the linux-raid list.
+>
+> I've been playing with a RAID system, trying to obtain best bandwidth
+> from it.
+>
+> I've noticed that I consistently get better (read) numbers from kernel 
+> 2.6.8
+> than from later kernels.
 
-And others might not support it either.  We don't know.
 
-Perhaps this option should be enabled only on architectures where it's known
-to work, rather than disabled only on ppc64, as my fix does.
+To open the bottlenecks, the following works well.  Jens will shoot me 
+for recommending this,
+but it works well.  2.6.9 so far has the highest numbers with this fix.  
+You can manually putz
+around with these numbers, but they are an artificial constraint if you 
+are using RAID technology
+that caches ad elevators requests and consolidates them.
+
+
+Jeff
+
+
+
+--------------020908010604050004060206
+Content-Type: text/x-patch;
+ name="blkdev.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="blkdev.patch"
+
+
+diff -Naur ./include/linux/blkdev.h ../linux-2.6.9/./include/linux/blkdev.h
+--- ./include/linux/blkdev.h	2004-10-18 15:53:43.000000000 -0600
++++ ../linux-2.6.9/./include/linux/blkdev.h	2005-12-06 09:54:46.000000000 -0700
+@@ -23,8 +23,10 @@
+ typedef struct elevator_s elevator_t;
+ struct request_pm_state;
+ 
+-#define BLKDEV_MIN_RQ	4
+-#define BLKDEV_MAX_RQ	128	/* Default maximum */
++//#define BLKDEV_MIN_RQ	4
++//#define BLKDEV_MAX_RQ	128	/* Default maximum */
++#define BLKDEV_MIN_RQ	4096
++#define BLKDEV_MAX_RQ	8192	/* Default maximum */
+ 
+
+--------------020908010604050004060206--

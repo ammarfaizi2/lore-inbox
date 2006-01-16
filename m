@@ -1,81 +1,304 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbWASAWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbWASAZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161092AbWASAWl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 19:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161090AbWASAWk
+	id S1161091AbWASAZM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 19:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161093AbWASAZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 19:22:40 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:30920 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161088AbWASAWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 19:22:39 -0500
-From: Neil Brown <neilb@suse.de>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Date: Thu, 19 Jan 2006 11:22:31 +1100
-Message-ID: <17358.56263.806371.53617@cse.unsw.edu.au>
+	Wed, 18 Jan 2006 19:25:12 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:50343 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161091AbWASAZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 19:25:10 -0500
+From: mark gross <mgross@linux.intel.com>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, mark.gross@intel.com
+Subject: [PATCH] tlclk driver update
+Date: Sun, 15 Jan 2006 17:37:30 -0800
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Cc: Ross Vandegrift <ross@jose.lug.udel.edu>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 000 of 5] md: Introduction
-In-Reply-To: message from Michael Tokarev on Tuesday January 17
-References: <20060117174531.27739.patches@notabene>
-	<43CCA80B.4020603@tls.msk.ru>
-	<20060117095019.GA27262@localhost.localdomain>
-	<43CCD453.9070900@tls.msk.ru>
-	<20060117160829.GA16606@lug.udel.edu>
-	<43CD3388.9050107@tls.msk.ru>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200601151737.32462.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday January 17, mjt@tls.msk.ru wrote:
-> 
-> As a sort of conclusion.
-> 
-> There are several features that can be implemented in linux softraid
-> code to make it real Raid, with data safety goal.  One example is to
-> be able to replace a "to-be-failed" drive (think SMART failure
-> predictions for example) without removing it from the array with a
-> (hot)spare (or just a replacement) -- by adding the new drive to the
-> array *first*, and removing the to-be-replaced one only after new is
-> fully synced.  Another example is to implement some NVRAM-like storage
-> for metadata (this will require the necessary hardware as well, like
-> eg a flash card -- I dunno how safe it can be).  And so on.
+some driver clean ups, and a re-posting of changes that are needed 
+to match the updated TPS.
 
-proactive replacement before complete failure is a good idea and is
-(just recently) on my todo list.  It shouldn't be too hard.
+Signed-off-by: Mark Gross <mark.gross@intel.com>
 
-> 
-> The current MD code is "almost here", almost real.  It still has some
-> (maybe minor) problems, it still lacks some (again maybe minor) features
-> wrt data safety.  Ie, it still can fail, but it's almost here.
 
-concrete suggestions are always welcome (though sometimes you might
-have to put some effort into convincing me...)
+Please apply.
 
-> 
-> While current development is going to implement some new and non-trivial
-> features which are of little use in real life.  Face it: yes it's good
-> when you're able to reshape your array online keeping servicing your
-> users, but i'd go for even 12 hours downtime if i know my data is safe,
-> instead of unknown downtime after I realize the reshape failed for some
-> reason and I dont have my data anymore.  And yes it's very rarely used
-> (which adds to the problem - rarely used code paths with bugs with stays
-> unfound for alot of time, and bite you at a very unexpected moment, when
-> you think it's all ok...)
+--mgross
 
-If you look at the amount of code in the 'reshape raid5' patch you
-will notice that it isn't really very much.  It reuses a lot of the
-infrastructure that is already present in md/raid5.  So a reshape
-actually uses a lot of code that is used very often.
-
-Compare this to an offline solution (raidreconfig) where all the code
-is only used occasionally.  You could argue that the online version
-has more code safety than the offline version....
-
-NeilBrown
+diff -urN -X dontdiff linux-2.6.15-rc2-git2/drivers/char/tlclk.c linux-2.6.15-rc2-git2-tlclk/drivers/char/tlclk.c
+--- linux-2.6.15-rc2-git2/drivers/char/tlclk.c	2005-11-22 09:45:38.000000000 -0800
++++ linux-2.6.15-rc2-git2-tlclk/drivers/char/tlclk.c	2006-01-18 14:37:09.000000000 -0800
+@@ -34,7 +34,6 @@
+ #include <linux/kernel.h>	/* printk() */
+ #include <linux/fs.h>		/* everything... */
+ #include <linux/errno.h>	/* error codes */
+-#include <linux/delay.h>	/* udelay */
+ #include <linux/slab.h>
+ #include <linux/ioport.h>
+ #include <linux/interrupt.h>
+@@ -156,6 +155,8 @@
+ documented in the MCPBL0010 TPS under the Telecom Clock API section, 11.4.
+ alarms				:
+ current_ref			:
++received_ref_clk3a		:
++received_ref_clk3b		:
+ enable_clk3a_output		:
+ enable_clk3b_output		:
+ enable_clka0_output		:
+@@ -165,7 +166,7 @@
+ filter_select			:
+ hardware_switching		:
+ hardware_switching_mode		:
+-interrupt_switch		:
++telclock_version		:
+ mode_select			:
+ refalign			:
+ reset				:
+@@ -173,7 +174,6 @@
+ select_amcb2_transmit_clock	:
+ select_redundant_clock		:
+ select_ref_frequency		:
+-test_mode			:
+ 
+ All sysfs interfaces are integers in hex format, i.e echo 99 > refalign
+ has the same effect as echo 0x99 > refalign.
+@@ -211,7 +211,7 @@
+ 	result = request_irq(telclk_interrupt, &tlclk_interrupt,
+ 			     SA_INTERRUPT, "telco_clock", tlclk_interrupt);
+ 	if (result == -EBUSY) {
+-		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
++		printk(KERN_ERR "tlclk: Interrupt can't be reserved.\n");
+ 		return -EBUSY;
+ 	}
+ 	inb(TLCLK_REG6);	/* Clear interrupt events */
+@@ -226,7 +226,7 @@
+ 	return 0;
+ }
+ 
+-ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
++static ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
+ 		loff_t *f_pos)
+ {
+ 	if (count < sizeof(struct tlclk_alarms))
+@@ -242,7 +242,7 @@
+ 	return  sizeof(struct tlclk_alarms);
+ }
+ 
+-ssize_t tlclk_write(struct file *filp, const char __user *buf, size_t count,
++static ssize_t tlclk_write(struct file *filp, const char __user *buf, size_t count,
+ 	    loff_t *f_pos)
+ {
+ 	return 0;
+@@ -278,21 +278,21 @@
+ static DEVICE_ATTR(current_ref, S_IRUGO, show_current_ref, NULL);
+ 
+ 
+-static ssize_t show_interrupt_switch(struct device *d,
++static ssize_t show_telclock_version(struct device *d,
+ 		struct device_attribute *attr, char *buf)
+ {
+ 	unsigned long ret_val;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&event_lock, flags);
+-	ret_val = inb(TLCLK_REG6);
++	ret_val = inb(TLCLK_REG5);
+ 	spin_unlock_irqrestore(&event_lock, flags);
+ 
+ 	return sprintf(buf, "0x%lX\n", ret_val);
+ }
+ 
+-static DEVICE_ATTR(interrupt_switch, S_IRUGO,
+-		show_interrupt_switch, NULL);
++static DEVICE_ATTR(telclock_version, S_IRUGO,
++		show_telclock_version, NULL);
+ 
+ static ssize_t show_alarms(struct device *d,
+ 		struct device_attribute *attr,  char *buf)
+@@ -309,6 +309,50 @@
+ 
+ static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
+ 
++static ssize_t store_received_ref_clk3a(struct device *d,
++		 struct device_attribute *attr, const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(d, ": tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG1, 0xef, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static DEVICE_ATTR(received_ref_clk3a, S_IWUGO, NULL,
++		store_received_ref_clk3a);
++
++
++static ssize_t store_received_ref_clk3b(struct device *d,
++		 struct device_attribute *attr, const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(d, ": tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG1, 0xef, val << 1);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static DEVICE_ATTR(received_ref_clk3b, S_IWUGO, NULL,
++		store_received_ref_clk3b);
++
++
+ static ssize_t store_enable_clk3b_output(struct device *d,
+ 		 struct device_attribute *attr, const char *buf, size_t count)
+ {
+@@ -436,26 +480,6 @@
+ static DEVICE_ATTR(enable_clka0_output, S_IWUGO, NULL,
+ 		store_enable_clka0_output);
+ 
+-static ssize_t store_test_mode(struct device *d,
+-		struct device_attribute *attr,  const char *buf, size_t count)
+-{
+-	unsigned long flags;
+-	unsigned long tmp;
+-	unsigned char val;
+-
+-	sscanf(buf, "%lX", &tmp);
+-	dev_dbg(d, "tmp = 0x%lX\n", tmp);
+-
+-	val = (unsigned char)tmp;
+-	spin_lock_irqsave(&event_lock, flags);
+-	SET_PORT_BITS(TLCLK_REG4, 0xfd, 2);
+-	spin_unlock_irqrestore(&event_lock, flags);
+-
+-	return strnlen(buf, count);
+-}
+-
+-static DEVICE_ATTR(test_mode, S_IWUGO, NULL, store_test_mode);
+-
+ static ssize_t store_select_amcb2_transmit_clock(struct device *d,
+ 		struct device_attribute *attr, const char *buf, size_t count)
+ {
+@@ -475,7 +499,7 @@
+ 			SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x38);
+ 			switch (val) {
+ 			case CLK_8_592MHz:
+-				SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
+ 				break;
+ 			case CLK_11_184MHz:
+ 				SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
+@@ -484,7 +508,7 @@
+ 				SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
+ 				break;
+ 			case CLK_44_736MHz:
+-				SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
+ 				break;
+ 			}
+ 		} else
+@@ -653,9 +677,7 @@
+ 	dev_dbg(d, "tmp = 0x%lX\n", tmp);
+ 	spin_lock_irqsave(&event_lock, flags);
+ 	SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
+-	udelay(2);
+ 	SET_PORT_BITS(TLCLK_REG0, 0xf7, 0x08);
+-	udelay(2);
+ 	SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
+ 	spin_unlock_irqrestore(&event_lock, flags);
+ 
+@@ -706,15 +728,16 @@
+ 
+ static struct attribute *tlclk_sysfs_entries[] = {
+ 	&dev_attr_current_ref.attr,
+-	&dev_attr_interrupt_switch.attr,
++	&dev_attr_telclock_version.attr,
+ 	&dev_attr_alarms.attr,
++	&dev_attr_received_ref_clk3a.attr,
++	&dev_attr_received_ref_clk3b.attr,
+ 	&dev_attr_enable_clk3a_output.attr,
+ 	&dev_attr_enable_clk3b_output.attr,
+ 	&dev_attr_enable_clkb1_output.attr,
+ 	&dev_attr_enable_clka1_output.attr,
+ 	&dev_attr_enable_clkb0_output.attr,
+ 	&dev_attr_enable_clka0_output.attr,
+-	&dev_attr_test_mode.attr,
+ 	&dev_attr_select_amcb1_transmit_clock.attr,
+ 	&dev_attr_select_amcb2_transmit_clock.attr,
+ 	&dev_attr_select_redundant_clock.attr,
+@@ -741,7 +764,7 @@
+ 
+ 	ret = register_chrdev(tlclk_major, "telco_clock", &tlclk_fops);
+ 	if (ret < 0) {
+-		printk(KERN_ERR "telco_clock: can't get major! %d\n", tlclk_major);
++		printk(KERN_ERR "tlclk: can't get major. %d\n", tlclk_major);
+ 		return ret;
+ 	}
+ 	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
+@@ -750,7 +773,7 @@
+ 
+ 	/* Read telecom clock IRQ number (Set by BIOS) */
+ 	if (!request_region(TLCLK_BASE, 8, "telco_clock")) {
+-		printk(KERN_ERR "tlclk: request_region failed! 0x%X\n",
++		printk(KERN_ERR "tlclk: request_region failed. 0x%X\n",
+ 			TLCLK_BASE);
+ 		ret = -EBUSY;
+ 		goto out2;
+@@ -758,7 +781,7 @@
+ 	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
+ 
+ 	if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
+-		printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw\n",
++		printk(KERN_ERR "tlclk: tlclk_interrup = 0x%x non-mcpbl0010 hw\n",
+ 			telclk_interrupt);
+ 		ret = -ENXIO;
+ 		goto out3;
+@@ -768,7 +791,7 @@
+ 
+ 	ret = misc_register(&tlclk_miscdev);
+ 	if (ret < 0) {
+-		printk(KERN_ERR " misc_register retruns %d\n", ret);
++		printk(KERN_ERR "tlclk: misc_register retruns %d\n", ret);
+ 		ret = -EBUSY;
+ 		goto out3;
+ 	}
+@@ -776,7 +799,7 @@
+ 	tlclk_device = platform_device_register_simple("telco_clock",
+ 				-1, NULL, 0);
+ 	if (!tlclk_device) {
+-		printk(KERN_ERR " platform_device_register retruns 0x%X\n",
++		printk(KERN_ERR "tlclk: platform_device_register retruns 0x%X\n",
+ 			(unsigned int) tlclk_device);
+ 		ret = -EBUSY;
+ 		goto out4;
+@@ -785,7 +808,7 @@
+ 	ret = sysfs_create_group(&tlclk_device->dev.kobj,
+ 			&tlclk_attribute_group);
+ 	if (ret) {
+-		printk(KERN_ERR "failed to create sysfs device attributes\n");
++		printk(KERN_ERR "tlclk: failed to create sysfs device attributes\n");
+ 		sysfs_remove_group(&tlclk_device->dev.kobj,
+ 			&tlclk_attribute_group);
+ 		goto out5;

@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWAPIil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWAPIfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWAPIil (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 03:38:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWAPIil
+	id S932210AbWAPIfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 03:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAPIfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 03:38:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63561 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932240AbWAPIik (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 03:38:40 -0500
-Date: Mon, 16 Jan 2006 09:40:27 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.15-mm4] drivers/cdrom/cdrom.c fix incorrect test
-Message-ID: <20060116084026.GM3945@suse.de>
-References: <20060114224926.GB26443@ens-lyon.fr> <20060114230453.GC26443@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jan 2006 03:35:41 -0500
+Received: from uproxy.gmail.com ([66.249.92.201]:21441 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932210AbWAPIfk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 03:35:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gK9nwxlPoKQiuQS3oHmIPW8GcaJj4GpLn77hZN5UYLXPO1bobVHm2vqDzjqTSUX987CSw2gt1OKHq+u20iUSKtC5tD+hadgjIuRWJjdKD/7+azhdITKFkGSNhijky+0xaXkOgfKl2uHSBJ8Hms7dzMWU+eM90yLD0agioBpmJXw=
+Message-ID: <84144f020601160035y1ac037b2kfdc2ff4be5bacd79@mail.gmail.com>
+Date: Mon, 16 Jan 2006 10:35:38 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
+Subject: Re: io performance...
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43CB4CC3.4030904@fastmail.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060114230453.GC26443@ens-lyon.fr>
+References: <43CB4CC3.4030904@fastmail.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15 2006, Benoit Boissinot wrote:
-> On Sat, Jan 14, 2006 at 11:49:26PM +0100, Benoit Boissinot wrote:
-> > In cleanup-cdrom_ioctl.patch,
-> > 
-> > the test in CDROMREADTOCENTRY ioctl was changed from
-> > 
-> > if (!((requested_format == CDROM_MSF) || (requested_format == CDROM_LBA)))
-> > 		return -EINVAL;
-> > 
-> > to
-> > 
-> > if (requested_format != CDROM_MSF || requested_format != CDROM_LBA)
-> > 	return -EINVAL;
-> > 
-> > which is not equivalent with morgan's law.
-> > 
-> 
-> sorry, it doesn't apply with -p1 correct patch below:
-> 
-> In cleanup-cdrom_ioctl.patch,
-> the test in CDROMREADTOCENTRY ioctl was changed from
-> 
-> if (!((requested_format == CDROM_MSF) || (requested_format == CDROM_LBA)))
-> 		return -EINVAL;
-> to
-> 
-> if (requested_format != CDROM_MSF || requested_format != CDROM_LBA)
-> 	return -EINVAL;
-> 
-> which is not equivalent with morgan's law.
-> 
-> Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-> 
-> diff -Naurp -X Documentation/dontdiff ../linux/drivers/cdrom/cdrom.c drivers/cdrom/cdrom.c
-> --- a/drivers/cdrom/cdrom.c	2006-01-14 16:11:43.000000000 +0100
-> +++ b/drivers/cdrom/cdrom.c	2006-01-14 23:44:51.000000000 +0100
-> @@ -2585,7 +2585,7 @@ static int cdrom_ioctl_read_tocentry(str
->  		return -EFAULT;
->  
->  	requested_format = entry.cdte_format;
-> -	if (requested_format != CDROM_MSF || requested_format != CDROM_LBA)
-> +	if (requested_format != CDROM_MSF && requested_format != CDROM_LBA)
->  		return -EINVAL;
->  	/* make interface to low-level uniform */
->  	entry.cdte_format = CDROM_MSF;
+Hi,
 
-Good catch, thanks!
+On 1/16/06, Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk> wrote:
+> I've noticed that I consistently get better (read) numbers from kernel 2.6.8
+> than from later kernels.
 
--- 
-Jens Axboe
+[snip]
 
+> The later kernels I've been using are :
+>
+> 2.6.12-1-686-smp
+> 2.6.14-2-686-smp
+> 2.6.15-1-686-smp
+>
+> The kernel which gives us the best results is :
+>
+> 2.6.8-2-386
+>
+> Any ideas to why this might be? Any other advice/help?
+
+It would be helpful if you could isolate the exact changeset that
+introduces the regression. You can use git bisect for that. Please
+refer to the following URL for details:
+http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt
+
+Also note that changeset for pre 2.6.11-rc2 kernels are in
+old-2.6-bkcvs git tree. If you are new to git, you can find a good
+introduction here: http://linux.yyz.us/git-howto.html. Thanks.
+
+                               Pekka

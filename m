@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWAPJsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWAPJwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWAPJsa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWAPJsa
+	id S932301AbWAPJwR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWAPJwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:48:30 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:229 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932299AbWAPJs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:48:29 -0500
-Date: Mon, 16 Jan 2006 10:48:17 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] swsusp: userland interface
-Message-ID: <20060116094817.GJ24633@elf.ucw.cz>
-References: <200601151831.32021.rjw@sisk.pl> <20060115234300.159688f7.akpm@osdl.org>
+	Mon, 16 Jan 2006 04:52:17 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:57526
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932301AbWAPJwQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:52:16 -0500
+Subject: RE: Dual core Athlons and unsynced TSCs
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       Roger Heflin <rheflin@atipa.com>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0601131616001.8385@gandalf.stny.rr.com>
+References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
+	 <1137168254.7241.32.camel@localhost.localdomain>
+	 <1137174463.15108.4.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
+	 <1137174848.15108.11.camel@mindpipe>
+	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
+	 <1137178506.15108.38.camel@mindpipe>
+	 <1137182991.8283.7.camel@localhost.localdomain>
+	 <1137183980.6731.1.camel@localhost.localdomain>
+	 <1137184982.15108.69.camel@mindpipe>
+	 <1137185175.7634.37.camel@localhost.localdomain>
+	 <1137186319.6731.6.camel@localhost.localdomain>
+	 <1137186612.7634.41.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0601131616001.8385@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Mon, 16 Jan 2006 10:52:34 +0100
+Message-Id: <1137405154.7634.74.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060115234300.159688f7.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The interface documentation is included in the patch.
-> > 
-> > The patch assumes that the major and minor numbers of the snapshot device
-> > will be 10 (ie. misc device) and 231, the registration of which has already been
-> > requested.
+On Fri, 2006-01-13 at 16:17 -0500, Steven Rostedt wrote:
+> > >
+> > > Hmm, it doesn't compile :(
+> >
+> > Grmbl, I check this tomorrow. Getting late here
+> >
 > 
-> Why does it need a statically-allocated major and minor?  misc_register()
-> will generate a uevent and the device node should just appear...
+> OK, I'll probably wont work on it till Monday then (wifes rules ;)
 
-Resume part is designed to run from early initrd. I do not think we
-should play with udev at thta point. We may not even have writable
-filesystem at that point.
-								Pavel
--- 
-Thanks, Sharp!
+Can you try this one please ?
+
+http://tglx.de/projects/hrtimers/2.6.15/patch-2.6.15-hrt3.patch
+
+
+	tglx
+
+

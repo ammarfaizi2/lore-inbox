@@ -1,96 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWAPJa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWAPJjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWAPJa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWAPJaK
+	id S932310AbWAPJjx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWAPJjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:30:10 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:45507 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932281AbWAPJaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:30:02 -0500
-Message-ID: <43CB6796.4040104@namesys.com>
-Date: Mon, 16 Jan 2006 01:29:58 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Mon, 16 Jan 2006 04:39:53 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:11468 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932304AbWAPJjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:39:51 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: spereira@tusc.com.au
+Subject: Re: 32 bit (socket layer) ioctl emulation for 64 bit kernels
+Date: Mon, 16 Jan 2006 10:39:23 +0100
+User-Agent: KMail/1.9.1
+Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Andi Kleen <ak@muc.de>,
+       linux-kenel <linux-kernel@vger.kernel.org>,
+       netdev <netdev@vger.kernel.org>, SP <pereira.shaun@gmail.com>
+References: <1137045732.5221.21.camel@spereira05.tusc.com.au> <200601131146.48128.arnd@arndb.de> <1137391160.5588.32.camel@spereira05.tusc.com.au>
+In-Reply-To: <1137391160.5588.32.camel@spereira05.tusc.com.au>
 MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, linux-xfs@oss.sgi.com,
-       Jeff Mahoney <jeffm@suse.com>, Mattia Dongili <malattia@linux.it>
-Subject: Re: 2.6.15-mm3 bisection: git-xfs.patch makes reiserfs oops
-References: <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060115221458.GA3521@inferi.kami.home> <20060116094817.A8425113@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060116094817.A8425113@wobbly.melbourne.sgi.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200601161039.24333.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Nathan, Mattia, and Andrew.
+On Monday 16 January 2006 06:59, Shaun Pereira wrote:
+> 
+> I was wondering if this the compat_sock_get_timestamp function is
+> needed? If I were to remove the SIOCGSTAMP case from the
+> compat_x25_ioctl function, then a SIOCGSTAMP ioctl system call would
+> return -ENOIOCTLCMD which could  then be handled by do_siocgstamp
+> handler in the ioctl32_hash_table? (fs/compat_ioctl.c)
+> In which case I could remove this patch from the rest of the series.
 
-vs, can you or Jeff look at whether our buffer head inits are
-sufficiently hardened by next Monday (I know that vs has a lot of mail
-to catch up to)?  Jeff, if you have time before then, it would be nice
-if you could handle it, I know hardening V3 is an interest of yours.
+Yes, that would also work, as I already mentioned (or tried to)
+in one of my earlier comments. I would prefer to have this patch
+though, because in the long term, I think we should migrate more
+stuff away from the hash table and having the function there
+means that others can use it as well.
 
-Thanks,
+> +       err = -EFAULT;
+> +       if(access_ok(VERIFTY_WRITE, ctv, sizeof(*ctv))) {
+> +               err = __put_user(sk->sk_stamp.tv_sec, &ctv->tv_sec);
+> +               err != __put_user(sk->sk_stamp.tv_usec, &ctv->tv_usec);
+> +       }
+> +       return err;
+> +}
 
-Hans
+This copies the correct data down to user space now, but might result
+in returning an invalid error code.
+In the second line you now have 'err != __put_user(...);', which is
+a comparison, not an assignment!
+For readability, I would simply write that as:
 
- Nathan Scott wrote:
+	ret = 0;
+	if (put_user(sk->sk_stamp.tv_sec, &ctv->tv_sec) |
+	    put_user(sk->sk_stamp.tv_usec, &ctv->tv_usec))
+		err = -EFAULT;
 
->On Sun, Jan 15, 2006 at 11:14:58PM +0100, Mattia Dongili wrote:
->  
->
->>[CC-in relevant people/ML]
->>
->>Hello!
->>
->>second bisection result!
->>
->>On Tue, Jan 10, 2006 at 05:00:37PM -0800, Andrew Morton wrote:
->>    
->>
->>>Mattia Dongili <malattia@linux.it> wrote:
->>>      
->>>
->>[...]
->>    
->>
->>>>1- reiser3 oopsed[1] twice while suspending to ram. It seems
->>>>   reproducible (have some activity on the fs and suspend)
->>>>        
->>>>
->>>No significant reiser3 changes in there, so I'd be suspecting something
->>>else has gone haywire.
->>>      
->>>
->>you're right: git-xfs.patch is the bad guy.
->>
->>Unfortunately netconsole isn't helpful in capturing the oops (no serial
->>ports here) but I have two more shots (more readable):
->>http://oioio.altervista.org/linux/dsc03148.jpg
->>http://oioio.altervista.org/linux/dsc03149.jpg
->>    
->>
->
->Hmm, thats odd.  It seems to be coming from:
->reiserfs_commit_page -> reiserfs_add_ordered_list -> __add_jh(inline)
->
->I guess XFS may have left a buffer_head in an unusual state (with some
->private flag/b_private set), somehow, and perhaps that buffer_head has
->later been allocated for a page in a reiserfs write.  Does this patch,
->below, help at all?
->
->I see one BUG check in __add_jh for non-NULL b_private, but can't see
->the top of your console output from the photos - is there a preceding
->line with "kernel BUG at ..." in it?
->
->cheers.
->
->  
->
+You can also write it like your code, but with '|' instead of '!', but
+that requires the additional knowledge that __put_user can only ever
+return '0' or '-EFAULT' itself and that the bitwise or of those is
+therefore also one of these two.
 
+	Arnd <><

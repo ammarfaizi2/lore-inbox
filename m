@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWAPJZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWAPJX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWAPJZH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWAPJYr
+	id S932268AbWAPJX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWAPJXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:24:47 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57579 "EHLO
+	Mon, 16 Jan 2006 04:23:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44523 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932279AbWAPJYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:24:12 -0500
+	id S932279AbWAPJX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:23:28 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Michael Krufky <mkrufky@m1k.net>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 09/25] disable all dvb tuner param_types until we need them
-Date: Mon, 16 Jan 2006 07:11:21 -0200
-Message-id: <20060116091121.PS27979800009@infradead.org>
+       akpm@osdl.org, Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 12/25] git dvb callbacks fix
+Date: Mon, 16 Jan 2006 07:11:22 -0200
+Message-id: <20060116091122.PS15581000012@infradead.org>
 In-Reply-To: <20060116091105.PS83611600000@infradead.org>
 References: <20060116091105.PS83611600000@infradead.org>
 Mime-Version: 1.0
@@ -29,34 +28,27 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Michael Krufky <mkrufky@m1k.net>
+From: Andrew Morton <akpm@osdl.org>
 
-- Add param_type dvbs2
-- disable all dvb param_types, which will not
-  be needed until we merge dvb-pll.
+- Not sure what went wrong here, but SND_PCI_PM_CALLBACKS got deleted.
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- include/media/tuner-types.h |    6 +-----
- 1 files changed, 1 insertions(+), 5 deletions(-)
+ drivers/media/video/cx88/cx88-alsa.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/include/media/tuner-types.h b/include/media/tuner-types.h
-index 9f6e4a9..64b16b1 100644
---- a/include/media/tuner-types.h
-+++ b/include/media/tuner-types.h
-@@ -9,11 +9,7 @@ enum param_type {
- 	TUNER_PARAM_TYPE_RADIO, \
- 	TUNER_PARAM_TYPE_PAL, \
- 	TUNER_PARAM_TYPE_SECAM, \
--	TUNER_PARAM_TYPE_NTSC, \
--	TUNER_PARAM_TYPE_ATSC, \
--	TUNER_PARAM_TYPE_DVBT, \
--	TUNER_PARAM_TYPE_DVBS, \
--	TUNER_PARAM_TYPE_DVBC
-+	TUNER_PARAM_TYPE_NTSC
+diff --git a/drivers/media/video/cx88/cx88-alsa.c b/drivers/media/video/cx88/cx88-alsa.c
+index fd8bc71..e649f67 100644
+--- a/drivers/media/video/cx88/cx88-alsa.c
++++ b/drivers/media/video/cx88/cx88-alsa.c
+@@ -805,7 +805,6 @@ static struct pci_driver cx88_audio_pci_
+ 	.id_table = cx88_audio_pci_tbl,
+ 	.probe    = cx88_audio_initdev,
+ 	.remove   = cx88_audio_finidev,
+-	SND_PCI_PM_CALLBACKS
  };
  
- struct tuner_range {
+ /****************************************************************************
 

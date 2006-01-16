@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWAPPmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWAPPsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWAPPmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 10:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWAPPmz
+	id S1751027AbWAPPsK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 10:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWAPPsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 10:42:55 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:60260 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751003AbWAPPmy (ORCPT
+	Mon, 16 Jan 2006 10:48:09 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:55454 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751027AbWAPPsI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 10:42:54 -0500
-Date: Mon, 16 Jan 2006 16:44:50 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: ide <linux-ide@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
-Message-ID: <20060116154450.GK3945@suse.de>
-References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060116123112.GZ3945@suse.de> <Pine.LNX.4.58.0601160736360.24990@shark.he.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601160736360.24990@shark.he.net>
+	Mon, 16 Jan 2006 10:48:08 -0500
+Date: Mon, 16 Jan 2006 07:47:50 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+In-Reply-To: <Pine.LNX.4.61.0601161143190.7123@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.62.0601160739360.19188@schroedinger.engr.sgi.com>
+References: <20060114155517.GA30543@wotan.suse.de>
+ <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+ <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
+ <Pine.LNX.4.62.0601152251080.17034@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601161143190.7123@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16 2006, Randy.Dunlap wrote:
-> On Mon, 16 Jan 2006, Jens Axboe wrote:
-> 
-> > On Fri, Jan 13 2006, Randy.Dunlap wrote:
-> > > From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-> > >
-> > > Add ata_acpi in Makefile and Kconfig.
-> > > Add ACPI obj_handle.
-> > > Add ata_acpi.c to libata kernel-doc template file.
-> >
-> > Randy,
-> >
-> > Any chance you can add PATA support as well for this? Many of the
-> > notebooks out there with SATA controllers really have PATA devices
-> > behind a bridge, I think it's pretty much a pre-requisite for this to be
-> > considered complete that this is supported as well. The code should be
-> > the same, it just needs to lookup the right taskfiles. Right now on this
-> > T43, it finds nothing.
-> 
-> I'll add that to my list but I don't yet think that it's quite
-> as simple as you make it sound...
+On Mon, 16 Jan 2006, Hugh Dickins wrote:
 
-It might not be, I'm totally acpi clueless :-)
+> Indeed they are, at present and quite likely into posterity.  But
+> they're not a common case here, and migrate_page_add now handles them
+> silently, so why bother to complicate it with an unnecessary check?
 
-But the code factoring should look something like this:
+check_range also is used for statistics and for checking if a range is 
+policy compliant. Without that check zeropages may be counted or flagged 
+as not on the right node with MPOL_MF_STRICT.
 
-- Lookup taskfiles needed for resume (and suspend might need some,
-  too?). This step requires looking for sata and pata taskfiles listed,
-  so you'd need code for both.
+For migrate_page_add this has now simply become an optimization since
+there is no WARN_ON occurring anymore.
 
-- Submit and check status of said taskfiles. This step is independent of
-  the drive type.
+> Or have you found the zero page mapcount distorting get_stats stats?
+> If that's an issue, then better add a commented test for it there.
 
-So step 1 is the one that needs extending, how much work that is I
-dunno since I have no clue on the actual lookup or the acpi data.
+It also applies to the policy compliance check.
 
--- 
-Jens Axboe
+> Hmm, that battery of unusual tests at the start of migrate_page_add
+> is odd: the tests don't quite match the comment, and it isn't clear
+> what reasoning lies behind the comment anywa
+
+Hmm.... Maybe better clean up the thing a bit. Will do that when I get 
+back to work next week.
 

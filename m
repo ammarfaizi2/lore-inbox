@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWAPWed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWAPWfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWAPWed (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 17:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWAPWed
+	id S1751234AbWAPWfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 17:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWAPWfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 17:34:33 -0500
-Received: from mail.suse.de ([195.135.220.2]:41604 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751231AbWAPWec (ORCPT
+	Mon, 16 Jan 2006 17:35:13 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:52371 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751234AbWAPWfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 17:34:32 -0500
-Date: Mon, 16 Jan 2006 23:34:31 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-Message-ID: <20060116223431.GA24841@suse.de>
+	Mon, 16 Jan 2006 17:35:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=EGp/bGdS9vyPHqLI1Q6RdGe4WhAwsKLAj4PkYQ3KcNwII42bM/ykWIrJzdf5m+iqELiV+YwBOLL5fb6b9jtB4mEqxhEHlxsS4AtaXKc5FjBmO9+PoLfuvVo2jviMoUmiYLgmM9B5dwa+AvffwnlaTzkhnwwLe0617Rm2SMSiGug=
+Date: Tue, 17 Jan 2006 01:52:15 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jason Baron <jbaron@redhat.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       Tony.Reix@bull.net
+Subject: Re: [2.6 patch] fix sched_setscheduler semantics
+Message-ID: <20060116225215.GA11049@mipter.zuzino.mipt.ru>
+References: <Pine.LNX.4.61.0601161650540.21530@dhcp83-105.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <Pine.LNX.4.61.0601161650540.21530@dhcp83-105.boston.redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get 'Busy inodes after umount' very often, even with recent kernels.
-Usually it remains unnoticed for a while. A bit more info about what
-superblock had problems would be helpful.
+On Mon, Jan 16, 2006 at 05:17:55PM -0500, Jason Baron wrote:
+> --- linux-2.6/kernel/sched.c.bak
+> +++ linux-2.6/kernel/sched.c
+> @@ -3824,6 +3824,10 @@ do_sched_setscheduler(pid_t pid, int pol
+>  asmlinkage long sys_sched_setscheduler(pid_t pid, int policy,
+>  				       struct sched_param __user *param)
+>  {
+> +	/* negative values for policy are not valid */
+> +	if (policy < 0)
+> +		return -EINVAL;
 
-bdevname() doesnt seem to be the best way for pretty-printing NFS mounts
-for example. Should it just print the major:minor pair? 
-Are there scripts or something that parse such kernel messages, should
-the extra info go somewhere else?
+Classical redundant comment.
 
- fs/super.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-Index: linux-2.6/fs/super.c
-===================================================================
---- linux-2.6.orig/fs/super.c
-+++ linux-2.6/fs/super.c
-@@ -227,6 +227,7 @@ void generic_shutdown_super(struct super
- {
- 	struct dentry *root = sb->s_root;
- 	struct super_operations *sop = sb->s_op;
-+	char b[BDEVNAME_SIZE];
- 
- 	if (root) {
- 		sb->s_root = NULL;
-@@ -247,8 +248,9 @@ void generic_shutdown_super(struct super
- 
- 		/* Forget any remaining inodes */
- 		if (invalidate_inodes(sb)) {
--			printk("VFS: Busy inodes after unmount. "
--			   "Self-destruct in 5 seconds.  Have a nice day...\n");
-+			printk("VFS: (%s) Busy inodes after unmount. "
-+			   "Self-destruct in 5 seconds.  Have a nice day...\n",
-+			   bdevname(sb->s_bdev, b));
- 		}
- 
- 		unlock_kernel();
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan

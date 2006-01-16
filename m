@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWAPQEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWAPQFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbWAPQEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 11:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWAPQEW
+	id S1751074AbWAPQFw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 11:05:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWAPQFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 11:04:22 -0500
-Received: from mx2.suse.de ([195.135.220.15]:43467 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751073AbWAPQEW (ORCPT
+	Mon, 16 Jan 2006 11:05:52 -0500
+Received: from gold.veritas.com ([143.127.12.110]:39447 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751074AbWAPQFw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 11:04:22 -0500
-Date: Mon, 16 Jan 2006 17:04:20 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: unmount oops in log_do_checkpoint
-Message-ID: <20060116160420.GA21064@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 16 Jan 2006 11:05:52 -0500
+Date: Mon, 16 Jan 2006 16:06:21 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Christoph Lameter <clameter@engr.sgi.com>
+cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+In-Reply-To: <Pine.LNX.4.62.0601160739360.19188@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0601161555130.9134@goblin.wat.veritas.com>
+References: <20060114155517.GA30543@wotan.suse.de>
+ <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+ <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
+ <Pine.LNX.4.62.0601152251080.17034@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601161143190.7123@goblin.wat.veritas.com>
+ <Pine.LNX.4.62.0601160739360.19188@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 16 Jan 2006 16:05:51.0511 (UTC) FILETIME=[B8E65270:01C61AB6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.15-git12 (and 11, not sure when it started) oops when unmounting
-an ext3 filesystem. Looks like 'transaction' in log_do_checkpoint is
-garbage.
+On Mon, 16 Jan 2006, Christoph Lameter wrote:
+> On Mon, 16 Jan 2006, Hugh Dickins wrote:
+> 
+> > Or have you found the zero page mapcount distorting get_stats stats?
+> > If that's an issue, then better add a commented test for it there.
+> 
+> It also applies to the policy compliance check.
 
-Reproduced it every time for about 3 or 4 reboots now.
+Good point, I missed that: you've inadventently changed the behaviour
+of sys_mbind when it encounters a zero page from a disallowed node.
+Another reason to remove your PageReserved test.
 
-Unable to handle kernel paging request at virtual address f63b4f7c
- printing eip:
-c019db03
-*pde = 004b0067
-*pte = 363b4000
-Oops: 0000 [#1]
-SMP DEBUG_PAGEALLOC
-Modules linked in: ide_cd cdrom 8250_pnp 8250 serial_core piix ide_core
-CPU:    1
-EIP:    0060:[<c019db03>]    Not tainted VLI
-EFLAGS: 00010206   (2.6.15-git12) 
-EIP is at log_do_checkpoint+0x6b/0x47b
-eax: f63b4f78   ebx: 00000001   ecx: 00000000   edx: 00015e0a
-esi: f57b78cc   edi: f57e7e90   ebp: f57e7e6c   esp: f57e7d38
-ds: 007b   es: 007b   ss: 0068
-Process umount (pid: 2418, threadinfo=f57e7000 task=f5396ad0)
-Stack: <0>00000001 c18364b8 00000082 c04aa3a8 348ea000 f642bf24 f642bdf8 f63b4f78 
-       00015e0a 00000001 c1836490 00000000 f57e7d80 c0114e96 00000000 00000000 
-       f57e7d98 f4e7bad0 f57e7d98 c01151a0 c0441788 0000001f 00000000 c0441780 
-Call Trace:
- [<c0103dc0>] show_stack_log_lvl+0xbb/0x105
- [<c0103f69>] show_registers+0x15f/0x1ef
- [<c010422a>] die+0x11b/0x22d
- [<c0114217>] do_page_fault+0x1ea/0x5d4
- [<c01037d7>] error_code+0x4f/0x54
- [<c019ff19>] journal_destroy+0x10d/0x24b
- [<c0195986>] ext3_put_super+0x20/0x1ec
- [<c015c89d>] generic_shutdown_super+0x89/0x131
- [<c015c954>] kill_block_super+0xf/0x20
- [<c015cb60>] deactivate_super+0x62/0x75
- [<c016f59c>] mntput_no_expire+0x44/0x62
- [<c0162f85>] path_release_on_umount+0x15/0x18
- [<c0170362>] sys_umount+0x3a/0x21d
- [<c017055e>] sys_oldumount+0x19/0x1b
- [<c0102bdf>] sysenter_past_esp+0x54/0x75
-Code: e8 fe ff ff 89 d0 85 d2 0f 84 f2 01 00 00 8b 52 04 89 95 ec fe ff ff 39 85 e8 fe ff ff 74 15 8b 95 ec fe ff ff 8b 85 e8 fe ff ff <3b> 50 04 0f 85 cc 01 00 00 c7 45 f0 00 00 00 00 8b 85 e8 fe ff 
-
+Hugh

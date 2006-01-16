@@ -1,232 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWAPEJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWAPESo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWAPEJA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 23:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWAPEJA
+	id S1751024AbWAPESo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 23:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWAPESo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 23:09:00 -0500
-Received: from xproxy.gmail.com ([66.249.82.201]:28862 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751011AbWAPEI7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 23:08:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=PHceHKmo4My7jsJ87BvW/fB9wySsttKOyW+fYy5MI96HkXZFNK0R284FJQ2a2nIPT+cxH4GI7Gg/UdcojTNzN02WSTLU8hV8xQtKWgNFafb0M/hYzkKiFwrSRNclnyGeatK5acIDMzFp3llTau8MG/HNf6GlGUjRX+qzmtdqLls=
-Date: Mon, 16 Jan 2006 13:08:53 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-mm4
-Message-ID: <20060116040853.GA10588@htj.dyndns.org>
-References: <20060114055153.04684592.akpm@osdl.org> <43C97FE6.8040402@reub.net>
+	Sun, 15 Jan 2006 23:18:44 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:31248 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751022AbWAPESn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 23:18:43 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Bob Gill <gillb4@telusplanet.net>
+Subject: Re: BTTV broken on recent kernels
+Date: Mon, 16 Jan 2006 04:18:44 +0000
+User-Agent: KMail/1.9
+Cc: Linux kernel Mailing list <linux-kernel@vger.kernel.org>
+References: <43CAFF82.4030500@telusplanet.net>
+In-Reply-To: <43CAFF82.4030500@telusplanet.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43C97FE6.8040402@reub.net>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601160418.44549.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15, 2006 at 11:49:10AM +1300, Reuben Farrelly wrote:
-> On 15/01/2006 2:51 a.m., Andrew Morton wrote:
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.15-mm4/
-> >
-> >(Will take an hour or so to mirror)
-> >
-> >
-> >
-> >- Lots of mutex conversions
-> >
-> >- FUSE update
-> >
-> >- nfsd update (mainly nfs4)
-> >
-> >- CPU scheduler update
-> >
-> >- A few new syscalls.
-> 
-> A couple of issues to look at with this kernel, it seems.  I'll report them 
-> one by one, each in a different message so as to work the threading 
-> properly.
-> 
-> A trace:
-> 
-> Freeing unused kernel memory: 196k freed
-> Write protecting the kernel read-only data: 655k
-> Badness in blk_do_ordered at block/ll_rw_blk.c:549
->  [<b01040d1>] show_trace+0xd/0xf
->  [<b0104172>] dump_stack+0x17/0x19
->  [<b01e2926>] blk_do_ordered+0x301/0x306
->  [<b01de3a5>] elv_next_request+0x3a/0x120
->  [<b0257ed1>] scsi_request_fn+0x57/0x2d5
->  [<b01e0fc3>] __generic_unplug_device+0x22/0x25
->  [<b01e119a>] generic_unplug_device+0x2c/0x39
->  [<b028fb2c>] unplug_slaves+0x5d/0xea
->  [<b028fbca>] raid1_unplug+0x11/0x1f
->  [<b01ded12>] blk_backing_dev_unplug+0xf/0x11
->  [<b01596a0>] sync_buffer+0x2e/0x37
->  [<b030ab61>] __wait_on_bit+0x45/0x62
->  [<b030abe9>] out_of_line_wait_on_bit+0x6b/0x82
->  [<b0159600>] __wait_on_buffer+0x27/0x2d
->  [<b01a7888>] search_by_key+0x14e/0x11a5
->  [<b019431f>] reiserfs_read_locked_inode+0x64/0x561
->  [<b019488c>] reiserfs_iget+0x70/0x88
->  [<b01917c0>] reiserfs_lookup+0xbf/0x10e
->  [<b016366e>] do_lookup+0x105/0x132
->  [<b01647fd>] __link_path_walk+0x11e/0xd4b
->  [<b0165470>] link_path_walk+0x46/0xd2
->  [<b0165715>] do_path_lookup+0xa9/0x215
->  [<b01661c0>] __path_lookup_intent_open+0x44/0x7f
->  [<b0166273>] path_lookup_open+0x21/0x27
->  [<b0166367>] open_namei+0x62/0x5a0
->  [<b0155a52>] do_filp_open+0x26/0x43
->  [<b0155ab0>] do_sys_open+0x41/0xc2
->  [<b0155b69>] sys_open+0x1c/0x1e
->  [<b0100460>] init+0x193/0x325
->  [<b0100d25>] kernel_thread_helper+0x5/0xb
-> INIT: version 2.86 booting
-> 
-> It has never properly blown up into a full detailed oops, just spews out 
-> the trace to console and then hangs.
-> 
-> I've seen this multiple times today, it is however fatal as every time it 
-> has occurred the box needs a reset.
-> 
-> reuben
-> 
+On Monday 16 January 2006 02:05, Bob Gill wrote:
+> Hi.  The last several kernel versions have led to broken bttv (up to 4
+> or 5 kernel versions ago, I could watch tv on either mplayer or xawtv),
+> but lately bttv is broken.  My card is an 'bt878 compatible built by ATI
+> (ATI TV Wonder VE).  I'm pretty certain it worked as late as
+> 2.6.14-git7.  I've peeked around /Changes and didn't see anything.   I'm
+> using the same build script as before, and a piece of lsmod shows
+> serial_core            14848  1 8250
+> rtc                     9524  0
+> tuner                  36908  0
+> bttv                  148564  0
+> video_buf              15748  1 bttv
+> compat_ioctl32          1152  1 bttv
+> i2c_algo_bit            7432  1 bttv
+> v4l2_common             6528  2 tuner,bttv
+> btcx_risc               3720  1 bttv
+> ir_common               7812  1 bttv
+> tveeprom               12304  1 bttv
+> i2c_core               14864  4 tuner,bttv,i2c_algo_bit,tveeprom
+> videodev                6912  1 bttv
+> snd_emu10k1            94628  2 snd_emu10k1_synth
+> ..........also, a chunk of lspci shows:
+> 0000:00:09.1 Input device controller: Creative Labs SB Live! MIDI/Game
+> Port (rev 07)
+> 0000:00:0b.0 Multimedia video controller: Brooktree Corporation Bt878
+> Video Capture (rev 02)
+> 0000:00:0b.1 Multimedia controller: Brooktree Corporation Bt878 Audio
+> Capture (rev 02)
+> ....it's just that I get a blank (screen blanking due to no signal)
+> screen when I start a tv application.  I can try to change channels/tune
+> frequencies, and it looks like the applications are trying, but nothing
+> gets tuned in.   To be fair, I must mention that I *ahem* taint the
+> kernel with Nvidia stuff, and recently upgraded gcc (although it has
+> always worked well with tainted kernel, and it broke before I upgraded
+> gcc (to gcc version 4.0.2) on Debian Sarge. 
 
-Hello, Reuben.
+This problem sounds suspiciously like an overlay bug, known in the binary 
+NVIDIA driver. Please try changing it to "nv" in XF86Config, then restarting 
+your TV application..
 
-Thanks for reporting the bug.  Can you please verify whether the
-following patch fixes the bug?
+> If you *really* want, I can 
+> revert XF86Config to use non-nvidia drivers (and revert back to the old
+> version of gcc) and give a bug report from that, but I suspect things
+> will remain broken.  Mplayer compiles very well with the new version of
+> gcc, and the new kernel (buit with the new version of gcc) does
+> everything else (sound, firewire, cd/dvd/networking, disk I/O etc.)
+> without problems.
+> Thanks in advance,
+> Bob
 
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -304,7 +304,7 @@ void elv_requeue_request(request_queue_t
- 
- 	rq->flags &= ~REQ_STARTED;
- 
--	__elv_add_request(q, rq, ELEVATOR_INSERT_REQUEUE, 0);
-+	elv_insert(q, rq, ELEVATOR_INSERT_REQUEUE);
- }
- 
- static void elv_drain_elevator(request_queue_t *q)
-@@ -321,42 +321,13 @@ static void elv_drain_elevator(request_q
- 	}
- }
- 
--void __elv_add_request(request_queue_t *q, struct request *rq, int where,
--		       int plug)
-+void elv_insert(request_queue_t *q, struct request *rq, int where)
- {
- 	struct list_head *pos;
- 	unsigned ordseq;
- 
- 	blk_add_trace_rq(q, rq, BLK_TA_INSERT);
- 
--	if (q->ordcolor)
--		rq->flags |= REQ_ORDERED_COLOR;
--
--	if (rq->flags & (REQ_SOFTBARRIER | REQ_HARDBARRIER)) {
--		/*
--		 * toggle ordered color
--		 */
--		q->ordcolor ^= 1;
--
--		/*
--		 * barriers implicitly indicate back insertion
--		 */
--		if (where == ELEVATOR_INSERT_SORT)
--			where = ELEVATOR_INSERT_BACK;
--
--		/*
--		 * this request is scheduling boundary, update end_sector
--		 */
--		if (blk_fs_request(rq)) {
--			q->end_sector = rq_end_sector(rq);
--			q->boundary_rq = rq;
--		}
--	} else if (!(rq->flags & REQ_ELVPRIV) && where == ELEVATOR_INSERT_SORT)
--		where = ELEVATOR_INSERT_BACK;
--
--	if (plug)
--		blk_plug_device(q);
--
- 	rq->q = q;
- 
- 	switch (where) {
-@@ -437,6 +408,42 @@ void __elv_add_request(request_queue_t *
- 	}
- }
- 
-+void __elv_add_request(request_queue_t *q, struct request *rq, int where,
-+		       int plug)
-+{
-+	if (q->ordcolor)
-+		rq->flags |= REQ_ORDERED_COLOR;
-+
-+	if (rq->flags & (REQ_SOFTBARRIER | REQ_HARDBARRIER)) {
-+		/*
-+		 * toggle ordered color
-+		 */
-+		if (blk_barrier_rq(rq))
-+			q->ordcolor ^= 1;
-+
-+		/*
-+		 * barriers implicitly indicate back insertion
-+		 */
-+		if (where == ELEVATOR_INSERT_SORT)
-+			where = ELEVATOR_INSERT_BACK;
-+
-+		/*
-+		 * this request is scheduling boundary, update
-+		 * end_sector
-+		 */
-+		if (blk_fs_request(rq)) {
-+			q->end_sector = rq_end_sector(rq);
-+			q->boundary_rq = rq;
-+		}
-+	} else if (!(rq->flags & REQ_ELVPRIV) && where == ELEVATOR_INSERT_SORT)
-+		where = ELEVATOR_INSERT_BACK;
-+
-+	if (plug)
-+		blk_plug_device(q);
-+
-+	elv_insert(q, rq, where);
-+}
-+
- void elv_add_request(request_queue_t *q, struct request *rq, int where,
- 		     int plug)
- {
---- a/block/ll_rw_blk.c
-+++ b/block/ll_rw_blk.c
-@@ -453,7 +453,7 @@ static void queue_flush(request_queue_t 
- 	rq->end_io = end_io;
- 	q->prepare_flush_fn(q, rq);
- 
--	__elv_add_request(q, rq, ELEVATOR_INSERT_FRONT, 0);
-+	elv_insert(q, rq, ELEVATOR_INSERT_FRONT);
- }
- 
- static inline struct request *start_ordered(request_queue_t *q,
-@@ -489,7 +489,7 @@ static inline struct request *start_orde
- 	else
- 		q->ordseq |= QUEUE_ORDSEQ_POSTFLUSH;
- 
--	__elv_add_request(q, rq, ELEVATOR_INSERT_FRONT, 0);
-+	elv_insert(q, rq, ELEVATOR_INSERT_FRONT);
- 
- 	if (q->ordered & QUEUE_ORDERED_PREFLUSH) {
- 		queue_flush(q, QUEUE_ORDERED_PREFLUSH);
---- a/include/linux/elevator.h
-+++ b/include/linux/elevator.h
-@@ -82,6 +82,7 @@ struct elevator_queue
- extern void elv_dispatch_sort(request_queue_t *, struct request *);
- extern void elv_add_request(request_queue_t *, struct request *, int, int);
- extern void __elv_add_request(request_queue_t *, struct request *, int, int);
-+extern void elv_insert(request_queue_t *, struct request *, int);
- extern int elv_merge(request_queue_t *, struct request **, struct bio *);
- extern void elv_merge_requests(request_queue_t *, struct request *,
- 			       struct request *);
+-- 
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,105 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWAPDDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWAPDWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWAPDDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 22:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWAPDDZ
+	id S932194AbWAPDWv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 22:22:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWAPDWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 22:03:25 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:31193 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932179AbWAPDDY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 22:03:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=OzH2RS/nttqPHfmUhVPgEHiup9B+ZHpRkfZkCTf4yw+TZ+KbylP9LfKq1SfNbVBU6PUpmGICdKjr6AidsD/japhzWBTBoGwm55PRcYwbJHr//PdVZMi5hr5u7c1oSOSln6n7wGWaIoPGm+AFYvS/+xTtETSCTxuLUy6Q6Nk1NRM=
-Date: Mon, 16 Jan 2006 04:03:02 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Serge Belyshev <belyshev@depni.sinp.msu.ru>
-Cc: linux-kernel@vger.kernel.org, vitalyb@telenet.dn.ua,
-       netdev@vger.kernel.org
-Subject: Re: linux 2.6.15.1 ppp_async panic on x86-64.
-Message-Id: <20060116040302.9d3041d8.diegocg@gmail.com>
-In-Reply-To: <56slrpz0j7.fsf@depni.sinp.msu.ru>
-References: <20060115214838.2034a56c.vitalyb@telenet.dn.ua>
-	<20060115210948.4e2990a7.diegocg@gmail.com>
-	<56slrpz0j7.fsf@depni.sinp.msu.ru>
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sun, 15 Jan 2006 22:22:51 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:54546 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S932192AbWAPDWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 22:22:50 -0500
+Date: Sun, 15 Jan 2006 22:22:49 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Reuben Farrelly <reuben-lkml@reub.net>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       Neil Brown <neilb@cse.unsw.edu.au>, <linux-acpi@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: 2.6.15-mm3 [USB lost interrupt bug]
+In-Reply-To: <43CAD1BB.60301@reub.net>
+Message-ID: <Pine.LNX.4.44L0.0601152212340.1929-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This should have been forwaded to netdev I think (forwading there)
+On Mon, 16 Jan 2006, Reuben Farrelly wrote:
 
-El Sun, 15 Jan 2006 23:41:48 +0300,
-Serge Belyshev <belyshev@depni.sinp.msu.ru> escribió:
+> On 13/01/2006 4:53 a.m., Alan Stern wrote:
+> > On Thu, 12 Jan 2006, Reuben Farrelly wrote:
+> > 
+> >>>> Initializing USB Mass Storage driver...
+> >>>> irq 193: nobody cared (try booting with the "irqpoll" option)
+> > 
+> >>>> handlers:
+> >>>> [<c027017e>] (usb_hcd_irq+0x0/0x56)
+> >>>> Disabling IRQ #193
+> >>> USB lost its interrupt.  Could be USB, more likely ACPI.
+> >> I've seen this one happen nearly every boot since then including bootups that 
+> >> are otherwise OK (no oopses), so it's probably worth more looking into rather 
+> >> than being written off as a 'once off':
+> >>
+> >> uhci_hcd 0000:00:1d.3: Unlink after no-IRQ?  Controller is probably using the 
+> >> wrong IRQ.
 
-Diego Calleja <diegocg@gmail.com> writes:
+Note the PCI ID is 1d.3 and the IRQ is 193.
 
-> > El Sun, 15 Jan 2006 21:48:38 +0200,
-> > "Vitaly V. Bursov" <vitalyb@telenet.dn.ua> escribió:
-> ...
-> >> PPP doesn't work for me on a x86-64 kernel. Kernel panics with a message
-> ...
-> >> Jan 15 20:24:12 vb skb_over_panic: text:ffffffff886700d9 len:1 put:1
-> >> head:ffff81002b7ed000 data:ffff81012b7ed000 tail:ffff81012b7ed001
-> >> end:ffff81002b7ed600 dev:<NULL>
-> ...
-> > Just for the record, there're more people hitting this
-> > http://bugzilla.kernel.org/show_bug.cgi?id=5857
+> Hi Alan,
 > 
-> I can confirm this with a similar oops:
+> If it's any use, here's some simply and easy-to-get information which may even 
+> be what you are looking for:
 > 
-> [  273.950666] skb_over_panic: text:ffffffff882d8c19 len:54 put:54 head:ffff81001cfecd60 data:ffff81011cfecd63 tail:ffff81011cfecd99 end:ffff81001cfed360 dev:<NULL>
-> [  273.950681] ----------- [cut here ] --------- [please bite here ] ---------
-> [  273.950684] Kernel BUG at net/core/skbuff.c:94
-> [  273.950686] invalid operand: 0000 [1] PREEMPT 
-> [  273.950689] CPU 0 
-> [  273.950691] Modules linked in: ppp_deflate bsd_comp ppp_async ppp_generic slhc pl2303 usbserial radeon drm af_packet ipv6 pcmcia firmware_class bridge deflate zlib_deflate zlib_inflate twofish serpent aes blowfish des sha256 sha1 af_key binfmt_misc dm_mod asus_acpi button thermal processor battery evdev eth1394 snd_intel8x0 snd_intel8x0m snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm irtty_sir snd_timer ohci1394 snd sir_dev irda 8250_pci ide_cd yenta_socket rsrc_nonstatic pcmcia_core amd64_agp ehci_hcd psmouse pcspkr parport_pc parport 8250 serial_core ieee1394 cdrom ohci_hcd usbcore crc_ccitt i2c_nforce2 i2c_core soundcore snd_page_alloc rtc agpgart unix
-> [  273.950728] Pid: 4, comm: events/0 Not tainted 2.6.15-ssb1dbg #3
-> [  273.950731] RIP: 0010:[skb_over_panic+96/112] <ffffffff8027c160>{skb_over_panic+96}
-> [  273.950739] RSP: 0018:ffff81001fe19d78  EFLAGS: 00010096
-> [  273.950742] RAX: 00000000000000ab RBX: 0000000000000036 RCX: ffffffff803b5d58
-> [  273.950745] RDX: ffff81001ff38080 RSI: 0000000000000082 RDI: 0000000000000001
-> [  273.950749] RBP: ffff81001fe19d98 R08: 0000000000000005 R09: 0000000000000000
-> [  273.950752] R10: 0000000000000000 R11: 0000000000000000 R12: ffff81000c4c18e8
-> [  273.950755] R13: 000000000000003f R14: ffff8100164a8801 R15: ffff81011cfecd63
-> [  273.950759] FS:  00002aaaab3a96d0(0000) GS:ffffffff80575800(0000) knlGS:0000000000000000
-> [  273.950763] CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> [  273.950766] CR2: 0000000000c55000 CR3: 0000000019e81000 CR4: 00000000000006e0
-> [  273.950770] Process events/0 (pid: 4, threadinfo ffff81001fe18000, task ffff81001ff38080)
-> [  273.950772] Stack: ffff81011cfecd99 ffff81001cfed360 ffffffff80323edb ffff81000c4c18e8 
-> [  273.950779]        ffff81001fe19df8 ffffffff882d8c23 ffff81000c4c19a0 ffff81000c4c1918 
-> [  273.950785]        ffff8100164a8401 ffff8100164a8000 
-> [  273.950789] Call Trace:<ffffffff882d8c23>{:ppp_async:ppp_asynctty_receive+579}
-> [  273.950800]        <ffffffff80238593>{flush_to_ldisc+291} <ffffffff80142e40>{worker_thread+512}
-> [  273.950816]        <ffffffff80238470>{flush_to_ldisc+0} <ffffffff8012d9c0>{default_wake_function+0}
-> [  273.950827]        <ffffffff802fb3a1>{thread_return+191} <ffffffff80142c40>{worker_thread+0}
-> [  273.950839]        <ffffffff801477d9>{kthread+217} <ffffffff802fc7b4>{_spin_unlock_irq+20}
-> [  273.950848]        <ffffffff8012de39>{schedule_tail+73} <ffffffff8010f7d6>{child_rip+8}
-> [  273.950858]        <ffffffff80147700>{kthread+0} <ffffffff8010f7ce>{child_rip+0}
-> [  273.950871]        
-> [  273.950874] 
-> [  273.950875] Code: 0f 0b 68 fe fe 32 80 c2 5e 00 c9 c3 66 66 66 90 55 49 89 d2 
-> [  273.950885] RIP <ffffffff8027c160>{skb_over_panic+96} RSP <ffff81001fe19d78>
-> [  273.950891]  <3>Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-> [  273.950895] in_atomic():1, irqs_disabled():1
-> [  273.950897] 
-> [  273.950898] Call Trace:<ffffffff8012c9eb>{__might_sleep+187} <ffffffff801328ed>{profile_task_exit+29}
-> [  273.950907]        <ffffffff801339e5>{do_exit+37} <ffffffff802fc7fd>{_spin_unlock_irqrestore+29}
-> [  273.950917]        <ffffffff80110654>{die+84} <ffffffff802fce4d>{do_trap+269}
-> [  273.950929]        <ffffffff80110e6d>{do_invalid_op+157} <ffffffff8027c160>{skb_over_panic+96}
-> [  273.950941]        <ffffffff8010f621>{error_exit+0} <ffffffff8027c160>{skb_over_panic+96}
-> [  273.950962]        <ffffffff8027c160>{skb_over_panic+96} <ffffffff882d8c23>{:ppp_async:ppp_asynctty_receive+579}
-> [  273.950975]        <ffffffff80238593>{flush_to_ldisc+291} <ffffffff80142e40>{worker_thread+512}
-> [  273.950990]        <ffffffff80238470>{flush_to_ldisc+0} <ffffffff8012d9c0>{default_wake_function+0}
-> [  273.950999]        <ffffffff802fb3a1>{thread_return+191} <ffffffff80142c40>{worker_thread+0}
-> [  273.951011]        <ffffffff801477d9>{kthread+217} <ffffffff802fc7b4>{_spin_unlock_irq+20}
-> [  273.951020]        <ffffffff8012de39>{schedule_tail+73} <ffffffff8010f7d6>{child_rip+8}
-> [  273.951029]        <ffffffff80147700>{kthread+0} <ffffffff8010f7ce>{child_rip+0}
-> [  273.951042]        
-> [  273.951046] note: events/0[4] exited with preempt_count 1
-> 
-> (this is 2.6.15-ck2 + few local hacks with debugging config)
+> [root@tornado dovecot]# uname -a
+> Linux tornado.reub.net 2.6.15-mm1 #1 SMP Sun Jan 8 03:42:25 NZDT 2006 i686 i686 
+> i386 GNU/Linux
+> [root@tornado ~]# cat /proc/interrupts
+>             CPU0       CPU1
+>    0:   21638510          0    IO-APIC-edge  timer
+>    4:        356          0    IO-APIC-edge  serial
+>    8:          1          0    IO-APIC-edge  rtc
+>    9:          0          0   IO-APIC-level  acpi
+>   14:          1          0    IO-APIC-edge  ide0
+>   50:          3          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2
+> 169:        120          0   IO-APIC-level  uhci_hcd:usb5
+> 177:    2837992          0   IO-APIC-level  sky2
+> 185:      61450          0   IO-APIC-level  uhci_hcd:usb4, serial
+> 193:    4722447          0   IO-APIC-level  libata, uhci_hcd:usb3
+
+Note that in the earlier kernel, IRQ 193 is assigned to usb3.  That's the 
+second UHCI controller, since usb1 is EHCI.
+
+> [root@tornado ~]# lspci
+
+> 00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+> USB UHCI #1 (rev 03)
+> 00:1d.1 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+> USB UHCI #2 (rev 03)
+> 00:1d.2 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+> USB UHCI #3 (rev 03)
+> 00:1d.3 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+> USB UHCI #4 (rev 03)
+> 00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) 
+> USB2 EHCI Controller (rev 03)
+
+Note that 1d.3 is the fourth UHCI controller; the second is 1d.1.
+
+> I guess this looks like it was assigned the same IRQ ?
+
+I don't think so.  To be certain you'd have to check the boot-up log and
+verify that 1d.1 is usb3 and 1d.3 is usb5.
+
+>From the information presented here, it looks like -mm1 correctly routes
+the 1d.1 controller to IRQ 193 and the 1d.3 controller to IRQ 169, whereas
+-mm3 incorrectly routes the 1d.3 controller to IRQ 193.  That would make 
+it an ACPI problem.
+
+Alan Stern
+

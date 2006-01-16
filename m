@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWAPOoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWAPOqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbWAPOoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 09:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWAPOoe
+	id S1750837AbWAPOqE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 09:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWAPOqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 09:44:34 -0500
-Received: from sipsolutions.net ([66.160.135.76]:58119 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1750834AbWAPOod (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 09:44:33 -0500
-Subject: Re: wireless: recap of current issues (actions)
-From: Johannes Berg <johannes@sipsolutions.net>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060115005614.GB32206@tuxdriver.com>
-References: <20060113195723.GB16166@tuxdriver.com>
-	 <20060113212605.GD16166@tuxdriver.com>
-	 <20060113213311.GI16166@tuxdriver.com>
-	 <20060113222512.GN16166@tuxdriver.com> <43C9770F.1000400@pobox.com>
-	 <20060115005614.GB32206@tuxdriver.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-o446jK9M8EmLr47/H5Jv"
-Date: Mon, 16 Jan 2006 15:44:06 +0100
-Message-Id: <1137422646.2520.102.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Mon, 16 Jan 2006 09:46:04 -0500
+Received: from maggie.cs.pitt.edu ([130.49.220.148]:53221 "EHLO
+	maggie.cs.pitt.edu") by vger.kernel.org with ESMTP id S1750837AbWAPOqB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 09:46:01 -0500
+From: Claudio Scordino <cloud.of.andor@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ktimer not firing ?
+Date: Mon, 16 Jan 2006 09:45:46 -0500
+User-Agent: KMail/1.8
+Cc: Steven Rostedt <rostedt@goodmis.org>, kernelnewbies@nl.linux.org,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
+References: <200511171639.27565.cloud.of.andor@gmail.com> <1132248488.10522.4.camel@localhost.localdomain>
+In-Reply-To: <1132248488.10522.4.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601160945.47973.cloud.of.andor@gmail.com>
+X-Spam-Score: -1.665/8 BAYES_00 SA-version=3.000002
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-o446jK9M8EmLr47/H5Jv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+   I know that ktimer is not yet part of the main tree of the Linux
+kernel...
 
-On Sat, 2006-01-14 at 19:56 -0500, John W. Linville wrote:
+I need an high precision timer in a kernel module for 2.6.14, so I chose to 
+use ktimers.
 
-> Yes, someone (Johannes?  Jiri?) had the beginnings of this a few days
-> ago, but I seem to have lost the link.  Could someone repost it?
+My timer must be stopped and reprogrammed very frequently.
 
-http://johannes.sipsolutions.net/802.11_stacks/
+This is how I initialize the timer:
 
-Someone should start a new page to collect all the info we're talking
-about at the moment on the netdev wiki and then also move this content
-there. I don't think I'll get to it in the next few days.
+struct ktimer mytimer;
+ktimer_init(&mytimer);
+mytimer.function = myfunction;
+mytimer.data = NULL;
 
-johannes
 
---=-o446jK9M8EmLr47/H5Jv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+This is how I stop the timer:
 
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
+ktimer_cancel(&mytimer);
 
-iQIVAwUAQ8uxNKVg1VMiehFYAQJ5ew/+OOrSZ5rIAD9ZlZ7kBeUIZHDOzBMfi0bN
-wpfPsbHOTcKSHZ7kUa9UmO1neRe9fLaqD0WOyhPhKQn+lhHyu9q/VCitHmxAbYb+
-CcIpB2QNfCDTw3reqjX06qwO1idOcSlqgSPi6Nq3msDI5yvH2CPkynLX0zyeqkih
-6qePFs26LgRRxr8oEu887+d9dV1FBgh8oTh4HTAnCWgYmQMQl4n0QT2zLImBtAHo
-Lu/ud/96+CArI0L1oUcR9Yzpsp4lKhPfkbKtyIrgh4FZDDdAWk5nZ4be7YV26oKe
-BvGIrNZV+qSZC2IcR0lgTKLhiL6cL/bhI5bR0SyKyZIWm+RZY8TtB8nvtB/VjbWa
-Kcf55lTZ7eTg88ji4de1947kNAFVU+aOeKAIAqeXA5BwUxzpl9lFnvLw7z/+T4Dn
-vv4TBS3PNjJNcdcmWuUsmXgwyVyYuf/jEoUYGq6sEx/zs94PC5O24Qk/xKegkxnP
-trKzbXTi9RuLmPqs/mejGi0vnLkYOSCanfRIW1jI9Av8lxDAMqwpcjqJBcVV7EGa
-pCdak+LhzWBGLSmSQl6BL20SqaoG2EVEGcx7l9W8YNLpobZbfuDUPAHrbtB8IDN2
-Z8wfGi8h7n4XnUoJ808xEto7qZYuesWdvuhskB+U3nBvCONkcTO7/6uJWXw8pIbK
-snyWVSwgi2w=
-=O8o/
------END PGP SIGNATURE-----
 
---=-o446jK9M8EmLr47/H5Jv--
+This is how I restart the timer:
+
+ktime_t mytime = ktime_set(...,...);
+ktimer_start(&mytimer, &mytime, KTIMER_REL)
+
+
+However, the timer never fires. I checked the return value of the start and 
+it's correct (0 = success). Any idea of why the timer does not fire ?
+
+I tried also by directly using ktimer_restart instead of ktimer_cancel + 
+ktimer_start, but the timer does not fire either.
+The module has also another ktimer which works perfectly...
+
+
+Many thanks for your help,
+
+                     Claudio
 

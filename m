@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWAPCjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWAPCnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWAPCjF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 21:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWAPCjF
+	id S932170AbWAPCnM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 21:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWAPCnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 21:39:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48288 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932175AbWAPCjE (ORCPT
+	Sun, 15 Jan 2006 21:43:12 -0500
+Received: from main.gmane.org ([80.91.229.2]:21930 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932170AbWAPCnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 21:39:04 -0500
-Date: Sun, 15 Jan 2006 18:38:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: [patch 04/10] slab: cache_estimate cleanup
-Message-Id: <20060115183822.38b1e807.akpm@osdl.org>
-In-Reply-To: <20060114122415.163755000@localhost>
-References: <20060114122249.246354000@localhost>
-	<20060114122415.163755000@localhost>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 15 Jan 2006 21:43:11 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: [PATCH 2/2] kbuild: fix make -jN with multiple targets with make
+ O=...
+Date: Mon, 16 Jan 2006 11:42:30 +0900
+Message-ID: <dqf16n$4tn$1@sea.gmane.org>
+References: <dqev9f$pnc$1@sea.gmane.org> <7627.1137378243@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060115)
+In-Reply-To: <7627.1137378243@kao2.melbourne.sgi.com>
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pekka Enberg" <penberg@cs.helsinki.fi> wrote:
->
-> From: Steven Rostedt <rostedt@goodmis.org>
+Keith Owens wrote:
+> Kalin KOZHUHAROV (on Mon, 16 Jan 2006 11:09:51 +0900) wrote:
+>> Sam Ravnborg wrote:
+>>> [It is pushed out at:
+>>> git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git]
+>>>
+>>> The way multiple targets was handled with make O=...
+>>> broke because for each high-level target make spawned
+>>> a parallel make resulting in a broken build.
+>>> Reported by Keith Owens <kaos@ocs.com.au>
+>> When did it break? Are any of the released (not -git) kernels affected?
 > 
-> This patch cleans up cache_estimate() in mm/slab.c and improves the
-> algorithm from O(n) to O(1). We first calculate the maximum number of
-> objects a slab can hold after struct slab and kmem_bufctl_t for each
-> object has been given enough space. After that, to respect alignment
-> rules, we decrease the number of objects if necessary. As required
-> padding is at most align-1 and memory of obj_size is at least align,
-> it is always enough to decrease number of objects by one.
-> 
-> The optimization was originally made by Balbir Singh with more 
-> improvements from Steven Rostedt. Manfred Spraul provider further
-> modifications: no loop at all for the off-slab case and added comments
-> to explain the background.
-> 
-> ...
-> -	size_t wastage = PAGE_SIZE << gfporder;
-> -	size_t extra = 0;
-> -	size_t base = 0;
-> ...
-> +	size_t mgmt_size;
-> +	size_t slab_size = PAGE_SIZE << gfporder;
+> 2.6.15 has the problem.  It only triggers with the combination of a
+> separate object directory _and_ multiple targets on the make command
+> line _and_ running make in parallel (make -j).
 
-Can anyone think of a reason for using size_t in there instead of plain old
-unsigned int?
+Thanks for the clarification!
+
+I am safe as I don't usually use multiple targets, but I always compile with
+KBUILD_OUTPUT set and make -j5 (and distcc).
+
+However, some of the out-of-tree modules might break, will stay on alert.
+A quick check through the relevant to my hardware ebuilds (/me on Gentoo)
+showed no show stoppers, they all do:
+
+for T in $TARGETS; do make $T; done
+
+(MAKEOPTS=-jN is handled internally on Gentoo if configured; and I use
+/var/kernels/out to compile my kernels)
+
+Please get that patch into 2.6.15.2 if possible (seems many people have ppp
+problems, so I guess that will be released soon).
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

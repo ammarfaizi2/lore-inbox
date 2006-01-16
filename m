@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWAPA1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWAPAsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWAPA1H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 19:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWAPA1H
+	id S1750966AbWAPAsd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 19:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWAPAsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 19:27:07 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:53445 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932140AbWAPA1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 19:27:07 -0500
-Date: Mon, 16 Jan 2006 00:27:03 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
-Subject: Userspace interface breakage in power/state
-Message-ID: <20060116002703.GA4769@srcf.ucam.org>
+	Sun, 15 Jan 2006 19:48:33 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:43226 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750969AbWAPAsd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 19:48:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=P1eiy770mb/UgI0EEDix5AaU1JUvnY+F+Ta2a4SEY6hiYjWWnV19amhihDel0+RAdQTCW+C54xZOcglne8Me4ttl88pRuBOJFFcUaOUQh9f4PQbVBxABxM8WhArJdOn183+TVcLmmMa6Rc3Ed7cnPFs1q03jkW0N2nK7HSQ+Hmg=
+Date: Mon, 16 Jan 2006 01:48:10 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] reiserfs missing kmalloc failure check
+Message-Id: <20060116014810.84ccf9be.diegocg@gmail.com>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Resent, without the wrong address for lkml)
+According to http://bugzilla.kernel.org/show_bug.cgi?id=5778
+fs/reiserfs/file.c is missing this check?
 
-In older kernels, power/state for PCI devices took a PCI power state as 
-an argument and so "3" was an entirely sensible thing to echo into it. 
-In current kernels, it hits a BUG() in pci_choose_state and things blow 
-up.
 
-While I realise that the former interface was broken and wrong, would it 
-be possible to move to a new one without breaking existing code? 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Signed-off-by: Diego Calleja <diegocg@gmail.com>
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Index: test/fs/reiserfs/file.c
+===================================================================
+--- test.orig/fs/reiserfs/file.c	2006-01-13 02:40:50.000000000 +0100
++++ test/fs/reiserfs/file.c	2006-01-16 01:41:36.000000000 +0100
+@@ -192,6 +192,8 @@
+ 
+ 	allocated_blocks = kmalloc((blocks_to_allocate + will_prealloc) *
+ 				   sizeof(b_blocknr_t), GFP_NOFS);
++	if (!allocated_blocks)
++		return -ENOMEM;
+ 
+ 	/* First we compose a key to point at the writing position, we want to do
+ 	   that outside of any locking region. */

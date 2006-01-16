@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWAPTHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWAPTJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWAPTHP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 14:07:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWAPTHO
+	id S1750989AbWAPTJb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 14:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWAPTJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 14:07:14 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:44562 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751161AbWAPTHM (ORCPT
+	Mon, 16 Jan 2006 14:09:31 -0500
+Received: from [63.81.120.158] ([63.81.120.158]:28911 "EHLO hermes.mvista.com")
+	by vger.kernel.org with ESMTP id S1750762AbWAPTJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 14:07:12 -0500
-Date: Mon, 16 Jan 2006 14:06:33 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Samuel Ortiz <samuel.ortiz@nokia.com>
-Cc: ext Stuffed Crust <pizza@shaftnet.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: wireless: recap of current issues (configuration)
-Message-ID: <20060116190629.GB5529@tuxdriver.com>
-Mail-Followup-To: Samuel Ortiz <samuel.ortiz@nokia.com>,
-	ext Stuffed Crust <pizza@shaftnet.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com> <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost> <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com> <20060115152034.GA1722@shaftnet.org> <Pine.LNX.4.58.0601152038540.19953@irie> <20060116170951.GA8596@shaftnet.org> <Pine.LNX.4.58.0601162020260.17348@irie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601162020260.17348@irie>
-User-Agent: Mutt/1.4.1i
+	Mon, 16 Jan 2006 14:09:30 -0500
+In-Reply-To: <20060114122521.39f86ed5.akpm@osdl.org>
+References: <b324b5ad0601131316m721f959eu37b741f9e5557a2e@mail.gmail.com> <20060113132704.207336d7.akpm@osdl.org> <43C9233A.20504@gmail.com> <20060114122521.39f86ed5.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <961FB9D6-86C3-11DA-B27C-000A959BB91E@mvista.com>
+Content-Transfer-Encoding: 7bit
+Cc: robustmutexes@lists.osdl.org, chaosite@gmail.com,
+       linux-kernel@vger.kernel.org, daviado@gmail.com
+From: david singleton <dsingleton@mvista.com>
+Subject: Re [robust-futex-2] : interdiff for memory leak fix
+Date: Mon, 16 Jan 2006 11:09:15 -0800
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 08:51:31PM +0200, Samuel Ortiz wrote:
-> On Mon, 16 Jan 2006, ext Stuffed Crust wrote:
-> 
-> > On Sun, Jan 15, 2006 at 09:05:33PM +0200, Samuel Ortiz wrote:
-> > > Regarding 802.11d and regulatory domains, the stack should also be able to
-> > > stick to one regulatory domain if asked so by userspace, whatever the APs
-> > > around tell us.
-> >
-> > ...and in doing so, violate the local regulatory constraints.  :)
-> The other option is to conform to whatever the AP you associate with
-> advertises. In fact, this is how it should be done according to 802.11d.
-> Unfortunately, this doesn't ensure local regulatory constraints compliance
-> unless you expect each and every APs to do the Right Thing ;-)
 
-If regulators come down on someone, it seems like common sense
-that they would be more lenient on mobile stations complying with a
-misconfigured AP than they would be with a mobile station ignoring a
-properly configured AP?  I know expecting common sense from government
-regulators is optimistic, but still... :-)
+   Here is an interdiff for a memory leak fix in register_futex.  The 
+nice thing
+about the slab caches are the ability to spot leaks easily.
 
-Of course when we are the AP, the ability to adjust these parameters
-could be very important.  No?
+diff -u linux-2.6.15/kernel/futex.c linux-2.6.15/kernel/futex.c
+--- linux-2.6.15/kernel/futex.c
++++ linux-2.6.15/kernel/futex.c
+@@ -1129,6 +1133,8 @@
+         if (vma->vm_file && vma->vm_file->f_mapping) {
+                 if (vma->vm_file->f_mapping->robust_head == NULL)
+                         init_robust_list(vma->vm_file->f_mapping, 
+file_futex);
++               else
++                       kmem_cache_free(file_futex_cachep, file_futex);
+                 head = 
+&vma->vm_file->f_mapping->robust_head->robust_list;
+                 sem = &vma->vm_file->f_mapping->robust_head->robust_sem;
+         } else {
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+although Safari seems to always translates tabs to spaces.
+
+David
+

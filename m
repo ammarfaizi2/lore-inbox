@@ -1,101 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWAPNBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWAPNG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWAPNBM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 08:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWAPNBM
+	id S1750745AbWAPNG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 08:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWAPNG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 08:01:12 -0500
-Received: from ozlabs.org ([203.10.76.45]:4795 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750730AbWAPNBM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 08:01:12 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: linuxppc64-dev@ozlabs.org
-Subject: Re: 2.6.15-mm4 failure on power5
-Date: Tue, 17 Jan 2006 00:00:54 +1100
-User-Agent: KMail/1.8.3
-Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
-References: <20060116063530.GB23399@sergelap.austin.ibm.com> <20060115230557.0f07a55c.akpm@osdl.org>
-In-Reply-To: <20060115230557.0f07a55c.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2003026.T5e2PD4Uhi";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601170000.58134.michael@ellerman.id.au>
+	Mon, 16 Jan 2006 08:06:58 -0500
+Received: from 217-133-42-200.b2b.tiscali.it ([217.133.42.200]:52496 "EHLO
+	opteron.random") by vger.kernel.org with ESMTP id S1750739AbWAPNG5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 08:06:57 -0500
+Date: Mon, 16 Jan 2006 14:06:49 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com, dvhltc@us.ibm.com, linux-mm@kvack.org,
+       blaisorblade@yahoo.it, jdike@addtoit.com
+Subject: differences between MADV_FREE and MADV_DONTNEED
+Message-ID: <20060116130649.GE15897@opteron.random>
+References: <20051029025119.GA14998@ccure.user-mode-linux.org> <1130788176.24503.19.camel@localhost.localdomain> <20051101000509.GA11847@ccure.user-mode-linux.org> <1130894101.24503.64.camel@localhost.localdomain> <20051102014321.GG24051@opteron.random> <1130947957.24503.70.camel@localhost.localdomain> <20051111162511.57ee1af3.akpm@osdl.org> <1131755660.25354.81.camel@localhost.localdomain> <20051111174309.5d544de4.akpm@osdl.org> <43757263.2030401@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43757263.2030401@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2003026.T5e2PD4Uhi
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Now that MADV_REMOVE is in, should we discuss MADV_FREE?
 
-On Mon, 16 Jan 2006 18:05, Andrew Morton wrote:
-> "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> > On my power5 partition, 2.6.15-mm4 hangs on boot
->
-> It might be worth reverting the changes to arch/powerpc/mm/hash_utils_64.=
-c,
-> see if that unbreaks it.
->
-> -		base =3D lmb.memory.region[i].base + KERNELBASE;
-> +		base =3D (unsigned long)__va(lmb.memory.region[i].base);
+MADV_FREE in Solaris is destructive and only works on anonymous memory,
+while MADV_DONTNEED seems to never be destructive (which I assume it
+means it's a noop on anonymous memory).
 
-You can try it, but if that fixes the problem I'll buy a sombrero and then =
-eat=20
-it.
+Our MADV_DONTNEED is destructive on anonymous memory, while it's
+non-destructive on file mappings.
 
-> The nice comment in page.h:
->
->  * KERNELBASE is the virtual address of the start of the kernel, it's oft=
-en
->  * the same as PAGE_OFFSET, but _might not be_.
->  *
->  * The kdump dump kernel is one example where KERNELBASE !=3D PAGE_OFFSET.
->  *
->  * To get a physical address from a virtual one you subtract PAGE_OFFSET,
->  * _not_ KERNELBASE.
->
-> Tells us that was not an equivalent transformation.
+Perhaps we could move the destructive anonymous part of MADV_DONTNEED to
+MADV_FREE?
 
-True, not equivalent in all cases, but correct. For non-kdump kernels (whic=
-h I=20
-assume this is) KERNELBASE =3D=3D PAGE_OFFSET, and for a kdump kernel that =
-code=20
-wants to use PAGE_OFFSET, not KERNELBASE.
+Or we could as well go relaxed and define MADV_FREE and MADV_DONTNEED
+the same way (that still leaves the question if we risk to break apps
+ported from solaris where MADV_DONTNEED is apparently always not
+destructive).
 
-Try enabling early debugging (see arch/powerpc/kernel/setup_64.c) and then=
-=20
-turning on DEBUG in hash_utils_64.c, setup_64.c etc.
+I only read the docs, I don't know in practice what MADV_DONTNEED does
+on solaris (does it return -EINVAL if run on anonymous memory or not?).
 
-cheers
+http://docs.sun.com/app/docs/doc/816-5168/6mbb3hrgk?a=view
 
-=2D-=20
-Michael Ellerman
-IBM OzLabs
+BTW, I don't know how other specifications define MADV_FREE, but besides
+MADV_REMOVE I've also got the request to provide MADV_FREE in linux,
+this is why I'm asking. (right now I'm telling them to use #ifdef
+__linux__ #define MADV_FREE MADV_DONTNEED but that's quite an hack since
+it could break if we make MADV_DONTNEED non-destructive in the future)
 
-email: michael:ellerman.id.au
-inmsg: mpe:jabber.org
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---nextPart2003026.T5e2PD4Uhi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDy5kKdSjSd0sB4dIRAm60AKCNxhXapOqZFZYGcpnfbeAOP/x5gwCfcutn
-DaIGwaQbeV8aEMEa/6tDUiQ=
-=zDbw
------END PGP SIGNATURE-----
-
---nextPart2003026.T5e2PD4Uhi--
+Thanks.

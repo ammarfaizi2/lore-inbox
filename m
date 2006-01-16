@@ -1,123 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWAPL7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWAPMA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWAPL7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 06:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWAPL7P
+	id S1750717AbWAPMA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 07:00:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWAPMA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 06:59:15 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:12218 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1750715AbWAPL7P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 06:59:15 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch] snsc kmalloc2kzalloc
-From: Jes Sorensen <jes@sgi.com>
-Date: 16 Jan 2006 06:59:10 -0500
-Message-ID: <yq0irsktmcx.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Mon, 16 Jan 2006 07:00:58 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:12001 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750717AbWAPMA5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 07:00:57 -0500
+Date: Mon, 16 Jan 2006 13:00:50 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 08/15] sonypi: Enable ACPI events for Sony laptop hotkeys
+In-Reply-To: <20060116002107.GA4648@srcf.ucam.org>
+Message-ID: <Pine.LNX.4.61.0601161300440.7465@yvahk01.tjqt.qr>
+References: <0ISL001SM95JWW@a34-mta01.direcway.com> <E1EuRN6-0006Hu-00@chiark.greenend.org.uk>
+ <Pine.LNX.4.61.0601152149060.4240@yvahk01.tjqt.qr> <20060116002107.GA4648@srcf.ucam.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> I certainly need this patch though, because it allows me to set the LCD 
+>> brightness via /proc/acpi/sony/brightness.
+>
+>No, that's sony_acpi. They're different drivers.
 
-A small cleanup patch - kmalloc to kzalloac
+My bad.
 
-Cheers,
-Jes
 
-Change driver to use kzalloc rather than kmalloc+memset
-
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-
-----
-
- drivers/char/snsc.c       |    8 +++-----
- drivers/char/snsc_event.c |    7 ++-----
- 2 files changed, 5 insertions(+), 10 deletions(-)
-
-Index: linux-2.6/drivers/char/snsc.c
-===================================================================
---- linux-2.6.orig/drivers/char/snsc.c
-+++ linux-2.6/drivers/char/snsc.c
-@@ -5,7 +5,7 @@
-  * License.  See the file "COPYING" in the main directory of this archive
-  * for more details.
-  *
-- * Copyright (C) 2004 Silicon Graphics, Inc. All rights reserved.
-+ * Copyright (C) 2004, 2006 Silicon Graphics, Inc. All rights reserved.
-  */
- 
- /*
-@@ -77,7 +77,7 @@
- 	scd = container_of(inode->i_cdev, struct sysctl_data_s, scd_cdev);
- 
- 	/* allocate memory for subchannel data */
--	sd = kmalloc(sizeof (struct subch_data_s), GFP_KERNEL);
-+	sd = kzalloc(sizeof (struct subch_data_s), GFP_KERNEL);
- 	if (sd == NULL) {
- 		printk("%s: couldn't allocate subchannel data\n",
- 		       __FUNCTION__);
-@@ -85,7 +85,6 @@
- 	}
- 
- 	/* initialize subch_data_s fields */
--	memset(sd, 0, sizeof (struct subch_data_s));
- 	sd->sd_nasid = scd->scd_nasid;
- 	sd->sd_subch = ia64_sn_irtr_open(scd->scd_nasid);
- 
-@@ -394,7 +393,7 @@
- 			sprintf(devnamep, "#%d", geo_slab(geoid));
- 
- 			/* allocate sysctl device data */
--			scd = kmalloc(sizeof (struct sysctl_data_s),
-+			scd = kzalloc(sizeof (struct sysctl_data_s),
- 				      GFP_KERNEL);
- 			if (!scd) {
- 				printk("%s: failed to allocate device info"
-@@ -402,7 +401,6 @@
- 				       SYSCTL_BASENAME, devname);
- 				continue;
- 			}
--			memset(scd, 0, sizeof (struct sysctl_data_s));
- 
- 			/* initialize sysctl device data fields */
- 			scd->scd_nasid = cnodeid_to_nasid(cnode);
-Index: linux-2.6/drivers/char/snsc_event.c
-===================================================================
---- linux-2.6.orig/drivers/char/snsc_event.c
-+++ linux-2.6/drivers/char/snsc_event.c
-@@ -5,7 +5,7 @@
-  * License.  See the file "COPYING" in the main directory of this archive
-  * for more details.
-  *
-- * Copyright (C) 2004 Silicon Graphics, Inc. All rights reserved.
-+ * Copyright (C) 2004, 2006 Silicon Graphics, Inc. All rights reserved.
-  */
- 
- /*
-@@ -271,7 +271,7 @@
- {
- 	int rv;
- 
--	event_sd = kmalloc(sizeof (struct subch_data_s), GFP_KERNEL);
-+	event_sd = kzalloc(sizeof (struct subch_data_s), GFP_KERNEL);
- 	if (event_sd == NULL) {
- 		printk(KERN_WARNING "%s: couldn't allocate subchannel info"
- 		       " for event monitoring\n", __FUNCTION__);
-@@ -279,7 +279,6 @@
- 	}
- 
- 	/* initialize subch_data_s fields */
--	memset(event_sd, 0, sizeof (struct subch_data_s));
- 	event_sd->sd_nasid = scd->scd_nasid;
- 	spin_lock_init(&event_sd->sd_rlock);
- 
-@@ -305,5 +304,3 @@
- 		return;
- 	}
- }
--
--
+Jan Engelhardt
+-- 

@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWAPSmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWAPSpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWAPSmc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 13:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWAPSmb
+	id S1751147AbWAPSpX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 13:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWAPSpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 13:42:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55769 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751156AbWAPSma (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 13:42:30 -0500
-Subject: Re: wireless: recap of current issues (configuration)
-From: Dan Williams <dcbw@redhat.com>
-To: Stuffed Crust <pizza@shaftnet.org>
-Cc: Sam Leffler <sam@errno.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060116172817.GB8596@shaftnet.org>
-References: <20060113195723.GB16166@tuxdriver.com>
-	 <20060113212605.GD16166@tuxdriver.com>
-	 <20060113213011.GE16166@tuxdriver.com>
-	 <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost>
-	 <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com>
-	 <20060115152034.GA1722@shaftnet.org> <43CAA853.8020409@errno.com>
-	 <20060116172817.GB8596@shaftnet.org>
-Content-Type: text/plain
-Date: Mon, 16 Jan 2006 13:39:58 -0500
-Message-Id: <1137436799.19714.5.camel@localhost.localdomain>
+	Mon, 16 Jan 2006 13:45:23 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:11649 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751147AbWAPSpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 13:45:21 -0500
+Subject: RE: [PATCH] acpi: remove function tracing macros
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005B835E4@hdsmsx401.amr.corp.intel.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005B835E4@hdsmsx401.amr.corp.intel.com>
+Date: Mon, 16 Jan 2006 20:45:19 +0200
+Message-Id: <1137437119.10352.9.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 (2.5.4-6) 
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-16 at 12:28 -0500, Stuffed Crust wrote:
-> Scans should be specified as "non-distruptive" so the hardware driver
-> has to twiddle whatever bits are necessary to return the hardware to the
-> same state that it was in before the scan kicked in.  Beyond that, the
-> scanning smarts are all in the 802.11 stack.  The driver should be as
-> dumb as possible.  :)
+Hi Len,
 
-This is quite important... from a user perspective, it might be 2, 5, or
-15 seconds before the card can actually scan all channels.
-Unfortunately, background (passive) scanning by definition can't find
-all access points, so you're going to need to do active scanning.
-However, that active scanning should be controlled by userspace, not the
-driver.  Only userspace knows what policies the user him/herself has set
-on powersaving mode.
+On Mon, 2006-01-16 at 13:14 -0500, Brown, Len wrote:
+> >This patch removes function tracing macro usage from drivers/acpi/. In
+> >particular, ACPI_FUNCTION_TRACE are ACPI_FUNCTION_NAME removed 
+> >completely and return_VALUE, return_PTR, and return_ACPI_STATUS
+> >are converted with proper use of return.
+> 
+> I'm sorry, I can't apply this source clean-up patch.
+> 
+> We need tracing to debug interpreter failures on hardware
+> in the field.
 
-> Background scanning, yes -- but there are all sorts of different
-> thresholds and types of 'scanning' to be done, depending on how
-> disruptive you are willing to be, and how capable the hardware is.  Most
-> thin MACs don't filter out foreign BSSIDs on the same channel when
-> you're joined, which makes some things a lot easier.
+I appreciate that but per-function tracing is overkill. Especially since
+the macros used for it are very obfuscating (i.e. return_VALUE, et al)
+and we have things like kprobes.
 
-Scanning has the tradeoff of updated network list vs. saving power +
-network disruption.  The user, or programs delegated by the user, need
-to make that choice, not the stack or the driver.
+On Mon, 2006-01-16 at 13:14 -0500, Brown, Len wrote:
+> When we make GPL changes to those files, we diverge
+> from the rest of the universe and the overloaded
+> Linux/ACPI maintainer (me) starts to lose his sanity.
+> That said, if the author of the patch re-licenses it back
+> to Intel so it can be distributed under eitiher GPL or BSD,
+> then Intel can apply a change "up-stream" and divergence
+> can be avoided.  But per above, that isn't the primary
+> issue with ripping out tracing.
+> 
+> Note that tracing is built in only for CONFIG_ACPI_DEBUG.
 
--------------
+My main concern is that the ACPI subsystem uses obfuscating macros to
+implement function tracing in the kernel. Please note that we do not
+allow this in new code and there are janitor such as myself that are
+working to remove the existing ones.
 
-Furthermore, and this is also extremely important, user apps need to
-know when the scan is done.  From my look at drivers, _all_ cards know
-when the hardware is in scanning states, and when its done.  What many
-don't do is communicate that information to userspace via wireless
-events.  The userspace app that requested scanning is then stuck
-busy-waiting for the SIOCGIWSCAN to return success, which just sucks.
-Much better if all drivers had the wireless event so that the userspace
-app could just fire off the scan with SIOCSIWSCAN, and parse the results
-when the event comes back rather than spinning.
+While I have no intention of making your life as Linux maintainer
+harder, I would appreciate if you would at least consider ripping out
+function tracing from upstream. I am certainly willing to relicense or
+even transfer copyrights of the patch if that's what you need.
 
-In the netlink world, this would of course be done by multicasting the
-"Scan Done" message to all interested clients, which would be just as
-good.
-
-Dan
+			Pekka
 

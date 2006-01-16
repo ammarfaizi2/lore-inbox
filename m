@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWAPJXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWAPJ3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWAPJXM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWAPJW7
+	id S932259AbWAPJ3r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWAPJ25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:22:59 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29931 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932266AbWAPJWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:22:37 -0500
-From: mchehab@infradead.org
+	Mon, 16 Jan 2006 04:28:57 -0500
+Received: from outmx026.isp.belgacom.be ([195.238.4.91]:65236 "EHLO
+	outmx026.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S932298AbWAPJ2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:28:23 -0500
+From: Jan De Luyck <lkml@kcore.org>
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Panagiotis Christeas <p_christ@hol.gr>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 15/25] Fix for lack of analog output on some cx88 boards
-Date: Mon, 16 Jan 2006 07:11:23 -0200
-Message-id: <20060116091123.PS01641700015@infradead.org>
-In-Reply-To: <20060116091105.PS83611600000@infradead.org>
-References: <20060116091105.PS83611600000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
+Subject: Re: [2.6.15] screen remains blank after LID switch use
+User-Agent: KMail/1.9.1
+References: <200601160946.51765.lkml@kcore.org> <43CB60E4.1060305@sairyx.org>
+In-Reply-To: <43CB60E4.1060305@sairyx.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Date: Mon, 16 Jan 2006 10:28:03 +0100
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200601161028.04137.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 16 January 2006 10:01, Arlen Christian Mart Cuss wrote:
+> Check out /proc/acpi - you should find a few things that you can tinker
+> with, including one for your screen; often called `lcd'. If you "echo 1
+>
+>  > lcd" in the right directory, it should switch it on. "echo 0 > lcd"
+>
+> switches it off. Whatever is managing your power that turns it off,
+> isn't turning it back on. Look into these. It's not likely to be the
+> console/X driver's fault.
 
-From: Panagiotis Christeas <p_christ@hol.gr>
+Okay, thanks for that information. After some further googling I came up with 
+this:
 
-- Workaround to fix a known regression at cx88-tvaudio.c
-- provide a module parameter workaround to always enable
-analog output.
+# echo 0x80000001 > /proc/acpi/video/VID/LCD/state
 
-Signed-off-by: Panagiotis Christeas <p_christ@hol.gr>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+and the screen comes back to life. Thanks!
 
- drivers/media/video/cx88/cx88-tvaudio.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
+Jan
 
-diff --git a/drivers/media/video/cx88/cx88-tvaudio.c b/drivers/media/video/cx88/cx88-tvaudio.c
-index 24118e4..da8d97c 100644
---- a/drivers/media/video/cx88/cx88-tvaudio.c
-+++ b/drivers/media/video/cx88/cx88-tvaudio.c
-@@ -60,6 +60,11 @@ static unsigned int audio_debug = 0;
- module_param(audio_debug, int, 0644);
- MODULE_PARM_DESC(audio_debug, "enable debug messages [audio]");
- 
-+static unsigned int always_analog = 0;
-+module_param(always_analog,int,0644);
-+MODULE_PARM_DESC(always_analog,"force analog audio out");
-+
-+
- #define dprintk(fmt, arg...)	if (audio_debug) \
- 	printk(KERN_DEBUG "%s/0: " fmt, core->name , ## arg)
- 
-@@ -155,7 +160,8 @@ static void set_audio_finish(struct cx88
- 		cx_write(AUD_I2SOUTPUTCNTL, 1);
- 		cx_write(AUD_I2SCNTL, 0);
- 		/* cx_write(AUD_APB_IN_RATE_ADJ, 0); */
--	} else {
-+	}
-+	if ((always_analog) || (!cx88_boards[core->board].blackbird)) {
- 		ctl |= EN_DAC_ENABLE;
- 		cx_write(AUD_CTL, ctl);
- 	}
-
+-- 
+To err is human, to forgive is against company policy.

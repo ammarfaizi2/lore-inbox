@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWAPUUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWAPUZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWAPUUM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 15:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAPUUM
+	id S1751191AbWAPUZc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 15:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWAPUZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 15:20:12 -0500
-Received: from spooner.celestial.com ([192.136.111.35]:29669 "EHLO
-	spooner.celestial.com") by vger.kernel.org with ESMTP
-	id S1751179AbWAPUUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 15:20:10 -0500
-Date: Mon, 16 Jan 2006 15:20:14 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: So - What's going on with Reiser 4?
-Message-ID: <20060116202014.GA24116@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1137242691.3014.16.camel@laptopd505.fenrus.org> <43C99491.3080907@perkel.com> <1137293454.19972.6.camel@mindpipe> <43C9C042.5090000@perkel.com> <1137299139.25801.7.camel@mindpipe> <43C9D0CC.9040906@perkel.com> <1137315139.3001.5.camel@laptopd505.fenrus.org> <43CA662C.1040204@perkel.com> <20060116032409.GJ5773@kurtwerks.com> <43CBC2DF.70508@perkel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jan 2006 15:25:32 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:27708 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751191AbWAPUZb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 15:25:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WSjm0SdwPgTdDty7avaPD7YMoYr5yuZea387CoCeY9wXRaWLy3PSLZs1PVfKLiKyC+2WfUtc3JC6wHQu60GmxZ3X+FMKcdqPbY266RdI4oUTftH2ZqeHLys/whwPq7wU4Jz2D+BQXuuhsVoj3OcH55hZRpFB82YhJiK3bUuXuf4=
+Message-ID: <bdfc5d6e0601161225h53554b1ahde794af93af52bdf@mail.gmail.com>
+Date: Mon, 16 Jan 2006 15:25:30 -0500
+From: Andy Gospodarek <andy@greyhouse.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] networking ipv4: remove total socket usage count from /proc/net/sockstat
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net
+In-Reply-To: <1137442446.19444.20.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43CBC2DF.70508@perkel.com>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.15krw
-X-Woot: Woot!
+References: <20060116200432.GB14060@gospo.rdu.redhat.com>
+	 <1137442446.19444.20.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 07:59:27AM -0800, Marc Perkel took 0 lines to write:
-> 
-> 
-> Kurt Wall wrote:
+What userspace app will break because of this?
+
+On 1/16/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Mon, 2006-01-16 at 15:04 -0500, Andy Gospodarek wrote:
+> > Printing the total number of sockets used in /proc/net/sockstat is out
+> > of place in a file that is supposed to contain information related to
+> > ipv4 sockets.  Removed output for total socket usage.
 > >
-> >	"I think r4 folks are still working on Christoph's suggestions
-> >	that include changes required for the code to be merged."
-> >
-> >  
-> That is the answer I was looking for. Thanks.
-
-s/looking for/demanding to be spoon-fed/
-
-Shame on me for doing so.
-
-Kurt
--- 
-It's a damn poor mind that can only think of one way to spell a word.
-		-- Andrew Jackson
+>
+> Um, you can't do that, it will break userspace.
+>
+> Lee
+>
+>

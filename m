@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWAPBf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWAPBuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWAPBf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 20:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWAPBf3
+	id S932157AbWAPBuo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 20:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWAPBuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 20:35:29 -0500
-Received: from linares.terra.com.br ([200.176.10.195]:44935 "EHLO
-	linares.terra.com.br") by vger.kernel.org with ESMTP
-	id S932154AbWAPBf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 20:35:29 -0500
-X-Terra-Karma: -2%
-X-Terra-Hash: 41e77e8c259b0229ceaf3c0c5f0bf02d
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-Organization: Shuffle Experiments
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix rwlock usage example
-Date: Sun, 15 Jan 2006 23:34:25 -0200
-User-Agent: KMail/1.6.2
-Cc: gud@eth.net
-MIME-Version: 1.0
+	Sun, 15 Jan 2006 20:50:44 -0500
+Received: from w241.dkm.cz ([62.24.88.241]:32686 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S932157AbWAPBuo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 20:50:44 -0500
+Date: Mon, 16 Jan 2006 02:51:41 +0100
+From: Petr Baudis <pasky@suse.cz>
+To: git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Cogito-0.16.3
+Message-ID: <20060116015141.GG28365@pasky.or.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_hgvyDSdDvUhX66x"
-Message-Id: <200601152334.25052.lucasvr@gobolinux.org>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hello,
 
---Boundary-00=_hgvyDSdDvUhX66x
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+  this is Cogito version 0.16.3, the next stable release of the
+human-friendly version control UI for the Linus' GIT tool. Share
+and enjoy at:
 
-Hi there,
+	http://www.kernel.org/pub/software/scm/cogito/
 
-This is a trivial patch which fixes a typo on rwlock usage under 
-Documentation/spinlocks.txt.
+  All the fixes are of minor to normal severity. Pretty boring, and
+that's what I love on the release the most - it seems that we are in a
+quite stable state now. However, I am probably going to disrupt that
+state with the v0.17 release, hopefully very soon - I got so used to it
+that I wouldn't realize all the v0.16 users were deprived of the goodies
+like cg-switch.
 
-Signed-Off-By: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+Michael Richardson:
+      Mark that gawk (not mawk) is required for cg-diff -c
+      Only show the fetch progress bar on terminals
+
+Paolo 'Blaisorblade' Giarrusso:
+      Fix unconditional early exit of cg-fetch over rsync, v2
+
+Petr Baudis:
+      Fix cg-push not always defaulting to 'master' remotely
+      Make it possible to push out new branches
+      Fix cg-clone -l of specific branch
+      Make cg-fetch return false if fetch_tags fails.
+      cogito-0.16.3
+
+  Happy hacking,
 
 -- 
-Lucas
-powered by /dev/dsp
-
---Boundary-00=_hgvyDSdDvUhX66x
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="03-Documentation-spinlocks.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="03-Documentation-spinlocks.patch"
-
---- linux-2.6.15-git11/Documentation/spinlocks.txt	2006-01-03 01:21:10.000000000 -0200
-+++ linux-2.6.15-git11-lucasvr/Documentation/spinlocks.txt	2006-01-15 23:09:28.000000000 -0200
-@@ -9,7 +9,7 @@ removed soon. So for any new code dynami
-    static int __init xxx_init(void)
-    {
-    	spin_lock_init(&xxx_lock);
--	rw_lock_init(&xxx_rw_lock);
-+	rwlock_init(&xxx_rw_lock);
- 	...
-    }
- 
-
---Boundary-00=_hgvyDSdDvUhX66x--
+				Petr "Pasky the Broken Hand" Baudis
+Stuff: http://pasky.or.cz/
+Of the 3 great composers Mozart tells us what it's like to be human,
+Beethoven tells us what it's like to be Beethoven and Bach tells us
+what it's like to be the universe.  -- Douglas Adams

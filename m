@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWAPQPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWAPQ1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWAPQPT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 11:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWAPQPT
+	id S1750724AbWAPQ1d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 11:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWAPQ1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 11:15:19 -0500
-Received: from smtpout.mac.com ([17.250.248.72]:33746 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750723AbWAPQPS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 11:15:18 -0500
-In-Reply-To: <20060116155353.GC18972@csclub.uwaterloo.ca>
-References: <20060113144529.56fa3166@darjeeling.triplehelix.org> <20060116155353.GC18972@csclub.uwaterloo.ca>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <631F1A6F-EA27-4CDC-8D23-C7C6467FB28B@mac.com>
-Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [?] PCI BIOS masks some IDs to prevent OS detection?
-Date: Mon, 16 Jan 2006 11:15:12 -0500
-To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 16 Jan 2006 11:27:33 -0500
+Received: from silver.veritas.com ([143.127.12.111]:22614 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1750724AbWAPQ1d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 11:27:33 -0500
+Date: Mon, 16 Jan 2006 16:28:03 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Christoph Lameter <clameter@engr.sgi.com>
+cc: Andi Kleen <ak@suse.de>, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+In-Reply-To: <Pine.LNX.4.62.0601160807580.19672@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0601161620060.9395@goblin.wat.veritas.com>
+References: <20060114155517.GA30543@wotan.suse.de>
+ <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+ <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
+ <Pine.LNX.4.62.0601152251080.17034@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601161143190.7123@goblin.wat.veritas.com>
+ <Pine.LNX.4.62.0601160739360.19188@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601161555130.9134@goblin.wat.veritas.com>
+ <Pine.LNX.4.62.0601160807580.19672@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 16 Jan 2006 16:27:32.0734 (UTC) FILETIME=[C07D31E0:01C61AB9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 16, 2006, at 10:53, Lennart Sorensen wrote:
-> Maybe the raid card has a pin shorted to ground, so all reads of  
-> that bit read as 0.  That would explain why all the cards lost the  
-> same bit. It appears to be the highest bit on the bus that is stuck  
-> low.
->
-> I see this fairly frequently on our own mainboards due to a problem  
-> with the soldering of a surface mount pci bridge chip on the bottom  
-> of the board.
+On Mon, 16 Jan 2006, Christoph Lameter wrote:
+> On Mon, 16 Jan 2006, Hugh Dickins wrote:
+> 
+> > > It also applies to the policy compliance check.
+> > 
+> > Good point, I missed that: you've inadventently changed the behaviour
+> > of sys_mbind when it encounters a zero page from a disallowed node.
+> > Another reason to remove your PageReserved test.
+> 
+> The zero page always come from node zero on IA64. I think this is more the 
+> inadvertent fixing of a bug. The policy compliance check currently fails 
+> if an address range contains a zero page but node zero is not contained in 
+> the nodelist.
 
-I've also seen this problem with a faulty case where a small metal  
-support shorted a couple pins on the PCI riser.  It gave odd PCI ids,  
-corrupted data, and crashed within a minute of booting.  After  
-removing the metal bracket, it's been stable for almost a year.
+To me it sounds more like you introduced a bug than fixed one.
+If MPOL_MF_STRICT and the zero page is found but not in the nodelist
+demanded, then it's right to refuse, I'd say.  If Andi shares your
+view that the zero pages should be ignored, I won't argue; but we
+shouldn't change behaviour by mistake, without review or comment.
 
-Cheers,
-Kyle Moffett
-
---
-I have yet to see any problem, however complicated, which, when you  
-looked at it in the right way, did not become still more complicated.
-   -- Poul Anderson
-
-
-
+Hugh

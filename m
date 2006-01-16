@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWAPVaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWAPVc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWAPVaa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 16:30:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWAPVaa
+	id S1751215AbWAPVc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 16:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWAPVc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 16:30:30 -0500
-Received: from xenotime.net ([66.160.160.81]:20165 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751233AbWAPVa3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 16:30:29 -0500
-Date: Mon, 16 Jan 2006 13:30:22 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-Subject: Re: drivers/block/ps2esdi.c
-In-Reply-To: <43CC0F74.9090409@linuxwireless.org>
-Message-ID: <Pine.LNX.4.58.0601161329000.24990@shark.he.net>
-References: <43CC0F74.9090409@linuxwireless.org>
+	Mon, 16 Jan 2006 16:32:57 -0500
+Received: from smtp-1.smtp.ucla.edu ([169.232.46.136]:48809 "EHLO
+	smtp-1.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S1751215AbWAPVc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 16:32:56 -0500
+Date: Mon, 16 Jan 2006 13:32:50 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: Roberto Nibali <ratz@drugphish.ch>
+cc: Willy TARREAU <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+In-Reply-To: <43CC079D.5060008@drugphish.ch>
+Message-ID: <Pine.LNX.4.64.0601161328480.12751@potato.cts.ucla.edu>
+References: <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
+ <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
+ <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch>
+ <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601151431250.5053@potato.cts.ucla.edu> <20060115224642.GA10069@w.ods.org>
+ <Pine.LNX.4.64.0601151452460.5053@potato.cts.ucla.edu> <43CC079D.5060008@drugphish.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jan 2006, Alejandro Bonilla Beeche wrote:
+On Mon, 16 Jan 2006, Roberto Nibali wrote:
 
-> It looks like the Linux-2.6 tree is still broken...
+>>> Thanks for the precision. So logically we should expect it to break 
+>>> sooner or later ?
+>> 
+>> It is the same .config as one that crashed before, except that it has 
+>> DEBUG_SLAB defined.  If it does not crash, then adding pci=noacpi to 
+>> the command fixes the problem for me.
 >
-> Just FYI
+> Hmm, I'm not fully convinced yet, however glad that it has been a bit 
+> more stable for you.
+
+The stability only lasted for a week.  Last night I got another bad pmd 
+message, an oops, and a hang.  I was not able to capture the oops.
+
+> Sidenote: We boot our systems having built-in AIC7* SCSI on moderately 
+> cheap motherboards with "bad" interrupt routing using pci=noacpi on 
+> 2.4.x kernels to evade instability.
 >
->
->   CC      drivers/block/loop.o
->   CC      drivers/block/ps2esdi.o
-> In file included from drivers/block/ps2esdi.c:42:
-> include/linux/mca-legacy.h:12:2: warning: #warning "MCA legacy - please
-> move your driver to the new sysfs api"
-> drivers/block/ps2esdi.c: In function 'ps2esdi_getgeo':
-> drivers/block/ps2esdi.c:1064: error: dereferencing pointer to incomplete
-> type
-> drivers/block/ps2esdi.c:1065: error: dereferencing pointer to incomplete
-> type
-> drivers/block/ps2esdi.c:1066: error: dereferencing pointer to incomplete
-> type
-> make[3]: *** [drivers/block/ps2esdi.o] Error 1
-> make[2]: *** [drivers/block] Error 2
-> make[1]: *** [drivers] Error 2
-> make[1]: Leaving directory `/root/linux-2.6'
-> make: *** [debian/stamp-build-kernel] Error 2
-> debian:~/linux-2.6#
+> I suggest that if you experience more problems using this setup _and_ 
+> would like to continue debugging the issue, we take this off-list into a 
+> private discussion.
 
-As Adrian (IIRC) pointed out last time this was posted (last week),
-this is what you can get when you enable "BROKEN".  IOW, see
-  drivers/block/Kconfig:
+At this point, I'm going to stick with 2.6.  If I get more time to debug 
+this laster, I'll drop back down to the modified 2.4 with HIGHIO disabled.
 
-config BLK_DEV_PS2
-	tristate "PS/2 ESDI hard disk support"
-	depends on MCA && MCA_LEGACY && BROKEN
-                                        ^^^^^^
+> [Another thing which would be interesting to test regarding the HIGHIO 
+> setting is a RedHat based 2.4.x kernel, since according to some SCSI 
+> driver's documentation, RedHat had a different HIGHIO convention.]
 
-so please send patches to fix it (the driver) if you care about it.
+Thanks.  I'll keep that on my list of things to try if I ever get back to 
+this.  I appreciate the pointers.
 
--- 
-~Randy
+
+-Chris

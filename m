@@ -1,554 +1,480 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWAQUV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWAQUV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbWAQUV0 (ORCPT <rfc822;willy@w.ods.org>);
+	id S964819AbWAQUV0 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 17 Jan 2006 15:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWAQUVT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWAQUVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 15:21:19 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:53454 "EHLO
+	Tue, 17 Jan 2006 15:21:17 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:34003 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964812AbWAQUVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 15:21:00 -0500
-Message-Id: <20060117195015.280749000@klappe.arndb.de>
+	id S964815AbWAQUVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 15:21:02 -0500
+Message-Id: <20060117195015.586435000@klappe.arndb.de>
 References: <20060117194942.647145000@klappe.arndb.de>
-Date: Tue, 17 Jan 2006 00:00:01 +0100
+Date: Tue, 17 Jan 2006 00:00:03 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: linuxppc64-dev@ozlabs.org
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, jordi_caubet@es.ibm.com,
        Mark Nutter <mnutter@us.ibm.com>, Arnd Bergmann <arndb@de.ibm.com>
-Subject: [RFC/PATCH 1/3] spufs: allow SPU code to do syscalls
-Content-Disposition: inline; filename=spufs-callbacks-2.diff
+Subject: [RFC/PATCH 3/3] spufs: enable SPE problem state MMIO access.
+Content-Disposition: inline; filename=spufs-ps-mapping-2.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An SPU does not have a way to implement system calls
-itself, but it can create intercepts to the kernel.
+This patch is layered on top of CONFIG_SPARSEMEM
+and is patterned after direct mapping of LS.
 
-This patch uses the method defined by the JSRE interface
-for C99 host library calls from an SPU to implement
-Linux system calls. It uses the reserved SPU stop code
-0x2104 for this, using the structure layout and syscall
-numbers for ppc64-linux.
+This patch allows mmap() of the following regions: 
+"mfc", which represents the area from [0x0000 - 0x0fff]; 
+"cntl", which represents the area from [0x4000 - 0x5fff]; 
+"signal1" which begins at offset 0x14000; "signal2" which 
+begins at offset 0x1c000.
 
-I'm still undecided wether it is better to have a list
-of allowed syscalls or a list of forbidden syscalls,
-since we can't allow an SPU to call all syscalls that
-are defined for ppc64-linux.
+The signal1 & signal2 files may be mmap()'d by regular user 
+processes.  The cntl and mfc file, on the other hand, may
+only be accessed if the owning process has CAP_SYS_RAWIO,
+because they have the potential to confuse the kernel
+with regard to parallel access to the same files with
+regular file operations: the kernel always holds a spinlock
+when accessing registers in these areas to serialize them,
+which can not be guaranteed with user mmaps,
 
-This patch implements the easier choice of them, with a
-blacklist that only prevents an SPU from calling anything
-that interacts with its own execution, namely fork, execve,
-clone, vfork, exit, spu_run and spu_create.
-
-The current implementation works by including systbl.S
-from another file and redefining a few symbols there.
-This is anything but nice, and I'm still looking for
-better alternatives here.
-
+From: Mark Nutter <mnutter@us.ibm.com>
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
-Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/Makefile
+Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spu_base.c
 ===================================================================
---- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/Makefile
-+++ linux-2.6.16-rc/arch/powerpc/platforms/cell/Makefile
-@@ -6,5 +6,11 @@ obj-$(CONFIG_SPU_FS)	+= spufs/ spu-base.
+--- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/spu_base.c
++++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spu_base.c
+@@ -570,6 +570,11 @@ static int __init spu_map_device(struct 
+ 	if (!spu->local_store)
+ 		goto out;
  
- spu-base-y		+= spu_base.o spu_priv1.o
- 
--builtin-spufs-$(CONFIG_SPU_FS)	+= spu_syscalls.o
--obj-y			+= $(builtin-spufs-m)
-+# needed only when building loadable spufs.ko
-+spufs-modular-$(CONFIG_SPU_FS) += spu_syscalls.o
-+obj-y			+= $(spufs-modular-m)
++	prop = get_property(spe, "problem", NULL);
++	if (!prop)
++		goto out_unmap;
++	spu->problem_phys = *(unsigned long *)prop;
 +
-+# always needed in kernel
-+spufs-builtin-$(CONFIG_SPU_FS) += spu_callbacks.o
-+obj-y			+= $(spufs-builtin-y) $(spufs-builtin-m)
-+
-Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/run.c
+ 	spu->problem= map_spe_prop(spe, "problem");
+ 	if (!spu->problem)
+ 		goto out_unmap;
+Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/context.c
 ===================================================================
---- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/spufs/run.c
-+++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/run.c
-@@ -76,6 +76,90 @@ static inline int spu_reacquire_runnable
+--- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/spufs/context.c
++++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/context.c
+@@ -27,7 +27,7 @@
+ #include <asm/spu_csa.h>
+ #include "spufs.h"
+ 
+-struct spu_context *alloc_spu_context(struct address_space *local_store)
++struct spu_context *alloc_spu_context(void)
+ {
+ 	struct spu_context *ctx;
+ 	ctx = kmalloc(sizeof *ctx, GFP_KERNEL);
+@@ -53,7 +53,10 @@ struct spu_context *alloc_spu_context(st
+ 	ctx->mfc_fasync = NULL;
+ 	ctx->tagwait = 0;
+ 	ctx->state = SPU_STATE_SAVED;
+-	ctx->local_store = local_store;
++	ctx->local_store = NULL;
++	ctx->cntl = NULL;
++	ctx->signal1 = NULL;
++	ctx->signal2 = NULL;
+ 	ctx->spu = NULL;
+ 	ctx->ops = &spu_backing_ops;
+ 	ctx->owner = get_task_mm(current);
+@@ -110,7 +113,16 @@ void spu_release(struct spu_context *ctx
+ 
+ void spu_unmap_mappings(struct spu_context *ctx)
+ {
+-	unmap_mapping_range(ctx->local_store, 0, LS_SIZE, 1);
++	if (ctx->local_store)
++		unmap_mapping_range(ctx->local_store, 0, LS_SIZE, 1);
++	if (ctx->mfc)
++		unmap_mapping_range(ctx->mfc, 0, 0x1000, 1);
++	if (ctx->cntl)
++		unmap_mapping_range(ctx->cntl, 0, 0x1000, 1);
++	if (ctx->signal1)
++		unmap_mapping_range(ctx->signal1, 0, 0x1000, 1);
++	if (ctx->signal2)
++		unmap_mapping_range(ctx->signal2, 0, 0x1000, 1);
+ }
+ 
+ int spu_acquire_runnable(struct spu_context *ctx)
+Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/file.c
+===================================================================
+--- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/file.c
+@@ -41,8 +41,10 @@ static int
+ spufs_mem_open(struct inode *inode, struct file *file)
+ {
+ 	struct spufs_inode_info *i = SPUFS_I(inode);
+-	file->private_data = i->i_ctx;
+-	file->f_mapping = i->i_ctx->local_store;
++	struct spu_context *ctx = i->i_ctx;
++	file->private_data = ctx;
++	file->f_mapping = inode->i_mapping;
++	ctx->local_store = inode->i_mapping;
  	return 0;
  }
  
+@@ -86,7 +88,7 @@ spufs_mem_write(struct file *file, const
+ 	return ret;
+ }
+ 
+-#ifdef CONFIG_SPARSEMEM
++#ifdef CONFIG_SPUFS_MMAP
+ static struct page *
+ spufs_mem_mmap_nopage(struct vm_area_struct *vma,
+ 		      unsigned long address, int *type)
+@@ -138,11 +140,113 @@ static struct file_operations spufs_mem_
+ 	.read    = spufs_mem_read,
+ 	.write   = spufs_mem_write,
+ 	.llseek  = generic_file_llseek,
+-#ifdef CONFIG_SPARSEMEM
++#ifdef CONFIG_SPUFS_MMAP
+ 	.mmap    = spufs_mem_mmap,
+ #endif
+ };
+ 
++#ifdef CONFIG_SPUFS_MMAP
++static struct page *spufs_ps_nopage(struct vm_area_struct *vma,
++				    unsigned long address,
++				    int *type, unsigned long ps_offs)
++{
++	struct page *page = NOPAGE_SIGBUS;
++	int fault_type = VM_FAULT_SIGBUS;
++	struct spu_context *ctx = vma->vm_file->private_data;
++	unsigned long offset = address - vma->vm_start;
++	unsigned long area;
++	int ret;
++
++	offset += vma->vm_pgoff << PAGE_SHIFT;
++	if (offset > 0x1000)
++		goto out;
++
++	ret = spu_acquire_runnable(ctx);
++	if (ret)
++		goto out;
++
++	area = ctx->spu->problem_phys + ps_offs;
++	page = pfn_to_page((area + offset) >> PAGE_SHIFT);
++	fault_type = VM_FAULT_MINOR;
++	page_cache_get(page);
++
++	spu_release(ctx);
++
++      out:
++	if (type)
++		*type = fault_type;
++
++	return page;
++}
++
++static struct page *spufs_cntl_mmap_nopage(struct vm_area_struct *vma,
++					   unsigned long address, int *type)
++{
++	return spufs_ps_nopage(vma, address, type, 0x4000);
++}
++
++static struct vm_operations_struct spufs_cntl_mmap_vmops = {
++	.nopage = spufs_cntl_mmap_nopage,
++};
++
 +/*
-+ * SPU syscall restarting is tricky because we violate the basic
-+ * assumption that the signal handler is running on the interrupted
-+ * thread. Here instead, the handler runs on PowerPC user space code,
-+ * while the syscall was called from the SPU.
-+ * This means we can only do a very rough approximation of POSIX
-+ * signal semantics.
++ * mmap support for problem state control area [0x4000 - 0x4fff].
++ * Mapping this area requires that the application have CAP_SYS_RAWIO,
++ * as these registers require special care when read/writing.
 + */
-+int spu_handle_restartsys(struct spu_context *ctx, long *spu_ret,
-+			  unsigned int *npc)
++static int spufs_cntl_mmap(struct file *file, struct vm_area_struct *vma)
 +{
-+	int ret;
++	if (!(vma->vm_flags & VM_SHARED))
++		return -EINVAL;
 +
-+	switch (*spu_ret) {
-+	case -ERESTARTSYS:
-+	case -ERESTARTNOINTR:
-+		/*
-+		 * Enter the regular syscall restarting for
-+		 * sys_spu_run, then restart the SPU syscall
-+		 * callback.
-+		 */
-+		*npc -= 8;
-+		ret = -ERESTARTSYS;
-+		break;
-+	case -ERESTARTNOHAND:
-+	case -ERESTART_RESTARTBLOCK:
-+		/*
-+		 * Restart block is too hard for now, just return -EINTR
-+		 * to the SPU.
-+		 * ERESTARTNOHAND comes from sys_pause, we also return
-+		 * -EINTR from there.
-+		 * Assume that we need to be restarted ourselves though.
-+		 */
-+		*spu_ret = -EINTR;
-+		ret = -ERESTARTSYS;
-+		break;
-+	default:
-+		printk(KERN_WARNING "%s: unexpected return code %ld\n",
-+			__FUNCTION__, *spu_ret);
-+		ret = 0;
-+	}
-+	return ret;
++	if (!capable(CAP_SYS_RAWIO))
++		return -EPERM;
++
++	vma->vm_flags |= VM_RESERVED;
++	vma->vm_page_prot = __pgprot(pgprot_val(vma->vm_page_prot)
++				     | _PAGE_NO_CACHE);
++
++	vma->vm_ops = &spufs_cntl_mmap_vmops;
++	return 0;
++}
++#endif
++
++static int spufs_cntl_open(struct inode *inode, struct file *file)
++{
++	struct spufs_inode_info *i = SPUFS_I(inode);
++	struct spu_context *ctx = i->i_ctx;
++
++	file->private_data = ctx;
++	file->f_mapping = inode->i_mapping;
++	ctx->cntl = inode->i_mapping;
++	return 0;
 +}
 +
-+int spu_process_callback(struct spu_context *ctx)
++static ssize_t
++spufs_cntl_read(struct file *file, char __user *buffer,
++		size_t size, loff_t *pos)
 +{
-+	struct spu_syscall_block s;
-+	u32 ls_pointer, npc;
-+	char *ls;
-+	long spu_ret;
-+	int ret;
-+
-+	/* get syscall block from local store */
-+	npc = ctx->ops->npc_read(ctx);
-+	ls = ctx->ops->get_ls(ctx);
-+	ls_pointer = *(u32*)(ls + npc);
-+	if (ls_pointer > (LS_SIZE - sizeof(s)))
-+		return -EFAULT;
-+	memcpy(&s, ls + ls_pointer, sizeof (s));
-+
-+	/* do actual syscall without pinning the spu */
-+	ret = 0;
-+	spu_ret = -ENOSYS;
-+	npc += 4;
-+
-+	if (s.nr_ret < __NR_syscalls) {
-+		spu_release(ctx);
-+		/* do actual system call from here */
-+		spu_ret = spu_sys_callback(&s);
-+		if (spu_ret <= -ERESTARTSYS) {
-+			ret = spu_handle_restartsys(ctx, &spu_ret, &npc);
-+		}
-+		spu_acquire(ctx);
-+		if (ret == -ERESTARTSYS)
-+			return ret;
-+	}
-+
-+	/* write result, jump over indirect pointer */
-+	memcpy(ls + ls_pointer, &spu_ret, sizeof (spu_ret));
-+	ctx->ops->npc_write(ctx, npc);
-+	ctx->ops->runcntl_write(ctx, SPU_RUNCNTL_RUNNABLE);
-+	return ret;
++	/* FIXME: read from spu status */
++	return -EINVAL;
 +}
 +
- static inline int spu_process_events(struct spu_context *ctx)
++static ssize_t
++spufs_cntl_write(struct file *file, const char __user *buffer,
++		 size_t size, loff_t *pos)
++{
++	/* FIXME: write to runctl bit */
++	return -EINVAL;
++}
++
++static struct file_operations spufs_cntl_fops = {
++	.open = spufs_cntl_open,
++	.read = spufs_cntl_read,
++	.write = spufs_cntl_write,
++#ifdef CONFIG_SPUFS_MMAP
++	.mmap = spufs_cntl_mmap,
++#endif
++};
++
+ static int
+ spufs_regs_open(struct inode *inode, struct file *file)
  {
- 	struct spu *spu = ctx->spu;
-@@ -107,6 +191,13 @@ long spufs_run_spu(struct file *file, st
- 		ret = spufs_wait(ctx->stop_wq, spu_stopped(ctx, status));
- 		if (unlikely(ret))
- 			break;
-+		if ((*status & SPU_STATUS_STOPPED_BY_STOP) &&
-+		    (*status >> SPU_STOP_STATUS_SHIFT == 0x2104)) {
-+			ret = spu_process_callback(ctx);
-+			if (ret)
-+				break;
-+			*status &= ~SPU_STATUS_STOPPED_BY_STOP;
-+		}
- 		if (unlikely(ctx->state != SPU_STATE_RUNNABLE)) {
- 			ret = spu_reacquire_runnable(ctx, npc, status);
- 			if (ret)
+@@ -503,6 +607,16 @@ static struct file_operations spufs_wbox
+ 	.read	= spufs_wbox_stat_read,
+ };
+ 
++static int spufs_signal1_open(struct inode *inode, struct file *file)
++{
++	struct spufs_inode_info *i = SPUFS_I(inode);
++	struct spu_context *ctx = i->i_ctx;
++	file->private_data = ctx;
++	file->f_mapping = inode->i_mapping;
++	ctx->signal1 = inode->i_mapping;
++	return nonseekable_open(inode, file);
++}
++
+ static ssize_t spufs_signal1_read(struct file *file, char __user *buf,
+ 			size_t len, loff_t *pos)
+ {
+@@ -543,12 +657,50 @@ static ssize_t spufs_signal1_write(struc
+ 	return 4;
+ }
+ 
++#ifdef CONFIG_SPUFS_MMAP
++static struct page *spufs_signal1_mmap_nopage(struct vm_area_struct *vma,
++					      unsigned long address, int *type)
++{
++	return spufs_ps_nopage(vma, address, type, 0x14000);
++}
++
++static struct vm_operations_struct spufs_signal1_mmap_vmops = {
++	.nopage = spufs_signal1_mmap_nopage,
++};
++
++static int spufs_signal1_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	if (!(vma->vm_flags & VM_SHARED))
++		return -EINVAL;
++
++	vma->vm_flags |= VM_RESERVED;
++	vma->vm_page_prot = __pgprot(pgprot_val(vma->vm_page_prot)
++				     | _PAGE_NO_CACHE);
++
++	vma->vm_ops = &spufs_signal1_mmap_vmops;
++	return 0;
++}
++#endif
++
+ static struct file_operations spufs_signal1_fops = {
+-	.open = spufs_pipe_open,
++	.open = spufs_signal1_open,
+ 	.read = spufs_signal1_read,
+ 	.write = spufs_signal1_write,
++#ifdef CONFIG_SPUFS_MMAP
++	.mmap = spufs_signal1_mmap,
++#endif
+ };
+ 
++static int spufs_signal2_open(struct inode *inode, struct file *file)
++{
++	struct spufs_inode_info *i = SPUFS_I(inode);
++	struct spu_context *ctx = i->i_ctx;
++	file->private_data = ctx;
++	file->f_mapping = inode->i_mapping;
++	ctx->signal2 = inode->i_mapping;
++	return nonseekable_open(inode, file);
++}
++
+ static ssize_t spufs_signal2_read(struct file *file, char __user *buf,
+ 			size_t len, loff_t *pos)
+ {
+@@ -591,10 +743,39 @@ static ssize_t spufs_signal2_write(struc
+ 	return 4;
+ }
+ 
++#ifdef CONFIG_SPUFS_MMAP
++static struct page *spufs_signal2_mmap_nopage(struct vm_area_struct *vma,
++					      unsigned long address, int *type)
++{
++	return spufs_ps_nopage(vma, address, type, 0x1c000);
++}
++
++static struct vm_operations_struct spufs_signal2_mmap_vmops = {
++	.nopage = spufs_signal2_mmap_nopage,
++};
++
++static int spufs_signal2_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	if (!(vma->vm_flags & VM_SHARED))
++		return -EINVAL;
++
++	/* FIXME: */
++	vma->vm_flags |= VM_RESERVED;
++	vma->vm_page_prot = __pgprot(pgprot_val(vma->vm_page_prot)
++				     | _PAGE_NO_CACHE);
++
++	vma->vm_ops = &spufs_signal2_mmap_vmops;
++	return 0;
++}
++#endif
++
+ static struct file_operations spufs_signal2_fops = {
+-	.open = spufs_pipe_open,
++	.open = spufs_signal2_open,
+ 	.read = spufs_signal2_read,
+ 	.write = spufs_signal2_write,
++#ifdef CONFIG_SPUFS_MMAP
++	.mmap = spufs_signal2_mmap,
++#endif
+ };
+ 
+ static void spufs_signal1_type_set(void *data, u64 val)
+@@ -643,6 +824,38 @@ static u64 spufs_signal2_type_get(void *
+ DEFINE_SIMPLE_ATTRIBUTE(spufs_signal2_type, spufs_signal2_type_get,
+ 					spufs_signal2_type_set, "%llu");
+ 
++#ifdef CONFIG_SPUFS_MMAP
++static struct page *spufs_mfc_mmap_nopage(struct vm_area_struct *vma,
++					   unsigned long address, int *type)
++{
++	return spufs_ps_nopage(vma, address, type, 0x0000);
++}
++
++static struct vm_operations_struct spufs_mfc_mmap_vmops = {
++	.nopage = spufs_mfc_mmap_nopage,
++};
++
++/*
++ * mmap support for problem state MFC DMA area [0x0000 - 0x0fff].
++ * Mapping this area requires that the application have CAP_SYS_RAWIO,
++ * as these registers require special care when read/writing.
++ */
++static int spufs_mfc_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	if (!(vma->vm_flags & VM_SHARED))
++		return -EINVAL;
++
++	if (!capable(CAP_SYS_RAWIO))
++		return -EPERM;
++
++	vma->vm_flags |= VM_RESERVED;
++	vma->vm_page_prot = __pgprot(pgprot_val(vma->vm_page_prot)
++				     | _PAGE_NO_CACHE);
++
++	vma->vm_ops = &spufs_mfc_mmap_vmops;
++	return 0;
++}
++#endif
+ 
+ static int spufs_mfc_open(struct inode *inode, struct file *file)
+ {
+@@ -932,6 +1145,9 @@ static struct file_operations spufs_mfc_
+ 	.flush	 = spufs_mfc_flush,
+ 	.fsync	 = spufs_mfc_fsync,
+ 	.fasync	 = spufs_mfc_fasync,
++#ifdef CONFIG_SPUFS_MMAP
++	.mmap	 = spufs_mfc_mmap,
++#endif
+ };
+ 
+ static void spufs_npc_set(void *data, u64 val)
+@@ -1077,6 +1293,7 @@ struct tree_descr spufs_dir_contents[] =
+ 	{ "signal1_type", &spufs_signal1_type, 0666, },
+ 	{ "signal2_type", &spufs_signal2_type, 0666, },
+ 	{ "mfc", &spufs_mfc_fops, 0666, },
++	{ "cntl", &spufs_cntl_fops,  0666, },
+ 	{ "npc", &spufs_npc_ops, 0666, },
+ 	{ "fpcr", &spufs_fpcr_fops, 0666, },
+ 	{ "decr", &spufs_decr_ops, 0666, },
+Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/inode.c
+===================================================================
+--- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/spufs/inode.c
++++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/inode.c
+@@ -241,7 +241,7 @@ spufs_mkdir(struct inode *dir, struct de
+ 		inode->i_gid = dir->i_gid;
+ 		inode->i_mode &= S_ISGID;
+ 	}
+-	ctx = alloc_spu_context(inode->i_mapping);
++	ctx = alloc_spu_context();
+ 	SPUFS_I(inode)->i_ctx = ctx;
+ 	if (!ctx)
+ 		goto out_iput;
+Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/spufs.h
+===================================================================
+--- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/spufs/spufs.h
++++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/spufs.h
+@@ -43,7 +43,11 @@ struct spu_context {
+ 	struct spu *spu;		  /* pointer to a physical SPU */
+ 	struct spu_state csa;		  /* SPU context save area. */
+ 	spinlock_t mmio_lock;		  /* protects mmio access */
+-	struct address_space *local_store;/* local store backing store */
++	struct address_space *local_store; /* local store mapping.  */
++	struct address_space *mfc;	   /* 'mfc' area mappings. */
++	struct address_space *cntl; 	   /* 'control' area mappings. */
++	struct address_space *signal1; 	   /* 'signal1' area mappings. */
++	struct address_space *signal2; 	   /* 'signal2' area mappings. */
+ 
+ 	enum { SPU_STATE_RUNNABLE, SPU_STATE_SAVED } state;
+ 	struct rw_semaphore state_sema;
+@@ -125,7 +129,7 @@ long spufs_create_thread(struct nameidat
+ extern struct file_operations spufs_context_fops;
+ 
+ /* context management */
+-struct spu_context * alloc_spu_context(struct address_space *local_store);
++struct spu_context * alloc_spu_context(void);
+ void destroy_spu_context(struct kref *kref);
+ struct spu_context * get_spu_context(struct spu_context *ctx);
+ int put_spu_context(struct spu_context *ctx);
 Index: linux-2.6.16-rc/include/asm-powerpc/spu.h
 ===================================================================
 --- linux-2.6.16-rc.orig/include/asm-powerpc/spu.h
 +++ linux-2.6.16-rc/include/asm-powerpc/spu.h
-@@ -149,6 +149,14 @@ int spu_irq_class_0_bottom(struct spu *s
- int spu_irq_class_1_bottom(struct spu *spu);
- void spu_irq_setaffinity(struct spu *spu, int cpu);
- 
-+/* system callbacks from the SPU */
-+struct spu_syscall_block {
-+	u64 nr_ret;
-+	u64 parm[6];
-+};
-+extern long spu_sys_callback(struct spu_syscall_block *s);
-+
-+/* syscalls implemented in spufs */
- extern struct spufs_calls {
- 	asmlinkage long (*create_thread)(const char __user *name,
- 					unsigned int flags, mode_t mode);
-@@ -399,7 +407,6 @@ struct spu_priv1 {
- #define SPU_GET_REVISION_BITS(vr)	(vr & SPU_REVISION_BITS)
- 	u8  pad_0x28_0x100[0x100 - 0x28];			/* 0x28 */
- 
--
- 	/* Interrupt Area */
- 	u64 int_mask_RW[3];					/* 0x100 */
- #define CLASS0_ENABLE_DMA_ALIGNMENT_INTR		0x1L
-Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spu_callbacks.c
+@@ -110,6 +110,7 @@ struct spu {
+ 	char *name;
+ 	unsigned long local_store_phys;
+ 	u8 *local_store;
++	unsigned long problem_phys;
+ 	struct spu_problem __iomem *problem;
+ 	struct spu_priv1 __iomem *priv1;
+ 	struct spu_priv2 __iomem *priv2;
+Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/Kconfig
 ===================================================================
---- /dev/null
-+++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spu_callbacks.c
-@@ -0,0 +1,342 @@
-+/*
-+ * System call callback functions for SPUs
-+ */
+--- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/Kconfig
++++ linux-2.6.16-rc/arch/powerpc/platforms/cell/Kconfig
+@@ -10,4 +10,9 @@ config SPU_FS
+ 	  Units on machines implementing the Broadband Processor
+ 	  Architecture.
+ 
++config SPUFS_MMAP
++	bool
++	depends on SPU_FS && SPARSEMEM && !PPC_64K_PAGES
++	default y
 +
-+#define DEBUG
-+
-+#include <linux/kallsyms.h>
-+#include <linux/module.h>
-+#include <linux/syscalls.h>
-+
-+#include <asm/spu.h>
-+#include <asm/syscalls.h>
-+#include <asm/unistd.h>
-+
-+/*
-+ * This table defines the system calls that an SPU can call.
-+ * It is currently a subset of the 64 bit powerpc system calls,
-+ * with the exact semantics.
-+ *
-+ * The reasons for disabling some of the system calls are:
-+ * 1. They interact with the way SPU syscalls are handled
-+ *    and we can't let them execute ever:
-+ *	restart_syscall, exit, for, execve, ptrace, ...
-+ * 2. They are deprecated and replaced by other means:
-+ *	uselib, pciconfig_*, sysfs, ...
-+ * 3. They are somewhat interacting with the system in a way
-+ *    we don't want an SPU to:
-+ *	reboot, init_module, mount, kexec_load
-+ * 4. They are optional and we can't rely on them being
-+ *    linked into the kernel. Unfortunately, the cond_syscall
-+ *    helper does not work here as it does not add the necessary
-+ *    opd symbols:
-+ *	mbind, mq_open, ipc, ...
-+ */
-+
-+void *spu_syscall_table[] = {
-+	[__NR_restart_syscall]		sys_ni_syscall, /* sys_restart_syscall */
-+	[__NR_exit]			sys_ni_syscall, /* sys_exit */
-+	[__NR_fork]			sys_ni_syscall, /* ppc_fork */
-+	[__NR_read]			sys_read,
-+	[__NR_write]			sys_write,
-+	[__NR_open]			sys_open,
-+	[__NR_close]			sys_close,
-+	[__NR_waitpid]			sys_waitpid,
-+	[__NR_creat]			sys_creat,
-+	[__NR_link]			sys_link,
-+	[__NR_unlink]			sys_unlink,
-+	[__NR_execve]			sys_ni_syscall, /* sys_execve */
-+	[__NR_chdir]			sys_chdir,
-+	[__NR_time]			sys_time,
-+	[__NR_mknod]			sys_mknod,
-+	[__NR_chmod]			sys_chmod,
-+	[__NR_lchown]			sys_lchown,
-+	[__NR_break]			sys_ni_syscall,
-+	[__NR_oldstat]			sys_ni_syscall,
-+	[__NR_lseek]			sys_lseek,
-+	[__NR_getpid]			sys_getpid,
-+	[__NR_mount]			sys_ni_syscall, /* sys_mount */
-+	[__NR_umount]			sys_ni_syscall,
-+	[__NR_setuid]			sys_setuid,
-+	[__NR_getuid]			sys_getuid,
-+	[__NR_stime]			sys_stime,
-+	[__NR_ptrace]			sys_ni_syscall, /* sys_ptrace */
-+	[__NR_alarm]			sys_alarm,
-+	[__NR_oldfstat]			sys_ni_syscall,
-+	[__NR_pause]			sys_ni_syscall, /* sys_pause */
-+	[__NR_utime]			sys_ni_syscall, /* sys_utime */
-+	[__NR_stty]			sys_ni_syscall,
-+	[__NR_gtty]			sys_ni_syscall,
-+	[__NR_access]			sys_access,
-+	[__NR_nice]			sys_nice,
-+	[__NR_ftime]			sys_ni_syscall,
-+	[__NR_sync]			sys_sync,
-+	[__NR_kill]			sys_kill,
-+	[__NR_rename]			sys_rename,
-+	[__NR_mkdir]			sys_mkdir,
-+	[__NR_rmdir]			sys_rmdir,
-+	[__NR_dup]			sys_dup,
-+	[__NR_pipe]			sys_pipe,
-+	[__NR_times]			sys_times,
-+	[__NR_prof]			sys_ni_syscall,
-+	[__NR_brk]			sys_brk,
-+	[__NR_setgid]			sys_setgid,
-+	[__NR_getgid]			sys_getgid,
-+	[__NR_signal]			sys_ni_syscall, /* sys_signal */
-+	[__NR_geteuid]			sys_geteuid,
-+	[__NR_getegid]			sys_getegid,
-+	[__NR_acct]			sys_ni_syscall, /* sys_acct */
-+	[__NR_umount2]			sys_ni_syscall, /* sys_umount */
-+	[__NR_lock]			sys_ni_syscall,
-+	[__NR_ioctl]			sys_ioctl,
-+	[__NR_fcntl]			sys_fcntl,
-+	[__NR_mpx]			sys_ni_syscall,
-+	[__NR_setpgid]			sys_setpgid,
-+	[__NR_ulimit]			sys_ni_syscall,
-+	[__NR_oldolduname]		sys_ni_syscall,
-+	[__NR_umask]			sys_umask,
-+	[__NR_chroot]			sys_chroot,
-+	[__NR_ustat]			sys_ni_syscall, /* sys_ustat */
-+	[__NR_dup2]			sys_dup2,
-+	[__NR_getppid]			sys_getppid,
-+	[__NR_getpgrp]			sys_getpgrp,
-+	[__NR_setsid]			sys_setsid,
-+	[__NR_sigaction]		sys_ni_syscall,
-+	[__NR_sgetmask]			sys_sgetmask,
-+	[__NR_ssetmask]			sys_ssetmask,
-+	[__NR_setreuid]			sys_setreuid,
-+	[__NR_setregid]			sys_setregid,
-+	[__NR_sigsuspend]		sys_ni_syscall,
-+	[__NR_sigpending]		sys_ni_syscall,
-+	[__NR_sethostname]		sys_sethostname,
-+	[__NR_setrlimit]		sys_setrlimit,
-+	[__NR_getrlimit]		sys_ni_syscall,
-+	[__NR_getrusage]		sys_getrusage,
-+	[__NR_gettimeofday]		sys_gettimeofday,
-+	[__NR_settimeofday]		sys_settimeofday,
-+	[__NR_getgroups]		sys_getgroups,
-+	[__NR_setgroups]		sys_setgroups,
-+	[__NR_select]			sys_ni_syscall,
-+	[__NR_symlink]			sys_symlink,
-+	[__NR_oldlstat]			sys_ni_syscall,
-+	[__NR_readlink]			sys_readlink,
-+	[__NR_uselib]			sys_ni_syscall, /* sys_uselib */
-+	[__NR_swapon]			sys_ni_syscall, /* sys_swapon */
-+	[__NR_reboot]			sys_ni_syscall, /* sys_reboot */
-+	[__NR_readdir]			sys_ni_syscall,
-+	[__NR_mmap]			sys_mmap,
-+	[__NR_munmap]			sys_munmap,
-+	[__NR_truncate]			sys_truncate,
-+	[__NR_ftruncate]		sys_ftruncate,
-+	[__NR_fchmod]			sys_fchmod,
-+	[__NR_fchown]			sys_fchown,
-+	[__NR_getpriority]		sys_getpriority,
-+	[__NR_setpriority]		sys_setpriority,
-+	[__NR_profil]			sys_ni_syscall,
-+	[__NR_statfs]			sys_ni_syscall, /* sys_statfs */
-+	[__NR_fstatfs]			sys_ni_syscall, /* sys_fstatfs */
-+	[__NR_ioperm]			sys_ni_syscall,
-+	[__NR_socketcall]		sys_socketcall,
-+	[__NR_syslog]			sys_syslog,
-+	[__NR_setitimer]		sys_setitimer,
-+	[__NR_getitimer]		sys_getitimer,
-+	[__NR_stat]			sys_newstat,
-+	[__NR_lstat]			sys_newlstat,
-+	[__NR_fstat]			sys_newfstat,
-+	[__NR_olduname]			sys_ni_syscall,
-+	[__NR_iopl]			sys_ni_syscall,
-+	[__NR_vhangup]			sys_vhangup,
-+	[__NR_idle]			sys_ni_syscall,
-+	[__NR_vm86]			sys_ni_syscall,
-+	[__NR_wait4]			sys_wait4,
-+	[__NR_swapoff]			sys_ni_syscall, /* sys_swapoff */
-+	[__NR_sysinfo]			sys_sysinfo,
-+	[__NR_ipc]			sys_ni_syscall, /* sys_ipc */
-+	[__NR_fsync]			sys_fsync,
-+	[__NR_sigreturn]		sys_ni_syscall,
-+	[__NR_clone]			sys_ni_syscall, /* ppc_clone */
-+	[__NR_setdomainname]		sys_setdomainname,
-+	[__NR_uname]			ppc_newuname,
-+	[__NR_modify_ldt]		sys_ni_syscall,
-+	[__NR_adjtimex]			sys_adjtimex,
-+	[__NR_mprotect]			sys_mprotect,
-+	[__NR_sigprocmask]		sys_ni_syscall,
-+	[__NR_create_module]		sys_ni_syscall,
-+	[__NR_init_module]		sys_ni_syscall, /* sys_init_module */
-+	[__NR_delete_module]		sys_ni_syscall, /* sys_delete_module */
-+	[__NR_get_kernel_syms]		sys_ni_syscall,
-+	[__NR_quotactl]			sys_ni_syscall, /* sys_quotactl */
-+	[__NR_getpgid]			sys_getpgid,
-+	[__NR_fchdir]			sys_fchdir,
-+	[__NR_bdflush]			sys_bdflush,
-+	[__NR_sysfs]			sys_ni_syscall, /* sys_sysfs */
-+	[__NR_personality]		ppc64_personality,
-+	[__NR_afs_syscall]		sys_ni_syscall,
-+	[__NR_setfsuid]			sys_setfsuid,
-+	[__NR_setfsgid]			sys_setfsgid,
-+	[__NR__llseek]			sys_llseek,
-+	[__NR_getdents]			sys_getdents,
-+	[__NR__newselect]		sys_select,
-+	[__NR_flock]			sys_flock,
-+	[__NR_msync]			sys_msync,
-+	[__NR_readv]			sys_readv,
-+	[__NR_writev]			sys_writev,
-+	[__NR_getsid]			sys_getsid,
-+	[__NR_fdatasync]		sys_fdatasync,
-+	[__NR__sysctl]			sys_ni_syscall, /* sys_sysctl */
-+	[__NR_mlock]			sys_mlock,
-+	[__NR_munlock]			sys_munlock,
-+	[__NR_mlockall]			sys_mlockall,
-+	[__NR_munlockall]		sys_munlockall,
-+	[__NR_sched_setparam]		sys_sched_setparam,
-+	[__NR_sched_getparam]		sys_sched_getparam,
-+	[__NR_sched_setscheduler]	sys_sched_setscheduler,
-+	[__NR_sched_getscheduler]	sys_sched_getscheduler,
-+	[__NR_sched_yield]		sys_sched_yield,
-+	[__NR_sched_get_priority_max]	sys_sched_get_priority_max,
-+	[__NR_sched_get_priority_min]	sys_sched_get_priority_min,
-+	[__NR_sched_rr_get_interval]	sys_sched_rr_get_interval,
-+	[__NR_nanosleep]		sys_nanosleep,
-+	[__NR_mremap]			sys_mremap,
-+	[__NR_setresuid]		sys_setresuid,
-+	[__NR_getresuid]		sys_getresuid,
-+	[__NR_query_module]		sys_ni_syscall,
-+	[__NR_poll]			sys_poll,
-+	[__NR_nfsservctl]		sys_ni_syscall, /* sys_nfsservctl */
-+	[__NR_setresgid]		sys_setresgid,
-+	[__NR_getresgid]		sys_getresgid,
-+	[__NR_prctl]			sys_prctl,
-+	[__NR_rt_sigreturn]		sys_ni_syscall, /* ppc64_rt_sigreturn */
-+	[__NR_rt_sigaction]		sys_ni_syscall, /* sys_rt_sigaction */
-+	[__NR_rt_sigprocmask]		sys_ni_syscall, /* sys_rt_sigprocmask */
-+	[__NR_rt_sigpending]		sys_ni_syscall, /* sys_rt_sigpending */
-+	[__NR_rt_sigtimedwait]		sys_ni_syscall, /* sys_rt_sigtimedwait */
-+	[__NR_rt_sigqueueinfo]		sys_ni_syscall, /* sys_rt_sigqueueinfo */
-+	[__NR_rt_sigsuspend]		sys_ni_syscall, /* sys_rt_sigsuspend */
-+	[__NR_pread64]			sys_pread64,
-+	[__NR_pwrite64]			sys_pwrite64,
-+	[__NR_chown]			sys_chown,
-+	[__NR_getcwd]			sys_getcwd,
-+	[__NR_capget]			sys_capget,
-+	[__NR_capset]			sys_capset,
-+	[__NR_sigaltstack]		sys_ni_syscall, /* sys_sigaltstack */
-+	[__NR_sendfile]			sys_sendfile64,
-+	[__NR_getpmsg]			sys_ni_syscall,
-+	[__NR_putpmsg]			sys_ni_syscall,
-+	[__NR_vfork]			sys_ni_syscall, /* ppc_vfork */
-+	[__NR_ugetrlimit]		sys_getrlimit,
-+	[__NR_readahead]		sys_readahead,
-+	[192]				sys_ni_syscall,
-+	[193]				sys_ni_syscall,
-+	[194]				sys_ni_syscall,
-+	[195]				sys_ni_syscall,
-+	[196]				sys_ni_syscall,
-+	[197]				sys_ni_syscall,
-+	[__NR_pciconfig_read]		sys_ni_syscall, /* sys_pciconfig_read */
-+	[__NR_pciconfig_write]		sys_ni_syscall, /* sys_pciconfig_write */
-+	[__NR_pciconfig_iobase]		sys_ni_syscall, /* sys_pciconfig_iobase */
-+	[__NR_multiplexer]		sys_ni_syscall,
-+	[__NR_getdents64]		sys_getdents64,
-+	[__NR_pivot_root]		sys_pivot_root,
-+	[204]				sys_ni_syscall,
-+	[__NR_madvise]			sys_madvise,
-+	[__NR_mincore]			sys_mincore,
-+	[__NR_gettid]			sys_gettid,
-+	[__NR_tkill]			sys_tkill,
-+	[__NR_setxattr]			sys_setxattr,
-+	[__NR_lsetxattr]		sys_lsetxattr,
-+	[__NR_fsetxattr]		sys_fsetxattr,
-+	[__NR_getxattr]			sys_getxattr,
-+	[__NR_lgetxattr]		sys_lgetxattr,
-+	[__NR_fgetxattr]		sys_fgetxattr,
-+	[__NR_listxattr]		sys_listxattr,
-+	[__NR_llistxattr]		sys_llistxattr,
-+	[__NR_flistxattr]		sys_flistxattr,
-+	[__NR_removexattr]		sys_removexattr,
-+	[__NR_lremovexattr]		sys_lremovexattr,
-+	[__NR_fremovexattr]		sys_fremovexattr,
-+	[__NR_futex]			sys_futex,
-+	[__NR_sched_setaffinity]	sys_sched_setaffinity,
-+	[__NR_sched_getaffinity]	sys_sched_getaffinity,
-+	[__NR_tuxcall]			sys_ni_syscall,
-+	[226]				sys_ni_syscall,
-+	[__NR_io_setup]			sys_io_setup,
-+	[__NR_io_destroy]		sys_io_destroy,
-+	[__NR_io_getevents]		sys_io_getevents,
-+	[__NR_io_submit]		sys_io_submit,
-+	[__NR_io_cancel]		sys_io_cancel,
-+	[__NR_set_tid_address]		sys_ni_syscall, /* sys_set_tid_address */
-+	[__NR_fadvise64]		sys_fadvise64,
-+	[__NR_exit_group]		sys_ni_syscall, /* sys_exit_group */
-+	[__NR_lookup_dcookie]		sys_ni_syscall, /* sys_lookup_dcookie */
-+	[__NR_epoll_create]		sys_epoll_create,
-+	[__NR_epoll_ctl]		sys_epoll_ctl,
-+	[__NR_epoll_wait]		sys_epoll_wait,
-+	[__NR_remap_file_pages]		sys_remap_file_pages,
-+	[__NR_timer_create]		sys_timer_create,
-+	[__NR_timer_settime]		sys_timer_settime,
-+	[__NR_timer_gettime]		sys_timer_gettime,
-+	[__NR_timer_getoverrun]		sys_timer_getoverrun,
-+	[__NR_timer_delete]		sys_timer_delete,
-+	[__NR_clock_settime]		sys_clock_settime,
-+	[__NR_clock_gettime]		sys_clock_gettime,
-+	[__NR_clock_getres]		sys_clock_getres,
-+	[__NR_clock_nanosleep]		sys_clock_nanosleep,
-+	[__NR_swapcontext]		sys_ni_syscall, /* ppc64_swapcontext */
-+	[__NR_tgkill]			sys_tgkill,
-+	[__NR_utimes]			sys_utimes,
-+	[__NR_statfs64]			sys_statfs64,
-+	[__NR_fstatfs64]		sys_fstatfs64,
-+	[254]				sys_ni_syscall,
-+	[__NR_rtas]			ppc_rtas,
-+	[256]				sys_ni_syscall,
-+	[257]				sys_ni_syscall,
-+	[258]				sys_ni_syscall,
-+	[__NR_mbind]			sys_ni_syscall, /* sys_mbind */
-+	[__NR_get_mempolicy]		sys_ni_syscall, /* sys_get_mempolicy */
-+	[__NR_set_mempolicy]		sys_ni_syscall, /* sys_set_mempolicy */
-+	[__NR_mq_open]			sys_ni_syscall, /* sys_mq_open */
-+	[__NR_mq_unlink]		sys_ni_syscall, /* sys_mq_unlink */
-+	[__NR_mq_timedsend]		sys_ni_syscall, /* sys_mq_timedsend */
-+	[__NR_mq_timedreceive]		sys_ni_syscall, /* sys_mq_timedreceive */
-+	[__NR_mq_notify]		sys_ni_syscall, /* sys_mq_notify */
-+	[__NR_mq_getsetattr]		sys_ni_syscall, /* sys_mq_getsetattr */
-+	[__NR_kexec_load]		sys_ni_syscall, /* sys_kexec_load */
-+	[__NR_add_key]			sys_ni_syscall, /* sys_add_key */
-+	[__NR_request_key]		sys_ni_syscall, /* sys_request_key */
-+	[__NR_keyctl]			sys_ni_syscall, /* sys_keyctl */
-+	[__NR_waitid]			sys_ni_syscall, /* sys_waitid */
-+	[__NR_ioprio_set]		sys_ni_syscall, /* sys_ioprio_set */
-+	[__NR_ioprio_get]		sys_ni_syscall, /* sys_ioprio_get */
-+	[__NR_inotify_init]		sys_ni_syscall, /* sys_inotify_init */
-+	[__NR_inotify_add_watch]	sys_ni_syscall, /* sys_inotify_add_watch */
-+	[__NR_inotify_rm_watch]		sys_ni_syscall, /* sys_inotify_rm_watch */
-+	[__NR_spu_run]			sys_ni_syscall, /* sys_spu_run */
-+	[__NR_spu_create]		sys_ni_syscall, /* sys_spu_create */
-+};
-+
-+long spu_sys_callback(struct spu_syscall_block *s)
-+{
-+	long (*syscall)(u64 a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6);
-+
-+	BUILD_BUG_ON(ARRAY_SIZE(spu_syscall_table) != __NR_syscalls);
-+
-+	syscall = spu_syscall_table[s->nr_ret];
-+
-+	if (s->nr_ret >= __NR_syscalls) {
-+		pr_debug("%s: invalid syscall #%ld", __FUNCTION__, s->nr_ret);
-+		return -ENOSYS;
-+	}
-+
-+#ifdef DEBUG
-+	print_symbol(KERN_DEBUG "SPU-syscall %s:", (unsigned long)syscall);
-+	printk("syscall%ld(%lx, %lx, %lx, %lx, %lx, %lx)\n",
-+			s->nr_ret,
-+			s->parm[0], s->parm[1], s->parm[2],
-+			s->parm[3], s->parm[4], s->parm[5]);
-+#endif
-+
-+	return syscall(s->parm[0], s->parm[1], s->parm[2],
-+		       s->parm[3], s->parm[4], s->parm[5]);
-+}
-+EXPORT_SYMBOL_GPL(spu_sys_callback);
+ endmenu
 
 --
 

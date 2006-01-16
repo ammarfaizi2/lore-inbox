@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWAPP6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWAPP73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWAPP6k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 10:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWAPP6k
+	id S1751076AbWAPP73 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 10:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWAPP73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 10:58:40 -0500
-Received: from xenotime.net ([66.160.160.81]:50115 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751036AbWAPP6j (ORCPT
+	Mon, 16 Jan 2006 10:59:29 -0500
+Received: from 8.ctyme.com ([69.50.231.8]:15763 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1751063AbWAPP72 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 10:58:39 -0500
-Date: Mon, 16 Jan 2006 07:58:36 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jens Axboe <axboe@suse.de>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       ide <linux-ide@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
-In-Reply-To: <1137426710.15553.0.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0601160757480.24990@shark.he.net>
-References: <20060113224252.38d8890f.rdunlap@xenotime.net> 
- <20060116123112.GZ3945@suse.de> <1137426710.15553.0.camel@localhost.localdomain>
+	Mon, 16 Jan 2006 10:59:28 -0500
+Message-ID: <43CBC2DF.70508@perkel.com>
+Date: Mon, 16 Jan 2006 07:59:27 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, Marc Perkel <marc@perkel.com>
+Subject: Re: So - What's going on with Reiser 4?
+References: <1137236892.3014.12.camel@laptopd505.fenrus.org> <200601141322.34520.mail@earthworm.de> <1137242691.3014.16.camel@laptopd505.fenrus.org> <43C99491.3080907@perkel.com> <1137293454.19972.6.camel@mindpipe> <43C9C042.5090000@perkel.com> <1137299139.25801.7.camel@mindpipe> <43C9D0CC.9040906@perkel.com> <1137315139.3001.5.camel@laptopd505.fenrus.org> <43CA662C.1040204@perkel.com> <20060116032409.GJ5773@kurtwerks.com>
+In-Reply-To: <20060116032409.GJ5773@kurtwerks.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jan 2006, Alan Cox wrote:
 
-> On Llu, 2006-01-16 at 13:31 +0100, Jens Axboe wrote:
-> > On Fri, Jan 13 2006, Randy.Dunlap wrote:
-> > > From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-> > >
-> > > Add ata_acpi in Makefile and Kconfig.
-> > > Add ACPI obj_handle.
-> > > Add ata_acpi.c to libata kernel-doc template file.
-> >
-> > Randy,
-> >
-> > Any chance you can add PATA support as well for this?
+
+Kurt Wall wrote:
 >
-> It should just work with pata devices using libata.
+> 	"I think r4 folks are still working on Christoph's suggestions
+> 	that include changes required for the code to be merged."
+>
+>   
+That is the answer I was looking for. Thanks.
 
-ACPI namespace is different for PATA and SATA devices.
-Once the device is found in the namespace, it may be very
-similar (or it may not, I dunno yet).
-
--- 
-~Randy

@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWAPVIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWAPVKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWAPVIe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 16:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWAPVIe
+	id S1751204AbWAPVKb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 16:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWAPVKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 16:08:34 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:61630 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751212AbWAPVId convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 16:08:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kM/CGSSEw+FNmvAu2wwe2mxAFG1GZ6ioXH4yyqh4LM8fgv4+FVXv2R/HQObMSD01DnoCfdaZrwDzs6/kl7Ll9UeDqPboCjnFGVj3TwHwDONrmmJufhfuu0CKgw7NdpCBQWcXU3TNSFGSOTmbYLR13I0nGF8JzzuSYLjbq2X9DJw=
-Message-ID: <9a8748490601161308g5f941c30o870042e6d9811c58@mail.gmail.com>
-Date: Mon, 16 Jan 2006 22:08:29 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andy Gospodarek <andy@greyhouse.net>
-Subject: Re: [patch] networking ipv4: remove total socket usage count from /proc/net/sockstat
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, davem@davemloft.net
-In-Reply-To: <bdfc5d6e0601161255w4e1a6ac5oaa6844a6e1bbd0aa@mail.gmail.com>
+	Mon, 16 Jan 2006 16:10:31 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17677 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751204AbWAPVKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 16:10:30 -0500
+Date: Mon, 16 Jan 2006 22:10:31 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: mchehab@infradead.org
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, akpm@osdl.org
+Subject: Re: [PATCH 13/25] cx88 Kconfig fixes for cx88-alsa
+Message-ID: <20060116211031.GH29663@stusta.de>
+References: <20060116091105.PS83611600000@infradead.org> <20060116091122.PS42877600013@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060116200432.GB14060@gospo.rdu.redhat.com>
-	 <1137442446.19444.20.camel@mindpipe>
-	 <bdfc5d6e0601161225h53554b1ahde794af93af52bdf@mail.gmail.com>
-	 <9a8748490601161235k2defec82sa51a17e4fc14b22f@mail.gmail.com>
-	 <bdfc5d6e0601161255w4e1a6ac5oaa6844a6e1bbd0aa@mail.gmail.com>
+In-Reply-To: <20060116091122.PS42877600013@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/16/06, Andy Gospodarek <andy@greyhouse.net> wrote:
+On Mon, Jan 16, 2006 at 07:11:22AM -0200, mchehab@infradead.org wrote:
+> 
+> From: Mauro Carvalho Chehab <mchehab@infradead.org>
+> 
+> - Cx88 alsa is experimental.
+> - Removed need of PCM OSS for an ALSA module.
+> 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+> ---
+> 
+>  drivers/media/video/cx88/Kconfig |    3 +--
+>  1 files changed, 1 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/media/video/cx88/Kconfig b/drivers/media/video/cx88/Kconfig
+> index 76fcb4e..5330891 100644
+> --- a/drivers/media/video/cx88/Kconfig
+> +++ b/drivers/media/video/cx88/Kconfig
+> @@ -31,8 +31,7 @@ config VIDEO_CX88_DVB
+>  
+>  config VIDEO_CX88_ALSA
+>  	tristate "ALSA DMA audio support"
+> -	depends on VIDEO_CX88 && SND
+> -	select SND_PCM_OSS
+> +	depends on VIDEO_CX88 && SND && EXPERIMENTAL
+>  	---help---
+>  	  This is a video4linux driver for direct (DMA) audio on
+>  	  Conexant 2388x based TV cards.
 
-[could you *please* not top post? It's pretty annoying]
+This patch introduces a bug.
 
-> Jesper,
->
-> Thanks for the explanation.  Your reasoning makes sense.  I will
+While select'ing SND_PCM_OSS isn't required, SND_PCM must be select'ed.
 
-I'm glad you found it useful.
+cu
+Adrian
 
-> consider other ways to solve my current problem and post a patch that
-> doesn't "break userspace" if necessary.
->
-Maybe if you described "your current problem" someone could suggest a
-solution...
+-- 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

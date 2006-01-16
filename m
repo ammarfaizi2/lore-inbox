@@ -1,111 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWAPJ1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWAPJ1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWAPJ1U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWAPJ1H
+	id S932292AbWAPJ1F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWAPJYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:27:07 -0500
-Received: from uproxy.gmail.com ([66.249.92.203]:24255 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932279AbWAPJ0o (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:26:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:mime-version:to:subject:content-type;
-        b=Dh2yfxOQKpMYPVfO+WkyQeL6fI5WRZpUB5Nnta0UUQJWK8uQo1HAkvBZoaH7+dSHqgtFRyjjf92ZzWZgH7uW1ijjyJAPSvLFxRtjN7reusYE1v89riytR/s+TXzi4/SesGv3c6SJPukzAy0T9SakzLgXSdLRW4/KfPY1O2b5DFI=
-Message-ID: <43CB6694.1040704@gmail.com>
-Date: Mon, 16 Jan 2006 11:25:40 +0200
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mail/News 1.5 (X11/20060112)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: [serial] [adddevice] Serial controller: Decision Computer International
- Co. PCCOM2 (rev 02)
-Content-Type: multipart/mixed;
- boundary="------------030109070005070106020304"
+	Mon, 16 Jan 2006 04:24:02 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49899 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932287AbWAPJXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:23:46 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org, Hartmut Hackmann <hartmut.hackmann@t-online.de>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 11/25] Turn frame locked sound on, basic support for FM
+	radio with TDA8275(a)
+Date: Mon, 16 Jan 2006 07:11:21 -0200
+Message-id: <20060116091121.PS88059600011@infradead.org>
+In-Reply-To: <20060116091105.PS83611600000@infradead.org>
+References: <20060116091105.PS83611600000@infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030109070005070106020304
-Content-Type: text/plain; charset=ISO-8859-8-I; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
+From: Hartmut Hackmann <hartmut.hackmann@t-online.de>
 
-There is a new device which is look like:
+- Enabled audio PLL. This is mandatory for NICAM sound
+- modify FM IF frequency to 5.5MHz for SAA7133/35 if tuner is tda8290
 
-Serial controller: Decision Computer International Co. 
-PCCOM2 (rev 02) (prog-if 02 [16550])
-0700: 6666:0004 (rev 02) (prog-if 02)
-Flags: medium devsel, IRQ 177
-Memory at fe000000 (32-bit, non-prefetchable) [size=128]
-I/O ports at e880 [size=128]
-I/O ports at e400 [size=256]
+Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t-online.de>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
 
-It has two 16550A, and is not listed in kernel, although the 
-manufacturer clams that it is supported...
+ drivers/media/video/saa7134/saa7134-cards.c   |    6 ++++++
+ drivers/media/video/saa7134/saa7134-tvaudio.c |   11 ++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-I've created the following patch, it only add the new PCI id 
-and the card to the repository, it seems to work.
-
-Please consider adding support to this device.
-
-Best Regards,
-Alon Bar-Lev.
-
-
---------------030109070005070106020304
-Content-Type: text/plain;
- name="2.6-decesion-pccom2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.6-decesion-pccom2.patch"
-
-diff -urNp linux-2.6.14-gentoo-r5/drivers/serial/8250_pci.c linux-2.6.14-gentoo-r5.new/drivers/serial/8250_pci.c
---- linux-2.6.14-gentoo-r5/drivers/serial/8250_pci.c	2006-01-16 10:10:37.000000000 +0200
-+++ linux-2.6.14-gentoo-r5.new/drivers/serial/8250_pci.c	2006-01-15 19:06:10.000000000 +0200
-@@ -930,6 +930,7 @@ enum pci_board_num_t {
- 	pbn_b2_bt_2_921600,
- 	pbn_b2_bt_4_921600,
- 
-+	pbn_b3_2_115200,
- 	pbn_b3_4_115200,
- 	pbn_b3_8_115200,
- 
-@@ -1263,6 +1264,12 @@ static struct pciserial_board pci_boards
- 		.uart_offset	= 8,
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+index 275d06a..c64718a 100644
+--- a/drivers/media/video/saa7134/saa7134-cards.c
++++ b/drivers/media/video/saa7134/saa7134-cards.c
+@@ -2515,6 +2515,7 @@ struct saa7134_board saa7134_boards[] = 
+ 		.tuner_addr	= ADDR_UNSET,
+ 		.radio_addr	= ADDR_UNSET,
+ 		.mpeg           = SAA7134_MPEG_DVB,
++		.gpiomask       = 1 << 21,
+ 		.inputs = {{
+ 			.name   = name_tv,
+ 			.vmux   = 1,
+@@ -2529,6 +2530,11 @@ struct saa7134_board saa7134_boards[] = 
+ 			.vmux   = 8,
+ 			.amux   = LINE1,
+ 		}},
++		.radio = {
++			.name   = name_radio,
++			.amux   = TV,
++			.gpio   = 0x0200000,
++		},
  	},
+ 	[SAA7134_BOARD_MSI_TVATANYWHERE_PLUS] = {
+ 		.name           = "MSI TV@Anywhere plus",
+diff --git a/drivers/media/video/saa7134/saa7134-tvaudio.c b/drivers/media/video/saa7134/saa7134-tvaudio.c
+index 9326842..afa4dcb 100644
+--- a/drivers/media/video/saa7134/saa7134-tvaudio.c
++++ b/drivers/media/video/saa7134/saa7134-tvaudio.c
+@@ -180,8 +180,8 @@ static void tvaudio_init(struct saa7134_
+ 	saa_writeb(SAA7134_AUDIO_CLOCK0,      clock        & 0xff);
+ 	saa_writeb(SAA7134_AUDIO_CLOCK1,     (clock >>  8) & 0xff);
+ 	saa_writeb(SAA7134_AUDIO_CLOCK2,     (clock >> 16) & 0xff);
+-	// frame locked audio was reported not to be reliable
+-	saa_writeb(SAA7134_AUDIO_PLL_CTRL,   0x02);
++	/* frame locked audio is mandatory for NICAM */
++	saa_writeb(SAA7134_AUDIO_PLL_CTRL,   0x01);
  
-+	[pbn_b3_2_115200] = {
-+		.flags		= FL_BASE3,
-+		.num_ports	= 2,
-+		.base_baud	= 115200,
-+		.uart_offset	= 8,
-+	},
- 	[pbn_b3_4_115200] = {
- 		.flags		= FL_BASE3,
- 		.num_ports	= 4,
-@@ -2164,6 +2171,9 @@ static struct pci_device_id serial_pci_t
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 		pbn_nec_nile4 },
- 
-+	{	PCI_VENDOR_ID_DCI, PCI_DEVICE_ID_DCI_PCCOM2,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+		pbn_b3_2_115200 },
- 	{	PCI_VENDOR_ID_DCI, PCI_DEVICE_ID_DCI_PCCOM4,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 		pbn_b3_4_115200 },
-diff -urNp linux-2.6.14-gentoo-r5/include/linux/pci_ids.h linux-2.6.14-gentoo-r5.new/include/linux/pci_ids.h
---- linux-2.6.14-gentoo-r5/include/linux/pci_ids.h	2006-01-16 10:10:37.000000000 +0200
-+++ linux-2.6.14-gentoo-r5.new/include/linux/pci_ids.h	2006-01-15 19:03:13.000000000 +0200
-@@ -2348,6 +2348,7 @@
- #define PCI_VENDOR_ID_DCI		0x6666
- #define PCI_DEVICE_ID_DCI_PCCOM4	0x0001
- #define PCI_DEVICE_ID_DCI_PCCOM8	0x0002
-+#define PCI_DEVICE_ID_DCI_PCCOM2	0x0004
- 
- #define PCI_VENDOR_ID_DUNORD		0x5544
- #define PCI_DEVICE_ID_DUNORD_I3000	0x0001
+ 	saa_writeb(SAA7134_NICAM_ERROR_LOW,  0x14);
+ 	saa_writeb(SAA7134_NICAM_ERROR_HIGH, 0x50);
+@@ -809,7 +809,12 @@ static int tvaudio_thread_ddep(void *dat
+ 			dprintk("ddep override: %s\n",stdres[audio_ddep]);
+ 		} else if (&card(dev).radio == dev->input) {
+ 			dprintk("FM Radio\n");
+-			norms = (0x0f << 2) | 0x01;
++			if (dev->tuner_type == TUNER_PHILIPS_TDA8290) {
++				norms = (0x11 << 2) | 0x01;
++				saa_dsp_writel(dev, 0x42c >> 2, 0x729555);
++			} else {
++				norms = (0x0f << 2) | 0x01;
++			}
+ 		} else {
+ 			/* (let chip) scan for sound carrier */
+ 			norms = 0;
 
---------------030109070005070106020304--

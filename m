@@ -1,139 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWAPRit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWAPRw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWAPRit (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 12:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWAPRit
+	id S1751145AbWAPRw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 12:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWAPRw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 12:38:49 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:146 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750768AbWAPRis (ORCPT
+	Mon, 16 Jan 2006 12:52:56 -0500
+Received: from ebb.errno.com ([69.12.149.25]:26116 "EHLO ebb.errno.com")
+	by vger.kernel.org with ESMTP id S1750770AbWAPRwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 12:38:48 -0500
-Date: Mon, 16 Jan 2006 23:09:30 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       dada1@cosmobay1.com
-Subject: Re: [RFC][PATCH] RCU tuning for latency/OOM
-Message-ID: <20060116173930.GA4521@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060106181148.GB6897@in.ibm.com> <20060116165441.GA5683@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060116165441.GA5683@us.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Mon, 16 Jan 2006 12:52:55 -0500
+Message-ID: <43CBDDC7.9060504@errno.com>
+Date: Mon, 16 Jan 2006 09:54:15 -0800
+From: Sam Leffler <sam@errno.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051227)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stuffed Crust <pizza@shaftnet.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Johannes Berg <johannes@sipsolutions.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (configuration)
+References: <20060113195723.GB16166@tuxdriver.com> <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com> <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost> <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com> <20060115152034.GA1722@shaftnet.org> <43CAA853.8020409@errno.com> <20060116172817.GB8596@shaftnet.org>
+In-Reply-To: <20060116172817.GB8596@shaftnet.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 08:54:41AM -0800, Paul E. McKenney wrote:
-> On Fri, Jan 06, 2006 at 11:41:49PM +0530, Dipankar Sarma wrote:
-> > +++ linux-2.6.15-rc5-rcu-dipankar/kernel/rcupdate.c	2006-01-06 22:41:46.000000000 +0530
-> > @@ -71,7 +71,10 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
-> >  
-> >  /* Fake initialization required by compiler */
-> >  static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
-> > -static int maxbatch = 10000;
-> > +static int blimit = 10;
-> > +static int qhimark = 10000;
-> > +static int qlowmark = 100;
-> > +static int rsinterval = 1000;
+Stuffed Crust wrote:
+> On Sun, Jan 15, 2006 at 11:53:55AM -0800, Sam Leffler wrote:
 > 
-> My kneejerk reaction is that rsinterval would normally need to be
-> about the same size as qhimark, but must defer to real-world experience.
-
-In the absence of real-world results, this is probably as good
-a guess as any. BTW, I picked the 1000 value from your "send
-forcible resched" patch some time earlier :)
-
-
-> > +static inline void force_quiescent_state(struct rcu_data *rdp,
-> > +			struct rcu_state *rsp)
-> > +{
-> > +	int cpu;
-> > +	set_need_resched();
-> > +	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-> > +		rdp->last_rs_qlen = rdp->qlen;
-> > +		for_each_cpu_mask(cpu, rsp->cpumask)
-> > +			smp_send_reschedule(cpu);
+>>The above is a great synopsis but there is more.  For example to support 
+>>roaming (and sometimes for ap operation) you want to do background 
+>>scanning; this ties in to power save mode if operating as a station. 
 > 
-> This sends an unneeded IPI to the sending CPU as well -- perhaps check
-> for cpu==smp_processor_id()?
-
-I will soon have a newer version that resets the current cpu's
-bit as well as makes all but the set_need_resched() go away
-when CONFIG_SMP=n.
-
-
-> >  	*rdp->nxttail = head;
-> >  	rdp->nxttail = &head->next;
-> >  
-> > -	if (unlikely(++rdp->count > 10000))
-> > -		set_need_resched();
-> > +	if (unlikely(++rdp->qlen > qhimark)) {
-> > +		rdp->blimit = INT_MAX;
 > 
-> I believe I understand what you are doing here, entering a sort of 
-> "desperation mode" to avoid an OOM event.  But this means that the
-> softirq function can spend an arbitrary amount of time processing
-> callbacks.
+> Opportunistic roaming is one of those things that has many knobs to 
+> twiddle, and depends a lot on the needs of the users. 
 > 
-> So, I agree that you need to do this when in "desperation mode".
-> But shouldn't this be in response to OOM or something, rather than
-> the first response to hitting the high-water mark?
+> But we're not actually in powersave mode -- the 802.11 stack can spit
+> out the NULL frames to tell the AP to buffer traffic for us. This is 
+> trivial to do.
 
-There is no easy way to detect "OOM" from RCU perspective - each
-subsystem using RCU has its own "OOM" situation. Unless we put
-hooks in each of those (which we could, but that shouldn't be
-the first thing to try IMO), there is no easy way to detect it.
-We could look at a more gradual increase and decrease of ->blimit, 
-if we see serious latency problems with real-world workloads.
+The way you implement bg scanning is to notify the ap you are going into 
+power save mode before you leave the channel (in sta mode).  Hence bg 
+scanning and power save operation interact.
 
-
-> > @@ -176,10 +193,12 @@ static void rcu_do_batch(struct rcu_data
-> >  		next = rdp->donelist = list->next;
-> >  		list->func(list);
-> >  		list = next;
-> > -		rdp->count--;
-> > -		if (++count >= maxbatch)
-> > +		rdp->qlen--;
-> > +		if (++count >= rdp->blimit)
 > 
-> Cute -- but doesn't this want to be something like:
+> Scans should be specified as "non-distruptive" so the hardware driver
+> has to twiddle whatever bits are necessary to return the hardware to the
+> same state that it was in before the scan kicked in.  Beyond that, the
+> scanning smarts are all in the 802.11 stack.  The driver should be as
+> dumb as possible.  :)
+
+See above.  Doing bg scanning well is a balancing act and restoring 
+hardware state is the least of your worries (hopefully); e.g. what's the 
+right thing to do when you get a frame to transmit while off-channel 
+scanning, how often should you return to the bss channel?
+
 > 
-> 		if (++count > rdp->blimit)
+> Background scanning, yes -- but there are all sorts of different
+> thresholds and types of 'scanning' to be done, depending on how
+> disruptive you are willing to be, and how capable the hardware is.  Most
+> thin MACs don't filter out foreign BSSIDs on the same channel when
+> you're joined, which makes some things a lot easier.
+
+Er, you need to listen to at least beacons from other ap's if you're in 
+11g so you can detect overlapping bss and enable protection.  There are 
+other ways to handle this but that's one.
+
 > 
-> so that you go forever in the "rdp->blimit == INTMAX" case?  Or do you
-> really want to stop after 2^31 repetitions?  Hmmm...  I guess that it
-> is -really- hard to argue that this matters either way.  If you really
-> go through 2^31 repetitions, the system is really cranking memory through
-> RCU, so there is some question in my mind as to whether it is getting
-> any real work done anyway...
-
-->blimit == INTMAX is just a way of letting the system process
-a very large number of RCUs, it doesn't really matter. It is either
-we get to this "desperation mode" on high water mark or use
-a gradual increase in ->blimit. Some actual data from RT
-workloads would be nice here.
-
-> >  	}
-> > +	if (rdp->blimit == INT_MAX && rdp->qlen <= qlowmark)
-> > +		rdp->blimit = blimit;
 > 
-> Would it make sense to cap rdp->blimit to max(blimit,rdp->qlen)?
+>>Further you want to order your channel list to hit the most likely 
+>>channels first in case you are scanning for a specific ap--e.g. so you 
+>>can stop the foreground scan and start to associate.  
+> 
+> 
+> With my scenarios, the driver performs the sweep in the order it was 
+> given -- if the hardware supports it, naturally.
 
-I am not sure how that would make a difference. Anyway we can't
-have more than ->qlen to process.
+Channel ordering is useful no matter who specifies it.  If you offload 
+the ordering to the upper layers then they need to be aware of the 
+regdomain constraints.  Probably not a big deal but then you need to 
+synchronize info between layers or export it.  And there's other 
+regdomain-related info that may want to be considered such as max 
+txpower.  I'm just saying if you want to do a good job there's lots of 
+work here.
 
-> If it makes sense to increase blimit slowly, seems like it also
-> makes sense to decrease it slowly.  Not sure what the correct
-> algorithm is, though.
+> 
+> 
+>>In terms of beacon miss processing some parts have a hardware beacon
+>>miss interrupt based on missed consecutive beacons but others require
+>>you to detect beacon miss in software.  Other times you need s/w bmiss
+>>detection because you're doing something like build a repeater when
+>>the station virtual device can't depend on the hardware to deliver a
+>>bmiss interrupt.
+> 
+> 
+> Of course.  The stack is going to need a set of timers regardless of the 
+> hardware's capabilities, but having (sane) hardware beacon miss 
+> detection capabilities makes it a bit more robust.
+>  
+> 
+>>Scanning (and roaming) is really a big can 'o worms.
+> 
+> 
+> Oh, I know.  I've burned out many brain cells trying to build 
+> supportable solutions for our customers.   
 
-I agree with the former and not  sure myself about what would
-be a good algorithm for ->blimit. However, this is the simplest
-thing I could think of and anything further should probably
-be based on real-world measurements.
+I don't recall seeing well-developed scanning code in either of the 
+proposed stacks.
 
-Thanks
-Dipankar
+	Sam
+

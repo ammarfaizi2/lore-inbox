@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWAPQj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWAPQlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWAPQj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 11:39:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbWAPQj4
+	id S1751002AbWAPQlL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 11:41:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWAPQlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 11:39:56 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6578 "EHLO
+	Mon, 16 Jan 2006 11:41:11 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7346 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750720AbWAPQj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 11:39:56 -0500
-Subject: PATCH: Remove brates.h from rio driver (unused file)
+	id S1751002AbWAPQlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 11:41:09 -0500
+Subject: PATCH: Removed cmd.h from rio driver (unused file)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Jan 2006 16:44:05 +0000
-Message-Id: <1137429845.15553.2.camel@localhost.localdomain>
+Date: Mon, 16 Jan 2006 16:45:18 +0000
+Message-Id: <1137429918.15553.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-git12/drivers/char/rio/brates.h linux-2.6.15-git12/drivers/char/rio/brates.h
---- linux.vanilla-2.6.15-git12/drivers/char/rio/brates.h	2006-01-16 14:19:12.000000000 +0000
-+++ linux-2.6.15-git12/drivers/char/rio/brates.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,106 +0,0 @@
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-git12/drivers/char/rio/cmd.h linux-2.6.15-git12/drivers/char/rio/cmd.h
+--- linux.vanilla-2.6.15-git12/drivers/char/rio/cmd.h	2006-01-16 14:19:12.000000000 +0000
++++ linux-2.6.15-git12/drivers/char/rio/cmd.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,83 +0,0 @@
+-
+-
 -/****************************************************************************
 - *******                                                              *******
-- *******		BRATES.H				      *******
+- *******           C O M M A N D   P A C K E T   H E A D E R S
 - *******                                                              *******
 - ****************************************************************************
 -
-- Author  : Jeremy Rolls
-- Date    : 1 Nov 1990
+- Author  : Ian Nandhra
+- Date    :
 -
 - *
 - *  (C) 1990 - 2000 Specialix International Ltd., Byfleet, Surrey, UK.
@@ -63,74 +63,49 @@ diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6
 -
 - ***************************************************************************/
 -
--#ifndef _brates_h
+-
+-#ifndef _cmd_h
+-#define _cmd_h
+-
 -#ifndef lint
--/* static char * _brates_h_sccs = "@(#)brates.h	1.4"; */
+-#ifdef SCCS
+-static char *_rio_cmd_h_sccs = "@(#)cmd.h	1.1";
 -#endif
--#define _brates_h 1
--/* List of baud rate defines. Most are borrowed from /usr/include/sys/termio.h
--*/
--#ifndef INKERNEL
--
--#define	B0	0x00
--#define	B50	0x01
--#define	B75	0x02
--#define	B110	0x03
--#define	B134	0x04
--#define	B150	0x05
--#define	B200	0x06
--#define	B300	0x07
--#define	B600	0x08
--#define	B1200	0x09
--#define	B1800	0x0a
--#define	B2400	0x0b
--#define	B4800	0x0c
--#define	B9600	0x0d
--#define	B19200	0x0e
--#define	B38400	0x0f
--
--#endif
--
--/*
--** The following baudrates may or may not be defined
--** on various UNIX systems.
--** If they are not then we define them.
--** If they are then we do not define them ;-)
--**
--** This is appalling that we use same definitions as UNIX
--** for our own download code as there is no garuntee that
--** B57600 will be defined as 0x11 by a UNIX system....
--** Arghhhhh!!!!!!!!!!!!!!
--*/
--#if !defined(B56000)
--#define	B56000	0x10
--#endif
--
--#if !defined(B57600)
--#define	B57600	0x11
--#endif
--
--#if !defined(B64000)
--#define	B64000	0x12
--#endif
--
--#if !defined(B115200)
--#define	B115200	0x13
 -#endif
 -
 -
--#if !defined(B2000)
--#define B2000	0x14
+-#define PRE_EMPTIVE_CMD         0x80
+-#define INLINE_CMD              ~PRE_EMPTIVE_CMD
+-
+-#define CMD_IGNORE_PKT          ( (ushort) 0)
+-#define CMD_STATUS_REQ          ( (ushort) 1)
+-#define CMD_UNIT_STATUS_REQ     ( (ushort) 2)	/* Is this needed ??? */
+-#define CMD_CONF_PORT           ( (ushort) 3)
+-#define CMD_CONF_UNIT           ( (ushort) 4)
+-#define CMD_ROUTE_MAP_REQ       ( (ushort) 5)
+-#define CMD_FLUSH_TX            ( (ushort) 6)
+-#define CMD_FLUSH_RX            ( (ushort) 7)
+-#define CMD_PARTION_PORT        ( (ushort) 8)
+-#define CMD_RESET_PORT          ( (ushort) 0x0a)
+-#define CMD_BOOT_UNIT           ( (ushort) 0x0b)
+-#define CMD_FOUND_UNIT          ( (ushort) 0x0c)
+-#define CMD_ATTACHED_RTA_2      ( (ushort) 0x0d)
+-#define CMD_PROVIDE_BOOT        ( (ushort) 0x0e)
+-#define CMD_CIRRUS              ( (ushort) 0x0f)
+-
+-#define FORM_STATUS_PKT         ( (ushort) 1 )
+-#define FORM_POLL_PKT           ( (ushort) 2 )
+-#define FORM_LINK_STATUS_PKT    ( (ushort) 3 )
+-
+-
+-#define CMD_DATA_PORT           ( (ushort) 1 )
+-#define CMD_DATA                ( (ushort) 2 )
+-
+-#define CMD_TX_PART             ( (ushort) 2 )
+-#define CMD_RX_PART             ( (ushort) 3 )
+-#define CMD_RX_LIMIT            ( (ushort) 4 )
+-
 -#endif
 -
--
--#define MAX_RATE B2000
--
--struct baud_rate {		/* Tag for baud rates */
--	/* short    host_rate, *//* As passed by the driver */
--	short divisor,		/* The divisor */
--	 prescaler;		/* The pre-scaler */
--};
--
--#endif
+-/*********** end of file ***********/
 

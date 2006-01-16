@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWAPW46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWAPW67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWAPW46 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 17:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWAPW46
+	id S1751254AbWAPW67 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 17:58:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWAPW67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 17:56:58 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8915 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751250AbWAPW45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 17:56:57 -0500
-Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Erik Mouw <erik@harddisk-recovery.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jgarzik <jgarzik@pobox.com>
-In-Reply-To: <20060116224626.GS3945@suse.de>
-References: <20060113224252.38d8890f.rdunlap@xenotime.net>
-	 <20060116115607.GA18307@harddisk-recovery.nl>
-	 <20060116140713.GB18307@harddisk-recovery.com>
-	 <20060116224626.GS3945@suse.de>
-Content-Type: text/plain
+	Mon, 16 Jan 2006 17:58:59 -0500
+Received: from S01060080c85517f6.wp.shawcable.net ([24.79.196.167]:9141 "EHLO
+	ubb.ca") by vger.kernel.org with ESMTP id S1751254AbWAPW67 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 17:58:59 -0500
+Mime-Version: 1.0 (Apple Message framework v746.2)
+In-Reply-To: <6951EFDF-9499-40D5-AD09-2AE217A0A579@ubb.ca>
+References: <6951EFDF-9499-40D5-AD09-2AE217A0A579@ubb.ca>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <59A5E944-6499-47D4-B875-C0DE75E27701@ubb.ca>
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Jan 2006 23:00:36 +0000
-Message-Id: <1137452436.15553.93.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+From: Tony Mantler <nicoya@ubb.ca>
+Subject: Re: CONFIG_MK6 = lsof hangs unkillable
+Date: Mon, 16 Jan 2006 16:58:55 -0600
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-01-16 at 23:46 +0100, Jens Axboe wrote:
-> > If you really need this enabled to be able to use suspend/resume at
-> > all, you could add a line like:
-> > 
-> >   It's safe to say Y. If you say N, you might get serious disk
-> >   corruption when you suspend your machine.
-> 
-> That's simply not true. If you say N (if you could), you could risk
-> having a non-responsive disk after resume. However, it would have been
-> synced a suspend time so you wont corrupt anything.
 
-If you do not execute the ACPI taskfiles for the device and you are
-doing an ACPI suspend you are in completely undefined space. Whether it
-eats your disk or not is a question of probabilities only. Yes its
-unlikely but you are in undefined space so "won't corrupt anything"
-indicates an inappropriate level of certainty.
+On 15-Jan-06, at 10:43 PM, Tony Mantler wrote:
 
-Fortunately it is better than the old PATA layer where as far as I can
-tell if the BIOS resume restores the BIOS HPA setup you may actually end
-up doing more damage by running ACPI taskfiles as we don't appear to
-restore enough drive state.
+> I'm having trouble running lsof on 2.6.15.1 when the kernel is  
+> compiled with CONFIG_MK6. When run as root, lsof will segfault, and  
+> when run as a user lsof will hang unkillable.
+>
+> The same kernel, same machine, but compiled with CONFIG_MK7 runs  
+> just lsof just fine.
 
-Alan
+To follow up on this, it appears that things are getting stuck while  
+reading /proc/*/maps, specifically it hangs in fs/proc/task_mmu.c in  
+m_start() at down_read(&mm->mmap_sem). The same thing happens when  
+trying to readlink /proc/*/exe.
 
+I'm really not sure why this lock is getting stuck. Can anyone  
+reproduce this?
+
+--
+Tony 'Nicoya' Mantler -- Master of Code-fu -- nicoya@ubb.ca
+--  http://nicoya.feline.pp.se/  --  http://www.ubb.ca/  --
 

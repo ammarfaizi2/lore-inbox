@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWAPAIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWAPAIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWAPAIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jan 2006 19:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWAPAIX
+	id S932132AbWAPAIv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jan 2006 19:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWAPAIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 19:08:23 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34579 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932092AbWAPAIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 19:08:22 -0500
-Date: Mon, 16 Jan 2006 01:08:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Vitaly Bordug <vbordug@ru.mvista.com>
-Cc: jgarzik@pobox.com, saw@saw.sw.com.sg, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, john.ronciak@intel.com,
-       ganesh.venkatesan@intel.com, jesse.brandeburg@intel.com
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
-Message-ID: <20060116000822.GD29663@stusta.de>
-References: <20060105181826.GD12313@stusta.de> <20060115161958.07e3c7f1@vitb.dev.rtsoft.ru>
-MIME-Version: 1.0
+	Sun, 15 Jan 2006 19:08:51 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:48140 "EHLO
+	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S932132AbWAPAIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jan 2006 19:08:50 -0500
+Date: Mon, 16 Jan 2006 11:09:23 +1100
+From: CaT <cat@zip.com.au>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Subject: Re: Linux 2.6.15.1
+Message-ID: <20060116000923.GL2035@zip.com.au>
+References: <20060115070440.GH3335@sorel.sous-sol.org> <20060115080803.GJ2035@zip.com.au> <20060115235125.GN3335@sorel.sous-sol.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060115161958.07e3c7f1@vitb.dev.rtsoft.ru>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060115235125.GN3335@sorel.sous-sol.org>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15, 2006 at 04:19:58PM +0300, Vitaly Bordug wrote:
-> On Thu, 5 Jan 2006 19:18:26 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
+On Sun, Jan 15, 2006 at 03:51:25PM -0800, Chris Wright wrote:
+> * CaT (cat@zip.com.au) wrote:
+> > Was there a fix for the 2.6.16 cfq issues? It's a bad idea for me to use
+> > AS on servers as it does weird things on the hardware we have (as I've
+> > previously reported).
 > 
-> > This patch removes the obsolete drivers/net/eepro100.c driver.
-> > 
-> > Is there any known problem in e100 still preventing us from removing 
-> > this driver (it seems noone was able anymore to verify the ARM problem)?
-> > 
-> I think I am recalling some problems on ppc82xx, when e100 was stuck on startup,
-> and eepro100 worked just fine. 
+> There's one relevant fix queued up for next -stable from
+> this thread:
+
+Cool.
+
+> http://marc.theaimsgroup.com/?t=113657885100003&r=1&w=2
 > 
-> Even if the patch below will be scheduled for application, we need to set up enough time 
-> for approval that e100 will be fine for all the up-to-date hw; or it should be fixed/updated before eepro100 removal.
+> Is that what you're referring to?
 
-How/When can you/someone else test this?
-
-Do the e100 maintainers (Cc'ed) know about such problems and their 
-status?
-
-> Sincerely, 
-> Vitaly
-
-cu
-Adrian
+Yup, thanks. That's the bug I was referring to.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWAPVET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWAPVGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWAPVET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 16:04:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWAPVES
+	id S1751206AbWAPVGx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 16:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWAPVGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 16:04:18 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7949 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751200AbWAPVES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 16:04:18 -0500
-Date: Mon, 16 Jan 2006 22:04:18 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jgarzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
-Message-ID: <20060116210418.GG29663@stusta.de>
-References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060116115607.GA18307@harddisk-recovery.nl> <20060116140713.GB18307@harddisk-recovery.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jan 2006 16:06:52 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:20894 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S1751201AbWAPVGv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 16:06:51 -0500
+Date: Mon, 16 Jan 2006 16:06:26 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: Samuel Ortiz <samuel.ortiz@nokia.com>
+Cc: "ext John W. Linville" <linville@tuxdriver.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (configuration)
+Message-ID: <20060116210626.GA15495@shaftnet.org>
+Mail-Followup-To: Samuel Ortiz <samuel.ortiz@nokia.com>,
+	"ext John W. Linville" <linville@tuxdriver.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost> <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com> <20060115152034.GA1722@shaftnet.org> <Pine.LNX.4.58.0601152038540.19953@irie> <20060116170951.GA8596@shaftnet.org> <Pine.LNX.4.58.0601162020260.17348@irie> <20060116190629.GB5529@tuxdriver.com> <Pine.LNX.4.58.0601162210550.17348@irie>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
 Content-Disposition: inline
-In-Reply-To: <20060116140713.GB18307@harddisk-recovery.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.58.0601162210550.17348@irie>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Mon, 16 Jan 2006 16:06:27 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 03:07:13PM +0100, Erik Mouw wrote:
-> On Mon, Jan 16, 2006 at 12:56:07PM +0100, Erik Mouw wrote:
-> > On Fri, Jan 13, 2006 at 10:42:52PM -0800, Randy.Dunlap wrote:
-> > > --- linux-2615-g9.orig/drivers/scsi/Kconfig
-> > > +++ linux-2615-g9/drivers/scsi/Kconfig
-> > > @@ -599,6 +599,11 @@ config SCSI_SATA_INTEL_COMBINED
-> > >  	depends on IDE=y && !BLK_DEV_IDE_SATA && (SCSI_SATA_AHCI || SCSI_ATA_PIIX)
-> > >  	default y
-> > >  
-> > > +config SCSI_SATA_ACPI
-> > > +	bool
-> > > +	depends on SCSI_SATA && ACPI
-> > > +	default y
-> > > +
-> > 
-> > Could you add some help text over here? At first glance I got the
-> > impression this was a host driver that works through ACPI calls, but by
-> > reading the rest of your patches it turns out it is a suspend/resume
-> > helper.
-> 
-> Something like this should already be enough:
-> 
->   This option enables support for SATA suspend/resume using ACPI.
-> 
-> If you really need this enabled to be able to use suspend/resume at
-> all, you could add a line like:
-> 
->   It's safe to say Y. If you say N, you might get serious disk
->   corruption when you suspend your machine.
->...
 
-Why?
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is not a user-visible option...
+On Mon, Jan 16, 2006 at 10:16:06PM +0200, Samuel Ortiz wrote:
+> Well, I'd rather trust a governement regulated network than my neighbour's
+> AP ;-) In fact, some phones set their 802.11 regulatory domain based on
+> the information they received from a somehow government regulated network,
+> e.g. a GSM one.
 
-> Erik
+The asumption is that 802.11d information, like current "regdomain"
+settings, is fixed and not user-configurable.  If the regdomain is
+changeable by the user, that unit would not be approved for sale in that
+particular locale.
 
-cu
-Adrian
+(Now 802.11d doesn't specify what to do when you hear two conflicting=20
+ 802.11d beacons.... there go those assumptions again..)
 
--- 
+Stations respecting 802.11d rules are not allowed to transmit on any
+supported frequency until they hear an AP on that frequency first. =20
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+This essentially means that all scans are passive until we hear an AP,
+and we can't transmit on any other (presumably still silent) frequencies
+unless we hear an 802.11d beacon that says we can.
 
+ - Solomon
+--=20
+Solomon Peachy        				 ICQ: 1318344
+Melbourne, FL 					=20
+Quidquid latine dictum sit, altum viditur.
+
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDzArSPuLgii2759ARAqx7AKCeOtC9h+zdwU5L9KozsoT4ZUgAcgCeIkT2
+APaXfKBDnDXQ32wi7IeS4/s=
+=/Oyl
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--

@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWAPJwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWAPJyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWAPJwR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWAPJwR
+	id S932300AbWAPJyy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWAPJyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:52:17 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:57526
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932301AbWAPJwQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:52:16 -0500
-Subject: RE: Dual core Athlons and unsynced TSCs
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       Roger Heflin <rheflin@atipa.com>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0601131616001.8385@gandalf.stny.rr.com>
-References: <EXCHG2003rmTIVvLVKi00000c7b@EXCHG2003.microtech-ks.com>
-	 <1137168254.7241.32.camel@localhost.localdomain>
-	 <1137174463.15108.4.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131252300.8806@gandalf.stny.rr.com>
-	 <1137174848.15108.11.camel@mindpipe>
-	 <Pine.LNX.4.58.0601131338370.6971@gandalf.stny.rr.com>
-	 <1137178506.15108.38.camel@mindpipe>
-	 <1137182991.8283.7.camel@localhost.localdomain>
-	 <1137183980.6731.1.camel@localhost.localdomain>
-	 <1137184982.15108.69.camel@mindpipe>
-	 <1137185175.7634.37.camel@localhost.localdomain>
-	 <1137186319.6731.6.camel@localhost.localdomain>
-	 <1137186612.7634.41.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0601131616001.8385@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Mon, 16 Jan 2006 10:52:34 +0100
-Message-Id: <1137405154.7634.74.camel@localhost.localdomain>
+	Mon, 16 Jan 2006 04:54:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41604 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932300AbWAPJyx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:54:53 -0500
+Date: Mon, 16 Jan 2006 10:54:39 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Thomas Fazekas <thomas.fazekas@gmail.com>, linux-kernel@vger.kernel.org,
+       arch@archlinux.org
+Subject: Re: Modify setterm color palette
+Message-ID: <20060116095439.GA26658@elf.ucw.cz>
+References: <421547be0601150407v8e087afh55a9ee12ae27ac8e@mail.gmail.com> <Pine.LNX.4.61.0601151313360.4174@yvahk01.tjqt.qr> <20060115131620.GA24976@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060115131620.GA24976@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-13 at 16:17 -0500, Steven Rostedt wrote:
-> > >
-> > > Hmm, it doesn't compile :(
-> >
-> > Grmbl, I check this tomorrow. Getting late here
-> >
+On Ne 15-01-06 13:16:20, Russell King wrote:
+> On Sun, Jan 15, 2006 at 01:15:23PM +0100, Jan Engelhardt wrote:
+> > drivers/char/vt.c: default_red, default_grn, default_blu
+> > 
+> > You can also change them with `echo -en "\e]PXRRGGBB"`, where X is a hex 
+> > digit (range 0-F), and RGB are the components. Check console_codes(4) and 
+> > go figure. :)
 > 
-> OK, I'll probably wont work on it till Monday then (wifes rules ;)
+> I for one prefer the standard VT100 yellow instead of brown, and I
+> have an escape sequence to do that similar to the one you show above.
+> 
+> However, there's one major flaw - programs recently (and by that I mean
+> FC2-like recently) have started to do complete console resets, which
+> result in the users settings being completely wiped out.
 
-Can you try this one please ?
-
-http://tglx.de/projects/hrtimers/2.6.15/patch-2.6.15-hrt3.patch
-
-
-	tglx
-
-
+Yep, I've seen those problems too. OTOH probably its userland programs
+that should be fixed not to reset terminals?
+								Pavel
+-- 
+Thanks, Sharp!

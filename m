@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWAPGhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWAPGkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWAPGhE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 01:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWAPGhE
+	id S1751062AbWAPGkT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 01:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWAPGkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 01:37:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:29658 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751054AbWAPGhA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 01:37:00 -0500
-Date: Mon, 16 Jan 2006 01:36:53 -0500
-From: Dave Jones <davej@redhat.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-git breaks Xorg on em64t
-Message-ID: <20060116063653.GA3112@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dave Airlie <airlied@gmail.com>, Andi Kleen <ak@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060114065235.GA4539@redhat.com> <200601141943.28027.ak@suse.de> <20060114225137.GB23021@redhat.com> <200601150105.08197.ak@suse.de> <20060115070658.GB6454@redhat.com> <21d7e9970601150136m25ef428es139a641e2619997@mail.gmail.com>
+	Mon, 16 Jan 2006 01:40:18 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:13572 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1751052AbWAPGkQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 01:40:16 -0500
+Date: Mon, 16 Jan 2006 15:41:06 +0900 (JST)
+Message-Id: <20060116.154106.64415709.yoshfuji@linux-ipv6.org>
+To: spereira@tusc.com.au
+Cc: arnd@arndb.de, acme@ghostprotocols.net, ak@muc.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       pereira.shaun@gmail.com, yoshfuji@linux-ipv6.org
+Subject: Re: 32 bit (socket layer) ioctl emulation for 64 bit kernels
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1137391160.5588.32.camel@spereira05.tusc.com.au>
+References: <1137122079.5589.34.camel@spereira05.tusc.com.au>
+	<200601131146.48128.arnd@arndb.de>
+	<1137391160.5588.32.camel@spereira05.tusc.com.au>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e9970601150136m25ef428es139a641e2619997@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15, 2006 at 08:36:05PM +1100, Dave Airlie wrote:
- > >
- > > Another datapoint btw: I've another EM64T that works just fine.
- > > The one that fails is the only one that isn't using onboard VGA,
- > > this one has a PCIE Radeon.  Given it happens when X is starting up,
- > > it could be that the X radeon driver does something special which
- > > is why others aren't seeing this.
- > >
- > 
- > It might be due to the DRM update that went through, but I can't think
- > what might have caused it, if you backout the DRM merge does it help
- > any?
+In article <1137391160.5588.32.camel@spereira05.tusc.com.au> (at Mon, 16 Jan 2006 16:59:20 +1100), Shaun Pereira <spereira@tusc.com.au> says:
 
-As it turns out, -git11 with all the DRM bits backed out gives me
-a working X again.
+> If I understand correctly from your comments (thanks for that, they are
+> helpful)
+> copy_to_user acts like a memcopy for an 'array' of bytes and should not
+> be used to copy the timeval struct to userspace. 
+> Rather put_user / __put_user macros should be used which allows transfer
+> of single element values of the structure. 
 
- > did the previous kernel have DRM support for that card?
+> +int compat_sock_get_timestamp(struct sock *sk, struct timeval __user
+> *userstamp)
+> +{
+> +	struct compat_timeval __user *ctv
+> +		= (struct compat_timeval __user*) userstamp;
+> +	int err = -ENOENT;
+> +	if(!sock_flag(sk, SOCK_TIMESTAMP))
+> +		sock_enable_timestamp(sk);
+> +	if(sk->sk_stamp.tv_sec == -1)
+> +		return err;
+> +	if(sk->sk_stamp.tv_sec == 0)
+> +		do_gettimeofday(&sk->sk_stamp);
+> +	err = -EFAULT;
+> +	if(access_ok(VERIFTY_WRITE, ctv, sizeof(*ctv))) {
+> +		err = __put_user(sk->sk_stamp.tv_sec, &ctv->tv_sec);
+> +		err != __put_user(sk->sk_stamp.tv_usec, &ctv->tv_usec);
+> +	}
+> +	return err;
+> +}
+> +
 
-No. This is 1002:5b60 / 1002:5b70 based card.
+Hmm, you will copy 32bit of MSB in big-endian.
+You should do something like this:
 
-I had previously missed the 5b60 part in lspci output, so thinking
-there was no 5b70 addition, I hadn't considered this as a suspect.
-Mea Culpa.   Looks like Andi is off the hook :-)
+        strtuct compat_timeval tvtmp;
+        :
+	tvtmp.tv_sec = sk->sk_stamp.tv_sec;
+	tvtmp.tv_usec = sk->sk_stemp.tv_usec;
+	return copy_to_user(ctv, &tvtmp, sizeof(tvtmp));
 
-Any ideas for any debugging I can add ?
+Or, am I miss something?
 
-		Dave
-
+--yoshfuji

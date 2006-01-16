@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWAPW67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWAPXAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWAPW67 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 17:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWAPW67
+	id S1751253AbWAPXAh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 18:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWAPXAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 17:58:59 -0500
-Received: from S01060080c85517f6.wp.shawcable.net ([24.79.196.167]:9141 "EHLO
-	ubb.ca") by vger.kernel.org with ESMTP id S1751254AbWAPW67 (ORCPT
+	Mon, 16 Jan 2006 18:00:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37788 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751253AbWAPXAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 17:58:59 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
-In-Reply-To: <6951EFDF-9499-40D5-AD09-2AE217A0A579@ubb.ca>
-References: <6951EFDF-9499-40D5-AD09-2AE217A0A579@ubb.ca>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <59A5E944-6499-47D4-B875-C0DE75E27701@ubb.ca>
-Content-Transfer-Encoding: 7bit
-From: Tony Mantler <nicoya@ubb.ca>
-Subject: Re: CONFIG_MK6 = lsof hangs unkillable
-Date: Mon, 16 Jan 2006 16:58:55 -0600
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 16 Jan 2006 18:00:36 -0500
+Date: Mon, 16 Jan 2006 14:51:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm4: sem2mutex problem in USB OHCI
+Message-ID: <20060116225110.GA31296@kroah.com>
+References: <200601150058.58518.rjw@sisk.pl> <20060114160526.228da734.akpm@osdl.org> <20060115043826.GB23968@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060115043826.GB23968@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 15, 2006 at 05:38:26AM +0100, Ingo Molnar wrote:
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > >  Badness in __mutex_trylock_slowpath at kernel/mutex.c:281
+> > > 
+> > >  Call Trace: <IRQ> <ffffffff80148d8d>{mutex_trylock+141}
+> > >         <ffffffff880abaf0>{:ohci_hcd:ohci_hub_status_data+480}
+> > >         <ffffffff802d25d0>{rh_timer_func+0} <ffffffff802d24c3>{usb_hcd_poll_rh_status+67}
+> 
+> > err, taking a mutex from softirq context.
+> 
+> hm. For now, the patch below undoes the struct device ->mutex 
+> conversion.
 
-On 15-Jan-06, at 10:43 PM, Tony Mantler wrote:
+I've dropped the whole driver mutex patch from my tree till stuff like
+this gets worked out.
 
-> I'm having trouble running lsof on 2.6.15.1 when the kernel is  
-> compiled with CONFIG_MK6. When run as root, lsof will segfault, and  
-> when run as a user lsof will hang unkillable.
->
-> The same kernel, same machine, but compiled with CONFIG_MK7 runs  
-> just lsof just fine.
+thanks,
 
-To follow up on this, it appears that things are getting stuck while  
-reading /proc/*/maps, specifically it hangs in fs/proc/task_mmu.c in  
-m_start() at down_read(&mm->mmap_sem). The same thing happens when  
-trying to readlink /proc/*/exe.
-
-I'm really not sure why this lock is getting stuck. Can anyone  
-reproduce this?
-
---
-Tony 'Nicoya' Mantler -- Master of Code-fu -- nicoya@ubb.ca
---  http://nicoya.feline.pp.se/  --  http://www.ubb.ca/  --
-
+greg k-h

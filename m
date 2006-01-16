@@ -1,113 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWAPJYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWAPJYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWAPJYh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWAPJYF
+	id S932287AbWAPJYn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWAPJYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:24:05 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47851 "EHLO
+	Mon, 16 Jan 2006 04:24:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60907 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932263AbWAPJXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:23:40 -0500
-Message-Id: <20060116091105.PS83611600000@infradead.org>
-Date: Mon, 16 Jan 2006 07:11:05 -0200
+	id S932292AbWAPJYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:24:25 -0500
 From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org
-Subject: [PATCH 00/25] V4L/DVB updates
+       akpm@osdl.org, Hans Verkuil <hverkuil@xs4all.nl>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 08/25] Add support for Samsung tuner TCPN 2121P30A
+Date: Mon, 16 Jan 2006 07:11:21 -0200
+Message-id: <20060116091121.PS00500000008@infradead.org>
+In-Reply-To: <20060116091105.PS83611600000@infradead.org>
+References: <20060116091105.PS83611600000@infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1-1mdk 
 Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
 X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        This patch series is also available under v4l-dvb.git tree at:
-                kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
 
-	Linus, please push these from master branch.
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-	It contains the following stuff:
+- Add support for Samsung tuner TCPN 2121P30A, used in
+  Hauppauge PVR-500 cards.
 
-   - Remove old MODULE_PARM in media/video/
-   - bttv semaphore to mutex conversion
-   - removed uneeded init on structs like static int foo=0
-   - Include missing MODULE_* macros
-   - Build cx88-alsa when CONFIG_VIDEO_CX88_ALSA is selected.
-   - Updated MODULE_AUTHOR
-   - Redesign tuners struct for maximum flexibility
-   - Add support for Samsung tuner TCPN 2121P30A
-   - disable all dvb tuner param_types until we need them
-   - i2c ids for upd64031a saa717x upd64083 wm8739
-   - Turn frame locked sound on, basic support for FM radio with TDA8275(a)
-   - git dvb callbacks fix
-   - cx88 Kconfig fixes for cx88-alsa
-   - make some code static
-   - Fix for lack of analog output on some cx88 boards
-   - Semaphore to mutex conversion on drivers/media
-   - Fix compilation with Alpha
-   - Move tda988x options into tuner_params struct.
-   - Separate tv & radio freqs, fix cb/freq transmit order for tuners that need this.
-   - Return -EINVAL for unknown commands in msp3400 module.
-   - fix some sound quality & distortion problems.
-   - clean up some comments
-   - tuner_params->tda988x is currently unused, so disable
-   - Samsung TBMV30111IN has 6 entries
-   - Added remote control support for pinnacle pctv
-
-Cheers,
-Mauro
-
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- Documentation/video4linux/CARDLIST.tuner      |    1 
- drivers/media/dvb/bt8xx/bt878.c               |    2 
- drivers/media/dvb/dvb-core/dvbdev.c           |   22 
- drivers/media/dvb/dvb-usb/cxusb.c             |    2 
- drivers/media/dvb/frontends/dvb-pll.c         |    2 
- drivers/media/dvb/ttpci/av7110.c              |    4 
- drivers/media/dvb/ttpci/av7110_hw.c           |   40 
- drivers/media/dvb/ttpci/av7110_hw.h           |   12 
- drivers/media/video/Makefile                  |    3 
- drivers/media/video/arv.c                     |    6 
- drivers/media/video/bt832.c                   |    2 
- drivers/media/video/btcx-risc.c               |    2 
- drivers/media/video/bttv-cards.c              |    6 
- drivers/media/video/bttv-driver.c             |   87 -
- drivers/media/video/bttv-i2c.c                |    6 
- drivers/media/video/bttvp.h                   |    5 
- drivers/media/video/cx25840/cx25840-core.c    |    4 
- drivers/media/video/cx88/Kconfig              |    3 
- drivers/media/video/cx88/Makefile             |    1 
- drivers/media/video/cx88/cx88-alsa.c          |    9 
- drivers/media/video/cx88/cx88-core.c          |   15 
- drivers/media/video/cx88/cx88-tvaudio.c       |    8 
- drivers/media/video/cx88/cx88-vp3054-i2c.c    |    4 
- drivers/media/video/em28xx/em28xx-input.c     |   77 
- drivers/media/video/em28xx/em28xx-video.c     |    7 
- drivers/media/video/msp3400-driver.c          |   14 
- drivers/media/video/msp3400.h                 |    8 
- drivers/media/video/mt20xx.c                  |   12 
- drivers/media/video/planb.c                   |    4 
- drivers/media/video/saa6588.c                 |   10 
- drivers/media/video/saa711x.c                 |    2 
- drivers/media/video/saa7134/saa7134-cards.c   |    6 
- drivers/media/video/saa7134/saa7134-core.c    |   21 
- drivers/media/video/saa7134/saa7134-tvaudio.c |   11 
- drivers/media/video/tda8290.c                 |    4 
- drivers/media/video/tea5767.c                 |   18 
- drivers/media/video/tuner-core.c              |   85 -
- drivers/media/video/tuner-simple.c            |  794 ----------
- drivers/media/video/tuner-types.c             | 1406 ++++++++++++++++++
- drivers/media/video/tveeprom.c                |    2 
- drivers/media/video/tvp5150.c                 |    2 
- drivers/media/video/v4l2-common.c             |    1 
- drivers/media/video/videodev.c                |   25 
- include/linux/i2c-id.h                        |    4 
- include/media/tuner-types.h                   |   73 
- include/media/tuner.h                         |   10 
- include/media/v4l2-common.h                   |    7 
- 47 files changed, 1870 insertions(+), 979 deletions(-)
+ Documentation/video4linux/CARDLIST.tuner |    1 +
+ drivers/media/video/tuner-types.c        |   24 ++++++++++++++++++++++++
+ drivers/media/video/tveeprom.c           |    2 +-
+ include/media/tuner.h                    |    1 +
+ 4 files changed, 27 insertions(+), 1 deletions(-)
+
+diff --git a/Documentation/video4linux/CARDLIST.tuner b/Documentation/video4linux/CARDLIST.tuner
+index 0bf3d5b..f6d0cf7 100644
+--- a/Documentation/video4linux/CARDLIST.tuner
++++ b/Documentation/video4linux/CARDLIST.tuner
+@@ -68,3 +68,4 @@ tuner=66 - LG NTSC (TALN mini series)
+ tuner=67 - Philips TD1316 Hybrid Tuner
+ tuner=68 - Philips TUV1236D ATSC/NTSC dual in
+ tuner=69 - Tena TNF 5335 MF
++tuner=70 - Samsung TCPN 2121P30A
+diff --git a/drivers/media/video/tuner-types.c b/drivers/media/video/tuner-types.c
+index de9d492..32c9be4 100644
+--- a/drivers/media/video/tuner-types.c
++++ b/drivers/media/video/tuner-types.c
+@@ -1077,6 +1077,24 @@ static struct tuner_params tuner_tnf_533
+ 	},
+ };
+ 
++/* 70-79 */
++/* ------------ TUNER_SAMSUNG_TCPN_2121P30A - Samsung NTSC ------------ */
++
++static struct tuner_range tuner_samsung_tcpn_2121p30a_ntsc_ranges[] = {
++	{ 16 * 175.75 /*MHz*/, 0x01, },
++	{ 16 * 410.25 /*MHz*/, 0x02, },
++	{ 16 * 999.99        , 0x08, },
++};
++
++static struct tuner_params tuner_samsung_tcpn_2121p30a_params[] = {
++	{
++		.type   = TUNER_PARAM_TYPE_NTSC,
++		.ranges = tuner_samsung_tcpn_2121p30a_ntsc_ranges,
++		.count  = ARRAY_SIZE(tuner_samsung_tcpn_2121p30a_ntsc_ranges),
++		.config = 0xce,
++	},
++};
++
+ /* --------------------------------------------------------------------- */
+ 
+ struct tunertype tuners[] = {
+@@ -1371,6 +1389,12 @@ struct tunertype tuners[] = {
+ 		.name   = "Tena TNF 5335 MF",
+ 		.params = tuner_tnf_5335mf_params,
+ 	},
++
++	/* 70-79 */
++	[TUNER_SAMSUNG_TCPN_2121P30A] = { /* Samsung NTSC */
++		.name   = "Samsung TCPN 2121P30A",
++		.params = tuner_samsung_tcpn_2121p30a_params,
++	},
+ };
+ 
+ unsigned const int tuner_count = ARRAY_SIZE(tuners);
+diff --git a/drivers/media/video/tveeprom.c b/drivers/media/video/tveeprom.c
+index 5e71a35..582551b 100644
+--- a/drivers/media/video/tveeprom.c
++++ b/drivers/media/video/tveeprom.c
+@@ -190,7 +190,7 @@ hauppauge_tuner[] =
+ 	{ TUNER_LG_PAL_NEW_TAPC, "TCL 2002MI 3"},
+ 	{ TUNER_TCL_2002N,     "TCL 2002N 6A"},
+ 	{ TUNER_PHILIPS_FM1236_MK3, "Philips FQ1236 MK3"},
+-	{ TUNER_ABSENT,        "Samsung TCPN 2121P30A"},
++	{ TUNER_SAMSUNG_TCPN_2121P30A, "Samsung TCPN 2121P30A"},
+ 	{ TUNER_ABSENT,        "Samsung TCPE 4121P30A"},
+ 	{ TUNER_PHILIPS_FM1216ME_MK3, "TCL MFPE05 2"},
+ 	/* 90-99 */
+diff --git a/include/media/tuner.h b/include/media/tuner.h
+index c88b506..a1d6378 100644
+--- a/include/media/tuner.h
++++ b/include/media/tuner.h
+@@ -115,6 +115,7 @@
+ 
+ #define TUNER_PHILIPS_TUV1236D		68	/* ATI HDTV Wonder */
+ #define TUNER_TNF_5335MF                69	/* Sabrent Bt848   */
++#define TUNER_SAMSUNG_TCPN_2121P30A     70 	/* Hauppauge PVR-500MCE NTSC */
+ 
+ /* tv card specific */
+ #define TDA9887_PRESENT 		(1<<0)
 

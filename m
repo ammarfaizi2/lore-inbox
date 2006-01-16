@@ -1,123 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWAPW10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWAPWak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWAPW10 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 17:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWAPW10
+	id S1751226AbWAPWak (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 17:30:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWAPWak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 17:27:26 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:48026 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751046AbWAPW10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 17:27:26 -0500
-In-Reply-To: <20060111065752.245711000.dtor_core@ameritech.net>
-References: <20060111064746.560312000.dtor_core@ameritech.net> <20060111065752.245711000.dtor_core@ameritech.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <78070C28-51BD-4372-B94E-785358E8752E@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, Paul Mackerras <paulus@samba.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [patch 6/6] serial8250: convert to the new platform device interface
-Date: Mon, 16 Jan 2006 16:27:17 -0600
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 16 Jan 2006 17:30:40 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:25588 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751226AbWAPWaj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 17:30:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=K/JgT4skaZvNF1q6/mPXm5AuSOiZTPMnxAJXbAKoLZkidskEiCbSeKE7wy++RHWZ2Oe/5r5h9p6ps0RExcXI4dpvedxCr9/NieChAito6m0kYF/hlQ1LPvn5xMD9sRxig1IFsmuxFsJpzt7huHbGWsvClkwyNjmUmHT5nt5oTR8=
+Message-ID: <728201270601161430y4a381bfcs3a470f09287769c@mail.gmail.com>
+Date: Mon, 16 Jan 2006 16:30:34 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: Shared memory usage
+Cc: Valdis.Kletnieks@vt.edu, Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0601161510050.23899@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0601160909590.22754@chaos.analogic.com>
+	 <200601161848.k0GIm3xH016052@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.61.0601161510050.23899@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is breaking arch/ppc & arch/powerpc usage of 8250.c.  The  
-issue appears to be with the order in which platform_driver_register 
-() is called vs platform_device_add().
+Did you think about getting shared memory information using
+shmctl(IPC_STAT). It provides useful information but I am not sure if
+that will serve your purpose fully.
 
-arch/powerpc/kernel/legacy_serial.c registers an 8250 device on the  
-platform bus before 8250_init() gets called.
+Regards
+Ram Gupta
 
-Changing the order of platform_driver_register() vs  
-platform_device_add() fixes the issue.  I'm still not sure what the  
-correct solution to this is. Ideas? comments?
-
-- kumar
-
-On Jan 11, 2006, at 12:47 AM, Dmitry Torokhov wrote:
-
-> serial8250: convert to the new platform device interface
+On 1/16/06, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
 >
-> Do not use platform_device_register_simple() as it is going away.
-> Also set up driver's owner to create link driver->module in sysfs.
+> On Mon, 16 Jan 2006 Valdis.Kletnieks@vt.edu wrote:
 >
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
+> > On Mon, 16 Jan 2006 09:15:16 EST, "linux-os (Dick Johnson)" said:
+> >> But the customer complained during certification testing
+> >> that shared memory in use is not measured and therefore
+> >> cannot be verified. This means that there may be rogue
+> >> communications channels, using shared memory, in the
+> >> system. I need to prove that there are no such channels
+> >> by metering the shared memory and then accounting for
+> >> every bit shown.
+> >
+> > The customer is confused, and your test is broken as designed.
+> >
+> > The fact that you look in /proc/meminfo and account for every shared
+> > memory page *at this instant* doesn't mean there isn't a communication
+> > channel *at some other time*. Even if you run a daemon that does nothing
+> > but monitor this usage 10 times a second, and complain if a discrepancy
+> > is found, it *still* won't work:
+> >
+> > 1) It's racy - 2 processes can mmap() some space during that 0.1 seconds,
+> > transfer the info, and detach the memory without your knowledge.
+> >
+> > 2) It's racy - if you inquire *while* some other process is in some
+> > intermediate
+> > state, causing false positives that will drive the SSO nuts.
+> >
+> > The *proper* solution is to use something like SELinux that will flat-out
+> > *prohibit* the attachment of a shared memory segment that isn't permitted.
+> >
 >
->  drivers/serial/8250.c |   30 ++++++++++++++++++++----------
->  1 files changed, 20 insertions(+), 10 deletions(-)
+> The customer is not confused and is, in fact, a known expert.
+> This is not a "general purpose" setup. There are no executables
+> except what is burned into R/O PROM. There is no code that can
+> upload new executables nor any way to execute them. There is no
+> shell and no init.
 >
-> Index: work/drivers/serial/8250.c
-> ===================================================================
-> --- work.orig/drivers/serial/8250.c
-> +++ work/drivers/serial/8250.c
-> @@ -2453,6 +2453,7 @@ static struct platform_driver serial8250
->  	.resume		= serial8250_resume,
->  	.driver		= {
->  		.name	= "serial8250",
-> +		.owner	= THIS_MODULE,
->  	},
->  };
+> There is a startup program called 'init' for convenience, but
+> whatever it does is hard-coded. It starts a bunch of predefined
+> tasks and sleeps after performing some initialization.
 >
-> @@ -2593,21 +2594,30 @@ static int __init serial8250_init(void)
->  	if (ret)
->  		goto out;
+> So, if the executable files are exactly like those which
+> were reviewed during a security review, and if all
+> communications between processes can be accounted for,
+> including shared memory, then it can be guaranteed that
+> whatever is being executed is exactly what passed the
+> security review. However, if all communications channels
+> cannot be accounted for, then it is not possible for such
+> a guarantee.
 >
-> -	serial8250_isa_devs = platform_device_register_simple("serial8250",
-> -					 PLAT8250_DEV_LEGACY, NULL, 0);
-> -	if (IS_ERR(serial8250_isa_devs)) {
-> -		ret = PTR_ERR(serial8250_isa_devs);
-> -		goto unreg;
-> +	ret = platform_driver_register(&serial8250_isa_driver);
-> +	if (ret)
-> +		goto unreg_uart_drv;
-> +
-> +	serial8250_isa_devs = platform_device_alloc("serial8250",
-> +						    PLAT8250_DEV_LEGACY);
-> +	if (!serial8250_isa_devs) {
-> +		ret = -ENOMEM;
-> +		goto unreg_plat_drv;
->  	}
+> It can be argued that, once the executable code is known,
+> there is no reason to review possible rogue communications
+> channels. However, the customer is an expert in this field
+> and requires an audit of all possible communications
+> channels, including shared memory.
 >
-> +	ret = platform_device_add(serial8250_isa_devs);
-> +	if (ret)
-> +		goto put_dev;
-> +
->  	serial8250_register_ports(&serial8250_reg, &serial8250_isa_devs- 
-> >dev);
+> Note that this is an audit. The code for every communications
+> channel is reviewed. To verify that all such channels are
+> audited, one needs to find them. For instance even 'vdso' is
+> audited. These are not continuous audits that operate at
+> run-time. The reason for this 'static' audit is so that
+> CPU time eating checks don't have to be done at runtime.
 >
-> -	ret = platform_driver_register(&serial8250_isa_driver);
-> -	if (ret == 0)
-> -		goto out;
-> +	goto out;
 >
-> -	platform_device_unregister(serial8250_isa_devs);
-> - unreg:
-> + put_dev:
-> +	platform_device_put(serial8250_isa_devs);
-> + unreg_plat_drv:
-> +	platform_driver_unregister(&serial8250_isa_driver);
-> + unreg_uart_drv:
->  	uart_unregister_driver(&serial8250_reg);
->   out:
->  	return ret;
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.54 BogoMips).
+> Warning : 98.36% of all statistics are fiction.
+> .
 >
+> ****************************************************************
+> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+>
+> Thank you.
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux- 
-> kernel" in
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-
+>

@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWAPJBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWAPJBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWAPJBp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWAPJBp
+	id S1751082AbWAPJBe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWAPJBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:01:45 -0500
-Received: from free.wgops.com ([69.51.116.66]:28688 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S1751092AbWAPJBo (ORCPT
+	Mon, 16 Jan 2006 04:01:34 -0500
+Received: from smtpout06-01.prod.mesa1.secureserver.net ([64.202.165.224]:31910
+	"HELO smtpout06-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1751082AbWAPJBd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:01:44 -0500
-Date: Mon, 16 Jan 2006 02:01:21 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.8 NFS not stateless and random failures?
-Message-ID: <5B305675488C8F97FCE35455@dhcp-2-206.wgops.com>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
+	Mon, 16 Jan 2006 04:01:33 -0500
+Message-ID: <43CB60E4.1060305@sairyx.org>
+Date: Mon, 16 Jan 2006 20:01:24 +1100
+From: Arlen Christian Mart Cuss <celtic@sairyx.org>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; FORMAT=flowed
+To: Jan De Luyck <lkml@kcore.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.15] screen remains blank after LID switch use
+References: <200601160946.51765.lkml@kcore.org>
+In-Reply-To: <200601160946.51765.lkml@kcore.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Sincere apologies if this gets posted twice, old habits die hard, and I 
-was posting to rutgers instead of kernel.org!)
+Check out /proc/acpi - you should find a few things that you can tinker 
+with, including one for your screen; often called `lcd'. If you "echo 1 
+ > lcd" in the right directory, it should switch it on. "echo 0 > lcd" 
+switches it off. Whatever is managing your power that turns it off, 
+isn't turning it back on. Look into these. It's not likely to be the 
+console/X driver's fault.
 
-We recently attempted to upgrade a completely working Linux 2.4 NFS 
-environment to 2.6 based server, nothing else has changed, at all, just the 
-server.
+ - Arlen.
 
-On with the show, when did the 2.6 series NFS lose it's stateless ability? 
-Now whenever I update NFS exports, or reboot the NFS server, I have to 
-remount or reboot all NFS clients now.  I thought part of the whole point 
-of NFS is it is stateless.  Indeed we didn't have this behavior before 
-2.6...
+Jan De Luyck wrote:
 
-Secondly we're getting weird intermittent failures, most easily seen by the 
-webservers with logs along the lines of below, apparently random, and 
-inconsistent.  I removed the particular path and client from the below log 
-entry.  There is NOT a permissions problem on these elements.  Subsequent 
-accesses will (usually) succeed.  Right after a reboot everything will be 
-fine for a while...then after a bit the webserver starts to get these 
-errors intermittently, with no apparent reasoning behind them.  Again, with 
-2.4, we had nothing of the sort going on except in the (very very limited 
-and few) legitimate cases caused by customers setting incorrect perms.
+>(I have no idea who the maintainer for this is, I was unable to find any entry 
+>in the MAINTAINERS file.. if i overlooked it, feel free to correct me)
+>
+>Hello list,
+>
+>
+>I've recently gotten an Dell D610 laptop from my company. After some digging I 
+>managed to get Linux running on it, with kernel 2.6.15 at this moment.
+>
+>There is something odd going on with the LID switch functionality tho: 
+>everytime the LID is closed, the screen goes off, as expected. Unfortunately, 
+>the screen does not come back alive afterwards, it remains blank.
+>
+>Starting X doesn't help, switching consoles doesn't help either. The problem 
+>is appareant both in X and the console.
+>
+>The laptop remains completely functional, except for the display.
+>
+>Currently I'm not using a fb console, and the X driver is the i810.
+>
+>Any ideas?
+>
+>Thanks,
+>
+>Jan
+>  
+>
 
-[Sun Jan 15 12:14:00 2006] [error] [client a.b.c.d] (13)Permission denied: 
-access to /path... failed because search permissions are missing on a 
-component of the path
-
-Debian 3.1 Kernel 2.6.8-2-686-smp w/ ReiserFS on LVM on a qlogic QLA2342 
-(2312) based PCI-X/133Mhz card.
-
-No errors or other oddities at all being logged on NFS server, completely 
-quiet.
-
-We will probably have to roll back to 2.4, esp. since I can't reproduce 
-this.
-
---
-"Genius might be described as a supreme capacity for getting its possessors
-into trouble of all kinds."
--- Samuel Butler

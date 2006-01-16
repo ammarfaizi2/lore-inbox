@@ -1,75 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWAPKdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWAPKhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWAPKdo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 05:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWAPKdo
+	id S932322AbWAPKhS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 05:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWAPKhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 05:33:44 -0500
-Received: from cantor.suse.de ([195.135.220.2]:48256 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932321AbWAPKdn (ORCPT
+	Mon, 16 Jan 2006 05:37:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:36022 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932322AbWAPKhR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 05:33:43 -0500
-Date: Mon, 16 Jan 2006 11:33:41 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Input: HID - add support for fn key on Apple PowerBooks
-Message-ID: <20060116103341.GA4809@suse.de>
-References: <200601141910.k0EJAm65013553@hera.kernel.org>
+	Mon, 16 Jan 2006 05:37:17 -0500
+Date: Mon, 16 Jan 2006 02:36:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Gerrit Visser" <g.visser@msc-africa.co.za>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Net: e1000 driver: TX Hang message
+Message-Id: <20060116023644.3b567f30.akpm@osdl.org>
+In-Reply-To: <C086BA41F8EFC942B7BBBCF09CC95D210E7634@svr.msc-africa.co.za>
+References: <C086BA41F8EFC942B7BBBCF09CC95D210E7634@svr.msc-africa.co.za>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200601141910.k0EJAm65013553@hera.kernel.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sat, Jan 14, Linux Kernel Mailing List wrote:
 
-> tree 8ba37791bfeb95e660caf6192c8dcecd9ba2aa6e
-> parent 1e27ffd4d7d39783c5196daa2584cca5785d1f95
-> author Michael Hanselmann <linux-kernel@hansmi.ch> Sat, 14 Jan 2006 20:08:06 -0500
-> committer Dmitry Torokhov <dtor_core@ameritech.net> Sat, 14 Jan 2006 20:08:06 -0500
-> 
-> Input: HID - add support for fn key on Apple PowerBooks
-> 
-> This patch implements support for the fn key on Apple PowerBooks using
-> USB based keyboards and makes them behave like their ADB counterparts.
-> 
-> Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
-> Acked-by: Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>
-> Acked-by: Johannes Berg <johannes@sipsolutions.net>
-> Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Acked-by: Vojtech Pavlik <vojtech@suse.cz>
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> 
->  drivers/usb/input/Kconfig     |   10 ++
->  drivers/usb/input/hid-core.c  |    8 ++
->  drivers/usb/input/hid-input.c |  166 +++++++++++++++++++++++++++++++++++++++++-
->  drivers/usb/input/hid.h       |   31 ++++---
->  4 files changed, 201 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
-> index 509dd0a..5246b35 100644
-> --- a/drivers/usb/input/Kconfig
-> +++ b/drivers/usb/input/Kconfig
-> @@ -37,6 +37,16 @@ config USB_HIDINPUT
->  
->  	  If unsure, say Y.
->  
-> +config USB_HIDINPUT_POWERBOOK
-> +	bool "Enable support for iBook/PowerBook special keys"
-> +	default n
-> +	depends on USB_HIDINPUT
-> +	help
-> +	  Say Y here if you want support for the special keys (Fn, Numlock) on
-> +	  Apple iBooks and PowerBooks.
+If this bug is still present in 2.6.15 could you please create a report
+(against 2.6.15) at bugzilla.kenrel.org?
 
-Should this depend on CONFIG_$powerbook?
+Thanks.
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+"Gerrit Visser" <g.visser@msc-africa.co.za> wrote:
+>
+> Hi,
+> 
+> I've got a DELL precision 670 that has an Intel Gigabit Ethernet onboard
+> NIC (82545GM chipset). It receives packets but keeps on giving "Tx hang"
+> messages and doesn't send any packets.
+> 
+> Both standard Redhat WS4 (kernel 2.6.9) and kernel 2.6.13.2 did the
+> same.
+> 
+> To fix it, I've changed the following in the file e1000_hw.c:
+> 
+>     case E1000_DEV_ID_82545GM_COPPER:
+>     case E1000_DEV_ID_82545GM_FIBER:
+>     case E1000_DEV_ID_82545GM_SERDES:
+>         hw->mac_type = e1000_82545_rev_3;
+>         break;
+> 
+> to
+> 
+>     case E1000_DEV_ID_82545GM_COPPER:
+>     case E1000_DEV_ID_82545GM_FIBER:
+>     case E1000_DEV_ID_82545GM_SERDES:
+>         hw->mac_type = e1000_82545;
+>         break;
+> 
+> (ie. removed the "_rev_3")
+> 
+> I'm not certain whether it's necessary to change this for copper, fiber
+> and serdes. Mine is a copper (pci id 1026).
+> 
+> This worked for the Linux e1000 driver from Intel's website, but exactly
+> the same piece of code is in the 2.6.13.2 kernel's e1000 driver.
+> 
+> Best regards,
+> Gerrit
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

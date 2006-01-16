@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWAPWlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWAPWom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWAPWlu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 17:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWAPWlu
+	id S1751231AbWAPWom (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 17:44:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWAPWom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 17:41:50 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:20154 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751239AbWAPWlt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 17:41:49 -0500
-Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3
-	oops on suspend and more (bonus oops shot!)]
-From: john stultz <johnstul@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <p738xtf24ts.fsf@verdi.suse.de>
-References: <20060110235554.GA3527@inferi.kami.home>
-	 <20060110170037.4a614245.akpm@osdl.org> <20060111100016.GC2574@elf.ucw.cz>
-	 <20060110235554.GA3527@inferi.kami.home>
-	 <20060110170037.4a614245.akpm@osdl.org>
-	 <20060111184027.GB4735@inferi.kami.home>
-	 <20060112220825.GA3490@inferi.kami.home>
-	 <1137108362.2890.141.camel@cog.beaverton.ibm.com>
-	 <20060114120816.GA3554@inferi.kami.home>
-	 <1137442582.27699.12.camel@cog.beaverton.ibm.com>
-	 <20060116204057.GC3639@inferi.kami.home>
-	 <1137447763.27699.27.camel@cog.beaverton.ibm.com>
-	 <p738xtf24ts.fsf@verdi.suse.de>
-Content-Type: text/plain
-Date: Mon, 16 Jan 2006 14:41:40 -0800
-Message-Id: <1137451300.27699.43.camel@cog.beaverton.ibm.com>
+	Mon, 16 Jan 2006 17:44:42 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:41543 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751231AbWAPWol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 17:44:41 -0500
+Date: Mon, 16 Jan 2006 23:46:27 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, ide <linux-ide@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jgarzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
+Message-ID: <20060116224626.GS3945@suse.de>
+References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060116115607.GA18307@harddisk-recovery.nl> <20060116140713.GB18307@harddisk-recovery.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060116140713.GB18307@harddisk-recovery.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-16 at 23:19 +0100, Andi Kleen wrote:
-> john stultz <johnstul@us.ibm.com> writes:
-> > > bus master activity:     00000000
-> > > states:
-> > >     C1:                  type[C1] promotion[C2] demotion[--] latency[000] usage[00007790]
-> > >    *C2:                  type[C2] promotion[--] demotion[C1] latency[010] usage[02310093]
+On Mon, Jan 16 2006, Erik Mouw wrote:
+> On Mon, Jan 16, 2006 at 12:56:07PM +0100, Erik Mouw wrote:
+> > On Fri, Jan 13, 2006 at 10:42:52PM -0800, Randy.Dunlap wrote:
+> > > --- linux-2615-g9.orig/drivers/scsi/Kconfig
+> > > +++ linux-2615-g9/drivers/scsi/Kconfig
+> > > @@ -599,6 +599,11 @@ config SCSI_SATA_INTEL_COMBINED
+> > >  	depends on IDE=y && !BLK_DEV_IDE_SATA && (SCSI_SATA_AHCI || SCSI_ATA_PIIX)
+> > >  	default y
+> > >  
+> > > +config SCSI_SATA_ACPI
+> > > +	bool
+> > > +	depends on SCSI_SATA && ACPI
+> > > +	default y
+> > > +
 > > 
-> > Hrmm. Interesting. I'm not aware of C2 causing TSC stalls. This may be
-> > in part why we don't disable the TSC earlier.
+> > Could you add some help text over here? At first glance I got the
+> > impression this was a host driver that works through ACPI calls, but by
+> > reading the rest of your patches it turns out it is a suspend/resume
+> > helper.
 > 
-> On the dual core athlons C1 occasionally loses some ticks (it's not a real stall) when going
-> in/out of HLT. Since the different cores have different HLT patterns depending on load 
-> that causes them to drift against slowly each other, and it adds up over longer runtime.
+> Something like this should already be enough:
+> 
+>   This option enables support for SATA suspend/resume using ACPI.
+> 
+> If you really need this enabled to be able to use suspend/resume at
+> all, you could add a line like:
+> 
+>   It's safe to say Y. If you say N, you might get serious disk
+>   corruption when you suspend your machine.
 
-Yes, AMD SMP systems already mark the TSC as unstable w/ my code.
+That's simply not true. If you say N (if you could), you could risk
+having a non-responsive disk after resume. However, it would have been
+synced a suspend time so you wont corrupt anything.
 
-Unfortunately in this case, we're dealing w/ a single 1Ghz PIII where
-the TSC is slowing down (due to what seems to be stalls, but could be
-cpufreq scaling).
+Maybe you don't know what the patch actually does. The main
+suspend/resume support is in libata, all this adds is the ability to
+retrieve the taskfiles that the BIOS/acpi thinks should be issued on
+resume. That may be things like security unlocking the drive. There are
+no data consistency issues involved.
 
-> Instead of adding lots of ugly checking code I would just check the CPUs like I do
-> in x86-64 and not use the TSC if the test fails. I believe the logic currently in there 
-> handles all modern hardware that is 64bit capable correctly.
-
-If you're suggesting disabling the TSC based off of the results of the
-unsynchronized_tsc() check in arch/x86-64/kerenl/time.c, I actually
-already do almost the same thing (very much inspired by your code).
-Although let me know if you mean something different.
-
-thanks
--john
+-- 
+Jens Axboe
 

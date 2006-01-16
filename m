@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWAPRL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWAPRNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWAPRL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 12:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWAPRL6
+	id S1751130AbWAPRNK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 12:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWAPRNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 12:11:58 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:31429 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751133AbWAPRL5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 12:11:57 -0500
-Message-Id: <200601150446.k0F4kShR005019@laptop11.inf.utfsm.cl>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, rolandd@cisco.com
-Subject: Re: [patch 2.6.15-mm4] sem2mutex: infiniband, #2 
-In-Reply-To: Message from Ingo Molnar <mingo@elte.hu> 
-   of "Sat, 14 Jan 2006 16:09:49 BST." <20060114150949.GA24284@elte.hu> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Sun, 15 Jan 2006 01:46:28 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 16 Jan 2006 14:10:28 -0300 (CLST)
+	Mon, 16 Jan 2006 12:13:10 -0500
+Received: from ik55118.ikexpress.com ([213.246.55.118]:30366 "EHLO
+	ik55118.ikexpress.com") by vger.kernel.org with ESMTP
+	id S1751130AbWAPRNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 12:13:09 -0500
+Message-ID: <43CBD2D7.6090101@free-electrons.com>
+Date: Mon, 16 Jan 2006 18:07:35 +0100
+From: Michael Opdenacker <michael-lists@free-electrons.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Adrian Bunk <bunk@stusta.de>
+Subject: [PATCH] [TRIVIAL] Simplify tosh_get_info() in drivers/char/toshiba.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
-> semaphore to mutex conversion.
-> 
-> the conversion was generated via scripts, and the result was validated
-> automatically via a script as well.
+This patch against 2.6.15 is just a trivial simplification of 
+tosh_get_info() in drivers/char/toshiba.c.
+It was doing something like: b=a; b+=c; return b-a;
+Replaced by: return c;
+Also removed an unnecessary local variable.
 
-Note that the number of inserted/deleted lines don't match, sometimes the
-line
+Signed-off-by: Michael Opdenacker <michael@free-electrons.com>
 
-  #include <linux/mutex.h>
+diff -pruN linux-2.6.15/drivers/char/toshiba.c linux-2.6.15-toshiba/drivers/char/toshiba.c
+--- linux-2.6.15/drivers/char/toshiba.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.15-toshiba/drivers/char/toshiba.c	2006-01-16 10:26:02.000000000 +0100
+@@ -299,12 +299,6 @@ static int tosh_ioctl(struct inode *ip, 
+ #ifdef CONFIG_PROC_FS
+ static int tosh_get_info(char *buffer, char **start, off_t fpos, int length)
+ {
+-	char *temp;
+-	int key;
+-
+-	temp = buffer;
+-	key = tosh_fn_status();
+-
+ 	/* Arguments
+ 	     0) Linux driver version (this will change if format changes)
+ 	     1) Machine ID
+@@ -314,16 +308,14 @@ static int tosh_get_info(char *buffer, c
+ 	     5) Fn Key status
+ 	*/
+ 
+-	temp += sprintf(temp, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
++	return sprintf(buffer, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
+ 		tosh_id,
+ 		(tosh_sci & 0xff00)>>8,
+ 		tosh_sci & 0xff,
+ 		(tosh_bios & 0xff00)>>8,
+ 		tosh_bios & 0xff,
+ 		tosh_date,
+-		key);
+-
+-	return temp-buffer;
++		tosh_fn_status());
+ }
+ #endif
+ 
 
-is duplicated.
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Michael Opdenacker, Free Electrons
+Free Embedded Linux Training Materials
+on http://free-electrons.com/training
+
+

@@ -1,54 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWAPQpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWAPQpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWAPQpA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 11:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWAPQpA
+	id S1751096AbWAPQpF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 11:45:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWAPQpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 11:45:00 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:35801 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751093AbWAPQo7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 11:44:59 -0500
-Message-ID: <43CBDF73.81E2316F@tv-sign.ru>
-Date: Mon, 16 Jan 2006 21:01:23 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sigprocmask: kill unneeded temp var
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jan 2006 11:45:05 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30362 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751096AbWAPQpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 11:45:03 -0500
+Subject: PATCH: Remove enable.h from rio driver (unused file)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 16 Jan 2006 16:49:15 +0000
+Message-Id: <1137430156.15553.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleanup, remove unneeded double copying of current->blocked.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-git12/drivers/char/rio/eisa.h linux-2.6.15-git12/drivers/char/rio/eisa.h
+--- linux.vanilla-2.6.15-git12/drivers/char/rio/eisa.h	2006-01-16 14:19:12.000000000 +0000
++++ linux-2.6.15-git12/drivers/char/rio/eisa.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,104 +0,0 @@
+-/*
+-** -----------------------------------------------------------------------------
+-**
+-**  Perle Specialix driver for Linux
+-**  Ported from existing RIO Driver for SCO sources.
+-
+- *
+- *  (C) 1990 - 2000 Specialix International Ltd., Byfleet, Surrey, UK.
+- *
+- *      This program is free software; you can redistribute it and/or modify
+- *      it under the terms of the GNU General Public License as published by
+- *      the Free Software Foundation; either version 2 of the License, or
+- *      (at your option) any later version.
+- *
+- *      This program is distributed in the hope that it will be useful,
+- *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *      GNU General Public License for more details.
+- *
+- *      You should have received a copy of the GNU General Public License
+- *      along with this program; if not, write to the Free Software
+- *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-**
+-**	Module		: eisa.h
+-**	SID		: 1.2
+-**	Last Modified	: 11/6/98 11:34:10
+-**	Retrieved	: 11/6/98 11:34:21
+-**
+-**  ident @(#)eisa.h	1.2
+-**
+-** -----------------------------------------------------------------------------
+-*/
+-
+-#ifndef __rio_eisa_h__
+-#define __rio_eisa_h__
+-
+-#ifdef SCCS_LABELS
+-#ifndef lint
+-static char *_eisa_h_sccs_ = "@(#)eisa.h	1.2";
+-#endif
+-#endif
+-
+-/*
+-** things to do with the EISA bus
+-*/
+-
+-#define RIO_EISA_STRING_ADDRESS 	0xfffd9	/* where EISA is stored */
+-
+-#define	RIO_MAX_EISA_SLOTS		16	/* how many EISA slots? */
+-
+-#define	RIO_EISA_IDENT			0x984D	/* Specialix */
+-#define	RIO_EISA_PRODUCT_CODE		0x14	/* Code 14 */
+-#define	RIO_EISA_ENABLE_BIT		0x01	/* To enable card */
+-
+-#define	EISA_MEMORY_BASE_LO		0xC00	/* A16-A23 */
+-#define	EISA_MEMORY_BASE_HI		0xC01	/* A24-A31 */
+-#define	EISA_INTERRUPT_VEC		0xC02	/* see below */
+-#define	EISA_CONTROL_PORT		0xC02	/* see below */
+-#define	EISA_INTERRUPT_RESET		0xC03	/* read to clear IRQ */
+-
+-#define	EISA_PRODUCT_IDENT_LO		0xC80	/* where RIO_EISA_IDENT is */
+-#define	EISA_PRODUCT_IDENT_HI		0xC81
+-#define	EISA_PRODUCT_NUMBER		0xC82	/* where PROD_CODE is */
+-#define	EISA_REVISION_NUMBER		0xC83	/* revision (1dp) */
+-#define	EISA_ENABLE			0xC84	/* set LSB to enable card */
+-#define	EISA_UNIQUE_NUM_0		0xC88	/* vomit */
+-#define	EISA_UNIQUE_NUM_1		0xC8A
+-#define	EISA_UNIQUE_NUM_2		0xC90	/* bit strangely arranged */
+-#define	EISA_UNIQUE_NUM_3		0xC92
+-#define	EISA_MANUF_YEAR			0xC98	/* when */
+-#define	EISA_MANUF_WEEK			0xC9A	/* more when */
+-
+-#define	EISA_TP_BOOT_FROM_RAM	0x01
+-#define	EISA_TP_BOOT_FROM_LINK	0x00
+-#define	EISA_TP_FAST_LINKS	0x02
+-#define	EISA_TP_SLOW_LINKS	0x00
+-#define	EISA_TP_BUS_ENABLE	0x04
+-#define	EISA_TP_BUS_DISABLE	0x00
+-#define	EISA_TP_RUN		0x08
+-#define	EISA_TP_RESET		0x00
+-#define	EISA_POLLED		0x00
+-#define	EISA_IRQ_3		0x30
+-#define	EISA_IRQ_4		0x40
+-#define	EISA_IRQ_5		0x50
+-#define	EISA_IRQ_6		0x60
+-#define	EISA_IRQ_7		0x70
+-#define	EISA_IRQ_9		0x90
+-#define	EISA_IRQ_10		0xA0
+-#define	EISA_IRQ_11		0xB0
+-#define	EISA_IRQ_12		0xC0
+-#define	EISA_IRQ_14		0xE0
+-#define	EISA_IRQ_15		0xF0
+-
+-#define	EISA_INTERRUPT_MASK	0xF0
+-#define	EISA_CONTROL_MASK	0x0F
+-
+-#define	RIO_EISA_DEFAULT_MODE	EISA_TP_SLOW_LINKS
+-
+-#define	RIOEisaToIvec(X)	(uchar )((uchar)((X) & EISA_INTERRUPT_MASK)>>4)
+-
+-#define	INBZ(z,x)	inb(((z)<<12) | (x))
+-#define	OUTBZ(z,x,y)	outb((((z)<<12) | (x)), y)
+-
+-#endif				/* __rio_eisa_h__ */
 
---- 2.6.15/kernel/signal.c~	2005-11-22 19:35:52.000000000 +0300
-+++ 2.6.15/kernel/signal.c	2006-01-16 14:50:17.000000000 +0300
-@@ -2004,10 +2004,11 @@ long do_no_restart_syscall(struct restar
- int sigprocmask(int how, sigset_t *set, sigset_t *oldset)
- {
- 	int error;
--	sigset_t old_block;
- 
- 	spin_lock_irq(&current->sighand->siglock);
--	old_block = current->blocked;
-+	if (oldset)
-+		*oldset = current->blocked;
-+
- 	error = 0;
- 	switch (how) {
- 	case SIG_BLOCK:
-@@ -2024,8 +2025,7 @@ int sigprocmask(int how, sigset_t *set, 
- 	}
- 	recalc_sigpending();
- 	spin_unlock_irq(&current->sighand->siglock);
--	if (oldset)
--		*oldset = old_block;
-+
- 	return error;
- }

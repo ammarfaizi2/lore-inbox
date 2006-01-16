@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWAPKZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWAPKdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWAPKZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 05:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWAPKZu
+	id S932321AbWAPKdo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 05:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWAPKdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 05:25:50 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:15570
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S932319AbWAPKZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 05:25:50 -0500
-Date: Mon, 16 Jan 2006 02:22:55 -0800
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       david singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
-Message-ID: <20060116102255.GA19401@gnuppy.monkey.org>
-References: <20060115042449.GA9871@gnuppy.monkey.org> <Pine.LNX.4.44L0.0601160926360.4219-100000@lifa01.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jan 2006 05:33:44 -0500
+Received: from cantor.suse.de ([195.135.220.2]:48256 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932321AbWAPKdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 05:33:43 -0500
+Date: Mon, 16 Jan 2006 11:33:41 +0100
+From: Olaf Hering <olh@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Input: HID - add support for fn key on Apple PowerBooks
+Message-ID: <20060116103341.GA4809@suse.de>
+References: <200601141910.k0EJAm65013553@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0601160926360.4219-100000@lifa01.phys.au.dk>
-User-Agent: Mutt/1.5.11
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+In-Reply-To: <200601141910.k0EJAm65013553@hera.kernel.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 09:35:42AM +0100, Esben Nielsen wrote:
-> On Sat, 14 Jan 2006, Bill Huey wrote:
-> I am not precisely sure what you mean by "false reporting".
+ On Sat, Jan 14, Linux Kernel Mailing List wrote:
+
+> tree 8ba37791bfeb95e660caf6192c8dcecd9ba2aa6e
+> parent 1e27ffd4d7d39783c5196daa2584cca5785d1f95
+> author Michael Hanselmann <linux-kernel@hansmi.ch> Sat, 14 Jan 2006 20:08:06 -0500
+> committer Dmitry Torokhov <dtor_core@ameritech.net> Sat, 14 Jan 2006 20:08:06 -0500
 > 
-> Handing off BKL is done in schedule() in sched.c. I.e. if B owns a normal
-> mutex, A will give BKL to B when A calls schedule() in the down-operation
-> of that mutex.
+> Input: HID - add support for fn key on Apple PowerBooks
+> 
+> This patch implements support for the fn key on Apple PowerBooks using
+> USB based keyboards and makes them behave like their ADB counterparts.
+> 
+> Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
+> Acked-by: Rene Nussbaumer <linux-kernel@killerfox.forkbomb.ch>
+> Acked-by: Johannes Berg <johannes@sipsolutions.net>
+> Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Acked-by: Vojtech Pavlik <vojtech@suse.cz>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+>  drivers/usb/input/Kconfig     |   10 ++
+>  drivers/usb/input/hid-core.c  |    8 ++
+>  drivers/usb/input/hid-input.c |  166 +++++++++++++++++++++++++++++++++++++++++-
+>  drivers/usb/input/hid.h       |   31 ++++---
+>  4 files changed, 201 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
+> index 509dd0a..5246b35 100644
+> --- a/drivers/usb/input/Kconfig
+> +++ b/drivers/usb/input/Kconfig
+> @@ -37,6 +37,16 @@ config USB_HIDINPUT
+>  
+>  	  If unsure, say Y.
+>  
+> +config USB_HIDINPUT_POWERBOOK
+> +	bool "Enable support for iBook/PowerBook special keys"
+> +	default n
+> +	depends on USB_HIDINPUT
+> +	help
+> +	  Say Y here if you want support for the special keys (Fn, Numlock) on
+> +	  Apple iBooks and PowerBooks.
 
-Task A holding BKL would have to drop BKL when it blocks against a mutex held
-by task B in my example and therefore must hit schedule() before any pi boost
-operation happens. I'll take another look at your code just to see if this is
-clear.
+Should this depend on CONFIG_$powerbook?
 
-bill
-
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWAPHfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWAPHng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWAPHfr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 02:35:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWAPHfq
+	id S932189AbWAPHng (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 02:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWAPHng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 02:35:46 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:48256
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932234AbWAPHfq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 02:35:46 -0500
-Message-Id: <43CB5B15.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Mon, 16 Jan 2006 08:36:37 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Andi Kleen" <ak@muc.de>, "Andrew Morton" <akpm@osdl.org>,
-       "Paul Mackerras" <paulus@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CONFIG_UNWIND_INFO
-References: <4370AF4A.76F0.0078.0@novell.com>  <20060114045635.1462fb9e.akpm@osdl.org> <20060114140301.GA8443@mars.ravnborg.org>
-In-Reply-To: <20060114140301.GA8443@mars.ravnborg.org>
+	Mon, 16 Jan 2006 02:43:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38791 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932189AbWAPHng convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 02:43:36 -0500
+Date: Sun, 15 Jan 2006 23:43:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] swsusp: userland interface
+Message-Id: <20060115234300.159688f7.akpm@osdl.org>
+In-Reply-To: <200601151831.32021.rjw@sisk.pl>
+References: <200601151831.32021.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Sam Ravnborg <sam@ravnborg.org> 14.01.06 15:03:01 >>>
->On Sat, Jan 14, 2006 at 04:56:35AM -0800, Andrew Morton wrote:
->> 
->> > Index: linux/Makefile
->> > ===================================================================
->> > --- linux.orig/Makefile
->> > +++ linux/Makefile
->> > @@ -502,6 +502,10 @@ CFLAGS		+= $(call add-align,CONFIG_CC_AL
->> >  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LOOPS,-loops)
->> >  CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_JUMPS,-jumps)
->> >  
->> > +ifdef CONFIG_UNWIND_INFO
->> > +CFLAGS		+= -fasynchronous-unwind-tables
->> > +endif
->Is this option available on all gcc's for all archs?
->Otherwise you have to do:
->CFLAGS		+= $(call cc-option,-fasynchronous-unwind-tables,)
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+> Hi,
+> 
+> This patch introduces a user space interface for swsusp.
+> 
+> The interface is based on a special character device, called the snapshot
+> device, that allows user space processes to perform suspend and
+> resume-related operations with the help of some ioctls and the read()/write()
+> functions.  Additionally it allows these processes to allocate free swap pages
+> from a selected swap partition, called the resume partition, so that they know
+> which sectors of the resume partition are available to them.
+> 
+> The interface uses the same low-level system memory snapshot-handling
+> functions that are used by the built-it swap-writing/reading code of swsusp.
 
-Yes, it is (and it has been at least since 3.2.x). Apparently the PPC backend doesn't fully support this...
+The identifiers and terminology are pretty similar to dm-snap.c.  But I
+don't see any clashes there.  Yet.
 
-Jan
+> The interface documentation is included in the patch.
+> 
+> The patch assumes that the major and minor numbers of the snapshot device
+> will be 10 (ie. misc device) and 231, the registration of which has already been
+> requested.
+
+Why does it need a statically-allocated major and minor?  misc_register()
+will generate a uevent and the device node should just appear...
 

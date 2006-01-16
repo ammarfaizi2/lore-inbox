@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWAPOQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWAPOQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWAPOQk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 09:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWAPOQj
+	id S1750818AbWAPOQh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 09:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWAPOQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 09:16:39 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:28832 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750811AbWAPOQi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 09:16:38 -0500
-Message-ID: <43CBAABC.6070200@pobox.com>
-Date: Mon, 16 Jan 2006 09:16:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 16 Jan 2006 09:16:37 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:14301 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750818AbWAPOQh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 09:16:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oYrXGhNd5paTqnubmHd3xxBV9MUh9jidLvN/Jgw9k6DFjck43wCZwXo2/1ybBFeMVuc4//V0fGiqn8ZGbYdNS6Y2wtj8fOB+FLhO559XApMluITzvWb59lYOBDZm9rvYwiTrEK9LysDn1HU57WoKFa7r6lvacsSujk48hsTX0J0=
+Message-ID: <9a8748490601160616i35fa2a6fv693d8ecc84133d5f@mail.gmail.com>
+Date: Mon, 16 Jan 2006 15:16:36 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Akinobu Mita <mita@miraclelinux.com>
+Subject: Re: [PATCH 1/3] makes print_symbol() return int
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20060116121706.GB539@miraclelinux.com>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: lkml <linux-kernel@vger.kernel.org>, jejb <james.bottomley@steeleye.com>
-Subject: Re: [PATCH/RFC] SATA in its own config menu
-References: <20060115135728.7b13996d.rdunlap@xenotime.net>
-In-Reply-To: <20060115135728.7b13996d.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Randy.Dunlap wrote: > From: Randy Dunlap
-	<rdunlap@xenotime.net> > > Put SATA into its own menu. Reason: using
-	SCSI is an > implementation detail that users need not know about. > >
-	Enabling SATA selects SCSI since SATA uses SCSI as a function > library
-	supplier. It also enables BLK_DEV_SD since that is > what SATA drives
-	look like in Linux. > > Signed-off-by: Randy Dunlap
-	<rdunlap@xenotime.net> > --- > drivers/Kconfig | 2 >
-	drivers/scsi/Kconfig | 138 > drivers/scsi/Kconfig.sata | 142
-	++++++++++++++++++++++++++++++++++++++++++++++ > 3 files changed, 144
-	insertions(+), 138 deletions(-) [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060116121611.GA539@miraclelinux.com>
+	 <20060116121706.GB539@miraclelinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Put SATA into its own menu.  Reason:  using SCSI is an
-> implementation detail that users need not know about.
-> 
-> Enabling SATA selects SCSI since SATA uses SCSI as a function
-> library supplier.  It also enables BLK_DEV_SD since that is
-> what SATA drives look like in Linux.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> ---
->  drivers/Kconfig           |    2 
->  drivers/scsi/Kconfig      |  138 --------------------------------------------
->  drivers/scsi/Kconfig.sata |  142 ++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 144 insertions(+), 138 deletions(-)
+On 1/16/06, Akinobu Mita <mita@miraclelinux.com> wrote:
+> This patch makes print_symbol() return the number of characters printed.
+>
+Why?
+Who are the users of this?
+If there are users who can bennefit, then where's the patch to make
+them use this new return value?
 
-This needs to be done after the code gets moved to drivers/ata...
-
-	Jeff
-
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

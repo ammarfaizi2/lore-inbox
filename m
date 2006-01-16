@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWAPMNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWAPMQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWAPMNc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 07:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWAPMNb
+	id S1750735AbWAPMQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 07:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWAPMQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 07:13:31 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:2436 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750706AbWAPMNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 07:13:31 -0500
-Date: Mon, 16 Jan 2006 12:13:28 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, jgarzik <jgarzik@pobox.com>,
-       jejb <james.bottomley@steeleye.com>
-Subject: Re: [PATCH/RFC] SATA in its own config menu
-Message-ID: <20060116121328.GA12871@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>,
-	lkml <linux-kernel@vger.kernel.org>, jgarzik <jgarzik@pobox.com>,
-	jejb <james.bottomley@steeleye.com>
-References: <20060115135728.7b13996d.rdunlap@xenotime.net>
+	Mon, 16 Jan 2006 07:16:16 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:18738 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1750735AbWAPMQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 07:16:15 -0500
+Date: Mon, 16 Jan 2006 21:16:11 +0900
+To: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/3] changes about Call Trace:
+Message-ID: <20060116121611.GA539@miraclelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060115135728.7b13996d.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 15, 2006 at 01:57:28PM -0800, Randy.Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Put SATA into its own menu.  Reason:  using SCSI is an
-> implementation detail that users need not know about.
-> 
-> Enabling SATA selects SCSI since SATA uses SCSI as a function
-> library supplier.  It also enables BLK_DEV_SD since that is
-> what SATA drives look like in Linux.
+Hello,
 
-we'll soon support (or already do?) support sata atapi, when this
-won't be true anymore.  Please never select scsi upper drivers from
-lower drivers, this independence is the whole point of the layered
-architecture.
+I realized two things when I was porting my small script oops2line
+to x86-64. (read call trace, find correspondance modules, calculate addr
+and addr2line)
+
+If I'm missing something, please let me know.
+
+a) On x86-64 we get different Call Trace format than other architectures
+   when we get oops or press SysRq-t:
+
+   <ffffffffa008ef6c>{:jbd:kjournald+1030}
+
+   There is a architecture independent function print_symbol().
+   How about using it on x86-64? But it changes to:
+
+   [<ffffffffa008ef6c>] kjournald+0x406/0x578 [jbd]
+
+b) I can't find useful usage for the symbol size in print_symbol().
+   And symbolsize seems to be fixed when vmlinux or modules are compiled.
+   So we can calculate it from vmlinux or modules.
+   How about removing the field of symbolsize in print_symbol()?
+
+   [<ffffffffa008ef6c>] kjournald+0x406 [jbd]
 

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWAPJX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWAPJXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWAPJX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWAPJXh
+	id S932273AbWAPJXM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWAPJW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:23:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:40683 "EHLO
+	Mon, 16 Jan 2006 04:22:59 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29931 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932263AbWAPJXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:23:16 -0500
+	id S932266AbWAPJWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:22:37 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Michael Krufky <mkrufky@m1k.net>,
+       akpm@osdl.org, Panagiotis Christeas <p_christ@hol.gr>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 24/25] Samsung TBMV30111IN has 6 entries
-Date: Mon, 16 Jan 2006 07:11:25 -0200
-Message-id: <20060116091125.PS78716200024@infradead.org>
+Subject: [PATCH 15/25] Fix for lack of analog output on some cx88 boards
+Date: Mon, 16 Jan 2006 07:11:23 -0200
+Message-id: <20060116091123.PS01641700015@infradead.org>
 In-Reply-To: <20060116091105.PS83611600000@infradead.org>
 References: <20060116091105.PS83611600000@infradead.org>
 Mime-Version: 1.0
@@ -29,28 +29,43 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Michael Krufky <mkrufky@m1k.net>
+From: Panagiotis Christeas <p_christ@hol.gr>
 
-- Samsung TBMV30111IN has 6 entries
+- Workaround to fix a known regression at cx88-tvaudio.c
+- provide a module parameter workaround to always enable
+analog output.
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Panagiotis Christeas <p_christ@hol.gr>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/frontends/dvb-pll.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/media/video/cx88/cx88-tvaudio.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/dvb/frontends/dvb-pll.c b/drivers/media/dvb/frontends/dvb-pll.c
-index 757075f..1b9934e 100644
---- a/drivers/media/dvb/frontends/dvb-pll.c
-+++ b/drivers/media/dvb/frontends/dvb-pll.c
-@@ -333,7 +333,7 @@ struct dvb_pll_desc dvb_pll_tbmv30111in 
- 	.name = "Samsung TBMV30111IN",
- 	.min = 54000000,
- 	.max = 860000000,
--	.count = 4,
-+	.count = 6,
- 	.entries = {
- 		{ 172000000, 44000000, 166666, 0xb4, 0x01 },
- 		{ 214000000, 44000000, 166666, 0xb4, 0x02 },
+diff --git a/drivers/media/video/cx88/cx88-tvaudio.c b/drivers/media/video/cx88/cx88-tvaudio.c
+index 24118e4..da8d97c 100644
+--- a/drivers/media/video/cx88/cx88-tvaudio.c
++++ b/drivers/media/video/cx88/cx88-tvaudio.c
+@@ -60,6 +60,11 @@ static unsigned int audio_debug = 0;
+ module_param(audio_debug, int, 0644);
+ MODULE_PARM_DESC(audio_debug, "enable debug messages [audio]");
+ 
++static unsigned int always_analog = 0;
++module_param(always_analog,int,0644);
++MODULE_PARM_DESC(always_analog,"force analog audio out");
++
++
+ #define dprintk(fmt, arg...)	if (audio_debug) \
+ 	printk(KERN_DEBUG "%s/0: " fmt, core->name , ## arg)
+ 
+@@ -155,7 +160,8 @@ static void set_audio_finish(struct cx88
+ 		cx_write(AUD_I2SOUTPUTCNTL, 1);
+ 		cx_write(AUD_I2SCNTL, 0);
+ 		/* cx_write(AUD_APB_IN_RATE_ADJ, 0); */
+-	} else {
++	}
++	if ((always_analog) || (!cx88_boards[core->board].blackbird)) {
+ 		ctl |= EN_DAC_ENABLE;
+ 		cx_write(AUD_CTL, ctl);
+ 	}
 

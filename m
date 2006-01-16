@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWAPRHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWAPRKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWAPRHk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 12:07:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWAPRHk
+	id S1751128AbWAPRKS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 12:10:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWAPRKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 12:07:40 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20119 "EHLO
+	Mon, 16 Jan 2006 12:10:18 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:21143 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751127AbWAPRHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 12:07:39 -0500
-Subject: PATCH: Remove #if 0 and other long dead code from rio_tty
+	id S1751128AbWAPRKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 12:10:15 -0500
+Subject: PATCH: Remove unused code from rioboot
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Jan 2006 17:11:50 +0000
-Message-Id: <1137431510.15553.51.camel@localhost.localdomain>
+Date: Mon, 16 Jan 2006 17:14:25 +0000
+Message-Id: <1137431665.15553.55.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,664 +23,1217 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-git12/drivers/char/rio/riotty.c linux-2.6.15-git12/drivers/char/rio/riotty.c
---- linux.vanilla-2.6.15-git12/drivers/char/rio/riotty.c	2006-01-16 14:19:13.000000000 +0000
-+++ linux-2.6.15-git12/drivers/char/rio/riotty.c	2006-01-16 16:23:09.574952384 +0000
-@@ -89,16 +89,9 @@
- #include "list.h"
- #include "sam.h"
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.15-git12/drivers/char/rio/rioinit.c linux-2.6.15-git12/drivers/char/rio/rioinit.c
+--- linux.vanilla-2.6.15-git12/drivers/char/rio/rioinit.c	2006-01-16 14:17:08.000000000 +0000
++++ linux-2.6.15-git12/drivers/char/rio/rioinit.c	2006-01-16 16:23:09.574952384 +0000
+@@ -87,222 +87,8 @@
+ 
+ int RIOPCIinit(struct rio_info *p, int Mode);
  
 -#if 0
--static void ttyseth_pv(struct Port *, struct ttystatics *, struct termios *sg, int);
+-static void RIOAllocateInterrupts(struct rio_info *);
+-static int RIOReport(struct rio_info *);
+-static void RIOStopInterrupts(struct rio_info *, int, int);
 -#endif
 -
- static void RIOClearUp(struct Port *PortP);
- int RIOShortCommand(struct rio_info *p, struct Port *PortP, int command, int len, int arg);
+ static int RIOScrub(int, BYTE *, int);
  
 -#if 0
--static int RIOCookMode(struct ttystatics *);
--#endif
- 
- extern int conv_vb[];		/* now defined in ttymgr.c */
- extern int conv_bv[];		/* now defined in ttymgr.c */
-@@ -226,33 +219,6 @@
- 	 ** until the RTA is present then we must spin here waiting for
- 	 ** the RTA to boot.
- 	 */
--#if 0
--	if (!(PortP->HostP->Mapping[PortP->RupNum].Flags & RTA_BOOTED)) {
--		if (PortP->WaitUntilBooted) {
--			rio_dprintk(RIO_DEBUG_TTY, "Waiting for RTA to boot\n");
--			do {
--				if (RIODelay(PortP, HUNDRED_MS) == RIO_FAIL) {
--					rio_dprintk(RIO_DEBUG_TTY, "RTA EINTR in delay \n");
--					func_exit();
--					return -EINTR;
--				}
--				if (repeat_this-- <= 0) {
--					rio_dprintk(RIO_DEBUG_TTY, "Waiting for RTA to boot timeout\n");
--					RIOPreemptiveCmd(p, PortP, FCLOSE);
--					pseterr(EINTR);
--					func_exit();
--					return -EIO;
--				}
--			} while (!(PortP->HostP->Mapping[PortP->RupNum].Flags & RTA_BOOTED));
--			rio_dprintk(RIO_DEBUG_TTY, "RTA has been booted\n");
--		} else {
--			rio_dprintk(RIO_DEBUG_TTY, "RTA never booted\n");
--			pseterr(ENXIO);
--			func_exit();
--			return 0;
--		}
--	}
--#else
- 	/* I find the above code a bit hairy. I find the below code
- 	   easier to read and shorter. Now, if it works too that would
- 	   be great... -- REW 
-@@ -281,21 +247,10 @@
- 		}
- 	}
- 	rio_dprintk(RIO_DEBUG_TTY, "RTA has been booted\n");
--#endif
--#if 0
--	tp = PortP->TtyP;	/* get tty struct */
--#endif
- 	rio_spin_lock_irqsave(&PortP->portSem, flags);
- 	if (p->RIOHalted) {
- 		goto bombout;
- 	}
--#if 0
--	retval = gs_init_port(&PortP->gs);
--	if (retval) {
--		func_exit();
--		return retval;
--	}
--#endif
- 
- 	/*
- 	 ** If the port is in the final throws of being closed,
-@@ -363,11 +318,6 @@
- 		   command piggybacks the parameters immediately.
- 		   -- REW */
- 		RIOParam(PortP, OPEN, Modem, OK_TO_SLEEP);	/* Open the port */
--#if 0
--		/* This delay of 1 second was annoying. I removed it. -- REW */
--		RIODelay(PortP, HUNDRED_MS * 10);
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);	/* Config the port */
--#endif
- 		rio_spin_lock_irqsave(&PortP->portSem, flags);
- 
- 		/*
-@@ -439,9 +389,6 @@
- 				PortP->State |= RIO_WOPEN;
- 				rio_spin_unlock_irqrestore(&PortP->portSem, flags);
- 				if (RIODelay(PortP, HUNDRED_MS) == RIO_FAIL)
--#if 0
--					if (sleep((caddr_t) & tp->tm.c_canqo, TTIPRI | PCATCH))
--#endif
- 					{
- 						/*
- 						 ** ACTION: verify that this is a good thing
-@@ -505,10 +452,6 @@
- */
- int riotclose(void *ptr)
- {
--#if 0
--	register uint SysPort = dev;
--	struct ttystatics *tp;	/* pointer to our ttystruct */
--#endif
- 	struct Port *PortP = ptr;	/* pointer to the port structure */
- 	int deleted = 0;
- 	int try = -1;		/* Disable the timeouts by setting them to -1 */
-@@ -534,13 +477,6 @@
- 		end_time = jiffies + MAX_SCHEDULE_TIMEOUT;
- 
- 	Modem = rio_ismodem(tty);
--#if 0
--	/* What F.CKING cache? Even then, a higly idle multiprocessor,
--	   system with large caches this won't work . Better find out when 
--	   this doesn't work asap, and fix the cause.  -- REW */
+-extern int	rio_intr();
 -
--	RIODelay(PortP, HUNDRED_MS * 10);	/* To flush the cache */
--#endif
- 	rio_spin_lock_irqsave(&PortP->portSem, flags);
- 
- 	/*
-@@ -703,45 +639,6 @@
- }
- 
- 
 -/*
--** decide if we need to use the line discipline.
--** This routine can return one of three values:
--** COOK_RAW if no processing has to be done by the line discipline or the card
--** COOK_WELL if the line discipline must be used to do the processing
--** COOK_MEDIUM if the card can do all the processing necessary.
+-**	Init time code.
 -*/
--#if 0
--static int RIOCookMode(struct ttystatics *tp)
+-void
+-rioinit( p, info )
+-struct rio_info		* p;
+-struct RioHostInfo	* info;
 -{
 -	/*
--	 ** We can't handle tm.c_mstate != 0 on SCO
--	 ** We can't handle mapping
--	 ** We can't handle non-ttwrite line disc.
--	 ** We can't handle lflag XCASE
--	 ** We can handle oflag OPOST & (OCRNL, ONLCR, TAB3)
--	 */
+-	** Multi-Host card support - taking the easy way out - sorry !
+-	** We allocate and set up the Host and Port structs when the
+-	** driver is called to 'install' the first host.
+-	** We check for this first 'call' by testing the RIOPortp pointer.
+-	*/
+-	if ( !p->RIOPortp )
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT,  "Allocating and setting up driver data structures\n");
 -
--#ifdef CHECK
--	CheckTtyP(tp);
--#endif
--	if (!(tp->tm.c_oflag & OPOST))	/* No post processing */
--		return COOK_RAW;	/* Raw mode o/p */
+-		RIOAllocDataStructs(p);		/* allocate host/port structs */
+-		RIOSetupDataStructs(p);		/* setup topology structs */
+-	}
 -
--	if (tp->tm.c_lflag & XCASE)
--		return COOK_WELL;	/* Use line disc */
+-	RIOInitHosts( p, info );	/* hunt down the hardware */
 -
--	if (tp->tm.c_oflag & ~(OPOST | ONLCR | OCRNL | TAB3))
--		return COOK_WELL;	/* Use line disc for strange modes */
+-	RIOAllocateInterrupts(p);	/* allocate interrupts */
+-	RIOReport(p);			/* show what we found */
+-}
 -
--	if (tp->tm.c_oflag == OPOST)	/* If only OPOST is set, do RAW */
--		return COOK_RAW;
+-/*
+-** Initialise the Cards 
+-*/ 
+-void
+-RIOInitHosts(p, info)
+-struct rio_info		* p;
+-struct RioHostInfo	* info;
+-{
+-/*
+-** 15.10.1998 ARG - ESIL 0762 part fix
+-** If there is no ISA card definition - we always look for PCI cards.
+-** As we currently only support one host card this lets an ISA card
+-** definition take precedence over PLUG and PLAY.
+-** No ISA card - we are PLUG and PLAY with PCI.
+-*/
 -
 -	/*
--	 ** So, we need to output process!
--	 */
--	return COOK_MEDIUM;
+-	** Note - for PCI both these will be zero, that's okay because
+-	** RIOPCIInit() fills them in if a card is found.
+-	*/
+-	p->RIOHosts[p->RIONumHosts].Ivec	= info->vector;
+-	p->RIOHosts[p->RIONumHosts].PaddrP	= info->location;
+-
+-	/*
+-	** Check that we are able to accommodate another host
+-	*/
+-	if ( p->RIONumHosts >= RIO_HOSTS )
+-	{
+-		p->RIOFailed++;
+-		return;
+-	}
+-
+-	if ( info->bus & ISA_BUS )
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT,  "initialising card %d (ISA)\n", p->RIONumHosts);
+-		RIOISAinit(p, p->mode);
+-	}
+-	else
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT,  "initialising card %d (PCI)\n", p->RIONumHosts);
+-		RIOPCIinit(p, RIO_PCI_DEFAULT_MODE);
+-	}
+-
+-	rio_dprintk (RIO_DEBUG_INIT,  "Total hosts initialised so far : %d\n", p->RIONumHosts);
+-
+-
+-#ifdef FUTURE_RELEASE
+-	if (p->bus & EISA_BUS)
+-		/* EISA card */
+-		RIOEISAinit(p, RIO_EISA_DEFAULT_MODE);
+-
+-	if (p->bus & MCA_BUS)
+-		/* MCA card */
+-		RIOMCAinit(p, RIO_MCA_DEFAULT_MODE);
+-#endif
+-}
+-
+-/*
+-** go through memory for an AT host that we pass in the device info
+-** structure and initialise
+-*/
+-void
+-RIOISAinit(p, mode)
+-struct rio_info *	p;
+-int					mode;
+-{
+-
+-  /* XXX Need to implement this. */
+-#if 0
+-	p->intr_tid = iointset(p->RIOHosts[p->RIONumHosts].Ivec,
+-					(int (*)())rio_intr, (char*)p->RIONumHosts);
+-
+-	rio_dprintk (RIO_DEBUG_INIT,  "Set interrupt handler, intr_tid = 0x%x\n", p->intr_tid );
+-
+-	if (RIODoAT(p, p->RIOHosts[p->RIONumHosts].PaddrP, mode)) {
+-		return;
+-	}
+-	else {
+-		rio_dprintk (RIO_DEBUG_INIT, "RIODoAT failed\n");
+-		p->RIOFailed++;
+-	}
+-#endif
+-
+-}
+-
+-/*
+-** RIODoAT :
+-**
+-** Map in a boards physical address, check that the board is there,
+-** test the board and if everything is okay assign the board an entry
+-** in the Rio Hosts structure.
+-*/
+-int
+-RIODoAT(p, Base, mode)
+-struct rio_info *	p;
+-int		Base;
+-int		mode;
+-{
+-#define	FOUND		1
+-#define NOT_FOUND	0
+-
+-	caddr_t		cardAddr;
+-
+-	/*
+-	** Check to see if we actually have a board at this physical address.
+-	*/
+-	if ((cardAddr = RIOCheckForATCard(Base)) != 0) {
+-		/*
+-		** Now test the board to see if it is working.
+-		*/
+-		if (RIOBoardTest(Base, cardAddr, RIO_AT, 0) == RIO_SUCCESS) {
+-			/*
+-			** Fill out a slot in the Rio host structure.
+-			*/
+-			if (RIOAssignAT(p, Base, cardAddr, mode)) {
+-				return(FOUND);
+-			}
+-		}
+-		RIOMapout(Base, RIO_AT_MEM_SIZE, cardAddr);
+-	}
+-	return(NOT_FOUND);
+-}
+-
+-caddr_t
+-RIOCheckForATCard(Base)
+-int		Base;
+-{
+-	int				off;
+-	struct DpRam	*cardp;		/* (Points at the host) */
+-	caddr_t			virtAddr;
+-	unsigned char			RIOSigTab[24];
+-/*
+-** Table of values to search for as prom signature of a host card
+-*/
+-	strcpy(RIOSigTab, "JBJGPGGHINSMJPJR");
+-
+-	/*
+-	** Hey! Yes, You reading this code! Yo, grab a load a this:
+-	**
+-	** IF the card is using WORD MODE rather than BYTE MODE
+-	** then it will occupy 128K of PHYSICAL memory area. So,
+-	** you might think that the following Mapin is wrong. Well,
+-	** it isn't, because the SECOND 64K of occupied space is an
+-	** EXACT COPY of the FIRST 64K. (good?), so, we need only
+-	** map it in in one 64K block.
+-	*/
+-	if (RIOMapin(Base, RIO_AT_MEM_SIZE, &virtAddr) == -1) {
+-		rio_dprintk (RIO_DEBUG_INIT, "RIO-init: Couldn't map the board in!\n");
+-		return((caddr_t)0);
+-	}
+-
+-	/*
+-	** virtAddr points to the DP ram of the system.
+-	** We now cast this to a pointer to a RIO Host,
+-	** and have a rummage about in the PROM.
+-	*/
+-	cardp = (struct DpRam *)virtAddr;
+-
+-	for (off=0; RIOSigTab[off]; off++) {
+-		if ((RBYTE(cardp->DpSignature[off]) & 0xFF) != RIOSigTab[off]) {
+-			/*
+-			** Signature mismatch - card not at this address
+-			*/
+-			RIOMapout(Base, RIO_AT_MEM_SIZE, virtAddr);
+-			rio_dprintk (RIO_DEBUG_INIT, "RIO-init: Couldn't match the signature 0x%x 0x%x!\n",
+-						(int)cardp, off);
+-			return((caddr_t)0);
+-		}
+-	}
+-
+-	/*
+-	** If we get here then we must have found a valid board so return
+-	** its virtual address.
+-	*/
+-	return(virtAddr);
 -}
 -#endif
  
- static void RIOClearUp(PortP)
- struct Port *PortP;
-@@ -776,11 +673,6 @@
- 	unsigned long flags;
- 
- 	rio_dprintk(RIO_DEBUG_TTY, "entering shortcommand.\n");
--#ifdef CHECK
--	CheckPortP(PortP);
--	if (len < 1 || len > 2)
--		cprintf(("STUPID LENGTH %d\n", len));
+ /**
+ ** RIOAssignAT :
+@@ -367,667 +153,6 @@
+ 	rio_dprintk (RIO_DEBUG_INIT, "RIO-init: Tests Passed at 0x%x\n", Base);
+ 	return(1);
+ }
+-#if 0
+-#ifdef FUTURE_RELEASE
+-int RIOMCAinit(int Mode)
+-{
+-	uchar SlotNumber;
+-	caddr_t Caddr;
+-	uint	Paddr;
+-	uint	Ivec;
+-	int	 Handle;
+-	int	 ret = 0;
+-
+-	/*
+-	** Valid mode information for MCA cards
+-	** is only FAST LINKS
+-	*/
+-	Mode = (Mode & FAST_LINKS) ? McaTpFastLinks : McaTpSlowLinks;
+-	rio_dprintk (RIO_DEBUG_INIT, "RIOMCAinit(%d)\n",Mode);
+-
+-
+-	/*
+-	** Check out each of the slots
+-	*/
+-	for (SlotNumber = 0; SlotNumber < McaMaxSlots; SlotNumber++) {
+-	/*
+-	** Enable the slot we want to talk to
+-	*/
+-	outb( McaSlotSelect, SlotNumber | McaSlotEnable );
+-
+-	/*
+-	** Read the ID word from the slot
+-	*/
+-	if (((inb(McaIdHigh)<< 8)|inb(McaIdLow)) == McaRIOId)
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT, "Potential MCA card in slot %d\n", SlotNumber);
+-
+-		/*
+-		** Card appears to be a RIO MCA card!
+-		*/
+-		RIOMachineType |= (1<<RIO_MCA);
+-
+-		/*
+-		** Just check we haven't found too many wonderful objects
+-		*/
+-		if ( RIONumHosts >= RIO_HOSTS )
+-		{
+-		Rprintf(RIOMesgTooManyCards);
+-		return(ret);
+-		}
+-
+-		/*
+-		** McaIrqEnable contains the interrupt vector, and a card
+-		** enable bit.
+-		*/
+-		Ivec = inb(McaIrqEnable);
+-
+-		rio_dprintk (RIO_DEBUG_INIT, "Ivec is %x\n", Ivec);
+-
+-		switch ( Ivec & McaIrqMask )
+-		{
+-		case McaIrq9:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ9\n");
+-		break;
+-		case McaIrq3:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ3\n");
+-		break;
+-		case McaIrq4:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ4\n");
+-		break;
+-		case McaIrq7:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ7\n");
+-		break;
+-		case McaIrq10:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ10\n");
+-		break;
+-		case McaIrq11:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ11\n");
+-		break;
+-		case McaIrq12:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ12\n");
+-		break;
+-		case McaIrq15:
+-		rio_dprintk (RIO_DEBUG_INIT, "IRQ15\n");
+-		break;
+-		}
+-
+-		/*
+-		** If the card enable bit isn't set, then set it!
+-		*/
+-		if ((Ivec & McaCardEnable) != McaCardEnable) {
+-			rio_dprintk (RIO_DEBUG_INIT, "McaCardEnable not set - setting!\n");
+-			outb(McaIrqEnable,Ivec|McaCardEnable);
+-		} else
+-			rio_dprintk (RIO_DEBUG_INIT, "McaCardEnable already set\n");
+-
+-		/*
+-		** Convert the IRQ enable mask into something useful
+-		*/
+-		Ivec = RIOMcaToIvec[Ivec & McaIrqMask];
+-
+-		/*
+-		** Find the physical address
+-		*/
+-		rio_dprintk (RIO_DEBUG_INIT, "inb(McaMemory) is %x\n", inb(McaMemory));
+-		Paddr = McaAddress(inb(McaMemory));
+-
+-		rio_dprintk (RIO_DEBUG_INIT, "MCA card has Ivec %d Addr %x\n", Ivec, Paddr);
+-
+-		if ( Paddr != 0 )
+-		{
+-
+-		/*
+-		** Tell the memory mapper that we want to talk to it
+-		*/
+-		Handle = RIOMapin( Paddr, RIO_MCA_MEM_SIZE, &Caddr );
+-
+-		if ( Handle == -1 ) {
+-			rio_dprintk (RIO_DEBUG_INIT, "Couldn't map %d bytes at %x\n", RIO_MCA_MEM_SIZE, Paddr;
+-			continue;
+-		}
+-
+-		rio_dprintk (RIO_DEBUG_INIT, "Board mapped to vaddr 0x%x\n", Caddr);
+-
+-		/*
+-		** And check that it is actually there!
+-		*/
+-		if ( RIOBoardTest( Paddr,Caddr,RIO_MCA,SlotNumber ) == RIO_SUCCESS )
+-		{
+-			rio_dprintk (RIO_DEBUG_INIT, "Board has passed test\n");
+-			rio_dprintk (RIO_DEBUG_INIT, "Slot %d. Type %d. Paddr 0x%x. Caddr 0x%x. Mode 0x%x.\n",
+-			                            SlotNumber, RIO_MCA, Paddr, Caddr, Mode);
+-
+-			/*
+-			** Board has passed its scrub test. Fill in all the
+-			** transient stuff.
+-			*/
+-			p->RIOHosts[RIONumHosts].Slot	 = SlotNumber;
+-			p->RIOHosts[RIONumHosts].Ivec	 = Ivec;
+-			p->RIOHosts[RIONumHosts].Type	 = RIO_MCA;
+-			p->RIOHosts[RIONumHosts].Copy	 = bcopy;
+-			p->RIOHosts[RIONumHosts].PaddrP   = Paddr;
+-			p->RIOHosts[RIONumHosts].Caddr	= Caddr;
+-			p->RIOHosts[RIONumHosts].CardP	= (struct DpRam *)Caddr;
+-			p->RIOHosts[RIONumHosts].Mode	 = Mode;
+-			WBYTE(p->RIOHosts[p->RIONumHosts].ResetInt , 0xff);
+-			p->RIOHosts[RIONumHosts].UniqueNum =
+-			((RBYTE(p->RIOHosts[RIONumHosts].Unique[0])&0xFF)<<0)|
+-						((RBYTE(p->RIOHosts[RIONumHosts].Unique[1])&0xFF)<<8)|
+-			((RBYTE(p->RIOHosts[RIONumHosts].Unique[2])&0xFF)<<16)|
+-			((RBYTE(p->RIOHosts[RIONumHosts].Unique[3])&0xFF)<<24);
+-			RIONumHosts++;
+-			ret++;
+-		}
+-		else
+-		{
+-			/*
+-			** It failed the test, so ignore it.
+-			*/
+-			rio_dprintk (RIO_DEBUG_INIT, "TEST FAILED\n");
+-			RIOMapout(Paddr, RIO_MCA_MEM_SIZE, Caddr );
+-		}
+-		}
+-		else
+-		{
+-		rio_dprintk (RIO_DEBUG_INIT, "Slot %d - Paddr zero!\n", SlotNumber);
+-		}
+-	}
+-	else
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT, "Slot %d NOT RIO\n", SlotNumber);
+-	}
+-	}
+-	/*
+-	** Now we have checked all the slots, turn off the MCA slot selector
+-	*/
+-	outb(McaSlotSelect,0);
+-	rio_dprintk (RIO_DEBUG_INIT, "Slot %d NOT RIO\n", SlotNumber);
+-	return ret;
+-}
+-
+-int RIOEISAinit( int Mode )
+-{
+-	static int EISADone = 0;
+-	uint Paddr;
+-	int PollIntMixMsgDone = 0;
+-	caddr_t Caddr;
+-	ushort Ident;
+-	uchar EisaSlot;
+-	uchar Ivec;
+-	int ret = 0;
+-
+-	/*
+-	** The only valid mode information for EISA hosts is fast or slow
+-	** links.
+-	*/
+-	Mode = (Mode & FAST_LINKS) ? EISA_TP_FAST_LINKS : EISA_TP_SLOW_LINKS;
+-
+-	if ( EISADone )
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT, "RIOEISAinit() - already done, return.\n");
+-		return(0);
+-	}
+-
+-	EISADone++;
+-
+-	rio_dprintk (RIO_DEBUG_INIT, "RIOEISAinit()\n");
+-
+-
+-	/*
+-	** First check all cards to see if ANY are set for polled mode operation.
+-	** If so, set ALL to polled.
+-	*/
+-
+-	for ( EisaSlot=1; EisaSlot<=RIO_MAX_EISA_SLOTS; EisaSlot++ )
+-	{
+-	Ident = (INBZ(EisaSlot,EISA_PRODUCT_IDENT_HI)<<8) |
+-		 INBZ(EisaSlot,EISA_PRODUCT_IDENT_LO);
+-
+-	if ( Ident == RIO_EISA_IDENT )
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT, "Found Specialix product\n");
+-
+-		if ( INBZ(EisaSlot,EISA_PRODUCT_NUMBER) != RIO_EISA_PRODUCT_CODE )
+-		{
+-		rio_dprintk (RIO_DEBUG_INIT, "Not Specialix RIO - Product number %x\n",
+-						INBZ(EisaSlot, EISA_PRODUCT_NUMBER));
+-		continue;  /* next slot */
+-		}
+-		/*
+-		** Its a Specialix RIO!
+-		*/
+-		rio_dprintk (RIO_DEBUG_INIT, "RIO Revision %d\n",
+-					INBZ(EisaSlot, EISA_REVISION_NUMBER));
+-		
+-		RIOMachineType |= (1<<RIO_EISA);
+-
+-		/*
+-		** Just check we haven't found too many wonderful objects
+-		*/
+-		if ( RIONumHosts >= RIO_HOSTS )
+-		{
+-		Rprintf(RIOMesgTooManyCards);
+-		return 0;
+-		}
+-
+-		/*
+-		** Ensure that the enable bit is set!
+-		*/
+-		OUTBZ( EisaSlot, EISA_ENABLE, RIO_EISA_ENABLE_BIT );
+-
+-		/*
+-		** EISA_INTERRUPT_VEC contains the interrupt vector.
+-		*/
+-		Ivec = INBZ(EisaSlot,EISA_INTERRUPT_VEC);
+-
+-#ifdef RIODEBUG
+-		switch ( Ivec & EISA_INTERRUPT_MASK )
+-		{
+-		case EISA_IRQ_3:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 3\n");
+-		break;
+-		case EISA_IRQ_4:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 4\n");
+-		break;
+-		case EISA_IRQ_5:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 5\n");
+-		break;
+-		case EISA_IRQ_6:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 6\n");
+-		break;
+-		case EISA_IRQ_7:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 7\n");
+-		break;
+-		case EISA_IRQ_9:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 9\n");
+-		break;
+-		case EISA_IRQ_10:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 10\n");
+-		break;
+-		case EISA_IRQ_11:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 11\n");
+-		break;
+-		case EISA_IRQ_12:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 12\n");
+-		break;
+-		case EISA_IRQ_14:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 14\n");
+-		break;
+-		case EISA_IRQ_15:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA IRQ 15\n");
+-		break;
+-		case EISA_POLLED:
+-			rio_dprintk (RIO_DEBUG_INIT, "EISA POLLED\n");
+-		break;
+-		default:
+-			rio_dprintk (RIO_DEBUG_INIT, NULL,DBG_INIT|DBG_FAIL,"Shagged interrupt number!\n");
+-		Ivec &= EISA_CONTROL_MASK;
+-		}
+-#endif
+-
+-		if ( (Ivec & EISA_INTERRUPT_MASK) ==
+-		 EISA_POLLED )
+-		{
+-		RIOWillPoll = 1;
+-		break;		/* From EisaSlot loop */
+-		}
+-	}
+-	}
+-
+-	/*
+-	** Do it all again now we know whether to change all cards to polled
+-	** mode or not
+-	*/
+-
+-	for ( EisaSlot=1; EisaSlot<=RIO_MAX_EISA_SLOTS; EisaSlot++ )
+-	{
+-	Ident = (INBZ(EisaSlot,EISA_PRODUCT_IDENT_HI)<<8) |
+-		 INBZ(EisaSlot,EISA_PRODUCT_IDENT_LO);
+-
+-	if ( Ident == RIO_EISA_IDENT )
+-	{
+-		if ( INBZ(EisaSlot,EISA_PRODUCT_NUMBER) != RIO_EISA_PRODUCT_CODE )
+-		continue;  /* next slot */
+-
+-		/*
+-		** Its a Specialix RIO!
+-		*/
+-		
+-		/*
+-		** Ensure that the enable bit is set!
+-		*/
+-		OUTBZ( EisaSlot, EISA_ENABLE, RIO_EISA_ENABLE_BIT );
+-
+-		/*
+-		** EISA_INTERRUPT_VEC contains the interrupt vector.
+-		*/
+-		Ivec = INBZ(EisaSlot,EISA_INTERRUPT_VEC);
+-
+-		if ( RIOWillPoll )
+-		{
+-			/*
+-			** If we are going to operate in polled mode, but this
+-			** board is configured to be interrupt driven, display
+-			** the message explaining the situation to the punter,
+-			** assuming we haven't already done so.
+-			*/
+-
+-			if ( !PollIntMixMsgDone &&
+-			 (Ivec & EISA_INTERRUPT_MASK) != EISA_POLLED )
+-			{
+-			Rprintf(RIOMesgAllPolled);
+-			PollIntMixMsgDone = 1;
+-			}
+-
+-			/*
+-			** Ungraciously ignore whatever the board reports as its
+-			** interrupt vector...
+-			*/
+-
+-			Ivec &= ~EISA_INTERRUPT_MASK;
+-
+-			/*
+-			** ...and force it to dance to the poll tune.
+-			*/
+-
+-			Ivec |= EISA_POLLED;
+-		}
+-
+-		/*
+-		** Convert the IRQ enable mask into something useful (0-15)
+-		*/
+-		Ivec = RIOEisaToIvec(Ivec);
+-
+-		rio_dprintk (RIO_DEBUG_INIT, "EISA host in slot %d has Ivec 0x%x\n",
+-		 EisaSlot, Ivec);
+-
+-		/*
+-		** Find the physical address
+-		*/
+-		Paddr = (INBZ(EisaSlot,EISA_MEMORY_BASE_HI)<<24) |
+-				(INBZ(EisaSlot,EISA_MEMORY_BASE_LO)<<16);
+-
+-		rio_dprintk (RIO_DEBUG_INIT, "EISA card has Ivec %d Addr %x\n", Ivec, Paddr);
+-
+-		if ( Paddr == 0 )
+-		{
+-		rio_dprintk (RIO_DEBUG_INIT,
+-		 "Board in slot %d configured for address zero!\n", EisaSlot);
+-		continue;
+-		}
+-
+-		/*
+-		** Tell the memory mapper that we want to talk to it
+-		*/
+-		rio_dprintk (RIO_DEBUG_INIT, "About to map EISA card \n");
+-
+-		if (RIOMapin( Paddr, RIO_EISA_MEM_SIZE, &Caddr) == -1) {
+-		rio_dprintk (RIO_DEBUG_INIT, "Couldn't map %d bytes at %x\n",
+-							RIO_EISA_MEM_SIZE,Paddr);
+-		continue;
+-		}
+-
+-		rio_dprintk (RIO_DEBUG_INIT, "Board mapped to vaddr 0x%x\n", Caddr);
+-
+-		/*
+-		** And check that it is actually there!
+-		*/
+-		if ( RIOBoardTest( Paddr,Caddr,RIO_EISA,EisaSlot) == RIO_SUCCESS )
+-			{
+-		rio_dprintk (RIO_DEBUG_INIT, "Board has passed test\n");
+-		rio_dprintk (RIO_DEBUG_INIT, 
+-		"Slot %d. Ivec %d. Type %d. Paddr 0x%x. Caddr 0x%x. Mode 0x%x.\n",
+-			EisaSlot,Ivec,RIO_EISA,Paddr,Caddr,Mode);
+-
+-		/*
+-		** Board has passed its scrub test. Fill in all the
+-		** transient stuff.
+-		*/
+-		p->RIOHosts[RIONumHosts].Slot	 = EisaSlot;
+-		p->RIOHosts[RIONumHosts].Ivec	 = Ivec;
+-		p->RIOHosts[RIONumHosts].Type	 = RIO_EISA;
+-		p->RIOHosts[RIONumHosts].Copy	 = bcopy;
+-				p->RIOHosts[RIONumHosts].PaddrP   = Paddr;
+-				p->RIOHosts[RIONumHosts].Caddr	= Caddr;
+-		p->RIOHosts[RIONumHosts].CardP	= (struct DpRam *)Caddr;
+-				p->RIOHosts[RIONumHosts].Mode	 = Mode;
+-		/*
+-		** because the EISA prom is mapped into IO space, we
+-		** need to copy the unqiue number into the memory area
+-		** that it would have occupied, so that the download
+-		** code can determine its ID and card type.
+-		*/
+-	 WBYTE(p->RIOHosts[RIONumHosts].Unique[0],INBZ(EisaSlot,EISA_UNIQUE_NUM_0));
+-	 WBYTE(p->RIOHosts[RIONumHosts].Unique[1],INBZ(EisaSlot,EISA_UNIQUE_NUM_1));
+-	 WBYTE(p->RIOHosts[RIONumHosts].Unique[2],INBZ(EisaSlot,EISA_UNIQUE_NUM_2));
+-	 WBYTE(p->RIOHosts[RIONumHosts].Unique[3],INBZ(EisaSlot,EISA_UNIQUE_NUM_3));
+-		p->RIOHosts[RIONumHosts].UniqueNum =
+-			((RBYTE(p->RIOHosts[RIONumHosts].Unique[0])&0xFF)<<0)|
+-						((RBYTE(p->RIOHosts[RIONumHosts].Unique[1])&0xFF)<<8)|
+-			((RBYTE(p->RIOHosts[RIONumHosts].Unique[2])&0xFF)<<16)|
+-			((RBYTE(p->RIOHosts[RIONumHosts].Unique[3])&0xFF)<<24);
+-		INBZ(EisaSlot,EISA_INTERRUPT_RESET);
+-				RIONumHosts++;
+-		ret++;
+-			}
+-		else
+-		{
+-		/*
+-		** It failed the test, so ignore it.
+-		*/
+-		rio_dprintk (RIO_DEBUG_INIT, "TEST FAILED\n");
+-
+-		RIOMapout(Paddr, RIO_EISA_MEM_SIZE, Caddr );
+-		}
+-	}
+-	}
+-	if (RIOMachineType & RIO_EISA)
+-	return ret+1;
+-	return ret;
+-}
+-#endif
+-
+-
+-#ifndef linux
+-
+-#define CONFIG_ADDRESS	0xcf8
+-#define CONFIG_DATA		0xcfc
+-#define FORWARD_REG		0xcfa
+-
+-
+-static int
+-read_config(int bus_number, int device_num, int r_number) 
+-{
+-	unsigned int cav;
+-	unsigned int val;
+-
+-/*
+-   Build config_address_value:
+-
+-      31        24 23        16 15      11 10  8 7        0 
+-      ------------------------------------------------------
+-      |1| 0000000 | bus_number | device # | 000 | register |
+-      ------------------------------------------------------
+-*/
+-
+-	cav = r_number & 0xff;
+-	cav |= ((device_num & 0x1f) << 11);
+-	cav |= ((bus_number & 0xff) << 16);
+-	cav |= 0x80000000; /* Enable bit */
+-	outpd(CONFIG_ADDRESS,cav);
+-	val = inpd(CONFIG_DATA);
+-	outpd(CONFIG_ADDRESS,0);
+-	return val;
+-}
+-
+-static
+-write_config(bus_number,device_num,r_number,val) 
+-{
+-	unsigned int cav;
+-
+-/*
+-   Build config_address_value:
+-
+-      31        24 23        16 15      11 10  8 7        0 
+-      ------------------------------------------------------
+-      |1| 0000000 | bus_number | device # | 000 | register |
+-      ------------------------------------------------------
+-*/
+-
+-	cav = r_number & 0xff;
+-	cav |= ((device_num & 0x1f) << 11);
+-	cav |= ((bus_number & 0xff) << 16);
+-	cav |= 0x80000000; /* Enable bit */
+-	outpd(CONFIG_ADDRESS, cav);
+-	outpd(CONFIG_DATA, val);
+-	outpd(CONFIG_ADDRESS, 0);
+-	return val;
+-}
+-#else
+-/* XXX Implement these... */
+-static int
+-read_config(int bus_number, int device_num, int r_number) 
+-{
+-  return 0;
+-}
+-
+-static int
+-write_config(int bus_number, int device_num, int r_number) 
+-{
+-  return 0;
+-}
+-
+-#endif
+-
+-int
+-RIOPCIinit(p, Mode)
+-struct rio_info	*p;
+-int 		Mode;
+-{
+-	#define MAX_PCI_SLOT		32
+-	#define RIO_PCI_JET_CARD	0x200011CB
+-
+-	static int	slot;	/* count of machine's PCI slots searched so far */
+-	caddr_t		Caddr;	/* Virtual address of the current PCI host card. */
+-	unsigned char	Ivec;	/* interrupt vector for the current PCI host */
+-	unsigned long	Paddr;	/* Physical address for the current PCI host */
+-	int		Handle;	/* Handle to Virtual memory allocated for current PCI host */
+-
+-
+-	rio_dprintk (RIO_DEBUG_INIT,  "Search for a RIO PCI card - start at slot %d\n", slot);
+-
+-	/*
+-	** Initialise the search status
+-	*/
+-	p->RIOLastPCISearch	= RIO_FAIL;
+-
+-	while ( (slot < MAX_PCI_SLOT) & (p->RIOLastPCISearch != RIO_SUCCESS) )
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT,  "Currently testing slot %d\n", slot);
+-
+-		if (read_config(0,slot,0) == RIO_PCI_JET_CARD) {
+-			p->RIOHosts[p->RIONumHosts].Ivec = 0;
+-			Paddr = read_config(0,slot,0x18);
+-			Paddr = Paddr - (Paddr & 0x1); /* Mask off the io bit */
+-
+-			if ( (Paddr == 0) || ((Paddr & 0xffff0000) == 0xffff0000) ) {
+-				rio_dprintk (RIO_DEBUG_INIT,  "Goofed up slot\n");	/* what! */
+-				slot++;
+-				continue;
+-			}
+-
+-			p->RIOHosts[p->RIONumHosts].PaddrP = Paddr;
+-			Ivec = (read_config(0,slot,0x3c) & 0xff);
+-
+-			rio_dprintk (RIO_DEBUG_INIT,  "PCI Host at 0x%x, Intr %d\n", (int)Paddr, Ivec);
+-
+-			Handle = RIOMapin( Paddr, RIO_PCI_MEM_SIZE, &Caddr );
+-			if (Handle == -1) {
+-				rio_dprintk (RIO_DEBUG_INIT,  "Couldn't map %d bytes at 0x%x\n", RIO_PCI_MEM_SIZE, (int)Paddr);
+-				slot++;
+-				continue;
+-			}
+-			p->RIOHosts[p->RIONumHosts].Ivec = Ivec + 32;
+-			p->intr_tid = iointset(p->RIOHosts[p->RIONumHosts].Ivec,
+-						(int (*)())rio_intr, (char *)p->RIONumHosts);
+-			if (RIOBoardTest( Paddr, Caddr, RIO_PCI, 0 ) == RIO_SUCCESS) {
+-				rio_dprintk (RIO_DEBUG_INIT, ("Board has passed test\n");
+-				rio_dprintk (RIO_DEBUG_INIT, ("Paddr 0x%x. Caddr 0x%x. Mode 0x%x.\n", Paddr, Caddr, Mode);
+-
+-				/*
+-				** Board has passed its scrub test. Fill in all the
+-				** transient stuff.
+-				*/
+-				p->RIOHosts[p->RIONumHosts].Slot	   = 0;
+-				p->RIOHosts[p->RIONumHosts].Ivec	   = Ivec + 32;
+-				p->RIOHosts[p->RIONumHosts].Type	   = RIO_PCI;
+-				p->RIOHosts[p->RIONumHosts].Copy	   = rio_pcicopy; 
+-				p->RIOHosts[p->RIONumHosts].PaddrP	   = Paddr;
+-				p->RIOHosts[p->RIONumHosts].Caddr	   = Caddr;
+-				p->RIOHosts[p->RIONumHosts].CardP	   = (struct DpRam *)Caddr;
+-				p->RIOHosts[p->RIONumHosts].Mode	   = Mode;
+-
+-#if 0
+-				WBYTE(p->RIOHosts[p->RIONumHosts].Control, 
+-						BOOT_FROM_RAM | EXTERNAL_BUS_OFF | 
+-						p->RIOHosts[p->RIONumHosts].Mode | 
+-						INTERRUPT_DISABLE );
+-				WBYTE(p->RIOHosts[p->RIONumHosts].ResetInt,0xff);
+-				WBYTE(p->RIOHosts[p->RIONumHosts].Control,
+-						BOOT_FROM_RAM | EXTERNAL_BUS_OFF | 
+-						p->RIOHosts[p->RIONumHosts].Mode |
+-						INTERRUPT_DISABLE );
+-				WBYTE(p->RIOHosts[p->RIONumHosts].ResetInt,0xff);
+-#else
+-				WBYTE(p->RIOHosts[p->RIONumHosts].ResetInt, 0xff);
+-#endif
+-				p->RIOHosts[p->RIONumHosts].UniqueNum  =
+-					((RBYTE(p->RIOHosts[p->RIONumHosts].Unique[0])&0xFF)<<0)|
+-					((RBYTE(p->RIOHosts[p->RIONumHosts].Unique[1])&0xFF)<<8)|
+-					((RBYTE(p->RIOHosts[p->RIONumHosts].Unique[2])&0xFF)<<16)|
+-					((RBYTE(p->RIOHosts[p->RIONumHosts].Unique[3])&0xFF)<<24);
+-
+-				rio_dprintk (RIO_DEBUG_INIT, "Unique no 0x%x.\n", 
+-				    p->RIOHosts[p->RIONumHosts].UniqueNum);
+-
+-				p->RIOLastPCISearch = RIO_SUCCESS;
+-				p->RIONumHosts++;
+-			}
+-		}
+-		slot++;
+-	}
+-
+-	if ( slot >= MAX_PCI_SLOT ) {
+-		rio_dprintk (RIO_DEBUG_INIT,  "All %d PCI slots have tested for RIO cards !!!\n",
+-			     MAX_PCI_SLOT);
+-	}
+-
+-
+-	/*
+-	** I don't think we want to do this anymore
+-	**
+-
+-	if (!p->RIOLastPCISearch == RIO_FAIL ) {
+-		p->RIOFailed++;
+-	}
+-
+-	**
+-	*/
+-}
+-
+-#ifdef FUTURE_RELEASE
+-void riohalt( void )
+-{
+-	int host;
+-	for ( host=0; host<p->RIONumHosts; host++ )
+-	{
+-		rio_dprintk (RIO_DEBUG_INIT, "Stop host %d\n", host);
+-		(void)RIOBoardTest( p->RIOHosts[host].PaddrP, p->RIOHosts[host].Caddr, p->RIOHosts[host].Type,p->RIOHosts[host].Slot );
+-	}
+-}
+-#endif
 -#endif
  
- 	if (PortP->State & RIO_DELETED) {
- 		rio_dprintk(RIO_DEBUG_TTY, "Short command to deleted RTA ignored\n");
-@@ -852,478 +744,3 @@
+ static	uchar	val[] = {
+ #ifdef VERY_LONG_TEST
+@@ -1262,200 +387,6 @@
+ 	return RIO_SUCCESS;
  }
  
+-/*
+-** try to ensure that every host is either in polled mode
+-** or is in interrupt mode. Only allow interrupt mode if
+-** all hosts can interrupt (why?)
+-** and force into polled mode if told to. Patch up the
+-** interrupt vector & salute The Queen when you've done.
+-*/
+-#if 0
+-static void
+-RIOAllocateInterrupts(p)
+-struct rio_info *	p;
+-{
+-	int Host;
+-
+-	/*
+-	** Easy case - if we have been told to poll, then we poll.
+-	*/
+-	if (p->mode & POLLED_MODE) {
+-		RIOStopInterrupts(p, 0, 0);
+-		return;
+-	}
+-
+-	/*
+-	** check - if any host has been set to polled mode, then all must be.
+-	*/
+-	for (Host=0; Host<p->RIONumHosts; Host++) {
+-		if ( (p->RIOHosts[Host].Type != RIO_AT) &&
+-				(p->RIOHosts[Host].Ivec == POLLED) ) {
+-			RIOStopInterrupts(p, 1, Host );
+-			return;
+-		}
+-	}
+-	for (Host=0; Host<p->RIONumHosts; Host++) {
+-		if (p->RIOHosts[Host].Type == RIO_AT) {
+-			if ( (p->RIOHosts[Host].Ivec - 32) == 0) {
+-				RIOStopInterrupts(p, 2, Host );
+-				return;
+-			}
+-		}
+-	}
+-}
+-
+-/*
+-** something has decided that we can't be doing with these
+-** new-fangled interrupt thingies. Set everything up to just
+-** poll.
+-*/
+-static void
+-RIOStopInterrupts(p, Reason, Host)
+-struct rio_info *	p;
+-int	Reason;
+-int	Host; 
+-{
+-#ifdef FUTURE_RELEASE
+-	switch (Reason) {
+-		case 0:	/* forced into polling by rio_polled */
+-			break;
+-		case 1:	/* SCU has set 'Host' into polled mode */
+-			break;
+-		case 2:	/* there aren't enough interrupt vectors for 'Host' */
+-			break;
+-	}
+-#endif
+-
+-	for (Host=0; Host<p->RIONumHosts; Host++ ) {
+-		struct Host *HostP = &p->RIOHosts[Host];
+-
+-		switch (HostP->Type) {
+-			case RIO_AT:
+-				/*
+-				** The AT host has it's interrupts disabled by clearing the
+-				** int_enable bit.
+-				*/
+-				HostP->Mode &= ~INTERRUPT_ENABLE;
+-				HostP->Ivec = POLLED;
+-				break;
+-#ifdef FUTURE_RELEASE
+-			case RIO_EISA:
+-				/*
+-				** The EISA host has it's interrupts disabled by setting the
+-				** Ivec to zero
+-				*/
+-				HostP->Ivec = POLLED;
+-				break;
+-#endif
+-			case RIO_PCI:
+-				/*
+-				** The PCI host has it's interrupts disabled by clearing the
+-				** int_enable bit, like a regular host card.
+-				*/
+-				HostP->Mode &= ~RIO_PCI_INT_ENABLE;
+-				HostP->Ivec = POLLED;
+-				break;
+-#ifdef FUTURE_RELEASE
+-			case RIO_MCA:
+-				/*
+-				** There's always one, isn't there?
+-				** The MCA host card cannot have it's interrupts disabled.
+-				*/
+-				RIOPatchVec(HostP);
+-				break;
+-#endif
+-		}
+-	}
+-}
+-
+-/*
+-** This function is called at init time to setup the data structures.
+-*/
+-void
+-RIOAllocDataStructs(p)
+-struct rio_info *	p;
+-{
+-	int	port,
+-		host,
+-		tm;
+-
+-	p->RIOPortp = (struct Port *)sysbrk(RIO_PORTS * sizeof(struct Port));
+-	if (!p->RIOPortp) {
+-		rio_dprintk (RIO_DEBUG_INIT, "RIO-init: No memory for port structures\n");
+-		p->RIOFailed++;
+-		return;
+-	} 
+-	bzero( p->RIOPortp, sizeof(struct Port) * RIO_PORTS );
+-	rio_dprintk (RIO_DEBUG_INIT,  "RIO-init: allocated and cleared memory for port structs\n");
+-	rio_dprintk (RIO_DEBUG_INIT,  "First RIO port struct @0x%x, size=0x%x bytes\n",
+-	    (int)p->RIOPortp, sizeof(struct Port));
+-
+-	for( port=0; port<RIO_PORTS; port++ ) {
+-		p->RIOPortp[port].PortNum = port;
+-		p->RIOPortp[port].TtyP = &p->channel[port];
+-		sreset (p->RIOPortp[port].InUse);	/* Let the first guy uses it */
+-		p->RIOPortp[port].portSem = -1;	/* Let the first guy takes it */
+-		p->RIOPortp[port].ParamSem = -1;	/* Let the first guy takes it */
+-		p->RIOPortp[port].timeout_id = 0;	/* Let the first guy takes it */
+-	}
+-
+-	p->RIOHosts = (struct Host *)sysbrk(RIO_HOSTS * sizeof(struct Host));
+-	if (!p->RIOHosts) {
+-		rio_dprintk (RIO_DEBUG_INIT, "RIO-init: No memory for host structures\n");
+-		p->RIOFailed++;
+-		return;
+-	}
+-	bzero(p->RIOHosts, sizeof(struct Host)*RIO_HOSTS);
+-	rio_dprintk (RIO_DEBUG_INIT,  "RIO-init: allocated and cleared memory for host structs\n");
+-	rio_dprintk (RIO_DEBUG_INIT,  "First RIO host struct @0x%x, size=0x%x bytes\n",
+-	    (int)p->RIOHosts, sizeof(struct Host));
+-
+-	for( host=0; host<RIO_HOSTS; host++ ) {
+-		spin_lock_init (&p->RIOHosts[host].HostLock);
+-		p->RIOHosts[host].timeout_id = 0; /* Let the first guy takes it */
+-	}
+-	/*
+-	** check that the buffer size is valid, round down to the next power of
+-	** two if necessary; if the result is zero, then, hey, no double buffers.
+-	*/
+-	for ( tm = 1; tm && tm <= p->RIOConf.BufferSize; tm <<= 1 )
+-		;
+-	tm >>= 1;
+-	p->RIOBufferSize = tm;
+-	p->RIOBufferMask = tm ? tm - 1 : 0;
+-}
+-
+-/*
+-** this function gets called whenever the data structures need to be
+-** re-setup, for example, after a riohalt (why did I ever invent it?)
+-*/
+-void
+-RIOSetupDataStructs(p)
+-struct rio_info	* p;
+-{
+-	int host, entry, rup;
+-
+-	for ( host=0; host<RIO_HOSTS; host++ ) {
+-		struct Host *HostP = &p->RIOHosts[host];
+-		for ( entry=0; entry<LINKS_PER_UNIT; entry++ ) {
+-			HostP->Topology[entry].Unit = ROUTE_DISCONNECT;
+-			HostP->Topology[entry].Link = NO_LINK;
+-		}
+-		bcopy("HOST X", HostP->Name, 7);
+-		HostP->Name[5] = '1'+host;
+-		for (rup=0; rup<(MAX_RUP + LINKS_PER_UNIT); rup++) {
+-			if (rup < MAX_RUP) {
+-				for (entry=0; entry<LINKS_PER_UNIT; entry++ ) {
+-					HostP->Mapping[rup].Topology[entry].Unit = ROUTE_DISCONNECT;
+-					HostP->Mapping[rup].Topology[entry].Link = NO_LINK;
+-				}
+-				RIODefaultName(p, HostP, rup);
+-			}
+-			spin_lock_init(&HostP->UnixRups[rup].RupLock);
+-		}
+-	}
+-}
+-#endif
+ 
+ int
+ RIODefaultName(p, HostP, UnitId)
+@@ -1463,10 +394,6 @@
+ struct Host *	HostP;
+ uint			UnitId;
+ {
+-#ifdef CHECK
+-	CheckHost( Host );
+-	CheckUnitId( UnitId );
+-#endif
+ 	bcopy("UNKNOWN RTA X-XX",HostP->Mapping[UnitId].Name,17);
+ 	HostP->Mapping[UnitId].Name[12]='1'+(HostP-p->RIOHosts);
+ 	if ((UnitId+1) > 9) {
+@@ -1483,33 +410,6 @@
+ #define RIO_RELEASE	"Linux"
+ #define RELEASE_ID	"1.0"
  
 -#if 0
--/*
--** This is an ioctl interface. This is the twentieth century. You know what
--** its all about.
--*/
--int riotioctl(struct rio_info *p, struct tty_struct *tty, int cmd, caddr_t arg)
+-static int
+-RIOReport(p)
+-struct rio_info *	p;
 -{
--	register struct Port *PortP;
--	register struct ttystatics *tp;
--	int current;
--	int ParamSemIncremented = 0;
--	int old_oflag, old_cflag, old_iflag, changed, oldcook;
--	int i;
--	unsigned char sio_regs[5];	/* Here be magic */
--	short vpix_cflag;
--	short divisor;
--	int baud;
--	uint SysPort = rio_minor(tty);
--	int Modem = rio_ismodem(tty);
--	int ioctl_processed;
+-	char *	RIORelease = RIO_RELEASE;
+-	char *	RIORelID = RELEASE_ID;
+-	int		host;
 -
--	rio_dprintk(RIO_DEBUG_TTY, "port ioctl SysPort %d command 0x%x argument 0x%x %s\n", SysPort, cmd, arg, Modem ? "Modem" : "tty");
+-	rio_dprintk (RIO_DEBUG_INIT, "RIO : Release: %s ID: %s\n", RIORelease, RIORelID);
 -
--	if (SysPort >= RIO_PORTS) {
--		rio_dprintk(RIO_DEBUG_TTY, "Bad port number %d\n", SysPort);
--		return -ENXIO;
+-	if ( p->RIONumHosts==0 ) {
+-		rio_dprintk (RIO_DEBUG_INIT, "\nNo Hosts configured\n");
+-		return(0);
 -	}
 -
--	PortP = p->RIOPortp[SysPort];
--	tp = PortP->TtyP;
--
--	rio_spin_lock_irqsave(&PortP->portSem, flags);
--
--#ifdef STATS
--	PortP->Stat.IoctlCnt++;
--#endif
--
--	if (PortP->State & RIO_DELETED) {
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return -EIO;
--	}
--
--
--	if (p->RIOHalted) {
--		RIOClearUp(PortP);
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return -EIO;
--	}
--
--	/*
--	 ** Count ioctls for port statistics reporting
--	 */
--	if (PortP->statsGather)
--		PortP->ioctls++;
--
--	/*
--	 ** Specialix RIO Ioctl calls
--	 */
--	switch (cmd) {
--
--	case TCRIOTRIAD:
--		if (arg)
--			PortP->State |= RIO_TRIAD_MODE;
--		else
--			PortP->State &= ~RIO_TRIAD_MODE;
--		/*
--		 ** Normally, when istrip is set on a port, a config is
--		 ** sent to the RTA instructing the CD1400 to do the
--		 ** stripping. In TRIAD mode, the interrupt receive routine
--		 ** must do the stripping instead, since it has to detect
--		 ** an 8 bit function key sequence. If istrip is set with
--		 ** TRIAD mode on(off), and 8 bit data is being read by
--		 ** the port, the user then turns TRIAD mode off(on), the RTA
--		 ** must be reconfigured (not) to do the stripping.
--		 ** Hence we call RIOParam here.
--		 */
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);
--		return 0;
--
--	case TCRIOTSTATE:
--		rio_dprintk(RIO_DEBUG_TTY, "tbusy/tstop monitoring %sabled\n", arg ? "en" : "dis");
--		/* MonitorTstate = 0 ; */
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);
--		return 0;
--
--	case TCRIOSTATE:	/* current state of Modem input pins */
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOSTATE\n");
--		if (RIOPreemptiveCmd(p, PortP, MGET) == RIO_FAIL)
--			rio_dprintk(RIO_DEBUG_TTY, "TCRIOSTATE command failed\n");
--		PortP->State |= RIO_BUSY;
--		current = PortP->ModemState;
--		if (copyout((caddr_t) & current, (int) arg, sizeof(current)) == COPYFAIL) {
--			rio_dprintk(RIO_DEBUG_TTY, "Copyout failed\n");
--			rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--			pseterr(EFAULT);
--		}
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOMBIS:	/* Set modem lines */
--	case TCRIOMBIC:	/* Clear modem lines */
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOMBIS/TCRIOMBIC\n");
--		if (cmd == TCRIOMBIS) {
--			uint state;
--			state = (uint) arg;
--			PortP->ModemState |= (ushort) state;
--			PortP->ModemLines = (ulong) arg;
--			if (RIOPreemptiveCmd(p, PortP, MBIS) == RIO_FAIL)
--				rio_dprintk(RIO_DEBUG_TTY, "TCRIOMBIS command failed\n");
--		} else {
--			uint state;
--
--			state = (uint) arg;
--			PortP->ModemState &= ~(ushort) state;
--			PortP->ModemLines = (ulong) arg;
--			if (RIOPreemptiveCmd(p, PortP, MBIC) == RIO_FAIL)
--				rio_dprintk(RIO_DEBUG_TTY, "TCRIOMBIC command failed\n");
--		}
--		PortP->State |= RIO_BUSY;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOXPON:	/* set Xprint ON string */
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOXPON\n");
--		if (copyin((int) arg, (caddr_t) PortP->Xprint.XpOn, MAX_XP_CTRL_LEN) == COPYFAIL) {
--			rio_dprintk(RIO_DEBUG_TTY, "Copyin failed\n");
--			PortP->Xprint.XpOn[0] = '\0';
--			rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--			pseterr(EFAULT);
--		}
--		PortP->Xprint.XpOn[MAX_XP_CTRL_LEN - 1] = '\0';
--		PortP->Xprint.XpLen = strlen(PortP->Xprint.XpOn) + strlen(PortP->Xprint.XpOff);
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOXPOFF:	/* set Xprint OFF string */
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOXPOFF\n");
--		if (copyin((int) arg, (caddr_t) PortP->Xprint.XpOff, MAX_XP_CTRL_LEN) == COPYFAIL) {
--			rio_dprintk(RIO_DEBUG_TTY, "Copyin failed\n");
--			PortP->Xprint.XpOff[0] = '\0';
--			rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--			pseterr(EFAULT);
--		}
--		PortP->Xprint.XpOff[MAX_XP_CTRL_LEN - 1] = '\0';
--		PortP->Xprint.XpLen = strlen(PortP->Xprint.XpOn) + strlen(PortP->Xprint.XpOff);
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOXPCPS:	/* set Xprint CPS string */
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOXPCPS\n");
--		if ((uint) arg > p->RIOConf.MaxXpCps || (uint) arg < p->RIOConf.MinXpCps) {
--			rio_dprintk(RIO_DEBUG_TTY, "%d CPS out of range\n", arg);
--			rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--			pseterr(EINVAL);
--			return 0;
--		}
--		PortP->Xprint.XpCps = (uint) arg;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOXPRINT:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOXPRINT\n");
--		if (copyout((caddr_t) & PortP->Xprint, (int) arg, sizeof(struct Xprint)) == COPYFAIL) {
--			rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--			pseterr(EFAULT);
--		}
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOIXANYON:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOIXANYON\n");
--		PortP->Config |= RIO_IXANY;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOIXANYOFF:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOIXANYOFF\n");
--		PortP->Config &= ~RIO_IXANY;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOIXONON:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOIXONON\n");
--		PortP->Config |= RIO_IXON;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--	case TCRIOIXONOFF:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOIXONOFF\n");
--		PortP->Config &= ~RIO_IXON;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		return 0;
--
--/*
--** 15.10.1998 ARG - ESIL 0761 part fix
--** Added support for CTS and RTS flow control ioctls :
--*/
--	case TCRIOCTSFLOWEN:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOCTSFLOWEN\n");
--		PortP->Config |= RIO_CTSFLOW;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);
--		return 0;
--
--	case TCRIOCTSFLOWDIS:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIOCTSFLOWDIS\n");
--		PortP->Config &= ~RIO_CTSFLOW;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);
--		return 0;
--
--	case TCRIORTSFLOWEN:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIORTSFLOWEN\n");
--		PortP->Config |= RIO_RTSFLOW;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);
--		return 0;
--
--	case TCRIORTSFLOWDIS:
--		rio_dprintk(RIO_DEBUG_TTY, "TCRIORTSFLOWDIS\n");
--		PortP->Config &= ~RIO_RTSFLOW;
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);
--		return 0;
--
--/* end ESIL 0761 part fix */
--
--	}
--
--
--	/* Lynx IOCTLS */
--	switch (cmd) {
--	case TIOCSETP:
--	case TIOCSETN:
--	case OTIOCSETP:
--	case OTIOCSETN:
--		ioctl_processed++;
--		ttyseth(PortP, tp, (struct old_sgttyb *) arg);
--		break;
--	case TCSETA:
--	case TCSETAW:
--	case TCSETAF:
--		ioctl_processed++;
--		rio_dprintk(RIO_DEBUG_TTY, "NON POSIX ioctl\n");
--		ttyseth_pv(PortP, tp, (struct termios *) arg, 0);
--		break;
--	case TCSETAP:		/* posix tcsetattr() */
--	case TCSETAWP:		/* posix tcsetattr() */
--	case TCSETAFP:		/* posix tcsetattr() */
--		rio_dprintk(RIO_DEBUG_TTY, "NON POSIX SYSV ioctl\n");
--		ttyseth_pv(PortP, tp, (struct termios *) arg, 1);
--		ioctl_processed++;
--		break;
--	}
--
--	/*
--	 ** If its any of the commands that require the port to be in the
--	 ** non-busy state wait until all output has drained
--	 */
--	if (!ioctl_processed)
--		switch (cmd) {
--		case TCSETAW:
--		case TCSETAF:
--		case TCSETA:
--		case TCSBRK:
--#define OLD_POSIX ('x' << 8)
--#define OLD_POSIX_SETA (OLD_POSIX | 2)
--#define OLD_POSIX_SETAW (OLD_POSIX | 3)
--#define OLD_POSIX_SETAF (OLD_POSIX | 4)
--#define NEW_POSIX (('i' << 24) | ('X' << 16))
--#define NEW_POSIX_SETA (NEW_POSIX | 2)
--#define NEW_POSIX_SETAW (NEW_POSIX | 3)
--#define NEW_POSIX_SETAF (NEW_POSIX | 4)
--		case OLD_POSIX_SETA:
--		case OLD_POSIX_SETAW:
--		case OLD_POSIX_SETAF:
--		case NEW_POSIX_SETA:
--		case NEW_POSIX_SETAW:
--		case NEW_POSIX_SETAF:
--#ifdef TIOCSETP
--		case TIOCSETP:
--#endif
--		case TIOCSETD:
--		case TIOCSETN:
--			rio_dprintk(RIO_DEBUG_TTY, "wait for non-BUSY, semaphore set\n");
--			/*
--			 ** Wait for drain here, at least as far as the double buffer
--			 ** being empty.
--			 */
--			/* XXX Does the above comment mean that this has
--			   still to be implemented? -- REW */
--			/* XXX Is the locking OK together with locking
--			   in txenable? (Deadlock?) -- REW */
--
--			RIOTxEnable((char *) PortP);
--			break;
--		default:
--			break;
--		}
--
--	old_cflag = tp->tm.c_cflag;
--	old_iflag = tp->tm.c_iflag;
--	old_oflag = tp->tm.c_oflag;
--	oldcook = PortP->CookMode;
--
--	if (p->RIOHalted) {
--		RIOClearUp(PortP);
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		pseterr(EIO);
--		return 0;
--	}
--
--	PortP->FlushCmdBodge = 0;
--
--	/*
--	 ** If the port is locked, and it is reconfigured, we want
--	 ** to restore the state of the tty structure so the change is NOT
--	 ** made.
--	 */
--	if (PortP->Lock) {
--		tp->tm.c_iflag = PortP->StoredTty.iflag;
--		tp->tm.c_oflag = PortP->StoredTty.oflag;
--		tp->tm.c_cflag = PortP->StoredTty.cflag;
--		tp->tm.c_lflag = PortP->StoredTty.lflag;
--		tp->tm.c_line = PortP->StoredTty.line;
--		for (i = 0; i < NCC + 1; i++)
--			tp->tm.c_cc[i] = PortP->StoredTty.cc[i];
--	} else {
--		/*
--		 ** If the port is set to store the parameters, and it is
--		 ** reconfigured, we want to save the current tty struct so it
--		 ** may be restored on the next open.
--		 */
--		if (PortP->Store) {
--			PortP->StoredTty.iflag = tp->tm.c_iflag;
--			PortP->StoredTty.oflag = tp->tm.c_oflag;
--			PortP->StoredTty.cflag = tp->tm.c_cflag;
--			PortP->StoredTty.lflag = tp->tm.c_lflag;
--			PortP->StoredTty.line = tp->tm.c_line;
--			for (i = 0; i < NCC + 1; i++)
--				PortP->StoredTty.cc[i] = tp->tm.c_cc[i];
+-	for ( host=0; host < p->RIONumHosts; host++ ) {
+-		struct Host *HostP = &p->RIOHosts[host];
+-		switch ( HostP->Type ) {
+-			case RIO_AT:
+-				rio_dprintk (RIO_DEBUG_INIT, "AT BUS : found the card at 0x%x\n", HostP->PaddrP);
 -		}
 -	}
--
--	changed = (tp->tm.c_cflag != old_cflag) || (tp->tm.c_iflag != old_iflag) || (tp->tm.c_oflag != old_oflag);
--
--	PortP->CookMode = RIOCookMode(tp);	/* Set new cooking mode */
--
--	rio_dprintk(RIO_DEBUG_TTY, "RIOIoctl changed %d newcook %d oldcook %d\n", changed, PortP->CookMode, oldcook);
--
--#ifdef MODEM_SUPPORT
--	/*
--	 ** kludge to force CARR_ON if CLOCAL set
--	 */
--	if ((tp->tm.c_cflag & CLOCAL) || (PortP->ModemState & MSVR1_CD)) {
--		tp->tm.c_state |= CARR_ON;
--		wakeup((caddr_t) & tp->tm.c_canq);
--	}
--#endif
--
--	if (p->RIOHalted) {
--		RIOClearUp(PortP);
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		pseterr(EIO);
--		return 0;
--	}
--	/*
--	 ** Re-configure if modes or cooking have changed
--	 */
--	if (changed || oldcook != PortP->CookMode || (ioctl_processed)) {
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		rio_dprintk(RIO_DEBUG_TTY, "Ioctl changing the PORT settings\n");
--		RIOParam(PortP, CONFIG, Modem, OK_TO_SLEEP);
--		rio_spin_lock_irqsave(&PortP->portSem, flags);
--	}
--
--	if (p->RIOHalted) {
--		rio_spin_unlock_irqrestore(&PortP->portSem, flags);
--		RIOClearUp(PortP);
--		pseterr(EIO);
--		return 0;
--	}
--	rio_spin_unlock_irqrestore(&PortP->portSem, flags);
 -	return 0;
 -}
+-#endif
 -
--/*
--	ttyseth -- set hardware dependent tty settings
--*/
--void ttyseth(PortP, s, sg)
--struct Port *PortP;
--struct ttystatics *s;
--struct old_sgttyb *sg;
+ static struct rioVersion	stVersion;
+ 
+ struct rioVersion *
+@@ -1523,27 +423,6 @@
+     return &stVersion;
+ }
+ 
+-#if 0
+-int
+-RIOMapin(paddr, size, vaddr)
+-paddr_t		paddr;
+-int			size;
+-caddr_t *	vaddr;
 -{
--	struct old_sgttyb *tsg;
--	struct termios *tp = &s->tm;
--
--	tsg = &s->sg;
--
--	if (sg->sg_flags & (EVENP | ODDP)) {
--		tp->c_cflag &= PARENB;
--		if (sg->sg_flags & EVENP) {
--			if (sg->sg_flags & ODDP) {
--				tp->c_cflag &= V_CS7;
--				tp->c_cflag &= ~PARENB;
--			} else {
--				tp->c_cflag &= V_CS7;
--				tp->c_cflag &= PARENB;
--				tp->c_cflag &= PARODD;
--			}
--		} else if (sg->sg_flags & ODDP) {
--			tp->c_cflag &= V_CS7;
--			tp->c_cflag &= PARENB;
--			tp->c_cflag &= PARODD;
--		} else {
--			tp->c_cflag &= V_CS7;
--			tp->c_cflag &= PARENB;
--		}
--	}
--/*
-- * Use ispeed as the desired speed.  Most implementations don't handle 
-- * separate input and output speeds very well. If the RIO handles this, 
-- * I will have to use separate sets of flags to store them in the 
-- * Port structure.
-- */
--	if (!sg->sg_ospeed)
--		sg->sg_ospeed = sg->sg_ispeed;
--	else
--		sg->sg_ispeed = sg->sg_ospeed;
--	if (sg->sg_ispeed > V_EXTB)
--		sg->sg_ispeed = V_EXTB;
--	if (sg->sg_ispeed < V_B0)
--		sg->sg_ispeed = V_B0;
--	*tsg = *sg;
--	tp->c_cflag = (tp->c_cflag & ~V_CBAUD) | conv_bv[(int) sg->sg_ispeed];
+-	*vaddr = (caddr_t)permap( (long)paddr, size);
+-	return ((int)*vaddr);
 -}
 -
--/*
--	ttyseth_pv -- set hardware dependent tty settings using either the
--			POSIX termios structure or the System V termio structure.
--				sysv = 0 => (POSIX):	 struct termios *sg
--				sysv != 0 => (System V): struct termio *sg
--*/
--static void ttyseth_pv(PortP, s, sg, sysv)
--struct Port *PortP;
--struct ttystatics *s;
--struct termios *sg;
--int sysv;
+-void
+-RIOMapout(paddr, size, vaddr)
+-paddr_t		paddr;
+-long		size;
+-caddr_t 	vaddr;
 -{
--	int speed;
--	unsigned char csize;
--	unsigned char cread;
--	unsigned int lcr_flags;
--	int ps;
--
--	if (sysv) {
--		/* sg points to a System V termio structure */
--		csize = ((struct termio *) sg)->c_cflag & CSIZE;
--		cread = ((struct termio *) sg)->c_cflag & CREAD;
--		speed = conv_vb[((struct termio *) sg)->c_cflag & V_CBAUD];
--	} else {
--		/* sg points to a POSIX termios structure */
--		csize = sg->c_cflag & CSIZE;
--		cread = sg->c_cflag & CREAD;
--		speed = conv_vb[sg->c_cflag & V_CBAUD];
--	}
--	if (s->sg.sg_ispeed != speed || s->sg.sg_ospeed != speed) {
--		s->sg.sg_ispeed = speed;
--		s->sg.sg_ospeed = speed;
--		s->tm.c_cflag = (s->tm.c_cflag & ~V_CBAUD) | conv_bv[(int) s->sg.sg_ispeed];
--	}
 -}
 -#endif
+-
+-
+ void
+ RIOHostReset(Type, DpRamP, Slot)
+ uint Type;
+@@ -1570,31 +449,6 @@
+ 			WBYTE(DpRamP->DpResetTpu, 0xFF);
+ 			udelay(3);
+ 			break;
+-#ifdef FUTURE_RELEASE
+-	case RIO_EISA:
+-	/*
+-	** Bet this doesn't work!
+-	*/
+-	OUTBZ( Slot, EISA_CONTROL_PORT,
+-		EISA_TP_RUN		| EISA_TP_BUS_DISABLE   |
+-		EISA_TP_SLOW_LINKS | EISA_TP_BOOT_FROM_RAM );
+-	OUTBZ( Slot, EISA_CONTROL_PORT,
+-		EISA_TP_RESET	  | EISA_TP_BUS_DISABLE   | 
+-		EISA_TP_SLOW_LINKS | EISA_TP_BOOT_FROM_RAM );
+-	suspend( 3 );
+-	OUTBZ( Slot, EISA_CONTROL_PORT,
+-		EISA_TP_RUN		| EISA_TP_BUS_DISABLE   | 
+-		EISA_TP_SLOW_LINKS | EISA_TP_BOOT_FROM_RAM );
+-	break;
+-	case RIO_MCA:
+-	WBYTE(DpRamP->DpControl  , McaTpBootFromRam | McaTpBusDisable );
+-	WBYTE(DpRamP->DpResetTpu , 0xFF );
+-	suspend( 3 );
+-	WBYTE(DpRamP->DpControl  , McaTpBootFromRam | McaTpBusDisable );
+-	WBYTE(DpRamP->DpResetTpu , 0xFF );
+-	suspend( 3 );
+-		break;
+-#endif
+ 	case RIO_PCI:
+ 		rio_dprintk (RIO_DEBUG_INIT, " (RIO_PCI)\n");
+ 		DpRamP->DpControl  = RIO_PCI_BOOT_FROM_RAM;
+@@ -1604,12 +458,6 @@
+ 		/* for (i=0; i<6000; i++);  */
+ 		/* suspend( 3 ); */
+ 		break;
+-#ifdef FUTURE_RELEASE
+-	default:
+-	Rprintf(RIOMesgNoSupport,Type,DpRamP,Slot);
+-	return;
+-#endif
+-
+ 	default:
+ 		rio_dprintk (RIO_DEBUG_INIT, " (UNKNOWN)\n");
+ 		break;
 

@@ -1,103 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWAPUPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWAPUQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWAPUPf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 15:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWAPUPf
+	id S1751187AbWAPUQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 15:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWAPUQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 15:15:35 -0500
-Received: from ebb.errno.com ([69.12.149.25]:57348 "EHLO ebb.errno.com")
-	by vger.kernel.org with ESMTP id S1751182AbWAPUPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 15:15:34 -0500
-Message-ID: <43CBFE90.8070208@errno.com>
-Date: Mon, 16 Jan 2006 12:14:08 -0800
-From: Sam Leffler <sam@errno.com>
-Organization: Errno Consulting
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
-MIME-Version: 1.0
-To: pizza@shaftnet.org, Jeff Garzik <jgarzik@pobox.com>,
-       Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: wireless: recap of current issues (configuration)
-References: <20060113212605.GD16166@tuxdriver.com> <20060113213011.GE16166@tuxdriver.com> <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost> <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com> <20060115152034.GA1722@shaftnet.org> <43CAA853.8020409@errno.com> <20060116172817.GB8596@shaftnet.org> <43CBDDC7.9060504@errno.com> <20060116194013.GA12748@shaftnet.org>
-In-Reply-To: <20060116194013.GA12748@shaftnet.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 16 Jan 2006 15:16:27 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:50323 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751187AbWAPUQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 15:16:26 -0500
+Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3
+	oops on suspend and more (bonus oops shot!)]
+From: john stultz <johnstul@us.ibm.com>
+To: Mattia Dongili <malattia@linux.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060114120816.GA3554@inferi.kami.home>
+References: <20060110170037.4a614245.akpm@osdl.org>
+	 <15632.83.103.117.254.1136989660.squirrel@picard.linux.it>
+	 <20060110235554.GA3527@inferi.kami.home>
+	 <20060110170037.4a614245.akpm@osdl.org> <20060111100016.GC2574@elf.ucw.cz>
+	 <20060110235554.GA3527@inferi.kami.home>
+	 <20060110170037.4a614245.akpm@osdl.org>
+	 <20060111184027.GB4735@inferi.kami.home>
+	 <20060112220825.GA3490@inferi.kami.home>
+	 <1137108362.2890.141.camel@cog.beaverton.ibm.com>
+	 <20060114120816.GA3554@inferi.kami.home>
+Content-Type: text/plain
+Date: Mon, 16 Jan 2006 12:16:21 -0800
+Message-Id: <1137442582.27699.12.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuffed Crust wrote:
-> On Mon, Jan 16, 2006 at 09:54:15AM -0800, Sam Leffler wrote:
->> The way you implement bg scanning is to notify the ap you are going into 
->> power save mode before you leave the channel (in sta mode).  Hence bg 
->> scanning and power save operation interact.
+On Sat, 2006-01-14 at 13:08 +0100, Mattia Dongili wrote:
+> On Thu, Jan 12, 2006 at 03:26:01PM -0800, john stultz wrote:
+> > On Thu, 2006-01-12 at 23:08 +0100, Mattia Dongili wrote:
+> > > [cleaned up some Cc as this is not interesting to all MLs]
+> > > first bisection spotted the cause of the stalls at boot (happening while
+> > > starting portmap and after usb-storage scan):
+> > > 
+> > > time-clocksource-infrastructure.patch
+> > > time-generic-timekeeping-infrastructure.patch
+> > > time-i386-conversion-part-1-move-timer_pitc-to-i8253c.patch
+> > > time-i386-conversion-part-2-rework-tsc-support.patch
+> > > time-i386-conversion-part-3-enable-generic-timekeeping.patch
+> > > time-i386-conversion-part-4-remove-old-timer_opts-code.patch
+> > > time-i386-conversion-part-5-acpi-pm-variable-renaming-and-config-change.patch
+> > > time-i386-clocksource-drivers.patch
+> > > time-fix-cpu-frequency-detection.patch
+> > > 
+> > > Cc-ed john stultz
+> > > 
+> > > actually git bisect[1] pointed to time-fix-cpu-frequency-detection.patch
+> > > but it's clearly wrong. Reverting all the above patches (I suppose they
+> > > are somewhat related) fixes the stalls I experience. I can test
+> > > corrections if necessary.
+[snip]
+> > Looking at the log here:
+> > http://oioio.altervista.org/linux/boot-2.6.15-mm2.3
+> > 
+> > I'm curious if you're getting cpufreq effects during interval while the
+> > TSC is being used as a clocksource before we switch to using the acpi_pm
+> > clocksource.
 > 
-> That is not "powersave operation" -- that is telling the AP we are going
-> into powersave, but not actually going into powersave -- Actual
-> powersave operation would need to be disabled if we go into a scan, as
-> we need to have the rx path powered up and ready to hear anything out
-> there for the full channel dwell time.
-
-Please read what I wrote again.  Station mode power save work involves 
-communicating with the ap and managing the hardware.  The first 
-interacts with bg scanning.  We haven't even talked about how to handle 
-sta mode power save.
-
+> What should I expect? I didn't notice anything in particular and
+> actually the box stays alive for just a few minutes, then reiserfs
+> explodes so I have no chance to notice anything in the long run.
 > 
->> See above.  Doing bg scanning well is a balancing act and restoring 
->> hardware state is the least of your worries (hopefully); e.g. what's the 
->> right thing to do when you get a frame to transmit while off-channel 
->> scanning, how often should you return to the bss channel?
+> > After the system boots up, does it keep accurate time? Time doesn't
+> > obviously move too fast or to slow compared to a watch?
 > 
-> Disallow all other transmits (either by failing them altogether, or by 
-> buffering them up, which I think is better) while performing the scan.
+> yes, during the short time it stays alive there's no difference between
+> my watch and my laptop.
 
-Not necessarily in my experience.
+Ok, that's good. It means the ACPI PM clocksource is doing the right
+thing.
 
+
+> > Few things to try (independently):
+> > 1. Does booting w/ idle=poll change the behavior?
 > 
-> If we are (continually) scanning because we don't have an association, 
-> then we shouldn't be allowing any traffic through the stack anyway.
+> yes, no more stalls
 
-If you do not have an association you are not doing bg scanning.
+Ok, this points to the TSC is changing frequency (likely due to C3
+halting). 
 
+> > 2. Does booting w/ clocksource=jiffies change the behavior?
 > 
-> At the end of each scan pass, you return to the original channel, then 
-> return "scan complete" to the stack/userspace.  at this point any 
-> pending transmits can go out, and if another scan pass is desired, it 
-> will happen then.
+> yes, same as above
 
-If you wait until the end of the scan to return to the bss channel then 
-you potentially miss buffered mcast frames.  You can up the station's 
-listen interval but that only gets you so far.  As I said there are 
-tradeoffs in doing this.
+Ok, good, interrupts are getting there at the right frequency.
 
+> > 3. After booting up, run: 
+> >    echo tsc > /sys/devices/system/clocksource/clocksource0/current_clocksource
+> >    And check that the system keeps accurate time.
 > 
->> Er, you need to listen to at least beacons from other ap's if you're in 
->> 11g so you can detect overlapping bss and enable protection.  There are 
->> other ways to handle this but that's one.
-> 
-> If you can't hear the traffic, then it doesn't count for purposes of ER
-> protection -- but that said, this only matters for AP operation, so APs
-> shouldn't filter out anyone else's becacons.  STAs should respect the
-> "use ER Protection" bit in the AP's beacon, so can filter out traffic 
-> that doesn't match the configured BSSID.
+> didn't try as there seems to be no problem in timekeeping
 
-Sorry I meant this was needed for ap operation.
+Well, it would have re-inforced the TSC being the issue, but I'm fairly
+confident that that is the case.
 
-> 
->>> Oh, I know.  I've burned out many brain cells trying to build 
->>> supportable solutions for our customers.   
->> I don't recall seeing well-developed scanning code in either of the 
->> proposed stacks.
-> 
-> I've only looked into the pre-2.6-merged HostAP stack, so I can't 
-> comment on what's publically available.  I'll have a look at the GPL'ed 
-> DeviceScape stack when I have more time.
-> 
-> Most of what I've going on about is derived from my experience from
-> commercial 802.11 work I've done over the past few years.
 
-Ditto.
+My theory: The stalls are due to the TSC frequency not being consistent
+for the small window at boot between when it is installed and when the
+ACPI PM clocksource is installed.
 
-	Sam
+I'll try to narrow that window down a bit and see if that doesn't
+resolve the issue.
+
+thanks
+-john
+
 

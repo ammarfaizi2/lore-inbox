@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWAPJ3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWAPJ26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWAPJ3r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 04:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWAPJ25
+	id S932289AbWAPJ26 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 04:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWAPJXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 04:28:57 -0500
-Received: from outmx026.isp.belgacom.be ([195.238.4.91]:65236 "EHLO
-	outmx026.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S932298AbWAPJ2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 04:28:23 -0500
-From: Jan De Luyck <lkml@kcore.org>
+	Mon, 16 Jan 2006 04:23:12 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38635 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932266AbWAPJXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 04:23:07 -0500
+From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15] screen remains blank after LID switch use
-User-Agent: KMail/1.9.1
-References: <200601160946.51765.lkml@kcore.org> <43CB60E4.1060305@sairyx.org>
-In-Reply-To: <43CB60E4.1060305@sairyx.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Date: Mon, 16 Jan 2006 10:28:03 +0100
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org, Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 13/25] cx88 Kconfig fixes for cx88-alsa
+Date: Mon, 16 Jan 2006 07:11:22 -0200
+Message-id: <20060116091122.PS42877600013@infradead.org>
+In-Reply-To: <20060116091105.PS83611600000@infradead.org>
+References: <20060116091105.PS83611600000@infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-1mdk 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601161028.04137.lkml@kcore.org>
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 January 2006 10:01, Arlen Christian Mart Cuss wrote:
-> Check out /proc/acpi - you should find a few things that you can tinker
-> with, including one for your screen; often called `lcd'. If you "echo 1
->
->  > lcd" in the right directory, it should switch it on. "echo 0 > lcd"
->
-> switches it off. Whatever is managing your power that turns it off,
-> isn't turning it back on. Look into these. It's not likely to be the
-> console/X driver's fault.
 
-Okay, thanks for that information. After some further googling I came up with 
-this:
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
 
-# echo 0x80000001 > /proc/acpi/video/VID/LCD/state
+- Cx88 alsa is experimental.
+- Removed need of PCM OSS for an ALSA module.
 
-and the screen comes back to life. Thanks!
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
 
-Jan
+ drivers/media/video/cx88/Kconfig |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
--- 
-To err is human, to forgive is against company policy.
+diff --git a/drivers/media/video/cx88/Kconfig b/drivers/media/video/cx88/Kconfig
+index 76fcb4e..5330891 100644
+--- a/drivers/media/video/cx88/Kconfig
++++ b/drivers/media/video/cx88/Kconfig
+@@ -31,8 +31,7 @@ config VIDEO_CX88_DVB
+ 
+ config VIDEO_CX88_ALSA
+ 	tristate "ALSA DMA audio support"
+-	depends on VIDEO_CX88 && SND
+-	select SND_PCM_OSS
++	depends on VIDEO_CX88 && SND && EXPERIMENTAL
+ 	---help---
+ 	  This is a video4linux driver for direct (DMA) audio on
+ 	  Conexant 2388x based TV cards.
+

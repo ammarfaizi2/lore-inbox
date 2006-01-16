@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWAPOYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWAPOhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWAPOYN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 09:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWAPOYN
+	id S1750833AbWAPOhG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 09:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWAPOhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 09:24:13 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:13115 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750828AbWAPOYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 09:24:12 -0500
-Date: Mon, 16 Jan 2006 23:24:14 +0900
-To: Jesper Juhl <jesper.juhl@gmail.com>
+	Mon, 16 Jan 2006 09:37:06 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39613 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750833AbWAPOhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 09:37:05 -0500
+Subject: Re: [PATCH 3/3] omit symbol size field in print_symbol()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Akinobu Mita <mita@miraclelinux.com>
 Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] makes print_symbol() return int
-Message-ID: <20060116142414.GA6836@miraclelinux.com>
-References: <20060116121611.GA539@miraclelinux.com> <20060116121706.GB539@miraclelinux.com> <9a8748490601160616i35fa2a6fv693d8ecc84133d5f@mail.gmail.com>
+In-Reply-To: <20060116121834.GD539@miraclelinux.com>
+References: <20060116121611.GA539@miraclelinux.com>
+	 <20060116121834.GD539@miraclelinux.com>
+Content-Type: text/plain
+Date: Mon, 16 Jan 2006 15:37:01 +0100
+Message-Id: <1137422221.3034.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490601160616i35fa2a6fv693d8ecc84133d5f@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: mita@miraclelinux.com (Akinobu Mita)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 03:16:36PM +0100, Jesper Juhl wrote:
-> On 1/16/06, Akinobu Mita <mita@miraclelinux.com> wrote:
-> > This patch makes print_symbol() return the number of characters printed.
-> >
-> Why?
-> Who are the users of this?
-> If there are users who can bennefit, then where's the patch to make
-> them use this new return value?
+On Mon, 2006-01-16 at 21:18 +0900, Akinobu Mita wrote:
+> I can't find useful usage for the symbol size in print_symbol().
+> And symbolsize seems to be fixed when vmlinux or modules are compiled.
+> So we can calculate it from vmlinux or modules.
 
-Please see 2/3
+
+the use is that you can see if the EIP actually is inside the function,
+or if the decoder is going bonkers. Quite useful feature that...
+
+

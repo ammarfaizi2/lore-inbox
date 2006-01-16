@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWAPUZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWAPU20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWAPUZc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 15:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWAPUZc
+	id S1751208AbWAPU20 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 15:28:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWAPU20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 15:25:32 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:27708 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751191AbWAPUZb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 15:25:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WSjm0SdwPgTdDty7avaPD7YMoYr5yuZea387CoCeY9wXRaWLy3PSLZs1PVfKLiKyC+2WfUtc3JC6wHQu60GmxZ3X+FMKcdqPbY266RdI4oUTftH2ZqeHLys/whwPq7wU4Jz2D+BQXuuhsVoj3OcH55hZRpFB82YhJiK3bUuXuf4=
-Message-ID: <bdfc5d6e0601161225h53554b1ahde794af93af52bdf@mail.gmail.com>
-Date: Mon, 16 Jan 2006 15:25:30 -0500
-From: Andy Gospodarek <andy@greyhouse.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] networking ipv4: remove total socket usage count from /proc/net/sockstat
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net
-In-Reply-To: <1137442446.19444.20.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 16 Jan 2006 15:28:26 -0500
+Received: from lizards-lair.paranoiacs.org ([216.158.28.252]:41968 "EHLO
+	lizards-lair.paranoiacs.org") by vger.kernel.org with ESMTP
+	id S1751208AbWAPU2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 15:28:25 -0500
+Date: Mon, 16 Jan 2006 15:28:12 -0500
+From: Ben Slusky <sluskyb@paranoiacs.org>
+To: Dave Jones <davej@redhat.com>, Adam Belay <ambx1@neo.rr.com>,
+       Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-ck1
+Message-ID: <20060116202812.GA10215@paranoiacs.org>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adam Belay <ambx1@neo.rr.com>, Con Kolivas <kernel@kolivas.org>,
+	ck list <ck@vds.kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200601041200.03593.kernel@kolivas.org> <20060104190554.GG10592@redhat.com> <20060112221133.GA11601@neo.rr.com> <20060112230315.GO19827@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060116200432.GB14060@gospo.rdu.redhat.com>
-	 <1137442446.19444.20.camel@mindpipe>
+In-Reply-To: <20060112230315.GO19827@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What userspace app will break because of this?
+On Thu, 12 Jan 2006 18:03:15 -0500, Dave Jones wrote:
+> As soon as that usb timer hits (every 250ms iirc) you'll bounce back out
+> of any low-power state you may be in. It's a bit craptastic that we do
+> this, even if we don't have any USB devices plugged in.
 
-On 1/16/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Mon, 2006-01-16 at 15:04 -0500, Andy Gospodarek wrote:
-> > Printing the total number of sockets used in /proc/net/sockstat is out
-> > of place in a file that is supposed to contain information related to
-> > ipv4 sockets.  Removed output for total socket usage.
-> >
->
-> Um, you can't do that, it will break userspace.
->
-> Lee
->
->
+Is your USB controller an OHCI? If so, try reverting this patch:
+<URL:http://marc.theaimsgroup.com/?l=linux-usb-devel&m=110313153001002&w=2>
+
+Apparently some mfrs' OHCI controllers need this patch to function sanely,
+but mine (in a Libretto L5) won't suspend after this change, and works
+great without it.
+
+HTH,
+-
+-Ben
+
+
+-- 
+Ben Slusky                      | The only "intuitive" inter-
+sluskyb@paranoiacs.org          | face is the nipple. After
+sluskyb@stwing.org              | that, it's all learned.
+PGP keyID ADA44B3B              |               -Bruce Ediger

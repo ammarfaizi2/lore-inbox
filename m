@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWAPLv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWAPL4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWAPLv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 06:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWAPLv0
+	id S1750707AbWAPL4M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 06:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWAPL4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 06:51:26 -0500
-Received: from picard.linux.it ([213.254.12.146]:11731 "EHLO picard.linux.it")
-	by vger.kernel.org with ESMTP id S1751019AbWAPLv0 (ORCPT
+	Mon, 16 Jan 2006 06:56:12 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:18731 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750707AbWAPL4L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 06:51:26 -0500
-Message-ID: <14017.83.103.117.254.1137412285.squirrel@picard.linux.it>
-In-Reply-To: <43CB6796.4040104@namesys.com>
-References: <20060110235554.GA3527@inferi.kami.home>
-    <20060110170037.4a614245.akpm@osdl.org>
-    <20060115221458.GA3521@inferi.kami.home>
-    <20060116094817.A8425113@wobbly.melbourne.sgi.com>
-    <43CB6796.4040104@namesys.com>
-Date: Mon, 16 Jan 2006 12:51:25 +0100 (CET)
-Subject: Re: 2.6.15-mm3 bisection: git-xfs.patch makes reiserfs oops
-From: "Mattia Dongili" <malattia@linux.it>
-To: "Hans Reiser" <reiser@namesys.com>
-Cc: "Nathan Scott" <nathans@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       linux-xfs@oss.sgi.com, "Jeff Mahoney" <jeffm@suse.com>,
-       "Mattia Dongili" <malattia@linux.it>
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 16 Jan 2006 06:56:11 -0500
+Date: Mon, 16 Jan 2006 12:56:07 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: ide <linux-ide@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
+Message-ID: <20060116115607.GA18307@harddisk-recovery.nl>
+References: <20060113224252.38d8890f.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113224252.38d8890f.rdunlap@xenotime.net>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
->  Nathan Scott wrote:
->>On Sun, Jan 15, 2006 at 11:14:58PM +0100, Mattia Dongili wrote:
-[...]
->>>you're right: git-xfs.patch is the bad guy.
->>>
->>>Unfortunately netconsole isn't helpful in capturing the oops (no serial
->>>ports here) but I have two more shots (more readable):
->>>http://oioio.altervista.org/linux/dsc03148.jpg
->>>http://oioio.altervista.org/linux/dsc03149.jpg
->>>
->>>
->>
->>Hmm, thats odd.  It seems to be coming from:
->>reiserfs_commit_page -> reiserfs_add_ordered_list -> __add_jh(inline)
->>
->>I guess XFS may have left a buffer_head in an unusual state (with some
->>private flag/b_private set), somehow, and perhaps that buffer_head has
->>later been allocated for a page in a reiserfs write.  Does this patch,
->>below, help at all?
+On Fri, Jan 13, 2006 at 10:42:52PM -0800, Randy.Dunlap wrote:
+> --- linux-2615-g9.orig/drivers/scsi/Kconfig
+> +++ linux-2615-g9/drivers/scsi/Kconfig
+> @@ -599,6 +599,11 @@ config SCSI_SATA_INTEL_COMBINED
+>  	depends on IDE=y && !BLK_DEV_IDE_SATA && (SCSI_SATA_AHCI || SCSI_ATA_PIIX)
+>  	default y
+>  
+> +config SCSI_SATA_ACPI
+> +	bool
+> +	depends on SCSI_SATA && ACPI
+> +	default y
+> +
 
-Yes, it does help, good catch! I'm currently running -mm4, which presented
-the same behaviour, with your one liner and I can't reproduce the oops 
-anymore (fortunately for my root FS!).
+Could you add some help text over here? At first glance I got the
+impression this was a host driver that works through ACPI calls, but by
+reading the rest of your patches it turns out it is a suspend/resume
+helper.
 
-thanks
+For quite some time we had no help text with the mysterious
+"ACPI0004,PNP0A05 and PNP0A06 Container Driver", no need to add another
+mysterious ACPI feature.
+
+
+Erik
+
 -- 
-mattia
-:wq!
-
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+| Data lost? Stay calm and contact Harddisk-recovery.com

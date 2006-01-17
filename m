@@ -1,168 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWAQTrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWAQTxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWAQTrE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWAQTrE
+	id S932424AbWAQTxA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWAQTxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:47:04 -0500
-Received: from gold.veritas.com ([143.127.12.110]:44335 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932152AbWAQTrD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:47:03 -0500
-Date: Tue, 17 Jan 2006 19:01:09 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Christoph Lameter <clameter@engr.sgi.com>
-cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: Race in new page migration code?
-In-Reply-To: <Pine.LNX.4.62.0601170926440.24552@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.61.0601171805430.8030@goblin.wat.veritas.com>
-References: <20060114155517.GA30543@wotan.suse.de>
- <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
- <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
- <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
- <Pine.LNX.4.62.0601152251080.17034@schroedinger.engr.sgi.com>
- <Pine.LNX.4.61.0601161143190.7123@goblin.wat.veritas.com>
- <Pine.LNX.4.62.0601170926440.24552@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Jan 2006 19:47:02.0101 (UTC) FILETIME=[C9336850:01C61B9E]
+	Tue, 17 Jan 2006 14:53:00 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:32727 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S932424AbWAQTw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 14:52:59 -0500
+Date: Tue, 17 Jan 2006 11:52:37 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       dipankar@in.ibm.com
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threadedprocess at getrusage()
+Message-ID: <20060117195237.GA5289@localhost.localdomain>
+References: <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <43C0FC4B.567D18DC@tv-sign.ru> <20060108195848.GA4124@localhost.localdomain> <43C2B1B7.635DDF0B@tv-sign.ru> <20060109205442.GB3691@localhost.localdomain> <43C40507.D1A85679@tv-sign.ru> <20060116205618.GA5313@localhost.localdomain> <43CD4C86.5B0BA4D0@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CD4C86.5B0BA4D0@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jan 2006, Christoph Lameter wrote:
-> On Mon, 16 Jan 2006, Hugh Dickins wrote:
+On Tue, Jan 17, 2006 at 10:59:02PM +0300, Oleg Nesterov wrote:
+> Ravikiran G Thirumalai wrote:
+> > 
+> > Sorry for the delay..
+> > 
+> > On Tue, Jan 10, 2006 at 10:03:35PM +0300, Oleg Nesterov wrote:
+> > >
+> > > Sorry, I can't undestand. Could you please be more verbose ?
+> > 
+> > Last thread (RUSAGE_SELF)               Exiting thread
+> >
+> > [ ... ]
+> >
+> >         utime = cputime_add(utime, p->signal->utime); /* use cached load above */
+> >         stime = cputime_add(stime, p->signal->stime); /* load from memory */
 > 
-> > Hmm, that battery of unusual tests at the start of migrate_page_add
-> > is odd: the tests don't quite match the comment, and it isn't clear
-> > what reasoning lies behind the comment anyway.
+> Thanks for your explanation, now I see what you mean.
 > 
-> Here is patch to clarify the test. I'd be glad if someone could make
-> the tests more accurate. This ultimately comes down to a concept of
-> ownership of page by a process / mm_struct that we have to approximate.
+> But don't we already discussed this issue? I think that RUSAGE_SELF
+> case always not 100% accurate, so it is Ok to ignore this race.
 
-Endless scope for argument here!  But I'm relieved to see there's
-an MPOL_MF_MOVE_ALL subject to a capability check, so this is just
-dealing with what a ordinary uncapable process might be allowed to
-do to itself.
+It is not 100% accurate as in we lose time accounting for one clock tick
+for the task_struct->utime, stime counters.  But
+task_struct->signal->utime,stime collect rusage times of an exiting thread,
+so we would be introducing large inaccuracies if we don't use rmb here.
+Take the case when an exiting thread has a large utime stime value, and
+rusage reports utime before thread exit and stime after thread exit... the
+result would look wierd.
+So IMHO, while inaccuracies in task_struct->xxx time can be tolerated, it
+might not be such a good idea to for task_struct->signal->xxx counters.
 
-> Explain the complicated check in migrate_page_add by putting the logic
-> into a separate function migration_check. This way any enhancements can
-> be easily added.
-
-Yes, that's helpful to separate it out.  I'd prefer a more specific name
-than migration_check, but that name may depend on what it ends up doing.
-
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
-> Index: linux-2.6.15/mm/mempolicy.c
-> ===================================================================
-> --- linux-2.6.15.orig/mm/mempolicy.c	2006-01-14 10:56:28.000000000 -0800
-> +++ linux-2.6.15/mm/mempolicy.c	2006-01-17 09:24:20.000000000 -0800
-> @@ -551,6 +551,37 @@ out:
->  	return rc;
->  }
->  
-> +static inline int migration_check(struct mm_struct *mm, struct page *page)
-> +{
-> +	/*
-> +	 * If the page has no mapping then we do not track reverse mappings.
-> +	 * Thus the page is not mapped by other mms, so its safe to move.
-> +	 */
-> +	if (page->mapping)
-> +		return 1;
-
-Please cut out this test.  You probably meant to say "!page->mapping",
-but those are weird cases best left alone (though rarely would they
-have PageLRU set, so they'll probably be skipped later anyway).  Almost
-every page you'll meet in an mm has page->mapping set, doesn't it?
-Either a file page in the page cache, or an anonymous page pointing to
-its anon_vma.  You've already skipped the ZERO_PAGEs and anything else
-with PageReserved set, and any VM_RESERVED area (covering some driver
-areas).  Just cut out this test completely, it's wrong as is,
-and doesn't add anything useful when inverted.
-
-> +
-> +	/*
-> +	 * We cannot determine "ownership" of anonymous pages.
-> +	 * However, this is the primary set of pages a user would like
-> +	 * to move. So move the page regardless of sharing.
-> +	 */
-> +	if (PageAnon(page))
-> +		return 1;
-
-I think that's reasonable.  The page may be "shared" with some other
-processes in our fork-group (anon_vma), but we probably needn't get
-worked up about that.  Though you could choose to make it stricter by
-
-	if (PageAnon(page))
-		return page_mapcount(page) == 1;
-
-> +
-> +	/*
-> +	 * If the mapping is writable then its reasonable to assume that
-> +	 * it is okay to move the page.
-> +	 */
-> +	if (mapping_writably_mapped(page->mapping))
-> +		return 1;
-
-I can't see why the fact that some other process has mapped some part
-of this file for writing should have any bearing on whether we can
-migrate this page.  I can see an argument (I'm unsure whether I agree
-with it) that if we can have write access to this file page, then we
-should be allowed to migrate it.  A test for that (given a vma arg)
-would be
-
-	if (vma->vm_flags & VM_SHARED)
-		return 1;
-> +
-> +	/*
-> +	 * Its a read only file backed mapping. Only migrate the page
-> +	 * if we are the only process mapping that file.
-> +	 */
-> +	return single_mm_mapping(mm, page->mapping);
-
-So what if someone else is mapping some other part of the file?
-I just don't think it merits the complexity of single_mm_mapping's
-prio_tree check.   I say delete single_mm_mapping and here just
-
-	return page_mapcount(page) == 1;
-
-Of course, page_mapcount may go up an instant later; but equally,
-another vma may get added to the prio_tree an instant later.
-
-It may be that, after much argument to and fro, the whole function will
-just reduce to checking "page_mapcount(page) == 1": if so, then I think
-you can go back to inlining it literally.
-
-Hugh
-
-> +}
-> +
->  /*
->   * Add a page to be migrated to the pagelist
->   */
-> @@ -558,11 +589,17 @@ static void migrate_page_add(struct vm_a
->  	struct page *page, struct list_head *pagelist, unsigned long flags)
->  {
->  	/*
-> -	 * Avoid migrating a page that is shared by others and not writable.
-> +	 * MPOL_MF_MOVE_ALL migrates all pages. However, migrating all
-> +	 * pages may also move commonly shared pages (like for example glibc
-> +	 * pages referenced by all processes). If these are included in
-> +	 * migration then these pages may be uselessly moved back and
-> +	 * forth. Migration may also affect the performance of other
-> +	 * processes.
-> +	 *
-> +	 * If MPOL_MF_MOVE_ALL is not set then we try to avoid migrating
-> +	 * these shared pages.
->  	 */
-> -	if ((flags & MPOL_MF_MOVE_ALL) || !page->mapping || PageAnon(page) ||
-> -	    mapping_writably_mapped(page->mapping) ||
-> -	    single_mm_mapping(vma->vm_mm, page->mapping))
-> +	if ((flags & MPOL_MF_MOVE_ALL) || migration_check(vma->vm_mm, page))
->  		if (isolate_lru_page(page) == 1)
->  			list_add(&page->lru, pagelist);
->  }
+Thanks,
+Kiran

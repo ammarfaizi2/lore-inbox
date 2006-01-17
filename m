@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWAQNib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWAQNkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbWAQNib (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 08:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWAQNib
+	id S932478AbWAQNkT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 08:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWAQNkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 08:38:31 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:23211 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932480AbWAQNia (ORCPT
+	Tue, 17 Jan 2006 08:40:19 -0500
+Received: from ozlabs.org ([203.10.76.45]:24228 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932478AbWAQNkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 08:38:30 -0500
-Message-ID: <43CCF351.2050004@pobox.com>
-Date: Tue, 17 Jan 2006 08:38:25 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 17 Jan 2006 08:40:17 -0500
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Dave C Boutcher <sleddog@us.ibm.com>
+Subject: Re: 2.6.15-mm4 failure on power5
+Date: Wed, 18 Jan 2006 00:32:43 +1100
+User-Agent: KMail/1.8.3
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev@ozlabs.org, paulus@au1.ibm.com, anton@au1.ibm.com,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <20060116063530.GB23399@sergelap.austin.ibm.com> <20060116153748.GA25866@sergelap.austin.ibm.com> <20060116215252.GA10538@cs.umn.edu>
+In-Reply-To: <20060116215252.GA10538@cs.umn.edu>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/arcnet/: possible cleanups
-References: <20060114021022.GE29663@stusta.de>
-In-Reply-To: <20060114021022.GE29663@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart3187557.rjtkziG21e";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Adrian Bunk wrote: > This patch contains the following
-	possible cleanups: > - make needlessly global code static > - arcnet.c:
-	remove the unneeded EXPORT_SYMBOL(arc_proto_null) > - arcnet.c: remove
-	the unneeded EXPORT_SYMBOL(arcnet_dump_packet) > > To make Jeff happy,
-	arcnet.c still prints > arcnet: v3.93 BETA 2000/04/29 - by Avery
-	Pennarun et al. > > > Signed-off-by: Adrian Bunk <bunk@stusta.de> [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Message-Id: <200601180032.46867.michael@ellerman.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - arcnet.c: remove the unneeded EXPORT_SYMBOL(arc_proto_null)
-> - arcnet.c: remove the unneeded EXPORT_SYMBOL(arcnet_dump_packet)
-> 
-> To make Jeff happy, arcnet.c still prints
->   arcnet: v3.93 BETA 2000/04/29 - by Avery Pennarun et al.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+--nextPart3187557.rjtkziG21e
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-applied
+On Tue, 17 Jan 2006 08:52, Dave C Boutcher wrote:
+> 2.6.15-mm4 won't boot on my power5 either.  I tracked it down to the
+> following mutex patch from Ingo: kernel-kernel-cpuc-to-mutexes.patch
+>
+> If I revert just that patch, mm4 boots fine.  Its really not obvious to
+> me at all why that patch is breaking things though...
 
+My POWER5 (gr) LPAR seems to boot ok (3 times so far) with that patch, gues=
+s=20
+it's something subtle. That's with CONFIG_DEBUG_MUTEXES=3Dy. And it's just=
+=20
+booted once with CONFIG_DEBUG_MUTEXES=3Dn.
 
+And now it's booted the full mm4 patch set without blinking.
+
+cheers
+
+=2D-=20
+Michael Ellerman
+IBM OzLabs
+
+email: michael:ellerman.id.au
+inmsg: mpe:jabber.org
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
+
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--nextPart3187557.rjtkziG21e
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDzPH+dSjSd0sB4dIRApilAJ9yEZUN2DyWlAzQOujduK5GjvNWnwCgvcbC
+nkvKqN1MHVXOS8DeJaMmAgQ=
+=qy8v
+-----END PGP SIGNATURE-----
+
+--nextPart3187557.rjtkziG21e--

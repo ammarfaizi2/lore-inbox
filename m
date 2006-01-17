@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWAQRLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWAQROE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWAQRLF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:11:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWAQRLF
+	id S932199AbWAQROE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWAQROD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:11:05 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:45445 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932197AbWAQRLE (ORCPT
+	Tue, 17 Jan 2006 12:14:03 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:51333 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932199AbWAQROC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:11:04 -0500
-Date: Tue, 17 Jan 2006 18:10:54 +0100 (MET)
+	Tue, 17 Jan 2006 12:14:02 -0500
+Date: Tue, 17 Jan 2006 18:12:20 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-cc: Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
-       apiszcz@lucidpixels.com
-Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
-In-Reply-To: <Pine.LNX.4.64.0601170450020.2377@p34>
-Message-ID: <Pine.LNX.4.61.0601171810320.18569@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0601161957300.16829@p34> <20060117012319.GA22161@linuxace.com>
- <Pine.LNX.4.64.0601170450020.2377@p34>
+To: Dave Jones <davej@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, mita@miraclelinux.com,
+       Keith Owens <kaos@ocs.com.au>
+Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces
+In-Reply-To: <20060117075841.GA5710@redhat.com>
+Message-ID: <Pine.LNX.4.61.0601171811530.18569@yvahk01.tjqt.qr>
+References: <200601170126_MC3-1-B602-EFCB@compuserve.com>
+ <20060116224234.5a7ca488.akpm@osdl.org> <20060117075841.GA5710@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Presumably this is going to bust ksymoops.
+> 
+>Do people actually still use ksymoops for 2.6 kernels ?
 
-> NFS is still twice as slow as FTP, but best with a r/w size of 8192.
+I think it was said often enough that people _should not_ use it for 2.6. 
+Unfortunately, there are still some who do.
 
-Screams for a kftpd ;)
 
 
 Jan Engelhardt
 -- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/

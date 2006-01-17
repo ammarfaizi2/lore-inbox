@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWAQViQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWAQVk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWAQViQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 16:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWAQViQ
+	id S1751331AbWAQVk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 16:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWAQVk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 16:38:16 -0500
-Received: from ind-iport-1.cisco.com ([64.104.129.195]:50954 "EHLO
-	ind-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751265AbWAQViP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 16:38:15 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 17 Jan 2006 16:40:28 -0500
+Received: from fed1rmmtao08.cox.net ([68.230.241.31]:42132 "EHLO
+	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S1751271AbWAQVk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 16:40:27 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: pata_oldpiix rev 0.2
+References: <1136387989.4121.4.camel@localhost.localdomain>
+	<43CCEF25.2090902@pobox.com>
+Date: Tue, 17 Jan 2006 13:40:24 -0800
+In-Reply-To: <43CCEF25.2090902@pobox.com> (Jeff Garzik's message of "Tue, 17
+	Jan 2006 08:20:37 -0500")
+Message-ID: <7vpsmq7ctz.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 000 of 5] md: Introduction
-Date: Wed, 18 Jan 2006 05:38:12 +0800
-Message-ID: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 000 of 5] md: Introduction
-Thread-Index: AcYbPoFG1hT232E5T7+cn3cansTrMwAb1Yqg
-From: "Lincoln Dale \(ltd\)" <ltd@cisco.com>
-To: "Michael Tokarev" <mjt@tls.msk.ru>, "NeilBrown" <neilb@suse.de>
-Cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-X-OriginalArrivalTime: 17 Jan 2006 21:38:03.0858 (UTC) FILETIME=[4BEADB20:01C61BAE]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Neil, is this online resizing/reshaping really needed?  I understand
-> all those words means alot for marketing persons - zero downtime,
-> online resizing etc, but it is much safer and easier to do that stuff
-> 'offline', on an inactive array, like raidreconf does - safer, easier,
-> faster, and one have more possibilities for more complex changes.  It
-> isn't like you want to add/remove drives to/from your arrays every
-day...
-> Alot of good hw raid cards are unable to perform such reshaping too.
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-RAID resize/restripe may not be so common with cheap / PC-based RAID
-systems, but it is common with midrange and enterprise storage
-subsystems from vendors such as EMC, HDS, IBM & HP.
-in fact, I'd say it's the exception to the rule _if_ an
-midrange/enterprise storage subsystem doesn't have an _online_ resize
-capability..
+> Alan Cox wrote:
+>> static void oldpiix_pata_phy_reset(struct ata_port *ap)
+>...
+>> static void oldpiix_set_piomode (struct ata_port *ap, struct
+>>...
+>> 	unsigned int pio	= adev->pio_mode - XFER_PIO_0;
+>> 	struct pci_dev *dev	= to_pci_dev(ap->host_set->dev);
+>> 	unsigned int idetm_port= ap->hard_port_no ? 0x42 : 0x40;
+>
+> space after '='?
 
-personally, I think this this useful functionality, but my personal
-preference is that this would be in DM/LVM2 rather than MD.  but given
-Neil is the MD author/maintainer, I can see why he'd prefer to do it in
-MD. :)
+I think you meant space before '='.
 
+Did you have to quote the entire patch?  It was quite annoying
+to read.
 
-cheers,
+Ideally, "this applies on top of your patch, to address these
+issues", would be the easiest to read, but that would require
+you to actually apply Alan's patch on your tree, do your
+modifications and produce another patch (IOW, it would be more
+work on your part).  Just to provide quick comments, if you
+trimmed the patch you quoted from Alan's when commenting,
+leaving enough material for Alan and others to identify the
+pieces you are commenting on, it would have been a lot easier to
+read (it would be more work for the contributor, but it is his
+patch after all).
 
-lincoln.

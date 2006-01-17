@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWAQT1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWAQTgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbWAQT1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWAQT1L
+	id S932224AbWAQTgR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWAQTgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:27:11 -0500
-Received: from host-87-74-62-169.bulldogdsl.com ([87.74.62.169]:47429 "EHLO
-	host-87-74-62-169.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751265AbWAQT1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:27:10 -0500
-Message-ID: <43CD4504.8020705@unsolicited.net>
-Date: Tue, 17 Jan 2006 19:27:00 +0000
-From: David R <david@unsolicited.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD838971DC5B3B9A4E3F3AEA9"
+	Tue, 17 Jan 2006 14:36:17 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:50831 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932224AbWAQTgQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 14:36:16 -0500
+Date: Tue, 17 Jan 2006 20:36:04 +0100
+From: Olaf Hering <olh@suse.de>
+To: Kumar Gala <galak@gate.crashing.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Kumar Gala <galak@kernel.crashing.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [patch 6/6] serial8250: convert to the new platform device interface
+Message-ID: <20060117193604.GA25724@suse.de>
+References: <20060116233143.GB23097@flint.arm.linux.org.uk> <Pine.LNX.4.44.0601161752560.6677-100000@gate.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0601161752560.6677-100000@gate.crashing.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD838971DC5B3B9A4E3F3AEA9
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+ On Mon, Jan 16, Kumar Gala wrote:
 
-Linus Torvalds wrote:
-> Ok, it's two weeks since 2.6.15, and the merge window is closed.
+> > Mea Culpa - should've spotted that - that patch is actually rather
+> > broken.  platform_driver_register() can't be moved from where it
+> > initially was.
+> 
+> This seems to fix my issue on arch/powerpc and arch/ppc, please push to 
+> Linus ASAP.
 
-Everything seems fine with rc1 on my VIA Based Athlon 64 (64 bit kernel, SuSE
-10 base) apart from my USB2 scanner. It's detected just fine (as normal), but
-the (32bit) copy of VueScan that I use crawls along during preview like a
-constipated tortoise. This is markedly similar to when 2.6.15 is under heavy
-CPU load... high speed USB transfers slow to a crawl then too but everything
-is fine at other times.
+This fixes also my pseries, p270. Too bad, the 8250 depends on
+CONFIG_ISA now which is not selectable for CONFIG_PPC_PSERIES. 
+Is this patch the way to go for ppc64?
 
-dmesg etc looks ok. I'd appreciate it if anyone has any thoughts?
+Index: linux-2.6.15/arch/powerpc/Kconfig
+===================================================================
+--- linux-2.6.15.orig/arch/powerpc/Kconfig
++++ linux-2.6.15/arch/powerpc/Kconfig
+@@ -712,7 +712,7 @@ menu "Bus options"
 
-Cheers
-David
+ config ISA
+        bool "Support for ISA-bus hardware"
+-       depends on PPC_PREP || PPC_CHRP
++       depends on PPC_PREP || PPC_CHRP || PPC_PSERIES
+        select PPC_I8259
+        help
+          Find out whether you have ISA slots on your motherboard.  ISA is the
 
 
---------------enigD838971DC5B3B9A4E3F3AEA9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDzUUKDYHcaCYtZo4RAp/AAJ9kohlzwpB7/E2n2es0uHvVSKU5WQCg0j37
-d7H2iASEhybOkoAQt8JpOf4=
-=0fJb
------END PGP SIGNATURE-----
-
---------------enigD838971DC5B3B9A4E3F3AEA9--
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

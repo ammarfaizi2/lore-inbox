@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWAQVl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWAQVzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWAQVl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 16:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWAQVl6
+	id S932438AbWAQVzA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 16:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWAQVzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 16:41:58 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:35341 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932438AbWAQVl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 16:41:57 -0500
-Date: Tue, 17 Jan 2006 22:41:49 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Cc: James Courtier-Dutton <James@superbug.demon.co.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: X killed
-Message-ID: <20060117214149.GA30467@w.ods.org>
-References: <43CA883B.2020504@superbug.demon.co.uk> <20060115192711.GO7142@w.ods.org> <43CCE5C8.7030605@superbug.demon.co.uk> <Pine.LNX.4.61.0601172111070.11929@yvahk01.tjqt.qr> <43CD599B.8050002@superbug.demon.co.uk> <728201270601171332v6c95df17u167d15212dde66c4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <728201270601171332v6c95df17u167d15212dde66c4@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+	Tue, 17 Jan 2006 16:55:00 -0500
+Received: from customer-domains.icp-qv1-irony7.iinet.net.au ([203.59.1.128]:22299
+	"EHLO customer-domains.icp-qv1-irony7.iinet.net.au")
+	by vger.kernel.org with ESMTP id S932438AbWAQVy7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 16:54:59 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+Message-ID: <43CD67AE.9030501@eyal.emu.id.au>
+Date: Wed, 18 Jan 2006 08:54:54 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16-rc1
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 03:32:11PM -0600, Ram Gupta wrote:
-> On 1/17/06, James Courtier-Dutton <James@superbug.demon.co.uk> wrote:
-> > Jan Engelhardt wrote:
-> > >>My point is that there is no way to tell what kills me. No messages in
-> > >>syslog...nothing. Surely the OOM killer would send a message to ksyslog, or at
-> > >>least dmesg?
-> 
-> You may try using strace . It may throw some light on the cause of the problem.
+Linus Torvalds wrote:
+> Ok, it's two weeks since 2.6.15, and the merge window is closed.
 
-I would particularly suggest using 'strace -tt' both on X and on the
-python process. It will make it easier to analyse the causes later. You
-might even encounter a bug in the python application causing an explicit
-kill of a miscalculated pid (although unlikely, but who knows ?).
+I am looking at a problem where the build seems to remove /dev/null,
+which is then created as a regular file (naturally). This did not
+happen before.
 
-> Regards
-> Ram gupta
+# ls -l /dev/null
+crw-rw-rw-  1 root root 1, 3 Jan 18 08:42 /dev/null
+# make distclean
+  CLEAN   scripts/basic
+  CLEAN   scripts/kconfig
+  CLEAN   include/config
+  CLEAN   .config .config.old include/asm include/linux/autoconf.h include/linux/version.h .kernelrelease
+# ls -l /dev/null
+-rwxr-xr-x  1 root root 47 Jan 18 08:42 /dev/null
 
-Regards,
-Willy
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+	attach .zip as .dat

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWAQD2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWAQDkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbWAQD2D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 22:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWAQD2D
+	id S1751255AbWAQDkw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 22:40:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWAQDkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 22:28:03 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:507 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751330AbWAQD2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 22:28:01 -0500
-Message-ID: <43CC643E.3000507@namesys.com>
-Date: Mon, 16 Jan 2006 19:27:58 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+	Mon, 16 Jan 2006 22:40:52 -0500
+Received: from sandeen.net ([209.173.210.139]:31095 "EHLO mail.sandeen.net")
+	by vger.kernel.org with ESMTP id S1751255AbWAQDkw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 22:40:52 -0500
+Message-ID: <43CC673B.8050808@sgi.com>
+Date: Mon, 16 Jan 2006 21:40:43 -0600
+From: Eric Sandeen <sandeen@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Macintosh/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Nathan Scott <nathans@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       linux-xfs@oss.sgi.com, Jeff Mahoney <jeffm@suse.com>,
-       Mattia Dongili <malattia@linux.it>
-Subject: Re: 2.6.15-mm3 bisection: git-xfs.patch makes reiserfs oops
-References: <20060110235554.GA3527@inferi.kami.home> <20060110170037.4a614245.akpm@osdl.org> <20060115221458.GA3521@inferi.kami.home> <20060116094817.A8425113@wobbly.melbourne.sgi.com> <43CB6796.4040104@namesys.com> <20060116114805.GB12069@infradead.org>
-In-Reply-To: <20060116114805.GB12069@infradead.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: xfs: Makefile-linux-2.6 => Makefile?
+References: <20060109164214.GA10367@mars.ravnborg.org> <20060109164611.GA1382@infradead.org> <43C2CFBD.8040901@sgi.com> <20060109234532.78bda36a.akpm@osdl.org> <43C3E222.7020203@sgi.com> <20060116231952.GA8752@mars.ravnborg.org>
+In-Reply-To: <20060116231952.GA8752@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+Sam Ravnborg wrote:
+>>Sam, is there any way to make this work with some code for the module in a 
+>>subdirectory?
+> 
+> 
+> Hi Eric.
+> I forgot to point out one ugly solution for this.
+> You can include a dummy Kbuild (Makefile) in each directory to support
+> this. I recall that reiser4 had similar question and this was the
+> solution I pointed out for them too.
+> No - I am not in favour of it. But for local development it could make
+> sense.
+> So it may solve the "Eric" part of it, but not the "Andrew" part of it
+> since these file will never get in the mainstream kernel (hopefully).
+> 
+> 	Sam
 
->On Mon, Jan 16, 2006 at 01:29:58AM -0800, Hans Reiser wrote:
->  
->
->>Thanks Nathan, Mattia, and Andrew.
->>
->>vs, can you or Jeff look at whether our buffer head inits are
->>sufficiently hardened by next Monday (I know that vs has a lot of mail
->>to catch up to)?  Jeff, if you have time before then, it would be nice
->>if you could handle it, I know hardening V3 is an interest of yours.
->>    
->>
->
->Chris Mason just sent a patch to -fsdevel that initialized bh->b_private
->in reiserfs.  Mattia, I'll bounce you the patch privately, could you try
->to see if it helps?
->
->
->
->  
->
-I remember wondering if that fixed it, but was too lazy to go back and
-look at whether it was exactly equivalent.;-)
+Thanks, Sam - I'd considered that, too.  We may do it locally.
 
-Hans
+-Eric

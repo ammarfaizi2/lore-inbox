@@ -1,131 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWAQOu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWAQOub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbWAQOu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWAQOuq
+	id S1751156AbWAQOub (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWAQOub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:50:46 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:18571 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750979AbWAQOua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:50:31 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:27337 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750864AbWAQOua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Jan 2006 09:50:30 -0500
-Message-Id: <20060117143325.218054000@sergelap>
+Message-Id: <20060117143325.734450000@sergelap>
 References: <20060117143258.150807000@sergelap>
-Date: Tue, 17 Jan 2006 08:33:05 -0600
+Date: Tue, 17 Jan 2006 08:33:08 -0600
 From: Serge Hallyn <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
        Serge E Hallyn <serue@us.ibm.com>
-Subject: RFC [patch 07/34] PID Virtualization Change pid accesses: lib/
-Content-Disposition: inline; filename=B6-change-pid-tgid-references-lib
+Subject: RFC [patch 10/34] PID Virtualization Change pid accesses: security/
+Content-Disposition: inline; filename=B9-change-pid-tgid-references-security
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change pid accesses under lib/.
+Change pid accesses for security modules.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 ---
- rwsem-spinlock.c   |    2 +-
- rwsem.c            |    2 +-
- smp_processor_id.c |    2 +-
- spinlock_debug.c   |   12 ++++++------
- 4 files changed, 9 insertions(+), 9 deletions(-)
+ commoncap.c             |    2 +-
+ keys/process_keys.c     |    6 +++---
+ keys/request_key_auth.c |    2 +-
+ seclvl.c                |   16 ++++++++--------
+ selinux/avc.c           |    4 ++--
+ 5 files changed, 15 insertions(+), 15 deletions(-)
 
-Index: linux-2.6.15/lib/rwsem-spinlock.c
+Index: linux-2.6.15/security/commoncap.c
 ===================================================================
---- linux-2.6.15.orig/lib/rwsem-spinlock.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/lib/rwsem-spinlock.c	2006-01-17 08:37:00.000000000 -0500
-@@ -22,7 +22,7 @@
+--- linux-2.6.15.orig/security/commoncap.c	2006-01-17 08:36:28.000000000 -0500
++++ linux-2.6.15/security/commoncap.c	2006-01-17 08:37:01.000000000 -0500
+@@ -169,7 +169,7 @@
+ 	/* For init, we want to retain the capabilities set
+ 	 * in the init_task struct. Thus we skip the usual
+ 	 * capability rules */
+-	if (current->pid != 1) {
++	if (task_pid(current) != 1) {
+ 		current->cap_permitted = new_permitted;
+ 		current->cap_effective =
+ 		    cap_intersect (new_permitted, bprm->cap_effective);
+Index: linux-2.6.15/security/keys/process_keys.c
+===================================================================
+--- linux-2.6.15.orig/security/keys/process_keys.c	2006-01-17 08:36:28.000000000 -0500
++++ linux-2.6.15/security/keys/process_keys.c	2006-01-17 08:37:01.000000000 -0500
+@@ -140,7 +140,7 @@
+ 	char buf[20];
+ 	int ret;
+ 
+-	sprintf(buf, "_tid.%u", tsk->pid);
++	sprintf(buf, "_tid.%u", task_pid(tsk));
+ 
+ 	keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
+ 	if (IS_ERR(keyring)) {
+@@ -173,7 +173,7 @@
+ 	int ret;
+ 
+ 	if (!tsk->signal->process_keyring) {
+-		sprintf(buf, "_pid.%u", tsk->tgid);
++		sprintf(buf, "_pid.%u", task_tgid(tsk));
+ 
+ 		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
+ 		if (IS_ERR(keyring)) {
+@@ -213,7 +213,7 @@
+ 
+ 	/* create an empty session keyring */
+ 	if (!keyring) {
+-		sprintf(buf, "_ses.%u", tsk->tgid);
++		sprintf(buf, "_ses.%u", task_tgid(tsk));
+ 
+ 		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
+ 		if (IS_ERR(keyring)) {
+Index: linux-2.6.15/security/keys/request_key_auth.c
+===================================================================
+--- linux-2.6.15.orig/security/keys/request_key_auth.c	2006-01-17 08:36:28.000000000 -0500
++++ linux-2.6.15/security/keys/request_key_auth.c	2006-01-17 08:37:01.000000000 -0500
+@@ -60,7 +60,7 @@
+ 		else {
+ 			/* it isn't - use this process as the context */
+ 			rka->context = current;
+-			rka->pid = current->pid;
++			rka->pid = task_pid(current);
+ 		}
+ 
+ 		rka->target_key = key_get((struct key *) data);
+Index: linux-2.6.15/security/seclvl.c
+===================================================================
+--- linux-2.6.15.orig/security/seclvl.c	2006-01-17 08:36:28.000000000 -0500
++++ linux-2.6.15/security/seclvl.c	2006-01-17 08:37:01.000000000 -0500
+@@ -296,7 +296,7 @@
+ static int seclvl_ptrace(struct task_struct *parent, struct task_struct *child)
  {
- 	if (sem->debug)
- 		printk("[%d] %s({%d,%d})\n",
--		       current->pid, str, sem->activity,
-+		       task_pid(current), str, sem->activity,
- 		       list_empty(&sem->wait_list) ? 0 : 1);
- }
- #endif
-Index: linux-2.6.15/lib/rwsem.c
-===================================================================
---- linux-2.6.15.orig/lib/rwsem.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/lib/rwsem.c	2006-01-17 08:37:00.000000000 -0500
-@@ -23,7 +23,7 @@
- 	printk("sem=%p\n", sem);
- 	printk("(sem)=%08lx\n", sem->count);
- 	if (sem->debug)
--		printk("[%d] %s({%08lx})\n", current->pid, str, sem->count);
-+		printk("[%d] %s({%08lx})\n", task_pid(current), str, sem->count);
- }
- #endif
+ 	if (seclvl >= 0) {
+-		if (child->pid == 1) {
++		if (task_pid(child) == 1) {
+ 			seclvl_printk(1, KERN_WARNING, "Attempt to ptrace "
+ 				      "the init process dissallowed in "
+ 				      "secure level %d\n", seclvl);
+@@ -313,7 +313,7 @@
+ static int seclvl_capable(struct task_struct *tsk, int cap)
+ {
+ 	/* init can do anything it wants */
+-	if (tsk->pid == 1)
++	if (task_pid(tsk) == 1)
+ 		return 0;
  
-Index: linux-2.6.15/lib/smp_processor_id.c
+ 	switch (seclvl) {
+@@ -375,10 +375,10 @@
+ 		    (tv->tv_sec == now.tv_sec && tv->tv_nsec < now.tv_nsec)) {
+ 			seclvl_printk(1, KERN_WARNING, "Attempt to decrement "
+ 				      "time in secure level %d denied: "
+-				      "current->pid = [%d], "
+-				      "current->group_leader->pid = [%d]\n",
+-				      seclvl, current->pid,
+-				      current->group_leader->pid);
++				      "current pid = [%d], "
++				      "current->group_leader pid = [%d]\n",
++				      seclvl, task_pid(current),
++				      task_pid(current->group_leader));
+ 			return -EPERM;
+ 		}		/* if attempt to decrement time */
+ 	}			/* if seclvl > 1 */
+@@ -424,7 +424,7 @@
+ static int
+ seclvl_inode_permission(struct inode *inode, int mask, struct nameidata *nd)
+ {
+-	if (current->pid != 1 && S_ISBLK(inode->i_mode) && (mask & MAY_WRITE)) {
++	if (task_pid(current) != 1 && S_ISBLK(inode->i_mode) && (mask & MAY_WRITE)) {
+ 		switch (seclvl) {
+ 		case 2:
+ 			seclvl_printk(1, KERN_WARNING, "Write to block device "
+@@ -479,7 +479,7 @@
+  */
+ static int seclvl_umount(struct vfsmount *mnt, int flags)
+ {
+-	if (current->pid == 1)
++	if (task_pid(current) == 1)
+ 		return 0;
+ 	if (seclvl == 2) {
+ 		seclvl_printk(1, KERN_WARNING, "Attempt to unmount in secure "
+Index: linux-2.6.15/security/selinux/avc.c
 ===================================================================
---- linux-2.6.15.orig/lib/smp_processor_id.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/lib/smp_processor_id.c	2006-01-17 08:37:00.000000000 -0500
-@@ -42,7 +42,7 @@
- 	if (!printk_ratelimit())
- 		goto out_enable;
- 
--	printk(KERN_ERR "BUG: using smp_processor_id() in preemptible [%08x] code: %s/%d\n", preempt_count(), current->comm, current->pid);
-+	printk(KERN_ERR "BUG: using smp_processor_id() in preemptible [%08x] code: %s/%d\n", preempt_count(), current->comm, task_pid(current));
- 	print_symbol("caller is %s\n", (long)__builtin_return_address(0));
- 	dump_stack();
- 
-Index: linux-2.6.15/lib/spinlock_debug.c
-===================================================================
---- linux-2.6.15.orig/lib/spinlock_debug.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/lib/spinlock_debug.c	2006-01-17 08:37:00.000000000 -0500
-@@ -21,11 +21,11 @@
- 			owner = lock->owner;
- 		printk("BUG: spinlock %s on CPU#%d, %s/%d\n",
- 			msg, raw_smp_processor_id(),
--			current->comm, current->pid);
-+			current->comm, task_pid(current));
- 		printk(" lock: %p, .magic: %08x, .owner: %s/%d, .owner_cpu: %d\n",
- 			lock, lock->magic,
- 			owner ? owner->comm : "<none>",
--			owner ? owner->pid : -1,
-+			owner ? task_pid(owner) : -1,
- 			lock->owner_cpu);
- 		dump_stack();
- #ifdef CONFIG_SMP
-@@ -80,7 +80,7 @@
- 			print_once = 0;
- 			printk("BUG: spinlock lockup on CPU#%d, %s/%d, %p\n",
- 				raw_smp_processor_id(), current->comm,
--				current->pid, lock);
-+				task_pid(current), lock);
- 			dump_stack();
- 		}
+--- linux-2.6.15.orig/security/selinux/avc.c	2006-01-17 08:36:28.000000000 -0500
++++ linux-2.6.15/security/selinux/avc.c	2006-01-17 08:37:01.000000000 -0500
+@@ -558,8 +558,8 @@
+ 	audit_log_format(ab, " for ");
+ 	if (a && a->tsk)
+ 		tsk = a->tsk;
+-	if (tsk && tsk->pid) {
+-		audit_log_format(ab, " pid=%d comm=", tsk->pid);
++	if (tsk && task_pid(tsk)) {
++		audit_log_format(ab, " pid=%d comm=", task_pid(tsk));
+ 		audit_log_untrustedstring(ab, tsk->comm);
  	}
-@@ -122,7 +122,7 @@
- 	if (xchg(&print_once, 0)) {
- 		printk("BUG: rwlock %s on CPU#%d, %s/%d, %p\n", msg,
- 			raw_smp_processor_id(), current->comm,
--			current->pid, lock);
-+			task_pid(current), lock);
- 		dump_stack();
- #ifdef CONFIG_SMP
- 		/*
-@@ -151,7 +151,7 @@
- 			print_once = 0;
- 			printk("BUG: read-lock lockup on CPU#%d, %s/%d, %p\n",
- 				raw_smp_processor_id(), current->comm,
--				current->pid, lock);
-+				task_pid(current), lock);
- 			dump_stack();
- 		}
- 	}
-@@ -223,7 +223,7 @@
- 			print_once = 0;
- 			printk("BUG: write-lock lockup on CPU#%d, %s/%d, %p\n",
- 				raw_smp_processor_id(), current->comm,
--				current->pid, lock);
-+				task_pid(current), lock);
- 			dump_stack();
- 		}
- 	}
+ 	if (a) {
 
 --
 
